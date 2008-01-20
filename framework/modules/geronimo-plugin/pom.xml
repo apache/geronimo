@@ -29,7 +29,7 @@
     </parent>
     
     <artifactId>geronimo-plugin</artifactId>
-    <name>geronimo-plugin</name>
+    <name>Geronimo Framework, Modules :: Plugin</name>
     
     <dependencies>
 

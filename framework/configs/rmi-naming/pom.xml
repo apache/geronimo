@@ -29,7 +29,7 @@
     </parent>
 
     <artifactId>rmi-naming</artifactId>
-    <name>Geronimo Configs :: RMI Naming</name>
+    <name>Geronimo Framework, Configs :: RMI Naming</name>
     <packaging>car</packaging>
 
     <description>Fundamental geronimo services including the plugin installer.</description>
@@ -98,7 +98,7 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.apache.geronimo.plugins</groupId>
+                <groupId>org.apache.geronimo.buildsupport</groupId>
                 <artifactId>car-maven-plugin</artifactId>
                 <configuration>
                     <deploymentConfigs>
@@ -124,7 +124,6 @@
                                     <attribute name="keepAliveTime">30000</attribute>
                                     <attribute name="minPoolSize">${MinThreadPoolSize}</attribute>
                                     <attribute name="maxPoolSize">${MaxThreadPoolSize}</attribute>
-
                                 </gbean>
                             </config-xml-content>
                             <config-substitution key="ServerHostname">localhost</config-substitution>

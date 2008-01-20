@@ -29,7 +29,7 @@
     </parent>
 
     <artifactId>geronimo-deploy-jsr88-bootstrapper</artifactId>
-    <name>Geronimo Modules :: Deploy :: JSR-88 Bootstrapper</name>
+    <name>Geronimo Framework, Modules :: Deploy :: JSR-88 Bootstrapper</name>
     
     <dependencies>
 

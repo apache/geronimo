@@ -29,7 +29,7 @@
     </parent>
 
     <artifactId>geronimo-upgrade</artifactId>
-    <name>Geronimo Modules :: Upgrade</name>
+    <name>Geronimo Framework, Modules :: Upgrade</name>
     
     <dependencies>
 

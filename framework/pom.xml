@@ -30,7 +30,7 @@
 
     <groupId>org.apache.geronimo.modules</groupId>
     <artifactId>framework</artifactId>
-    <name>Geronimo :: Framework</name>
+    <name>Geronimo Framework</name>
     <packaging>pom</packaging>
     
     <modules>

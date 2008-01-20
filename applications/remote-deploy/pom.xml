@@ -38,9 +38,9 @@
     </description>
 
     <modules>
-<module>geronimo-remote-deploy</module>
-<module>remote-deploy-jetty</module>
-<module>remote-deploy-tomcat</module>
+        <module>geronimo-remote-deploy</module>
+        <module>remote-deploy-jetty</module>
+        <module>remote-deploy-tomcat</module>
     </modules>
 
 </project>

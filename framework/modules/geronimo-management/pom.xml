@@ -29,7 +29,7 @@
     </parent>
 
     <artifactId>geronimo-management</artifactId>
-    <name>Geronimo Modules :: Management API</name>
+    <name>Geronimo Framework, Modules :: Management API</name>
     
     <description>
         Contains interfaces that define the management API for Geronimo.

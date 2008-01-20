@@ -30,7 +30,7 @@
     
     <groupId>org.apache.geronimo.configs</groupId>
     <artifactId>configs</artifactId>
-    <name>Geronimo Configs</name>
+    <name>Geronimo Framework, Configs</name>
     <packaging>pom</packaging>
     
     <properties>
@@ -97,7 +97,7 @@
 
         <extensions>
             <extension>
-                <groupId>org.apache.geronimo.plugins</groupId>
+                <groupId>org.apache.geronimo.buildsupport</groupId>
                 <artifactId>car-maven-plugin</artifactId>
                 <version>${version}</version>
             </extension>
@@ -106,7 +106,7 @@
 
         <plugins>
             <plugin>
-                <groupId>org.apache.geronimo.plugins</groupId>
+                <groupId>org.apache.geronimo.buildsupport</groupId>
                 <artifactId>car-maven-plugin</artifactId>
                 <!-- Install as extention to allow 'car' packaging to be used. -->
                 <extensions>true</extensions>

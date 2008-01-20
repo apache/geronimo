@@ -29,7 +29,7 @@
     </parent>
 
     <artifactId>geronimo-deploy-config</artifactId>
-    <name>Geronimo Modules :: Deploy :: Common Config</name>
+    <name>Geronimo Framework, Modules :: Deploy :: Common Config</name>
     
     <description>
         The deployment module contains basic infrastructure and base classes for 

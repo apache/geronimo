@@ -102,7 +102,7 @@
 
         <plugins>
             <plugin>
-                <groupId>org.apache.geronimo.plugins</groupId>
+                <groupId>org.apache.geronimo.buildsupport</groupId>
                 <artifactId>car-maven-plugin</artifactId>
                 <configuration>
                     <deploymentConfigs>

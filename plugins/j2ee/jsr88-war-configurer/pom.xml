@@ -54,25 +54,25 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.apache.geronimo.plugins</groupId>
+                <groupId>org.apache.geronimo.buildsupport</groupId>
                 <artifactId>car-maven-plugin</artifactId>
                 <configuration>
                     <useMavenDependencies>
                         <value>false</value>
                     </useMavenDependencies>
                     <dependencies>
-                      <dependency>
-                        <groupId>org.apache.geronimo.modules</groupId>
-                        <artifactId>geronimo-web-2.5-builder</artifactId>
-                        <type>jar</type>
-                        <import>classes</import>
-                      </dependency>
-                      <dependency>
-                        <groupId>org.apache.geronimo.configs</groupId>
-                        <artifactId>jsr88-cli</artifactId>
-                        <type>car</type>
-                        <import>classes</import>
-                      </dependency>
+                        <dependency>
+                            <groupId>org.apache.geronimo.modules</groupId>
+                            <artifactId>geronimo-web-2.5-builder</artifactId>
+                            <type>jar</type>
+                            <import>classes</import>
+                        </dependency>
+                        <dependency>
+                            <groupId>org.apache.geronimo.configs</groupId>
+                            <artifactId>jsr88-cli</artifactId>
+                            <type>car</type>
+                            <import>classes</import>
+                        </dependency>
                     </dependencies>
                     <category>Deployment</category>
                     <instance>

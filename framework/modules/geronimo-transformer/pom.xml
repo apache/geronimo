@@ -29,7 +29,7 @@
     </parent>
 
     <artifactId>geronimo-transformer</artifactId>
-    <name>Geronimo Modules :: Transformer</name>
+    <name>Geronimo Framework, Modules :: Transformer</name>
 
 </project>
 

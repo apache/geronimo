@@ -89,7 +89,7 @@
         
         <plugins>
             <plugin>
-                <groupId>org.apache.geronimo.plugins</groupId>
+                <groupId>org.apache.geronimo.buildsupport</groupId>
                 <artifactId>car-maven-plugin</artifactId>
                 <configuration>
                     <deploymentConfigs>
@@ -104,7 +104,7 @@
                         <version>${version}</version>
                         <type>war</type>
                     </module>
-                <useMavenDependencies>
+                    <useMavenDependencies>
                         <value>true</value>
                         <includeVersion>true</includeVersion>
                     </useMavenDependencies>

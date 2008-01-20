@@ -29,7 +29,7 @@
     </parent>
 
     <artifactId>geronimo-common</artifactId>
-    <name>Geronimo Modules :: Common</name>
+    <name>Geronimo Framework, Modules :: Common</name>
     
     <dependencies>
         

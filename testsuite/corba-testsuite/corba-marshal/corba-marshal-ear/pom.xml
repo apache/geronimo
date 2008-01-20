@@ -100,7 +100,7 @@
 
             <!-- Deploy the ear and invoke the imbedded CORBA app client -->
             <plugin>
-                <groupId>org.apache.geronimo.plugins</groupId>
+                <groupId>org.apache.geronimo.buildsupport</groupId>
                 <artifactId>geronimo-maven-plugin</artifactId>
 
                 <executions>

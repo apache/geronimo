@@ -29,7 +29,7 @@
     </parent>
 
     <artifactId>geronimo-gbean-deployer-bootstrap</artifactId>
-    <name>Geronimo Configs :: GBean Deployer Boostrap version</name>
+    <name>Geronimo Framework, Configs :: GBean Deployer Boostrap version</name>
     <packaging>car</packaging>
     
     <dependencies>
@@ -83,7 +83,7 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.apache.geronimo.plugins</groupId>
+                <groupId>org.apache.geronimo.buildsupport</groupId>
                 <artifactId>car-maven-plugin</artifactId>
                 <configuration>
                     <deploymentConfigs>

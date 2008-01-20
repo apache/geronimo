@@ -29,7 +29,7 @@
     </parent>
 
     <artifactId>shutdown</artifactId>
-    <name>Geronimo Configs :: Shutdown</name>
+    <name>Geronimo Framework, Configs :: Shutdown</name>
     <packaging>car</packaging>
 
     <dependencies>
@@ -79,7 +79,7 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.apache.geronimo.plugins</groupId>
+                <groupId>org.apache.geronimo.buildsupport</groupId>
                 <artifactId>car-maven-plugin</artifactId>
                 <configuration>
                     <archive>

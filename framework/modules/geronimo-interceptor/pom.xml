@@ -29,6 +29,6 @@
     </parent>
     
     <artifactId>geronimo-interceptor</artifactId>
-    <name>Geronimo Modules :: Interceptor</name>
+    <name>Geronimo Framework, Modules :: Interceptor</name>
 
 </project>

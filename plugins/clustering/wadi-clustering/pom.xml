@@ -96,7 +96,7 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.apache.geronimo.plugins</groupId>
+                <groupId>org.apache.geronimo.buildsupport</groupId>
                 <artifactId>car-maven-plugin</artifactId>
                 <configuration>
                     <useMavenDependencies>
@@ -110,12 +110,10 @@
                                 <gbean name="DefaultBackingStrategyFactory">
                                     <attribute name="nbReplica">#{ReplicaCount}</attribute>
                                 </gbean>
-
                                 <gbean name="DefaultDispatcherHolder">
                                     <attribute name="endPointURI">#{EndPointURI}</attribute>
                                     <attribute name="clusterName">#{ClusterName}</attribute>
                                 </gbean>
-
                             </config-xml-content>
                             <config-substitution key="ReplicaCount">2</config-substitution>
                             <config-substitution key="EndPointURI">http://localhost:8080</config-substitution>

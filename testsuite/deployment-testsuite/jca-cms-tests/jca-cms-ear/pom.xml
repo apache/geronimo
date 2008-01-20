@@ -129,7 +129,7 @@
             </plugin>
 
             <plugin>
-                <groupId>org.apache.geronimo.plugins</groupId>
+                <groupId>org.apache.geronimo.buildsupport</groupId>
                 <artifactId>geronimo-maven-plugin</artifactId>
                 <executions>
                     <execution>

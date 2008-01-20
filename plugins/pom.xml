@@ -15,19 +15,24 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 -->
+
 <!-- $Rev$ $Date$ -->
+
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
     <modelVersion>4.0.0</modelVersion>
+    
     <parent>
         <groupId>org.apache.geronimo</groupId>
         <artifactId>geronimo</artifactId>
         <version>2.1-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
+    
     <groupId>org.apache.geronimo.plugins</groupId>
     <artifactId>plugins</artifactId>
     <name>Geronimo Plugins</name>
     <packaging>pom</packaging>
+    
     <properties>
         <!-- This property is required by the car:package mojo -->
         <geronimoVersion>${version}</geronimoVersion>
@@ -46,53 +51,7 @@
         <jasperDeployer>org.apache.geronimo.configs/jasper-deployer/${version}/car</jasperDeployer>
         <jpaDeployer>org.apache.geronimo.configs/persistence-jpa10-deployer/${version}/car</jpaDeployer>
     </properties>
-    <build>
-        <!--
-
-        NOTE: Don't add to extentions here, or JCL will freak out about multipule versions.
-
-        <extensions>
-            <extension>
-                <groupId>org.apache.geronimo.plugins</groupId>
-                <artifactId>car-maven-plugin</artifactId>
-                <version>${version}</version>
-            </extension>
-        </extensions>
-        -->
-
-        <plugins>
-            <plugin>
-                <groupId>org.apache.geronimo.plugins</groupId>
-                <artifactId>car-maven-plugin</artifactId>
-                <!-- Install as extention to allow 'car' packaging to be used. -->
-                <extensions>true</extensions>
-                <configuration>
-                    <archive>
-                        <!-- Do not include META-INF/maven to avoid long file problems on windows -->
-                        <addMavenDescriptor>false</addMavenDescriptor>
-                    </archive>
-                    <osiApproved>true</osiApproved>
-                    <!--
-                                        <useMavenDependencies>
-                                            <value>true</value>
-                                            <includeVersion>true</includeVersion>
-                                        </useMavenDependencies>
-                    -->
-                    <commonInstance>
-                        <plugin-artifact>
-                            <geronimo-version>${geronimoVersion}</geronimo-version>
-                            <jvm-version>1.5</jvm-version>
-                            <!--<source-repository>http://www.geronimoplugins.com/repository/geronimo-2.1</source-repository>-->
-                            <source-repository>~/.m2/repository/</source-repository>
-                            <source-repository>http://repo1.maven.org/maven2/</source-repository>
-                            <source-repository>http://people.apache.org/repo/m2-snapshot-repository/</source-repository>
-                            <source-repository>http://people.apache.org/repo/m2-incubating-repository/</source-repository>
-                        </plugin-artifact>
-                    </commonInstance>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
+    
     <modules>
         <module>activemq</module>
         <module>axis</module>
@@ -121,4 +80,52 @@
         <module>tomcat</module>
         <module>webservices</module>
     </modules>
+    
+    <build>
+        <!--
+        NOTE: Don't add to extentions here, or JCL will freak out about multipule versions.
+
+        <extensions>
+            <extension>
+                <groupId>org.apache.geronimo.buildsupport</groupId>
+                <artifactId>car-maven-plugin</artifactId>
+                <version>${version}</version>
+            </extension>
+        </extensions>
+        -->
+
+        <plugins>
+            <plugin>
+                <groupId>org.apache.geronimo.buildsupport</groupId>
+                <artifactId>car-maven-plugin</artifactId>
+                <!-- Install as extention to allow 'car' packaging to be used. -->
+                <extensions>true</extensions>
+                <configuration>
+                    <archive>
+                        <!-- Do not include META-INF/maven to avoid long file problems on windows -->
+                        <addMavenDescriptor>false</addMavenDescriptor>
+                    </archive>
+                    <osiApproved>true</osiApproved>
+                    <!--
+                    <useMavenDependencies>
+                        <value>true</value>
+                        <includeVersion>true</includeVersion>
+                    </useMavenDependencies>
+                    -->
+                    <commonInstance>
+                        <plugin-artifact>
+                            <geronimo-version>${geronimoVersion}</geronimo-version>
+                            <jvm-version>1.5</jvm-version>
+                            <!--<source-repository>http://www.geronimoplugins.com/repository/geronimo-2.1</source-repository>-->
+                            <source-repository>~/.m2/repository/</source-repository>
+                            <source-repository>http://repo1.maven.org/maven2/</source-repository>
+                            <source-repository>http://people.apache.org/repo/m2-snapshot-repository/</source-repository>
+                            <source-repository>http://people.apache.org/repo/m2-incubating-repository/</source-repository>
+                        </plugin-artifact>
+                    </commonInstance>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>

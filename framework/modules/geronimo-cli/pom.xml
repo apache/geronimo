@@ -29,7 +29,7 @@
     </parent>
 
     <artifactId>geronimo-cli</artifactId>
-    <name>Geronimo Modules :: CLI</name>
+    <name>Geronimo Framework, Modules :: CLI</name>
 
     <dependencies>
 

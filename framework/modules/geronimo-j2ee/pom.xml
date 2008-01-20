@@ -29,7 +29,7 @@
     </parent>
 
     <artifactId>geronimo-j2ee</artifactId>
-    <name>Geronimo Modules :: J2EE</name>
+    <name>Geronimo Framework, Modules :: J2EE</name>
     
     <dependencies>
         

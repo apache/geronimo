@@ -38,9 +38,9 @@
     </description>
 
     <modules>
-<module>geronimo-welcome</module>
-<module>welcome-jetty</module>
-<module>welcome-tomcat</module>
+        <module>geronimo-welcome</module>
+        <module>welcome-jetty</module>
+        <module>welcome-tomcat</module>
     </modules>
 
 </project>

@@ -30,7 +30,7 @@
     
     <!-- change this to server-security -->
     <artifactId>j2ee-security</artifactId>
-    <name>Geronimo Configs :: J2EE Security</name>
+    <name>Geronimo Framework, Configs :: J2EE Security</name>
     <packaging>car</packaging>
 
     <description>Basic Geronimo server security infrastructure</description>
@@ -69,7 +69,7 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.apache.geronimo.plugins</groupId>
+                <groupId>org.apache.geronimo.buildsupport</groupId>
                 <artifactId>car-maven-plugin</artifactId>
                 <configuration>
                     <useMavenDependencies>

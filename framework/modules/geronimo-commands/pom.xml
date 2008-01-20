@@ -29,7 +29,7 @@
     </parent>
 
     <artifactId>geronimo-commands</artifactId>
-    <name>Geronimo Modules :: Commands</name>
+    <name>Geronimo Framework, Modules :: Commands</name>
 
     <dependencies>
         <dependency>

@@ -91,32 +91,6 @@
         </dependencies>
     </dependencyManagement>
 
-
-    <build>
-        <resources>
-            <resource>
-                <directory>${pom.basedir}/src/main/resources</directory>
-                <filtering>true</filtering>
-            </resource>
-        </resources>
-        <pluginManagement>
-            <plugins>
-                <!-- inheriting configration for war plugin, i,e, precompile JSPs -->
-                <!-- inherits car configuration from parent -->
-                <plugin>
-                    <groupId>org.apache.geronimo.plugins</groupId>
-                    <artifactId>car-maven-plugin</artifactId>
-                    <configuration>
-                        <useMavenDependencies>
-                            <value>true</value>
-                            <includeVersion>true</includeVersion>
-                        </useMavenDependencies>
-                    </configuration>
-                </plugin>
-            </plugins>
-        </pluginManagement>
-    </build>
-    
     <modules>
         <module>agent</module>
         <module>agent-ds</module>
@@ -129,4 +103,30 @@
         <module>mconsole-tomcat</module>
         <module>mconsole-war</module>
     </modules>
+    
+    <build>
+        <resources>
+            <resource>
+                <directory>${pom.basedir}/src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+        <pluginManagement>
+            <plugins>
+                <!-- inheriting configration for war plugin, i,e, precompile JSPs -->
+                <!-- inherits car configuration from parent -->
+                <plugin>
+                    <groupId>org.apache.geronimo.buildsupport</groupId>
+                    <artifactId>car-maven-plugin</artifactId>
+                    <configuration>
+                        <useMavenDependencies>
+                            <value>true</value>
+                            <includeVersion>true</includeVersion>
+                        </useMavenDependencies>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+
 </project>

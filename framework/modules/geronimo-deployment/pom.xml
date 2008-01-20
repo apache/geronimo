@@ -29,7 +29,7 @@
     </parent>
 
     <artifactId>geronimo-deployment</artifactId>
-    <name>Geronimo Modules :: Deployment</name>
+    <name>Geronimo Framework, Modules :: Deployment</name>
     
     <dependencies>
         

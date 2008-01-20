@@ -29,7 +29,7 @@
     </parent>
 
     <artifactId>geronimo-kernel</artifactId>
-    <name>Geronimo Modules :: Kernel</name>
+    <name>Geronimo Framework, Modules :: Kernel</name>
     
     <dependencies>
         <dependency>

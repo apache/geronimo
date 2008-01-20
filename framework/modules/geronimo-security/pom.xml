@@ -29,7 +29,7 @@
     </parent>
 
     <artifactId>geronimo-security</artifactId>
-    <name>Geronimo Modules :: Security</name>
+    <name>Geronimo Framework, Modules :: Security</name>
     
     <dependencies>
         

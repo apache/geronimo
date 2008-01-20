@@ -29,7 +29,7 @@
     </parent>
 
     <artifactId>jsr88-cli</artifactId>
-    <name>Geronimo Configs :: JSR88 CLI</name>
+    <name>Geronimo Framework, Configs :: JSR88 CLI</name>
     <packaging>car</packaging>
 
     <dependencies>
@@ -126,7 +126,7 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.apache.geronimo.plugins</groupId>
+                <groupId>org.apache.geronimo.buildsupport</groupId>
                 <artifactId>car-maven-plugin</artifactId>
                 <configuration>
                     <useMavenDependencies>

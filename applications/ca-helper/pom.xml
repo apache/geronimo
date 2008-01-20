@@ -38,9 +38,9 @@
     </description>
 
     <modules>
-<module>ca-helper-jetty</module>
-<module>ca-helper-tomcat</module>
-<module>geronimo-ca-helper</module>
+        <module>ca-helper-jetty</module>
+        <module>ca-helper-tomcat</module>
+        <module>geronimo-ca-helper</module>
     </modules>
 
 </project>

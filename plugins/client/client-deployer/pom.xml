@@ -74,14 +74,14 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.apache.geronimo.plugins</groupId>
+                <groupId>org.apache.geronimo.buildsupport</groupId>
                 <artifactId>car-maven-plugin</artifactId>
                 <configuration>
                     <!--
-                                        <deploymentConfigs>
-                                            <deploymentConfig>${gbeanDeployer}</deploymentConfig>
-                                            <deploymentConfig>${j2eeDeployer}</deploymentConfig>
-                                        </deploymentConfigs>
+                    <deploymentConfigs>
+                        <deploymentConfig>${gbeanDeployer}</deploymentConfig>
+                        <deploymentConfig>${j2eeDeployer}</deploymentConfig>
+                    </deploymentConfigs>
                     -->
                     <category>Geronimo Core</category>
                     <useMavenDependencies>

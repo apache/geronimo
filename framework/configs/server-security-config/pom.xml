@@ -29,13 +29,12 @@
     </parent>
     
     <artifactId>server-security-config</artifactId>
-    <name>Geronimo Configs :: Server Security Configuration</name>
+    <name>Geronimo Framework, Configs :: Server Security Configuration</name>
     <packaging>car</packaging>
 
     <description>Sample security configuration for a demo geronimo server. Not suitable for production use.</description>
     
     <dependencies>
-        
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>geronimo-gbean-deployer</artifactId>
@@ -43,6 +42,7 @@
             <type>car</type>
             <scope>provided</scope>
         </dependency>
+        
         <!-- parent -->
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
@@ -50,12 +50,12 @@
             <version>${version}</version>
             <type>car</type>
         </dependency>
-        
     </dependencies>
+    
     <build>
         <plugins>
             <plugin>
-                <groupId>org.apache.geronimo.plugins</groupId>
+                <groupId>org.apache.geronimo.buildsupport</groupId>
                 <artifactId>car-maven-plugin</artifactId>
                 <configuration>
                     <deploymentConfigs>
