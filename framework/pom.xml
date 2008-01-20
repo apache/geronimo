@@ -28,7 +28,7 @@
         <version>2.1-SNAPSHOT</version>
     </parent>
 
-    <groupId>org.apache.geronimo.modules</groupId>
+    <groupId>org.apache.geronimo.framework</groupId>
     <artifactId>framework</artifactId>
     <name>Geronimo Framework</name>
     <packaging>pom</packaging>
