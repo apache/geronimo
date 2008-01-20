@@ -15,19 +15,24 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 -->
+
 <!-- $Rev$ $Date$ -->
+
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    
     <modelVersion>4.0.0</modelVersion>
+    
     <parent>
         <groupId>org.apache.geronimo</groupId>
         <artifactId>geronimo</artifactId>
         <version>2.1-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
+    
     <groupId>org.apache.geronimo.configs</groupId>
     <artifactId>configs</artifactId>
     <name>Geronimo Configs</name>
     <packaging>pom</packaging>
+    
     <properties>
         <!-- This property is required by the car:package mojo -->
         <geronimoVersion>${version}</geronimoVersion>
@@ -66,9 +71,28 @@
         <PlanORBSunSSLPort>2001</PlanORBSunSSLPort>
         <PlanJMXPort>9999</PlanJMXPort>
     </properties>
+    
+    <modules>
+        <module>geronimo-gbean-deployer</module>
+        <module>geronimo-gbean-deployer-bootstrap</module>
+        <module>xmlbeans</module>
+        <module>client-system</module>
+        <module>j2ee-security</module>
+        <module>j2ee-system</module>
+        <module>jee-specs</module>
+        <module>jsr88-cli</module>
+        <module>jsr88-deploymentfactory</module>
+        <module>offline-deployer</module>
+        <module>online-deployer</module>
+        <module>rmi-naming</module>
+        <module>plugin</module>
+        <module>server-security-config</module>
+        <module>shutdown</module>
+        <module>upgrade-cli</module>
+    </modules>
+    
     <build>
         <!--
-
         NOTE: Don't add to extentions here, or JCL will freak out about multipule versions.
 
         <extensions>
@@ -93,10 +117,10 @@
                     </archive>
                     <osiApproved>true</osiApproved>
                     <!--
-                                        <useMavenDependencies>
-                                            <value>true</value>
-                                            <includeVersion>true</includeVersion>
-                                        </useMavenDependencies>
+                    <useMavenDependencies>
+                        <value>true</value>
+                        <includeVersion>true</includeVersion>
+                    </useMavenDependencies>
                     -->
                     <commonInstance>
                         <plugin-artifact>
@@ -113,22 +137,5 @@
             </plugin>
         </plugins>
     </build>
-    <modules>
-      <module>geronimo-gbean-deployer</module>
-      <module>geronimo-gbean-deployer-bootstrap</module>
-      <module>xmlbeans</module>
-        <module>client-system</module>
-        <module>j2ee-security</module>
-        <module>j2ee-system</module>
-        <module>jee-specs</module>
-        <module>jsr88-cli</module>
-        <module>jsr88-deploymentfactory</module>
-        <module>offline-deployer</module>
-        <module>online-deployer</module>
-        <module>rmi-naming</module>
-        <module>plugin</module>
-        <module>server-security-config</module>
-        <module>shutdown</module>
-        <module>upgrade-cli</module>
-    </modules>
+
 </project>
