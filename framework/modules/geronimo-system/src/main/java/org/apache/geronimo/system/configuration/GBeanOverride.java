@@ -21,6 +21,7 @@ import java.io.Reader;
 import java.io.Serializable;
 import java.io.StringReader;
 import java.net.URI;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -567,7 +568,9 @@ public class GBeanOverride implements Serializable {
                 }
             }
             
-            if (!type.equals(value.getClass().getName()) && !typeClass.isPrimitive()) {
+            if (!type.equals(value.getClass().getName())
+                    && !typeClass.isPrimitive()
+                    && !Collection.class.isAssignableFrom(typeClass)) {
                 propertyEditors.put(attributeName, editor.getClass().getName());
             }
 

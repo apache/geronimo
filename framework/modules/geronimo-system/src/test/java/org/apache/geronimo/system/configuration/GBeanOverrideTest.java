@@ -20,6 +20,8 @@
 package org.apache.geronimo.system.configuration;
 
 import java.beans.PropertyEditorSupport;
+import java.util.Collection;
+import java.util.Collections;
 
 import junit.framework.TestCase;
 
@@ -93,6 +95,16 @@ public class GBeanOverrideTest extends TestCase {
     public void testPropertyEditorIsNotDefinedForPrimitives() throws Exception {
         GBeanOverride override = new GBeanOverride(gbeanType, new JexlExpressionParser());
         override.setAttribute(attributeName, new Integer(1), int.class.getName(), getClass().getClassLoader());
+        
+        GbeanType copiedGBeanType = override.writeXml();
+        assertEquals(1, copiedGBeanType.getAttributeOrReference().size());
+        AttributeType attributeType = (AttributeType) copiedGBeanType.getAttributeOrReference().get(0);
+        assertNull(attributeType.getPropertyEditor());
+    }
+    
+    public void testPropertyEditorIsNotDefinedForCollectionSubClasses() throws Exception {
+        GBeanOverride override = new GBeanOverride(gbeanType, new JexlExpressionParser());
+        override.setAttribute(attributeName, Collections.singleton("test"), Collection.class.getName(), getClass().getClassLoader());
         
         GbeanType copiedGBeanType = override.writeXml();
         assertEquals(1, copiedGBeanType.getAttributeOrReference().size());
