@@ -95,6 +95,7 @@ public class MasterRemoteControl {
     private SnapshotDBHelper snapshotDBHelper;
 
     public MasterRemoteControl() {
+        
     }
 
     @PostConstruct
@@ -280,9 +281,7 @@ public class MasterRemoteControl {
      */ 
     @RolesAllowed("mejbuser")
     public ArrayList<HashMap<String, HashMap<String, Object>>> fetchSnapshotData(Integer numberOfSnapshot, Integer everyNthSnapshot) {
-        ArrayList<HashMap<String, HashMap<String, Object>>> retval = 
-            (ArrayList<HashMap<String, HashMap<String, Object>>>)snapshotDBHelper.fetchData(numberOfSnapshot, everyNthSnapshot);
-        return retval;
+        return (ArrayList<HashMap<String, HashMap<String, Object>>>)snapshotDBHelper.fetchData(numberOfSnapshot, everyNthSnapshot);
     }
     
     /**
@@ -294,9 +293,7 @@ public class MasterRemoteControl {
      */
     @RolesAllowed("mejbuser")
     public HashMap<String, HashMap<String, Long>> fetchMaxSnapshotData(Integer numberOfSnapshot) {
-        HashMap<String, HashMap<String, Long>> retval = 
-            (HashMap<String, HashMap<String, Long>>)snapshotDBHelper.fetchMaxSnapshotData(numberOfSnapshot);
-        return retval;
+        return (HashMap<String, HashMap<String, Long>>)snapshotDBHelper.fetchMaxSnapshotData(numberOfSnapshot);
     }
 
     /**
@@ -308,9 +305,7 @@ public class MasterRemoteControl {
      */
     @RolesAllowed("mejbuser")
     public HashMap<String, HashMap<String, Long>> fetchMinSnapshotData(Integer numberOfSnapshot) {
-        HashMap<String, HashMap<String, Long>> retval = 
-            (HashMap<String, HashMap<String, Long>>)snapshotDBHelper.fetchMinSnapshotData(numberOfSnapshot);
-        return retval;
+        return (HashMap<String, HashMap<String, Long>>)snapshotDBHelper.fetchMinSnapshotData(numberOfSnapshot);
     }
     
     /**

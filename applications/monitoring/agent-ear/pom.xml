@@ -59,6 +59,12 @@
                             <artifactId>agent-ejb</artifactId>
                             <bundleFileName>agent-ejb.jar</bundleFileName>
                         </ejbModule>
+                        <jarModule>
+                            <groupId>${pom.groupId}</groupId>
+                            <artifactId>agent-jar</artifactId>
+                            <bundleDir>lib</bundleDir>
+                            <!--includeInApplicationXml>true</includeInApplicationXml-->
+                        </jarModule>
                     </modules>
                     <resourcesDir>${project.build.outputDirectory}</resourcesDir>
                         <archive>
@@ -70,6 +76,7 @@
         </plugins>
     </build>
 </project>
+
 
 
 
