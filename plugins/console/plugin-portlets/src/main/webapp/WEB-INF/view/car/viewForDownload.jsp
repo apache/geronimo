@@ -149,6 +149,11 @@
     <input type="hidden" name="repository" value="${repository}" />
     <input type="hidden" name="repo-user" value="${repouser}" />
     <input type="hidden" name="repo-pass" value="${repopass}" />
+    <input type="hidden" name="relativeServerPath" value="${relativeServerPath}"/>
+    <input type="hidden" name="groupId" value="${groupId}"/>
+    <input type="hidden" name="artifactId" value="${artifactId}"/>
+    <input type="hidden" name="version" value="${version}"/>
+    <input type="hidden" name="format" value="${format}"/>
 <td>
 </c:if>
 <td valign="top">

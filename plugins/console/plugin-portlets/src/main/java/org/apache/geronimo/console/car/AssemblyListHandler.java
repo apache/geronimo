@@ -41,17 +41,37 @@ public class AssemblyListHandler extends AbstractListHandler {
 
     public String actionBeforeView(ActionRequest request, ActionResponse response, MultiPageModel model) throws PortletException, IOException {
         String column = (String) request.getAttribute("column");
+        String relativeServerPath = request.getParameter("relativeServerPath");
+        String groupId = request.getParameter("groupId");
+        String artifactId = request.getParameter("artifactId");
+        String version = request.getParameter("version");
+        String format = request.getParameter("format");
 
         if(!isEmpty(column)) response.setRenderParameter("column", column);
+        response.setRenderParameter("relativeServerPath", isEmpty(relativeServerPath)? "var/temp/assembly": relativeServerPath);
+        if(!isEmpty(groupId)) response.setRenderParameter("groupId", groupId);
+        if(!isEmpty(artifactId)) response.setRenderParameter("artifactId", artifactId);
+        if(!isEmpty(version)) response.setRenderParameter("version", version);
+        if(!isEmpty(format)) response.setRenderParameter("format", format);
         return getMode();
     }
 
     public void renderView(RenderRequest request, RenderResponse response, MultiPageModel model) throws PortletException, IOException {
         String column = request.getParameter("column");
+        String relativeServerPath = request.getParameter("relativeServerPath");
+        String groupId = request.getParameter("groupId");
+        String artifactId = request.getParameter("artifactId");
+        String version = request.getParameter("version");
+        String format = request.getParameter("format");
         if(!loadFromServer(request)) {
             //todo: loading failed -- do something!
         }
         request.setAttribute("column", column);
+        request.setAttribute("relativeServerPath", relativeServerPath);
+        request.setAttribute("groupId", groupId);
+        request.setAttribute("artifactId", artifactId);
+        request.setAttribute("version", version);
+        request.setAttribute("format", format);
     }
 
     public String actionAfterView(ActionRequest request, ActionResponse response, MultiPageModel model) throws PortletException, IOException {

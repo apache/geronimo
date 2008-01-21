@@ -21,7 +21,6 @@
 <fmt:setBundle basename="pluginportlets"/>
 <portlet:defineObjects/>
 
-<h3><fmt:message key="car.list.pluginRepo" /> <a href='${repository}'>${repository}</a></h3>
 
 <c:choose>
 <c:when test="${fn:length(plugins) < 1}">
@@ -29,7 +28,17 @@
 </c:when>
 <c:otherwise>
 <form action="<portlet:actionURL/>">
-<input id="mode" type="hidden" name="mode" value="assemblyView-before"/>
+    <h3>Name the server to be assembled</h3>
+    <input id="mode" type="hidden" name="mode" value="assemblyView-before"/>
+    <p><fmt:message key="car.list.assemblyPath"/><input type="text" name="relativeServerPath" value="${relativeServerPath}"/></p>
+    <p><fmt:message key="car.list.assemblyGroupId"/><input type="text" name="groupId" value="${groupId}"/></p>
+    <p><fmt:message key="car.list.assemblyArtifactId"/><input type="text" name="artifactId" value="${artifactId}"/></p>
+    <p><fmt:message key="car.list.assemblyVersion"/><input type="text" name="version" value="${version}"/></p>
+    <p><fmt:message key="car.list.assemblyFormat"/><select name="format">
+        <option <c:if test="${format ne 'zip'}">selected="true"</c:if>>tar.gz</option>
+        <option <c:if test="${format eq 'zip'}">selected="true"</c:if>>zip</option>
+    </select></p>
+    <h3><fmt:message key="car.list.pluginLocal"/></h3>
 
 <table border="0" cellpadding="3">
 <tr>
