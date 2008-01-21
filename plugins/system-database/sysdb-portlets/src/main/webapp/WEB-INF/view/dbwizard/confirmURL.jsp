@@ -120,7 +120,7 @@ function <portlet:namespace/>validate() {
       </tr>
     <!-- ENTRY FIELD: Max Size -->
       <tr>
-        <th><div align="right">fmt:message key="dbwizard.common.poolMaxSize"/>:</div></th>
+        <th><div align="right"><fmt:message key="dbwizard.common.poolMaxSize"/>:</div></th>
         <td><input name="maxSize" type="text" size="5" value="${pool.maxSize}"></td>
       </tr>
       <tr>
