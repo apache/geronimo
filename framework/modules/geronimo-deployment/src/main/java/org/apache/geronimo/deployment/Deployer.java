@@ -110,6 +110,7 @@ public class Deployer implements GBeanLifecycle {
             // to address this we use a gross hack and copy the file to a temporary directory
             // the lock on the file will prevent that being deleted properly until the URLJarFile has
             // been GC'ed.
+            boolean cleanup = true;
             try {
                 tmpDir = File.createTempFile("geronimo-deployer", ".tmpdir");
                 tmpDir.delete();
@@ -117,8 +118,14 @@ public class Deployer implements GBeanLifecycle {
                 File tmpFile = new File(tmpDir, moduleFile.getName());
                 DeploymentUtil.copyFile(moduleFile, tmpFile);
                 moduleFile = tmpFile;
+                cleanup = false;
             } catch (IOException e) {
                 throw new DeploymentException(e);
+            } finally {
+                // If an Exception is thrown in the try block above, we will need to cleanup here. 
+                if(cleanup && tmpDir != null && !DeploymentUtil.recursiveDelete(tmpDir)) {
+                    reaper.delete(tmpDir.getAbsolutePath(), "delete");
+                }
             }
         }
 
