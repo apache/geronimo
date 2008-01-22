@@ -101,7 +101,7 @@ public class RemoteSourceRepository implements SourceRepository {
             // The maven-metadata file contains this extra information.
             if (version.toString().indexOf("SNAPSHOT") >= 0 && !(version instanceof SnapshotVersion)) {
                 // base path for the artifact version in a maven repo
-                URI basePath = base.resolve(artifact.getGroupId().replace('.', '/') + "/" + artifact.getArtifactId() + "/" + version);
+                URI basePath = base.resolve(artifact.getGroupId().replace('.', '/') + "/" + artifact.getArtifactId() + "/" + version + "/");
 
                 // get the maven-metadata file
                 Document metadata = getMavenMetadata(basePath);
@@ -140,7 +140,7 @@ public class RemoteSourceRepository implements SourceRepository {
         else {
 
             // base path for the artifact version in a maven repo
-            URI basePath = base.resolve(artifact.getGroupId().replace('.', '/') + "/" + artifact.getArtifactId());
+            URI basePath = base.resolve(artifact.getGroupId().replace('.', '/') + "/" + artifact.getArtifactId() + "/");
 
             // get the maven-metadata file
             Document metadata = getMavenMetadata(basePath);
@@ -175,7 +175,7 @@ public class RemoteSourceRepository implements SourceRepository {
 
     private OpenResult open(Artifact artifact, URL location) throws IOException, FailedLoginException {
         InputStream in = openStream(artifact, location);
-        return new RemoteOpenResult(artifact, in);
+        return (in == null) ? null : new RemoteOpenResult(artifact, in);
     }
 
     private InputStream openStream(Artifact artifact, URL location) throws IOException, FailedLoginException {
