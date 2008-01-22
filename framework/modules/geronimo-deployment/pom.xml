@@ -23,7 +23,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.apache.geronimo.modules</groupId>
+        <groupId>org.apache.geronimo.framework</groupId>
         <artifactId>modules</artifactId>
         <version>2.1-SNAPSHOT</version>
     </parent>
@@ -32,9 +32,8 @@
     <name>Geronimo Framework, Modules :: Deployment</name>
     
     <dependencies>
-        
         <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
+            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-system</artifactId>
             <version>${version}</version>
         </dependency>
@@ -53,7 +52,6 @@
             <groupId>xml-resolver</groupId>
             <artifactId>xml-resolver</artifactId>
         </dependency>
-        
     </dependencies>
     
 </project>

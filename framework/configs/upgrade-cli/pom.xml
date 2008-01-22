@@ -23,7 +23,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.apache.geronimo.configs</groupId>
+        <groupId>org.apache.geronimo.framework</groupId>
         <artifactId>configs</artifactId>
         <version>2.1-SNAPSHOT</version>
     </parent>
@@ -33,9 +33,8 @@
     <packaging>car</packaging>
     
     <dependencies>
-        
         <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
+            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-gbean-deployer</artifactId>
             <version>${version}</version>
             <type>car</type>
@@ -67,17 +66,16 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
+            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-upgrade</artifactId>
             <version>${version}</version>
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
+            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-service-builder</artifactId>
             <version>${version}</version>
         </dependency>
-        
     </dependencies>
     
     <build>
@@ -100,4 +98,5 @@
             </plugin>
         </plugins>
     </build>
+
 </project>

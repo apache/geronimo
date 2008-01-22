@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="ISO-8859-1"?>
 <!--
     Licensed to the Apache Software Foundation (ASF) under one or more
     contributor license agreements.  See the NOTICE file distributed with
@@ -23,17 +23,16 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>modules</artifactId>
+        <groupId>org.apache.geronimo.plugins</groupId>
+        <artifactId>tomcat</artifactId>
         <version>2.1-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
-
+    
+    <groupId>org.apache.geronimo.modules</groupId>
     <artifactId>geronimo-tomcat6-builder</artifactId>
-    <name>Geronimo Modules :: Tomcat :: Builder</name>
+    <name>Geronimo Plugins, Tomcat :: Builder</name>
 
     <dependencies>
-
         <dependency>
             <groupId>${pom.groupId}</groupId>
             <artifactId>geronimo-tomcat6</artifactId>
@@ -91,13 +90,12 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
+            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-kernel</artifactId>
             <version>${version}</version>
             <classifier>tests</classifier>
             <scope>test</scope>
         </dependency>
-
     </dependencies>
 
     <build>

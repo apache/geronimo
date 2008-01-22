@@ -23,7 +23,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.apache.geronimo.configs</groupId>
+        <groupId>org.apache.geronimo.framework</groupId>
         <artifactId>configs</artifactId>
         <version>2.1-SNAPSHOT</version>
     </parent>
@@ -37,14 +37,13 @@
     </description>
 
     <dependencies>
-
         <dependency>
             <groupId>org.apache.xmlbeans</groupId>
             <artifactId>xmlbeans</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
+            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>j2ee-system</artifactId>
             <version>${version}</version>
             <type>car</type>
@@ -52,13 +51,12 @@
 
         <!-- build order hint -->
         <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
+            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-gbean-deployer-bootstrap</artifactId>
             <version>${version}</version>
             <type>car</type>
             <scope>provided</scope>
         </dependency>
-
     </dependencies>
 
     <build>
@@ -70,14 +68,14 @@
                     <deploymentConfigs>
                         <deploymentConfig>${gbeanDeployerBootstrap}</deploymentConfig>
                     </deploymentConfigs>
-                    <deployerName>org.apache.geronimo.configs/geronimo-gbean-deployer-bootstrap/${geronimoVersion}/car?j2eeType=Deployer,name=Deployer</deployerName>
+                    <deployerName>org.apache.geronimo.framework/geronimo-gbean-deployer-bootstrap/${geronimoVersion}/car?j2eeType=Deployer,name=Deployer</deployerName>
                     <useMavenDependencies>
                         <value>false</value>
                     </useMavenDependencies>
                     <category>Geronimo Core</category>
                     <dependencies>
                         <dependency>
-                            <groupId>org.apache.geronimo.configs</groupId>
+                            <groupId>org.apache.geronimo.framework</groupId>
                             <artifactId>j2ee-system</artifactId>
                             <type>car</type>
                             <import>classes</import>

@@ -17,19 +17,24 @@
     specific language governing permissions and limitations
     under the License.
 -->
+
 <!-- $Rev$ $Date$ -->
+
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
     <modelVersion>4.0.0</modelVersion>
+    
     <parent>
         <groupId>org.apache.geronimo</groupId>
         <artifactId>geronimo</artifactId>
         <version>2.1-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
+    
     <groupId>org.apache.geronimo.testsuite</groupId>
     <artifactId>testsuite</artifactId>
     <name>Geronimo TestSuite</name>
     <packaging>pom</packaging>
+    
     <description>
         Geronimo integration testsuite. This contains 2 profiles, default and child.
         The default profile is used by the top level suites directly under this. The child profile is used by the test poms under the suites.
@@ -39,6 +44,7 @@
         The test poms under the suites should have this pom as their parent and set their relativePath appropriately
         The test poms under the suites inherit an empty 'child' profile from here. But any other build executions within the test poms should all be inside a 'child' profile.
     </description>
+    
     <dependencyManagement>
         <!-- mainatain the versioning of all dependencies in this one common location here. -->
         <dependencies>

@@ -74,12 +74,11 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
+            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-security</artifactId>
             <version>${version}</version>
             <scope>test</scope>
         </dependency>
-
     </dependencies>
 
     <profiles>

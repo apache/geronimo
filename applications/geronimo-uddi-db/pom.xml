@@ -26,7 +26,6 @@
         <groupId>org.apache.geronimo.applications</groupId>
         <artifactId>applications</artifactId>
         <version>2.1-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>geronimo-uddi-db</artifactId>

@@ -23,18 +23,17 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>configs</artifactId>
+        <groupId>org.apache.geronimo.plugins</groupId>
+        <artifactId>corba</artifactId>
         <version>2.1-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
-
+    
+    <groupId>org.apache.geronimo.configs</groupId>
     <artifactId>client-corba-yoko</artifactId>
-    <name>Geronimo Configs :: Corba J2EE Client</name>
+    <name>Geronimo Plugins, Corba :: Client Yoko</name>
     <packaging>car</packaging>
 
     <dependencies>
-
         <!-- parent config -->
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>

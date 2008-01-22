@@ -26,26 +26,25 @@
         <groupId>org.apache.geronimo.plugins</groupId>
         <artifactId>plugins</artifactId>
         <version>2.1-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>cxf</artifactId>
-    <name>Geronimo Plugins :: cxf</name>
+    <name>Geronimo Plugins, CXF</name>
     <packaging>pom</packaging>
 
     <description>
-        cxf plugin
+        CXF plugin
     </description>
 
     <modules>
-<module>cxf</module>
-<module>cxf-deployer</module>
-<module>cxf-ejb</module>
-<module>cxf-ejb-deployer</module>
-<module>geronimo-cxf</module>
-<module>geronimo-cxf-builder</module>
-<module>geronimo-cxf-ejb</module>
-<module>geronimo-cxf-ejb-builder</module>
+        <module>cxf</module>
+        <module>cxf-deployer</module>
+        <module>cxf-ejb</module>
+        <module>cxf-ejb-deployer</module>
+        <module>geronimo-cxf</module>
+        <module>geronimo-cxf-builder</module>
+        <module>geronimo-cxf-ejb</module>
+        <module>geronimo-cxf-ejb-builder</module>
     </modules>
 
 </project>

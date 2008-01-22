@@ -26,24 +26,23 @@
         <groupId>org.apache.geronimo.plugins</groupId>
         <artifactId>plugins</artifactId>
         <version>2.1-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>corba</artifactId>
-    <name>Geronimo Plugins :: corba</name>
+    <name>Geronimo Plugins, Corba</name>
     <packaging>pom</packaging>
 
     <description>
-        corba plugin
+        Corba plugin
     </description>
 
     <modules>
-<module>client-corba-yoko</module>
-<module>geronimo-corba</module>
-<module>geronimo-corba-builder</module>
-<module>geronimo-yoko</module>
-<module>j2ee-corba-yoko</module>
-<module>openejb-corba-deployer</module>
+        <module>client-corba-yoko</module>
+        <module>geronimo-corba</module>
+        <module>geronimo-corba-builder</module>
+        <module>geronimo-yoko</module>
+        <module>j2ee-corba-yoko</module>
+        <module>openejb-corba-deployer</module>
     </modules>
 
 </project>

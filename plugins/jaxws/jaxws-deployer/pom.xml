@@ -23,20 +23,19 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>configs</artifactId>
+        <groupId>org.apache.geronimo.plugins</groupId>
+        <artifactId>jaxws</artifactId>
         <version>2.1-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
-
+    
+    <groupId>org.apache.geronimo.configs</groupId>
     <artifactId>jaxws-deployer</artifactId>
-    <name>Geronimo Configs :: JAXWS Deployer</name>
+    <name>Geronimo Plugins, JAXWS :: Deployer</name>
     <packaging>car</packaging>
 
     <description>Base configuration for JAX-WS Web services.</description>
     
     <dependencies>
-        
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>j2ee-deployer</artifactId>
@@ -56,7 +55,6 @@
             <artifactId>geronimo-jaxws-builder</artifactId>
             <version>${version}</version>
         </dependency>
-        
     </dependencies>
     
     <build>
@@ -80,7 +78,7 @@
                     -->
                     <classpath>
                         <element>
-                            <groupId>org.apache.geronimo.modules</groupId>
+                            <groupId>org.apache.geronimo.framework</groupId>
                             <artifactId>geronimo-kernel</artifactId>
                             <version>${version}</version>
                         </element>

@@ -23,18 +23,17 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>configs</artifactId>
+        <groupId>org.apache.geronimo.plugins</groupId>
+        <artifactId>connector</artifactId>
         <version>2.1-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
-
+    
+    <groupId>org.apache.geronimo.configs</groupId>
     <artifactId>client-transaction</artifactId>
-    <name>Geronimo Configs :: J2EE Client transaction</name>
+    <name>Geronimo Plugins, Connector :: Client transaction</name>
     <packaging>car</packaging>
 
     <dependencies>
-        
         <!-- parent config -->
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
@@ -80,11 +79,10 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
+            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-transformer</artifactId>
             <version>${version}</version>
         </dependency>
-
     </dependencies>
 
     <build>
@@ -109,4 +107,5 @@
             </plugin>
         </plugins>
     </build>
+
 </project>

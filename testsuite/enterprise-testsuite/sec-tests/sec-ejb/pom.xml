@@ -50,7 +50,7 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
+            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-security</artifactId>
             <version>${version}</version>
             <scope>provided</scope>
@@ -62,7 +62,6 @@
             <!--<artifactId>xercesImpl</artifactId>-->
             <!--<scope>provided</scope>-->
         <!--</dependency>-->
-
     </dependencies>
 
     <build>

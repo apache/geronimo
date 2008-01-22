@@ -161,7 +161,7 @@ public class PackageMojo
     /**
      * The default deployer module to be used when no other deployer modules are configured.
      *
-     * @parameter expression="org.apache.geronimo.configs/geronimo-gbean-deployer/${geronimoVersion}/car"
+     * @parameter expression="org.apache.geronimo.framework/geronimo-gbean-deployer/${geronimoVersion}/car"
      * @required
      * @readonly
      */
@@ -177,7 +177,7 @@ public class PackageMojo
     /**
      * The name of the deployer which will be used to deploy the CAR.
      *
-     * @parameter expression="org.apache.geronimo.configs/geronimo-gbean-deployer/${geronimoVersion}/car?j2eeType=Deployer,name=Deployer"
+     * @parameter expression="org.apache.geronimo.framework/geronimo-gbean-deployer/${geronimoVersion}/car?j2eeType=Deployer,name=Deployer"
      * @required
      */
     private String deployerName = null;

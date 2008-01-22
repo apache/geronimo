@@ -26,15 +26,13 @@
         <groupId>org.apache.geronimo.plugins</groupId>
         <artifactId>plancreator</artifactId>
         <version>2.1-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>plancreator-console-tomcat</artifactId>
-    <name>Geronimo Plugins :: Deployment Plan Creator - Tomcat</name>
+    <name>Geronimo Plugins, Plan Creator :: Tomcat</name>
     <packaging>car</packaging>
 
     <dependencies>
-        
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>tomcat6-deployer</artifactId>
@@ -42,6 +40,7 @@
             <type>car</type>
             <scope>provided</scope>
         </dependency>
+        
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>jasper-deployer</artifactId>
@@ -49,6 +48,7 @@
             <type>car</type>
             <scope>provided</scope>
         </dependency>
+        
         <dependency>
             <groupId>org.apache.geronimo.plugins</groupId>
             <artifactId>plancreator-portlets</artifactId>
@@ -65,7 +65,7 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
+            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-management</artifactId>
             <version>${version}</version>
         </dependency>
@@ -78,7 +78,7 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
+            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>plugin</artifactId>
             <version>${version}</version>
             <type>car</type>
@@ -105,7 +105,6 @@
             <artifactId>console-core</artifactId>
             <version>${version}</version>
         </dependency>
-
     </dependencies>
 
     <build>
@@ -146,4 +145,5 @@
             </plugin>
         </plugins>
     </build>
+
 </project>

@@ -29,7 +29,7 @@
     </parent>
     
     <artifactId>testsuite-maven-plugin</artifactId>
-    <name>Geronimo Build Support, Testsuite Plugin</name>
+    <name>Geronimo Build Support :: Testsuite Plugin</name>
     <packaging>maven-plugin</packaging>
     
     <description>Plugin to help Geronimo testsuite</description>

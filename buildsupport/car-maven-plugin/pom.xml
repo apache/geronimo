@@ -29,7 +29,7 @@
     </parent>
     
     <artifactId>car-maven-plugin</artifactId>
-    <name>Geronimo Build Support, CAR</name>
+    <name>Geronimo Build Support :: CAR</name>
     <packaging>maven-plugin</packaging>
 
     <description>
@@ -58,35 +58,36 @@
         </dependency>
         
         <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
+            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-system</artifactId>
             <version>${version}</version>
         </dependency>
+        
         <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
+            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-plugin</artifactId>
             <version>${version}</version>
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
+            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-service-builder</artifactId>
             <version>${version}</version>
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
+            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-deploy-tool</artifactId>
             <version>${version}</version>
             
             <!-- exclude transitive deps -->
             <exclusions>
                 <exclusion>
-                    <groupId>org.apache.geronimo.modules</groupId>
+                    <groupId>org.apache.geronimo.framework</groupId>
                     <artifactId>geronimo-util</artifactId>
                 </exclusion>
                 <exclusion>
-                    <groupId>org.apache.geronimo.modules</groupId>
+                    <groupId>org.apache.geronimo.framework</groupId>
                     <artifactId>geronimo-deploy-jsr88</artifactId>
                 </exclusion>
             </exclusions>

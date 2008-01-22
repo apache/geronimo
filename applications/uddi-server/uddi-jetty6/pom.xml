@@ -23,18 +23,17 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>configs</artifactId>
+        <groupId>org.apache.geronimo.plugins</groupId>
+        <artifactId>uddi-server</artifactId>
         <version>2.1-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
 
+    <groupId>org.apache.geronimo.configs</groupId>
     <artifactId>uddi-jetty6</artifactId>
     <name>Geronimo Configs :: UDDI Jetty6</name>
     <packaging>car</packaging>
 
     <dependencies>
-
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>system-database</artifactId>
@@ -54,6 +53,7 @@
             <artifactId>geronimo-uddi-db</artifactId>
             <version>${version}</version>
         </dependency>
+        
         <dependency>
             <groupId>org.apache.geronimo.applications</groupId>
             <artifactId>geronimo-uddi-server</artifactId>
@@ -95,13 +95,13 @@
             <type>car</type>
             <scope>provided</scope>
         </dependency>
+        
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>jasper</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>
-
     </dependencies>
     
     <build>

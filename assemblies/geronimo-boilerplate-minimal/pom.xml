@@ -24,19 +24,10 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-<!--
     <parent>
         <groupId>org.apache.geronimo.assemblies</groupId>
         <artifactId>assemblies</artifactId>
         <version>2.1-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
-    </parent>
--->
-    <parent>
-        <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>configs</artifactId>
-        <version>2.1-SNAPSHOT</version>
-<!--<relativePath>../pom.xml</relativePath>-->
     </parent>
 
     <groupId>org.apache.geronimo.assemblies</groupId>
@@ -50,11 +41,9 @@
     </description>
 
     <dependencies>
-
         <!-- lib/gshell Dependencies -->
-
         <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
+            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-commands</artifactId>
             <version>${version}</version>
         </dependency>
@@ -129,9 +118,7 @@
             <artifactId>ant-launcher</artifactId>
         </dependency>
 
-
         <!-- lib Dependencies -->
-
         <dependency>
             <groupId>asm</groupId>
             <artifactId>asm</artifactId>
@@ -173,82 +160,51 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
+            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-cli</artifactId>
             <version>${version}</version>
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
+            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-kernel</artifactId>
             <version>${version}</version>
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
+            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-deploy-jsr88-bootstrapper</artifactId>
             <version>${version}</version>
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
+            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-transformer</artifactId>
             <version>${version}</version>
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
+            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>jsr88-deploymentfactory</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
+            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>client-system</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
+            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>online-deployer</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>
 
-        <!--
-        FIXME: Bad idea for plugins
-        -->
-        <!--
-        <dependency>
-            <groupId>javax.xml.bind</groupId>
-            <artifactId>jaxb-api</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.sun.xml.bind</groupId>
-            <artifactId>jaxb-impl</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-stax-api_1.0_spec</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>woodstox</groupId>
-            <artifactId>wstx-asl</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-activation_1.1_spec</artifactId>
-        </dependency>
-        -->
-
         <!-- lib/endorsed Dependencies -->
-
         <dependency>
             <groupId>org.apache.yoko</groupId>
             <artifactId>yoko-spec-corba</artifactId>
@@ -260,16 +216,15 @@
         </dependency>
 
         <!-- bin Dependencies (executable jars) -->
-
         <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
+            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>j2ee-system</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
+            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>shutdown</artifactId>
             <version>${version}</version>
             <type>car</type>
@@ -281,7 +236,6 @@
             <version>${version}</version>
             <type>car</type>
         </dependency>
-
     </dependencies>
 
     <build>
@@ -301,8 +255,13 @@
 
                             <artifactItems>
                                 <artifactItem>
-                                    <groupId>org.apache.geronimo.modules</groupId>
+                                    <groupId>org.apache.geronimo.framework</groupId>
                                     <artifactId>geronimo-system</artifactId>
+                                    <version>${version}</version>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.apache.geronimo.framework</groupId>
+                                    <artifactId>geronimo-service-builder</artifactId>
                                     <version>${version}</version>
                                 </artifactItem>
                                 <artifactItem>
@@ -333,11 +292,6 @@
                                 <artifactItem>
                                     <groupId>org.apache.geronimo.modules</groupId>
                                     <artifactId>geronimo-security-builder</artifactId>
-                                    <version>${version}</version>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>org.apache.geronimo.modules</groupId>
-                                    <artifactId>geronimo-service-builder</artifactId>
                                     <version>${version}</version>
                                 </artifactItem>
                                 <artifactItem>
@@ -412,7 +366,6 @@
                     <execution>
                         <id>generate-plugin-metadata</id>
                         <phase>generate-resources</phase>
-                        <!--<phase>process-resources</phase>-->
                         <goals>
                             <goal>prepare-metadata</goal>
                         </goals>
@@ -443,7 +396,6 @@
                     <execution>
                         <id>boilerplate</id>
                         <phase>compile</phase>
-                        <!--<phase>package</phase>-->
                         <goals>
                             <goal>directory-inline</goal>
                         </goals>

@@ -21,22 +21,21 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-    
-    <parent>
-        <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>configs</artifactId>
-        <version>2.1-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
-    </parent>
 
+    <parent>
+        <groupId>org.apache.geronimo.plugins</groupId>
+        <artifactId>connector</artifactId>
+        <version>2.1-SNAPSHOT</version>
+    </parent>
+    
+    <groupId>org.apache.geronimo.configs</groupId>
     <artifactId>transaction</artifactId>
-    <name>Geronimo Configs :: Transaction Manager (JTA11)</name>
+    <name>Geronimo Plugins, Connector :: Transaction Manager (JTA11)</name>
     <packaging>car</packaging>
 
     <description>Geronimo transaction manager module.</description>
     
     <dependencies>
-        
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>j2ee-server</artifactId>
@@ -45,7 +44,7 @@
         </dependency>
         
         <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
+            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>j2ee-security</artifactId>
             <version>${version}</version>
             <type>car</type>
@@ -53,7 +52,7 @@
 
         <!-- ThreadPool -->
         <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
+            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-core</artifactId>
             <version>${version}</version>
         </dependency>
@@ -87,7 +86,7 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
+            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-transformer</artifactId>
             <version>${version}</version>
         </dependency>
@@ -96,7 +95,6 @@
             <groupId>org.objectweb.howl</groupId>
             <artifactId>howl</artifactId>
         </dependency>
-
     </dependencies>
 
     <build>

@@ -17,25 +17,26 @@
 -->
 <!-- $Rev$ $Date$ -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    
     <modelVersion>4.0.0</modelVersion>
+    
     <parent>
         <groupId>org.apache.geronimo.plugins</groupId>
         <artifactId>plugins</artifactId>
         <version>2.1-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
+    
     <artifactId>j2ee</artifactId>
-    <name>Geronimo Plugins :: j2ee</name>
+    <name>Geronimo Plugins, J2EE</name>
     <packaging>pom</packaging>
+    
     <description>
-        j2ee plugin
+        J2EE plugin
     </description>
+    
     <modules>
-      <!--
-        <module>geronimo-j2ee</module>
-        -->
-      <module>geronimo-j2ee-builder</module>
-      <module>j2ee-deployer</module>
+        <module>geronimo-j2ee-builder</module>
+        <module>j2ee-deployer</module>
         <module>geronimo-j2ee-schema</module>
         <module>geronimo-naming-builder</module>
         <module>geronimo-security-builder</module>
@@ -50,4 +51,5 @@
         <module>unavailable-ejb-deployer</module>
         <module>unavailable-webservices-deployer</module>
     </modules>
+
 </project>

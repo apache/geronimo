@@ -29,7 +29,7 @@
     </parent>
     
     <artifactId>geronimo-maven-plugin</artifactId>
-    <name>Geronimo Build Support, Geronimo</name>
+    <name>Geronimo Build Support :: Geronimo</name>
     <packaging>maven-plugin</packaging>
     
     <description>
@@ -40,13 +40,13 @@
     <dependencies>
 
         <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
+            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-deploy-jsr88</artifactId>
             <version>${version}</version>
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
+            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-kernel</artifactId>
             <version>${version}</version>
         </dependency>

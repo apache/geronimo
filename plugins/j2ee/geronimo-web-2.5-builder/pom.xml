@@ -23,33 +23,31 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>modules</artifactId>
+        <groupId>org.apache.geronimo.plugins</groupId>
+        <artifactId>j2ee</artifactId>
         <version>2.1-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
-
+    
+    <groupId>org.apache.geronimo.modules</groupId>
     <artifactId>geronimo-web-2.5-builder</artifactId>
-    <name>Geronimo Modules :: Web 2.5 :: Builder</name>
+    <name>Geronimo Plugins, J2EE :: Web 2.5 Builder</name>
 
     <dependencies>
-
         <dependency>
-
             <!-- g-schema-jee_5 comes via g-j2ee-builder from this -->
-            <groupId>${pom.groupId}</groupId>
+            <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-naming-builder</artifactId>
             <version>${version}</version>
         </dependency>
 
         <dependency>
-            <groupId>${pom.groupId}</groupId>
+            <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-security-builder</artifactId>
             <version>${version}</version>
         </dependency>
 
         <dependency>
-            <groupId>${pom.groupId}</groupId>
+            <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-test-ddbean</artifactId>
             <version>${version}</version>
         </dependency>
@@ -58,7 +56,6 @@
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-servlet_2.5_spec</artifactId>
         </dependency>
-
     </dependencies>
 
     <build>

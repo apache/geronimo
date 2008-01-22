@@ -25,12 +25,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.apache.geronimo.applications</groupId>
-        <artifactId>applications</artifactId>
+        <groupId>org.apache.geronimo.plugins</groupId>
+        <artifactId>mejb</artifactId>
         <version>2.1-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
-
+    
+    <groupId>org.apache.geronimo.applications</groupId>
     <artifactId>geronimo-mejb</artifactId>
     <name>Geronimo Management EJB :: Stateless Session :: </name>
 

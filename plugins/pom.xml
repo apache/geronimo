@@ -33,24 +33,14 @@
     <name>Geronimo Plugins</name>
     <packaging>pom</packaging>
     
-    <properties>
-        <!-- This property is required by the car:package mojo -->
-        <geronimoVersion>${version}</geronimoVersion>
-        <gbeanDeployerBootstrap>org.apache.geronimo.configs/geronimo-gbean-deployer-bootstrap/${version}/car</gbeanDeployerBootstrap>
-        <gbeanDeployer>org.apache.geronimo.configs/geronimo-gbean-deployer/${version}/car</gbeanDeployer>
-        <j2eeDeployer>org.apache.geronimo.configs/j2ee-deployer/${version}/car</j2eeDeployer>
-        <clientDeployer>org.apache.geronimo.configs/client-deployer/${version}/car</clientDeployer>
-        <connectorDeployer>org.apache.geronimo.configs/connector-deployer/${version}/car</connectorDeployer>
-        <openejbDeployer>org.apache.geronimo.configs/openejb-deployer/${version}/car</openejbDeployer>
-        <openejbcorbaDeployer>org.apache.geronimo.configs/openejb-corba-deployer/${version}/car</openejbcorbaDeployer>
-        <axisDeployer>org.apache.geronimo.configs/axis-deployer/${version}/car</axisDeployer>
-        <cxfDeployer>org.apache.geronimo.configs/cxf-deployer/${version}/car</cxfDeployer>
-        <axis2Deployer>org.apache.geronimo.configs/axis2-deployer/${version}/car</axis2Deployer>
-        <tomcatDeployer>org.apache.geronimo.configs/tomcat6-deployer/${version}/car</tomcatDeployer>
-        <jetty6Deployer>org.apache.geronimo.configs/jetty6-deployer/${version}/car</jetty6Deployer>
-        <jasperDeployer>org.apache.geronimo.configs/jasper-deployer/${version}/car</jasperDeployer>
-        <jpaDeployer>org.apache.geronimo.configs/persistence-jpa10-deployer/${version}/car</jpaDeployer>
-    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.geronimo.testsupport</groupId>
+            <artifactId>testsupport-common</artifactId>
+            <version>${version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
     
     <modules>
         <module>activemq</module>
@@ -82,18 +72,6 @@
     </modules>
     
     <build>
-        <!--
-        NOTE: Don't add to extentions here, or JCL will freak out about multipule versions.
-
-        <extensions>
-            <extension>
-                <groupId>org.apache.geronimo.buildsupport</groupId>
-                <artifactId>car-maven-plugin</artifactId>
-                <version>${version}</version>
-            </extension>
-        </extensions>
-        -->
-
         <plugins>
             <plugin>
                 <groupId>org.apache.geronimo.buildsupport</groupId>

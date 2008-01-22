@@ -26,20 +26,19 @@
         <groupId>org.apache.geronimo.plugins</groupId>
         <artifactId>plugins</artifactId>
         <version>2.1-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>javamail</artifactId>
-    <name>Geronimo Plugins :: javamail</name>
+    <name>Geronimo Plugins, JavaMail</name>
     <packaging>pom</packaging>
 
     <description>
-        javamail plugin
+        JavaMail plugin
     </description>
 
     <modules>
-<module>geronimo-mail</module>
-<module>javamail</module>
+        <module>geronimo-mail</module>
+        <module>javamail</module>
     </modules>
 
 </project>

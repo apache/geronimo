@@ -30,16 +30,16 @@
     </parent>
 
     <artifactId>hotdeploy</artifactId>
-    <name>Geronimo Plugins :: hotdeploy</name>
+    <name>Geronimo Plugins, Hot Deploy</name>
     <packaging>pom</packaging>
 
     <description>
-        hotdeploy plugin
+        Hot deploy plugin
     </description>
 
     <modules>
-<module>geronimo-hot-deploy</module>
-<module>hot-deployer</module>
+        <module>geronimo-hot-deploy</module>
+        <module>hot-deployer</module>
     </modules>
 
 </project>

@@ -23,14 +23,14 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>configs</artifactId>
+        <groupId>org.apache.geronimo.plugins</groupId>
+        <artifactId>axis2</artifactId>
         <version>2.1-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
 
+    <groupId>org.apache.geronimo.configs</groupId>
     <artifactId>axis2</artifactId>
-    <name>Geronimo Configs :: Axis2</name>
+    <name>Geronimo Plugins, AXIS2 :: AXIS2</name>
     <packaging>car</packaging>
 
     <description>
@@ -38,7 +38,6 @@
     </description>
 
     <dependencies>
-
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>j2ee-server</artifactId>
@@ -47,7 +46,7 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
+            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>server-security-config</artifactId>
             <version>${version}</version>
             <type>car</type>
@@ -82,98 +81,121 @@
             <groupId>org.apache.axis2</groupId>
             <artifactId>axis2-java2wsdl</artifactId>
         </dependency>
+
         <dependency>
             <groupId>org.apache.axis2</groupId>
             <artifactId>axis2-kernel</artifactId>
         </dependency>
+
         <dependency>
             <groupId>org.apache.axis2</groupId>
             <artifactId>axis2-adb</artifactId>
         </dependency>
+
         <dependency>
             <groupId>org.apache.axis2</groupId>
             <artifactId>axis2-jaxws</artifactId>
         </dependency>
+
         <dependency>
             <groupId>org.apache.axis2</groupId>
             <artifactId>axis2-jaxws-api</artifactId>
         </dependency>
+
         <dependency>
             <groupId>org.apache.axis2</groupId>
             <artifactId>axis2-metadata</artifactId>
         </dependency>
+
         <dependency>
             <groupId>org.apache.axis2</groupId>
             <artifactId>axis2-saaj</artifactId>
         </dependency>
+
         <dependency>
-             <groupId>org.apache.httpcomponents</groupId>
-             <artifactId>httpcore</artifactId>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpcore</artifactId>
         </dependency>
+
         <dependency>
             <groupId>org.apache.ws.commons.axiom</groupId>
             <artifactId>axiom-api</artifactId>
         </dependency>
+
         <dependency>
             <groupId>org.apache.ws.commons.axiom</groupId>
             <artifactId>axiom-dom</artifactId>
         </dependency>
+
         <dependency>
             <groupId>org.apache.ws.commons.axiom</groupId>
             <artifactId>axiom-impl</artifactId>
         </dependency>
+
         <dependency>
             <groupId>org.apache.ws.commons.schema</groupId>
             <artifactId>XmlSchema</artifactId>
         </dependency>
+
         <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
         </dependency>
+
         <dependency>
             <groupId>commons-httpclient</groupId>
             <artifactId>commons-httpclient</artifactId>
         </dependency>
+
         <dependency>
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
         </dependency>
+
         <dependency>
             <groupId>org.apache.xmlbeans</groupId>
             <artifactId>xmlbeans</artifactId>
         </dependency>
+
         <dependency>
             <groupId>jaxen</groupId>
             <artifactId>jaxen</artifactId>
         </dependency>
+
         <dependency>
             <groupId>annogen</groupId>
             <artifactId>annogen</artifactId>
         </dependency>
+
         <dependency>
             <groupId>xml-resolver</groupId>
             <artifactId>xml-resolver</artifactId>
         </dependency>
+
         <dependency>
             <groupId>org.apache.neethi</groupId>
             <artifactId>neethi</artifactId>
         </dependency>
-       <dependency>
-           <groupId>com.sun.xml.ws</groupId>
-           <artifactId>jaxws-tools</artifactId>
-       </dependency>
-       <dependency>
-           <groupId>com.sun.xml.ws</groupId>
-           <artifactId>jaxws-rt</artifactId>
-       </dependency>
-       <dependency>
-           <groupId>com.sun.xml.bind</groupId>
-           <artifactId>jaxb-xjc</artifactId>
-       </dependency>
-       <dependency>
-           <groupId>backport-util-concurrent</groupId>
-           <artifactId>backport-util-concurrent</artifactId>
-       </dependency>
+
+        <dependency>
+            <groupId>com.sun.xml.ws</groupId>
+            <artifactId>jaxws-tools</artifactId>
+        </dependency>
+        
+        <dependency>
+            <groupId>com.sun.xml.ws</groupId>
+            <artifactId>jaxws-rt</artifactId>
+        </dependency>
+        
+        <dependency>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-xjc</artifactId>
+        </dependency>
+        
+        <dependency>
+            <groupId>backport-util-concurrent</groupId>
+            <artifactId>backport-util-concurrent</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -191,4 +213,5 @@
             </plugin>
         </plugins>
     </build>
+
 </project>

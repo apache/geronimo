@@ -48,28 +48,28 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
+            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>j2ee-system</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
+            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>client-system</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
+            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>upgrade-cli</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
+            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>rmi-naming</artifactId>
             <version>${version}</version>
             <type>car</type>
@@ -83,7 +83,7 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
+            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>j2ee-security</artifactId>
             <version>${version}</version>
             <type>car</type>
@@ -111,7 +111,7 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
+            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-gbean-deployer</artifactId>
             <version>${version}</version>
             <type>car</type>
@@ -139,7 +139,7 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
+            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>shutdown</artifactId>
             <version>${version}</version>
             <type>car</type>
@@ -153,28 +153,28 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
+            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>online-deployer</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
+            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>offline-deployer</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
+            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>jsr88-cli</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
+            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>jsr88-deploymentfactory</artifactId>
             <version>${version}</version>
             <type>car</type>

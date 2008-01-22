@@ -29,7 +29,7 @@
     </parent>
     
     <artifactId>buildsupport-maven-plugin</artifactId>
-    <name>Geronimo Build Support, Buildsupport Maven Plugin</name>
+    <name>Geronimo Build Support :: Plugin</name>
     <packaging>maven-plugin</packaging>
     
     <description>

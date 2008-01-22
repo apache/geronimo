@@ -23,17 +23,16 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>modules</artifactId>
+        <groupId>org.apache.geronimo.plugins</groupId>
+        <artifactId>connector</artifactId>
         <version>2.1-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
-
+    
+    <groupId>org.apache.geronimo.modules</groupId>
     <artifactId>geronimo-connector</artifactId>
-    <name>Geronimo Modules :: Connector</name>
+    <name>Geronimo Plugins, Connector :: Core</name>
 
     <dependencies>
-        
         <dependency>
             <groupId>org.apache.geronimo.components</groupId>
             <artifactId>geronimo-connector</artifactId>
@@ -46,20 +45,20 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
+            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-naming</artifactId>
             <version>${version}</version>
         </dependency>
 
         <!-- Needed only for DeploymentException in a test, from NameFactory which probably shouldn't be throwing it in the first place-->
         <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
+            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-deployment</artifactId>
             <version>${version}</version>
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
+            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-security</artifactId>
             <version>${version}</version>
         </dependency>
@@ -81,7 +80,7 @@
             <groupId>regexp</groupId>
             <artifactId>regexp</artifactId>
         </dependency>
-
     </dependencies>
+
 </project>
 

@@ -26,20 +26,19 @@
         <groupId>org.apache.geronimo.plugins</groupId>
         <artifactId>plugins</artifactId>
         <version>2.1-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>mejb</artifactId>
-    <name>Geronimo Plugins :: mejb</name>
+    <name>Geronimo Plugins, MEJB</name>
     <packaging>pom</packaging>
 
     <description>
-        mejb plugin
+        MEJB plugin
     </description>
 
     <modules>
-<module>geronimo-mejb</module>
-<module>mejb</module>
+        <module>geronimo-mejb</module>
+        <module>mejb</module>
     </modules>
 
 </project>

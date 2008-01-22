@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="ISO-8859-1"?>
 <!--
     Licensed to the Apache Software Foundation (ASF) under one or more
     contributor license agreements.  See the NOTICE file distributed with
@@ -21,27 +21,26 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-
+    
     <parent>
         <groupId>org.apache.geronimo.plugins</groupId>
         <artifactId>pluto</artifactId>
         <version>2.1-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
-
+    
     <artifactId>pluto-support</artifactId>
-    <name>Geronimo Plugins :: Pluto container support</name>
+    <name>Geronimo Plugins, Pluto :: Support</name>
     <packaging>car</packaging>
 
     <dependencies>
-    
         <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
+            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-gbean-deployer</artifactId>
             <version>${version}</version>
             <type>car</type>
             <scope>provided</scope>
         </dependency>
+        
         <dependency>
             <groupId>org.apache.pluto</groupId>
             <artifactId>pluto-portal-driver</artifactId>
@@ -114,7 +113,6 @@
             <groupId>commons-digester</groupId>
             <artifactId>commons-digester</artifactId>
         </dependency>
-
     </dependencies>
 
     <build>
@@ -128,8 +126,8 @@
                     </deploymentConfigs>
                     <category>Portals</category>
                     <description>
-                      Pluto portal container support for Geronimo.  This configuration provides the components
-                      for portlet applications that are shared across the web container.
+                        Pluto portal container support for Geronimo.  This configuration provides the components
+                        for portlet applications that are shared across the web container.
                     </description>
                     <osiApproved>true</osiApproved>
                     <useMavenDependencies>

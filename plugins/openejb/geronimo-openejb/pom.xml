@@ -15,62 +15,64 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 -->
-<!-- $Revision$ $Date$ -->
 
-<project>
+<!-- $Rev$ $Date$ -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
     <modelVersion>4.0.0</modelVersion>
-
+    
     <parent>
-        <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>modules</artifactId>
+        <groupId>org.apache.geronimo.plugins</groupId>
+        <artifactId>openejb</artifactId>
         <version>2.1-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
-
+    
+    <groupId>org.apache.geronimo.modules</groupId>
     <artifactId>geronimo-openejb</artifactId>
-    <name>Geronimo Modules :: OpenEJB</name>
+    <name>Geronimo Plugins, OpenEJB :: Core</name>
 
     <dependencies>
         <dependency>
             <groupId>org.apache.openejb</groupId>
             <artifactId>openejb-core</artifactId>
             <exclusions>
-              <exclusion>
-                <groupId>org.apache.geronimo.modules</groupId>
-                <artifactId>geronimo-security</artifactId>
-              </exclusion>
-              <exclusion>
-                <groupId>org.apache.geronimo.modules</groupId>
-                <artifactId>geronimo-kernel</artifactId>
-              </exclusion>
-              <exclusion>
-                <groupId>org.apache.geronimo.modules</groupId>
-                <artifactId>geronimo-connector</artifactId>
-              </exclusion>
-              <exclusion>
-                <groupId>org.apache.geronimo.modules</groupId>
-                <artifactId>geronimo-interceptor</artifactId>
-              </exclusion>
-              <exclusion>
-                <groupId>org.apache.geronimo.modules</groupId>
-                <artifactId>geronimo-naming</artifactId>
-              </exclusion>
-              <exclusion>
-                <groupId>org.apache.geronimo.modules</groupId>
-                <artifactId>geronimo-transaction</artifactId>
-              </exclusion>
-              <exclusion>
-                <groupId>org.apache.geronimo.modules</groupId>
-                <artifactId>geronimo-timer</artifactId>
-              </exclusion>
-              <exclusion>
-                <groupId>org.apache.geronimo.modules</groupId>
-                <artifactId>geronimo-webservices</artifactId>
-              </exclusion>
-              <exclusion>
-                <groupId>stax</groupId>
-                <artifactId>stax-api</artifactId>
-              </exclusion>
+                <exclusion>
+                    <groupId>org.apache.geronimo.framework</groupId>
+                    <artifactId>geronimo-security</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.geronimo.framework</groupId>
+                    <artifactId>geronimo-kernel</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.geronimo.modules</groupId>
+                    <artifactId>geronimo-connector</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.geronimo.framework</groupId>
+                    <artifactId>geronimo-interceptor</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.geronimo.framework</groupId>
+                    <artifactId>geronimo-naming</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.geronimo.modules</groupId>
+                    <artifactId>geronimo-transaction</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.geronimo.modules</groupId>
+                    <artifactId>geronimo-timer</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.geronimo.modules</groupId>
+                    <artifactId>geronimo-webservices</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>stax</groupId>
+                    <artifactId>stax-api</artifactId>
+                </exclusion>
                 <exclusion>
                     <groupId>org.apache.openjpa</groupId>
                     <artifactId>openjpa-persistence-jdbc</artifactId>
@@ -82,29 +84,35 @@
             <groupId>org.apache.openejb</groupId>
             <artifactId>openejb-ejbd</artifactId>
         </dependency>
+        
         <dependency>
-          <groupId>org.apache.openejb</groupId>
-          <artifactId>openejb-client</artifactId>
+            <groupId>org.apache.openejb</groupId>
+            <artifactId>openejb-client</artifactId>
         </dependency>
+        
         <dependency>
-          <groupId>org.apache.openejb</groupId>
-          <artifactId>openejb-server</artifactId>
+            <groupId>org.apache.openejb</groupId>
+            <artifactId>openejb-server</artifactId>
         </dependency>
+        
         <dependency>
-          <groupId>org.apache.openejb</groupId>
-          <artifactId>openejb-loader</artifactId>
+            <groupId>org.apache.openejb</groupId>
+            <artifactId>openejb-loader</artifactId>
         </dependency>
+        
         <dependency>
-          <groupId>org.apache.openejb</groupId>
-          <artifactId>openejb-jee</artifactId>
+            <groupId>org.apache.openejb</groupId>
+            <artifactId>openejb-jee</artifactId>
         </dependency>
+        
         <dependency>
-          <groupId>org.apache.openejb</groupId>
-          <artifactId>openejb-ejbd</artifactId>
+            <groupId>org.apache.openejb</groupId>
+            <artifactId>openejb-ejbd</artifactId>
         </dependency>
+        
         <dependency>
-          <groupId>org.apache.openejb</groupId>
-          <artifactId>openejb-javaagent</artifactId>
+            <groupId>org.apache.openejb</groupId>
+            <artifactId>openejb-javaagent</artifactId>
         </dependency>
 
         <dependency>
@@ -112,10 +120,10 @@
             <artifactId>jaxb-impl</artifactId>
             <version>2.0.3</version>
             <exclusions>
-	        <exclusion>
-	            <groupId>javax.xml</groupId>
-	            <artifactId>jsr173</artifactId>
-	        </exclusion>
+                <exclusion>
+                    <groupId>javax.xml</groupId>
+                    <artifactId>jsr173</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
 
@@ -126,11 +134,12 @@
             <artifactId>geronimo-connector</artifactId>
             <version>${version}</version>
         </dependency>
+        
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-persistence-jpa10</artifactId>
             <version>${version}</version>
         </dependency>
-
     </dependencies>
+
 </project>

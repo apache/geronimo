@@ -23,18 +23,17 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.apache.geronimo.applications</groupId>
-        <artifactId>applications</artifactId>
+        <groupId>org.apache.geronimo.plugins</groupId>
+        <artifactId>uddi-server</artifactId>
         <version>2.1-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
-
+    
+    <groupId>org.apache.geronimo.applications</groupId>
     <artifactId>geronimo-uddi-server</artifactId>
     <name>Geronimo Applications :: UDDI Server</name>
     <packaging>war</packaging>
 
     <dependencies>
-
         <dependency>
             <groupId>juddi</groupId>
             <artifactId>juddi</artifactId>
@@ -46,7 +45,6 @@
             <artifactId>geronimo-jsp_2.1_spec</artifactId>
             <scope>provided</scope>
         </dependency>
-
     </dependencies>
 
     <build>

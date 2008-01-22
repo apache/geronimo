@@ -21,22 +21,21 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-
+    
     <parent>
-        <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>configs</artifactId>
+        <groupId>org.apache.geronimo.plugins</groupId>
+        <artifactId>openejb</artifactId>
         <version>2.1-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
-
+    
+    <groupId>org.apache.geronimo.configs</groupId>
     <artifactId>openejb</artifactId>
-    <name>Geronimo Configs :: OpenEJB</name>
+    <name>Geronimo Plugins, OpenEJB :: OpenEJB</name>
     <packaging>car</packaging>
 
     <description>Geronimo integration of the OpenEJB  ejb container.</description>
 
     <dependencies>
-
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>j2ee-server</artifactId>
@@ -45,7 +44,7 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
+            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>server-security-config</artifactId>
             <version>${version}</version>
             <type>car</type>
@@ -64,7 +63,7 @@
             <version>${version}</version>
             <type>car</type>
         </dependency>
-        
+
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>activemq-broker</artifactId>
@@ -76,38 +75,38 @@
             <groupId>org.apache.openejb</groupId>
             <artifactId>openejb-core</artifactId>
             <exclusions>
-              <exclusion>
-                <groupId>org.apache.geronimo.modules</groupId>
-                <artifactId>geronimo-security</artifactId>
-              </exclusion>
-              <exclusion>
-                <groupId>org.apache.geronimo.modules</groupId>
-                <artifactId>geronimo-kernel</artifactId>
-              </exclusion>
-              <exclusion>
-                <groupId>org.apache.geronimo.modules</groupId>
-                <artifactId>geronimo-connector</artifactId>
-              </exclusion>
-              <exclusion>
-                <groupId>org.apache.geronimo.modules</groupId>
-                <artifactId>geronimo-interceptor</artifactId>
-              </exclusion>
-              <exclusion>
-                <groupId>org.apache.geronimo.modules</groupId>
-                <artifactId>geronimo-naming</artifactId>
-              </exclusion>
-              <exclusion>
-                <groupId>org.apache.geronimo.modules</groupId>
-                <artifactId>geronimo-transaction</artifactId>
-              </exclusion>
-              <exclusion>
-                <groupId>org.apache.geronimo.modules</groupId>
-                <artifactId>geronimo-timer</artifactId>
-              </exclusion>
-              <exclusion>
-                <groupId>org.apache.geronimo.modules</groupId>
-                <artifactId>geronimo-webservices</artifactId>
-              </exclusion>
+                <exclusion>
+                    <groupId>org.apache.geronimo.framework</groupId>
+                    <artifactId>geronimo-security</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.geronimo.framework</groupId>
+                    <artifactId>geronimo-kernel</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.geronimo.modules</groupId>
+                    <artifactId>geronimo-connector</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.geronimo.framework</groupId>
+                    <artifactId>geronimo-interceptor</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.geronimo.framework</groupId>
+                    <artifactId>geronimo-naming</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.geronimo.modules</groupId>
+                    <artifactId>geronimo-transaction</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.geronimo.modules</groupId>
+                    <artifactId>geronimo-timer</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.geronimo.modules</groupId>
+                    <artifactId>geronimo-webservices</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
 
@@ -137,10 +136,9 @@
         </dependency>
 
         <dependency>
-             <groupId>org.apache.xbean</groupId>
-             <artifactId>xbean-finder</artifactId>
+            <groupId>org.apache.xbean</groupId>
+            <artifactId>xbean-finder</artifactId>
         </dependency>
-
     </dependencies>
 
     <build>

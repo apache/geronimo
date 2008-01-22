@@ -23,20 +23,19 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>configs</artifactId>
+        <groupId>org.apache.geronimo.plugins</groupId>
+        <artifactId>jasper</artifactId>
         <version>2.1-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
 
+    <groupId>org.apache.geronimo.configs</groupId>
     <artifactId>jasper-deployer</artifactId>
-    <name>Geronimo Configs :: Jasper Deployer</name>
+    <name>Geronimo Plugins, Jasper :: Deployer</name>
     <packaging>car</packaging>
 
-    <description>Deployer for Jasper jsps.  Installs injection support components.</description>
+    <description>Deployer for Jasper jsps. Installs injection support components.</description>
 
     <dependencies>
-
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>j2ee-deployer</artifactId>
@@ -97,4 +96,5 @@
             </plugin>
         </plugins>
     </build>
+
 </project>

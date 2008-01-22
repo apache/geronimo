@@ -21,34 +21,32 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-    
-    <parent>
-        <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>modules</artifactId>
-        <version>2.1-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
-    </parent>
 
+    <parent>
+        <groupId>org.apache.geronimo.plugins</groupId>
+        <artifactId>j2ee</artifactId>
+        <version>2.1-SNAPSHOT</version>
+    </parent>
+    
+    <groupId>org.apache.geronimo.modules</groupId>
     <artifactId>geronimo-naming-builder</artifactId>
-    <name>Geronimo Modules :: Naming :: Builder</name>
+    <name>Geronimo Plugins, J2EE :: Naming Builder</name>
     
     <dependencies>
-
         <!-- g-kernel, g-common, g-j2ee coming from this via g-security -->
         <!-- g-deployment, g-deploy-config coming from this via g-service-builder -->
         <dependency>
-            <groupId>${pom.groupId}</groupId>
+            <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-j2ee-builder</artifactId>
             <version>${version}</version>
         </dependency>
 
         <!-- g-jta_1.1_spec comes from this -->
         <dependency>
-            <groupId>${pom.groupId}</groupId>
+            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-naming</artifactId>
             <version>${version}</version>
         </dependency>
-        
     </dependencies>
     
     <build>

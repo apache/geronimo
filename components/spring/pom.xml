@@ -23,14 +23,14 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>configs</artifactId>
+        <groupId>org.apache.geronimo.components</groupId>
+        <artifactId>components</artifactId>
         <version>2.1-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
-
+    
+    <groupId>org.apache.geronimo.configs</groupId>
     <artifactId>spring</artifactId>
-    <name>Geronimo Configs :: Spring</name>
+    <name>Geronimo Components :: Spring</name>
     <packaging>car</packaging>
 
     <description>
@@ -38,16 +38,16 @@
     </description>
 
     <dependencies>
-
         <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
+            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-gbean-deployer</artifactId>
             <version>${version}</version>
             <type>car</type>
             <scope>provided</scope>
         </dependency>
+        
         <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
+            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>jee-specs</artifactId>
             <version>${version}</version>
             <type>car</type>
@@ -72,7 +72,6 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-web</artifactId>
         </dependency>
-
     </dependencies>
 
     <build>

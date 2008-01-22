@@ -16,22 +16,23 @@
     limitations under the License.
 -->
 
-<!-- $Rev: 590482 $ $Date: 2007-10-30 16:51:54 -0500 (Tue, 30 Oct 2007) $ -->
+<!-- $Rev: 613667 $ $Date: 2008-01-20 12:18:37 -0800 (Sun, 20 Jan 2008) $ -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>configs</artifactId>
+        <groupId>org.apache.geronimo.plugins</groupId>
+        <artifactId>dojo-legacy</artifactId>
         <version>2.1-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
-
+    
+    <groupId>org.apache.geronimo.configs</groupId>
     <artifactId>dojo-legacy-jetty6</artifactId>
-    <name>Geronimo Configs :: Dojo Legacy app - Jetty6</name>
+    <name>Geronimo Plugins, Dojo Legacy :: Jetty6</name>
     <packaging>car</packaging>
+    
     <description>
         The Dojo AJAX library for Geronimo. This binds to /dojo so that
         applications needing to add dojo support can simply include a
@@ -39,7 +40,6 @@
     </description>
 
     <dependencies>
-
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-dojo-legacy</artifactId>
@@ -62,7 +62,6 @@
             <type>car</type>
             <scope>provided</scope>
         </dependency>
-
     </dependencies>
 
     <build>

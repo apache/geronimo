@@ -21,24 +21,23 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-    
-    <parent>
-        <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>configs</artifactId>
-        <version>2.1-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
-    </parent>
 
+    <parent>
+        <groupId>org.apache.geronimo.plugins</groupId>
+        <artifactId>hotdeploy</artifactId>
+        <version>2.1-SNAPSHOT</version>
+    </parent>
+    
+    <groupId>org.apache.geronimo.configs</groupId>
     <artifactId>hot-deployer</artifactId>
-    <name>Geronimo Configs :: Hot Deployer</name>
+    <name>Geronimo Plugins, Hot Deploy :: Deployer</name>
     <packaging>car</packaging>
 
     <description>The hot deployer is a bad substitute for using explicit deploy commands from maven, the command line, or the console.</description>
     
     <dependencies>
-        
         <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
+            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>plugin</artifactId>
             <version>${version}</version>
             <type>car</type>
@@ -58,11 +57,10 @@
         </dependency>
         
         <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
+            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-deploy-tool</artifactId>
             <version>${version}</version>
         </dependency>
-
     </dependencies>
     
     <build>

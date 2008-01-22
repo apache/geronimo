@@ -60,7 +60,10 @@
               as the maven-release-plugin will not update this value.
         -->
         <version>2.1-SNAPSHOT</version>
-
+        
+        <!-- This property is required by the car:package mojo -->
+        <geronimoVersion>${version}</geronimoVersion>
+        
         <geronimoSchemaVersion>1.2</geronimoSchemaVersion>
 
         <!--
@@ -95,8 +98,44 @@
         <axiomVersion>1.2.5</axiomVersion>
         <springVersion>2.0.5</springVersion>
         <plutoVersion>1.2.0-G601060</plutoVersion>
+        
+        <gbeanDeployerBootstrap>org.apache.geronimo.framework/geronimo-gbean-deployer-bootstrap/${version}/car</gbeanDeployerBootstrap>
+        <gbeanDeployer>org.apache.geronimo.framework/geronimo-gbean-deployer/${version}/car</gbeanDeployer>
+        <j2eeDeployer>org.apache.geronimo.configs/j2ee-deployer/${version}/car</j2eeDeployer>
+        <clientDeployer>org.apache.geronimo.configs/client-deployer/${version}/car</clientDeployer>
+        <connectorDeployer>org.apache.geronimo.configs/connector-deployer/${version}/car</connectorDeployer>
+        <openejbDeployer>org.apache.geronimo.configs/openejb-deployer/${version}/car</openejbDeployer>
+        <openejbcorbaDeployer>org.apache.geronimo.configs/openejb-corba-deployer/${version}/car</openejbcorbaDeployer>
+        <axisDeployer>org.apache.geronimo.configs/axis-deployer/${version}/car</axisDeployer>
+        <cxfDeployer>org.apache.geronimo.configs/cxf-deployer/${version}/car</cxfDeployer>
+        <axis2Deployer>org.apache.geronimo.configs/axis2-deployer/${version}/car</axis2Deployer>
+        <tomcatDeployer>org.apache.geronimo.configs/tomcat6-deployer/${version}/car</tomcatDeployer>
+        <jetty6Deployer>org.apache.geronimo.configs/jetty6-deployer/${version}/car</jetty6Deployer>
+        <jasperDeployer>org.apache.geronimo.configs/jasper-deployer/${version}/car</jasperDeployer>
+        <jpaDeployer>org.apache.geronimo.configs/persistence-jpa10-deployer/${version}/car</jpaDeployer>
+        
+        <!-- Common plan properties -->
+        <PlanServerHostname>0.0.0.0</PlanServerHostname>
+        <PlanRemoteDeployHostname>127.0.0.1</PlanRemoteDeployHostname>
+        <PlanClientAddresses>127.0.0.1</PlanClientAddresses>
+        <PlanHTTPPort>8080</PlanHTTPPort>
+        <PlanHTTPSPort>8443</PlanHTTPSPort>
+        <PlanAJPPort>8019</PlanAJPPort>
+        <PlanOpenEJBPort>4201</PlanOpenEJBPort>
+        <PlanNamingPort>1099</PlanNamingPort>
+        <PlanActiveMQPort>61616</PlanActiveMQPort>
+        <PlanCOSNamingHost>localhost</PlanCOSNamingHost>
+        <PlanCOSNamingPort>1050</PlanCOSNamingPort>
+        <PlanCOSSunNamingPort>1050</PlanCOSSunNamingPort>
+        <PlanORBHost>localhost</PlanORBHost>
+        <PlanORBPort>6882</PlanORBPort>
+        <PlanORBSunPort>6882</PlanORBSunPort>
+        <PlanORBSSLHost>localhost</PlanORBSSLHost>
+        <PlanORBSSLPort>2001</PlanORBSSLPort>
+        <PlanORBSunSSLPort>2001</PlanORBSunSSLPort>
+        <PlanJMXPort>9999</PlanJMXPort>
     </properties>
-
+    
     <dependencyManagement>
         <dependencies>
 
@@ -2304,7 +2343,6 @@
                 <module>assemblies</module>
             </modules>
         </profile>
-
 
         <!--
         NOTE: This profile is used to enable plugin prefixes for easy command-line usage, as in:

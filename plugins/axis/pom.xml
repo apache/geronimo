@@ -26,22 +26,21 @@
         <groupId>org.apache.geronimo.plugins</groupId>
         <artifactId>plugins</artifactId>
         <version>2.1-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>axis</artifactId>
-    <name>Geronimo Plugins :: axis</name>
+    <name>Geronimo Plugins, AXIS</name>
     <packaging>pom</packaging>
 
     <description>
-        axis plugin
+        AXIS plugin
     </description>
 
     <modules>
-<module>axis</module>
-<module>axis-deployer</module>
-<module>geronimo-axis</module>
-<module>geronimo-axis-builder</module>
+        <module>axis</module>
+        <module>axis-deployer</module>
+        <module>geronimo-axis</module>
+        <module>geronimo-axis-builder</module>
     </modules>
 
 </project>

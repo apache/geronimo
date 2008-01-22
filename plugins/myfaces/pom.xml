@@ -26,22 +26,21 @@
         <groupId>org.apache.geronimo.plugins</groupId>
         <artifactId>plugins</artifactId>
         <version>2.1-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>myfaces</artifactId>
-    <name>Geronimo Plugins :: myfaces</name>
+    <name>Geronimo Plugins, MyFaces</name>
     <packaging>pom</packaging>
 
     <description>
-        myfaces plugin
+        MyFaces plugin
     </description>
 
     <modules>
-<module>geronimo-myfaces</module>
-<module>geronimo-myfaces-builder</module>
-<module>myfaces</module>
-<module>myfaces-deployer</module>
+        <module>geronimo-myfaces</module>
+        <module>geronimo-myfaces-builder</module>
+        <module>myfaces</module>
+        <module>myfaces-deployer</module>
     </modules>
 
 </project>

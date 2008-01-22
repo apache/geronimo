@@ -23,16 +23,15 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.apache.geronimo.modules</groupId>
+        <groupId>org.apache.geronimo.framework</groupId>
         <artifactId>modules</artifactId>
         <version>2.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>geronimo-deploy-tool</artifactId>
-    <name>Geronimo Framework, Modules :: Deploy :: CLI Tool</name>
+    <name>Geronimo Framework, Modules :: Deploy Tool</name>
     
     <dependencies>
-        
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-javaee-deployment_1.1MR3_spec</artifactId>
@@ -40,19 +39,19 @@
 
         <!-- g-deployment comes from this -->
         <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
+            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-service-builder</artifactId>
             <version>${version}</version>
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
+            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-cli</artifactId>
             <version>${version}</version>
         </dependency>
         
         <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
+            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-deploy-jsr88</artifactId>
             <version>${version}</version>
         </dependency>
@@ -61,7 +60,6 @@
             <groupId>jline</groupId>
             <artifactId>jline</artifactId>
         </dependency>
-        
     </dependencies>
     
 </project>

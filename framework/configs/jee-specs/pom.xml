@@ -23,7 +23,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.apache.geronimo.configs</groupId>
+        <groupId>org.apache.geronimo.framework</groupId>
         <artifactId>configs</artifactId>
         <version>2.1-SNAPSHOT</version>
     </parent>
@@ -125,23 +125,23 @@
         <!-- WS API -->
 
         <!--
-                <dependency>
-                    <groupId>org.apache.geronimo.specs</groupId>
-                    <artifactId>geronimo-stax-api_1.0_spec</artifactId>
-                </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-stax-api_1.0_spec</artifactId>
+        </dependency>
         -->
         <!--
-                <dependency>
-                    <groupId>javax.xml.bind</groupId>
-                    <artifactId>jaxb-api</artifactId>
-                </dependency>
+        <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+        </dependency>
         -->
         <!-- JAXB Impl should not be here! -->
         <!--
-                <dependency>
-                    <groupId>com.sun.xml.bind</groupId>
-                    <artifactId>jaxb-impl</artifactId>
-                </dependency>
+        <dependency>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-impl</artifactId>
+        </dependency>
         -->
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
@@ -167,26 +167,26 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
+            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-jdbc</artifactId>
             <version>${version}</version>
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
+            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>j2ee-system</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>
+        
         <!-- build order hint -->
         <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
+            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-gbean-deployer-bootstrap</artifactId>
             <version>${version}</version>
             <type>car</type>
             <scope>provided</scope>
         </dependency>
-
     </dependencies>
 
     <build>
@@ -198,7 +198,7 @@
                     <deploymentConfigs>
                         <deploymentConfig>${gbeanDeployerBootstrap}</deploymentConfig>
                     </deploymentConfigs>
-                    <deployerName>org.apache.geronimo.configs/geronimo-gbean-deployer-bootstrap/${geronimoVersion}/car?j2eeType=Deployer,name=Deployer</deployerName>
+                    <deployerName>org.apache.geronimo.framework/geronimo-gbean-deployer-bootstrap/${geronimoVersion}/car?j2eeType=Deployer,name=Deployer</deployerName>
                     <useMavenDependencies>
                         <value>false</value>
                     </useMavenDependencies>
@@ -206,7 +206,7 @@
                     <category>JavaEE</category>
                     <dependencies>
                         <dependency>
-                            <groupId>org.apache.geronimo.configs</groupId>
+                            <groupId>org.apache.geronimo.framework</groupId>
                             <artifactId>j2ee-system</artifactId>
                             <type>car</type>
                             <import>classes</import>
@@ -317,7 +317,7 @@
                             <type>jar</type>
                         </dependency>
                         <dependency>
-                            <groupId>org.apache.geronimo.modules</groupId>
+                            <groupId>org.apache.geronimo.framework</groupId>
                             <artifactId>geronimo-jdbc</artifactId>
                             <type>jar</type>
                         </dependency>

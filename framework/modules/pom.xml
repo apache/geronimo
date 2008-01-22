@@ -28,19 +28,9 @@
         <version>2.1-SNAPSHOT</version>
     </parent>
     
-    <groupId>org.apache.geronimo.modules</groupId>
     <artifactId>modules</artifactId>
     <name>Geronimo Framework, Modules</name>
     <packaging>pom</packaging>
-    
-    <dependencies>
-        <dependency>
-            <groupId>org.apache.geronimo.testsupport</groupId>
-            <artifactId>testsupport-common</artifactId>
-            <version>${version}</version>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
     
     <modules>
         <module>geronimo-cli</module>

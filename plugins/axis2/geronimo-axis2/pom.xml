@@ -16,21 +16,21 @@
     limitations under the License.
 -->
 
-<!-- $Rev: 589641 $ $Date: 2007-10-29 10:43:01 -0400 (Mon, 29 Oct 2007) $ -->
+<!-- $Rev: 613667 $ $Date: 2008-01-20 12:18:37 -0800 (Sun, 20 Jan 2008) $ -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    
+
     <modelVersion>4.0.0</modelVersion>
-    
+
     <parent>
-        <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>modules</artifactId>
+        <groupId>org.apache.geronimo.plugins</groupId>
+        <artifactId>axis2</artifactId>
         <version>2.1-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
-    
+
+    <groupId>org.apache.geronimo.modules</groupId>
     <artifactId>geronimo-axis2</artifactId>
-    <name>Geronimo Modules :: AXIS2</name>
+    <name>Geronimo Plugins, AXIS2 :: Core</name>
     
     <dependencies>
         <dependency>
@@ -65,43 +65,53 @@
             <groupId>org.apache.axis2</groupId>
             <artifactId>axis2-java2wsdl</artifactId>
         </dependency>
+        
         <dependency>
             <groupId>org.apache.axis2</groupId>
             <artifactId>axis2-kernel</artifactId>
         </dependency>
+        
         <dependency>
             <groupId>org.apache.axis2</groupId>
             <artifactId>axis2-adb</artifactId>
         </dependency>
+        
         <dependency>
             <groupId>org.apache.axis2</groupId>
             <artifactId>axis2-jaxws-api</artifactId>
         </dependency>
+        
         <dependency>
             <groupId>org.apache.axis2</groupId>
             <artifactId>axis2-metadata</artifactId>
         </dependency>
+        
         <dependency>
             <groupId>org.apache.ws.commons.axiom</groupId>
             <artifactId>axiom-api</artifactId>
         </dependency>
+        
         <dependency>
             <groupId>woodstox</groupId>
             <artifactId>wstx-asl</artifactId>
             <scope>test</scope>
         </dependency>
+        
         <dependency>
             <groupId>org.apache.ws.commons.axiom</groupId>
             <artifactId>axiom-impl</artifactId>
         </dependency>
+        
         <dependency>
             <groupId>org.apache.ws.commons.schema</groupId>
             <artifactId>XmlSchema</artifactId>
         </dependency>
+        
         <dependency>
             <groupId>org.apache.neethi</groupId>
             <artifactId>neethi</artifactId>
         </dependency>
+        
         <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
@@ -120,30 +130,37 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        
         <dependency>
             <groupId>commons-httpclient</groupId>
             <artifactId>commons-httpclient</artifactId>
         </dependency>
+        
         <dependency>
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
         </dependency>
+        
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-stax-api_1.0_spec</artifactId>
         </dependency>
+        
         <dependency>
             <groupId>org.apache.xmlbeans</groupId>
             <artifactId>xmlbeans</artifactId>
         </dependency>
+        
         <dependency>
             <groupId>jaxen</groupId>
             <artifactId>jaxen</artifactId>
         </dependency>
+        
         <dependency>
             <groupId>annogen</groupId>
             <artifactId>annogen</artifactId>
         </dependency>
+        
         <dependency>
             <groupId>javax.xml.bind</groupId>
             <artifactId>jaxb-api</artifactId>

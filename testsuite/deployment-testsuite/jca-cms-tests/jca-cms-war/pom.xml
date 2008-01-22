@@ -28,19 +28,7 @@
     <artifactId>jca-cms-war</artifactId>
     <name>Geronimo TestSuite :: Deployment Testsuite :: J2CA Container Managed Security WAR</name>
     <packaging>war</packaging>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-war-plugin</artifactId>
-                <configuration>
-                    <webXml>${pom.basedir}/src/main/webapp/WEB-INF/web.xml</webXml>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-
+    
     <dependencies>
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
@@ -59,4 +47,17 @@
             <scope>provided</scope>
         </dependency>
     </dependencies>
+    
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <configuration>
+                    <webXml>${pom.basedir}/src/main/webapp/WEB-INF/web.xml</webXml>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>

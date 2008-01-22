@@ -23,26 +23,27 @@
     <modelVersion>4.0.0</modelVersion>
     
     <parent>
-        <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>configs</artifactId>
+        <groupId>org.apache.geronimo.plugins</groupId>
+        <artifactId>myfaces</artifactId>
         <version>2.1-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
-
+    
+    <groupId>org.apache.geronimo.configs</groupId>
     <artifactId>myfaces</artifactId>
-    <name>Geronimo Configs :: MyFaces</name>
+    <name>Geronimo Plugins, MyFaces :: MyFaces</name>
     <packaging>car</packaging>
 
     <description>Geronimo MyFaces jsf integration</description>
     
     <dependencies>
         <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
+            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-gbean-deployer</artifactId>
             <version>${version}</version>
             <type>car</type>
             <scope>provided</scope>
         </dependency>
+        
         <!-- parent -->
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
@@ -50,6 +51,7 @@
             <version>${version}</version>
             <type>car</type>
         </dependency>
+        
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-myfaces</artifactId>
@@ -85,7 +87,6 @@
             <groupId>commons-discovery</groupId>
             <artifactId>commons-discovery</artifactId>
         </dependency>
-
     </dependencies>
 
     <build>

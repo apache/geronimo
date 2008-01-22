@@ -23,24 +23,22 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>modules</artifactId>
+        <groupId>org.apache.geronimo.plugins</groupId>
+        <artifactId>console</artifactId>
         <version>2.1-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
 
+    <groupId>org.apache.geronimo.modules</groupId>
     <artifactId>geronimo-converter</artifactId>
-    <name>Geronimo :: Configuration Converter</name>
+    <name>Geronimo Plugins, Console :: Configuration Converter</name>
     
     <dependencies>
-
-        <!-- g-kernel comes transitively from this -->    
+        <!-- g-kernel comes transitively from this -->
         <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
+            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-common</artifactId>
             <version>${version}</version>
         </dependency>
-        
     </dependencies>
     
 </project>

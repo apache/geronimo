@@ -30,11 +30,11 @@
     </parent>
 
     <artifactId>welcome</artifactId>
-    <name>Geronimo Plugins :: welcome</name>
+    <name>Geronimo Plugins, Welcome</name>
     <packaging>pom</packaging>
 
     <description>
-        welcome plugin
+        Welcome plugin
     </description>
 
     <modules>

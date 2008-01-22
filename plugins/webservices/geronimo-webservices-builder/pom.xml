@@ -16,24 +16,23 @@
     limitations under the License.
 -->
 
-<!-- $Rev: 589641 $ $Date: 2007-10-29 10:43:01 -0400 (Mon, 29 Oct 2007) $ -->
+<!-- $Rev: 590482 $ $Date: 2007-10-30 14:51:54 -0700 (Tue, 30 Oct 2007) $ -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>modules</artifactId>
+        <groupId>org.apache.geronimo.plugins</groupId>
+        <artifactId>webservices</artifactId>
         <version>2.1-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
-
+    
+    <groupId>org.apache.geronimo.modules</groupId>
     <artifactId>geronimo-webservices-builder</artifactId>
-    <name>Geronimo Modules :: Webservices :: Builder</name>
+    <name>Geronimo Plugins, Web Services :: Builder</name>
 
     <dependencies>
-        
         <dependency>
             <groupId>${pom.groupId}</groupId>
             <artifactId>geronimo-webservices</artifactId>
@@ -66,7 +65,6 @@
             <groupId>wsdl4j</groupId>
             <artifactId>wsdl4j</artifactId>
         </dependency>
-        
     </dependencies>
     
     <build>

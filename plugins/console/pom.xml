@@ -26,17 +26,23 @@
         <groupId>org.apache.geronimo.plugins</groupId>
         <artifactId>plugins</artifactId>
         <version>2.1-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>console</artifactId>
-    <name>Geronimo Plugins :: Administration Console</name>
+    <name>Geronimo Plugins, Console</name>
     <packaging>pom</packaging>
 
     <description>
         Geronimo administration console supporting dynamic extensions
     </description>
-
+    
+    <dependencies>
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+        </dependency>
+    </dependencies>
+    
     <modules>
         <module>geronimo-converter</module>
         <module>console-core</module>

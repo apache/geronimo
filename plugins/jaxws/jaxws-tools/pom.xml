@@ -16,27 +16,26 @@
     limitations under the License.
 -->
 
-<!-- $Rev: 580112 $ $Date: 2007-09-27 13:35:15 -0400 (Thu, 27 Sep 2007) $ -->
+<!-- $Rev: 607778 $ $Date: 2007-12-31 13:21:20 -0800 (Mon, 31 Dec 2007) $ -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>configs</artifactId>
+        <groupId>org.apache.geronimo.plugins</groupId>
+        <artifactId>jaxws</artifactId>
         <version>2.1-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
-
+    
+    <groupId>org.apache.geronimo.configs</groupId>
     <artifactId>jaxws-tools</artifactId>
-    <name>Geronimo Configs :: JAXWS CLI Tools</name>
+    <name>Geronimo Plugins, JAXWS :: Tools</name>
     <packaging>resource-bundle</packaging>
 
     <description>JAX-WS command line tools</description>
     
     <dependencies>
-
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>jaxws-deployer</artifactId>
@@ -49,12 +48,10 @@
             <artifactId>geronimo-jaxws-builder</artifactId>
             <version>${version}</version>
         </dependency>
-        
     </dependencies>
     
     <build>
         <plugins>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
@@ -129,7 +126,6 @@
                     </execution>
                 </executions>
             </plugin>
-
         </plugins>
     </build>
 

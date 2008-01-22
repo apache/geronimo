@@ -23,14 +23,14 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>configs</artifactId>
+        <groupId>org.apache.geronimo.plugins</groupId>
+        <artifactId>j2ee</artifactId>
         <version>2.1-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
-
+    
+    <groupId>org.apache.geronimo.configs</groupId>
     <artifactId>j2ee-deployer</artifactId>
-    <name>Geronimo Configs :: J2EE Deployer</name>
+    <name>Geronimo Plugins, J2EE :: Deployer</name>
     <packaging>car</packaging>
 
     <description>
@@ -38,9 +38,8 @@
     </description>
 
     <dependencies>
-
         <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
+            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-gbean-deployer</artifactId>
             <version>${version}</version>
             <type>car</type>
@@ -55,7 +54,7 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
+            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>j2ee-security</artifactId>
             <version>${version}</version>
             <type>car</type>
@@ -120,7 +119,6 @@
             <artifactId>xbean-finder</artifactId>
             <scope>runtime</scope>
         </dependency>
-
     </dependencies>
 
     <build>
@@ -184,7 +182,7 @@
                             <import>classes</import>
                         </dependency>
                         <dependency>
-                            <groupId>org.apache.geronimo.configs</groupId>
+                            <groupId>org.apache.geronimo.framework</groupId>
                             <artifactId>j2ee-security</artifactId>
                             <version>2.1-SNAPSHOT</version>
                             <type>car</type>
@@ -198,7 +196,7 @@
                             <import>classes</import>
                         </dependency>
                         <dependency>
-                            <groupId>org.apache.geronimo.configs</groupId>
+                            <groupId>org.apache.geronimo.framework</groupId>
                             <artifactId>geronimo-gbean-deployer</artifactId>
                             <version>2.1-SNAPSHOT</version>
                             <type>car</type>
@@ -250,6 +248,5 @@
             </plugin>
         </plugins>
     </build>
-    
 
 </project>

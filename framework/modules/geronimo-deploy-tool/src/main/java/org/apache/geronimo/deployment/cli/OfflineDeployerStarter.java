@@ -43,7 +43,7 @@ import org.apache.geronimo.kernel.repository.MissingDependencyException;
  * @version $Rev: 476049 $ $Date: 2006-11-17 15:35:17 +1100 (Fri, 17 Nov 2006) $
  */
 public class OfflineDeployerStarter {
-    private static final Artifact OFFLINE_DEPLOYER_ARTIFACT = new Artifact("org.apache.geronimo.configs",
+    private static final Artifact OFFLINE_DEPLOYER_ARTIFACT = new Artifact("org.apache.geronimo.framework",
             "offline-deployer",
             (String) null,
             "car");

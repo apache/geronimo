@@ -23,14 +23,14 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>configs</artifactId>
+        <groupId>org.apache.geronimo.plugins</groupId>
+        <artifactId>jetty</artifactId>
         <version>2.1-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
-
+    
+    <groupId>org.apache.geronimo.configs</groupId>
     <artifactId>jetty6-clustering-wadi</artifactId>
-    <name>Geronimo Configs :: Jetty 6 Clustering over WADI</name>
+    <name>Geronimo Plugins, Jetty :: Jetty 6 Clustering over WADI</name>
     <packaging>car</packaging>
 
     <description>WADI clustering for Jetty.</description>

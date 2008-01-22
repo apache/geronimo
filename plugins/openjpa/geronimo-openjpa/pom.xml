@@ -23,18 +23,18 @@
     <modelVersion>4.0.0</modelVersion>
     
     <parent>
-        <artifactId>modules</artifactId>
-        <groupId>org.apache.geronimo.modules</groupId>
+        <groupId>org.apache.geronimo.plugins</groupId>
+        <artifactId>openjpa</artifactId>
         <version>2.1-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
     
+    <groupId>org.apache.geronimo.modules</groupId>
     <artifactId>geronimo-openjpa</artifactId>
-    <name>Geronimo Modules :: OpenJPA</name>
+    <name>Geronimo Plugins, OpenJPA :: Core</name>
     
     <dependencies>
         <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
+            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-j2ee</artifactId>
             <version>${version}</version>
         </dependency>
@@ -43,7 +43,6 @@
             <groupId>org.apache.openjpa</groupId>
             <artifactId>openjpa</artifactId>
         </dependency>
-
     </dependencies>
 
 </project>

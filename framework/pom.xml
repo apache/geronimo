@@ -33,6 +33,15 @@
     <name>Geronimo Framework</name>
     <packaging>pom</packaging>
     
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.geronimo.testsupport</groupId>
+            <artifactId>testsupport-common</artifactId>
+            <version>${version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+    
     <modules>
         <module>modules</module>
         <module>configs</module>

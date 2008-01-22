@@ -23,12 +23,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.apache.geronimo.applications</groupId>
-        <artifactId>applications</artifactId>
+        <groupId>org.apache.geronimo.plugins</groupId>
+        <artifactId>ca-helper</artifactId>
         <version>2.1-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
 
+    <groupId>org.apache.geronimo.applications</groupId>
     <artifactId>geronimo-ca-helper</artifactId>
     <name>Geronimo Applications :: CA Helper Application</name>
     <packaging>war</packaging>
@@ -39,16 +39,15 @@
     </description>
 
     <dependencies>
-
         <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
+            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-kernel</artifactId>
             <version>${version}</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
+            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-management</artifactId>
             <version>${version}</version>
             <scope>provided</scope>
@@ -65,7 +64,6 @@
             <artifactId>geronimo-jsp_2.1_spec</artifactId>
             <scope>provided</scope>
         </dependency>
-
     </dependencies>
 
     <build>

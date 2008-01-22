@@ -19,34 +19,32 @@
 <!-- $Rev$ $Date$ -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    
+
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>modules</artifactId>
+        <groupId>org.apache.geronimo.plugins</groupId>
+        <artifactId>jetty</artifactId>
         <version>2.1-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
-
+    
+    <groupId>org.apache.geronimo.modules</groupId>
     <artifactId>geronimo-jetty6-clustering-builder-wadi</artifactId>
-    <name>Geronimo Modules :: Jetty 6 :: Clustering Builder for WADI</name>
+    <name>Geronimo Plugins, Jetty :: Clustering Builder for WADI Core</name>
     
     <dependencies>
-
         <dependency>
-            <groupId>${pom.groupId}</groupId>
+            <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-jetty6-clustering-wadi</artifactId>
             <version>${version}</version>
         </dependency>
 
         <!-- xmlbeans, stax-api comes transitively via g-service-builder from this -->
         <dependency>
-            <groupId>${pom.groupId}</groupId>
+            <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-naming-builder</artifactId>
             <version>${version}</version>
         </dependency>
-
     </dependencies>
     
     <build>
