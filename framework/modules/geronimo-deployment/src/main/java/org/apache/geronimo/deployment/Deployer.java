@@ -18,6 +18,7 @@
 package org.apache.geronimo.deployment;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -510,6 +511,11 @@ public class Deployer implements GBeanLifecycle {
 
         public void run() {
             log.debug("ConfigStoreReaper started");
+
+            // DeployerReaper in offline deployment does not get a chance to reap the temporary
+            // directories. Reap any temporary directories left behind by previous runs here.
+            reapBacklog();
+
             while (!done) {
                 try {
                     Thread.sleep(reaperInterval);
@@ -517,6 +523,27 @@ public class Deployer implements GBeanLifecycle {
                     continue;
                 }
                 reap();
+            }
+        }
+
+        /**
+         * Reap any temporary directories left behind by previous runs.
+         */
+        private void reapBacklog() {
+            try {
+                File tempFile = File.createTempFile("geronimo-deployer", ".tmpdir");
+                File tempDir = tempFile.getParentFile();
+                tempFile.delete();
+                String[] backlog = tempDir.list(new FilenameFilter(){
+                    public boolean accept(File dir, String name) {
+                        return name.startsWith("geronimo-deployer") && name.endsWith(".tmpdir") && new File(dir, name).isDirectory();
+                    }});
+                for(String dir: backlog) {
+                    File deleteDir = new File(tempDir, dir);
+                    DeploymentUtil.recursiveDelete(deleteDir);
+                    log.debug("Reaped deployment directory from previous runs " + deleteDir);
+                }
+            } catch (IOException ignored) {
             }
         }
 
