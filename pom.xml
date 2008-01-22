@@ -2321,7 +2321,6 @@
                 <module>buildsupport</module>
                 <module>testsupport</module>
                 <module>framework</module>
-                <module>components</module>
                 <module>plugins</module>
                 <module>applications</module>
                 <module>assemblies</module>
@@ -2337,7 +2336,6 @@
                 <module>buildsupport</module>
                 <module>testsupport</module>
                 <module>framework</module>
-                <module>components</module>
                 <module>plugins</module>
                 <module>applications</module>
                 <module>assemblies</module>
@@ -2413,7 +2411,6 @@
 
             <modules>
               <module>framework/configs</module>
-              <module>components</module>
               <module>plugins</module>
               <module>applications</module>
               <module>assemblies</module>
@@ -2435,7 +2432,6 @@
                 <module>buildsupport</module>
                 <module>testsupport</module>
                 <module>framework</module>
-                <module>components</module>
                 <module>plugins</module>
                 <module>applications</module>
             </modules>

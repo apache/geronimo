@@ -117,7 +117,7 @@
             <outputFileNameMapping>jpa.jar</outputFileNameMapping>
             <useStrictFiltering>true</useStrictFiltering>
             <includes>
-                <include>org.apache.geronimo.configs:transformer-agent</include>
+                <include>org.apache.geronimo.framework:transformer-agent</include>
             </includes>
         </dependencySet>
 

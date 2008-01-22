@@ -49,6 +49,8 @@
         <module>server-security-config</module>
         <module>shutdown</module>
         <module>upgrade-cli</module>
+        <module>upgrade</module>
+        <module>transformer-agent</module>
     </modules>
     
     <build>

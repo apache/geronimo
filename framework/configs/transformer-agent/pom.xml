@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="ISO-8859-1"?>
 <!--
     Licensed to the Apache Software Foundation (ASF) under one or more
     contributor license agreements.  See the NOTICE file distributed with
@@ -6,9 +6,9 @@
     The ASF licenses this file to You under the Apache License, Version 2.0
     (the "License"); you may not use this file except in compliance with
     the License.  You may obtain a copy of the License at
-    
+
        http://www.apache.org/licenses/LICENSE-2.0
-    
+
     Unless required by applicable law or agreed to in writing, software
     distributed under the License is distributed on an "AS IS" BASIS,
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,65 +19,62 @@
 <!-- $Rev$ $Date$ -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    
+
     <modelVersion>4.0.0</modelVersion>
     
     <parent>
-        <groupId>org.apache.geronimo</groupId>
-        <artifactId>geronimo</artifactId>
+        <groupId>org.apache.geronimo.framework</groupId>
+        <artifactId>configs</artifactId>
         <version>2.1-SNAPSHOT</version>
     </parent>
-
-    <groupId>org.apache.geronimo.components</groupId>
-    <artifactId>components</artifactId>
-    <name>Geronimo Components</name>
-    <packaging>pom</packaging>
     
+    <artifactId>transformer-agent</artifactId>
+    <name>Geronimo Framework, Configs :: Transformer Agent</name>
+    <packaging>car</packaging>
+
+    <description>Geronimo class transformer registry agent.</description>
+
     <dependencies>
         <dependency>
-            <groupId>org.apache.geronimo.testsupport</groupId>
-            <artifactId>testsupport-common</artifactId>
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>geronimo-gbean-deployer</artifactId>
             <version>${version}</version>
-            <scope>test</scope>
+            <type>car</type>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
-    
-    <modules>
-        <module>spring</module>
-        <module>transformer-agent</module>
-        <module>upgrade</module>
-    </modules>
     
     <build>
         <plugins>
             <plugin>
                 <groupId>org.apache.geronimo.buildsupport</groupId>
                 <artifactId>car-maven-plugin</artifactId>
-                <!-- Install as extention to allow 'car' packaging to be used. -->
-                <extensions>true</extensions>
                 <configuration>
                     <archive>
-                        <!-- Do not include META-INF/maven to avoid long file problems on windows -->
-                        <addMavenDescriptor>false</addMavenDescriptor>
+                        <manifestEntries>
+                            <Endorsed-Dirs>../lib/endorsed</Endorsed-Dirs>
+                            <Extension-Dirs>../lib/ext</Extension-Dirs>
+                            <Premain-Class>org.apache.geronimo.transformer.TransformerAgent</Premain-Class>
+                        </manifestEntries>
                     </archive>
-                    <osiApproved>true</osiApproved>
+                    
                     <!--
+                    NOTE: This list of dependencies is non-transitive.
+                    -->
+                    <classpath>
+                        <element>
+                            <groupId>org.apache.geronimo.framework</groupId>
+                            <artifactId>geronimo-transformer</artifactId>
+                            <version>${version}</version>
+                        </element>
+                    </classpath>
+                    <classpathPrefix>../lib</classpathPrefix>
+
+                    <category>Geronimo Core</category>
                     <useMavenDependencies>
                         <value>true</value>
                         <includeVersion>true</includeVersion>
                     </useMavenDependencies>
-                    -->
-                    <commonInstance>
-                        <plugin-artifact>
-                            <geronimo-version>${geronimoVersion}</geronimo-version>
-                            <jvm-version>1.5</jvm-version>
-                            <!--<source-repository>http://www.geronimoplugins.com/repository/geronimo-2.1</source-repository>-->
-                            <source-repository>~/.m2/repository/</source-repository>
-                            <source-repository>http://repo1.maven.org/maven2/</source-repository>
-                            <source-repository>http://people.apache.org/repo/m2-snapshot-repository/</source-repository>
-                            <source-repository>http://people.apache.org/repo/m2-incubating-repository/</source-repository>
-                        </plugin-artifact>
-                    </commonInstance>
                 </configuration>
             </plugin>
         </plugins>

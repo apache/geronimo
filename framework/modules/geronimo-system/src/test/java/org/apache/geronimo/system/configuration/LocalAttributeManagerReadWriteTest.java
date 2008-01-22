@@ -161,7 +161,7 @@ public class LocalAttributeManagerReadWriteTest extends TestCase {
                     "    <ns2:module name=\"org.apache.geronimo.plugins/console-jetty/2.1-SNAPSHOT/car\"/>\n" +
                     "    <ns2:module name=\"org.apache.geronimo.plugins/pluto-support/2.1-SNAPSHOT/car\"/>\n" +
                     "    <ns2:module name=\"org.apache.geronimo.configs/spring/2.1-SNAPSHOT/car\"/>\n" +
-                    "    <ns2:module name=\"org.apache.geronimo.configs/transformer-agent/2.1-SNAPSHOT/car\"/>\n" +
+                    "    <ns2:module name=\"org.apache.geronimo.framework/transformer-agent/2.1-SNAPSHOT/car\"/>\n" +
                     "    <ns2:module name=\"org.apache.geronimo.configs/remote-deploy-jetty/2.1-SNAPSHOT/car\"/>\n" +
                     "    <ns2:module name=\"org.apache.geronimo.configs/cxf-ejb/2.1-SNAPSHOT/car\"/>\n" +
                     "    <ns2:module name=\"org.apache.geronimo.configs/cxf/2.1-SNAPSHOT/car\"/>\n" +

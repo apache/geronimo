@@ -69,6 +69,7 @@
         <module>system-database</module>
         <module>tomcat</module>
         <module>webservices</module>
+        <module>spring</module>
     </modules>
     
     <build>
