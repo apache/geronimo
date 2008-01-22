@@ -42,9 +42,9 @@ public abstract class AbstractGBeanReference implements GBeanReference {
         String no_proxy = System.getProperty("Xorg.apache.geronimo.gbean.NoProxy", "true");
         NO_PROXY = no_proxy.equalsIgnoreCase("true");
         if (NO_PROXY) {
-            log.warn("GBean references are not using proxies");
+            log.info("GBean references are not using proxies");
         } else {
-            log.warn("GBean references are using proxies");
+            log.info("GBean references are using proxies");
         }
     }
 
