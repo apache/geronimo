@@ -21,6 +21,7 @@ import java.net.URL;
 
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletException;
+import javax.portlet.PortletSession;
 import javax.portlet.RenderRequest;
 import javax.security.auth.login.FailedLoginException;
 
@@ -39,6 +40,7 @@ import org.apache.geronimo.kernel.config.NoSuchStoreException;
  */
 public abstract class BaseImportExportHandler extends MultiPageAbstractHandler {
     protected static final String CONFIG_LIST_SESSION_KEY = "console.plugins.ConfigurationList";
+    protected static final String CONFIG_LIST_REPO_SESSION_KEY = "console.plugins.ConfigurationListRepo";
     protected static final String SERVER_CONFIG_LIST_SESSION_KEY = "console.plugins.ServerConfigurationList";
     public static final String DOWNLOAD_RESULTS_SESSION_KEY = "console.plugins.DownloadResults";
     protected static final String INDEX_MODE = "index";
@@ -60,14 +62,18 @@ public abstract class BaseImportExportHandler extends MultiPageAbstractHandler {
     }
 
     protected PluginListType getRepoPluginList(PortletRequest request, PluginInstaller pluginInstaller, String repo, String user, String pass) throws IOException, PortletException {
-        PluginListType list = (PluginListType) request.getPortletSession(true).getAttribute(CONFIG_LIST_SESSION_KEY);
-        if (list == null) {
+        PortletSession session = request.getPortletSession(true);
+        PluginListType list = (PluginListType) session.getAttribute(CONFIG_LIST_SESSION_KEY);
+        String listRepo = (String) session.getAttribute(CONFIG_LIST_REPO_SESSION_KEY);
+
+        if (list == null || !repo.equals(listRepo)) {
             try {
                 list = pluginInstaller.listPlugins(new URL(repo), user, pass);
             } catch (FailedLoginException e) {
                 throw new PortletException("Invalid login for repository '" + repo + "'", e);
             }
-            request.getPortletSession(true).setAttribute(CONFIG_LIST_SESSION_KEY, list);
+            session.setAttribute(CONFIG_LIST_SESSION_KEY, list);
+            session.setAttribute(CONFIG_LIST_REPO_SESSION_KEY, repo);
         }
         return list;
     }
