@@ -94,7 +94,7 @@ public class EmbeddedDaemon implements Main {
             if (parser.isLongProgress()) {
                 monitor = new LongStartupMonitor();
             } else {
-                monitor = new ProgressBarStartupMonitor();
+                monitor = new SimpleProgressBarStartupMonitor();
             }
         }
         lifecycleMonitor = new DebugLoggingLifecycleMonitor(log);
