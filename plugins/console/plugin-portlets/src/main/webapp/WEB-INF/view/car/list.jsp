@@ -21,11 +21,15 @@
 <fmt:setBundle basename="pluginportlets"/>
 <portlet:defineObjects/>
 
-<h3><fmt:message key="car.list.pluginRepo" /> <a href='${repository}'>${repository}</a></h3>
+<h3><fmt:message key="car.list.pluginRepo" />&nbsp;<a href='${repository}'>${repository}</a></h3>
 
 <c:choose>
 <c:when test="${fn:length(plugins) < 1}">
   <fmt:message key="car.list.noPlugins" />
+  <p>
+  <form>
+    <input type="submit" value="Cancel" onclick="history.go(-1); return false;" />
+  </form>
 </c:when>
 <c:otherwise>
 <form action="<portlet:actionURL/>">
@@ -90,11 +94,9 @@ onclick="document.getElementById('mode').value='viewForDownload-after'">
 </tr>
 </c:forEach>
 </table>
+    <p>
     <input type="submit" value="Install"/>
+    <input type="submit" value="Cancel" onclick="history.go(-1); return false;" />
 </form>
 </c:otherwise>
 </c:choose>
-
-<p><form>
-<input type="submit" value="Cancel" onclick="history.go(-1); return false;" />
-</form>
