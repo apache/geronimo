@@ -76,7 +76,7 @@
         <module>monitoring</module>
         <module>remote-deploy</module>
         <module>sharedlib</module>
-        <moddle>welcome</moddle>
+        <module>welcome</module>
     </modules>
     
     <build>
