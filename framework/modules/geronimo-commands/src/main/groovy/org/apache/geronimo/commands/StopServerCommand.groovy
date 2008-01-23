@@ -19,6 +19,7 @@
 
 package org.apache.geronimo.commands
 
+import org.apache.geronimo.gshell.clp.Option
 import org.apache.geronimo.gshell.command.annotation.CommandComponent
 import org.apache.geronimo.gshell.command.CommandSupport
 
@@ -31,21 +32,25 @@ import org.apache.geronimo.gshell.command.CommandSupport
 class StopServerCommand
     extends CommandSupport
 {
-    //
-    // TODO: Expose as options, maybe expose a single URI-ish thingy?
-    //
-
+    @Option(name='-s', aliases=['--hostname', '--server'], description='Hostname, default localhost')
     String hostname = 'localhost'
 
+    @Option(name='-p', aliases=['--port'], description='Port, default 1099')
     int port = 1099
 
+    @Option(name='-u', aliases=['--username'], description='Username')
     String username = 'system'
 
+    @Option(name='-w', aliases=['--password'], description='Password')
     String password = 'manager'
     
     protected Object doExecute() throws Exception {
         io.out.println("Stopping Geronimo server: ${hostname}:${port}")
-
+        
+        //
+        // TODO: If no password given, then prompt for password
+        //
+        
         def server = new ServerProxy(hostname, port, username, password)
 
         server.shutdown();

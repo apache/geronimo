@@ -51,7 +51,11 @@ class ConnectCommand extends CommandSupport {
 
     protected Object doExecute() throws Exception {
         io.out.println("Connecting to Geronimo server: ${hostname}:${port}")
-
+        
+        //
+        // TODO: If no password given, then prompt for password
+        //
+        
         def kernel = new BasicKernel("gshell deployer")
         def deploymentManager = new RemoteDeploymentManager(Collections.emptySet());
         def deploymentFactory = new DeploymentFactoryWithKernel(kernel, deploymentManager)
