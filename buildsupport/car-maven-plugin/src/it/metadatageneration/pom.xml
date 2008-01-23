@@ -25,14 +25,14 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.apache.geronimo.plugins</groupId>
-        <artifactId>maven-plugins</artifactId>
+        <groupId>org.apache.geronimo.buildsupport</groupId>
+        <artifactId>buildsupport</artifactId>
         <version>2.1-SNAPSHOT</version>
     </parent>
 
-    <groupId>org.apache.geronimo.plugins.it</groupId>
-    <artifactId>car-maven-plugin</artifactId>
-    <name>Geronimo Maven2 Plugins :: CAR</name>
+    <groupId>org.apache.geronimo.buildsupport.it</groupId>
+    <artifactId>metadatageneration</artifactId>
+    <name>Metadata generation test</name>
     <packaging>jar</packaging>
 
     <dependencies>

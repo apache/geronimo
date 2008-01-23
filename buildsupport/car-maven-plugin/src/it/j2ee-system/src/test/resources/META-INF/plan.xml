@@ -23,7 +23,7 @@ specific services - those should be provided by children.-->
 <module xmlns="http://geronimo.apache.org/xml/ns/deployment-1.2">
   <environment>
     <moduleId>
-      <groupId>org.apache.geronimo.plugins</groupId>
+      <groupId>org.apache.geronimo.buildsupport.it</groupId>
       <artifactId>j2ee-system</artifactId>
       <version>2.1-SNAPSHOT</version>
       <type>car</type>
@@ -44,7 +44,7 @@ specific services - those should be provided by children.-->
         <import>classes</import>
       </dependency>
       <dependency>
-        <groupId>org.apache.geronimo.modules</groupId>
+        <groupId>org.apache.geronimo.framework</groupId>
         <artifactId>geronimo-common</artifactId>
         <version>2.1-SNAPSHOT</version>
         <type>jar</type>
@@ -58,7 +58,7 @@ specific services - those should be provided by children.-->
         <import>classes</import>
       </dependency>
       <dependency>
-        <groupId>org.apache.geronimo.modules</groupId>
+        <groupId>org.apache.geronimo.framework</groupId>
         <artifactId>geronimo-util</artifactId>
         <version>2.1-SNAPSHOT</version>
         <type>jar</type>
@@ -121,7 +121,7 @@ specific services - those should be provided by children.-->
         <import>classes</import>
       </dependency>
       <dependency>
-        <groupId>org.apache.geronimo.modules</groupId>
+        <groupId>org.apache.geronimo.framework</groupId>
         <artifactId>geronimo-system</artifactId>
         <version>2.1-SNAPSHOT</version>
         <type>jar</type>
