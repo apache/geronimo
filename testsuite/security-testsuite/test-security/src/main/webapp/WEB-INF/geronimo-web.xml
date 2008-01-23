@@ -27,13 +27,6 @@
             <sys:version>${version}</sys:version>
             <sys:type>war</sys:type>
         </sys:moduleId>
-        <sys:dependencies>
-            <sys:dependency>
-                <sys:groupId>org.apache.geronimo.configs</sys:groupId>
-                <sys:artifactId>j2ee-security</sys:artifactId>
-                <sys:type>car</sys:type>
-            </sys:dependency>
-        </sys:dependencies>
         <sys:hidden-classes/>
         <sys:non-overridable-classes/>
     </sys:environment>
