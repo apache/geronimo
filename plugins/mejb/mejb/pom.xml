@@ -81,7 +81,7 @@
                     </deploymentConfigs>
                     <category>EJB</category>
                     <module>
-                        <groupId>org.apache.geronimo.applications</groupId>
+                        <groupId>org.apache.geronimo.plugins</groupId>
                         <artifactId>geronimo-mejb</artifactId>
                         <version>${version}</version>
                         <type>jar</type>
