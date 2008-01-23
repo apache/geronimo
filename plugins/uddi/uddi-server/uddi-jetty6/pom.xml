@@ -49,7 +49,7 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.applications</groupId>
+            <groupId>org.apache.geronimo.plugins</groupId>
             <artifactId>geronimo-uddi-db</artifactId>
             <version>${version}</version>
         </dependency>
