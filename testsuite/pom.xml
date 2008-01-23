@@ -87,7 +87,7 @@
         <pluginManagement>
             <plugins>
                 <plugin>
-                    <groupId>org.apache.geronimo.plugins</groupId>
+                    <groupId>org.apache.geronimo.buildsupport</groupId>
                     <artifactId>testsuite-maven-plugin</artifactId>
                     <version>${version}</version>
                 </plugin>
@@ -254,7 +254,7 @@
     <reporting>
         <plugins>
             <plugin>
-                <groupId>org.apache.geronimo.plugins</groupId>
+                <groupId>org.apache.geronimo.buildsupport</groupId>
                 <artifactId>testsuite-maven-plugin</artifactId>
             </plugin>
             <!-- This should actually be configured in genesis:project-config -->
@@ -317,7 +317,7 @@
 
                 <plugins>
                     <plugin>
-                        <groupId>org.apache.geronimo.plugins</groupId>
+                        <groupId>org.apache.geronimo.buildsupport</groupId>
                         <artifactId>testsuite-maven-plugin</artifactId>
                         <inherited>false</inherited>
                         <executions>
