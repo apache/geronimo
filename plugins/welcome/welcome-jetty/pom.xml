@@ -30,7 +30,7 @@
 
     <groupId>org.apache.geronimo.configs</groupId>
     <artifactId>welcome-jetty</artifactId>
-    <name>Geronimo Configs :: Welcome app Jetty</name>
+    <name>Geronimo Plugins, Welcome :: Jetty</name>
     <packaging>car</packaging>
 
    <description>

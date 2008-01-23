@@ -30,7 +30,7 @@
 
     <groupId>org.apache.geronimo.configs</groupId>
     <artifactId>welcome-tomcat</artifactId>
-    <name>Geronimo Configs :: Welcome app Tomcat</name>
+    <name>Geronimo Plugins, Welcome :: Tomcat</name>
     <packaging>car</packaging>
 
      <description>

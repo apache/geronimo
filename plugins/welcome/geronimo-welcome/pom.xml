@@ -29,7 +29,7 @@
     </parent>
 
     <artifactId>geronimo-welcome</artifactId>
-    <name>Geronimo Applications :: Welcome</name>
+    <name>Geronimo Plugins, Welcome :: Core</name>
     <packaging>war</packaging>
 
     <description>
