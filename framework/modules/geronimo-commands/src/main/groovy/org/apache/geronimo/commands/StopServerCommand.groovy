@@ -22,6 +22,8 @@ package org.apache.geronimo.commands
 import org.apache.geronimo.gshell.clp.Option
 import org.apache.geronimo.gshell.command.annotation.CommandComponent
 import org.apache.geronimo.gshell.command.CommandSupport
+import org.apache.geronimo.gshell.command.annotation.Requirement
+import org.apache.geronimo.gshell.console.PromptReader
 
 /**
  * Stops a running Geronimo server instance.
@@ -39,17 +41,28 @@ class StopServerCommand
     int port = 1099
 
     @Option(name='-u', aliases=['--username'], description='Username')
-    String username = 'system'
-
+    String username
+    
     @Option(name='-w', aliases=['--password'], description='Password')
-    String password = 'manager'
+    String password
     
     protected Object doExecute() throws Exception {
         io.out.println("Stopping Geronimo server: ${hostname}:${port}")
         
-        //
-        // TODO: If no password given, then prompt for password
-        //
+        // If the username/password was not configured via cli, then prompt the user for the values
+        if (username == null || password == null) {
+            if (username == null) {
+                username = prompter.readLine("Username: ");
+            }
+
+            if (password == null) {
+                password = prompter.readPassword("Password: ");
+            }
+
+            //
+            // TODO: Handle null inputs...
+            //
+        }
         
         def server = new ServerProxy(hostname, port, username, password)
 

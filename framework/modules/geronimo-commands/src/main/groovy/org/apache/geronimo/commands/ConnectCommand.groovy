@@ -27,6 +27,8 @@ import org.apache.geronimo.deployment.plugin.factories.DeploymentFactoryWithKern
 import org.apache.geronimo.deployment.plugin.jmx.RemoteDeploymentManager
 import org.apache.geronimo.cli.deployer.ConnectionParamsImpl
 import org.apache.geronimo.kernel.basic.BasicKernel
+import org.apache.geronimo.gshell.command.annotation.Requirement
+import org.apache.geronimo.gshell.console.PromptReader
 import java.util.Collections
 
 /**
@@ -40,21 +42,35 @@ class ConnectCommand extends CommandSupport {
     @Option(name='-s', aliases=['--hostname', '--server'], description='Hostname, default localhost')
     String hostname = 'localhost'
 
-    @Option(name='-p', aliases=['--port'], description='port, default 1099')
+    @Option(name='-p', aliases=['--port'], description='Port, default 1099')
     int port = 1099
 
-    @Option(name='-u', aliases=['--username'], description='username')
-    String username = 'system'
-
-    @Option(name='-w', aliases=['--password'], description='password')
-    String password = 'manager'
+    @Option(name='-u', aliases=['--username'], description='Username')
+    String username
+    
+    @Option(name='-w', aliases=['--password'], description='Password')
+    String password
+    
+    @Requirement
+    PromptReader prompter
 
     protected Object doExecute() throws Exception {
         io.out.println("Connecting to Geronimo server: ${hostname}:${port}")
         
-        //
-        // TODO: If no password given, then prompt for password
-        //
+        // If the username/password was not configured via cli, then prompt the user for the values
+        if (username == null || password == null) {
+            if (username == null) {
+                username = prompter.readLine("Username: ");
+            }
+
+            if (password == null) {
+                password = prompter.readPassword("Password: ");
+            }
+
+            //
+            // TODO: Handle null inputs...
+            //
+        }
         
         def kernel = new BasicKernel("gshell deployer")
         def deploymentManager = new RemoteDeploymentManager(Collections.emptySet());
