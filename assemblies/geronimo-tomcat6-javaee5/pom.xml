@@ -55,7 +55,7 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
+            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>transformer-agent</artifactId>
             <version>${version}</version>
             <type>car</type>

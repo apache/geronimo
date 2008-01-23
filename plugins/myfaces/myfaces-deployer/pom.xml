@@ -28,7 +28,7 @@
         <version>2.1-SNAPSHOT</version>
     </parent>
     
-    <groupId>org.apache.geronimo.modules</groupId>
+    <groupId>org.apache.geronimo.configs</groupId>
     <artifactId>myfaces-deployer</artifactId>
     <name>Geronimo Plugins, MyFaces :: Deployer</name>
     <packaging>car</packaging>
