@@ -29,7 +29,7 @@
     </parent>
 
     <artifactId>agent-ejb</artifactId>
-    <name>Geronimo Monitoring :: Monitoring Agent :: EJB</name>
+    <name>Geronimo Plugins, Monitoring :: Agent EJB</name>
     <description>Geronimo Monitoring Agent EJB Module</description>
 
     <dependencies>

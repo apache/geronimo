@@ -32,7 +32,7 @@
 
     <groupId>org.apache.geronimo.plugins.monitoring</groupId>
     <artifactId>monitoring</artifactId>
-    <name>Monitoring and Remote Control</name>
+    <name>Geronimo Plugins, Monitoring</name>
     <packaging>pom</packaging>
     <!-- <version>1.0-SNAPSHOT</version> -->
 

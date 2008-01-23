@@ -32,7 +32,7 @@
 
     <groupId>org.apache.geronimo.plugins</groupId>
     <artifactId>mconsole-tomcat</artifactId>
-    <name>Geronimo Plugins :: Monitoring Console - Tomcat</name>
+    <name>Geronimo Plugins, Monitoring :: Console (Tomcat)</name>
     <packaging>car</packaging>
 
     <dependencies>

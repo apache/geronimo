@@ -30,7 +30,7 @@
     </parent>
 
     <artifactId>agent-ear</artifactId>
-    <name>Geronimo Monitoring :: Monitoring Agent :: EAR</name>
+    <name>Geronimo Plugins, Monitoring :: Agent EAR</name>
     <packaging>ear</packaging>
 
     <description>Geronimo Monitoring Agent EAR Module</description>

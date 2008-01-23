@@ -29,7 +29,7 @@
     </parent>
 
     <artifactId>agent-jar</artifactId>
-    <name>Geronimo Monitoring :: Monitoring Agent :: JAR</name>
+    <name>Geronimo Plugins, Monitoring :: Agent JAR</name>
     <description>Geronimo Monitoring Agent Utility Library</description>
 
     <dependencies>

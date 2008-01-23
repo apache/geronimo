@@ -31,7 +31,7 @@
     </parent>
 
     <artifactId>mconsole-ear</artifactId>
-    <name>Geronimo Monitoring :: Console :: EAR</name>
+    <name>Geronimo Plugins, Monitoring :: Console EAR</name>
     <packaging>ear</packaging>
 
     <description>Geronimo Monitoring Console. EAR Module</description>

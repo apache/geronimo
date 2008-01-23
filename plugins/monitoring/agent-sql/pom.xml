@@ -29,7 +29,7 @@
     </parent>
     
     <artifactId>agent-sql</artifactId>
-    <name>Geronimo Modules :: Monitoring Agent :: Database</name>
+    <name>Geronimo Plugins, Monitoring :: Agent SQL</name>
 
     <description>
        This module carries the Monitoring's SQL scripts for all databases.

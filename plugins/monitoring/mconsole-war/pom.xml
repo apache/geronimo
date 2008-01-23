@@ -31,7 +31,7 @@
     </parent>
 
     <artifactId>mconsole-war</artifactId>
-    <name>Geronimo Monitoring :: Monitoring Console :: WAR</name>
+    <name>Geronimo Plugins, Monitoring :: Console WAR</name>
     <packaging>war</packaging>
 
     <description>Geronimo Monitorin Console :: WEB Module</description>
