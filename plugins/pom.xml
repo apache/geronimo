@@ -70,6 +70,13 @@
         <module>tomcat</module>
         <module>webservices</module>
         <module>spring</module>
+        <module>ca-helper</module>
+        <module>uddi</module>
+        <module>mejb</module>
+        <module>monitoring</module>
+        <module>remote-deploy</module>
+        <module>sharedlib</module>
+        <moddle>welcome</moddle>
     </modules>
     
     <build>

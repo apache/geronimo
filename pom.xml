@@ -87,7 +87,7 @@
         <tranqlVendorsVersion>1.3</tranqlVendorsVersion>
 
         <!--
-        HACK: Used by applications/geronimo-dojo
+        HACK: Used by geronimo-dojo
         -->
         <dojoVersion>1.0.2</dojoVersion>
         <dojoLegacyVersion>0.4.3</dojoLegacyVersion>
@@ -2322,7 +2322,6 @@
                 <module>testsupport</module>
                 <module>framework</module>
                 <module>plugins</module>
-                <module>applications</module>
                 <module>assemblies</module>
                 <module>testsuite</module>
             </modules>
@@ -2337,7 +2336,6 @@
                 <module>testsupport</module>
                 <module>framework</module>
                 <module>plugins</module>
-                <module>applications</module>
                 <module>assemblies</module>
             </modules>
         </profile>
@@ -2412,7 +2410,6 @@
             <modules>
               <module>framework/configs</module>
               <module>plugins</module>
-              <module>applications</module>
               <module>assemblies</module>
             </modules>
         </profile>
@@ -2433,7 +2430,6 @@
                 <module>testsupport</module>
                 <module>framework</module>
                 <module>plugins</module>
-                <module>applications</module>
             </modules>
         </profile>
 
@@ -2451,7 +2447,6 @@
                 <module>buildsupport</module>
                 <module>testsupport</module>
                 <module>framework/modules</module>
-                <module>applications</module>
             </modules>
         </profile>
         
