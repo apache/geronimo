@@ -46,6 +46,9 @@ class StopServerCommand
     @Option(name='-w', aliases=['--password'], description='Password')
     String password
     
+    @Requirement
+    PromptReader prompter
+    
     protected Object doExecute() throws Exception {
         io.out.println("Stopping Geronimo server: ${hostname}:${port}")
         
