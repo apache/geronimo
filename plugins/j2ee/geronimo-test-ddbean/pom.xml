@@ -41,7 +41,7 @@
 
         <!-- g-javaee-deployment_1.1MR3_spec comes from this via g-deploy-config -->
         <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
+            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-service-builder</artifactId>
             <version>${version}</version>
         </dependency>
