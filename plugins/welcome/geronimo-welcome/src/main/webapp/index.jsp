@@ -128,16 +128,15 @@
             Apache Geronimo&#8482; successfully. Congratulations!</b></center></p>
 
             <p>As you may have guessed by now, this is the default home page for Geronimo. If you're seeing this page,
-                and you don't think you should be, then either you're either a user who has arrived at new installation
+                and you don't think you should be, then either you're a user who has arrived at new installation
                 of Geronimo, or you're an administrator who hasn't got his/her setup quite right.  If you need help
                 setting up or administering Geronimo, see the
                 <a href="http://geronimo.apache.org/documentation.html">Geronimo Documentation</a>.</p>
 
             <p>If you'd like to get started configuring Geronimo and the applications and services available
               in Geronimo, you might want to start with the Geronimo
-              <a href="/console">Admin Console</a> (if this is your first time using Geronimo, the admin username
-              is probably "system" with password "manager", though if you used the installer you got to choose
-              your own during the installation).</p>
+              <a href="/console">Admin Console</a> (if you have not yet configured this the admin username
+              is "system" with password "manager").</p>
 
             <div style="margin-left: 50px; margin-right: 50px; padding: 10px; background-color:#eee">
                 <p><b>Would you like your application to appear at this URL?</b><br />
@@ -268,7 +267,7 @@ java -jar bin/deployer.jar deploy MyWebApp.war</pre>
             <img src="<%=request.getContextPath()%>/images/powered_by_100x30.gif"/>
             </font><br />
             &nbsp;
-            <font size=-1>Copyright &copy; 1999-2007 Apache Software Foundation</font><br />
+            <font size=-1>Copyright &copy; 1999-2008 Apache Software Foundation</font><br />
             <font size=-1>All Rights Reserved</font> <br />
             &nbsp;</p>
             <p align="right">&nbsp;</p>
