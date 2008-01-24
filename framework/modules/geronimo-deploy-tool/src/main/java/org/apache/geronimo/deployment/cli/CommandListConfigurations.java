@@ -60,12 +60,12 @@ public class CommandListConfigurations extends AbstractCommand {
                 } else {
                     repo = getRepository(consoleReader, mgr);
                 }
-                Map<String, Collection<PluginType>> categories = getPluginCategories(repo, mgr, consoleReader);
-                if (categories == null) {
+                PluginListType plugins = getPluginCategories(repo, mgr, consoleReader);
+                if (plugins == null) {
                     return;
                 }
 
-                PluginListType list = getInstallList(categories, consoleReader, repo);
+                PluginListType list = getInstallList(plugins, consoleReader, repo);
                 if (list == null) {
                     return;
                 }
@@ -96,7 +96,7 @@ public class CommandListConfigurations extends AbstractCommand {
             consoleReader.printNewline();
             return repo;
         }
-        
+
         consoleReader.printNewline();
         consoleReader.printString("Select repository:");
         consoleReader.printNewline();
@@ -119,7 +119,7 @@ public class CommandListConfigurations extends AbstractCommand {
         }
     }
 
-    public Map<String, Collection<PluginType>> getPluginCategories(String repo, GeronimoDeploymentManager mgr, ConsoleReader consoleReader) throws DeploymentException, IOException {
+    public PluginListType getPluginCategories(String repo, GeronimoDeploymentManager mgr, ConsoleReader consoleReader) throws DeploymentException, IOException {
         if (repo == null) {
             return null;
         }
@@ -133,17 +133,23 @@ public class CommandListConfigurations extends AbstractCommand {
         } catch (FailedLoginException e) {
             throw new DeploymentException("Invalid login for Maven repository '" + repo + "'", e);
         }
-        return writePluginList(data, consoleReader);
+        if (data == null || data.getPlugin().size() == 0) {
+            return null;
+        }
+        return data;
     }
 
-    public Map<String, Collection<PluginType>> getLocalPluginCategories(GeronimoDeploymentManager mgr, ConsoleReader consoleReader) throws DeploymentException, IOException {
+    public PluginListType getLocalPluginCategories(GeronimoDeploymentManager mgr, ConsoleReader consoleReader) throws DeploymentException, IOException {
         PluginListType data;
         try {
             data = mgr.createPluginListForRepositories(null);
         } catch (NoSuchStoreException e) {
             throw new DeploymentException("Unable to list configurations", e);
         }
-        return writePluginList(data, consoleReader);
+        if (data == null || data.getPlugin().size() == 0) {
+            return null;
+        }
+        return data;
     }
 
     private Map<String, Collection<PluginType>> writePluginList(PluginListType data, ConsoleReader consoleReader) throws IOException {
@@ -176,7 +182,11 @@ public class CommandListConfigurations extends AbstractCommand {
         return categories;
     }
 
-    public PluginListType getInstallList(Map<String, Collection<PluginType>> categories, ConsoleReader consoleReader, String repo) throws IOException {
+    public PluginListType getInstallList(PluginListType plugins, ConsoleReader consoleReader, String repo) throws IOException {
+        Map<String, Collection<PluginType>> categories = writePluginList(plugins, consoleReader);
+        if (categories == null) {
+            return null;
+        }
         List<PluginType> available = new ArrayList<PluginType>();
         for (Map.Entry<String, Collection<PluginType>> entry : categories.entrySet()) {
             String category = entry.getKey();
@@ -223,12 +233,42 @@ public class CommandListConfigurations extends AbstractCommand {
         int time = (int) (System.currentTimeMillis() - start) / 1000;
         CommandInstallCAR.printResults(consoleReader, results, time);
     }
-    
+
+    public void installPlugins(GeronimoDeploymentManager mgr, List<String> list, PluginListType all, String defaultRepository, ConsoleReader consoleReader, ServerConnection connection) throws IOException, DeploymentException {
+        PluginListType selected = getPluginsFromIds(list, all);
+        installPlugins(mgr, selected, defaultRepository, consoleReader, connection);
+    }
+
+    private static PluginListType getPluginsFromIds(List<String> configIds, PluginListType list) throws IllegalStateException {
+        PluginListType installList = new PluginListType();
+        for (String configId : configIds) {
+            PluginType plugin = null;
+            for (PluginType metadata : list.getPlugin()) {
+                for (PluginArtifactType testInstance : metadata.getPluginArtifact()) {
+                    if (PluginInstallerGBean.toArtifact(testInstance.getModuleId()).toString().equals(configId)) {
+                        plugin = PluginInstallerGBean.copy(metadata, testInstance);
+                        installList.getPlugin().add(plugin);
+                        break;
+                    }
+                }
+            }
+            if (plugin == null) {
+                throw new IllegalStateException("No configuration found for '" + configId + "'");
+            }
+        }
+        return installList;
+    }
+
+
     public void assembleServer(GeronimoDeploymentManager mgr, PluginListType list, String repositoryPath, String relativeServerPath, ConsoleReader consoleReader) throws Exception {
         long start = System.currentTimeMillis();
         DownloadResults results = mgr.installPluginList(repositoryPath, relativeServerPath, list);
         int time = (int) (System.currentTimeMillis() - start) / 1000;
         CommandInstallCAR.printResults(consoleReader, results, time);
+    }
+    public void assembleServer(GeronimoDeploymentManager mgr, List<String> list, PluginListType all, String repositoryPath, String relativeServerPath, ConsoleReader consoleReader) throws Exception {
+        PluginListType selected = getPluginsFromIds(list, all);
+        assembleServer(mgr, selected, repositoryPath, relativeServerPath, consoleReader);
     }
 
 }

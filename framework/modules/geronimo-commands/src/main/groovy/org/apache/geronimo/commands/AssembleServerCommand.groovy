@@ -19,44 +19,43 @@
 
 package org.apache.geronimo.commands
 
-
 import jline.ConsoleReader
-
+import org.apache.geronimo.deployment.cli.CommandListConfigurations
+import org.apache.geronimo.gshell.clp.Argument
 import org.apache.geronimo.gshell.clp.Option
 import org.apache.geronimo.gshell.command.annotation.CommandComponent
-import org.apache.geronimo.gshell.command.CommandSupport
-import org.apache.geronimo.deployment.cli.ServerConnection
-import org.apache.geronimo.cli.deployer.BaseCommandArgs
-import org.apache.geronimo.deployment.cli.CommandListConfigurations
 import org.apache.geronimo.kernel.repository.Artifact
 
 /**
- * install plugins.
+ * Extract a bunch of plugins into a server.
  *
  * @version $Rev: 580864 $ $Date: 2007-09-30 23:47:39 -0700 (Sun, 30 Sep 2007) $
  */
-@CommandComponent(id='geronimo-commands:assemble-server', description="Extract a geronimo server from the current one")
+@CommandComponent (id = 'geronimo-commands:assemble-server', description = "Extract a geronimo server from the current one")
 class AssembleServerCommand
-    extends ConnectCommand
+extends ConnectCommand
 {
 
-    @Option(name='-l', aliases=['--list'], description='refresh plugin list')
+    @Option (name = '-l', aliases = ['--list'], description = 'refresh plugin list')
     boolean refreshList = false
 
-    @Option(name='-t', aliases=['--path'], description='assembly location')
+    @Option (name = '-t', aliases = ['--path'], description = 'assembly location')
     String relativeServerPath = "var/temp/assembly"
 
-    @Option(name='-g', aliases=['--groupId'], description='server groupId')
+    @Option (name = '-g', aliases = ['--groupId'], description = 'server groupId')
     String group
 
-    @Option(name='-a', aliases=['--artifact'], description='server artifact name')
+    @Option (name = '-a', aliases = ['--artifact'], description = 'server artifact name')
     String artifact
 
-    @Option(name='-v', aliases=['--version'], description='server version')
+    @Option (name = '-v', aliases = ['--version'], description = 'server version')
     String version
 
-    @Option(name='-f', aliases=['--format'], description='zip or tar.gz')
+    @Option (name = '-f', aliases = ['--format'], description = 'zip or tar.gz')
     String format = "tar.gz"
+
+    @Argument (multiValued = true)
+    List<String> pluginArtifacts
 
     protected Object doExecute() throws Exception {
         io.out.println("Listing configurations from Geronimo server")
@@ -74,10 +73,15 @@ class AssembleServerCommand
             plugins = command.getLocalPluginCategories(connection.getDeploymentManager(), consoleReader)
             variables.parent.set("LocalPlugins", plugins)
         }
-        def pluginsToInstall = command.getInstallList(plugins, consoleReader, null)
-        if (pluginsToInstall) {
-            command.assembleServer(connection.getDeploymentManager(), pluginsToInstall, 'repository', relativeServerPath, consoleReader)
+        if (pluginArtifacts) {
+            command.assembleServer(connection.getDeploymentManager(), pluginArtifacts, plugins, 'repository', relativeServerPath, consoleReader)
             connection.getDeploymentManager().archive(relativeServerPath, "var/temp", new Artifact(group, artifact, version, format));
+        } else {
+            def pluginsToInstall = command.getInstallList(plugins, consoleReader, null)
+            if (pluginsToInstall) {
+                command.assembleServer(connection.getDeploymentManager(), pluginsToInstall, 'repository', relativeServerPath, consoleReader)
+                connection.getDeploymentManager().archive(relativeServerPath, "var/temp", new Artifact(group, artifact, version, format));
+            }
         }
         io.out.println("list ended")
     }
