@@ -71,7 +71,7 @@
         <!--
         HACK: Used by jsp and servlet example configs to point to the tomcat deployer
         -->
-        <tomcatVersion>6.0.13</tomcatVersion>
+        <tomcatVersion>6.0.14</tomcatVersion>
 
         <!--
         HACK: Used by uddi-jetty and uddi-tomcat config plans Also this is the one for derby! not anything else
@@ -900,7 +900,7 @@
             <dependency>
                 <groupId>org.apache.tomcat</groupId>
                 <artifactId>jasper</artifactId>
-                <version>6.0.13-G543818</version>
+                <version>6.0.14-G614585</version>
             </dependency>
 
             <dependency>
@@ -930,7 +930,7 @@
             <dependency>
                 <groupId>org.apache.tomcat</groupId>
                 <artifactId>catalina</artifactId>
-                <version>6.0.13-G543818</version>
+                <version>6.0.14-G614585</version>
             </dependency>
 
             <dependency>
@@ -1584,7 +1584,7 @@
                         <dependency>
                             <groupId>org.apache.tomcat</groupId>
                             <artifactId>jasper</artifactId>
-                            <version>6.0.13-G543818</version>
+                            <version>6.0.14-G614585</version>
                         </dependency>
                     </dependencies>
                 </plugin>
