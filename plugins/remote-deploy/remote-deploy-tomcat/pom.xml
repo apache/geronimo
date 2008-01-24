@@ -44,7 +44,7 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.applications</groupId>
+            <groupId>org.apache.geronimo.plugins</groupId>
             <artifactId>geronimo-remote-deploy</artifactId>
             <version>${version}</version>
             <type>war</type>
@@ -88,7 +88,7 @@
                         <deploymentConfig>${jasperDeployer}</deploymentConfig>
                     </deploymentConfigs>
                     <module>
-                        <groupId>org.apache.geronimo.applications</groupId>
+                        <groupId>org.apache.geronimo.plugins</groupId>
                         <artifactId>geronimo-remote-deploy</artifactId>
                         <version>${version}</version>
                         <type>war</type>

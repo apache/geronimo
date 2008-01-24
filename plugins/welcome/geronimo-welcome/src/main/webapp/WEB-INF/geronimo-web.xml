@@ -22,7 +22,7 @@
 
   <dep:environment>
     <dep:moduleId>
-      <dep:groupId>org.apache.geronimo.applications</dep:groupId>
+      <dep:groupId>org.apache.geronimo.plugins</dep:groupId>
       <dep:artifactId>welcome</dep:artifactId>
       <dep:version>2.1-SNAPSHOT</dep:version>
     </dep:moduleId>

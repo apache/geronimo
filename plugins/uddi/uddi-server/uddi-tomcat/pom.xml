@@ -55,7 +55,7 @@
         </dependency>
         
         <dependency>
-            <groupId>org.apache.geronimo.applications</groupId>
+            <groupId>org.apache.geronimo.plugins</groupId>
             <artifactId>geronimo-uddi-server</artifactId>
             <version>${version}</version>
             <type>war</type>

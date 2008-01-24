@@ -28,7 +28,6 @@
         <version>2.1-SNAPSHOT</version>
     </parent>
 
-    <groupId>org.apache.geronimo.applications</groupId>
     <artifactId>geronimo-remote-deploy</artifactId>
     <name>Geronimo Plugins, Remote Deploy :: Core</name>
     <packaging>war</packaging>

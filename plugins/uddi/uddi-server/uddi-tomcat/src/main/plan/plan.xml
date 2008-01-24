@@ -23,7 +23,7 @@
     <ext-module>
         <web>uddi-tomcat</web>
         <external-path xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.2">
-            <dep:groupId>org.apache.geronimo.applications</dep:groupId>
+            <dep:groupId>org.apache.geronimo.plugins</dep:groupId>
             <dep:artifactId>geronimo-uddi-server</dep:artifactId>
             <dep:type>war</dep:type>
         </external-path>

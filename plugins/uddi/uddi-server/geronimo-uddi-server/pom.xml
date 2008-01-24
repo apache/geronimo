@@ -28,7 +28,6 @@
         <version>2.1-SNAPSHOT</version>
     </parent>
     
-    <groupId>org.apache.geronimo.applications</groupId>
     <artifactId>geronimo-uddi-server</artifactId>
     <name>Geronimo Plugins, UDDI Server :: Core</name>
     <packaging>war</packaging>

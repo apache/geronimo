@@ -28,7 +28,6 @@
         <version>2.1-SNAPSHOT</version>
     </parent>
 
-    <groupId>org.apache.geronimo.applications</groupId>
     <artifactId>geronimo-ca-helper</artifactId>
     <name>Geronimo Plugins, CA Helper :: Core</name>
     <packaging>war</packaging>
