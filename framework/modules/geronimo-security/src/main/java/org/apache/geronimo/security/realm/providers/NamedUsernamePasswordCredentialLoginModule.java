@@ -53,8 +53,9 @@ import org.apache.geronimo.security.jaas.WrappingLoginModule;
 public class NamedUsernamePasswordCredentialLoginModule implements LoginModule {
     private static Log log = LogFactory.getLog(NamedUsernamePasswordCredentialLoginModule.class);
 
-    public static final String CREDENTIAL_NAME = "org.apache.geronimo.jaas.NamedUsernamePasswordCredential.Name";
-    public final static List<String> supportedOptions = Collections.unmodifiableList(Arrays.asList(CREDENTIAL_NAME));
+    public static final String CREDENTIAL_NAME = "Name";
+    public static final String CREDENTIAL_NAME_LONG = NamedUsernamePasswordCredentialLoginModule.class.getName() + "." + CREDENTIAL_NAME;
+    public final static List<String> supportedOptions = Collections.unmodifiableList(Arrays.asList(CREDENTIAL_NAME, CREDENTIAL_NAME_LONG));
 
     private String name;
     private Subject subject;
@@ -70,7 +71,10 @@ public class NamedUsernamePasswordCredentialLoginModule implements LoginModule {
                 log.warn("Ignoring option: "+option+". Not supported.");
             }
         }
-        this.name = (String) options.get(CREDENTIAL_NAME);
+        name = (String) options.get(CREDENTIAL_NAME);
+        if (name == null) {
+            name = (String) options.get(CREDENTIAL_NAME_LONG);
+        }
     }
 
     public boolean login() throws LoginException {
