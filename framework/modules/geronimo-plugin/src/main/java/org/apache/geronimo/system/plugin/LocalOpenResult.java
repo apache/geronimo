@@ -30,11 +30,11 @@ import org.apache.geronimo.kernel.repository.WriteableRepository;
 /**
  * @version $Rev$ $Date$
  */
-class LocalOpenResult implements OpenResult {
+public class LocalOpenResult implements OpenResult {
     private final Artifact artifact;
     private final File file;
 
-    LocalOpenResult(Artifact artifact, File file) {
+    public LocalOpenResult(Artifact artifact, File file) {
         this.artifact = artifact;
         this.file = file;
     }

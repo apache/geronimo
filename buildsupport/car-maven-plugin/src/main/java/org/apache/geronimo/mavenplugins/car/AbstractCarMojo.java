@@ -252,9 +252,9 @@ public abstract class AbstractCarMojo
         implements Maven2RepositoryAdapter.ArtifactLookup
     {
 
-        private final Map resolvedArtifacts;
+        private final Map<org.apache.geronimo.kernel.repository.Artifact, Artifact> resolvedArtifacts;
 
-        public ArtifactLookupImpl(Map resolvedArtifacts) {
+        public ArtifactLookupImpl(Map<org.apache.geronimo.kernel.repository.Artifact, Artifact> resolvedArtifacts) {
             this.resolvedArtifacts = resolvedArtifacts;
         }
 
@@ -275,7 +275,7 @@ public abstract class AbstractCarMojo
 
             boolean debug = log.isDebugEnabled();
 
-            Artifact mavenArtifact = (Artifact)resolvedArtifacts.get(artifact);
+            Artifact mavenArtifact = resolvedArtifacts.get(artifact);
 
             // If not cached, then make a new artifact
             if (mavenArtifact == null) {

@@ -20,16 +20,23 @@
 package org.apache.geronimo.mavenplugins.car;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.Iterator;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import java.util.Iterator;
 
-import org.apache.geronimo.system.repository.Maven2Repository;
-import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.repository.Version;
+import javax.security.auth.login.FailedLoginException;
+
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.FileWriteMonitor;
+import org.apache.geronimo.kernel.repository.Version;
+import org.apache.geronimo.system.plugin.LocalOpenResult;
+import org.apache.geronimo.system.plugin.OpenResult;
+import org.apache.geronimo.system.plugin.SourceRepository;
+import org.apache.geronimo.system.plugin.model.PluginListType;
+import org.apache.geronimo.system.repository.Maven2Repository;
 import org.codehaus.mojo.pluginsupport.dependency.DependencyTree;
 
 /**
@@ -37,9 +44,7 @@ import org.codehaus.mojo.pluginsupport.dependency.DependencyTree;
  *
  * @version $Rev$ $Date$
  */
-public class Maven2RepositoryAdapter
-    extends Maven2Repository
-{
+public class Maven2RepositoryAdapter extends Maven2Repository implements SourceRepository {
     private ArtifactLookup lookup;
 
     private DependencyTree dependencyTree;
@@ -57,18 +62,18 @@ public class Maven2RepositoryAdapter
     }
 
     public SortedSet list() {
-        TreeSet list = new TreeSet();
+        TreeSet<Artifact> list = new TreeSet<Artifact>();
         listInternal(list, dependencyTree.getRootNode(), null, null, null, null);
         return list;
     }
 
     public SortedSet list(Artifact query) {
-        TreeSet list = new TreeSet();
+        TreeSet<Artifact> list = new TreeSet<Artifact>();
         listInternal(list, dependencyTree.getRootNode(), query.getGroupId(), query.getArtifactId(), query.getVersion(), query.getType());
         return list;
     }
 
-    private void listInternal(TreeSet list, DependencyTree.Node node, String groupId, String artifactId, Version version, String type) {
+    private void listInternal(TreeSet<Artifact> list, DependencyTree.Node node, String groupId, String artifactId, Version version, String type) {
         if (matches(node.getArtifact(), groupId, artifactId, version, type)) {
             list.add(mavenToGeronimoArtifact(node.getArtifact()));
         }
@@ -91,12 +96,28 @@ public class Maven2RepositoryAdapter
         return new org.apache.geronimo.kernel.repository.Artifact(artifact.getGroupId(), artifact.getArtifactId(), artifact.getVersion(), artifact.getType());
     }
 
+    public PluginListType getPluginList() {
+        throw new RuntimeException("Not implemented");
+    }
+
+    public OpenResult open(Artifact artifact, FileWriteMonitor fileWriteMonitor) throws IOException, FailedLoginException {
+        if (!artifact.isResolved()) {
+            SortedSet<Artifact> list = list(artifact);
+            if (list.isEmpty()) {
+                throw new IOException("Could not resolve artifact " + artifact + " in repo " + rootFile);
+            }
+            artifact = list.first();
+        }
+        File location = getLocation(artifact);
+        return new LocalOpenResult(artifact, location);
+
+    }
+
     //
     // ArtifactLookup
     //
 
-    public static interface ArtifactLookup
-    {
+    public static interface ArtifactLookup {
         File getLocation(Artifact artifact);
 
         File getBasedir();
@@ -112,7 +133,7 @@ public class Maven2RepositoryAdapter
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(Maven2RepositoryAdapter.class, "Repository");
         infoFactory.addAttribute("lookup", ArtifactLookup.class, true);
         infoFactory.addAttribute("dependencies", DependencyTree.class, true);
-        infoFactory.setConstructor(new String[]{"dependencies", "lookup" });
+        infoFactory.setConstructor(new String[]{"dependencies", "lookup"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

@@ -28,10 +28,10 @@ import java.util.Set;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.basic.BasicKernel;
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.repository.WritableListableRepository;
 import org.apache.geronimo.system.configuration.RepositoryConfigurationStore;
 import org.apache.geronimo.system.plugin.DownloadResults;
 import org.apache.geronimo.system.plugin.PluginInstallerGBean;
+import org.apache.geronimo.system.plugin.SourceRepository;
 import org.apache.geronimo.system.plugin.model.ArtifactType;
 import org.apache.geronimo.system.plugin.model.PluginArtifactType;
 import org.apache.geronimo.system.plugin.model.PluginListType;
@@ -114,12 +114,6 @@ public class InstallModulesMojo
      */
     private AliasedArtifactResolver geronimoArtifactResolver;
 
-//    private WritableListableRepository targetRepo;
-
-//    private RepositoryConfigurationStore targetStore;
-
-    private WritableListableRepository sourceRepo;
-
     private RepositoryConfigurationStore sourceStore;
 
     /**
@@ -129,15 +123,8 @@ public class InstallModulesMojo
 
     protected void doExecute() throws Exception {
         DependencyTree dependencies = dependencyHelper.getDependencies(project);
-
-        //
-        // TODO: Check if we need to use the Maven2RepositoryAdapter here or not...
-        //
-
-        Maven2RepositoryAdapter.ArtifactLookup lookup = new ArtifactLookupImpl(new HashMap());
-        sourceRepo = new Maven2RepositoryAdapter(dependencies, lookup);
-        // sourceRepo = new Maven2RepositoryAdapter(new File(sourceRepository.getBasedir()));
-        sourceStore = new RepositoryConfigurationStore(sourceRepo);
+        Maven2RepositoryAdapter.ArtifactLookup lookup = new ArtifactLookupImpl(new HashMap<Artifact, org.apache.maven.artifact.Artifact>());
+        SourceRepository sourceRepo = new Maven2RepositoryAdapter(dependencies, lookup);
         PluginListType pluginList = new PluginListType();
         String localRepo = sourceRepository.getUrl();
         if ("file".equals(sourceRepository.getProtocol())) {
@@ -160,7 +147,7 @@ public class InstallModulesMojo
         Kernel kernel = new BasicKernel("Assembly");
         try {
             PluginInstallerGBean installer = new PluginInstallerGBean(targetRepositoryPath, targetServerPath, servers, kernel, getClass().getClassLoader());
-            installer.install(pluginList, localRepo, true, null, null, downloadPoller);
+            installer.install(pluginList, sourceRepo, true, null, null, downloadPoller);
         } finally {
             kernel.shutdown();
         }
