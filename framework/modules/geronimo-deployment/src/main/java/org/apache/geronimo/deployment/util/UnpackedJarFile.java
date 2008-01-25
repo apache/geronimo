@@ -135,6 +135,10 @@ public class UnpackedJarFile extends JarFile {
     }
 
     public void close() throws IOException {
+        try {
+            super.close();
+        } catch(IOException ignored) {
+        }
     }
 
     protected void finalize() throws IOException {
