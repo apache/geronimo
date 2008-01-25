@@ -19,6 +19,7 @@ package org.apache.geronimo.deployment.util;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,6 +33,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
@@ -113,9 +115,23 @@ public final class DeploymentUtil {
     public static File toTempFile(URL url) throws IOException {
         InputStream in = null;
         OutputStream out = null;
+        JarFile jarFile = null;
         try {
-            in = url.openStream();
-
+            if(url.getProtocol().equalsIgnoreCase("jar")) {
+                // url.openStream() locks the jar file and does not release the lock even after the stream is closed.
+                // This problem is avoided by using JarFile APIs.
+                File file = new File(url.getFile().substring(5, url.getFile().indexOf("!/")));
+                String path = url.getFile().substring(url.getFile().indexOf("!/")+2);
+                jarFile = new JarFile(file);
+                JarEntry jarEntry = jarFile.getJarEntry(path);
+                if(jarEntry != null) {
+                    in = jarFile.getInputStream(jarEntry);
+                } else {
+                    throw new FileNotFoundException("JarEntry "+path+" not found in "+file);
+                }
+            } else {
+                in = url.openStream();
+            }
             int index = url.getPath().lastIndexOf(".");
             String extension = null;
             if (index > 0) {
@@ -130,14 +146,29 @@ public final class DeploymentUtil {
         } finally {
             close(out);
             close(in);
+            close(jarFile);
         }
     }
 
     public static String readAll(URL url) throws IOException {
         Reader reader = null;
+        JarFile jarFile = null;
         try {
-            reader = new InputStreamReader(url.openStream());
-
+            if(url.getProtocol().equalsIgnoreCase("jar")) {
+                // url.openStream() locks the jar file and does not release the lock even after the stream is closed.
+                // This problem is avoided by using JarFile APIs.
+                File file = new File(url.getFile().substring(5, url.getFile().indexOf("!/")));
+                String path = url.getFile().substring(url.getFile().indexOf("!/")+2);
+                jarFile = new JarFile(file);
+                JarEntry jarEntry = jarFile.getJarEntry(path);
+                if(jarEntry != null) {
+                    reader = new InputStreamReader(jarFile.getInputStream(jarEntry));
+                } else {
+                    throw new FileNotFoundException("JarEntry "+path+" not found in "+file);
+                }
+            } else {
+                reader = new InputStreamReader(url.openStream());
+            }
             char[] buffer = new char[4000];
             StringBuffer out = new StringBuffer();
             for(int count = reader.read(buffer); count >= 0; count = reader.read(buffer)) {
@@ -146,6 +177,7 @@ public final class DeploymentUtil {
             return out.toString();
         } finally {
             close(reader);
+            close(jarFile);
         }
     }
 
