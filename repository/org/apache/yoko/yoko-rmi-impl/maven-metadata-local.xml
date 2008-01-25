@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?><metadata>
   <groupId>org.apache.yoko</groupId>
   <artifactId>yoko-rmi-impl</artifactId>
-  <version>1.0-incubating-r602900</version>
+  <version>1.0-r615303</version>
   <versioning>
     <versions>
-      <version>1.0-incubating-r602900</version>
+      <version>1.0-r615303</version>
     </versions>
-    <lastUpdated>20071210142903</lastUpdated>
+    <lastUpdated>20080125192342</lastUpdated>
   </versioning>
 </metadata>
