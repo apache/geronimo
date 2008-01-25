@@ -73,5 +73,22 @@
         <security-role-ref>securityroleref2</security-role-ref>
         <security-identity>me</security-identity>
     </session-bean>
+    
+    <session-bean>
+        <something>something</something>
+        <transaction-type>transactiontype</transaction-type>
+        <env-entry>
+            <description>description1</description>
+            <env-entry-name>env-entry-name1</env-entry-name>
+            <env-entry-type>env-entry-type1</env-entry-type>
+            <env-entry-value>env-entry-value1</env-entry-value>
+        </env-entry>
+        <env-entry>
+            <description>description2</description>
+            <env-entry-name>env-entry-name2</env-entry-name>
+            <env-entry-type>env-entry-type2</env-entry-type>
+            <env-entry-value>env-entry-value2</env-entry-value>
+        </env-entry>
+    </session-bean>
 
 </xml-fragment>

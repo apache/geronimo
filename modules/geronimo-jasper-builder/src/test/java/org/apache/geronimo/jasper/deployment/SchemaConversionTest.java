@@ -115,6 +115,11 @@ public class SchemaConversionTest extends XmlBeansTestSupport {
         URL expectedXML = classLoader.getResource("1_2_dtd/taglib-reorder-expected-2.tld");
         parseAndCompare(srcXML, expectedXML);
     }
+    public void testTLD12Reorder_3() throws Exception {
+        URL srcXML = classLoader.getResource("1_2_dtd/taglib-reorder-src-3.tld");
+        URL expectedXML = classLoader.getResource("2_0_xsd/taglib-reorder-expected-3.tld");
+        parseAndCompare(srcXML, expectedXML);
+    }
     public void testTLD20Reorder_1() throws Exception {
         URL srcXML = classLoader.getResource("2_0_xsd/taglib-reorder-src-1.tld");
         URL expectedXML = classLoader.getResource("2_0_xsd/taglib-reorder-expected-1.tld");
@@ -125,7 +130,7 @@ public class SchemaConversionTest extends XmlBeansTestSupport {
         URL expectedXML = classLoader.getResource("2_0_xsd/taglib-reorder-expected-2.tld");
         parseAndCompare(srcXML, expectedXML);
     }
-
+    
 
     /**
      * Tests for missing TLD tags
