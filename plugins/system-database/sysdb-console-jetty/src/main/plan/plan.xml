@@ -85,11 +85,11 @@ limitations under the License.
     </gbean>
     <gbean name="Database2" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean">
         <attribute name="name">DB2</attribute>
-        <attribute name="URLPrototype">jdbc:db2://{Host}:{Port}/{Database}</attribute>
-        <attribute name="driverClassName">com.ibm.db2.jcc.DB2Driver</attribute>
-        <attribute name="defaultPort">50000</attribute>
-        <attribute name="specific">false</attribute>
-        <attribute name="RARName">org.tranql/tranql-connector-ra//rar</attribute>
+        <attribute name="URLPrototype">null</attribute>
+        <attribute name="driverClassName">null</attribute>
+        <attribute name="defaultPort">0</attribute>
+        <attribute name="specific">true</attribute>
+        <attribute name="RARName">org.tranql/tranql-connector-db2-xa//rar</attribute>
     </gbean>
     <gbean name="Database3" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean">
         <attribute name="name">DB2 (DataDirect)</attribute>
@@ -229,12 +229,37 @@ limitations under the License.
     </gbean>
     <gbean name="Database19" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean">
         <attribute name="name">MySQL</attribute>
-        <attribute name="URLPrototype">jdbc:mysql://{Host}:{Port}/{Database}</attribute>
-        <attribute name="driverClassName">com.mysql.jdbc.Driver</attribute>
-        <attribute name="defaultPort">3306</attribute>
-        <attribute name="specific">false</attribute>
-        <attribute name="RARName">org.tranql/tranql-connector-ra//rar</attribute>
+        <attribute name="URLPrototype">null</attribute>
+        <attribute name="driverClassName">null</attribute>
+        <attribute name="defaultPort">0</attribute>
+        <attribute name="specific">true</attribute>
+        <attribute name="RARName">org.tranql/tranql-connector-mysql-local//rar</attribute>
         <attribute name="dependencyFilterStrings">mysql/mysql-connector-java//jar</attribute>
+    </gbean>
+    <gbean name="Database19a" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean">
+        <attribute name="name">MySQL-XA</attribute>
+        <attribute name="URLPrototype">null</attribute>
+        <attribute name="driverClassName">null</attribute>
+        <attribute name="defaultPort">0</attribute>
+        <attribute name="specific">true</attribute>
+        <attribute name="RARName">org.tranql/tranql-connector-mysql-xa//rar</attribute>
+        <attribute name="dependencyFilterStrings">mysql/mysql-connector-java//jar</attribute>
+    </gbean>
+    <gbean name="Database20a" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean">
+        <attribute name="name">Oracle Local</attribute>
+        <attribute name="URLPrototype">null</attribute>
+        <attribute name="driverClassName">null</attribute>
+        <attribute name="defaultPort">0</attribute>
+        <attribute name="specific">true</attribute>
+        <attribute name="RARName">org.tranql/tranql-connector-oracle-local//rar</attribute>
+    </gbean>
+    <gbean name="Database20b" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean">
+        <attribute name="name">Oracle XA</attribute>
+        <attribute name="URLPrototype">null</attribute>
+        <attribute name="driverClassName">null</attribute>
+        <attribute name="defaultPort">0</attribute>
+        <attribute name="specific">true</attribute>
+        <attribute name="RARName">org.tranql/tranql-connector-oracle-xa//rar</attribute>
     </gbean>
     <gbean name="Database20" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean">
         <attribute name="name">Oracle Thin</attribute>
@@ -277,12 +302,21 @@ limitations under the License.
         <attribute name="RARName">org.tranql/tranql-connector-ra//rar</attribute>
     </gbean>
     <gbean name="Database25" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean">
-        <attribute name="name">PostgreSQL</attribute>
-        <attribute name="URLPrototype">jdbc:postgresql://{Host}:{Port}/{Database}</attribute>
-        <attribute name="driverClassName">org.postgresql.Driver</attribute>
-        <attribute name="defaultPort">5432</attribute>
-        <attribute name="specific">false</attribute>
-        <attribute name="RARName">org.tranql/tranql-connector-ra//rar</attribute>
+        <attribute name="name">PostgreSQL Local</attribute>
+        <attribute name="URLPrototype">null</attribute>
+        <attribute name="driverClassName">null</attribute>
+        <attribute name="defaultPort">0</attribute>
+        <attribute name="specific">true</attribute>
+        <attribute name="RARName">org.tranql/tranql-connector-postgresql-local//rar</attribute>
+        <attribute name="dependencyFilterStrings">postgresql/postgresql//jar,postgresql/postgresql-7.3//jar,postgresql/postgresql-7.4//jar,postgresql/postgresql-8.0//jar,postgresql/postgresql-8.1//jar,postgresql/postgresql-8.2//jar</attribute>
+    </gbean>
+    <gbean name="Database25a" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean">
+        <attribute name="name">PostgreSQL XA</attribute>
+        <attribute name="URLPrototype">null</attribute>
+        <attribute name="driverClassName">null</attribute>
+        <attribute name="defaultPort">0</attribute>
+        <attribute name="specific">true</attribute>
+        <attribute name="RARName">org.tranql/tranql-connector-postgresql-xa//rar</attribute>
         <attribute name="dependencyFilterStrings">postgresql/postgresql//jar,postgresql/postgresql-7.3//jar,postgresql/postgresql-7.4//jar,postgresql/postgresql-8.0//jar,postgresql/postgresql-8.1//jar,postgresql/postgresql-8.2//jar</attribute>
     </gbean>
     <gbean name="Database26" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean">
