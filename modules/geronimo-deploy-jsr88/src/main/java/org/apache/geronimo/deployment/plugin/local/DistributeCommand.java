@@ -60,7 +60,7 @@ public class DistributeCommand extends AbstractDeployCommand {
             for(int i = 0; i < targetList.length; i++) {
             	doDeploy(targetList[i], true);
             }
-        } catch (Exception e) {
+        } catch (Throwable e) {
             doFail(e);
         } finally {
             if (spool) {
