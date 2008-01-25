@@ -292,8 +292,6 @@ public class SchemaConversionUtils {
         moveElements("validator-class", namespace, moveable, cursor);
         moveElements("init-param", namespace, moveable, cursor);
         
-        cursor.toParent();
-        cursor.toFirstChild();
         do {
             String name = cursor.getName().getLocalPart();
             if ("init-param".equals(name)) {
@@ -302,7 +300,7 @@ public class SchemaConversionUtils {
                 convertToTldInitParam(namespace, cursor, moveable);
                 cursor.pop();
             }
-        } while (cursor.toNextSibling());        
+        } while (cursor.toPrevSibling());      
     }
 
     public static void convertToTldVariable(String namespace, XmlCursor cursor, XmlCursor moveable) {
@@ -315,26 +313,24 @@ public class SchemaConversionUtils {
         moveElements("scope", namespace, moveable, cursor);
     }
 
-    public static void convertToJNDIEnvironmentRefsGroup(String namespace, XmlCursor cursor, XmlCursor moveable) {
+    public static void convertToJNDIEnvironmentRefsGroup(String namespace, XmlCursor cursor, XmlCursor moveable) {       
         moveElements("env-entry", namespace, moveable, cursor);
         moveElements("ejb-ref", namespace, moveable, cursor);
         moveElements("ejb-local-ref", namespace, moveable, cursor);
         moveElements("resource-ref", namespace, moveable, cursor);
         moveElements("resource-env-ref", namespace, moveable, cursor);
         moveElements("message-destination-ref", namespace, moveable, cursor);
-        
-        cursor.toParent();
-        cursor.toFirstChild();
+                
         do {
-            String name = cursor.getName().getLocalPart();            
-            if ("env-entry".equals(name)) {                
+            String name = cursor.getName().getLocalPart();
+            if ("env-entry".equals(name)) {
                 cursor.push();
                 cursor.toFirstChild();
                 convertToDescriptionGroup(namespace, cursor, moveable);
                 convertToEnvEntryGroup(namespace, cursor, moveable);
                 cursor.pop();
             }
-        } while (cursor.toNextSibling());        
+        } while (cursor.toPrevSibling());      
     }
 
     public static void convertToEnvEntryGroup(String namespace, XmlCursor cursor, XmlCursor moveable) {
