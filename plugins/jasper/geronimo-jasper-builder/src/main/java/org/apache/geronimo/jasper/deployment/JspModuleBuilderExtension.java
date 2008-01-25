@@ -200,7 +200,9 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
      * @throws DeploymentException if there's a problem finding a tld file
      */
     private List<URL> getTldFiles(WebAppType webApp, WebModule webModule) throws DeploymentException {
-        log.debug("getTldFiles( " + webApp.toString() + "," + webModule.getName() + " ): Entry");
+        if (log.isDebugEnabled()) {
+            log.debug("getTldFiles( " + webApp.toString() + "," + webModule.getName() + " ): Entry");
+        }
 
         List<URL> tldURLs = new ArrayList<URL>();
 
@@ -409,8 +411,10 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
 
 
     private List<Class> getListenerClasses(WebAppType webApp, WebModule webModule, List<URL> urls, Set<String> listenerNames) throws DeploymentException {
-        log.debug("getListenerClasses( " + webApp.toString() + "," + '\n' +
-                webModule.getName() + " ): Entry");
+        if (log.isDebugEnabled()) {
+            log.debug("getListenerClasses( " + webApp.toString() + "," + '\n' +
+                      webModule.getName() + " ): Entry");
+        }
 
         // Get the classloader from the module's EARContext
         ClassLoader classLoader = webModule.getEarContext().getClassLoader();
@@ -420,7 +424,9 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
             parseTldFile(url, classLoader, classes, listenerNames);
         }
 
-        log.debug("getListenerClasses() Exit: Classes[" + classes.size() + "]: " + classes.toString());
+        if (log.isDebugEnabled()) {
+            log.debug("getListenerClasses() Exit: Classes[" + classes.size() + "]: " + classes.toString());
+        }
         return classes;
     }
 
@@ -494,7 +500,9 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
      * @throws XmlException if something goes horribly wrong
      */
     protected static TaglibDocument convertToTaglibSchema(XmlObject xmlObject) throws XmlException {
-        log.debug("convertToTaglibSchema( " + xmlObject.toString() + " ): Entry");
+        if (log.isDebugEnabled()) {
+            log.debug("convertToTaglibSchema( " + xmlObject.toString() + " ): Entry");
+        }
 
         XmlCursor cursor = xmlObject.newCursor();
         XmlCursor moveable = xmlObject.newCursor();
@@ -651,15 +659,6 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
                         cursor.push();
                         cursor.toFirstChild();
                         SchemaConversionUtils.convertToTldValidator(SchemaConversionUtils.JAVAEE_NAMESPACE, cursor, moveable);
-                        do {
-                            name = cursor.getName().getLocalPart();
-                            if ("init-param".equals(name)) {
-                                cursor.push();
-                                cursor.toFirstChild();
-                                SchemaConversionUtils.convertToTldInitParam(SchemaConversionUtils.JAVAEE_NAMESPACE, cursor, moveable);
-                                cursor.pop();
-                            }
-                        } while (cursor.toNextSibling());
                         cursor.pop();
                     }
                 } while (cursor.toNextSibling());
@@ -676,7 +675,9 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
             } catch (XmlException e) {
                 log.warn("Invalid transformed taglib", e);
             }
-            log.debug("convertToTaglibSchema( " + result.toString() + " ): Exit 1");
+            if (log.isDebugEnabled()) { 
+                log.debug("convertToTaglibSchema( " + result.toString() + " ): Exit 1");
+            }
             return (TaglibDocument) result;
         }
         try {
@@ -684,7 +685,9 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
         } catch (XmlException e) {
             log.warn("Invalid transformed taglib", e);
         }
-        log.debug("convertToTaglibSchema( " + xmlObject.toString() + " ): Exit 2");
+        if (log.isDebugEnabled()) { 
+            log.debug("convertToTaglibSchema( " + xmlObject.toString() + " ): Exit 2");
+        }
         return (TaglibDocument) xmlObject;
     }
 

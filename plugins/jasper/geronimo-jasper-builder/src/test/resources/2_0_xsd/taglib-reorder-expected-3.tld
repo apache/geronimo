@@ -1,0 +1,31 @@
+<taglib xsi:schemaLocation="http://java.sun.com/xml/ns/javaee  http://java.sun.com/xml/ns/javaee/web-jsptaglibrary_2_1.xsd" version="2.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee">
+  <description>Foo TagLib Description</description>
+  <tlib-version>1.0</tlib-version>
+  <short-name>Foo</short-name>
+  <uri>http://geronimo.apache.org</uri>
+
+  <validator>
+    <description>Validated description</description>
+    <validator-class>javax.servlet.FooClass</validator-class>
+
+    <init-param>
+      <description>param1-value-1 descrption</description>
+      <param-name>param1</param-name>
+      <param-value>value1</param-value>
+    </init-param>
+
+    <init-param>
+      <description>param2-value-2 descrption</description>
+      <param-name>param2</param-name>
+      <param-value>value2</param-value>
+    </init-param>
+  </validator>
+
+  <tag>
+    <description>Bar Description</description>
+    <name>Bar</name>
+    <tag-class>javax.servlet.BarTag</tag-class>
+    <body-content>empty</body-content>
+  </tag>
+
+</taglib>

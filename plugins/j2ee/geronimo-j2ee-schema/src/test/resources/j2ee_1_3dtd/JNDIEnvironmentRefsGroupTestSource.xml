@@ -73,5 +73,22 @@
         <resource-env-ref>resourceenvref1</resource-env-ref>
         <resource-env-ref>resourceenvref2</resource-env-ref>
     </session-bean>
+    
+    <session-bean>
+        <something>something</something>
+        <transaction-type>transactiontype</transaction-type>
+        <env-entry>
+            <env-entry-type>env-entry-type1</env-entry-type>
+            <env-entry-name>env-entry-name1</env-entry-name>
+            <env-entry-value>env-entry-value1</env-entry-value>
+            <description>description1</description>
+        </env-entry>
+        <env-entry>
+            <env-entry-value>env-entry-value2</env-entry-value>
+            <env-entry-type>env-entry-type2</env-entry-type>
+            <env-entry-name>env-entry-name2</env-entry-name>
+            <description>description2</description>
+        </env-entry>
+    </session-bean>
 
 </xml-fragment>

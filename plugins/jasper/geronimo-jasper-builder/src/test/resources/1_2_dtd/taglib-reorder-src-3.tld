@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE taglib
+  PUBLIC "-//Sun Microsystems, Inc.//DTD JSP Tag Library 1.2//EN" "http://java.sun.com/dtd/web-jsptaglibrary_1_2.dtd">
+<taglib>
+ <description>Foo TagLib Description</description>
+ <tlib-version>1.0</tlib-version>
+ <short-name>Foo</short-name>
+ <uri>http://geronimo.apache.org</uri>
+
+ <validator>
+   <description>Validated description</description>
+   <validator-class>javax.servlet.FooClass</validator-class>
+
+   <init-param>
+     <param-name>param1</param-name>
+     <param-value>value1</param-value>
+     <description>param1-value-1 descrption</description>
+   </init-param>
+
+   <init-param>
+     <param-name>param2</param-name>
+     <param-value>value2</param-value>
+     <description>param2-value-2 descrption</description>
+   </init-param>
+
+ </validator>
+
+ <tag>
+   <description>Bar Description</description>
+   <name>Bar</name>
+   <tag-class>javax.servlet.BarTag</tag-class>
+   <body-content>empty</body-content>
+ </tag>
+
+</taglib>
