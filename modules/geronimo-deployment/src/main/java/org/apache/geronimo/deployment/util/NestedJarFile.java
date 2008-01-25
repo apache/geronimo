@@ -231,7 +231,7 @@ public class NestedJarFile extends JarFile {
                 super.close();
             } catch(IOException ignored) {
             }
-            if (baseJar != null && isPacked()) {
+            if (baseJar != null) {
                 baseJar.close();
             }
         } finally {
