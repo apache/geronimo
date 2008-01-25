@@ -858,13 +858,13 @@
             <dependency>
                 <groupId>org.tranql</groupId>
                 <artifactId>tranql-connector-mysql-local</artifactId>
-                <version>1.1</version>
+                <version>1.2</version>
                 <type>rar</type>
             </dependency>
             <dependency>
                 <groupId>org.tranql</groupId>
                 <artifactId>tranql-connector-mysql-xa</artifactId>
-                <version>1.1</version>
+                <version>1.2</version>
                 <type>rar</type>
             </dependency>
             <dependency>
