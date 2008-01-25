@@ -58,9 +58,12 @@ import org.apache.openejb.client.ServerMetaData;
 public class OpenejbRemoteLoginModule implements LoginModule {
     private static Log log = LogFactory.getLog(OpenejbRemoteLoginModule.class);
 
-    private static final String SECURITY_REALM_KEY = "org.apache.geronimo.openejb.OpenejbRemoteLoginModule.RemoteSecurityRealm";
-    private static final String SERVER_URI_KEY = "org.apache.geronimo.openejb.OpenejbRemoteLoginModule.ServerURI";
-    public final static List<String> supportedOptions = Collections.unmodifiableList(Arrays.asList(SECURITY_REALM_KEY, SERVER_URI_KEY));
+
+    private static final String SECURITY_REALM_KEY = "RemoteSecurityRealm";
+    private static final String SECURITY_REALM_KEY_LONG = OpenejbRemoteLoginModule.class.getName() + "." + SECURITY_REALM_KEY;
+    private static final String SERVER_URI_KEY = "ServerURI";
+    private static final String SERVER_URI_KEY_LONG = OpenejbRemoteLoginModule.class.getName() + "." + SERVER_URI_KEY;
+    public final static List<String> supportedOptions = Collections.unmodifiableList(Arrays.asList(SECURITY_REALM_KEY, SERVER_URI_KEY, SECURITY_REALM_KEY_LONG, SERVER_URI_KEY_LONG));
 
     private Subject subject;
     private CallbackHandler callbackHandler;
@@ -79,7 +82,13 @@ public class OpenejbRemoteLoginModule implements LoginModule {
             }
         }
         securityRealm = (String) options.get(SECURITY_REALM_KEY);
+        if (securityRealm == null) {
+            securityRealm = (String) options.get(SECURITY_REALM_KEY_LONG);
+        }
         serverURI = URI.create((String) options.get(SERVER_URI_KEY));
+        if (serverURI == null) {
+            serverURI = URI.create((String) options.get(SERVER_URI_KEY_LONG));
+        }
     }
 
     public boolean login() throws LoginException {
