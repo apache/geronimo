@@ -16,6 +16,16 @@
  */
 package org.apache.geronimo.gjndi;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
+
+import javax.naming.Name;
+import javax.naming.NamingException;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.AbstractName;
@@ -30,16 +40,6 @@ import org.apache.geronimo.kernel.lifecycle.LifecycleListener;
 import org.apache.xbean.naming.context.ContextAccess;
 import org.apache.xbean.naming.context.WritableContext;
 
-import javax.naming.Name;
-import javax.naming.NamingException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Set;
-
 /**
  * @version $Rev$ $Date$
  */
@@ -49,7 +49,7 @@ public class KernelContextGBean extends WritableContext implements GBeanLifecycl
     private final Kernel kernel;
     private final AbstractNameQuery abstractNameQuery;
     private final LifecycleListener listener = new ContextLifecycleListener();
-    private final Map bindingsByAbstractName = new HashMap();
+    private final Map<AbstractName, Set<Name>> bindingsByAbstractName = new HashMap<AbstractName, Set<Name>>();
 
     public KernelContextGBean(String nameInNamespace, AbstractNameQuery abstractNameQuery, Kernel kernel) throws NamingException {
         super(nameInNamespace, Collections.EMPTY_MAP, ContextAccess.MODIFIABLE, false);
@@ -59,15 +59,14 @@ public class KernelContextGBean extends WritableContext implements GBeanLifecycl
 
     public synchronized void doStart() {
         kernel.getLifecycleMonitor().addLifecycleListener(listener, abstractNameQuery);
-        Set set = kernel.listGBeans(abstractNameQuery);
-        for (Iterator iterator = set.iterator(); iterator.hasNext();) {
-            AbstractName abstractName = (AbstractName) iterator.next();
+        Set<AbstractName> set = kernel.listGBeans(abstractNameQuery);
+        for (AbstractName abstractName : set) {
             try {
                 if (kernel.isRunning(abstractName)) {
                     addBinding(abstractName);
                 }
             } catch (NamingException e) {
-                log.error("Error adding binding for " + abstractName);
+                log.error("Error adding binding for " + abstractName, e);
             }
         }
 
@@ -83,9 +82,8 @@ public class KernelContextGBean extends WritableContext implements GBeanLifecycl
 
     private synchronized void destroy() {
         kernel.getLifecycleMonitor().removeLifecycleListener(listener);
-        Set abstractNames = new HashSet(bindingsByAbstractName.keySet());
-        for (Iterator iterator = abstractNames.iterator(); iterator.hasNext();) {
-            AbstractName abstractName = (AbstractName) iterator.next();
+        Set<AbstractName> abstractNames = new HashSet<AbstractName>(bindingsByAbstractName.keySet());
+        for (AbstractName abstractName : abstractNames) {
             removeBinding(abstractName);
         }
         bindingsByAbstractName.clear();
@@ -130,7 +128,7 @@ public class KernelContextGBean extends WritableContext implements GBeanLifecycl
         }
 
         // get the gbean
-        Object instance = null;
+        Object instance;
         try {
             instance = kernel.getGBean(abstractName);
         } catch (GBeanNotFoundException e) {
@@ -138,15 +136,14 @@ public class KernelContextGBean extends WritableContext implements GBeanLifecycl
         }
 
         // create the bindings for this object
-        Map bindings = createBindings(abstractName, instance);
+        Map<Name, Object> bindings = createBindings(abstractName, instance);
         if (bindings == null || bindings.isEmpty()) {
             return;
         }
 
         // bind the value
-        for (Iterator iterator = bindings.entrySet().iterator(); iterator.hasNext();) {
-            Map.Entry entry = (Map.Entry) iterator.next();
-            Name name = (Name) entry.getKey();
+        for (Map.Entry<Name, Object> entry : bindings.entrySet()) {
+            Name name = entry.getKey();
             Object value = entry.getValue();
             addBinding(abstractName, name, value);
         }
@@ -155,16 +152,17 @@ public class KernelContextGBean extends WritableContext implements GBeanLifecycl
         bindingsByAbstractName.put(abstractName, bindings.keySet());
     }
 
-    private Map bindingsByName = new HashMap();
+    private Map<Name, LinkedHashMap<AbstractName, Object>> bindingsByName = new HashMap<Name, LinkedHashMap<AbstractName, Object>>();
 
     private synchronized void addBinding(AbstractName abstractName, Name name, Object value) throws NamingException {
-        LinkedHashMap bindings = (LinkedHashMap) bindingsByName.get(name);
+        LinkedHashMap<AbstractName, Object> bindings = bindingsByName.get(name);
         if (bindings == null) {
             addDeepBinding(name, value, true, true);
 
-            bindings = new LinkedHashMap();
+            bindings = new LinkedHashMap<AbstractName, Object>();
             bindings.put(abstractName, value);
             bindingsByName.put(name, bindings);
+            log.info("bound gbean " + abstractName + " at name " + name);
         } else {
             bindings.put(abstractName, value);
         }
@@ -176,20 +174,18 @@ public class KernelContextGBean extends WritableContext implements GBeanLifecycl
      * @param abstractName the abstract name of the gbean to unbind
      */
     protected synchronized void removeBinding(AbstractName abstractName) {
-        Set bindingNames = (Set) bindingsByAbstractName.remove(abstractName);
+        Set<Name> bindingNames = bindingsByAbstractName.remove(abstractName);
         if (bindingNames == null) return;
 
-        for (Iterator iterator = bindingNames.iterator(); iterator.hasNext();) {
-            Name name = (Name) iterator.next();
+        for (Name name : bindingNames) {
 
-            LinkedHashMap bindings = (LinkedHashMap) bindingsByName.get(name);
+            LinkedHashMap<AbstractName, Object> bindings = bindingsByName.get(name);
             if (bindings == null) continue;
 
             if (first(bindings).getKey().equals(abstractName)) {
                 bindings.remove(abstractName);
-                Map.Entry newEntry = first(bindings);
+                Map.Entry<AbstractName, Object> newEntry = first(bindings);
                 if (newEntry != null) {
-                    Object newAbstractName = newEntry.getValue();
                     Object newValue = newEntry.getValue();
                     try {
                         addDeepBinding(name, newValue, true, true);
@@ -201,7 +197,7 @@ public class KernelContextGBean extends WritableContext implements GBeanLifecycl
                             logged = true;
                             log.error("Unable to remove binding " + name + " to " + abstractName, e);
                         }
-                        if (!logged) log.error("Unable to rebind binding " + name + " to " + newAbstractName);
+                        if (!logged) log.error("Unable to rebind binding " + name + " to " + newEntry.getKey());
                     }
                 } else {
                     bindingsByName.remove(name);
@@ -210,6 +206,7 @@ public class KernelContextGBean extends WritableContext implements GBeanLifecycl
                     } catch (NamingException e) {
                         log.error("Unable to remove binding " + name + " to " + abstractName, e);
                     }
+                    log.info("unbound gbean " + abstractName + " at name " + name);
                 }
             } else {
                 bindings.remove(abstractName);
@@ -217,12 +214,12 @@ public class KernelContextGBean extends WritableContext implements GBeanLifecycl
         }
     }
 
-    private static Map.Entry first(LinkedHashMap map) {
+    private static Map.Entry<AbstractName, Object> first(LinkedHashMap<AbstractName, Object> map) {
         if (map.isEmpty()) return null;
-        return (Map.Entry) map.entrySet().iterator().next();
+        return map.entrySet().iterator().next();
     }
 
-    protected Map createBindings(AbstractName abstractName, Object value) throws NamingException {
+    protected Map<Name, Object> createBindings(AbstractName abstractName, Object value) throws NamingException {
         // generate a name for this binding
         Name name = createBindingName(abstractName, value);
         if (name == null) return null;
@@ -231,8 +228,7 @@ public class KernelContextGBean extends WritableContext implements GBeanLifecycl
         value = preprocessVaue(abstractName, name, value);
         if (value == null) return null;
 
-        Map bindings = Collections.singletonMap(name, value);
-        return bindings;
+        return Collections.singletonMap(name, value);
     }
 
     /**
@@ -242,6 +238,7 @@ public class KernelContextGBean extends WritableContext implements GBeanLifecycl
      * @param abstractName the abstract name of the gbean to bind
      * @param value        the gbean instance
      * @return the name under which the gbean should be bound
+     * @throws javax.naming.NamingException should something go wrong
      */
     protected Name createBindingName(AbstractName abstractName, Object value) throws NamingException {
         String shortName = (String) abstractName.getName().get("name");
@@ -256,6 +253,7 @@ public class KernelContextGBean extends WritableContext implements GBeanLifecycl
      * @param name         the name under which the gbean will be bound
      * @param value        the gbean instance
      * @return the value to bind
+     * @throws javax.naming.NamingException should something go wrong
      */
     protected Object preprocessVaue(AbstractName abstractName, Name name, Object value) throws NamingException {
         return value;

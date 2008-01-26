@@ -100,4 +100,10 @@
         </reference>
     </gbean>
 
+    <gbean name="ResourceBindings" class="org.apache.geronimo.gjndi.binding.ResourceBinding">
+        <attribute name="format">{groupId}/{artifactId}/{j2eeType}/{name}</attribute>
+        <attribute name="nameInNamespace">jca:</attribute>
+        <attribute name="abstractNameQuery">?#org.apache.geronimo.naming.ResourceSource</attribute>
+    </gbean>
+
 </module>

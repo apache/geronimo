@@ -108,6 +108,22 @@
                         <value>true</value>
                         <includeVersion>true</includeVersion>
                     </useMavenDependencies>
+                    <instance>
+                        <plugin-artifact>
+                            <config-xml-content>
+                                <gbean name="ResourceBindings" class="org.apache.geronimo.gjndi.binding.ResourceBinding">
+                                    <attribute name="format">${ResourceBindingsFormat}</attribute>
+                                    <attribute name="nameInNamespace">${ResourceBindingsNameInNamespace}</attribute>
+                                    <attribute name="namePattern">${ResourceBindingsNamePattern}</attribute>
+                                    <attribute name="abstractNameQuery">${ResourceBindingsQuery}</attribute>
+                                </gbean>
+                            </config-xml-content>
+                            <config-substitution key="ResourceBindingsFormat">{groupId}/{artifactId}/{j2eeType}/{name}</config-substitution>
+                            <config-substitution key="ResourceBindingsNameInNamespace">jca:</config-substitution>
+                            <config-substitution key="ResourceBindingsNamePattern"></config-substitution>
+                            <config-substitution key="ResourceBindingsQuery">?#org.apache.geronimo.naming.ResourceSource</config-substitution>
+                        </plugin-artifact>
+                    </instance>
                 </configuration>
             </plugin>
         </plugins>

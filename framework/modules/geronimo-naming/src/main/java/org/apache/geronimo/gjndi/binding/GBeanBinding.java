@@ -16,6 +16,14 @@
  */
 package org.apache.geronimo.gjndi.binding;
 
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
+
+import javax.naming.Context;
+import javax.naming.NamingException;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.AbstractName;
@@ -27,14 +35,6 @@ import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.lifecycle.LifecycleAdapter;
 import org.apache.geronimo.kernel.lifecycle.LifecycleListener;
-
-import javax.naming.Context;
-import javax.naming.NamingException;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * @version $Rev$ $Date$
@@ -48,7 +48,7 @@ public class GBeanBinding implements GBeanLifecycle {
     private final Kernel kernel;
 
     private final LifecycleListener listener = new GBeanLifecycleListener();
-    private final LinkedHashMap bindings = new LinkedHashMap();
+    private final LinkedHashMap<AbstractName, Object> bindings = new LinkedHashMap<AbstractName, Object>();
 
     public GBeanBinding(Context context, String name, AbstractNameQuery abstractNameQuery, Kernel kernel) {
         this.context = context;
@@ -59,9 +59,8 @@ public class GBeanBinding implements GBeanLifecycle {
 
     public synchronized void doStart() {
         kernel.getLifecycleMonitor().addLifecycleListener(listener, abstractNameQuery);
-        Set set = kernel.listGBeans(abstractNameQuery);
-        for (Iterator iterator = set.iterator(); iterator.hasNext();) {
-            AbstractName abstractName = (AbstractName) iterator.next();
+        Set<AbstractName> set = kernel.listGBeans(abstractNameQuery);
+        for (AbstractName abstractName : set) {
             try {
                 if (kernel.isRunning(abstractName)) {
                     addBinding(abstractName);
@@ -83,9 +82,8 @@ public class GBeanBinding implements GBeanLifecycle {
 
     private synchronized void destroy() {
         kernel.getLifecycleMonitor().removeLifecycleListener(listener);
-        Set abstractNames = new HashSet(bindings.keySet());
-        for (Iterator iterator = abstractNames.iterator(); iterator.hasNext();) {
-            AbstractName abstractName = (AbstractName) iterator.next();
+        Set<AbstractName> abstractNames = new HashSet<AbstractName>(bindings.keySet());
+        for (AbstractName abstractName : abstractNames) {
             removeBinding(abstractName);
         }
         bindings.clear();
@@ -130,7 +128,7 @@ public class GBeanBinding implements GBeanLifecycle {
         }
 
         // get the gbean
-        Object instance = null;
+        Object instance;
         try {
             instance = kernel.getGBean(abstractName);
         } catch (GBeanNotFoundException e) {
