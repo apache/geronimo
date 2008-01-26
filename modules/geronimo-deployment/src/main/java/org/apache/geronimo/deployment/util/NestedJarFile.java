@@ -231,7 +231,8 @@ public class NestedJarFile extends JarFile {
                 super.close();
             } catch(IOException ignored) {
             }
-            if (baseJar != null) {
+            if (baseJar != null && basePath.length() == 0) {
+                // baseJar is created by us.  We should be closing it too.
                 baseJar.close();
             }
         } finally {
