@@ -122,7 +122,7 @@ for (StatsGraph graph : graphs)
 {
 %>
 <p>
-<div id="<%=graph.getDivName()%>Head" "style="background-color: #f2f2f2; border-top: 1px solid #2581c7; margin: 0px; width: 670px; height: 16px;"><div align="left" style="background-color: #f2f2f2; float:left; text-align:left; width:500px;"><%=graph.getName() %></div><div align=right style="background-color: #f2f2f2; float:left; width:170px; text-align:right;"><a href="#" onClick="hide('<%=graph.getDivName()%>')"><img border=0 src="/monitoring/images/min-b.png"></a>&nbsp;<a href="#" onClick="show('<%=graph.getDivName()%>')"><img border=0 src="/monitoring/images/max-b.png"></a>&nbsp;<a href="#" onClick="hide('<%=graph.getDivName()%>');hide('<%=graph.getDivName()%>Head');"><img border=0 src="/monitoring/images/close-b.png"> </a></div></div>
+<div id="<%=graph.getDivName()%>Head" style="background-color: #f2f2f2; border-top: 1px solid #2581c7; margin: 0px; width: 100%; height: 16px;"><div align="left" style="background-color: #f2f2f2; float:left; text-align:left; width:75%; height: 20px;"><%=graph.getName() %></div><div align=right style="background-color: #f2f2f2; float:left; width:25%; text-align:right;"><a href="#" onClick="hide('<%=graph.getDivName()%>')"><img border=0 src="/monitoring/images/min-b.png"></a>&nbsp;<a href="#" onClick="show('<%=graph.getDivName()%>')"><img border=0 src="/monitoring/images/max-b.png"></a>&nbsp;<a href="#" onClick="hide('<%=graph.getDivName()%>');hide('<%=graph.getDivName()%>Head');"><img border=0 src="/monitoring/images/close-b.png"> </a></div></div>
 <%=graph.getDivImplement()%>
 </p>
 <%
