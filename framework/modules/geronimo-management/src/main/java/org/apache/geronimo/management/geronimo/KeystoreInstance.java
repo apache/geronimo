@@ -34,6 +34,11 @@ public interface KeystoreInstance {
     public String getKeystoreName();
 
     /**
+     * Returns the type of the keystore.
+     */
+    public String getKeystoreType();
+    
+    /**
      * Saves a password to access the keystore as a whole.  This means that any
      * other server component can use this keystore to create a socket factory.
      * However, the relevant private key in the keystore must also be unlocked.

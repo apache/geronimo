@@ -64,6 +64,7 @@ import org.apache.geronimo.management.geronimo.KeystoreInstance;
 import org.apache.geronimo.management.geronimo.KeystoreIsLocked;
 import org.apache.geronimo.management.geronimo.KeystoreManager;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
+import org.apache.geronimo.util.KeystoreUtil;
 import org.apache.geronimo.util.jce.X509Principal;
 import org.apache.geronimo.util.jce.X509V1CertificateGenerator;
 
@@ -127,7 +128,7 @@ public class FileKeystoreManager implements KeystoreManager, GBeanLifecycle {
         String[] names = listKeystoreFiles();
         KeystoreInstance[] result = new KeystoreInstance[names.length];
         for (int i = 0; i < result.length; i++) {
-            result[i] = getKeystore(names[i]);
+            result[i] = getKeystore(names[i], null);
             if(result[i] == null) {
                 return null;
             }
@@ -135,7 +136,7 @@ public class FileKeystoreManager implements KeystoreManager, GBeanLifecycle {
         return result;
     }
 
-    public KeystoreInstance getKeystore(String name) {
+    public KeystoreInstance getKeystore(String name, String type) {
         for (Iterator it = keystores.iterator(); it.hasNext();) {
             KeystoreInstance instance = (KeystoreInstance) it.next();
             if(instance.getKeystoreName().equals(name)) {
@@ -161,6 +162,16 @@ public class FileKeystoreManager implements KeystoreManager, GBeanLifecycle {
         }
         data.setReferencePattern("ServerInfo", kernel.getAbstractNameFor(serverInfo));
         data.setAttribute("keystoreName", name);
+        if(type == null) {
+            if(name.lastIndexOf(".") == -1) {
+                type = KeystoreUtil.defaultType;
+                log.warn("keystoreType for new keystore \""+name+"\" set to default type \""+type+"\".");
+            } else {
+                type = name.substring(name.lastIndexOf(".")+1);
+                log.warn("keystoreType for new keystore \""+name+"\" set to \""+type+"\" based on file extension.");
+            }
+        }
+        data.setAttribute("keystoreType", type);
         EditableConfigurationManager mgr = ConfigurationUtil.getEditableConfigurationManager(kernel);
         if(mgr != null) {
             try {
@@ -240,7 +251,7 @@ public class FileKeystoreManager implements KeystoreManager, GBeanLifecycle {
         // the keyStore is optional.
         KeystoreInstance keyInstance = null;
         if (keyStore != null) {
-            keyInstance = getKeystore(keyStore);
+            keyInstance = getKeystore(keyStore, null);
             if(keyInstance.isKeystoreLocked()) {
                 throw new KeystoreIsLocked("Keystore '"+keyStore+"' is locked; please use the keystore page in the admin console to unlock it");
             }
@@ -248,7 +259,7 @@ public class FileKeystoreManager implements KeystoreManager, GBeanLifecycle {
                 throw new KeystoreIsLocked("Key '"+keyAlias+"' in keystore '"+keyStore+"' is locked; please use the keystore page in the admin console to unlock it");
             }
         }
-        KeystoreInstance trustInstance = trustStore == null ? null : getKeystore(trustStore);
+        KeystoreInstance trustInstance = trustStore == null ? null : getKeystore(trustStore, null);
         if(trustInstance != null && trustInstance.isKeystoreLocked()) {
             throw new KeystoreIsLocked("Keystore '"+trustStore+"' is locked; please use the keystore page in the admin console to unlock it");
         }
@@ -327,14 +338,14 @@ public class FileKeystoreManager implements KeystoreManager, GBeanLifecycle {
      *                     unlocked.
      */
     public SSLContext createSSLContext(String provider, String protocol, String algorithm, String keyStore, String keyAlias, String trustStore, ClassLoader loader) throws KeystoreException {
-        KeystoreInstance keyInstance = getKeystore(keyStore);
+        KeystoreInstance keyInstance = getKeystore(keyStore, null);
         if(keyInstance.isKeystoreLocked()) {
             throw new KeystoreIsLocked("Keystore '"+keyStore+"' is locked; please use the keystore page in the admin console to unlock it");
         }
         if(keyInstance.isKeyLocked(keyAlias)) {
             throw new KeystoreIsLocked("Key '"+keyAlias+"' in keystore '"+keyStore+"' is locked; please use the keystore page in the admin console to unlock it");
         }
-        KeystoreInstance trustInstance = trustStore == null ? null : getKeystore(trustStore);
+        KeystoreInstance trustInstance = trustStore == null ? null : getKeystore(trustStore, null);
         if(trustInstance != null && trustInstance.isKeystoreLocked()) {
             throw new KeystoreIsLocked("Keystore '"+trustStore+"' is locked; please use the keystore page in the admin console to unlock it");
         }
@@ -355,19 +366,19 @@ public class FileKeystoreManager implements KeystoreManager, GBeanLifecycle {
         }
     }
 
-    public KeystoreInstance createKeystore(String name, char[] password) throws KeystoreException {
+    public KeystoreInstance createKeystore(String name, char[] password, String keystoreType) throws KeystoreException {
         File test = new File(directory, name);
         if(test.exists()) {
             throw new IllegalArgumentException("Keystore already exists "+test.getAbsolutePath()+"!");
         }
         try {
-            KeyStore keystore = KeyStore.getInstance(FileKeystoreInstance.JKS);
+            KeyStore keystore = KeyStore.getInstance(keystoreType);
             keystore.load(null, password);
             OutputStream out = new BufferedOutputStream(new FileOutputStream(test));
             keystore.store(out, password);
             out.flush();
             out.close();
-            return getKeystore(name);
+            return getKeystore(name, keystoreType);
         } catch (KeyStoreException e) {
             throw new KeystoreException("Unable to create keystore", e);
         } catch (IOException e) {

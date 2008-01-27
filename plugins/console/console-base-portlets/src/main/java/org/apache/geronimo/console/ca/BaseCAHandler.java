@@ -99,8 +99,8 @@ public abstract class BaseCAHandler extends MultiPageAbstractHandler {
      * @param password Password for newly created Keystore
      * @throws KeystoreException 
      */
-    protected KeystoreInstance createCAKeystoreInstance(PortletRequest request, String password) throws KeystoreException {
-        return PortletManager.getCurrentServer(request).getKeystoreManager().createKeystore(defaultCAKeystore, password.toCharArray());
+    protected KeystoreInstance createCAKeystoreInstance(PortletRequest request, String password, String type) throws KeystoreException {
+        return PortletManager.getCurrentServer(request).getKeystoreManager().createKeystore(defaultCAKeystore, password.toCharArray(), type);
     }
     
     /**

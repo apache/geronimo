@@ -94,6 +94,10 @@ public abstract class BaseKeystoreHandler extends MultiPageAbstractHandler {
             return instance.getKeystoreName();
         }
         
+        public String getType() {
+            return instance.getKeystoreType();
+        }
+
         public KeystoreInstance getInstance() {
             return instance;
         }

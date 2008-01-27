@@ -181,6 +181,7 @@
                                     <attribute name="sslProtocol">TLS</attribute>
                                     <attribute name="keystoreFile">var/security/keystores/geronimo-default</attribute>
                                     <attribute name="keystorePass">secret</attribute>
+                                    <attribute name="keystoreType">JKS</attribute>
                                 </gbean>
                             </config-xml-content>
                             <config-substitution key="HTTPPort">8080</config-substitution>

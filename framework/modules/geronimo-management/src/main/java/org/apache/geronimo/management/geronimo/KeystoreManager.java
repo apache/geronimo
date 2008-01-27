@@ -115,8 +115,9 @@ public interface KeystoreManager {
      *
      * @param name The name of the keystore to create
      * @param password The password to use to protect the new keystore
+     * @param type The keystore type
      */
-    public KeystoreInstance createKeystore(String name, char[] password) throws KeystoreException;
+    public KeystoreInstance createKeystore(String name, char[] password, String type) throws KeystoreException;
 
     /**
      * Gets the aliases for any keystores that are available to be used as

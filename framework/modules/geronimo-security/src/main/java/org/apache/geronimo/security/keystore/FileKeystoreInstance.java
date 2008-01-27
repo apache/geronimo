@@ -97,6 +97,7 @@ public class FileKeystoreInstance implements KeystoreInstance, GBeanLifecycle {
     private ServerInfo serverInfo; // used to decode relative path
     private File keystoreFile; // Only valid after startup
     private String keystoreName;
+    private String keystoreType;
     private char[] keystorePassword; // Used to "unlock" the keystore for other services
     private Map<String, char[]> keyPasswords = new HashMap<String, char[]>();
     private Kernel kernel;
@@ -108,10 +109,11 @@ public class FileKeystoreInstance implements KeystoreInstance, GBeanLifecycle {
     private KeyStore keystore;
     private long keystoreReadDate = Long.MIN_VALUE;
 
-    public FileKeystoreInstance(ServerInfo serverInfo, URI keystorePath, String keystoreName, String keystorePassword, String keyPasswords, Kernel kernel, AbstractName abstractName) {
+    public FileKeystoreInstance(ServerInfo serverInfo, URI keystorePath, String keystoreName, String keystorePassword, String keystoreType, String keyPasswords, Kernel kernel, AbstractName abstractName) {
         this.serverInfo = serverInfo;
         this.keystorePath = keystorePath;
         this.keystoreName = keystoreName;
+        this.keystoreType = keystoreType;
         this.kernel = kernel;
         this.abstractName = abstractName;
         this.keystorePassword = keystorePassword == null ? null : keystorePassword.toCharArray();
@@ -145,12 +147,13 @@ public class FileKeystoreInstance implements KeystoreInstance, GBeanLifecycle {
         infoFactory.addAttribute("keystorePath", URI.class, true, false);
         infoFactory.addAttribute("keystoreName", String.class, true, false);
         infoFactory.addAttribute("keystorePassword", String.class, true, true);
+        infoFactory.addAttribute("keystoreType", String.class, true, false);
         infoFactory.addAttribute("keyPasswords", String.class, true, true);
         infoFactory.addAttribute("kernel", Kernel.class, false);
         infoFactory.addAttribute("abstractName", AbstractName.class, false);
         infoFactory.addReference("ServerInfo", ServerInfo.class, NameFactory.GERONIMO_SERVICE);
         infoFactory.addInterface(KeystoreInstance.class);
-        infoFactory.setConstructor(new String[]{"ServerInfo","keystorePath", "keystoreName", "keystorePassword", "keyPasswords", "kernel", "abstractName"});
+        infoFactory.setConstructor(new String[]{"ServerInfo","keystorePath", "keystoreName", "keystorePassword", "keystoreType", "keyPasswords", "kernel", "abstractName"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
@@ -164,6 +167,10 @@ public class FileKeystoreInstance implements KeystoreInstance, GBeanLifecycle {
     
     public String getKeystoreName() {
         return keystoreName;
+    }
+
+    public String getKeystoreType() {
+        return keystoreType;
     }
 
     public void unlockKeystore(char[] password) throws KeystoreException {
@@ -632,7 +639,7 @@ public class FileKeystoreInstance implements KeystoreInstance, GBeanLifecycle {
         InputStream in = null;
         try {
             // Make sure the keystore is loadable using the provided password before resetting the instance variables.
-            KeyStore tempKeystore = KeyStore.getInstance(JKS);
+            KeyStore tempKeystore = KeyStore.getInstance(keystoreType);
             in = new BufferedInputStream(new FileInputStream(keystoreFile));
             long readDate = System.currentTimeMillis();
             tempKeystore.load(in, password);

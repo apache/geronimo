@@ -27,9 +27,10 @@ import org.apache.geronimo.console.MultiPageModel;
 import org.apache.geronimo.console.util.PortletManager;
 import org.apache.geronimo.management.geronimo.KeystoreException;
 import org.apache.geronimo.management.geronimo.KeystoreInstance;
+import org.apache.geronimo.util.KeystoreUtil;
 
 /**
- * Handler for entering a password to unlock a keystore
+ * Handler for creating a keystore
  *
  * @version $Rev$ $Date$
  */
@@ -46,11 +47,14 @@ public class CreateKeystoreHandler extends BaseKeystoreHandler {
         if(request.getParameter("filename") != null) {
             request.setAttribute("filename", request.getParameter("filename"));
         }
+        request.setAttribute("keystoreTypes", KeystoreUtil.emptyKeystoreTypes);
+        request.setAttribute("defaultType", KeystoreUtil.defaultType);
     }
 
     public String actionAfterView(ActionRequest request, ActionResponse response, MultiPageModel model) throws PortletException, IOException {
         String filename = request.getParameter("filename");
         String password = request.getParameter("password");
+        String type = request.getParameter("type");
         if(filename == null || filename.equals("")) {
             return getMode();
         } else if(password == null) {
@@ -58,7 +62,7 @@ public class CreateKeystoreHandler extends BaseKeystoreHandler {
             return getMode();
         }
         try {
-            KeystoreInstance instance = PortletManager.getCurrentServer(request).getKeystoreManager().createKeystore(filename, password.toCharArray());
+            KeystoreInstance instance = PortletManager.getCurrentServer(request).getKeystoreManager().createKeystore(filename, password.toCharArray(), type);
             PortletSession session = request.getPortletSession(true);
             KeystoreData data = new KeystoreData();
             data.setInstance(instance);

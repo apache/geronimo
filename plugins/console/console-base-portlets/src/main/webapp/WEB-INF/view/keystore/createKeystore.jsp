@@ -60,6 +60,16 @@ function <portlet:namespace/>validateForm(){
                 <input type="password" name="confirm-password" size="20" maxlength="200" />
             </td>
         </tr>
+        <tr>
+            <th align="right"><fmt:message key="keystore.createKeystore.type"/>:</th>
+            <td>
+                <select name="type">
+                    <c:forEach var="keystoreType" items="${keystoreTypes}">
+                        <option <c:if test="${defaultType eq keystoreType}">selected</c:if>>${keystoreType}</option>
+                    </c:forEach>
+                </select>
+            </td>
+        </tr>
     </table>
     <input type="submit" value='<fmt:message key="keystore.createKeystore.createKeystore"/>' onClick="return <portlet:namespace/>validateForm();"/>
 </form>

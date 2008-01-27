@@ -104,6 +104,7 @@
         <attribute name="sslProtocol">TLS</attribute>
         <attribute name="keystoreFile">var/security/keystores/geronimo-default</attribute>
         <attribute name="keystorePass">secret</attribute>
+        <attribute name="keystoreType">JKS</attribute>
         <reference name="TomcatContainer">
             <name>TomcatWebContainer</name>
         </reference>

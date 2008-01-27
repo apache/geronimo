@@ -47,6 +47,7 @@ import org.apache.geronimo.security.ca.FileCertificateRequestStore;
 import org.apache.geronimo.security.ca.FileCertificateStore;
 import org.apache.geronimo.security.ca.GeronimoCertificationAuthority;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
+import org.apache.geronimo.util.KeystoreUtil;
 
 /**
  * Handler for the CA confirmation screen.
@@ -100,7 +101,7 @@ public class ConfirmCAHandler extends BaseCAHandler {
                 throw new Exception("Key Algorithm '"+keyAlgorithm+"' is not supported.");
             }
             // Create a KeystoreInstance and generate keypair
-            KeystoreInstance caKeystore = createCAKeystoreInstance(request, password);
+            KeystoreInstance caKeystore = createCAKeystoreInstance(request, password, KeystoreUtil.defaultType);
             caKeystore.unlockKeystore(password.toCharArray());
             caKeystore.generateKeyPair(alias, password.toCharArray(), password.toCharArray(), keyAlgorithm, Integer.parseInt(keySize),
                     algorithm, 365, caCN, caOU, caO, caL, caST, caC);

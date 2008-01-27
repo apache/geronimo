@@ -83,6 +83,7 @@
         <attribute name="keystoreName">geronimo-default</attribute>
         <attribute name="keystorePath">var/security/keystores/geronimo-default</attribute>
         <attribute name="keystorePassword">secret</attribute>
+        <attribute name="keystoreType">JKS</attribute>
         <attribute name="keyPasswords">geronimo=secret</attribute>
         <reference name="ServerInfo"><name>ServerInfo</name></reference>
     </gbean>

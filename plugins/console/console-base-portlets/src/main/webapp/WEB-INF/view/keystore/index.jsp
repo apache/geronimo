@@ -35,6 +35,7 @@
 <table width="100%">
   <tr>
     <td class="DarkBackground"><fmt:message key="keystore.index.keystoreFile"/></td>
+    <td class="DarkBackground" align="center"><fmt:message key="keystore.index.type"/></td>
     <td class="DarkBackground" align="center"><fmt:message key="keystore.index.contents"/></td>
     <td class="DarkBackground" align="center"><fmt:message key="keystore.index.editable"/></td>
     <td class="DarkBackground" align="center"><fmt:message key="keystore.index.available"/></td>
@@ -59,6 +60,9 @@
           <a href="<portlet:actionURL portletMode="view"><portlet:param name="mode" value="viewKeystore-before" /><portlet:param name="id" value="${keystore.instance.keystoreName}" /></portlet:actionURL>">${keystore.instance.keystoreName}</a>
         </c:otherwise>
       </c:choose>
+    </td>
+    <td class="${backgroundClass}">
+      ${keystore.type}
     </td>
     <td class="${backgroundClass}">
         <c:choose>
