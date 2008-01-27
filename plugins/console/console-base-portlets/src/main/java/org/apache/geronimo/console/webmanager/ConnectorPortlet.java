@@ -52,6 +52,7 @@ import org.apache.geronimo.management.geronimo.WebContainer;
 import org.apache.geronimo.management.geronimo.WebManager;
 import org.apache.geronimo.management.geronimo.WebManager.ConnectorAttribute;
 import org.apache.geronimo.management.geronimo.WebManager.ConnectorType;
+import org.apache.geronimo.util.KeystoreUtil;
 
 /**
  * A portlet that lets you list, add, remove, start, stop, restart and edit web
@@ -474,8 +475,8 @@ public class ConnectorPortlet extends BasePortlet {
         enumValues.put("sslProtocol", new String[] { "TLS", "SSL" }); //tomcat
         
         // keystore and truststore types for tomcat
-        enumValues.put("keystoreType", new String[] { "JKS", "PKCS12" });
-        enumValues.put("truststoreType", new String[] { "JKS", "PKCS12" });
+        enumValues.put("keystoreType", KeystoreUtil.keystoreTypes.toArray(new String[0]));
+        enumValues.put("truststoreType", KeystoreUtil.keystoreTypes.toArray(new String[0]));
 
         // provide the three possible values for secure algorithm - Default, SunX509, and IbmX509 
         enumValues.put("algorithm", new String[] { "Default", "SunX509", "IbmX509" });

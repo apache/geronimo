@@ -56,6 +56,7 @@ import org.apache.geronimo.tomcat.connector.Https11APRConnectorGBean;
 import org.apache.geronimo.tomcat.connector.Https11ConnectorGBean;
 import org.apache.geronimo.tomcat.connector.Https11NIOConnectorGBean;
 import org.apache.geronimo.tomcat.connector.TomcatWebConnector;
+import org.apache.geronimo.util.KeystoreUtil;
 
 /**
  * Tomcat implementation of the WebManager management API.  Knows how to
@@ -446,13 +447,13 @@ public class TomcatManagerImpl implements WebManager {
         connectorAttributes.add(new ConnectorAttribute<Boolean>("clientAuth", false, Messages.getString("TomcatManagerImpl.157"), Boolean.class)); //$NON-NLS-1$ //$NON-NLS-2$
         connectorAttributes.add(new ConnectorAttribute<String>("keystoreFile", "", Messages.getString("TomcatManagerImpl.160"), String.class, true)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
         connectorAttributes.add(new ConnectorAttribute<String>("keystorePass", null, Messages.getString("TomcatManagerImpl.162"), String.class)); //$NON-NLS-1$ //$NON-NLS-2$
-        connectorAttributes.add(new ConnectorAttribute<String>("keystoreType", "JKS", Messages.getString("TomcatManagerImpl.165"), String.class)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        connectorAttributes.add(new ConnectorAttribute<String>("keystoreType", KeystoreUtil.defaultType, Messages.getString("TomcatManagerImpl.165"), String.class)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
         connectorAttributes.add(new ConnectorAttribute<String>("sslProtocol", "TLS", Messages.getString("TomcatManagerImpl.168"), String.class)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
         connectorAttributes.add(new ConnectorAttribute<String>("ciphers", "", Messages.getString("TomcatManagerImpl.171"), String.class)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
         connectorAttributes.add(new ConnectorAttribute<String>("keyAlias", null, Messages.getString("TomcatManagerImpl.173"), String.class)); //$NON-NLS-1$ //$NON-NLS-2$
         connectorAttributes.add(new ConnectorAttribute<String>("truststoreFile", null, Messages.getString("TomcatManagerImpl.175"), String.class)); //$NON-NLS-1$ //$NON-NLS-2$
         connectorAttributes.add(new ConnectorAttribute<String>("truststorePass", null, Messages.getString("TomcatManagerImpl.177"), String.class)); //$NON-NLS-1$ //$NON-NLS-2$
-        connectorAttributes.add(new ConnectorAttribute<String>("truststoreType", null, Messages.getString("TomcatManagerImpl.179"), String.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<String>("truststoreType", KeystoreUtil.defaultType, Messages.getString("TomcatManagerImpl.179"), String.class)); //$NON-NLS-1$ //$NON-NLS-2$
     }
     
     // see http://tomcat.apache.org/tomcat-6.0-doc/config/http.html
