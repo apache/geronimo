@@ -46,6 +46,11 @@ public abstract class ConsoleTestSupport
     }
     
     protected void logout() throws Exception {
+        // log body for debugging purposes
+        if (!selenium.isElementPresent("//a[contains(@href, '/console/logout.jsp')]")) {
+            System.out.println(selenium.getBodyText());
+        }
+
         selenium.click("//a[contains(@href, '/console/logout.jsp')]");
         selenium.waitForPageToLoad("30000");
         assertEquals("Geronimo Console Login", selenium.getTitle());
