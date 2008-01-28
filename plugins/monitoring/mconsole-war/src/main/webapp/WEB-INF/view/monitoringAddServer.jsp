@@ -40,6 +40,7 @@ String username = (String) request.getAttribute("username");
 String password = (String) request.getAttribute("password");
 String password2 = (String) request.getAttribute("password2");
 String port = (String) request.getAttribute("port");
+String protocol = (String) request.getAttribute("protocol");
 
 if(message == null)     message = "";
 if(name == null)        name = "";
@@ -47,7 +48,21 @@ if(ip == null)          ip = "";
 if(username == null)    username = "";
 if(password == null)    password = "";
 if(password2 == null)   password2 = "";
-if(port == null)        port = "4201";
+if(protocol == null)    protocol = "";
+if(protocol.equals("1"))    
+{
+    if(port == null)        port = "4201";
+}
+else if(protocol.equals("2"))
+{
+    if(port == null)        port = "1099";
+}
+else
+{
+    protocol = "1";
+    if(port == null)        port = "4201";
+}
+
 %>
 <!-- <head> -->
 
@@ -70,7 +85,7 @@ function validate() {
 		&& document.addServer.password.value
 		&& document.addServer.port.value ))
 	{
-		alert("Name, Address, Port, Username, and Password are all required fields");
+		alert("Name, Address, Protocol, Port, Username, and Password are all required fields");
 		return false;
 	}
 	if (document.addServer.password.value != document.addServer.password2.value)
@@ -119,6 +134,12 @@ function noAlpha(obj) {
       <td>IP/Hostname:</td>
       <td>&nbsp;</td>
       <td align="right"><input type="text" name="ip" value="<%=ip%>"/></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Protocol</td>
+      <td>&nbsp;</td>
+      <td align="right"><input type="radio" name="protocol" value="1" <%if (protocol.equals("1")){ %>checked="checked"<%} %>>EJB <input type="radio" name="protocol" value="2" <%if (protocol.equals("2")){ %>checked="checked"<%} %>>JMX</td>
       <td></td>
     </tr>
     <tr>

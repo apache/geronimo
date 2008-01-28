@@ -23,7 +23,7 @@
 <%@ page import="java.sql.PreparedStatement" %>
 <%@ page import="java.sql.ResultSet" %>
 <%@ page import="java.sql.SQLException" %>
-<%@ page import="org.apache.geronimo.monitoring.console.MRCConnector" %>
+<%@ page import="org.apache.geronimo.monitoring.console.MRCConnectorEJB" %>
 <%@ page import="org.apache.geronimo.monitoring.console.util.*" %>
 <portlet:defineObjects/>
 <%
@@ -126,11 +126,11 @@ border-width: 1px;">
      String name = serverInfos.get(i).name;
      boolean online = false;
      boolean collecting = false;
-     MRCConnector mrc = null;
+     MRCConnectorEJB mrc = null;
      Long snapshotDuration = new Long(0);
      if (enabled) {
 	     try {
-	         mrc = new MRCConnector(ip, username, password, port);
+	         mrc = new MRCConnectorEJB(ip, username, password, port);
 	         online = true;
 	     } catch (Exception e) {
 	         online = false;

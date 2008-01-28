@@ -31,7 +31,7 @@
 <%@ page import="java.sql.ResultSet" %>
 <%@ page import="java.sql.SQLException" %>
 <%@ page import="org.apache.geronimo.monitoring.console.util.*" %>
-<%@ page import="org.apache.geronimo.monitoring.console.MRCConnector" %>
+<%@ page import="org.apache.geronimo.monitoring.console.MRCConnectorEJB" %>
 <%@ page import="org.apache.geronimo.util.EncryptionManager" %>
 
 <portlet:defineObjects/>
@@ -49,6 +49,7 @@ String password2 = (String) request.getAttribute("password2");
 String snapshot = (String) request.getAttribute("snapshot");
 String retention = (String) request.getAttribute("retention");
 String port = (String)request.getAttribute("port");
+String protocol = (String) request.getAttribute("protocol");
 if(message == null)     message = "";
 if(name == null)        name = "";
 if(ip == null)          ip = "";
@@ -57,14 +58,27 @@ if(password == null)    password = "";
 if(password2 == null)   password2 = "";
 if(snapshot == null)    snapshot = "";
 if(retention == null)   retention = "";
-if(port == null)        port = "";
+if(protocol == null)    protocol = "";
+if(protocol.equals("1"))    
+{
+    if(port == null)        port = "4201";
+}
+else if(protocol.equals("2"))
+{
+    if(port == null)        port = "1099";
+}
+else
+{
+    protocol = "1";
+    if(port == null)        port = "4201";
+}
 
 DBManager DBase = new DBManager();
 Connection con = DBase.getConnection();
 
 PreparedStatement pStmt = con.prepareStatement("SELECT * FROM servers WHERE server_id="+server_id);
 ResultSet rs = pStmt.executeQuery();
-MRCConnector mrc = null;
+MRCConnectorEJB mrc = null;
 boolean isOnline = true;
 String added = "";
 String modified = "";
@@ -80,6 +94,7 @@ if (rs.next()) {
         username = rs.getString("username");
         ip = rs.getString("ip");
         port = rs.getString("port");
+        protocol = rs.getString("protocol");
         dbPassword = (String)EncryptionManager.decrypt(rs.getString("password"));
     }
     added = rs.getString("added");
@@ -87,14 +102,14 @@ if (rs.next()) {
     last_seen = rs.getString("last_seen");
     enabled = rs.getInt("enabled") == 1 ? true : false;
     try {
-        // close connection before using the MRCConnector
+        // close connection before using the MRCConnectorEJB
         con.close();
-        mrc = new MRCConnector(ip, username, password, Integer.parseInt(port));
+        mrc = new MRCConnectorEJB(ip, username, password, Integer.parseInt(port));
     } catch (Exception e) {
         // the password supplied by the user doesn't work
         try {
             if(retention.equals("") || snapshot.equals("")) {
-                mrc = new MRCConnector(ip, username, dbPassword, Integer.parseInt(port));
+                mrc = new MRCConnectorEJB(ip, username, dbPassword, Integer.parseInt(port));
 		        // get the snapshot on the first call or any subsequent valid connections
 		        snapshot = snapshot == "" ?  "" + mrc.getSnapshotDuration() / 1000 / 60 : snapshot;
 		        // get the retention on the first call or any subsequent valid connection
@@ -125,9 +140,9 @@ function validate() {
       && document.editServer.ip.value 
       && document.editServer.username.value
       && document.editServer.snapshot.value 
-      && document.editServer.port.value))
+      && document.editServer.port.value ))
    {
-      alert("Name, Address, Port, Username, and Snapshot Duration are all required fields.");
+      alert("Name, Address, Protocol, Port, Username, and Snapshot Duration are all required fields.");
       return false;
    }
    if (document.editServer.password.value != document.editServer.password2.value)
@@ -143,9 +158,10 @@ function validateTest() {
       && document.editServer.ip.value 
       && document.editServer.username.value
       && document.editServer.snapshot.value
-      && document.editServer.password.value ))
+      && document.editServer.password.value
+      && document.editServer.port.value ))
    {
-      alert("Name, Address, Username, and Snapshot Duration are all required fields.");
+      alert("Name, Address, Protocol, Port, Username, and Snapshot Duration are all required fields.");
       return false;
    }
    if (document.editServer.password.value != document.editServer.password2.value)
@@ -213,6 +229,12 @@ function noAlpha(obj){
       <td>IP/Hostname:</td>
       <td>&nbsp;</td>
       <td align="right"><input type="text" name="ip" value=<%= "\"" + ip + "\"" %>/></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Protocol</td>
+      <td>&nbsp;</td>
+      <td align="right"><input type="radio" name="protocol" value="1" <%if (protocol.equals("1")){ %>checked="checked"<%} %>>EJB <input type="radio" name="protocol" value="2" <%if (protocol.equals("1")){ %>checked="checked"<%} %>>JMX</td>
       <td></td>
     </tr>
     <tr>

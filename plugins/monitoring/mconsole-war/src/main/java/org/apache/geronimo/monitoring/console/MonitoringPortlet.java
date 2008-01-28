@@ -202,9 +202,9 @@ public class MonitoringPortlet extends GenericPortlet {
             String username = actionRequest.getParameter("username");
             String password = actionRequest.getParameter("password");
             String password2 = actionRequest.getParameter("password2");
-            String strPort = actionRequest.getParameter("port");
-            int port = Integer.parseInt(strPort);
-            String message = testConnection(name, ip, username, password, port);
+            Integer port = Integer.parseInt(actionRequest.getParameter("port"));
+            Integer protocol = Integer.parseInt(actionRequest.getParameter("protocol"));
+            String message = testConnection(name, ip, username, password, port, protocol);
             actionResponse.setRenderParameter("message", message);
             actionResponse.setRenderParameter("name", name);
             actionResponse.setRenderParameter("username", username);
@@ -212,6 +212,7 @@ public class MonitoringPortlet extends GenericPortlet {
             actionResponse.setRenderParameter("password", password);
             actionResponse.setRenderParameter("password2", password2);
             actionResponse.setRenderParameter("port", "" + port);
+            actionResponse.setRenderParameter("protocol", "" + protocol); 
         } else if (action.equals("testEditServerConnection")) {
             String name = actionRequest.getParameter("name");
             String ip = actionRequest.getParameter("ip");
@@ -221,9 +222,9 @@ public class MonitoringPortlet extends GenericPortlet {
             String server_id = actionRequest.getParameter("server_id");
             String snapshot = actionRequest.getParameter("snapshot");
             String retention = actionRequest.getParameter("retention");
-            String strPort = actionRequest.getParameter("port");
-            int port = Integer.parseInt(strPort);
-            String message = testConnection(name, ip, username, password, port);
+            Integer port = Integer.parseInt(actionRequest.getParameter("port"));
+            Integer protocol = Integer.parseInt(actionRequest.getParameter("protocol"));
+            String message = testConnection(name, ip, username, password, port, protocol);
             actionResponse.setRenderParameter("message", message);
             actionResponse.setRenderParameter("name", name);
             actionResponse.setRenderParameter("username", username);
@@ -234,13 +235,22 @@ public class MonitoringPortlet extends GenericPortlet {
             actionResponse.setRenderParameter("server_id", server_id);
             actionResponse.setRenderParameter("retention", retention);
             actionResponse.setRenderParameter("port", "" + port);
+            actionResponse.setRenderParameter("protocol", "" + protocol);
         }
     }
 
     private String testConnection(String name, String ip, String username,
-            String password, int port) {
+            String password, int port, int protocol) {
         try {
-            MRCConnector mrc = new MRCConnector(ip, username, password, port);
+            if (protocol == 1)
+            {
+                MRCConnectorEJB mrc = new MRCConnectorEJB(ip, username, password, port);
+            }
+            else if (protocol == 2)
+            {
+                System.out.println("");
+                //TODO: JMX Stuff here
+            }
             return "<font color=\"green\"><strong><li>Connection was successfully established.</li></strong></font>";
         } catch (Exception e) {
             return "<font color=\"red\"><strong><li>Failed to create a connection to server.</li></strong></font>";
@@ -596,8 +606,8 @@ public class MonitoringPortlet extends GenericPortlet {
         String username = actionRequest.getParameter("username");
         String snapshot = actionRequest.getParameter("snapshot");
         String retention = actionRequest.getParameter("retention");
-        String strPort = actionRequest.getParameter("port");
-        int port = Integer.parseInt(strPort);
+        Integer port = Integer.parseInt(actionRequest.getParameter("port"));
+        Integer protocol = Integer.parseInt(actionRequest.getParameter("protocol"));
         // encrypt the password
         if (password != null && !password.equals("")) {
             password = EncryptionManager.encrypt(password);
@@ -614,7 +624,7 @@ public class MonitoringPortlet extends GenericPortlet {
                                 + "', username='"
                                 + username
                                 + "', modified=CURRENT_TIMESTAMP, last_seen=CURRENT_TIMESTAMP, "
-                                + "port=" + port + " WHERE server_id="
+                                + "port=" + port + ",protocol="+protocol+" WHERE server_id="
                                 + server_id);
                 pStmt.executeUpdate();
                 // when user did not specify the password, just grab it from the
@@ -645,7 +655,8 @@ public class MonitoringPortlet extends GenericPortlet {
                                 + username
                                 + "', password='"
                                 + password
-                                + "', modified=CURRENT_TIMESTAMP, last_seen=CURRENT_TIMESTAMP WHERE server_id="
+                                + "', modified=CURRENT_TIMESTAMP, last_seen=CURRENT_TIMESTAMP, "
+                                + "port=" + port + ",protocol="+protocol+" WHERE server_id="
                                 + server_id);
                 pStmt.executeUpdate();
             }
@@ -654,10 +665,17 @@ public class MonitoringPortlet extends GenericPortlet {
             if (snapshot == null || retention == null) {
                 // do not update if we do not know
             } else {
-                (new MRCConnector(ip, username, password, port))
+                if (protocol == 1)
+                {
+                    (new MRCConnectorEJB(ip, username, password, port))
                         .setSnapshotDuration(Long.parseLong(snapshot) * 1000 * 60);
-                (new MRCConnector(ip, username, password, port))
+                    (new MRCConnectorEJB(ip, username, password, port))
                         .setSnapshotRetention(Integer.parseInt(retention));
+                }
+                else if (protocol == 2)
+                {
+                       //TODO: JMX Here
+                }
             }
             // set success message
             actionResponse
@@ -677,6 +695,7 @@ public class MonitoringPortlet extends GenericPortlet {
         Connection con = DBase.getConnection();
         String name = actionRequest.getParameter("name");
         String ip = actionRequest.getParameter("ip");
+        int protocol = Integer.parseInt(actionRequest.getParameter("protocol"));
         int port = Integer.parseInt(actionRequest.getParameter("port"));
         String password = actionRequest.getParameter("password");
         String username = actionRequest.getParameter("username");
@@ -686,7 +705,7 @@ public class MonitoringPortlet extends GenericPortlet {
         }
         try {
             PreparedStatement pStmt = con
-                    .prepareStatement("INSERT INTO servers (name, ip, username, password, modified, last_seen, added, port) VALUES ('"
+                    .prepareStatement("INSERT INTO servers (name, ip, username, password, modified, last_seen, added, port, protocol) VALUES ('"
                             + name
                             + "','"
                             + ip
@@ -695,7 +714,9 @@ public class MonitoringPortlet extends GenericPortlet {
                             + "','"
                             + password
                             + "',CURRENT_TIMESTAMP,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP,"
-                            + port + ")");
+                            + port
+                            + ","
+                            + protocol + ")");
             pStmt.executeUpdate();
             actionResponse.setRenderParameter("message",
                     "<font color=\"green\"><strong><li>Server " + name + " at "
@@ -965,12 +986,13 @@ public class MonitoringPortlet extends GenericPortlet {
     private String startTrackingMbean(String server_id, String mbean) {
         PreparedStatement pStmt = null;
         ResultSet rs = null;
-        MRCConnector mrc = null;
+        MRCConnectorEJB mrc = null;
         DBManager DBase = new DBManager();
         Connection con = DBase.getConnection();
         String server_ip = null;
         String username = null;
         String password = null;
+        int protocol = 0;
         int port = -1;
         // fetch server information
         try {
@@ -987,6 +1009,7 @@ public class MonitoringPortlet extends GenericPortlet {
             password = rs.getString("password");
             username = rs.getString("username");
             port = rs.getInt("port");
+            protocol = rs.getInt("protocol");
         } catch (SQLException e) {
             return "<font color=\"red\"><strong><li>DATABASE ERROR: "
                     + e.getMessage() + "</li></strong></font>";
@@ -994,7 +1017,15 @@ public class MonitoringPortlet extends GenericPortlet {
         // attempt to connect to the mrc server
         try {
             con.close();
-            mrc = new MRCConnector(server_ip, username, password, port);
+            if (protocol == 1)
+            {
+                mrc = new MRCConnectorEJB(server_ip, username, password, port);
+            }
+            else if (protocol == 2)
+            {
+                System.out.println("");
+                //TODO: JMX Stuff here
+            }
         } catch (Exception e) {
             return "<font color=\"red\"><strong><li>MRC ERROR: Unable to connect to server "
                     + server_ip
@@ -1026,13 +1057,14 @@ public class MonitoringPortlet extends GenericPortlet {
     private String stopTrackingMbean(String server_id, String mbean) {
         PreparedStatement pStmt = null;
         ResultSet rs = null;
-        MRCConnector mrc = null;
+        MRCConnectorEJB mrc = null;
         DBManager DBase = new DBManager();
         Connection con = DBase.getConnection();
         String server_ip = null;
         String username = null;
         String password = null;
         int port = -1;
+        int protocol = 0;
         // fetch server's information
         try {
             pStmt = con
@@ -1048,6 +1080,7 @@ public class MonitoringPortlet extends GenericPortlet {
             password = rs.getString("password");
             username = rs.getString("username");
             port = rs.getInt("port");
+            protocol = rs.getInt("protocol");
         } catch (SQLException e) {
             return "<font color=\"red\"><strong><li>DATABASE ERROR: "
                     + e.getMessage() + "</li></strong></font>";
@@ -1055,8 +1088,16 @@ public class MonitoringPortlet extends GenericPortlet {
         // attempt to connect to the mrc-server
         try {
             con.close();
-            mrc = new MRCConnector(server_ip, username, password, port);
-        } catch (Exception e) {
+            if (protocol == 1)
+            {
+                mrc = new MRCConnectorEJB(server_ip, username, password, port);
+            }
+            else if (protocol == 2)
+            {
+                System.out.println("");
+                //TODO: JMX Stuff here
+            }
+       } catch (Exception e) {
             return "<font color=\"red\"><strong><li>MRC ERROR: Unable to connect to server "
                     + server_ip
                     + ": "
@@ -1088,13 +1129,14 @@ public class MonitoringPortlet extends GenericPortlet {
     private String stopThread(String server_id) {
         PreparedStatement pStmt = null;
         ResultSet rs = null;
-        MRCConnector mrc = null;
+        MRCConnectorEJB mrc = null;
         DBManager DBase = new DBManager();
         Connection con = DBase.getConnection();
         String server_ip = null;
         String username = null;
         String password = null;
         int port = -1;
+        int protocol = 0;
         // fetch the server's information
         try {
             pStmt = con
@@ -1110,6 +1152,7 @@ public class MonitoringPortlet extends GenericPortlet {
             password = rs.getString("password");
             username = rs.getString("username");
             port = rs.getInt("port");
+            protocol = rs.getInt("protocol");
         } catch (SQLException e) {
             return "<font color=\"red\"><strong><li>DATABASE ERROR: "
                     + e.getMessage() + "</li></strong></font>";
@@ -1117,7 +1160,15 @@ public class MonitoringPortlet extends GenericPortlet {
         // attempt to connect to the mrc-server
         try {
             con.close();
-            mrc = new MRCConnector(server_ip, username, password, port);
+            if (protocol == 1)
+            {
+                mrc = new MRCConnectorEJB(server_ip, username, password, port);
+            }
+            else if (protocol == 2)
+            {
+                System.out.println("");
+                //TODO: JMX Stuff here
+            }
         } catch (Exception e) {
             return "<font color=\"red\"><strong><li>MRC ERROR: Unable to connect to server "
                     + server_ip
@@ -1147,13 +1198,14 @@ public class MonitoringPortlet extends GenericPortlet {
     private String startThread(String server_id, Long snapshotDuration) {
         PreparedStatement pStmt = null;
         ResultSet rs = null;
-        MRCConnector mrc = null;
+        MRCConnectorEJB mrc = null;
         DBManager DBase = new DBManager();
         Connection con = DBase.getConnection();
         String server_ip = null;
         String username = null;
         String password = null;
         int port = -1;
+        int protocol = 0;
         // fetch the server's information
         try {
             pStmt = con
@@ -1169,6 +1221,7 @@ public class MonitoringPortlet extends GenericPortlet {
             password = rs.getString("password");
             username = rs.getString("username");
             port = rs.getInt("port");
+            protocol = rs.getInt("protocol");
         } catch (SQLException e) {
             return "<font color=\"red\"><strong><li>DATABASE ERROR: "
                     + e.getMessage() + "</li></strong></font>";
@@ -1176,7 +1229,15 @@ public class MonitoringPortlet extends GenericPortlet {
         // attempt to connect to the mrc-server
         try {
             con.close();
-            mrc = new MRCConnector(server_ip, username, password, port);
+            if (protocol == 1)
+            {
+                mrc = new MRCConnectorEJB(server_ip, username, password, port);
+            }
+            else if (protocol == 2)
+            {
+                System.out.println("");
+                //TODO: JMX Stuff here
+            }
         } catch (Exception e) {
             return "<font color=\"red\"><strong><li>MRC ERROR: Unable to connect to server "
                     + server_ip

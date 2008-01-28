@@ -3,6 +3,8 @@
  * enabled          Enable/disable this server - defaults to 1
  * name             Name for this server - alphanum
  * ip               IP address of this server
+ * port             Port number to connect on
+ * protocol         Protocol to use, 1 for ejb, 2 for jmx
  * username         username to use for connecting
  * password         password to use for connecting
  * added            Timestamp when this server was added
@@ -14,6 +16,8 @@ CREATE TABLE servers(
     enabled SMALLINT DEFAULT 1 NOT NULL,
     name VARCHAR(128) DEFAULT NULL,
     ip   VARCHAR(128) UNIQUE NOT NULL,
+    port INTEGER NOT NULL,
+    protocol INTEGER DEFAULT 1 NOT NULL,
     username    VARCHAR(128) NOT NULL,
     password    VARCHAR(1024) NOT NULL,
     added       TIMESTAMP NOT NULL,

@@ -37,11 +37,11 @@ import org.apache.geronimo.monitoring.console.util.DBManager;
 
 import org.apache.geronimo.util.EncryptionManager;
 
-public class MRCConnector {
+public class MRCConnectorEJB {
 
     private MasterRemoteControlRemote mrc = null;
 
-    MRCConnector() {
+    MRCConnectorEJB() {
 
     }
 
@@ -55,7 +55,7 @@ public class MRCConnector {
      * @throws Exception -
      *                 If the connection to mrc-server fails
      */
-    public MRCConnector(String ip, String userName, String password, int port)
+    public MRCConnectorEJB(String ip, String userName, String password, int port)
             throws Exception {
         // decrypt the password
         password = (String) EncryptionManager.decrypt(password);
