@@ -85,10 +85,15 @@ public class OpenejbRemoteLoginModule implements LoginModule {
         if (securityRealm == null) {
             securityRealm = (String) options.get(SECURITY_REALM_KEY_LONG);
         }
-        serverURI = URI.create((String) options.get(SERVER_URI_KEY));
-        if (serverURI == null) {
+
+        String serverURIshort = (String) options.get(SERVER_URI_KEY);
+        if (serverURIshort == null) {
             serverURI = URI.create((String) options.get(SERVER_URI_KEY_LONG));
         }
+        else {
+            serverURI = URI.create((String) options.get(SERVER_URI_KEY));
+        }
+
     }
 
     public boolean login() throws LoginException {
