@@ -90,9 +90,9 @@ public final class ConfigurationUtil {
         configurationMarshaler = marshaler;
     }
     
-    private static final File bootDirectory;
+    private static File bootDirectory;
 
-    static {
+    private static File getStartupDirectory() {
         // guess from the location of the jar
         URL url = ConfigurationUtil.class.getClassLoader().getResource("META-INF/startup-jar");
 
@@ -110,9 +110,17 @@ public final class ConfigurationUtil {
         } else {
             log.error("Cound not determine the installation directory of Apache Geronimo, because the startup jar could not be found in the current class loader.");
         }
-        bootDirectory = directory;
+        
+        return directory;
     }
-
+    
+    private static File getBootDirectory() {
+        if (bootDirectory == null) {
+            bootDirectory = getStartupDirectory();
+        }        
+        return bootDirectory;
+    }
+    
     public static ConfigurationMarshaler createConfigurationMarshaler(String marshalerClass) throws Exception {
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         Class clazz = null;
@@ -178,7 +186,7 @@ public final class ConfigurationUtil {
         ArtifactResolver artifactResolver = null;
         if (enableBootRepo) {
             String repository = System.getProperty("Xorg.apache.geronimo.repository.boot.path", "repository");
-            Maven2Repository bootRepository = new Maven2Repository(new File(bootDirectory, repository));
+            Maven2Repository bootRepository = new Maven2Repository(new File(getBootDirectory(), repository));
             repositories = Collections.singleton(bootRepository);
             artifactResolver = new DefaultArtifactResolver(new DefaultArtifactManager(), bootRepository);
         } else {
