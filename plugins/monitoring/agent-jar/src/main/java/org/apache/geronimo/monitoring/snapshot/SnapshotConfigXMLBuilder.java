@@ -257,6 +257,9 @@ public class SnapshotConfigXMLBuilder {
      */
     public static void saveDocument(Document document, String path) {
         try {
+            // before saving, make sure the directory is present
+            ensureMonitorDir();
+
             //TODO GERONIMO-3719.  Hack to use xmlbeans to write out xml instead of sun specific classes.
             XmlObject xmlObject = XmlObject.Factory.parse(document.getDocumentElement());
             xmlObject.save(new File(path));
