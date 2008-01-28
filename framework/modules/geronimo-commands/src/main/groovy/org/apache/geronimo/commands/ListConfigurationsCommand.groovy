@@ -58,6 +58,7 @@ extends ConnectCommand
 
         if (mavenRepoURL) {
             plugins = command.getPluginCategories(mavenRepoURL, connection.getDeploymentManager(), consoleReader)
+            repo = mavenRepoURL
         } else {
             io.out.println("Listing configurations from Geronimo server")
 

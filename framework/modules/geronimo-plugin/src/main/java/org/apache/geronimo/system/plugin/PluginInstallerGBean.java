@@ -576,7 +576,7 @@ public class PluginInstallerGBean implements PluginInstaller {
                     }
                     toInstall.add(metadata);
                 } catch (MissingDependencyException e) {
-                    //ignore
+                    poller.addSkippedConfigID(e);
                 }
             }
 

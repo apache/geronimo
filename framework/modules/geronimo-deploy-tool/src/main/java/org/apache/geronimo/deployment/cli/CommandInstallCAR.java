@@ -26,6 +26,7 @@ import org.apache.geronimo.cli.deployer.CommandArgs;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.plugin.GeronimoDeploymentManager;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.MissingDependencyException;
 import org.apache.geronimo.system.plugin.DownloadResults;
 import jline.ConsoleReader;
 
@@ -106,14 +107,14 @@ public class CommandInstallCAR extends AbstractCommand {
         consoleReader.printNewline();
         if (!results.isFailed()) {
             DeployUtils.println("**** Installation Complete!", 0, consoleReader);
-
+            for (MissingDependencyException e : results.getSkippedPlugins()) {
+                DeployUtils.println(e.getMessage(), 0, consoleReader);
+            }
             for (Artifact uri: results.getDependenciesPresent()) {
                 DeployUtils.println("Used existing: " + uri, 0, consoleReader);
-
             }
             for (Artifact uri: results.getDependenciesInstalled()) {
                 DeployUtils.println("Installed new: " + uri, 0, consoleReader);
-
             }
             consoleReader.printNewline();
             if (results.getTotalDownloadBytes() > 0 && time > 0) {
