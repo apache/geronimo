@@ -51,6 +51,10 @@ public class SnapshotThread extends Thread {
     public long getSnapshotDuration() {
         return SNAPSHOT_DURATION;
     }
+
+    public boolean isSnapshotRunning() {
+        return SNAPSHOT_DURATION == Long.MAX_VALUE;
+    }
     
     /**
      * Adds the mbean name to list in memory. To update the snapshot-config.xml

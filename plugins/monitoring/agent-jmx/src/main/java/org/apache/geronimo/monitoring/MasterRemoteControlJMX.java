@@ -474,7 +474,7 @@ public class MasterRemoteControlJMX implements GBeanLifecycle {
      */
     public boolean isSnapshotRunning() {
         // TODO: check if the snapshot thread is running 
-        return false;
+        return snapshotThread.isSnapshotRunning();
     }
 
     public static final GBeanInfo GBEAN_INFO;
