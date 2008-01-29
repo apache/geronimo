@@ -242,15 +242,8 @@ public class MonitoringPortlet extends GenericPortlet {
     private String testConnection(String name, String ip, String username,
             String password, int port, int protocol) {
         try {
-            if (protocol == 1)
-            {
-                MRCConnectorEJB mrc = new MRCConnectorEJB(ip, username, password, port);
-            }
-            else if (protocol == 2)
-            {
-                System.out.println("");
-                //TODO: JMX Stuff here
-            }
+            MRCConnector mrc = new MRCConnector(ip, username, password, port, protocol);
+
             return "<font color=\"green\"><strong><li>Connection was successfully established.</li></strong></font>";
         } catch (Exception e) {
             return "<font color=\"red\"><strong><li>Failed to create a connection to server.</li></strong></font>";
@@ -665,17 +658,10 @@ public class MonitoringPortlet extends GenericPortlet {
             if (snapshot == null || retention == null) {
                 // do not update if we do not know
             } else {
-                if (protocol == 1)
-                {
-                    (new MRCConnectorEJB(ip, username, password, port))
+                    (new MRCConnector(ip, username, password, port, protocol))
                         .setSnapshotDuration(Long.parseLong(snapshot) * 1000 * 60);
-                    (new MRCConnectorEJB(ip, username, password, port))
+                    (new MRCConnector(ip, username, password, port, protocol))
                         .setSnapshotRetention(Integer.parseInt(retention));
-                }
-                else if (protocol == 2)
-                {
-                       //TODO: JMX Here
-                }
             }
             // set success message
             actionResponse
@@ -986,7 +972,7 @@ public class MonitoringPortlet extends GenericPortlet {
     private String startTrackingMbean(String server_id, String mbean) {
         PreparedStatement pStmt = null;
         ResultSet rs = null;
-        MRCConnectorEJB mrc = null;
+        MRCConnector mrc = null;
         DBManager DBase = new DBManager();
         Connection con = DBase.getConnection();
         String server_ip = null;
@@ -1017,15 +1003,7 @@ public class MonitoringPortlet extends GenericPortlet {
         // attempt to connect to the mrc server
         try {
             con.close();
-            if (protocol == 1)
-            {
-                mrc = new MRCConnectorEJB(server_ip, username, password, port);
-            }
-            else if (protocol == 2)
-            {
-                System.out.println("");
-                //TODO: JMX Stuff here
-            }
+            mrc = new MRCConnector(server_ip, username, password, port, protocol);
         } catch (Exception e) {
             return "<font color=\"red\"><strong><li>MRC ERROR: Unable to connect to server "
                     + server_ip
@@ -1057,7 +1035,7 @@ public class MonitoringPortlet extends GenericPortlet {
     private String stopTrackingMbean(String server_id, String mbean) {
         PreparedStatement pStmt = null;
         ResultSet rs = null;
-        MRCConnectorEJB mrc = null;
+        MRCConnector mrc = null;
         DBManager DBase = new DBManager();
         Connection con = DBase.getConnection();
         String server_ip = null;
@@ -1088,15 +1066,7 @@ public class MonitoringPortlet extends GenericPortlet {
         // attempt to connect to the mrc-server
         try {
             con.close();
-            if (protocol == 1)
-            {
-                mrc = new MRCConnectorEJB(server_ip, username, password, port);
-            }
-            else if (protocol == 2)
-            {
-                System.out.println("");
-                //TODO: JMX Stuff here
-            }
+                mrc = new MRCConnector(server_ip, username, password, port, protocol);
        } catch (Exception e) {
             return "<font color=\"red\"><strong><li>MRC ERROR: Unable to connect to server "
                     + server_ip
@@ -1129,7 +1099,7 @@ public class MonitoringPortlet extends GenericPortlet {
     private String stopThread(String server_id) {
         PreparedStatement pStmt = null;
         ResultSet rs = null;
-        MRCConnectorEJB mrc = null;
+        MRCConnector mrc = null;
         DBManager DBase = new DBManager();
         Connection con = DBase.getConnection();
         String server_ip = null;
@@ -1160,15 +1130,7 @@ public class MonitoringPortlet extends GenericPortlet {
         // attempt to connect to the mrc-server
         try {
             con.close();
-            if (protocol == 1)
-            {
-                mrc = new MRCConnectorEJB(server_ip, username, password, port);
-            }
-            else if (protocol == 2)
-            {
-                System.out.println("");
-                //TODO: JMX Stuff here
-            }
+            mrc = new MRCConnector(server_ip, username, password, port, protocol);
         } catch (Exception e) {
             return "<font color=\"red\"><strong><li>MRC ERROR: Unable to connect to server "
                     + server_ip
@@ -1198,7 +1160,7 @@ public class MonitoringPortlet extends GenericPortlet {
     private String startThread(String server_id, Long snapshotDuration) {
         PreparedStatement pStmt = null;
         ResultSet rs = null;
-        MRCConnectorEJB mrc = null;
+        MRCConnector mrc = null;
         DBManager DBase = new DBManager();
         Connection con = DBase.getConnection();
         String server_ip = null;
@@ -1229,15 +1191,7 @@ public class MonitoringPortlet extends GenericPortlet {
         // attempt to connect to the mrc-server
         try {
             con.close();
-            if (protocol == 1)
-            {
-                mrc = new MRCConnectorEJB(server_ip, username, password, port);
-            }
-            else if (protocol == 2)
-            {
-                System.out.println("");
-                //TODO: JMX Stuff here
-            }
+            mrc = new MRCConnector(server_ip, username, password, port, protocol);
         } catch (Exception e) {
             return "<font color=\"red\"><strong><li>MRC ERROR: Unable to connect to server "
                     + server_ip

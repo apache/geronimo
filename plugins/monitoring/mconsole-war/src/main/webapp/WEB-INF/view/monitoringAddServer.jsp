@@ -99,7 +99,12 @@ function noAlpha(obj) {
     reg = /[^0-9]/g;
     obj.value =  obj.value.replace(reg,"");
 }
-
+function setPort() {
+    if (document.addServer.protocol[0].checked == true)
+        document.addServer.port.value = "4201";
+    else
+        document.addServer.port.value = "1099";
+}
 //-->
 </script>
 <!-- </head> -->
@@ -139,7 +144,7 @@ function noAlpha(obj) {
     <tr>
       <td>Protocol</td>
       <td>&nbsp;</td>
-      <td align="right"><input type="radio" name="protocol" value="1" <%if (protocol.equals("1")){ %>checked="checked"<%} %>>EJB <input type="radio" name="protocol" value="2" <%if (protocol.equals("2")){ %>checked="checked"<%} %>>JMX</td>
+      <td align="right"><input type="radio" name="protocol" onchange='setPort()' value="1" <%if (protocol.equals("1")){ %>checked="checked"<%} %>>EJB <input type="radio" name="protocol" onchange='setPort()' value="2" <%if (protocol.equals("2")){ %>checked="checked"<%} %>>JMX</td>
       <td></td>
     </tr>
     <tr>

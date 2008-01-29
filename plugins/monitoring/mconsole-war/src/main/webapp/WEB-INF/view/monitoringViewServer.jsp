@@ -32,7 +32,7 @@
 <%@ page import="java.sql.SQLException" %>
 <%@ page import="java.sql.Timestamp" %>
 <%@ page import="org.apache.geronimo.monitoring.console.util.*" %>
-<%@ page import="org.apache.geronimo.monitoring.console.MRCConnectorEJB" %>
+<%@ page import="org.apache.geronimo.monitoring.console.MRCConnector" %>
 <portlet:defineObjects/>
 
 <%
@@ -43,7 +43,7 @@ String message = (String) request.getAttribute("message");
 DBManager DBase = new DBManager();
 Connection con = DBase.getConnection();
 
-MRCConnectorEJB mrc = null;
+MRCConnector mrc = null;
 
 boolean isOnline = true;
 boolean collecting = false;
@@ -62,6 +62,7 @@ if (rs.next()) {
     TreeMap <String,String> trackedBeansMap = null;
     String ip = rs.getString("ip");
     int port = rs.getInt("port");
+    int protocol = rs.getInt("protocol");
     String username = rs.getString("username");
     String name = rs.getString("name");
     String password = rs.getString("password");
@@ -71,7 +72,7 @@ if (rs.next()) {
     long retention = -1;
     rs.close();
     try {
-        mrc = new MRCConnectorEJB(ip, username, password, port);
+        mrc = new MRCConnector(ip, username, password, port, protocol);
         availableBeansMap = mrc.getFreeStatisticsProviderBeanNamesMap();
         retention = mrc.getSnapshotRetention();
         trackedBeansMap = mrc.getTrackedBeansMap();

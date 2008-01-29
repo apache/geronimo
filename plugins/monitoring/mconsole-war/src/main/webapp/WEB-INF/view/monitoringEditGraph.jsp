@@ -30,7 +30,7 @@
 <%@ page import="java.sql.ResultSet" %>
 <%@ page import="java.sql.SQLException" %>
 <%@ page import="org.apache.geronimo.monitoring.console.util.*" %>
-<%@ page import="org.apache.geronimo.monitoring.console.MRCConnectorEJB" %>
+<%@ page import="org.apache.geronimo.monitoring.console.MRCConnector" %>
 <portlet:defineObjects/>
 
 <%
@@ -76,7 +76,7 @@ if (rs.next())
     pStmt = con.prepareStatement("SELECT * FROM servers WHERE enabled=1");
     rs = pStmt.executeQuery();
 
-    MRCConnectorEJB mrc = null;
+    MRCConnector mrc = null;
     Long snapshotDuration = null;
 
     ArrayList<String> serverIds = new ArrayList<String>();
@@ -96,10 +96,11 @@ while (rs.next())
 {
     TreeMap <String,String> trackedBeansMap = null;
     try {
-        mrc = new MRCConnectorEJB(           rs.getString("ip"), 
+        mrc = new MRCConnector(           rs.getString("ip"), 
                                                     rs.getString("username"), 
                                                     rs.getString("password"),
-                                                    rs.getInt("port"));
+                                                    rs.getInt("port"),
+                                                    rs.getInt("protocol"));
         trackedBeansMap = mrc.getTrackedBeansMap();;
         serverIds.add(rs.getString("server_id"));
         serverNames.add(rs.getString("name") +" - "+rs.getString("ip"));

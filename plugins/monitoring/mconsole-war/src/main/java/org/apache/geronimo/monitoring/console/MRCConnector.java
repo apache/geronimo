@@ -23,11 +23,18 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+
+import javax.management.MBeanServerConnection;
+import javax.management.ObjectName;
+import javax.management.remote.JMXConnector;
+import javax.management.remote.JMXConnectorFactory;
+import javax.management.remote.JMXServiceURL;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -37,44 +44,71 @@ import org.apache.geronimo.monitoring.console.util.DBManager;
 
 import org.apache.geronimo.util.EncryptionManager;
 
-public class MRCConnectorEJB {
+public class MRCConnector {
 
+    private static final String PATH = "geronimo:ServiceModule=org.apache.geronimo.plugins.monitoring/agent-car-jmx/2.1-SNAPSHOT/car,J2EEServer=geronimo,name=MasterRemoteControlJMX,j2eeType=GBean";
+    private static MBeanServerConnection mbServerConn;
     private MasterRemoteControlRemote mrc = null;
+    private int Protocol = 0;
 
-    MRCConnectorEJB() {
+    MRCConnector() {
 
     }
 
     /**
      * @param ip -
-     *                IP address of mrc-server to connect to
+     *            IP address of mrc-server to connect to
      * @param userName -
-     *                Username for JMX connection to the host
+     *            Username for JMX connection to the host
      * @param password -
-     *                Password for JMX connection to the host
+     *            Password for JMX connection to the host
      * @throws Exception -
-     *                 If the connection to mrc-server fails
+     *             If the connection to mrc-server fails
      */
-    public MRCConnectorEJB(String ip, String userName, String password, int port)
-            throws Exception {
+    public MRCConnector(String ip, String userName, String password, int port,
+            int protocol) throws Exception {
         // decrypt the password
         password = (String) EncryptionManager.decrypt(password);
-        try {
-            Properties props = new Properties();
-            props.setProperty(Context.INITIAL_CONTEXT_FACTORY,
-                    "org.apache.openejb.client.RemoteInitialContextFactory");
-            props
-                    .setProperty(Context.PROVIDER_URL, "ejbd://" + ip + ":"
-                            + port);
-            props.setProperty(Context.SECURITY_PRINCIPAL, userName);
-            props.setProperty(Context.SECURITY_CREDENTIALS, password);
-            props.setProperty("openejb.authentication.realmName",
-                    "geronimo-admin");
-            Context ic = new InitialContext(props);
-            mrc = (MasterRemoteControlRemote) ic.lookup("ejb/mgmt/MRCRemote");
-            mrc.setUpMEJB(userName, password);
-        } catch (Exception e) {
-            throw e;
+        Protocol = protocol;
+
+        if (Protocol == 1) {
+
+            try {
+                Properties props = new Properties();
+                props
+                        .setProperty(Context.INITIAL_CONTEXT_FACTORY,
+                                "org.apache.openejb.client.RemoteInitialContextFactory");
+                props.setProperty(Context.PROVIDER_URL, "ejbd://" + ip + ":"
+                        + port);
+                props.setProperty(Context.SECURITY_PRINCIPAL, userName);
+                props.setProperty(Context.SECURITY_CREDENTIALS, password);
+                props.setProperty("openejb.authentication.realmName",
+                        "geronimo-admin");
+                Context ic = new InitialContext(props);
+                mrc = (MasterRemoteControlRemote) ic
+                        .lookup("ejb/mgmt/MRCRemote");
+                mrc.setUpMEJB(userName, password);
+            } catch (Exception e) {
+                throw e;
+            }
+
+        } else {
+            try {
+                JMXServiceURL serviceURL = new JMXServiceURL(
+                        "service:jmx:rmi:///jndi/rmi://" + ip + ":" + port
+                                + "/JMXConnector");
+                Hashtable<String, Object> env = new Hashtable<String, Object>();
+                String[] credentials = new String[2];
+                credentials[0] = userName;
+                credentials[1] = password;
+                env.put(JMXConnector.CREDENTIALS, credentials);
+                JMXConnector connector = JMXConnectorFactory.connect(
+                        serviceURL, env);
+                mbServerConn = connector.getMBeanServerConnection();
+            } catch (Exception e) {
+                throw e;
+            }
+
         }
         // when the code has reach this point, a connection was successfully
         // established
@@ -106,17 +140,25 @@ public class MRCConnectorEJB {
      * @return - Returns an Long representing the current snapshot duration set
      *         on the server side
      * @throws Exception -
-     *                 If the connection to the MRC-Server fails
+     *             If the connection to the MRC-Server fails
      */
     public Long getSnapshotDuration() throws Exception {
-        return mrc.getSnapshotDuration();
+        if (Protocol == 1) {
+
+            return mrc.getSnapshotDuration();
+
+        } else {
+
+            return (Long) mbServerConn.invoke(new ObjectName(PATH),
+                    "getSnapshotDuration", new Object[] {}, new String[] {});
+        }
     }
 
     /**
      * @return - Returns an ArrayList of String objects containing a listing of
      *         all statistics values being collected
      * @throws Exception -
-     *                 If the connection to the MRC-Server fails
+     *             If the connection to the MRC-Server fails
      */
     @SuppressWarnings("unchecked")
     public HashMap<String, ArrayList<String>> getDataNameList()
@@ -124,10 +166,23 @@ public class MRCConnectorEJB {
 
         HashMap<String, ArrayList<String>> DataNameList = new HashMap<String, ArrayList<String>>();
 
-        try {
-            DataNameList = mrc.getAllSnapshotStatAttributes();
-        } catch (Exception e) {
-            e.printStackTrace();
+        if (Protocol == 1) {
+
+            try {
+                DataNameList = mrc.getAllSnapshotStatAttributes();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        } else {
+            try {
+                DataNameList = (HashMap<String, ArrayList<String>>) mbServerConn
+                        .invoke(new ObjectName(PATH),
+                                "getAllSnapshotStatAttributes",
+                                new Object[] {}, new String[] {});
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         // Strip out snapshot_date and snapshot_time, we know these exist
         for (Iterator<String> it = DataNameList.keySet().iterator(); it
@@ -141,19 +196,29 @@ public class MRCConnectorEJB {
 
     /**
      * @param snapCount -
-     *                Number of snapshots to request from the server
+     *            Number of snapshots to request from the server
      * @param skipCount -
-     *                Every nth snapshot. A value of 1 will be every 1. A value
-     *                of 2 will be every other.
+     *            Every nth snapshot. A value of 1 will be every 1. A value of 2
+     *            will be every other.
      * @return - Returns an ArrayList of Map objects.
      * @throws Exception -
-     *                 If the connection to the MRC-Server fails
+     *             If the connection to the MRC-Server fails
      */
     @SuppressWarnings("unchecked")
     public ArrayList<HashMap<String, HashMap<String, Object>>> getSnapshots(
             int snapCount, int skipCount) throws Exception {
-        ArrayList<HashMap<String, HashMap<String, Object>>> snapshotList = mrc
-                .fetchSnapshotData(snapCount, skipCount);
+        ArrayList<HashMap<String, HashMap<String, Object>>> snapshotList = null;
+        if (Protocol == 1) {
+
+            snapshotList = mrc.fetchSnapshotData(snapCount, skipCount);
+
+        } else {
+            snapshotList = (ArrayList<HashMap<String, HashMap<String, Object>>>) mbServerConn
+                    .invoke(new ObjectName(PATH), "fetchSnapshotData",
+                            new Object[] { snapCount, skipCount },
+                            new String[] { "java.lang.Integer",
+                                    "java.lang.Integer" });
+        }
         // Check if snapshotList is empty
         if (snapshotList.size() == 0) {
             return snapshotList;
@@ -291,8 +356,21 @@ public class MRCConnectorEJB {
     public TreeMap<Long, Long> getSpecificStatistics(String mbeanName,
             String statsName, int snapCount, int skipCount, boolean showArchive)
             throws Exception {
-        TreeMap<Long, Long> snapshotList = mrc.getSpecificStatistics(mbeanName,
-                statsName, snapCount, skipCount, showArchive);
+        TreeMap<Long, Long> snapshotList = null;
+        if (Protocol == 1) {
+
+            snapshotList = mrc.getSpecificStatistics(mbeanName, statsName,
+                    snapCount, skipCount, showArchive);
+
+        } else {
+            snapshotList = (TreeMap<Long, Long>) mbServerConn.invoke(
+                    new ObjectName(PATH), "getSpecificStatistics",
+                    new Object[] { mbeanName, statsName, snapCount, skipCount,
+                            showArchive }, new String[] { "java.lang.String",
+                            "java.lang.String", "java.lang.Integer",
+                            "java.lang.Integer", "java.lang.Boolean" });
+
+        }
         // Check if snapshotList is empty
         if (snapshotList.size() == 0) {
             return snapshotList;
@@ -308,7 +386,8 @@ public class MRCConnectorEJB {
             // Calculate appropriate time, add it to the submap, then
             // add
             // that to the tempMap
-            snapshotList.put((timeFix - (getSnapshotDuration() * skipCount)), new Long(0));
+            snapshotList.put((timeFix - (getSnapshotDuration() * skipCount)),
+                    new Long(0));
         }
 
         /*
@@ -324,8 +403,7 @@ public class MRCConnectorEJB {
             Long tempLong1 = tempArray.get(i);
             Long tempLong2 = tempArray.get(i - 1);
             // here is where we will in missing data
-            while ((((tempLong1 / 1000) / 60) - ((tempLong2 / 1000) / 60) > 
-                    (((getSnapshotDuration() / 1000) / 60) * skipCount))
+            while ((((tempLong1 / 1000) / 60) - ((tempLong2 / 1000) / 60) > (((getSnapshotDuration() / 1000) / 60) * skipCount))
                     && i > 0) {
                 tempLong1 = tempLong1 - (getSnapshotDuration() * skipCount);
                 snapshotList.remove(tempArray.get(0));
@@ -342,8 +420,18 @@ public class MRCConnectorEJB {
             throws Exception {
         int snapCount = 1;
         int skipCount = 1;
-        ArrayList<HashMap<String, HashMap<String, Object>>> snapshotList = mrc
-                .fetchSnapshotData(snapCount, skipCount);
+        ArrayList<HashMap<String, HashMap<String, Object>>> snapshotList = null;
+        if (Protocol == 1) {
+
+            snapshotList = mrc.fetchSnapshotData(snapCount, skipCount);
+
+        } else {
+            snapshotList = (ArrayList<HashMap<String, HashMap<String, Object>>>) mbServerConn
+                    .invoke(new ObjectName(PATH), "fetchSnapshotData",
+                            new Object[] { snapCount, skipCount },
+                            new String[] { "java.lang.Integer",
+                                    "java.lang.Integer" });
+        }
         // Check if snapshotList is empty
         if (snapshotList.size() == 0) {
             return null;
@@ -354,50 +442,106 @@ public class MRCConnectorEJB {
     /**
      * @return - Returns a boolean indicating successful stop
      * @throws Exception -
-     *                 If the connection to the MRC-Server fails
+     *             If the connection to the MRC-Server fails
      */
     public boolean stopSnapshotThread() throws Exception {
-        return mrc.stopSnapshot();
+        if (Protocol == 1) {
+
+            return mrc.stopSnapshot();
+
+        } else {
+            return (Boolean) mbServerConn.invoke(new ObjectName(PATH),
+                    "stopSnapshot", new Object[] {}, new String[] {});
+        }
     }
 
     /**
      * @return - Returns a boolean indicating successful stop
      * @throws Exception -
-     *                 If the connection to the MRC-Server fails
+     *             If the connection to the MRC-Server fails
      */
     public boolean startSnapshotThread(long time) throws Exception {
-        return mrc.startSnapshot(time);
+        if (Protocol == 1) {
+
+            return mrc.startSnapshot(time);
+
+        } else {
+            return (Boolean) mbServerConn.invoke(new ObjectName(PATH),
+                    "startSnapshot", new Object[] { time },
+                    new String[] { "java.lang.Long" });
+        }
     }
 
     public boolean isSnapshotRunning() {
         boolean running = false;
-        try {
-            running = mrc.isSnapshotRunning();
-        } catch (Exception e) {
-            return false;
+        if (Protocol == 1) {
+
+            try {
+                running = mrc.isSnapshotRunning();
+            } catch (Exception e) {
+                return false;
+            }
+
+        } else {
+            try {
+                running = (Boolean) mbServerConn.invoke(new ObjectName(PATH),
+                        "isSnapshotRunning", new Object[] {}, new String[] {});
+            } catch (Exception e) {
+                return false;
+            }
         }
         return running;
     }
 
     @SuppressWarnings("unchecked")
     public Set<String> getAllMbeanNames() throws Exception {
-        return mrc.getAllMBeanNames();
+        if (Protocol == 1) {
+
+            return mrc.getAllMBeanNames();
+
+        } else {
+            return (Set<String>) mbServerConn.invoke(new ObjectName(PATH),
+                    "getAllMBeanNames", new Object[] {}, new String[] {});
+        }
     }
 
     @SuppressWarnings("unchecked")
     public Set<String> getStatisticsProviderBeanNames() throws Exception {
-        return mrc.getStatisticsProviderMBeanNames();
+        if (Protocol == 1) {
+
+            return mrc.getStatisticsProviderMBeanNames();
+
+        } else {
+            return (Set<String>) mbServerConn.invoke(new ObjectName(PATH),
+                    "getStatisticsProviderMBeanNames", new Object[] {},
+                    new String[] {});
+        }
     }
 
     @SuppressWarnings("unchecked")
     public HashMap<String, ArrayList<String>> getAllSnapshotStatAttributes()
             throws Exception {
-        return mrc.getAllSnapshotStatAttributes();
+        if (Protocol == 1) {
+
+            return mrc.getAllSnapshotStatAttributes();
+
+        } else {
+            return (HashMap<String, ArrayList<String>>) mbServerConn.invoke(
+                    new ObjectName(PATH), "getAllSnapshotStatAttributes",
+                    new Object[] {}, new String[] {});
+        }
     }
 
     @SuppressWarnings("unchecked")
     public Set<String> getTrackedBeans() throws Exception {
-        return mrc.getTrackedMBeans();
+        if (Protocol == 1) {
+
+            return mrc.getTrackedMBeans();
+
+        } else {
+            return (Set<String>) mbServerConn.invoke(new ObjectName(PATH),
+                    "getTrackedBeans", new Object[] {}, new String[] {});
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -553,30 +697,96 @@ public class MRCConnectorEJB {
 
     @SuppressWarnings("unchecked")
     public boolean stopTrackingMbean(String MBean) throws Exception {
-        mrc.removeMBeanForSnapshot(MBean);
+        if (Protocol == 1) {
+
+            mrc.removeMBeanForSnapshot(MBean);
+
+        } else {
+            mbServerConn
+                    .invoke(new ObjectName(PATH), "removeMBeanForSnapshot",
+                            new Object[] { MBean },
+                            new String[] { "java.lang.String" });
+
+        }
         return true;
     }
 
     @SuppressWarnings("unchecked")
     public boolean startTrackingMbean(String MBean) throws Exception {
-        mrc.addMBeanForSnapshot(MBean);
+        if (Protocol == 1) {
+
+            mrc.addMBeanForSnapshot(MBean);
+
+        } else {
+            mbServerConn
+                    .invoke(new ObjectName(PATH), "addMBeanForSnapshot",
+                            new Object[] { MBean },
+                            new String[] { "java.lang.String" });
+        }
         return true;
     }
 
     @SuppressWarnings("unchecked")
     public HashMap<String, Long> getStats(String MBean) throws Exception {
-        return mrc.getStats(MBean);
+        if (Protocol == 1) {
+
+            return mrc.getStats(MBean);
+
+        } else {
+            return (HashMap<String, Long>) mbServerConn.invoke(new ObjectName(
+                    PATH), "getStats", new Object[] { MBean },
+                    new String[] { "java.lang.String" });
+        }
     }
 
     public void setSnapshotDuration(long duration) {
-        mrc.setSnapshotDuration(new Long(duration));
+        if (Protocol == 1) {
+
+            mrc.setSnapshotDuration(new Long(duration));
+
+        } else {
+            try {
+
+                mbServerConn.invoke(new ObjectName(PATH),
+                        "setSnapshotDuration",
+                        new Object[] { new Long(duration) },
+                        new String[] { "java.lang.Long" });
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public long getSnapshotRetention() {
-        return Long.parseLong(mrc.getSnapshotRetention());
+        if (Protocol == 1) {
+
+            return Long.parseLong(mrc.getSnapshotRetention());
+
+        } else {
+            try {
+                return Long.parseLong((String) mbServerConn.invoke(
+                        new ObjectName(PATH), "getSnapshotRetention",
+                        new Object[] {}, new String[] {}));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return 0;
     }
 
     public void setSnapshotRetention(int duration) {
-        mrc.setSnapshotRetention(duration);
+        if (Protocol == 1) {
+
+            mrc.setSnapshotRetention(duration);
+
+        } else {
+            try {
+                mbServerConn.invoke(new ObjectName(PATH),
+                        "setSnapshotRetention", new Object[] { duration },
+                        new String[] { "java.lang.Integer" });
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

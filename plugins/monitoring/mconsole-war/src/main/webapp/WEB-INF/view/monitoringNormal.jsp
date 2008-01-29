@@ -23,7 +23,7 @@
 <%@ page import="java.sql.PreparedStatement" %>
 <%@ page import="java.sql.ResultSet" %>
 <%@ page import="java.sql.SQLException" %>
-<%@ page import="org.apache.geronimo.monitoring.console.MRCConnectorEJB" %>
+<%@ page import="org.apache.geronimo.monitoring.console.MRCConnector" %>
 <%@ page import="org.apache.geronimo.monitoring.console.util.*" %>
 <portlet:defineObjects/>
 <%
@@ -95,6 +95,7 @@ border-width: 1px;">
  class ServerInfo {
      public String ip;
      public int port;
+     public int protocol;
      public String username;
      public String password;
      public String server_id;
@@ -113,12 +114,14 @@ border-width: 1px;">
      s.name = rs.getString("name");
      s.enabled = rs.getInt("enabled") == 1 ? true : false;
      s.port = rs.getInt("port");
+     s.protocol = rs.getInt("protocol");
      serverInfos.add( s );
  }
  // for each server, draw it
  for(int i = 0 ; i < serverInfos.size(); i++) {
      String ip = serverInfos.get(i).ip;
      int port = serverInfos.get(i).port;
+     int protocol = serverInfos.get(i).protocol;
      String username = serverInfos.get(i).username;
      String password = serverInfos.get(i).password;
      String server_id = serverInfos.get(i).server_id;
@@ -126,11 +129,11 @@ border-width: 1px;">
      String name = serverInfos.get(i).name;
      boolean online = false;
      boolean collecting = false;
-     MRCConnectorEJB mrc = null;
+     MRCConnector mrc = null;
      Long snapshotDuration = new Long(0);
      if (enabled) {
 	     try {
-	         mrc = new MRCConnectorEJB(ip, username, password, port);
+	         mrc = new MRCConnector(ip, username, password, port, protocol);
 	         online = true;
 	     } catch (Exception e) {
 	         online = false;

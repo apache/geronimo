@@ -31,7 +31,7 @@
 <%@ page import="java.sql.ResultSet" %>
 <%@ page import="java.sql.SQLException" %>
 <%@ page import="org.apache.geronimo.monitoring.console.util.*" %>
-<%@ page import="org.apache.geronimo.monitoring.console.MRCConnectorEJB" %>
+<%@ page import="org.apache.geronimo.monitoring.console.MRCConnector" %>
 <%@ page import="org.apache.geronimo.util.EncryptionManager" %>
 
 <portlet:defineObjects/>
@@ -78,7 +78,7 @@ Connection con = DBase.getConnection();
 
 PreparedStatement pStmt = con.prepareStatement("SELECT * FROM servers WHERE server_id="+server_id);
 ResultSet rs = pStmt.executeQuery();
-MRCConnectorEJB mrc = null;
+MRCConnector mrc = null;
 boolean isOnline = true;
 String added = "";
 String modified = "";
@@ -102,14 +102,14 @@ if (rs.next()) {
     last_seen = rs.getString("last_seen");
     enabled = rs.getInt("enabled") == 1 ? true : false;
     try {
-        // close connection before using the MRCConnectorEJB
+        // close connection before using the MRCConnector
         con.close();
-        mrc = new MRCConnectorEJB(ip, username, password, Integer.parseInt(port));
+        mrc = new MRCConnector(ip, username, password, Integer.parseInt(port), Integer.parseInt(protocol));
     } catch (Exception e) {
         // the password supplied by the user doesn't work
         try {
             if(retention.equals("") || snapshot.equals("")) {
-                mrc = new MRCConnectorEJB(ip, username, dbPassword, Integer.parseInt(port));
+                mrc = new MRCConnector(ip, username, dbPassword, Integer.parseInt(port), Integer.parseInt(protocol));
 		        // get the snapshot on the first call or any subsequent valid connections
 		        snapshot = snapshot == "" ?  "" + mrc.getSnapshotDuration() / 1000 / 60 : snapshot;
 		        // get the retention on the first call or any subsequent valid connection
@@ -176,7 +176,12 @@ function noAlpha(obj){
     reg = /[^0-9]/g;
     obj.value =  obj.value.replace(reg,"");
  }
-
+function setPort() {
+    if (document.editServer.protocol[0].checked)
+        document.editServer.port.value = "4201";
+    else
+        document.editServer.port.value = "1099";
+}
 //-->
 </script>
 <!-- </head> -->
@@ -234,7 +239,7 @@ function noAlpha(obj){
     <tr>
       <td>Protocol</td>
       <td>&nbsp;</td>
-      <td align="right"><input type="radio" name="protocol" value="1" <%if (protocol.equals("1")){ %>checked="checked"<%} %>>EJB <input type="radio" name="protocol" value="2" <%if (protocol.equals("1")){ %>checked="checked"<%} %>>JMX</td>
+      <td align="right"><input type="radio" name="protocol" onchange='setPort()' value="1" <%if (protocol.equals("1")){ %>checked="checked"<%} %>>EJB <input type="radio" name="protocol" onchange='setPort()' value="2" <%if (protocol.equals("2")){ %>checked="checked"<%} %>>JMX</td>
       <td></td>
     </tr>
     <tr>

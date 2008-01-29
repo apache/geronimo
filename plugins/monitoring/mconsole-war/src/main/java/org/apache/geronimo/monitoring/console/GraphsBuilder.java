@@ -35,7 +35,7 @@ public class GraphsBuilder {
     private String ip = new String();
     private int timeFrame;
     private int snapCount;
-    private MRCConnectorEJB mrc = new MRCConnectorEJB();
+    private MRCConnector mrc = new MRCConnector();
     private Connection con;
 
     // constructor
@@ -80,7 +80,8 @@ public class GraphsBuilder {
                 String username = rsServer.getString("username");
                 String password = rsServer.getString("password");
                 int port = rsServer.getInt("port");
-                // close the connection before calling the MRCConnectorEJB because
+                int protocol = rsServer.getInt("protocol");
+                // close the connection before calling the MRCConnector because
                 // it opens another
                 // connection to the db to update the SERVERS.last_seen
                 // attribute
@@ -89,8 +90,7 @@ public class GraphsBuilder {
                 } catch (Exception e) {
                     throw e;
                 }
-                mrc = new MRCConnectorEJB(ip, username, password, port);
-
+                mrc = new MRCConnector(ip, username, password, port, protocol);
                 snapCount = timeFrame
                         / java.lang.Integer
                                 .valueOf(java.lang.Long
