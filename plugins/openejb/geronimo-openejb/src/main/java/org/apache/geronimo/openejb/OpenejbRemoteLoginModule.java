@@ -49,7 +49,7 @@ import org.apache.openejb.client.ServerMetaData;
  * that can be used on further calls to identify the client.  Note this should only be used on secure networks or
  * with secured communication with openejb, as sniffing the identity token gives you all the permissions of the user you
  * sniffed.
- *
+ * <p/>
  * This login module checks security credentials so the lifecycle methods must return true to indicate success
  * or throw LoginException to indicate failure.
  *
@@ -76,9 +76,9 @@ public class OpenejbRemoteLoginModule implements LoginModule {
     public void initialize(Subject subject, CallbackHandler callbackHandler, Map<String, ?> sharedState, Map<String, ?> options) {
         this.subject = subject;
         this.callbackHandler = callbackHandler;
-        for(Object option: options.keySet()) {
-            if(!supportedOptions.contains(option)) {
-                log.warn("Ignoring option: "+option+". Not supported.");
+        for (Object option : options.keySet()) {
+            if (!supportedOptions.contains(option)) {
+                log.warn("Ignoring option: " + option + ". Not supported.");
             }
         }
         securityRealm = (String) options.get(SECURITY_REALM_KEY);
@@ -86,28 +86,26 @@ public class OpenejbRemoteLoginModule implements LoginModule {
             securityRealm = (String) options.get(SECURITY_REALM_KEY_LONG);
         }
 
-        String serverURIshort = (String) options.get(SERVER_URI_KEY);
-        if (serverURIshort == null) {
-            serverURI = URI.create((String) options.get(SERVER_URI_KEY_LONG));
+        String serverURIstring = (String) options.get(SERVER_URI_KEY);
+        if (serverURIstring == null) {
+            serverURIstring = (String) options.get(SERVER_URI_KEY_LONG);
         }
-        else {
-            serverURI = URI.create((String) options.get(SERVER_URI_KEY));
-        }
+        serverURI = URI.create(serverURIstring);
 
     }
 
     public boolean login() throws LoginException {
         loginSucceeded = false;
-        Callback[] callbacks = new Callback[] {new NameCallback("username"), new PasswordCallback("passsword", false)};
+        Callback[] callbacks = new Callback[]{new NameCallback("username"), new PasswordCallback("passsword", false)};
         try {
             callbackHandler.handle(callbacks);
         } catch (IOException e) {
-            throw (LoginException)new LoginException("Could not execute callbacks").initCause(e);
+            throw (LoginException) new LoginException("Could not execute callbacks").initCause(e);
         } catch (UnsupportedCallbackException e) {
-            throw (LoginException)new LoginException("Could not execute callbacks").initCause(e);
+            throw (LoginException) new LoginException("Could not execute callbacks").initCause(e);
         }
-        String userName = ((NameCallback)callbacks[0]).getName();
-        String password = new String(((PasswordCallback)callbacks[1]).getPassword());
+        String userName = ((NameCallback) callbacks[0]).getName();
+        String password = new String(((PasswordCallback) callbacks[1]).getPassword());
         identity = (SubjectId) ClientSecurity.directAuthentication(securityRealm, userName, password, new ServerMetaData(serverURI));
         loginSucceeded = true;
         return true;
@@ -119,8 +117,8 @@ public class OpenejbRemoteLoginModule implements LoginModule {
      * @return true if login succeeded and commit succeeded, or false if login failed but commit succeeded.
      */
     public boolean commit() throws LoginException {
-        if(loginSucceeded) {
-            if(identity != null) {
+        if (loginSucceeded) {
+            if (identity != null) {
                 sit = new ServerIdentityToken(serverURI, identity);
                 subject.getPrivateCredentials().add(sit);
             }
@@ -130,8 +128,8 @@ public class OpenejbRemoteLoginModule implements LoginModule {
         return loginSucceeded;
     }
 
-    public boolean  abort() throws LoginException {
-        if(loginSucceeded) {
+    public boolean abort() throws LoginException {
+        if (loginSucceeded) {
             // Clear out the private state
             identity = null;
             sit = null;
@@ -143,16 +141,16 @@ public class OpenejbRemoteLoginModule implements LoginModule {
         // Clear out the private state
         loginSucceeded = false;
         identity = null;
-        if(sit != null) {
-            if(!subject.isReadOnly()) {
+        if (sit != null) {
+            if (!subject.isReadOnly()) {
                 subject.getPrivateCredentials().remove(sit);
             } else {
                 try {
-                    if(sit instanceof Destroyable) {
+                    if (sit instanceof Destroyable) {
                         // Try to destroy the credential
                         try {
-                            ((Destroyable)sit).destroy();
-                        } catch(Exception e) {
+                            ((Destroyable) sit).destroy();
+                        } catch (Exception e) {
                             throw new LoginException();
                         }
                     } else {
