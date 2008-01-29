@@ -842,42 +842,84 @@
                 <groupId>org.apache.openejb</groupId>
                 <artifactId>openejb-core</artifactId>
                 <version>${openejbVersion}</version>
+		<exclusions>
+		    <exclusion>
+		        <groupId>org.apache.openejb</groupId>
+			<artifactId>javaee-api</artifactId>
+		    </exclusion>
+		</exclusions>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.openejb</groupId>
                 <artifactId>openejb-client</artifactId>
                 <version>${openejbVersion}</version>
+		<exclusions>
+		    <exclusion>
+		        <groupId>org.apache.openejb</groupId>
+			<artifactId>javaee-api</artifactId>
+		    </exclusion>
+		</exclusions>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.openejb</groupId>
                 <artifactId>openejb-ejbd</artifactId>
                 <version>${openejbVersion}</version>
+		<exclusions>
+		    <exclusion>
+		        <groupId>org.apache.openejb</groupId>
+			<artifactId>javaee-api</artifactId>
+		    </exclusion>
+		</exclusions>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.openejb</groupId>
                 <artifactId>openejb-axis</artifactId>
                 <version>${openejbVersion}</version>
+		<exclusions>
+		    <exclusion>
+		        <groupId>org.apache.openejb</groupId>
+			<artifactId>javaee-api</artifactId>
+		    </exclusion>
+		</exclusions>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.openejb</groupId>
                 <artifactId>openejb-server</artifactId>
                 <version>${openejbVersion}</version>
+		<exclusions>
+		    <exclusion>
+		        <groupId>org.apache.openejb</groupId>
+			<artifactId>javaee-api</artifactId>
+		    </exclusion>
+		</exclusions>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.openejb</groupId>
                 <artifactId>openejb-loader</artifactId>
                 <version>${openejbVersion}</version>
+		<exclusions>
+		    <exclusion>
+		        <groupId>org.apache.openejb</groupId>
+			<artifactId>javaee-api</artifactId>
+		    </exclusion>
+		</exclusions>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.openejb</groupId>
                 <artifactId>openejb-jee</artifactId>
                 <version>${openejbVersion}</version>
+		<exclusions>
+		    <exclusion>
+		        <groupId>org.apache.openejb</groupId>
+			<artifactId>javaee-api</artifactId>
+		    </exclusion>
+		</exclusions>
             </dependency>
             <dependency>
                 <groupId>org.apache.openejb</groupId>
