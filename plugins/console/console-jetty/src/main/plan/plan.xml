@@ -48,7 +48,7 @@
             </gbean>
             <gbean name="PlanExportForward" class="org.apache.geronimo.console.gbean.ContextForwardGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-1.2">
                 <attribute name="portalPathPrefix">/plan-export</attribute>
-                <attribute name="portletContextPath">/console-base</attribute>
+                <attribute name="portletContextPath">/plugin</attribute>
                 <attribute name="portletServletPath">/plan-export</attribute>
             </gbean>
         </web-app>

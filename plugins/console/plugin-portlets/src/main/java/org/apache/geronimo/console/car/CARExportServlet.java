@@ -16,6 +16,8 @@
  */
 package org.apache.geronimo.console.car;
 
+import java.net.URLEncoder;
+
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelRegistry;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
@@ -47,6 +49,8 @@ public class CARExportServlet extends HttpServlet {
         ConfigurationStore store = mgr.getStoreForConfiguration(artifact);
         try {
             response.setContentType("application/zip");
+            String filename = artifact.getArtifactId() + "-" + artifact.getVersion() + "." + artifact.getType();
+            response.setHeader("Content-Disposition", "attachment; filename=" + URLEncoder.encode(filename, "UTF-8"));
             store.exportConfiguration(artifact, response.getOutputStream());
         } catch (NoSuchConfigException e) {
             throw new ServletException("No such configuration '"+configId+"'");

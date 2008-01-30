@@ -39,7 +39,7 @@
             <security-realm-name>geronimo-admin</security-realm-name>
             <gbean name="CARExportForward" class="org.apache.geronimo.console.gbean.ContextForwardGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-1.2">
                 <attribute name="portalPathPrefix">/car-export</attribute>
-                <attribute name="portletContextPath">/console-base</attribute>
+                <attribute name="portletContextPath">/plugin</attribute>
                 <attribute name="portletServletPath">/car-export</attribute>
             </gbean>
             <gbean name="SVGForward" class="org.apache.geronimo.console.gbean.ContextForwardGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-1.2">
@@ -49,7 +49,7 @@
             </gbean>
             <gbean name="PlanExportForward" class="org.apache.geronimo.console.gbean.ContextForwardGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-1.2">
                 <attribute name="portalPathPrefix">/plan-export</attribute>
-                <attribute name="portletContextPath">/console-base</attribute>
+                <attribute name="portletContextPath">/plugin</attribute>
                 <attribute name="portletServletPath">/plan-export</attribute>
             </gbean>
         </web-app>
