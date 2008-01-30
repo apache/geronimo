@@ -67,6 +67,7 @@ import org.apache.geronimo.xbeans.javaee.ResAuthType;
 import org.apache.geronimo.xbeans.javaee.ResSharingScopeType;
 import org.apache.geronimo.xbeans.javaee.ResourceRefType;
 import org.apache.geronimo.xbeans.javaee.XsdStringType;
+import org.apache.geronimo.deployment.service.EnvironmentBuilder;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlObject;
 import org.omg.CORBA.ORB;
@@ -85,12 +86,14 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
 
 
     private final QNameSet resourceRefQNameSet;
+    private final Environment corbaEnvironment;
     private final SingleElementCollection corbaGBeanNameSourceCollection;
 
-    public ResourceRefBuilder(Environment defaultEnvironment, String[] eeNamespaces, Collection corbaGBeanNameSourceCollection) {
+    public ResourceRefBuilder(Environment defaultEnvironment, Environment corbaEnvironment, String[] eeNamespaces, Collection corbaGBeanNameSourceCollection) {
         super(defaultEnvironment);
 
         resourceRefQNameSet = buildQNameSet(eeNamespaces, "resource-ref");
+        this.corbaEnvironment = corbaEnvironment;
         this.corbaGBeanNameSourceCollection = new SingleElementCollection(corbaGBeanNameSourceCollection);
     }
 
@@ -154,6 +157,7 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
                     Artifact[] moduleId = module.getConfigId();
                     Map context = getJndiContextMap(componentContext);
                     context.put(ENV + name, new ORBReference(moduleId, corbaName));
+                    EnvironmentBuilder.mergeEnvironments(module.getEnvironment(), corbaEnvironment);
                 }
             } else {
                 //determine jsr-77 type from interface
@@ -394,9 +398,10 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(ResourceRefBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addAttribute("eeNamespaces", String[].class, true, true);
         infoBuilder.addAttribute("defaultEnvironment", Environment.class, true, true);
+        infoBuilder.addAttribute("corbaEnvironment", Environment.class, true, true);
         infoBuilder.addReference("CorbaGBeanNameSource", CorbaGBeanNameSource.class);
 
-        infoBuilder.setConstructor(new String[]{"defaultEnvironment", "eeNamespaces", "CorbaGBeanNameSource"});
+        infoBuilder.setConstructor(new String[]{"defaultEnvironment", "corbaEnvironment", "eeNamespaces", "CorbaGBeanNameSource"});
 
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }

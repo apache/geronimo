@@ -94,7 +94,7 @@
                             <config-xml-content>
                                 <gbean name="ResourceRefBuilder">
                                     <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee,http://java.sun.com/xml/ns/javaee</attribute>
-                                    <attribute name="defaultEnvironment" propertyEditor="org.apache.geronimo.deployment.service.EnvironmentBuilder">
+                                    <attribute name="corbaEnvironment" propertyEditor="org.apache.geronimo.deployment.service.EnvironmentBuilder">
                                         <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.2">
                                             <dependencies>
                                                 <dependency>
@@ -113,7 +113,7 @@
 
                                 <gbean name="ClientResourceRefBuilder">
                                     <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee,http://java.sun.com/xml/ns/javaee</attribute>
-                                    <attribute name="defaultEnvironment" propertyEditor="org.apache.geronimo.deployment.service.EnvironmentBuilder">
+                                    <attribute name="corbaEnvironment" propertyEditor="org.apache.geronimo.deployment.service.EnvironmentBuilder">
                                         <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.2">
                                             <dependencies>
                                                 <dependency>

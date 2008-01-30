@@ -50,7 +50,7 @@
 
     <gbean name="ResourceRefBuilder" class="org.apache.geronimo.connector.deployment.ResourceRefBuilder">
         <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee,http://java.sun.com/xml/ns/javaee</attribute>
-        <xml-attribute name="defaultEnvironment">
+        <xml-attribute name="corbaEnvironment">
             <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}"/>
         </xml-attribute>
         <reference name="CorbaGBeanNameSource">
@@ -87,7 +87,7 @@
 
     <gbean name="ClientResourceRefBuilder" class="org.apache.geronimo.connector.deployment.ResourceRefBuilder">
         <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee,http://java.sun.com/xml/ns/javaee</attribute>
-        <xml-attribute name="defaultEnvironment">
+        <xml-attribute name="corbaEnvironment">
             <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}"/>
         </xml-attribute>
         <reference name="CorbaGBeanNameSource">
