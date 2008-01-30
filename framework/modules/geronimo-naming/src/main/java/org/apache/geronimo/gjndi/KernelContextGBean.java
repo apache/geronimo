@@ -25,6 +25,7 @@ import java.util.Set;
 
 import javax.naming.Name;
 import javax.naming.NamingException;
+import javax.naming.ContextNotEmptyException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -202,7 +203,9 @@ public class KernelContextGBean extends WritableContext implements GBeanLifecycl
                 } else {
                     bindingsByName.remove(name);
                     try {
-                        removeDeepBinding(name, true, true);
+                        removeDeepBinding(name, true);
+                    } catch (ContextNotEmptyException e) {
+                        //ignore
                     } catch (NamingException e) {
                         log.error("Unable to remove binding " + name + " to " + abstractName, e);
                     }
