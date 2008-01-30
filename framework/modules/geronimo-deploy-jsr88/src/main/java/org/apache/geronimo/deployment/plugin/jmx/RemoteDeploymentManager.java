@@ -231,6 +231,7 @@ public class RemoteDeploymentManager extends JMXDeploymentManager implements Ger
                     log.info(event.getDeploymentStatus().getMessage());
                 }
             });
+            progress.setCommandContext(commandContext);
             RemoteDeployUtil.uploadFilesToServer(args, progress);
         }
         PluginInstaller installer = getPluginInstaller();
