@@ -15,6 +15,8 @@
    limitations under the License.
 --%>
 
+<%-- $Rev$ $Date$ --%>
+
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
@@ -71,12 +73,12 @@ function <portlet:namespace/>validateForm(){
     <td>
     <select name="logLevel">
         <option<c:if test="${logLevel eq 'ALL'}"> selected</c:if>>ALL</option>
+        <option<c:if test="${logLevel eq 'TRACE'}"> selected</c:if>>TRACE</option>
         <option<c:if test="${logLevel eq 'DEBUG'}"> selected</c:if>>DEBUG</option>
         <option<c:if test="${logLevel eq 'INFO'}"> selected</c:if>>INFO</option>
         <option<c:if test="${logLevel eq 'WARN'}"> selected</c:if>>WARN</option>
         <option<c:if test="${logLevel eq 'ERROR'}"> selected</c:if>>ERROR</option>
         <option<c:if test="${logLevel eq 'FATAL'}"> selected</c:if>>FATAL</option>
-        <option<c:if test="${logLevel eq 'TRACE'}"> selected</c:if>>TRACE</option>
         <option<c:if test="${logLevel eq 'OFF'}"> selected</c:if>>OFF</option>
     </select>
     </td>
