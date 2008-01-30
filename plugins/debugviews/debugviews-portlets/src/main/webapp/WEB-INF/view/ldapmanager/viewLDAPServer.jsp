@@ -20,7 +20,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <fmt:setBundle basename="debugviews"/>
 <portlet:defineObjects/>
-    <script type="text/javascript" src="/dojo/dojo.js"></script>
+    <script type="text/javascript" src="/dojo/0.4/dojo.js"></script>
 
     <script type="text/javascript">
         dojo.require("dojo.lang.*");

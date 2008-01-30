@@ -36,7 +36,7 @@ String divImplString = graph.getDivImplement();
 String divNameString = graph.getName();
 %>
 
-<script type='text/javascript' src='/dojo/1.0/dojo/dojo.js' djConfig='isDebug: false, parseOnLoad: true'></script>
+<script type='text/javascript' src='/dojo/dojo/dojo.js' djConfig='isDebug: false, parseOnLoad: true'></script>
 <script type='text/javascript'>
     dojo.require("dojox.charting.Chart2D");
     dojo.require("dojox.charting.themes.PlotKit.blue");

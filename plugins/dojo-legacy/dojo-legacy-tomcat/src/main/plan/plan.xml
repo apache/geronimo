@@ -15,5 +15,5 @@
     limitations under the License.-->
 <!--$Rev: 589946 $ $Date: 2007-10-29 21:53:25 -0500 (Mon, 29 Oct 2007) $-->
 <web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.2">
-  <context-root>/dojo</context-root>
+  <context-root>/dojo/0.4</context-root>
 </web-app>

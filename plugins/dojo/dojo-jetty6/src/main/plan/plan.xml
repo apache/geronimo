@@ -15,5 +15,5 @@
   limitations under the License.-->
 <!--$Rev$ $Date$-->
 <web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/jetty-1.2">
-  <context-root>/dojo/1.0</context-root>
+  <context-root>/dojo</context-root>
 </web-app>

@@ -21,7 +21,7 @@
 <%@ page import="org.apache.geronimo.console.jmxmanager.JMXManagerHelper" %>
 <portlet:defineObjects/>
 
-    <script type="text/javascript" src="/dojo/dojo.js"></script>
+    <script type="text/javascript" src="/dojo/0.4/dojo.js"></script>
 
     <script type="text/javascript">
         dojo.require("dojo.lang.*");
