@@ -318,14 +318,18 @@ public class PluginInstallerGBean implements PluginInstaller {
      */
     public DownloadResults installPluginList(String targetRepositoryPath, String relativeTargetServerPath, PluginListType pluginList) throws Exception {
         DownloadResults downloadPoller = new DownloadResults();
-        String targetServerPath = serverInfo.resolveServer(relativeTargetServerPath).getAbsolutePath();
+        File targetServerPath = serverInfo.resolveServer(relativeTargetServerPath);
+        if (targetServerPath.exists()) {
+        	FileUtils.forceDelete(targetServerPath);
+        }
+        String targetServerPathName = targetServerPath.getAbsolutePath();
         Kernel kernel = new BasicKernel("assembly");
 
         try {
 //            kernel.boot();
             PluginInstallerGBean installer = new PluginInstallerGBean(
                     targetRepositoryPath,
-                    targetServerPath,
+                    targetServerPathName,
                     serverInstanceDatas,
                     kernel,
                     classLoader);

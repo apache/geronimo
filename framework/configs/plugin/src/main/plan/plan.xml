@@ -71,24 +71,24 @@
     <gbean name="Offline" class="org.apache.geronimo.system.plugin.ServerInstanceData">
         <attribute name="name">offline</attribute>
         <attribute name="configFile">var/config/offline-deployer-config.xml</attribute>
-        <attribute name="configSubstitutionsFileName">var/config/config-substitutions.properties</attribute>
+        <attribute name="configSubstitutionsFile">var/config/config-substitutions.properties</attribute>
         <attribute name="configSubstitutionsPrefix">org.apache.geronimo.config.substitution.</attribute>
-        <attribute name="artifactAliasesFileName">var/config/artifact_aliases.properties</attribute>
+        <attribute name="artifactAliasesFile">var/config/artifact_aliases.properties</attribute>
     </gbean>
 
     <gbean name="Client" class="org.apache.geronimo.system.plugin.ServerInstanceData">
         <attribute name="name">client</attribute>
         <attribute name="attributeManagerFrom">default</attribute>
-        <attribute name="artifactAliasesFileName">var/config/client_artifact_aliases.properties</attribute>
+        <attribute name="artifactAliasesFile">var/config/client_artifact_aliases.properties</attribute>
         <dependency><name>DefaultServer</name></dependency>
     </gbean>
 
     <gbean name="Jsr88" class="org.apache.geronimo.system.plugin.ServerInstanceData">
         <attribute name="name">jsr88</attribute>
         <attribute name="configFile">var/config/jsr88-configurer-config.xml</attribute>
-        <attribute name="configSubstitutionsFileName">var/config/config-substitutions.properties</attribute>
+        <attribute name="configSubstitutionsFile">var/config/config-substitutions.properties</attribute>
         <attribute name="configSubstitutionsPrefix">org.apache.geronimo.config.substitution.</attribute>
-        <attribute name="artifactAliasesFileName">var/config/artifact_aliases.properties</attribute>
+        <attribute name="artifactAliasesFile">var/config/artifact_aliases.properties</attribute>
     </gbean>
 
     <gbean name="DownloadedPluginRepos" class="org.apache.geronimo.system.plugin.PluginRepositoryDownloader">

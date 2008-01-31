@@ -41,9 +41,9 @@ public class ServerInstanceData {
     private String name;
     private String attributeManagerFrom;
     private String configFile = "var/config/config.xml";
-    private String configSubstitutionsFileName = "var/config/config-substitutions.properties";
+    private String configSubstitutionsFile = "var/config/config-substitutions.properties";
     private String configSubstitutionsPrefix = "org.apache.geronimo.config.substitution.";
-    private String artifactAliasesFileName = "var/config/artifact_aliases.properties";
+    private String artifactAliasesFile = "var/config/artifact_aliases.properties";
 
 
     public String getName() {
@@ -72,11 +72,11 @@ public class ServerInstanceData {
     }
 
     public String getConfigSubstitutionsFile() {
-        return configSubstitutionsFileName;
+        return configSubstitutionsFile;
     }
 
-    public void setConfigSubstitutionsFile(String configSubstitutionsFileName) {
-        this.configSubstitutionsFileName = configSubstitutionsFileName;
+    public void setConfigSubstitutionsFile(String configSubstitutionsFile) {
+        this.configSubstitutionsFile = configSubstitutionsFile;
     }
 
     public String getConfigSubstitutionsPrefix() {
@@ -88,11 +88,11 @@ public class ServerInstanceData {
     }
 
     public String getArtifactAliasesFile() {
-        return artifactAliasesFileName;
+        return artifactAliasesFile;
     }
 
-    public void setArtifactAliasesFile(String artifactAliasesFileName) {
-        this.artifactAliasesFileName = artifactAliasesFileName;
+    public void setArtifactAliasesFile(String artifactAliasesFile) {
+        this.artifactAliasesFile = artifactAliasesFile;
     }
 
     public ServerInstance getServerInstance(ArtifactManager artifactManager, ListableRepository targetRepo, ServerInfo serverInfo, Map<String, org.apache.geronimo.system.plugin.ServerInstance> serverInstances, boolean live) throws IOException {
@@ -139,9 +139,9 @@ public class ServerInstanceData {
         infoFactory.addAttribute("name", String.class, true, true);
         infoFactory.addAttribute("attributeManagerFrom", String.class, true, true);
         infoFactory.addAttribute("configFile", String.class, true, true);
-        infoFactory.addAttribute("configSubstitutionsFileName", String.class, true, true);
+        infoFactory.addAttribute("configSubstitutionsFile", String.class, true, true);
         infoFactory.addAttribute("configSubstitutionsPrefix", String.class, true, true);
-        infoFactory.addAttribute("artifactAliasesFileName", String.class, true, true);
+        infoFactory.addAttribute("artifactAliasesFile", String.class, true, true);
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
