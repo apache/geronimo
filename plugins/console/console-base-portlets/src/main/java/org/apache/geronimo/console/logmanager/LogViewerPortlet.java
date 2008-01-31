@@ -38,6 +38,9 @@ import org.apache.geronimo.console.BasePortlet;
 import org.apache.geronimo.console.util.PortletManager;
 import org.apache.geronimo.system.logging.SystemLog;
 
+/**
+ * @version $Rev$ $Date$
+ */
 public class LogViewerPortlet extends BasePortlet {
     private final static String CRITERIA_KEY = "org.apache.geronimo.console.log.CRITERIA";
 
@@ -73,6 +76,23 @@ public class LogViewerPortlet extends BasePortlet {
         }
         Criteria criteria = (Criteria) renderRequest.getPortletSession(true).getAttribute(CRITERIA_KEY, PortletSession.PORTLET_SCOPE);
         
+        if(criteria != null) {
+            // Check if criteria.logFile is in the logFileNames of current logging configuration
+            boolean found = false;
+            for(String logFile: logFiles) {
+                if(criteria.logFile.equals(new File(logFile))) {
+                    found = true;
+                    break;
+                }
+            }
+            if(!found) {
+                // This arises when log4j properties file is changed dynamically using LogManagerPortlet
+                // and the earlier log file is no longer in the current logging configuration.
+                // Change the log file to any one in the current logging configuration so that LogViewer
+                // won't run into errors.
+                criteria.logFile = logFiles[0];
+            }
+        }
         if (criteria == null || (action != null && !"refresh".equals(action))) {
             if(criteria == null)
                 criteria = new Criteria();

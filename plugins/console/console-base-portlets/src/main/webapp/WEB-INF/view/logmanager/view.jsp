@@ -51,6 +51,8 @@ function <portlet:namespace/>validateForm(){
 }
 </script>
 
+<fmt:message key="logmanager.common.title"/>
+<p/>
 <form name="<portlet:namespace/>update" action="<portlet:actionURL/>" onsubmit="return <portlet:namespace/>validateForm()">
 <input type="hidden" name="action" value="update"/>
 <table width="680">
