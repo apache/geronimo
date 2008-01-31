@@ -49,6 +49,9 @@ function <portlet:namespace/>validateForm(){
 }
 </script>
 
+<b>Note:</b> Updated values will take effect for only this run of the server and will reset to default values once the server is
+stopped.  The Config File value can be overridden at server startup by using <i>org.apache.geronimo.log4jservice.configuration</i> system property.
+<p/>
 <form name="<portlet:namespace/>update" action="<portlet:actionURL/>" onsubmit="return <portlet:namespace/>validateForm()">
 <input type="hidden" name="action" value="update"/>
 <table width="680">
