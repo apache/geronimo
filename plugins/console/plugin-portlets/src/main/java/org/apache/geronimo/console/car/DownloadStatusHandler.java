@@ -27,10 +27,15 @@ import javax.portlet.PortletException;
 import javax.portlet.PortletSession;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
+import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpServletRequest;
 
+import org.apache.geronimo.system.plugin.PluginInstaller;
+import org.apache.geronimo.console.ajax.ProgressMonitor;
 import org.apache.geronimo.console.MultiPageModel;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.system.plugin.DownloadResults;
+import org.directwebremoting.WebContextFactory;
 
 /**
  * Handler for the initial download screen.
@@ -38,48 +43,65 @@ import org.apache.geronimo.system.plugin.DownloadResults;
  * @version $Rev$ $Date$
  */
 public class DownloadStatusHandler extends BaseImportExportHandler {
-
     public DownloadStatusHandler() {
         super(DOWNLOAD_STATUS_MODE, "/WEB-INF/view/car/downloadStatus.jsp");
     }
 
     public String actionBeforeView(ActionRequest request, ActionResponse response, MultiPageModel model) throws PortletException, IOException {
         return getMode();
+        
     }
 
     public void renderView(RenderRequest request, RenderResponse response, MultiPageModel model) throws PortletException, IOException {
-        String configId = request.getParameter("configId");
+        String[] configId = request.getParameterValues("configIds");
         String repo = request.getParameter("repository");
         String user = request.getParameter("repo-user");
         String pass = request.getParameter("repo-pass");
         String downloadKey = request.getParameter("downloadKey");
-        request.setAttribute("configId", configId);
+        
         request.setAttribute("repository", repo);
         request.setAttribute("repouser", user);
         request.setAttribute("repopass", pass);
         request.setAttribute("downloadKey", downloadKey);
+        request.setAttribute("configIds", configId);
+        
     }
 
     public String actionAfterView(ActionRequest request, ActionResponse response, MultiPageModel model) throws PortletException, IOException {
+        String[] configId = request.getParameterValues("configId");
         String repo = request.getParameter("repository");
         String user = request.getParameter("repo-user");
         String pass = request.getParameter("repo-pass");
-        String configId = request.getParameter("configId");
 
-        PortletSession session = request.getPortletSession(true);
-        DownloadResults results = (DownloadResults) session.getAttribute(DOWNLOAD_RESULTS_SESSION_KEY,PortletSession.APPLICATION_SCOPE);
-        if(results.isFailed()) {
-            throw new PortletException("Unable to install configuration", results.getFailure());
-        }
+        //DownloadResults results = (DownloadResults) request.getAttribute("results");
+        //Integer downloadKey = Integer.parseInt(downloadKeys);
+
+        //ProgressMonitor mResults = null;
+        //mResults.getProgressInfo(downloadKey);
+        //DownloadResults results = mResults.dwrSession();
+        
+        DownloadResults results = (DownloadResults) request.getAttribute("console.plugins.DownloadResults");
+        //DownloadResults result2 = (DownloadResults) request.getPortletSession(true).getAttribute("console.plugins.DownloadResults");
+        
+        //DownloadResults results = (DownloadResults) request.getPortletSession(true).getAttribute("console.plugins.DownloadResults", PortletSession.APPLICATION_SCOPE);
+        //DownloadResults results = (DownloadResults) session.getAttribute("console.plugins.DownloadResults");
+        //DownloadResults results = (DownloadResults) session.getAttribute(DOWNLOAD_RESULTS_SESSION_KEY);
+        //No Work DownloadResults results = (DownloadResults) request.getPortletSession(true).getAttribute("console.plugins.DownloadResults", PortletSession.APPLICATION_SCOPE);
+        //DownloadResults results = (DownloadResults) session.getAttribute(DOWNLOAD_RESULTS_SESSION_KEY,PortletSession.APPLICATION_SCOPE);
         List<InstallResults> dependencies = new ArrayList<InstallResults>();
-        for (Artifact uri: results.getDependenciesInstalled()) {
-            dependencies.add(new InstallResults(uri.toString(), "installed"));
-        }
-        for (Artifact uri: results.getDependenciesPresent()) {
-            dependencies.add(new InstallResults(uri.toString(), "already present"));
+        if (results != null) {
+            if(results.isFailed()) {
+                //TODO is this an appropriate way to explain failure?
+                throw new PortletException("Unable to install configuration", results.getFailure());
+            }
+            for (Artifact uri: results.getDependenciesInstalled()) {
+                dependencies.add(new InstallResults(uri.toString(), "installed"));
+            }
+            for (Artifact uri: results.getDependenciesPresent()) {
+                dependencies.add(new InstallResults(uri.toString(), "already present"));
+            }
         }
         request.getPortletSession(true).setAttribute("car.install.results", dependencies);
-
         response.setRenderParameter("configId", configId);
         response.setRenderParameter("repository", repo);
         if(!isEmpty(user)) response.setRenderParameter("repo-user", user);

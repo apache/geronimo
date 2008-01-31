@@ -132,6 +132,7 @@ public class ViewPluginDownloadHandler extends BaseImportExportHandler {
         Object downloadKey = pluginInstaller.startInstall(installList, repo, false, user, pass);
         DownloadResults results = pluginInstaller.checkOnInstall(downloadKey);
         request.getPortletSession(true).setAttribute(DOWNLOAD_RESULTS_SESSION_KEY, results);
+        
         response.setRenderParameter("configIds", configIds);
         response.setRenderParameter("repository", repo);
         response.setRenderParameter("downloadKey", downloadKey.toString());

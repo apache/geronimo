@@ -21,19 +21,18 @@
 <fmt:setBundle basename="pluginportlets"/>
 <portlet:defineObjects/>
 
-<p>
-<fmt:message key="car.downloadStatus.processing" >
-<fmt:param  value="${configIds}"/>
-</fmt:message>
-</p>
-
-
-<form name="<portlet:namespace/>ContinueForm" action="<portlet:actionURL/>">
+<form name="<portlet:namespace/>ContinueForm" action="<portlet:actionURL/>" method="POST">
     <input type="hidden" name="mode" value="downloadStatus-after" />
-    <%--<input type="hidden" name="configId" value="${configId}" />--%>
     <input type="hidden" name="repository" value="${repository}" />
     <input type="hidden" name="repo-user" value="${repouser}" />
     <input type="hidden" name="repo-pass" value="${repopass}" />
+    <%  String[] configIds = request.getParameterValues("configIds");
+        for(int i=0;i<configIds.length;i++){
+    %>
+    <input type="hidden" name="configId" value="<%=configIds[i]%>" />
+    <%
+        }
+    %>
 </form>
 
 <jsp:include flush="true" page="../ajax/progressbar.jsp?downloadKey=${downloadKey}"/>
@@ -42,6 +41,7 @@
     dwr.engine.setActiveReverseAjax(true);
     <portlet:namespace/>startProgress();
 </script>
+
 <%--
 <p><a href="<portlet:actionURL portletMode="view"><portlet:param name="mode" value="index-before" /></portlet:actionURL>">
 <fmt:message key="consolebase.common.cancel"/></a></p>

@@ -16,11 +16,31 @@
 --%>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<%@ page import="org.apache.geronimo.system.plugin.DownloadResults"%> 
+<%@page import="com.sun.mail.iap.Response"%>
 <fmt:setBundle basename="pluginportlets"/>
+<fmt:message key="car.downloadStatus.processing"/>
 <portlet:defineObjects/>
 <script type='text/javascript' src='/plugin/dwr/interface/ProgressMonitor.js'></script>
 <script type='text/javascript' src='/plugin/dwr/engine.js'></script>
 <script type='text/javascript' src='/plugin/dwr/util.js'></script>
+
+<div id="<portlet:namespace/>progressMeter" style="display: none; padding-top: 5px;">
+    <div>
+        <div id="<portlet:namespace/>progressMeterCurrentFile"></div>
+        <br/>
+        <br/>
+        <br/>
+        <br/>
+        <div id="<portlet:namespace/>progressMeterMainMessage"></div>
+        <div id="<portlet:namespace/>progressMeterSubMessage"></div>
+        <div id="<portlet:namespace/>progressMeterShell" style="display: none; width: 350px; height: 20px; border: 1px inset; background: #eee;">
+            <div id="<portlet:namespace/>progressMeterBar" style="width: 0; height: 20px; border-right: 1px solid #444; background: #9ACB34;"></div>
+        </div>
+    </div>
+</div>
+
+<div id="<portlet:namespace/>ErrorArea"></div>
 
 <script type="text/javascript">
 dwr.engine.setErrorHandler(<portlet:namespace/>onError);
@@ -32,6 +52,12 @@ function <portlet:namespace/>onError() {
 function setMainMessage(mainMessage) {
     if (mainMessage != null) {
 	    document.getElementById('<portlet:namespace/>progressMeterMainMessage').innerHTML = mainMessage;
+    }
+}
+
+function setProgressCurrentFile(mainFile) {
+    if (mainFile != null) {
+        document.getElementById('<portlet:namespace/>progressMeterCurrentFile').innerHTML = mainFile;
     }
 }
 
@@ -51,8 +77,18 @@ function setProgressPercent(progressPercent) {
     }
 }
 
+//For Aesthetics
+function setProgressFull() {
+    document.getElementById('<portlet:namespace/>progressMeterShell').style.display = 'block';
+    document.getElementById('<portlet:namespace/>progressMeterBar').style.width = parseInt(350) + 'px';
+}
+
 function setFinished() {
-    document.forms['ContinueForm'].submit();
+    <%
+        DownloadResults results = (DownloadResults) request.getAttribute("console.plugins.DownloadResults");
+        System.out.println("Results are" + results);
+    %>
+    document.forms['<portlet:namespace/>ContinueForm'].submit();
 }
 
 function <portlet:namespace/>startProgress()
@@ -63,18 +99,6 @@ function <portlet:namespace/>startProgress()
     metadata.errorHandler=<portlet:namespace/>onError;
     ProgressMonitor.getProgressInfo(${downloadKey},metadata);
 }
-
 </script>
 
-<div id="<portlet:namespace/>progressMeter" style="display: none; padding-top: 5px;">
-    <br/>
-    <div>
-        <div id="<portlet:namespace/>progressMeterMainMessage"></div>
-        <div id="<portlet:namespace/>progressMeterSubMessage"></div>
-        <div id="<portlet:namespace/>progressMeterShell" style="display: none; width: 350px; height: 20px; border: 1px inset; background: #eee;">
-            <div id="<portlet:namespace/>progressMeterBar" style="width: 0; height: 20px; border-right: 1px solid #444; background: #9ACB34;"></div>
-        </div>
-    </div>
-</div>
 
-<div id="<portlet:namespace/>ErrorArea"></div>

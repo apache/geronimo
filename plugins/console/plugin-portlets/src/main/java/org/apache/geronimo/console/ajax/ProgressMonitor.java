@@ -19,6 +19,9 @@ package org.apache.geronimo.console.ajax;
 
 import java.util.Set;
 
+import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.kernel.Kernel;
@@ -44,19 +47,24 @@ public class ProgressMonitor {
     public void getProgressInfo(Integer downloadKey) throws Exception {
         // DWR objects
         WebContext wctx = WebContextFactory.get();
+        HttpSession session = wctx.getSession();
         ScriptSession scriptSession = wctx.getScriptSession();
-        
         DownloadResults results = getPluginInstaller().checkOnInstall(downloadKey);
         ScriptProxy scriptProxy = new ScriptProxy();
         scriptProxy.addScriptSession(scriptSession);
         
+        //In the event results.isFinished is passed in true during polling
+        scriptProxy.addFunctionCall("setMainMessage", results.getCurrentMessage());
+        scriptProxy.addFunctionCall("setProgressCurrentFile", results.getCurrentFile());
+        
         while (!results.isFinished()) {
             // update the progress bar
+            scriptProxy.addFunctionCall("setProgressCurrentFile", results.getCurrentFile());
             scriptProxy.addFunctionCall("setProgressPercent", results.getCurrentFilePercent());
             scriptProxy.addFunctionCall("setMainMessage", results.getCurrentMessage());
             
-            // get an update on the download progress
-            Thread.sleep(1000);
+            // get an update on the download progress, sleep time reduce to poll faster for smaller files
+            Thread.sleep(100);
             results = getPluginInstaller().checkOnInstall(downloadKey);
         }
         
@@ -64,9 +72,14 @@ public class ProgressMonitor {
             throw new Exception("Unable to install configuration", results.getFailure());
         }
         
-        // store the download results in the http sesssion
-        wctx.getSession(true).setAttribute("console.plugins.DownloadResults", results);
-
+        //store the download results in the http sesssion
+        HttpServletRequest request = wctx.getHttpServletRequest();
+        request.setAttribute("console.plugins.DownloadResults", results);
+        
+        //wctx.getSession(true).setAttribute("console.plugins.DownloadResults", results); 
+        
+        //Fills bar at the end in the event the poller didn't catch the 100
+        scriptProxy.addFunctionCall("setProgressFull");
         scriptProxy.addFunctionCall("setFinished");
     }
     
