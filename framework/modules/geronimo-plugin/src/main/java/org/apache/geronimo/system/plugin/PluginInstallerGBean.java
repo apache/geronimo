@@ -753,10 +753,27 @@ public class PluginInstallerGBean implements PluginInstaller {
      * @param key Identifies the operation to check on
      */
     public DownloadResults checkOnInstall(Object key) {
+        return checkOnInstall(key, true);
+    }
+    
+    /**
+     * Gets the current progress of a download operation.  
+     *
+     * @param key Identifies the operation to check on
+     * @param remove If true and the download operation has finished, the DownloadResults
+     *        will be forgotten and the next call to this function will return null. 
+     *        Otherwise, the DownloadResults will be retained until this function is 
+     *        called with the <tt>remove</tt> parameter set to true. This parameter is
+     *        only used when the download operation has finished 
+     *        (DownloadResults.isFinished() returns true).
+     */
+    public DownloadResults checkOnInstall(Object key, boolean remove) {
         DownloadResults results = asyncKeys.get(key);
-        results = results.duplicate();
-        if (results.isFinished()) {
-            asyncKeys.remove(key);
+        if (results != null) {               
+            results = results.duplicate();
+            if (results.isFinished() && remove) {
+                asyncKeys.remove(key);
+            }
         }
         return results;
     }
