@@ -18,6 +18,8 @@ limitations under the License.
 --%>
 <%@ taglib uri="http://java.sun.com/jstl/core" prefix="c" %>
 <%@ taglib uri="http://portals.apache.org/pluto" prefix="pluto" %>
+<%@ taglib uri="http://java.sun.com/jstl/fmt_rt" prefix="fmt"%>
+<fmt:setBundle basename="org.apache.geronimo.console.i18n.ConsoleResource"/>
 
 <%@ page import="java.util.ArrayList,java.util.HashMap,org.apache.pluto.driver.services.portal.PageConfig" %>
 
@@ -66,7 +68,7 @@ limitations under the License.
 
 
 <table width="200px" border="0" cellpadding="0" cellspacing="0"> 
-    <tr><td CLASS="ReallyDarkBackground"><strong>&nbsp;Console Navigation</strong></td></tr>
+    <tr><td CLASS="ReallyDarkBackground"><strong>&nbsp;<fmt:message key="Console Navigation"/></strong></td></tr>
     <tr><td><div class="Selection">
         <table width="100%" border="0" cellpadding="0" cellspacing="0">
             <tr>
@@ -79,9 +81,10 @@ limitations under the License.
     </div></td></tr>
     
     <%
+    String pageName;
     if(welcomePageConfig!=null){
         pageContext.setAttribute("page",welcomePageConfig);
-        pageContext.setAttribute("pageName",welcomePageName);
+        pageName = welcomePageName;
     %>
         <!-- Add the Welcome Link -->
         <c:choose>
@@ -95,7 +98,7 @@ limitations under the License.
                         <td class="CollapsedLeft">&nbsp;</td>
                         <td class="Indent">&nbsp;</td>
                         <td class="TopMiddle">
-                            <img border="0" src="<%=request.getContextPath()%>/images/ico_geronimo_16x16.gif"/>&nbsp;<a href='<c:out value="${pageContext.request.contextPath}"/>/portal/<c:out value="${page.name}"/>'><c:out value="${pageName}"/></a>
+                            <img border="0" src="<%=request.getContextPath()%>/images/ico_geronimo_16x16.gif"/>&nbsp;<a href='<c:out value="${pageContext.request.contextPath}"/>/portal/<c:out value="${page.name}"/>'><fmt:message key="<%=pageName%>"/></a>
                         </td>
                         <td class="CollapsedRight">&nbsp;</td> 
                     </tr> 
@@ -116,7 +119,7 @@ limitations under the License.
                     <td class="CollapsedLeft">&nbsp;</td>
                     <td class="Indent">&nbsp;</td>
                     <td class="TopMiddle">
-                        <img border="0" src="<%=request.getContextPath()%>/images/ico_folder_16x16.gif"/>&nbsp;<c:out value="${catName}"/>
+                        <img border="0" src="<%=request.getContextPath()%>/images/ico_folder_16x16.gif"/>&nbsp;<fmt:message key="<%=catName%>"/>
                     </td>
                     <td class="CollapsedRight">&nbsp;</td> 
                 </tr>
@@ -129,7 +132,7 @@ limitations under the License.
             //System.out.println("\t"+list.get(k));
             PageConfig pageConfig = list.get(k);
             pageContext.setAttribute("page",pageConfig);
-            pageContext.setAttribute("pageName",shortNames.get(pageConfig.getName()));
+            pageName = shortNames.get(pageConfig.getName());
     %>
     <c:choose>
         <c:when test="${page == currentPage}">
@@ -143,7 +146,7 @@ limitations under the License.
                         <td class="Indent">&nbsp;</td> 
                         <td class="Middle">
                             &nbsp;&nbsp;&nbsp;
-                            <img border="0" src="<%=request.getContextPath()%>/images/ico_doc_16x16.gif"/>&nbsp;<a href='<c:out value="${pageContext.request.contextPath}"/>/portal/<c:out value="${page.name}"/>'><c:out value="${pageName}"/></a>
+                            <img border="0" src="<%=request.getContextPath()%>/images/ico_doc_16x16.gif"/>&nbsp;<a href='<c:out value="${pageContext.request.contextPath}"/>/portal/<c:out value="${page.name}"/>'><fmt:message key="<%=pageName%>"/></a>
                         </td> 
                         <td class="Right">&nbsp;</td> 
                     </tr> 

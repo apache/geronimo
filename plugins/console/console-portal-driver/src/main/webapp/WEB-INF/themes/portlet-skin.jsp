@@ -18,6 +18,8 @@ limitations under the License.
 --%>
 <%@ taglib uri="http://java.sun.com/jstl/core" prefix="c" %>
 <%@ taglib uri="http://portals.apache.org/pluto" prefix="pluto" %>
+<%@ taglib uri="http://java.sun.com/jstl/fmt_rt" prefix="fmt"%>
+<fmt:setBundle basename="org.apache.geronimo.console.i18n.ConsoleResource"/>
 
 <!-- Use pluto portlet tag to render the portlet -->
 <pluto:portlet portletId="${portlet}">
@@ -37,7 +39,7 @@ limitations under the License.
       <a href="<pluto:url windowState="maximized"/>"><span class="max"></span></a>
       <a href="<pluto:url windowState="normal"/>"><span class="norm"></span></a>
       <!-- Portlet Title -->
-      <h2 class="title"><pluto:title/></h2>
+      <h2 class="title"><fmt:message key="<%=(String)request.getAttribute( org.apache.pluto.driver.AttributeKeys.PORTLET_TITLE )%>"/></h2>
     </div>
     <div class="body">
       <pluto:render/>

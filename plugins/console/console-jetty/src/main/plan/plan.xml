@@ -81,6 +81,13 @@
                 <reference name="LoginModule">
                     <name>properties-login</name>
                 </reference>
+            </gbean> 
+             
+            <!-- i18n support -->
+            <gbean name="ConsoleResourceGBean" class="org.apache.geronimo.console.i18n.ConsoleResourceGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-1.2">
+                <reference name="ConsoleResourceRegistry">
+                    <name>ConsoleResourceRegistry</name>
+                </reference>
             </gbean>
 
            <gbean name="Welcome" class="org.apache.geronimo.pluto.AdminConsoleExtensionGBean">
@@ -241,5 +248,7 @@
         </role-mappings>
     </security>
 
+    <!-- i18n support -->
+    <gbean name="ConsoleResourceRegistry" class="org.apache.geronimo.console.i18n.ConsoleResourceRegistry" xmlns="http://geronimo.apache.org/xml/ns/deployment-1.2"/>
 
 </application>

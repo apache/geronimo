@@ -31,6 +31,13 @@ limitations under the License.
     </security>
     <cross-context/>
     
+    <!-- i18n support -->
+    <gbean name="ConsoleResourceGBean" class="org.apache.geronimo.console.i18n.ConsoleResourceGBean">
+        <reference name="ConsoleResourceRegistry">
+            <name>ConsoleResourceRegistry</name>
+        </reference>
+    </gbean>
+    
     <gbean name="JMSServerManager" class="org.apache.geronimo.pluto.AdminConsoleExtensionGBean">
         <attribute name="pageTitle">Server/JMS Server</attribute>
         <attribute name="portletContext">/activemq</attribute>

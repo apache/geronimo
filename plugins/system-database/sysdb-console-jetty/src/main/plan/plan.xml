@@ -30,6 +30,13 @@ limitations under the License.
         </role-mappings>
     </security>
     
+    <!-- i18n support -->
+    <gbean name="ConsoleResourceGBean" class="org.apache.geronimo.console.i18n.ConsoleResourceGBean">
+        <reference name="ConsoleResourceRegistry">
+            <name>ConsoleResourceRegistry</name>
+        </reference>
+    </gbean>
+    
     <gbean name="DBWizard" class="org.apache.geronimo.pluto.AdminConsoleExtensionGBean">
         <attribute name="pageTitle">Services/Database Pools</attribute>
         <attribute name="portletContext">/system-database</attribute>
