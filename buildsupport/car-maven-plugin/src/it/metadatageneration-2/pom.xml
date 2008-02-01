@@ -34,10 +34,18 @@
     <groupId>org.apache.geronimo.buildsupport.it</groupId>
     <artifactId>metadatatest-2</artifactId>
     <name>Metadata test 2</name>
-    <packaging>jar</packaging>
+    <packaging>car</packaging>
 
     <dependencies>
 
+        <dependency>
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>geronimo-gbean-deployer</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+            <scope>provided</scope>
+        </dependency>
+        
         <dependency>
             <groupId>velocity</groupId>
             <artifactId>velocity</artifactId>

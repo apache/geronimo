@@ -52,10 +52,8 @@ import org.apache.geronimo.system.configuration.RepositoryConfigurationStore;
 import org.apache.geronimo.system.repository.Maven2Repository;
 import org.apache.geronimo.system.resolver.ExplicitDefaultArtifactResolver;
 import org.apache.maven.archiver.MavenArchiveConfiguration;
-import org.apache.maven.archiver.MavenArchiver;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.factory.ArtifactFactory;
-import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.mojo.pluginsupport.dependency.DependencyTree;
 import org.codehaus.mojo.pluginsupport.util.ArtifactItem;
@@ -81,42 +79,7 @@ public class PackageMojo
      */
     private ArtifactFactory artifactFactory;
 
-    /**
-     * The maven archive configuration to use.
-     *
-     * See <a href="http://maven.apache.org/ref/current/maven-archiver/apidocs/org/apache/maven/archiver/MavenArchiveConfiguration.html">the Javadocs for MavenArchiveConfiguration</a>.
-     *
-     * @parameter
-     */
-    private MavenArchiveConfiguration archive = new MavenArchiveConfiguration();
-    
-    /**
-     * Require <tt>geronimoVersion</tt> property to be set.
-     *
-     * @parameter expression="${geronimoVersion}"
-     * @required
-     * @readonly
-     */
-    private String geronimoVersion = null;
-    
-    /**
-     * The Jar archiver.
-     *
-     * @parameter expression="${component.org.codehaus.plexus.archiver.Archiver#jar}"
-     * @required
-     * @readonly
-     */
-    private JarArchiver jarArchiver = null;
-    
-    /**
-     * The module base directory.
-     *
-     * @parameter expression="${project.basedir}"
-     * @required
-     * @readonly
-     */
-    private File baseDirectory = null;
-    
+
     /**
      * Directory containing the generated archive.
      *
@@ -124,22 +87,6 @@ public class PackageMojo
      * @required
      */
     private File outputDirectory = null;
-
-    /**
-     * Directory containing the classes/resources.
-     *
-     * @parameter expression="${project.build.outputDirectory}"
-     * @required
-     */
-    private File classesDirectory = null;
-
-    /**
-     * Name of the generated archive.
-     *
-     * @parameter expression="${project.build.finalName}"
-     * @required
-     */
-    private String finalName = null;
 
     /**
      * The local Maven repository which will be used to pull artifacts into the Geronimo repository when packaging.
@@ -216,37 +163,11 @@ public class PackageMojo
     private File explicitResolutionProperties = null;
 
     /**
-     * An array of {@link ClasspathElement} objects which will be used to construct the
-     * Class-Path entry of the manifest.
-     *
-     * This is needed to allow per-element prefixes to be added, which the standard Maven archiver
-     * does not provide.
-     *
-     * @parameter
-     */
-    private ClasspathElement[] classpath = null;
-
-    /**
-     * The default prefix to be applied to all elements of the <tt>classpath</tt> which
-     * do not provide a prefix.
-     *
-     * @parameter
-     */
-    private String classpathPrefix = null;
-
-    /**
      * True to enable the bootshell when packaging.
      *
      * @parameter
      */
     private boolean bootstrap = false;
-
-    /**
-     * Location of resources directory for additional content to include in the car.
-     *
-     * @parameter expression="${project.build.directory}/resources"
-     */
-    private File resourcesDir;
 
     /**
      * Holds a local repo lookup instance so that we can use the current project to resolve.
@@ -278,19 +199,19 @@ public class PackageMojo
         //       local repository to perform deployment.  If the deployer modules (or their dependencies)
         //       are missing from the source respository, then strange packaging failures will occur.
         //
-        Set additionalArtifacts = new HashSet();
-        for (int i=0; i<deploymentConfigs.length; i++) {
-            Artifact artifact = geronimoToMavenArtifact(org.apache.geronimo.kernel.repository.Artifact.create(deploymentConfigs[i]));
+        Set<Artifact> additionalArtifacts = new HashSet<Artifact>();
+        for (String deploymentConfig : deploymentConfigs) {
+            Artifact artifact = geronimoToMavenArtifact(org.apache.geronimo.kernel.repository.Artifact.create(deploymentConfig));
             log.debug("Resolving deployer module: " + artifact);
             Artifact resolved = resolveArtifact(artifact, true);
             additionalArtifacts.add(resolved);
         }
         //Ensure that these dependencies are available to geronimo
         if (project.getDependencyArtifacts() == null) {
-            Set oldArtifacts = project.createArtifacts(dependencyHelper.getArtifactFactory(), null, null);
+            Set<Artifact> oldArtifacts = project.createArtifacts(dependencyHelper.getArtifactFactory(), null, null);
             additionalArtifacts.addAll(oldArtifacts);
         } else {
-            Set oldArtifacts = project.getDependencyArtifacts();
+            Set<Artifact> oldArtifacts = project.getDependencyArtifacts();
             additionalArtifacts.addAll(oldArtifacts);
         }
         project.setDependencyArtifacts(additionalArtifacts);
@@ -337,12 +258,6 @@ public class PackageMojo
         else {
             buildPackage();
         }
-
-        // Build the archive
-        File archive = createArchive();
-
-        // Attach the generated archive for install/deploy
-        project.getArtifact().setFile(archive);
     }
 
     private File getArtifactInRepositoryDir() {
@@ -374,100 +289,6 @@ public class PackageMojo
         boot.bootstrap();
     }
 
-    /**
-     * Generates the configuration archive.
-     */
-    private File createArchive() throws MojoExecutionException {
-        File archiveFile = getArchiveFile(outputDirectory, finalName, null);
-
-        MavenArchiver archiver = new MavenArchiver();
-        archiver.setArchiver(jarArchiver);
-        archiver.setOutputFile(archiveFile);
-
-        try {
-            // Incldue the generated artifact contents
-            archiver.getArchiver().addDirectory(getArtifactInRepositoryDir());
-
-            // Include the optional classes.resources
-            if (classesDirectory.isDirectory()) {
-                archiver.getArchiver().addDirectory(classesDirectory);
-            }
-
-            if (resourcesDir.isDirectory()) {
-                archiver.getArchiver().addDirectory(resourcesDir);
-            }
-            
-            //
-            // HACK: Include legal files here for sanity
-            //
-
-            //
-            // NOTE: Would be nice to share this with the copy-legal-files mojo
-            //
-            String[] includes = {
-                "LICENSE.txt",
-                "LICENSE",
-                "NOTICE.txt",
-                "NOTICE",
-                "DISCLAIMER.txt",
-                "DISCLAIMER"
-            };
-
-            archiver.getArchiver().addDirectory(baseDirectory, "META-INF/", includes, new String[0]);
-            
-            if (classpath != null) {
-                archive.addManifestEntry("Class-Path", getClassPath());
-            }
-
-            archiver.createArchive(project, archive);
-
-            return archiveFile;
-        }
-        catch (Exception e) {
-            throw new MojoExecutionException("Failed to create archive", e);
-        }
-    }
-
-    private String getClassPath() throws MojoExecutionException {
-        StringBuffer buff = new StringBuffer();
-
-        for (int i=0; i < classpath.length; i++) {
-            String entry = classpath[i].getEntry();
-            if (entry != null) {
-                buff.append(entry);
-            } else {
-                Artifact artifact = getArtifact(classpath[i]);
-
-                //
-                // TODO: Need to optionally get all transitive dependencies... but dunno how to get that intel from m2
-                //
-
-                String prefix = classpath[i].getClasspathPrefix();
-                if (prefix == null) {
-                    prefix = classpathPrefix;
-                }
-
-                if (prefix != null) {
-                    buff.append(prefix);
-
-                    if (!prefix.endsWith("/")) {
-                        buff.append("/");
-                    }
-                }
-
-                File file = artifact.getFile();
-                buff.append(file.getName());
-            }
-
-            if (i + 1< classpath.length) {
-                buff.append(" ");
-            }
-        }
-
-        log.debug("Using classpath: " + buff);
-
-        return buff.toString();
-    }
 
     //
     // Deployment
@@ -505,15 +326,13 @@ public class PackageMojo
             targetSet = true;
         }
 
-        log.debug("Starting configuration...");
+        log.debug("Starting configurations..." + Arrays.asList(deploymentConfigs));
 
         // start the Configuration we're going to use for this deployment
         ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
         try {
-            for (int i=0; i<deploymentConfigs.length; i++) {
-                String artifactName = deploymentConfigs[i];
-                org.apache.geronimo.kernel.repository.Artifact configName =
-                        org.apache.geronimo.kernel.repository.Artifact.create(artifactName);
+            for (String artifactName : deploymentConfigs) {
+                org.apache.geronimo.kernel.repository.Artifact configName = org.apache.geronimo.kernel.repository.Artifact.create(artifactName);
                 if (!configurationManager.isLoaded(configName)) {
                     RecordingLifecycleMonitor monitor = new RecordingLifecycleMonitor();
                     try {
@@ -524,6 +343,7 @@ public class PackageMojo
                     monitor = new RecordingLifecycleMonitor();
                     try {
                         configurationManager.startConfiguration(configName, monitor);
+                        log.info("Started deployer: " + configName);
                     } catch (LifecycleException e) {
                         log.error("Could not start deployer configuration: " + configName + "\n" + monitor.toString(), e);
                     }
@@ -590,7 +410,7 @@ public class PackageMojo
         Naming naming = kernel.getNaming();
         ConfigurationData bootstrap = new ConfigurationData(baseId, naming);
         ClassLoader cl = getClass().getClassLoader();
-        Set repoNames = new HashSet();
+        Set<AbstractName> repoNames = new HashSet<AbstractName>();
 
         //
         // NOTE: Install an adapter for the source repository that will leverage the Maven2 repository subsystem
@@ -599,7 +419,7 @@ public class PackageMojo
         GBeanData repoGBean = bootstrap.addGBean("SourceRepository", GBeanInfo.getGBeanInfo(Maven2RepositoryAdapter.class.getName(), cl));
         Maven2RepositoryAdapter.ArtifactLookup lookup = new Maven2RepositoryAdapter.ArtifactLookup() {
             private Maven2RepositoryAdapter.ArtifactLookup getDelegate() {
-                return (Maven2RepositoryAdapter.ArtifactLookup) lookupHolder.get();
+                return lookupHolder.get();
             }
             
             public File getBasedir() {
@@ -720,12 +540,4 @@ public class PackageMojo
         return (List) kernel.invoke(deployer, "deploy", args, DEPLOY_SIGNATURE);
     }
 
-    //
-    // ArtifactLookupImpl
-    //
-
-    /**
-     * Map of G artifact to M artifact which have already been resolved.
-     */
-    // private static Map presolvedArtifacts = new HashMap();
 }

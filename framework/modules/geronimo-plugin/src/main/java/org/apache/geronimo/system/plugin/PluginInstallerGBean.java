@@ -1359,16 +1359,7 @@ public class PluginInstallerGBean implements PluginInstaller {
                 (Version) null,
                 moduleId.getType())));
         List<DependencyType> deps = instance.getDependency();
-        PrerequisiteType prereq = null;
-        prereq = processDependencyList(data.getEnvironment().getDependencies(), prereq, deps);
-        Map children = data.getChildConfigurations();
-        for (Object o : children.values()) {
-            ConfigurationData child = (ConfigurationData) o;
-            prereq = processDependencyList(child.getEnvironment().getDependencies(), prereq, deps);
-        }
-        if (prereq != null) {
-            instance.getPrerequisite().add(prereq);
-        }
+        addGeronimoDependencies(data, deps, true);
         return meta;
     }
 
@@ -1441,31 +1432,39 @@ public class PluginInstallerGBean implements PluginInstaller {
         }
     }
 
+    public static void addGeronimoDependencies(ConfigurationData data, List<DependencyType> deps, boolean includeVersion) {
+        processDependencyList(data.getEnvironment().getDependencies(), deps, includeVersion);
+        Map<String, ConfigurationData> children = data.getChildConfigurations();
+        for (ConfigurationData child : children.values()) {
+            processDependencyList(child.getEnvironment().getDependencies(), deps, includeVersion);
+        }
+    }
+
     /**
      * Generates dependencies and an optional prerequisite based on a list of
      * dependencies for a Gernonimo module.
      *
      * @param real   A list with elements of type Dependency
-     * @param prereq The incoming prerequisite (if any), which may be replaced
      * @param deps   A list with elements of type String (holding a module ID / Artifact name)
-     * @return The resulting prerequisite, if any.
+     * @param includeVersion whether to include a version in the plugin xml dependency
      */
-    private PrerequisiteType processDependencyList(List<Dependency> real, PrerequisiteType prereq, List<DependencyType> deps) {
+    private static void processDependencyList(List<Dependency> real, List<DependencyType> deps, boolean includeVersion) {
         for (Dependency dep : real) {
-            DependencyType dependency = toDependencyType(dep);
+            DependencyType dependency = toDependencyType(dep, includeVersion);
             if (!deps.contains(dependency)) {
                 deps.add(dependency);
             }
         }
-        return prereq;
     }
 
-    public static DependencyType toDependencyType(Dependency dep) {
+    public static DependencyType toDependencyType(Dependency dep, boolean includeVersion) {
         Artifact id = dep.getArtifact();
         DependencyType dependency = new DependencyType();
         dependency.setGroupId(id.getGroupId());
         dependency.setArtifactId(id.getArtifactId());
-        dependency.setVersion(id.getVersion() == null ? null : id.getVersion().toString());
+        if (includeVersion) {
+            dependency.setVersion(id.getVersion() == null ? null : id.getVersion().toString());
+        }
         dependency.setType(id.getType());
         return dependency;
     }

@@ -213,12 +213,11 @@
                     </classpath>
                     <classpathPrefix>../lib</classpathPrefix>
                     <category>Geronimo Core</category>
-                    <osiApproved>true</osiApproved>
-                    <geronimoVersion>2.1-SNAPSHOT</geronimoVersion>
                     <useMavenDependencies>
                         <value>true</value>
-                        <includeVersion>false</includeVersion>
+                        <includeVersion>true</includeVersion>
                     </useMavenDependencies>
+                    <config-xml-content load = "false"/>
                 </configuration>
             </plugin>
         </plugins>

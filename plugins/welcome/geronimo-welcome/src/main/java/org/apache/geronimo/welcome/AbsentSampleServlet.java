@@ -79,7 +79,7 @@ public class AbsentSampleServlet extends HttpServlet {
         target.setDescription("A sample application");
         PluginArtifactType instance = new PluginArtifactType();
         target.getPluginArtifact().add(instance);
-        instance.getDependency().add(PluginInstallerGBean.toDependencyType(new Dependency(Artifact.create(moduleIdName), ImportType.ALL)));
+        instance.getDependency().add(PluginInstallerGBean.toDependencyType(new Dependency(Artifact.create(moduleIdName), ImportType.ALL), true));
         PluginListType list = new PluginListType();
         list.getPlugin().add(target);
 //        list.getDefaultRepository().add(repo.toString());

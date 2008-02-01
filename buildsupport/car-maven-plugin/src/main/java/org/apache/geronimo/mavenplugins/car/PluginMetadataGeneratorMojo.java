@@ -22,16 +22,25 @@ package org.apache.geronimo.mavenplugins.car;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.StringReader;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.geronimo.kernel.config.ConfigurationData;
+import org.apache.geronimo.kernel.config.ConfigurationStore;
+import org.apache.geronimo.kernel.config.InvalidConfigException;
+import org.apache.geronimo.kernel.config.NoSuchConfigException;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.system.configuration.RepositoryConfigurationStore;
+import org.apache.geronimo.system.plugin.PluginInstallerGBean;
 import org.apache.geronimo.system.plugin.PluginXmlUtil;
 import org.apache.geronimo.system.plugin.model.ArtifactType;
 import org.apache.geronimo.system.plugin.model.DependencyType;
 import org.apache.geronimo.system.plugin.model.LicenseType;
 import org.apache.geronimo.system.plugin.model.PluginArtifactType;
 import org.apache.geronimo.system.plugin.model.PluginType;
+import org.apache.geronimo.system.repository.Maven2Repository;
 import org.apache.maven.model.License;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.model.PluginExecution;
@@ -48,6 +57,14 @@ import org.codehaus.plexus.util.xml.Xpp3Dom;
 public class PluginMetadataGeneratorMojo
         extends AbstractCarMojo {
 
+
+    /**
+     * The Geronimo repository where modules will be packaged up from.
+     *
+     * @parameter expression="${project.build.directory}/repository"
+     * @required
+     */
+    private File targetRepository = null;
 
     /**
      * Directory for generated plugin metadata file.
@@ -114,10 +131,8 @@ public class PluginMetadataGeneratorMojo
     /**
      * Configuration for this instance itself.  This is a plugin-artifactType element without moduleId or dependencies. Do not include more than one of these in the parent poms
      * since maven will not merge them correctly.  Actually we have to fish this out of the model since maven mangles the xml for us.
-     *
      */
 //    private PlexusConfiguration instance;
-
     protected void doExecute() throws Exception {
 
         PluginType metadata = new PluginType();
@@ -140,7 +155,7 @@ public class PluginMetadataGeneratorMojo
         if (plugin == null) {
             throw new Error("Unable to resolve car plugin");
         }
-        
+
         Xpp3Dom dom;
         if (plugin.getExecutions().isEmpty()) {
             dom = (Xpp3Dom) plugin.getConfiguration();
@@ -148,7 +163,7 @@ public class PluginMetadataGeneratorMojo
             if (plugin.getExecutions().size() > 1) {
                 throw new IllegalStateException("Cannot determine correct configuration for PluginMetadataGeneratorMojo: " + plugin.getExecutionsAsMap().keySet());
             }
-            dom = (Xpp3Dom) ((PluginExecution)plugin.getExecutions().get(0)).getConfiguration();
+            dom = (Xpp3Dom) ((PluginExecution) plugin.getExecutions().get(0)).getConfiguration();
         }
         Xpp3Dom instanceDom = dom.getChild("instance");
 
@@ -224,19 +239,27 @@ public class PluginMetadataGeneratorMojo
         getProject().getResources().add(resource);
     }
 
-    private void addDependencies(PluginArtifactType instance) {
+    private void addDependencies(PluginArtifactType instance) throws InvalidConfigException, IOException, NoSuchConfigException {
         if (useMavenDependencies == null || !useMavenDependencies.isValue()) {
             for (Dependency dependency : dependencies) {
                 instance.getDependency().add(dependency.toDependencyType());
             }
         } else {
-            List<org.apache.maven.model.Dependency> includedDependencies = project.getOriginalModel().getDependencies();
-            List<org.apache.maven.model.Dependency> artifacts = project.getDependencies();
-            for (org.apache.maven.model.Dependency dependency : includedDependencies) {
-                dependency = resolveDependency(dependency, artifacts);
-                if (includeDependency(dependency)) {
-                    DependencyType gdep = toGeronimoDependency(dependency, useMavenDependencies.isIncludeVersion());
-                    instance.getDependency().add(gdep);
+            if (targetRepository.exists() && targetRepository.isDirectory()) {
+                Maven2Repository targetRepo = new Maven2Repository(targetRepository);
+                ConfigurationStore configStore = new RepositoryConfigurationStore(targetRepo);
+                Artifact pluginArtifact = PluginInstallerGBean.toArtifact(instance.getModuleId());
+                ConfigurationData data = configStore.loadConfiguration(pluginArtifact);
+                PluginInstallerGBean.addGeronimoDependencies(data, instance.getDependency(), useMavenDependencies.isIncludeVersion());
+            } else {
+                List<org.apache.maven.model.Dependency> includedDependencies = project.getOriginalModel().getDependencies();
+                List<org.apache.maven.model.Dependency> artifacts = project.getDependencies();
+                for (org.apache.maven.model.Dependency dependency : includedDependencies) {
+                    dependency = resolveDependency(dependency, artifacts);
+                    if (includeDependency(dependency)) {
+                        DependencyType gdep = toGeronimoDependency(dependency, useMavenDependencies.isIncludeVersion());
+                        instance.getDependency().add(gdep);
+                    }
                 }
             }
 

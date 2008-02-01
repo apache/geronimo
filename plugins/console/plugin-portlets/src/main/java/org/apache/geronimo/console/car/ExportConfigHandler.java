@@ -239,7 +239,7 @@ public class ExportConfigHandler extends BaseImportExportHandler {
         result.clear();
         for (String artifact : artifacts) {
             //TODO this is wrong.... need to encode import type as well
-            result.add(PluginInstallerGBean.toDependencyType(new Dependency(Artifact.create(artifact), ImportType.ALL)));
+            result.add(PluginInstallerGBean.toDependencyType(new Dependency(Artifact.create(artifact), ImportType.ALL), true));
         }
     }
 
