@@ -56,7 +56,7 @@ import org.apache.geronimo.tomcat.connector.Https11APRConnectorGBean;
 import org.apache.geronimo.tomcat.connector.Https11ConnectorGBean;
 import org.apache.geronimo.tomcat.connector.Https11NIOConnectorGBean;
 import org.apache.geronimo.tomcat.connector.TomcatWebConnector;
-import org.apache.geronimo.util.KeystoreUtil;
+import org.apache.geronimo.crypto.KeystoreUtil;
 
 /**
  * Tomcat implementation of the WebManager management API.  Knows how to

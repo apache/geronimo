@@ -39,7 +39,7 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.management.geronimo.CertificateStore;
 import org.apache.geronimo.management.geronimo.CertificateStoreException;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
-import org.apache.geronimo.util.CaUtils;
+import org.apache.geronimo.crypto.CaUtils;
 
 /**
  * A certificate store implementation using disk files.

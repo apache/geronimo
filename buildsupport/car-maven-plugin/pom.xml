@@ -84,7 +84,7 @@
             <exclusions>
                 <exclusion>
                     <groupId>org.apache.geronimo.framework</groupId>
-                    <artifactId>geronimo-util</artifactId>
+                    <artifactId>geronimo-crypto</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>org.apache.geronimo.framework</groupId>

@@ -42,7 +42,7 @@ import javax.naming.InitialContext;
 import org.apache.geronimo.monitoring.MasterRemoteControlRemote;
 import org.apache.geronimo.monitoring.console.util.DBManager;
 
-import org.apache.geronimo.util.EncryptionManager;
+import org.apache.geronimo.crypto.EncryptionManager;
 
 public class MRCConnector {
 

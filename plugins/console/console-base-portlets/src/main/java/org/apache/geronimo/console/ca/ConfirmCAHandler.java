@@ -47,7 +47,7 @@ import org.apache.geronimo.security.ca.FileCertificateRequestStore;
 import org.apache.geronimo.security.ca.FileCertificateStore;
 import org.apache.geronimo.security.ca.GeronimoCertificationAuthority;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
-import org.apache.geronimo.util.KeystoreUtil;
+import org.apache.geronimo.crypto.KeystoreUtil;
 
 /**
  * Handler for the CA confirmation screen.

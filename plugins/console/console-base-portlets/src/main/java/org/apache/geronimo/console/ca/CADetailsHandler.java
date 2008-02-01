@@ -34,8 +34,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.console.MultiPageModel;
 import org.apache.geronimo.management.geronimo.CertificationAuthority;
-import org.apache.geronimo.util.CaUtils;
-import org.apache.geronimo.util.CertificateUtil;
+import org.apache.geronimo.crypto.CaUtils;
+import org.apache.geronimo.crypto.CertificateUtil;
 
 /**
  * Handler for the CA details screen.

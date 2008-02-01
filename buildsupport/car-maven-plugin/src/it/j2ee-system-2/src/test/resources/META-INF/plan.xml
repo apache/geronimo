@@ -41,7 +41,7 @@ specific services - those should be provided by children.-->
       </dependency>
       <dependency>
         <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>geronimo-util</artifactId>
+        <artifactId>geronimo-crypto</artifactId>
         <type>jar</type>
       </dependency>
       <dependency>

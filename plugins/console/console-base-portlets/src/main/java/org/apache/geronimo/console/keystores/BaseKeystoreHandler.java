@@ -36,7 +36,7 @@ import org.apache.geronimo.console.MultiPageAbstractHandler;
 import org.apache.geronimo.console.MultiPageModel;
 import org.apache.geronimo.management.geronimo.KeystoreException;
 import org.apache.geronimo.management.geronimo.KeystoreInstance;
-import org.apache.geronimo.util.CertificateUtil;
+import org.apache.geronimo.crypto.CertificateUtil;
 
 /**
  * The base class for all handlers for this portlet

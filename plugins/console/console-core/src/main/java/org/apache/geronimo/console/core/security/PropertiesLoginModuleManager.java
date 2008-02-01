@@ -44,10 +44,10 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.security.jaas.LoginModuleGBean;
 import org.apache.geronimo.security.jaas.LoginModuleSettings;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
-import org.apache.geronimo.util.encoders.Base64;
-import org.apache.geronimo.util.encoders.HexTranslator;
-import org.apache.geronimo.util.SimpleEncryption;
-import org.apache.geronimo.util.EncryptionManager;
+import org.apache.geronimo.crypto.encoders.Base64;
+import org.apache.geronimo.crypto.encoders.HexTranslator;
+import org.apache.geronimo.crypto.SimpleEncryption;
+import org.apache.geronimo.crypto.EncryptionManager;
 
 /**
  * @version $Rev$ $Date$

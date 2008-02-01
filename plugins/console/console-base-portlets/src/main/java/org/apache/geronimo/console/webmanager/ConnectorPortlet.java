@@ -52,7 +52,7 @@ import org.apache.geronimo.management.geronimo.WebContainer;
 import org.apache.geronimo.management.geronimo.WebManager;
 import org.apache.geronimo.management.geronimo.WebManager.ConnectorAttribute;
 import org.apache.geronimo.management.geronimo.WebManager.ConnectorType;
-import org.apache.geronimo.util.KeystoreUtil;
+import org.apache.geronimo.crypto.KeystoreUtil;
 
 /**
  * A portlet that lets you list, add, remove, start, stop, restart and edit web

@@ -64,9 +64,9 @@ import org.apache.geronimo.management.geronimo.KeystoreInstance;
 import org.apache.geronimo.management.geronimo.KeystoreIsLocked;
 import org.apache.geronimo.management.geronimo.KeystoreManager;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
-import org.apache.geronimo.util.KeystoreUtil;
-import org.apache.geronimo.util.jce.X509Principal;
-import org.apache.geronimo.util.jce.X509V1CertificateGenerator;
+import org.apache.geronimo.crypto.KeystoreUtil;
+import org.apache.geronimo.crypto.jce.X509Principal;
+import org.apache.geronimo.crypto.jce.X509V1CertificateGenerator;
 
 /**
  * An implementation of KeystoreManager that assumes every file in a specified

@@ -23,7 +23,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 import org.apache.geronimo.tomcat.app.MockWebServiceContainer;
-import org.apache.geronimo.util.encoders.Base64;
+import org.apache.geronimo.crypto.encoders.Base64;
 
 
 /**

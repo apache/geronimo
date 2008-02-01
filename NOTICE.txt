@@ -25,7 +25,7 @@ Agreement", informally known as the "IBM Console CLA".
 =========================================================================
 
 This product includes software (the ASN1 codec implementation in 
-geronimo-util) developed by the Bouncy Castle project. 
+geronimo-crypto) developed by the Bouncy Castle project. 
 (http://www.bouncycastle.org/)
 
 Copyright (c) 2000-2005 

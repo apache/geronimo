@@ -51,7 +51,7 @@ import org.apache.geronimo.system.configuration.condition.JexlExpressionParser;
 import org.apache.geronimo.system.plugin.model.AttributeType;
 import org.apache.geronimo.system.plugin.model.GbeanType;
 import org.apache.geronimo.system.plugin.model.ReferenceType;
-import org.apache.geronimo.util.EncryptionManager;
+import org.apache.geronimo.crypto.EncryptionManager;
 
 /**
  * @version $Rev$ $Date$

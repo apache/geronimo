@@ -27,7 +27,7 @@ import org.apache.geronimo.console.MultiPageModel;
 import org.apache.geronimo.console.util.PortletManager;
 import org.apache.geronimo.management.geronimo.KeystoreException;
 import org.apache.geronimo.management.geronimo.KeystoreInstance;
-import org.apache.geronimo.util.KeystoreUtil;
+import org.apache.geronimo.crypto.KeystoreUtil;
 
 /**
  * Handler for creating a keystore

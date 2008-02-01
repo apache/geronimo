@@ -56,8 +56,8 @@ import org.apache.geronimo.kernel.KernelRegistry;
 import org.apache.geronimo.management.geronimo.JCAManagedConnectionFactory;
 import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
 import org.apache.geronimo.security.jaas.WrappingLoginModule;
-import org.apache.geronimo.util.encoders.Base64;
-import org.apache.geronimo.util.encoders.HexTranslator;
+import org.apache.geronimo.crypto.encoders.Base64;
+import org.apache.geronimo.crypto.encoders.HexTranslator;
 
 
 /**

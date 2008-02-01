@@ -32,7 +32,7 @@
 <%@ page import="java.sql.SQLException" %>
 <%@ page import="org.apache.geronimo.monitoring.console.util.*" %>
 <%@ page import="org.apache.geronimo.monitoring.console.MRCConnector" %>
-<%@ page import="org.apache.geronimo.util.EncryptionManager" %>
+<%@ page import="org.apache.geronimo.crypto.EncryptionManager" %>
 
 <portlet:defineObjects/>
 

@@ -72,16 +72,16 @@ import org.apache.geronimo.management.geronimo.KeystoreException;
 import org.apache.geronimo.management.geronimo.KeystoreInstance;
 import org.apache.geronimo.management.geronimo.KeystoreIsLocked;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
-import org.apache.geronimo.util.asn1.ASN1InputStream;
-import org.apache.geronimo.util.asn1.ASN1Sequence;
-import org.apache.geronimo.util.asn1.ASN1Set;
-import org.apache.geronimo.util.asn1.DEROutputStream;
-import org.apache.geronimo.util.asn1.x509.X509CertificateStructure;
-import org.apache.geronimo.util.asn1.x509.X509Name;
-import org.apache.geronimo.util.encoders.Base64;
-import org.apache.geronimo.util.jce.PKCS10CertificationRequest;
-import org.apache.geronimo.util.jce.X509Principal;
-import org.apache.geronimo.util.jce.X509V1CertificateGenerator;
+import org.apache.geronimo.crypto.asn1.ASN1InputStream;
+import org.apache.geronimo.crypto.asn1.ASN1Sequence;
+import org.apache.geronimo.crypto.asn1.ASN1Set;
+import org.apache.geronimo.crypto.asn1.DEROutputStream;
+import org.apache.geronimo.crypto.asn1.x509.X509CertificateStructure;
+import org.apache.geronimo.crypto.asn1.x509.X509Name;
+import org.apache.geronimo.crypto.encoders.Base64;
+import org.apache.geronimo.crypto.jce.PKCS10CertificationRequest;
+import org.apache.geronimo.crypto.jce.X509Principal;
+import org.apache.geronimo.crypto.jce.X509V1CertificateGenerator;
 
 /**
  * Implementation of KeystoreInstance that accesses a keystore file on the

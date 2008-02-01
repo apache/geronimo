@@ -34,7 +34,7 @@ import org.apache.geronimo.deployment.javabean.xbeans.BeanPropertyType;
 import org.apache.geronimo.deployment.javabean.xbeans.JavabeanDocument;
 import org.apache.geronimo.deployment.javabean.xbeans.JavabeanType;
 import org.apache.geronimo.deployment.javabean.xbeans.PropertyType;
-import org.apache.geronimo.util.EncryptionManager;
+import org.apache.geronimo.crypto.EncryptionManager;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlOptions;
 

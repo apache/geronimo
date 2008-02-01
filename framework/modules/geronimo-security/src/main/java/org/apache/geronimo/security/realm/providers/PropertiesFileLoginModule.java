@@ -49,10 +49,10 @@ import org.apache.geronimo.common.GeronimoSecurityException;
 import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
 import org.apache.geronimo.security.jaas.WrappingLoginModule;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
-import org.apache.geronimo.util.SimpleEncryption;
-import org.apache.geronimo.util.EncryptionManager;
-import org.apache.geronimo.util.encoders.Base64;
-import org.apache.geronimo.util.encoders.HexTranslator;
+import org.apache.geronimo.crypto.SimpleEncryption;
+import org.apache.geronimo.crypto.EncryptionManager;
+import org.apache.geronimo.crypto.encoders.Base64;
+import org.apache.geronimo.crypto.encoders.HexTranslator;
 
 
 /**

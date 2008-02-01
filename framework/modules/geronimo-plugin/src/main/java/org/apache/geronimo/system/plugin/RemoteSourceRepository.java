@@ -44,7 +44,7 @@ import org.apache.geronimo.kernel.repository.Version;
 import org.apache.geronimo.kernel.repository.WriteableRepository;
 import org.apache.geronimo.kernel.util.XmlUtil;
 import org.apache.geronimo.system.plugin.model.PluginListType;
-import org.apache.geronimo.util.encoders.Base64;
+import org.apache.geronimo.crypto.encoders.Base64;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;

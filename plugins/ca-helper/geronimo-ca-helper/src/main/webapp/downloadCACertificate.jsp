@@ -21,8 +21,8 @@
     pageEncoding="ISO-8859-1"%>
 <%@ page import="java.security.cert.X509Certificate" %>
 <%@ page import="org.apache.geronimo.ca.helper.util.CAHelperUtils"%>
-<%@ page import="org.apache.geronimo.util.CaUtils"%>
-<%@ page import="org.apache.geronimo.util.CertificateUtil"%>
+<%@ page import="org.apache.geronimo.crypto.CaUtils"%>
+<%@ page import="org.apache.geronimo.crypto.CertificateUtil"%>
 <%
     X509Certificate cert = (X509Certificate) CAHelperUtils.getCertificateStore().getCACertificate();
     request.setAttribute("cert", cert);

@@ -30,7 +30,7 @@ import org.apache.geronimo.deployment.javabean.xbeans.PropertyType;
 import org.apache.geronimo.deployment.javabean.xbeans.BeanPropertyType;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.util.EncryptionManager;
+import org.apache.geronimo.crypto.EncryptionManager;
 import org.apache.xmlbeans.XmlObject;
 
 /**

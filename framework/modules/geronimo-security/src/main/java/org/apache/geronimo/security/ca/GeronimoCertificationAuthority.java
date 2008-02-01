@@ -45,20 +45,20 @@ import org.apache.geronimo.management.geronimo.CertificationAuthorityException;
 import org.apache.geronimo.management.geronimo.KeystoreException;
 import org.apache.geronimo.management.geronimo.KeystoreInstance;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
-import org.apache.geronimo.util.CaUtils;
-import org.apache.geronimo.util.asn1.ASN1InputStream;
-import org.apache.geronimo.util.asn1.DERBitString;
-import org.apache.geronimo.util.asn1.DEREncodableVector;
-import org.apache.geronimo.util.asn1.DERInteger;
-import org.apache.geronimo.util.asn1.DERObject;
-import org.apache.geronimo.util.asn1.DERSequence;
-import org.apache.geronimo.util.asn1.pkcs.PKCSObjectIdentifiers;
-import org.apache.geronimo.util.asn1.x509.AlgorithmIdentifier;
-import org.apache.geronimo.util.asn1.x509.SubjectPublicKeyInfo;
-import org.apache.geronimo.util.asn1.x509.TBSCertificateStructure;
-import org.apache.geronimo.util.asn1.x509.Time;
-import org.apache.geronimo.util.asn1.x509.V3TBSCertificateGenerator;
-import org.apache.geronimo.util.asn1.x509.X509Name;
+import org.apache.geronimo.crypto.CaUtils;
+import org.apache.geronimo.crypto.asn1.ASN1InputStream;
+import org.apache.geronimo.crypto.asn1.DERBitString;
+import org.apache.geronimo.crypto.asn1.DEREncodableVector;
+import org.apache.geronimo.crypto.asn1.DERInteger;
+import org.apache.geronimo.crypto.asn1.DERObject;
+import org.apache.geronimo.crypto.asn1.DERSequence;
+import org.apache.geronimo.crypto.asn1.pkcs.PKCSObjectIdentifiers;
+import org.apache.geronimo.crypto.asn1.x509.AlgorithmIdentifier;
+import org.apache.geronimo.crypto.asn1.x509.SubjectPublicKeyInfo;
+import org.apache.geronimo.crypto.asn1.x509.TBSCertificateStructure;
+import org.apache.geronimo.crypto.asn1.x509.Time;
+import org.apache.geronimo.crypto.asn1.x509.V3TBSCertificateGenerator;
+import org.apache.geronimo.crypto.asn1.x509.X509Name;
 
 /**
  * A Certification Authority implementation using KeystoreInstance to store CA's private key, 

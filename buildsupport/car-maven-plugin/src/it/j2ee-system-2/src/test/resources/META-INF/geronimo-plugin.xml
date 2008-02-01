@@ -25,7 +25,7 @@
         </dependency>
         <dependency start="true">
             <groupId>org.apache.geronimo.framework</groupId>
-            <artifactId>geronimo-util</artifactId>
+            <artifactId>geronimo-crypto</artifactId>
             <type>jar</type>
         </dependency>
         <dependency start="true">

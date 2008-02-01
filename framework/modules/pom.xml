@@ -54,7 +54,7 @@
         <module>geronimo-system</module>
         <module>geronimo-transformer</module>
         <module>geronimo-upgrade</module>
-        <module>geronimo-util</module>
+        <module>geronimo-crypto</module>
         <module>geronimo-plugin</module>
     </modules>
     

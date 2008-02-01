@@ -27,7 +27,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.geronimo.ca.helper.util.CAHelperUtils;
-import org.apache.geronimo.util.CaUtils;
+import org.apache.geronimo.crypto.CaUtils;
 
 /**
  * Servlet implementation class for Servlet: CertificateRequestServlet

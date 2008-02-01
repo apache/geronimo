@@ -22,8 +22,8 @@ package org.apache.geronimo.deployment.service;
 import org.apache.geronimo.deployment.javabean.xbeans.BeanPropertyType;
 import org.apache.geronimo.deployment.javabean.xbeans.JavabeanType;
 import org.apache.geronimo.deployment.javabean.xbeans.PropertyType;
-import org.apache.geronimo.util.Encryption;
-import org.apache.geronimo.util.EncryptionManager;
+import org.apache.geronimo.crypto.Encryption;
+import org.apache.geronimo.crypto.EncryptionManager;
 
 import com.agical.rmock.extension.junit.RMockTestCase;
 

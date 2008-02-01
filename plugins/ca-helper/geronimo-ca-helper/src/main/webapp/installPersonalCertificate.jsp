@@ -21,8 +21,8 @@
     pageEncoding="ISO-8859-1"%>
 <%@ page import="java.security.cert.Certificate" %>
 <%@ page import="org.apache.geronimo.ca.helper.util.CAHelperUtils"%>
-<%@ page import="org.apache.geronimo.util.CaUtils"%>
-<%@ page import="org.apache.geronimo.util.CertificateUtil"%>
+<%@ page import="org.apache.geronimo.crypto.CaUtils"%>
+<%@ page import="org.apache.geronimo.crypto.CertificateUtil"%>
 <%@ page import="org.apache.geronimo.management.geronimo.*"%>
 <%@ page import="java.math.BigInteger"%>
 <%

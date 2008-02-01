@@ -34,8 +34,8 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
-import org.apache.geronimo.util.AbstractEncryption;
-import org.apache.geronimo.util.EncryptionManager;
+import org.apache.geronimo.crypto.AbstractEncryption;
+import org.apache.geronimo.crypto.EncryptionManager;
 
 /**
  * Like SimpleEncryption except it uses a stored secret key.  If the key file is missing, it makes up a new one.

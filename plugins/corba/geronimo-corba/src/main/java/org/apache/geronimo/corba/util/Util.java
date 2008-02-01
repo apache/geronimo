@@ -44,11 +44,11 @@ import javax.naming.NamingException;
 import javax.rmi.PortableRemoteObject;
 
 import org.apache.geronimo.corba.ORBConfiguration;
-import org.apache.geronimo.util.asn1.DERInputStream;
-import org.apache.geronimo.util.asn1.DERObjectIdentifier;
-import org.apache.geronimo.util.asn1.DEROutputStream;
-import org.apache.geronimo.util.asn1.x509.GeneralName;
-import org.apache.geronimo.util.asn1.x509.X509Name;
+import org.apache.geronimo.crypto.asn1.DERInputStream;
+import org.apache.geronimo.crypto.asn1.DERObjectIdentifier;
+import org.apache.geronimo.crypto.asn1.DEROutputStream;
+import org.apache.geronimo.crypto.asn1.x509.GeneralName;
+import org.apache.geronimo.crypto.asn1.x509.X509Name;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.UserException;

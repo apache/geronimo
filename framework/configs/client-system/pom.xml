@@ -55,7 +55,7 @@
 
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
-            <artifactId>geronimo-util</artifactId>
+            <artifactId>geronimo-crypto</artifactId>
             <version>${version}</version>
         </dependency>
 

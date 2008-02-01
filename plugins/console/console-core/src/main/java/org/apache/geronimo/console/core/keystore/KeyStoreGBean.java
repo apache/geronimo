@@ -53,13 +53,13 @@ import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
-import org.apache.geronimo.util.asn1.ASN1Set;
-import org.apache.geronimo.util.asn1.DEROutputStream;
-import org.apache.geronimo.util.asn1.x509.X509Name;
-import org.apache.geronimo.util.encoders.Base64;
-import org.apache.geronimo.util.jce.PKCS10CertificationRequest;
-import org.apache.geronimo.util.jce.X509Principal;
-import org.apache.geronimo.util.jce.X509V1CertificateGenerator;
+import org.apache.geronimo.crypto.asn1.ASN1Set;
+import org.apache.geronimo.crypto.asn1.DEROutputStream;
+import org.apache.geronimo.crypto.asn1.x509.X509Name;
+import org.apache.geronimo.crypto.encoders.Base64;
+import org.apache.geronimo.crypto.jce.PKCS10CertificationRequest;
+import org.apache.geronimo.crypto.jce.X509Principal;
+import org.apache.geronimo.crypto.jce.X509V1CertificateGenerator;
 
 public class KeyStoreGBean implements GBeanLifecycle {
 

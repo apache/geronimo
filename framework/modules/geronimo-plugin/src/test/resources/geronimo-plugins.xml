@@ -220,7 +220,7 @@
         <dependency>activemq/activemq-gbean/3.2.4-SNAPSHOT/jar</dependency>
         <dependency>activemq/activemq-core/3.2.4-SNAPSHOT/jar</dependency>
         <dependency>geronimo/geronimo-converter/1.2-SNAPSHOT/jar</dependency>
-        <dependency>geronimo/geronimo-util/1.2-SNAPSHOT/jar</dependency>
+        <dependency>geronimo/geronimo-crypto/1.2-SNAPSHOT/jar</dependency>
         <dependency>geronimo/geronimo-jetty/1.2-SNAPSHOT/jar</dependency>
     </plugin>
 

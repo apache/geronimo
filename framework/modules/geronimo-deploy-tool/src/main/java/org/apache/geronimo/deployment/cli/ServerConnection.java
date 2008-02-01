@@ -40,7 +40,7 @@ import org.apache.geronimo.deployment.plugin.factories.AuthenticationFailedExcep
 import org.apache.geronimo.deployment.plugin.jmx.JMXDeploymentManager;
 import org.apache.geronimo.deployment.plugin.jmx.LocalDeploymentManager;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.util.EncryptionManager;
+import org.apache.geronimo.crypto.EncryptionManager;
 
 /**
  * Supports online connections to the server, via JSR-88, valid only

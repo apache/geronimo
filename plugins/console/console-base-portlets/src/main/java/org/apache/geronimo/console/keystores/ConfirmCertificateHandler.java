@@ -20,7 +20,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.console.MultiPageModel;
 import org.apache.geronimo.management.geronimo.KeystoreException;
-import org.apache.geronimo.util.CertificateUtil;
+import org.apache.geronimo.crypto.CertificateUtil;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;

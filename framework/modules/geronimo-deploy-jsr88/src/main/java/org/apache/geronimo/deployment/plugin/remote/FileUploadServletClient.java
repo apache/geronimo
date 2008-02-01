@@ -39,7 +39,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.util.encoders.Base64;
+import org.apache.geronimo.crypto.encoders.Base64;
 
 /**
  *

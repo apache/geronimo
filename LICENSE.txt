@@ -205,7 +205,7 @@
 ## ADDITIONAL SOURCE LICENSES                                          ##
 #########################################################################
 
-The ASN1 codec implementation in the geronimo-util module was
+The ASN1 codec implementation in the geronimo-crypto module was
 developed by the Bouncy Castle project. (http://www.bouncycastle.org/).
 Use of the source code, thus licensed, and the resultant binary are 
 subject to the terms and conditions of the following license.

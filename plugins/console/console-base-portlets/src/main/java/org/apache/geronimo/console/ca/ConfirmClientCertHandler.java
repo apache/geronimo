@@ -38,8 +38,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.console.MultiPageModel;
 import org.apache.geronimo.management.geronimo.CertificationAuthority;
-import org.apache.geronimo.util.CaUtils;
-import org.apache.geronimo.util.asn1.x509.X509Name;
+import org.apache.geronimo.crypto.CaUtils;
+import org.apache.geronimo.crypto.asn1.x509.X509Name;
 
 /**
  * Handler for Confirm Client Certificate Issue screen.
