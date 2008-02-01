@@ -28,4 +28,10 @@
         <attribute name="configFile">var/config/offline-deployer-config.xml</attribute>
     </gbean>
 
+    <!-- System Properties -->
+    <gbean name="OfflineDeployerProperties" class="org.apache.geronimo.system.properties.SystemProperties">
+        <attribute name="systemProperties">
+             org.apache.geronimo.deployment.util.DeploymentUtil.jarUrlRewrite=true
+        </attribute>
+    </gbean>
 </module>

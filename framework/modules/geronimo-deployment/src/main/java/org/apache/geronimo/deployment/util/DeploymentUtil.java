@@ -48,7 +48,9 @@ public final class DeploymentUtil {
     }
 
     public static final File DUMMY_JAR_FILE;
+    private static final boolean jarUrlRewrite;
     static {
+        jarUrlRewrite = new Boolean(System.getProperty("org.apache.geronimo.deployment.util.DeploymentUtil.jarUrlRewrite", "false"));
         try {
             DUMMY_JAR_FILE = DeploymentUtil.createTempFile();
             new JarOutputStream(new FileOutputStream(DeploymentUtil.DUMMY_JAR_FILE), new Manifest()).close();
@@ -223,7 +225,25 @@ public final class DeploymentUtil {
             return new File(baseDir, path).toURL();
         } else {
             String urlString = "jar:" + new File(jarFile.getName()).toURL() + "!/" + path;
-            return new URL(urlString);
+            if(jarUrlRewrite) {
+                // To prevent the lockout of archive, instead of returning a jar url, write the content to a
+                // temp file and return the url of that file.
+                File tempFile = null;
+                try {
+                    tempFile = toTempFile(new URL(urlString));
+                } catch (IOException e) {
+                    // The JarEntry does not exist!
+                    // Return url of a file that does not exist.
+                    try {
+                        tempFile = createTempFile();
+                        tempFile.delete();
+                    } catch (IOException ignored) {
+                    }
+                 }
+                return tempFile.toURL();
+            } else {
+                return new URL(urlString);
+            }
         }
     }
 
