@@ -53,6 +53,7 @@
                 <groupId>org.apache.geronimo.buildsupport</groupId>
                 <artifactId>car-maven-plugin</artifactId>
                 <configuration>
+                    <osiApproved>true</osiApproved>
                     <servers>
                         <serverInstance>
                             <name>default</name>
