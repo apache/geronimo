@@ -513,18 +513,19 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
         EARContext earContext = null;
         ConfigurationModuleType applicationType = applicationInfo.getType();
         applicationInfo.getEnvironment().setConfigId(configId);
-        File configurationDir;
+        File configurationDir = null;
         try {
-            configurationDir = targetConfigurationStore.createNewConfigurationDir(configId);
-        } catch (ConfigurationAlreadyExistsException e) {
-            throw new DeploymentException(e);
-        }
+            try {
+                configurationDir = targetConfigurationStore.createNewConfigurationDir(configId);
+            } catch (ConfigurationAlreadyExistsException e) {
+                throw new DeploymentException(e);
+            }
 
-        ConfigurationManager configurationManager = this.configurationManager;
-        if (configurationManager == null) {
-            configurationManager = new SimpleConfigurationManager(configurationStores, artifactResolver, repositories);
-        }
-        try {
+            ConfigurationManager configurationManager = this.configurationManager;
+            if (configurationManager == null) {
+                configurationManager = new SimpleConfigurationManager(configurationStores, artifactResolver, repositories);
+            }
+
             // Create the output ear context
             earContext = new EARContext(configurationDir,
                     inPlaceDeployment ? DeploymentUtil.toFile(earFile) : null,
