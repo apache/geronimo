@@ -235,7 +235,7 @@ public class MasterRemoteControlJMX implements GBeanLifecycle {
         if(snapshotThread != null) {
             return new Long(snapshotThread.getSnapshotDuration());
         } else {
-            return null;
+            return DEFAULT_DURATION;
         }
     }
     
