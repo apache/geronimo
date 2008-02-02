@@ -1,5 +1,5 @@
 ======================================================
-Apache Geronimo v2.0  (August 7, 2007)
+Apache Geronimo v2.2-SNAPSHOT  (February 2, 2008)
 
 http://geronimo.apache.org/
 ------------------------------------------------------
