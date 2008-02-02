@@ -541,7 +541,7 @@ public class MRCConnector {
 
         } else {
             return (Set<String>) mbServerConn.invoke(new ObjectName(PATH),
-                    "getTrackedBeans", new Object[] {}, new String[] {});
+                    "getTrackedMBeans", new Object[] {}, new String[] {});
         }
     }
 

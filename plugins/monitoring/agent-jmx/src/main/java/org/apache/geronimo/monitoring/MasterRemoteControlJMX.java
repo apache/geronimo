@@ -466,10 +466,10 @@ public class MasterRemoteControlJMX implements GBeanLifecycle {
      */
     public TreeMap<Long, Long> getSpecificStatistics(   String mbeanName,
                                                         String statsName, 
-                                                        int numberOfSnapshots, 
-                                                        int everyNthSnapshot,
-                                                        boolean showArchived) {
-        return snapshotDBHelper.getSpecificStatistics(mbeanName, statsName, numberOfSnapshots, everyNthSnapshot, showArchived);
+                                                        Integer numberOfSnapshots, 
+                                                        Integer everyNthSnapshot,
+                                                        Boolean showArchived) {
+        return snapshotDBHelper.getSpecificStatistics(mbeanName, statsName, numberOfSnapshots.intValue(), everyNthSnapshot.intValue(), showArchived);
     }
     
     /**
@@ -507,6 +507,8 @@ public class MasterRemoteControlJMX implements GBeanLifecycle {
         infoFactory.addOperation("getSnapshotRetention", new Class[] {}, "Integer");
         infoFactory.addOperation("setSnapshotRetention", new Class[] {Integer.class}, "void");
         infoFactory.addOperation("isSnapshotRunning", new Class[] {}, "Boolean");
+        infoFactory.addOperation("getSpecificStatistics", new Class[] {String.class, String.class, Integer.class, Integer.class, Boolean.class}, "TreeMap");
+        infoFactory.addOperation("getTrackedMBeans", new Class[] {}, "Set");
         infoFactory.setConstructor(new String[] {});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

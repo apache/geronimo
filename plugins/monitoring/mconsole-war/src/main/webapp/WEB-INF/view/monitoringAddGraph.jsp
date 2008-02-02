@@ -113,7 +113,7 @@ while (rs.next())
     }
     catch (Exception e)
     {
-        
+        e.printStackTrace();
     }
     %>
     
