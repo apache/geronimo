@@ -137,17 +137,19 @@ public class PluginMetadataGeneratorMojo
 
         PluginType metadata = new PluginType();
         metadata.setName(project.getName());
-        metadata.setAuthor(project.getOrganization().getName());
-        metadata.setUrl(project.getOrganization().getUrl());
+        metadata.setAuthor(project.getOrganization() == null? "unknown": project.getOrganization().getName());
+        metadata.setUrl(project.getOrganization() == null? "unknown": project.getOrganization().getUrl());
         metadata.setDescription(project.getDescription());
         metadata.setCategory(category);
 
-        for (Object licenseObj : project.getLicenses()) {
-            License license = (License) licenseObj;
-            LicenseType licenseType = new LicenseType();
-            licenseType.setValue(license.getName());
-            licenseType.setOsiApproved(osiApproved);
-            metadata.getLicense().add(licenseType);
+        if (project.getLicenses() != null) {
+            for (Object licenseObj : project.getLicenses()) {
+                License license = (License) licenseObj;
+                LicenseType licenseType = new LicenseType();
+                licenseType.setValue(license.getName());
+                licenseType.setOsiApproved(osiApproved);
+                metadata.getLicense().add(licenseType);
+            }
         }
 
         PluginArtifactType instance;
