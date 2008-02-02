@@ -34,6 +34,7 @@ public class SnapshotThread extends Thread {
 
     private long SNAPSHOT_DURATION;
     private MBeanServer mbServer = null;
+    boolean isDone = false;
     // list of mbean names that we will be taking snapshots of
     private ArrayList<String> mbeanNames;
     
@@ -53,7 +54,7 @@ public class SnapshotThread extends Thread {
     }
 
     public boolean isSnapshotRunning() {
-        return SNAPSHOT_DURATION == Long.MAX_VALUE;
+        return !isDone;
     }
     
     /**
@@ -101,6 +102,8 @@ public class SnapshotThread extends Thread {
                 e.printStackTrace();
             }
         }
+        // flag turned on to know when the thread stops
+        isDone = true;
     }
 
     /**

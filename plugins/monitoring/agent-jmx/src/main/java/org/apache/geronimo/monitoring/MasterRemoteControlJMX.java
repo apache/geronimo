@@ -67,9 +67,10 @@ public class MasterRemoteControlJMX implements GBeanLifecycle {
     private static Log log = LogFactory.getLog(MasterRemoteControlJMX.class);
     // constants
     private static final String GERONIMO_DEFAULT_DOMAIN = "geronimo";
-    private static final Long DEFAULT_DURATION = new Long(5000);
+    private static final Long DEFAULT_DURATION = new Long(300000);
     private static final int DEFAULT_RETENTION = 30;
     private static final String RETENTION = "retention";
+    private static final String DURATION = "duration";
 
     // mbean server to talk to other components
     private static MBeanServer mbServer = null;
@@ -173,17 +174,19 @@ public class MasterRemoteControlJMX implements GBeanLifecycle {
     /**
      * Stops the snapshot thread
      */
-    public void stopSnapshot() {
+    public boolean stopSnapshot() {
         if(snapshotThread != null) {
-            if(snapshotThread.getSnapshotDuration() == Long.MAX_VALUE) {
-                saveDuration(DEFAULT_DURATION);
-            } else {
+            if(snapshotThread.getSnapshotDuration() != Long.MAX_VALUE) {
                 saveDuration(snapshotThread.getSnapshotDuration());
+                snapshotThread.setSnapshotDuration(Long.MAX_VALUE);
+                log.info("Snapshot thread stopped.");
+                return true;
+            } else {
+                return false;
             }
-            snapshotThread.setSnapshotDuration(Long.MAX_VALUE);
-            log.info("Snapshot thread stopped.");
         } else {
             log.error("There is not a snapshot thread running. Stopping aborted.");
+            return false;
         }
     }
     
@@ -232,10 +235,10 @@ public class MasterRemoteControlJMX implements GBeanLifecycle {
      * @return Long
      */
     public Long getSnapshotDuration() {
-        if(snapshotThread != null) {
-            return new Long(snapshotThread.getSnapshotDuration());
-        } else {
-            return DEFAULT_DURATION;
+        try {
+            return Long.parseLong(SnapshotConfigXMLBuilder.getAttributeValue(DURATION));
+        } catch(Exception e) {
+            return new Long(DEFAULT_DURATION);
         }
     }
     
@@ -292,7 +295,7 @@ public class MasterRemoteControlJMX implements GBeanLifecycle {
      * @param interval
      */
     public boolean startSnapshot(Long interval, Integer retention) {
-        if((snapshotThread == null || (snapshotThread != null && !snapshotThread.isAlive())) && interval.longValue() > 0) {
+        if((snapshotThread == null || (snapshotThread != null && !snapshotThread.isSnapshotRunning())) && interval.longValue() > 0) {
             saveDuration(interval.longValue());
             saveRetention(retention.intValue());
             snapshotThread = new SnapshotThread(interval.longValue(), mbServer);
@@ -474,7 +477,11 @@ public class MasterRemoteControlJMX implements GBeanLifecycle {
      */
     public boolean isSnapshotRunning() {
         // TODO: check if the snapshot thread is running 
-        return snapshotThread.isSnapshotRunning();
+        if(snapshotThread == null) {
+            return false;
+        } else {
+            return snapshotThread.isSnapshotRunning();
+        }
     }
 
     public static final GBeanInfo GBEAN_INFO;
@@ -485,7 +492,7 @@ public class MasterRemoteControlJMX implements GBeanLifecycle {
         infoFactory.addOperation("setAttribute", new Class[] {String.class, String.class, Object.class}, "void");
         infoFactory.addOperation("startSnapshot", new Class[] {Long.class}, "Boolean");
         infoFactory.addOperation("startSnapshot", new Class[] {Long.class, Integer.class}, "Boolean");
-        infoFactory.addOperation("stopSnapshot", new Class[] {}, "void");
+        infoFactory.addOperation("stopSnapshot", new Class[] {}, "Boolean");
         infoFactory.addOperation("fetchSnapshotData", new Class[] {Integer.class, Integer.class}, "ArrayList");
         infoFactory.addOperation("fetchMaxSnapshotData", new Class[] {Integer.class}, "HashMap");
         infoFactory.addOperation("fetchMinSnapshotData", new Class[] {Integer.class}, "HashMap");
@@ -499,6 +506,7 @@ public class MasterRemoteControlJMX implements GBeanLifecycle {
         infoFactory.addOperation("removeMBeanForSnapshot", new Class[] {String.class}, "void");
         infoFactory.addOperation("getSnapshotRetention", new Class[] {}, "Integer");
         infoFactory.addOperation("setSnapshotRetention", new Class[] {Integer.class}, "void");
+        infoFactory.addOperation("isSnapshotRunning", new Class[] {}, "Boolean");
         infoFactory.setConstructor(new String[] {});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
