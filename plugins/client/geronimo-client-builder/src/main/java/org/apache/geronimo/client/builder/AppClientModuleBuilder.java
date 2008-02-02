@@ -473,10 +473,6 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
 
     static ApplicationClientDocument convertToApplicationClientSchema(XmlObject xmlObject) throws XmlException {
         if (ApplicationClientDocument.type.equals(xmlObject.schemaType())) {
-            ApplicationClientType appClient = ((ApplicationClientDocument) xmlObject).getApplicationClient();
-            if ("5.0".equals(appClient.getVersion())) {
-                appClient.setVersion("5");
-            }
             XmlBeansUtil.validateDD(xmlObject);
             return (ApplicationClientDocument) xmlObject;
         }
@@ -487,8 +483,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
         try {
             cursor.toStartDoc();
             cursor.toFirstChild();
-            if ("http://java.sun.com/xml/ns/j2ee".equals(cursor.getName().getNamespaceURI())
-                    || "http://java.sun.com/xml/ns/javaee".equals(cursor.getName().getNamespaceURI())) {
+            if ("http://java.sun.com/xml/ns/j2ee".equals(cursor.getName().getNamespaceURI())) {
                 SchemaConversionUtils.convertSchemaVersion(cursor, SchemaConversionUtils.JAVAEE_NAMESPACE, schemaLocationURL, version);
                 XmlObject result = xmlObject.changeType(ApplicationClientDocument.type);
                 XmlBeansUtil.validateDD(result);
