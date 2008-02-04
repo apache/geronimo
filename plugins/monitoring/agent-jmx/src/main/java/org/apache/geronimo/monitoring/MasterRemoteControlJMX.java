@@ -295,7 +295,7 @@ public class MasterRemoteControlJMX implements GBeanLifecycle {
      * @param interval
      */
     public boolean startSnapshot(Long interval, Integer retention) {
-        if((snapshotThread == null || (snapshotThread != null && !snapshotThread.isSnapshotRunning())) && interval.longValue() > 0) {
+        if((snapshotThread == null || (snapshotThread != null && (snapshotThread.SnapshotStatus() == 0))) && interval.longValue() > 0) {
             saveDuration(interval.longValue());
             saveRetention(retention.intValue());
             snapshotThread = new SnapshotThread(interval.longValue(), mbServer);
@@ -356,7 +356,7 @@ public class MasterRemoteControlJMX implements GBeanLifecycle {
      * Executes when the GBean stops. Also stops the snapshot thread.
      */
     public void doStop() {
-        if(isSnapshotRunning()) {
+        if(SnapshotStatus() == 1) {
             stopSnapshot();
         }
     }
@@ -475,12 +475,12 @@ public class MasterRemoteControlJMX implements GBeanLifecycle {
     /**
      * @return Returns true if snapshot is running.
      */
-    public boolean isSnapshotRunning() {
+    public Integer SnapshotStatus() {
         // TODO: check if the snapshot thread is running 
         if(snapshotThread == null) {
-            return false;
+            return 0;
         } else {
-            return snapshotThread.isSnapshotRunning();
+            return snapshotThread.SnapshotStatus();
         }
     }
 
@@ -506,7 +506,7 @@ public class MasterRemoteControlJMX implements GBeanLifecycle {
         infoFactory.addOperation("removeMBeanForSnapshot", new Class[] {String.class}, "void");
         infoFactory.addOperation("getSnapshotRetention", new Class[] {}, "Integer");
         infoFactory.addOperation("setSnapshotRetention", new Class[] {Integer.class}, "void");
-        infoFactory.addOperation("isSnapshotRunning", new Class[] {}, "Boolean");
+        infoFactory.addOperation("SnapshotStatus", new Class[] {}, "Integer");
         infoFactory.addOperation("getSpecificStatistics", new Class[] {String.class, String.class, Integer.class, Integer.class, Boolean.class}, "TreeMap");
         infoFactory.addOperation("getTrackedMBeans", new Class[] {}, "Set");
         infoFactory.setConstructor(new String[] {});

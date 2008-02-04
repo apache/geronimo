@@ -472,23 +472,24 @@ public class MRCConnector {
         }
     }
 
-    public boolean isSnapshotRunning() {
-        boolean running = false;
+    public int isSnapshotRunning() {
+        Integer running = 0;
         if (Protocol == 1) {
 
             try {
-                running = mrc.isSnapshotRunning();
+                if (mrc.isSnapshotRunning())
+                    running = 1;
             } catch (Exception e) {
-                return false;
+                return 0;
             }
 
         } else {
             try {
-                running = (Boolean) mbServerConn.invoke(new ObjectName(PATH),
-                        "isSnapshotRunning", new Object[] {}, new String[] {});
+                running = (Integer) mbServerConn.invoke(new ObjectName(PATH),
+                        "SnapshotStatus", new Object[] {}, new String[] {});
             } catch (Exception e) {
                 e.printStackTrace();
-                return false;
+                return 0;
             }
         }
         return running;
@@ -765,9 +766,9 @@ public class MRCConnector {
 
         } else {
             try {
-                return (Integer)mbServerConn.invoke(
-                        new ObjectName(PATH), "getSnapshotRetention",
-                        new Object[] {}, new String[] {});
+                return (Integer) mbServerConn.invoke(new ObjectName(PATH),
+                        "getSnapshotRetention", new Object[] {},
+                        new String[] {});
             } catch (Exception e) {
                 e.printStackTrace();
             }
