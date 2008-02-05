@@ -46,7 +46,7 @@ Connection con = DBase.getConnection();
 MRCConnector mrc = null;
 
 boolean isOnline = true;
-boolean collecting = false;
+Integer collecting = 0;
 Long snapshotDuration = new Long(0);
 
 if (message == null)
@@ -77,13 +77,10 @@ if (rs.next()) {
         retention = mrc.getSnapshotRetention();
         trackedBeansMap = mrc.getTrackedBeansMap();
         snapshotDuration = (Long)mrc.getSnapshotDuration()/1000/60;
-        if (mrc.isSnapshotRunning())
-            collecting = true;
-        else
-            collecting = false;
+        collecting = mrc.isSnapshotRunning();
     } catch (Exception e) {
         isOnline = false;
-        collecting = false;
+        collecting = 0;
         message = message + "<br><font color='red'><strong><li>Server is offline</li></strong></font>";
     }
     
@@ -138,7 +135,7 @@ document.getElementById(x).style.display='';
                     <th align="left">Snapshot Thread:</th>
                     <td>&nbsp;</td>
                     <td align="right">
-                                <%if (isOnline && collecting)
+                                <%if (isOnline && collecting == 1)
                 {%>
                     Running
                    <%}
@@ -292,15 +289,20 @@ document.getElementById(x).style.display='';
                         <li><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="disableServer" /><portlet:param name="server_id" value="<%=server_id%>" /></portlet:actionURL>">Disable this server</a></li>
                         <li><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="showAddServer" /></portlet:actionURL>">Add a new server</a></li>
                         <%
-                        if(collecting) {
+                        if(collecting == 1) {
                         %>
                             <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="disableServerViewQuery" /><portlet:param name="server_id" value="<%=server_id%>" /></portlet:actionURL>">Disable Query</a></li>
                         <%
-                        } else {
+                        } else if (collecting == 0){
                         %>
                             <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="enableServerViewQuery" /><portlet:param name="server_id" value="<%=server_id%>" /><portlet:param name="snapshotDuration" value="<%= "" + (snapshotDuration * 1000 * 60) %>" /></portlet:actionURL>">Enable Query</a></li>
                         <%
                         }
+                        else if (collecting == -1){
+                            %>
+                                <li>Stopping Thread...</li>
+                            <%
+                            }
                         %>
                         </ul>
                         &nbsp;<br />

@@ -93,7 +93,7 @@ border-width: 1px;">
      boolean enabled = serverInfos.get(i).enabled;
      String name = serverInfos.get(i).name;
      boolean online = false;
-     boolean collecting = false;
+     Integer collecting = 0;
      MRCConnector mrc = null;
      Long snapshotDuration = new Long(0);
      if (enabled) {
@@ -105,12 +105,9 @@ border-width: 1px;">
 	     }
 	     try {
 	         snapshotDuration = mrc.getSnapshotDuration();
-	         if (mrc.isSnapshotRunning())
-	             collecting = true;
-	         else
-	             collecting = false;
+	         collecting = mrc.isSnapshotRunning();
 	     } catch (Exception e) {
-	         collecting = false;
+	         collecting = 0;
 	         online = false;
 	     }
      }
@@ -151,7 +148,7 @@ if (online) {     // online
        <td class="${backgroundClass}" width="15%" align="center"><font color="red">Disabled</font></td>
      <%
      }
-if (!collecting) {  // not collecting statistics
+if (collecting == 0) {  // not collecting statistics
 %>
     <td class="${backgroundClass}" width="15%" align="center"><font color="red">(stopped)</font></td>
 <%
@@ -161,13 +158,31 @@ if (!collecting) {  // not collecting statistics
 <%
     } else {        // do not provide links
 %>
-        <td class="${backgroundClass}" width="10%" align="center">Enable Query</td>
+        <td class="${backgroundClass}" width="10%" align="center"><img border=0 src="/monitoring/images/max-b.png">Enable Query</td>
 <%
     }
 %>
   <td class="${backgroundClass}" width="10%" align="center"><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="showEditServer" /><portlet:param name="server_id" value="<%=server_id%>" /></portlet:actionURL>"><img border=0 src="/monitoring/images/edit-b.png">Edit</a></td>
 <%
-} else {            // collecting statistics
+} 
+else if (collecting == -1) {  // not collecting statistics
+    %>
+        <td class="${backgroundClass}" width="15%" align="center"><font color="red">Stopping...</font></td>
+    <%
+        if(enabled) {   // enable the links
+    %>
+            <td class="${backgroundClass}" width="10%" align="center"><img border=0 src="/monitoring/images/close-b.png">Disable Query</td>
+    <%
+        } else {        // do not provide links
+    %>
+            <td class="${backgroundClass}" width="10%" align="center"><img border=0 src="/monitoring/images/max-b.png">Enable Query</td>
+    <%
+        }
+    %>
+      <td class="${backgroundClass}" width="10%" align="center"><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="showEditServer" /><portlet:param name="server_id" value="<%=server_id%>" /></portlet:actionURL>"><img border=0 src="/monitoring/images/edit-b.png">Edit</a></td>
+    <%
+    }
+else {            // collecting statistics
     if (enabled)
     {
 %>
@@ -180,7 +195,7 @@ if (!collecting) {  // not collecting statistics
     {
         %>
         <td class="${backgroundClass}" width="15%" align="center">Stopped</td>
-        <td class="${backgroundClass}" width="10%" align="center">Disable Query</td>
+        <td class="${backgroundClass}" width="10%" align="center"><img border=0 src="/monitoring/images/close-b.png">Disable Query</td>
         <td class="${backgroundClass}" width="10%" align="center"><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="showEditServer" /><portlet:param name="server_id" value="<%=server_id%>" /></portlet:actionURL>"><img border=0 src="/monitoring/images/edit-b.png">Edit</a></td>
       <%        
     }

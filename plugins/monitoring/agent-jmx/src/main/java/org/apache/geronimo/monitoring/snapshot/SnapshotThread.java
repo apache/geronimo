@@ -34,16 +34,16 @@ public class SnapshotThread extends Thread {
 
     private long SNAPSHOT_DURATION;
     private MBeanServer mbServer = null;
-    boolean isDone = false;
+    int threadStatus = 1;
     // list of mbean names that we will be taking snapshots of
     private ArrayList<String> mbeanNames;
-    
+
     public SnapshotThread(long snapshot_length, MBeanServer mbServer) {
         SNAPSHOT_DURATION = snapshot_length;
         this.mbServer = mbServer;
         mbeanNames = new ArrayList<String>();
     }
-    
+
     /**
      * Gets the elapsed time in milliseconds between each snapshot.
      * 
@@ -53,13 +53,15 @@ public class SnapshotThread extends Thread {
         return SNAPSHOT_DURATION;
     }
 
-    public boolean isSnapshotRunning() {
-        return !isDone;
+    public Integer SnapshotStatus() {
+        return threadStatus;
+
     }
-    
+
     /**
      * Adds the mbean name to list in memory. To update the snapshot-config.xml
      * coder must use SnapshotConfigXMLBuilder class.
+     * 
      * @param mbeanName
      */
     public void addMBeanForSnapshot(String mbeanName) {
@@ -67,14 +69,15 @@ public class SnapshotThread extends Thread {
     }
 
     /**
-     * Removes the mbean name to list in memory. To update the snapshot-config.xml
-     * coder must use SnapshotConfigXMLBuilder class.
+     * Removes the mbean name to list in memory. To update the
+     * snapshot-config.xml coder must use SnapshotConfigXMLBuilder class.
+     * 
      * @param mbeanName
      */
     public void removeMBeanForSnapshot(String mbeanName) {
         mbeanNames.remove(mbeanName);
     }
-    
+
     /**
      * Sets the elapsed time in milliseconds between each snapshot.
      * 
@@ -82,42 +85,46 @@ public class SnapshotThread extends Thread {
      */
     public void setSnapshotDuration(long snapshot_length) {
         SNAPSHOT_DURATION = snapshot_length;
+        if (snapshot_length == Long.MAX_VALUE)
+            threadStatus = -1;
     }
 
     public void run() {
         // get any saved mbean names from snapshot-config.xml
         mbeanNames = SnapshotConfigXMLBuilder.getMBeanNames();
         // in the case where nothing is present, grab a set of default mbeans
-        if(mbeanNames.size() <= 0) {
+        if (mbeanNames.size() <= 0) {
             mbeanNames = getDefaultMBeanList();
         }
         // pause the thread from running every SNAPSHOT_DURATION seconds
-        while(true && SNAPSHOT_DURATION != Long.MAX_VALUE) {
+        while (true && SNAPSHOT_DURATION != Long.MAX_VALUE) {
             try {
                 // store the data
                 SnapshotProcessor.takeSnapshot();
                 // wait for next snapshot
                 Thread.sleep(SNAPSHOT_DURATION);
-            } catch(Exception e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
         // flag turned on to know when the thread stops
-        isDone = true;
+        threadStatus = 0;
     }
 
     /**
-     * @return A list of all default mbeans; namely, all connector or container mbean names
-     * Prereq: in order to be a connector or container mbean the name must contain "Connector"/"Container" 
-     * and "Tomcat"/"Jetty"
+     * @return A list of all default mbeans; namely, all connector or container
+     *         mbean names Prereq: in order to be a connector or container mbean
+     *         the name must contain "Connector"/"Container" and
+     *         "Tomcat"/"Jetty"
      */
     private ArrayList<String> getDefaultMBeanList() {
-        Set<String> mbeans = (new MasterRemoteControlJMX()).getStatisticsProviderMBeanNames();
+        Set<String> mbeans = (new MasterRemoteControlJMX())
+                .getStatisticsProviderMBeanNames();
         ArrayList<String> retval = new ArrayList<String>();
-        for(Iterator it = mbeans.iterator(); it.hasNext(); ) {
-            String name = (String)it.next();
-            if((name.contains("Connector") || name.contains("Container")) &&
-                    (name.contains("Jetty") || name.contains("Tomcat"))) {
+        for (Iterator it = mbeans.iterator(); it.hasNext();) {
+            String name = (String) it.next();
+            if ((name.contains("Connector") || name.contains("Container"))
+                    && (name.contains("Jetty") || name.contains("Tomcat"))) {
                 // this is a connector, so add to the list
                 retval.add(name);
                 // update the snapshot-config.xml to include these
