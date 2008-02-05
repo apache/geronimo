@@ -597,6 +597,10 @@
                         <groupId>xmlbeans</groupId>
                         <artifactId>xbean</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.ws.scout</groupId>
+                        <artifactId>jaxr-api</artifactId>
+                    </exclusion>
                 </exclusions>
             </dependency>
 
