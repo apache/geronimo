@@ -22,12 +22,14 @@ import java.util.Set;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.geronimo.console.car.ManagementHelper;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelRegistry;
 import org.apache.geronimo.system.plugin.DownloadResults;
 import org.apache.geronimo.system.plugin.PluginInstaller;
+import org.apache.geronimo.system.plugin.PluginInstallerGBean;
 import org.directwebremoting.ScriptSession;
 import org.directwebremoting.WebContext;
 import org.directwebremoting.WebContextFactory;
@@ -47,11 +49,13 @@ public class ProgressMonitor {
     public void getProgressInfo(Integer downloadKey) throws Exception {
         // DWR objects
         WebContext wctx = WebContextFactory.get();
-        HttpSession session = wctx.getSession();
         ScriptSession scriptSession = wctx.getScriptSession();
-        DownloadResults results = getPluginInstaller().checkOnInstall(downloadKey);
+        //DownloadResults results = getPluginInstaller().checkOnInstall(downloadKey);
         ScriptProxy scriptProxy = new ScriptProxy();
         scriptProxy.addScriptSession(scriptSession);
+        
+        PluginInstallerGBean pluginInstallerInternal = (PluginInstallerGBean) getPluginInstaller();
+        DownloadResults results = pluginInstallerInternal.checkOnInstall(downloadKey, false);
         
         //In the event results.isFinished is passed in true during polling
         scriptProxy.addFunctionCall("setMainMessage", results.getCurrentMessage());
@@ -65,22 +69,19 @@ public class ProgressMonitor {
             
             // get an update on the download progress, sleep time reduce to poll faster for smaller files
             Thread.sleep(100);
-            results = getPluginInstaller().checkOnInstall(downloadKey);
+            //results = getPluginInstaller().checkOnInstall(downloadKey);
+            results = pluginInstallerInternal.checkOnInstall(downloadKey, false);
         }
         
         if(results.isFailed()) {
+            scriptProxy.addFunctionCall("setErrorMessage", results.getFailure().toString());
             throw new Exception("Unable to install configuration", results.getFailure());
         }
-        
-        //store the download results in the http sesssion
-        HttpServletRequest request = wctx.getHttpServletRequest();
-        request.setAttribute("console.plugins.DownloadResults", results);
-        
-        //wctx.getSession(true).setAttribute("console.plugins.DownloadResults", results); 
         
         //Fills bar at the end in the event the poller didn't catch the 100
         scriptProxy.addFunctionCall("setProgressFull");
         scriptProxy.addFunctionCall("setFinished");
+        
     }
     
     private synchronized PluginInstaller getPluginInstaller() throws Exception {

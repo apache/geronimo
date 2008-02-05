@@ -26,6 +26,8 @@
     <input type="hidden" name="repository" value="${repository}" />
     <input type="hidden" name="repo-user" value="${repouser}" />
     <input type="hidden" name="repo-pass" value="${repopass}" />
+    <input type="hidden" name="download-key" value="${downloadKey}" /> 
+    
     <%  String[] configIds = request.getParameterValues("configIds");
         for(int i=0;i<configIds.length;i++){
     %>
@@ -35,7 +37,7 @@
     %>
 </form>
 
-<jsp:include flush="true" page="../ajax/progressbar.jsp?downloadKey=${downloadKey}"/>
+<jsp:include flush="false" page="../ajax/progressbar.jsp?downloadKey=${downloadKey}"/>
 
 <script type="text/javascript">
     dwr.engine.setActiveReverseAjax(true);

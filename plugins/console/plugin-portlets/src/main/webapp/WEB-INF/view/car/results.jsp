@@ -22,10 +22,15 @@
 <fmt:setBundle basename="pluginportlets"/>
 <portlet:defineObjects/>
 <p>
-<fmt:message key="car.results.title" >
-<fmt:param  value="${configId}"/>
-</fmt:message>
+<fmt:message key="car.results.titles" />
 </p>
+<% 
+    String[] configIds = request.getParameterValues("configId");
+    for(int j=0;j<configIds.length;j++){
+%>
+        <%= configIds[j] %><br>
+<%  }%>
+    
 
 <c:if test="${! empty dependencies}">
   <p><b><fmt:message key="car.results.filesProcessed" />:</b></p>
@@ -37,11 +42,17 @@
 </c:if>
 
 <form name="<portlet:namespace/>PluginForm" action="<portlet:actionURL/>">
-    <input type="hidden" name="mode" value="results-after" />
-    <input type="hidden" name="configId" value="${configId}" />
+    <input type="hidden" name="mode" value="index-before" />
     <input type="hidden" name="repository" value="${repository}" />
     <input type="hidden" name="repo-user" value="${repouser}" />
     <input type="hidden" name="repo-pass" value="${repopass}" />
-    <input type="submit" value='<fmt:message key="consolebase.common.start"/> ${configId}' />
+    <%  
+        for(int i=0;i<configIds.length;i++){
+    %>
+    <input type="hidden" name="configId" value="<%=configIds[i]%>" />
+    <%
+        }
+    %>
+    <input type="submit" value='<fmt:message key="consolebase.common.done"/>' />
 </form>
 
