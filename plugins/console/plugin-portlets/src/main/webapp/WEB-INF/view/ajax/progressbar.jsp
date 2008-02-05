@@ -17,7 +17,6 @@
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%@ page import="org.apache.geronimo.system.plugin.DownloadResults"%> 
-<%@page import="com.sun.mail.iap.Response"%>
 <fmt:setBundle basename="pluginportlets"/>
 <fmt:message key="car.downloadStatus.processing"/>
 <portlet:defineObjects/>
