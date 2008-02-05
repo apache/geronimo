@@ -32,7 +32,7 @@
 --%>
 <br />
 <table width="100%">
-<form action="<portlet:renderURL/>">
+<form action="<portlet:actionURL/>">
 <tr><td align="center"><input type="submit" value='<fmt:message key="servermanager.normal.shutdown"/>' name="shutdown"
 onClick="return confirm('<fmt:message key="servermanager.normal.areYouSure"/>');" /></td></tr>
 </form>
