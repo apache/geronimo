@@ -39,14 +39,23 @@
         </div>
     </div>
 </div>
-
+<br>
 <div id="<portlet:namespace/>ErrorArea"></div>
+<div id="<portlet:namespace/>ErrorMessage"></div>
+<div id="<portlet:namespace/>BackBtn"></div>
 
 <script type="text/javascript">
 dwr.engine.setErrorHandler(<portlet:namespace/>onError);
 
+function setErrorMessage(errorMsg) {
+    if (errorMsg != null) {
+        document.getElementById('<portlet:namespace/>ErrorMessage').innerHTML = errorMsg;
+        document.getElementById('<portlet:namespace/>BackBtn').innerHTML = "<br><form><input type='submit' value='Go Back' onclick='history.go(-3); return false;' /></form>";
+    }
+}
+
 function <portlet:namespace/>onError() {
-    dwr.util.setValue("<portlet:namespace/>ErrorArea", 'I had a problem!');
+    dwr.util.setValue("<portlet:namespace/>ErrorArea", 'A problem has occured: ');
 }
 
 function setMainMessage(mainMessage) {
@@ -84,10 +93,6 @@ function setProgressFull() {
 }
 
 function setFinished() {
-    <%
-        DownloadResults results = (DownloadResults) request.getAttribute("console.plugins.DownloadResults");
-        System.out.println("Results are" + results);
-    %>
     document.forms['<portlet:namespace/>ContinueForm'].submit();
 }
 

@@ -21,21 +21,21 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+
+
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
 import javax.portlet.PortletException;
-import javax.portlet.PortletSession;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
-import javax.servlet.http.HttpSession;
-import javax.servlet.http.HttpServletRequest;
 
-import org.apache.geronimo.system.plugin.PluginInstaller;
-import org.apache.geronimo.console.ajax.ProgressMonitor;
+
+import org.apache.geronimo.console.car.ManagementHelper;
+import org.apache.geronimo.system.plugin.PluginInstallerGBean;
 import org.apache.geronimo.console.MultiPageModel;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.system.plugin.DownloadResults;
-import org.directwebremoting.WebContextFactory;
+import org.apache.geronimo.system.plugin.PluginInstaller;
 
 /**
  * Handler for the initial download screen.
@@ -68,26 +68,14 @@ public class DownloadStatusHandler extends BaseImportExportHandler {
     }
 
     public String actionAfterView(ActionRequest request, ActionResponse response, MultiPageModel model) throws PortletException, IOException {
+        PluginInstallerGBean pluginInstaller = (PluginInstallerGBean) ManagementHelper.getManagementHelper(request).getPluginInstaller();
         String[] configId = request.getParameterValues("configId");
         String repo = request.getParameter("repository");
         String user = request.getParameter("repo-user");
         String pass = request.getParameter("repo-pass");
+        int downloadKey = Integer.parseInt(request.getParameter("download-key"));
+        DownloadResults results = pluginInstaller.checkOnInstall(downloadKey, true);
 
-        //DownloadResults results = (DownloadResults) request.getAttribute("results");
-        //Integer downloadKey = Integer.parseInt(downloadKeys);
-
-        //ProgressMonitor mResults = null;
-        //mResults.getProgressInfo(downloadKey);
-        //DownloadResults results = mResults.dwrSession();
-        
-        DownloadResults results = (DownloadResults) request.getAttribute("console.plugins.DownloadResults");
-        //DownloadResults result2 = (DownloadResults) request.getPortletSession(true).getAttribute("console.plugins.DownloadResults");
-        
-        //DownloadResults results = (DownloadResults) request.getPortletSession(true).getAttribute("console.plugins.DownloadResults", PortletSession.APPLICATION_SCOPE);
-        //DownloadResults results = (DownloadResults) session.getAttribute("console.plugins.DownloadResults");
-        //DownloadResults results = (DownloadResults) session.getAttribute(DOWNLOAD_RESULTS_SESSION_KEY);
-        //No Work DownloadResults results = (DownloadResults) request.getPortletSession(true).getAttribute("console.plugins.DownloadResults", PortletSession.APPLICATION_SCOPE);
-        //DownloadResults results = (DownloadResults) session.getAttribute(DOWNLOAD_RESULTS_SESSION_KEY,PortletSession.APPLICATION_SCOPE);
         List<InstallResults> dependencies = new ArrayList<InstallResults>();
         if (results != null) {
             if(results.isFailed()) {

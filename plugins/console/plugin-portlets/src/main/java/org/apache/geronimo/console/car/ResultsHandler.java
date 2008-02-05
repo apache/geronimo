@@ -51,7 +51,7 @@ public class ResultsHandler extends BaseImportExportHandler {
         String repo = request.getParameter("repository");
         String user = request.getParameter("repo-user");
         String pass = request.getParameter("repo-pass");
-        String configId = request.getParameter("configId");
+        String[] configId = request.getParameterValues("configId");
         request.setAttribute("configId", configId);
         List deps = (List) request.getPortletSession(true).getAttribute("car.install.results");
         request.setAttribute("dependencies", deps);
@@ -61,7 +61,7 @@ public class ResultsHandler extends BaseImportExportHandler {
     }
 
     public String actionAfterView(ActionRequest request, ActionResponse response, MultiPageModel model) throws PortletException, IOException {
-        String configId = request.getParameter("configId");
+        String[] configId = request.getParameterValues("configId");
         String repo = request.getParameter("repository");
         String user = request.getParameter("repo-user");
         String pass = request.getParameter("repo-pass");
@@ -70,11 +70,14 @@ public class ResultsHandler extends BaseImportExportHandler {
         if(!isEmpty(pass)) response.setRenderParameter("repo-pass", pass);
         try {
             //todo: hide this in PortletManager/ManagementHelper
-            ConfigurationManager mgr = ConfigurationUtil.getConfigurationManager(KernelRegistry.getSingleKernel());
-            Artifact artifact = Artifact.create(configId);
-            mgr.loadConfiguration(artifact);
-            mgr.startConfiguration(artifact);
-            return LIST_MODE;
+            for(int i=0; i<configId.length; i++) {
+                ConfigurationManager mgr = ConfigurationUtil.getConfigurationManager(KernelRegistry.getSingleKernel());
+                Artifact artifact = Artifact.create(configId[i]); 
+                mgr.loadConfiguration(artifact);
+                mgr.startConfiguration(artifact);
+            }
+            return INDEX_MODE;
+            //return LIST_MODE;
         } catch (Exception e) {
             log.error("Unable to start configuration "+configId, e);
             response.setRenderParameter("configId", configId);
