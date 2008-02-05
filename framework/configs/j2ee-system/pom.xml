@@ -109,27 +109,7 @@
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-activation_1.1_spec</artifactId>
         </dependency>
-        
-        <dependency>
-            <groupId>org.codehaus.plexus</groupId>
-            <artifactId>plexus-archiver</artifactId>
-        </dependency>
-        
-        <dependency>
-            <groupId>org.codehaus.plexus</groupId>
-            <artifactId>plexus-utils</artifactId>
-        </dependency>
-        
-        <dependency>
-            <groupId>org.codehaus.plexus</groupId>
-            <artifactId>plexus-container-default</artifactId>
-        </dependency>
-        
-        <dependency>
-            <groupId>org.codehaus.plexus</groupId>
-            <artifactId>plexus-component-api</artifactId>
-        </dependency>
- 
+
         <!-- build order hint -->
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
