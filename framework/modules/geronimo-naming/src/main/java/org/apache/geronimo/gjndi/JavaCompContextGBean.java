@@ -29,7 +29,11 @@ import javax.naming.NamingException;
  */
 public class JavaCompContextGBean extends ContextFlyweight {
     protected Context getContext() {
-        return RootContext.getComponentContext();
+        Context context = RootContext.getComponentContext();
+        if (context == null) {
+            throw new NullPointerException("You have accessed the java:comp jndi context on a thread that has not initialized it");
+        }
+        return context;
     }
 
     public String getNameInNamespace() throws NamingException {
