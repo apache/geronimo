@@ -26,6 +26,13 @@
 <%@ page import="org.apache.geronimo.monitoring.console.MRCConnector" %>
 <%@ page import="org.apache.geronimo.monitoring.console.util.*" %>
 <portlet:defineObjects/>
+<script type = "text/javascript">
+<!--
+function openNewWindow(theURL,winName,features) {
+  window.open(theURL,winName,features);
+}
+//-->
+</script>
 <%
     String message = (String) request.getAttribute("message"); 
     if (message != null)
@@ -328,7 +335,7 @@ border-width: 1px;">
  {
  	%>
   	<td class="${backgroundClass}" width="30%" align="center">
-  	    <a href="/monitoring/monitoringPopUpGraph.jsp?graph_id=<%=graph_id%>" target="window.open('','','width=670,height=220,resizable=1')"><%=name %></a>
+  	    <a href="javascript: void(0)" onClick="openNewWindow('/monitoring/monitoringPopUpGraph.jsp?graph_id=<%=graph_id%>','graph','width=800,height=300','title=<%=name %>')"><%=name %></a>
   	</td>
   	<td class="${backgroundClass}" width="20%" align="center"><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showServer" /><portlet:param name="server_id" value="<%=server_id%>" /></portlet:actionURL>"><%=server_name%></a></td>
   	<td class="${backgroundClass}" width="15%" align="center"><%=timeframe%></td>

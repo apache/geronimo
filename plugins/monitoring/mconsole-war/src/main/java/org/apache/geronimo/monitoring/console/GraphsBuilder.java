@@ -138,10 +138,11 @@ public class GraphsBuilder {
                 TreeMap<Long, Long> snapshotList1 = mrc
                         .getSpecificStatistics(mBeanName, dataName1, snapCount,
                                 skipCount, showArchive);
-                TreeMap<Long, Long> snapshotList2 = new TreeMap<Long,Long>();
-                if ((dataName2 != null) && !dataName2.equals("time") && !dataName2.equals("null") && !dataName2.equals(""))
-                {
-                	snapshotList2 = mrc.getSpecificStatistics(mBeanName, dataName2, snapCount, skipCount, showArchive);
+                TreeMap<Long, Long> snapshotList2 = new TreeMap<Long, Long>();
+                if ((dataName2 != null) && !dataName2.equals("time")
+                        && !dataName2.equals("null") && !dataName2.equals("")) {
+                    snapshotList2 = mrc.getSpecificStatistics(mBeanName,
+                            dataName2, snapCount, skipCount, showArchive);
                 }
                 // Check if snapshotList is empty
                 if (snapshotList1.size() == 0) {
@@ -158,21 +159,26 @@ public class GraphsBuilder {
                         // then
                         // add
                         // that to the tempMap
-                        snapshotList1.put(
-                                (timeFix - (mrc.getSnapshotDuration() * skipCount)), new Long(0));
+                        snapshotList1
+                                .put(
+                                        (timeFix - (mrc.getSnapshotDuration() * skipCount)),
+                                        new Long(0));
                     }
                 }
-                if (snapshotList2.size() == 0){
-                	snapshotList2.put(System.currentTimeMillis(), new Long(0));
-                	while (snapshotList2.size() < snapCount) {
+                if (snapshotList2.size() == 0) {
+                    snapshotList2.put(System.currentTimeMillis(), new Long(0));
+                    while (snapshotList2.size() < snapCount) {
                         // Temporary, always is first element (oldest)
                         Long timeFix = snapshotList2.firstKey();
-                        snapshotList2.put(
-                                (timeFix - (mrc.getSnapshotDuration() * skipCount)), new Long(0));
+                        snapshotList2
+                                .put(
+                                        (timeFix - (mrc.getSnapshotDuration() * skipCount)),
+                                        new Long(0));
                     }
                 }
 
-                for (Iterator<Long> it = snapshotList1.keySet().iterator(); it.hasNext();) {
+                for (Iterator<Long> it = snapshotList1.keySet().iterator(); it
+                        .hasNext();) {
                     Long current = it.next();
                     snapshot_time.add(current);
                     ArrayList<Object> ArrayListTemp = DataList.get(graphName1);
@@ -191,34 +197,32 @@ public class GraphsBuilder {
 
                 if (dataName2.equals("time")) {
                     graph = (new StatsGraph(graph_id, ip + " - " + xlabel
-                            + " - " + prettyTimeFrame, description, "Time - "
-                            + prettyTimeFrame, ylabel,
-                            data1operation.charAt(0), DataList.get(graphName1),
-                            operation, data2operation.charAt(0), PrettyTime,
-                            snapshot_time,
+                            + " - " + prettyTimeFrame, description, xlabel,
+                            ylabel, data1operation.charAt(0), DataList
+                                    .get(graphName1), operation, data2operation
+                                    .charAt(0), PrettyTime, snapshot_time,
                             (int) (mrc.getSnapshotDuration() / 1000),
                             timeFrame, color, warninglevel1, warninglevel1));
                 } else if (!dataName2.equals("time") && (dataName2 != null)
                         && !dataName2.equals("null") && !dataName2.equals("")) {
                     graph = (new StatsGraph(graph_id, ip + " - " + xlabel
-                            + " - " + prettyTimeFrame, description, "Time - "
-                            + prettyTimeFrame, ylabel,
-                            data1operation.charAt(0), DataList.get(graphName1),
-                            operation, data2operation.charAt(0), DataList
-                                    .get(graphName2), snapshot_time, (int) (mrc
-                                    .getSnapshotDuration() / 1000), timeFrame,
-                            color, warninglevel1, warninglevel1));
+                            + " - " + prettyTimeFrame, description, xlabel,
+                            ylabel, data1operation.charAt(0), DataList
+                                    .get(graphName1), operation, data2operation
+                                    .charAt(0), DataList.get(graphName2),
+                            snapshot_time,
+                            (int) (mrc.getSnapshotDuration() / 1000),
+                            timeFrame, color, warninglevel1, warninglevel1));
                 } else if (dataName2 == null || dataName2.equals("null")
                         || dataName2.equals("")) {
-                     graph = (new StatsGraph(graph_id, ip + " - " + xlabel
-                            + " - " + prettyTimeFrame, description, "Time - "
-                            + prettyTimeFrame, ylabel,
-                            data1operation.charAt(0), DataList.get(graphName1),
-                            operation, snapshot_time, (int) (mrc
-                                    .getSnapshotDuration() / 1000), timeFrame,
-                            color, warninglevel1, warninglevel1));
+                    graph = (new StatsGraph(graph_id, ip + " - " + xlabel
+                            + " - " + prettyTimeFrame, description, xlabel,
+                            ylabel, data1operation.charAt(0), DataList
+                                    .get(graphName1), operation, snapshot_time,
+                            (int) (mrc.getSnapshotDuration() / 1000),
+                            timeFrame, color, warninglevel1, warninglevel1));
                 } else {
-                	System.out.println("Using Null call.");
+                    System.out.println("Using Null call.");
                     graph = (new StatsGraph());
                 }
             }
@@ -243,4 +247,3 @@ public class GraphsBuilder {
         return graph;
     }
 }
-

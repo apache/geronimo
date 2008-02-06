@@ -35,23 +35,12 @@ public class StatsGraph {
     private String HexColor;
     private String GraphJS;
 
-    public StatsGraph(
-                        Integer graph_id, 
-                        String graphName,
-                        String description,
-                        String xAxisLabel,
-                        String yAxisLabel,
-                        char data1operation,
-                        ArrayList<Object> dataSet1, 
-                        String operation, 
-                        char data2operation,
-                        ArrayList<Object> dataSet2,
-                        ArrayList<Object> snapshotTimes,
-                        int snapshotDuration,
-                        int timeFrame, 
-                        String hexColor,
-                        float warninglevel1,    
-                        float warninglevel2) {
+    public StatsGraph(Integer graph_id, String graphName, String description,
+            String xAxisLabel, String yAxisLabel, char data1operation,
+            ArrayList<Object> dataSet1, String operation, char data2operation,
+            ArrayList<Object> dataSet2, ArrayList<Object> snapshotTimes,
+            int snapshotDuration, int timeFrame, String hexColor,
+            float warninglevel1, float warninglevel2) {
 
         DivName = "graph" + graph_id + "Container";
         GraphName = graphName;
@@ -63,12 +52,17 @@ public class StatsGraph {
         PointCount = dataSet1.size();
         HexColor = hexColor;
 
-        DivImplement = "<div id=\"" + DivName + "\" style=\"height: 220px;\"></div>" + "\n";
+        DivImplement = "<div id=\"" + DivName
+                + "\" style=\"height: 220px;\"></div><br><div id='" + DivName
+                + "Sub' style='text-align: center;'>" + yAxisLabel + " vs. "
+                + xAxisLabel + "</div>" + "\n";
 
-        GraphJS = "var " + "graph" + graph_id + " = new dojox.charting.Chart2D(\""+DivName+"\");\n"+
-	"graph" + graph_id + ".addPlot(\"default\", {type: \"Areas\"});\n"+
-	"graph" + graph_id + ".setTheme(dojox.charting.themes.PlotKit.blue);\n";
-        
+        GraphJS = "var " + "graph" + graph_id
+                + " = new dojox.charting.Chart2D(\"" + DivName + "\");\n"
+                + "graph" + graph_id
+                + ".addPlot(\"default\", {type: \"Areas\"});\n" + "graph"
+                + graph_id + ".setTheme(dojox.charting.themes.PlotKit.blue);\n";
+
         // Setup the x tick marks on the chart
         Format formatter = new SimpleDateFormat("HH:mm");
         if ((timeFrame / 1440) > 7)
@@ -88,20 +82,22 @@ public class StatsGraph {
         }
         GraphJS += "]});\n";
         GraphJS += "graph" + graph_id + ".addAxis(\"y\", {vertical: true});\n";
-        
-        GraphJS += "graph" + graph_id + ".addSeries(\"Series"+graph_id+"\", [";
+
+        GraphJS += "graph" + graph_id + ".addSeries(\"Series" + graph_id
+                + "\", [";
         if (data1operation == 'D' && data2operation == 'D') {
             for (int i = 1; i < dataSet1.size(); i++) {
                 if (((Long) dataSet1.get(i) - (Long) dataSet1.get(i - 1)) < 0)
                     dataSet1.set(i - 1, dataSet1.get(i));
-                GraphJS = GraphJS + ((Long) dataSet1.get(i) - (Long) dataSet1.get(i - 1));
+                GraphJS = GraphJS
+                        + ((Long) dataSet1.get(i) - (Long) dataSet1.get(i - 1));
                 // ensure there is not a division by 0
-                GraphJS += appendOperation(operation, (Long) dataSet2.get(i) - (Long) dataSet2.get(i - 1));
+                GraphJS += appendOperation(operation, (Long) dataSet2.get(i)
+                        - (Long) dataSet2.get(i - 1));
                 GraphJS += ",";
             }
         }
-        if (data1operation == 'D' && data2operation != 'D')
-        {
+        if (data1operation == 'D' && data2operation != 'D') {
             for (int i = 1; i < dataSet1.size(); i++) {
                 GraphJS = GraphJS
                         + ((Long) dataSet1.get(i) - (Long) dataSet1.get(i - 1));
@@ -110,17 +106,16 @@ public class StatsGraph {
                 GraphJS += ",";
             }
         }
-        if (data1operation != 'D' && data2operation == 'D')
-        {
+        if (data1operation != 'D' && data2operation == 'D') {
             for (int i = 1; i < dataSet1.size(); i++) {
                 GraphJS = GraphJS + dataSet1.get(i);
                 // ensure there is not a division by 0
-                GraphJS += appendOperation(operation, (Long) dataSet2.get(i) - (Long) dataSet2.get(i - 1));
+                GraphJS += appendOperation(operation, (Long) dataSet2.get(i)
+                        - (Long) dataSet2.get(i - 1));
                 GraphJS += ",";
             }
         }
-        if (data1operation != 'D' && data2operation != 'D')
-        {
+        if (data1operation != 'D' && data2operation != 'D') {
             for (int i = 1; i < dataSet1.size(); i++) {
                 GraphJS = GraphJS + dataSet1.get(i);
                 // ensure there is not a division by 0
@@ -152,42 +147,48 @@ public class StatsGraph {
         PointCount = dataSet1.size();
         HexColor = hexColor;
 
-        DivImplement = "<div id=\"" + DivName + "\" style=\"height: 220px;\"></div>" + "\n";
+        DivImplement = "<div id=\"" + DivName
+                + "\" style=\"height: 220px;\"></div><br><div id='" + DivName
+                + "Sub' style='text-align: center;'>" + yAxisLabel + " vs. "
+                + xAxisLabel + "</div>" + "\n";
 
-        GraphJS = "var " + "graph" + graph_id + " = new dojox.charting.Chart2D(\""+DivName+"\");\n"+
-    	"graph" + graph_id + ".addPlot(\"default\", {type: \"Areas\"});\n"+
-    	"graph" + graph_id + ".setTheme(dojox.charting.themes.PlotKit.blue);\n";
-            
-            // Setup the x tick marks on the chart
-            Format formatter = new SimpleDateFormat("HH:mm");
-            if ((timeFrame / 1440) > 7)
-                formatter = new SimpleDateFormat("M/d");
+        GraphJS = "var " + "graph" + graph_id
+                + " = new dojox.charting.Chart2D(\"" + DivName + "\");\n"
+                + "graph" + graph_id
+                + ".addPlot(\"default\", {type: \"Areas\"});\n" + "graph"
+                + graph_id + ".setTheme(dojox.charting.themes.PlotKit.blue);\n";
+
+        // Setup the x tick marks on the chart
+        Format formatter = new SimpleDateFormat("HH:mm");
+        if ((timeFrame / 1440) > 7)
+            formatter = new SimpleDateFormat("M/d");
+        else {
+            if ((timeFrame / 60) > 24)
+                formatter = new SimpleDateFormat("E a");
             else {
-                if ((timeFrame / 60) > 24)
-                    formatter = new SimpleDateFormat("E a");
-                else {
-                    formatter = new SimpleDateFormat("HH:mm");
-                }
+                formatter = new SimpleDateFormat("HH:mm");
             }
-            GraphJS += "graph" + graph_id + ".addAxis(\"x\", {labels: [";
-            for (int i = 1; i < dataSet1.size(); i++) {
-                Date date = new Date((Long) snapshotTimes.get(i));
-                GraphJS += "{value: " + (i) + ", text: '" + formatter.format(date)
-                        + "' }, \n";
-            }
-            GraphJS += "]});\n";
-            GraphJS += "graph" + graph_id + ".addAxis(\"y\", {vertical: true});\n";
-            
-            GraphJS += "graph" + graph_id + ".addSeries(\"Series"+graph_id+"\", [";
+        }
+        GraphJS += "graph" + graph_id + ".addAxis(\"x\", {labels: [";
+        for (int i = 1; i < dataSet1.size(); i++) {
+            Date date = new Date((Long) snapshotTimes.get(i));
+            GraphJS += "{value: " + (i) + ", text: '" + formatter.format(date)
+                    + "' }, \n";
+        }
+        GraphJS += "]});\n";
+        GraphJS += "graph" + graph_id + ".addAxis(\"y\", {vertical: true});\n";
+
+        GraphJS += "graph" + graph_id + ".addSeries(\"Series" + graph_id
+                + "\", [";
         if (data1operation == 'D')
             for (int i = 1; i < dataSet1.size(); i++) {
-                GraphJS = GraphJS + ((Long) dataSet1.get(i) - (Long) dataSet1.get(i - 1))
+                GraphJS = GraphJS
+                        + ((Long) dataSet1.get(i) - (Long) dataSet1.get(i - 1))
                         + operation + ",\n";
             }
         if (data1operation != 'D')
             for (int i = 1; i < dataSet1.size(); i++) {
-                GraphJS = GraphJS + dataSet1.get(i)
-                        + operation + ",\n";
+                GraphJS = GraphJS + dataSet1.get(i) + operation + ",\n";
             }
 
         GraphJS = GraphJS + "]);\n";
@@ -262,4 +263,3 @@ public class StatsGraph {
         return HexColor;
     }
 }
-

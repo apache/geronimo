@@ -34,6 +34,8 @@ StatsGraph graph = graphBuilder.buildOneDB(Integer.parseInt(graph_id));
 String graphString = graph.getJS();
 String divImplString = graph.getDivImplement();
 String divNameString = graph.getName();
+String xAxis = graph.getXAxis();
+String yAxis = graph.getYAxis();
 %>
 
 <script type='text/javascript' src='/dojo/dojo/dojo.js' djConfig='isDebug: false, parseOnLoad: true'></script>
@@ -46,10 +48,16 @@ String divNameString = graph.getName();
         <%=graphString%>
     };
     dojo.addOnLoad(makeObjects);
+    function refreshPeriodic() {
+   // Reload the page every 5 minutes
+   location.reload();
+   timerID = setTimeout("refreshPeriodic()",300000);
+}
+timerID = setTimeout("refreshPeriodic()",300000);
 </script>
 </head>
 <body>
-<div id="<%=graph.getDivName()%>Head" "style="background-color: #f2f2f2; border-top: 1px solid #2581c7; margin: 0px; width: 100%; height: 16px;"><div align="left" style="background-color: #f2f2f2; float:left; text-align:left; width:75%; height: 20px;"><%=divNameString%></div><div align=right style="background-color: #f2f2f2; float:left; width:25%; text-align:right;"><a href="#" onClick="hide(\'<%=graph.getDivName()%>\')"><img border=0 src="/monitoring/images/min-b.png"></a>&nbsp;<a href="#" onClick="show(\'<%=graph.getDivName()%>\')"><img border=0 src="/monitoring/images/max-b.png"></a>&nbsp;<a href="#" onClick="hide(\'<%=graph.getDivName()%>\');hide(\'<%=graph.getDivName()%>Head\');"><img border=0 src="/monitoring/images/close-b.png"> </a></div></div>
+<div id="<%=graph.getDivName()%>Head" style="background-color: #f2f2f2; border-top: 1px solid #2581c7; margin: 0px; width: 100%; height: 16px;"><div align="left" style="background-color: #f2f2f2; float:left; text-align:left; width:75%; height: 20px;"><%=divNameString%></div><div align=right style="background-color: #f2f2f2; float:left; width:25%; text-align:right;"></div></div>
 <%=divImplString %>
 </body>
 </html>
