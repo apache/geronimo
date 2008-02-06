@@ -32,7 +32,9 @@
 
     <gbean name="GlobalContext" class="org.apache.geronimo.gjndi.GlobalContextGBean"/>
 
-    <gbean name="JavaCompContext" class="org.apache.geronimo.gjndi.JavaCompContextGBean"/>
+    <gbean name="JavaCompContext" class="org.apache.geronimo.gjndi.JavaCompContextGBean">
+        <dependency><name>GlobalContext</name></dependency>
+    </gbean>
 
     <gbean name="JavaContext" class="org.apache.geronimo.gjndi.WritableContextGBean">
         <attribute name="nameInNamespace">java:</attribute>
