@@ -18,10 +18,10 @@ limitations under the License.
 <openejb-jar xmlns="http://www.openejb.org/xml/ns/openejb-jar-2.1">
     <environment>
         <moduleId>
-            <groupId>default</groupId>
-            <artifactId>jpa-ejb</artifactId>
-            <version>1.2-SNAPSHOT</version>
-            <type>car</type>
+            <groupId>${pom.groupId}</groupId>
+            <artifactId>${pom.artifactId}</artifactId>
+            <version>${version}</version>
+            <type>ejb</type>
         </moduleId>
         <dependencies>
             <dependency>
