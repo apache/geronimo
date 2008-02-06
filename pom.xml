@@ -2143,6 +2143,12 @@
                     <artifactId>shitty-maven-plugin</artifactId>
                     <version>1.0-alpha-1</version>
                 </plugin>
+
+                <plugin>
+                    <groupId>org.apache.geronimo.gshell</groupId>
+                    <artifactId>gshell-maven-plugin</artifactId>
+                    <version>1.0-alpha-1</version> 
+                </plugin>
             </plugins>
         </pluginManagement>
 
