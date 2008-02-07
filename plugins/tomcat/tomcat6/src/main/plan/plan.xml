@@ -191,7 +191,7 @@
     <gbean name="TomcatHost" class="org.apache.geronimo.tomcat.HostGBean">
         <attribute name="className">org.apache.catalina.core.StandardHost</attribute>
         <attribute name="initParams">
-            name=${PlanServerHostname}
+            name=${ServerHostname}
             appBase=
             workDir=work
         </attribute>

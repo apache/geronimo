@@ -183,6 +183,13 @@
                                     <attribute name="keystorePass">secret</attribute>
                                     <attribute name="keystoreType">JKS</attribute>
                                 </gbean>
+                                <gbean name="TomcatHost">
+                                    <attribute name="initParams">
+                                        name=${ServerHostname}
+                                        appBase=
+                                        workDir=work
+                                    </attribute>
+                                </gbean>
                             </config-xml-content>
                             <config-substitution key="HTTPPort">8080</config-substitution>
                             <config-substitution key="AJPPort">8009</config-substitution>
