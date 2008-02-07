@@ -154,6 +154,12 @@
             <artifactId>pluto-taglib</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>jtidy</groupId>
+            <artifactId>jtidy</artifactId>
+            <version>8.0-20060801</version>
+        </dependency>
+
     </dependencies>
 
     <repositories>
