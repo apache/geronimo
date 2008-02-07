@@ -227,7 +227,7 @@
                         <dependency>
                             <groupId>org.apache.geronimo.specs</groupId>
                             <artifactId>geronimo-stax-api_1.0_spec</artifactId>
-                            <version>1.0</version>
+<!--                            <version>1.0.1</version> -->
                             <type>jar</type>
                             <import>classes</import>
                         </dependency>
@@ -304,7 +304,7 @@
                         <dependency>
                             <groupId>org.apache.geronimo.specs</groupId>
                             <artifactId>geronimo-activation_1.1_spec</artifactId>
-                            <version>1.0.1</version>
+<!--                            <version>1.0.2</version> -->
                             <type>jar</type>
                             <import>classes</import>
                         </dependency>
