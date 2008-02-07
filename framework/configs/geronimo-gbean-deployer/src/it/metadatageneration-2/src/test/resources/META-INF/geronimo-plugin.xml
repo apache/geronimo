@@ -26,7 +26,7 @@
         <module-id>
             <groupId>org.apache.geronimo.buildsupport.it</groupId>
             <artifactId>car-maven-plugin</artifactId>
-            <version>2.1-SNAPSHOT</version>
+            <version>2.2-SNAPSHOT</version>
             <type>jar</type>
         </module-id>
         <jvm-version>1.5</jvm-version>
