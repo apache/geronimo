@@ -120,6 +120,12 @@
             <version>3.2-r579367</version>
         </dependency>
 
+        <dependency>
+            <groupId>jtidy</groupId>
+            <artifactId>jtidy</artifactId>
+            <version>8.0-20060801</version>
+        </dependency>
+
     </dependencies>
 
     <repositories>
