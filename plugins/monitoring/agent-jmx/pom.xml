@@ -55,7 +55,6 @@
             <groupId>org.apache.xbean</groupId>
             <artifactId>xbean-naming</artifactId>
             <scope>provided</scope>
-            <version>3.4-SNAPSHOT</version>
         </dependency>
 
         <dependency>
