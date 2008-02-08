@@ -20,15 +20,16 @@
 
 package org.apache.geronimo.security.realm.providers;
 
-import java.util.Set;
-import java.util.HashSet;
+import java.util.Comparator;
 import java.util.Iterator;
+import java.util.Set;
+import java.util.TreeSet;
 
 import junit.framework.TestCase;
 import org.apache.geronimo.security.jaas.NamedUsernamePasswordCredential;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class GeronimoPropertiesFileMappedPasswordCredentialLoginModuleTest extends TestCase {
     private GeronimoPropertiesFileMappedPasswordCredentialLoginModule loginModule;
@@ -36,7 +37,11 @@ public class GeronimoPropertiesFileMappedPasswordCredentialLoginModuleTest exten
 
     protected void setUp() {
         loginModule = new GeronimoPropertiesFileMappedPasswordCredentialLoginModule();
-        passwordCredentials = new HashSet<NamedUsernamePasswordCredential>();
+        passwordCredentials = new TreeSet<NamedUsernamePasswordCredential>(new Comparator() {
+                public int compare(Object o1, Object o2) {
+                    return ((NamedUsernamePasswordCredential)o1).getName().compareTo(((NamedUsernamePasswordCredential)o2).getName());
+                }
+            });
     }
 
     public void testParsingOne() throws Exception {
