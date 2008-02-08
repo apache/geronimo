@@ -145,29 +145,6 @@
     
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>shitty-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>clean</goal>
-                            <goal>install</goal>
-                            <goal>test</goal>
-                        </goals>
-                        <configuration>
-                            <projects>
-                                <fileset>
-                                    <directory>src/it</directory>
-                                    <includes>
-                                        <include>*/pom.xml</include>
-                                    </includes>
-                                </fileset>
-                            </projects>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
         </plugins>
     </build>
    
