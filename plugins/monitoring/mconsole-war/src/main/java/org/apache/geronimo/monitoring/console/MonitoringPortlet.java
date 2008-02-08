@@ -379,6 +379,8 @@ public class MonitoringPortlet extends GenericPortlet {
     protected void doEdit(RenderRequest request, RenderResponse response)
             throws PortletException, IOException {
         String action = request.getParameter("action");
+        if (action == null)
+            action = "showNormal";
         if (action.equals("showEditView")) {
             String view_id = request.getParameter("view_id");
             request.setAttribute("view_id", view_id);
@@ -489,7 +491,7 @@ public class MonitoringPortlet extends GenericPortlet {
                             .getParameter("server_id"));
             normalView.include(request, response);
         } else {
-            editNormalView.include(request, response);
+            normalView.include(request, response);
         }
     }
 
