@@ -33,6 +33,7 @@ import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ListableRepository;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.repository.Version;
+import org.apache.geronimo.common.DeploymentException;
 
 public class JAXWSTools {
 
@@ -106,7 +107,7 @@ public class JAXWSTools {
         return buf.toString();
     }
     
-    public File[] getClasspath(Collection<? extends Repository> repositories) throws Exception {
+    public File[] getClasspath(Collection<? extends Repository> repositories) throws DeploymentException {
         ArrayList<File> jars = new ArrayList<File>();
         for (String[] lib : LIBS) {
             Artifact artifact = new Artifact(lib[0], lib[1], (Version)null, "jar");
@@ -115,12 +116,12 @@ public class JAXWSTools {
         if (this.saajImpl != null) {
             jars.add(getLocation(repositories, this.saajImpl));
         }
-        jars.add(getToolsJarLocation());
+        addToolsJarLocation(jars);
         
         return jars.toArray(new File[jars.size()]);
     }
        
-    private static File getLocation(Collection<? extends Repository> repositories, Artifact artifactQuery) throws Exception {
+    private static File getLocation(Collection<? extends Repository> repositories, Artifact artifactQuery) throws DeploymentException {
         File file = null;
         
         for (Repository arepository : repositories) {
@@ -138,10 +139,10 @@ public class JAXWSTools {
             }
         }
         
-        throw new Exception("Missing artifact in repositories: " + artifactQuery.toString());
+        throw new DeploymentException("Missing artifact in repositories: " + artifactQuery.toString());
     }
     
-    private static File getToolsJarLocation() throws Exception {
+    private static void addToolsJarLocation(ArrayList<File> jars) {
         //create a new File then check exists()
         String jreHomePath = System.getProperty("java.home");
         String javaHomePath = "";
@@ -152,16 +153,16 @@ public class JAXWSTools {
         }
         File jdkhomelib = new File(javaHomePath, "lib");
         if (!jdkhomelib.exists()) {
-            throw new Exception("Missing " + jdkhomelib.getAbsolutePath() 
-                    + ". This is required for wsgen to run. ");
+            LOG.warn("Missing " + jdkhomelib.getAbsolutePath()
+                    + ". This may be required for wsgen to run. ");
         }
         else {
             File tools = new File(jdkhomelib, TOOLS);
             if (!tools.exists()) {
-                throw new Exception("Missing tools.jar in" + jdkhomelib.getAbsolutePath() 
-                        + ". This is required for wsgen to run. ");                
+                LOG.warn("Missing tools.jar in" + jdkhomelib.getAbsolutePath()
+                        + ". This may be required for wsgen to run. ");
             } else {
-                return tools.getAbsoluteFile();
+                jars.add(tools.getAbsoluteFile());
             }               
         }
     }
