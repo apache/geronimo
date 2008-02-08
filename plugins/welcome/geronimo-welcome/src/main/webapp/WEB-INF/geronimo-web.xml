@@ -24,7 +24,7 @@
     <dep:moduleId>
       <dep:groupId>org.apache.geronimo.plugins</dep:groupId>
       <dep:artifactId>welcome</dep:artifactId>
-      <dep:version>2.1-SNAPSHOT</dep:version>
+      <dep:version>2.1</dep:version>
     </dep:moduleId>
     <dep:dependencies/>
     <dep:hidden-classes/>
