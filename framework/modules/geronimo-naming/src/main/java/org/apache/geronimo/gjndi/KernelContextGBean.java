@@ -203,7 +203,7 @@ public class KernelContextGBean extends WritableContext implements GBeanLifecycl
                 } else {
                     bindingsByName.remove(name);
                     try {
-                        removeDeepBinding(name, true);
+                        removeDeepBinding(name, true, true);
                     } catch (ContextNotEmptyException e) {
                         //ignore
                     } catch (NamingException e) {
