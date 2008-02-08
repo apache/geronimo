@@ -22,11 +22,13 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
 import java.net.URL;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 import javax.xml.namespace.QName;
 
@@ -37,7 +39,10 @@ import org.apache.geronimo.deployment.DeploymentConfigurationManager;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.jaxws.PortInfo;
-import org.apache.geronimo.kernel.repository.ListableRepository;
+import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.config.ConfigurationResolver;
+import org.apache.geronimo.kernel.config.NoSuchConfigException;
+import org.apache.geronimo.kernel.repository.Repository;
 
 public class WsdlGenerator {
 
@@ -109,47 +114,61 @@ public class WsdlGenerator {
         return this.wsdlPort;
     }
     
-    private URL[] getWsgenClasspath(DeploymentContext context) throws Exception {               
+    private URL[] getWsgenClasspath(DeploymentContext context) throws Exception {
         DeploymentConfigurationManager cm = (DeploymentConfigurationManager)context.getConfigurationManager();
-        Collection<ListableRepository> repositories = cm.getRepositories();        
+        Collection<Repository> repositories = cm.getRepositories();        
         File[] jars = this.jaxwsTools.getClasspath(repositories);
         return JAXWSTools.toURL(jars);
     }
     
-    private static String getModuleClasspath(Module module, DeploymentContext context) throws DeploymentException {
-        File moduleBase = module.getEarContext().getBaseDir();
-        File moduleBaseDir = (moduleBase.isFile()) ? moduleBase.getParentFile() : moduleBase;
-        String baseDir = moduleBaseDir.getAbsolutePath();
-        List<String> moduleClassPath = context.getConfiguration().getClassPath();
-        StringBuilder classpath = new StringBuilder();
-        for (String s : moduleClassPath) {          
-            s = s.replace("/", File.separator);
-                        
-            classpath.append(baseDir);
-            classpath.append(File.separator);
-            classpath.append(s);
-            classpath.append(File.pathSeparator);
+    private static void getModuleClasspath(Module module, DeploymentContext context, StringBuilder classpath) throws DeploymentException {
+        getModuleClasspath(classpath, module.getEarContext());
+        if (module.getRootEarContext() != module.getEarContext()) {
+            getModuleClasspath(classpath, module.getRootEarContext());
         }
-        return classpath.toString();
     }
-        
+
+    private static void getModuleClasspath(StringBuilder classpath, DeploymentContext deploymentContext) throws DeploymentException {
+        Configuration configuration = deploymentContext.getConfiguration();
+        ConfigurationResolver resolver = configuration.getConfigurationResolver();
+        List<String> moduleClassPath = configuration.getClassPath();
+        for (String pattern : moduleClassPath) {
+            try {
+                Set<URL> files = resolver.resolve(pattern);
+                for (URL url: files) {
+                    String path = toFileName(url);
+                    classpath.append(path).append(File.pathSeparator);
+                }
+            } catch (MalformedURLException e) {
+                throw new DeploymentException("Could not resolve pattern: " + pattern, e);
+            } catch (NoSuchConfigException e) {
+                throw new DeploymentException("Could not resolve pattern: " + pattern, e);
+            }
+        }
+    }
+
     private static File toFile(URL url) {
         if (url == null || !url.getProtocol().equals("file")) {
             return null;
         } else {
-            String filename = url.getFile().replace('/', File.separatorChar);
-            int pos =0;
-            while ((pos = filename.indexOf('%', pos)) >= 0) {
-                if (pos + 2 < filename.length()) {
-                    String hexStr = filename.substring(pos + 1, pos + 3);
-                    char ch = (char) Integer.parseInt(hexStr, 16);
-                    filename = filename.substring(0, pos) + ch + filename.substring(pos + 3);
-                }
-            }
+            String filename = toFileName(url);
             return new File(filename);
         }
     }
-    
+
+    private static String toFileName(URL url) {
+        String filename = url.getFile().replace('/', File.separatorChar);
+        int pos =0;
+        while ((pos = filename.indexOf('%', pos)) >= 0) {
+            if (pos + 2 < filename.length()) {
+                String hexStr = filename.substring(pos + 1, pos + 3);
+                char ch = (char) Integer.parseInt(hexStr, 16);
+                filename = filename.substring(0, pos) + ch + filename.substring(pos + 3);
+            }
+        }
+        return filename;
+    }
+
     private String[] buildArguments(String sei, String classPath, File moduleBaseDir, PortInfo portInfo) {
         List<String> arguments = new ArrayList<String>();
         
@@ -257,7 +276,7 @@ public class WsdlGenerator {
         } catch (IOException e) {
             throw new DeploymentException(e);
         }
-        
+
         URL[] urls;
         StringBuilder classPath = new StringBuilder();
         //let's figure out the classpath for wsgen tools
@@ -268,11 +287,11 @@ public class WsdlGenerator {
         } 
         //let's figure out the classpath string for the module and wsgen tools.
         if (urls != null && urls.length > 0) {
-            for (int i = 0; i< urls.length; i++) {
-                classPath.append(toFile(urls[i]).getAbsolutePath() + File.pathSeparator);
+            for (URL url : urls) {
+                classPath.append(toFile(url).getAbsolutePath()).append(File.pathSeparator);
             }
         }
-        classPath.append(getModuleClasspath(module, context));
+        getModuleClasspath(module, context, classPath);
 
         //create arguments;
         String[] arguments = buildArguments(serviceClass, classPath.toString(), baseDir, portInfo);
