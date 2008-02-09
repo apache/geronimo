@@ -46,7 +46,7 @@ import org.apache.geronimo.crypto.EncryptionManager;
 
 public class MRCConnector {
 
-    private static final String PATH = "geronimo:ServiceModule=org.apache.geronimo.plugins.monitoring/agent-car-jmx/2.1-SNAPSHOT/car,J2EEServer=geronimo,name=MasterRemoteControlJMX,j2eeType=GBean";
+    private static final String PATH = "geronimo:ServiceModule=org.apache.geronimo.plugins.monitoring/agent-car-jmx/2.1/car,J2EEServer=geronimo,name=MasterRemoteControlJMX,j2eeType=GBean";
     private static MBeanServerConnection mbServerConn;
     private MasterRemoteControlRemote mrc = null;
     private int Protocol = 0;
