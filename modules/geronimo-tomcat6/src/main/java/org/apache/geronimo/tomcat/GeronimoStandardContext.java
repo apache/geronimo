@@ -57,6 +57,9 @@ import org.apache.geronimo.webservices.WebServiceContainer;
 import org.apache.geronimo.webservices.WebServiceContainerInvoker;
 
 
+/**
+ * @version $Rev$ $Date$
+ */
 public class GeronimoStandardContext extends StandardContext {
 
     private static final long serialVersionUID = 3834587716552831032L;
@@ -71,6 +74,11 @@ public class GeronimoStandardContext extends StandardContext {
     private BeforeAfter beforeAfter = null;
     private int contextCount = 0;
     
+    private static final boolean allowLinking;
+    
+    static {
+        allowLinking = new Boolean(System.getProperty("org.apache.geronimo.tomcat.GeronimoStandardContext.allowLinking", "false"));
+    }
 
     public void setContextProperties(TomcatContext ctx) throws DeploymentException {
 
@@ -179,6 +187,8 @@ public class GeronimoStandardContext extends StandardContext {
         this.setCrossContext(ctx.isCrossContext());
 
         this.setWorkDir(ctx.getWorkDir());
+
+        super.setAllowLinking(allowLinking);
 
         this.setCookies(!ctx.isDisableCookies());
 
