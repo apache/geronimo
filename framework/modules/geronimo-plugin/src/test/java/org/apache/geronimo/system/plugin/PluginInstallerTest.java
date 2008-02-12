@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.LinkedHashSet;
 import java.util.concurrent.TimeUnit;
 
 import junit.framework.TestCase;
@@ -35,12 +36,14 @@ import org.apache.geronimo.kernel.config.LifecycleMonitor;
 import org.apache.geronimo.kernel.config.LifecycleResults;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.config.NoSuchStoreException;
+import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.mock.MockConfigStore;
 import org.apache.geronimo.kernel.mock.MockWritableListableRepository;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.repository.Version;
+import org.apache.geronimo.kernel.repository.MissingDependencyException;
 import org.apache.geronimo.system.plugin.model.PluginArtifactType;
 import org.apache.geronimo.system.plugin.model.PluginListType;
 import org.apache.geronimo.system.plugin.model.PluginType;
@@ -104,7 +107,7 @@ public class PluginInstallerTest extends TestCase {
         assertTrue(prereqCount > 0);
     }
 
-    private static class MockConfigManager implements ConfigurationManager {
+    static class MockConfigManager implements ConfigurationManager {
 
         public boolean isInstalled(Artifact configurationId) {
             return false;
@@ -246,6 +249,10 @@ public class PluginInstallerTest extends TestCase {
         }
 
         public Collection<? extends Repository> getRepositories() {
+            return null;
+        }
+
+        public LinkedHashSet<Artifact> sort(List<Artifact> ids, LifecycleMonitor monitor) throws InvalidConfigException, IOException, NoSuchConfigException, MissingDependencyException {
             return null;
         }
     }

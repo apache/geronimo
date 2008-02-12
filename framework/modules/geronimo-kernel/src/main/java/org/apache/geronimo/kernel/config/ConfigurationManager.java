@@ -19,11 +19,13 @@ package org.apache.geronimo.kernel.config;
 import java.io.IOException;
 import java.util.List;
 import java.util.Collection;
+import java.util.LinkedHashSet;
 
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.kernel.repository.Version;
 import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.geronimo.kernel.repository.MissingDependencyException;
 import org.apache.geronimo.gbean.AbstractName;
 
 /**
@@ -500,4 +502,6 @@ public interface ConfigurationManager {
     void setOnline(boolean online);
 
     Collection<? extends Repository> getRepositories();
+
+    LinkedHashSet<Artifact> sort(List<Artifact> ids, LifecycleMonitor monitor) throws InvalidConfigException, IOException, NoSuchConfigException, MissingDependencyException;
 }

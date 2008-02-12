@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.LinkedHashSet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -148,7 +149,8 @@ public class EmbeddedDaemon implements Main {
             try {
                 ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
                 try {
-                    for (Artifact configID : configs) {
+                    LinkedHashSet<Artifact> sorted = configurationManager.sort(configs, lifecycleMonitor);
+                    for (Artifact configID : sorted) {
                         monitor.moduleLoading(configID);
                         configurationManager.loadConfiguration(configID, lifecycleMonitor);
                         monitor.moduleLoaded(configID);

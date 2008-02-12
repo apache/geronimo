@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.jar.JarFile;
 
 import javax.sql.DataSource;
@@ -47,6 +48,7 @@ import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.config.LifecycleException;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.LifecycleMonitor;
+import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.ArtifactManager;
@@ -55,6 +57,7 @@ import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
 import org.apache.geronimo.kernel.repository.Version;
 import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.geronimo.kernel.repository.MissingDependencyException;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.common.DeploymentException;
@@ -407,6 +410,10 @@ public class DeploymentContextTest extends TestCase {
         }
 
         public Collection<? extends Repository> getRepositories() {
+            return null;
+        }
+
+        public LinkedHashSet<Artifact> sort(List<Artifact> ids, LifecycleMonitor monitor) throws InvalidConfigException, IOException, NoSuchConfigException, MissingDependencyException {
             return null;
         }
     }

@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.LinkedHashSet;
 import java.util.jar.JarFile;
 
 import junit.framework.TestCase;
@@ -52,6 +53,7 @@ import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.Version;
 import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.geronimo.kernel.repository.MissingDependencyException;
 
 
 /**
@@ -473,6 +475,10 @@ public class SingleFileHotDeployerTest extends TestCase {
         }
 
         public Collection<? extends Repository> getRepositories() {
+            return null;
+        }
+
+        public LinkedHashSet<Artifact> sort(List<Artifact> ids, LifecycleMonitor monitor) throws InvalidConfigException, IOException, NoSuchConfigException, MissingDependencyException {
             return null;
         }
     }

@@ -68,11 +68,11 @@ public class SimpleConfigurationManager implements ConfigurationManager {
     public SimpleConfigurationManager(Collection stores, ArtifactResolver artifactResolver, Collection<? extends Repository> repositories) {
         this(stores, artifactResolver, repositories, Collections.EMPTY_SET);
     }
-    
+
     public SimpleConfigurationManager(Collection stores,
-            ArtifactResolver artifactResolver,
-            Collection<? extends Repository> repositories,
-            Collection watchers) {
+                                      ArtifactResolver artifactResolver,
+                                      Collection<? extends Repository> repositories,
+                                      Collection watchers) {
         if (stores == null) stores = Collections.EMPTY_SET;
         if (repositories == null) repositories = Collections.emptySet();
         if (watchers == null) watchers = Collections.EMPTY_SET;
@@ -84,13 +84,13 @@ public class SimpleConfigurationManager implements ConfigurationManager {
     }
 
     public synchronized boolean isInstalled(Artifact configId) {
-        if(!configId.isResolved()) {
-            throw new IllegalArgumentException("Artifact "+configId+" is not fully resolved");
+        if (!configId.isResolved()) {
+            throw new IllegalArgumentException("Artifact " + configId + " is not fully resolved");
         }
         List storeSnapshot = getStoreList();
         for (int i = 0; i < storeSnapshot.size(); i++) {
             ConfigurationStore store = (ConfigurationStore) storeSnapshot.get(i);
-            if(store.containsConfiguration(configId)) {
+            if (store.containsConfiguration(configId)) {
                 return true;
             }
         }
@@ -98,18 +98,18 @@ public class SimpleConfigurationManager implements ConfigurationManager {
     }
 
     public synchronized boolean isLoaded(Artifact configId) {
-        if(!configId.isResolved()) {
-            throw new IllegalArgumentException("Artifact "+configId+" is not fully resolved");
+        if (!configId.isResolved()) {
+            throw new IllegalArgumentException("Artifact " + configId + " is not fully resolved");
         }
-        if(reloadingConfiguration != null && reloadingConfiguration.getId().equals(configId)) {
+        if (reloadingConfiguration != null && reloadingConfiguration.getId().equals(configId)) {
             return true;
         }
         return configurationModel.isLoaded(configId);
     }
 
     public synchronized boolean isRunning(Artifact configId) {
-        if(!configId.isResolved()) {
-            throw new IllegalArgumentException("Artifact "+configId+" is not fully resolved");
+        if (!configId.isResolved()) {
+            throw new IllegalArgumentException("Artifact " + configId + " is not fully resolved");
         }
         return configurationModel.isStarted(configId);
     }
@@ -119,11 +119,11 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         List configs = new ArrayList();
         for (int i = 0; i < all.length; i++) {
             Artifact artifact = all[i];
-            if(isConfiguration(artifact)) {
+            if (isConfiguration(artifact)) {
                 configs.add(artifact);
             }
         }
-        if(configs.size() == all.length) {
+        if (configs.size() == all.length) {
             return all;
         }
         return (Artifact[]) configs.toArray(new Artifact[configs.size()]);
@@ -168,13 +168,13 @@ public class SimpleConfigurationManager implements ConfigurationManager {
     }
 
     public ConfigurationStore getStoreForConfiguration(Artifact configId) {
-        if(!configId.isResolved()) {
-            throw new IllegalArgumentException("Artifact "+configId+" is not fully resolved");
+        if (!configId.isResolved()) {
+            throw new IllegalArgumentException("Artifact " + configId + " is not fully resolved");
         }
         List storeSnapshot = getStoreList();
         for (int i = 0; i < storeSnapshot.size(); i++) {
             ConfigurationStore store = (ConfigurationStore) storeSnapshot.get(i);
-            if(store.containsConfiguration(configId)) {
+            if (store.containsConfiguration(configId)) {
                 return store;
             }
         }
@@ -220,8 +220,8 @@ public class SimpleConfigurationManager implements ConfigurationManager {
     }
 
     public boolean isConfiguration(Artifact artifact) {
-        if(!artifact.isResolved()) {
-            throw new IllegalArgumentException("Artifact "+artifact+" is not fully resolved");
+        if (!artifact.isResolved()) {
+            throw new IllegalArgumentException("Artifact " + artifact + " is not fully resolved");
         }
         synchronized (this) {
             // if it is loaded, it is definitely a configuration
@@ -242,10 +242,10 @@ public class SimpleConfigurationManager implements ConfigurationManager {
     }
 
     public synchronized Configuration getConfiguration(Artifact configurationId) {
-        if(!configurationId.isResolved()) {
-            throw new IllegalArgumentException("Artifact "+configurationId+" is not fully resolved");
+        if (!configurationId.isResolved()) {
+            throw new IllegalArgumentException("Artifact " + configurationId + " is not fully resolved");
         }
-        if(reloadingConfiguration != null && reloadingConfiguration.getId().equals(configurationId)) {
+        if (reloadingConfiguration != null && reloadingConfiguration.getId().equals(configurationId)) {
             return reloadingConfiguration;
         }
         return (Configuration) configurations.get(configurationId);
@@ -256,8 +256,8 @@ public class SimpleConfigurationManager implements ConfigurationManager {
     }
 
     public synchronized LifecycleResults loadConfiguration(Artifact configurationId, LifecycleMonitor monitor) throws NoSuchConfigException, LifecycleException {
-        if(!configurationId.isResolved()) {
-            throw new IllegalArgumentException("Artifact "+configurationId+" is not fully resolved");
+        if (!configurationId.isResolved()) {
+            throw new IllegalArgumentException("Artifact " + configurationId + " is not fully resolved");
         }
         if (isLoaded(configurationId)) {
             // already loaded, so just mark the configuration as user loaded
@@ -414,25 +414,23 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         return startParent;
     }
 
-    private static LinkedHashSet getConfigurationIds(Collection configurations) {
-        LinkedHashSet configurationIds = new LinkedHashSet(configurations.size());
-        for (Iterator iterator = configurations.iterator(); iterator.hasNext();) {
-            Configuration configuration = (Configuration) iterator.next();
+    private static LinkedHashSet<Artifact> getConfigurationIds(Collection<Configuration> configurations) {
+        LinkedHashSet<Artifact> configurationIds = new LinkedHashSet<Artifact>(configurations.size());
+        for (Configuration configuration : configurations) {
             configurationIds.add(configuration.getId());
         }
         return configurationIds;
     }
 
-    private synchronized void loadDepthFirst(ConfigurationData configurationData, LinkedHashMap configurationsToLoad, LifecycleMonitor monitor) throws NoSuchConfigException, IOException, InvalidConfigException, MissingDependencyException {
+    private synchronized void loadDepthFirst(ConfigurationData configurationData, LinkedHashMap<Artifact, UnloadedConfiguration> configurationsToLoad, LifecycleMonitor monitor) throws NoSuchConfigException, IOException, InvalidConfigException, MissingDependencyException {
         // if this parent hasn't already been processed, iterate into the parent
         Artifact configurationId = configurationData.getId();
         if (!configurationsToLoad.containsKey(configurationId)) {
             monitor.resolving(configurationId);
-            LinkedHashSet resolvedParentIds = resolveParentIds(configurationData);
+            LinkedHashSet<Artifact> resolvedParentIds = resolveParentIds(configurationData);
             monitor.succeeded(configurationId);
-            
-            for (Iterator iterator = resolvedParentIds.iterator(); iterator.hasNext();) {
-                Artifact parentId = (Artifact) iterator.next();
+
+            for (Artifact parentId : resolvedParentIds) {
                 // if this parent id hasn't already been loaded and is actually a configuration
                 if (!isLoaded(parentId) && isConfiguration(parentId)) {
                     ConfigurationData parentConfigurationData = loadConfigurationData(parentId, monitor);
@@ -445,13 +443,30 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         }
     }
 
+    public LinkedHashSet<Artifact> sort(List<Artifact> ids, LifecycleMonitor monitor) throws InvalidConfigException, IOException, NoSuchConfigException, MissingDependencyException {
+        LinkedHashSet<Artifact> sorted = new LinkedHashSet<Artifact>();
+        sort(ids, sorted, monitor);
+        sorted.retainAll(ids);
+        return sorted;
+    }
+
+    private void sort(Collection<Artifact> ids, LinkedHashSet<Artifact> sorted, LifecycleMonitor monitor) throws InvalidConfigException, IOException, NoSuchConfigException, MissingDependencyException {
+        for (Artifact id : ids) {
+            if (!sorted.contains(id)) {
+                ConfigurationData data = loadConfigurationData(id, monitor);
+                LinkedHashSet<Artifact> parents = resolveParentIds(data);
+                sort(parents, sorted, monitor);
+                sorted.add(id);
+            }
+        }
+    }
+
     private ConfigurationData loadConfigurationData(Artifact configurationId, LifecycleMonitor monitor) throws NoSuchConfigException, IOException, InvalidConfigException {
-        List storeSnapshot = getStoreList();
+        List<ConfigurationStore> storeSnapshot = getStoreList();
 
         monitor.addConfiguration(configurationId);
         monitor.reading(configurationId);
-        for (int i = 0; i < storeSnapshot.size(); i++) {
-            ConfigurationStore store = (ConfigurationStore) storeSnapshot.get(i);
+        for (ConfigurationStore store : storeSnapshot) {
             if (store.containsConfiguration(configurationId)) {
                 ConfigurationData configurationData = store.loadConfiguration(configurationId);
                 monitor.succeeded(configurationId);
@@ -515,9 +530,9 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         return startConfiguration(id, NullLifecycleMonitor.INSTANCE);
     }
 
-    public synchronized LifecycleResults startConfiguration(Artifact id, LifecycleMonitor monitor) throws  NoSuchConfigException, LifecycleException {
-        if(!id.isResolved()) {
-            throw new IllegalArgumentException("Artifact "+id+" is not fully resolved");
+    public synchronized LifecycleResults startConfiguration(Artifact id, LifecycleMonitor monitor) throws NoSuchConfigException, LifecycleException {
+        if (!id.isResolved()) {
+            throw new IllegalArgumentException("Artifact " + id + " is not fully resolved");
         }
         LinkedHashSet unstartedConfigurations = configurationModel.start(id);
 
@@ -563,8 +578,8 @@ public class SimpleConfigurationManager implements ConfigurationManager {
     }
 
     public synchronized LifecycleResults stopConfiguration(Artifact id, LifecycleMonitor monitor) throws NoSuchConfigException {
-        if(!id.isResolved()) {
-            throw new IllegalArgumentException("Artifact "+id+" is not fully resolved");
+        if (!id.isResolved()) {
+            throw new IllegalArgumentException("Artifact " + id + " is not fully resolved");
         }
         LinkedHashSet stopList = configurationModel.stop(id);
 
@@ -596,8 +611,8 @@ public class SimpleConfigurationManager implements ConfigurationManager {
     }
 
     public synchronized LifecycleResults restartConfiguration(Artifact id, LifecycleMonitor monitor) throws NoSuchConfigException, LifecycleException {
-        if(!id.isResolved()) {
-            throw new IllegalArgumentException("Artifact "+id+" is not fully resolved");
+        if (!id.isResolved()) {
+            throw new IllegalArgumentException("Artifact " + id + " is not fully resolved");
         }
         // get a sorted list of configurations to restart
         LinkedHashSet restartList = configurationModel.restart(id);
@@ -676,8 +691,8 @@ public class SimpleConfigurationManager implements ConfigurationManager {
     }
 
     public synchronized LifecycleResults unloadConfiguration(Artifact id, LifecycleMonitor monitor) throws NoSuchConfigException {
-        if(!id.isResolved()) {
-            throw new IllegalArgumentException("Artifact "+id+" is not fully resolved");
+        if (!id.isResolved()) {
+            throw new IllegalArgumentException("Artifact " + id + " is not fully resolved");
         }
         Set started = configurationModel.getStarted();
         LinkedHashSet unloadList = configurationModel.unload(id);
@@ -714,7 +729,7 @@ public class SimpleConfigurationManager implements ConfigurationManager {
     }
 
     protected void removeConfigurationFromModel(Artifact configurationId) throws NoSuchConfigException {
-        if(configurationModel.containsConfiguration(configurationId)) {
+        if (configurationModel.containsConfiguration(configurationId)) {
             configurationModel.removeConfiguration(configurationId);
         }
         configurations.remove(configurationId);
@@ -741,8 +756,8 @@ public class SimpleConfigurationManager implements ConfigurationManager {
     }
 
     public synchronized LifecycleResults reloadConfiguration(Artifact id, Version version, LifecycleMonitor monitor) throws NoSuchConfigException, LifecycleException {
-        if(!id.isResolved()) {
-            throw new IllegalArgumentException("Artifact "+id+" is not fully resolved");
+        if (!id.isResolved()) {
+            throw new IllegalArgumentException("Artifact " + id + " is not fully resolved");
         }
         Configuration configuration = getConfiguration(id);
         if (configuration == null) { // The configuration to reload is not currently loaded
@@ -754,11 +769,11 @@ public class SimpleConfigurationManager implements ConfigurationManager {
                     try {
                         data = store.loadConfiguration(id);
                     } catch (Exception e) {
-                        log.warn("Unable to load existing configuration "+id+" from config store", e);
+                        log.warn("Unable to load existing configuration " + id + " from config store", e);
                     }
                 }
             }
-            if(data == null) {
+            if (data == null) {
                 throw new NoSuchConfigException(id);
             }
             UnloadedConfiguration existingUnloadedConfiguration = new UnloadedConfiguration(data, new LinkedHashSet());
@@ -929,11 +944,11 @@ public class SimpleConfigurationManager implements ConfigurationManager {
             stop(existingConfiguration);
             monitor.succeeded(existingConfigurationId);
             results.addStopped(existingConfigurationId);
-        } else if(existingConfiguration != null) {
+        } else if (existingConfiguration != null) {
             // call stop just to be sure the beans aren't running
             stop(existingConfiguration);
         }
-        if(existingConfiguration != null) {
+        if (existingConfiguration != null) {
             monitor.unloading(existingConfigurationId);
             unload(existingConfiguration);
             monitor.succeeded(existingConfigurationId);
@@ -944,7 +959,8 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         // load the new configurations
         //
         boolean reinstatedExisting = false;
-        /* reduce variable scope */ {
+        /* reduce variable scope */
+        {
             Map loadedParents = new LinkedHashMap();
             Map startedParents = new LinkedHashMap();
             Configuration newConfiguration = null;
@@ -1024,7 +1040,7 @@ public class SimpleConfigurationManager implements ConfigurationManager {
                 addNewConfigurationsToModel(loadedParents);
 
                 // now ugrade the existing node in the model
-                if(configurationModel.containsConfiguration(existingConfigurationId)) {
+                if (configurationModel.containsConfiguration(existingConfigurationId)) {
                     configurationModel.upgradeConfiguration(existingConfigurationId,
                             newConfigurationId,
                             getConfigurationIds(getLoadParents(newConfiguration)),
@@ -1141,7 +1157,6 @@ public class SimpleConfigurationManager implements ConfigurationManager {
                     reloadingConfiguration = configuration;
                     monitor.succeeded(configurationId);
 
-
                     // if the configuration was started before restart it
                     if (started.contains(configurationId)) {
                         monitor.starting(configurationId);
@@ -1197,11 +1212,11 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         //
         // If nothing failed, delete all the unloaded modules that weren't reloaded
         //
-        if(!results.wasLoaded(existingConfigurationId) && !results.wasFailed(existingConfigurationId)) {
+        if (!results.wasLoaded(existingConfigurationId) && !results.wasFailed(existingConfigurationId)) {
             try {
                 uninstallConfiguration(existingConfigurationId);
             } catch (IOException e) {
-                log.error("Unable to uninstall configuration "+existingConfigurationId, e);
+                log.error("Unable to uninstall configuration " + existingConfigurationId, e);
             }
         }
 
@@ -1234,14 +1249,14 @@ public class SimpleConfigurationManager implements ConfigurationManager {
     }
 
     public synchronized void uninstallConfiguration(Artifact configurationId) throws IOException, NoSuchConfigException {
-        if(!configurationId.isResolved()) {
-            throw new IllegalArgumentException("Artifact "+configurationId+" is not fully resolved");
+        if (!configurationId.isResolved()) {
+            throw new IllegalArgumentException("Artifact " + configurationId + " is not fully resolved");
         }
         if (configurations.containsKey(configurationId)) {
-            if(isRunning(configurationId)) {
+            if (isRunning(configurationId)) {
                 stopConfiguration(configurationId);
             }
-            if(isLoaded((configurationId))) {
+            if (isLoaded((configurationId))) {
                 unloadConfiguration(configurationId);
             }
         }
@@ -1250,7 +1265,7 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         List storeSnapshot = getStoreList();
         for (int i = 0; i < storeSnapshot.size(); i++) {
             ConfigurationStore store = (ConfigurationStore) storeSnapshot.get(i);
-            if(store.containsConfiguration(configurationId)) {
+            if (store.containsConfiguration(configurationId)) {
                 store.uninstall(configurationId);
             }
         }
@@ -1276,6 +1291,7 @@ public class SimpleConfigurationManager implements ConfigurationManager {
 
     /**
      * this configuration manager never starts configurations.
+     *
      * @return false
      */
     public boolean isOnline() {
