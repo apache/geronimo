@@ -27,6 +27,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.mock.MockConfigurationManager;
 import org.apache.geronimo.system.configuration.RepositoryConfigurationStore;
 import org.apache.geronimo.system.plugin.model.CopyFileType;
 import org.apache.geronimo.system.repository.Maven2Repository;
@@ -68,7 +69,7 @@ public class CopyFileTest extends TestSupport {
         }
         Maven2Repository repo = new Maven2Repository(repoBase.toURI(), serverInfo, true);
         configStore = new RepositoryConfigurationStore(repo);
-        installer = new PluginInstallerGBean(new PluginInstallerTest.MockConfigManager(),
+        installer = new PluginInstallerGBean(new MockConfigurationManager(),
                 repo,
                 configStore,
                 serverInfo,

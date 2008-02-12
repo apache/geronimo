@@ -55,6 +55,7 @@
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-deployment</artifactId>
             <version>${version}</version>
+            <scope>test</scope>
         </dependency>
 
         <dependency>
@@ -80,6 +81,15 @@
             <groupId>regexp</groupId>
             <artifactId>regexp</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>geronimo-kernel</artifactId>
+            <version>${version}</version>
+            <classifier>tests</classifier>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
 </project>
