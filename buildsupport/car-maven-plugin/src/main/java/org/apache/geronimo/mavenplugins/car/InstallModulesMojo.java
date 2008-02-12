@@ -36,6 +36,7 @@ import org.apache.geronimo.system.plugin.model.ArtifactType;
 import org.apache.geronimo.system.plugin.model.PluginArtifactType;
 import org.apache.geronimo.system.plugin.model.PluginListType;
 import org.apache.geronimo.system.plugin.model.PluginType;
+import org.apache.geronimo.system.plugin.model.AttributesType;
 import org.apache.geronimo.system.resolver.AliasedArtifactResolver;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.codehaus.mojo.pluginsupport.dependency.DependencyTree;
@@ -116,6 +117,18 @@ public class InstallModulesMojo
 
     private RepositoryConfigurationStore sourceStore;
 
+
+    /**
+     * @parameter expression="${project.build.directory}/classes/var/config/overrides"
+     * @required
+     */
+    private File overridesDir;
+
+    /**
+     * @parameter
+     */
+    private List<Override> overrides;
+
     /**
      * Set of artifacts which have already been installed, so we can skip any processing.
      */
@@ -148,6 +161,12 @@ public class InstallModulesMojo
         try {
             PluginInstallerGBean installer = new PluginInstallerGBean(targetRepositoryPath, targetServerPath, servers, kernel, getClass().getClassLoader());
             installer.install(pluginList, sourceRepo, true, null, null, downloadPoller);
+            if (overrides != null) {
+                for (Override override: this.overrides) {
+                    AttributesType attributes = override.getOverrides(overridesDir);
+                    installer.mergeOverrides(override.getServer(), attributes);
+                }
+            }
         } finally {
             kernel.shutdown();
         }

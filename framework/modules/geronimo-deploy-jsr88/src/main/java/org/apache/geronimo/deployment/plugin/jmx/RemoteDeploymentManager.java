@@ -55,6 +55,7 @@ import org.apache.geronimo.kernel.config.NoSuchStoreException;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Dependency;
 import org.apache.geronimo.kernel.repository.MissingDependencyException;
+import org.apache.geronimo.kernel.InvalidGBeanException;
 import org.apache.geronimo.system.jmx.KernelDelegate;
 import org.apache.geronimo.system.plugin.DownloadPoller;
 import org.apache.geronimo.system.plugin.DownloadResults;
@@ -63,6 +64,7 @@ import org.apache.geronimo.system.plugin.PluginRepositoryList;
 import org.apache.geronimo.system.plugin.ServerArchiver;
 import org.apache.geronimo.system.plugin.model.PluginListType;
 import org.apache.geronimo.system.plugin.model.PluginType;
+import org.apache.geronimo.system.plugin.model.AttributesType;
 import org.codehaus.plexus.archiver.ArchiverException;
 
 /**
@@ -344,6 +346,15 @@ public class RemoteDeploymentManager extends JMXDeploymentManager implements Ger
         PluginInstaller installer = getPluginInstaller();
         try {
             return installer.installPluginList(targetRepositoryPath, relativeTargetServerPath, pluginList);
+        } finally {
+            kernel.getProxyManager().destroyProxy(installer);
+        }
+    }
+
+    public void mergeOverrides(String server, AttributesType overrides) throws InvalidGBeanException, IOException {
+        PluginInstaller installer = getPluginInstaller();
+        try {
+            installer.mergeOverrides(server, overrides);
         } finally {
             kernel.getProxyManager().destroyProxy(installer);
         }

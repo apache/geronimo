@@ -81,6 +81,7 @@ import org.apache.geronimo.kernel.repository.WritableListableRepository;
 import org.apache.geronimo.kernel.util.XmlUtil;
 import org.apache.geronimo.system.configuration.ConfigurationStoreUtil;
 import org.apache.geronimo.system.configuration.RepositoryConfigurationStore;
+import org.apache.geronimo.system.configuration.PluginAttributeStore;
 import org.apache.geronimo.system.plugin.model.ArtifactType;
 import org.apache.geronimo.system.plugin.model.ConfigXmlContentType;
 import org.apache.geronimo.system.plugin.model.CopyFileType;
@@ -92,6 +93,8 @@ import org.apache.geronimo.system.plugin.model.PluginListType;
 import org.apache.geronimo.system.plugin.model.PluginType;
 import org.apache.geronimo.system.plugin.model.PrerequisiteType;
 import org.apache.geronimo.system.plugin.model.PropertyType;
+import org.apache.geronimo.system.plugin.model.AttributesType;
+import org.apache.geronimo.system.plugin.model.ModuleType;
 import org.apache.geronimo.system.repository.Maven2Repository;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
@@ -339,6 +342,22 @@ public class PluginInstallerGBean implements PluginInstaller {
             kernel.shutdown();
         }
         return downloadPoller;
+    }
+
+    public void mergeOverrides(String server, AttributesType overrides) throws InvalidGBeanException, IOException {
+        ServerInstance serverInstance = servers.get(server);
+        if (serverInstance == null) {
+            throw new NullPointerException("No such server: " + server + ", known servers: " + servers.keySet());
+        }
+        PluginAttributeStore attributeStore = serverInstance.getAttributeStore();
+        for (ModuleType module: overrides.getModule()) {
+            Artifact artifact = Artifact.create(module.getName());
+            attributeStore.setModuleGBeans(artifact, module.getGbean(), module.isLoad(), module.getCondition());
+            attributeStore.save();
+        }
+        if (overrides.getConfiguration().size() > 0) {
+            throw new UnsupportedOperationException("Use modules, not configurations");
+        }
     }
 
 
