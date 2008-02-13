@@ -61,14 +61,16 @@ public class ServerProxy
     private Throwable lastError;
 
     public ServerProxy(final JMXServiceURL url, final Map environment) throws Exception {
-        init(url, environment);
+        assert url != null;
+        assert environment != null;
+
+        this.url = url;
+        this.environment = environment;
+        
+        log.debug("Initialized with URL: " + url + ", environment: " + environment);
     }
 
     public ServerProxy(final String hostname, final int port, final String username, final String password) throws Exception {
-        //
-        // TODO: Check if this is the right way to build up the URI
-        //
-        
         this("service:jmx:rmi://" + hostname + "/jndi/rmi://" + hostname + ":" + port + "/JMXConnector", username, password);
     }
 
@@ -77,19 +79,9 @@ public class ServerProxy
         assert username != null;
         assert password != null;
         
-        Map env = new HashMap();
-        env.put("jmx.remote.credentials", new String[] {username, password});
-
-        init(new JMXServiceURL(url), env);
-    }
-
-    private void init(final JMXServiceURL url, final Map environment) throws Exception {
-        assert url != null;
-        assert environment != null;
-        
-        this.url = url;
+        this.url = new JMXServiceURL(url);
         this.environment = new HashMap();
-        this.environment.put("jmx.remote.credentials", new String[] {"system", "manager"});
+        this.environment.put("jmx.remote.credentials", new String[] {username, password});
 
         log.debug("Initialized with URL: " + url + ", environment: " + environment);
     }
