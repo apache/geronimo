@@ -75,12 +75,12 @@ extends ConnectCommand
         }
         if (pluginArtifacts) {
             command.assembleServer(connection.getDeploymentManager(), pluginArtifacts, plugins, 'repository', relativeServerPath, consoleReader)
-            connection.getDeploymentManager().archive(relativeServerPath, "var/temp", new Artifact(group, artifact, version, format));
+            connection.getDeploymentManager().archive(relativeServerPath, "var/temp", new Artifact(group, artifact, (String)version, format));
         } else {
             def pluginsToInstall = command.getInstallList(plugins, consoleReader, null)
             if (pluginsToInstall) {
                 command.assembleServer(connection.getDeploymentManager(), pluginsToInstall, 'repository', relativeServerPath, consoleReader)
-                connection.getDeploymentManager().archive(relativeServerPath, "var/temp", new Artifact(group, artifact, version, format));
+                connection.getDeploymentManager().archive(relativeServerPath, "var/temp", new Artifact(group, artifact, (String)version, format));
             }
         }
         io.out.println("list ended")
