@@ -28,6 +28,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -239,6 +240,29 @@ public class IOUtil {
         }
     }
 
+    public static Map<String, File> find(File root, String pattern) {
+        Map<String, File> matches = new HashMap<String, File>();
+        find(root, pattern, matches);
+        return matches;
+    }
+    
+    public static void find(File root, String pattern, Map<String, File> matches) {   
+        if (!SelectorUtils.hasWildcards(pattern)) {
+            File match = new File(root, pattern);
+            if (match.exists() && match.canRead()) {
+                matches.put(pattern, match);
+            }
+        } else {
+            Map<String, File> files = IOUtil.listAllFileNames(root);
+            for (Map.Entry<String, File> entry : files.entrySet()) {
+                String fileName = entry.getKey();
+                if (SelectorUtils.matchPath(pattern, fileName)) {
+                    matches.put(fileName, entry.getValue());
+                }
+            }
+        }
+    }
+    
     public static Set<URL> search(File root, String pattern) throws MalformedURLException {
         if (root.isDirectory()) {
             if (pattern == null || pattern.length() == 0) {

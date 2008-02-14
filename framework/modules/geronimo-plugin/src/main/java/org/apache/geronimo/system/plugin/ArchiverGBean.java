@@ -22,6 +22,9 @@ package org.apache.geronimo.system.plugin;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -45,11 +48,31 @@ public class ArchiverGBean implements ServerArchiver {
 
     private final ServerInfo serverInfo;
 
+    private List<String> excludes = new ArrayList<String>();
 
     public ArchiverGBean(ServerInfo serverInfo) {
         this.serverInfo = serverInfo;
     }
 
+    public void addExclude(String pattern) {
+        this.excludes.add(pattern);
+    }
+    
+    public void removeExclude(String pattern) {
+        this.excludes.remove(pattern);
+    }
+    
+    private void removeExcludes(File source, Map<String, File> all) {
+        Map<String, File> matches = new HashMap<String, File>();
+        for (String exclude : this.excludes) {
+            IOUtil.find(source, exclude, matches);
+        }
+
+        for (String exclude : matches.keySet()) {
+            all.remove(exclude);
+        }
+    }
+        
     public File archive(String sourcePath, String destPath, Artifact artifact) throws ArchiverException, IOException {
         File source = serverInfo.resolve(sourcePath);
         File dest = serverInfo.resolve(destPath);
@@ -79,6 +102,7 @@ public class ArchiverGBean implements ServerArchiver {
         
         // add in all files and mark them with default file permissions
         Map<String, File> all = IOUtil.listAllFileNames(source);
+        removeExcludes(source, all);
         for (Map.Entry<String, File> entry : all.entrySet()) {
             String destFileName = serverName + "/" + entry.getKey();
             File sourceFile = entry.getValue();

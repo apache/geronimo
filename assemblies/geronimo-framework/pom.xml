@@ -221,6 +221,11 @@
                         <goals>
                             <goal>archive</goal>
                         </goals>
+                        <configuration>
+                            <excludes>
+                               <exclude>META-INF/**</exclude>
+                            </excludes>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
