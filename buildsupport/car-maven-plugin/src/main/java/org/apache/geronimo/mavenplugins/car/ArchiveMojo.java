@@ -72,10 +72,22 @@ public class ArchiveMojo extends MojoSupport {
      * @required
      */
     private File targetServerDirectory;
+    
+    /**
+     * Files to exclude from the archive
+     *
+     * @parameter
+     */
+    private String[] excludes;
 
     protected void doExecute() throws Exception {
         ServerInfo serverInfo = new BasicServerInfo(targetServerDirectory.getAbsolutePath(), false);
         ArchiverGBean archiver = new ArchiverGBean(serverInfo);
+        if (excludes != null) {
+            for (String exclude : excludes) {
+                archiver.addExclude(exclude);
+            }
+        }
         archive("tar.gz", archiver);
         archive("zip", archiver);
     }
