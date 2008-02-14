@@ -25,6 +25,7 @@ import javax.portlet.ActionResponse;
 import javax.portlet.PortletException;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
+import javax.portlet.PortletSession;
 
 import org.apache.geronimo.console.MultiPageModel;
 import org.apache.geronimo.kernel.repository.Artifact;
@@ -90,6 +91,9 @@ public class AssemblyViewHandler extends BaseImportExportHandler {
         request.setAttribute("artifactId", artifactId);
         request.setAttribute("version", version);
         request.setAttribute("format", format);
+        
+        PortletSession assemblysession = request.getPortletSession(true);
+        assemblysession.setAttribute("plugins", plugins);
 
         request.setAttribute("allInstallable", true);
         request.setAttribute("mode", ASSEMBLY_VIEW_MODE + "-after");
@@ -101,6 +105,8 @@ public class AssemblyViewHandler extends BaseImportExportHandler {
         String artifactId = request.getParameter("artifactId");
         String version = request.getParameter("version");
         String format = request.getParameter("format");
+        
+        response.setRenderParameter("relativeServerPath",relativeServerPath);
 
         PluginInstaller pluginInstaller = ManagementHelper.getManagementHelper(request).getPluginInstaller();
         ServerArchiver archiver = ManagementHelper.getManagementHelper(request).getArchiver();
@@ -108,6 +114,7 @@ public class AssemblyViewHandler extends BaseImportExportHandler {
 
         PluginListType list = getServerPluginList(request, pluginInstaller);
         PluginListType installList = getPluginsFromIds(configIds, list);
+        
 
         try {
             DownloadResults downloadResults = pluginInstaller.installPluginList("repository", relativeServerPath, installList);
@@ -115,7 +122,7 @@ public class AssemblyViewHandler extends BaseImportExportHandler {
         } catch (Exception e) {
             throw new PortletException("Could not assemble server", e);
         }
-        return INDEX_MODE;
+        return ASSEMBLY_CONFIRM_MODE+BEFORE_ACTION;
     }
 
 }
