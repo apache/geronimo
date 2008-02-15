@@ -16,6 +16,7 @@
  */
 package org.apache.geronimo.console.car;
 
+import java.io.Serializable;
 import java.util.List;
 
 import org.apache.geronimo.system.plugin.model.ArtifactType;
@@ -34,7 +35,7 @@ import org.apache.geronimo.system.plugin.model.PropertyType;
  * 
  * @version $Rev$ $Date$
  */
-public class PluginInfoBean {
+public class PluginInfoBean implements Serializable {
     protected ArtifactType moduleId;
     protected HashType hash;
     protected List<String> geronimoVersion;

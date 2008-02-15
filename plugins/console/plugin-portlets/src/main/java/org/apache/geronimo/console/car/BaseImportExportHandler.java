@@ -53,7 +53,7 @@ public abstract class BaseImportExportHandler extends MultiPageAbstractHandler {
     protected static final String CONFIGURE_EXPORT_MODE = "configure";
     protected static final String CONFIRM_EXPORT_MODE = "confirm";
     protected static final String UPDATE_REPOS_MODE = "updateList";
-
+    protected static final String ASSEMBLY_CONFIRM_MODE = "assemblyConfirm";
     protected static final String LIST_SERVER_MODE = "listServer";
     protected static final String ASSEMBLY_VIEW_MODE = "assemblyView";
 
