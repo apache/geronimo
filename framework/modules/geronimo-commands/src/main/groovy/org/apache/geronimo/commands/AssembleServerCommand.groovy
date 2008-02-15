@@ -49,7 +49,7 @@ extends ConnectCommand
     String artifact
 
     @Option (name = '-v', aliases = ['--version'], description = 'server version')
-    String version
+    String version = "1.0"
 
     @Option (name = '-f', aliases = ['--format'], description = 'zip or tar.gz')
     String format = "tar.gz"
@@ -62,10 +62,16 @@ extends ConnectCommand
 
         def connection = variables.get("ServerConnection")
         if (!connection) {
-            //def connectCommand = new ConnectCommand()
-            //connectCommand.init(context)
             connection = super.doExecute()
         }
+              
+        if (!artifact) {
+            artifact = prompter.readLine("Server artifact name: ")
+            if (!artifact) {
+                throw new IllegalArgumentException("Server artifact name is required")
+            }
+        }
+        
         def command = new CommandListConfigurations()
         def consoleReader = new ConsoleReader(io.inputStream, io.out)
         def plugins = variables.get("LocalPlugins")
@@ -73,6 +79,7 @@ extends ConnectCommand
             plugins = command.getLocalPluginCategories(connection.getDeploymentManager(), consoleReader)
             variables.parent.set("LocalPlugins", plugins)
         }
+
         if (pluginArtifacts) {
             command.assembleServer(connection.getDeploymentManager(), pluginArtifacts, plugins, 'repository', relativeServerPath, consoleReader)
             connection.getDeploymentManager().archive(relativeServerPath, "var/temp", new Artifact(group, artifact, (String)version, format));
