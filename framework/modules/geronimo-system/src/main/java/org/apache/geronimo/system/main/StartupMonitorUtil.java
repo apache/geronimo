@@ -291,5 +291,13 @@ public class StartupMonitorUtil {
             int value = address.getPort() - other.address.getPort();
             return value == 0 ? address.getAddress().toString().compareTo(other.address.getAddress().toString()) : value;
         }
+        
+        public String toString() {
+            StringBuffer buf = new StringBuffer(this.getClass().getSimpleName() + ":");
+            buf.append(" name=").append(name);
+            buf.append(", address=").append(address.toString());
+            return buf.toString();
+        }
+
     }
 }
