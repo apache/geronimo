@@ -15,7 +15,7 @@
   limitations under the License.
 --%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
-<fmt:setBundle basename="jmxmanager"/>
+<fmt:setBundle basename="debugviews"/>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1"%>
 
 <!-- JMX Manager portlet help page -->

@@ -32,6 +32,6 @@
   </tr>
   <tr>
     <td width="150" align="right" valign="top" class="MediumBackground" style="padding: 10px 10px 10px 5px;"><img src="/console/images/cancel.gif" alt="Cancel"/></td>
-    <td class="LightBackground" style="padding: 10px 5px 10px 10px" valign="top"><fmt:message key="securityrealmmanager.se.groups.help.cancelUserBtnExp" /></td>
+    <td class="LightBackground" style="padding: 10px 5px 10px 10px" valign="top"><fmt:message key="securityrealmmanager.se.groups.help.cancelNewGroupBtnExp" /></td>
   </tr>
 </table>
