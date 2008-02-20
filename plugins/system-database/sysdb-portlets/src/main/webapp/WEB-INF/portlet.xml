@@ -107,7 +107,6 @@ limitations under the License.
         <supports>
             <mime-type>text/html</mime-type>
             <portlet-mode>VIEW</portlet-mode>
-            <portlet-mode>HELP</portlet-mode>
         </supports>
         <supported-locale>en</supported-locale>
         <portlet-info>

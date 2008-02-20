@@ -23,7 +23,7 @@
     <td class="LightBackground" style="padding: 10px 5px 10px 10px" ><fmt:message key="logmanager.viewhelp.refreshExplanation"/></td>
   </tr>
   <tr>
-    <td width="150" align="right" valign="top" class="MediumBackground"style="padding: 10px 10px 10px 5px; color: #1E1E52; font-weight: bold;"><fmt:message key="logmanager.common.filterResults"/></td>
+    <td width="150" align="right" valign="top" class="MediumBackground"style="padding: 10px 10px 10px 5px; color: #1E1E52; font-weight: bold;"><fmt:message key="logmanager.viewhelp.filterResults"/></td>
     <td class="LightBackground" style="padding: 10px 5px 10px 10px"><fmt:message key="logmanager.viewhelp.filterResultsExplanationFrag1"/><br>
 <br>
 <fmt:message key="logmanager.viewhelp.filterResultsExplanationFrag2"/> <br>
