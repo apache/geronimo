@@ -42,10 +42,10 @@ function <portlet:namespace/>validateForm(){
 
 <c:choose>
     <c:when test="${!empty(alias)}">
-        <b><fmt:message key="keystore.viewKeystore.changePwdForPriKey"/> ${alias}</b><br/>
+        <b><fmt:message key="keystore.changePassword.changePwdForPriKey"/>&nbsp;${alias}</b><br/>
     </c:when>
     <c:otherwise>
-        <b><fmt:message key="keystore.viewKeystore.changePwdForKeystore"/> ${keystore}</b><br/>
+        <b><fmt:message key="keystore.changePassword.changePwdForKeystore"/>&nbsp;${keystore}</b><br/>
     </c:otherwise>
 </c:choose>
 
@@ -55,25 +55,25 @@ function <portlet:namespace/>validateForm(){
     <input type="hidden" name="mode" value="${mode}" />
     <table border="0">
         <tr>
-            <th align="right"><fmt:message key="keystore.viewKeystore.oldPassword"/>:</th>
+            <th align="right"><fmt:message key="keystore.changePassword.oldPassword"/>:</th>
             <td>
                 <input type="password" name="password" size="20" maxlength="200" />
             </td>
         </tr>
         <tr>
-            <th align="right"><fmt:message key="keystore.viewKeystore.newPassword"/>:</th>
+            <th align="right"><fmt:message key="keystore.changePassword.newPassword"/>:</th>
             <td>
                 <input type="password" name="newPassword" size="20" maxlength="200" />
             </td>
         </tr>
         <tr>
-            <th align="right"><fmt:message key="keystore.viewKeystore.confirmPassword"/>:</th>
+            <th align="right"><fmt:message key="keystore.changePassword.confirmPassword"/>:</th>
             <td>
                 <input type="password" name="confirm-newPassword" size="20" maxlength="200" />
             </td>
         </tr>
     </table>
-    <input type="submit" value="<fmt:message key="keystore.viewKeystore.changePassword"/>" onClick="return <portlet:namespace/>validateForm();"/>
+    <input type="submit" value="<fmt:message key="keystore.changePassword.changePassword"/>" onClick="return <portlet:namespace/>validateForm();"/>
 </form>
 
 <c:choose>
