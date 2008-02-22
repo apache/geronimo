@@ -25,12 +25,14 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.LinkedHashSet;
 import java.util.jar.JarFile;
 
 import junit.framework.TestCase;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.kernel.Jsr77Naming;
+import org.apache.geronimo.kernel.mock.MockConfigStore;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationAlreadyExistsException;
 import org.apache.geronimo.kernel.config.ConfigurationData;
@@ -52,6 +54,7 @@ import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.Version;
 import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.geronimo.kernel.repository.MissingDependencyException;
 
 
 /**
@@ -70,7 +73,7 @@ public class SingleFileHotDeployerTest extends TestCase {
     private File dir;
     private String[] watchPaths;
     private MockConfigurationBuilder builder;
-    private MockConfigurationStore store;
+    private MockConfigStore store;
     private MockConfigurationManager configurationManager;
 
     private ArtifactResolver artifactResolver = new DefaultArtifactResolver(null, null);
@@ -103,7 +106,7 @@ public class SingleFileHotDeployerTest extends TestCase {
         watchFile2 = new File(dir, watch2);
 
         builder = new MockConfigurationBuilder();
-        store = new MockConfigurationStore();
+        store = new MockConfigStore();
         configurationManager = new MockConfigurationManager();
     }
 
@@ -277,7 +280,8 @@ public class SingleFileHotDeployerTest extends TestCase {
         }
     }
 
-    private class MockConfigurationStore implements ConfigurationStore {
+/*
+    private static  class MockConfigurationStore implements ConfigurationStore {
         public boolean isInPlaceConfiguration(Artifact configId) throws NoSuchConfigException, IOException {
             throw new UnsupportedOperationException();
         }
@@ -321,8 +325,9 @@ public class SingleFileHotDeployerTest extends TestCase {
             throw new UnsupportedOperationException();
         }
     }
+*/
 
-    private class MockConfigurationManager implements ConfigurationManager {
+    private class MockConfigurationManager extends org.apache.geronimo.kernel.mock.MockConfigurationManager {
         private ConfigurationData loadedConfigurationData;
 
         public boolean isInstalled(Artifact configurationId) {
@@ -333,44 +338,12 @@ public class SingleFileHotDeployerTest extends TestCase {
             return isConfigurationAlreadyLoaded;
         }
 
-        public boolean isRunning(Artifact configurationId) {
-            throw new UnsupportedOperationException();
-        }
-
-        public Artifact[] getInstalled(Artifact query) {
-            throw new UnsupportedOperationException();
-        }
-
-        public Artifact[] getLoaded(Artifact query) {
-            throw new UnsupportedOperationException();
-        }
-
-        public Artifact[] getRunning(Artifact query) {
-            throw new UnsupportedOperationException();
-        }
-
         public List listConfigurations() {
             return existingConfigurationInfos;
         }
 
-        public List listStores() {
-            throw new UnsupportedOperationException();
-        }
-
         public ConfigurationStore[] getStores() {
             return new ConfigurationStore[]{store};
-        }
-
-        public ConfigurationStore getStoreForConfiguration(Artifact configuration) {
-            throw new UnsupportedOperationException();
-        }
-
-        public List listConfigurations(AbstractName store) throws NoSuchStoreException {
-            throw new UnsupportedOperationException();
-        }
-
-        public boolean isConfiguration(Artifact artifact) {
-            throw new UnsupportedOperationException();
         }
 
         public Configuration getConfiguration(Artifact configurationId) {
@@ -391,72 +364,14 @@ public class SingleFileHotDeployerTest extends TestCase {
             return null;
         }
 
-        public LifecycleResults loadConfiguration(Artifact configurationId, LifecycleMonitor monitor) throws NoSuchConfigException, LifecycleException {
-            throw new UnsupportedOperationException();
-        }
-
-        public LifecycleResults loadConfiguration(ConfigurationData configurationData, LifecycleMonitor monitor) throws NoSuchConfigException, LifecycleException {
-            throw new UnsupportedOperationException();
-        }
-
-        public LifecycleResults unloadConfiguration(Artifact configurationId) throws NoSuchConfigException {
+       public LifecycleResults unloadConfiguration(Artifact configurationId) throws NoSuchConfigException {
             assertTrue("Did not expect configuration to be unloaded " + configurationId, shouldUnload);
             return null;
         }
-
-        public LifecycleResults unloadConfiguration(Artifact configurationId, LifecycleMonitor monitor) throws NoSuchConfigException {
-            throw new UnsupportedOperationException();
-        }
-
         public LifecycleResults startConfiguration(Artifact configurationId) throws NoSuchConfigException, LifecycleException {
             assertTrue("Did not expect configuration to be started " + configurationId, shouldStart);
             return null;
         }
-
-        public LifecycleResults startConfiguration(Artifact configurationId, LifecycleMonitor monitor) throws NoSuchConfigException, LifecycleException {
-            throw new UnsupportedOperationException();
-        }
-
-        public LifecycleResults stopConfiguration(Artifact configurationId) throws NoSuchConfigException {
-            throw new UnsupportedOperationException();
-        }
-
-        public LifecycleResults stopConfiguration(Artifact configurationId, LifecycleMonitor monitor) throws NoSuchConfigException {
-            throw new UnsupportedOperationException();
-        }
-
-        public LifecycleResults restartConfiguration(Artifact configurationId) throws NoSuchConfigException, LifecycleException {
-            throw new UnsupportedOperationException();
-        }
-
-        public LifecycleResults restartConfiguration(Artifact configurationId, LifecycleMonitor monitor) throws NoSuchConfigException, LifecycleException {
-            throw new UnsupportedOperationException();
-        }
-
-        public LifecycleResults reloadConfiguration(Artifact configurationId) throws NoSuchConfigException, LifecycleException {
-            throw new UnsupportedOperationException();
-        }
-
-        public LifecycleResults reloadConfiguration(Artifact configurationId, LifecycleMonitor monitor) throws NoSuchConfigException, LifecycleException {
-            throw new UnsupportedOperationException();
-        }
-
-        public LifecycleResults reloadConfiguration(Artifact configurationId, Version version) throws NoSuchConfigException, LifecycleException {
-            throw new UnsupportedOperationException();
-        }
-
-        public LifecycleResults reloadConfiguration(Artifact configurationId, Version version, LifecycleMonitor monitor) throws NoSuchConfigException, LifecycleException {
-            throw new UnsupportedOperationException();
-        }
-
-        public LifecycleResults reloadConfiguration(ConfigurationData configurationData) throws NoSuchConfigException, LifecycleException {
-            throw new UnsupportedOperationException();
-        }
-
-        public LifecycleResults reloadConfiguration(ConfigurationData configurationData, LifecycleMonitor monitor) throws NoSuchConfigException, LifecycleException {
-            throw new UnsupportedOperationException();
-        }
-
         public void uninstallConfiguration(Artifact configurationId) throws IOException, NoSuchConfigException {
             assertTrue("Did not expect configuration to be uninstalled " + configurationId, shouldUninstall);
         }
@@ -465,15 +380,5 @@ public class SingleFileHotDeployerTest extends TestCase {
             return artifactResolver;
         }
 
-        public boolean isOnline() {
-            return true;
-        }
-
-        public void setOnline(boolean online) {
-        }
-
-        public Collection<? extends Repository> getRepositories() {
-            return null;
-        }
     }
 }

@@ -21,12 +21,10 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.Collections;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.List;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.jar.JarFile;
 
 import javax.sql.DataSource;
@@ -35,29 +33,19 @@ import junit.framework.TestCase;
 import net.sf.cglib.core.DefaultGeneratorStrategy;
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
+import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.deployment.util.DeploymentUtil;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.kernel.Jsr77Naming;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.SimpleConfigurationManager;
-import org.apache.geronimo.kernel.config.ConfigurationManager;
-import org.apache.geronimo.kernel.config.ConfigurationStore;
-import org.apache.geronimo.kernel.config.NoSuchStoreException;
-import org.apache.geronimo.kernel.config.Configuration;
-import org.apache.geronimo.kernel.config.LifecycleResults;
-import org.apache.geronimo.kernel.config.NoSuchConfigException;
-import org.apache.geronimo.kernel.config.LifecycleException;
-import org.apache.geronimo.kernel.config.ConfigurationData;
-import org.apache.geronimo.kernel.config.LifecycleMonitor;
+import org.apache.geronimo.kernel.mock.MockConfigurationManager;
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.ArtifactManager;
-import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
 import org.apache.geronimo.kernel.repository.ArtifactResolver;
+import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
 import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
-import org.apache.geronimo.kernel.repository.Version;
-import org.apache.geronimo.kernel.repository.Repository;
-import org.apache.geronimo.deployment.util.DeploymentUtil;
-import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.kernel.repository.Environment;
 
 /**
  * @version $Rev$ $Date$
@@ -264,152 +252,5 @@ public class DeploymentContextTest extends TestCase {
         context.getCompleteManifestClassPath(start, start.getRelativeURI(), resolutionURI, classPathList, exclusions, factory, new ArrayList<DeploymentException>());
         assertEquals(2, classPathList.size());
     }
-
-
-    static class MockConfigurationManager implements ConfigurationManager {
-
-        public boolean isInstalled(Artifact configurationId) {
-            return false;
-        }
-
-        public boolean isLoaded(Artifact configurationId) {
-            return false;
-        }
-
-        public boolean isRunning(Artifact configurationId) {
-            return false;
-        }
-
-        public Artifact[] getInstalled(Artifact query) {
-            return new Artifact[0];
-        }
-
-        public Artifact[] getLoaded(Artifact query) {
-            return new Artifact[0];
-        }
-
-        public Artifact[] getRunning(Artifact query) {
-            return new Artifact[0];
-        }
-
-        public List listConfigurations() {
-            return null;
-        }
-
-        public List listStores() {
-            return null;
-        }
-
-        public ConfigurationStore[] getStores() {
-            return new ConfigurationStore[0];
-        }
-
-        public ConfigurationStore getStoreForConfiguration(Artifact configuration) {
-            return null;
-        }
-
-        public List listConfigurations(AbstractName store) throws NoSuchStoreException {
-            return null;
-        }
-
-        public boolean isConfiguration(Artifact artifact) {
-            return false;
-        }
-
-        public Configuration getConfiguration(Artifact configurationId) {
-            return null;
-        }
-
-        public LifecycleResults loadConfiguration(Artifact configurationId) throws NoSuchConfigException, LifecycleException {
-            return null;
-        }
-
-        public LifecycleResults loadConfiguration(ConfigurationData configurationData) throws NoSuchConfigException, LifecycleException {
-            return null;
-        }
-
-        public LifecycleResults loadConfiguration(Artifact configurationId, LifecycleMonitor monitor) throws NoSuchConfigException, LifecycleException {
-            return null;
-        }
-
-        public LifecycleResults loadConfiguration(ConfigurationData configurationData, LifecycleMonitor monitor) throws NoSuchConfigException, LifecycleException {
-            return null;
-        }
-
-        public LifecycleResults unloadConfiguration(Artifact configurationId) throws NoSuchConfigException {
-            return null;
-        }
-
-        public LifecycleResults unloadConfiguration(Artifact configurationId, LifecycleMonitor monitor) throws NoSuchConfigException {
-            return null;
-        }
-
-        public LifecycleResults startConfiguration(Artifact configurationId) throws NoSuchConfigException, LifecycleException {
-            return null;
-        }
-
-        public LifecycleResults startConfiguration(Artifact configurationId, LifecycleMonitor monitor) throws NoSuchConfigException, LifecycleException {
-            return null;
-        }
-
-        public LifecycleResults stopConfiguration(Artifact configurationId) throws NoSuchConfigException {
-            return null;
-        }
-
-        public LifecycleResults stopConfiguration(Artifact configurationId, LifecycleMonitor monitor) throws NoSuchConfigException {
-            return null;
-        }
-
-        public LifecycleResults restartConfiguration(Artifact configurationId) throws NoSuchConfigException, LifecycleException {
-            return null;
-        }
-
-        public LifecycleResults restartConfiguration(Artifact configurationId, LifecycleMonitor monitor) throws NoSuchConfigException, LifecycleException {
-            return null;
-        }
-
-        public LifecycleResults reloadConfiguration(Artifact configurationId) throws NoSuchConfigException, LifecycleException {
-            return null;
-        }
-
-        public LifecycleResults reloadConfiguration(Artifact configurationId, LifecycleMonitor monitor) throws NoSuchConfigException, LifecycleException {
-            return null;
-        }
-
-        public LifecycleResults reloadConfiguration(Artifact configurationId, Version version) throws NoSuchConfigException, LifecycleException {
-            return null;
-        }
-
-        public LifecycleResults reloadConfiguration(Artifact configurationId, Version version, LifecycleMonitor monitor) throws NoSuchConfigException, LifecycleException {
-            return null;
-        }
-
-        public LifecycleResults reloadConfiguration(ConfigurationData configurationData) throws NoSuchConfigException, LifecycleException {
-            return null;
-        }
-
-        public LifecycleResults reloadConfiguration(ConfigurationData configurationData, LifecycleMonitor monitor) throws NoSuchConfigException, LifecycleException {
-            return null;
-        }
-
-        public void uninstallConfiguration(Artifact configurationId) throws IOException, NoSuchConfigException {
-        }
-
-        public ArtifactResolver getArtifactResolver() {
-            return null;
-        }
-
-        public boolean isOnline() {
-            return false;
-        }
-
-        public void setOnline(boolean online) {
-        }
-
-        public Collection<? extends Repository> getRepositories() {
-            return null;
-        }
-    }
-
 
 }

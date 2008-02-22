@@ -26,13 +26,15 @@ import org.apache.geronimo.kernel.repository.Dependency;
 import org.apache.geronimo.kernel.repository.MissingDependencyException;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.NoSuchStoreException;
+import org.apache.geronimo.kernel.InvalidGBeanException;
 import org.apache.geronimo.system.plugin.model.PluginListType;
 import org.apache.geronimo.system.plugin.model.PluginType;
+import org.apache.geronimo.system.plugin.model.AttributesType;
 
 /**
  * Knows how to import and export configurations
  *
- * @version $Rev: 601152 $ $Date: 2007-12-04 15:49:03 -0800 (Tue, 04 Dec 2007) $
+ * @version $Rev$ $Date$
  */
 public interface PluginInstaller {
     /**
@@ -189,4 +191,6 @@ public interface PluginInstaller {
     public Artifact installLibrary(File libFile, String groupId) throws IOException;
 
     DownloadResults installPluginList(String targetRepositoryPath, String relativeTargetServerPath, PluginListType pluginList) throws Exception;
+
+    void mergeOverrides(String server, AttributesType overrides) throws InvalidGBeanException, IOException;
 }
