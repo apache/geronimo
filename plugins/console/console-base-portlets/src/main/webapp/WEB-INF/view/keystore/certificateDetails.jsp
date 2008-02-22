@@ -70,7 +70,7 @@ Change key password</a></td>
 <a href="<portlet:actionURL portletMode="view">
 <portlet:param name="mode" value="certificateDetails-after" />
 <portlet:param name="id" value="${id}" /></portlet:actionURL>">
-<fmt:message key="keystore.certificateDetails.backToKeystore"/>/a></td>
+<fmt:message key="keystore.certificateDetails.backToKeystore"/></a></td>
 </tr>
 </table>
 <br/>
