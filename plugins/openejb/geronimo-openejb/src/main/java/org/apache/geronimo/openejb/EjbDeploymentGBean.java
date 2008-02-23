@@ -86,7 +86,7 @@ public class EjbDeploymentGBean extends EjbDeployment implements GBeanLifecycle 
     }
 
     // do not use this gbean info, instead use StatelessDeploymentGBean, StatefulDeploymentGBean, EntityDeploymentGBean, or MessageDrivenDeploymentGBean
-    static final GBeanInfo GBEAN_INFO;
+    public static final GBeanInfo GBEAN_INFO;
 
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(EjbDeploymentGBean.class, EjbDeploymentGBean.class, NameFactory.STATELESS_SESSION_BEAN);

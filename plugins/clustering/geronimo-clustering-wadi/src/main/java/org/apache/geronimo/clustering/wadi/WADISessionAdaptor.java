@@ -25,10 +25,24 @@ import org.apache.geronimo.clustering.Session;
  * @version $Rev$ $Date$
  */
 public class WADISessionAdaptor implements Session {
+    private static final String ADAPTOR_KEY = "ADAPTOR_KEY";
     private final org.codehaus.wadi.core.session.Session session;
     
+    public static WADISessionAdaptor retrieveAdaptor(org.codehaus.wadi.core.session.Session session) {
+        WADISessionAdaptor adaptor = (WADISessionAdaptor) session.getLocalStateMap().get(ADAPTOR_KEY);
+        if (null == adaptor) {
+            throw new IllegalStateException("No registered adaptor");
+        }
+        return adaptor;
+    }
+
     public WADISessionAdaptor(org.codehaus.wadi.core.session.Session session) {
+        if (null == session) {
+            throw new IllegalArgumentException("session is required");
+        }
         this.session = session;
+
+        session.getLocalStateMap().put(ADAPTOR_KEY, this);
     }
 
     public String getSessionId() {
@@ -62,5 +76,5 @@ public class WADISessionAdaptor implements Session {
     public void onEndAccess() {
         session.onEndProcessing();
     }
-    
+
 }

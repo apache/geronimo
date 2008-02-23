@@ -126,6 +126,11 @@
             </exclusions>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-clustering</artifactId>
+            <version>${version}</version>
+        </dependency>
         <!-- g-transaction, g-security, g-naming  come transitively from this -->
         <!-- g-j2ee, g-kernel come from this via g-management -->
         <dependency>

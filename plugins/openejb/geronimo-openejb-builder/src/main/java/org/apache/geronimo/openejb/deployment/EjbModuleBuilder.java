@@ -108,6 +108,7 @@ import org.apache.openejb.config.UnsupportedModuleTypeException;
 import org.apache.openejb.config.ValidationError;
 import org.apache.openejb.config.ValidationFailedException;
 import org.apache.openejb.config.ValidationFailure;
+import org.apache.openejb.config.ConfigurationFactory.Chain;
 import org.apache.openejb.jee.EjbJar;
 import org.apache.openejb.jee.EjbRef;
 import org.apache.openejb.jee.EnterpriseBean;
@@ -160,14 +161,13 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle {
     private final Collection<ModuleBuilderExtension> moduleBuilderExtensions;
 
     public EjbModuleBuilder(Environment defaultEnvironment,
-
-                            String defaultCmpJTADataSource, String defaultCmpNonJTADataSource,
-                            Collection<ModuleBuilderExtension> moduleBuilderExtensions,
-                            Collection securityBuilders,
-                            Collection serviceBuilders,
-                            NamingBuilder namingBuilders,
-                            ResourceEnvironmentSetter resourceEnvironmentSetter) {
-
+        String defaultCmpJTADataSource,
+        String defaultCmpNonJTADataSource,
+        Collection<ModuleBuilderExtension> moduleBuilderExtensions,
+        Collection securityBuilders,
+        Collection serviceBuilders,
+        NamingBuilder namingBuilders,
+        ResourceEnvironmentSetter resourceEnvironmentSetter) {
         this.defaultEnvironment = defaultEnvironment;
         this.defaultCmpJTADataSource = defaultCmpJTADataSource;
         this.defaultCmpNonJTADataSource = defaultCmpNonJTADataSource;
@@ -572,7 +572,7 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle {
             // (metadata complete) and it run the openejb verifier
             AppInfo appInfo;
             try {
-                appInfo = configureApplication(appModule, earContext.getConfiguration());
+                appInfo = configureApplication(appModule, ejbModule, earContext.getConfiguration());
             } catch (ValidationFailedException set) {
                 StringBuilder sb = new StringBuilder();
                 sb.append("Jar failed validation: ").append(appModule.getModuleId());
@@ -622,12 +622,16 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle {
         return ejbJarInfo;
     }
 
-    private AppInfo configureApplication(AppModule appModule, Configuration configuration) throws OpenEJBException {
+    private AppInfo configureApplication(AppModule appModule, EjbModule ejbModule, Configuration configuration)
+            throws OpenEJBException {
         OpenEjbConfiguration openEjbConfiguration = new OpenEjbConfiguration();
         openEjbConfiguration.containerSystem = new ContainerSystemInfo();
         openEjbConfiguration.facilities = new FacilitiesInfo();
         boolean offline = true;
-        ConfigurationFactory configurationFactory = new ConfigurationFactory(offline, openEjbConfiguration);
+        
+        ConfigurationFactory configurationFactory = new ConfigurationFactory(offline,
+            ejbModule.getPreAutoConfigDeployer(),
+            openEjbConfiguration);
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(appModule.getClassLoader());
         try {

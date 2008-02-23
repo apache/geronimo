@@ -25,6 +25,20 @@ import org.codehaus.wadi.group.Peer;
  * @version $Rev$ $Date$
  */
 public class RemoteNode extends AbstractNode {
+    private static final String ADAPTOR_KEY = "ADAPTOR_KEY";
+
+    public static RemoteNode retrieveOptionalAdaptor(Peer peer) {
+        return (RemoteNode) peer.getLocalStateMap().get(ADAPTOR_KEY);
+    }
+
+    public static RemoteNode retrieveAdaptor(Peer peer) {
+        RemoteNode node = (RemoteNode) peer.getLocalStateMap().get(ADAPTOR_KEY);
+        if (null == node) {
+            throw new IllegalStateException("No registered adaptor");
+        }
+        return node;
+    }
+    
     private final Peer peer;
     private final NodeService nodeService;
     private NodeConnectionInfo connectionInfo;
@@ -36,6 +50,8 @@ public class RemoteNode extends AbstractNode {
         }
         this.peer = peer;
         this.nodeService = nodeService;
+        
+        peer.getLocalStateMap().put(ADAPTOR_KEY, this);
     }
 
     public Peer getPeer() {

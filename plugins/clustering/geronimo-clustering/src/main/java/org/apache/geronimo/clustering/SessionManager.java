@@ -54,6 +54,13 @@ public interface SessionManager {
     void unregisterListener(SessionListener listener);    
 
     /**
+     * Gets the Cluster this local SessionManager is associated to.
+     * 
+     * @return Associated Cluster.
+     */
+    Cluster getCluster();
+    
+    /**
      * Gets the Node hosting this local SessionManager.
      * 
      * @return Hosting Node.
@@ -66,4 +73,8 @@ public interface SessionManager {
      * @return Hosting Node.
      */
     Set<Node> getRemoteNodes();
+    
+    void registerSessionManagerListener(SessionManagerListener listener);
+    
+    void unregisterSessionManagerListener(SessionManagerListener listener);
 }

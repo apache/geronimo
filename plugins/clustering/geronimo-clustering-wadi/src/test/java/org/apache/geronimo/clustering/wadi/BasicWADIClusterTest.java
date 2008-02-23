@@ -62,6 +62,9 @@ public class BasicWADIClusterTest extends RMockTestCase {
         wadiCluster.getClusterName();
         modify().multiplicity(expect.from(0)).returnValue("name");
 
+        wadiCluster.addClusterListener(null);
+        modify().args(is.NOT_NULL);
+        
         wadiCluster.getDispatcher();
         modify().multiplicity(expect.from(0)).returnValue(dispatcher);
         
@@ -86,6 +89,8 @@ public class BasicWADIClusterTest extends RMockTestCase {
 
     private Peer addPeer(String peerName, Map<Address, Peer> remotePeers) {
         Peer peer = (Peer) mock(Peer.class, peerName);
+        peer.getLocalStateMap();
+        modify().multiplicity(expect.from(0)).returnValue(new HashMap());
 
         Address address = peer.getAddress();
         modify().multiplicity(expect.from(0));
@@ -209,6 +214,9 @@ public class BasicWADIClusterTest extends RMockTestCase {
     }
     
     public void testRemoveListenersOnStopOrFail() throws Exception {
+        wadiCluster.removeClusterListener(null);
+        modify().args(is.NOT_NULL);
+
         AbstractExpression assertSame = new AssertSameWADIListener();
         wadiCluster.addClusterListener(null);
         modify().args(assertSame);

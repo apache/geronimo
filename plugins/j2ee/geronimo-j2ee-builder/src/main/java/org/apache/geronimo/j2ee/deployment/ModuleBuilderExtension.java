@@ -16,23 +16,21 @@
  */
 package org.apache.geronimo.j2ee.deployment;
 
+import java.net.URL;
+import java.util.Collection;
+import java.util.jar.JarFile;
+
+import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.deployment.ModuleIDBuilder;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Environment;
-import org.apache.geronimo.deployment.ModuleIDBuilder;
-import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.gbean.AbstractName;
-
-import java.io.File;
-import java.util.jar.JarFile;
-import java.util.Collection;
-import java.net.URL;
 
 /**
  * @version $Rev$ $Date$
  */
 public interface ModuleBuilderExtension {
-
     void createModule(Module module, Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException;
 
     void installModule(JarFile earFile, EARContext earContext, Module module, Collection configurationStores, ConfigurationStore targetConfigurationStore, Collection repository) throws DeploymentException;
@@ -40,5 +38,4 @@ public interface ModuleBuilderExtension {
     void initContext(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException;
 
     void addGBeans(EARContext earContext, Module module, ClassLoader cl, Collection repository) throws DeploymentException;
-
 }

@@ -38,8 +38,8 @@ public class BasicWADICluster implements GBeanLifecycle, WADICluster {
     private final Node node;
     private final DispatcherHolder dispatcherHolder;
     private final NodeFactory nodeFactory;
-    private final IdentityHashMap<Peer, Node> peerToNode;
     private final IdentityHashMap<ClusterListener, org.codehaus.wadi.group.ClusterListener> listenerToWADIListener;
+    private final org.codehaus.wadi.group.ClusterListener wrapNodeAsPeerListener;
     
     private org.codehaus.wadi.group.Cluster cluster;
     
@@ -57,19 +57,34 @@ public class BasicWADICluster implements GBeanLifecycle, WADICluster {
         this.dispatcherHolder = dispatcherHolder;
         this.nodeFactory = nodeFactory;
         
-        peerToNode = new IdentityHashMap<Peer, Node>();
         listenerToWADIListener = new IdentityHashMap<ClusterListener, org.codehaus.wadi.group.ClusterListener>();
+        
+        wrapNodeAsPeerListener = new org.codehaus.wadi.group.ClusterListener() {
+            public void onListenerRegistration(org.codehaus.wadi.group.Cluster cluster, Set existing) {
+                wrapAsNode(existing);
+            }
+            
+            public void onMembershipChanged(org.codehaus.wadi.group.Cluster cluster, Set joiners, Set leavers) {
+                wrapAsNode(joiners);
+            }
+        };
     }
     
     public void doStart() throws Exception {
         cluster = dispatcherHolder.getDispatcher().getCluster();
+        
+        cluster.addClusterListener(wrapNodeAsPeerListener);
     }
     
     public void doStop() throws Exception {
+        cluster.removeClusterListener(wrapNodeAsPeerListener);
+        
         clearListeners();
     }
 
     public void doFail() {
+        cluster.removeClusterListener(wrapNodeAsPeerListener);
+
         clearListeners();
     }
 
@@ -87,7 +102,7 @@ public class BasicWADICluster implements GBeanLifecycle, WADICluster {
     
     public Set<Node> getRemoteNodes() {
         Collection<Peer> peers = cluster.getRemotePeers().values();
-        Set<Node> nodes = wrapAsNode(peers, false);
+        Set<Node> nodes = wrapAsNode(peers);
         return nodes;
     }
 
@@ -116,30 +131,19 @@ public class BasicWADICluster implements GBeanLifecycle, WADICluster {
         listenerToWADIListener.clear();
     }
     
-    protected Set<Node> wrapAsNode(Collection<Peer> peers, boolean remove) {
+    protected Set<Node> wrapAsNode(Collection<Peer> peers) {
         Set<Node> nodes = new HashSet<Node>();
         for (Peer peer : peers) {
-            Node node = wrapAsNode(peer, remove);
+            Node node = wrapAsNode(peer);
             nodes.add(node);
         }
         return nodes;
     }
 
-    protected Node wrapAsNode(Peer peer, boolean remove) {
-        Node node;
-        synchronized (peerToNode) {
-            if (remove) {
-                node = peerToNode.remove(peer);
-                if (null == node) {
-                    throw new AssertionError("no node mapped to peer");
-                }
-            } else {
-                node = peerToNode.get(peer);
-                if (null == node) {
-                    node = newRemoteNode(peer);
-                    peerToNode.put(peer, node);
-                }
-            }
+    protected Node wrapAsNode(Peer peer) {
+        Node node = RemoteNode.retrieveOptionalAdaptor(peer);
+        if (null == node) {
+            node = newRemoteNode(peer);
         }
         return node;
     }
@@ -156,13 +160,13 @@ public class BasicWADICluster implements GBeanLifecycle, WADICluster {
         }
 
         public void onListenerRegistration(org.codehaus.wadi.group.Cluster cluster, Set existing) {
-            Set<Node> existingNodes = wrapAsNode(existing, false);
+            Set<Node> existingNodes = wrapAsNode(existing);
             listener.onListenerRegistration(BasicWADICluster.this, existingNodes);
         }
         
         public void onMembershipChanged(org.codehaus.wadi.group.Cluster cluster, Set joiners, Set leavers) {
-            Set<Node> joinerNodes = wrapAsNode(joiners, false);
-            Set<Node> leaverNodes = wrapAsNode(leavers, true);
+            Set<Node> joinerNodes = wrapAsNode(joiners);
+            Set<Node> leaverNodes = wrapAsNode(leavers);
             listener.onMembershipChanged(BasicWADICluster.this, joinerNodes, leaverNodes);
         }
         

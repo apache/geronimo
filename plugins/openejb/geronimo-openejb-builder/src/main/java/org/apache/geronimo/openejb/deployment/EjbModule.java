@@ -19,13 +19,14 @@ package org.apache.geronimo.openejb.deployment;
 import java.util.jar.JarFile;
 
 import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedApp;
 import org.apache.geronimo.j2ee.deployment.EJBModule;
+import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedApp;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.openejb.xbeans.ejbjar.OpenejbGeronimoEjbJarType;
-import org.apache.openejb.jee.oejb3.OpenejbJar;
 import org.apache.openejb.assembler.classic.EjbJarInfo;
+import org.apache.openejb.config.ConfigurationFactory;
 import org.apache.openejb.jee.EjbJar;
+import org.apache.openejb.jee.oejb3.OpenejbJar;
 import org.apache.xmlbeans.XmlObject;
 
 /**
@@ -38,10 +39,13 @@ public class EjbModule extends EJBModule {
     private EjbDeploymentBuilder ejbDeploymentBuilder;
     private OpenejbGeronimoEjbJarType vendorDD;
     private final org.apache.openejb.config.EjbModule ejbModule;
+    private final ConfigurationFactory.Chain preAutoConfigDeployer;
 
     public EjbModule(org.apache.openejb.config.EjbModule ejbModule, boolean standAlone, AbstractName moduleName, Environment environment, JarFile moduleFile, String targetPath, String ejbJarXml, AnnotatedApp annoatedApp) {
         super(standAlone, moduleName, environment, moduleFile, targetPath, null, null, ejbJarXml, annoatedApp);
         this.ejbModule = ejbModule;
+        
+        preAutoConfigDeployer = new ConfigurationFactory.Chain();
     }
 
     @Override
@@ -105,5 +109,9 @@ public class EjbModule extends EJBModule {
 
     public void setClassLoader(ClassLoader classLoader) {
         ejbModule.setClassLoader(classLoader);
+    }
+
+    public ConfigurationFactory.Chain getPreAutoConfigDeployer() {
+        return preAutoConfigDeployer;
     }
 }

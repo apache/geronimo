@@ -16,6 +16,8 @@
  */
 package org.apache.geronimo.clustering.wadi;
 
+import java.util.HashMap;
+
 import org.codehaus.wadi.group.Peer;
 
 import com.agical.rmock.extension.junit.RMockTestCase;
@@ -35,6 +37,9 @@ public class RemoteNodeTest extends RMockTestCase {
         peer = (Peer) mock(Peer.class);
         peer.getName();
         modify().multiplicity(expect.from(0)).returnValue("name");
+        
+        peer.getLocalStateMap();
+        modify().returnValue(new HashMap());
         
         nodeService = (NodeService) mock(NodeService.class);
 

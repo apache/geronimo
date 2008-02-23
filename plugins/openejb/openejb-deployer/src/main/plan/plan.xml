@@ -39,6 +39,9 @@
             <pattern>
                 <name>CorbaModuleBuilderExtension</name>
             </pattern>
+            <pattern>
+                <name>OpenEJBClusteringBuilder</name>
+            </pattern>
         </references>
         <reference name="SecurityBuilders">
             <name>SecurityBuilder</name>

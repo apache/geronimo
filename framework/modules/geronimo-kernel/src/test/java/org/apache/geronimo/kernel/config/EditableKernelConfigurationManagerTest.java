@@ -56,8 +56,8 @@ public class EditableKernelConfigurationManagerTest extends RMockTestCase {
         ArtifactManager artifactManager = (ArtifactManager) mock(ArtifactManager.class);
         ArtifactResolver artifactResolver = (ArtifactResolver) mock(ArtifactResolver.class);
         
-        storeA = (ConfigurationStore) mock(ConfigurationStore.class);
-        storeB = (ConfigurationStore) mock(ConfigurationStore.class);
+        storeA = (ConfigurationStore) mock(ConfigurationStore.class, "ConfigurationStoreA");
+        storeB = (ConfigurationStore) mock(ConfigurationStore.class, "ConfigurationStoreB");
         
         stores = new ArrayList<ConfigurationStore>();
         

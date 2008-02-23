@@ -29,6 +29,7 @@ import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.codehaus.wadi.core.reflect.base.DeclaredMemberFilter;
 import org.codehaus.wadi.core.reflect.jdk.JDKClassIndexerRegistry;
+import org.codehaus.wadi.core.util.SimpleStreamer;
 import org.codehaus.wadi.group.Dispatcher;
 import org.codehaus.wadi.group.DispatcherRegistry;
 import org.codehaus.wadi.group.MessageExchangeException;
@@ -47,22 +48,27 @@ public class TribesDispatcherHolder implements GBeanLifecycle, DispatcherHolder 
     private final URI endPointURI;
     private final String clusterName;
     private final LocalNode node;
+    private final ClassLoader cl;
     private final DispatcherRegistry dispatcherRegistry;
 
     private TribesDispatcher dispatcher;
     private AdminServiceSpace adminServiceSpace;
 
-    public TribesDispatcherHolder(URI endPointURI, String clusterName, LocalNode node) {
+
+    public TribesDispatcherHolder(ClassLoader cl, URI endPointURI, String clusterName, LocalNode node) {
         if (null == endPointURI) {
             throw new IllegalArgumentException("endPointURI is required");
         } else if (null == clusterName) {
             throw new IllegalArgumentException("clusterName is required");
         } else if (null == node) {
             throw new IllegalArgumentException("node is required");
+        } else if (null == cl) {
+            throw new IllegalArgumentException("cl is required");
         }
         this.endPointURI = endPointURI;
         this.clusterName = clusterName;
         this.node = node;
+        this.cl = cl;
         
         dispatcherRegistry = new StaticDispatcherRegistry();
     }
@@ -74,7 +80,9 @@ public class TribesDispatcherHolder implements GBeanLifecycle, DispatcherHolder 
             Collections.EMPTY_SET);
         dispatcher.start();
         
-        adminServiceSpace = new AdminServiceSpace(dispatcher, new JDKClassIndexerRegistry(new DeclaredMemberFilter()));
+        adminServiceSpace = new AdminServiceSpace(dispatcher,
+            new JDKClassIndexerRegistry(new DeclaredMemberFilter()),
+            new SimpleStreamer(cl));
         
         registerCustomAdminServices();
         
@@ -133,6 +141,7 @@ public class TribesDispatcherHolder implements GBeanLifecycle, DispatcherHolder 
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(TribesDispatcherHolder.class, 
                 NameFactory.GERONIMO_SERVICE);
         
+        infoBuilder.addAttribute("classLoader", ClassLoader.class, false);
         infoBuilder.addAttribute(GBEAN_ATTR_END_POINT_URI, URI.class, true);
         infoBuilder.addAttribute(GBEAN_ATTR_CLUSTER_NAME, String.class, true);
         
@@ -140,7 +149,7 @@ public class TribesDispatcherHolder implements GBeanLifecycle, DispatcherHolder 
 
         infoBuilder.addInterface(DispatcherHolder.class);
         
-        infoBuilder.setConstructor(new String[] {
+        infoBuilder.setConstructor(new String[] {"classLoader",
                 GBEAN_ATTR_END_POINT_URI,
                 GBEAN_ATTR_CLUSTER_NAME,
                 GBEAN_REF_NODE });

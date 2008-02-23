@@ -16,12 +16,16 @@
  */
 package org.apache.geronimo.clustering.wadi;
 
+import org.apache.geronimo.clustering.SessionManager;
 import org.codehaus.wadi.core.manager.Manager;
+import org.codehaus.wadi.servicespace.ServiceSpace;
 
 /**
  * 
  * @version $Rev$ $Date$
  */
-public interface WADISessionManager {
+public interface WADISessionManager extends SessionManager {
     Manager getManager();
+    
+    ServiceSpace getServiceSpace();
 }

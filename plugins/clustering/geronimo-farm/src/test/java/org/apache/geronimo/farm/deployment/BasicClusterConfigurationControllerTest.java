@@ -51,14 +51,14 @@ public class BasicClusterConfigurationControllerTest extends RMockTestCase {
 
         Collection<NodeInfo> nodeInfos = new ArrayList<NodeInfo>();
         
-        nodeInfo = (NodeInfo) mock(NodeInfo.class);
+        nodeInfo = (NodeInfo) mock(NodeInfo.class, "NodeInfo1");
         nodeInfos.add(nodeInfo);
         nodeInfo.getName();
         modify().multiplicity(expect.from(0)).returnValue(nodeName);
         nodeInfo.newKernel();
         modify().multiplicity(expect.from(0));
         
-        NodeInfo secondNodeInfo = (NodeInfo) mock(NodeInfo.class);
+        NodeInfo secondNodeInfo = (NodeInfo) mock(NodeInfo.class, "NodeInfo2");
         nodeInfos.add(secondNodeInfo);
         secondNodeInfo.getName();
         modify().multiplicity(expect.from(0)).returnValue("unkown");

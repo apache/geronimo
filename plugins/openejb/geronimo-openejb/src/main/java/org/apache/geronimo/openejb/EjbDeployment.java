@@ -29,7 +29,6 @@ import javax.security.auth.login.LoginException;
 
 import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
 import org.apache.geronimo.management.EJB;
-import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.jacc.RunAsSource;
 import org.apache.openejb.BeanType;
 import org.apache.openejb.Container;
@@ -37,9 +36,9 @@ import org.apache.openejb.InterfaceType;
 import org.apache.openejb.core.CoreDeploymentInfo;
 import org.apache.openejb.core.ivm.EjbObjectProxyHandler;
 
-public class EjbDeployment implements EJB {
+public class EjbDeployment implements EJB, EjbDeploymentIdAccessor {
     private final String objectName;
-    private final String deploymentId;
+    protected final String deploymentId;
     private final String ejbName;
 
     private final String homeInterfaceName;
@@ -61,9 +60,9 @@ public class EjbDeployment implements EJB {
     private final Set applicationManagedSecurityResources;
     private final TrackedConnectionAssociator trackedConnectionAssociator;
 
-    private final OpenEjbSystem openEjbSystem;
+    protected final OpenEjbSystem openEjbSystem;
 
-    private CoreDeploymentInfo deploymentInfo;
+    protected CoreDeploymentInfo deploymentInfo;
 
     private Context javaCompSubContext;
 

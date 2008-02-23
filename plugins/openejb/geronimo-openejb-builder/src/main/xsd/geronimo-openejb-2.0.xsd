@@ -43,6 +43,15 @@
         <xs:sequence>
             <xs:element ref="sys:environment" minOccurs="0"/>
 
+            <xs:element ref="app:clustering" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                        Reference to abstract clustering element defined in
+                        imported "geronimo-application-2.0.xsd"
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+
             <xs:element name="openejb-jar" type="openejb:openejb-jarType" minOccurs="0"/>
 
             <!-- Naming -->

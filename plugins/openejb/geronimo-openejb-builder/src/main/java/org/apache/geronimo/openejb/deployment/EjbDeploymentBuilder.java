@@ -34,7 +34,6 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedEjbJar;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.naming.deployment.AbstractNamingBuilder;
 import org.apache.geronimo.naming.deployment.GBeanResourceEnvironmentBuilder;
@@ -74,6 +73,7 @@ public class EjbDeploymentBuilder {
     private final EjbModule ejbModule;
     private final NamingBuilder namingBuilder;
     private final ResourceEnvironmentSetter resourceEnvironmentSetter;
+    private final EjbDeploymentGBeanNameBuilder beanNameBuilder;
     private final Map<String, GBeanData> gbeans = new TreeMap<String, GBeanData>();
 
     public EjbDeploymentBuilder(EARContext earContext, EjbModule ejbModule, NamingBuilder namingBuilder, ResourceEnvironmentSetter resourceEnvironmentSetter) {
@@ -81,11 +81,13 @@ public class EjbDeploymentBuilder {
         this.ejbModule = ejbModule;
         this.namingBuilder = namingBuilder;
         this.resourceEnvironmentSetter = resourceEnvironmentSetter;
+        
+        beanNameBuilder = new BasicEjbDeploymentGBeanNameBuilder();
     }
 
     public void initContext() throws DeploymentException {
         for (EnterpriseBean enterpriseBean : ejbModule.getEjbJar().getEnterpriseBeans()) {
-            AbstractName abstractName = createEjbName(enterpriseBean);
+            AbstractName abstractName = beanNameBuilder.createEjbName(earContext, ejbModule, enterpriseBean);
             GBeanData gbean = null;
             if (enterpriseBean instanceof SessionBean) {
                 SessionBean sessionBean = (SessionBean) enterpriseBean;
@@ -363,30 +365,6 @@ public class EjbDeploymentBuilder {
         GBeanData gbean = gbeans.get(ejbName);
         if (gbean == null) throw new DeploymentException("EJB not gbean not found " + ejbName);
         return gbean;
-    }
-
-    private AbstractName createEjbName(EnterpriseBean enterpriseBean) {
-        String ejbName = enterpriseBean.getEjbName();
-        String type = null;
-        if (enterpriseBean instanceof SessionBean) {
-            SessionBean sessionBean = (SessionBean) enterpriseBean;
-            switch (sessionBean.getSessionType()) {
-                case STATELESS:
-                    type = NameFactory.STATELESS_SESSION_BEAN;
-                    break;
-                case STATEFUL:
-                    type = NameFactory.STATEFUL_SESSION_BEAN;
-                    break;
-            }
-        } else if (enterpriseBean instanceof EntityBean) {
-            type = NameFactory.ENTITY_BEAN;
-        } else if (enterpriseBean instanceof MessageDrivenBean) {
-            type = NameFactory.MESSAGE_DRIVEN_BEAN;
-        }
-        if (type == null) {
-            throw new IllegalArgumentException("Unknown enterprise bean type XXX " + enterpriseBean.getClass().getName());
-        }
-        return earContext.getNaming().createChildName(ejbModule.getModuleName(), ejbName, type);
     }
 
     private static Class assureEJBObjectInterface(String remote, ClassLoader cl) throws DeploymentException {
