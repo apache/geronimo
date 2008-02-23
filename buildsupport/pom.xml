@@ -19,24 +19,24 @@
 <!-- $Rev$ $Date$ -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    
+
     <modelVersion>4.0.0</modelVersion>
-    
+
     <parent>
         <groupId>org.apache.geronimo</groupId>
         <artifactId>geronimo</artifactId>
         <version>2.2-SNAPSHOT</version>
     </parent>
-    
+
     <groupId>org.apache.geronimo.buildsupport</groupId>
     <artifactId>buildsupport</artifactId>
     <name>Geronimo Build Support</name>
     <packaging>pom</packaging>
-    
+
     <description>
         Provides support for Geronimo build muck.
     </description>
-    
+
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -46,7 +46,7 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
-    
+
     <dependencies>
         <dependency>
             <groupId>org.apache.geronimo.testsupport</groupId>
@@ -61,15 +61,16 @@
             <version>1.0-alpha-1</version>
         </dependency>
     </dependencies>
-    
+
     <modules>
         <module>buildsupport-maven-plugin</module>
         <module>car-maven-plugin</module>
         <module>geronimo-maven-plugin</module>
         <module>testsuite-maven-plugin</module>
         <module>testsuite-archetype-plugin</module>
+        <module>geronimo-module-archetype</module>
     </modules>
-    
+
     <reporting>
         <plugins>
             <plugin>
@@ -81,3 +82,4 @@
     </reporting>
 
 </project>
+        

@@ -1,0 +1,6 @@
+<archetype>
+  <id>geronimo-module-archetype</id>
+  <resources>
+    <resource>src/main/plan/plan.xml</resource>
+  </resources>
+</archetype>
