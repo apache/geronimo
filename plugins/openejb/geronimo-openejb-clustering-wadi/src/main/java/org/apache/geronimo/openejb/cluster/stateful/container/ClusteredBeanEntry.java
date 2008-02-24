@@ -67,6 +67,7 @@ public class ClusteredBeanEntry extends BeanEntry {
     }
 
     public void endAccess() {
+        session.addState(SESSION_KEY_ENTRY, this);
         session.onEndAccess();
     }
     

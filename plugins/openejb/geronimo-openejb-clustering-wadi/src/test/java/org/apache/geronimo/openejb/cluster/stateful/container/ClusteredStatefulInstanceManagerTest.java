@@ -193,6 +193,8 @@ public class ClusteredStatefulInstanceManagerTest extends RMockTestCase {
         session.addState(ClusteredBeanEntry.SESSION_KEY_ENTRY, null);
         modify().args(is.AS_RECORDED, is.NOT_NULL);
         
+        session.addState(ClusteredBeanEntry.SESSION_KEY_ENTRY, null);
+        modify().args(is.AS_RECORDED, is.NOT_NULL);
         session.onEndAccess();
         
         startVerification();
