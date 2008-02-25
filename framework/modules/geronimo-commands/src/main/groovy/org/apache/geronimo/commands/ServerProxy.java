@@ -87,6 +87,10 @@ public class ServerProxy
         log.debug("Initialized with URL: " + url + ", environment: " + environment);
     }
 
+    public ServerProxy(JMXConnector connector) throws Exception {
+        this.mbeanConnection = connector.getMBeanServerConnection();
+    }
+    
     private MBeanServerConnection getConnection() throws IOException {
         if (this.mbeanConnection == null) {
             log.debug("Connecting to: " + url);

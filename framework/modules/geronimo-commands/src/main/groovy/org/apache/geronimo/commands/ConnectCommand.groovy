@@ -54,7 +54,7 @@ class ConnectCommand extends CommandSupport {
     @Requirement
     PromptReader prompter
 
-    protected Object doExecute() throws Exception {
+    protected Object doExecute() throws Exception {               
         io.out.println("Connecting to Geronimo server: ${hostname}:${port}")
         
         // If the username/password was not configured via cli, then prompt the user for the values
@@ -78,9 +78,22 @@ class ConnectCommand extends CommandSupport {
         def connectionParams = new ConnectionParamsImpl(host: hostname, port: port, user: username, password: password, offline: false)
         def connection = new ServerConnection(connectionParams, io.out, io.inputStream, kernel, deploymentFactory)
 
+        disconnect();
+        
         variables.parent.set("ServerConnection", connection)
 
         io.out.println("Connection established")
         return connection
+    }
+    
+    private void disconnect() {
+        def connection = variables.get("ServerConnection")
+        if (connection) {
+            try {
+            	connection.close()
+            } catch (Exception e) {
+                // ignore
+            }
+        }
     }
 }

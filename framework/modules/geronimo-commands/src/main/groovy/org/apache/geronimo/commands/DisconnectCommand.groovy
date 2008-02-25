@@ -34,14 +34,18 @@ class DisconnectCommand
 {
 
     protected Object doExecute() throws Exception {
-        io.out.println("Disconnecting from Geronimo server")
-
         def connection = variables.get("ServerConnection")
         if (connection) {
-            connection.close()
+            io.out.println("Disconnecting from Geronimo server")
+            try {
+            	connection.close()
+            } catch (Exception e) {
+                // ignore
+            }           
+            variables.parent.unset("ServerConnection")            
+            io.out.println("Connection ended")
+        } else {
+            io.out.println("Not connected")
         }
-        variables.parent.unset("ServerConnection")
-        
-        io.out.println("Connection ended")
     }
 }
