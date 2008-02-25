@@ -23,7 +23,7 @@ package org.apache.geronimo.security.jacc;
 import javax.security.auth.Subject;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public interface RunAsSource {
     RunAsSource NULL = new RunAsSource() {

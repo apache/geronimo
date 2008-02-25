@@ -44,7 +44,7 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.xmlbeans.XmlObject;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class CredentialStoreBuilder implements XmlAttributeBuilder {
 

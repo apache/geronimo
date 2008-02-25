@@ -25,7 +25,7 @@ import java.net.URI;
 import org.apache.geronimo.security.SubjectId;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class ServerIdentityToken {
     private final URI server;

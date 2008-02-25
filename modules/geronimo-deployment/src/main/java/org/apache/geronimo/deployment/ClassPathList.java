@@ -24,7 +24,7 @@ import java.util.ArrayList;
 
 /**
  * Typed list of relative classpath entries.  Types so we can put it in a map via its class.
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class ClassPathList extends ArrayList<String> {
 }

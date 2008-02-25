@@ -50,7 +50,7 @@ import org.apache.geronimo.util.EncryptionManager;
  * <reference name="ServerInfo"><pattern><name>ServerInfo</name></pattern></reference>
  * </gbean>
  *
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class ConfiguredEncryption extends AbstractEncryption implements GBeanLifecycle {
 

@@ -32,7 +32,7 @@ import java.sql.DriverManager;
 /**
  * Class to sneak around idiotic classloading restrictions in DriverManager.  This basically does the same as DriverManager
  * except that you register Driver instances directly.
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class DelegatingDriver implements Driver {
 

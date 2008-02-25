@@ -24,7 +24,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import junit.framework.TestCase;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class ConnectorGBeanTest extends TestCase {
 

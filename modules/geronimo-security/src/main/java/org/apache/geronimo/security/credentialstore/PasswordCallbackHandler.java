@@ -24,7 +24,7 @@ import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.PasswordCallback;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class PasswordCallbackHandler implements SingleCallbackHandler {
 

@@ -25,7 +25,7 @@ import java.io.Serializable;
 /**
  * Interface for objects to register with EncryptionManager.
  *
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public interface Encryption {
     /**

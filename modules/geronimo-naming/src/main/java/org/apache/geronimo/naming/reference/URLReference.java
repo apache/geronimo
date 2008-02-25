@@ -26,7 +26,7 @@ import java.net.MalformedURLException;
 import javax.naming.NamingException;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class URLReference extends SimpleReference {
 

@@ -21,7 +21,7 @@
 package org.apache.geronimo.myfaces;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public interface LifecycleProviderFactorySource {
     ApplicationIndexedLifecycleProviderFactory getLifecycleProviderFactory();

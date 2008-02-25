@@ -23,7 +23,7 @@ package org.apache.geronimo.j2ee;
 import java.util.Map;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public interface RuntimeCustomizer {
     void customize(Map<Class, Object> context);

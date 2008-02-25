@@ -43,7 +43,7 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
  * (the car-maven-plugin starts a configuration that isn't a parent of anything.  We might be able to fix that by a
  * use of artifact_aliases.properties itself, but that might be for later).
  *
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class OptionalExplicitDefaultArtifactResolver implements ArtifactResolver {
 

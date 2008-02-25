@@ -33,7 +33,7 @@ import org.apache.openejb.persistence.JtaEntityManagerRegistry;
 import org.apache.openejb.loader.SystemInstance;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class EntityManagerRegistryImpl implements ExtendedEntityManagerRegistry {
 
