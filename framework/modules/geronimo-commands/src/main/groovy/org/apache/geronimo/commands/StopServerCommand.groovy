@@ -24,6 +24,7 @@ import org.apache.geronimo.gshell.command.annotation.CommandComponent
 import org.apache.geronimo.gshell.command.CommandSupport
 import org.apache.geronimo.gshell.command.annotation.Requirement
 import org.apache.geronimo.gshell.console.PromptReader
+import org.apache.geronimo.deployment.plugin.jmx.RemoteDeploymentManager
 
 /**
  * Stops a running Geronimo server instance.
@@ -31,46 +32,23 @@ import org.apache.geronimo.gshell.console.PromptReader
  * @version $Rev$ $Date$
  */
 @CommandComponent(id='geronimo-commands:stop-server', description="Stop a Geronimo server")
-class StopServerCommand
-    extends CommandSupport
-{
-    @Option(name='-s', aliases=['--hostname', '--server'], description='Hostname, default localhost')
-    String hostname = 'localhost'
-
-    @Option(name='-p', aliases=['--port'], description='Port, default 1099')
-    int port = 1099
-
-    @Option(name='-u', aliases=['--username'], description='Username')
-    String username
-    
-    @Option(name='-w', aliases=['--password'], description='Password')
-    String password
-    
-    @Requirement
-    PromptReader prompter
+class StopServerCommand extends ConnectCommand {
     
     protected Object doExecute() throws Exception {
-        io.out.println("Stopping Geronimo server: ${hostname}:${port}")
-        
-        // If the username/password was not configured via cli, then prompt the user for the values
-        if (username == null || password == null) {
-            if (username == null) {
-                username = prompter.readLine("Username: ");
-            }
-
-            if (password == null) {
-                password = prompter.readPassword("Password: ");
-            }
-
-            //
-            // TODO: Handle null inputs...
-            //
+        def connection = variables.get("ServerConnection")
+        if (!connection) {
+            connection = super.doExecute()
         }
+                         
+        io.out.println("Stopping Geronimo server")
         
-        def server = new ServerProxy(hostname, port, username, password)
+        RemoteDeploymentManager deploymentManager = 
+            (RemoteDeploymentManager)connection.getDeploymentManager();
+        
+        def server = new ServerProxy(deploymentManager.getJMXConnector())
 
         server.shutdown();
 
-        io.out.println("Shutdown request has been issued");
+        io.out.println("Shutdown request has been issued");        
     }
 }

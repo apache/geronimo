@@ -89,6 +89,10 @@ public class RemoteDeploymentManager extends JMXDeploymentManager implements Ger
         checkSameMachine(hostname);
     }
 
+    public JMXConnector getJMXConnector() {
+        return this.jmxConnector;
+    }
+    
     public boolean isSameMachine() {
         return isSameMachine;
     }
