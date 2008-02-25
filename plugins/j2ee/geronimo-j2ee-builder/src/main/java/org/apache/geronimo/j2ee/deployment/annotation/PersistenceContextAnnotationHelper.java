@@ -65,8 +65,8 @@ import org.apache.xbean.finder.ClassFinder;
  * <li>None
  * </ul>
  *
- * @version $Rev $Date
- * @since 04-2007
+ * @version $Rev $Date$
+ *
  */
 public final class PersistenceContextAnnotationHelper extends AnnotationHelper {
 
