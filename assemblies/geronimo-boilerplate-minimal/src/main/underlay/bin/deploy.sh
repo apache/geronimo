@@ -176,7 +176,7 @@ if $cygwin; then
   JRE_HOME=`cygpath --absolute --windows "$JRE_HOME"`
   GERONIMO_HOME=`cygpath --absolute --windows "$GERONIMO_HOME"`
   GERONIMO_BASE=`cygpath --absolute --windows "$GERONIMO_BASE"`
-  GERONIMO_TMPDIR=`cygpath --absolute --windows "$GERONIMO_TMPDIR"`
+  GERONIMO_TMPDIR=`cygpath --windows "$GERONIMO_TMPDIR"`
 fi
 
 # ----- Execute The Requested Command -----------------------------------------

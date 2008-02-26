@@ -234,7 +234,7 @@ if $cygwin; then
   JDB_SRCPATH=`cygpath --absolute --windows "$JDB_SRCPATH"`
   GERONIMO_HOME=`cygpath --absolute --windows "$GERONIMO_HOME"`
   GERONIMO_BASE=`cygpath --absolute --windows "$GERONIMO_BASE"`
-  GERONIMO_TMPDIR=`cygpath --absolute --windows "$GERONIMO_TMPDIR"`
+  GERONIMO_TMPDIR=`cygpath --windows "$GERONIMO_TMPDIR"`
   ENDORSED_DIRS="$GERONIMO_BASE/lib/endorsed;$JRE_HOME/lib/endorsed"
 else
   ENDORSED_DIRS="$GERONIMO_BASE/lib/endorsed:$JRE_HOME/lib/endorsed"
