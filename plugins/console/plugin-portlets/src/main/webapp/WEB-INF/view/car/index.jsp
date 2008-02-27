@@ -24,7 +24,7 @@
 function <portlet:namespace/>validateForm(){
     with(document.<portlet:namespace/>ExportForm){
         if (configId.value==null || configId.value=="") {
-            alert("Please select a configuration to export.");
+            alert("<fmt:message key="car.index.validateConfig"/>");
             return false;
         }
     }
