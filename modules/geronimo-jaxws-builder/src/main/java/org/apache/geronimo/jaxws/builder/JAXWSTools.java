@@ -33,7 +33,6 @@ import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ListableRepository;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.repository.Version;
-import org.apache.geronimo.common.DeploymentException;
 
 public class JAXWSTools {
 
@@ -107,7 +106,7 @@ public class JAXWSTools {
         return buf.toString();
     }
     
-    public File[] getClasspath(Collection<? extends Repository> repositories) throws DeploymentException {
+    public File[] getClasspath(Collection<? extends Repository> repositories) throws Exception {
         ArrayList<File> jars = new ArrayList<File>();
         for (String[] lib : LIBS) {
             Artifact artifact = new Artifact(lib[0], lib[1], (Version)null, "jar");
@@ -121,7 +120,7 @@ public class JAXWSTools {
         return jars.toArray(new File[jars.size()]);
     }
        
-    private static File getLocation(Collection<? extends Repository> repositories, Artifact artifactQuery) throws DeploymentException {
+    private static File getLocation(Collection<? extends Repository> repositories, Artifact artifactQuery) throws Exception {
         File file = null;
         
         for (Repository arepository : repositories) {
@@ -139,7 +138,7 @@ public class JAXWSTools {
             }
         }
         
-        throw new DeploymentException("Missing artifact in repositories: " + artifactQuery.toString());
+        throw new Exception("Missing artifact in repositories: " + artifactQuery.toString());
     }
     
     private static void addToolsJarLocation(ArrayList<File> jars) {
