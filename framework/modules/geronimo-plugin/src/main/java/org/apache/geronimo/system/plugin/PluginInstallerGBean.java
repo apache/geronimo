@@ -420,7 +420,19 @@ public class PluginInstallerGBean implements PluginInstaller {
      *                 The configId must be fully resolved (isResolved() == true)
      */
     public PluginType getPluginMetadata(Artifact moduleId) {
-        return localSourceRepository.extractPluginMetadata(moduleId);
+        PluginType type = localSourceRepository.extractPluginMetadata(moduleId);
+        if (null == type) {
+            try {
+                type = createDefaultMetadata(moduleId);
+            } catch (InvalidConfigException e) {
+                e.printStackTrace();
+                log.warn("Unable to generate metadata for " + moduleId, e);
+            } catch (Exception e) {
+                e.printStackTrace();
+                log.warn("Error generating metadata for " + moduleId, e);
+            }
+        }
+        return type;
     }
 
     /**
