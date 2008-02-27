@@ -21,6 +21,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URL;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
@@ -121,11 +123,11 @@ public class WsdlGenerator {
         return JAXWSTools.toURL(jars);
     }
     
-    private static void getModuleClasspath(Module module, DeploymentContext context, StringBuilder classpath) throws DeploymentException {
-        getModuleClasspath(classpath, module.getEarContext());
+    private static void getModuleClasspath(Module module, DeploymentContext context, StringBuilder classpath) throws DeploymentException {        
+        getModuleClasspath(classpath, module.getEarContext());       
         if (module.getRootEarContext() != module.getEarContext()) {
             getModuleClasspath(classpath, module.getRootEarContext());
-        }
+        }         
     }
 
     private static void getModuleClasspath(StringBuilder classpath, DeploymentContext deploymentContext) throws DeploymentException {
@@ -313,7 +315,7 @@ public class WsdlGenerator {
                 }
                 return getRelativeNameOrURL(moduleBase, wsdlFile);
             } else {
-                throw new DeploymentException("wsgen failed");
+                throw new DeploymentException("WSDL generation failed");
             }            
                                  
         } catch (DeploymentException e) {
@@ -350,27 +352,32 @@ public class WsdlGenerator {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Executing wsgen: " + cmd);
         }
+              
+        ProcessBuilder builder = new ProcessBuilder(cmd);
+        builder.redirectErrorStream(true);
                 
-        String [] cmdArray = (String[]) cmd.toArray(new String[] {});
-        
-        Process process = Runtime.getRuntime().exec(cmdArray);
-        int errorCode = waitFor(process);
-                
-        if (errorCode == 0) {
-            return true;
-        } else {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("wsgen error code: " + errorCode);
-            }
-            return false;
-        }
+        Process process = builder.start();
+        return waitFor(process);
     }
     
-    private int waitFor(Process process) throws DeploymentException {
+    private boolean waitFor(Process process) throws DeploymentException {  
+        CaptureOutputThread outputThread = new CaptureOutputThread(process.getInputStream());
+        outputThread.start();        
+                
         long sleepTime = 0;        
         while(sleepTime < this.forkTimeout) {            
             try {
-                return process.exitValue();
+                int errorCode = process.exitValue();
+                if (errorCode == 0) {
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("wsgen output: " + outputThread.getOutput());
+                    }
+                    return true;
+                } else {
+                    LOG.error("WSDL generation process failed");
+                    LOG.error(outputThread.getOutput()); 
+                    return false;
+                }
             } catch (IllegalThreadStateException e) {
                 // still running
                 try {
@@ -378,14 +385,68 @@ public class WsdlGenerator {
                 } catch (InterruptedException ee) {
                     // interrupted
                     process.destroy();
-                    throw new DeploymentException("wsgen interrupted");
+                    throw new DeploymentException("WSDL generation process was interrupted");
                 }
                 sleepTime += FORK_POLL_FREQUENCY;
             }
         }
         
         // timeout;
-        process.destroy();      
-        throw new DeploymentException("wsgen timed out");
+        process.destroy();
+        
+        LOG.error("WSDL generation process timed out");
+        LOG.error(outputThread.getOutput());          
+        
+        throw new DeploymentException("WSDL generation process timed out");
+    }
+    
+    private static class CaptureOutputThread extends Thread {
+        
+        private InputStream in;
+        private ByteArrayOutputStream out;
+        
+        public CaptureOutputThread(InputStream in) {
+            this.in = in;
+            this.out = new ByteArrayOutputStream();
+        }
+        
+        public String getOutput() {
+            // make sure the thread is done
+            try {
+                join(10 * 1000);
+                
+                // if it's still not done, interrupt it
+                if (isAlive()) {
+                    interrupt();
+                }
+            } catch (InterruptedException e) {
+                // that's ok
+            }            
+            
+            // get the output
+            byte [] arr = this.out.toByteArray();
+            String output = new String(arr, 0, arr.length);
+            return output;
+        }
+        
+        public void run() {
+            try {
+                copyAll(this.in, this.out);
+            } catch (IOException e) {
+                // ignore
+            } finally {
+                try { this.out.close(); } catch (IOException ee) {}
+                try { this.in.close(); } catch (IOException ee) {}
+            }
+        }
+        
+        private static void copyAll(InputStream in, OutputStream out) throws IOException {
+            byte[] buffer = new byte[4096];
+            int count;
+            while ((count = in.read(buffer)) > 0) {
+                out.write(buffer, 0, count);
+            }
+            out.flush();
+        }
     }
 }
