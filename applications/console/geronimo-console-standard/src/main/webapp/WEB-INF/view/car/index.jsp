@@ -18,6 +18,20 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+
+<script>
+function <portlet:namespace/>validateForm(){
+    with(document.<portlet:namespace/>ExportForm){
+        if (configId.value==null || configId.value=="") {
+            alert("Please select a configuration to export.");
+            return false;
+        }
+    }
+    return true;
+}
+</script>
+
+
 <portlet:defineObjects/>
 <p>This portlet lets you install or create Geronimo plugins.
     This can be used to install new features into a Geronimo server at runtime.</p>
@@ -61,7 +75,7 @@ the administrator username and password in the optional authentication fields.</
    <i>Note: at present, you must manually add a <tt>META-INF/geronimo-plugin.xml</tt>
    file to the CAR after you export it in order for it to be a valid plugin.</i></p>
 
-<form name="<portlet:namespace/>ExportForm" action="<portlet:actionURL/>" method="POST">
+<form name="<portlet:namespace/>ExportForm" action="<portlet:actionURL/>" method="POST" onsubmit="return <portlet:namespace/>validateForm()">
     <input type="hidden" name="mode" value="configure-before" />
     <select name="configId">
         <option />
