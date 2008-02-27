@@ -66,17 +66,18 @@ public class ExportConfigHandler extends BaseImportExportHandler {
 
     public void renderView(RenderRequest request, RenderResponse response, MultiPageModel model) throws PortletException, IOException {
         String configId = request.getParameter("configId");
-        PluginType data = ManagementHelper.getManagementHelper(request).getPluginInstaller().getPluginMetadata(
-                Artifact.create(configId));
-        PluginArtifactType instance = data.getPluginArtifact().get(0);
+        PluginInstaller pluginInstaller = ManagementHelper.getManagementHelper(request).getPluginInstaller();
+        Artifact newArtifact = Artifact.create(configId);  
+        PluginType metadata = pluginInstaller.getPluginMetadata(newArtifact);  
+        PluginArtifactType instance = metadata.getPluginArtifact().get(0);
         request.setAttribute("configId", PluginInstallerGBean.toArtifact(instance.getModuleId()).toString());
-        request.setAttribute("name", data.getName());
+        request.setAttribute("name", metadata.getName());
         request.setAttribute("repository", combine(instance.getSourceRepository()));
-        request.setAttribute("category", data.getCategory());
-        request.setAttribute("url", data.getUrl());
-        request.setAttribute("author", data.getAuthor());
-        request.setAttribute("description", data.getDescription());
-        List<LicenseType> licenses = data.getLicense();
+        request.setAttribute("category", metadata.getCategory());
+        request.setAttribute("url", metadata.getUrl());
+        request.setAttribute("author", metadata.getAuthor());
+        request.setAttribute("description", metadata.getDescription());
+        List<LicenseType> licenses = metadata.getLicense();
         if (licenses != null && licenses.size() > 0) {
             request.setAttribute("license", licenses.get(0).getValue());
             if (licenses.get(0).isOsiApproved()) {
