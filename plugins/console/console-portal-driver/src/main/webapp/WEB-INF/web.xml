@@ -98,6 +98,21 @@ limitations under the License.
     </init-param>
   </servlet>
 
+  <!-- DWR for the plugin portlets -->
+  <servlet>
+    <display-name>DWR Forward Servlet 4</display-name>
+    <servlet-name>dwr-forward4</servlet-name>
+    <servlet-class>org.apache.geronimo.console.servlet.ContextForwardServlet</servlet-class>
+    <init-param>
+       <param-name>servlet-path</param-name>
+       <param-value>/dwr4</param-value>
+    </init-param>
+    <init-param>
+       <param-name>context-path</param-name>
+       <param-value>/plugin</param-value>
+    </init-param>
+  </servlet>
+
   <servlet>
     <display-name>Generic Context Forward Servlet</display-name>
     <servlet-name>context-forward</servlet-name>
@@ -133,6 +148,11 @@ limitations under the License.
   <servlet-mapping>
     <servlet-name>dwr-forward3</servlet-name>
     <url-pattern>/dwr3/*</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>dwr-forward4</servlet-name>
+    <url-pattern>/dwr4/*</url-pattern>
   </servlet-mapping>
 
   <servlet-mapping>
@@ -196,6 +216,7 @@ limitations under the License.
       <url-pattern>/dwr/*</url-pattern>
       <url-pattern>/dwr2/*</url-pattern>
       <url-pattern>/dwr3/*</url-pattern>
+      <url-pattern>/dwr4/*</url-pattern>
       <http-method>GET</http-method>
       <http-method>POST</http-method>
       <http-method>PUT</http-method>

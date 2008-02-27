@@ -20,9 +20,9 @@
 <fmt:setBundle basename="pluginportlets"/>
 <fmt:message key="car.downloadStatus.processing"/>
 <portlet:defineObjects/>
-<script type='text/javascript' src='/plugin/dwr/interface/ProgressMonitor.js'></script>
-<script type='text/javascript' src='/plugin/dwr/engine.js'></script>
-<script type='text/javascript' src='/plugin/dwr/util.js'></script>
+<script type='text/javascript' src='/console/dwr4/interface/ProgressMonitor.js'></script>
+<script type='text/javascript' src='/console/dwr4/engine.js'></script>
+<script type='text/javascript' src='/console/dwr4/util.js'></script>
 
 <div id="<portlet:namespace/>progressMeter" style="display: none; padding-top: 5px;">
     <div>
