@@ -19,6 +19,20 @@
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <fmt:setBundle basename="pluginportlets"/>
+
+<script>
+function <portlet:namespace/>validateForm(){
+    with(document.<portlet:namespace/>ExportForm){
+        if (configId.value==null || configId.value=="") {
+            alert("Please select a configuration to export.");
+            return false;
+        }
+    }
+    return true;
+}
+</script>
+
+
 <portlet:defineObjects/>
 <fmt:message key="car.index.summary"/>
 
@@ -49,7 +63,7 @@
 
 <p><fmt:message key="car.index.createGeronimoPluginExp"/></p>
 
-<form name="<portlet:namespace/>ExportForm" action="<portlet:actionURL/>" method="POST">
+<form name="<portlet:namespace/>ExportForm" action="<portlet:actionURL/>" method="POST" onsubmit="return <portlet:namespace/>validateForm()">
     <input type="hidden" name="mode" value="configure-before"/>
     <select name="configId">
         <option/>
