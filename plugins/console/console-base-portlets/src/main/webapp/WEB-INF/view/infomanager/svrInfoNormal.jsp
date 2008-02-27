@@ -140,9 +140,6 @@ function <portlet:namespace/>updateValues(serverStats) {
     DWRUtil.setValue("<portlet:namespace/>MostMemory", serverStats.memoryMost);
     DWRUtil.setValue("<portlet:namespace/>AvailableMemory", serverStats.memoryAllocated);
     DWRUtil.setValue("<portlet:namespace/>UpTime", serverStats.upTime);
-    if(!<portlet:namespace/>stopped) {
-        setTimeout("<portlet:namespace/>callServer()", 5000);
-    }
 }
 function <portlet:namespace/>onError() {
     <portlet:namespace/>stopped=true;
@@ -150,7 +147,3 @@ function <portlet:namespace/>onError() {
 }
 <portlet:namespace/>callServer();
 </script>
-
-<embed src='/console/forwards/graphs/memoryGraphSVG.jsp'
-       width="600" height="450" type="image/svg+xml"
-       pluginspage="http://www.adobe.com/svg/viewer/install/" />
