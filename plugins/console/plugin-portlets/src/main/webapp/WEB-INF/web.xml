@@ -54,7 +54,7 @@ limitations under the License.
     </filter-mapping>
     <servlet-mapping>
         <servlet-name>dwr-invoker</servlet-name>
-        <url-pattern>/dwr/*</url-pattern>
+        <url-pattern>/dwr4/*</url-pattern>
     </servlet-mapping>
     
     <servlet>
@@ -132,7 +132,7 @@ limitations under the License.
             
             <!--<url-pattern>/</url-pattern>-->
             <url-pattern>/PlutoInvoker/*</url-pattern>
-            <url-pattern>/dwr/*</url-pattern>
+            <url-pattern>/dwr4/*</url-pattern>
             <url-pattern>/car-export</url-pattern>
             <url-pattern>/maven-repo/*</url-pattern>
             <url-pattern>/plan-export</url-pattern>
