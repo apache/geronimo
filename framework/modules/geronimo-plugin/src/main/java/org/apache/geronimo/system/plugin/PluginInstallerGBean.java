@@ -425,10 +425,8 @@ public class PluginInstallerGBean implements PluginInstaller {
             try {
                 type = createDefaultMetadata(moduleId);
             } catch (InvalidConfigException e) {
-                e.printStackTrace();
                 log.warn("Unable to generate metadata for " + moduleId, e);
             } catch (Exception e) {
-                e.printStackTrace();
                 log.warn("Error generating metadata for " + moduleId, e);
             }
         }
