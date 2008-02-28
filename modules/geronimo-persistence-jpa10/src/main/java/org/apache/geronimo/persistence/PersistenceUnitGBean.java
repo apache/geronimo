@@ -27,6 +27,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Collections;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -52,6 +53,7 @@ import org.apache.geronimo.transformer.TransformerAgent;
  * @version $Rev$ $Date$
  */
 public class PersistenceUnitGBean implements GBeanLifecycle {
+    private static final List<URL> NO_URLS = Collections.emptyList();
     private final String persistenceUnitRoot;
     private final PersistenceUnitInfoImpl persistenceUnitInfo;
     private final EntityManagerFactory entityManagerFactory;
@@ -86,7 +88,7 @@ public class PersistenceUnitGBean implements GBeanLifecycle {
         this.persistenceUnitRoot = persistenceUnitRoot;
         URI configurationBaseURI = new File(configurationBaseURL.getFile()).toURI();
         URL rootURL = null;
-        List<URL> jarFileUrls = null;
+        List<URL> jarFileUrls = NO_URLS;
         if (!excludeUnlistedClassesValue) {
             rootURL = configurationBaseURI.resolve(persistenceUnitRoot).normalize().toURL();
             jarFileUrls = new ArrayList<URL>();
