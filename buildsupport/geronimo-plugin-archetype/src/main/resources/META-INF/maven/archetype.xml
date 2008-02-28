@@ -1,5 +1,5 @@
 <archetype>
-  <id>geronimo-module-archetype</id>
+  <id>geronimo-plugin-archetype</id>
   <resources>
     <resource>src/main/plan/plan.xml</resource>
   </resources>
