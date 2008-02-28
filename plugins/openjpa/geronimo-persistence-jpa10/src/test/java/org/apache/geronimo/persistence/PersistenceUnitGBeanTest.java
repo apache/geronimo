@@ -17,6 +17,10 @@
 
 package org.apache.geronimo.persistence;
 
+import java.io.File;
+
+import javax.persistence.spi.PersistenceUnitInfo;
+
 import junit.framework.TestCase;
 
 /**
@@ -26,5 +30,24 @@ public class PersistenceUnitGBeanTest extends TestCase {
 
     public void testNoArgConstructor() throws Exception {
         new PersistenceUnitGBean();
+    }
+    
+    public void testNonNullJavaFileUrls() throws Exception {
+        PersistenceUnitGBean gbean = new PersistenceUnitGBean("foo",
+                null,
+                "JTA",
+                null,
+                null,
+                null,
+                null,
+                "/foo/bar/Root",
+                null,
+                true,
+                null,
+                null,
+                null,
+                new File("/foo/bar/Root").toURL(),
+                getClass().getClassLoader());
+        assertNotNull(gbean.getJarFileUrls());
     }
 }
