@@ -52,7 +52,11 @@
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-jpa_3.0_spec</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>org.apache.openjpa</groupId>
+            <artifactId>openjpa</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
 </project>
