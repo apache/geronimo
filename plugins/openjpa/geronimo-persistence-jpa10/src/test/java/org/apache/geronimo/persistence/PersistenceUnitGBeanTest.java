@@ -49,5 +49,6 @@ public class PersistenceUnitGBeanTest extends TestCase {
                 new File("/foo/bar/Root").toURL(),
                 getClass().getClassLoader());
         assertNotNull(gbean.getJarFileUrls());
+        assertNotNull(gbean.getPersistenceUnitRootUrl());
     }
 }
