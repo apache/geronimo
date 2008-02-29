@@ -87,10 +87,9 @@ public class PersistenceUnitGBean implements GBeanLifecycle {
         List<String> mappingFileNames = mappingFileNamesUntyped == null? new ArrayList<String>(): new ArrayList<String>(mappingFileNamesUntyped);
         this.persistenceUnitRoot = persistenceUnitRoot;
         URI configurationBaseURI = new File(configurationBaseURL.getFile()).toURI();
-        URL rootURL = null;
+        URL rootURL = configurationBaseURI.resolve(persistenceUnitRoot).normalize().toURL();
         List<URL> jarFileUrls = NO_URLS;
         if (!excludeUnlistedClassesValue) {
-            rootURL = configurationBaseURI.resolve(persistenceUnitRoot).normalize().toURL();
             jarFileUrls = new ArrayList<URL>();
             for (String urlString: jarFileUrlsUntyped) {
                 URL url = configurationBaseURI.resolve(urlString).normalize().toURL();
