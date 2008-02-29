@@ -39,10 +39,6 @@
         Tests for the ejb modules
     </description>
 
-    <properties>
-        <openejbVersion>2.3-incubating-SNAPSHOT</openejbVersion>
-    </properties>
-    
     <dependencies>
         <dependency>
             <groupId>org.apache.openejb</groupId>
