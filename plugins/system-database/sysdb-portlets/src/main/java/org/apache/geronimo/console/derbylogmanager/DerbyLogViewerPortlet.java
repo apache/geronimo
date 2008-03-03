@@ -21,6 +21,8 @@ import org.apache.geronimo.console.BasePortlet;
 import org.apache.geronimo.console.util.PortletManager;
 import org.apache.geronimo.derby.DerbyLog;
 
+import javax.portlet.ActionRequest;
+import javax.portlet.ActionResponse;
 import javax.portlet.PortletConfig;
 import javax.portlet.PortletContext;
 import javax.portlet.PortletException;
@@ -90,6 +92,12 @@ public class DerbyLogViewerPortlet extends BasePortlet {
         normalView.include(renderRequest, renderResponse);
     }
 
+    @Override
+    public void processAction(ActionRequest actionRequest, ActionResponse actionResponse) throws PortletException, IOException {        
+        //Add all the parameters to the actionResponse Attributes so we can get the back
+        actionResponse.setRenderParameters(actionRequest.getParameterMap());    
+    }
+    
     private static class Criteria implements Serializable {
         Integer max = 10;
         Integer start;
