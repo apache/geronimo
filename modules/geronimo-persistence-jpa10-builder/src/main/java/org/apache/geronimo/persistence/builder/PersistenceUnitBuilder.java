@@ -278,17 +278,17 @@ public class PersistenceUnitBuilder implements ModuleBuilderExtension {
             gbeanData.setAttribute("excludeUnlistedClasses", persistenceUnit.getExcludeUnlistedClasses());
         }
 
-            String[] managedClassNameStrings = persistenceUnit.getClass1Array();
-            List<String> managedClassNames = (List<String>) gbeanData.getAttribute("managedClassNames");
-            for (String managedClassNameString : managedClassNameStrings) {
-                managedClassNames.add(managedClassNameString.trim());
-            }
-            List<String> jarFileUrls = (List<String>) gbeanData.getAttribute("jarFileUrls");
-            //add the specified locations in the ear
-            String[] jarFileUrlStrings = persistenceUnit.getJarFileArray();
-            for (String jarFileUrlString : jarFileUrlStrings) {
-                jarFileUrls.add(jarFileUrlString.trim());
-            }
+        String[] managedClassNameStrings = persistenceUnit.getClass1Array();
+        List<String> managedClassNames = (List<String>) gbeanData.getAttribute("managedClassNames");
+        for (String managedClassNameString : managedClassNameStrings) {
+            managedClassNames.add(managedClassNameString.trim());
+        }
+        List<String> jarFileUrls = (List<String>) gbeanData.getAttribute("jarFileUrls");
+        //add the specified locations in the ear
+        String[] jarFileUrlStrings = persistenceUnit.getJarFileArray();
+        for (String jarFileUrlString : jarFileUrlStrings) {
+            jarFileUrls.add(jarFileUrlString.trim());
+        }
 
         if (persistenceUnit.isSetProperties()) {
             Properties properties = (Properties) gbeanData.getAttribute("properties");

@@ -54,6 +54,7 @@ import org.apache.geronimo.transformer.TransformerAgent;
  */
 public class PersistenceUnitGBean implements GBeanLifecycle {
     private static final List<URL> NO_URLS = Collections.emptyList();
+    private static final List<String> NO_STRINGS = Collections.emptyList();
     private final String persistenceUnitRoot;
     private final PersistenceUnitInfoImpl persistenceUnitInfo;
     private final EntityManagerFactory entityManagerFactory;
@@ -84,7 +85,7 @@ public class PersistenceUnitGBean implements GBeanLifecycle {
             Collection<ExtendedEntityManagerRegistry > entityManagerRegistry,
             URL configurationBaseURL,
             ClassLoader classLoader) throws URISyntaxException, MalformedURLException, ResourceException {
-        List<String> mappingFileNames = mappingFileNamesUntyped == null? new ArrayList<String>(): new ArrayList<String>(mappingFileNamesUntyped);
+        List<String> mappingFileNames = mappingFileNamesUntyped == null? NO_STRINGS: new ArrayList<String>(mappingFileNamesUntyped);
         this.persistenceUnitRoot = persistenceUnitRoot;
         URI configurationBaseURI = new File(configurationBaseURL.getFile()).toURI();
         URL rootURL = configurationBaseURI.resolve(persistenceUnitRoot).normalize().toURL();
@@ -95,6 +96,12 @@ public class PersistenceUnitGBean implements GBeanLifecycle {
                 URL url = configurationBaseURI.resolve(urlString).normalize().toURL();
                 jarFileUrls.add(url);
             }
+        }
+        if (managedClassNames == null) {
+            managedClassNames = NO_STRINGS;
+        }
+        if (properties == null) {
+            properties = new Properties();
         }
         PersistenceUnitTransactionType persistenceUnitTransactionType = persistenceUnitTransactionTypeString == null? PersistenceUnitTransactionType.JTA: PersistenceUnitTransactionType.valueOf(persistenceUnitTransactionTypeString);
 
