@@ -579,25 +579,25 @@
             <dependency>
                 <groupId>org.apache.yoko</groupId>
                 <artifactId>yoko-core</artifactId>
-                <version>1.0-incubating-r557035</version>
+                <version>1.0-r633547</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.yoko</groupId>
                 <artifactId>yoko-spec-corba</artifactId>
-                <version>1.0-incubating-r557035</version>
+                <version>1.0-r633547</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.yoko</groupId>
                 <artifactId>yoko-rmi-spec</artifactId>
-                <version>1.0-incubating-r557035</version>
+                <version>1.0-r633547</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.yoko</groupId>
                 <artifactId>yoko-rmi-impl</artifactId>
-                <version>1.0-incubating-r557035</version>
+                <version>1.0-r633547</version>
             </dependency>
 
             <dependency>
