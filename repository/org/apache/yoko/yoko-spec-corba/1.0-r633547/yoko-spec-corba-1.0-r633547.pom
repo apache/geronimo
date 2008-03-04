@@ -24,7 +24,7 @@
     <parent>
         <groupId>org.apache.yoko</groupId>
         <artifactId>yoko</artifactId>
-        <version>1.0-r615303</version>
+        <version>1.0-r633547</version>
     </parent>
     <artifactId>yoko-spec-corba</artifactId>
     <packaging>jar</packaging>

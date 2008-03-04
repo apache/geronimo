@@ -28,7 +28,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.apache.yoko</groupId>
     <artifactId>yoko</artifactId>
-    <version>1.0-r615303</version>
+    <version>1.0-r633547</version>
     <name>Apache Yoko CORBA Server</name>
     <url>http://incubator.apache.org/yoko/</url>
     <inceptionYear>2006</inceptionYear>
@@ -53,7 +53,7 @@
               element, and it will need to be changed manually before a release,
               as the maven-release-plugin will not update this value.
         -->
-        <version>1.0-r615303</version>
+        <version>1.0-r633547</version>
 
         <!-- versions of external dependencies -->
         <ant.version>1.6.5</ant.version>
