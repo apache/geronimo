@@ -280,13 +280,17 @@ public class EjbDeployment implements EJB {
         if (componentContext != null) {
             javaCompSubContext.bind("geronimo", componentContext);
         }
-        deploymentInfo.set(EjbDeployment.class, this);
+        synchronized(deploymentInfo){
+            deploymentInfo.set(EjbDeployment.class, this);
+       	    deploymentInfo.notifyAll();
+        }
     }
 
     protected void stop() {
         if (deploymentInfo != null) {
-            deploymentInfo.set(EjbDeployment.class, null);
-            deploymentInfo = null;
-        }
+	    deploymentInfo.setDestroyed(true);
+	    deploymentInfo.set(EjbDeployment.class, null);
+	    deploymentInfo = null;
+	}	
     }
 }
