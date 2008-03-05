@@ -205,7 +205,7 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
             }
         }
 
-        if ((initialGerRefSize - unresolvedRefSize) != refMap.size()) {
+        if (refMap.size() > 0 && ((initialGerRefSize - unresolvedRefSize) != refMap.size())) {
             log.warn("Failed to build reference to resource reference "+refMap.keySet()+" defined in plan file, reason - corresponding entry in deployment descriptor missing.");
         }
     }
