@@ -468,6 +468,9 @@ public class LocalAttributeManager implements PluginAttributeStore, PersistentCo
     }
 
     public void startConfiguration(Artifact configurationName) {
+        if (readOnly) {
+            return;
+        }
         ConfigurationOverride configuration = serverOverride.getConfiguration(configurationName, false);
         if (configuration == null) {
             return;
@@ -477,6 +480,9 @@ public class LocalAttributeManager implements PluginAttributeStore, PersistentCo
     }
 
     public synchronized void addConfiguration(Artifact configurationName) {
+        if (readOnly) {
+            return;
+        }
         // Check whether we have it already
         ConfigurationOverride configuration = serverOverride.getConfiguration(configurationName, false);
         // If not, initialize it
@@ -488,6 +494,9 @@ public class LocalAttributeManager implements PluginAttributeStore, PersistentCo
     }
 
     public synchronized void removeConfiguration(Artifact configName) {
+        if (readOnly) {
+            return;
+        }
         ConfigurationOverride configuration = serverOverride.getConfiguration(configName);
         if (configuration == null) {
             return;
@@ -501,6 +510,9 @@ public class LocalAttributeManager implements PluginAttributeStore, PersistentCo
     }
 
     public void stopConfiguration(Artifact configName) {
+        if (readOnly) {
+            return;
+        }
         ConfigurationOverride configuration = serverOverride.getConfiguration(configName);
         if (configuration == null) {
             return;
@@ -510,6 +522,9 @@ public class LocalAttributeManager implements PluginAttributeStore, PersistentCo
     }
 
     public void migrateConfiguration(Artifact oldName, Artifact newName, Configuration configuration) {
+        if (readOnly) {
+            return;
+        }
         ConfigurationOverride configInfo = serverOverride.getConfiguration(oldName);
         if (configInfo == null) {
             throw new IllegalArgumentException("Trying to migrate unknown configuration: " + oldName);
