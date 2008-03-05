@@ -17,6 +17,7 @@
 package org.apache.geronimo.clustering.wadi;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -69,7 +70,6 @@ public class BasicWADISessionManager implements GBeanLifecycle, SessionManager, 
     private Manager manager;
     private SessionMonitor sessionMonitor;
     private ServiceSpace serviceSpace;
-
     
     public BasicWADISessionManager(ClassLoader cl,
         WADISessionManagerConfigInfo configInfo,
@@ -84,13 +84,15 @@ public class BasicWADISessionManager implements GBeanLifecycle, SessionManager, 
             throw new IllegalArgumentException("cluster is required");
         } else if (null == backingStrategyFactory) {
             throw new IllegalArgumentException("backingStrategyFactory is required");
-        } else if (null == serviceHolders) {
-            throw new IllegalArgumentException("serviceHolders is required");
         }
         this.cl = cl;
         this.configInfo = configInfo;
         this.cluster = cluster;
         this.backingStrategyFactory = backingStrategyFactory;
+        
+        if (null == serviceHolders) {
+            serviceHolders = Collections.emptySet();
+        }
         this.serviceHolders = serviceHolders;
 
         listeners = new CopyOnWriteArrayList<SessionListener>();
