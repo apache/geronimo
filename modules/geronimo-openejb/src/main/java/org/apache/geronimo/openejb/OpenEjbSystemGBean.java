@@ -247,7 +247,7 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
                 if (processedResourceAdapterWrappers.putIfAbsent(containerName,  resourceAdapterWrapper) == null) {
                     try {
                         // get default mdb config
-                        ContainerInfo containerInfo = configurationFactory.configureService(MdbContainerInfo.class);
+                        ContainerInfo containerInfo = configurationFactory.configureService(MdbContainerInfo.class, containerName, null, null, "Container");
                         containerInfo.id = containerName;
                         containerInfo.displayName = containerName;
 
