@@ -496,8 +496,8 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
             if (!webApp.getMetadataComplete()) {
                 webApp.setMetadataComplete(true);
                 module.setOriginalSpecDD(module.getSpecDD().toString());
-                webModuleData.setAttribute("deploymentDescriptor", module.getOriginalSpecDD());
             }
+            webModuleData.setAttribute("deploymentDescriptor", module.getOriginalSpecDD());
             /**
              * This next bit of code is kind of a kludge to get Tomcat to get a default
              * web.xml if one does not exist.  This is primarily for jaxws.  This code is
