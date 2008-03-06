@@ -522,8 +522,8 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
             if (!webApp.getMetadataComplete()) {
                 webApp.setMetadataComplete(true);
                 module.setOriginalSpecDD(module.getSpecDD().toString());
-                webModuleData.setAttribute("deploymentDescriptor", module.getOriginalSpecDD());
             }
+            webModuleData.setAttribute("deploymentDescriptor", module.getOriginalSpecDD());
 
             if (!module.isStandAlone()) {
                 ConfigurationData moduleConfigurationData = moduleContext.getConfigurationData();
