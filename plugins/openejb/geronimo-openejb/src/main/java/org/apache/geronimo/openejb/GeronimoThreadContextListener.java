@@ -57,7 +57,19 @@ public class GeronimoThreadContextListener implements ThreadContextListener {
     public void contextEntered(ThreadContext oldContext, ThreadContext newContext) {
         CoreDeploymentInfo deploymentInfo = newContext.getDeploymentInfo();
         if (deploymentInfo == null) return;
-
+        if (deploymentInfo.get(EjbDeployment.class) == null) {
+	    synchronized (deploymentInfo) {
+                if (deploymentInfo.get(EjbDeployment.class) == null) {
+                    if (!deploymentInfo.isDestroyed()) {
+                        try {
+                            deploymentInfo.wait();
+                        } catch (InterruptedException e) {
+                        log.warn("Wait on deploymentInfo interrupted unexpectedly");
+                        }
+                    }
+                }
+            }
+        } 
         EjbDeployment ejbDeployment = deploymentInfo.get(EjbDeployment.class);
         if (ejbDeployment == null) return;
 
