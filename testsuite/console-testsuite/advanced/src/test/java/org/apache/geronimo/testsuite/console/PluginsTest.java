@@ -48,14 +48,14 @@ public class PluginsTest extends ConsoleTestSupport {
             selenium.select("repository", "label=" + actualLink);
             selenium.type("username", "system");
             selenium.type("password", "manager");            
-            selenium.click("//input[@value = 'Show Plugins in selected repository']");
+            selenium.click("//input[@value='Show Plugins in selected repository']");
             selenium.waitForPageToLoad("30000");
             
             assertTrue(selenium.isTextPresent("Geronimo Assemblies :: Boilerplate Minimal"));
             selenium.click("link=Geronimo Assemblies :: Boilerplate Minimal");
             selenium.waitForPageToLoad("30000");
             
-            assertTrue(selenium.isTextPresent("Geronimo-Versions"));
+            assertTrue(selenium.isTextPresent("Geronimo-Versions:"));
         } finally {
             logout();
         }
