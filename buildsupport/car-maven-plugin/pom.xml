@@ -59,6 +59,12 @@
         
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>geronimo-common</artifactId>
+            <version>${version}</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-system</artifactId>
             <version>${version}</version>
         </dependency>
