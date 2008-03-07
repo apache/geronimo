@@ -158,7 +158,7 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
             }
         }
         
-        if ((initialGerRefSize - unresolvedRefSize) != refMap.size()) {
+        if (refMap.size() > 0 && ((initialGerRefSize - unresolvedRefSize) != refMap.size())) {
             log.warn("Failed to build reference to Admin object reference "+refMap.keySet()+" defined in plan file, reason - corresponding entry in deployment descriptor missing.");
         }
         
