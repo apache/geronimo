@@ -100,13 +100,6 @@
 
     <gbean name="CredentialStoreBuilder" class="org.apache.geronimo.security.deployment.CredentialStoreBuilder"/>
 
-    <!-- TODO remove or document why SecurityService is here -->
-    <gbean name="SecurityService" class="org.apache.geronimo.security.SecurityServiceImpl">
-        <attribute name="policyConfigurationFactory">
-            org.apache.geronimo.security.jacc.mappingprovider.GeronimoPolicyConfigurationFactory</attribute>
-        <attribute name="policyProvider">org.apache.geronimo.security.jacc.mappingprovider.GeronimoPolicy</attribute>
-    </gbean>
-
     <gbean name="NamingBuilders" class="org.apache.geronimo.j2ee.deployment.NamingBuilderCollectionGBean">
         <attribute name="baseElementQNameNamespaceURI">http://geronimo.apache.org/xml/ns/naming-${geronimoSchemaVersion}</attribute>
         <attribute name="baseElementQNameLocalPart">abstract-naming-entry</attribute>
