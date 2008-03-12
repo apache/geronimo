@@ -1,3 +1,6 @@
 <archetype>
-  <id>geronimo-module-archetype</id>
+  <id>geronimo-assembly-archetype</id>
+    <resources>
+      <resource>pom.sample.xml</resource>
+    </resources>
 </archetype>
