@@ -133,6 +133,10 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
         ClassLoader cl = module.getEarContext().getClassLoader();
         for (ResourceEnvRefType resourceEnvRef : resourceEnvRefsUntyped) {
             String name = resourceEnvRef.getResourceEnvRefName().getStringValue().trim();
+            if (lookupJndiContextMap(componentContext, ENV + name) != null) {
+                // some other builder handled this entry already
+                continue;
+            }
             addInjections(name, resourceEnvRef.getInjectionTargetArray(), componentContext);
             String type = resourceEnvRef.getResourceEnvRefType().getStringValue().trim();
             Class iface;
@@ -167,6 +171,10 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
 
         for (MessageDestinationRefType messageDestinationRef : messageDestinationRefsUntyped) {
             String name = getStringValue(messageDestinationRef.getMessageDestinationRefName());
+            if (lookupJndiContextMap(componentContext, ENV + name) != null) {
+                // some other builder handled this entry already
+                continue;
+            }
             addInjections(name, messageDestinationRef.getInjectionTargetArray(), componentContext);
             String linkName = getStringValue(messageDestinationRef.getMessageDestinationLink());
             //TODO figure out something better to do here!

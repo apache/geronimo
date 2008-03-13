@@ -119,7 +119,16 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
 
     public void initContext(XmlObject specDD, XmlObject plan, Module module) throws DeploymentException {
     }
-
+    
+    public int getPriority() {
+        return NORMAL_PRIORITY;
+    }
+    
+    protected Object lookupJndiContextMap(Map sharedContext, String name) {
+        Map<String, Object> jndiContext = getJndiContextMap(sharedContext);
+        return jndiContext.get(name);
+    }
+    
     protected Map<String, Object> getJndiContextMap(Map sharedContext) {
         return NamingBuilder.JNDI_KEY.get(sharedContext);
     }

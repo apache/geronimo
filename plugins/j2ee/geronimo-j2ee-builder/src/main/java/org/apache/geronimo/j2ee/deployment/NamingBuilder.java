@@ -17,18 +17,14 @@
 
 package org.apache.geronimo.j2ee.deployment;
 
-import java.util.Map;
-import java.util.List;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.kernel.config.Configuration;
-import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.deployment.AbstractNamespaceBuilder;
-import org.apache.geronimo.j2ee.annotation.Injection;
-import org.apache.geronimo.j2ee.annotation.Holder;
 import org.apache.geronimo.gbean.AbstractName;
-import org.apache.xmlbeans.QNameSet;
+import org.apache.geronimo.j2ee.annotation.Holder;
+import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.xmlbeans.XmlObject;
 
 /**
@@ -36,6 +32,8 @@ import org.apache.xmlbeans.XmlObject;
  */
 public interface NamingBuilder extends AbstractNamespaceBuilder {
 
+    int NORMAL_PRIORITY = 50;
+    
     XmlObject[] NO_REFS = new XmlObject[] {};
     String ENV = "env/";
 
@@ -74,6 +72,11 @@ public interface NamingBuilder extends AbstractNamespaceBuilder {
     
     void buildNaming(XmlObject specDD, XmlObject plan, Module module, Map componentContext) throws DeploymentException;
 
+    /**
+     * Returns sort order priority.  Lower numbers indicate higher priority.
+     */
+    int getPriority();
+    
     public interface Key<T> {
         T get(Map context);
     }

@@ -63,6 +63,10 @@ public class UnavailableRefBuilder implements NamingBuilder {
         checkUnavailable(specDD);
     }
 
+    public int getPriority() {
+        return NORMAL_PRIORITY;
+    }
+    
     public QNameSet getSpecQNameSet() {
         return unavailableQNameSet;
     }

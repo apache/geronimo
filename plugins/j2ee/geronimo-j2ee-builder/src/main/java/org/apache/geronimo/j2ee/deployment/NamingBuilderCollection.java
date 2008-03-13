@@ -17,7 +17,11 @@
 
 package org.apache.geronimo.j2ee.deployment;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 
 import javax.xml.namespace.QName;
@@ -37,21 +41,37 @@ public class NamingBuilderCollection extends AbstractBuilderCollection<NamingBui
     }
 
     public void buildEnvironment(XmlObject specDD, XmlObject plan, Environment environment) throws DeploymentException {
-        for (NamingBuilder namingBuilder : builders) {
+        for (NamingBuilder namingBuilder : getSortedBuilders()) {
             namingBuilder.buildEnvironment(specDD, plan, environment);
         }
     }
 
     public void initContext(XmlObject specDD, XmlObject plan, Module module) throws DeploymentException {
-        for (NamingBuilder namingBuilder : builders) {
+        for (NamingBuilder namingBuilder : getSortedBuilders()) {
             namingBuilder.initContext(specDD, plan, module);
         }
     }
 
     public void buildNaming(XmlObject specDD, XmlObject plan, Module module, Map componentContext) throws DeploymentException {
-        for (NamingBuilder namingBuilder : builders) {
+        for (NamingBuilder namingBuilder : getSortedBuilders()) {
             namingBuilder.buildNaming(specDD, plan, module, componentContext);
         }
+    }
+    
+    private List<NamingBuilder> getSortedBuilders() {
+        List<NamingBuilder> list = new ArrayList<NamingBuilder>(this.builders);
+        Collections.sort(list, new NamingBuilderComparator());
+        return list;        
+    }
+    
+    private static class NamingBuilderComparator implements Comparator<NamingBuilder> {
+        public int compare(NamingBuilder o1, NamingBuilder o2) {
+            return o1.getPriority() - o2.getPriority();
+        }
+    }
+    
+    public int getPriority() {
+        return NORMAL_PRIORITY;
     }
 
 }
