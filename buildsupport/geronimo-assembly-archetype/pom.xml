@@ -1,0 +1,11 @@
+<?xml version="1.0"?><project>
+  <parent>
+    <artifactId>buildsupport</artifactId>
+    <groupId>org.apache.geronimo.buildsupport</groupId>
+    <version>2.1.1-SNAPSHOT</version>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>geronimo-assembly-archetype</artifactId>
+  <name>Archetype - geronimo-assembly-archetype</name>
+  <url>http://geronimo.apache.org</url>
+</project>
