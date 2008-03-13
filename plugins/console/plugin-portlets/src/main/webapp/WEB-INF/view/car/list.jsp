@@ -21,6 +21,20 @@
 <fmt:setBundle basename="pluginportlets"/>
 <portlet:defineObjects/>
 
+<script language="javascript" type="text/javascript">
+  function checkAllVal(val) {
+    var chk = 0;
+    val = document.getElementsByName(val);
+    for (i = 0; i < val.length; i++) {
+      if(val[i].checked == true) {
+        return true;
+      }
+    }
+    alert("You must choose at least one plugin to install.");
+    return false;
+  }
+</script>
+
 <h3><fmt:message key="car.list.pluginRepo" />&nbsp;<a href='${repository}'>${repository}</a></h3>
 
 <c:choose>
@@ -32,17 +46,11 @@
   </form>
 </c:when>
 <c:otherwise>
-<form action="<portlet:actionURL/>">
+<form name=frm1 method=post action="<portlet:actionURL/>">
 <input type="hidden" name="repository" value="${repository}"/>
 <input type="hidden" name="repo-user" value="${repouser}"/>
 <input type="hidden" name="repo-pass" value="${repopass}"/>
 <input id="mode" type="hidden" name="mode" value="viewForDownload-before"/>
-<!--
-<input id="viewButton" type="submit" value="View" disabled
-onclick="document.getElementById('mode').value='viewForDownload-before'">
-<input id="installButton" type="submit" value="Install" disabled
-onclick="document.getElementById('mode').value='viewForDownload-after'">
--->
 <table border="0" cellpadding="3">
 <tr>
   <th class="DarkBackground">&nbsp;</th>
@@ -60,20 +68,6 @@ onclick="document.getElementById('mode').value='viewForDownload-after'">
 <c:set var="style" value="${status.index % 2 == 0 ? 'MediumBackground' : 'LightBackground'}"/>
 <c:set var="artifact" value="${plugin.pluginArtifact.moduleId}"/>
 <tr>
-<!--
-  <td class="${style}">
-    <input type="radio" name="configId" 
-    <c:choose>
-      <c:when test="${plugin.installable}">
-    onclick="document.getElementById('viewButton').disabled=false; document.getElementById('installButton').disabled=false;"
-      </c:when>
-      <c:otherwise>
-    onclick="document.getElementById('viewButton').disabled=false; document.getElementById('installButton').disabled=true;"
-      </c:otherwise>
-    </c:choose>
-    value='<c:out escapeXml="true" value="${artifact.groupId}/${artifact.artifactId}/${artifact.version}/${artifact.type}"/>' />
-  </td>
--->
     <td class="${style}">
         <input type="checkbox" name="plugin" value="${artifact.groupId}/${artifact.artifactId}/${artifact.version}/${artifact.type}" ${plugin.installable ? "": "disabled='true'"}/>
     </td>
@@ -95,7 +89,7 @@ onclick="document.getElementById('mode').value='viewForDownload-after'">
 </c:forEach>
 </table>
     <p>
-    <input type="submit" value="Install"/>
+    <input type="submit" value="Install" onclick="if(!checkAllVal('plugin')){return false;}else return true;"/>
     <input type="submit" value="Cancel" onclick="history.go(-1); return false;" />
 </form>
 </c:otherwise>
