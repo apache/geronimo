@@ -33,12 +33,14 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.log4j.PropertyConfigurator;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class ApplicationLog4jConfigurationGBean {
 
+    private static final String    ADDITIVITY_PREFIX = "log4j.additivity.";
     private static final String      CATEGORY_PREFIX = "log4j.category.";
     private static final String      LOGGER_PREFIX   = "log4j.logger.";
+    private static final String      APPENDER_PREFIX = "log4j.appender.";
     private static final String      RENDERER_PREFIX = "log4j.renderer.";
 
     public ApplicationLog4jConfigurationGBean(String log4jResource, String log4jFile, ServerInfo serverInfo, ClassLoader classloader) throws IOException {
@@ -65,6 +67,8 @@ public class ApplicationLog4jConfigurationGBean {
             String key = (String) it.next();
             if (key.startsWith(CATEGORY_PREFIX)
                     || key.startsWith(LOGGER_PREFIX)
+                    || key.startsWith(ADDITIVITY_PREFIX)
+                    || key.startsWith(APPENDER_PREFIX)
                     || key.startsWith(RENDERER_PREFIX)) {
                 continue;
             }
@@ -77,17 +81,17 @@ public class ApplicationLog4jConfigurationGBean {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(ApplicationLog4jConfigurationGBean.class, "SystemLog");
+        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(ApplicationLog4jConfigurationGBean.class, "SystemLog");
+        infoBuilder.setPriority(2);
+        infoBuilder.addAttribute("log4jResource", String.class, true);
+        infoBuilder.addAttribute("log4jFile", String.class, true);
+        infoBuilder.addAttribute("classloader", ClassLoader.class, false);
 
-        infoFactory.addAttribute("log4jResource", String.class, true);
-        infoFactory.addAttribute("log4jFile", String.class, true);
-        infoFactory.addAttribute("classloader", ClassLoader.class, false);
+        infoBuilder.addReference("ServerInfo", ServerInfo.class, "GBean");
 
-        infoFactory.addReference("ServerInfo", ServerInfo.class, "GBean");
+        infoBuilder.setConstructor(new String[]{"log4jResource", "log4jFile", "ServerInfo", "classloader"});
 
-        infoFactory.setConstructor(new String[]{"log4jResource", "log4jFile", "ServerInfo", "classloader"});
-
-        GBEAN_INFO = infoFactory.getBeanInfo();
+        GBEAN_INFO = infoBuilder.getBeanInfo();
     }
 
     public static GBeanInfo getGBeanInfo() {
