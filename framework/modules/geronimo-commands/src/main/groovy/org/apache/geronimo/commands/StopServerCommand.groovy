@@ -39,16 +39,18 @@ class StopServerCommand extends ConnectCommand {
         if (!connection) {
             connection = super.doExecute()
         }
-                         
-        io.out.println("Stopping Geronimo server")
-        
+                                 
         RemoteDeploymentManager deploymentManager = 
             (RemoteDeploymentManager)connection.getDeploymentManager();
         
         def server = new ServerProxy(deploymentManager.getJMXConnector())
 
-        server.shutdown();
-
-        io.out.println("Shutdown request has been issued");        
+        io.out.println("Stopping Geronimo server...");  
+        try {
+        	server.shutdown();
+        	io.out.println("Shutdown request has been issued");
+        } catch (Exception e) {
+			io.out.println("Unable to shutdown the server: " + e.getMessage());
+        }                
     }
 }
