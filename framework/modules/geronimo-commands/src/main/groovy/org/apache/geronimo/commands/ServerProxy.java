@@ -193,14 +193,8 @@ public class ServerProxy
         return lastError;
     }
 
-    public void shutdown() {
-        try {
-            invoke("shutdown");
-        }
-        catch (Exception e) {
-            log.warn("Unable to shutdown the server", e);
-            lastError = e;
-        }
+    public void shutdown() throws Exception {
+        invoke("shutdown");
     }
 
     //
