@@ -47,10 +47,10 @@ class StopServerCommand extends ConnectCommand {
 
         io.out.println("Stopping Geronimo server...");  
         try {
-        	server.shutdown();
-        	io.out.println("Shutdown request has been issued");
+                server.shutdown();
+                io.out.println("Shutdown request has been issued");
         } catch (Exception e) {
-			io.out.println("Unable to shutdown the server: " + e.getMessage());
+                io.out.println("Unable to shutdown the server: " + e.getMessage());
         }                
     }
 }
