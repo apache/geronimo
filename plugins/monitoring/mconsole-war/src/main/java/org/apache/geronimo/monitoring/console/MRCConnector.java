@@ -46,7 +46,7 @@ import org.apache.geronimo.crypto.EncryptionManager;
 
 public class MRCConnector {
 
-    private static final String PATH = "geronimo:ServiceModule=org.apache.geronimo.plugins.monitoring/agent-car-jmx/2.1.1-SNAPSHOT/car,J2EEServer=geronimo,name=MasterRemoteControlJMX,j2eeType=GBean";
+    private static String PATH = null;
     private static MBeanServerConnection mbServerConn;
     private MasterRemoteControlRemote mrc = null;
     private int Protocol = 0;
@@ -105,7 +105,26 @@ public class MRCConnector {
                 JMXConnector connector = JMXConnectorFactory.connect(
                         serviceURL, env);
                 mbServerConn = connector.getMBeanServerConnection();
+
+                // retrieve the mbean name to the agent-car-jmx plugin 
+                if(PATH == null) {
+                    Set<ObjectName> mbeanNames = mbServerConn.queryNames(null, null);
+                    for(Iterator<ObjectName> it = mbeanNames.iterator(); it.hasNext(); ) {
+                        String mbeanName = ((ObjectName)it.next()).getCanonicalName();
+                        if(mbeanName.contains("agent-car-jmx") &&
+                           mbeanName.contains("MasterRemoteControlJMX") &&
+                           mbeanName.contains("GBean")) {
+                            PATH = mbeanName;
+                            break;
+                        }
+                    }
+
+                    if(PATH == null) {
+                        throw new Exception("[ERROR] Required mbean not found: agent-car-jmx");
+                    }
+                }
             } catch (Exception e) {
+                e.printStackTrace();
                 throw e;
             }
 
