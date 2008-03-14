@@ -879,7 +879,7 @@ public class PluginInstallerGBean implements PluginInstaller {
                     }
                 }
                 if (!upgrade) {
-                    log.info("Configuration " + artifact + " is already installed.");
+                    log.debug("Configuration " + artifact + " is already installed.");
                     throw new MissingDependencyException(
                             "Configuration " + artifact + " is already installed.", toArtifact(metadata.getModuleId()), (Stack<Artifact>) null);
                 }
@@ -888,15 +888,14 @@ public class PluginInstallerGBean implements PluginInstaller {
 
         // 2. Check that we meet the Geronimo, JVM versions
         if (metadata.getGeronimoVersion().size() > 0 && !checkGeronimoVersions(metadata.getGeronimoVersion())) {
-            log.error("Cannot install plugin " + toArtifact(metadata.getModuleId()) + " on Geronimo " + serverInfo.getVersion());
+            log.debug("Plugin " + toArtifact(metadata.getModuleId()) + " is not installable on Geronimo " + serverInfo.getVersion());
             throw new MissingDependencyException(
-                    "Cannot install plugin on Geronimo " + serverInfo.getVersion(), toArtifact(metadata.getModuleId()), (Stack<Artifact>) null);
+                    "Plugin is not installable on Geronimo " + serverInfo.getVersion(), toArtifact(metadata.getModuleId()), (Stack<Artifact>) null);
         }
         if (metadata.getJvmVersion().size() > 0 && !checkJVMVersions(metadata.getJvmVersion())) {
-            log.error("Cannot install plugin " + toArtifact(metadata.getModuleId()) + " on JVM " + System.getProperty(
-                    "java.version"));
+            log.debug("Plugin " + toArtifact(metadata.getModuleId()) + " is not installable on JVM " + System.getProperty("java.version"));
             throw new MissingDependencyException(
-                    "Cannot install plugin on JVM " + System.getProperty("java.version"), toArtifact(metadata.getModuleId()), (Stack<Artifact>) null);
+                    "Plugin is not installable on JVM " + System.getProperty("java.version"), toArtifact(metadata.getModuleId()), (Stack<Artifact>) null);
         }
     }
 
