@@ -398,11 +398,10 @@ public class GBeanOverride implements Serializable {
             try {
                 editor = PropertyEditors.findEditor(attribute.getType(), classLoader);
             } catch (ClassNotFoundException e) {
-                log.error("Unable to load attribute type " + attribute.getType());
-                return null;
-            }
+                throw new IllegalStateException("Unable to load property editor for attribute type: " + attribute.getType());
+            }            
             if (editor == null) {
-                log.debug("Unable to parse attribute of type " + attribute.getType() + "; no editor found");
+                throw new IllegalStateException("Unable to parse attribute of type " + attribute.getType() + "; no editor found");
             }
             return editor;
         } else {
