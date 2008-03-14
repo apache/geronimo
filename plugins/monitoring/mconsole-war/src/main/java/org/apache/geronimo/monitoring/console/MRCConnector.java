@@ -108,7 +108,7 @@ public class MRCConnector {
 
                 // retrieve the mbean name to the agent-car-jmx plugin
                 if(PATH == null) {
-                    Set<ObjectName> mbeanNames = mbServerConn.queryNames(null, null);
+                    Set<ObjectName> mbeanNames = mbServerConn.queryNames(new ObjectName("*:name=MasterRemoteControlJMX,*"), null);
                     for(Iterator<ObjectName> it = mbeanNames.iterator(); it.hasNext(); ) {
                         String mbeanName = ((ObjectName)it.next()).getCanonicalName();
                         if(mbeanName.contains("agent-car-jmx") &&
