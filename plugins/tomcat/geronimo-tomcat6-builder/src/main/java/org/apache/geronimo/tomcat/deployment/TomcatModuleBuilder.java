@@ -264,9 +264,13 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
             contextRoot = determineDefaultContextRoot(webApp, standAlone, moduleFile, targetPath);
         }
         contextRoot = contextRoot.trim();
-        if (!contextRoot.startsWith("/")) {
-            //I'm not sure if we should always fix up peculiar context roots.
-            contextRoot = "/" + contextRoot;
+        if (contextRoot.length > 0) {
+            // only force the context root to start with a forward slash
+            // if it is not null
+            if (!contextRoot.startsWith("/")) {
+                //I'm not sure if we should always fix up peculiar context roots.
+                contextRoot = "/" + contextRoot;
+            }
         }
         return contextRoot;
     }
