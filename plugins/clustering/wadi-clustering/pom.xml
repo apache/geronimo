@@ -38,9 +38,11 @@
     </description>
 
     <dependencies>
-        <dependency>
-            <groupId>aspectj</groupId>
-            <artifactId>aspectjrt</artifactId>
+       <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>aspectj</artifactId>
+            <version>${version}</version>
+            <type>car</type>
         </dependency>
 
        <dependency>
