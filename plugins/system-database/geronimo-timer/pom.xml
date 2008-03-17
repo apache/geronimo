@@ -47,14 +47,16 @@
     
     <dependencies>
         <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-connector</artifactId>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>derby</artifactId>
             <version>${version}</version>
+            <type>car</type>
         </dependency>
 
         <dependency>
-            <groupId>org.apache.derby</groupId>
-            <artifactId>derby</artifactId>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-connector</artifactId>
+            <version>${version}</version>
         </dependency>
     </dependencies>
     
