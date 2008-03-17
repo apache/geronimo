@@ -80,7 +80,21 @@ public class ArchiveMojo extends MojoSupport {
      */
     private String[] excludes;
 
+    /**
+     * The target file to set as the project's artifact.
+     *
+     * @parameter expression="${project.file}"
+     * @required
+     */
+    private File targetFile;
+
     protected void doExecute() throws Exception {
+        //this installs the pom using the default artifact handler configured in components.xml
+        log.info("Setting artifact file: " + targetFile);
+
+        org.apache.maven.artifact.Artifact artifact = project.getArtifact();
+        artifact.setFile(targetFile);
+        //now pack up the server.
         ServerInfo serverInfo = new BasicServerInfo(targetServerDirectory.getAbsolutePath(), false);
         ArchiverGBean archiver = new ArchiverGBean(serverInfo);
         if (excludes != null) {

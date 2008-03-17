@@ -30,7 +30,7 @@
 
     <artifactId>geronimo-jetty6-minimal</artifactId>
     <name>Geronimo Assemblies :: Minimal + Jetty6</name>
-    <packaging>application-assembly</packaging>
+    <packaging>server-assembly</packaging>
 
     <description>
         A minimal Geronimo server (Little-G) assembly using the Jetty web-container.
@@ -264,7 +264,7 @@
 
                     <execution>
                         <id>unpack-schemas</id>
-                        <phase>package</phase>
+                        <phase>process-resources</phase>
                         <goals>
                             <goal>unpack</goal>
                         </goals>
@@ -304,8 +304,8 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <id>pre-assembly</id>
-                        <phase>package</phase>
+                        <id>copy-schemas</id>
+                        <phase>process-resources</phase>
                         <goals>
                             <goal>run</goal>
                         </goals>
@@ -326,26 +326,6 @@
                 </executions>
             </plugin>
 
-            <plugin>
-                <groupId>org.apache.geronimo.buildsupport</groupId>
-                <artifactId>car-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>install</id>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>install-modules</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>archive</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>archive</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
         </plugins>
     </build>
 

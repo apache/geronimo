@@ -31,7 +31,7 @@
 
     <artifactId>geronimo-tomcat6-javaee5</artifactId>
     <name>Geronimo Assemblies :: JavaEE 5 + Tomcat</name>
-    <packaging>application-assembly</packaging>
+    <packaging>server-assembly</packaging>
 
     <description>
         An assembly of Geronimo into a JavaEE 5 Server using Tomcat as the web container.
@@ -584,7 +584,7 @@
 
                     <execution>
                         <id>unpack-schemas</id>
-                        <phase>package</phase>
+                        <phase>process-resources</phase>
                         <goals>
                             <goal>unpack</goal>
                         </goals>
@@ -624,8 +624,8 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <id>pre-assembly</id>
-                        <phase>package</phase>
+                        <id>copy-schemas</id>
+                        <phase>process-resources</phase>
                         <goals>
                             <goal>run</goal>
                         </goals>
@@ -641,32 +641,6 @@
                                     <mapper type="flatten"/>
                                 </copy>
                             </tasks>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.geronimo.buildsupport</groupId>
-                <artifactId>car-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>install</id>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>install-modules</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>archive</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>archive</goal>
-                        </goals>
-                        <configuration>
-                            <excludes>
-                               <exclude>META-INF/**</exclude>
-                            </excludes>
                         </configuration>
                     </execution>
                 </executions>
