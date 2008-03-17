@@ -53,8 +53,10 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.derby</groupId>
+            <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>derby</artifactId>
+            <version>${version}</version>
+            <type>car</type>
         </dependency>
     </dependencies>
     

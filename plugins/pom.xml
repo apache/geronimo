@@ -52,6 +52,7 @@
         <module>console</module>
         <module>corba</module>
         <module>cxf</module>
+        <module>derby</module>
         <module>dojo</module>
         <module>dojo-legacy</module>
         <module>debugviews</module>
