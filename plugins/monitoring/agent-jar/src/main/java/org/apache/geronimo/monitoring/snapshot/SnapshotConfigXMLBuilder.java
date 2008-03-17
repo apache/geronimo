@@ -33,9 +33,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-//import com.sun.org.apache.xml.internal.serialize.OutputFormat;
-//import com.sun.org.apache.xml.internal.serialize.XMLSerializer;
-
 /**
  * In charge of dealing with the XML processing of the snapshot's data.
  */
@@ -265,11 +262,7 @@ public class SnapshotConfigXMLBuilder {
             xmlObject.save(new File(path));
 
             // formatting the doc
-//            OutputFormat format = new OutputFormat(document);
-//            format.setIndenting(true);
             // generate a file output
-//            XMLSerializer serializer = new XMLSerializer(new FileOutputStream(new File(path)), format);
-//            serializer.serialize(document);
         } catch(Exception e) {
             log.error(e.getMessage(), e);
         }
