@@ -1218,7 +1218,7 @@ public class PluginInstallerGBean implements PluginInstaller {
             if (start == -1) {
                 if (sourceFile.length() == 0 || sourceFile.endsWith("/")) {
                     if ("jar".equals(url.getProtocol())) {
-                        start = path.lastIndexOf("!/") + 2;
+                        start = path.lastIndexOf("!/") + 2 + sourceFile.length();
                     } else {
                         start = path.length();
                         //this entry needs nothing done
