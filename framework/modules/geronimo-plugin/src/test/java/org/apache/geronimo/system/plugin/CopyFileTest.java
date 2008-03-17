@@ -143,6 +143,27 @@ public class CopyFileTest extends TestSupport {
         assertTrue(new File(dir, "emptydir1").exists());
         assertTrue(new File(dir, "emptyfile1").exists());
     }
+    
+    public void testCopyFileFromJar() throws Exception {
+        artifact = new Artifact("test", "jar", "1.0", "jar");
+        testCopyFile();
+    }
+/*  ZipEntry cannot detect an empty directory in a jar
+    public void testCopyEmptyDirFromJar() throws Exception {
+        artifact = new Artifact("test", "jar", "1.0", "jar");
+        testCopyEmptyDir();
+    }
+*/
+/*  ZipEntry cannot detect an empty directory in a jar
+    public void testCopyDirFromJar() throws Exception {
+        artifact = new Artifact("test", "jar", "1.0", "jar");
+        testCopyDir();
+    }
+*/
+    public void testCopyDirsFromJar() throws Exception {
+        artifact = new Artifact("test", "jar", "1.0", "jar");
+        testCopyDirs();
+    }
 
     private File checkCopy(CopyFileType copyFile) throws IOException {
         installer.copyFile(copyFile, artifact);
