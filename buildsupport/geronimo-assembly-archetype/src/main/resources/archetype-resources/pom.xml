@@ -4,7 +4,7 @@
     <groupId>${groupId}</groupId>
     <artifactId>${artifactId}</artifactId>
     <version>${version}</version>
-    <packaging>application-assembly</packaging>
+    <packaging>server-assembly</packaging>
 
     <properties>
         <!-- This property is required by the car:package mojo -->
@@ -37,13 +37,6 @@
                     <version>${geronimoVersion}</version>
                     <extensions>true</extensions>
                 </plugin>
-                <plugin>
-                    <groupId>org.apache.geronimo.genesis.plugins</groupId>
-                    <artifactId>tools-maven-plugin</artifactId>
-                    <version>1.3</version>
-                    <extensions>true</extensions>
-                </plugin>
-
             </plugins>
         </pluginManagement>
         <!-- uncomment if you have more content to stuff in here (not recommended - use a plugin with copy-files) -->
@@ -60,9 +53,6 @@
             <plugin>
                 <groupId>org.apache.geronimo.genesis.plugins</groupId>
                 <artifactId>tools-maven-plugin</artifactId>
-
-                <!-- Tools includes custom packagings, install as extension to pick them up -->
-                <extensions>true</extensions>
 
 <!--
                 <executions>
@@ -99,22 +89,6 @@
             <plugin>
                 <groupId>org.apache.geronimo.buildsupport</groupId>
                 <artifactId>car-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>install</id>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>install-modules</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>archive</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>archive</goal>
-                        </goals>
-                    </execution>
-                </executions>
                 <configuration>
                     <servers>
                         <serverInstance>

@@ -108,6 +108,44 @@
         </component>
         -->
         
+        <!--
+        Custom packaging for server assembly modules.
+        -->
+        <component>
+            <role>org.apache.maven.lifecycle.mapping.LifecycleMapping</role>
+            <role-hint>server-assembly</role-hint>
+            <implementation>org.apache.maven.lifecycle.mapping.DefaultLifecycleMapping</implementation>
+            <configuration>
+                <lifecycles>
+                    <lifecycle>
+                        <id>default</id>
+                        <phases>
+                            <process-resources>org.apache.maven.plugins:maven-resources-plugin:resources</process-resources>
+                            <compile>org.apache.geronimo.buildsupport:car-maven-plugin:install-modules</compile>
+                            <package>org.apache.geronimo.buildsupport:car-maven-plugin:archive</package>
+                            <install>org.apache.maven.plugins:maven-install-plugin:install</install>
+                            <deploy>org.apache.maven.plugins:maven-deploy-plugin:deploy</deploy>
+                        </phases>
+                    </lifecycle>
+                </lifecycles>
+            </configuration>
+        </component>
+
+        <!--
+        Install server-assembly artifact files as .pom xml files
+        -->
+        <component>
+            <role>org.apache.maven.artifact.handler.ArtifactHandler</role>
+            <role-hint>application-assembly</role-hint>
+            <implementation>org.apache.maven.artifact.handler.DefaultArtifactHandler</implementation>
+            <configuration>
+                <type>application-assembly</type>
+                <extension>pom</extension>
+                <packaging>application-assembly</packaging>
+                <addedToClasspath>false</addedToClasspath>
+                <language>xml</language>
+            </configuration>
+        </component>
     </components>
 </component-set>
 

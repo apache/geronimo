@@ -30,7 +30,7 @@
 
     <artifactId>geronimo-framework</artifactId>
     <name>Geronimo Assemblies :: Framework</name>
-    <packaging>application-assembly</packaging>
+    <packaging>server-assembly</packaging>
     
     <description>
         A minimal Geronimo server (Little-G) framework assembly.
@@ -204,31 +204,6 @@
                 </executions>
             </plugin>
 
-            <plugin>
-                <groupId>org.apache.geronimo.buildsupport</groupId>
-                <artifactId>car-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>install</id>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>install-modules</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>archive</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>archive</goal>
-                        </goals>
-                        <configuration>
-                            <excludes>
-                               <exclude>META-INF/**</exclude>
-                            </excludes>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
         </plugins>
     </build>
     
