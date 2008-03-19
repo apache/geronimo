@@ -79,11 +79,6 @@ class StartServerCommand extends BaseJavaCommand {
         
         log.debug("Geronimo home: $geronimoHome")
         
-        // Setup default java flags
-        if (javaAgentJar) {
-            javaFlags << "-javaagent:${javaAgentJar.canonicalPath}"
-        }
-        
         // Setup the default properties required to boot the server
         properties['org.apache.geronimo.base.dir'] = geronimoHome
         properties['java.io.tmpdir'] = 'var/temp' // Use relative path
@@ -92,6 +87,10 @@ class StartServerCommand extends BaseJavaCommand {
         
         processScripts()
         
+        //Setup default java flags
+        if (javaAgentJar) {
+            javaFlags << "-javaagent:${javaAgentJar.canonicalPath}"
+        }
         // If we are not backgrounding, then add a nice message for the user when ctrl-c gets hit
         if (!background) {
             addShutdownHook({

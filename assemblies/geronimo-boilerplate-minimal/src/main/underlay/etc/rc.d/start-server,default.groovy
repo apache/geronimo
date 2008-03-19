@@ -20,9 +20,9 @@
 //
 // $Rev$ $Date$
 //
-
-command.javaFlags << '-Xmx512m'
-
+if (command.javaFlags.isEmpty() ) {
+  command.javaFlags << '-Xmx512m'
+}
 // Uncomment the following lines to enable remote debugging.
 // command.javaFlags << '-Xdebug'
 // command.javaFlags << '-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8000'
