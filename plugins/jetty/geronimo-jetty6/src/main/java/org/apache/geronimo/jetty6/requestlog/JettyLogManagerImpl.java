@@ -140,7 +140,7 @@ public class JettyLogManagerImpl implements JettyLogManager {
                 fileNamePattern = fileNamePattern.substring(fileNamePattern.lastIndexOf(FILE_SEPARATOR_WIN_STYLE) + 1);
             }
 
-            String logFile = serverInfo.resolvePath(logName);
+            String logFile = serverInfo.resolveServerPath(logName);
 
             File parent = new File(logFile).getParentFile();
 
