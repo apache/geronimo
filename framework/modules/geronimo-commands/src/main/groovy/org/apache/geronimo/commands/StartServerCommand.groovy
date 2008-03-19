@@ -64,10 +64,13 @@ class StartServerCommand extends BaseJavaCommand {
     
     String hostname = 'localhost'
     
+    @Option(name='-p', aliases=['--port'], description='RMI Naming port (used to check server startup status)')
     int port = 1099
     
+    @Option(name='-u', aliases=['--username'], description='Username (used to check server startup status)')
     String username = 'system'
     
+    @Option(name='-w', aliases=['--password'], description='Password (used to check server startup status)')
     String password = 'manager'
         
     protected Object doExecute() throws Exception {
