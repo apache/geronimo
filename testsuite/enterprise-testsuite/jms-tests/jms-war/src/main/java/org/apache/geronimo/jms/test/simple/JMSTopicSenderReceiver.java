@@ -40,6 +40,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.PrintWriter;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 public class JMSTopicSenderReceiver extends HttpServlet implements Servlet {
 
@@ -47,7 +49,6 @@ public class JMSTopicSenderReceiver extends HttpServlet implements Servlet {
     Context initialContext = null;
     TopicConnectionFactory tcf = null;
     Topic topic = null;
-    String msg = null;
 
     /* (non-Java-doc)
      * @see javax.servlet.http.HttpServlet#HttpServlet()
@@ -67,30 +68,30 @@ public class JMSTopicSenderReceiver extends HttpServlet implements Servlet {
      * @see javax.servlet.http.HttpServlet#doPost(HttpServletRequest arg0, HttpServletResponse arg1)
      */
     protected void doPost(HttpServletRequest arg0, HttpServletResponse arg1) throws ServletException, IOException {
-
+        PrintWriter out = arg1.getWriter();
+        CountDownLatch latch = new CountDownLatch(1);
         try {
 
             String type = arg0.getParameter("type");
-            PrintWriter out = arg1.getWriter();
 
             TopicConnection connection = tcf.createTopicConnection();
             TopicSession session = connection.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
             TopicSubscriber topicSubscriber = session.createSubscriber(topic);
-            TestListener test = new TestListener();
+            TestListener test = new TestListener(latch);
             topicSubscriber.setMessageListener(test);
             connection.start();
             TopicPublisher topicPublisher = session.createPublisher(topic);
             TextMessage tmsg = session.createTextMessage("JMS - Test Topic Message");
             topicPublisher.publish(tmsg);
-            if ( msg != null ) {
-                out.println("<html xmlns='http://www.w3.org/1999/xhtml' xml:lang='en' lang='en'>");
-                out.println("<head><title>JMS Topic Sender Receiver</title></head>");
+            latch.await(1, TimeUnit.SECONDS);
+            out.println("<html xmlns='http://www.w3.org/1999/xhtml' xml:lang='en' lang='en'>");
+            out.println("<head><title>JMS Topic Sender Receiver</title></head>");
+            if ( test.getMsg() != null ) {
                 out.println("<body>Received JMS Topic Message</body></html>");
             }
             else {
                 out.println("<body>Did Not Receive JMS Topic Message</body></html>");
             }
-
             topicSubscriber.close();
             session.close();
             connection.stop();
@@ -117,11 +118,23 @@ public class JMSTopicSenderReceiver extends HttpServlet implements Servlet {
 
     private class TestListener implements MessageListener {
 
+        private final CountDownLatch latch;
+        private volatile String msg = null;
+
+        private TestListener(CountDownLatch latch) {
+            this.latch = latch;
+        }
+
+        public String getMsg() {
+            return msg;
+        }
+
         public void onMessage(Message message)
         {
             try {
                 TextMessage textMessage = (TextMessage)message;
                 msg = textMessage.getText( );
+                latch.countDown();
                 System.out.println("Message : "+msg);
 
             }

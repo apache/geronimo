@@ -75,14 +75,15 @@ public class JMSQueueReceiver extends HttpServlet implements Servlet {
             QueueReceiver queueReceiver = session.createReceiver(queue);
             Message msg = queueReceiver.receiveNoWait();
 
+            out.println("<html xmlns='http://www.w3.org/1999/xhtml' xml:lang='en' lang='en'>");
+            out.println("<head><title>JMS Receiver</title></head>");
             if ( msg instanceof TextMessage ) {
                 TextMessage txtMsg = (TextMessage)msg;
                 System.out.println("Message : "+txtMsg.getText());
-                out.println("<html xmlns='http://www.w3.org/1999/xhtml' xml:lang='en' lang='en'>");
-                out.println("<head><title>JMS Receiver</title></head>");
                 out.println("<body>Received JMS Queue Message</body></html>");
             }
             else {
+                System.out.println("No Message");
                 out.println("<body>Did Not Receive JMS Queue Message</body></html>");
             }
 
