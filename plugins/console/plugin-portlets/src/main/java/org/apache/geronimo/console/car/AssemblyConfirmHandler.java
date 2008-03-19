@@ -16,6 +16,7 @@
  */
 package org.apache.geronimo.console.car;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -46,7 +47,8 @@ public class AssemblyConfirmHandler extends BaseImportExportHandler {
         PortletSession assemblysession = request.getPortletSession(false);
         List<PluginInfoBean> plugins = (List<PluginInfoBean>) assemblysession.getAttribute("plugins");
         String relativeServerPath = request.getParameter("relativeServerPath");
-        String absoluteDeployedPath = System.getProperty("org.apache.geronimo.home.dir")+"/"+relativeServerPath;
+        File deployedPath = new File(System.getProperty("org.apache.geronimo.home.dir"), relativeServerPath);
+        String absoluteDeployedPath = deployedPath.getAbsolutePath();
         
         request.setAttribute("plugins", plugins);
         request.setAttribute("absoluteDeployedPath", absoluteDeployedPath);

@@ -56,10 +56,10 @@ public class AssemblyViewHandler extends BaseImportExportHandler {
         String format = request.getParameter("format");
 
         response.setRenderParameter("pluginIds", pluginIds);
-        response.setRenderParameter("relativeServerPath", isEmpty(relativeServerPath)? "var/temp/assembly": relativeServerPath);
+        response.setRenderParameter("relativeServerPath", isEmpty(relativeServerPath) ? "var/temp/assembly" : relativeServerPath);
         if(!isEmpty(groupId)) response.setRenderParameter("groupId", groupId);
         if(!isEmpty(artifactId)) response.setRenderParameter("artifactId", artifactId);
-        if(!isEmpty(version)) response.setRenderParameter("version", version);
+        response.setRenderParameter("version", isEmpty(version) ? "1.0" : version);
         if(!isEmpty(format)) response.setRenderParameter("format", format);
 
         return getMode();
