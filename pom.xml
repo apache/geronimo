@@ -950,13 +950,6 @@
 
             <dependency>
                 <groupId>org.tranql</groupId>
-                <artifactId>tranql-connector-db2-local</artifactId>
-                <version>1.1</version>
-                <type>rar</type>
-            </dependency>
-
-            <dependency>
-                <groupId>org.tranql</groupId>
                 <artifactId>tranql-connector-db2-xa</artifactId>
                 <version>1.1</version>
                 <type>rar</type>
