@@ -20,6 +20,8 @@ import java.util.Iterator;
 import java.util.Properties;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
@@ -29,26 +31,48 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
  */
 public class SystemProperties {
 
+    private final Log log = LogFactory.getLog(SystemProperties.class);
 
-    public SystemProperties(Properties properties, Properties pathProperties, ServerInfo serverInfo) {
+    public SystemProperties(Properties systemProperties, Properties systemPathProperties, ServerInfo serverInfo, Properties sunSystemProperties, Properties ibmSystemProperties, Properties apacheSystemProperties) {
+        if (log.isDebugEnabled()) log.debug("Setting systemProperties");
+        setProperties(systemProperties, null);
+
+        if (JvmVendor.isIBM()) {
+            if (log.isDebugEnabled()) log.debug("Setting ibmSystemProperties for the IBM JVM");
+            setProperties(ibmSystemProperties, null);
+        } else if (JvmVendor.isApache()) {
+            if (log.isDebugEnabled()) log.debug("Setting apacheSystemProperties for the Apache Harmony JVM");
+            setProperties(apacheSystemProperties, null);
+        } else {
+            if (log.isDebugEnabled()) log.debug("Setting sunSystemProperties for the Sun JVM");
+            setProperties(sunSystemProperties, null);
+        }
+
+        if (serverInfo != null) {
+            if (log.isDebugEnabled()) log.debug("Setting systemPathProperties");
+            setProperties(systemPathProperties, serverInfo);
+        }
+    }
+
+    private void setProperties(Properties properties, ServerInfo serverInfo) {
         if (properties != null) {
             for (Iterator iterator = properties.entrySet().iterator(); iterator.hasNext();) {
                 Map.Entry entry = (Map.Entry) iterator.next();
                 String propertyName = (String) entry.getKey();
                 String propertyValue = (String) entry.getValue();
-                if (System.getProperty(propertyName) == null) {
-                    System.setProperty(propertyName, propertyValue);
+                if (serverInfo != null) {
+                    propertyValue = serverInfo.resolvePath(propertyValue);
                 }
-            }
-        }
-        if (pathProperties != null && serverInfo != null) {
-            for (Iterator iterator = pathProperties.entrySet().iterator(); iterator.hasNext();) {
-                Map.Entry entry = (Map.Entry) iterator.next();
-                String propertyName = (String) entry.getKey();
-                String propertyValue = (String) entry.getValue();
-                propertyValue = serverInfo.resolveServerPath(propertyValue);
-                if (System.getProperty(propertyName) == null) {
+                String currentPropertyValue = System.getProperty(propertyName);
+                if (currentPropertyValue == null) {
                     System.setProperty(propertyName, propertyValue);
+                    log.info("Setting Property=" + propertyName + " to Value=" + propertyValue);
+                } else {
+                    if (currentPropertyValue.equals(propertyValue)) {
+                        log.warn("Existing Property=" + propertyName + " is already set to Value=" + currentPropertyValue);
+                    } else {
+                        log.error("Not updating existing Property=" + propertyName + " to Value=" + propertyValue + ".  Property is already set to " + currentPropertyValue);
+                    }
                 }
             }
         }
@@ -61,7 +85,10 @@ public class SystemProperties {
         infoBuilder.addAttribute("systemProperties", Properties.class, true, true);
         infoBuilder.addAttribute("systemPathProperties", Properties.class, true, true);
         infoBuilder.addReference("ServerInfo", ServerInfo.class, "GBean");
-        infoBuilder.setConstructor(new String[] {"systemProperties", "systemPathProperties", "ServerInfo"});
+        infoBuilder.addAttribute("sunSystemProperties", Properties.class, true, true);
+        infoBuilder.addAttribute("ibmSystemProperties", Properties.class, true, true);
+        infoBuilder.addAttribute("apacheSystemProperties", Properties.class, true, true);
+        infoBuilder.setConstructor(new String[] { "systemProperties", "systemPathProperties", "ServerInfo", "sunSystemProperties", "ibmSystemProperties", "apacheSystemProperties" });
 
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }

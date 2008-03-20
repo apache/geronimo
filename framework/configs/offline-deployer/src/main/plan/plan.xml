@@ -31,7 +31,16 @@
     <!-- System Properties -->
     <gbean name="OfflineDeployerProperties" class="org.apache.geronimo.system.properties.SystemProperties">
         <attribute name="systemProperties">
-             org.apache.geronimo.deployment.util.DeploymentUtil.jarUrlRewrite=true
+           org.apache.geronimo.deployment.util.DeploymentUtil.jarUrlRewrite=true
         </attribute>
+         <attribute name="sunSystemProperties">
+             java.security.Provider=SUN
+         </attribute>
+         <attribute name="ibmSystemProperties">
+             java.security.Provider=IBMCertPath
+         </attribute>
+         <attribute name="apacheSystemProperties">
+             java.naming.factory.url.pkgs=org.apache.harmony.jndi.provider
+         </attribute>
     </gbean>
 </module>

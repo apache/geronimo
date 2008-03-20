@@ -51,6 +51,7 @@ import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.kernel.log.GeronimoLogFactory;
 import org.apache.geronimo.kernel.log.GeronimoLogging;
 import org.apache.geronimo.system.logging.SystemLog;
+import org.apache.geronimo.system.properties.JvmVendor;
 import org.apache.geronimo.system.serverinfo.DirectoryUtils;
 import org.apache.geronimo.system.serverinfo.ServerConstants;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
@@ -632,7 +633,11 @@ public class Log4jService implements GBeanLifecycle, SystemLog {
                     ", refreshPeriodSeconds=" + this.refreshPeriod);
           log.info("Runtime Information:");
           log.info("  Install Directory = " + DirectoryUtils.getGeronimoInstallDirectory().toString());
-          log.info("  JVM in use = " + System.getProperty("java.vendor") + " Java " + System.getProperty("java.version"));
+          if (JvmVendor.isIBMHybrid()) {
+              log.info("  JVM in use = IBM Hybrid Java " + System.getProperty("java.version"));
+          } else {
+              log.info("  JVM in use = " + System.getProperty("java.vendor") + " Java " + System.getProperty("java.version"));
+          }
           log.info("Java Information:");
           log.info("  System property [java.runtime.name]  = " + System.getProperty("java.runtime.name"));
           log.info("  System property [java.runtime.version]  = " + System.getProperty("java.runtime.version"));
