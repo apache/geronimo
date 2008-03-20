@@ -157,20 +157,22 @@ public class WADIOpenEJBClusteringBuilder implements ModuleBuilderExtension {
         
         OpenejbGeronimoEjbJarType geronimoEjbJarType = ejbModule.getVendorDD();
         GerOpenejbClusteringWadiType clusteringWadiType = getWadiClusterConfig(geronimoEjbJarType);
-        AbstractName sessionManagerName = addSessionManager(clusteringWadiType, ejbModule, earContext);
+        if (clusteringWadiType != null) {
+            AbstractName sessionManagerName = addSessionManager(clusteringWadiType, ejbModule, earContext);
 
-        addNetworkConnectorMonitor(earContext, sessionManagerName);
+            addNetworkConnectorMonitor(earContext, sessionManagerName);
 
-        EjbJar ejbJar = ejbModule.getEjbJar();
-        for (EnterpriseBean enterpriseBean : ejbJar.getEnterpriseBeans()) {
-            if (enterpriseBean instanceof SessionBean) {
-                SessionBean sessionBean = (SessionBean) enterpriseBean;
-                switch (sessionBean.getSessionType()) {
-                    case STATEFUL:
-                        replaceByClusteredDeploymentGBean(earContext,
-                            ejbModule,
-                            sessionManagerName,
-                            enterpriseBean);
+            EjbJar ejbJar = ejbModule.getEjbJar();
+            for (EnterpriseBean enterpriseBean : ejbJar.getEnterpriseBeans()) {
+                if (enterpriseBean instanceof SessionBean) {
+                    SessionBean sessionBean = (SessionBean) enterpriseBean;
+                    switch (sessionBean.getSessionType()) {
+                        case STATEFUL:
+                            replaceByClusteredDeploymentGBean(earContext,
+                                ejbModule,
+                                sessionManagerName,
+                                enterpriseBean);
+                    }
                 }
             }
         }
