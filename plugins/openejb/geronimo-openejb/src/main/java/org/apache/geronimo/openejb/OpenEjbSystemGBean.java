@@ -283,7 +283,8 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
                         containerInfo.properties.put("ActivationSpecClass",
                                 resourceAdapter.getClass().getClassLoader().loadClass(activationSpecClass));
                         containerInfo.properties.put("ResourceAdapter", resourceAdapter);
-
+                        containerInfo.properties.put("TxRecovery", true);
+ 
                         // create the container
                         assembler.createContainer(containerInfo);
                     } catch (Exception e) {
