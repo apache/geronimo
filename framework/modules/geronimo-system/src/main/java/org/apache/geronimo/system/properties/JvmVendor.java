@@ -45,7 +45,7 @@ public class JvmVendor {
     static {
         String fullVendorName = getFullName();
         boolean bApache = fullVendorName.substring(0, 6).equalsIgnoreCase("Apache");    // aka. Apache Harmony
-        boolean bIBM = fullVendorName.substring(0, 3)equalsIgnoreCase("IBM");           // aka. IBM, but not IBM Hybrid
+        boolean bIBM = fullVendorName.substring(0, 3).equalsIgnoreCase("IBM");           // aka. IBM, but not IBM Hybrid
         boolean bSun = !bIBM && !bApache;                                               // default all others to Sun
         boolean bHP = fullVendorName.substring(0, 7).equalsIgnoreCase("Hewlett");       // aka. Hewlett-Packard Company
         boolean bIBMHybrid = false;
@@ -104,24 +104,7 @@ public class JvmVendor {
         ibmHybrid = bIBMHybrid;
         sun = bSun;
         // log what we found
-        if (ibmHybrid == true) {
-            if (System.getProperty("os.name").equalsIgnoreCase("SunOS") == true) {
-                log.info("IBM Hybrid SDK on SunOS detected");
-            } else if (System.getProperty("os.name").equalsIgnoreCase("HP-UX") == true) {
-                log.info("IBM Hybrid SDK on HP-UX detected");
-            } else {
-                log.error("Unknown IBM Hybrid SDK detected on " + System.getProperty("os.name"));
-            }
-        } else if (apache == true) {
-            log.info("Apache JVM detected - " + fullVendorName);
-        } else if (ibm == true) {
-            log.info("IBM JVM detected - " + fullVendorName);
-        } else if (sun == true) {
-            log.info("Sun JVM detected - " + fullVendorName);
-        } else {
-            // should never happen
-            log.warn("Unhandled JVM detected - " + getFullName());
-        }
+        log.info(getJvmInfo());
     }
 
     public static String getFullName() {
@@ -142,6 +125,21 @@ public class JvmVendor {
 
     public static boolean isApache() {
         return apache;
+    }
+
+    public static String getJvmInfo() {
+        if (sun == true) {
+            return new String("Sun JVM " + System.getProperty("java.version"));
+        } else if (apache == true) {
+            return new String("Apache Harmony JVM " + System.getProperty("java.version"));
+        } else if (ibm == true) {
+            return new String("IBM JVM " + System.getProperty("java.version"));
+        } else if (ibmHybrid == true) {
+            return new String("IBM Hybrid JVM " + System.getProperty("java.version") + " on " + System.getProperty("os.name"));
+        } else {
+            // should never happen
+            return new String("Unknown JVM detected - " + getFullName());
+        }
     }
 
 }

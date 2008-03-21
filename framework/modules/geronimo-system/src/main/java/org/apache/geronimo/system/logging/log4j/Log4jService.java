@@ -629,15 +629,10 @@ public class Log4jService implements GBeanLifecycle, SystemLog {
           Log log = LogFactory.getLog(Log4jService.class);
           log.info("----------------------------------------------");
           log.info("Started Logging Service");
-          log.debug("Log4jService created with configFileName=" + this.configurationFile +
-                    ", refreshPeriodSeconds=" + this.refreshPeriod);
+          log.debug("Log4jService created with configFileName=" + this.configurationFile + ", refreshPeriodSeconds=" + this.refreshPeriod);
           log.info("Runtime Information:");
           log.info("  Install Directory = " + DirectoryUtils.getGeronimoInstallDirectory().toString());
-          if (JvmVendor.isIBMHybrid()) {
-              log.info("  JVM in use = IBM Hybrid Java " + System.getProperty("java.version"));
-          } else {
-              log.info("  JVM in use = " + System.getProperty("java.vendor") + " Java " + System.getProperty("java.version"));
-          }
+          log.info("  JVM in use = " + JvmVendor.getJvmInfo());
           log.info("Java Information:");
           log.info("  System property [java.runtime.name]  = " + System.getProperty("java.runtime.name"));
           log.info("  System property [java.runtime.version]  = " + System.getProperty("java.runtime.version"));
