@@ -26,6 +26,7 @@ import javax.xml.bind.Unmarshaller;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.monitoring.MonitorConstants;
 
 /**
  * In charge of dealing with the XML processing of the snapshot's data.
@@ -35,11 +36,6 @@ public class SnapshotConfigXMLBuilder {
     
     private static final String pathToXML = 
         System.getProperty("org.apache.geronimo.home.dir") + "/var/monitoring/snapshot-config.xml";
-    
-    private static final String SNAPSHOT_CONFIG = "snapshot-config";
-    private static final String DURATION = "duration";
-    private static final String RETENTION = "retention";
-    private static final String MBEAN = "mbean"; 
 
     private static JAXBContext jc = null;
 
@@ -154,9 +150,9 @@ public class SnapshotConfigXMLBuilder {
      * @throws Exception
      */
     public static String getAttributeValue(String key) throws Exception {
-        if(key.equals( DURATION )) {
+        if(key.equals( MonitorConstants.DURATION )) {
             return getSnapshotConfig().getDuration();
-        } else if(key.equals( RETENTION )) {
+        } else if(key.equals( MonitorConstants.RETENTION )) {
             return getSnapshotConfig().getRetention();
         } else {
             // Houston, we have a problem

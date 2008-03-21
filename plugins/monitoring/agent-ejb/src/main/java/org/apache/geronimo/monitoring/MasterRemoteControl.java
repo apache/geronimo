@@ -67,13 +67,6 @@ import org.apache.geronimo.monitoring.snapshot.SnapshotProcessor;
 public class MasterRemoteControl {
     private static Log log = LogFactory.getLog(MasterRemoteControl.class);
     
-    // constants
-    private static final String GERONIMO_DEFAULT_DOMAIN = "geronimo";
-    private static final Long DEFAULT_DURATION = new Long(300000);
-    private static final int DEFAULT_RETENTION = 30; // 30 days
-    private static final String DURATION = "duration";
-    private static final String RETENTION = "retention";
-
     // mbean server to talk to other components
     private static MBeanServer mbServer = null;
     
@@ -227,7 +220,7 @@ public class MasterRemoteControl {
         }
         int retention;
         if(retentionStr == null) {
-            retention = DEFAULT_RETENTION;
+            retention = MonitorConstants.DEFAULT_RETENTION;
         } else {
             retention = Integer.parseInt(retentionStr);
         }
@@ -317,10 +310,10 @@ public class MasterRemoteControl {
     public Long getSnapshotDuration() {
         // return what is stored in the snapshot-config.xml or default value
         try {
-            String returnedDuration = SnapshotConfigXMLBuilder.getAttributeValue( DURATION );
+            String returnedDuration = SnapshotConfigXMLBuilder.getAttributeValue( MonitorConstants.DURATION );
             return Long.parseLong( returnedDuration );
         } catch(Exception e) {
-            return DEFAULT_DURATION; // the default
+            return MonitorConstants.DEFAULT_DURATION; // the default
         }
     }
     
@@ -345,9 +338,9 @@ public class MasterRemoteControl {
     @RolesAllowed("mejbuser")
     public String getSnapshotRetention() {
         try {
-            return SnapshotConfigXMLBuilder.getAttributeValue( RETENTION );
+            return SnapshotConfigXMLBuilder.getAttributeValue( MonitorConstants.RETENTION );
         } catch(Exception e) {
-            return "" + DEFAULT_RETENTION; // the default
+            return "" + MonitorConstants.DEFAULT_RETENTION; // the default
         }
     }
     

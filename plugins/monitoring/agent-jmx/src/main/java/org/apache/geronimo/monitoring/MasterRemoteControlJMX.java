@@ -65,12 +65,6 @@ import org.apache.geronimo.monitoring.snapshot.SnapshotDBHelper;
  */
 public class MasterRemoteControlJMX implements GBeanLifecycle {
     private static Log log = LogFactory.getLog(MasterRemoteControlJMX.class);
-    // constants
-    private static final String GERONIMO_DEFAULT_DOMAIN = "geronimo";
-    private static final Long DEFAULT_DURATION = new Long(300000);
-    private static final int DEFAULT_RETENTION = 30;
-    private static final String RETENTION = "retention";
-    private static final String DURATION = "duration";
 
     // mbean server to talk to other components
     private static MBeanServer mbServer = null;
@@ -91,7 +85,7 @@ public class MasterRemoteControlJMX implements GBeanLifecycle {
             mbServer = (MBeanServer) mbServerList.get(0);
             for(int i = 0; i < mbServerList.size(); i++) {
                 String domain = ((MBeanServer)mbServerList.get(i)).getDefaultDomain();
-                if(domain.equals(GERONIMO_DEFAULT_DOMAIN)) {
+                if(domain.equals( MonitorConstants.GERONIMO_DEFAULT_DOMAIN )) {
                     mbServer = (MBeanServer)mbServerList.get(i);
                     break;
                 }
@@ -99,7 +93,7 @@ public class MasterRemoteControlJMX implements GBeanLifecycle {
         }
         // ensure that the mbServer has something in it
         if(mbServer == null) {
-            mbServer = MBeanServerFactory.createMBeanServer(GERONIMO_DEFAULT_DOMAIN);
+            mbServer = MBeanServerFactory.createMBeanServer( MonitorConstants.GERONIMO_DEFAULT_DOMAIN );
         }
        
         // set up SnaphotDBHelper with the necessary data sources
@@ -108,8 +102,6 @@ public class MasterRemoteControlJMX implements GBeanLifecycle {
             InitialContext ic = new InitialContext();
             activeDS = (DataSource)((ManagedConnectionFactoryWrapper)ic.lookup("jca:/org.apache.geronimo.plugins/agent-ds/JCAManagedConnectionFactory/jdbc/ActiveDS")).$getResource();
             archiveDS = (DataSource)((ManagedConnectionFactoryWrapper)ic.lookup("jca:/org.apache.geronimo.plugins/agent-ds/JCAManagedConnectionFactory/jdbc/ArchiveDS")).$getResource();
-//          activeDS = (DataSource)((NestedWritableContext)ic.lookup("jms:conn")).lookup("jdbc/ActiveDS");
-//          archiveDS = (DataSource)((NestedWritableContext)ic.lookup("jms:conn")).lookup("jdbc/ArchiveDS");
         } catch(Exception e) {
             log.error(e.getMessage());
             e.printStackTrace();
@@ -236,9 +228,9 @@ public class MasterRemoteControlJMX implements GBeanLifecycle {
      */
     public Long getSnapshotDuration() {
         try {
-            return Long.parseLong(SnapshotConfigXMLBuilder.getAttributeValue(DURATION));
+            return Long.parseLong(SnapshotConfigXMLBuilder.getAttributeValue( MonitorConstants.DURATION ));
         } catch(Exception e) {
-            return new Long(DEFAULT_DURATION);
+            return new Long( MonitorConstants.DEFAULT_DURATION );
         }
     }
     
@@ -261,7 +253,7 @@ public class MasterRemoteControlJMX implements GBeanLifecycle {
     }
     
     /**
-     * Begins the snapshot process given the time interval between snapshots
+    * Begins the snapshot process given the time interval between snapshots
      *
      * Precondition:
      *          interval is given in milli seconds
@@ -272,14 +264,14 @@ public class MasterRemoteControlJMX implements GBeanLifecycle {
         // get the saved/default retention period
         String retentionStr = null;
         try {
-            retentionStr = SnapshotConfigXMLBuilder.getAttributeValue(RETENTION);
+            retentionStr = SnapshotConfigXMLBuilder.getAttributeValue( MonitorConstants.RETENTION );
         } catch(Exception e){
             // happens when there is not an instance of "retention" in the config
             // which is okay.
         }
         int retention;
         if(retentionStr == null) {
-            retention = DEFAULT_RETENTION;
+            retention = MonitorConstants.DEFAULT_RETENTION;
         } else {
             retention = Integer.parseInt(retentionStr);
         }
@@ -440,9 +432,9 @@ public class MasterRemoteControlJMX implements GBeanLifecycle {
     
     public Integer getSnapshotRetention() {
         try {
-            return new Integer(SnapshotConfigXMLBuilder.getAttributeValue( RETENTION ));
+            return new Integer(SnapshotConfigXMLBuilder.getAttributeValue( MonitorConstants.RETENTION ));
         } catch(Exception e) {
-            return new Integer(DEFAULT_RETENTION); // the default
+            return new Integer(MonitorConstants.DEFAULT_RETENTION); // the default
         }
     }
     

@@ -32,14 +32,10 @@ import javax.sql.DataSource;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.monitoring.MonitorConstants;
 
 public class SnapshotDBHelper {
     private static Log log = LogFactory.getLog(SnapshotDBHelper.class);
-    // field attributes for the Statistics table in the DB
-    private static final String SNAPSHOT_TIME = "snapshot_time";
-    private static final String MBEANNAME = "mbeanName";
-    private static final String STATSVALUELIST = "statsValueList";
-    private static final String STATSNAMELIST = "statsNameList";
     // Connection object used for DB interaction
     private static Connection conn = null;
     // Data Sources
@@ -67,8 +63,8 @@ public class SnapshotDBHelper {
             ResultSet rs = stmt.executeQuery(query);
             // add each mbean/statsValue combination to retval
             while(rs.next()) {
-                String mbeanName = rs.getString(MBEANNAME);
-                String statsNameStr = rs.getString(STATSNAMELIST);
+                String mbeanName = rs.getString( MonitorConstants.MBEANNAME );
+                String statsNameStr = rs.getString( MonitorConstants.STATSNAMELIST );
                 String[] statsNameList = statsNameStr.split(",");
                 ArrayList<String> mbeanAttributeList = new ArrayList<String>();
                 // copy from String[] to ArrayList<String>
@@ -134,19 +130,19 @@ public class SnapshotDBHelper {
         try {
             // for each snapshot in the table
             while(snapshotTimeTable.next()) {
-                Long snapshotTime = snapshotTimeTable.getLong(SNAPSHOT_TIME);
+                Long snapshotTime = snapshotTimeTable.getLong( MonitorConstants.SNAPSHOT_TIME );
                 // retrieve the snapshot information by time
                 ResultSet snapshotData = fetchSnapshotDataFromDB(snapshotTime);
                 // for each statistic, perform a relaxation
                 while(snapshotData.next()) {
-                    String mbean = snapshotData.getString(MBEANNAME);
+                    String mbean = snapshotData.getString( MonitorConstants.MBEANNAME );
                     // get map associated with mbean
                     HashMap<String, Long> mbeanMap = stats.get(mbean);
                     if(mbeanMap == null) {
                         mbeanMap = new HashMap<String, Long>();
                     }
-                    String[] statsNameList = snapshotData.getString(STATSNAMELIST).split(",");
-                    String[] statsValueList = snapshotData.getString(STATSVALUELIST).split(",");
+                    String[] statsNameList = snapshotData.getString( MonitorConstants.STATSNAMELIST ).split(",");
+                    String[] statsValueList = snapshotData.getString( MonitorConstants.STATSVALUELIST ).split(",");
                     assert(statsNameList.length == statsValueList.length);
                     // for each statname/statsvalue combo in an mbean
                     for(int i = 0 ; i < statsNameList.length; i++) {
@@ -274,7 +270,7 @@ public class SnapshotDBHelper {
             ArrayList<Long> overdueTimes = new ArrayList<Long>();
             // save overdue times into an array list for later usage
             while(overDueSnapshotTimes.next()) {
-                overdueTimes.add(overDueSnapshotTimes.getLong(SNAPSHOT_TIME));
+                overdueTimes.add(overDueSnapshotTimes.getLong( MonitorConstants.SNAPSHOT_TIME ));
             }
             closeConnection();
             // for each overdue snapshot time
@@ -286,10 +282,10 @@ public class SnapshotDBHelper {
                 HashMap<String, HashMap<String, Long>> snapshotData = new HashMap<String,HashMap<String, Long>>();
                 while(rsSnapshotData.next()) {
                     // extract values from sql table
-                    String mbeanName = rsSnapshotData.getString(MBEANNAME);
-                    String statsNameList = rsSnapshotData.getString(STATSNAMELIST);
-                    String statsValueList = rsSnapshotData.getString(STATSVALUELIST);
-                    Long snapshot_time = rsSnapshotData.getLong(SNAPSHOT_TIME);
+                    String mbeanName = rsSnapshotData.getString( MonitorConstants.MBEANNAME );
+                    String statsNameList = rsSnapshotData.getString( MonitorConstants.STATSNAMELIST );
+                    String statsValueList = rsSnapshotData.getString( MonitorConstants.STATSVALUELIST );
+                    Long snapshot_time = rsSnapshotData.getLong( MonitorConstants.SNAPSHOT_TIME );
                     // get a connection to the archive db too
                     Connection archiveConn = archiveDS.getConnection();
                     Statement archiveStmt = archiveConn.createStatement();
@@ -434,7 +430,7 @@ public class SnapshotDBHelper {
         int nthSnapshot = 0;
         try {
             while(table.next()) {
-                Long snapshotTime = table.getLong(SNAPSHOT_TIME);
+                Long snapshotTime = table.getLong( MonitorConstants.SNAPSHOT_TIME );
                 // grab 0*nth, 1*nth, 2*nth snapshot up to min(numberOfSnapshot*everyNthSnapshot, size of the table)
                 if(nthSnapshot % everyNthSnapshot == 0) {
                     HashMap<String, HashMap<String, Object>> snapshotData = packageSnapshotData(snapshotTime);
@@ -469,15 +465,15 @@ public class SnapshotDBHelper {
         try {
             // for each record save it somewhere in the snapshotPkg
             while(snapshotData.next()) {
-                String currMBean = snapshotData.getString(MBEANNAME);
+                String currMBean = snapshotData.getString( MonitorConstants.MBEANNAME );
                 // get the information for the mbean defined by currMBean
                 HashMap<String, Object> mbeanInfo = snapshotPkg.get(currMBean);
                 if(mbeanInfo == null) {
                     mbeanInfo = new HashMap<String, Object>();
                 }
                 // get statistics from resultset
-                String statsValueStr = snapshotData.getString(STATSVALUELIST);
-                String statsNameStr = snapshotData.getString(STATSNAMELIST);
+                String statsValueStr = snapshotData.getString( MonitorConstants.STATSVALUELIST );
+                String statsNameStr = snapshotData.getString( MonitorConstants.STATSNAMELIST );
                 String[] statsValueList = statsValueStr.split(",");
                 String[] statsNameList = statsNameStr.split(",");
                 assert(statsValueList.length == statsNameList.length);
@@ -496,7 +492,7 @@ public class SnapshotDBHelper {
         }
         // add the time and date
         HashMap<String, Object> timeMap = new HashMap<String, Object>();
-        timeMap.put(SNAPSHOT_TIME, snapshotTime);
+        timeMap.put( MonitorConstants.SNAPSHOT_TIME, snapshotTime);
         snapshotPkg.put("times", timeMap);
         
         return snapshotPkg;
@@ -603,8 +599,8 @@ public class SnapshotDBHelper {
                 while(rs.next()) {
                     // every nth snapshot I save the information into my returning hashmap
                     if(nthSnapshot % everyNthSnapshot == 0) {
-                        String[] statsValueList = rs.getString(STATSVALUELIST).split(",");
-                        String[] statsNameList = rs.getString(STATSNAMELIST).split(",");
+                        String[] statsValueList = rs.getString( MonitorConstants.STATSVALUELIST ).split(",");
+                        String[] statsNameList = rs.getString( MonitorConstants.STATSNAMELIST ).split(",");
                         assert(statsValueList.length == statsNameList.length);
                         Long statsValue = null;
                         for(int i = 0 ; i < statsNameList.length; i++) {
@@ -618,7 +614,7 @@ public class SnapshotDBHelper {
                             log.warn("Statistics name '" + statsName + "' does not exist");
                             return stats;
                         } else {
-                            stats.put(rs.getLong(SNAPSHOT_TIME), statsValue);
+                            stats.put(rs.getLong( MonitorConstants.SNAPSHOT_TIME ), statsValue);
                             numberOfSnapshots--;
                         }
                     }
@@ -654,8 +650,8 @@ public class SnapshotDBHelper {
                     while(rs.next()) {
                         // every nth snapshot I save the information into my returning hashmap
                         if(nthSnapshot % everyNthSnapshot == 0) {
-                            String[] statsValueList = rs.getString(STATSVALUELIST).split(",");
-                            String[] statsNameList = rs.getString(STATSNAMELIST).split(",");
+                            String[] statsValueList = rs.getString( MonitorConstants.STATSVALUELIST ).split(",");
+                            String[] statsNameList = rs.getString( MonitorConstants.STATSNAMELIST ).split(",");
                             assert(statsValueList.length == statsNameList.length);
                             Long statsValue = null;
                             for(int i = 0 ; i < statsNameList.length; i++) {
@@ -669,7 +665,7 @@ public class SnapshotDBHelper {
                                 log.warn("Statistics name '" + statsName + "' does not exist");
                                 return stats;
                             } else {
-                                stats.put(rs.getLong(SNAPSHOT_TIME), statsValue);
+                                stats.put(rs.getLong( MonitorConstants.SNAPSHOT_TIME ), statsValue);
                                 numberOfSnapshots--;
                             }
                         }
