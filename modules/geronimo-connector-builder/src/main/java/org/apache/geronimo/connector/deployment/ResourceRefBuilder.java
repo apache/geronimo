@@ -22,6 +22,7 @@ import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -115,15 +116,17 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
         List<ResourceRefType> resourceRefsUntyped = convert(specDD.selectChildren(resourceRefQNameSet), J2EE_CONVERTER, ResourceRefType.class, ResourceRefType.type);
         XmlObject[] gerResourceRefsUntyped = plan == null ? NO_REFS : plan.selectChildren(GER_RESOURCE_REF_QNAME_SET);
         Map refMap = mapResourceRefs(gerResourceRefsUntyped);
-        ClassLoader cl = module.getEarContext().getClassLoader();
-        int initialGerRefSize = refMap.size();
-        int unresolvedRefSize = resourceRefsUntyped.size();
+        List unresolvedRefs = new ArrayList();
+        ClassLoader cl = module.getEarContext().getClassLoader();                
         for (ResourceRefType resourceRef : resourceRefsUntyped) {
             String name = resourceRef.getResRefName().getStringValue().trim();
             addInjections(name, resourceRef.getInjectionTargetArray(), componentContext);
             String type = resourceRef.getResType().getStringValue().trim();
             GerResourceRefType gerResourceRef = (GerResourceRefType) refMap.get(name);
-            refMap.remove(name);
+            log.debug("trying to resolve " + name + ", type " + type + ", resourceRef " + gerResourceRef);
+            if(!refMap.containsKey(name)){
+                unresolvedRefs.add(name);
+            } 
             Class iface;
             try {
                 iface = cl.loadClass(type);
@@ -174,6 +177,12 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
 
                     Reference ref = new ResourceReference(module.getConfigId(), containerId, iface);
                     getJndiContextMap(componentContext).put(ENV + name, ref);
+
+                    // we thought that this might be an unresolved
+                    // name because it wasn't in the refMap, but now
+                    // we've found it so we can take it out of the
+                    // unresolvedRefs list
+                    unresolvedRefs.remove(name);
                 } catch (GBeanNotFoundException e) {
 
                     StringBuffer errorMessage = new StringBuffer("Unable to resolve resource reference '");
@@ -205,8 +214,8 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
             }
         }
 
-        if (refMap.size() > 0 && ((initialGerRefSize - unresolvedRefSize) != refMap.size())) {
-            log.warn("Failed to build reference to resource reference "+refMap.keySet()+" defined in plan file, reason - corresponding entry in deployment descriptor missing.");
+        if (unresolvedRefs.size() > 0) {
+            log.warn("Failed to build reference to resource reference "+ unresolvedRefs +" defined in plan file, reason - corresponding entry in deployment descriptor missing.");
         }
     }
 
