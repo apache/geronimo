@@ -18,6 +18,7 @@ package org.apache.geronimo.jms.test.simple;
 
 import java.io.IOException;
 
+import javax.annotation.Resource;
 import javax.jms.Message;
 import javax.jms.Session;
 import javax.jms.MessageListener;
@@ -30,9 +31,6 @@ import javax.jms.TopicPublisher;
 import javax.jms.TopicSession;
 
 import javax.jms.TextMessage;
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
 import javax.servlet.Servlet;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -46,8 +44,9 @@ import java.util.concurrent.TimeUnit;
 public class JMSTopicSenderReceiver extends HttpServlet implements Servlet {
 
 
-    Context initialContext = null;
+    @Resource(name="MSConnectionFactory")
     TopicConnectionFactory tcf = null;
+    @Resource(name="TestTopic")
     Topic topic = null;
 
     /* (non-Java-doc)
@@ -98,20 +97,6 @@ public class JMSTopicSenderReceiver extends HttpServlet implements Servlet {
 
         }
         catch ( Exception e ) {
-            e.printStackTrace();
-        }
-    }
-
-    /* (non-Java-doc)
-     * @see javax.servlet.Servlet#init(ServletConfig arg0)
-     */
-    public void init(ServletConfig arg0) throws ServletException {
-        try {
-            initialContext = new InitialContext();
-            tcf  = (TopicConnectionFactory) initialContext.lookup("java:comp/env/jms/TCF");
-            topic = (Topic) initialContext.lookup("java:comp/env/jms/TestT");
-        }
-        catch ( NamingException e ) {
             e.printStackTrace();
         }
     }

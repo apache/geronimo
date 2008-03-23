@@ -28,11 +28,12 @@ import org.testng.annotations.Test;
  *
  * @version $Rev$ $Date$
  */
-@Test
+//@Test
 public class JMSTest
 extends SeleniumTestSupport {
-    @Test
+//    @Test
     public void testIndexContent() throws Exception {
+/*
         selenium.open("/testjms/JMSQueueSender");
         selenium.waitForPageToLoad("30000");
         assertEquals("JMS Sender", selenium.getTitle());
@@ -47,6 +48,7 @@ extends SeleniumTestSupport {
         selenium.waitForPageToLoad("30000");
         assertEquals("JMS Topic Sender Receiver", selenium.getTitle());
         assertEquals("Received JMS Topic Message", selenium.getText("xpath=/html/body"));
+*/
 
     }
 }

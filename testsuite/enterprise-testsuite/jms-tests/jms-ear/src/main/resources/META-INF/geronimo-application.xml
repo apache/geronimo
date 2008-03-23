@@ -30,96 +30,130 @@
             <dep:type>ear</dep:type>
         </dep:moduleId>
         <dep:dependencies>
-        <dep:dependency>
-    	    <dep:groupId>org.apache.geronimo.configs</dep:groupId>
-    	    <dep:artifactId>activemq-broker</dep:artifactId>
-            <dep:version>${version}</dep:version>
-    	    <dep:type>car</dep:type>
-        </dep:dependency>
+            <dep:dependency>
+                <dep:groupId>org.apache.geronimo.configs</dep:groupId>
+                <dep:artifactId>activemq-broker</dep:artifactId>
+                <dep:version>${version}</dep:version>
+                <dep:type>car</dep:type>
+            </dep:dependency>
         </dep:dependencies>
-      </dep:environment>
-      <module>
+    </dep:environment>
+    <module>
         <web>web.war</web>
         <web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web-2.0">
-    	<context-root>/testjms</context-root> 
-    	<resource-ref>
-           <ref-name>jms/QCF</ref-name>
-           <resource-link>QueueConnectionFactory</resource-link>
-        </resource-ref>
-        <resource-ref>
-	   <ref-name>jms/TCF</ref-name>
-	   <resource-link>TopicConnectionFactory</resource-link>
-	</resource-ref>
-    	<resource-env-ref>
-    	   <ref-name>jms/TestQ</ref-name>
-    	   <admin-object-link>TestQueue</admin-object-link>
-        </resource-env-ref> 
-	<resource-env-ref>
-	   <ref-name>jms/TestT</ref-name>
-	   <admin-object-link>TestTopic</admin-object-link>
-        </resource-env-ref> 
+            <context-root>/testjms</context-root>
         </web-app>
-      </module>
-      <ext-module>
+    </module>
+    <module>
+        <ejb>ejb.jar</ejb>
+        <openejb-jar xmlns="http://www.openejb.org/xml/ns/openejb-jar-2.1" xmlns:pkgen="http://www.openejb.org/xml/ns/pkgen-2.0"
+                     xmlns:nam="http://geronimo.apache.org/xml/ns/naming-1.2" xmlns:sec="http://geronimo.apache.org/xml/ns/security-2.0"
+                     xmlns:sys="http://geronimo.apache.org/xml/ns/deployment-1.2">
+
+            <enterprise-beans>
+
+                <message-driven>
+                    <ejb-name>SimpleMessageReceiver</ejb-name>
+                    <resource-adapter>
+                        <nam:resource-link>MessageReceiversMDB</nam:resource-link>
+                    </resource-adapter>
+                </message-driven>
+
+            </enterprise-beans>
+
+        </openejb-jar>
+    </module>
+    <ext-module>
         <connector>TestJMS</connector>
         <external-path xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.2">
-           <dep:groupId>org.apache.geronimo.modules</dep:groupId>
-           <dep:artifactId>geronimo-activemq-ra</dep:artifactId>
-           <dep:type>rar</dep:type>
+            <dep:groupId>org.apache.geronimo.modules</dep:groupId>
+            <dep:artifactId>geronimo-activemq-ra</dep:artifactId>
+            <dep:type>rar</dep:type>
         </external-path>
         <connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector-1.1">
-          <resourceadapter>
-            <resourceadapter-instance>
-              <resourceadapter-name>TestJMSRA</resourceadapter-name>
-              <config-property-setting name="ServerUrl">tcp://localhost:61616</config-property-setting>
-              <config-property-setting name="UserName">not needed</config-property-setting>
-              <config-property-setting name="Password">not needed</config-property-setting>
-              <workmanager>
-                <gbean-link>DefaultWorkManager</gbean-link>
-              </workmanager>
-            </resourceadapter-instance>
-            <!--defines a ConnectionFactory-->
-            <outbound-resourceadapter>
-              <connection-definition>
-                <connectionfactory-interface>javax.jms.ConnectionFactory</connectionfactory-interface>
-                <connectiondefinition-instance>
-                  <name>QueueConnectionFactory</name>
-                  <implemented-interface>javax.jms.QueueConnectionFactory</implemented-interface>
-                  <connectionmanager>
-                   <no-transaction />
-		   <no-pool />
-                  </connectionmanager>
-                </connectiondefinition-instance>
-              </connection-definition>
-              <connection-definition>
-                <connectionfactory-interface>javax.jms.ConnectionFactory</connectionfactory-interface>
-                <connectiondefinition-instance>
-                  <name>TopicConnectionFactory</name>
-                  <implemented-interface>javax.jms.TopicConnectionFactory</implemented-interface>
-                  <connectionmanager>
-	           <no-transaction />
-		   <no-pool />
-                  </connectionmanager>
-                </connectiondefinition-instance>
-              </connection-definition>
-            </outbound-resourceadapter>
-          </resourceadapter>
-          <adminobject>
-            <adminobject-interface>javax.jms.Topic</adminobject-interface>
-            <adminobject-class>org.activemq.message.ActiveMQTopic</adminobject-class>
-            <adminobject-instance>
-              <message-destination-name>TestTopic</message-destination-name>
-              <config-property-setting name="PhysicalName">TestTopic</config-property-setting>
-            </adminobject-instance>
-          </adminobject>
-          <adminobject>
-            <adminobject-interface>javax.jms.Queue</adminobject-interface>
-            <adminobject-class>org.activemq.message.ActiveMQQueue</adminobject-class>
-            <adminobject-instance>
-              <message-destination-name>TestQueue</message-destination-name>
-              <config-property-setting name="PhysicalName">TestQueue</config-property-setting>
-            </adminobject-instance>
-          </adminobject>
+            <resourceadapter>
+                <resourceadapter-instance>
+                    <resourceadapter-name>MessageReceiversMDB</resourceadapter-name>
+                    <config-property-setting name="UseInboundSession">true</config-property-setting>
+                    <config-property-setting name="ServerUrl">vm://localhost?async=true</config-property-setting>
+                    <nam:workmanager xmlns:nam="http://geronimo.apache.org/xml/ns/naming-1.2">
+                        <nam:gbean-link>DefaultWorkManager</nam:gbean-link>
+                    </nam:workmanager>
+                </resourceadapter-instance>
+                <outbound-resourceadapter>
+                    <connection-definition>
+                        <connectionfactory-interface>javax.jms.ConnectionFactory</connectionfactory-interface>
+                        <connectiondefinition-instance>
+                            <name>MRConnectionFactory</name>
+                            <connectionmanager>
+                                <xa-transaction>
+                                    <transaction-caching/>
+                                </xa-transaction>
+                                <single-pool>
+                                    <max-size>20</max-size>
+                                    <blocking-timeout-milliseconds>5000</blocking-timeout-milliseconds>
+                                    <select-one-assume-match/>
+                                </single-pool>
+                            </connectionmanager>
+                        </connectiondefinition-instance>
+                    </connection-definition>
+                </outbound-resourceadapter>
+            </resourceadapter>
+            <resourceadapter>
+                <resourceadapter-instance>
+                    <resourceadapter-name>MessageSender</resourceadapter-name>
+                    <config-property-setting name="ServerUrl">vm://localhost?async=true</config-property-setting>
+                    <nam:workmanager xmlns:nam="http://geronimo.apache.org/xml/ns/naming-1.2">
+                        <nam:gbean-link>DefaultWorkManager</nam:gbean-link>
+                    </nam:workmanager>
+                </resourceadapter-instance>
+                <outbound-resourceadapter>
+                    <connection-definition>
+                        <connectionfactory-interface>javax.jms.ConnectionFactory</connectionfactory-interface>
+                        <connectiondefinition-instance>
+                            <name>MSConnectionFactory</name>
+                            <connectionmanager>
+                                <xa-transaction>
+                                    <transaction-caching/>
+                                </xa-transaction>
+                                <single-pool>
+                                    <max-size>20</max-size>
+                                    <blocking-timeout-milliseconds>5000</blocking-timeout-milliseconds>
+                                    <select-one-assume-match/>
+                                </single-pool>
+                            </connectionmanager>
+                        </connectiondefinition-instance>
+                    </connection-definition>
+                </outbound-resourceadapter>
+            </resourceadapter>
+            <adminobject>
+                <adminobject-interface>javax.jms.Topic</adminobject-interface>
+                <adminobject-class>org.activemq.message.ActiveMQTopic</adminobject-class>
+                <adminobject-instance>
+                    <message-destination-name>TestTopic</message-destination-name>
+                    <config-property-setting name="PhysicalName">TestTopic</config-property-setting>
+                </adminobject-instance>
+            </adminobject>
+            <adminobject>
+                <adminobject-interface>javax.jms.Queue</adminobject-interface>
+                <adminobject-class>org.activemq.message.ActiveMQQueue</adminobject-class>
+                <adminobject-instance>
+                    <message-destination-name>TestQueue</message-destination-name>
+                    <config-property-setting name="PhysicalName">TestQueue</config-property-setting>
+                </adminobject-instance>
+            </adminobject>
+            <adminobject>
+                <adminobject-interface>javax.jms.Queue</adminobject-interface>
+                <adminobject-class>org.apache.activemq.command.ActiveMQQueue</adminobject-class>
+                <adminobject-instance>
+                    <message-destination-name>MRRequests</message-destination-name>
+                    <config-property-setting name="PhysicalName">MRRequests</config-property-setting>
+                </adminobject-instance>
+                <adminobject-instance>
+                    <message-destination-name>MRResponses</message-destination-name>
+                    <config-property-setting name="PhysicalName">MRResponses</config-property-setting>
+                </adminobject-instance>
+            </adminobject>
         </connector>
-      </ext-module>
-      </application>
+    </ext-module>
+</application>
