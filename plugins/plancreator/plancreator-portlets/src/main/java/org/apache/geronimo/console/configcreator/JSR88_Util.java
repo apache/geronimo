@@ -160,7 +160,7 @@ public class JSR88_Util {
             try {
                 classFinder = AbstractWebModuleBuilder.createWebAppClassFinder(webApp, classLoader);
             } catch (DeploymentException e2) {
-                return;
+                throw e2;
             }
         }
         AnnotatedApp annotatedApp = module.getAnnotatedApp();
