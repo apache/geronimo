@@ -24,5 +24,11 @@
 
 DIRNAME=`dirname "$0"`
 
-exec "$DIRNAME/gsh" -c "geronimo/stop-server $@"
+ARGS=
+while [ $# -ge 1 ]; do
+  ARGS="$ARGS \"$1\""
+  shift
+done
+
+exec "$DIRNAME/gsh" -c "geronimo/stop-server $ARGS"
 
