@@ -593,6 +593,7 @@ public class PluginInstallerGBean implements PluginInstaller {
     }
 
     public void install(PluginListType pluginsToInstall, SourceRepository defaultRepository, boolean restrictToDefaultRepository, String username, String password, DownloadPoller poller) {
+        List<Artifact> downloadedArtifacts = new ArrayList<Artifact>();
         try {
             Map<Artifact, PluginType> metaMap = new HashMap<Artifact, PluginType>();
             // Step 1: validate everything
@@ -635,9 +636,11 @@ public class PluginInstallerGBean implements PluginInstaller {
                 Set<Artifact> working = new HashSet<Artifact>();
                 Stack<Artifact> parentStack = new Stack<Artifact>();
                 if (instance.getModuleId() != null) {
+                    Artifact entry = toArtifact(instance.getModuleId());
                     List<SourceRepository> repos = getRepos(pluginsToInstall, defaultRepository, restrictToDefaultRepository, instance);
-                    downloadArtifact(toArtifact(instance.getModuleId()), metaMap, repos,
+                    downloadArtifact(entry, metaMap, repos,
                             username, password, new ResultsFileWriteMonitor(poller), working, parentStack, false, servers, true);
+                    downloadedArtifacts.add(entry);
                 } else {
                     List<DependencyType> deps = instance.getDependency();
                     for (DependencyType dep : deps) {
@@ -645,6 +648,7 @@ public class PluginInstallerGBean implements PluginInstaller {
                         List<SourceRepository> repos = getRepos(pluginsToInstall, defaultRepository, restrictToDefaultRepository, instance);
                         downloadArtifact(entry, metaMap, repos,
                                 username, password, new ResultsFileWriteMonitor(poller), working, parentStack, false, servers, dep.isStart());
+                        downloadedArtifacts.add(entry);
                     }
                 }
                 // 4. Uninstall obsolete configurations
@@ -677,6 +681,14 @@ public class PluginInstallerGBean implements PluginInstaller {
         } catch (Exception e) {
             log.error("Unable to install plugin. ", e);
             poller.setFailure(e);
+            //Attempt to cleanup a failed plugin installation
+            for (Artifact artifact : downloadedArtifacts) {
+                try {
+                    configManager.uninstallConfiguration(artifact);
+                } catch (Exception e2) {
+                    log.warn("Warning: ",e2);
+                }
+            }
         } finally {
             poller.setFinished();
         }
