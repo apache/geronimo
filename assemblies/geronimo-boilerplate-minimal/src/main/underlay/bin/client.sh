@@ -180,7 +180,7 @@ if $cygwin; then
   EXT_DIRS="$GERONIMO_BASE/lib/ext;$JRE_HOME/lib/ext"
   ENDORSED_DIRS="$GERONIMO_BASE/lib/endorsed;$JRE_HOME/lib/endorsed"
 else
-  EXT_DIRS="$GERONIMO_BASE/lib/ext;$JRE_HOME/lib/ext"
+  EXT_DIRS="$GERONIMO_BASE/lib/ext:$JRE_HOME/lib/ext"
   ENDORSED_DIRS="$GERONIMO_BASE/lib/endorsed:$JRE_HOME/lib/endorsed"
 fi
 
