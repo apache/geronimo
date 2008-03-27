@@ -204,7 +204,9 @@ public class StartServerMojo
                     // Skip this property, never propagate it
                 }
                 else if (name.startsWith("org.apache.geronimo") || name.startsWith("geronimo")) {
-                    log.debug("Propagating: " + name + "=" + value);
+                    if (log.isDebugEnabled()) {
+                        log.debug("Propagating: " + name + "=" + value);
+                    }
                     setSystemProperty(java, name, value);
                 }
             }
@@ -334,7 +336,9 @@ public class StartServerMojo
         };
 
         if (verifyTimeout > 0) {
-            log.debug("Starting verify timeout task; triggers in: " + verifyTimeout + " seconds");
+            if (log.isDebugEnabled()) {
+                log.debug("Starting verify timeout task; triggers in: " + verifyTimeout + " seconds");
+            }
             timer.schedule(timeoutTask, verifyTimeout * 1000);
         }
 
@@ -354,7 +358,7 @@ public class StartServerMojo
 
             if (!started) {
                 Throwable error = server.getLastError();
-                if (error != null) {
+                if ((error != null) && (log.isDebugEnabled())) {
                     log.debug("Server query failed; ignoring", error);
                 }
 
@@ -423,7 +427,9 @@ public class StartServerMojo
 
             if (set == null) {
                 if ("default".equals(id)) {
-                    log.debug("Default optionSet selected, but no optionSet defined with that id; ignoring");
+                    if (log.isDebugEnabled()) {
+                        log.debug("Default optionSet selected, but no optionSet defined with that id; ignoring");
+                    }
                 }
                 else {
                     log.warn("Missing optionSet for id: " + id);

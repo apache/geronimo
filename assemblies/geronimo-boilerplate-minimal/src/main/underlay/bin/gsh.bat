@@ -22,7 +22,8 @@ rem
 rem $Rev$ $Date$
 rem 
 
-if "%OS%"=="Windows_NT" setlocal
+if "%OS%"=="Windows_NT" setlocal enableextensions
+set ERRORLEVEL=0
 
 :begin
 

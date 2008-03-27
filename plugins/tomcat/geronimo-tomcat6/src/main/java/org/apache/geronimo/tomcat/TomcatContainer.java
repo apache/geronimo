@@ -185,9 +185,11 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
      * See org.apache.catalina.startup.Embedded for details (TODO: provide the link to the javadoc)
      */
     public void doStart() throws Exception {
-        log.debug("doStart()");
-
-        log.debug("Endorsed Dirs set to:" + System.getProperty("java.endorsed.dirs"));
+        if (log.isDebugEnabled()) {
+            log.debug("doStart()");
+            log.debug("Java Endorsed Dirs set to:" + System.getProperty("java.endorsed.dirs"));
+            log.debug("Java Ext Dirs set to:" + System.getProperty("java.ext.dirs"));
+        }
 
         // The comments are from the javadoc of the Embedded class
 
@@ -330,10 +332,12 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
                         realm = new TomcatJAASRealm();
                     }
 
-                    log.debug("The security-realm-name '" + securityRealmName +
+                    if (log.isDebugEnabled()) {
+                        log.debug("The security-realm-name '" + securityRealmName +
                             "' was specified and a parent (Engine/Host) is not named the same or no RealmGBean was configured for this context. " +
                             "Creating a default " + realm.getClass().getName() +
                             " adapter for this context.");
+                    }
 
                     ((JAASRealm) realm).setUserClassNames("org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal");
                     ((JAASRealm) realm).setRoleClassNames("org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal");

@@ -262,7 +262,10 @@ public class Log4jService implements GBeanLifecycle, SystemLog {
      * @param configurationFile the logging configuration file
      */
     public synchronized void setConfigFileName(final String configurationFile) {
-        log.debug("setConfigFileName() called with configurationFile=" + configurationFile);
+        if (log.isDebugEnabled()) {
+            log.debug("setConfigFileName() called with configurationFile=" + configurationFile);
+        }
+
         if (configurationFile == null) {
             throw new IllegalArgumentException("configurationFile is null");
         }
@@ -522,7 +525,9 @@ public class Log4jService implements GBeanLifecycle, SystemLog {
         if (file == null || !file.exists()) {
             return;
         } else {
-            log.debug("reconfigure() using configurationFile=" + configurationFile);
+            if (log.isDebugEnabled()) {
+                log.debug("reconfigure() using configurationFile=" + configurationFile);
+            }
             lastChanged = file.lastModified();
         }
 
@@ -629,7 +634,9 @@ public class Log4jService implements GBeanLifecycle, SystemLog {
           Log log = LogFactory.getLog(Log4jService.class);
           log.info("----------------------------------------------");
           log.info("Started Logging Service");
-          log.debug("Log4jService created with configFileName=" + this.configurationFile + ", refreshPeriodSeconds=" + this.refreshPeriod);
+          if (log.isDebugEnabled()) {
+              log.debug("Log4jService created with configFileName=" + this.configurationFile + ", refreshPeriodSeconds=" + this.refreshPeriod);
+          }
           log.info("Runtime Information:");
           log.info("  Install Directory = " + DirectoryUtils.getGeronimoInstallDirectory().toString());
           log.info("  JVM in use = " + JvmVendor.getJvmInfo());
