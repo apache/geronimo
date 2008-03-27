@@ -26,11 +26,16 @@ import javax.sql.DataSource;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.console.util.KernelManagementHelper;
+import org.apache.geronimo.console.util.ManagementHelper;
 import org.apache.geronimo.derby.DerbySystemGBean;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelRegistry;
 import org.apache.geronimo.management.JCAManagedConnectionFactory;
+import org.apache.geronimo.management.geronimo.ResourceAdapterModule;
 
 /**
  * A static class to handle retreiving connections. This class is built to
@@ -183,6 +188,25 @@ public class DerbyConnectionUtil {
         } catch (Exception e) {
         	log.error("Problem getting datasource " + dbName, e);
         }
+        
+        Kernel kernel = KernelRegistry.getSingleKernel();
+        ManagementHelper helper = new KernelManagementHelper(kernel);
+        ResourceAdapterModule[] modules = helper.getOutboundRAModules(helper.getDomains()[0].getServerInstances()[0], "javax.sql.DataSource");
+        for (ResourceAdapterModule module : modules) {
+            org.apache.geronimo.management.geronimo.JCAManagedConnectionFactory[] databases = helper.getOutboundFactories(module, "javax.sql.DataSource");
+            for (org.apache.geronimo.management.geronimo.JCAManagedConnectionFactory db : databases) {
+                try {
+                    Object databaseName = db.getConfigProperty("DatabaseName");
+                    if(dbName.equalsIgnoreCase((String) databaseName)) {
+                        AbstractName tempDbName = helper.getNameFor(db);
+                        return (DataSource) KernelRegistry.getSingleKernel().invoke(
+                                tempDbName, "$getResource");
+                    }
+                } catch (Exception ignored) {
+                }
+            }
+        }
+        
         return null;
     }
 
