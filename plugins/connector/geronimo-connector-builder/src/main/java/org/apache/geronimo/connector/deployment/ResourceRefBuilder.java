@@ -123,6 +123,10 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
         ClassLoader cl = module.getEarContext().getClassLoader();                
         for (ResourceRefType resourceRef : resourceRefsUntyped) {
             String name = resourceRef.getResRefName().getStringValue().trim();
+            if (lookupJndiContextMap(componentContext, ENV + name) != null) {
+                // some other builder handled this entry already
+                continue;
+            }
             addInjections(name, resourceRef.getInjectionTargetArray(), componentContext);
             String type = resourceRef.getResType().getStringValue().trim();
             GerResourceRefType gerResourceRef = (GerResourceRefType) refMap.get(name);
