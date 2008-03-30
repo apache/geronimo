@@ -89,7 +89,7 @@
         <!--
         HACK: Used by geronimo-dojo
         -->
-        <dojoVersion>1.0.2</dojoVersion>
+        <dojoVersion>1.1.0</dojoVersion>
         <dojoLegacyVersion>0.4.3</dojoLegacyVersion>
 
         <cxfVersion>2.0.2-incubator</cxfVersion>
