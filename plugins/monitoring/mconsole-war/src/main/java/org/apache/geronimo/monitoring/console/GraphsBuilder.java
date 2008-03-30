@@ -91,11 +91,6 @@ public class GraphsBuilder {
                     throw e;
                 }
                 mrc = new MRCConnector(ip, username, password, port, protocol);
-                snapCount = timeFrame
-                        / java.lang.Integer
-                                .valueOf(java.lang.Long
-                                        .toString((mrc.getSnapshotDuration() / new Long(
-                                                60000))));
                 HashMap<String, ArrayList<Object>> DataList = new HashMap<String, ArrayList<Object>>();
 
                 DataList.put(graphName1, new ArrayList<Object>());
@@ -106,12 +101,13 @@ public class GraphsBuilder {
                 if ((timeFrame / 1440 >= 30))
                     snapCount = 17;
                 else {
-                    if (((timeFrame / 1440) == 7) && ((timeFrame / 60) > 24)
-                            && snapCount >= 14) {
+                    if ((timeFrame / 1440) == 7) {
                         snapCount = 16;
-                    } else {
-                        snapCount = 12; // default for anything else
-                    }
+                    } else if ((int) ((timeFrame / (mrc.getSnapshotDuration() / 60000))) <= 12)
+                        snapCount = (int) ((timeFrame / (mrc
+                                .getSnapshotDuration() / 60000)));
+                    else
+                        snapCount = 12;
                 }
 
                 ArrayList<Object> snapshot_time = new ArrayList<Object>();
@@ -133,7 +129,8 @@ public class GraphsBuilder {
                 }
 
                 int skipCount = (int) ((timeFrame / (mrc.getSnapshotDuration() / 60000)))
-                        / (snapCount - 2);
+                        / (snapCount);
+
                 snapCount = snapCount + 2;
                 TreeMap<Long, Long> snapshotList1 = mrc
                         .getSpecificStatistics(mBeanName, dataName1, snapCount,

@@ -147,7 +147,7 @@ function validate(duration)
    }
    // ensure that the timeframe is at least 2*(snapshotduration)
    if(duration * 2 > document.addGraph.timeframe.value) {
-       alert("Snapshot Duration needs to be at least " + 2 * duration);
+       alert("Timeframe needs to be at least " + 2 * duration);
        return false;
    }
    if (document.addGraph.operation.value == 'other')
