@@ -690,6 +690,7 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle {
                 } catch (ClassNotFoundException e) {
                     throw new OpenEJBException("Could not load ActivationSpecClass " + activationSpecClass + " in classloader: " + configuration.getConfigurationClassLoader(), e);
                 }
+                containerInfo.properties.put("TxRecovery", true);
                 //TODO is this necessary????
 //                containerInfo.properties.put("ResourceAdapter", resourceAdapter);
 

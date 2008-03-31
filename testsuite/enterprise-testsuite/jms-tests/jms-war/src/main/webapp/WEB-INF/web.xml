@@ -51,6 +51,7 @@
         <url-pattern>/JMSTopicSenderReceiver</url-pattern>
     </servlet-mapping>
 	
+<!--
     <resource-ref>
         <res-ref-name>jms/QCF</res-ref-name>
         <res-type>javax.jms.QueueConnectionFactory</res-type>
@@ -77,6 +78,7 @@
         <message-destination-usage>Produces</message-destination-usage>
         <message-destination-link>TestTopic</message-destination-link>
     </message-destination-ref>
+-->
 
     <welcome-file-list>
         <welcome-file>index.html</welcome-file>

@@ -17,34 +17,31 @@
 package org.apache.geronimo.jms.test.simple;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 
+import javax.annotation.Resource;
 import javax.jms.Message;
 import javax.jms.Queue;
 import javax.jms.QueueConnection;
 import javax.jms.QueueConnectionFactory;
 import javax.jms.QueueReceiver;
-import javax.jms.QueueSender;
 import javax.jms.QueueSession;
 import javax.jms.Session;
-import javax.jms.MessageListener;
-import javax.jms.JMSException;
 import javax.jms.TextMessage;
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
+import javax.jms.Connection;
+import javax.jms.MessageConsumer;
 import javax.servlet.Servlet;
-import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.PrintWriter;
 
 public class JMSQueueReceiver extends HttpServlet implements Servlet {
 
 
-    Context initialContext = null;
+    @Resource(name="MSConnectionFactory")
     QueueConnectionFactory qcf = null;
+    @Resource(name="TestQueue")
     Queue queue = null;
 
     /* (non-Java-doc)
@@ -69,43 +66,28 @@ public class JMSQueueReceiver extends HttpServlet implements Servlet {
         try {
 
             PrintWriter out = arg1.getWriter();
-            QueueConnection connection = qcf.createQueueConnection();
-            connection.start();
-            QueueSession session = connection.createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
-            QueueReceiver queueReceiver = session.createReceiver(queue);
-            Message msg = queueReceiver.receiveNoWait();
+            Connection conn = qcf.createConnection();
+            Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+            MessageConsumer consumer = sess.createConsumer(queue);
+            conn.start();
+            Message msg = consumer.receive(1000);
 
+            out.println("<html xmlns='http://www.w3.org/1999/xhtml' xml:lang='en' lang='en'>");
+            out.println("<head><title>JMS Receiver</title></head>");
             if ( msg instanceof TextMessage ) {
                 TextMessage txtMsg = (TextMessage)msg;
                 System.out.println("Message : "+txtMsg.getText());
-                out.println("<html xmlns='http://www.w3.org/1999/xhtml' xml:lang='en' lang='en'>");
-                out.println("<head><title>JMS Receiver</title></head>");
                 out.println("<body>Received JMS Queue Message</body></html>");
             }
             else {
+                System.out.println("No Message");
                 out.println("<body>Did Not Receive JMS Queue Message</body></html>");
             }
-
-            queueReceiver.close();
-            session.close();
-            connection.stop();
-
+            consumer.close();
+            sess.close();
+            conn.close();
         }
         catch ( Exception e ) {
-            e.printStackTrace();
-        }
-    }
-
-    /* (non-Java-doc)
-     * @see javax.servlet.Servlet#init(ServletConfig arg0)
-     */
-    public void init(ServletConfig arg0) throws ServletException {
-        try {
-            initialContext = new InitialContext();
-            qcf  = (QueueConnectionFactory) initialContext.lookup("java:comp/env/jms/QCF");
-            queue = (Queue) initialContext.lookup("java:comp/env/jms/TestQ");
-        }
-        catch ( NamingException e ) {
             e.printStackTrace();
         }
     }

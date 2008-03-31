@@ -47,6 +47,23 @@
             <version>${version}</version>
             <type>war</type>
         </dependency>
+        <dependency>
+            <groupId>${pom.groupId}</groupId>
+            <artifactId>jms-ejb</artifactId>
+            <version>${version}</version>
+            <type>ejb</type>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.openejb</groupId>
+            <artifactId>openejb-client</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-ejb_3.0_spec</artifactId>
+            <version>1.0.1</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
     
     <build>
@@ -64,6 +81,11 @@
                             <contextRoot>/testjms</contextRoot>
                             <bundleFileName>web.war</bundleFileName>
                         </webModule>
+                        <ejbModule>
+                            <groupId>${pom.groupId}</groupId>
+                            <artifactId>jms-ejb</artifactId>
+                            <bundleFileName>ejb.jar</bundleFileName>
+                        </ejbModule>
                     </modules>
                 </configuration>
             </plugin>

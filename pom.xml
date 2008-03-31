@@ -69,7 +69,7 @@
         <!--
         Having a single well named property makes automatic updating for the weekly build much easier.
         -->
-        <openejbVersion>3.0-beta-2</openejbVersion>
+        <openejbVersion>3.1-SNAPSHOT</openejbVersion>
 
         <!--
         HACK: Used by uddi-db to execute the sql plugin with the Derby driver.
@@ -674,19 +674,19 @@
             <dependency>
                 <groupId>org.apache.activemq</groupId>
                 <artifactId>activemq-core</artifactId>
-                <version>4.1.1</version>
+                <version>4.1-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.activemq</groupId>
                 <artifactId>activemq-ra</artifactId>
-                <version>4.1.1</version>
+                <version>4.1-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.activemq</groupId>
                 <artifactId>activeio-core</artifactId>
-                <version>3.0.0-incubator</version>
+                <version>3.0-SNAPSHOT</version>
             </dependency>
 
             <dependency>
