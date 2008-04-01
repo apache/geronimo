@@ -69,7 +69,7 @@
         <!--
         Having a single well named property makes automatic updating for the weekly build much easier.
         -->
-        <openejbVersion>3.0-SNAPSHOT</openejbVersion>
+        <openejbVersion>3.1-SNAPSHOT</openejbVersion>
 
         <!--
         HACK: Used by uddi-db to execute the sql plugin with the Derby driver.
@@ -194,7 +194,7 @@
             <dependency>
                 <groupId>org.apache.geronimo.javamail</groupId>
                 <artifactId>geronimo-javamail_1.4_mail</artifactId>
-                <version>1.4-SNAPSHOT</version>
+                <version>1.4</version>
             </dependency>
 
             <dependency>
