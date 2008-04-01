@@ -30,6 +30,9 @@ public class SubjectId implements Serializable {
     private transient String name;
 
     public SubjectId(Long subjectId, byte[] hash) {
+        if (subjectId == null) throw new IllegalArgumentException("subjectId cannot be null");
+        if (hash == null) throw new IllegalArgumentException("hash cannot be null");
+
         this.subjectId = subjectId;
         this.hash = hash;
     }
