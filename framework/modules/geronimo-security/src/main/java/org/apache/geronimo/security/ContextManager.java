@@ -24,6 +24,7 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
 import java.security.PrivilegedAction;
+import java.security.ProviderException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
@@ -260,8 +261,13 @@ public class ContextManager {
             context.principal = principals.iterator().next();
         }
         Long id = nextSubjectId++;
-        context.id = new SubjectId(id, hash(id));
-
+        try {
+            context.id = new SubjectId(id, hash(id));
+        } catch (NoSuchAlgorithmException e) {
+            throw new ProviderException("No such algorithm: " + algorithm + ".  This can be caused by a misconfigured java.ext.dirs, JAVA_HOME or JRE_HOME environment variable");
+        } catch (InvalidKeyException e) {
+            throw new ProviderException("Invalid key: " + key.toString());
+        }
         subjectIds.put(context.id, subject);
         subjectContexts.put(subject, context);
 
@@ -333,8 +339,10 @@ public class ContextManager {
             mac.init(key);
         } catch (NoSuchAlgorithmException e) {
             assert false : "Should never have reached here";
+            throw new ProviderException("No such algorithm: " + algorithm + ".  This can be caused by a misconfigured java.ext.dirs, JAVA_HOME or JRE_HOME environment variable.");
         } catch (InvalidKeyException e) {
             assert false : "Should never have reached here";
+            throw new ProviderException("Invalid key: " + key.toString());
         }
     }
 
@@ -354,7 +362,7 @@ public class ContextManager {
         key = new SecretKeySpec(password.getBytes(), algorithm);
     }
 
-    private static byte[] hash(Long id) {
+    private static byte[] hash(Long id) throws NoSuchAlgorithmException, InvalidKeyException {
         long n = id;
         byte[] bytes = new byte[8];
         for (int i = 7; i >= 0; i--) {
@@ -362,19 +370,11 @@ public class ContextManager {
             n >>>= 8;
         }
 
-        try {
-            Mac mac = Mac.getInstance(algorithm);
-            mac.init(key);
-            mac.update(bytes);
+        Mac mac = Mac.getInstance(algorithm);
+        mac.init(key);
+        mac.update(bytes);
 
-            return mac.doFinal();
-        } catch (NoSuchAlgorithmException e) {
-            //shouldn't happen
-        } catch (InvalidKeyException e) {
-            //shouldn't happen
-        }
-        assert false : "Should never have reached here";
-        return null;
+        return mac.doFinal();
     }
 
     private static class Context {
