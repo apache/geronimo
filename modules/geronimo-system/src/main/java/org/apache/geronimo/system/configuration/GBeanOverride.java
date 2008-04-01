@@ -436,19 +436,18 @@ public class GBeanOverride implements Serializable {
             return null;
         }
         value = substituteVariables(attribute.getName(), value);
+        PropertyEditor editor;
         try {
-            PropertyEditor editor = PropertyEditors.findEditor(attribute.getType(), classLoader);
-            if (editor == null) {
-                log.debug("Unable to parse attribute of type " + attribute.getType() + "; no editor found");
-                return null;
-            }
-            editor.setAsText(value);
-            log.debug("Setting value for " + configurationName + "/" + gbeanName + "/" + attribute.getName() + " to value " + value);
-            return editor.getValue();
+            editor = PropertyEditors.findEditor(attribute.getType(), classLoader);
         } catch (ClassNotFoundException e) {
-            log.error("Unable to load attribute type " + attribute.getType());
-            return null;
+            throw new IllegalStateException("Unable to load property editor for attribute type: " + attribute.getType());
         }
+        if (editor == null) {
+            throw new IllegalStateException("Unable to parse attribute of type " + attribute.getType() + "; no editor found");
+        }
+        editor.setAsText(value);
+        log.debug("Setting value for " + configurationName + "/" + gbeanName + "/" + attribute.getName() + " to value " + value);
+        return editor.getValue();
     }
 
     public String substituteVariables(String attributeName, String input) {
