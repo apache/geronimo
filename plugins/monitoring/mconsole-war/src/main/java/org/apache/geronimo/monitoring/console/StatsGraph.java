@@ -60,7 +60,7 @@ public class StatsGraph {
         GraphJS = "var " + "graph" + graph_id
                 + " = new dojox.charting.Chart2D(\"" + DivName + "\");\n"
                 + "graph" + graph_id
-                + ".addPlot(\"default\", {type: \"Areas\"});\n" + "graph"
+                + ".addPlot(\"default\", {type: \"Areas\", tension:3});\n" + "graph"
                 + graph_id + ".setTheme(dojox.charting.themes.PlotKit.blue);\n";
 
         // Setup the x tick marks on the chart
@@ -155,7 +155,7 @@ public class StatsGraph {
         GraphJS = "var " + "graph" + graph_id
                 + " = new dojox.charting.Chart2D(\"" + DivName + "\");\n"
                 + "graph" + graph_id
-                + ".addPlot(\"default\", {type: \"Areas\"});\n" + "graph"
+                + ".addPlot(\"default\", {type: \"Areas\", tension:3});\n" + "graph"
                 + graph_id + ".setTheme(dojox.charting.themes.PlotKit.blue);\n";
 
         // Setup the x tick marks on the chart
