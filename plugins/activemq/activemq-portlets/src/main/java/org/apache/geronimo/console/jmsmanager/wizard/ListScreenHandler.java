@@ -31,6 +31,8 @@ import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 
 import org.apache.geronimo.console.MultiPageModel;
+import org.apache.geronimo.console.jmsmanager.helper.JMSMessageHelper;
+import org.apache.geronimo.console.jmsmanager.helper.JMSMessageHelperFactory;
 import org.apache.geronimo.console.util.PortletManager;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.management.State;
@@ -56,6 +58,16 @@ public class ListScreenHandler extends AbstractHandler {
     }
 
     public String actionBeforeView(ActionRequest request, ActionResponse response, MultiPageModel model) throws PortletException, IOException {
+        String purgeStr = request.getParameter(PURGE);
+        if (purgeStr != null) {
+            String physicalName = request.getParameter(PHYSICAL_NAME);
+            String adminObjType = request.getParameter(ADMIN_OBJ_TYPE);
+            String adapterObjectName = request.getParameter(RA_ADAPTER_OBJ_NAME);
+            response.setRenderParameter(ADMIN_OBJ_TYPE, adminObjType);
+            response.setRenderParameter(PHYSICAL_NAME, physicalName);
+            response.setRenderParameter(RA_ADAPTER_OBJ_NAME, adapterObjectName);
+            response.setRenderParameter(PURGE, purgeStr);
+        }
         return getMode();
     }
 
@@ -76,7 +88,16 @@ public class ListScreenHandler extends AbstractHandler {
     }
 
 
-    private void populateExistingList(PortletRequest renderRequest) {
+    private void populateExistingList(PortletRequest renderRequest) throws PortletException {
+        String purgeStr = renderRequest.getParameter(PURGE);
+        if (purgeStr != null) {
+            String physicalName = renderRequest.getParameter(PHYSICAL_NAME);
+            String adminObjType = renderRequest.getParameter(ADMIN_OBJ_TYPE);
+            String adapterObjectName = renderRequest.getParameter(RA_ADAPTER_OBJ_NAME);
+            JMSMessageHelper helper = JMSMessageHelperFactory.getMessageHelper(renderRequest, adapterObjectName);
+            helper.purge(renderRequest, adminObjType, physicalName);
+        }
+
         // Prepare a list of JMS configurations
         List resources = new ArrayList();
 
@@ -156,9 +177,19 @@ public class ListScreenHandler extends AbstractHandler {
                 for (int j = 0; j < admins.length; j++) {
                     GeronimoManagedBean bean = (GeronimoManagedBean) admins[j];
                     ObjectName name = ObjectName.getInstance(bean.getObjectName());
-                    target.getAdminObjects().add(new AdminObjectSummary(bean.getObjectName(), name.getKeyProperty(NameFactory.J2EE_NAME),
-                            admins[j].getAdminObjectInterface().indexOf("Queue") > -1 ? "Queue" : "Topic",
-                            bean.getState()));
+                    String queueName = name.getKeyProperty(NameFactory.J2EE_NAME);
+                    String physicalName = null;
+                    try {
+                        physicalName = (String) admins[j].getConfigProperty("PhysicalName");
+                    } catch (Exception e) {
+                        log.warn(e);
+                        log.warn("PhysicalName undefined, using queueName as PhysicalName");
+                        physicalName = queueName;
+                    }
+                    target.getAdminObjects().add(
+                            new AdminObjectSummary(bean.getObjectName(), queueName, physicalName, admins[j]
+                                    .getAdminObjectInterface().indexOf("Queue") > -1 ? "Queue" : "Topic", bean
+                                    .getState()));
                 }
             }
         } catch (MalformedObjectNameException e) {
@@ -296,10 +327,12 @@ public class ListScreenHandler extends AbstractHandler {
         private final String name;
         private final String type;
         private final int state;
-
-        public AdminObjectSummary(String adminObjectName, String name, String type, int state) {
+        private final String physicalName;
+ 
+        public AdminObjectSummary(String adminObjectName, String name, String physicalName, String type, int state) {
             this.adminObjectName = adminObjectName;
             this.name = name;
+            this.physicalName = physicalName;
             this.type = type;
             this.state = state;
         }
@@ -310,6 +343,10 @@ public class ListScreenHandler extends AbstractHandler {
 
         public String getName() {
             return name;
+        }
+
+        public String getPhysicalName() {
+            return physicalName;
         }
 
         public String getType() {

@@ -76,6 +76,25 @@ public abstract class AbstractHandler extends MultiPageAbstractHandler {
     protected final static String SHOW_PLAN_MODE="plan";
     protected final static String DEPLOY_MODE="deploy";
 
+    protected final static String VIEW_MESSAGES="viewMessages";
+    protected final static String MESSAGE_DETAILS="messageDetails";
+    protected final static String SEND_MESSAGE="sendmessage";
+    protected final static String ADMIN_OBJ_NAME = "adminObjName";
+    protected final static String ADMIN_OBJ_TYPE = "adminObjType";
+    protected final static String STATUS = "status";
+    protected final static String SUBMIT = "submit";
+    protected final static String CORRELATION_ID = "correlationId";
+    protected final static String PURGE = "purge";
+    protected final static String IS_PERSISTENT = "isPersistent";
+    protected final static String PRIORITY = "priority";
+    protected final static String JMS_TYPE = "jmsType";
+    protected final static String MESSAGE = "message";
+    protected final static String PHYSICAL_NAME = "physicalName";
+    protected final static String RA_ADAPTER_OBJ_NAME = "adapterObjectName";
+    protected final static String MESSAGES = "messages";
+    protected final static String MESSAGE_ID = "messageId";
+    protected final static String MESSAGE_TXT="messageTxt";
+
     protected final static String PROVIDER_PARAMETER="provider";
     protected final static String RAR_FILE_PARAMETER="rar";
     protected final static String DEPENDENCY_PARAMETER="dependency";

@@ -22,6 +22,7 @@
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<%@page import="org.apache.geronimo.console.jmsmanager.JMSMessageInfo"%>
 <fmt:setBundle basename="activemq"/>
 
 <br>
@@ -43,28 +44,32 @@
         List messages = (List)request.getAttribute("messages");
         int n = 0;
         for(Iterator i = messages.iterator();i.hasNext();n++){
-            Message message = (Message)i.next();
+            JMSMessageInfo message = (JMSMessageInfo)i.next();
         %>
-
-              <tr>
-                  <td class="<%=styles[n%2]%>" align="center"><%=message.getJMSPriority()%></td>
-                  <td class="<%=styles[n%2]%>" align="center"><%=message.getJMSMessageID()%></td>
-                  <td class="<%=styles[n%2]%>" align="center"><%=message.getJMSDestination()%></td>
-                  <td class="<%=styles[n%2]%>" align="center"><%=new java.util.Date(message.getJMSTimestamp())%></td>
+            <tr>
+                <td class="<%=styles[n%2]%>" align="center"><%=message.getPriority()%></td>
                 <td class="<%=styles[n%2]%>" align="center">
-                <%=(message.getJMSExpiration()!=0)?new java.util.Date(message.getJMSExpiration()).toString():"No expiration"%>
+                    <a href="<portlet:actionURL portletMode="view">
+                        <portlet:param name="mode" value="messageDetails-before" />
+                        <portlet:param name="messageId" value="<%=message.getMessageID()%>"/>
+                        </portlet:actionURL>"><%=message.getMessageID()%></a>
                 </td>
-                  <td class="<%=styles[n%2]%>" align="center"><%=message.getJMSType()%></td>
-                  <td class="<%=styles[n%2]%>" align="center"><%=message.getJMSReplyTo()%></td>
-                  <td class="<%=styles[n%2]%>" align="center"><%=message.getJMSCorrelationID()%></td>
+                <td class="<%=styles[n%2]%>" align="center"><%=message.getDestination()%></td>
+                <td class="<%=styles[n%2]%>" align="center"><%=new java.util.Date(message.getTimeStamp())%></td>
+                <td class="<%=styles[n%2]%>" align="center">
+                    <%=(message.getExpiration()!=0)?new java.util.Date(message.getExpiration()).toString():"No expiration"%>
+                </td>
+                <td class="<%=styles[n%2]%>" align="center"><%=message.getJmsType()==null?"":message.getJmsType()%></td>
+                <td class="<%=styles[n%2]%>" align="center"><%=message.getReplyTo()==null?"":message.getReplyTo()%></td>
+                <td class="<%=styles[n%2]%>" align="center"><%=message.getCorrelationId()==null?"":message.getCorrelationId()%></td>
             </tr>
         <%}%>
-           </c:when>
+        </c:when>
         <c:otherwise>
-        <tr>    
-            <td colspan="8" align="center"><fmt:message key="jmsmanager.viewmessages.jsp.noMessagesInDest" /></td>
-        </tr>
-           </c:otherwise>
+            <tr>    
+                <td colspan="8" align="center"><fmt:message key="jmsmanager.viewmessages.jsp.noMessagesInDest" /></td>
+            </tr>
+        </c:otherwise>
     </c:choose>
         <tr>    
             <td colspan="8" align="center"><a href="<portlet:renderURL/>"><fmt:message key="jmsmanager.common.back"/></a> <a href=""><fmt:message key="jmsmanager.common.refresh"/></a></td>
