@@ -33,8 +33,8 @@ import org.apache.geronimo.deployment.service.EnvironmentBuilder;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.jetty6.JettyWebAppContext;
 import org.apache.geronimo.jetty6.cluster.ClusteredSessionHandlerFactory;
@@ -56,6 +56,7 @@ import org.apache.xmlbeans.XmlObject;
  *
  * @version $Rev$ $Date$
  */
+@GBean(name="WADIJettyClusteringBuilder", j2eeType=NameFactory.MODULE_BUILDER)
 public class WADIJettyClusteringBuilder implements NamespaceDrivenBuilder {
     private static final QName CLUSTERING_WADI_QNAME = GerClusteringWadiDocument.type.getDocumentElementName();
     private static final QNameSet CLUSTERING_WADI_QNAME_SET = QNameSet.singleton(CLUSTERING_WADI_QNAME);
@@ -72,11 +73,11 @@ public class WADIJettyClusteringBuilder implements NamespaceDrivenBuilder {
     private final AbstractNameQuery defaultClusterName;
     private final Environment defaultEnvironment;
 
-    public WADIJettyClusteringBuilder(int defaultSweepInterval,
-            int defaultNumPartitions,
-            AbstractNameQuery defaultBackingStrategyFactoryName,
-            AbstractNameQuery defaultClusterName,
-            Environment defaultEnvironment) {
+    public WADIJettyClusteringBuilder(@ParamAttribute(name=GBEAN_ATTR_DFT_SWEEP_INTERVAL) int defaultSweepInterval,
+        @ParamAttribute(name=GBEAN_ATTR_DFT_NUM_PARTITIONS) int defaultNumPartitions,
+        @ParamAttribute(name=GBEAN_ATTR_DFT_BACKING_STRATEGY_FACTORY_NAME) AbstractNameQuery defaultBackingStrategyFactoryName,
+        @ParamAttribute(name=GBEAN_ATTR_DFT_CLUSTER_NAME) AbstractNameQuery defaultClusterName,
+        @ParamAttribute(name=GBEAN_ATTR_DFT_ENVIRONMENT) Environment defaultEnvironment) {
         if (defaultSweepInterval < 1) {
             throw new IllegalArgumentException("defaultSweepInterval is lower than 1");
         } else if (defaultNumPartitions < 1) {
@@ -150,7 +151,7 @@ public class WADIJettyClusteringBuilder implements NamespaceDrivenBuilder {
         AbstractName name = moduleContext.getNaming().createChildName(moduleContext.getModuleName(),
                 "WADISessionManager", NameFactory.GERONIMO_SERVICE);
 
-        GBeanData beanData = new GBeanData(name, BasicWADISessionManager.GBEAN_INFO);
+        GBeanData beanData = new GBeanData(name, BasicWADISessionManager.class);
 
         setConfigInfo(clustering, webModuleData, beanData);
         setCluster(clustering, beanData);
@@ -246,7 +247,7 @@ public class WADIJettyClusteringBuilder implements NamespaceDrivenBuilder {
         AbstractName name = moduleContext.getNaming().createChildName(moduleContext.getModuleName(),
                 "WADIClusteredPreHandlerFactory", NameFactory.GERONIMO_SERVICE);
 
-        GBeanData beanData = new GBeanData(name, WADIClusteredPreHandlerFactory.GBEAN_INFO);
+        GBeanData beanData = new GBeanData(name, WADIClusteredPreHandlerFactory.class);
         beanData.setReferencePattern(WADIClusteredPreHandlerFactory.GBEAN_REF_WADI_SESSION_MANAGER, sessionManagerName);
 
         webModuleData.setReferencePattern(JettyWebAppContext.GBEAN_REF_PRE_HANDLER_FACTORY, name);
@@ -261,7 +262,7 @@ public class WADIJettyClusteringBuilder implements NamespaceDrivenBuilder {
         AbstractName name = moduleContext.getNaming().createChildName(moduleContext.getModuleName(),
                 "ClusteredSessionHandlerFactory", NameFactory.GERONIMO_SERVICE);
 
-        GBeanData beanData = new GBeanData(name, ClusteredSessionHandlerFactory.GBEAN_INFO);
+        GBeanData beanData = new GBeanData(name, ClusteredSessionHandlerFactory.class);
         beanData.setReferencePattern(ClusteredSessionHandlerFactory.GBEAN_REF_SESSION_MANAGER, sessionManagerName);
 
         webModuleData.setReferencePattern(JettyWebAppContext.GBEAN_REF_SESSION_HANDLER_FACTORY, name);
@@ -278,36 +279,9 @@ public class WADIJettyClusteringBuilder implements NamespaceDrivenBuilder {
         }
     }
 
-    public static final GBeanInfo GBEAN_INFO;
-
     public static final String GBEAN_ATTR_DFT_SWEEP_INTERVAL = "defaultSweepInterval";
     public static final String GBEAN_ATTR_DFT_NUM_PARTITIONS = "defaultNumPartitions";
     public static final String GBEAN_ATTR_DFT_BACKING_STRATEGY_FACTORY_NAME = "defaultBackingStrategyFactoryName";
     public static final String GBEAN_ATTR_DFT_CLUSTER_NAME = "defaultClusterName";
     public static final String GBEAN_ATTR_DFT_ENVIRONMENT = "defaultEnvironment";
-
-    static {
-        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic("WADI Session Manager",
-                WADIJettyClusteringBuilder.class,
-                NameFactory.MODULE_BUILDER);
-
-        infoBuilder.addAttribute(GBEAN_ATTR_DFT_SWEEP_INTERVAL, int.class, true);
-        infoBuilder.addAttribute(GBEAN_ATTR_DFT_NUM_PARTITIONS, int.class, true);
-        infoBuilder.addAttribute(GBEAN_ATTR_DFT_BACKING_STRATEGY_FACTORY_NAME, AbstractNameQuery.class, true);
-        infoBuilder.addAttribute(GBEAN_ATTR_DFT_CLUSTER_NAME, AbstractNameQuery.class, true);
-        infoBuilder.addAttribute(GBEAN_ATTR_DFT_ENVIRONMENT, Environment.class, true);
-
-        infoBuilder.setConstructor(new String[]{GBEAN_ATTR_DFT_SWEEP_INTERVAL,
-                GBEAN_ATTR_DFT_NUM_PARTITIONS,
-                GBEAN_ATTR_DFT_BACKING_STRATEGY_FACTORY_NAME,
-                GBEAN_ATTR_DFT_CLUSTER_NAME,
-                GBEAN_ATTR_DFT_ENVIRONMENT});
-
-        GBEAN_INFO = infoBuilder.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
-
 }

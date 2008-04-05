@@ -39,31 +39,52 @@ public class GBeanData implements Externalizable {
     };
 
     private GBeanInfo gbeanInfo;
+    private final GBeanInfoFactory infoFactory;
     private final Map<String, Object> attributes;
     private final Map<String, ReferencePatterns> references;
     private final Set<ReferencePatterns> dependencies;
     private AbstractName abstractName;
     private int priority;
 
+
     public GBeanData() {
         attributes = new HashMap<String, Object>();
         references = new HashMap<String, ReferencePatterns>();
         dependencies = new HashSet<ReferencePatterns>();
+        infoFactory = newGBeanInfoFactory();
+    }
+
+    public GBeanData(Class gbeanClass) {
+        this();
+
+        GBeanInfo gbeanInfo = infoFactory.getGBeanInfo(gbeanClass);
+        setGBeanInfo(gbeanInfo);
     }
 
     public GBeanData(GBeanInfo gbeanInfo) {
         this();
+        
         setGBeanInfo(gbeanInfo);
     }
-
+    
     public GBeanData(AbstractName abstractName, GBeanInfo gbeanInfo) {
         this();
         this.abstractName = abstractName;
+        
         setGBeanInfo(gbeanInfo);
     }
 
+    public GBeanData(AbstractName abstractName, Class gbeanClass) {
+        this();
+        this.abstractName = abstractName;
+
+        GBeanInfo gbeanInfo = infoFactory.getGBeanInfo(gbeanClass);
+        setGBeanInfo(gbeanInfo);
+    }
+    
     public GBeanData(GBeanData gbeanData) {
         setGBeanInfo(gbeanData.gbeanInfo);
+        infoFactory = gbeanData.infoFactory;
         attributes = new HashMap<String, Object>(gbeanData.attributes);
         references = new HashMap<String, ReferencePatterns>(gbeanData.references);
         dependencies = new HashSet<ReferencePatterns>(gbeanData.dependencies);
@@ -260,6 +281,10 @@ public class GBeanData implements Externalizable {
         public int compare(GBeanData o1, GBeanData o2) {
             return o1.priority - o2.priority;
         }
+    }
+
+    protected GBeanInfoFactory newGBeanInfoFactory() {
+        return new MultiGBeanInfoFactory();
     }
 
     private class V0Externalizable implements Externalizable {

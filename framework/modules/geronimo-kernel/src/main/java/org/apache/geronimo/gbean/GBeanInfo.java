@@ -267,7 +267,7 @@ public final class GBeanInfo implements Serializable {
         return constructor;
     }
 
-    public Set getOperations() {
+    public Set<GOperationInfo> getOperations() {
         return operations;
     }
 
@@ -275,7 +275,7 @@ public final class GBeanInfo implements Serializable {
         return notifications;
     }
 
-    public Set getReferences() {
+    public Set<GReferenceInfo> getReferences() {
         return references;
     }
 
@@ -283,7 +283,7 @@ public final class GBeanInfo implements Serializable {
         return (GReferenceInfo) referencesByName.get(name);
     }
 
-    public Set getInterfaces() {
+    public Set<String> getInterfaces() {
         return interfaces;
     }
 

@@ -17,29 +17,28 @@
  * under the License.
  */
 
-package org.apache.geronimo.tomcat.cluster;
+package org.apache.geronimo.gbean;
 
-import org.apache.geronimo.clustering.SessionManager;
-import org.apache.geronimo.gbean.annotation.ParamReference;
-import org.apache.geronimo.tomcat.ObjectRetriever;
+
+
+
 
 /**
  *
  * @version $Rev:$ $Date:$
  */
-public class ClusteredManagerRetriever implements ObjectRetriever {
-    private final SessionManager sessionManager;
+public abstract class AbstractGBeanInfoFactory implements GBeanInfoFactory {
 
-    public ClusteredManagerRetriever(@ParamReference(name=GBEAN_REF_SESSION_MANAGER) SessionManager sessionManager) {
-        if (null == sessionManager) {
-            throw new IllegalArgumentException("sessionManager is required");
+    public GBeanInfo getGBeanInfo(String className, ClassLoader classLoader) throws GBeanInfoFactoryException {
+        Class clazz;
+        try {
+            clazz = classLoader.loadClass(className);
+        } catch (ClassNotFoundException e) {
+            throw new InvalidConfigurationException("Could not load class " + className, e);
+        } catch (NoClassDefFoundError e) {
+            throw new InvalidConfigurationException("Could not load class " + className, e);
         }
-        this.sessionManager = sessionManager;
+        return getGBeanInfo(clazz);
     }
-
-    public Object getInternalObject() {
-        return new ClusteredManager(sessionManager);
-    }
-
-    public static final String GBEAN_REF_SESSION_MANAGER = "SessionManager";
+    
 }

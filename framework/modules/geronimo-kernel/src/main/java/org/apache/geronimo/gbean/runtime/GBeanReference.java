@@ -39,6 +39,4 @@ public interface GBeanReference {
     void stop();
 
     Object getProxy();
-
-    void inject(Object target) throws Exception;
 }

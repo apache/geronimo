@@ -189,10 +189,4 @@ public abstract class AbstractGBeanReference implements GBeanReference {
                 "\n    Proxy Type: " + referenceInfo.getProxyType();
     }
 
-    public final synchronized void inject(Object target) throws Exception {
-        // set the proxy into the instance
-        if (setInvoker != null && hasTargets) {
-            setInvoker.invoke(target, new Object[]{getProxy()});
-        }
-    }
 }

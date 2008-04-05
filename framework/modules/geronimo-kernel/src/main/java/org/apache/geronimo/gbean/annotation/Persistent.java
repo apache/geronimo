@@ -17,29 +17,22 @@
  * under the License.
  */
 
-package org.apache.geronimo.tomcat.cluster;
+package org.apache.geronimo.gbean.annotation;
 
-import org.apache.geronimo.clustering.SessionManager;
-import org.apache.geronimo.gbean.annotation.ParamReference;
-import org.apache.geronimo.tomcat.ObjectRetriever;
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
+
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 
 /**
  *
  * @version $Rev:$ $Date:$
  */
-public class ClusteredManagerRetriever implements ObjectRetriever {
-    private final SessionManager sessionManager;
-
-    public ClusteredManagerRetriever(@ParamReference(name=GBEAN_REF_SESSION_MANAGER) SessionManager sessionManager) {
-        if (null == sessionManager) {
-            throw new IllegalArgumentException("sessionManager is required");
-        }
-        this.sessionManager = sessionManager;
-    }
-
-    public Object getInternalObject() {
-        return new ClusteredManager(sessionManager);
-    }
-
-    public static final String GBEAN_REF_SESSION_MANAGER = "SessionManager";
+@Documented
+@Retention(value = RUNTIME)
+@Target(value = {METHOD})
+public @interface Persistent {
+    boolean manageable() default true;
 }

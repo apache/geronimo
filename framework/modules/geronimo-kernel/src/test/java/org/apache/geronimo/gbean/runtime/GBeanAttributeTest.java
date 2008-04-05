@@ -78,7 +78,7 @@ public class GBeanAttributeTest extends TestCase {
 
     public final void testGBeanAttributeInfoClass() {
         try {
-            new GBeanAttribute(null, null, false);
+            new GBeanAttribute(null, null);
             fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException expected) {
         }
@@ -87,30 +87,22 @@ public class GBeanAttributeTest extends TestCase {
         // GBeanAttribute ctor doesn't check if readable/writable are
         // null's
         try {
-            new GBeanAttribute(gbeanInstance, attributeInfo, false);
+            new GBeanAttribute(gbeanInstance, attributeInfo);
             // till Dain sorts out the question of ctor
             // fail("InvalidConfigurationException expected");
         } catch (InvalidConfigurationException expected) {
         }
 
-        try {
-            GAttributeInfo invalidAttributeInfo = new GAttributeInfo(attributeName, String.class.getName(), false, false, null, null);
-
-            new GBeanAttribute(gbeanInstance, invalidAttributeInfo, false);
-            fail("InvalidConfigurationException expected");
-        } catch (InvalidConfigurationException expected) {
-        }
-
         {
             final GAttributeInfo attributeInfo = new GAttributeInfo(attributeName, String.class.getName(), false, false, true, false, null, null);
-            GBeanAttribute attribute = new GBeanAttribute(gbeanInstance, attributeInfo, false);
+            GBeanAttribute attribute = new GBeanAttribute(gbeanInstance, attributeInfo);
             assertTrue(attribute.isReadable());
             assertFalse(attribute.isWritable());
         }
 
         {
             final GAttributeInfo attributeInfo = new GAttributeInfo(persistentPrimitiveAttributeName, int.class.getName(), false, false, false, true, null, null);
-            GBeanAttribute attribute = new GBeanAttribute(gbeanInstance, attributeInfo, false);
+            GBeanAttribute attribute = new GBeanAttribute(gbeanInstance, attributeInfo);
             assertFalse(attribute.isReadable());
             assertTrue(attribute.isWritable());
         }
@@ -120,14 +112,14 @@ public class GBeanAttributeTest extends TestCase {
             // exist.
             // getYetAnotherFinalInt doesn't exist
             final GAttributeInfo attributeInfo = new GAttributeInfo("YetAnotherFinalInt", int.class.getName(), true, false, "getFinalInt", null);
-            GBeanAttribute attribute = new GBeanAttribute(gbeanInstance, attributeInfo, false);
+            GBeanAttribute attribute = new GBeanAttribute(gbeanInstance, attributeInfo);
             assertNotNull(attribute);
         }
 
         {
             final GAttributeInfo attributeInfo = new GAttributeInfo("YetAnotherFinalInt", int.class.getName(), true, false, null, "setCharAsYetAnotherFinalInt");
             try {
-                new GBeanAttribute(gbeanInstance, attributeInfo, false);
+                new GBeanAttribute(gbeanInstance, attributeInfo);
                 fail("Expected InvalidConfigurationException due to invalid setter parameter type");
             } catch (InvalidConfigurationException expected) {
             }
@@ -136,7 +128,7 @@ public class GBeanAttributeTest extends TestCase {
         {
             final GAttributeInfo attributeInfo = new GAttributeInfo("YetAnotherFinalInt", int.class.getName(), true, false, null, "setBooleanAsYetAnotherFinalInt");
             try {
-                new GBeanAttribute(gbeanInstance, attributeInfo, false);
+                new GBeanAttribute(gbeanInstance, attributeInfo);
                 fail("Expected InvalidConfigurationException due to invalid setter parameter type");
             } catch (InvalidConfigurationException expected) {
             }
@@ -145,7 +137,7 @@ public class GBeanAttributeTest extends TestCase {
         {
             final GAttributeInfo attributeInfo = new GAttributeInfo("YetAnotherFinalInt", int.class.getName(), true, false, null, "setByteAsYetAnotherFinalInt");
             try {
-                new GBeanAttribute(gbeanInstance, attributeInfo, false);
+                new GBeanAttribute(gbeanInstance, attributeInfo);
                 fail("Expected InvalidConfigurationException due to invalid setter parameter type");
             } catch (InvalidConfigurationException expected) {
             }
@@ -154,7 +146,7 @@ public class GBeanAttributeTest extends TestCase {
         {
             final GAttributeInfo attributeInfo = new GAttributeInfo("YetAnotherFinalInt", int.class.getName(), true, false, null, "setShortAsYetAnotherFinalInt");
             try {
-                new GBeanAttribute(gbeanInstance, attributeInfo, false);
+                new GBeanAttribute(gbeanInstance, attributeInfo);
                 fail("Expected InvalidConfigurationException due to invalid setter parameter type");
             } catch (InvalidConfigurationException expected) {
             }
@@ -163,7 +155,7 @@ public class GBeanAttributeTest extends TestCase {
         {
             final GAttributeInfo attributeInfo = new GAttributeInfo("YetAnotherFinalInt", int.class.getName(), true, false, null, "setLongAsYetAnotherFinalInt");
             try {
-                new GBeanAttribute(gbeanInstance, attributeInfo, false);
+                new GBeanAttribute(gbeanInstance, attributeInfo);
                 fail("Expected InvalidConfigurationException due to invalid setter parameter type");
             } catch (InvalidConfigurationException expected) {
             }
@@ -172,7 +164,7 @@ public class GBeanAttributeTest extends TestCase {
         {
             final GAttributeInfo attributeInfo = new GAttributeInfo("YetAnotherFinalInt", int.class.getName(), true, false, null, "setFloatAsYetAnotherFinalInt");
             try {
-                new GBeanAttribute(gbeanInstance, attributeInfo, false);
+                new GBeanAttribute(gbeanInstance, attributeInfo);
                 fail("Expected InvalidConfigurationException due to invalid setter parameter type");
             } catch (InvalidConfigurationException expected) {
             }
@@ -181,7 +173,7 @@ public class GBeanAttributeTest extends TestCase {
         {
             final GAttributeInfo attributeInfo = new GAttributeInfo("YetAnotherFinalInt", int.class.getName(), true, false, null, "setDoubleAsYetAnotherFinalInt");
             try {
-                new GBeanAttribute(gbeanInstance, attributeInfo, false);
+                new GBeanAttribute(gbeanInstance, attributeInfo);
                 fail("Expected InvalidConfigurationException due to invalid setter parameter type");
             } catch (InvalidConfigurationException expected) {
             }
@@ -190,7 +182,7 @@ public class GBeanAttributeTest extends TestCase {
         {
             final GAttributeInfo attributeInfo = new GAttributeInfo("YetAnotherFinalInt", int.class.getName(), true, false, "getVoidGetterOfFinalInt", null);
             try {
-                new GBeanAttribute(gbeanInstance, attributeInfo, false);
+                new GBeanAttribute(gbeanInstance, attributeInfo);
                 fail("Getter method not found on target; InvalidConfigurationException expected");
             } catch (InvalidConfigurationException expected) {
             }
@@ -199,7 +191,7 @@ public class GBeanAttributeTest extends TestCase {
         {
             final GAttributeInfo attributeInfo = new GAttributeInfo("YetAnotherFinalInt", int.class.getName(), true, false, null, "setThatDoesntExist");
             try {
-                new GBeanAttribute(gbeanInstance, attributeInfo, false);
+                new GBeanAttribute(gbeanInstance, attributeInfo);
                 fail("Setter method not found on target; InvalidConfigurationException expected");
             } catch (InvalidConfigurationException expected) {
             }
@@ -247,7 +239,7 @@ public class GBeanAttributeTest extends TestCase {
         // 2. (offline) attribute that is of primitive type, writable and
         // persistent, but not readable
         {
-            final GBeanAttribute persistentAttribute = new GBeanAttribute(gbeanInstance, persistentPrimitiveAttributeInfo, false);
+            final GBeanAttribute persistentAttribute = new GBeanAttribute(gbeanInstance, persistentPrimitiveAttributeInfo);
             try {
                 persistentAttribute.setValue(gbeanInstance, null);
                 fail("Cannot assign null to a primitive attribute; exception expected");
@@ -272,7 +264,7 @@ public class GBeanAttributeTest extends TestCase {
 
         // 4. (online) attribute that is mutable and of primitive type
         {
-            final GBeanAttribute mutablePersistentAttribute = new GBeanAttribute(gbeanInstance, persistentPrimitiveAttributeInfo, false);
+            final GBeanAttribute mutablePersistentAttribute = new GBeanAttribute(gbeanInstance, persistentPrimitiveAttributeInfo);
 
             try {
                 gbeanInstance.start();
@@ -288,7 +280,7 @@ public class GBeanAttributeTest extends TestCase {
         // 4a. @todo BUG: It's possible to set a value to a persistent
         // attribute while online; IllegalStateException expected
         {
-            final GBeanAttribute mutablePersistentAttribute = new GBeanAttribute(gbeanInstance, persistentPrimitiveAttributeInfo, false);
+            final GBeanAttribute mutablePersistentAttribute = new GBeanAttribute(gbeanInstance, persistentPrimitiveAttributeInfo);
 
             try {
                 gbeanInstance.start();

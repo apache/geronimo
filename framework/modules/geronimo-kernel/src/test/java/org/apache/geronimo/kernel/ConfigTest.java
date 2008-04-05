@@ -40,7 +40,6 @@ public class ConfigTest extends TestCase {
     private AbstractName gbeanName2;
     private ConfigurationData configurationData;
     private EditableConfigurationManager configurationManager;
-//    private final String BASE_NAME = "test:J2EEServer=geronimo";
 
     public void testConfigLifecycle() throws Exception {
         Artifact configurationId = configurationData.getId();

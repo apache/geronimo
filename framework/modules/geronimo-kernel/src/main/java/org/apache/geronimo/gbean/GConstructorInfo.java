@@ -43,7 +43,7 @@ public class GConstructorInfo implements Serializable {
         this.attributeNames = Collections.unmodifiableList(attributeNames);
     }
 
-    public List getAttributeNames() {
+    public List<String> getAttributeNames() {
         return attributeNames;
     }
 

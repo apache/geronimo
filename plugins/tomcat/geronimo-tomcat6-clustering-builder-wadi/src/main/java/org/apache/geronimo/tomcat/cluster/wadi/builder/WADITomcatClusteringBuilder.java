@@ -36,8 +36,8 @@ import org.apache.geronimo.deployment.service.EnvironmentBuilder;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
@@ -58,6 +58,7 @@ import org.apache.xmlbeans.XmlObject;
  *
  * @version $Rev:$ $Date:$
  */
+@GBean(name="WADITomcatClusteringBuilder", j2eeType=NameFactory.MODULE_BUILDER)
 public class WADITomcatClusteringBuilder implements NamespaceDrivenBuilder {
     private static final QName CLUSTERING_WADI_QNAME = GerTomcatClusteringWadiDocument.type.getDocumentElementName();
     private static final QNameSet CLUSTERING_WADI_QNAME_SET = QNameSet.singleton(CLUSTERING_WADI_QNAME);
@@ -75,12 +76,13 @@ public class WADITomcatClusteringBuilder implements NamespaceDrivenBuilder {
     private final AbstractNameQuery defaultClusterName;
     private final Environment defaultEnvironment;
 
-    public WADITomcatClusteringBuilder(int defaultSweepInterval,
-            int defaultSessionTimeout,
-            int defaultNumPartitions,
-            AbstractNameQuery defaultBackingStrategyFactoryName,
-            AbstractNameQuery defaultClusterName,
-            Environment defaultEnvironment) {
+    
+    public WADITomcatClusteringBuilder(@ParamAttribute(name=GBEAN_ATTR_DFT_SWEEP_INTERVAL) int defaultSweepInterval,
+        @ParamAttribute(name=GBEAN_ATTR_DFT_SESSION_TIMEOUT) int defaultSessionTimeout,
+        @ParamAttribute(name=GBEAN_ATTR_DFT_NUM_PARTITIONS) int defaultNumPartitions,
+        @ParamAttribute(name=GBEAN_ATTR_DFT_BACKING_STRATEGY_FACTORY_NAME) AbstractNameQuery defaultBackingStrategyFactoryName,
+        @ParamAttribute(name=GBEAN_ATTR_DFT_CLUSTER_NAME) AbstractNameQuery defaultClusterName,
+        @ParamAttribute(name=GBEAN_ATTR_DFT_ENVIRONMENT) Environment defaultEnvironment) {
         if (defaultSweepInterval < 1) {
             throw new IllegalArgumentException("defaultSweepInterval is lower than 1");
         } else if (defaultSessionTimeout < 1) {
@@ -160,7 +162,7 @@ public class WADITomcatClusteringBuilder implements NamespaceDrivenBuilder {
             DeploymentContext moduleContext) throws GBeanAlreadyExistsException {
         AbstractName name = newGBeanName(moduleContext, "WADISessionManager");
 
-        GBeanData beanData = new GBeanData(name, BasicWADISessionManager.GBEAN_INFO);
+        GBeanData beanData = new GBeanData(name, BasicWADISessionManager.class);
 
         setConfigInfo(clustering, webModuleData, beanData);
         setCluster(clustering, beanData);
@@ -253,7 +255,7 @@ public class WADITomcatClusteringBuilder implements NamespaceDrivenBuilder {
             AbstractName sessionManagerName) throws GBeanAlreadyExistsException {
         AbstractName name = newGBeanName(moduleContext, "WADIClusteredValveRetriever");
 
-        GBeanData beanData = new GBeanData(name, WADIClusteredValveRetriever.GBEAN_INFO);
+        GBeanData beanData = new GBeanData(name, WADIClusteredValveRetriever.class);
         beanData.setReferencePattern(WADIClusteredValveRetriever.GBEAN_REF_WADI_SESSION_MANAGER, sessionManagerName);
 
         webModuleData.setReferencePattern(TomcatWebAppContext.GBEAN_REF_CLUSTERED_VALVE_RETRIEVER, name);
@@ -268,7 +270,7 @@ public class WADITomcatClusteringBuilder implements NamespaceDrivenBuilder {
             AbstractName sessionManagerName) throws GBeanAlreadyExistsException {
         AbstractName name = newGBeanName(moduleContext, "ClusteredManagerRetriever");
 
-        GBeanData beanData = new GBeanData(name, ClusteredManagerRetriever.GBEAN_INFO);
+        GBeanData beanData = new GBeanData(name, ClusteredManagerRetriever.class);
         beanData.setReferencePattern(ClusteredManagerRetriever.GBEAN_REF_SESSION_MANAGER, sessionManagerName);
 
         webModuleData.setReferencePattern(TomcatWebAppContext.GBEAN_REF_MANAGER_RETRIEVER, name);
@@ -293,39 +295,10 @@ public class WADITomcatClusteringBuilder implements NamespaceDrivenBuilder {
         patterns.add(query);
     }
 
-    public static final GBeanInfo GBEAN_INFO;
-
     public static final String GBEAN_ATTR_DFT_SWEEP_INTERVAL = "defaultSweepInterval";
     public static final String GBEAN_ATTR_DFT_SESSION_TIMEOUT = "defaultSessionTimeout";
     public static final String GBEAN_ATTR_DFT_NUM_PARTITIONS = "defaultNumPartitions";
     public static final String GBEAN_ATTR_DFT_BACKING_STRATEGY_FACTORY_NAME = "defaultBackingStrategyFactoryName";
     public static final String GBEAN_ATTR_DFT_CLUSTER_NAME = "defaultClusterName";
     public static final String GBEAN_ATTR_DFT_ENVIRONMENT = "defaultEnvironment";
-
-    static {
-        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic("WADI Session Manager",
-                WADITomcatClusteringBuilder.class,
-                NameFactory.MODULE_BUILDER);
-
-        infoBuilder.addAttribute(GBEAN_ATTR_DFT_SWEEP_INTERVAL, int.class, true);
-        infoBuilder.addAttribute(GBEAN_ATTR_DFT_SESSION_TIMEOUT, int.class, true);
-        infoBuilder.addAttribute(GBEAN_ATTR_DFT_NUM_PARTITIONS, int.class, true);
-        infoBuilder.addAttribute(GBEAN_ATTR_DFT_BACKING_STRATEGY_FACTORY_NAME, AbstractNameQuery.class, true);
-        infoBuilder.addAttribute(GBEAN_ATTR_DFT_CLUSTER_NAME, AbstractNameQuery.class, true);
-        infoBuilder.addAttribute(GBEAN_ATTR_DFT_ENVIRONMENT, Environment.class, true);
-
-        infoBuilder.setConstructor(new String[]{GBEAN_ATTR_DFT_SWEEP_INTERVAL,
-                GBEAN_ATTR_DFT_SESSION_TIMEOUT,
-                GBEAN_ATTR_DFT_NUM_PARTITIONS,
-                GBEAN_ATTR_DFT_BACKING_STRATEGY_FACTORY_NAME,
-                GBEAN_ATTR_DFT_CLUSTER_NAME,
-                GBEAN_ATTR_DFT_ENVIRONMENT});
-
-        GBEAN_INFO = infoBuilder.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
-
 }

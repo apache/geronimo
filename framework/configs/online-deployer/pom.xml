@@ -206,6 +206,10 @@
                             <artifactId>xpp3</artifactId>
                         </element>
                         <element>
+                            <groupId>org.apache.xbean</groupId>
+                            <artifactId>xbean-reflect</artifactId>
+                        </element>
+                        <element>
                             <groupId>com.thoughtworks.xstream</groupId>
                             <artifactId>xstream</artifactId>
                         </element>

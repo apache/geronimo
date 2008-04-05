@@ -66,6 +66,7 @@
                 <include>commons-logging:commons-logging</include>
                 <include>log4j:log4j</include>
                 <include>xpp3:xpp3</include>
+                <include>org.apache.xbean:xbean-reflect</include>
                 <include>com.thoughtworks.xstream:xstream</include>
                 <include>org.apache.geronimo.framework:geronimo-cli</include>
                 <include>org.apache.geronimo.framework:geronimo-kernel</include>

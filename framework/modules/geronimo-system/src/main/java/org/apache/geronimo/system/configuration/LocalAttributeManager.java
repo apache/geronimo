@@ -16,16 +16,16 @@
  */
 package org.apache.geronimo.system.configuration;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.Writer;
-import java.io.Reader;
 import java.io.FileReader;
-import java.io.BufferedReader;
 import java.io.FileWriter;
-import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -36,8 +36,8 @@ import java.util.Properties;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.bind.JAXBException;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
 
 import org.apache.commons.logging.Log;
@@ -47,8 +47,10 @@ import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.GReferenceInfo;
+import org.apache.geronimo.gbean.MultiGBeanInfoFactory;
 import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.kernel.InvalidGBeanException;
 import org.apache.geronimo.kernel.config.Configuration;
@@ -58,8 +60,8 @@ import org.apache.geronimo.kernel.config.PersistentConfigurationList;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.system.configuration.condition.JexlExpressionParser;
 import org.apache.geronimo.system.configuration.condition.ParserUtils;
-import org.apache.geronimo.system.plugin.model.GbeanType;
 import org.apache.geronimo.system.plugin.model.AttributesType;
+import org.apache.geronimo.system.plugin.model.GbeanType;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.xml.sax.SAXException;
 
@@ -98,6 +100,7 @@ public class LocalAttributeManager implements LocalPluginAttributeStore, Persist
     private File configSubstitutionsFile;
     private Properties localConfigSubstitutions;
     private String resolvedPropertiesFile;
+    private final GBeanInfoFactory infoFactory;
 
     public LocalAttributeManager(String configFile, String configSubstitutionsFileName, String configSubstitutionsPrefix, boolean readOnly, ServerInfo serverInfo) {
         this.configFile = System.getProperty(CONFIG_FILE_PROPERTY, configFile);
@@ -111,6 +114,11 @@ public class LocalAttributeManager implements LocalPluginAttributeStore, Persist
         this.serverInfo = serverInfo;
         serverOverride = new ServerOverride();
         log.debug("setting configSubstitutionsFile to " + configSubstitutionsFile + ".");
+        infoFactory = newGBeanInfoFactory();
+    }
+
+    protected GBeanInfoFactory newGBeanInfoFactory() {
+        return new MultiGBeanInfoFactory();
     }
 
     public boolean isReadOnly() {
@@ -166,7 +174,7 @@ public class LocalAttributeManager implements LocalPluginAttributeStore, Persist
                     message.append(" gbeanName=").append(name);
                     throw new InvalidConfigException(message.toString());
                 }
-                GBeanInfo gbeanInfo = GBeanInfo.getGBeanInfo(gbean.getGBeanInfo(), classLoader);
+                GBeanInfo gbeanInfo = infoFactory.getGBeanInfo(gbean.getGBeanInfo(), classLoader);
                 AbstractName abstractName = (AbstractName) name;
                 GBeanData gBeanData = new GBeanData(abstractName, gbeanInfo);
                 gbeanDatas.add(gBeanData);

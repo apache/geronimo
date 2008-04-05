@@ -21,13 +21,10 @@ import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.Set;
 
-import org.apache.geronimo.clustering.Cluster;
 import org.apache.geronimo.clustering.ClusterListener;
 import org.apache.geronimo.clustering.Node;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.codehaus.wadi.group.Peer;
 
 /**
@@ -43,7 +40,8 @@ public class BasicWADICluster implements GBeanLifecycle, WADICluster {
     
     private org.codehaus.wadi.group.Cluster cluster;
     
-    public BasicWADICluster(Node node, DispatcherHolder dispatcherHolder) {
+    public BasicWADICluster(@ParamReference(name=GBEAN_REF_NODE) Node node,
+        @ParamReference(name=GBEAN_REF_DISPATCHER_HOLDER) DispatcherHolder dispatcherHolder) {
         this(node, dispatcherHolder, new NodeProxyFactory());
     }
 
@@ -172,28 +170,6 @@ public class BasicWADICluster implements GBeanLifecycle, WADICluster {
         
     }
     
-    public static final GBeanInfo GBEAN_INFO;
-
     public static final String GBEAN_REF_NODE = "Node";
     public static final String GBEAN_REF_DISPATCHER_HOLDER = "DispatcherHolder";
-
-    static {
-        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic("WADI Cluster",
-            BasicWADICluster.class,
-            NameFactory.GERONIMO_SERVICE);
-
-        infoBuilder.addReference(GBEAN_REF_NODE, Node.class, NameFactory.GERONIMO_SERVICE);
-        infoBuilder.addReference(GBEAN_REF_DISPATCHER_HOLDER, DispatcherHolder.class, NameFactory.GERONIMO_SERVICE);
-
-        infoBuilder.addInterface(Cluster.class);
-
-        infoBuilder.setConstructor(new String[] { GBEAN_REF_NODE, GBEAN_REF_DISPATCHER_HOLDER });
-
-        GBEAN_INFO = infoBuilder.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
-    
 }

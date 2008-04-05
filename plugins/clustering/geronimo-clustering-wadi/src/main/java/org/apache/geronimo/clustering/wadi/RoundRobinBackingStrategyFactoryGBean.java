@@ -16,10 +16,8 @@
  */
 package org.apache.geronimo.clustering.wadi;
 
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.codehaus.wadi.replication.strategy.BackingStrategy;
 import org.codehaus.wadi.replication.strategy.BackingStrategyFactory;
 import org.codehaus.wadi.replication.strategy.RoundRobinBackingStrategyFactory;
@@ -35,7 +33,7 @@ public class RoundRobinBackingStrategyFactoryGBean implements BackingStrategyFac
     private BackingStrategyFactory strategyFactory;
     private ServiceSpace serviceSpace;
     
-    public RoundRobinBackingStrategyFactoryGBean(int nbReplica) {
+    public RoundRobinBackingStrategyFactoryGBean(@ParamAttribute(name=GBEAN_ATTR_NB_REPLICA) int nbReplica) {
         this.nbReplica = nbReplica;
     }
 
@@ -59,25 +57,5 @@ public class RoundRobinBackingStrategyFactoryGBean implements BackingStrategyFac
         strategyFactory = null;
     }
 
-    
-    public static final GBeanInfo GBEAN_INFO;
-    
     public static final String GBEAN_ATTR_NB_REPLICA = "nbReplica";
-    
-    static {
-        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(RoundRobinBackingStrategyFactoryGBean.class, 
-                NameFactory.GERONIMO_SERVICE);
-        
-        infoBuilder.addAttribute(GBEAN_ATTR_NB_REPLICA, int.class, true);
-        
-        infoBuilder.addInterface(BackingStrategyFactory.class);
-
-        infoBuilder.setConstructor(new String[] {GBEAN_ATTR_NB_REPLICA});
-        
-        GBEAN_INFO = infoBuilder.getBeanInfo();
-    }
-    
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
 }

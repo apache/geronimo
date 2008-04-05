@@ -43,14 +43,11 @@ public class GBeanAttribute {
 
     private final MethodInvoker setInvoker;
 
-    private final boolean isConstructorArg;
-
     private final boolean persistent;
 
     private final boolean manageable;
 
     private Object persistentValue;
-
     /**
      * Is this a special attribute like objectName, classLoader or gbeanContext?
      * Special attributes are injected at startup just like persistent attrubutes, but are
@@ -70,6 +67,8 @@ public class GBeanAttribute {
 
     private GBeanAttribute(GBeanAttribute attribute, GBeanInstance gbeanInstance, String name, Class type, Object value) {
         this.special = true;
+        this.persistentValue = value;
+
         this.framework = false;
         this.dynamic = false;
 
@@ -103,16 +102,13 @@ public class GBeanAttribute {
         // setter
         if (attribute != null) {
             this.setInvoker = attribute.setInvoker;
-            this.isConstructorArg = attribute.isConstructorArg;
         } else {
             this.setInvoker = null;
-            this.isConstructorArg = false;
         }
         this.writable = false;
 
         // persistence
         this.persistent = false;
-        initializePersistentValue(value);
 
         // not manageable
         this.manageable = false;
@@ -152,6 +148,7 @@ public class GBeanAttribute {
         this.special = false;
         this.framework = true;
         this.dynamic = false;
+        this.persistentValue = persistentValue;
 
         if (gbeanInstance == null || name == null || type == null) {
             throw new IllegalArgumentException("null param(s) supplied");
@@ -167,12 +164,10 @@ public class GBeanAttribute {
 
         // setter
         this.setInvoker = setInvoker;
-        this.isConstructorArg = false;
         this.writable = (this.setInvoker != null);
 
         // persistence
         this.persistent = persistent;
-        initializePersistentValue(persistentValue);
 
         // manageable
         this.manageable = manageable;
@@ -188,22 +183,16 @@ public class GBeanAttribute {
                 null);
     }
 
-    public GBeanAttribute(GBeanInstance gbeanInstance, GAttributeInfo attributeInfo, boolean isConstructorArg) throws InvalidConfigurationException {
+    public GBeanAttribute(GBeanInstance gbeanInstance, GAttributeInfo attributeInfo) throws InvalidConfigurationException {
         this.special = false;
         this.framework = false;
 
         if (gbeanInstance == null || attributeInfo == null) {
             throw new IllegalArgumentException("null param(s) supplied");
         }
-        if (!attributeInfo.isReadable() && !attributeInfo.isWritable() && !attributeInfo.isPersistent() && !isConstructorArg)
-        {
-            throw new InvalidConfigurationException("An attribute must be readable, writable, persistent or a constructor arg: " +
-                    " name=" + attributeInfo.getName() + " targetClass=" + gbeanInstance.getType().getName());
-        }
         this.gbeanInstance = gbeanInstance;
         this.attributeInfo = attributeInfo;
         this.name = attributeInfo.getName();
-        this.isConstructorArg = isConstructorArg;
         try {
             this.type = ClassLoading.loadClass(attributeInfo.getType(), gbeanInstance.getClassLoader());
         } catch (ClassNotFoundException e) {
@@ -255,8 +244,7 @@ public class GBeanAttribute {
                 getInvoker = null;
             }
 
-            // If attribute is persistent or not tagged as unwritable, search
-            // for a setter method
+            // If attribute is persistent or not tagged as unwritable, search for a setter method
             if (attributeInfo.getSetterName() != null) {
                 try {
                     String setterName = attributeInfo.getSetterName();
@@ -272,33 +260,6 @@ public class GBeanAttribute {
             } else {
                 setInvoker = null;
             }
-        }
-
-        initializePersistentValue(null);
-    }
-
-    private void initializePersistentValue(Object value) {
-        if (persistent || special) {
-            if (value == null && type.isPrimitive() && isConstructorArg) {
-                if (type == Boolean.TYPE) {
-                    value = Boolean.FALSE;
-                } else if (type == Byte.TYPE) {
-                    value = new Byte((byte) 0);
-                } else if (type == Short.TYPE) {
-                    value = new Short((short) 0);
-                } else if (type == Integer.TYPE) {
-                    value = new Integer(0);
-                } else if (type == Long.TYPE) {
-                    value = new Long(0);
-                } else if (type == Character.TYPE) {
-                    value = new Character((char) 0);
-                } else if (type == Float.TYPE) {
-                    value = new Float(0);
-                } else /** if (type == Double.TYPE) */ {
-                    value = new Double(0);
-                }
-            }
-            persistentValue = value;
         }
     }
 
@@ -340,12 +301,6 @@ public class GBeanAttribute {
 
     public boolean isSpecial() {
         return special;
-    }
-
-    public void inject(Object target) throws Exception {
-        if ((persistent || special) && !isConstructorArg && writable && persistentValue != null) {
-            setValue(target, persistentValue);
-        }
     }
 
     public Object getPersistentValue() {
@@ -444,4 +399,11 @@ public class GBeanAttribute {
             return null;
         }
     }
+    
+    public void inject(Object target) throws Exception {
+        if ((persistent || special) && writable && null != persistentValue) {
+            setValue(target, persistentValue);
+        }
+    }
+    
 }

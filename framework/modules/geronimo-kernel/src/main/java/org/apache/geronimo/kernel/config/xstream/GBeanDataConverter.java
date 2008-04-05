@@ -33,6 +33,8 @@ import com.thoughtworks.xstream.mapper.Mapper;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.MultiGBeanInfoFactory;
 import org.apache.geronimo.gbean.ReferencePatterns;
 
 /**
@@ -40,9 +42,16 @@ import org.apache.geronimo.gbean.ReferencePatterns;
  */
 public class GBeanDataConverter implements Converter {
     private final Mapper mapper;
+    private final GBeanInfoFactory infoFactory;
 
     public GBeanDataConverter(Mapper mapper) {
         this.mapper = mapper;
+        
+        infoFactory = newGBeanInfoFactory();
+    }
+
+    protected GBeanInfoFactory newGBeanInfoFactory() {
+        return new MultiGBeanInfoFactory();
     }
 
     public boolean canConvert(Class clazz) {
@@ -125,7 +134,7 @@ public class GBeanDataConverter implements Converter {
         GBeanInfo gbeanInfo = null;
         String sourceClass = reader.getAttribute("sourceClass");
         if (sourceClass != null) {
-            gbeanInfo = GBeanInfo.getGBeanInfo(sourceClass, classLoader);
+            gbeanInfo = infoFactory.getGBeanInfo(sourceClass, classLoader);
         }
 
         Set dependencies = new LinkedHashSet();

@@ -23,10 +23,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.clustering.LocalNode;
 import org.apache.geronimo.clustering.Node;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.gbean.annotation.ParamAttribute;
+import org.apache.geronimo.gbean.annotation.ParamReference;
+import org.apache.geronimo.gbean.annotation.ParamSpecial;
+import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 import org.codehaus.wadi.core.reflect.base.DeclaredMemberFilter;
 import org.codehaus.wadi.core.reflect.jdk.JDKClassIndexerRegistry;
 import org.codehaus.wadi.core.util.SimpleStreamer;
@@ -54,8 +55,10 @@ public class TribesDispatcherHolder implements GBeanLifecycle, DispatcherHolder 
     private TribesDispatcher dispatcher;
     private AdminServiceSpace adminServiceSpace;
 
-
-    public TribesDispatcherHolder(ClassLoader cl, URI endPointURI, String clusterName, LocalNode node) {
+    public TribesDispatcherHolder(@ParamSpecial(type=SpecialAttributeType.classLoader) ClassLoader cl,
+        @ParamAttribute(name=GBEAN_ATTR_END_POINT_URI) URI endPointURI,
+        @ParamAttribute(name=GBEAN_ATTR_CLUSTER_NAME) String clusterName,
+        @ParamReference(name=GBEAN_REF_NODE) LocalNode node) {
         if (null == endPointURI) {
             throw new IllegalArgumentException("endPointURI is required");
         } else if (null == clusterName) {
@@ -129,35 +132,8 @@ public class TribesDispatcherHolder implements GBeanLifecycle, DispatcherHolder 
         nodeServiceHelper.registerNodeService(new BasicNodeService(node));
     }
     
-    public static final GBeanInfo GBEAN_INFO;
-    
     public static final String GBEAN_ATTR_END_POINT_URI = "endPointURI";
     public static final String GBEAN_ATTR_CLUSTER_NAME = "clusterName";
     public static final String GBEAN_ATTR_CLUSTER_URI = "clusterUri";
-
     public static final String GBEAN_REF_NODE = "Node";
-
-    static {
-        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(TribesDispatcherHolder.class, 
-                NameFactory.GERONIMO_SERVICE);
-        
-        infoBuilder.addAttribute("classLoader", ClassLoader.class, false);
-        infoBuilder.addAttribute(GBEAN_ATTR_END_POINT_URI, URI.class, true);
-        infoBuilder.addAttribute(GBEAN_ATTR_CLUSTER_NAME, String.class, true);
-        
-        infoBuilder.addReference(GBEAN_REF_NODE, LocalNode.class, NameFactory.GERONIMO_SERVICE);
-
-        infoBuilder.addInterface(DispatcherHolder.class);
-        
-        infoBuilder.setConstructor(new String[] {"classLoader",
-                GBEAN_ATTR_END_POINT_URI,
-                GBEAN_ATTR_CLUSTER_NAME,
-                GBEAN_REF_NODE });
-        
-        GBEAN_INFO = infoBuilder.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
 }

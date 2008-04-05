@@ -33,10 +33,11 @@ import org.apache.geronimo.clustering.SessionAlreadyExistException;
 import org.apache.geronimo.clustering.SessionListener;
 import org.apache.geronimo.clustering.SessionManager;
 import org.apache.geronimo.clustering.SessionManagerListener;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.gbean.annotation.ParamAttribute;
+import org.apache.geronimo.gbean.annotation.ParamReference;
+import org.apache.geronimo.gbean.annotation.ParamSpecial;
+import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 import org.codehaus.wadi.aop.replication.AOPStackContext;
 import org.codehaus.wadi.core.assembler.StackContext;
 import org.codehaus.wadi.core.manager.Manager;
@@ -71,11 +72,11 @@ public class BasicWADISessionManager implements GBeanLifecycle, SessionManager, 
     private SessionMonitor sessionMonitor;
     private ServiceSpace serviceSpace;
     
-    public BasicWADISessionManager(ClassLoader cl,
-        WADISessionManagerConfigInfo configInfo,
-        WADICluster cluster,
-        BackingStrategyFactory backingStrategyFactory,
-        Collection<ClusteredServiceHolder> serviceHolders) {
+    public BasicWADISessionManager(@ParamSpecial(type=SpecialAttributeType.classLoader) ClassLoader cl,
+        @ParamAttribute(name=GBEAN_ATTR_WADI_CONFIG_INFO) WADISessionManagerConfigInfo configInfo,
+        @ParamReference(name=GBEAN_REF_CLUSTER) WADICluster cluster,
+        @ParamReference(name=GBEAN_REF_BACKING_STRATEGY_FACTORY) BackingStrategyFactory backingStrategyFactory,
+        @ParamReference(name=GBEAN_REF_SERVICE_HOLDERS) Collection<ClusteredServiceHolder> serviceHolders) {
         if (null == cl) {
             throw new IllegalArgumentException("cl is required");
         } else if (null == configInfo) {
@@ -294,41 +295,8 @@ public class BasicWADISessionManager implements GBeanLifecycle, SessionManager, 
         }
     }
     
-    public static final GBeanInfo GBEAN_INFO;
-
     public static final String GBEAN_ATTR_WADI_CONFIG_INFO = "wadiConfigInfo";
-
     public static final String GBEAN_REF_CLUSTER = "Cluster";
     public static final String GBEAN_REF_BACKING_STRATEGY_FACTORY = "BackingStrategyFactory";
     public static final String GBEAN_REF_SERVICE_HOLDERS = "ServiceHolders";
-
-
-    static {
-        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic("WADI Session Manager",
-                BasicWADISessionManager.class, NameFactory.GERONIMO_SERVICE);
-
-        infoBuilder.addAttribute("classLoader", ClassLoader.class, false);
-        infoBuilder.addAttribute(GBEAN_ATTR_WADI_CONFIG_INFO, WADISessionManagerConfigInfo.class, true);
-
-        infoBuilder.addReference(GBEAN_REF_CLUSTER, WADICluster.class, NameFactory.GERONIMO_SERVICE);
-        infoBuilder.addReference(GBEAN_REF_BACKING_STRATEGY_FACTORY, BackingStrategyFactory.class,
-                NameFactory.GERONIMO_SERVICE);
-        infoBuilder.addReference(GBEAN_REF_SERVICE_HOLDERS, ClusteredServiceHolder.class, NameFactory.GERONIMO_SERVICE);
-
-        infoBuilder.addInterface(SessionManager.class);
-        infoBuilder.addInterface(WADISessionManager.class);
-
-        infoBuilder.setConstructor(new String[] { "classLoader", 
-                GBEAN_ATTR_WADI_CONFIG_INFO,
-                GBEAN_REF_CLUSTER, 
-                GBEAN_REF_BACKING_STRATEGY_FACTORY,
-                GBEAN_REF_SERVICE_HOLDERS});
-
-        GBEAN_INFO = infoBuilder.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
-
 }

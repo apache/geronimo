@@ -17,9 +17,7 @@
 package org.apache.geronimo.jetty6.cluster;
 
 import org.apache.geronimo.clustering.SessionManager;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.jetty6.PreHandler;
 import org.apache.geronimo.jetty6.SessionHandlerFactory;
 import org.mortbay.jetty.servlet.SessionHandler;
@@ -31,7 +29,7 @@ import org.mortbay.jetty.servlet.SessionHandler;
 public class ClusteredSessionHandlerFactory implements SessionHandlerFactory {
     private final SessionManager sessionManager;
 
-    public ClusteredSessionHandlerFactory(SessionManager sessionManager) {
+    public ClusteredSessionHandlerFactory(@ParamReference(name=GBEAN_REF_SESSION_MANAGER) SessionManager sessionManager) {
         this.sessionManager = sessionManager;
     }
 
@@ -40,24 +38,5 @@ public class ClusteredSessionHandlerFactory implements SessionHandlerFactory {
         return new ClusteredSessionHandler(clusteredSessionManager, preHandler);
     }
 
-    public static final GBeanInfo GBEAN_INFO;
-
     public static final String GBEAN_REF_SESSION_MANAGER = "SessionManager";
-
-    static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("Clustered Web Application Handler Factory",
-                ClusteredSessionHandlerFactory.class, NameFactory.GERONIMO_SERVICE);
-
-        infoFactory.addReference(GBEAN_REF_SESSION_MANAGER, SessionManager.class, NameFactory.GERONIMO_SERVICE);
-
-        infoFactory.addInterface(SessionHandlerFactory.class);
-
-        infoFactory.setConstructor(new String[]{GBEAN_REF_SESSION_MANAGER});
-
-        GBEAN_INFO = infoFactory.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
 }

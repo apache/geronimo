@@ -239,7 +239,7 @@ public class WADIOpenEJBClusteringBuilder implements ModuleBuilderExtension {
         DeploymentContext moduleContext) throws DeploymentException {
         AbstractName name = newGBeanName(moduleContext, "WADISessionManager");
 
-        GBeanData beanData = new GBeanData(name, BasicWADISessionManager.GBEAN_INFO);
+        GBeanData beanData = new GBeanData(name, BasicWADISessionManager.class);
 
         setConfigInfo(clustering, ejbModule, beanData);
         setCluster(clustering, beanData);

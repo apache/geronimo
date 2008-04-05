@@ -40,6 +40,8 @@ import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.MultiGBeanInfoFactory;
 import org.apache.geronimo.gbean.ReferenceMap;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.repository.Environment;
@@ -53,6 +55,7 @@ import org.apache.xmlbeans.XmlObject;
 public class GBeanBuilder implements NamespaceDrivenBuilder {
     protected Map attrRefMap;
     protected Map refRefMap;
+    private final GBeanInfoFactory infoFactory;
     public static final QName SERVICE_QNAME = ServiceDocument.type.getDocumentElementName();
     private static final QName GBEAN_QNAME = GbeanDocument.type.getDocumentElementName();
     private static final QNameSet GBEAN_QNAME_SET = QNameSet.singleton(GBEAN_QNAME);
@@ -81,6 +84,12 @@ public class GBeanBuilder implements NamespaceDrivenBuilder {
         }
         EnvironmentBuilder environmentBuilder = new EnvironmentBuilder();
         attrRefMap.put(environmentBuilder.getNamespace(), environmentBuilder);
+        
+        infoFactory = newGBeanInfoFactory();
+    }
+
+    protected GBeanInfoFactory newGBeanInfoFactory() {
+        return new MultiGBeanInfoFactory();
     }
 
     public void buildEnvironment(XmlObject container, Environment environment) throws DeploymentException {
@@ -100,7 +109,7 @@ public class GBeanBuilder implements NamespaceDrivenBuilder {
     }
 
     private AbstractName addGBeanData(GbeanType gbean, AbstractName moduleName, ClassLoader cl, DeploymentContext context) throws DeploymentException {
-        GBeanInfo gBeanInfo = GBeanInfo.getGBeanInfo(gbean.getClass1(), cl);
+        GBeanInfo gBeanInfo = infoFactory.getGBeanInfo(gbean.getClass1(), cl);
         String namePart = gbean.getName();
         String j2eeType = gBeanInfo.getJ2eeType();
         AbstractName abstractName = context.getNaming().createChildName(moduleName, namePart, j2eeType);

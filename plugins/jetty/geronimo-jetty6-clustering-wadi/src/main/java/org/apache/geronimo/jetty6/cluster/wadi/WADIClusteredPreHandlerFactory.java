@@ -17,10 +17,8 @@
 package org.apache.geronimo.jetty6.cluster.wadi;
 
 import org.apache.geronimo.clustering.wadi.WADISessionManager;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.jetty6.PreHandler;
 import org.apache.geronimo.jetty6.PreHandlerFactory;
 import org.codehaus.wadi.core.manager.Manager;
@@ -35,7 +33,7 @@ public class WADIClusteredPreHandlerFactory implements PreHandlerFactory, GBeanL
     private final WADISessionManager sessionManager;
     private Manager wadiManager;
 
-    public WADIClusteredPreHandlerFactory(WADISessionManager sessionManager) {
+    public WADIClusteredPreHandlerFactory(@ParamReference(name=GBEAN_REF_WADI_SESSION_MANAGER) WADISessionManager sessionManager) {
         if (null == sessionManager) {
             throw new IllegalArgumentException("sessionManager is required");
         }
@@ -56,25 +54,5 @@ public class WADIClusteredPreHandlerFactory implements PreHandlerFactory, GBeanL
         return new WADIClusteredPreHandler(wadiManager);
     }
     
-    public static final GBeanInfo GBEAN_INFO;
     public static final String GBEAN_REF_WADI_SESSION_MANAGER = "WADISessionManager";
-
-    static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("WADI Pre-Handler Factory",
-                WADIClusteredPreHandlerFactory.class, NameFactory.GERONIMO_SERVICE);
-
-        infoFactory.addReference(GBEAN_REF_WADI_SESSION_MANAGER, WADISessionManager.class, 
-                NameFactory.GERONIMO_SERVICE);
-
-        infoFactory.addInterface(PreHandlerFactory.class);
-
-        infoFactory.setConstructor(new String[]{GBEAN_REF_WADI_SESSION_MANAGER});
-
-        GBEAN_INFO = infoFactory.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
-
 }
