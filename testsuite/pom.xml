@@ -244,7 +244,7 @@
     <distributionManagement>
         <site>
             <id>website</id>
-            <url>scp://people.apache.org/www/geronimo.apache.org/maven/server/testsuite/${buildNumber}</url>
+            <url>scp://people.apache.org/www/people.apache.org/builds/geronimo/server/testsuite/${buildNumber}</url>
         </site>
     </distributionManagement>
     
