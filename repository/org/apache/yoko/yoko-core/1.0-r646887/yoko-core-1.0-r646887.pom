@@ -26,7 +26,7 @@
   <parent>
     <groupId>org.apache.yoko</groupId>
     <artifactId>yoko</artifactId>
-    <version>1.0-r633547</version>
+    <version>1.0-r646887</version>
   </parent>
 
   <dependencies>
