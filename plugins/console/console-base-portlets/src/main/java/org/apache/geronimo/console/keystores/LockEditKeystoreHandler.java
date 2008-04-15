@@ -39,7 +39,7 @@ public class LockEditKeystoreHandler extends BaseKeystoreHandler {
         String keystore = request.getParameter("keystore");
         KeystoreData data = ((KeystoreData) request.getPortletSession(true).getAttribute(KEYSTORE_DATA_PREFIX + keystore));
         data.lockEdit();
-        response.setRenderParameter(INFO_MSG, "Keysore '"+keystore+"' is now edit locked.");
+        response.setRenderParameter(INFO_MSG, "Keystore '"+keystore+"' is now edit locked.");
         return LIST_MODE+BEFORE_ACTION;
     }
 
