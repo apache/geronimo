@@ -215,7 +215,7 @@
 
                     <category>Geronimo Core</category>
                     <osiApproved>true</osiApproved>
-                    <geronimoVersion>2.1.1-SNAPSHOT</geronimoVersion>
+                    <geronimoVersion>2.1.2-SNAPSHOT</geronimoVersion>
                     <dependencies>
                         <dependency>
                             <groupId>com.sun.xml.bind</groupId>

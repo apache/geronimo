@@ -30,7 +30,7 @@
             <dep:dependency>
                 <dep:groupId>org.apache.geronimo.configs</dep:groupId>
                 <dep:artifactId>system-database</dep:artifactId>
-                <dep:version>2.1.1-SNAPSHOT</dep:version>
+                <dep:version>2.1.2-SNAPSHOT</dep:version>
                 <dep:type>car</dep:type>
             </dep:dependency>
         </dep:dependencies>

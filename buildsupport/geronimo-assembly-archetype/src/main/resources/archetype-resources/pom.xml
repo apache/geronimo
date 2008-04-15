@@ -8,7 +8,7 @@
 
     <properties>
         <!-- This property is required by the car:package mojo -->
-        <geronimoVersion>2.1.1-SNAPSHOT</geronimoVersion>
+        <geronimoVersion>2.1.2-SNAPSHOT</geronimoVersion>
 
     </properties>
 
