@@ -27,16 +27,24 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
+import java.util.Collections;
 
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.factory.ArtifactFactory;
+import org.apache.maven.artifact.resolver.ArtifactResolutionException;
+import org.apache.maven.artifact.resolver.ArtifactResolutionResult;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
+import org.apache.maven.project.ProjectBuildingException;
+import org.apache.maven.project.artifact.InvalidDependencyVersionException;
 import org.codehaus.mojo.pluginsupport.MojoSupport;
 import org.codehaus.mojo.pluginsupport.dependency.DependencyHelper;
 import org.codehaus.mojo.pluginsupport.dependency.DependencyTree;
+import org.codehaus.mojo.pluginsupport.dependency.DependencyResolutionListener;
 import org.codehaus.mojo.pluginsupport.dependency.DependencyTree.Node;
 import org.codehaus.mojo.pluginsupport.util.ArtifactItem;
 
@@ -81,7 +89,14 @@ public abstract class AbstractCarMojo
      * @component
      */
     protected DependencyHelper dependencyHelper = null;
-    
+    /**
+     * @component
+     * @required
+     * @readonly
+     */
+    protected ArtifactFactory artifactFactory;
+    protected Set<Artifact> dependencies;// = new DependencyTree();
+
     //
     // MojoSupport Hooks
     //
@@ -110,63 +125,27 @@ public abstract class AbstractCarMojo
     /**
      * Generates a properties file with explicit versions of artifacts of the current project transitivly.
      */
-    protected void generateExplicitVersionProperties(final File outputFile, DependencyTree dependencies) throws MojoExecutionException, IOException {
+    protected void generateExplicitVersionProperties(final File outputFile, Set<org.apache.maven.artifact.Artifact> dependencies) throws MojoExecutionException, IOException {
         log.debug("Generating explicit version properties: " + outputFile);
 
         // Generate explicit_versions for all our dependencies...
         Properties props = new Properties();
-        
-        try {
 
-            Node root = dependencies.getRootNode();
-            
-            // Skip the root node
-            Iterator children = root.getChildren().iterator();
-            while (children.hasNext()) {
-                Node child = (Node) children.next();
-                appendExplicitVersionProperties(child, props);
+        for (org.apache.maven.artifact.Artifact artifact: dependencies) {
+            String name = artifact.getGroupId() + "/" + artifact.getArtifactId() + "//" + artifact.getType();
+            String value = artifact.getGroupId() + "/" + artifact.getArtifactId() + "/" + artifact.getVersion() + "/" + artifact.getType();
+
+            if (log.isDebugEnabled()) {
+                log.debug("Setting " + name + "=" + value);
             }
+            props.setProperty(name, value);
         }
-        catch (Exception e) {
-            throw new MojoExecutionException("Failed to determine project dependencies", e);
-        }
-        
         BufferedOutputStream output = new BufferedOutputStream(new FileOutputStream(outputFile));
         props.store(output, null);
         output.flush();
         output.close();
     }
-    
-    private void appendExplicitVersionProperties(final Node node, final Properties props) {
-        assert node != null;
-        assert props != null;
-        
-        Artifact artifact = node.getArtifact();
-        if ("test".equals(artifact.getScope())) {
-            if (log.isDebugEnabled()) {
-                log.debug("Skipping artifact with scope test: " + artifact);
-            }
-            return;
-        }
-        
-        String name = artifact.getGroupId() + "/" + artifact.getArtifactId() + "//" + artifact.getType();
-        String value = artifact.getGroupId() + "/" + artifact.getArtifactId() + "/" + artifact.getVersion() + "/" + artifact.getType();
-        
-        if (log.isDebugEnabled()) {
-            log.debug("Setting " + name + "=" + value);
-        }
-        props.setProperty(name, value);
-        
-        if (!node.getChildren().isEmpty()) {
-            Iterator children = node.getChildren().iterator();
-            
-            while (children.hasNext()) {
-                Node child = (Node) children.next();
-                appendExplicitVersionProperties(child, props);
-            }
-        }
-    }
-
+   
     protected static File getArchiveFile(final File basedir, final String finalName, String classifier) {
         if (classifier == null) {
             classifier = "";
@@ -246,6 +225,26 @@ public abstract class AbstractCarMojo
             return false;
         }
         return true;
+    }
+
+    protected void getDependencies(MavenProject project) throws ProjectBuildingException, InvalidDependencyVersionException, ArtifactResolutionException {
+        Map managedVersions = DependencyHelper.getManagedVersionMap(project, artifactFactory);
+
+        if (project.getDependencyArtifacts() == null) {
+            project.setDependencyArtifacts(project.createArtifacts(artifactFactory, null, null));
+        }
+
+        ArtifactResolutionResult artifactResolutionResult = dependencyHelper.getArtifactCollector().collect(
+                project.getDependencyArtifacts(),
+                project.getArtifact(),
+                managedVersions,
+                getArtifactRepository(),
+                project.getRemoteArtifactRepositories(),
+                dependencyHelper.getArtifactMetadataSource(),
+                null,
+                Collections.emptyList());
+
+        dependencies = artifactResolutionResult.getArtifacts();
     }
 
     protected class ArtifactLookupImpl
