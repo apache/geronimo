@@ -21,7 +21,6 @@ package org.apache.geronimo.mavenplugins.car;
 
 import java.io.File;
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -51,13 +50,8 @@ import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
 import org.apache.geronimo.system.configuration.RepositoryConfigurationStore;
 import org.apache.geronimo.system.repository.Maven2Repository;
 import org.apache.geronimo.system.resolver.ExplicitDefaultArtifactResolver;
-import org.apache.maven.archiver.MavenArchiveConfiguration;
 import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.factory.ArtifactFactory;
-import org.apache.maven.project.MavenProject;
-import org.codehaus.mojo.pluginsupport.dependency.DependencyTree;
 import org.codehaus.mojo.pluginsupport.util.ArtifactItem;
-import org.codehaus.plexus.archiver.jar.JarArchiver;
 import org.codehaus.plexus.util.FileUtils;
 
 /**
@@ -71,13 +65,6 @@ import org.codehaus.plexus.util.FileUtils;
 public class PackageMojo
     extends AbstractCarMojo
 {
-
-    /**
-     * @component
-     * @required
-     * @readonly
-     */
-    private ArtifactFactory artifactFactory;
 
 
     /**
@@ -224,25 +211,7 @@ public class PackageMojo
             log.debug("Using module file: " + moduleFile);
         }
 
-        MavenProject depsProject = new MavenProject(project);
-        List<org.apache.maven.model.Dependency> projectDeps = new ArrayList<org.apache.maven.model.Dependency>();
-        for (org.apache.maven.model.Dependency dep: (List<org.apache.maven.model.Dependency>)project.getDependencies()) {
-            org.apache.maven.model.Dependency newDep = new org.apache.maven.model.Dependency();
-            newDep.setArtifactId(dep.getArtifactId());
-            newDep.setGroupId(dep.getGroupId());
-            newDep.setClassifier(dep.getClassifier());
-            newDep.setExclusions(dep.getExclusions());
-            newDep.setOptional(dep.isOptional());
-            newDep.setSystemPath(dep.getSystemPath());
-            newDep.setType(dep.getType());
-            newDep.setVersion(dep.getVersion());
- // don't copy scope
-
-            projectDeps.add(newDep);
-        }
-        depsProject.setDependencies(projectDeps);
-        depsProject.setDependencyArtifacts(depsProject.createArtifacts(artifactFactory, null, null));
-        dependencies.setRootNode(dependencyHelper.getDependencies(depsProject).getRootNode());
+        getDependencies(project);
 
         generateExplicitVersionProperties(explicitResolutionProperties, dependencies);
 
@@ -307,8 +276,6 @@ public class PackageMojo
     private AbstractName targetRepositoryAName;
 
     private boolean targetSet;
-
-    private DependencyTree dependencies = new DependencyTree();
 
     public void buildPackage() throws Exception {
         log.info("Packaging module configuration: " + planFile);

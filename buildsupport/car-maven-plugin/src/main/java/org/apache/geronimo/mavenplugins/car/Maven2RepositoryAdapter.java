@@ -21,7 +21,7 @@ package org.apache.geronimo.mavenplugins.car;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Iterator;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -37,7 +37,6 @@ import org.apache.geronimo.system.plugin.OpenResult;
 import org.apache.geronimo.system.plugin.SourceRepository;
 import org.apache.geronimo.system.plugin.model.PluginListType;
 import org.apache.geronimo.system.repository.Maven2Repository;
-import org.codehaus.mojo.pluginsupport.dependency.DependencyTree;
 
 /**
  * Helps adapt Geronimo repositories to Maven repositories for packaging building.
@@ -47,9 +46,9 @@ import org.codehaus.mojo.pluginsupport.dependency.DependencyTree;
 public class Maven2RepositoryAdapter extends Maven2Repository implements SourceRepository {
     private ArtifactLookup lookup;
 
-    private DependencyTree dependencyTree;
+    private Set<org.apache.maven.artifact.Artifact> dependencyTree;
 
-    public Maven2RepositoryAdapter(DependencyTree dependencyTree, final ArtifactLookup lookup) {
+    public Maven2RepositoryAdapter(Set<org.apache.maven.artifact.Artifact> dependencyTree, final ArtifactLookup lookup) {
         super(lookup.getBasedir());
         this.dependencyTree = dependencyTree;
         this.lookup = lookup;
@@ -63,23 +62,21 @@ public class Maven2RepositoryAdapter extends Maven2Repository implements SourceR
 
     public SortedSet list() {
         TreeSet<Artifact> list = new TreeSet<Artifact>();
-        listInternal(list, dependencyTree.getRootNode(), null, null, null, null);
+        listInternal(list, null, null, null, null);
         return list;
     }
 
     public SortedSet list(Artifact query) {
         TreeSet<Artifact> list = new TreeSet<Artifact>();
-        listInternal(list, dependencyTree.getRootNode(), query.getGroupId(), query.getArtifactId(), query.getVersion(), query.getType());
+        listInternal(list, query.getGroupId(), query.getArtifactId(), query.getVersion(), query.getType());
         return list;
     }
 
-    private void listInternal(TreeSet<Artifact> list, DependencyTree.Node node, String groupId, String artifactId, Version version, String type) {
-        if (matches(node.getArtifact(), groupId, artifactId, version, type)) {
-            list.add(mavenToGeronimoArtifact(node.getArtifact()));
-        }
-        for (Iterator iterator = node.getChildren().iterator(); iterator.hasNext();) {
-            DependencyTree.Node childNode = (DependencyTree.Node) iterator.next();
-            listInternal(list, childNode, groupId, artifactId, version, type);
+    private void listInternal(TreeSet<Artifact> list, String groupId, String artifactId, Version version, String type) {
+        for (org.apache.maven.artifact.Artifact artifact: dependencyTree) {
+            if (matches(artifact, groupId, artifactId, version, type)) {
+                list.add(mavenToGeronimoArtifact(artifact));
+            }
         }
     }
 
@@ -132,7 +129,7 @@ public class Maven2RepositoryAdapter extends Maven2Repository implements SourceR
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(Maven2RepositoryAdapter.class, "Repository");
         infoFactory.addAttribute("lookup", ArtifactLookup.class, true);
-        infoFactory.addAttribute("dependencies", DependencyTree.class, true);
+        infoFactory.addAttribute("dependencies", Set.class, true);
         infoFactory.setConstructor(new String[]{"dependencies", "lookup"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
