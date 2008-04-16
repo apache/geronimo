@@ -28,11 +28,6 @@ import org.testng.annotations.Test;
 public class MessageSenderTest {
 
     /**
-     * Initial context
-     */
-    private InitialContext ctx;
-
-    /**
      * Initialize test configuration
      *
      * @throws Exception if exception occurs
@@ -47,14 +42,14 @@ public class MessageSenderTest {
      */
     @Test
     public void sendRequests() throws Exception {
-        this.ctx = new InitialContext();
+        InitialContext ctx = new InitialContext();
         String totalShipStr = System.getProperty("total-shipment");
         String msgsPerShipStr = System.getProperty("requests-per-shipment");
 
         int totalShip = (totalShipStr == null ? 10 : Integer.parseInt(totalShipStr));
-        int msgsPerShip = (msgsPerShipStr == null ? 10 : Integer.parseInt(msgsPerShipStr));
+        int msgsPerShip = (msgsPerShipStr == null ? 20 : Integer.parseInt(msgsPerShipStr));
 
-        JmsSenderRemote jmsSender = (JmsSenderRemote) this.ctx.lookup("JmsSenderRemote");
+        JmsSenderRemote jmsSender = (JmsSenderRemote) ctx.lookup("JmsSenderRemote");
         if (jmsSender != null) {
             System.out.println("JmsSender initialized");
             for (int i = 0; i < totalShip; ++i) {
@@ -73,7 +68,6 @@ public class MessageSenderTest {
             }
 */
             //uncomment to actually run test
-/*
             for (int i = 0; i < totalShip * msgsPerShip; i++) {
                 Integer id = jmsSender.receiveMessage();
                 if (id == null) {
@@ -82,7 +76,6 @@ public class MessageSenderTest {
 //                    Thread.sleep(10000);
                 }
             }
-*/
         } else {
             throw new Exception("Sender is null");
         }
