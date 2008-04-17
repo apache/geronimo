@@ -51,6 +51,7 @@ import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.kernel.log.GeronimoLogFactory;
 import org.apache.geronimo.kernel.log.GeronimoLogging;
 import org.apache.geronimo.system.logging.SystemLog;
+import org.apache.geronimo.system.properties.JvmVendor;
 import org.apache.geronimo.system.serverinfo.DirectoryUtils;
 import org.apache.geronimo.system.serverinfo.ServerConstants;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
@@ -261,7 +262,10 @@ public class Log4jService implements GBeanLifecycle, SystemLog {
      * @param configurationFile the logging configuration file
      */
     public synchronized void setConfigFileName(final String configurationFile) {
-        log.debug("setConfigFileName() called with configurationFile=" + configurationFile);
+        if (log.isDebugEnabled()) {
+            log.debug("setConfigFileName() called with configurationFile=" + configurationFile);
+        }
+
         if (configurationFile == null) {
             throw new IllegalArgumentException("configurationFile is null");
         }
@@ -521,7 +525,9 @@ public class Log4jService implements GBeanLifecycle, SystemLog {
         if (file == null || !file.exists()) {
             return;
         } else {
-            log.debug("reconfigure() using configurationFile=" + configurationFile);
+            if (log.isDebugEnabled()) {
+                log.debug("reconfigure() using configurationFile=" + configurationFile);
+            }
             lastChanged = file.lastModified();
         }
 
@@ -628,11 +634,12 @@ public class Log4jService implements GBeanLifecycle, SystemLog {
           Log log = LogFactory.getLog(Log4jService.class);
           log.info("----------------------------------------------");
           log.info("Started Logging Service");
-          log.debug("Log4jService created with configFileName=" + this.configurationFile +
-                    ", refreshPeriodSeconds=" + this.refreshPeriod);
+          if (log.isDebugEnabled()) {
+              log.debug("Log4jService created with configFileName=" + this.configurationFile + ", refreshPeriodSeconds=" + this.refreshPeriod);
+          }
           log.info("Runtime Information:");
           log.info("  Install Directory = " + DirectoryUtils.getGeronimoInstallDirectory().toString());
-          log.info("  JVM in use = " + System.getProperty("java.vendor") + " Java " + System.getProperty("java.version"));
+          log.info("  JVM in use = " + JvmVendor.getJvmInfo());
           log.info("Java Information:");
           log.info("  System property [java.runtime.name]  = " + System.getProperty("java.runtime.name"));
           log.info("  System property [java.runtime.version]  = " + System.getProperty("java.runtime.version"));

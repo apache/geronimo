@@ -177,8 +177,10 @@ if $cygwin; then
   GERONIMO_HOME=`cygpath --absolute --windows "$GERONIMO_HOME"`
   GERONIMO_BASE=`cygpath --absolute --windows "$GERONIMO_BASE"`
   GERONIMO_TMPDIR=`cygpath --windows "$GERONIMO_TMPDIR"`
+  EXT_DIRS="$GERONIMO_BASE/lib/ext;$JRE_HOME/lib/ext"
   ENDORSED_DIRS="$GERONIMO_BASE/lib/endorsed;$JRE_HOME/lib/endorsed"
 else
+  EXT_DIRS="$GERONIMO_BASE/lib/ext:$JRE_HOME/lib/ext"
   ENDORSED_DIRS="$GERONIMO_BASE/lib/endorsed:$JRE_HOME/lib/endorsed"
 fi
 
@@ -198,5 +200,6 @@ fi
 exec "$_RUNJAVA" $JAVA_OPTS $GERONIMO_OPTS \
   -Dorg.apache.geronimo.base.dir="$GERONIMO_BASE" \
   -Djava.endorsed.dirs="$ENDORSED_DIRS" \
+  -Djava.ext.dirs="$EXT_DIRS" \
   -Djava.io.tmpdir="$GERONIMO_TMPDIR" \
   -jar "$GERONIMO_HOME"/bin/client.jar "$@" 

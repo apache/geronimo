@@ -90,6 +90,15 @@
            org.apache.cxf.jaxws.checkPublishEndpointPermission=true
            java.net.preferIPv4Stack=true
          </attribute>
+         <attribute name="sunSystemProperties">
+             java.security.Provider=SUN
+         </attribute>
+         <attribute name="ibmSystemProperties">
+             java.security.Provider=IBMCertPath
+         </attribute>
+         <attribute name="apacheSystemProperties">
+             java.naming.factory.url.pkgs=org.apache.harmony.jndi.provider
+         </attribute>
     </gbean>
 
 </module>
