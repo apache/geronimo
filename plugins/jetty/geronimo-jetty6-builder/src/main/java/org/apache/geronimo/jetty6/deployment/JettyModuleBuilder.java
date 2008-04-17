@@ -23,7 +23,6 @@ import java.io.IOException;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import java.net.URL;
-import java.security.PermissionCollection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -371,8 +370,6 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
         resourceEnvironmentSetter.setResourceEnvironment(rebuilder, webApp.getResourceRefArray(), jettyWebApp.getResourceRefArray());
         try {
             moduleContext.addGBean(webModuleData);
-            Set<String> securityRoles = collectRoleNames(webApp);
-            Map<String, PermissionCollection> rolePermissions = new HashMap<String, PermissionCollection>();
 
             // configure hosts and virtual-hosts
             configureHosts(earContext, jettyWebApp, webModuleData);
@@ -502,10 +499,10 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
 
             //set up servlet gbeans.
             ServletType[] servletTypes = webApp.getServletArray();
-            addServlets(moduleName, webModule, servletTypes, servletMappings, securityRoles, rolePermissions, moduleContext);
+            addServlets(moduleName, webModule, servletTypes, servletMappings, moduleContext);
 
             if (jettyWebApp.isSetSecurityRealmName()) {
-                configureSecurityRealm(earContext, webApp, jettyWebApp, webModuleData, securityRoles, rolePermissions);
+                configureSecurityRealm(earContext, webApp, jettyWebApp, webModuleData);
             }
 
             //See Jetty-386, GERONIMO-3738
@@ -546,7 +543,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
 //        moduleContext.addGBean(beanData);
     }
 
-    private void configureSecurityRealm(EARContext earContext, WebAppType webApp, JettyWebAppType jettyWebApp, GBeanData webModuleData, Set<String> securityRoles, Map<String, PermissionCollection> rolePermissions) throws DeploymentException {
+    private void configureSecurityRealm(EARContext earContext, WebAppType webApp, JettyWebAppType jettyWebApp, GBeanData webModuleData) throws DeploymentException {
         AbstractName moduleName = webModuleData.getAbstractName();
         if (earContext.getSecurityConfiguration() == null) {
             throw new DeploymentException("You have specified a <security-realm-name> for the webapp " + moduleName + " but no <security> configuration (role mapping) is supplied in the Geronimo plan for the web application (or the Geronimo plan for the EAR if the web app is in an EAR)");
@@ -562,7 +559,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
         //String policyContextID = webModuleName.getCanonicalName();
         webModuleData.setAttribute("policyContextID", policyContextID);
 
-        ComponentPermissions componentPermissions = buildSpecSecurityConfig(webApp, securityRoles, rolePermissions);
+        ComponentPermissions componentPermissions = buildSpecSecurityConfig(webApp);
 
         earContext.addSecurityContext(policyContextID, componentPermissions);
     }
@@ -893,27 +890,21 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
      * @param module          a <code>Module</code> value
      * @param servletTypes    a <code>ServletType[]</code> value, contains the <code>servlet</code> entries from <code>web.xml</code>.
      * @param servletMappings a <code>Map</code> value
-     * @param securityRoles   a <code>Set</code> value
-     * @param rolePermissions a <code>Map</code> value
      * @param moduleContext   an <code>EARContext</code> value
      * @throws DeploymentException if an error occurs
      */
     private void addServlets(AbstractName webModuleName,
-            Module module,
-            ServletType[] servletTypes,
-            Map<String, Set<String>> servletMappings,
-            Set<String> securityRoles,
-            Map<String, PermissionCollection> rolePermissions,
-            EARContext moduleContext) throws DeploymentException {
+                             Module module,
+                             ServletType[] servletTypes,
+                             Map<String, Set<String>> servletMappings,
+                             EARContext moduleContext) throws DeploymentException {
 
         // this TreeSet will order the ServletTypes based on whether
         // they have a load-on-startup element and what its value is
         TreeSet<ServletType> loadOrder = new TreeSet<ServletType>(new StartupOrderComparator());
 
         // add all of the servlets to the sorted set
-        for (ServletType servletType1 : servletTypes) {
-            loadOrder.add(servletType1);
-        }
+        loadOrder.addAll(Arrays.asList(servletTypes));
 
         // now that they're sorted, read them in order and add them to
         // the context.  we'll use a GBean reference to enforce the
@@ -927,11 +918,8 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
         AbstractName previousServlet = null;
         for (Object aLoadOrder : loadOrder) {
             ServletType servletType = (ServletType) aLoadOrder;
-            previousServlet = addServlet(webModuleName, module, previousServlet, servletType, servletMappings, securityRoles, rolePermissions, moduleContext);
+            previousServlet = addServlet(webModuleName, module, previousServlet, servletType, servletMappings, moduleContext);
         }
-
-        // JACC v1.0 secion B.19
-        addUnmappedJSPPermissions(securityRoles, rolePermissions);
     }
 
     /**
@@ -940,20 +928,16 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
      * @param previousServlet the servlet to start before this one in init order
      * @param servletType XMLObject specifying the servlet configuration
      * @param servletMappings Map of servlet name to set of ServletMapping strings for this web app
-     * @param securityRoles security roles in the web app
-     * @param rolePermissions RolePermissions for the roles this servlet needs to access
      * @param moduleContext deployment context for this module
      * @return AbstractName of servlet gbean added
      * @throws DeploymentException if something goes wrong
      */
     private AbstractName addServlet(AbstractName webModuleName,
-            Module module,
-            AbstractName previousServlet,
-            ServletType servletType,
-            Map<String, Set<String>> servletMappings,
-            Set<String> securityRoles,
-            Map<String, PermissionCollection> rolePermissions,
-            EARContext moduleContext) throws DeploymentException {
+                                    Module module,
+                                    AbstractName previousServlet,
+                                    ServletType servletType,
+                                    Map<String, Set<String>> servletMappings,
+                                    EARContext moduleContext) throws DeploymentException {
         String servletName = servletType.getServletName().getStringValue().trim();
         AbstractName servletAbstractName = moduleContext.getNaming().createChildName(webModuleName, servletName, NameFactory.SERVLET);
         GBeanData servletData;
@@ -1033,8 +1017,6 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
             String runAsRole = servletType.getRunAs().getRoleName().getStringValue().trim();
             servletData.setAttribute("runAsRole", runAsRole);
         }
-
-        processRoleRefPermissions(servletType, securityRoles, rolePermissions);
 
         try {
             moduleContext.addGBean(servletData);

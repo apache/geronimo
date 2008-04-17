@@ -18,7 +18,7 @@
  */
 
 
-package org.apache.geronimo.security.util;
+package org.apache.geronimo.web25.deployment.security;
 
 import java.util.Set;
 import java.util.HashSet;

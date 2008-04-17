@@ -18,7 +18,7 @@
  */
 
 
-package org.apache.geronimo.web25.deployment;
+package org.apache.geronimo.web25.deployment.security;
 
 import java.net.URL;
 import java.util.Collection;
@@ -42,6 +42,7 @@ import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.xbeans.javaee.WebAppType;
 import org.apache.geronimo.xbeans.javaee.WebAppDocument;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
+import org.apache.geronimo.web25.deployment.AbstractWebModuleBuilder;
 import org.apache.xmlbeans.XmlOptions;
 
 /**
@@ -51,17 +52,14 @@ public class SpecSecurityParsingTest extends TestCase {
 
     private ClassLoader classLoader = this.getClass().getClassLoader();
     private XmlOptions options = new XmlOptions();
-    private TestWebModuleBuilder builder = new TestWebModuleBuilder();
-    private Set<String> roleSet = new HashSet<String>();
-    private Map<String, PermissionCollection> rolePermissionMap = new HashMap<String, PermissionCollection>();
 
 
     public void testParsing() throws Exception {
-        roleSet.add("Admin");
         URL srcXml = classLoader.getResource("security/web1.xml");
         WebAppDocument webAppDoc = WebAppDocument.Factory.parse(srcXml, options);
         WebAppType webAppType = webAppDoc.getWebApp();
-        ComponentPermissions permissions = builder.buildSpecSecurityConfig(webAppType, roleSet, rolePermissionMap);
+        SpecSecurityBuilder builder = new SpecSecurityBuilder();
+        ComponentPermissions permissions = builder.buildSpecSecurityConfig(webAppType);
         PermissionCollection unchecked = permissions.getUncheckedPermissions();
         assertTrue(unchecked.implies(new WebResourcePermission("/login.do", "!")));
         assertTrue(unchecked.implies(new WebResourcePermission("/foo", "!")));
@@ -76,35 +74,15 @@ public class SpecSecurityParsingTest extends TestCase {
      * @throws Exception
      */
     public void testAllMethodsConstraint() throws Exception {
-        roleSet.add("Admin");
         URL srcXml = classLoader.getResource("security/web2.xml");
         WebAppDocument webAppDoc = WebAppDocument.Factory.parse(srcXml, options);
         WebAppType webAppType = webAppDoc.getWebApp();
-        ComponentPermissions permissions = builder.buildSpecSecurityConfig(webAppType, roleSet, rolePermissionMap);
+        SpecSecurityBuilder builder = new SpecSecurityBuilder();
+        ComponentPermissions permissions = builder.buildSpecSecurityConfig(webAppType);
         PermissionCollection unchecked = permissions.getUncheckedPermissions();
         assertFalse(unchecked.implies(new WebResourcePermission("/Test", "!")));
         PermissionCollection adminPermissions = permissions.getRolePermissions().get("Admin");
         assertTrue(adminPermissions.implies(new WebResourcePermission("/Test", "GET,POST")));
     }
 
-    public static class TestWebModuleBuilder extends AbstractWebModuleBuilder {
-
-        protected TestWebModuleBuilder() {
-            super(null, null, null, null, null, Collections.EMPTY_SET, null);
-        }
-
-        protected Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, boolean standAlone, String contextRoot, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
-            return null;
-        }
-
-        public void initContext(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException {
-        }
-
-        public void addGBeans(EARContext earContext, Module module, ClassLoader cl, Collection repository) throws DeploymentException {
-        }
-
-        public String getSchemaNamespace() {
-            return null;
-        }
-    }
 }

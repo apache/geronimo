@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.security.util;
+package org.apache.geronimo.web25.deployment.security;
 
 
 /**

@@ -35,5 +35,7 @@
             <http-method>GET</http-method>
         </web-resource-collection>
     </security-constraint>
-
+    <security-role>
+        <role-name>Admin</role-name>
+    </security-role>
 </web-app>

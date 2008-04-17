@@ -347,8 +347,6 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
         configureBasicWebModuleAttributes(webApp, tomcatWebApp, moduleContext, earContext, webModule, webModuleData);
         try {
             moduleContext.addGBean(webModuleData);
-            Set<String> securityRoles = collectRoleNames(webApp);
-            Map<String, PermissionCollection> rolePermissions = new HashMap<String, PermissionCollection>();
             webModuleData.setAttribute("contextPath", webModule.getContextRoot());
             // unsharableResources, applicationManagedSecurityResources
             GBeanResourceEnvironmentBuilder rebuilder = new GBeanResourceEnvironmentBuilder(webModuleData);
@@ -423,8 +421,6 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
                 throw new DeploymentException("Could not load javax.servlet.Servlet in web classloader", e); // TODO identify web app in message
             }
             for (ServletType servletType : servletTypes) {
-                //Handle the Role Ref Permissions
-                processRoleRefPermissions(servletType, securityRoles, rolePermissions);
 
                 if (servletType.isSetServletClass()) {
                     String servletName = servletType.getServletName().getStringValue().trim();
@@ -462,8 +458,6 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
                 }
             }
 
-            // JACC v1.0 secion B.19
-            addUnmappedJSPPermissions(securityRoles, rolePermissions);
 
             webModuleData.setAttribute("webServices", webServices);
 
@@ -483,7 +477,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
                 String policyContextID = moduleName.toString().replaceAll("[, :]", "_");
                 securityHolder.setPolicyContextID(policyContextID);
 
-                ComponentPermissions componentPermissions = buildSpecSecurityConfig(webApp, securityRoles, rolePermissions);
+                ComponentPermissions componentPermissions = buildSpecSecurityConfig(webApp);
                 earContext.addSecurityContext(policyContextID, componentPermissions);
                 //TODO WTF is this for?
                 securityHolder.setSecurity(true);

@@ -79,8 +79,9 @@ import org.apache.geronimo.kernel.repository.ImportType;
 import org.apache.geronimo.naming.deployment.ResourceEnvironmentSetter;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
-import org.apache.geronimo.security.util.HTTPMethods;
-import org.apache.geronimo.security.util.URLPattern;
+import org.apache.geronimo.web25.deployment.security.HTTPMethods;
+import org.apache.geronimo.web25.deployment.security.URLPattern;
+import org.apache.geronimo.web25.deployment.security.SpecSecurityBuilder;
 import org.apache.geronimo.xbeans.geronimo.j2ee.GerSecurityDocument;
 import org.apache.geronimo.xbeans.javaee.FilterMappingType;
 import org.apache.geronimo.xbeans.javaee.FilterType;
@@ -467,201 +468,9 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         return (WebAppDocument) xmlObject;
     }
 
-
-    protected void addUnmappedJSPPermissions(Set<String> securityRoles, Map<String, PermissionCollection> rolePermissions) {
-        for (String roleName : securityRoles) {
-            addPermissionToRole(roleName, new WebRoleRefPermission("", roleName), rolePermissions);
-        }
-    }
-
-    protected ComponentPermissions buildSpecSecurityConfig(WebAppType webApp, Set<String> securityRoles, Map<String, PermissionCollection> rolePermissions) {
-        Map<String, URLPattern> uncheckedPatterns = new HashMap<String, URLPattern>();
-        Map<UncheckedItem, HTTPMethods> uncheckedResourcePatterns = new HashMap<UncheckedItem, HTTPMethods>();
-        Map<UncheckedItem, HTTPMethods> uncheckedUserPatterns = new HashMap<UncheckedItem, HTTPMethods>();
-        Map<String, URLPattern> excludedPatterns = new HashMap<String, URLPattern>();
-        Map<String, URLPattern> rolesPatterns = new HashMap<String, URLPattern>();
-        Set<URLPattern> allSet = new HashSet<URLPattern>();   // == allMap.values()
-        Map<String, URLPattern> allMap = new HashMap<String, URLPattern>();   //uncheckedPatterns union excludedPatterns union rolesPatterns.
-
-        SecurityConstraintType[] securityConstraintArray = webApp.getSecurityConstraintArray();
-        for (SecurityConstraintType securityConstraintType : securityConstraintArray) {
-            Map<String, URLPattern> currentPatterns;
-            if (securityConstraintType.isSetAuthConstraint()) {
-                if (securityConstraintType.getAuthConstraint().getRoleNameArray().length == 0) {
-                    currentPatterns = excludedPatterns;
-                } else {
-                    currentPatterns = rolesPatterns;
-                }
-            } else {
-                currentPatterns = uncheckedPatterns;
-            }
-
-            String transport = "";
-            if (securityConstraintType.isSetUserDataConstraint()) {
-                transport = securityConstraintType.getUserDataConstraint().getTransportGuarantee().getStringValue().trim().toUpperCase();
-            }
-
-            WebResourceCollectionType[] webResourceCollectionTypeArray = securityConstraintType.getWebResourceCollectionArray();
-            for (WebResourceCollectionType webResourceCollectionType : webResourceCollectionTypeArray) {
-                UrlPatternType[] urlPatternTypeArray = webResourceCollectionType.getUrlPatternArray();
-                for (UrlPatternType urlPatternType : urlPatternTypeArray) {
-                    String url = urlPatternType.getStringValue().trim();
-                    URLPattern pattern = currentPatterns.get(url);
-                    if (pattern == null) {
-                        pattern = new URLPattern(url);
-                        currentPatterns.put(url, pattern);
-                    }
-
-                    URLPattern allPattern = allMap.get(url);
-                    if (allPattern == null) {
-                        allPattern = new URLPattern(url);
-                        allSet.add(allPattern);
-                        allMap.put(url, allPattern);
-                    }
-
-                    String[] httpMethodTypeArray = webResourceCollectionType.getHttpMethodArray();
-                    if (httpMethodTypeArray.length == 0) {
-                        pattern.addMethod("");
-                        allPattern.addMethod("");
-                    } else {
-                        for (String aHttpMethodTypeArray : httpMethodTypeArray) {
-                            String method = (aHttpMethodTypeArray == null ? null : aHttpMethodTypeArray.trim());
-                            if (method != null) {
-                                pattern.addMethod(method);
-                                allPattern.addMethod(method);
-                            }
-                        }
-                    }
-                    if (currentPatterns == rolesPatterns) {
-                        RoleNameType[] roleNameTypeArray = securityConstraintType.getAuthConstraint().getRoleNameArray();
-                        for (RoleNameType roleNameType : roleNameTypeArray) {
-                            String role = roleNameType.getStringValue().trim();
-                            if (role.equals("*")) {
-                                pattern.addAllRoles(securityRoles);
-                            } else {
-                                pattern.addRole(role);
-                            }
-                        }
-                    }
-
-                    pattern.setTransport(transport);
-                }
-            }
-        }
-
-        PermissionCollection excludedPermissions = new Permissions();
-        PermissionCollection uncheckedPermissions = new Permissions();
-
-        for (URLPattern pattern : excludedPatterns.values()) {
-            String name = pattern.getQualifiedPattern(allSet);
-            String actions = pattern.getMethods();
-
-            excludedPermissions.add(new WebResourcePermission(name, actions));
-            excludedPermissions.add(new WebUserDataPermission(name, actions));
-        }
-
-        for (URLPattern pattern : rolesPatterns.values()) {
-            String name = pattern.getQualifiedPattern(allSet);
-            String actions = pattern.getMethods();
-            WebResourcePermission permission = new WebResourcePermission(name, actions);
-
-            for (String roleName : pattern.getRoles()) {
-                addPermissionToRole(roleName, permission, rolePermissions);
-            }
-            HTTPMethods methods = pattern.getHTTPMethods();
-            int transportType = pattern.getTransport();
-
-            addOrUpdatePattern(uncheckedUserPatterns, name, methods, transportType);
-        }
-
-        for (URLPattern pattern : uncheckedPatterns.values()) {
-            String name = pattern.getQualifiedPattern(allSet);
-            HTTPMethods methods = pattern.getHTTPMethods();
-
-            addOrUpdatePattern(uncheckedResourcePatterns, name, methods, URLPattern.NA);
-
-            int transportType = pattern.getTransport();
-            addOrUpdatePattern(uncheckedUserPatterns, name, methods, transportType);
-        }
-
-        /**
-         * A <code>WebResourcePermission</code> and a <code>WebUserDataPermission</code> must be instantiated for
-         * each <tt>url-pattern</tt> in the deployment descriptor and the default pattern "/", that is not combined
-         * by the <tt>web-resource-collection</tt> elements of the deployment descriptor with ever HTTP method
-         * value.  The permission objects must be contructed using the qualified pattern as their name and with
-         * actions defined by the subset of the HTTP methods that do not occur in combination with the pattern.
-         * The resulting permissions that must be added to the unchecked policy statements by calling the
-         * <code>addToUncheckedPolcy</code> method on the <code>PolicyConfiguration</code> object.
-         */
-        for (URLPattern pattern : allSet) {
-            String name = pattern.getQualifiedPattern(allSet);
-            HTTPMethods methods = pattern.getComplementedHTTPMethods();
-
-            if (methods.isNone()) {
-                continue;
-            }
-
-            addOrUpdatePattern(uncheckedResourcePatterns, name, methods, URLPattern.NA);
-            addOrUpdatePattern(uncheckedUserPatterns, name, methods, URLPattern.NA);
-        }
-
-        URLPattern pattern = new URLPattern("/");
-        if (!allSet.contains(pattern)) {
-            String name = pattern.getQualifiedPattern(allSet);
-            HTTPMethods methods = pattern.getComplementedHTTPMethods();
-
-            addOrUpdatePattern(uncheckedResourcePatterns, name, methods, URLPattern.NA);
-            addOrUpdatePattern(uncheckedUserPatterns, name, methods, URLPattern.NA);
-        }
-
-        //Create the uncheckedPermissions for WebResourcePermissions
-        for (UncheckedItem item : uncheckedResourcePatterns.keySet()) {
-            HTTPMethods methods = uncheckedResourcePatterns.get(item);
-            String actions = URLPattern.getMethodsWithTransport(methods, item.getTransportType());
-
-            uncheckedPermissions.add(new WebResourcePermission(item.getName(), actions));
-        }
-        //Create the uncheckedPermissions for WebUserDataPermissions
-        for (UncheckedItem item : uncheckedUserPatterns.keySet()) {
-            HTTPMethods methods = uncheckedUserPatterns.get(item);
-            String actions = URLPattern.getMethodsWithTransport(methods, item.getTransportType());
-
-            uncheckedPermissions.add(new WebUserDataPermission(item.getName(), actions));
-        }
-
-        return new ComponentPermissions(excludedPermissions, uncheckedPermissions, rolePermissions);
-
-    }
-
-    protected void addPermissionToRole(String roleName, Permission permission, Map<String, PermissionCollection> rolePermissions) {
-        PermissionCollection permissionsForRole = rolePermissions.get(roleName);
-        if (permissionsForRole == null) {
-            permissionsForRole = new Permissions();
-            rolePermissions.put(roleName, permissionsForRole);
-        }
-        permissionsForRole.add(permission);
-    }
-
-    private void addOrUpdatePattern(Map<UncheckedItem, HTTPMethods> patternMap, String name, HTTPMethods actions, int transportType) {
-        UncheckedItem item = new UncheckedItem(name, transportType);
-        HTTPMethods existingActions = patternMap.get(item);
-        if (existingActions != null) {
-            patternMap.put(item, existingActions.add(actions));
-            return;
-        }
-
-        patternMap.put(item, new HTTPMethods(actions, false));
-    }
-
-    protected static Set<String> collectRoleNames(WebAppType webApp) {
-        Set<String> roleNames = new HashSet<String>();
-
-        SecurityRoleType[] securityRoles = webApp.getSecurityRoleArray();
-        for (SecurityRoleType securityRole : securityRoles) {
-            roleNames.add(securityRole.getRoleName().getStringValue().trim());
-        }
-
-        return roleNames;
+    protected ComponentPermissions buildSpecSecurityConfig(WebAppType webApp) {
+        SpecSecurityBuilder builder = new SpecSecurityBuilder();
+        return builder.buildSpecSecurityConfig(webApp);
     }
 
     protected static void check(WebAppType webApp) throws DeploymentException {
@@ -729,29 +538,6 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         return true;
     }
 
-    protected void processRoleRefPermissions(ServletType servletType, Set<String> securityRoles, Map<String, PermissionCollection> rolePermissions) {
-        String servletName = servletType.getServletName().getStringValue().trim();
-        //WebRoleRefPermissions
-        SecurityRoleRefType[] securityRoleRefTypeArray = servletType.getSecurityRoleRefArray();
-        Set<String> unmappedRoles = new HashSet<String>(securityRoles);
-        for (SecurityRoleRefType securityRoleRefType : securityRoleRefTypeArray) {
-            String roleName = securityRoleRefType.getRoleName().getStringValue().trim();
-            String roleLink = securityRoleRefType.getRoleLink().getStringValue().trim();
-            //jacc 3.1.3.2
-            /*   The name of the WebRoleRefPermission must be the servlet-name in whose
-            * context the security-role-ref is defined. The actions of the  WebRoleRefPermission
-            * must be the value of the role-name (that is the  reference), appearing in the security-role-ref.
-            * The deployment tools must  call the addToRole method on the PolicyConfiguration object to add the
-            * WebRoleRefPermission object resulting from the translation to the role
-            * identified in the role-link appearing in the security-role-ref.
-            */
-            addPermissionToRole(roleLink, new WebRoleRefPermission(servletName, roleName), rolePermissions);
-            unmappedRoles.remove(roleName);
-        }
-        for (String roleName : unmappedRoles) {
-            addPermissionToRole(roleName, new WebRoleRefPermission(servletName, roleName), rolePermissions);
-        }
-    }
 
     protected ClassFinder createWebAppClassFinder(WebAppType webApp, WebModule webModule) throws DeploymentException {
         // Get the classloader from the module's EARContext
@@ -868,43 +654,4 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         webModuleData.setReferencePattern("TrackedConnectionAssociator", moduleContext.getConnectionTrackerName());
     }
 
-    class UncheckedItem {
-        final static int NA = 0x00;
-        final static int INTEGRAL = 0x01;
-        final static int CONFIDENTIAL = 0x02;
-
-        private int transportType = NA;
-        private String name;
-
-        public UncheckedItem(String name, int transportType) {
-            setName(name);
-            setTransportType(transportType);
-        }
-
-        public boolean equals(Object o) {
-            UncheckedItem item = (UncheckedItem) o;
-            return item.transportType == transportType && item.name.equals(this.name);
-        }
-
-
-        public int hashCode() {
-            return name.hashCode() + transportType;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        public int getTransportType() {
-            return transportType;
-        }
-
-        public void setTransportType(int transportType) {
-            this.transportType = transportType;
-        }
-    }
 }

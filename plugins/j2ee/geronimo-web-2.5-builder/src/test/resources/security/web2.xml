@@ -26,5 +26,8 @@
             <role-name>Admin</role-name>
         </auth-constraint>
     </security-constraint>
-
+    <security-role>
+        <role-name>Admin</role-name>
+    </security-role>
+ 
 </web-app>
