@@ -135,7 +135,7 @@ public class InstallModulesMojo
     private Set installedArtifacts = new HashSet();
 
     protected void doExecute() throws Exception {
-        DependencyTree dependencies = dependencyHelper.getDependencies(project);
+        getDependencies(project);
         Maven2RepositoryAdapter.ArtifactLookup lookup = new ArtifactLookupImpl(new HashMap<Artifact, org.apache.maven.artifact.Artifact>());
         SourceRepository sourceRepo = new Maven2RepositoryAdapter(dependencies, lookup);
         PluginListType pluginList = new PluginListType();
