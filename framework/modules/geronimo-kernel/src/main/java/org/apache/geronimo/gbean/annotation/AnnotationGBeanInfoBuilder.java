@@ -205,7 +205,11 @@ public class AnnotationGBeanInfoBuilder {
         if (null == bean) {
             return gbeanClass.getSimpleName();
         }
-        return bean.name();
+        String name = bean.name();
+        if (name.equals("")) {
+            name = gbeanClass.getSimpleName();
+        }
+        return name;
     }
 
     protected String getJ2eeyType() {

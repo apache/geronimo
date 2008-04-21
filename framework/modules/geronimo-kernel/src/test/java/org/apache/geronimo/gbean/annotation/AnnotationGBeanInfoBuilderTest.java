@@ -90,6 +90,27 @@ public class AnnotationGBeanInfoBuilderTest extends TestCase {
         assertEquals(Collection.class.getName(), setterCollectionReference.getProxyType());
         assertEquals(Runnable.class.getName(), setterCollectionReference.getReferenceType());
     }
+
+    public void testGBeanAnnotationWithDefaults() throws Exception {
+        AnnotationGBeanInfoBuilder builder = new AnnotationGBeanInfoBuilder(AnnotatedWithDefaultsGBean.class);
+        GBeanInfo beanInfo = builder.buildGBeanInfo();
+        assertEquals(AnnotatedWithDefaultsGBean.class.getSimpleName(), beanInfo.getName());
+        assertEquals("GBean", beanInfo.getJ2eeType());
+    }
+    
+    public void testGBeanAnnotationWithExplicitName() throws Exception {
+        AnnotationGBeanInfoBuilder builder = new AnnotationGBeanInfoBuilder(AnnotatedWithExplicitNameGBean.class);
+        GBeanInfo beanInfo = builder.buildGBeanInfo();
+        assertEquals("name", beanInfo.getName());
+        assertEquals("GBean", beanInfo.getJ2eeType());
+    }
+    
+    public void testGBeanAnnotationWithExplicitJ2EEType() throws Exception {
+        AnnotationGBeanInfoBuilder builder = new AnnotationGBeanInfoBuilder(AnnotatedWithExplicitJ2EETypeGBean.class);
+        GBeanInfo beanInfo = builder.buildGBeanInfo();
+        assertEquals(AnnotatedWithExplicitJ2EETypeGBean.class.getSimpleName(), beanInfo.getName());
+        assertEquals("type", beanInfo.getJ2eeType());
+    }
     
     public void testDefaultConstructorGBean() throws Exception {
         AnnotationGBeanInfoBuilder builder = new AnnotationGBeanInfoBuilder(DefaultConstructorGBean.class);
@@ -126,7 +147,19 @@ public class AnnotationGBeanInfoBuilderTest extends TestCase {
         } catch (GBeanAnnotationException e) {
         }
     }
+    
+    @GBean(name="name")
+    public static class AnnotatedWithExplicitNameGBean {
+    }
 
+    @GBean(j2eeType="type")
+    public static class AnnotatedWithExplicitJ2EETypeGBean {
+    }
+    
+    @GBean
+    public static class AnnotatedWithDefaultsGBean {
+    }
+    
     @Priority(priority=123)
     public static class SmokeGBean {
         public SmokeGBean(@ParamSpecial(type = SpecialAttributeType.classLoader) ClassLoader classLoader,
