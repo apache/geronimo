@@ -16,11 +16,8 @@
  */
 package org.apache.geronimo.clustering;
 
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.gbean.annotation.ParamReference;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.jmxremoting.JMXConnectorInfo;
 
 /**
