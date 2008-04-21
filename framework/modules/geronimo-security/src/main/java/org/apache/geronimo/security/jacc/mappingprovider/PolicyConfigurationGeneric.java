@@ -58,7 +58,7 @@ public class PolicyConfigurationGeneric implements GeronimoPolicyConfiguration {
 
     public boolean implies(ProtectionDomain domain, Permission permission) {
 
-        if (excluded != null && excluded.implies(permission)) return false;
+//        if (excluded != null && excluded.implies(permission)) return false;
 
         if (unchecked != null && unchecked.implies(permission)) return true;
 
@@ -66,7 +66,7 @@ public class PolicyConfigurationGeneric implements GeronimoPolicyConfiguration {
         if (principals.length == 0) return false;
 
         for (Principal principal : principals) {
-            Permissions permissions = (Permissions) principalPermissionsMap.get(principal);
+            Permissions permissions = principalPermissionsMap.get(principal);
 
             if (permissions != null && permissions.implies(permission)) return true;
         }
@@ -74,7 +74,7 @@ public class PolicyConfigurationGeneric implements GeronimoPolicyConfiguration {
         return false;
     }
 
-    public void setPrincipalRoleMapping(Map principalRoleMap) throws PolicyContextException {
+    public void setPrincipalRoleMapping(Map<Principal, Set<String>> principalRoleMap) throws PolicyContextException {
         principalRoleMapping.clear();
         principalRoleMapping.putAll(principalRoleMap);
     }

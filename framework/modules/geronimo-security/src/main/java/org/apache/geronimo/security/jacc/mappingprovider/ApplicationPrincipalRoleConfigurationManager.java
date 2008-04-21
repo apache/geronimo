@@ -18,6 +18,7 @@ package org.apache.geronimo.security.jacc.mappingprovider;
 
 import java.util.Map;
 import java.util.Set;
+import java.security.Principal;
 
 import javax.security.jacc.PolicyContextException;
 
@@ -32,9 +33,9 @@ import org.apache.geronimo.security.jacc.PrincipalRoleMapper;
 public class ApplicationPrincipalRoleConfigurationManager implements PrincipalRoleMapper {
 
     private static PrincipalRoleConfigurationFactory principalRoleConfigurationFactory;
-    private final Map principalRoleMap;
+    private final Map<Principal, Set<String>> principalRoleMap;
 
-    public ApplicationPrincipalRoleConfigurationManager(Map principalRoleMap) throws PolicyContextException, ClassNotFoundException {
+    public ApplicationPrincipalRoleConfigurationManager(Map<Principal, Set<String>> principalRoleMap) throws PolicyContextException, ClassNotFoundException {
         this.principalRoleMap = principalRoleMap;
     }
 

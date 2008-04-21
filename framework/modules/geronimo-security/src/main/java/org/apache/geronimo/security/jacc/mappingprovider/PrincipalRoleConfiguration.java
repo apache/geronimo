@@ -21,6 +21,8 @@
 package org.apache.geronimo.security.jacc.mappingprovider;
 
 import java.util.Map;
+import java.util.Set;
+import java.security.Principal;
 
 import javax.security.jacc.PolicyContextException;
 
@@ -28,5 +30,5 @@ import javax.security.jacc.PolicyContextException;
  * @version $Rev$ $Date$
  */
 public interface PrincipalRoleConfiguration {
-    void setPrincipalRoleMapping(Map principalRoleMap) throws PolicyContextException;
+    void setPrincipalRoleMapping(Map<Principal, Set<String>> principalRoleMap) throws PolicyContextException;
 }
