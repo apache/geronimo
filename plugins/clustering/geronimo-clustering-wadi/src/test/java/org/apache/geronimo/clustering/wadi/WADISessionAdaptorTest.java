@@ -26,8 +26,6 @@ import org.codehaus.wadi.core.session.Session;
 
 import com.agical.rmock.extension.junit.RMockTestCase;
 
-import junit.framework.TestCase;
-
 /**
  *
  * @version $Rev:$ $Date:$
