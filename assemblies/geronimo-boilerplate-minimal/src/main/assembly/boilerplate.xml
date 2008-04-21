@@ -138,7 +138,6 @@
                 <include>org.apache.yoko:yoko-rmi-spec</include>
             </includes>
         </dependencySet>
-
     </dependencySets>
 
 </assembly>
