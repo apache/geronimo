@@ -38,8 +38,8 @@
     
     <dependencies>
         <dependency>
-            <groupId>org.codehaus.mojo.groovy</groupId>
-            <artifactId>groovy-mojo-support</artifactId>
+            <groupId>org.codehaus.groovy.maven</groupId>
+            <artifactId>gmaven-mojo</artifactId>
         </dependency>
         
         <dependency>
@@ -51,12 +51,15 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.codehaus.mojo.groovy</groupId>
-                <artifactId>groovy-maven-plugin</artifactId>
+                <groupId>org.codehaus.groovy.maven</groupId>
+                <artifactId>gmaven-plugin</artifactId>
                 <executions>
                     <execution>
                         <goals>
+                            <goal>generateStubs</goal>
                             <goal>compile</goal>
+                            <goal>generateTestStubs</goal>
+                            <goal>testCompile</goal>
                         </goals>
                     </execution>
                 </executions>
@@ -65,6 +68,13 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-plugin-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>helpmojo</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
@@ -72,8 +82,69 @@
     <reporting>
         <plugins>
             <plugin>
-                <groupId>org.codehaus.mojo.groovy</groupId>
-                <artifactId>groovy-maven-plugin</artifactId>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-plugin-plugin</artifactId>
+                <version>2.4.1</version>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.4</version>
+                <configuration>
+                    <quiet>true</quiet>
+                    <links>
+                        <link>http://java.sun.com/j2se/1.5.0/docs/api</link>
+                    </links>
+                    <tags>
+                        <tag>
+                            <name>goal</name>
+                            <placement>Xt</placement>
+                        </tag>
+                        <tag>
+                            <name>phase</name>
+                            <placement>Xt</placement>
+                        </tag>
+                        <tag>
+                            <name>execute</name>
+                            <placement>Xt</placement>
+                        </tag>
+                        <tag>
+                            <name>requiresDependencyResolution</name>
+                            <placement>Xt</placement>
+                        </tag>
+                        <tag>
+                            <name>parameter</name>
+                            <placement>Xf</placement>
+                        </tag>
+                        <tag>
+                            <name>required</name>
+                            <placement>Xf</placement>
+                        </tag>
+                        <tag>
+                            <name>readonly</name>
+                            <placement>Xf</placement>
+                        </tag>
+                        <tag>
+                            <name>component</name>
+                            <placement>Xf</placement>
+                        </tag>
+                        <tag>
+                            <name>plexus.component</name>
+                            <placement>Xf</placement>
+                        </tag>
+                        <tag>
+                            <name>plexus.requirement</name>
+                            <placement>Xf</placement>
+                        </tag>
+                    </tags>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>cobertura-maven-plugin</artifactId>
+                <version>2.2</version>
             </plugin>
         </plugins>
     </reporting>
