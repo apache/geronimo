@@ -43,7 +43,7 @@ import org.apache.geronimo.xbeans.javaee.ServletType;
 import org.apache.geronimo.xbeans.javaee.SecurityRoleRefType;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class SpecSecurityBuilder {
     private final Set<String> securityRoles = new HashSet<String>();
@@ -55,6 +55,8 @@ public class SpecSecurityBuilder {
     private final Map<String, URLPattern> rolesPatterns = new HashMap<String, URLPattern>();
     private final Set<URLPattern> allSet = new HashSet<URLPattern>();   // == allMap.values()
     private final Map<String, URLPattern> allMap = new HashMap<String, URLPattern>();   //uncheckedPatterns union excludedPatterns union rolesPatterns.
+//    private boolean useExcluded = false;
+    private boolean useExcluded = true;
 
     public ComponentPermissions buildSpecSecurityConfig(WebAppType webApp) {
         collectRoleNames(webApp.getSecurityRoleArray());
@@ -66,6 +68,9 @@ public class SpecSecurityBuilder {
         addUnmappedJSPPermissions();
 
         analyzeSecurityConstraints(webApp.getSecurityConstraintArray());
+//        if (!useExcluded) {
+            removeExcludedDups();
+//        }
 
         return buildComponentPermissions();
     }
@@ -137,16 +142,36 @@ public class SpecSecurityBuilder {
         }
     }
 
+    public void removeExcludedDups() {
+        for (Map.Entry<String, URLPattern> excluded: excludedPatterns.entrySet()) {
+            String url = excluded.getKey();
+            URLPattern pattern = excluded.getValue();
+            removeExcluded(url, pattern, uncheckedPatterns);
+            removeExcluded(url, pattern, rolesPatterns);
+        }
+    }
+
+    private void removeExcluded(String url, URLPattern pattern, Map<String, URLPattern> patterns) {
+        URLPattern testPattern = patterns.get(url);
+        if (testPattern != null) {
+            if (!testPattern.removeMethods(pattern)) {
+                patterns.remove(url);
+            }
+        }
+    }
+
     public ComponentPermissions buildComponentPermissions() {
         PermissionCollection excludedPermissions = new Permissions();
         PermissionCollection uncheckedPermissions = new Permissions();
 
-        for (URLPattern pattern : excludedPatterns.values()) {
-            String name = pattern.getQualifiedPattern(allSet);
-            String actions = pattern.getMethods();
+        if (useExcluded) {
+            for (URLPattern pattern : excludedPatterns.values()) {
+                String name = pattern.getQualifiedPattern(allSet);
+                String actions = pattern.getMethods();
 
-            excludedPermissions.add(new WebResourcePermission(name, actions));
-            excludedPermissions.add(new WebUserDataPermission(name, actions));
+                excludedPermissions.add(new WebResourcePermission(name, actions));
+                excludedPermissions.add(new WebUserDataPermission(name, actions));
+            }
         }
 
         for (URLPattern pattern : rolesPatterns.values()) {

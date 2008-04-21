@@ -20,9 +20,14 @@ package org.apache.geronimo.openejb.deployment;
 import java.security.Permission;
 import java.security.PermissionCollection;
 import java.security.Permissions;
-import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
+import java.util.Collection;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.Collections;
 
 import javax.security.jacc.EJBMethodPermission;
 import javax.security.jacc.EJBRoleRefPermission;
@@ -53,7 +58,7 @@ public class SecurityBuilder {
      * @throws DeploymentException if any constraints are violated
      */
     public void addComponentPermissions(String defaultRole,
-            PermissionCollection notAssigned,
+            Collection<Permission> notAssigned,
             AssemblyDescriptor assemblyDescriptor,
             String ejbName,
             List<SecurityRoleRef> securityRoleRefs,
@@ -62,10 +67,42 @@ public class SecurityBuilder {
         PermissionCollection uncheckedPermissions = componentPermissions.getUncheckedPermissions();
         PermissionCollection excludedPermissions = componentPermissions.getExcludedPermissions();
         Map<String, PermissionCollection> rolePermissions = componentPermissions.getRolePermissions();
+        Set<Permission> allExcludedPermissions = new HashSet<Permission>();
 
         //this can occur in an ear when one ejb module has security and one doesn't.  In this case we still need
         //to make the non-secure one completely unchecked.
         if (assemblyDescriptor != null) {
+            /**
+             * JACC v1.0 section 3.1.5.2
+             */
+            ExcludeList excludeList = assemblyDescriptor.getExcludeList();
+            if (excludeList != null) {
+                for (Method method : excludeList.getMethod()) {
+                    if (!ejbName.equals(method.getEjbName())) {
+                        continue;
+                    }
+
+                    // method name
+                    String methodName = method.getMethodName();
+                    // method interface
+                    String methodIntf = method.getMethodIntf() == null? null: method.getMethodIntf().toString();
+
+                    // method parameters
+                    String[] methodParams;
+                    if (method.getMethodParams() != null) {
+                        List<String> paramList = method.getMethodParams().getMethodParam();
+                        methodParams = paramList.toArray(new String[paramList.size()]);
+                    } else {
+                        methodParams = null;
+                    }
+
+                    // create the permission object
+                    EJBMethodPermission permission = new EJBMethodPermission(ejbName, methodName, methodIntf, methodParams);
+
+                    excludedPermissions.add(permission);
+                    allExcludedPermissions.addAll(intersectPermissions(notAssigned, permission, false));
+                }
+            }
             /**
              * JACC v1.0 section 3.1.5.1
              */
@@ -98,56 +135,37 @@ public class SecurityBuilder {
 
                     // create the permission object
                     EJBMethodPermission permission = new EJBMethodPermission(ejbName, methodName, methodIntf, methodParams);
-                    notAssigned = cullPermissions(notAssigned, permission);
+                    Collection<Permission> culled = intersectPermissions(notAssigned, permission, true);
+                    //does this intersect the excluded permissions?
+                    int size = culled.size();
+                    culled.removeAll(allExcludedPermissions);
+                    if (size == culled.size()) {
+                        //no intersection, just use actually specified permission
+                        culled = Collections.<Permission>singletonList(permission);
+                    }
+                    //otherwise, use the individual permissions that are not excluded
 
                     // if this is unchecked, mark it as unchecked; otherwise assign the roles
                     if (unchecked) {
-                        uncheckedPermissions.add(permission);
-                    } else {
+                        for (Permission p: culled) {
+                            uncheckedPermissions.add(p);
+                        }
+                    } else if (culled.size() > 0) {
                         for (String roleName : roleNames) {
                             Permissions permissions = (Permissions) rolePermissions.get(roleName);
                             if (permissions == null) {
                                 permissions = new Permissions();
                                 rolePermissions.put(roleName, permissions);
                             }
-                            permissions.add(permission);
+                            for (Permission p: culled) {
+                                permissions.add(p);
+                            }
                         }
                     }
                 }
 
             }
 
-            /**
-             * JACC v1.0 section 3.1.5.2
-             */
-            ExcludeList excludeList = assemblyDescriptor.getExcludeList();
-            if (excludeList != null) {
-                for (Method method : excludeList.getMethod()) {
-                    if (!ejbName.equals(method.getEjbName())) {
-                        continue;
-                    }
-
-                    // method name
-                    String methodName = method.getMethodName();
-                    // method interface
-                    String methodIntf = method.getMethodIntf() == null? null: method.getMethodIntf().toString();
-
-                    // method parameters
-                    String[] methodParams;
-                    if (method.getMethodParams() != null) {
-                        List<String> paramList = method.getMethodParams().getMethodParam();
-                        methodParams = paramList.toArray(new String[paramList.size()]);
-                    } else {
-                        methodParams = null;
-                    }
-
-                    // create the permission object
-                    EJBMethodPermission permission = new EJBMethodPermission(ejbName, methodName, methodIntf, methodParams);
-
-                    excludedPermissions.add(permission);
-                    notAssigned = cullPermissions(notAssigned, permission);
-                }
-            }
 
             /**
              * JACC v1.0 section 3.1.5.3
@@ -186,9 +204,8 @@ public class SecurityBuilder {
             }
         }
 
-        Enumeration e = notAssigned.elements();
-        while (e.hasMoreElements()) {
-            Permission p = (Permission) e.nextElement();
+        notAssigned.removeAll(allExcludedPermissions);
+        for (Permission p: notAssigned) {
             permissions.add(p);
         }
 
@@ -211,7 +228,7 @@ public class SecurityBuilder {
      * @param classLoader the class loader to be used in obtaining the interface class
      * @throws org.apache.geronimo.common.DeploymentException in case a class could not be found
      */
-    public void addToPermissions(PermissionCollection permissions,
+    public void addToPermissions(Collection<Permission> permissions,
             String ejbName,
             String methodInterface,
             String interfaceClass,
@@ -238,14 +255,17 @@ public class SecurityBuilder {
      *
      * @param toBeChecked the permissions that are to be checked and possibly culled
      * @param permission the permission that is to be used for culling
-     * @return the culled set of permissions that are not implied by <code>permission</code>
+     * @param remove  whether to remove the matched permission
+     * @return the set of permissions that are implied by <code>permission</code>
      */
-    private Permissions cullPermissions(PermissionCollection toBeChecked, Permission permission) {
-        Permissions result = new Permissions();
-
-        for (Enumeration e = toBeChecked.elements(); e.hasMoreElements();) {
-            Permission test = (Permission) e.nextElement();
-            if (!permission.implies(test)) {
+    private Collection<Permission> intersectPermissions(Collection<Permission> toBeChecked, Permission permission, boolean remove) {
+        Collection<Permission> result = new ArrayList<Permission>();
+        for (Iterator<Permission> it = toBeChecked.iterator(); it.hasNext();) {
+            Permission test = it.next();
+            if (permission.implies(test)) {
+                if (remove) {
+                    it.remove();
+                }
                 result.add(test);
             }
         }

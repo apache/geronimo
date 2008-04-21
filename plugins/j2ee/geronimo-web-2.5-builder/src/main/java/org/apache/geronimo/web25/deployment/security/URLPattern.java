@@ -103,6 +103,10 @@ public class URLPattern {
         httpMethods.add(method);
     }
 
+    public boolean removeMethods(URLPattern other) {
+        return httpMethods.remove(other.getHTTPMethods()) != null;
+    }
+
     /**
      * Return the set of HTTP methods that have been associated with this URL pattern.
      *
@@ -130,7 +134,7 @@ public class URLPattern {
     }
 
     public static String getMethodsWithTransport(HTTPMethods methods, int transport) {
-        StringBuffer buffer = methods.getHttpMethodsBuffer();
+        StringBuilder buffer = methods.getHttpMethodsBuffer();
 
 
         if (transport != NA) {

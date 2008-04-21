@@ -78,11 +78,36 @@ public class HTTPMethods {
         return this;
     }
 
+    public HTTPMethods remove(HTTPMethods httpMethods) {
+        if (isExcluded) {
+            if (httpMethods.isExcluded) {
+                //TODO questionable
+                isExcluded = false;
+                Set<String> toRemove = new HashSet<String>(methods);
+                methods.clear();
+                methods.addAll(httpMethods.methods);
+                methods.removeAll(toRemove);
+            } else {
+                methods.addAll(httpMethods.methods);
+            }
+        } else {
+            if (httpMethods.isExcluded) {
+                methods.retainAll(httpMethods.methods);
+            } else {
+                methods.removeAll(httpMethods.methods);
+            }
+        }
+        if (!isExcluded && methods.isEmpty()) {
+            return null;
+        }
+        return this;
+    }
+
     public String getHttpMethods() {
         return getHttpMethodsBuffer(isExcluded).toString();
     }
 
-    public StringBuffer getHttpMethodsBuffer() {
+    public StringBuilder getHttpMethodsBuffer() {
         return getHttpMethodsBuffer(isExcluded);
     }
 
@@ -90,8 +115,8 @@ public class HTTPMethods {
         return getHttpMethodsBuffer(!isExcluded).toString();
     }
 
-    private StringBuffer getHttpMethodsBuffer( boolean excluded) {
-        StringBuffer buffer = new StringBuffer();
+    private StringBuilder getHttpMethodsBuffer( boolean excluded) {
+        StringBuilder buffer = new StringBuilder();
         if (excluded) {
             buffer.append("!");
         }

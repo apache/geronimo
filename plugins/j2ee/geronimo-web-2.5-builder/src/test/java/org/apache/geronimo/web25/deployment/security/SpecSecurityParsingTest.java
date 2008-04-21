@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.Collections;
 import java.util.jar.JarFile;
 import java.security.PermissionCollection;
+import java.security.Permission;
 
 import javax.security.jacc.WebResourcePermission;
 
@@ -79,10 +80,78 @@ public class SpecSecurityParsingTest extends TestCase {
         WebAppType webAppType = webAppDoc.getWebApp();
         SpecSecurityBuilder builder = new SpecSecurityBuilder();
         ComponentPermissions permissions = builder.buildSpecSecurityConfig(webAppType);
+        Permission p = new WebResourcePermission("/Test/Foo", "GET,POST");
+        assertTrue(implies(p, permissions, "Admin"));
+        assertFalse(implies(new WebResourcePermission("/Test", ""), permissions, null));
+        assertFalse(implies(new WebResourcePermission("/Test", "!"), permissions, null));
+    }
+    
+    public void testExcludedConstraint() throws Exception {
+        URL srcXml = classLoader.getResource("security/web3.xml");
+        WebAppDocument webAppDoc = WebAppDocument.Factory.parse(srcXml, options);
+        WebAppType webAppType = webAppDoc.getWebApp();
+        SpecSecurityBuilder builder = new SpecSecurityBuilder();
+        ComponentPermissions permissions = builder.buildSpecSecurityConfig(webAppType);
+        Permission p = new WebResourcePermission("/Test/Foo", "GET,POST");
+        assertTrue(implies(p, permissions, "Admin"));
+        assertFalse(implies(p, permissions, null));
+        p = new WebResourcePermission("/Test/Bar/Foo", "GET,POST");
+        assertFalse(implies(p, permissions, "Admin"));
+        assertFalse(implies(p, permissions, null));
+        // check only GET method excluded here.
+        p = new WebResourcePermission("/Test/Baz/Foo", "GET");
+        assertFalse(implies(p, permissions, "Admin"));
+        p = new WebResourcePermission("/Test/Baz/Foo", "POST");
+        assertTrue(implies(p, permissions, "Admin"));
+        // test excluding longer path than allowed
+        p = new WebResourcePermission("/Foo/Baz", "GET");
+        assertTrue(implies(p, permissions, "Admin"));
+        assertFalse(implies(p, permissions, "Peon"));
+        p = new WebResourcePermission("/Foo/Bar/Foo", "POST");
+        assertTrue(implies(p, permissions, "Admin"));
+        assertFalse(implies(p, permissions, "Peon"));
+        p = new WebResourcePermission("/Foo/Bar/Foo", "GET");
+        assertFalse(implies(p, permissions, "Admin"));
+        assertFalse(implies(p, permissions, "Peon"));
+    }
+    public void testExcludedRemovesRoleConstraint() throws Exception {
+        URL srcXml = classLoader.getResource("security/web4.xml");
+        WebAppDocument webAppDoc = WebAppDocument.Factory.parse(srcXml, options);
+        WebAppType webAppType = webAppDoc.getWebApp();
+        SpecSecurityBuilder builder = new SpecSecurityBuilder();
+        ComponentPermissions permissions = builder.buildSpecSecurityConfig(webAppType);
+        // test excluding longer path than allowed
+        Permission p = new WebResourcePermission("/Foo/Baz", "GET");
+        assertTrue(implies(p, permissions, "Admin"));
+        assertFalse(implies(p, permissions, "Peon"));
+        p = new WebResourcePermission("/Foo/Bar/Foo", "POST");
+        assertTrue(implies(p, permissions, "Admin"));
+        assertFalse(implies(p, permissions, "Peon"));
+        p = new WebResourcePermission("/Foo/Bar/Foo", "GET");
+        assertFalse(implies(p, permissions, "Admin"));
+        assertFalse(implies(p, permissions, "Peon"));
+        // test excluding longer path allows unchecked access to other http methods
+        p = new WebResourcePermission("/Bar/Baz", "GET");
+        assertTrue(implies(p, permissions, "Admin"));
+        assertFalse(implies(p, permissions, "Peon"));
+        p = new WebResourcePermission("/Bar/Bar/Bar", "POST");
+        assertTrue(implies(p, permissions, "Admin"));
+        //This one is false unless excluded constraint allows other https methods unchecked access
+//        assertFalse(implies(p, permissions, "Peon"));
+        assertTrue(implies(p, permissions, "Peon"));
+        p = new WebResourcePermission("/Bar/Bar/Bar", "GET");
+        assertFalse(implies(p, permissions, "Admin"));
+        assertFalse(implies(p, permissions, "Peon"));
+    }
+
+    private boolean implies(Permission p, ComponentPermissions permissions, String role) {
+        PermissionCollection excluded = permissions.getExcludedPermissions();
+        if (excluded.implies(p)) return false;
         PermissionCollection unchecked = permissions.getUncheckedPermissions();
-        assertFalse(unchecked.implies(new WebResourcePermission("/Test", "!")));
-        PermissionCollection adminPermissions = permissions.getRolePermissions().get("Admin");
-        assertTrue(adminPermissions.implies(new WebResourcePermission("/Test", "GET,POST")));
+        if (unchecked.implies(p)) return true;
+        if (role == null) return false;
+        PermissionCollection rolePermissions = permissions.getRolePermissions().get(role);
+        return rolePermissions != null && rolePermissions.implies(p);
     }
 
 }

@@ -17,11 +17,15 @@
  */
 package org.apache.geronimo.openejb.deployment;
 
+import java.security.Permission;
 import java.security.PermissionCollection;
 import java.security.Permissions;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -185,30 +189,30 @@ public class EjbDeploymentBuilder {
                 RemoteBean remoteBean = (RemoteBean) enterpriseBean;
 
                 SecurityBuilder securityBuilder = new SecurityBuilder();
-                PermissionCollection permissions = new Permissions();
+                Collection<Permission> allPermissions = new HashSet<Permission>();
 
-                securityBuilder.addToPermissions(permissions,
+                securityBuilder.addToPermissions(allPermissions,
                         remoteBean.getEjbName(),
                         EjbInterface.HOME.getJaccInterfaceName(),
                         remoteBean.getHome(),
                         ejbModule.getClassLoader());
-                securityBuilder.addToPermissions(permissions,
+                securityBuilder.addToPermissions(allPermissions,
                         remoteBean.getEjbName(),
                         EjbInterface.REMOTE.getJaccInterfaceName(),
                         remoteBean.getRemote(),
                         ejbModule.getClassLoader());
-                securityBuilder.addToPermissions(permissions,
+                securityBuilder.addToPermissions(allPermissions,
                         remoteBean.getEjbName(),
                         EjbInterface.LOCAL.getJaccInterfaceName(),
                         remoteBean.getLocal(),
                         ejbModule.getClassLoader());
-                securityBuilder.addToPermissions(permissions,
+                securityBuilder.addToPermissions(allPermissions,
                         remoteBean.getEjbName(),
                         EjbInterface.LOCAL_HOME.getJaccInterfaceName(),
                         remoteBean.getLocalHome(),
                         ejbModule.getClassLoader());
                 if (remoteBean instanceof SessionBean) {
-                    securityBuilder.addToPermissions(permissions,
+                    securityBuilder.addToPermissions(allPermissions,
                             remoteBean.getEjbName(),
                             EjbInterface.SERVICE_ENDPOINT.getJaccInterfaceName(),
                             ((SessionBean) remoteBean).getServiceEndpoint(),
@@ -216,13 +220,13 @@ public class EjbDeploymentBuilder {
                 }
                 if (remoteBean.getBusinessRemote() != null && !remoteBean.getBusinessRemote().isEmpty()) {
                     for (String businessRemote : remoteBean.getBusinessRemote()) {
-                        securityBuilder.addToPermissions(permissions,
+                        securityBuilder.addToPermissions(allPermissions,
                                 remoteBean.getEjbName(),
                                 EjbInterface.REMOTE.getJaccInterfaceName(),
                                 businessRemote,
                                 ejbModule.getClassLoader());
                     }
-                    securityBuilder.addToPermissions(componentPermissions.getUncheckedPermissions(),
+                    securityBuilder.addToPermissions(new PermissionCollectionAdapter(componentPermissions.getUncheckedPermissions()),
                             remoteBean.getEjbName(),
                             EjbInterface.HOME.getJaccInterfaceName(),
                             DeploymentInfo.BusinessRemoteHome.class.getName(),
@@ -230,13 +234,13 @@ public class EjbDeploymentBuilder {
                 }
                 if (remoteBean.getBusinessLocal() != null && !remoteBean.getBusinessLocal().isEmpty()) {
                     for (String businessLocal : remoteBean.getBusinessLocal()) {
-                        securityBuilder.addToPermissions(permissions,
+                        securityBuilder.addToPermissions(allPermissions,
                                 remoteBean.getEjbName(),
                                 EjbInterface.LOCAL.getJaccInterfaceName(),
                                 businessLocal,
                                 ejbModule.getClassLoader());
                     }
-                    securityBuilder.addToPermissions(componentPermissions.getUncheckedPermissions(),
+                    securityBuilder.addToPermissions(new PermissionCollectionAdapter(componentPermissions.getUncheckedPermissions()),
                             remoteBean.getEjbName(),
                             EjbInterface.LOCAL_HOME.getJaccInterfaceName(),
                             DeploymentInfo.BusinessLocalHome.class.getName(),
@@ -245,7 +249,7 @@ public class EjbDeploymentBuilder {
 
                 String defaultRole = securityConfiguration.getDefaultRole();
                 securityBuilder.addComponentPermissions(defaultRole,
-                        permissions,
+                        allPermissions,
                         ejbModule.getEjbJar().getAssemblyDescriptor(),
                         enterpriseBean.getEjbName(),
                         remoteBean.getSecurityRoleRef(),
@@ -263,6 +267,68 @@ public class EjbDeploymentBuilder {
 
             gbean.setAttribute("securityEnabled", true);
             gbean.setReferencePattern("RunAsSource", earContext.getJaccManagerName());
+        }
+    }
+
+    private static class PermissionCollectionAdapter implements Collection<Permission> {
+        private final PermissionCollection p;
+
+        private PermissionCollectionAdapter(PermissionCollection p) {
+            this.p = p;
+        }
+
+        public int size() {
+            throw new RuntimeException("not implemented");
+        }
+
+        public boolean isEmpty() {
+            throw new RuntimeException("not implemented");
+        }
+
+        public boolean contains(Object o) {
+            throw new RuntimeException("not implemented");
+        }
+
+        public Iterator<Permission> iterator() {
+            throw new RuntimeException("not implemented");
+        }
+
+        public Object[] toArray() {
+            throw new RuntimeException("not implemented");
+        }
+
+        public <T> T[] toArray(T[] a) {
+            throw new RuntimeException("not implemented");
+        }
+
+        public boolean add(Permission o) {
+            if (p.implies(o)) return false;
+            p.add(o);
+            return true;
+        }
+
+        public boolean remove(Object o) {
+            throw new RuntimeException("not implemented");
+        }
+
+        public boolean containsAll(Collection<?> c) {
+            throw new RuntimeException("not implemented");
+        }
+
+        public boolean addAll(Collection<? extends Permission> c) {
+            throw new RuntimeException("not implemented");
+        }
+
+        public boolean removeAll(Collection<?> c) {
+            throw new RuntimeException("not implemented");
+        }
+
+        public boolean retainAll(Collection<?> c) {
+            throw new RuntimeException("not implemented");
+        }
+
+        public void clear() {
+            throw new RuntimeException("not implemented");
         }
     }
 
