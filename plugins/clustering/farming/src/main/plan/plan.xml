@@ -21,7 +21,7 @@
 <module xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
 
     <gbean name="MasterRepository" class="org.apache.geronimo.system.repository.Maven2Repository">
-        <attribute name="root">master-repository/</attribute>
+        <attribute name="root">farming/master-repository/</attribute>
         <reference name="ServerInfo">
             <name>ServerInfo</name>
         </reference>
@@ -55,7 +55,7 @@
     </gbean>
 
     <gbean name="ClusterRepository" class="org.apache.geronimo.system.repository.Maven2Repository">
-        <attribute name="root">cluster-repository/</attribute>
+        <attribute name="root">farming/cluster-repository/</attribute>
         <reference name="ServerInfo">
             <name>ServerInfo</name>
         </reference>
