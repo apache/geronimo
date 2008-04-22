@@ -51,7 +51,7 @@
     </scm>
 
     <properties>
-        <siteId>${artifactId}</siteId>
+        <siteId>geronimo-2.1.1</siteId>
         <!--
         NOTE: Project version, to be used instead of ${pom.version} since that
               value magically changes when using SNAPSHOT versions.
