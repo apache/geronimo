@@ -92,23 +92,6 @@
         </dependency>
         <!--end add for wsgen-->
         
-        <dependency>
-            <groupId>org.apache.yoko</groupId>
-            <artifactId>yoko-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.yoko</groupId>
-            <artifactId>yoko-rmi-impl</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.yoko</groupId>
-            <artifactId>yoko-rmi-spec</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.yoko</groupId>
-            <artifactId>yoko-spec-corba</artifactId>
-        </dependency>
-
         <!-- This is to resolve an intermitent Maven problem with openejb-3.0-beta-1 transitive depend -->
         <dependency>
             <groupId>org.apache.xbean</groupId>
