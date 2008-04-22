@@ -51,6 +51,7 @@
     </scm>
 
     <properties>
+        <siteId>${artifactId}</siteId>
         <!--
         NOTE: Project version, to be used instead of ${pom.version} since that
               value magically changes when using SNAPSHOT versions.
@@ -2331,14 +2332,14 @@
 
     </repositories>
 
+    <url>http://geronimo.apache.org/maven/${siteId}/${version}</url>
     <distributionManagement>
         <!--
         NOTE: The repository and snapshotRepository are picked up from Genesis.
         -->
-
         <site>
             <id>geronimo-website</id>
-            <url>scp://people.apache.org/www/geronimo.apache.org/maven/server</url>
+            <url>${staging.siteURL}/${siteId}/${version}</url>
         </site>
     </distributionManagement>
 
@@ -2547,6 +2548,75 @@
                 </plugins>
             </build>
         </profile>
+
+        <profile>
+            <id>release</id>
+
+            <build>
+                <plugins>
+                    
+                    <!-- We want a source jar -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <!-- We want to sign the artifact, the POM, and all attached artifacts -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <inherited>true</inherited>
+                        <configuration>
+                            <passphrase>${gpg.passphrase}</passphrase>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <!-- We want to deploy the artifact to a staging location for perusal -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-deploy-plugin</artifactId>
+                        <inherited>true</inherited>
+                        <configuration>
+                            <altDeploymentRepository>${deploy.altRepository}</altDeploymentRepository>
+                            <updateReleaseInfo>true</updateReleaseInfo>
+                        </configuration>
+                    </plugin>
+
+                    <!-- We want the JavaDoc JAR published with the release -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <inherited>true</inherited>
+                        <configuration>
+                            <source>1.5</source>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
     </profiles>
 
 </project>
