@@ -92,7 +92,15 @@ public class RMIClassLoaderSpiImpl
             return codebase.toString();
         }
         
-        return delegate.getClassAnnotation(type);
+        String codebase = delegate.getClassAnnotation(type);
+        if (codebase != null) {
+            try {
+                codebase = getNormalizedCodebase( codebase );
+            }
+            catch (MalformedURLException ignore) {
+            }
+        }
+        return codebase;
     }
 
     /**
