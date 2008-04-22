@@ -28,16 +28,15 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.farm.config.ClusterInfo;
-import org.apache.geronimo.farm.config.ExtendedJMXConnectorInfo;
-import org.apache.geronimo.farm.config.NodeInfo;
 import org.apache.geronimo.deployment.plugin.remote.FileUploadClient;
 import org.apache.geronimo.deployment.plugin.remote.FileUploadProgress;
 import org.apache.geronimo.deployment.plugin.remote.FileUploadServletClient;
+import org.apache.geronimo.farm.config.ClusterInfo;
+import org.apache.geronimo.farm.config.ExtendedJMXConnectorInfo;
+import org.apache.geronimo.farm.config.NodeInfo;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
@@ -58,7 +57,7 @@ public class BasicClusterConfigurationStoreClient implements ClusterConfiguratio
     private final DirectoryPackager packager;
     private final FileUploadClient fileUploadClient;
 
-    public BasicClusterConfigurationStoreClient(AbstractNameQuery clusterConfigurationStoreNameQuery) {
+    public BasicClusterConfigurationStoreClient(@ParamAttribute(name=GBEAN_ATTR_CLUSTER_CONF_STORE_NAME_QUERY) AbstractNameQuery clusterConfigurationStoreNameQuery) {
         if (null == clusterConfigurationStoreNameQuery) {
             throw new IllegalArgumentException("clusterConfigurationStoreNameQuery is required");
         }
@@ -211,25 +210,5 @@ public class BasicClusterConfigurationStoreClient implements ClusterConfiguratio
         }
     }
 
-    public static final GBeanInfo GBEAN_INFO;
-
-    public static final String GBEAN_J2EE_TYPE = "ClusterConfigurationStoreClient";
     public static final String GBEAN_ATTR_CLUSTER_CONF_STORE_NAME_QUERY = "clusterConfigurationStoreNameQuery";
-
-    static {
-        GBeanInfoBuilder builder = GBeanInfoBuilder.createStatic(BasicClusterConfigurationStoreClient.class, GBEAN_J2EE_TYPE);
-        
-        builder.addAttribute(GBEAN_ATTR_CLUSTER_CONF_STORE_NAME_QUERY, AbstractNameQuery.class, true);
-        
-        builder.addInterface(ClusterConfigurationStoreClient.class);
-
-        builder.setConstructor(new String[]{GBEAN_ATTR_CLUSTER_CONF_STORE_NAME_QUERY});
-
-        GBEAN_INFO = builder.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
-    
 }

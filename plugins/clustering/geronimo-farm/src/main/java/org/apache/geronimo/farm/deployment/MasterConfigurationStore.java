@@ -36,8 +36,11 @@ import org.apache.geronimo.farm.config.ClusterInfo;
 import org.apache.geronimo.farm.config.NodeInfo;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.ParamAttribute;
+import org.apache.geronimo.gbean.annotation.ParamReference;
+import org.apache.geronimo.gbean.annotation.ParamSpecial;
+import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationAlreadyExistsException;
 import org.apache.geronimo.kernel.config.ConfigurationData;
@@ -55,6 +58,7 @@ import org.apache.geronimo.system.configuration.RepositoryConfigurationStore;
  *
  * @version $Rev:$ $Date:$
  */
+@GBean(j2eeType=MasterConfigurationStore.GBEAN_J2EE_TYPE)
 public class MasterConfigurationStore implements ConfigurationStore {
     private static final Log log = LogFactory.getLog(MasterConfigurationStore.class);
     
@@ -65,13 +69,14 @@ public class MasterConfigurationStore implements ConfigurationStore {
     private final ClusterConfigurationStoreClient storeDelegate;
     private final SlaveConfigurationNameBuilder slaveConfigNameBuilder;
     
-    public MasterConfigurationStore(Kernel kernel,
-            String objectName,
-            AbstractName abstractName,
-            WritableListableRepository repository,
-            Environment defaultEnvironment,
-            ClusterInfo clusterInfo,
-            ClusterConfigurationStoreClient storeDelegate) {
+    
+    public MasterConfigurationStore(@ParamSpecial(type=SpecialAttributeType.kernel) Kernel kernel,
+            @ParamSpecial(type=SpecialAttributeType.objectName) String objectName,
+            @ParamSpecial(type=SpecialAttributeType.abstractName) AbstractName abstractName,
+            @ParamReference(name=GBEAN_REF_REPOSITORY, namingType="Repository") WritableListableRepository repository,
+            @ParamAttribute(name=GBEAN_ATTR_DEFAULT_ENV) Environment defaultEnvironment,
+            @ParamReference(name=GBEAN_REF_CLUSTER_INFO) ClusterInfo clusterInfo,
+            @ParamReference(name=GBEAN_REF_CLUSTER_CONF_STORE_CLIENT) ClusterConfigurationStoreClient storeDelegate) {
         if (null == kernel) {
             throw new IllegalArgumentException("kernel is required");
         } else if (null == objectName) {
@@ -267,7 +272,7 @@ public class MasterConfigurationStore implements ConfigurationStore {
     protected GBeanData buildControllerGBean(Artifact configId, NodeInfo nodeInfo, Artifact slaveConfigId) {
         AbstractName controllerName = buildControllerName(configId, nodeInfo);
         
-        GBeanData gbean = new GBeanData(controllerName, BasicClusterConfigurationController.GBEAN_INFO);
+        GBeanData gbean = new GBeanData(controllerName, BasicClusterConfigurationController.class);
         gbean.setAttribute(BasicClusterConfigurationController.GBEAN_ATTR_ARTIFACT, slaveConfigId);
         gbean.setAttribute(BasicClusterConfigurationController.GBEAN_ATTR_IGNORE_START_CONF_FAIL_UPON_START,
             Boolean.TRUE);
@@ -282,8 +287,6 @@ public class MasterConfigurationStore implements ConfigurationStore {
         return new AbstractName(configId, Collections.singletonMap("nodeName", nodeInfo.getName()));
     }
 
-    public static final GBeanInfo GBEAN_INFO;
-
     public static final String GBEAN_J2EE_TYPE = "ConfigurationStore";
     public static final String GBEAN_ATTR_KERNEL = "kernel";
     public static final String GBEAN_ATTR_OBJECT_NAME = "objectName";
@@ -291,34 +294,4 @@ public class MasterConfigurationStore implements ConfigurationStore {
     public static final String GBEAN_REF_REPOSITORY = "Repository";
     public static final String GBEAN_REF_CLUSTER_INFO = "ClusterInfo";
     public static final String GBEAN_REF_CLUSTER_CONF_STORE_CLIENT = "ClusterConfigurationStoreClient";
-
-    static {
-        GBeanInfoBuilder builder = GBeanInfoBuilder.createStatic(MasterConfigurationStore.class, GBEAN_J2EE_TYPE);
-        
-        builder.addAttribute(GBEAN_ATTR_KERNEL, Kernel.class, false);
-        builder.addAttribute(GBEAN_ATTR_OBJECT_NAME, String.class, false);
-        builder.addAttribute("abstractName", AbstractName.class, false);
-        builder.addAttribute(GBEAN_ATTR_DEFAULT_ENV, Environment.class, true, true);
-        
-        builder.addReference(GBEAN_REF_REPOSITORY, WritableListableRepository.class, "Repository");
-        builder.addReference(GBEAN_REF_CLUSTER_INFO, ClusterInfo.class);
-        builder.addReference(GBEAN_REF_CLUSTER_CONF_STORE_CLIENT, ClusterConfigurationStoreClient.class);
-        
-        builder.addInterface(ConfigurationStore.class);
-        
-        builder.setConstructor(new String[]{GBEAN_ATTR_KERNEL,
-            GBEAN_ATTR_OBJECT_NAME,
-                "abstractName",
-            GBEAN_REF_REPOSITORY,
-            GBEAN_ATTR_DEFAULT_ENV,
-            GBEAN_REF_CLUSTER_INFO,
-            GBEAN_REF_CLUSTER_CONF_STORE_CLIENT});
-        
-        GBEAN_INFO = builder.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
-
 }

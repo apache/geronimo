@@ -28,8 +28,9 @@ import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.annotation.ParamAttribute;
+import org.apache.geronimo.gbean.annotation.ParamSpecial;
+import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.system.jmx.KernelDelegate;
 
@@ -42,7 +43,9 @@ public class BasicNodeInfo implements NodeInfo {
     private final ExtendedJMXConnectorInfo connectorInfo;
     private final Kernel kernel;
 
-    public BasicNodeInfo(Kernel kernel, String name, ExtendedJMXConnectorInfo connectorInfo) {
+    public BasicNodeInfo(@ParamSpecial(type=SpecialAttributeType.kernel) Kernel kernel,
+            @ParamAttribute(name=GBEAN_ATTR_NODE_NAME) String name,
+            @ParamAttribute(name=GBEAN_ATTR_EXT_JMX_CONN_INFO) ExtendedJMXConnectorInfo connectorInfo) {
         if (null == kernel) {
             throw new IllegalArgumentException("kernel is required");
         } else if (null == name) {
@@ -85,30 +88,6 @@ public class BasicNodeInfo implements NodeInfo {
         return new KernelDelegate(mbServerConnection);
     }
     
-    public static final GBeanInfo GBEAN_INFO;
-
-    public static final String GBEAN_J2EE_TYPE = "NodeInfo";
-    public static final String GBEAN_ATTR_KERNEL = "kernel";
     public static final String GBEAN_ATTR_NODE_NAME = "name";
     public static final String GBEAN_ATTR_EXT_JMX_CONN_INFO = "extendedJMXConnectorInfo";
-    static {
-        GBeanInfoBuilder builder = GBeanInfoBuilder.createStatic(BasicNodeInfo.class, GBEAN_J2EE_TYPE);
-
-        builder.addAttribute(GBEAN_ATTR_KERNEL, Kernel.class, false);
-        builder.addAttribute(GBEAN_ATTR_NODE_NAME, String.class, true);
-        builder.addAttribute(GBEAN_ATTR_EXT_JMX_CONN_INFO, ExtendedJMXConnectorInfo.class, true);
-        
-        builder.addInterface(NodeInfo.class);
-        
-        builder.setConstructor(new String[]{GBEAN_ATTR_KERNEL,
-            GBEAN_ATTR_NODE_NAME,
-            GBEAN_ATTR_EXT_JMX_CONN_INFO});
-
-        GBEAN_INFO = builder.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
-
 }

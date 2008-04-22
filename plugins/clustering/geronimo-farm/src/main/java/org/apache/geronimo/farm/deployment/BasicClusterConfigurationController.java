@@ -23,9 +23,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.farm.config.ClusterInfo;
 import org.apache.geronimo.farm.config.NodeInfo;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.ParamAttribute;
+import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
@@ -35,6 +36,7 @@ import org.apache.geronimo.kernel.repository.Artifact;
  *
  * @version $Rev:$ $Date:$
  */
+@GBean(j2eeType=BasicClusterConfigurationController.GBEAN_J2EE_TYPE)
 public class BasicClusterConfigurationController implements GBeanLifecycle, ClusterConfigurationController {
     private static final Log log = LogFactory.getLog(BasicClusterConfigurationController.class);
     
@@ -44,11 +46,11 @@ public class BasicClusterConfigurationController implements GBeanLifecycle, Clus
     private boolean startConfigurationUponStart;
     private boolean ignoreStartConfigurationFailureUponStart;
 
-    public BasicClusterConfigurationController(ClusterInfo clusterInfo,
-            String nodeName,
-            Artifact artifact,
-            boolean startConfigurationUponStart,
-            boolean ignoreStartConfigurationFailureUponStart) {
+    public BasicClusterConfigurationController(@ParamReference(name=GBEAN_REF_CLUSTER_INFO) ClusterInfo clusterInfo,
+            @ParamAttribute(name=GBEAN_ATTR_NODE_NAME) String nodeName,
+            @ParamAttribute(name=GBEAN_ATTR_ARTIFACT) Artifact artifact,
+            @ParamAttribute(name=GBEAN_ATTR_START_CONF_UPON_START) boolean startConfigurationUponStart,
+            @ParamAttribute(name=GBEAN_ATTR_IGNORE_START_CONF_FAIL_UPON_START) boolean ignoreStartConfigurationFailureUponStart) {
         if (null == clusterInfo) {
             throw new IllegalArgumentException("clusterInfo is required");
         } else if (null == nodeName) {
@@ -129,38 +131,11 @@ public class BasicClusterConfigurationController implements GBeanLifecycle, Clus
         return ConfigurationUtil.getConfigurationManager(kernel);
     }
 
-    public static final GBeanInfo GBEAN_INFO;
-
     public static final String GBEAN_J2EE_TYPE = "ClusterConfigurationController";
     public static final String GBEAN_ATTR_NODE_NAME = "nodeName";
     public static final String GBEAN_ATTR_ARTIFACT = "artifact";
     public static final String GBEAN_ATTR_START_CONF_UPON_START= "startConfigurationUponStart";
     public static final String GBEAN_ATTR_IGNORE_START_CONF_FAIL_UPON_START= "ignoreStartConfigurationFailureUponStart";
     public static final String GBEAN_REF_CLUSTER_INFO = "ClusterInfo";
-    
-    static {
-        GBeanInfoBuilder builder = GBeanInfoBuilder.createStatic(BasicClusterConfigurationController.class, GBEAN_J2EE_TYPE);
-        
-        builder.addAttribute(GBEAN_ATTR_NODE_NAME, String.class, true);
-        builder.addAttribute(GBEAN_ATTR_ARTIFACT, Artifact.class, true);
-        builder.addAttribute(GBEAN_ATTR_START_CONF_UPON_START, boolean.class, true);
-        builder.addAttribute(GBEAN_ATTR_IGNORE_START_CONF_FAIL_UPON_START, boolean.class, true);
 
-        builder.addReference(GBEAN_REF_CLUSTER_INFO, ClusterInfo.class);
-        
-        builder.addInterface(ClusterConfigurationController.class);
-
-        builder.setConstructor(new String[] {GBEAN_REF_CLUSTER_INFO,
-            GBEAN_ATTR_NODE_NAME,
-            GBEAN_ATTR_ARTIFACT,
-            GBEAN_ATTR_START_CONF_UPON_START,
-            GBEAN_ATTR_IGNORE_START_CONF_FAIL_UPON_START});
-
-        GBEAN_INFO = builder.getBeanInfo();
-    }
-    
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
-    
 }

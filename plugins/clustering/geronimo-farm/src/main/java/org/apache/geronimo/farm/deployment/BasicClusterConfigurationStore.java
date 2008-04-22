@@ -22,8 +22,8 @@ package org.apache.geronimo.farm.deployment;
 import java.io.File;
 import java.io.IOException;
 
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.IOUtil;
@@ -35,10 +35,11 @@ import org.apache.geronimo.kernel.repository.Artifact;
  *
  * @version $Rev:$ $Date:$
  */
+@GBean(j2eeType=BasicClusterConfigurationStore.GBEAN_J2EE_TYPE)
 public class BasicClusterConfigurationStore implements ClusterConfigurationStore {
     private final ConfigurationStore actualConfigurationStore;
     
-    public BasicClusterConfigurationStore(ConfigurationStore actualConfigurationStore) {
+    public BasicClusterConfigurationStore(@ParamReference(name=GBEAN_REF_CONF_STORE, namingType="ConfigurationStore") ConfigurationStore actualConfigurationStore) {
         if (null == actualConfigurationStore) {
             throw new IllegalArgumentException("actualConfigurationStore is required");
         }
@@ -72,25 +73,6 @@ public class BasicClusterConfigurationStore implements ClusterConfigurationStore
         return new ZipDirectoryPackager();
     }
 
-    public static final GBeanInfo GBEAN_INFO;
-
     public static final String GBEAN_J2EE_TYPE = "ClusterConfigurationStore";
     public static final String GBEAN_REF_CONF_STORE = "ConfigurationStore";
-
-    static {
-        GBeanInfoBuilder builder = GBeanInfoBuilder.createStatic(BasicClusterConfigurationStore.class, GBEAN_J2EE_TYPE);
-        
-        builder.addReference(GBEAN_REF_CONF_STORE, ConfigurationStore.class, "ConfigurationStore");
-        
-        builder.addInterface(ClusterConfigurationStore.class);
-        
-        builder.setConstructor(new String[]{GBEAN_REF_CONF_STORE});
-        
-        GBEAN_INFO = builder.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
-
 }

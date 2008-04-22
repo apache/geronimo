@@ -21,8 +21,8 @@ package org.apache.geronimo.farm.config;
 
 import java.util.Collection;
 
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.annotation.ParamAttribute;
+import org.apache.geronimo.gbean.annotation.ParamReference;
 
 /**
  *
@@ -32,7 +32,8 @@ public class BasicClusterInfo implements ClusterInfo {
     private final String name;
     private final Collection<NodeInfo> nodes;
 
-    public BasicClusterInfo(String name, Collection<NodeInfo> nodes) {
+    public BasicClusterInfo(@ParamAttribute(name=GBEAN_ATTR_CLUSTER_NAME) String name,
+            @ParamReference(name=GBEAN_REF_NODE_INFOS) Collection<NodeInfo> nodes) {
         if (null == name) {
             throw new IllegalArgumentException("name is required");
         } else if (null == nodes) {
@@ -50,23 +51,6 @@ public class BasicClusterInfo implements ClusterInfo {
         return nodes;
     }
 
-    public static final GBeanInfo GBEAN_INFO;
-
-    public static final String GBEAN_J2EE_TYPE = "ClusterInfo";
     public static final String GBEAN_ATTR_CLUSTER_NAME = "name";
     public static final String GBEAN_REF_NODE_INFOS = "NodeInfos";
-    
-    static {
-        GBeanInfoBuilder builder = GBeanInfoBuilder.createStatic(BasicClusterInfo.class, GBEAN_J2EE_TYPE);
-        builder.addAttribute(GBEAN_ATTR_CLUSTER_NAME, String.class, true);
-        builder.addReference(GBEAN_REF_NODE_INFOS, NodeInfo.class, "NodeInfo");
-        builder.addInterface(ClusterInfo.class);
-        builder.setConstructor(new String[]{GBEAN_ATTR_CLUSTER_NAME, GBEAN_REF_NODE_INFOS});
-        GBEAN_INFO = builder.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
-    
 }

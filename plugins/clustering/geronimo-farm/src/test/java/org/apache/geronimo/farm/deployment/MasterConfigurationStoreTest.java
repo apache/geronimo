@@ -392,7 +392,7 @@ public class MasterConfigurationStoreTest extends RMockTestCase {
                 }
                 assertEquals(1, gbeans.size());
                 GBeanData gbean = gbeans.get(0);
-                assertEquals(BasicClusterConfigurationController.GBEAN_INFO, gbean.getGBeanInfo());
+                assertEquals(BasicClusterConfigurationController.class.getName(), gbean.getGBeanInfo().getClassName());
                 assertEquals(slaveId, gbean.getAttribute(BasicClusterConfigurationController.GBEAN_ATTR_ARTIFACT));
                 assertEquals(nodeName, gbean.getAttribute(BasicClusterConfigurationController.GBEAN_ATTR_NODE_NAME));
                 return true;
