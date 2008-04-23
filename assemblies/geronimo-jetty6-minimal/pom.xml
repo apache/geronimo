@@ -303,6 +303,7 @@
                             </tasks>
                         </configuration>
                     </execution>
+                    
                     <execution>
                         <id>copy-schemas</id>
                         <phase>process-resources</phase>
@@ -325,7 +326,6 @@
                     </execution>
                 </executions>
             </plugin>
-
         </plugins>
     </build>
 
