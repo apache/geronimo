@@ -40,19 +40,21 @@
 
     <dependencies>
         <dependency>
-            <groupId>${pom.groupId}</groupId>
+            <groupId>org.apache.geronimo.testsuite</groupId>
             <artifactId>corba-helloworld-ejb</artifactId>
             <version>${version}</version>
             <type>ejb</type>
         </dependency>
+        
         <dependency>
-            <groupId>${pom.groupId}</groupId>
+            <groupId>org.apache.geronimo.testsuite</groupId>
             <artifactId>corba-helloworld-war</artifactId>
             <version>${version}</version>
             <type>war</type>
         </dependency>
+        
         <dependency>
-            <groupId>${pom.groupId}</groupId>
+            <groupId>org.apache.geronimo.testsuite</groupId>
             <artifactId>corba-helloworld-client</artifactId>
             <version>${version}</version>
             <type>jar</type>
@@ -64,7 +66,6 @@
           <plugin>
                 <groupId>org.apache.geronimo.buildsupport</groupId>
                 <artifactId>testsuite-maven-plugin</artifactId>
-                <version>${version}</version>
                 <executions>
                     <execution>
                         <id>generate-surefire-xml</id>
@@ -84,6 +85,7 @@
             </plugin>
 
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-ear-plugin</artifactId>
                 <configuration>
                     <description>Geronimo Hello World Enterprise Application EAR</description>
@@ -109,6 +111,7 @@
                     </modules>
                 </configuration>
             </plugin>
+            
             <!-- Deploy the ear and invoke the imbedded CORBA app client  -->
             <!-- ======================================================== -->
             <!-- ===================================================================== -->
@@ -130,7 +133,6 @@
             <plugin>
                 <groupId>org.apache.geronimo.buildsupport</groupId>
                 <artifactId>geronimo-maven-plugin</artifactId>
-
                 <executions>
                     <!-- ============================================================================= -->
                     <!-- These modules must be running before deploying a CORBA module can be deployed -->
@@ -213,7 +215,6 @@
                     </execution>
                 </executions>
             </plugin>
-
         </plugins>
     </build>
 

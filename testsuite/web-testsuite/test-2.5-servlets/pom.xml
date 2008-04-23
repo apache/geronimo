@@ -21,20 +21,19 @@
 <!-- $Rev$ $Date$ -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    
+
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
         <groupId>org.apache.geronimo.testsuite</groupId>
         <artifactId>web-testsuite</artifactId>
         <version>2.2-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
-    
+
     <artifactId>test-2.5-servlets</artifactId>
     <name>Geronimo TestSuite :: Web Testsuite :: Test Servlets</name>
     <packaging>war</packaging>
-    
+
 
     <description>
         Tests for the test-deployables.
@@ -49,23 +48,16 @@
             <scope>provided</scope>
         </dependency>
     </dependencies>
-    
+
     <profiles>
         <profile>
             <id>child</id>
             <build>
                 <plugins>
-
-                  <plugin>
-                      <groupId>org.codehaus.mojo</groupId>
-                      <artifactId>selenium-maven-plugin</artifactId>
-                   </plugin>
-
-                  <plugin>
-                    <groupId>org.apache.geronimo.genesis.plugins</groupId>
-                    <artifactId>tools-maven-plugin</artifactId>
-                    <extensions>true</extensions>
-                  </plugin>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>selenium-maven-plugin</artifactId>
+                    </plugin>
 
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
@@ -76,7 +68,7 @@
                             </suiteXmlFiles>
                         </configuration>
                     </plugin>
-                    
+
                     <plugin>
                         <groupId>org.apache.geronimo.buildsupport</groupId>
                         <artifactId>geronimo-maven-plugin</artifactId>
@@ -88,10 +80,10 @@
                                     <goal>deploy-module</goal>
                                 </goals>
                                 <configuration>
-                                  <moduleArchive>${project.build.directory}/${artifactId}-${version}.war</moduleArchive>
+                                    <moduleArchive>${project.build.directory}/${artifactId}-${version}.war</moduleArchive>
                                 </configuration>
                             </execution>
-                            
+
                             <execution>
                                 <id>undeploy-war-as-moduleId</id>
                                 <phase>post-integration-test</phase>

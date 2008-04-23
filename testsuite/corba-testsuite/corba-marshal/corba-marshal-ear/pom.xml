@@ -26,7 +26,6 @@
         <groupId>org.apache.geronimo.testsuite</groupId>
         <artifactId>corba-marshal</artifactId>
         <version>2.2-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>corba-marshal-ear</artifactId>
@@ -40,13 +39,13 @@
 
     <dependencies>
         <dependency>
-            <groupId>${pom.groupId}</groupId>
+            <groupId>org.apache.geronimo.testsuite</groupId>
             <artifactId>corba-marshal-ejb</artifactId>
             <version>${version}</version>
             <type>ejb</type>
         </dependency>
         <dependency>
-            <groupId>${pom.groupId}</groupId>
+            <groupId>org.apache.geronimo.testsuite</groupId>
             <artifactId>corba-marshal-client</artifactId>
             <version>${version}</version>
             <type>jar</type>
@@ -58,7 +57,6 @@
           <plugin>
                 <groupId>org.apache.geronimo.buildsupport</groupId>
                 <artifactId>testsuite-maven-plugin</artifactId>
-                <version>${version}</version>
                 <executions>
                     <execution>
                         <id>generate-surefire-xml</id>
@@ -78,6 +76,7 @@
             </plugin>
 
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-ear-plugin</artifactId>
                 <configuration>
                     <description>Geronimo Marshal Enterprise Application EAR</description>
@@ -85,12 +84,12 @@
                     <version>5</version>
                     <modules>
                         <ejbModule>
-                            <groupId>${pom.groupId}</groupId>
+                            <groupId>org.apache.geronimo.testsuite</groupId>
                             <artifactId>corba-marshal-ejb</artifactId>
                             <bundleFileName>corba-marshal-ejb-${version}.jar</bundleFileName>
                         </ejbModule>
                         <jarModule>
-                            <groupId>${pom.groupId}</groupId>
+                            <groupId>org.apache.geronimo.testsuite</groupId>
                             <artifactId>corba-marshal-client</artifactId>
                             <bundleFileName>corba-marshal-client-${version}.jar</bundleFileName>
                         </jarModule>
@@ -167,7 +166,6 @@
                     </execution>
                 </executions>
             </plugin>
-
         </plugins>
     </build>
 

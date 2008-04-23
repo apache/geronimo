@@ -25,8 +25,8 @@
         <groupId>org.apache.geronimo.testsuite</groupId>
         <artifactId>web-testsuite</artifactId>
         <version>2.2-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
+    
     <artifactId>test-web-references</artifactId>
     <name>Geronimo TestSuite :: Web Testsuite :: Test WebReferences</name>
     <packaging>pom</packaging>
@@ -45,4 +45,5 @@
             </modules>
         </profile>
     </profiles>
+
 </project>

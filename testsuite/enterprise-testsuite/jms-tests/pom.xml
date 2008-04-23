@@ -38,7 +38,8 @@
         </profile>
     </profiles>
 
-  <modules>
-    <module>jms-ejb</module>
-  </modules>
+    <modules>
+        <module>jms-ejb</module>
+    </modules>
+
 </project>

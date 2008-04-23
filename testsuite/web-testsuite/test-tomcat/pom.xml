@@ -28,7 +28,6 @@
         <groupId>org.apache.geronimo.testsuite</groupId>
         <artifactId>web-testsuite</artifactId>
         <version>2.2-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
     
     <artifactId>test-tomcat</artifactId>
@@ -48,7 +47,6 @@
             <artifactId>geronimo-jsp_2.1_spec</artifactId>
             <scope>provided</scope>
         </dependency>
-
     </dependencies>
 
     <profiles>

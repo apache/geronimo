@@ -26,7 +26,6 @@
         <groupId>org.apache.geronimo.testsuite</groupId>
         <artifactId>jaxb-tests</artifactId>
         <version>2.2-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>jaxb-war</artifactId>
@@ -48,7 +47,6 @@
             <plugin>
                 <groupId>org.apache.geronimo.buildsupport</groupId>
                 <artifactId>testsuite-maven-plugin</artifactId>
-                <version>${version}</version>
                 <executions>
                     <execution>
                         <id>generate-surefire-xml</id>
@@ -81,12 +79,6 @@
             </plugin>
 
             <plugin>
-                <groupId>org.apache.geronimo.genesis.plugins</groupId>
-                <artifactId>tools-maven-plugin</artifactId>
-                <extensions>true</extensions>
-            </plugin>
-
-            <plugin>
                 <groupId>org.apache.geronimo.buildsupport</groupId>
                 <artifactId>geronimo-maven-plugin</artifactId>
                 <executions>
@@ -100,7 +92,7 @@
                             <moduleArchive>${project.build.directory}/${artifactId}-${version}.war</moduleArchive>
                         </configuration>
                     </execution>
-                            
+
                     <execution>
                         <id>undeploy-war-as-moduleId</id>
                         <phase>post-integration-test</phase>

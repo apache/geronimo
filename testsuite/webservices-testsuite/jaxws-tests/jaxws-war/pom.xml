@@ -21,7 +21,6 @@
         <groupId>org.apache.geronimo.testsuite</groupId>
         <artifactId>jaxws-tests</artifactId>
         <version>2.2-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>jaxws-war</artifactId>
@@ -52,6 +51,9 @@
     </dependencies>
 
     <build>
+        <!--
+        FIXME: Why?
+        -->
         <resources>
             <resource>
                 <directory>src/main/java</directory>
@@ -62,7 +64,6 @@
             <plugin>
                 <groupId>org.apache.geronimo.buildsupport</groupId>
                 <artifactId>testsuite-maven-plugin</artifactId>
-                <version>${version}</version>
                 <executions>
                     <execution>
                         <id>generate-surefire-xml</id>
@@ -92,12 +93,6 @@
                         </property>
                     </systemProperties>
                 </configuration>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.geronimo.genesis.plugins</groupId>
-                <artifactId>tools-maven-plugin</artifactId>
-                <extensions>true</extensions>
             </plugin>
 
             <plugin>

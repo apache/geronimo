@@ -28,7 +28,6 @@
         <groupId>org.apache.geronimo.testsuite</groupId>
         <artifactId>testsuite</artifactId>
         <version>2.2-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
     
     <artifactId>console-testsuite</artifactId>

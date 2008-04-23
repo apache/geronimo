@@ -28,7 +28,6 @@
         <groupId>org.apache.geronimo.testsuite</groupId>
         <artifactId>ejb-tests</artifactId>
         <version>2.2-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>ejb-ear</artifactId>
@@ -125,6 +124,7 @@
 
             <!-- "ear" packaging doesn't process test resources -->
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <executions>
                     <execution>
@@ -137,6 +137,7 @@
 
             <!-- "ear" packaging doesn't process test resources -->
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
                 <executions>
                     <execution>
@@ -174,7 +175,6 @@
                     </execution>
                 </executions>
             </plugin>
-
         </plugins>
     </build>
 

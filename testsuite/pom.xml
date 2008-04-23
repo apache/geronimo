@@ -46,14 +46,11 @@
     </description>
     
     <dependencyManagement>
-        <!-- mainatain the versioning of all dependencies in this one common location here. -->
         <dependencies>
-            <!-- testsupport-selenium brings with it testsupport-common, selenium and testng dependencies -->
             <dependency>
                 <groupId>org.apache.geronimo.testsupport</groupId>
                 <artifactId>testsupport-selenium</artifactId>
                 <version>${version}</version>
-                <scope>compile</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -91,15 +88,18 @@
                     <artifactId>testsuite-maven-plugin</artifactId>
                     <version>${version}</version>
                 </plugin>
+                
                 <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-ear-plugin</artifactId>
                     <configuration>
                         <resourcesDir>${project.build.outputDirectory}</resourcesDir>
                     </configuration>
                 </plugin>
+                
                 <!--
-                     FIXME: Need to reset the default values here since our parent sets up wars
-                     for use with jspc.  Remove once parent pom has been fixed.
+                 FIXME: Need to reset the default values here since our parent sets up wars
+                        for use with jspc.  Remove once parent pom has been fixed.
                  -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -117,10 +117,10 @@
                         </webResources>
                     </configuration>
                 </plugin>
+                
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <version>2.3</version>
                     <configuration>
                         <skip>true</skip>
                     </configuration>
@@ -148,6 +148,7 @@
                         </execution>
                     </executions>
                 </plugin>
+                
                 <plugin>
                     <groupId>org.apache.geronimo.genesis.plugins</groupId>
                     <artifactId>maven-maven-plugin</artifactId>
@@ -198,6 +199,7 @@
                         </execution>
                     </executions>
                 </plugin>
+                
                 <plugin>
                     <groupId>org.apache.geronimo.buildsupport</groupId>
                     <artifactId>geronimo-maven-plugin</artifactId>
@@ -209,6 +211,7 @@
                         </reporters>
                     </configuration>
                 </plugin>
+                
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>selenium-maven-plugin</artifactId>
@@ -228,17 +231,6 @@
                 </plugin>
             </plugins>
         </pluginManagement>
-
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>1.5</source>
-                    <target>1.5</target>
-                </configuration>
-            </plugin>
-        </plugins>
     </build>
 
     <distributionManagement>
@@ -254,15 +246,6 @@
                 <groupId>org.apache.geronimo.buildsupport</groupId>
                 <artifactId>testsuite-maven-plugin</artifactId>
             </plugin>
-            <!-- This should actually be configured in genesis:project-config -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.1</version>
-                <configuration>
-                    <source>1.5</source>
-                </configuration>
-            </plugin>
         </plugins>
     </reporting>
     
@@ -275,7 +258,6 @@
             <build>
                 <pluginManagement>
                     <plugins>
-
                         <plugin>
                             <groupId>org.apache.geronimo.buildsupport</groupId>
                             <artifactId>geronimo-maven-plugin</artifactId>
@@ -354,7 +336,6 @@
             </build>
         </profile>
         
-
         <profile>
             <id>common</id>
             <build>
@@ -387,25 +368,4 @@
             <id>child</id>
         </profile>
     </profiles>
-
-    <repositories>
-        <!--
-        NOTE: This is useful to run the testsuite on any machine, independent of the Geronimo build.
-        scm location svn co https://svn.apache.org/repos/asf/geronimo/server/trunk/testsuite
-        -->
-        <repository>
-            <id>apache-snapshots</id>
-            <name>Apache Snapshots Repository</name>
-            <url>http://people.apache.org/repo/m2-snapshot-repository</url>
-            <layout>default</layout>
-            <snapshots>
-                <enabled>true</enabled>
-                <updatePolicy>daily</updatePolicy>
-                <checksumPolicy>ignore</checksumPolicy>
-            </snapshots>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-        </repository>
-    </repositories>
 </project>

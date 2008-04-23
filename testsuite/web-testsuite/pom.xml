@@ -28,7 +28,6 @@
         <groupId>org.apache.geronimo.testsuite</groupId>
         <artifactId>testsuite</artifactId>
         <version>2.2-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
     
     <artifactId>web-testsuite</artifactId>
@@ -86,6 +85,7 @@
                           That expects it's parent (this pom) to be installed already.
                           So installing it ahead before we invoke it in the integration-test phase
                         -->
+                        <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-install-plugin</artifactId>
                         <inherited>false</inherited>
                         <executions>
@@ -109,7 +109,6 @@
                         <artifactId>geronimo-maven-plugin</artifactId>
                     </plugin>
                     
-                     
                     <plugin>
                         <groupId>org.apache.geronimo.genesis.plugins</groupId>
                         <artifactId>maven-maven-plugin</artifactId>
@@ -122,7 +121,6 @@
                           </fileset>
                         </configuration>
                     </plugin>
-
                 </plugins>
             </build>
         </profile>

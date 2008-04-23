@@ -21,20 +21,19 @@
 <!-- $Rev$ $Date$ -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    
+
     <modelVersion>4.0.0</modelVersion>
-    
+
     <parent>
         <groupId>org.apache.geronimo.testsuite</groupId>
         <artifactId>enterprise-testsuite</artifactId>
         <version>2.2-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
-    
+
     <artifactId>ejbcontainer-tests</artifactId>
     <name>Geronimo TestSuite :: Enterprise Testsuite :: EJB Container Tests</name>
     <packaging>jar</packaging>
-    
+
     <description>
         Tests for the ejb modules
     </description>
@@ -46,7 +45,7 @@
             <version>${openejbVersion}</version>
             <type>test-jar</type>
         </dependency>
-        
+
         <dependency>
             <groupId>org.apache.openejb</groupId>
             <artifactId>openejb-itests-core</artifactId>
@@ -60,16 +59,16 @@
         So excluding it here from transitive dependency.
         http://jira.codehaus.org/browse/MSUREFIRE-184
         -->
-       <dependency>
+        <dependency>
             <groupId>org.apache.geronimo.testsupport</groupId>
             <artifactId>testsupport-selenium</artifactId>
             <scope>test</scope>
-                <exclusions>
-                  <exclusion>
-                        <groupId>org.testng</groupId>
-                        <artifactId>testng</artifactId>
-                  </exclusion>
-                </exclusions>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.testng</groupId>
+                    <artifactId>testng</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
 
@@ -78,15 +77,14 @@
             <id>child</id>
             <build>
 
-              <testResources>
-                <testResource>
-                  <directory>src/test/resources</directory>
-                  <filtering>true</filtering>
-                </testResource>
-              </testResources>
+                <testResources>
+                    <testResource>
+                        <directory>src/test/resources</directory>
+                        <filtering>true</filtering>
+                    </testResource>
+                </testResources>
 
                 <plugins>
-
                     <plugin>
                         <groupId>org.apache.geronimo.buildsupport</groupId>
                         <artifactId>geronimo-maven-plugin</artifactId>
@@ -105,17 +103,17 @@
                                             <type>jar</type>
                                             <plan>${project.build.directory}/test-classes/META-INF/junit-plan.xml</plan>
                                         </module>
-                                          <module>
-                                              <groupId>org.apache.openejb</groupId>
-                                              <artifactId>openejb-itests-core</artifactId>
-                                              <version>${openejbVersion}</version>
-                                              <type>jar</type>
-                                              <plan>${project.build.directory}/test-classes/META-INF/openejb-jar.xml</plan>
-                                          </module>
+                                        <module>
+                                            <groupId>org.apache.openejb</groupId>
+                                            <artifactId>openejb-itests-core</artifactId>
+                                            <version>${openejbVersion}</version>
+                                            <type>jar</type>
+                                            <plan>${project.build.directory}/test-classes/META-INF/openejb-jar.xml</plan>
+                                        </module>
                                     </modules>
                                 </configuration>
                             </execution>
-                            
+
                             <execution>
                                 <id>undeploy-modules</id>
                                 <phase>post-integration-test</phase>
@@ -124,12 +122,12 @@
                                 </goals>
                                 <configuration>
                                     <modules>
-                                          <module>
-                                              <groupId>org.apache.openejb</groupId>
-                                              <artifactId>openejb-itests-core</artifactId>
-                                              <version>${openejbVersion}</version>
-                                              <type>car</type>
-                                          </module>
+                                        <module>
+                                            <groupId>org.apache.openejb</groupId>
+                                            <artifactId>openejb-itests-core</artifactId>
+                                            <version>${openejbVersion}</version>
+                                            <type>car</type>
+                                        </module>
                                         <module>
                                             <groupId>junit</groupId>
                                             <artifactId>junit</artifactId>
@@ -145,4 +143,5 @@
             </build>
         </profile>
     </profiles>
+
 </project>

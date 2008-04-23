@@ -28,7 +28,6 @@
         <groupId>org.apache.geronimo.testsuite</groupId>
         <artifactId>deployment-testsuite</artifactId>
         <version>2.2-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
     
     <artifactId>deployment-tests</artifactId>
@@ -73,15 +72,15 @@
                                 </goals>
                                 <configuration>
                                     <modules>
-                                      <!-- Deploy only 1 module until https://issues.apache.org/jira/browse/GERONIMO-3199 is fixed. -->
-<!--
-                                           <module>
-                                               <groupId>org.apache.geronimo.testsupport</groupId>
-                                               <artifactId>test-ear-j2ee_1.3</artifactId>
-                                               <version>${version}</version>
-                                               <type>ear</type>
-                                           </module>
-  -->
+                                        <!-- Deploy only 1 module until https://issues.apache.org/jira/browse/GERONIMO-3199 is fixed. -->
+                                        <!--
+                                        <module>
+                                            <groupId>org.apache.geronimo.testsupport</groupId>
+                                            <artifactId>test-ear-j2ee_1.3</artifactId>
+                                            <version>${version}</version>
+                                            <type>ear</type>
+                                        </module>
+                                        -->
                                         
                                         <module>
                                             <groupId>org.apache.geronimo.testsupport</groupId>
@@ -92,9 +91,8 @@
                                     </modules>
                                 </configuration>
                             </execution>
-                            
-                                      <!-- Comment the following block until https://issues.apache.org/jira/browse/GERONIMO-3199 is fixed. -->
-<!--
+                                <!-- Comment the following block until https://issues.apache.org/jira/browse/GERONIMO-3199 is fixed. -->
+                                <!--
                                <execution>
                                    <id>undeploy-ear-as-module</id>
                                    <phase>post-integration-test</phase>
@@ -112,7 +110,7 @@
                                        </modules>
                                    </configuration>
                                </execution>
-  -->
+                               -->
                             
                             <execution>
                                 <id>undeploy-ear-as-moduleId</id>

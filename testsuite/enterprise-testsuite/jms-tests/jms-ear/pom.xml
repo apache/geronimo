@@ -28,7 +28,6 @@
         <groupId>org.apache.geronimo.testsuite</groupId>
         <artifactId>jms-tests</artifactId>
         <version>2.2-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>jms-ear</artifactId>
@@ -40,15 +39,14 @@
     </description>
 
     <dependencies>
-
         <dependency>
-            <groupId>${pom.groupId}</groupId>
+            <groupId>org.apache.geronimo.testsuite</groupId>
             <artifactId>jms-war</artifactId>
             <version>${version}</version>
             <type>war</type>
         </dependency>
         <dependency>
-            <groupId>${pom.groupId}</groupId>
+            <groupId>org.apache.geronimo.testsuite</groupId>
             <artifactId>jms-ejb</artifactId>
             <version>${version}</version>
             <type>ejb</type>
@@ -69,6 +67,7 @@
     <build>
         <plugins>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-ear-plugin</artifactId>
                 <configuration>
                     <displayName>Geronimo Test EAR for JMS</displayName>
@@ -76,13 +75,13 @@
                     <version>1.4</version>
                     <modules>
                         <webModule>
-                            <groupId>${pom.groupId}</groupId>
+                            <groupId>org.apache.geronimo.testsuite</groupId>
                             <artifactId>jms-war</artifactId>
                             <contextRoot>/testjms</contextRoot>
                             <bundleFileName>web.war</bundleFileName>
                         </webModule>
                         <ejbModule>
-                            <groupId>${pom.groupId}</groupId>
+                            <groupId>org.apache.geronimo.testsuite</groupId>
                             <artifactId>jms-ejb</artifactId>
                             <bundleFileName>ejb.jar</bundleFileName>
                         </ejbModule>
@@ -93,7 +92,6 @@
             <plugin>
                 <groupId>org.apache.geronimo.buildsupport</groupId>
                 <artifactId>testsuite-maven-plugin</artifactId>
-                <version>${version}</version>
                 <executions>
                     <execution>
                         <id>generate-surefire-xml</id>
@@ -124,6 +122,7 @@
 
             <!-- "ear" packaging doesn't compile test classes -->
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <executions>
                     <execution>
@@ -136,6 +135,7 @@
 
             <!-- "ear" packaging doesn't process test resources -->
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
                 <executions>
                     <execution>
@@ -178,10 +178,7 @@
                     </execution>
                 </executions>
             </plugin>
-
         </plugins>
-
     </build>
-    
 
 </project>

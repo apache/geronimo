@@ -22,7 +22,6 @@
         <groupId>org.apache.geronimo.testsuite</groupId>
         <artifactId>jca-cms-tests</artifactId>
         <version>2.2-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>jca-cms-war</artifactId>
@@ -35,11 +34,13 @@
             <artifactId>geronimo-servlet_2.5_spec</artifactId>
             <scope>provided</scope>
         </dependency>
+        
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-annotation_1.0_spec</artifactId>
             <scope>provided</scope>
         </dependency>
+        
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-security</artifactId>

@@ -15,13 +15,15 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
+
+<!-- $Rev$ $Date$ -->
+
 <project>
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.apache.geronimo.testsuite</groupId>
         <artifactId>jca-cms-tests</artifactId>
         <version>2.2-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>jca-cms-ear</artifactId>
@@ -34,6 +36,7 @@
             <artifactId>tranql-connector-derby-embed-xa</artifactId>
             <type>rar</type>
         </dependency>
+        
         <dependency>
             <groupId>org.apache.geronimo.testsuite</groupId>
             <artifactId>jca-cms-war</artifactId>
@@ -47,7 +50,6 @@
             <plugin>
                 <groupId>org.apache.geronimo.buildsupport</groupId>
                 <artifactId>testsuite-maven-plugin</artifactId>
-                <version>${version}</version>
                 <executions>
                     <execution>
                         <id>generate-surefire-xml</id>
@@ -67,6 +69,7 @@
             </plugin>
 
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-ear-plugin</artifactId>
                 <configuration>
                     <displayName>Manifest Classpath Itest ear</displayName>
@@ -102,10 +105,10 @@
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>selenium-maven-plugin</artifactId>
             </plugin>
-                    
 
              <!-- "ear" packaging doesn't compile test classes -->
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <executions>
                     <execution>
@@ -118,6 +121,7 @@
 
             <!-- "ear" packaging doesn't process test resources -->
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
                 <executions>
                     <execution>

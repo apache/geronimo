@@ -25,6 +25,7 @@
         <artifactId>jpa-tests</artifactId>
         <version>2.2-SNAPSHOT</version>
     </parent>
+    
     <artifactId>jpa-ear</artifactId>
     <name>Geronimo TestSuite :: Enterprise Testsuite :: JPA - EAR</name>
     <packaging>ear</packaging>
@@ -49,7 +50,6 @@
             <plugin>
                 <groupId>org.apache.geronimo.buildsupport</groupId>
                 <artifactId>testsuite-maven-plugin</artifactId>
-                <version>${version}</version>
                 <executions>
                     <execution>
                         <id>generate-surefire-xml</id>
@@ -69,6 +69,7 @@
             </plugin>
 
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-ear-plugin</artifactId>
                 <configuration>
                     <displayName>jpa Itest ear</displayName>
@@ -102,6 +103,7 @@
 
             <!-- "ear" packaging doesn't compile test classes -->
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <executions>
                     <execution>
@@ -114,6 +116,7 @@
 
             <!-- "ear" packaging doesn't process test resources -->
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
                 <executions>
                     <execution>
@@ -156,10 +159,7 @@
                     </execution>
                 </executions>
             </plugin>
-
         </plugins>
     </build>
-    
-
 
 </project>

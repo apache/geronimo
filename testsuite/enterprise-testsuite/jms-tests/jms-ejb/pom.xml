@@ -16,17 +16,17 @@
   limitations under the License.
 -->
 <project>
-  <parent>
-    <artifactId>jms-tests</artifactId>
+    <parent>
+        <artifactId>jms-tests</artifactId>
+        <groupId>org.apache.geronimo.testsuite</groupId>
+        <version>2.2-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
     <groupId>org.apache.geronimo.testsuite</groupId>
-    <version>2.2-SNAPSHOT</version>
-  </parent>
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>org.apache.geronimo.testsuite</groupId>
-  <artifactId>jms-ejb</artifactId>
-  <name>jms-ejb</name>
+    <artifactId>jms-ejb</artifactId>
+    <name>jms-ejb</name>
     <packaging>ejb</packaging>
-  <dependencies>
+    <dependencies>
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-ejb_3.0_spec</artifactId>
@@ -45,17 +45,18 @@
             <version>1.1.1</version>
             <scope>provided</scope>
         </dependency>
+    </dependencies>
+    
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-ejb-plugin</artifactId>
+                <configuration>
+                    <ejbVersion>3.0</ejbVersion>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
-  </dependencies>
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-ejb-plugin</artifactId>
-        <configuration>
-          <ejbVersion>3.0</ejbVersion>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
 </project>

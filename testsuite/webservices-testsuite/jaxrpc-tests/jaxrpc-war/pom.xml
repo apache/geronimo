@@ -21,7 +21,6 @@
         <groupId>org.apache.geronimo.testsuite</groupId>
         <artifactId>jaxrpc-tests</artifactId>
         <version>2.2-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>jaxrpc-war</artifactId>
@@ -41,7 +40,6 @@
             <plugin>
                 <groupId>org.apache.geronimo.buildsupport</groupId>
                 <artifactId>testsuite-maven-plugin</artifactId>
-                <version>${version}</version>
                 <executions>
                     <execution>
                         <id>generate-surefire-xml</id>
@@ -71,12 +69,6 @@
                         </property>
                     </systemProperties>
                 </configuration>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.geronimo.genesis.plugins</groupId>
-                <artifactId>tools-maven-plugin</artifactId>
-                <extensions>true</extensions>
             </plugin>
 
             <plugin>

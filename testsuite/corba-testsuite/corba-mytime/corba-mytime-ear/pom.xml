@@ -26,7 +26,6 @@
         <groupId>org.apache.geronimo.testsuite</groupId>
         <artifactId>corba-mytime</artifactId>
         <version>2.2-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>corba-mytime-ear</artifactId>
@@ -40,17 +39,19 @@
 
     <dependencies>
         <dependency>
-            <groupId>${pom.groupId}</groupId>
+            <groupId>org.apache.geronimo.testsuite</groupId>
             <artifactId>corba-mytime-ejb</artifactId>
             <version>${version}</version>
             <type>ejb</type>
         </dependency>
+        
         <dependency>
-            <groupId>${pom.groupId}</groupId>
+            <groupId>org.apache.geronimo.testsuite</groupId>
             <artifactId>corba-mytime-war</artifactId>
             <version>${version}</version>
             <type>war</type>
         </dependency>
+        
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-ejb_3.0_spec</artifactId>
@@ -64,7 +65,6 @@
             <plugin>
                 <groupId>org.apache.geronimo.buildsupport</groupId>
                 <artifactId>testsuite-maven-plugin</artifactId>
-                <version>${version}</version>
                 <executions>
                     <execution>
                         <id>generate-surefire-xml</id>
@@ -84,6 +84,7 @@
             </plugin>
 
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-ear-plugin</artifactId>
                 <configuration>
                     <description>Geronimo My Time Enterprise Application EAR</description>
@@ -199,7 +200,6 @@
                     </execution>
                 </executions>
             </plugin>
-
         </plugins>
     </build>
 

@@ -25,8 +25,8 @@
         <groupId>org.apache.geronimo.testsuite</groupId>
         <artifactId>test-web-forward</artifactId>
         <version>2.2-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
+    
     <artifactId>web-forward-war-1</artifactId>
     <name>Geronimo Test Suite :: Test Servlet Forwarding :: WAR I</name>
     <packaging>war</packaging>
@@ -34,8 +34,8 @@
     <description>
         Geronimo test WAR for Servlet forwarding
     </description>
+    
     <dependencies>
-        
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-jsp_2.1_spec</artifactId>
@@ -47,7 +47,6 @@
             <artifactId>geronimo-servlet_2.5_spec</artifactId>
             <scope>provided</scope>
         </dependency>
-                
     </dependencies>
     
 </project>

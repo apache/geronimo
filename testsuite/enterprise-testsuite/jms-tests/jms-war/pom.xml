@@ -28,7 +28,6 @@
         <groupId>org.apache.geronimo.testsuite</groupId>
         <artifactId>jms-tests</artifactId>
         <version>2.2-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>jms-war</artifactId>
@@ -40,7 +39,6 @@
     </description>
 
     <dependencies>
-        
       <!--
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
@@ -67,7 +65,6 @@
             <version>1.1.1</version>
             <scope>provided</scope>
         </dependency>
-
     </dependencies>
     
 </project>

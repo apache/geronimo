@@ -21,7 +21,6 @@
         <groupId>org.apache.geronimo.testsuite</groupId>
         <artifactId>manifestcp-tests</artifactId>
         <version>2.2-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>manifestcp-jar</artifactId>
@@ -39,4 +38,5 @@
             <version>${version}</version>
         </dependency>
     </dependencies>
+
 </project>

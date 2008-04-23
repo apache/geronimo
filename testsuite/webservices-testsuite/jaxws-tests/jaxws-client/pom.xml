@@ -23,15 +23,18 @@
         <groupId>org.apache.geronimo.testsuite</groupId>
         <artifactId>jaxws-tests</artifactId>
         <version>2.2-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
+    
     <artifactId>jaxws-client</artifactId>
     <name>Geronimo TestSuite :: WebServices TestSuite :: JAX-WS Client</name>
     <packaging>jar</packaging>
+    
     <description>This project executes testcases for your testsuite</description>
+    
     <properties>
         <clientLogFile>${basedir}/target/client.log</clientLogFile>
     </properties>
+    
     <dependencies>
         <dependency>
             <groupId>org.apache.geronimo.testsuite</groupId>
@@ -56,6 +59,7 @@
             <scope>provided</scope>
         </dependency>
     </dependencies>
+    
     <build>
         <plugins>
             <plugin>
@@ -84,7 +88,6 @@
             <plugin>
                 <groupId>org.apache.geronimo.buildsupport</groupId>
                 <artifactId>testsuite-maven-plugin</artifactId>
-                <version>${version}</version>
                 <executions>
                     <execution>
                         <id>generate-surefire-xml</id>
@@ -102,11 +105,7 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>org.apache.geronimo.genesis.plugins</groupId>
-                <artifactId>tools-maven-plugin</artifactId>
-                <extensions>true</extensions>
-            </plugin>
+            
             <plugin>
                 <groupId>org.apache.geronimo.buildsupport</groupId>
                 <artifactId>geronimo-maven-plugin</artifactId>
