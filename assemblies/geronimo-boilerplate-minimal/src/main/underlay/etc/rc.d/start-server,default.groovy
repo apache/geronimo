@@ -20,9 +20,12 @@
 //
 // $Rev$ $Date$
 //
-if (command.javaFlags.isEmpty() ) {
-  command.javaFlags << '-Xmx512m'
+
+// Append some reasonable java flags if none were configured already
+if (command.javaFlags.empty) {
+    command.javaFlags << '-Xmx512m'
 }
+
 // Uncomment the following lines to enable remote debugging.
 // command.javaFlags << '-Xdebug'
 // command.javaFlags << '-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8000'
