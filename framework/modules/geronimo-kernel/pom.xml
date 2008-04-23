@@ -60,13 +60,13 @@
         <dependency>
             <groupId>org.apache.xbean</groupId>
             <artifactId>xbean-reflect</artifactId>
-        </dependency> 
+        </dependency>
 
         <dependency>
             <groupId>com.thoughtworks.xstream</groupId>
             <artifactId>xstream</artifactId>
         </dependency>
-            
+
         <dependency>
             <groupId>xpp3</groupId>
             <artifactId>xpp3</artifactId>
@@ -113,59 +113,10 @@
                 </dependencies>
             </plugin>
 
-            <plugin>
-                <artifactId>maven-remote-resources-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>process</goal>
-                        </goals>
-                        <configuration>
-                            <resourceBundles>
-                                <resourceBundle>org.apache:apache-jar-resource-bundle:1.0</resourceBundle>
-                            </resourceBundles>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
             
-            <plugin>
-                <groupId>org.apache.geronimo.genesis.plugins</groupId>
-                <artifactId>tools-maven-plugin</artifactId>
-
-                <!-- Tools includes custom packagings, install as extension to pick them up -->
-                <extensions>true</extensions>
-
-                <executions>
-                    <!--<execution>-->
-                        <!--<id>install-legal-files</id>-->
-                        <!--<phase>generate-resources</phase>-->
-                        <!--<goals>-->
-                            <!--<goal>copy-legal-files</goal>-->
-                        <!--</goals>-->
-                        <!--<configuration>-->
-                            <!--<strict>true</strict>-->
-                        <!--</configuration>-->
-                    <!--</execution>-->
-
-                    <execution>
-                        <id>verify-legal-files</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>verify-legal-files</goal>
-                        </goals>
-                        <configuration>
-                            <!-- Fail the build if no legal files were found -->
-                            <strict>false</strict>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>2.1</version>
                 <configuration>
                     <archive>
                         <!-- Do not include META-INF/maven to avoid long file problems on windows -->
