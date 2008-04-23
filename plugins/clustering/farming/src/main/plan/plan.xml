@@ -33,7 +33,7 @@
                 <dependencies>
                     <dependency>
                         <groupId>${pom.groupId}</groupId>
-                        <artifactId>clustering</artifactId>
+                        <artifactId>farming</artifactId>
                         <type>car</type>
                     </dependency>
                 </dependencies>
