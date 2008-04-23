@@ -77,8 +77,11 @@ public class StatsGraph {
         GraphJS += "graph" + graph_id + ".addAxis(\"x\", {labels: [";
         for (int i = 1; i < dataSet1.size(); i++) {
             Date date = new Date((Long) snapshotTimes.get(i));
-            GraphJS += "{value: " + (i) + ", text: '" + formatter.format(date)
-                    + "' }, \n";
+            GraphJS += "{value: " + (i) + ", text: '" + formatter.format(date);
+            if ((i+1) != dataSet1.size())
+                GraphJS += "' }, \n";
+            else
+            	GraphJS += "' } \n";
         }
         GraphJS += "]});\n";
         GraphJS += "graph" + graph_id + ".addAxis(\"y\", {vertical: true});\n";
@@ -94,7 +97,8 @@ public class StatsGraph {
                 // ensure there is not a division by 0
                 GraphJS += appendOperation(operation, (Long) dataSet2.get(i)
                         - (Long) dataSet2.get(i - 1));
-                GraphJS += ",";
+                if ((i+1) != dataSet1.size())
+                    GraphJS += ",";
             }
         }
         if (data1operation == 'D' && data2operation != 'D') {
@@ -103,7 +107,8 @@ public class StatsGraph {
                         + ((Long) dataSet1.get(i) - (Long) dataSet1.get(i - 1));
                 // ensure there is not a division by 0
                 GraphJS += appendOperation(operation, (Long) dataSet2.get(i));
-                GraphJS += ",";
+                if ((i+1) != dataSet1.size())
+                    GraphJS += ",";
             }
         }
         if (data1operation != 'D' && data2operation == 'D') {
@@ -112,7 +117,8 @@ public class StatsGraph {
                 // ensure there is not a division by 0
                 GraphJS += appendOperation(operation, (Long) dataSet2.get(i)
                         - (Long) dataSet2.get(i - 1));
-                GraphJS += ",";
+                if ((i+1) != dataSet1.size())
+                    GraphJS += ",";
             }
         }
         if (data1operation != 'D' && data2operation != 'D') {
@@ -120,7 +126,8 @@ public class StatsGraph {
                 GraphJS = GraphJS + dataSet1.get(i);
                 // ensure there is not a division by 0
                 GraphJS += appendOperation(operation, (Long) dataSet2.get(i));
-                GraphJS += ",";
+                if ((i+1) != dataSet1.size())
+                    GraphJS += ",";
             }
         }
 
@@ -172,8 +179,11 @@ public class StatsGraph {
         GraphJS += "graph" + graph_id + ".addAxis(\"x\", {labels: [";
         for (int i = 1; i < dataSet1.size(); i++) {
             Date date = new Date((Long) snapshotTimes.get(i));
-            GraphJS += "{value: " + (i) + ", text: '" + formatter.format(date)
-                    + "' }, \n";
+            GraphJS += "{value: " + (i) + ", text: '" + formatter.format(date);
+            if ((i+1) != dataSet1.size())
+                GraphJS += "' }, \n";
+            else
+            	GraphJS += "' } \n";
         }
         GraphJS += "]});\n";
         GraphJS += "graph" + graph_id + ".addAxis(\"y\", {vertical: true});\n";
@@ -183,12 +193,15 @@ public class StatsGraph {
         if (data1operation == 'D')
             for (int i = 1; i < dataSet1.size(); i++) {
                 GraphJS = GraphJS
-                        + ((Long) dataSet1.get(i) - (Long) dataSet1.get(i - 1))
-                        + operation + ",\n";
+                        + ((Long) dataSet1.get(i) - (Long) dataSet1.get(i - 1)) + operation;
+                if ((i+1) != dataSet1.size())
+                    GraphJS += ",\n";
             }
         if (data1operation != 'D')
             for (int i = 1; i < dataSet1.size(); i++) {
-                GraphJS = GraphJS + dataSet1.get(i) + operation + ",\n";
+                GraphJS = GraphJS + dataSet1.get(i) + operation;
+                if ((i+1) != dataSet1.size())
+                    GraphJS += ",\n";
             }
 
         GraphJS = GraphJS + "]);\n";
