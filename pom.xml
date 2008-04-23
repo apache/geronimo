@@ -2226,40 +2226,6 @@
                     </execution>
                 </executions>
             </plugin>
-
-            <plugin>
-                <groupId>org.apache.geronimo.genesis.plugins</groupId>
-                <artifactId>tools-maven-plugin</artifactId>
-
-                <!-- Tools includes custom packagings, install as extension to pick them up -->
-                <extensions>true</extensions>
-
-                <executions>
-                    <execution>
-                        <id>install-legal-files</id>
-                        <phase>generate-resources</phase>
-                        <goals>
-                            <goal>copy-legal-files</goal>
-                        </goals>
-                        <configuration>
-                            <!-- Fail the build if no legal files were copied -->
-                            <strict>true</strict>
-                        </configuration>
-                    </execution>
-
-                    <execution>
-                        <id>verify-legal-files</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>verify-legal-files</goal>
-                        </goals>
-                        <configuration>
-                            <!-- Fail the build if no legal files were found -->
-                            <strict>true</strict>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
             
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -2416,11 +2382,6 @@
                     <plugin>
                         <groupId>org.apache.geronimo.buildsupport</groupId>
                         <artifactId>geronimo-maven-plugin</artifactId>
-                    </plugin>
-
-                    <plugin>
-                        <groupId>org.apache.geronimo.genesis.plugins</groupId>
-                        <artifactId>tools-maven-plugin</artifactId>
                     </plugin>
 
                     <plugin>
