@@ -28,7 +28,6 @@
         <groupId>org.apache.geronimo.testsupport</groupId>
         <artifactId>test-deployment-j2ee_1.4</artifactId>
         <version>2.2-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>test-ear-j2ee_1.4</artifactId>
@@ -40,7 +39,6 @@
     </description>
     
     <dependencies>
-        
         <dependency>
             <groupId>${pom.groupId}</groupId>
             <artifactId>test-war-j2ee_1.4</artifactId>
@@ -61,7 +59,6 @@
             <version>${version}</version>
             <type>rar</type>
         </dependency>
-        
     </dependencies>
     
     <build>

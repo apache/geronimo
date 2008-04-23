@@ -27,7 +27,6 @@
         <groupId>org.apache.geronimo.testsupport</groupId>
         <artifactId>testsupport</artifactId>
         <version>2.2-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
     
     <artifactId>testsupport-common</artifactId>

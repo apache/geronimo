@@ -28,7 +28,6 @@
         <groupId>org.apache.geronimo.testsupport</groupId>
         <artifactId>test-deployment-j2ee_1.3</artifactId>
         <version>2.2-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>test-ejb-j2ee_1.3</artifactId>
@@ -40,13 +39,11 @@
     </description>
 
     <dependencies>
-        
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-ejb_3.0_spec</artifactId>
             <scope>provided</scope>
         </dependency>
-        
     </dependencies>
 
 </project>
