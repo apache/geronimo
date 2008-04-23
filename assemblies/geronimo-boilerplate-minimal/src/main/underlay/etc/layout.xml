@@ -80,21 +80,6 @@
             <id>gshell-builtins:unset</id>
         </command>
 
-        <command>
-            <name>alias</name>
-            <id>geronimo-commands:alias</id>
-        </command>
-
-        <command>
-            <name>unalias</name>
-            <id>geronimo-commands:unalias</id>
-        </command>
-
-        <command>
-            <name>execute-alias</name>
-            <id>geronimo-commands:execute-alias</id>
-        </command>
-
         <!-- Geronimo -->
 
         <group>
