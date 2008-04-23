@@ -18,7 +18,7 @@
 
 <!-- $Rev$ $Date$ -->
 
-<module xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
+<module xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
 
     <gbean name="PersistenceUnitBuilder" class="org.apache.geronimo.persistence.builder.PersistenceUnitBuilder">
         <attribute name="defaultPersistenceProviderClassName">org.apache.openjpa.persistence.PersistenceProviderImpl</attribute>
@@ -31,7 +31,7 @@
             openjpa.Sequence=table(Table=OPENJPASEQ, Increment=100)
         </attribute>
         <xml-attribute name="defaultEnvironment">
-            <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
+            <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
                 <dependencies>
                     <dependency>
                         <groupId>org.apache.geronimo.configs</groupId>
@@ -45,7 +45,7 @@
     <!-- TODO possibly the ref builders only need a dependency on transaction -->
     <gbean name="PersistenceContextRefBuilder" class="org.apache.geronimo.persistence.builder.PersistenceContextRefBuilder">
         <xml-attribute name="defaultEnvironment">
-            <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
+            <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
                 <dependencies>
                     <dependency>
                         <groupId>org.apache.geronimo.configs</groupId>
@@ -58,7 +58,7 @@
     </gbean>
     <gbean name="PersistenceUnitRefBuilder" class="org.apache.geronimo.persistence.builder.PersistenceUnitRefBuilder">
         <xml-attribute name="defaultEnvironment">
-            <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
+            <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
                 <dependencies>
                     <dependency>
                         <groupId>org.apache.geronimo.configs</groupId>
