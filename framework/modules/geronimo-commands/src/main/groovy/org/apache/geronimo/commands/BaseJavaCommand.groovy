@@ -32,6 +32,11 @@ import org.apache.tools.ant.ExitStatusException
 import org.apache.geronimo.commands.AntBuilder
 import org.apache.geronimo.gshell.shell.ShellInfo
 
+/**
+ * Support for commands which spin off a Java process.
+ *
+ * @version $Rev: 650911 $ $Date: 2008-04-23 22:37:46 +0700 (Wed, 23 Apr 2008) $
+ */
 abstract class BaseJavaCommand extends CommandSupport {
     AntBuilder ant
 
@@ -55,6 +60,15 @@ abstract class BaseJavaCommand extends CommandSupport {
           
     @Option(name='-t', aliases=['--timeout'], description='Specify the timeout for the server process in seconds')
     int timeout = -1
+    
+    List<String> profiles = []
+    
+    @Option(name='-P', aliases=['--profile'], metaVar='NAME', description='Select a configuration profile')
+    private void appendProfile(String name) {
+        assert name
+        
+        profiles << name
+    }
     
     Map properties = [:]
     
@@ -113,7 +127,7 @@ abstract class BaseJavaCommand extends CommandSupport {
         
         return file
     }
-           
+
     /**
      * Process custom rc.d scripts.
      */
