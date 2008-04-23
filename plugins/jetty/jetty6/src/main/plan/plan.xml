@@ -18,7 +18,7 @@
 
 <!-- $Rev$ $Date$ -->
 
-<module xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
+<module xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
 
     <!-- david jencks is not convinced that these 2 gbeans should be in this
          plan and thinks they might belong in the console plan.  Aaron thinks

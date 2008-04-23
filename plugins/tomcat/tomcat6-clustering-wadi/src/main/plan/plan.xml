@@ -18,5 +18,5 @@
 
 <!-- $Rev: 589946 $ $Date: 2007-10-30 13:53:25 +1100 (Tue, 30 Oct 2007) $ -->
 
-<module xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
+<module xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
 </module>

@@ -18,7 +18,7 @@
 
 <!-- $Rev: 589946 $ $Date: 2007-10-30 13:53:25 +1100 (Tue, 30 Oct 2007) $ -->
 
-<module xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
+<module xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
 
     <gbean name="OpenEJBClusteringBuilder" class="org.apache.geronimo.openejb.deployment.cluster.WADIOpenEJBClusteringBuilder">
         <attribute name="defaultClusteredStatefulContainerId">org.apache.geronimo.openejb.cluster:Default Clustered Stateful Container</attribute>
@@ -29,7 +29,7 @@
         <attribute name="defaultClusterName">?name=DefaultCluster</attribute>
         <attribute name="defaultNetworkConnectorName">?#org.apache.geronimo.openejb.EjbDaemonGBean</attribute>
         <xml-attribute name="defaultEnvironment">
-            <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
+            <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
                 <dependencies>
                     <dependency>
                         <groupId>${pom.groupId}</groupId>
