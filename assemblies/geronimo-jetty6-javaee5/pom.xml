@@ -26,7 +26,6 @@
         <groupId>org.apache.geronimo.assemblies</groupId>
         <artifactId>assemblies</artifactId>
         <version>2.1.2-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>geronimo-jetty6-javaee5</artifactId>
