@@ -25,7 +25,7 @@
 DIRNAME=`dirname "$0"`
 
 # OS specific support (must be 'true' or 'false').
-cygwin=false;
+cygwin=false
 case "`uname`" in
     CYGWIN*)
         cygwin=true
