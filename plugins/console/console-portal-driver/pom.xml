@@ -97,10 +97,11 @@
                             <targetPath>WEB-INF</targetPath>
                         </resource>
                         <resource>
-                            <directory>${pom.basedir}</directory>
+                            <directory>${project.build.outputDirectory}/META-INF</directory>
                             <includes>
-                                <include>LICENSE.txt</include>
-                                <include>NOTICE.txt</include>
+                                <include>LICENSE</include>
+                                <include>NOTICE</include>
+                                <include>DEPENDENCIES</include>
                             </includes>
                             <targetPath>META-INF</targetPath>
                         </resource>

@@ -33,7 +33,6 @@
     <packaging>ear</packaging>
     
     <dependencies>
-        
         <dependency>
             <groupId>org.apache.geronimo.plugins</groupId>
             <artifactId>console-portal-driver</artifactId>
@@ -47,7 +46,6 @@
             <version>${version}</version>
             <type>war</type>
         </dependency>
-
     </dependencies>
 
     <build>
@@ -73,6 +71,10 @@
                             <bundleFileName>base-portlets.war</bundleFileName>
                         </webModule>
                     </modules>
+                    <!--
+                    HACK: Include legal muck from maven-remote-resources-plugin
+                    -->
+                    <resourcesDir>${project.build.outputDirectory}</resourcesDir>
                 </configuration>
             </plugin>
         </plugins>

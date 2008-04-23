@@ -45,5 +45,47 @@
             <scope>provided</scope>
         </dependency>
     </dependencies>
+    
+    <!--
+    HACK: The maven-rar-plugin (v2.2 at least) does not work well with the maven-remote-resources-plugin
+          so we use this hack to get our generated legal files installed.
+    -->
+    
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <tasks>
+                                <copy todir="${project.build.outputDirectory}">
+                                    <fileset dir="${project.basedir}/src/main/rar">
+                                        <include name="**"/>
+                                    </fileset>
+                                </copy>
+                            </tasks>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-rar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <addMavenDescriptor>false</addMavenDescriptor>
+                    </archive>
+                    <rarSourceDirectory>${project.build.outputDirectory}</rarSourceDirectory>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>
