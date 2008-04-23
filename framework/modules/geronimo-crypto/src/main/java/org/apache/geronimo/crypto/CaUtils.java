@@ -42,8 +42,6 @@ import java.util.Vector;
 
 import javax.security.auth.x500.X500Principal;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.crypto.asn1.ASN1InputStream;
 import org.apache.geronimo.crypto.asn1.ASN1Sequence;
 import org.apache.geronimo.crypto.asn1.DERBitString;
@@ -65,7 +63,6 @@ import org.apache.geronimo.crypto.jce.PKCS10CertificationRequest;
  * @version $Rev$ $Date$
  */
 public class CaUtils {
-    private static final Log log = LogFactory.getLog(CaUtils.class);
     public static final String CERT_HEADER = "-----BEGIN CERTIFICATE-----";
     public static final String CERT_FOOTER = "-----END CERTIFICATE-----";
     public static final String CERT_REQ_HEADER = "-----BEGIN CERTIFICATE REQUEST-----";
