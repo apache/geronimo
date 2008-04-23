@@ -53,7 +53,7 @@ class StartServerCommand extends BaseJavaCommand {
         else {
             verbose--
         }
-    }            
+    }
     
     @Option(name='-m', aliases=['--module'], metaVar='NAME', description='Start up a specific module by name')
     List<String> startModules = []
@@ -90,10 +90,11 @@ class StartServerCommand extends BaseJavaCommand {
         
         processScripts()
         
-        //Setup default java flags
+        // Setup default java flags
         if (javaAgentJar) {
             javaFlags << "-javaagent:${javaAgentJar.canonicalPath}"
         }
+
         // If we are not backgrounding, then add a nice message for the user when ctrl-c gets hit
         if (!background) {
             addShutdownHook({

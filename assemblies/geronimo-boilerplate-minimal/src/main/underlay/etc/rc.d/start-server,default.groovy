@@ -26,9 +26,11 @@ if (command.javaFlags.empty) {
     command.javaFlags << '-Xmx512m'
 }
 
-// Uncomment the following lines to enable remote debugging.
-// command.javaFlags << '-Xdebug'
-// command.javaFlags << '-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8000'
+// If the debug profile was selected, then append some debugging flags
+if (command.profiles.contains('debug')) {
+    command.javaFlags << '-Xdebug'
+    command.javaFlags << '-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8000'
+}
 
 // Uncomment this property so that Tribes work on Mac OS X
 // command.properties['java.net.preferIPv4Stack'] = true
