@@ -19,13 +19,8 @@
 
 package org.apache.geronimo.gbean;
 
-
-
-
-
 /**
- *
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public abstract class AbstractGBeanInfoFactory implements GBeanInfoFactory {
 
@@ -40,5 +35,4 @@ public abstract class AbstractGBeanInfoFactory implements GBeanInfoFactory {
         }
         return getGBeanInfo(clazz);
     }
-    
 }
