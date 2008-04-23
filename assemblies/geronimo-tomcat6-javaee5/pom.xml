@@ -644,27 +644,6 @@
                     </execution>
                 </executions>
             </plugin>
-            
-            <!--
-            HACK: Assemblies contain legal files with .txt extentions.
-            -->
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>ianal-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>verify-legal-files</goal>
-                        </goals>
-                        <configuration>
-                            <requiredFiles>
-                                <requiredFile>LICENSE.txt</requiredFile>
-                                <requiredFile>NOTICE.txt</requiredFile>
-                            </requiredFiles>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
         </plugins>
     </build>
 
