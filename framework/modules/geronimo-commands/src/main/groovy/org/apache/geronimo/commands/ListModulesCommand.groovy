@@ -25,16 +25,18 @@ import org.apache.geronimo.gshell.clp.Argument
 import org.apache.geronimo.gshell.clp.Option
 import org.apache.geronimo.gshell.command.annotation.CommandComponent
 import org.apache.geronimo.deployment.cli.CommandListModules
+import org.apache.geronimo.cli.deployer.ListModulesCommandArgs
 
 /**
  * List modules.
  *
  * @version $Rev: 580864 $ $Date: 2007-09-30 23:47:39 -0700 (Sun, 30 Sep 2007) $
  */
-@CommandComponent(id='geronimo-commands:list-modules', description="List modules")
-class ListModulesCommand extends ConnectCommand {
-     
-    @Option(name='-a', aliases=['--all'], description='Show started or stopped modules')   
+@CommandComponent(id='geronimo-commands:list-modules', description='List modules')
+class ListModulesCommand
+    extends ConnectCommand
+{
+    @Option(name='-a', aliases=['--all'], description='Show started or stopped modules')
     boolean all = true
     
     @Option(name='-t', aliases=['--stopped'], description='Show stopped modules only')
@@ -43,20 +45,34 @@ class ListModulesCommand extends ConnectCommand {
     @Option(name='-r', aliases=['--started'], description='Show started modules only')
     boolean started = false
      
-    @Argument(metaVar="TARGET", description="Target name")
+    @Argument(metaVar='TARGET', description='Target name')
     List<String> targets = []
     
     protected Object doExecute() throws Exception {
-        def connection = variables.get("ServerConnection")
-        if (!connection) {
-            connection = super.doExecute()
-        }
+        def connection = connect()
         
         def command = new CommandListModules()
+        
         def consoleReader = new ConsoleReader(io.inputStream, io.out)
-        def args = new ListModulesCommandArgsImpl((String[])targets, all, started, stopped)
+        
+        def args = new ListModulesCommandArgsImpl(
+            args: (String[])targets,
+            all: all,
+            started: started,
+            stopped: stopped)
         
         command.execute(consoleReader, connection, args)
     }
-           
+}
+
+class ListModulesCommandArgsImpl
+    implements ListModulesCommandArgs
+{
+    String[] args
+    
+    boolean all
+    
+    boolean started
+    
+    boolean stopped
 }

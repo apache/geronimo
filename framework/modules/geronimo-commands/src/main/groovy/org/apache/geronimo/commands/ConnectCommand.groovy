@@ -32,13 +32,16 @@ import org.apache.geronimo.gshell.console.PromptReader
 import java.util.Collections
 
 /**
- * Stops a running Geronimo server instance.
+ * Connect the current shell to a running Geronimo server instance.
  *
  * @version $Rev: 580864 $ $Date: 2007-09-30 23:47:39 -0700 (Sun, 30 Sep 2007) $
  */
 @CommandComponent(id='geronimo-commands:connect', description="Connect to a Geronimo server")
-class ConnectCommand extends CommandSupport {
-
+class ConnectCommand
+    extends CommandSupport
+{
+    public static final String SERVER_CONNECTION = 'geronimo.ServerConnection'
+    
     @Option(name='-s', aliases=['--hostname', '--server'], description='Hostname, default localhost')
     String hostname = 'localhost'
 
@@ -55,16 +58,20 @@ class ConnectCommand extends CommandSupport {
     PromptReader prompter
 
     protected Object doExecute() throws Exception {               
+        return openConnection()
+    }
+    
+    private ServerConnection openConnection() throws Exception {
         io.out.println("Connecting to Geronimo server: ${hostname}:${port}")
         
         // If the username/password was not configured via cli, then prompt the user for the values
         if (username == null || password == null) {
             if (username == null) {
-                username = prompter.readLine("Username: ");
+                username = prompter.readLine('Username: ')
             }
 
             if (password == null) {
-                password = prompter.readPassword("Password: ");
+                password = prompter.readPassword('Password: ')
             }
 
             //
@@ -72,28 +79,48 @@ class ConnectCommand extends CommandSupport {
             //
         }
         
-        def kernel = new BasicKernel("gshell deployer")
-        def deploymentManager = new RemoteDeploymentManager(Collections.emptySet());
+        def kernel = new BasicKernel('gshell deployer')
+        def deploymentManager = new RemoteDeploymentManager(Collections.emptySet())
         def deploymentFactory = new DeploymentFactoryWithKernel(kernel, deploymentManager)
         def connectionParams = new ConnectionParamsImpl(host: hostname, port: port, user: username, password: password, offline: false)
         def connection = new ServerConnection(connectionParams, io.out, io.inputStream, kernel, deploymentFactory)
 
-        disconnect();
+        // Disconnect previous connection if any
+        disconnect()
         
-        variables.parent.set("ServerConnection", connection)
+        variables.parent.set(SERVER_CONNECTION, connection)
 
-        io.out.println("Connection established")
+        io.out.println('Connection established')
+        
         return connection
     }
     
-    private void disconnect() {
-        def connection = variables.get("ServerConnection")
+    protected ServerConnection connect() {
+        def connection = variables.get(SERVER_CONNECTION)
+        
+        if (!connection) {
+            connection = openConnection()
+        }
+        
+        return connection
+    }
+    
+    protected boolean isConnected() {
+        return variables.contains(SERVER_CONNECTION)
+    }
+    
+    protected void disconnect() {
+        def connection = variables.get(SERVER_CONNECTION)
+        
         if (connection) {
             try {
             	connection.close()
-            } catch (Exception e) {
+            }
+            catch (Exception e) {
                 // ignore
             }
         }
+        
+        variables.parent.unset(SERVER_CONNECTION)
     }
 }

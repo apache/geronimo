@@ -38,8 +38,9 @@ import org.apache.geronimo.gshell.shell.ShellInfo
  * @version $Rev: 601585 $ $Date: 2007-12-05 19:14:26 -0500 (Wed, 05 Dec 2007) $
  */
 @CommandComponent(id='geronimo-commands:start-client', description="Start a Geronimo application client")
-class StartClientCommand extends BaseJavaCommand {
-           
+class StartClientCommand
+    extends BaseJavaCommand
+{
     int verbose = 0
     
     @Option(name='-v', aliases=['--verbose'], description='Enable verbose output; specify multipule times to increase verbosity')

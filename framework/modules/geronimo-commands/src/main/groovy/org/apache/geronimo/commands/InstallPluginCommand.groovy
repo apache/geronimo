@@ -31,21 +31,21 @@ import org.apache.geronimo.deployment.cli.CommandInstallCAR
  *
  * @version $Rev: 580864 $ $Date: 2007-09-30 23:47:39 -0700 (Sun, 30 Sep 2007) $
  */
-@CommandComponent(id='geronimo-commands:install-plugin', description="Install a plugin")
-class InstallPluginCommand extends ConnectCommand {
-     
-    @Argument(metaVar="PLUGIN_FILE", required=true, description="Plugin file")
+@CommandComponent(id='geronimo-commands:install-plugin', description='Install a plugin')
+class InstallPluginCommand
+    extends ConnectCommand
+{
+    @Argument(metaVar='PLUGIN_FILE', required=true, description='Plugin file')
     String pluginFile
     
     protected Object doExecute() throws Exception {
-        def connection = variables.get("ServerConnection")
-        if (!connection) {
-            connection = super.doExecute()
-        }
+        def connection = connect()
         
         def command = new CommandInstallCAR()
+        
         def consoleReader = new ConsoleReader(io.inputStream, io.out)
-        def args = new BaseCommandArgs( (String[]) [ pluginFile ] )
+        
+        def args = new BaseCommandArgs((String[]) [ pluginFile ])
         
         command.execute(consoleReader, connection, args)
     }

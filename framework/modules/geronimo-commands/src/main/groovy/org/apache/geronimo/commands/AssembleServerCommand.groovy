@@ -33,9 +33,8 @@ import org.apache.geronimo.kernel.repository.Artifact
  */
 @CommandComponent (id = 'geronimo-commands:assemble-server', description = "Extract a geronimo server from the current one")
 class AssembleServerCommand
-extends ConnectCommand
+    extends ConnectCommand
 {
-
     @Option (name = '-l', aliases = ['--list'], description = 'refresh plugin list')
     boolean refreshList = false
 
@@ -58,38 +57,39 @@ extends ConnectCommand
     List<String> pluginArtifacts
 
     protected Object doExecute() throws Exception {
-        io.out.println("Listing configurations from Geronimo server")
+        io.out.println('Listing configurations from Geronimo server')
 
-        def connection = variables.get("ServerConnection")
-        if (!connection) {
-            connection = super.doExecute()
-        }
+        def connection = connect()
               
         if (!artifact) {
-            artifact = prompter.readLine("Server artifact name: ")
+            artifact = prompter.readLine('Server artifact name: ')
             if (!artifact) {
-                throw new IllegalArgumentException("Server artifact name is required")
+                throw new IllegalArgumentException('Server artifact name is required')
             }
         }
         
         def command = new CommandListConfigurations()
         def consoleReader = new ConsoleReader(io.inputStream, io.out)
-        def plugins = variables.get("LocalPlugins")
+        def plugins = variables.get('LocalPlugins')
+        
         if (refreshList || !plugins) {
             plugins = command.getLocalPluginCategories(connection.getDeploymentManager(), consoleReader)
-            variables.parent.set("LocalPlugins", plugins)
+            variables.parent.set('LocalPlugins', plugins)
         }
 
         if (pluginArtifacts) {
             command.assembleServer(connection.getDeploymentManager(), pluginArtifacts, plugins, 'repository', relativeServerPath, consoleReader)
-            connection.getDeploymentManager().archive(relativeServerPath, "var/temp", new Artifact(group, artifact, (String)version, format));
-        } else {
+            connection.getDeploymentManager().archive(relativeServerPath, 'var/temp', new Artifact(group, artifact, (String)version, format));
+        }
+        else {
             def pluginsToInstall = command.getInstallList(plugins, consoleReader, null)
+            
             if (pluginsToInstall) {
                 command.assembleServer(connection.getDeploymentManager(), pluginsToInstall, 'repository', relativeServerPath, consoleReader)
-                connection.getDeploymentManager().archive(relativeServerPath, "var/temp", new Artifact(group, artifact, (String)version, format));
+                connection.getDeploymentManager().archive(relativeServerPath, 'var/temp', new Artifact(group, artifact, (String)version, format));
             }
         }
-        io.out.println("list ended")
+        
+        io.out.println('list ended')
     }
 }

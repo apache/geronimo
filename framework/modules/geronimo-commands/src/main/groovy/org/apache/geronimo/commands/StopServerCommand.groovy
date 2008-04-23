@@ -31,26 +31,26 @@ import org.apache.geronimo.deployment.plugin.jmx.RemoteDeploymentManager
  *
  * @version $Rev$ $Date$
  */
-@CommandComponent(id='geronimo-commands:stop-server', description="Stop a Geronimo server")
-class StopServerCommand extends ConnectCommand {
-    
+@CommandComponent(id='geronimo-commands:stop-server', description='Stop a Geronimo server')
+class StopServerCommand
+    extends ConnectCommand
+{
     protected Object doExecute() throws Exception {
-        def connection = variables.get("ServerConnection")
-        if (!connection) {
-            connection = super.doExecute()
-        }
-                                 
-        RemoteDeploymentManager deploymentManager = 
-            (RemoteDeploymentManager)connection.getDeploymentManager();
+        def connection = connect()
         
-        def server = new ServerProxy(deploymentManager.getJMXConnector())
+        def server = new ServerProxy(connection.deploymentManager.getJMXConnector())
 
-        io.out.println("Stopping Geronimo server...");  
+        io.out.println('Stopping Geronimo server...')
+        
         try {
-                server.shutdown();
-                io.out.println("Shutdown request has been issued");
-        } catch (Exception e) {
-                io.out.println("Unable to shutdown the server: " + e.getMessage());
-        }                
+            server.shutdown()
+            
+            io.out.println('Shutdown request has been issued')
+        }
+        catch (Exception e) {
+            log.debug("Failed to request shutdown: $e", e)
+            
+            io.err.println("Unable to shutdown the server: ${e.message}")
+        }
     }
 }

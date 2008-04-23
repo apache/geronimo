@@ -31,39 +31,41 @@ import org.apache.geronimo.deployment.cli.CommandRedeploy
  *
  * @version $Rev: 580864 $ $Date: 2007-09-30 23:47:39 -0700 (Sun, 30 Sep 2007) $
  */
-@CommandComponent(id='geronimo-commands:redeploy-module', description="Redeploy a module")
-class RedeployModuleCommand extends ConnectCommand {
-     
-    @Argument(metaVar="MODULE", index=0, description="Module file")
+@CommandComponent(id='geronimo-commands:redeploy-module', description='Redeploy a module')
+class RedeployModuleCommand
+    extends ConnectCommand
+{     
+    @Argument(metaVar='MODULE', index=0, description='Module file')
     String moduleName
     
-    @Argument(metaVar="PLAN", index=1, description="Module plan")
+    @Argument(metaVar='PLAN', index=1, description='Module plan')
     String modulePlan
     
-    @Argument(metaVar="MODULE_ID", index=2, description="Module id")
+    @Argument(metaVar='MODULE_ID', index=2, description='Module id')
     List<String> moduleIds
 
     protected Object doExecute() throws Exception {
-        def connection = variables.get("ServerConnection")
-        if (!connection) {
-            connection = super.doExecute()
-        }
+        def connection = connect()
         
         def command = new CommandRedeploy()
+        
         def consoleReader = new ConsoleReader(io.inputStream, io.out)
         
         def commandArgs = []
+        
         if (moduleName) {
-            commandArgs.add(moduleName)
+            commandArgs << moduleName
         }
+        
         if (modulePlan) {
-            commandArgs.add(modulePlan)
+            commandArgs << modulePlan
         }
+        
         if (moduleIds) {
             commandArgs.addAll(moduleIds)
         }
                 
-        def args = new BaseCommandArgs( (String[])commandArgs )
+        def args = new BaseCommandArgs((String[])commandArgs)
         
         command.execute(consoleReader, connection, args)
     }

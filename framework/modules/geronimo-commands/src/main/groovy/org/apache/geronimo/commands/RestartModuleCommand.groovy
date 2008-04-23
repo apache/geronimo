@@ -31,21 +31,21 @@ import org.apache.geronimo.deployment.cli.CommandRestart
  *
  * @version $Rev: 580864 $ $Date: 2007-09-30 23:47:39 -0700 (Sun, 30 Sep 2007) $
  */
-@CommandComponent(id='geronimo-commands:restart-module', description="Restart a module")
-class RestartModuleCommand extends ConnectCommand {
-     
-    @Argument(metaVar="MODULE_ID", required=true, description="Module name")
+@CommandComponent(id='geronimo-commands:restart-module', description='Restart a module')
+class RestartModuleCommand
+    extends ConnectCommand
+{
+    @Argument(metaVar='MODULE_ID', required=true, description='Module name')
     List<String> moduleNames = []
 
     protected Object doExecute() throws Exception {
-        def connection = variables.get("ServerConnection")
-        if (!connection) {
-            connection = super.doExecute()
-        }
+        def connection = connect()
         
         def command = new CommandRestart()
+        
         def consoleReader = new ConsoleReader(io.inputStream, io.out)
-        def args = new BaseCommandArgs( (String[])moduleNames )
+        
+        def args = new BaseCommandArgs((String[])moduleNames)
         
         command.execute(consoleReader, connection, args)
     }

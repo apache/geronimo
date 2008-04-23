@@ -24,28 +24,33 @@ import org.apache.geronimo.gshell.command.CommandSupport
 import org.apache.geronimo.deployment.cli.ServerConnection
 
 /**
- * Stops a running Geronimo server instance.
+ * Disconnect the current shell from a Geronimo instance.
  *
  * @version $Rev: 580864 $ $Date: 2007-09-30 23:47:39 -0700 (Sun, 30 Sep 2007) $
  */
-@CommandComponent(id='geronimo-commands:disconnect', description="Disconnect from a Geronimo server")
+@CommandComponent(id='geronimo-commands:disconnect', description='Disconnect from a Geronimo server')
 class DisconnectCommand
     extends CommandSupport
 {
-
     protected Object doExecute() throws Exception {
-        def connection = variables.get("ServerConnection")
+        def connection = variables.get(ConnectCommand.SERVER_CONNECTION)
+        
         if (connection) {
-            io.out.println("Disconnecting from Geronimo server")
+            io.out.println('Disconnecting from Geronimo server')
+            
             try {
             	connection.close()
-            } catch (Exception e) {
+            }
+            catch (Exception e) {
                 // ignore
-            }           
-            variables.parent.unset("ServerConnection")            
-            io.out.println("Connection ended")
-        } else {
-            io.out.println("Not connected")
+            }
+            
+            variables.parent.unset(ConnectCommand.SERVER_CONNECTION)
+            
+            io.out.println('Connection ended')
+        }
+        else {
+            io.out.println('Not connected')
         }
     }
 }

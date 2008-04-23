@@ -38,8 +38,9 @@ import org.apache.geronimo.gshell.shell.ShellInfo
  * @version $Rev$ $Date$
  */
 @CommandComponent(id='geronimo-commands:start-server', description="Start a Geronimo server")
-class StartServerCommand extends BaseJavaCommand {
-        
+class StartServerCommand
+    extends BaseJavaCommand
+{
     @Option(name='-q', aliases=['--quiet'], description='Suppress informative and warning messages')
     boolean quiet = false
     

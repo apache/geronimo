@@ -31,18 +31,18 @@ import org.apache.geronimo.deployment.cli.CommandListTargets
  *
  * @version $Rev: 580864 $ $Date: 2007-09-30 23:47:39 -0700 (Sun, 30 Sep 2007) $
  */
-@CommandComponent(id='geronimo-commands:list-targets', description="List targets")
-class ListTargetsCommand extends ConnectCommand {
-     
+@CommandComponent(id='geronimo-commands:list-targets', description='List targets')
+class ListTargetsCommand
+    extends ConnectCommand
+{
     protected Object doExecute() throws Exception {
-        def connection = variables.get("ServerConnection")
-        if (!connection) {
-            connection = super.doExecute()
-        }
+        def connection = connect()
         
         def command = new CommandListTargets()
+        
         def consoleReader = new ConsoleReader(io.inputStream, io.out)
-        def args = new BaseCommandArgs( (String[])[] )
+        
+        def args = new BaseCommandArgs((String[])[])
         
         command.execute(consoleReader, connection, args)
     }

@@ -25,45 +25,57 @@ import org.apache.geronimo.gshell.clp.Argument
 import org.apache.geronimo.gshell.clp.Option
 import org.apache.geronimo.gshell.command.annotation.CommandComponent
 import org.apache.geronimo.deployment.cli.CommandDistribute
+import org.apache.geronimo.cli.deployer.DistributeCommandArgs
 
 /**
  * Distribute module.
  *
  * @version $Rev: 580864 $ $Date: 2007-09-30 23:47:39 -0700 (Sun, 30 Sep 2007) $
  */
-@CommandComponent(id='geronimo-commands:distribute-module', description="Distribute a module")
-class DistributeModuleCommand extends ConnectCommand {
-     
-    @Option(name='-i', aliases=['--inPlace'], description='In-place deployment')   
+@CommandComponent(id='geronimo-commands:distribute-module', description='Distribute a module')
+class DistributeModuleCommand
+    extends ConnectCommand
+{
+    @Option(name='-i', aliases=['--inPlace'], description='In-place deployment')
     boolean inPlace
     
-    @Option(name='-t', aliases=['--targets'], metaVar="TARGET;TARGET;...", description='Targets')   
+    @Option(name='-t', aliases=['--targets'], metaVar='TARGET;TARGET;...', description='Targets')
     String targets
          
-    @Argument(metaVar="MODULE-FILE", required=true, index=0, description="Module file")
+    @Argument(metaVar='MODULE-FILE', required=true, index=0, description='Module file')
     String module
     
-    @Argument(metaVar="MODULE-PLAN", index=1, description="Module plan")
+    @Argument(metaVar='MODULE-PLAN', index=1, description='Module plan')
     String modulePlan
     
     protected Object doExecute() throws Exception {
-        def connection = variables.get("ServerConnection")
-        if (!connection) {
-            connection = super.doExecute()
-        }
+        def connection = connect()
         
         def command = new CommandDistribute()
         def consoleReader = new ConsoleReader(io.inputStream, io.out)
         
         def commandArgs = []
-        commandArgs.add(module)        
+        commandArgs << module
+        
         if (modulePlan) {
-            commandArgs.add(modulePlan)
+            commandArgs << modulePlan
         }
         
-        def args = new DistributeCommandArgsImpl((String[])commandArgs, targets, inPlace)
+        def args = new DistributeCommandArgsImpl(
+            args: (String[])commandArgs,
+            targets: (targets == null ? [] : targets.split(';')),
+            inPlace: inPlace)
         
         command.execute(consoleReader, connection, args)
     }
-           
+}
+
+class DistributeCommandArgsImpl
+    implements DistributeCommandArgs
+{
+    String[] args
+    
+    String[] targets
+    
+    boolean inPlace
 }
