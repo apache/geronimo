@@ -45,7 +45,7 @@
         <br />
     </c:if>
 
-    <input type="submit" value='<fmt:message key="keystore.common.unlockPrivateKey"/>'/>
+    <input type="submit" value='<fmt:message key="keystore.common.unlockKeystore"/>'/>
 </form>
 
 
