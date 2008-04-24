@@ -25,8 +25,6 @@ import javax.crypto.spec.SecretKeySpec;
 import javax.crypto.Cipher;
 import javax.crypto.SealedObject;
 import org.apache.geronimo.crypto.encoders.Base64;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  * This class protects some value BY ENCRYPTING WITH A KNOWN KEY.  That is
@@ -44,8 +42,8 @@ import org.apache.commons.logging.LogFactory;
 public final class SimpleEncryption extends AbstractEncryption {
 
     public final static SimpleEncryption INSTANCE = new SimpleEncryption();
-    private final static SecretKeySpec SECRET_KEY = new SecretKeySpec(new byte[]{(byte)-45,(byte)-15,(byte)100,(byte)-34,(byte)70,(byte)83,(byte)75,(byte)-100,(byte)-75,(byte)61,(byte)26,(byte)114,(byte)-20,(byte)-58,(byte)114,(byte)77}, "AES");
 
+    private final static SecretKeySpec SECRET_KEY = new SecretKeySpec(new byte[]{(byte)-45,(byte)-15,(byte)100,(byte)-34,(byte)70,(byte)83,(byte)75,(byte)-100,(byte)-75,(byte)61,(byte)26,(byte)114,(byte)-20,(byte)-58,(byte)114,(byte)77}, "AES");
 
     private SimpleEncryption() {
     }
