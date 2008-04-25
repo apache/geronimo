@@ -30,8 +30,8 @@ import javax.jms.TopicSubscriber;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.connector.AdminObjectWrapper;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
@@ -43,7 +43,7 @@ import org.apache.geronimo.kernel.management.State;
 
 public class TopicBrowserGBean implements GBeanLifecycle, Runnable {
 
-    private static Log log = LogFactory.getLog(TopicBrowserGBean.class);
+    private static final Logger log = LoggerFactory.getLogger(TopicBrowserGBean.class);
 
     private static Kernel kernel = KernelRegistry.getSingleKernel();
 

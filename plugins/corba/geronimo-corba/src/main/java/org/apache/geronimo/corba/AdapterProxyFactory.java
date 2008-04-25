@@ -32,8 +32,8 @@ import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
 import net.sf.cglib.proxy.NoOp;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.omg.CORBA.INVALID_TRANSACTION;
 import org.omg.CORBA.MARSHAL;
 import org.omg.CORBA.NO_PERMISSION;
@@ -48,7 +48,7 @@ import org.omg.CORBA.UNKNOWN;
  */
 public class AdapterProxyFactory {
 
-    private final static Log log = LogFactory.getLog(AdapterProxyFactory.class);
+    private final static Logger log = LoggerFactory.getLogger(AdapterProxyFactory.class);
     private final static AdapterMethodInterceptor interceptor = new AdapterMethodInterceptor();
     private final Enhancer enhancer;
 

@@ -24,8 +24,8 @@ import java.util.Set;
 
 import javax.sql.DataSource;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.console.util.KernelManagementHelper;
 import org.apache.geronimo.console.util.ManagementHelper;
 import org.apache.geronimo.derby.DerbySystemGBean;
@@ -48,7 +48,7 @@ import org.apache.geronimo.management.geronimo.ResourceAdapterModule;
  */
 public class DerbyConnectionUtil {
 
-    private final static Log log = LogFactory.getLog(DerbyConnectionUtil.class);
+    private static final Logger log = LoggerFactory.getLogger(DerbyConnectionUtil.class);
 
 	public static final String CREATE_DB_PROP = ";create=true";
 

@@ -27,8 +27,8 @@ import javax.xml.ws.WebServiceException;
 import javax.xml.ws.handler.Handler;
 import javax.xml.ws.handler.LogicalHandler;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.xbeans.javaee.HandlerChainType;
 import org.apache.geronimo.xbeans.javaee.HandlerChainsDocument;
 import org.apache.geronimo.xbeans.javaee.HandlerChainsType;
@@ -39,7 +39,7 @@ import org.apache.geronimo.xbeans.javaee.PortComponentHandlerType;
  */
 public class AnnotationHandlerChainBuilder {
 
-    private static final Log log = LogFactory.getLog(AnnotationHandlerChainBuilder.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     public AnnotationHandlerChainBuilder() {
     }

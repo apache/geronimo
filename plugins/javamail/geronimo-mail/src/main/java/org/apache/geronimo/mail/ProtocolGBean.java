@@ -19,8 +19,8 @@ package org.apache.geronimo.mail;
 import java.util.Enumeration;
 import java.util.Properties;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
@@ -59,7 +59,7 @@ public class ProtocolGBean implements GBeanLifecycle {
     static public final String GBEAN_LOCALADDRESS = "localaddress";
     static public final String GBEAN_LOCALPORT = "localport";
 
-    private final Log log = LogFactory.getLog(ProtocolGBean.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     private final String objectName;
     private Properties properties;

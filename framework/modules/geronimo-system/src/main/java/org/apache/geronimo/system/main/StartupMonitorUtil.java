@@ -26,8 +26,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GAttributeInfo;
@@ -40,7 +40,7 @@ import org.apache.geronimo.kernel.management.State;
  * @version $Rev$ $Date$
  */
 public class StartupMonitorUtil {
-    private final static Log log = LogFactory.getLog(StartupMonitor.class.getName());
+    private static final Logger log = LoggerFactory.getLogger(StartupMonitorUtil.class);
 
     public static synchronized void wrapUp(PrintStream out, Kernel kernel) {
         List apps = new ArrayList();  // type = String (message)

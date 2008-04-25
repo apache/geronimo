@@ -26,8 +26,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.deployment.plugin.remote.FileUploadClient;
 import org.apache.geronimo.deployment.plugin.remote.FileUploadProgress;
 import org.apache.geronimo.deployment.plugin.remote.FileUploadServletClient;
@@ -47,7 +47,7 @@ import org.apache.geronimo.kernel.repository.Artifact;
  * @version $Rev:$ $Date:$
  */
 public class BasicClusterConfigurationStoreClient implements ClusterConfigurationStoreClient {
-    private static final Log log = LogFactory.getLog(BasicClusterConfigurationStoreClient.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     private static final String[] METHOD_SIGNATURE_INSTALL =
         new String[] {ConfigurationData.class.getName(), File.class.getName()};

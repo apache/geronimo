@@ -42,8 +42,8 @@ import org.omg.IOP.SecurityAttributeService;
 import org.omg.IOP.ServiceContext;
 import org.omg.PortableInterceptor.ServerRequestInfo;
 import org.omg.PortableInterceptor.ServerRequestInterceptor;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.apache.geronimo.security.ContextManager;
 
@@ -56,7 +56,7 @@ import org.apache.geronimo.corba.util.Util;
  */
 final class ServerSecurityInterceptor extends LocalObject implements ServerRequestInterceptor {
 
-    private final Log log = LogFactory.getLog(ServerSecurityInterceptor.class);
+    private final Logger log = LoggerFactory.getLogger(ServerSecurityInterceptor.class);
 
     public ServerSecurityInterceptor() {
 

@@ -34,8 +34,8 @@ import javax.security.auth.Subject;
 import javax.security.auth.login.LoginException;
 import javax.transaction.TransactionManager;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
@@ -77,7 +77,7 @@ import org.mortbay.jetty.servlet.SessionHandler;
  * @version $Rev$ $Date$
  */
 public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistration, WebModule {
-    private static Log log = LogFactory.getLog(JettyWebAppContext.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     private final String originalSpecDD;
     private final J2EEServer server;
@@ -337,9 +337,6 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
 
     public void doStop() throws Exception {
         getLifecycleChain().lifecycleCommand(new StopCommand());
-
-        // No more logging will occur for this ClassLoader. Inform the LogFactory to avoid a memory leak.
-        LogFactory.release(webClassLoader);
 
         // need to release the JSF factories. Otherwise, we'll leak ClassLoaders.
         //should be done in a myfaces gbean

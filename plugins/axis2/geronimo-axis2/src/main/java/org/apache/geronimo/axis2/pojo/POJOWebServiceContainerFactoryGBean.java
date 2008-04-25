@@ -24,8 +24,8 @@ import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.transaction.TransactionManager;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
@@ -42,7 +42,7 @@ import org.apache.geronimo.webservices.WebServiceContainerFactory;
  */
 public class POJOWebServiceContainerFactoryGBean implements WebServiceContainerFactory {
 
-    private static final Log LOG = LogFactory.getLog(POJOWebServiceContainerFactoryGBean.class);
+    private final Logger LOG = LoggerFactory.getLogger(getClass());
     
     private final ClassLoader classLoader;
     private final org.apache.geronimo.jaxws.PortInfo portInfo;

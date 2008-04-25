@@ -88,10 +88,6 @@
                             <version>${version}</version>
                         </element>
                         <element>
-                            <groupId>commons-logging</groupId>
-                            <artifactId>commons-logging</artifactId>
-                        </element>
-                        <element>
                             <groupId>cglib</groupId>
                             <artifactId>cglib-nodep</artifactId>
                         </element>

@@ -26,8 +26,8 @@ import java.util.Map;
 
 import javax.transaction.TransactionManager;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.clustering.Session;
 import org.apache.geronimo.clustering.SessionAlreadyExistException;
 import org.apache.geronimo.clustering.SessionListener;
@@ -165,7 +165,7 @@ public class ClusteredStatefulInstanceManager extends StatefulInstanceManager im
     }
     
     protected class MigrationListener implements SessionListener {
-        private final Log log = LogFactory.getLog(MigrationListener.class);
+        private final Logger log = LoggerFactory.getLogger(getClass());
 
         public void notifyInboundSessionMigration(org.apache.geronimo.clustering.Session session) {
             ClusteredBeanEntry beanEntry = new ClusteredBeanEntry(session);

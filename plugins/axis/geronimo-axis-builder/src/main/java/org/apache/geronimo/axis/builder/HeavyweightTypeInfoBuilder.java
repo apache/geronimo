@@ -49,8 +49,8 @@ import org.apache.axis.encoding.ser.EnumDeserializerFactory;
 import org.apache.axis.encoding.ser.EnumSerializerFactory;
 import org.apache.axis.encoding.ser.SimpleListDeserializerFactory;
 import org.apache.axis.encoding.ser.SimpleListSerializerFactory;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.axis.client.ArrayTypeInfo;
 import org.apache.geronimo.axis.client.TypeInfo;
 import org.apache.geronimo.common.DeploymentException;
@@ -73,7 +73,7 @@ public class HeavyweightTypeInfoBuilder implements TypeInfoBuilder {
     private static final String SOAP_ENCODING_NS = "http://schemas.xmlsoap.org/soap/encoding/";
     private static final String XML_SCHEMA_NS = "http://www.w3.org/2001/XMLSchema";
     
-    private static final Log log = LogFactory.getLog(HeavyweightTypeInfoBuilder.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     private final ClassLoader cl;
     private final Map schemaTypeKeyToSchemaTypeMap;

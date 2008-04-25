@@ -29,8 +29,8 @@ import javax.xml.stream.XMLStreamReader;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.ws.Binding;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.cxf.Bus;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.binding.soap.interceptor.MustUnderstandInterceptor;
@@ -53,7 +53,7 @@ import org.w3c.dom.Element;
 
 public class EJBInterceptor {
 
-    private static final Log LOG = LogFactory.getLog(EJBInterceptor.class);
+    private static final Logger LOG = LoggerFactory.getLogger(EJBInterceptor.class);
 
     private Exchange exchange;
     private Bus bus;

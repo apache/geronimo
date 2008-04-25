@@ -27,8 +27,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
@@ -41,7 +41,7 @@ import org.apache.geronimo.kernel.Kernel;
  * @version $Rev$ $Date$
  */
 public class PluginRepositoryDownloader implements PluginRepositoryList {
-    private final static Log log = LogFactory.getLog(PluginRepositoryDownloader.class);
+    private static final Logger log = LoggerFactory.getLogger(PluginRepositoryDownloader.class);
     private List<String> downloadRepositories = new ArrayList<String>();
     private List<String> userRepositories = new ArrayList<String>();
     private Kernel kernel;

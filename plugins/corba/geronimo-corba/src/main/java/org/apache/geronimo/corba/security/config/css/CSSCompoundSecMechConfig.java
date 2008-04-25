@@ -18,8 +18,8 @@ package org.apache.geronimo.corba.security.config.css;
 
 import java.io.Serializable;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.UserException;
 import org.omg.CSI.EstablishContext;
@@ -38,7 +38,7 @@ import org.apache.geronimo.corba.util.Util;
  */
 public class CSSCompoundSecMechConfig implements Serializable {
 
-    private final static Log log = LogFactory.getLog(CSSCompoundSecMechConfig.class);
+    private final static Logger log = LoggerFactory.getLogger(CSSCompoundSecMechConfig.class);
 
     private short supports;
     private short requires;

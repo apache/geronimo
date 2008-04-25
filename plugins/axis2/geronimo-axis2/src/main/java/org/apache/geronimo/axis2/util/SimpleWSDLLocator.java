@@ -23,13 +23,13 @@ import java.io.IOException;
 
 import javax.wsdl.xml.WSDLLocator;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.InputSource;
 
 public class SimpleWSDLLocator implements WSDLLocator {
 
-    private static final Log LOG = LogFactory.getLog(SimpleWSDLLocator.class);
+    private final Logger LOG = LoggerFactory.getLogger(getClass());
     
     private String baseURI;
     private String lastImportLocation;

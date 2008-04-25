@@ -25,12 +25,12 @@ import org.apache.axis2.context.ConfigurationContextFactory;
 import org.apache.axis2.jaxws.ClientConfigurationFactory;
 import org.apache.axis2.jaxws.util.ClassLoaderUtils;
 import org.apache.axis2.jaxws.util.Constants;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Axis2ClientConfigurationFactory extends ClientConfigurationFactory {
 
-    private static final Log LOG = LogFactory.getLog(Axis2ClientConfigurationFactory.class);
+    private final Logger LOG = LoggerFactory.getLogger(getClass());
     
     private Map<ClassLoader, ConfigurationContext> contextCache = 
         new Hashtable<ClassLoader, ConfigurationContext>();

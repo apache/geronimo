@@ -36,7 +36,8 @@ import javax.jms.Queue;
 import org.apache.geronimo.jms.test.mdb.exception.ProcessingException;
 import org.apache.geronimo.jms.test.mdb.to.TransferObject;
 import org.apache.geronimo.jms.test.mdb.to.SimpleTransferObject;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author <a href="mailto:tomasz[et]mazan[dot]pl">Tomasz Mazan</a>
@@ -46,7 +47,7 @@ public abstract class MessageReceiver implements MessageListener {
     /**
      * Class'es logger
      */
-    private static Logger logger = Logger.getLogger(org.apache.geronimo.jms.test.mdb.SimpleMessageReceiver.class);
+    private static Logger logger = LoggerFactory.getLogger(org.apache.geronimo.jms.test.mdb.SimpleMessageReceiver.class);
 
     /**
      * Returns instance of injected connection factory

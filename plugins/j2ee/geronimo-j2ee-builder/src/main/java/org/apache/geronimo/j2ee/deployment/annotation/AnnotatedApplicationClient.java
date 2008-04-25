@@ -20,8 +20,8 @@ package org.apache.geronimo.j2ee.deployment.annotation;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.xbeans.javaee.ApplicationClientType;
 import org.apache.geronimo.xbeans.javaee.EjbLocalRefType;
 import org.apache.geronimo.xbeans.javaee.EjbRefType;
@@ -50,7 +50,7 @@ import org.apache.geronimo.xbeans.javaee.ServiceRefType;
 public class AnnotatedApplicationClient implements AnnotatedApp {
 
     // Private instance variables
-    private static final Log log = LogFactory.getLog(AnnotatedApplicationClient.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
     private final ApplicationClientType applicationClient;
     private List<EjbRefType> ambiguousEjbRefs;
     private final String componentType;

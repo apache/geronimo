@@ -19,8 +19,8 @@
 
 package org.apache.geronimo.farm.deployment;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.farm.config.ClusterInfo;
 import org.apache.geronimo.farm.config.NodeInfo;
 import org.apache.geronimo.gbean.GBeanLifecycle;
@@ -38,7 +38,7 @@ import org.apache.geronimo.kernel.repository.Artifact;
  */
 @GBean(j2eeType=BasicClusterConfigurationController.GBEAN_J2EE_TYPE)
 public class BasicClusterConfigurationController implements GBeanLifecycle, ClusterConfigurationController {
-    private static final Log log = LogFactory.getLog(BasicClusterConfigurationController.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
     
     private final ClusterInfo clusterInfo;
     private final String nodeName;

@@ -16,8 +16,8 @@
  */
 package org.apache.geronimo.webservices;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -29,7 +29,7 @@ import javax.wsdl.extensions.soap.SOAPBinding;
 
 public class WSDLVisitor {
 
-    private static final Log log = LogFactory.getLog(WSDLVisitor.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     protected final Definition definition;
 

@@ -24,8 +24,8 @@ import javax.portlet.ActionResponse;
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletSession;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.console.MultiPageAbstractHandler;
 import org.apache.geronimo.console.MultiPageModel;
 import org.apache.geronimo.deployment.xbeans.PatternType;
@@ -45,7 +45,7 @@ import org.apache.geronimo.xbeans.geronimo.security.GerSubjectInfoType;
  * @version $Rev$ $Date$
  */
 public abstract class AbstractHandler extends MultiPageAbstractHandler {
-    private final static Log log = LogFactory.getLog(AbstractHandler.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     protected final static String GET_ARCHIVE_MODE = "index";
     // 'mode' of initial portlet must be one of "index" or "list"

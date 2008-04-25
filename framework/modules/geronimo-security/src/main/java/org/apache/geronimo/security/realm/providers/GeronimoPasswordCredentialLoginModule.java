@@ -31,8 +31,8 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
 import org.apache.geronimo.security.jaas.WrappingLoginModule;
 
@@ -48,7 +48,7 @@ import org.apache.geronimo.security.jaas.WrappingLoginModule;
  * @version $Rev$ $Date$
  */
 public class GeronimoPasswordCredentialLoginModule implements LoginModule {
-    private static Log log = LogFactory.getLog(GeronimoPasswordCredentialLoginModule.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     // Note: If this LoginModule supports any options, the Collections.EMPTY_LIST in the following should be
     // replaced with the list of supported options for e.g. Arrays.asList(option1, option2, ...) etc.

@@ -28,8 +28,8 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.Properties;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
@@ -48,7 +48,7 @@ import org.apache.geronimo.crypto.CaUtils;
  */
 
 public class FileCertificateStore implements CertificateStore, GBeanLifecycle {
-    private static final Log log = LogFactory.getLog(FileCertificateStore.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     private ServerInfo serverInfo;
     private Kernel kernel;

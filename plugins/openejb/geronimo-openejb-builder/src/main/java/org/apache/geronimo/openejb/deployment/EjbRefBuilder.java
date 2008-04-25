@@ -29,8 +29,8 @@ import java.util.TreeSet;
 import java.util.Arrays;
 import java.util.ArrayList;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
@@ -69,7 +69,7 @@ import org.apache.xmlbeans.XmlObject;
  * @version $Revision: 475950 $ $Date: 2006-11-16 14:18:14 -0800 (Thu, 16 Nov 2006) $
  */
 public class EjbRefBuilder extends AbstractNamingBuilder {
-    private static final Log log = LogFactory.getLog(EjbRefBuilder.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     private final QNameSet ejbRefQNameSet;
     private final QNameSet ejbLocalRefQNameSet;

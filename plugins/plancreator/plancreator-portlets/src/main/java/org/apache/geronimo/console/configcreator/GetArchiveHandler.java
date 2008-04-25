@@ -26,8 +26,8 @@ import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 
 import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.console.MultiPageModel;
 
 /**
@@ -36,7 +36,7 @@ import org.apache.geronimo.console.MultiPageModel;
  * @version $Rev$ $Date$
  */
 public class GetArchiveHandler extends AbstractHandler {
-    private static final Log log = LogFactory.getLog(GetArchiveHandler.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     public GetArchiveHandler() {
         super(GET_ARCHIVE_MODE, "/WEB-INF/view/configcreator/getArchive.jsp");

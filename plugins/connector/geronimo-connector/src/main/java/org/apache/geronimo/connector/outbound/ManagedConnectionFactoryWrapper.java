@@ -26,8 +26,8 @@ import javax.resource.ResourceException;
 import javax.resource.spi.ManagedConnectionFactory;
 import javax.resource.spi.ResourceAdapterAssociation;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.connector.ResourceAdapterWrapper;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.DynamicGBean;
@@ -42,7 +42,7 @@ import org.apache.geronimo.management.geronimo.JCAManagedConnectionFactory;
  */
 public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicGBean, JCAManagedConnectionFactory, ResourceSource<ResourceException> {
 
-    private static final Log log = LogFactory.getLog(ManagedConnectionFactoryWrapper.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     private final String managedConnectionFactoryClass;
     private final String connectionFactoryInterface;

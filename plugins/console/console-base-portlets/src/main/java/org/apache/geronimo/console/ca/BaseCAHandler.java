@@ -21,8 +21,8 @@ import javax.portlet.ActionResponse;
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletSession;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.console.MultiPageAbstractHandler;
 import org.apache.geronimo.console.MultiPageModel;
 import org.apache.geronimo.console.util.PortletManager;
@@ -38,7 +38,7 @@ import org.apache.geronimo.management.geronimo.KeystoreInstance;
  * @version $Rev$ $Date$
  */
 public abstract class BaseCAHandler extends MultiPageAbstractHandler {
-    private final static Log log = LogFactory.getLog(BaseCAHandler.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     protected static final String INDEX_MODE = "index";
     protected static final String SETUPCA_MODE = "setupCA";

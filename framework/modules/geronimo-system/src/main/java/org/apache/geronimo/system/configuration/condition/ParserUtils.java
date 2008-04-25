@@ -20,8 +20,8 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.apache.commons.jexl.context.HashMapContext;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Basic parser utility functions.
@@ -41,7 +41,7 @@ public class ParserUtils {
     }
        
     public static class DebugHashMapContext extends HashMapContext {
-        private static final Log LOG = LogFactory.getLog(DebugHashMapContext.class);
+        private final Logger LOG = LoggerFactory.getLogger(getClass());
         public Object get(Object o) {
             Object r = super.get(o);
             LOG.debug("Get property: " + o + " " + r);

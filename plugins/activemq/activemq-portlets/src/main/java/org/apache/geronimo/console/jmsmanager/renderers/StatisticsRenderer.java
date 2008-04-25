@@ -24,14 +24,14 @@ import javax.portlet.PortletException;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.console.jmsmanager.AbstractJMSManager;
 
 public class StatisticsRenderer extends AbstractJMSManager implements
         PortletRenderer {
 
-    protected static Log log = LogFactory.getLog(StatisticsRenderer.class);
+    protected final Logger log = LoggerFactory.getLogger(getClass());
 
     public String render(RenderRequest request, RenderResponse response)
             throws PortletException, IOException {

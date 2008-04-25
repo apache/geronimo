@@ -46,7 +46,6 @@
         <dependency>
             <groupId>org.apache.pluto</groupId>
             <artifactId>pluto-taglib</artifactId>
-            <version>${plutoVersion}</version>
             <scope>provided</scope>
         </dependency>
 

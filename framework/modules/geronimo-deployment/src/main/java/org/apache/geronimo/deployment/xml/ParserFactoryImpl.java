@@ -21,8 +21,8 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.kernel.util.XmlUtil;
@@ -38,7 +38,7 @@ import org.xml.sax.SAXParseException;
  * */
 public class ParserFactoryImpl implements ParserFactory {
 
-    private static final Log log = LogFactory.getLog(ParserFactoryImpl.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     private final DocumentBuilderFactory factory;
     private EntityResolver entityResolver;

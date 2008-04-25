@@ -29,8 +29,8 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
@@ -48,7 +48,7 @@ import org.apache.geronimo.kernel.repository.Version;
  * @version $Rev$ $Date$
  */
 public class SimpleConfigurationManager implements ConfigurationManager {
-    protected static final Log log = LogFactory.getLog(SimpleConfigurationManager.class);
+    protected final Logger log = LoggerFactory.getLogger(getClass());
     protected final Collection stores;
     private final ArtifactResolver artifactResolver;
     protected final Map configurations = new LinkedHashMap();

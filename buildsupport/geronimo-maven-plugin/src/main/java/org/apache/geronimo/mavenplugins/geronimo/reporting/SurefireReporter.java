@@ -40,8 +40,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.apache.maven.surefire.report.ReporterException;
 import org.apache.maven.surefire.util.PrettyPrintXMLWriter;
@@ -60,7 +60,7 @@ import org.codehaus.plexus.util.xml.Xpp3DomWriter;
 public class SurefireReporter
     implements Reporter
 {
-    private static final Log log = LogFactory.getLog(SurefireReporter.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     private static final String LS = System.getProperty("line.separator");
 

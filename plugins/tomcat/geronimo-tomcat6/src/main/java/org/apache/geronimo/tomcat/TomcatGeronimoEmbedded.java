@@ -20,8 +20,8 @@ import org.apache.catalina.Context;
 import org.apache.catalina.Lifecycle;
 import org.apache.catalina.startup.ContextConfig;
 import org.apache.catalina.startup.Embedded;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.webservices.WebServiceContainer;
 
 /**
@@ -29,7 +29,7 @@ import org.apache.geronimo.webservices.WebServiceContainer;
  */
 public class TomcatGeronimoEmbedded extends Embedded{
     
-    private static final Log log = LogFactory.getLog(TomcatGeronimoEmbedded.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
     
     public Context createContext(String path, String docBase, ClassLoader cl) {
 

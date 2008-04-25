@@ -26,8 +26,8 @@ import javax.xml.namespace.QName;
 import javax.xml.ws.Service;
 import javax.xml.ws.handler.Handler;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.kernel.repository.Environment;
@@ -45,7 +45,7 @@ import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlObject;
 
 public abstract class JAXWSServiceRefBuilder extends AbstractNamingBuilder implements ServiceRefBuilder {
-    private static final Log log = LogFactory.getLog(JAXWSServiceRefBuilder.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     private static final QName GER_SERVICE_REF_QNAME = 
         GerServiceRefDocument.type.getDocumentElementName();

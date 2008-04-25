@@ -16,8 +16,8 @@
  */
 package org.apache.geronimo.corba.util;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.omg.CORBA.LocalObject;
 import org.omg.PortableInterceptor.ORBInitInfo;
 import org.omg.PortableInterceptor.ORBInitializer;
@@ -32,7 +32,7 @@ import org.omg.PortableInterceptor.ORBInitializer;
  */
 public class UtilInitializer extends LocalObject implements ORBInitializer {
 
-    private final Log log = LogFactory.getLog(UtilInitializer.class);
+    private final Logger log = LoggerFactory.getLogger(UtilInitializer.class);
 
     /**
      * Called during ORB initialization.  If it is expected that initial

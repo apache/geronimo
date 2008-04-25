@@ -20,8 +20,8 @@ package org.apache.geronimo.jaxws.builder;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.jaxws.JAXWSUtils;
@@ -31,7 +31,7 @@ import org.apache.openejb.assembler.classic.EnterpriseBeanInfo;
 
 public class EJBWebServiceFinder implements WebServiceFinder {
 
-    private static final Log LOG = LogFactory.getLog(EJBWebServiceFinder.class);
+    private final Logger LOG = LoggerFactory.getLogger(getClass());
     
     public Map<String, PortInfo> discoverWebServices(Module module, 
                                                      boolean isEJB,

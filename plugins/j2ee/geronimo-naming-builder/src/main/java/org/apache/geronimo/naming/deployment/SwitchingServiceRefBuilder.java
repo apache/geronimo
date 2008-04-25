@@ -26,8 +26,8 @@ import java.util.Map;
 import javax.annotation.Resource;
 import javax.xml.namespace.QName;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -52,7 +52,7 @@ import org.apache.xmlbeans.XmlObject;
 
 public class SwitchingServiceRefBuilder extends AbstractNamingBuilder {
 
-    private static final Log log = LogFactory.getLog(SwitchingServiceRefBuilder.class);
+    private static final Logger log = LoggerFactory.getLogger(SwitchingServiceRefBuilder.class);
 
     private static final QName GER_SERVICE_REF_QNAME = GerServiceRefDocument.type
             .getDocumentElementName();

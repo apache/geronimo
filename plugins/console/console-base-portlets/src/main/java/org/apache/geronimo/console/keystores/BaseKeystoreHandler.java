@@ -30,8 +30,8 @@ import javax.portlet.ActionResponse;
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletSession;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.console.MultiPageAbstractHandler;
 import org.apache.geronimo.console.MultiPageModel;
 import org.apache.geronimo.management.geronimo.KeystoreException;
@@ -44,7 +44,7 @@ import org.apache.geronimo.crypto.CertificateUtil;
  * @version $Rev$ $Date$
  */
 public abstract class BaseKeystoreHandler extends MultiPageAbstractHandler {
-    private final static Log log = LogFactory.getLog(BaseKeystoreHandler.class);
+    private static final Logger log = LoggerFactory.getLogger(BaseKeystoreHandler.class);
     protected static final String KEYSTORE_DATA_PREFIX="org.apache.geronimo.keystore.";
     protected static final String LIST_MODE = "list";
     protected static final String UNLOCK_KEYSTORE_FOR_EDITING = "unlockEdit";

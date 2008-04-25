@@ -25,8 +25,8 @@ import java.util.Map;
 import javax.security.auth.login.AppConfigurationEntry;
 import javax.security.auth.login.Configuration;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
@@ -47,7 +47,7 @@ import org.apache.geronimo.security.SecurityServiceImpl;
  */
 public class GeronimoLoginConfiguration extends Configuration implements GBeanLifecycle, ReferenceCollectionListener {
 
-    private final Log log = LogFactory.getLog(GeronimoLoginConfiguration.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
     private static Map<String, AppConfigurationEntry[]> entries = new Hashtable<String, AppConfigurationEntry[]>();
     private Configuration oldConfiguration;
     private Collection<ConfigurationEntryFactory> configurations = Collections.emptySet();

@@ -28,8 +28,8 @@ import javax.xml.ws.WebServiceClient;
 import javax.xml.ws.WebServiceRef;
 import javax.xml.ws.WebServiceRefs;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.xbeans.javaee.FullyQualifiedClassType;
 import org.apache.geronimo.xbeans.javaee.JndiNameType;
@@ -68,7 +68,7 @@ import org.apache.xbean.finder.ClassFinder;
 public final class WebServiceRefAnnotationHelper extends AnnotationHelper {
 
     // Private instance variables
-    private static final Log log = LogFactory.getLog(WebServiceRefAnnotationHelper.class);
+    private static final Logger log = LoggerFactory.getLogger(WebServiceRefAnnotationHelper.class);
 
     // Private constructor to prevent instantiation
     private WebServiceRefAnnotationHelper() {

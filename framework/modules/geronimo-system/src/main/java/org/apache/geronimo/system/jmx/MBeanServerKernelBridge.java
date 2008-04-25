@@ -30,8 +30,8 @@ import javax.management.MBeanServer;
 import javax.management.NotificationBroadcasterSupport;
 import javax.management.ObjectName;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
@@ -45,7 +45,7 @@ import org.apache.geronimo.kernel.lifecycle.LifecycleAdapter;
  * @version $Rev$ $Date$
  */
 public class MBeanServerKernelBridge implements GBeanLifecycle {
-    private static final Log log = LogFactory.getLog(MBeanServerKernelBridge.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
     private static final AbstractNameQuery ALL = new AbstractNameQuery(null, Collections.EMPTY_MAP, Collections.EMPTY_SET);
 
     private final HashMap registry = new HashMap();

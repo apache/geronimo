@@ -30,8 +30,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.farm.config.ClusterInfo;
 import org.apache.geronimo.farm.config.NodeInfo;
 import org.apache.geronimo.gbean.AbstractName;
@@ -60,7 +60,7 @@ import org.apache.geronimo.system.configuration.RepositoryConfigurationStore;
  */
 @GBean(j2eeType=MasterConfigurationStore.GBEAN_J2EE_TYPE)
 public class MasterConfigurationStore implements ConfigurationStore {
-    private static final Log log = LogFactory.getLog(MasterConfigurationStore.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
     
     private final ConfigurationStore delegate;
     private final Environment defaultEnvironment;

@@ -34,8 +34,8 @@ import java.util.Hashtable;
 import java.util.Properties;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.common.GeronimoSecurityException;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
@@ -53,7 +53,7 @@ import org.apache.geronimo.crypto.EncryptionManager;
  * @version $Rev$ $Date$
  */
 public class PropertiesLoginModuleManager implements GBeanLifecycle {
-    private static Log log = LogFactory.getLog(PropertiesLoginModuleManager.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     private ServerInfo serverInfo;
 

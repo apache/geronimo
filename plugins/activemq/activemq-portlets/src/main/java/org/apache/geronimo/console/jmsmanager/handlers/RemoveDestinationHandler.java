@@ -27,8 +27,8 @@ import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
 import javax.portlet.PortletException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.console.jmsmanager.AbstractJMSManager;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.AbstractName;
@@ -41,8 +41,7 @@ import org.apache.geronimo.kernel.config.ConfigurationUtil;
 public class RemoveDestinationHandler extends AbstractJMSManager implements
         PortletResponseHandler {
 
-    protected static Log log = LogFactory
-            .getLog(RemoveDestinationHandler.class);
+    protected final Logger log = LoggerFactory.getLogger(getClass());
 
     public void processAction(ActionRequest request, ActionResponse response)
             throws IOException, PortletException {

@@ -23,8 +23,8 @@ import java.net.URL;
 import javax.naming.Context;
 import javax.xml.ws.WebServiceException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.cxf.Bus;
 import org.apache.cxf.jaxws.JAXWSMethodInvoker;
 import org.apache.cxf.jaxws.context.WebServiceContextImpl;
@@ -38,7 +38,7 @@ import org.apache.geronimo.jaxws.annotations.AnnotationHolder;
 
 public class POJOEndpoint extends CXFEndpoint {
   
-    private static final Log LOG = LogFactory.getLog(POJOEndpoint.class);
+    private final Logger LOG = LoggerFactory.getLogger(getClass());
     
     private AnnotationHolder holder;
 

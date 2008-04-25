@@ -20,8 +20,8 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import javax.portlet.GenericPortlet;
 import javax.portlet.PortletRequest;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.apache.geronimo.console.util.PortletManager;
 import org.apache.geronimo.management.geronimo.WebContainer;
@@ -32,7 +32,7 @@ import org.apache.geronimo.management.geronimo.WebContainer;
  * @version $Rev$ $Date$
  */
 public class BasePortlet extends GenericPortlet {
-    private final static Log log = LogFactory.getLog(BasePortlet.class);
+    private static final Logger log = LoggerFactory.getLogger(BasePortlet.class);
     protected final static String WEB_SERVER_JETTY = "jetty";
     protected final static String WEB_SERVER_TOMCAT = "tomcat";
     protected final static String WEB_SERVER_GENERIC = "generic";

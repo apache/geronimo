@@ -20,8 +20,8 @@ import java.util.Iterator;
 import java.util.Properties;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
@@ -31,7 +31,7 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
  */
 public class SystemProperties {
 
-    private final Log log = LogFactory.getLog(SystemProperties.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     public SystemProperties(Properties systemProperties, Properties systemPathProperties, ServerInfo serverInfo, Properties sunSystemProperties, Properties ibmSystemProperties, Properties apacheSystemProperties) {
         if (log.isDebugEnabled()) log.debug("Setting systemProperties");

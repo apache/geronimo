@@ -32,14 +32,14 @@ import org.apache.geronimo.system.jmx.MBeanServerReference;
 import org.apache.activemq.broker.jmx.BrokerViewMBean;
 import org.apache.activemq.broker.jmx.QueueViewMBean;
 import org.apache.activemq.broker.jmx.TopicViewMBean;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @version $Rev$ $Date$
  */
 public class AmqJMSMessageHelper extends JMSMessageHelper {
-    private static final Log log = LogFactory.getLog(AmqJMSMessageHelper.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     public void purge(PortletRequest renderRequest, String type, String physicalQName) {
         try {
@@ -66,7 +66,7 @@ public class AmqJMSMessageHelper extends JMSMessageHelper {
             }
         } catch (Exception ex) {
             // ignoring the exception
-            log.error(ex);
+            log.error("Failed to purge", ex);
         }
     }
 

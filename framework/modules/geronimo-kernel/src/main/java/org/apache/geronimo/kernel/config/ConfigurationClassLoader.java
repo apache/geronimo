@@ -26,7 +26,7 @@ import java.io.ObjectStreamClass;
 import java.util.Map;
 import java.lang.reflect.Field;
 
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.LoggerFactory;
 
 import org.apache.geronimo.kernel.util.ClassLoaderRegistry;
 
@@ -48,12 +48,11 @@ public class ConfigurationClassLoader extends URLClassLoader {
     }
 
     public void destroy() {
-        LogFactory.release(this);
         clearSoftCache(ObjectInputStream.class, "subclassAudits");
         clearSoftCache(ObjectOutputStream.class, "subclassAudits");
         clearSoftCache(ObjectStreamClass.class, "localDescs");
         clearSoftCache(ObjectStreamClass.class, "reflectors");
-        ClassLoaderRegistry.remove(this);    
+        ClassLoaderRegistry.remove(this);
     }
 
     public String toString() {
@@ -72,7 +71,7 @@ public class ConfigurationClassLoader extends URLClassLoader {
             synchronized (lock) {
                 if (!clearSoftCacheFailed) {
                     clearSoftCacheFailed = true;
-                    LogFactory.getLog(ConfigurationClassLoader.class).debug("Unable to clear SoftCache field " + fieldName + " in class " + clazz);
+                    LoggerFactory.getLogger(ConfigurationClassLoader.class).debug("Unable to clear SoftCache field {} in class {}", fieldName, clazz);
                 }
             }
         }

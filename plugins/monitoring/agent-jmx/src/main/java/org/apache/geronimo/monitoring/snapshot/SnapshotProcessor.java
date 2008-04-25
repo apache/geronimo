@@ -29,8 +29,8 @@ import javax.management.ReflectionException;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.monitoring.MBeanHelper;
 import org.apache.geronimo.monitoring.MasterRemoteControlJMX;
 import org.apache.geronimo.monitoring.snapshot.SnapshotConfigXMLBuilder;
@@ -41,7 +41,7 @@ import org.apache.geronimo.monitoring.snapshot.SnapshotConfigXMLBuilder;
  */
 public class SnapshotProcessor {
     
-    private static Log log = LogFactory.getLog(SnapshotProcessor.class);
+    private static final Logger log = LoggerFactory.getLogger(SnapshotProcessor.class);
     
     /**
      * Collects JSR-77 statistics for all mbeans that have been chosen to 

@@ -31,8 +31,8 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.transform.stream.StreamSource;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.cxf.jaxws.javaee.HandlerChainsType;
 import org.apache.cxf.jaxws.javaee.PortComponentType;
 import org.apache.cxf.jaxws.javaee.ServiceImplBeanType;
@@ -55,7 +55,7 @@ import org.apache.geronimo.jaxws.builder.WsdlGenerator;
 import org.apache.geronimo.kernel.repository.Environment;
 
 public class CXFBuilder extends JAXWSServiceBuilder {
-    private static final Log LOG = LogFactory.getLog(CXFBuilder.class);
+    private final Logger LOG = LoggerFactory.getLogger(getClass());
     
     /**
      * This property if enabled will cause the Sun wsgen tool to be used to 

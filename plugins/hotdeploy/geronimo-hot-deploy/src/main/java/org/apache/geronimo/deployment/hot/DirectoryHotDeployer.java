@@ -27,8 +27,8 @@ import javax.enterprise.deploy.spi.exceptions.DeploymentManagerCreationException
 import javax.enterprise.deploy.spi.factories.DeploymentFactory;
 import javax.enterprise.deploy.spi.status.ProgressObject;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.cli.DeployUtils;
 import org.apache.geronimo.deployment.plugin.factories.DeploymentFactoryWithKernel;
@@ -54,7 +54,7 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
  * @version $Rev$ $Date$
  */
 public class DirectoryHotDeployer implements HotDeployer, DeploymentWatcher, GBeanLifecycle { //todo: write unit tests
-    private static final Log log = LogFactory.getLog(DirectoryHotDeployer.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     // Try to make this stand out as the user is likely to get a ton of errors if this comes up
     private static final String BAD_LAYOUT_MESSAGE = "CANNOT DEPLOY: It looks like you unpacked an application or module " +

@@ -28,8 +28,8 @@ import javax.wsdl.extensions.ExtensibilityElement;
 import javax.wsdl.extensions.schema.SchemaReference;
 import javax.xml.namespace.QName;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.cxf.Bus;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.tools.common.extensions.soap.SoapAddress;
@@ -39,7 +39,7 @@ import org.xmlsoap.schemas.wsdl.http.AddressType;
 
 public class GeronimoQueryHandler extends WSDLQueryHandler {
 
-    private static final Log LOG = LogFactory.getLog(GeronimoQueryHandler.class);
+    private final Logger LOG = LoggerFactory.getLogger(getClass());
 
     public GeronimoQueryHandler(Bus bus) {
         super(bus);

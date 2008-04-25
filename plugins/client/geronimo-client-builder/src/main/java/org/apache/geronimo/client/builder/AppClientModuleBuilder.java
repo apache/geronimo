@@ -35,8 +35,8 @@ import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.client.AppClientContainer;
 import org.apache.geronimo.client.StaticJndiContextPlugin;
 import org.apache.geronimo.common.DeploymentException;
@@ -105,7 +105,7 @@ import org.apache.xmlbeans.XmlObject;
  * @version $Rev:385232 $ $Date$
  */
 public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSource, GBeanLifecycle {
-    private static final Log log = LogFactory.getLog(AppClientModuleBuilder.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
     private static final String LINE_SEP = System.getProperty("line.separator");
     private static final String GERAPPCLIENT_NAMESPACE = GerApplicationClientDocument.type.getDocumentElementName().getNamespaceURI();
     private static final Map<String, String> NAMESPACE_UPDATES = new HashMap<String, String>();

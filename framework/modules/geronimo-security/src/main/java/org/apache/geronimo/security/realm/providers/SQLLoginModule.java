@@ -45,8 +45,8 @@ import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 import javax.sql.DataSource;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
@@ -85,7 +85,7 @@ import org.apache.geronimo.crypto.encoders.HexTranslator;
  * @version $Rev$ $Date$
  */
 public class SQLLoginModule implements LoginModule {
-    private static Log log = LogFactory.getLog(SQLLoginModule.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
     public final static String USER_SELECT = "userSelect";
     public final static String GROUP_SELECT = "groupSelect";
     public final static String CONNECTION_URL = "jdbcURL";

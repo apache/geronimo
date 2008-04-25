@@ -23,8 +23,8 @@ import org.apache.geronimo.kernel.ClassLoading;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.management.State;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -38,7 +38,7 @@ public abstract class AbstractGBeanReference implements GBeanReference {
      */
     protected static final boolean NO_PROXY;
     static {
-        Log log = LogFactory.getLog(AbstractGBeanReference.class);
+        Logger log = LoggerFactory.getLogger(AbstractGBeanReference.class);
         String no_proxy = System.getProperty("Xorg.apache.geronimo.gbean.NoProxy", "true");
         NO_PROXY = no_proxy.equalsIgnoreCase("true");
         if (NO_PROXY) {

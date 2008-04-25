@@ -37,8 +37,8 @@ import org.apache.geronimo.common.FileUtils;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Version;
 import org.apache.geronimo.kernel.util.XmlUtil;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -51,7 +51,7 @@ import org.xml.sax.helpers.DefaultHandler;
  */
 public class ConfigIDExtractor {
 
-    private static final Log log = LogFactory.getLog(ConfigIDExtractor.class);
+    private static final Logger log = LoggerFactory.getLogger(ConfigIDExtractor.class);
 
     /**
      * Attempt to calculate the Geronimo ModuleID for a J2EE application

@@ -17,8 +17,8 @@
 
 package org.apache.geronimo.console.logmanager;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.console.BasePortlet;
 import org.apache.geronimo.console.util.PortletManager;
 import org.apache.geronimo.gbean.AbstractName;
@@ -52,7 +52,7 @@ import java.util.Map;
  */
 public class WebAccessLogViewerPortlet extends BasePortlet {
     private final static String CRITERIA_KEY = "org.apache.geronimo.console.web.log.CRITERIA";
-    private final static Log log = LogFactory.getLog(WebAccessLogViewerPortlet.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
     private static final int DEFAULT_MAX_RESULTS = 10;
 
     protected PortletRequestDispatcher searchView;

@@ -19,15 +19,15 @@ package org.apache.geronimo.system.repository;
 import java.io.File;
 import java.net.URI;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 /**
  * @version $Rev$ $Date$
  */
 public abstract class AbstractRepository extends org.apache.geronimo.kernel.repository.AbstractRepository {
-    protected static final Log log = LogFactory.getLog(AbstractRepository.class);
+    protected final Logger log = LoggerFactory.getLogger(getClass());
 
     public AbstractRepository(URI root, ServerInfo serverInfo, boolean resolveToServer) {
         super(new ServerInfoRootResolver(serverInfo, resolveToServer).resolve(root));

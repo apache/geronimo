@@ -16,8 +16,8 @@
  */
 package org.apache.geronimo.corba.security;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.corba.ORBConfiguration;
 import org.apache.geronimo.corba.util.Util;
 import org.omg.CORBA.LocalObject;
@@ -31,7 +31,7 @@ import org.omg.PortableInterceptor.ORBInitializer;
  */
 public class SecurityInitializer extends LocalObject implements ORBInitializer {
 
-    private final Log log = LogFactory.getLog(SecurityInitializer.class);
+    private final Logger log = LoggerFactory.getLogger(SecurityInitializer.class);
 
     public SecurityInitializer() {
         if (log.isDebugEnabled()) log.debug("SecurityInitializer.<init>");

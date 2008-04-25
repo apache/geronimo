@@ -30,13 +30,6 @@
 
     <artifactId>geronimo-crypto</artifactId>
     <name>Geronimo Framework, Modules :: Crypto</name>
-    
-    <dependencies>
-        <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-        </dependency>
-    </dependencies>
-    
+
 </project>
 

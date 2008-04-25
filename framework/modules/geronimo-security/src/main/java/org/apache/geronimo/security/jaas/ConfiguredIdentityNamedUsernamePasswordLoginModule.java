@@ -27,8 +27,8 @@ import javax.security.auth.DestroyFailedException;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.callback.CallbackHandler;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * ConfiguredIdentityNamedUsernamePasswordLoginModule adds a geronimo-specific NamedUsernamePasswordCredential
@@ -46,7 +46,7 @@ import org.apache.commons.logging.LogFactory;
  * @version $Rev$ $Date$
  */
 public class ConfiguredIdentityNamedUsernamePasswordLoginModule implements LoginModule {
-    private static Log log = LogFactory.getLog(ConfiguredIdentityNamedUsernamePasswordLoginModule.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     public static final String CREDENTIAL_NAME = "org.apache.geronimo.jaas.NamedUsernamePasswordCredential.Name";
     public static final String USER_NAME = "org.apache.geronimo.jaas.NamedUsernamePasswordCredential.Username";

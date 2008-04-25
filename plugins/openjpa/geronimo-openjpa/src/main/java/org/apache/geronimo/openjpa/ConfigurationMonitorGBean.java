@@ -24,8 +24,8 @@ import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.HashMap;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanLifecycle;
@@ -45,7 +45,7 @@ import org.apache.openjpa.enhance.PCRegistry;
  * @version $Rev$ $Date$
  */
 public class ConfigurationMonitorGBean implements GBeanLifecycle {
-    private static final Log log = LogFactory.getLog(ConfigurationMonitorGBean.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
     
     private final Kernel kernel;
     private final LifecycleListener listener;

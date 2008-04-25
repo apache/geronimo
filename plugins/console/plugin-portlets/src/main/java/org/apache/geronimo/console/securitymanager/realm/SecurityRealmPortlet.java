@@ -60,8 +60,8 @@ import javax.security.auth.Subject;
 import javax.security.auth.spi.LoginModule;
 import javax.xml.namespace.QName;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.console.BasePortlet;
 import org.apache.geronimo.console.car.ManagementHelper;
 import org.apache.geronimo.console.util.PortletManager;
@@ -112,7 +112,7 @@ import org.apache.xmlbeans.XmlOptions;
  * @version $Rev$ $Date$
  */
 public class SecurityRealmPortlet extends BasePortlet {
-    private final static Log log = LogFactory.getLog(SecurityRealmPortlet.class);
+    private static final Logger log = LoggerFactory.getLogger(SecurityRealmPortlet.class);
     private final static String[] SKIP_ENTRIES_WITH = new String[]{"geronimo", "tomcat", "tranql", "commons", "directory", "activemq"};
     private static final String LIST_VIEW = "/WEB-INF/view/realmwizard/list.jsp";
     private static final String EDIT_VIEW = "/WEB-INF/view/realmwizard/edit.jsp";

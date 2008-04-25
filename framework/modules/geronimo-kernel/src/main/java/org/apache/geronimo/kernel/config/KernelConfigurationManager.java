@@ -23,6 +23,8 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
@@ -298,7 +300,9 @@ public class KernelConfigurationManager extends SimpleConfigurationManager imple
 
     private static class ShutdownHook implements Runnable {
         private final Kernel kernel;
-
+        
+        private final Logger log = LoggerFactory.getLogger(getClass());
+        
         public ShutdownHook(Kernel kernel) {
             this.kernel = kernel;
         }

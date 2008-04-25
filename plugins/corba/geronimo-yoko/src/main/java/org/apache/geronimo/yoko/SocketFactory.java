@@ -31,8 +31,8 @@ import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.corba.ORBConfiguration;
 import org.apache.geronimo.corba.security.config.ConfigUtil;
 import org.apache.geronimo.corba.security.config.ssl.SSLCipherSuiteDatabase;
@@ -65,7 +65,7 @@ import org.omg.IOP.IOR;
  */
 public class SocketFactory implements ConnectionHelper {
 
-    private final static Log log = LogFactory.getLog(SocketFactory.class);
+    private final static Logger log = LoggerFactory.getLogger(SocketFactory.class);
 
     // The initialized SSLSocketFactory obtained from the Geronimo KeystoreManager.
     private SSLSocketFactory socketFactory = null;

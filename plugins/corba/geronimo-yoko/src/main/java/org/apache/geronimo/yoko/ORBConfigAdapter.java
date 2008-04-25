@@ -22,8 +22,8 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Properties;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.corba.CORBABean;
 import org.apache.geronimo.corba.CSSBean;
 import org.apache.geronimo.corba.NameService;
@@ -49,7 +49,7 @@ import org.omg.CORBA.Policy;
  */
 public class ORBConfigAdapter implements GBeanLifecycle, ConfigAdapter {
 
-    private final Log log = LogFactory.getLog(ORBConfigAdapter.class);
+    private final Logger log = LoggerFactory.getLogger(ORBConfigAdapter.class);
 
     public ORBConfigAdapter() {
     }

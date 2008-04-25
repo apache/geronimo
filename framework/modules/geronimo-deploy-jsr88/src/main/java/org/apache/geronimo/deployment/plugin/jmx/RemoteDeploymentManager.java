@@ -39,8 +39,8 @@ import javax.management.MBeanServerConnection;
 import javax.management.remote.JMXConnector;
 import javax.security.auth.login.FailedLoginException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.deployment.ModuleConfigurer;
 import org.apache.geronimo.deployment.plugin.GeronimoDeploymentManager;
 import org.apache.geronimo.deployment.plugin.local.AbstractDeployCommand;
@@ -73,7 +73,7 @@ import org.codehaus.plexus.archiver.ArchiverException;
  * @version $Rev$ $Date$
  */
 public class RemoteDeploymentManager extends JMXDeploymentManager implements GeronimoDeploymentManager, ServerArchiver {
-    private static final Log log = LogFactory.getLog(RemoteDeploymentManager.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     private JMXConnector jmxConnector;
     private boolean isSameMachine;

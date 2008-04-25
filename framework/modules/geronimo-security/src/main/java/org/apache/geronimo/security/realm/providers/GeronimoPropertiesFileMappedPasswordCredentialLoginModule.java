@@ -41,8 +41,8 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.common.GeronimoSecurityException;
 import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
 import org.apache.geronimo.security.jaas.NamedUsernamePasswordCredential;
@@ -70,7 +70,7 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
  */
 public class GeronimoPropertiesFileMappedPasswordCredentialLoginModule implements LoginModule {
 
-    private static final Log log = LogFactory.getLog(GeronimoPropertiesFileMappedPasswordCredentialLoginModule.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
     public final static String CREDENTIALS_URI = "credentialsURI";
     public final static List<String> supportedOptions = Collections.unmodifiableList(Arrays.asList(CREDENTIALS_URI));
     private final static Pattern pattern = Pattern.compile("([^:,=]*):([^:,=]*)=([^:,=]*)");

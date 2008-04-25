@@ -16,8 +16,8 @@
  */
 package org.apache.geronimo.corba;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.InvalidConfigurationException; 
 import org.omg.CORBA.Any;
@@ -51,7 +51,7 @@ import java.util.Map;
   */
 public class TSSBean implements GBeanLifecycle {
 
-    private final Log log = LogFactory.getLog(TSSBean.class);
+    private final Logger log = LoggerFactory.getLogger(TSSBean.class);
 
     private final ClassLoader classLoader;
     private final String POAName;

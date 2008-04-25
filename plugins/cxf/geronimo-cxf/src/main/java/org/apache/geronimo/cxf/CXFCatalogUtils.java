@@ -23,15 +23,15 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.cxf.Bus;
 import org.apache.cxf.catalog.OASISCatalogManager;
 import org.apache.xml.resolver.Catalog;
 
 public class CXFCatalogUtils {
     
-    private static final Log LOG = LogFactory.getLog(CXFCatalogUtils.class);
+    private static final Logger LOG = LoggerFactory.getLogger(CXFCatalogUtils.class);
         
     private CXFCatalogUtils() {        
     }

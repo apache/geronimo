@@ -16,8 +16,8 @@
  */
 package org.apache.geronimo.gbean.runtime;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.kernel.DependencyManager;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
@@ -31,7 +31,7 @@ import java.util.Set;
  * @version $Rev$ $Date$
  */
 public class GBeanInstanceState {
-    private static final Log log = LogFactory.getLog(GBeanInstanceState.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     /**
      * The GBeanInstance in which this server is registered.

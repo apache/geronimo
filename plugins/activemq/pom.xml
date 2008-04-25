@@ -35,15 +35,7 @@
     <description>
         ActiveMQ plugin
     </description>
-    
-    <dependencies>
-        <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-            <scope>provided</scope>
-        </dependency>
-    </dependencies>
-    
+
     <modules>
         <module>activemq-broker</module>
         <module>geronimo-activemq-ra</module>

@@ -16,8 +16,8 @@
  */
 package org.apache.geronimo.system.configuration.condition;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Provides access to Java version details for use in condition expressions.
@@ -26,7 +26,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class JavaVariable
 {
-    private static final Log log = LogFactory.getLog(JavaVariable.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
     
     public String getVendor() {
         return SystemUtils.JAVA_VENDOR;

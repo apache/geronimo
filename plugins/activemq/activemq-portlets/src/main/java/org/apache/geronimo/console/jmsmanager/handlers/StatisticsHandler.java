@@ -23,14 +23,14 @@ import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
 import javax.portlet.PortletException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.console.jmsmanager.AbstractJMSManager;
 
 public class StatisticsHandler extends AbstractJMSManager implements
         PortletResponseHandler {
 
-    protected static Log log = LogFactory.getLog(StatisticsHandler.class);
+    protected final Logger log = LoggerFactory.getLogger(getClass());
 
     public void processAction(ActionRequest request, ActionResponse response)
             throws IOException, PortletException {

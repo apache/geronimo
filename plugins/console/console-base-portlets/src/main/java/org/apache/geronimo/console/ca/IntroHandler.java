@@ -25,8 +25,8 @@ import javax.portlet.PortletException;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.console.MultiPageModel;
 import org.apache.geronimo.management.geronimo.CertificationAuthority;
 
@@ -36,7 +36,7 @@ import org.apache.geronimo.management.geronimo.CertificationAuthority;
  * @version $Rev$ $Date$
  */
 public class IntroHandler extends BaseCAHandler {
-    private final static Log log = LogFactory.getLog(IntroHandler.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
     public IntroHandler() {
         super(INDEX_MODE, "/WEB-INF/view/ca/index.jsp");
     }

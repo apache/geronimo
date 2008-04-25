@@ -27,8 +27,8 @@ import javax.naming.Name;
 import javax.naming.NamingException;
 import javax.naming.ContextNotEmptyException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -45,7 +45,7 @@ import org.apache.xbean.naming.context.WritableContext;
  * @version $Rev$ $Date$
  */
 public class KernelContextGBean extends WritableContext implements GBeanLifecycle {
-    private static final Log log = LogFactory.getLog(KernelContextGBean.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     private final Kernel kernel;
     private final AbstractNameQuery abstractNameQuery;

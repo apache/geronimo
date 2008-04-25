@@ -42,14 +42,14 @@ import org.apache.catalina.deploy.LoginConfig;
 import org.apache.catalina.deploy.SecurityCollection;
 import org.apache.catalina.deploy.SecurityConstraint;
 import org.apache.catalina.valves.ValveBase;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.tomcat.realm.TomcatEJBWSGeronimoRealm;
 import org.apache.geronimo.webservices.WebServiceContainer;
 
 public class TomcatEJBWebServiceContext extends StandardContext{
 
-    private static final Log log = LogFactory.getLog(TomcatEJBWebServiceContext.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     private final String contextPath;
     private final WebServiceContainer webServiceContainer;
@@ -161,7 +161,7 @@ public class TomcatEJBWebServiceContext extends StandardContext{
                 } catch (IOException e) {
                     throw e;
                 } catch (Exception e) {
-                    log.error(e);
+                    log.error("Failed to get WSDL", e);
                     res.sendError(500,"Could not fetch wsdl!");
                     return;
                 }

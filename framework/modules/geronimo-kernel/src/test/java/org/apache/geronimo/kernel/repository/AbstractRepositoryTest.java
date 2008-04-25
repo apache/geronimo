@@ -26,14 +26,14 @@ import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ListableRepository;
 import org.apache.geronimo.kernel.repository.Version;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @version $Rev: 476049 $ $Date: 2006-11-17 15:35:17 +1100 (Fri, 17 Nov 2006) $
  */
 public class AbstractRepositoryTest extends TestCase {
-    private static final Log log = LogFactory.getLog(AbstractRepositoryTest.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
     
     protected ListableRepository repository;
     protected File rootRepoDir;

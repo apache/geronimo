@@ -16,8 +16,8 @@
  */
 package org.apache.geronimo.deployment.hot;
 
-import org.apache.commons.logging.LogFactory;
-import org.apache.commons.logging.Log;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 import org.apache.geronimo.deployment.cli.DeployUtils;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.kernel.repository.Artifact;
@@ -45,7 +45,7 @@ import java.util.Set;
  * @version $Rev$ $Date$
  */
 public class DirectoryMonitor implements Runnable {
-    private static final Log log = LogFactory.getLog(DirectoryMonitor.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     public static interface Listener {
         /**

@@ -21,8 +21,8 @@ import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.apache.activemq.broker.TransportConnector;
 import org.apache.geronimo.activemq.ActiveMQConnector;
@@ -37,7 +37,7 @@ import org.apache.geronimo.gbean.GConstructorInfo;
  * @version $Rev$ $Date$
  */
 public class TransportConnectorGBeanImpl implements GBeanLifecycle, ActiveMQConnector {
-    private Log log = LogFactory.getLog(getClass().getName());
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     private TransportConnector transportConnector;
     private BrokerServiceGBean brokerServiceGBean;

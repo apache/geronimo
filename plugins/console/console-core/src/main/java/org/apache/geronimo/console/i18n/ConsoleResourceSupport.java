@@ -20,15 +20,15 @@ package org.apache.geronimo.console.i18n;
 import java.util.Enumeration;
 import java.util.ResourceBundle;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.console.util.PortletManager;
 
 /**
  * This class provide the common functions for its subclasses.
  */
 public class ConsoleResourceSupport extends ResourceBundle {
-    private static final Log log = LogFactory.getLog(ConsoleResourceSupport.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
     private static final String BASENAME = "portletinfo";
 
     @Override

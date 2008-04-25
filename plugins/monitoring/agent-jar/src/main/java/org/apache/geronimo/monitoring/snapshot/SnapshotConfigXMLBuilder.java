@@ -24,15 +24,15 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.monitoring.MonitorConstants;
 
 /**
  * In charge of dealing with the XML processing of the snapshot's data.
  */
 public class SnapshotConfigXMLBuilder {
-    private static Log log = LogFactory.getLog(SnapshotConfigXMLBuilder.class);
+    private static final Logger log = LoggerFactory.getLogger(SnapshotConfigXMLBuilder.class);
     
     private static final String pathToXML = 
         System.getProperty("org.apache.geronimo.home.dir") + "/var/monitoring/snapshot-config.xml";

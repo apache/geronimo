@@ -34,33 +34,17 @@
     <artifactId>monitoring</artifactId>
     <name>Geronimo Plugins, Monitoring</name>
     <packaging>pom</packaging>
-    <!-- <version>1.0-SNAPSHOT</version> -->
 
     <description> Geronimo Monitoring and Management </description>
 
     <properties>
         <!--
-        NOTE: Project version, to be used instead of ${pom.version} since that
-              value magically changes when using SNAPSHOT versions.
-
-              This value *must* be kept in sync with the value of the <version>
-              element, and it will need to be changed manually before a release,
-              as the maven-release-plugin will not update this value.
+        FIXME: WTF are these for?  Drop them...
         -->
-        <!-- used in the plans
-        <version>1.0-SNAPSHOT</version> -->
         <monitoringConsoleVersion>2.2-SNAPSHOT</monitoringConsoleVersion>
         <consoleVersion>2.2-SNAPSHOT</consoleVersion>
     </properties>
 
-    <dependencies>
-        <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-            <scope>provided</scope>
-        </dependency>
-    </dependencies>
-    
     <modules>
         <module>agent</module>
         <module>agent-ds</module>

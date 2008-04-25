@@ -64,8 +64,8 @@ import org.omg.IOP.ENCODING_CDR_ENCAPS;
 import org.omg.IOP.Encoding;
 import org.omg.CORBA_2_3.portable.OutputStream;
 import org.omg.CORBA_2_3.portable.InputStream;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.corba.CorbaApplicationServer;
 import org.apache.openejb.ProxyInfo;
 import org.apache.openejb.spi.ApplicationServer;
@@ -80,7 +80,7 @@ import org.apache.openejb.core.ServerFederation;
  * @see UtilInitializer
  */
 public final class Util {
-    private static final Log log = LogFactory.getLog(Util.class);
+    private static final Logger log = LoggerFactory.getLogger(Util.class);
     private static final byte ASN_TAG_NT_EXPORTED_NAME1 = 0x04;
     private static final byte ASN_TAG_NT_EXPORTED_NAME2 = 0x01;
     private static final byte ASN_TAG_OID = 0x06;

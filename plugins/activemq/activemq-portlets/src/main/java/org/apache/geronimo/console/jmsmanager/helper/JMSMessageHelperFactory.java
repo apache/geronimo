@@ -20,8 +20,8 @@ import java.util.List;
 
 import javax.portlet.PortletRequest;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.console.util.PortletManager;
 import org.apache.geronimo.management.geronimo.ResourceAdapterModule;
 
@@ -29,7 +29,7 @@ import org.apache.geronimo.management.geronimo.ResourceAdapterModule;
  * @version $Rev$ $Date$
  */
 public class JMSMessageHelperFactory {
-    private static final Log log = LogFactory.getLog(JMSMessageHelperFactory.class);
+    private static final Logger log = LoggerFactory.getLogger(JMSMessageHelperFactory.class);
 
     public static JMSMessageHelper getMessageHelper(PortletRequest renderRequest, String raName) {
         JMSMessageHelper messageHelper = null;
@@ -63,11 +63,11 @@ public class JMSMessageHelperFactory {
             return messageHelper;
 
         } catch (IllegalAccessException e) {
-            log.error(e);
+            log.error(e.toString(), e);
         } catch (InstantiationException e) {
-            log.error(e);
+            log.error(e.toString(), e);
         } catch (ClassNotFoundException e) {
-            log.error(e);
+            log.error(e.toString(), e);
         }
         return messageHelper;
     }

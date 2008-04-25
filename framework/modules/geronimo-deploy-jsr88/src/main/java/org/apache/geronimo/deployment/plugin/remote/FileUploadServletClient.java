@@ -34,8 +34,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.kernel.Kernel;
@@ -46,7 +46,7 @@ import org.apache.geronimo.crypto.encoders.Base64;
  * @version $Rev:$ $Date:$
  */
 public class FileUploadServletClient implements FileUploadClient {
-    private static final Log log = LogFactory.getLog(FileUploadServletClient.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     /** Note:  The below versions should be kept in sync with those in FileUploadServlet.java **/
     // Starting RemoteDeploy datastream versions

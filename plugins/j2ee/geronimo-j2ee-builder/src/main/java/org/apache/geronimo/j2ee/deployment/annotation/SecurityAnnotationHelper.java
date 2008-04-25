@@ -23,8 +23,8 @@ import javax.annotation.security.DeclareRoles;
 import javax.annotation.security.RunAs;
 import javax.servlet.Servlet;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.xbeans.javaee.RoleNameType;
 import org.apache.geronimo.xbeans.javaee.RunAsType;
@@ -61,7 +61,7 @@ import org.apache.xbean.finder.ClassFinder;
 public final class SecurityAnnotationHelper extends AnnotationHelper {
 
     // Private instance variables
-    private static final Log log = LogFactory.getLog(SecurityAnnotationHelper.class);
+    private static final Logger log = LoggerFactory.getLogger(SecurityAnnotationHelper.class);
 
     // Private constructor to prevent instantiation
     private SecurityAnnotationHelper() {

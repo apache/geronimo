@@ -162,12 +162,20 @@
                             <artifactId>commons-cli</artifactId>
                         </element>
                         <element>
-                            <groupId>commons-logging</groupId>
-                            <artifactId>commons-logging</artifactId>
-                        </element>
-                        <element>
                             <groupId>cglib</groupId>
                             <artifactId>cglib-nodep</artifactId>
+                        </element>
+                        <element>
+                            <groupId>org.slf4j</groupId>
+                            <artifactId>slf4j-api</artifactId>
+                        </element>
+                        <element>
+                            <groupId>org.slf4j</groupId>
+                            <artifactId>slf4j-log4j12</artifactId>
+                        </element>
+                        <element>
+                            <groupId>org.slf4j</groupId>
+                            <artifactId>jcl104-over-slf4j</artifactId>
                         </element>
                         <element>
                             <groupId>log4j</groupId>

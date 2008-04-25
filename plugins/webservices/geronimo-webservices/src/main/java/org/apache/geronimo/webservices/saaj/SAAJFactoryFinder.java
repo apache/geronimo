@@ -21,12 +21,12 @@ import java.util.Map;
 
 import javax.xml.soap.SOAPException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 class SAAJFactoryFinder {
     
-    private static final Log LOG = LogFactory.getLog(SAAJFactoryFinder.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SAAJFactoryFinder.class);
     
     private static final String SAAJ_PROVIDER_PROPERTY = 
         "org.apache.geronimo.saaj.provider";

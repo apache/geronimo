@@ -18,8 +18,8 @@ package org.apache.geronimo.mail;
 
 import java.util.Properties;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
@@ -72,7 +72,7 @@ public class SMTPSTransportGBean extends ProtocolGBean {
     static public final String GBEAN_MAIL_EXTENSION = "mailExtension";
     static public final String GBEAN_STARTTLS_ENABLE = "startTLSEnable";
 
-    private final Log log = LogFactory.getLog(SMTPSTransportGBean.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     private Integer port;
     private Integer connectionTimeout;

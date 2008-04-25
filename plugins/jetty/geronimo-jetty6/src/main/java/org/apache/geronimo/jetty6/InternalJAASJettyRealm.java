@@ -27,8 +27,8 @@ import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 import javax.security.jacc.WebRoleRefPermission;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.realm.providers.CertificateCallbackHandler;
 import org.apache.geronimo.security.realm.providers.ClearableCallbackHandler;
@@ -40,7 +40,7 @@ import org.mortbay.jetty.Request;
  * @version $Rev$ $Date$
  */
 public class InternalJAASJettyRealm {
-    private static Log log = LogFactory.getLog(InternalJAASJettyRealm.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     private final String securityRealmName;
     private final HashMap<String, Principal> userMap = new HashMap<String, Principal>();

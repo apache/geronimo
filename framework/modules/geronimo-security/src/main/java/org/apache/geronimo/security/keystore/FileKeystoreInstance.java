@@ -59,8 +59,8 @@ import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
@@ -91,7 +91,7 @@ import org.apache.geronimo.crypto.jce.X509V1CertificateGenerator;
  * @version $Rev$ $Date$
  */
 public class FileKeystoreInstance implements KeystoreInstance, GBeanLifecycle {
-    private static final Log log = LogFactory.getLog(FileKeystoreInstance.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
     final static String JKS = "JKS";
     private URI keystorePath; // relative path
     private ServerInfo serverInfo; // used to decode relative path

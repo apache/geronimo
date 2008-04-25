@@ -27,8 +27,8 @@ import java.io.OutputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Utility methods for dealing with checksums (hashes) of files in the
@@ -37,7 +37,7 @@ import org.apache.commons.logging.LogFactory;
  * @version $Rev$ $Date$
  */
 public class ConfigurationStoreUtil {
-    private static final Log log = LogFactory.getLog(ConfigurationStoreUtil.class);
+    private static final Logger log = LoggerFactory.getLogger(ConfigurationStoreUtil.class);
 
     public static void writeChecksumFor(File file) throws IOException {
         // check if the sum already exists

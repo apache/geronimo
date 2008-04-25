@@ -32,8 +32,8 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
 import org.apache.geronimo.security.jaas.NamedUsernamePasswordCredential;
 import org.apache.geronimo.security.jaas.WrappingLoginModule;
@@ -51,7 +51,7 @@ import org.apache.geronimo.security.jaas.WrappingLoginModule;
  * @version $Revision$ $Date$
  */
 public class NamedUsernamePasswordCredentialLoginModule implements LoginModule {
-    private static Log log = LogFactory.getLog(NamedUsernamePasswordCredentialLoginModule.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     public static final String CREDENTIAL_NAME = "Name";
     public static final String CREDENTIAL_NAME_LONG = NamedUsernamePasswordCredentialLoginModule.class.getName() + "." + CREDENTIAL_NAME;

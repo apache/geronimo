@@ -25,8 +25,8 @@ import org.apache.catalina.Globals;
 import org.apache.catalina.InstanceEvent;
 import org.apache.catalina.InstanceListener;
 import org.apache.catalina.core.StandardWrapper;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.tomcat.GeronimoStandardContext;
 import org.apache.geronimo.tomcat.interceptor.BeforeAfter;
 import org.apache.geronimo.tomcat.realm.TomcatGeronimoRealm;
@@ -36,7 +36,7 @@ import org.apache.tomcat.util.http.mapper.MappingData;
 
 public class DispatchListener implements InstanceListener {
 
-    private static final Log log = LogFactory.getLog(DispatchListener.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     private static ThreadLocal currentContext = new ThreadLocal() {
         protected Object initialValue() {

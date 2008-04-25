@@ -31,15 +31,15 @@ import org.apache.geronimo.management.J2EEServer;
 import org.apache.openejb.assembler.classic.EjbJarInfo;
 import org.apache.openejb.UndeployException;
 import org.apache.openejb.NoSuchApplicationException;
-import org.apache.commons.logging.LogFactory;
-import org.apache.commons.logging.Log;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 /**
  * @version $Revision$ $Date$
  */
 public class EjbModuleImpl implements EJBModule {
 
-    private static final Log log = LogFactory.getLog(EjbModuleImpl.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
     private final J2EEServer server;
     private final J2EEApplication application;
     private final String deploymentDescriptor;
@@ -132,7 +132,7 @@ public class EjbModuleImpl implements EJBModule {
             List<Throwable> causes = e.getCauses();
             log.error(e.getMessage()+": Encountered "+causes.size()+" failures.");
             for (Throwable throwable : causes) {
-                log.info(throwable);
+                log.info(throwable.toString(), throwable);
             }
         }
     }

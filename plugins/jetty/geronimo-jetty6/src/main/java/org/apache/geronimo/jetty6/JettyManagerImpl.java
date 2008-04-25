@@ -25,8 +25,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
@@ -62,7 +62,7 @@ import org.apache.geronimo.management.geronimo.WebManager.ConnectorAttribute;
  * @version $Rev:386276 $ $Date$
  */
 public class JettyManagerImpl implements WebManager {
-    private final static Log log = LogFactory.getLog(JettyManagerImpl.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     private static final ConnectorType HTTP_NIO = new ConnectorType(Messages.getString("JettyManagerImpl.0")); //$NON-NLS-1$
     private static final ConnectorType HTTPS_NIO = new ConnectorType(Messages.getString("JettyManagerImpl.1")); //$NON-NLS-1$
@@ -193,7 +193,7 @@ public class JettyManagerImpl implements WebManager {
         } catch (GBeanNotFoundException e) {
             log.warn("No such GBean '" + connectorName + "'"); //todo: what if we want to remove a failed GBean?
         } catch (Exception e) {
-            log.error(e);
+            log.error("Failed to remove connector", e);
         }
     }
 
@@ -304,7 +304,7 @@ public class JettyManagerImpl implements WebManager {
         } catch (GBeanNotFoundException e) {
             log.warn("No such GBean '" + connectorName + "'");
         } catch (Exception e) {
-            log.error(e);
+            log.error("Failed to get connector type", e);
         }
             
         return connectorType;

@@ -35,8 +35,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.kernel.classloader.UnionEnumeration;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.util.ClassLoaderRegistry;
@@ -51,7 +51,7 @@ import org.apache.geronimo.kernel.util.ClassLoaderRegistry;
  * @version $Rev$ $Date$
  */
 public class MultiParentClassLoader extends URLClassLoader {
-    private static final Log log = LogFactory.getLog(MultiParentClassLoader.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
     private final Artifact id;
     private final ClassLoader[] parents;
     private final boolean inverseClassLoading;
@@ -81,7 +81,8 @@ public class MultiParentClassLoader extends URLClassLoader {
     	}
     	
 		classLoaderSearchMode = runtimeMode;
-		log.info("ClassLoading behaviour has changed.  The "+runtimeModeMessage+" mode is in effect.  If you are experiencing a problem\n"+
+		LoggerFactory.getLogger(MultiParentClassLoader.class).info(
+                 "ClassLoading behaviour has changed.  The "+runtimeModeMessage+" mode is in effect.  If you are experiencing a problem\n"+
 				 "you can change the behaviour by specifying -DXorg.apache.geronimo.kernel.config.MPCLSearchOption= property.  Specify \n"+
 				 "=\"safe\" to revert to the original behaviour.  This is a temporary change until we decide whether or not to make it\n"+
 				 "permanent for the 2.0 release");
@@ -649,7 +650,6 @@ public class MultiParentClassLoader extends URLClassLoader {
             destroyed = true;
         }
 
-        LogFactory.release(this);
         clearSoftCache(ObjectInputStream.class, "subclassAudits");
         clearSoftCache(ObjectOutputStream.class, "subclassAudits");
         clearSoftCache(ObjectStreamClass.class, "localDescs");
@@ -676,7 +676,7 @@ public class MultiParentClassLoader extends URLClassLoader {
             synchronized (lock) {
                 if (!clearSoftCacheFailed) {
                     clearSoftCacheFailed = true;
-                    LogFactory.getLog(MultiParentClassLoader.class).debug("Unable to clear SoftCache field " + fieldName + " in class " + clazz);
+                    LoggerFactory.getLogger(MultiParentClassLoader.class).debug("Unable to clear SoftCache field {} in class {}", fieldName, clazz);
                 }
             }
         }

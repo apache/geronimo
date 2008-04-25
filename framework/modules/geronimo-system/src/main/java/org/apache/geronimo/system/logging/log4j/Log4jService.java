@@ -42,14 +42,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogConfigurationException;
-import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.kernel.log.GeronimoLogFactory;
-import org.apache.geronimo.kernel.log.GeronimoLogging;
 import org.apache.geronimo.system.logging.SystemLog;
 import org.apache.geronimo.system.properties.JvmVendor;
 import org.apache.geronimo.system.serverinfo.DirectoryUtils;
@@ -85,7 +80,7 @@ public class Log4jService implements GBeanLifecycle, SystemLog {
     // Pattern that matches a single line  (used to calculate line numbers and check for follow-on stack traces)
     private final static Pattern FULL_LINE_PATTERN = Pattern.compile("^.*", Pattern.MULTILINE);
 
-    private final static Log log = LogFactory.getLog(Log4jService.class);
+    private final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(getClass());
 
     private static final String LOG4JSERVICE_CONFIG_PROPERTY = "org.apache.geronimo.log4jservice.configuration";
 
@@ -531,23 +526,10 @@ public class Log4jService implements GBeanLifecycle, SystemLog {
             lastChanged = file.lastModified();
         }
 
-        // Record the default console log level
-        System.setProperty("org.apache.geronimo.log.ConsoleLogLevel", GeronimoLogging.getConsoleLogLevel().toString());
-
         try {
             URLConfigurator.configure(file.toURL());
         } catch (MalformedURLException e) {
             e.printStackTrace();
-        }
-
-        // refresh the level info for every log
-        GeronimoLogFactory logFactory = (GeronimoLogFactory) LogFactory.getFactory();
-        Set instances = logFactory.getInstances();
-        for (Iterator iterator = instances.iterator(); iterator.hasNext();) {
-            Object log = iterator.next();
-            if (log instanceof CachingLog4jLog) {
-                ((CachingLog4jLog)log).updateLevelInfo();
-            }
         }
     }
 
@@ -567,39 +549,25 @@ public class Log4jService implements GBeanLifecycle, SystemLog {
     }
 
     public void doStart() {
-        LogFactory logFactory = LogFactory.getFactory();
-        if (logFactory instanceof GeronimoLogFactory) {
-            // Make sure the root Logger has loaded
-            Logger logger = LogManager.getRootLogger();
-
-            // Change all of the loggers over to use log4j
-            GeronimoLogFactory geronimoLogFactory = (GeronimoLogFactory) logFactory;
-            synchronized (geronimoLogFactory) {
-                if (!(geronimoLogFactory.getLogFactory() instanceof CachingLog4jLogFactory)) {
-                    geronimoLogFactory.setLogFactory(new CachingLog4jLogFactory());
-                }
-            }
-
-            // Allow users to override the configurationFile which is hardcoded
-            // in config.ser and cannot be updated by config.xml, as the
-            // AttrbiuteManager comes up after this GBean
-            String cfgFile = System.getProperty(LOG4JSERVICE_CONFIG_PROPERTY);
-            if ((cfgFile != null) && (!cfgFile.equals(""))) {
-                this.configurationFile = cfgFile;
-            }
-
-            synchronized (this) {
-                reconfigure();
-
-                timer = new Timer(true);
-
-                // Periodically check the configuration file
-                schedule();
-            }
-
-            logEnvInfo();
+        // Allow users to override the configurationFile which is hardcoded
+        // in config.ser and cannot be updated by config.xml, as the
+        // AttrbiuteManager comes up after this GBean
+        String cfgFile = System.getProperty(LOG4JSERVICE_CONFIG_PROPERTY);
+        if ((cfgFile != null) && (!cfgFile.equals(""))) {
+            this.configurationFile = cfgFile;
         }
 
+        synchronized (this) {
+            reconfigure();
+
+            timer = new Timer(true);
+
+            // Periodically check the configuration file
+            schedule();
+        }
+
+        logEnvInfo();
+        
         synchronized (this) {
             running = true;
         }
@@ -631,7 +599,6 @@ public class Log4jService implements GBeanLifecycle, SystemLog {
 
     private void logEnvInfo() {
        try {
-          Log log = LogFactory.getLog(Log4jService.class);
           log.info("----------------------------------------------");
           log.info("Started Logging Service");
           if (log.isDebugEnabled()) {
@@ -693,34 +660,7 @@ public class Log4jService implements GBeanLifecycle, SystemLog {
             }
         }
     }
-
-    private static class CachingLog4jLogFactory extends LogFactory {
-        public Log getInstance(Class clazz) throws LogConfigurationException {
-            return getInstance(clazz.getName());
-        }
-
-        public Log getInstance(String name) throws LogConfigurationException {
-            return new CachingLog4jLog(name);
-        }
-
-        public Object getAttribute(String name) {
-            return null;
-        }
-
-        public String[] getAttributeNames() {
-            return new String[0];
-        }
-
-        public void release() {
-        }
-
-        public void removeAttribute(String name) {
-        }
-
-        public void setAttribute(String name, Object value) {
-        }
-    }
-
+    
     public static final GBeanInfo GBEAN_INFO;
 
     static {

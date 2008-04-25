@@ -20,8 +20,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
@@ -41,7 +41,7 @@ import org.apache.pluto.driver.services.portal.admin.RenderConfigAdminService;
  *  </gbean>
  */
 public class AdminConsoleExtensionGBean implements GBeanLifecycle {
-    private static final Log log = LogFactory.getLog(AdminConsoleExtensionGBean.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
     public static final GBeanInfo GBEAN_INFO;
     private final String pageTitle;
     private final String portletContext;

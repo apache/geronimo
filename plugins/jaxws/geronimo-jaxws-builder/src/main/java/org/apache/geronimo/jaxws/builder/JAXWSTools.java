@@ -27,8 +27,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.SortedSet;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ListableRepository;
 import org.apache.geronimo.kernel.repository.Repository;
@@ -36,8 +36,8 @@ import org.apache.geronimo.kernel.repository.Version;
 
 public class JAXWSTools {
 
-    private static final Log LOG = LogFactory.getLog(JAXWSTools.class);
-        
+    private static final Logger LOG = LoggerFactory.getLogger(JAXWSTools.class);
+
     private final static String [][] LIBS =
     { 
         { "org.apache.axis2", "axis2-jaxws-api" },

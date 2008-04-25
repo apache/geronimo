@@ -19,8 +19,8 @@ package org.apache.geronimo.tomcat;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.catalina.valves.AccessLogValve;
 
 import java.util.*;
@@ -42,7 +42,7 @@ import java.text.ParseException;
  * @version $Rev$ $Date$
  */
 public class TomcatLogManagerImpl implements TomcatLogManager {
-    private final static Log log = LogFactory.getLog(TomcatLogManagerImpl.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     // Pattern that matches the date in the logfile name
     private final static Pattern FILENAME_DATE_PATTERN = Pattern.compile("[-_ /.](((19|20)\\d\\d)[-_ /.](0[1-9]|1[012])[-_ /.](0[1-9]|[12][0-9]|3[01]))");

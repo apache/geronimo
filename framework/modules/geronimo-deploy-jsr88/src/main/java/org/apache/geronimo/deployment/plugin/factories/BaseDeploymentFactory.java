@@ -30,8 +30,8 @@ import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.deployment.ModuleConfigurer;
 import org.apache.geronimo.deployment.plugin.DisconnectedDeploymentManager;
 import org.apache.geronimo.deployment.plugin.jmx.LocalDeploymentManager;
@@ -48,7 +48,7 @@ import org.apache.geronimo.kernel.KernelRegistry;
  * @version $Rev$ $Date$
  */
 public class BaseDeploymentFactory implements DeploymentFactory {
-    private static final Log log = LogFactory.getLog(BaseDeploymentFactory.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     public static final String URI_PREFIX = "deployer:geronimo:";
     private static final int DEFAULT_PORT = 1099;
@@ -178,10 +178,10 @@ public class BaseDeploymentFactory implements DeploymentFactory {
             }
             return manager;
         } catch (IOException e) {
-            log.fatal("caught ", e);
+            log.error("caught ", e);
             DeploymentManagerCreationException deploymentManagerCreationException = 
                     (DeploymentManagerCreationException) new DeploymentManagerCreationException(e.getMessage()).initCause(e);
-            log.fatal("throwing ", deploymentManagerCreationException);
+            log.error("throwing ", deploymentManagerCreationException);
             throw deploymentManagerCreationException;
         } catch (SecurityException e) {
             if (log.isDebugEnabled()) {

@@ -24,8 +24,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.clustering.Cluster;
 import org.apache.geronimo.clustering.Node;
 import org.apache.geronimo.clustering.Session;
@@ -58,7 +58,7 @@ import org.codehaus.wadi.servicespace.ServiceSpaceName;
  * @version $Rev$ $Date$
  */
 public class BasicWADISessionManager implements GBeanLifecycle, SessionManager, WADISessionManager {
-    private static final Log log = LogFactory.getLog(BasicWADISessionManager.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     protected final ClassLoader cl;
     private final WADICluster cluster;
@@ -133,7 +133,7 @@ public class BasicWADISessionManager implements GBeanLifecycle, SessionManager, 
         try {
             serviceSpace.stop();
         } catch (Exception e) {
-            log.error(e);
+            log.error("Failed to stop", e);
         }
     }
 

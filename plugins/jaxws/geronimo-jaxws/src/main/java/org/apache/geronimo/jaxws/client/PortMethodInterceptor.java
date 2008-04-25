@@ -18,8 +18,8 @@ package org.apache.geronimo.jaxws.client;
 
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.jaxws.JAXWSUtils;
 import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.jaas.NamedUsernamePasswordCredential;
@@ -38,7 +38,7 @@ import java.util.Set;
 
 public class PortMethodInterceptor implements MethodInterceptor {
 
-    private static final Log LOG = LogFactory.getLog(PortMethodInterceptor.class);
+    private final Logger LOG = LoggerFactory.getLogger(getClass());
     
     private Map<Object, EndpointInfo> seiInfoMap;
 

@@ -17,8 +17,8 @@
 
 package org.apache.geronimo.console.jmsmanager.activemqCF;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.console.util.ObjectNameConstants;
 import org.apache.geronimo.console.util.PortletManager;
@@ -45,7 +45,7 @@ import java.util.SortedSet;
 
 public class ActiveMQConnectorHelper {
     //todo: this class is horrible and needs to be burned!
-    private final static Log log = LogFactory.getLog(ActiveMQConnectorHelper.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     private static String MODULE_FILE;
 

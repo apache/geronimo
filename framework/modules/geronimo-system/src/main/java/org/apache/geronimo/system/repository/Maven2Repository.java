@@ -19,8 +19,8 @@ package org.apache.geronimo.system.repository;
 import java.io.File;
 import java.net.URI;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
@@ -30,7 +30,7 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
  */
 public class Maven2Repository extends org.apache.geronimo.kernel.repository.Maven2Repository {
 
-    private static final Log log = LogFactory.getLog(Maven2Repository.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
     public Maven2Repository(URI root, ServerInfo serverInfo, boolean resolveToServer) {
         super(new ServerInfoRootResolver(serverInfo, resolveToServer).resolve(root));
         log.debug("Maven2Repository(root = " + root + ", resolveToServer = "

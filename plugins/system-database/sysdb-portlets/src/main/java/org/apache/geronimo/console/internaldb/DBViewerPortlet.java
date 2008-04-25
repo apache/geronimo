@@ -29,12 +29,12 @@ import javax.portlet.RenderResponse;
 import javax.portlet.WindowState;
 
 import org.apache.geronimo.console.BasePortlet;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DBViewerPortlet extends BasePortlet {
 
-    private final static Log log = LogFactory.getLog(DBViewerPortlet.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     private static final int RDBMS_DERBY = 1;
 

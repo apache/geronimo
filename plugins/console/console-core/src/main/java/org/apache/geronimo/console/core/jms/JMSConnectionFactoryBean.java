@@ -20,8 +20,8 @@ package org.apache.geronimo.console.core.jms;
 import javax.jms.ConnectionFactory;
 import javax.resource.ResourceException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
@@ -29,7 +29,7 @@ import org.apache.geronimo.naming.ResourceSource;
 
 public class JMSConnectionFactoryBean implements GBeanLifecycle {
 
-    private static Log log = LogFactory.getLog(JMSConnectionFactoryBean.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     private final ResourceSource<ResourceException> managedConnectionFactoryWrapper;
 

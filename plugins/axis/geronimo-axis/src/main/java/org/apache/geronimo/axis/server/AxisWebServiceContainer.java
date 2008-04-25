@@ -38,8 +38,8 @@ import org.apache.axis.message.SOAPEnvelope;
 import org.apache.axis.soap.SOAPConstants;
 import org.apache.axis.transport.http.HTTPConstants;
 import org.apache.axis.utils.Messages;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.webservices.WebServiceContainer;
 import org.apache.geronimo.webservices.saaj.SAAJUniverse;
 import org.w3c.dom.Element;
@@ -51,7 +51,7 @@ public class AxisWebServiceContainer implements WebServiceContainer {
     public static final String REQUEST = AxisWebServiceContainer.class.getName() + "@Request";
     public static final String RESPONSE = AxisWebServiceContainer.class.getName() + "@Response";
 
-    private static Log log = LogFactory.getLog(AxisWebServiceContainer.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     public static final String XSD_NS = "http://www.w3.org/2001/XMLSchema";
 

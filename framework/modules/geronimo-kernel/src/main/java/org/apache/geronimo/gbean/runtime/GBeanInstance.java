@@ -31,8 +31,8 @@ import java.util.Set;
 
 import javax.management.ObjectName;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GAttributeInfo;
@@ -64,7 +64,7 @@ import org.apache.xbean.recipe.Option;
  * @version $Rev:385718 $ $Date$
  */
 public final class GBeanInstance implements StateManageable {
-    private static final Log log = LogFactory.getLog(GBeanInstance.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     private static final int DESTROYED = 0;
     private static final int CREATING = 1;

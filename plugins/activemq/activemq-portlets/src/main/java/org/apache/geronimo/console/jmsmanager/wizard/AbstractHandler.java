@@ -36,8 +36,8 @@ import javax.enterprise.deploy.spi.status.ProgressObject;
 import javax.portlet.ActionResponse;
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletSession;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.connector.deployment.jsr88.AdminObjectDCB;
 import org.apache.geronimo.connector.deployment.jsr88.AdminObjectInstance;
 import org.apache.geronimo.connector.deployment.jsr88.ConnectionDefinition;
@@ -62,7 +62,7 @@ import org.apache.geronimo.naming.deployment.jsr88.GBeanLocator;
  * @version $Rev$ $Date$
  */
 public abstract class AbstractHandler extends MultiPageAbstractHandler {
-    private final static Log log = LogFactory.getLog(AbstractHandler.class);
+    private static final Logger log = LoggerFactory.getLogger(AbstractHandler.class);
     // ********** This part specific to JMS portlets **********
 
     protected final static String LIST_MODE="list";

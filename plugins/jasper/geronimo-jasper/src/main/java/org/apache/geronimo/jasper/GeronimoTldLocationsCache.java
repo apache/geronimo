@@ -42,8 +42,8 @@ import org.apache.jasper.JasperException;
 import org.apache.jasper.compiler.TldLocationsCache;
 import org.apache.jasper.xmlparser.ParserUtils;
 import org.apache.jasper.xmlparser.TreeNode;
-import org.apache.juli.logging.Log;
-import org.apache.juli.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A container for all tag libraries that are defined "globally"
@@ -86,7 +86,7 @@ import org.apache.juli.logging.LogFactory;
 public class GeronimoTldLocationsCache extends TldLocationsCache {
 
     // Logger
-    private Log log = LogFactory.getLog(GeronimoTldLocationsCache.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     /**
      * The types of URI one may specify for a tag library

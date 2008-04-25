@@ -42,8 +42,8 @@ import org.apache.catalina.Realm;
 import org.apache.catalina.Valve;
 import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.ha.CatalinaCluster;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -77,7 +77,7 @@ import org.apache.naming.resources.DirContextURLStreamHandler;
  */
 public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebModule, StatisticsProvider {
 
-    private static Log log = LogFactory.getLog(TomcatWebAppContext.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     protected final TomcatContainer container;
     private final ClassLoader classLoader;

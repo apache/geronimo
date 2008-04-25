@@ -27,8 +27,8 @@ import javax.naming.InitialContext;
 import javax.naming.Name;
 import javax.naming.NamingException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
@@ -52,7 +52,7 @@ import org.apache.geronimo.management.JavaMailResource;
  */
 public class MailGBean implements GBeanLifecycle, JavaMailResource, ResourceSource {
 
-    private final Log log = LogFactory.getLog(MailGBean.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     private final String objectName;
     private final Collection protocols;

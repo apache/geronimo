@@ -73,8 +73,8 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.portlet.PortletFileUpload;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.connector.deployment.jsr88.ConfigPropertySetting;
 import org.apache.geronimo.connector.deployment.jsr88.ConnectionDefinition;
 import org.apache.geronimo.connector.deployment.jsr88.ConnectionDefinitionInstance;
@@ -117,7 +117,7 @@ import org.xml.sax.InputSource;
  * @version $Rev$ $Date$
  */
 public class DatabasePoolPortlet extends BasePortlet {
-    private final static Log log = LogFactory.getLog(DatabasePoolPortlet.class);
+    private static final Logger log = LoggerFactory.getLogger(DatabasePoolPortlet.class);
     private final static Set<String> INCLUDE_ARTIFACTIDS = new HashSet<String>(Arrays.asList("system-database"));
 
     private final static Set<String> EXCLUDE_GROUPIDS = new HashSet<String>(Arrays.asList("org.apache.geronimo.modules",

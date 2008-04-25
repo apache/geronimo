@@ -28,7 +28,6 @@
         <groupId>org.apache.geronimo.buildsupport</groupId>
         <artifactId>buildsupport</artifactId>
         <version>2.2-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <groupId>org.apache.geronimo.buildsupport.it</groupId>
@@ -37,7 +36,6 @@
     <packaging>car</packaging>
 
     <dependencies>
-
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-gbean-deployer</artifactId>
@@ -62,13 +60,6 @@
             <artifactId>xpp3</artifactId>
             <scope>test</scope>
         </dependency>
-
-        <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-            <scope>provided</scope>
-        </dependency>
-
     </dependencies>
 
     <build>

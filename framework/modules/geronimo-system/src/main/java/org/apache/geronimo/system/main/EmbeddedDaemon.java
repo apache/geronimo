@@ -25,8 +25,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.LinkedHashSet;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.cli.daemon.DaemonCLParser;
 import org.apache.geronimo.common.GeronimoEnvironment;
 import org.apache.geronimo.gbean.AbstractName;
@@ -48,7 +48,7 @@ import org.apache.geronimo.system.serverinfo.DirectoryUtils;
  * @version $Rev:385659 $ $Date: 2007-03-07 14:40:07 +1100 (Wed, 07 Mar 2007) $
  */
 public class EmbeddedDaemon implements Main {
-    private static final Log log = LogFactory.getLog(EmbeddedDaemon.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     protected final Kernel kernel;
     private StartupMonitor monitor;

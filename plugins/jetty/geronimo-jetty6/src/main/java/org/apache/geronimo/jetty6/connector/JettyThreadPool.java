@@ -23,8 +23,8 @@ package org.apache.geronimo.jetty6.connector;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.system.threads.ThreadPool;
 
 /**
@@ -32,7 +32,7 @@ import org.apache.geronimo.system.threads.ThreadPool;
  */
 public class JettyThreadPool implements org.mortbay.thread.ThreadPool {
 
-    private static final Log log = LogFactory.getLog(JettyThreadPool.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
     private final ThreadPool executor;
     private final String name;
 

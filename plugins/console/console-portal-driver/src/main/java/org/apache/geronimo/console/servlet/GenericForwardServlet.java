@@ -16,8 +16,8 @@
  */
 package org.apache.geronimo.console.servlet;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.console.gbean.ContextForward;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
@@ -51,7 +51,7 @@ import java.util.Set;
  * to most typical servlets, JSPs, and static content.
  */
 public class GenericForwardServlet extends HttpServlet {
-    private final static Log log = LogFactory.getLog(GenericForwardServlet.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
     private Map forwards = new HashMap(); // Maps a prefix String to ForwardData
     private Kernel kernel;
     private LifecycleListener listener;

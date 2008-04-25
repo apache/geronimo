@@ -36,8 +36,8 @@ import java.util.Random;
 import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.FileWriteMonitor;
 import org.apache.geronimo.kernel.repository.WriteableRepository;
@@ -49,7 +49,7 @@ import org.apache.geronimo.kernel.repository.WriteableRepository;
  * @version $Rev$ $Date$
  */
 public class DriverDownloader {
-    private final static Log log = LogFactory.getLog(DriverDownloader.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
     Random random;
 
     public Properties readDriverFile(URL url) {

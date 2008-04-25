@@ -28,8 +28,8 @@ import java.util.jar.JarFile;
 
 import javax.xml.ws.http.HTTPBinding;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.axis2.pojo.POJOWebServiceContainerFactoryGBean;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.GBeanData;
@@ -57,7 +57,7 @@ import org.apache.xmlbeans.XmlObject;
  */
 public class Axis2Builder extends JAXWSServiceBuilder {
 
-    private static final Log log = LogFactory.getLog(Axis2Builder.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
         
     public Axis2Builder(Environment defaultEnviroment) {
         super(defaultEnviroment);

@@ -57,8 +57,8 @@ import org.apache.axis2.jaxws.description.builder.WsdlGenerator;
 import org.apache.axis2.jaxws.description.builder.converter.JavaClassToDBCConverter;
 import org.apache.axis2.jaxws.server.JAXWSMessageReceiver;
 import org.apache.axis2.wsdl.WSDLUtil;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.axis2.util.SimpleWSDLLocator;
 import org.apache.geronimo.jaxws.JAXWSUtils;
 import org.apache.geronimo.jaxws.PortInfo;
@@ -68,7 +68,7 @@ import org.apache.ws.commons.schema.utils.NamespaceMap;
  * @version $Rev$ $Date$
  */
 public class AxisServiceGenerator {
-    private static final Log log = LogFactory.getLog(AxisServiceGenerator.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
         
     private MessageReceiver messageReceiver;
     

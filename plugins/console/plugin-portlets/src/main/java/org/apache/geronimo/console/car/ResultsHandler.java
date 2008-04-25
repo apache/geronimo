@@ -23,8 +23,8 @@ import javax.portlet.ActionResponse;
 import javax.portlet.PortletException;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.console.MultiPageModel;
 import org.apache.geronimo.kernel.KernelRegistry;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
@@ -37,7 +37,7 @@ import org.apache.geronimo.kernel.repository.Artifact;
  * @version $Rev$ $Date$
  */
 public class ResultsHandler extends BaseImportExportHandler {
-    private final static Log log = LogFactory.getLog(ResultsHandler.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     public ResultsHandler() {
         super(RESULTS_MODE, "/WEB-INF/view/car/results.jsp");

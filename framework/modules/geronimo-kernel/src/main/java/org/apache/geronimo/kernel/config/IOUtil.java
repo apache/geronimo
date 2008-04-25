@@ -36,14 +36,14 @@ import java.util.Set;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @version $Rev$ $Date$
  */
 public class IOUtil {
-    private final static Log log = LogFactory.getLog(IOUtil.class);
+    private static final Logger log = LoggerFactory.getLogger(IOUtil.class);
 
     public static void recursiveCopy(File srcDir, File destDir) throws IOException {
         if (srcDir == null) throw new NullPointerException("sourceDir is null");

@@ -62,8 +62,8 @@ import org.apache.axis2.transport.http.HTTPTransportUtils;
 import org.apache.axis2.transport.http.TransportHeaders;
 import org.apache.axis2.transport.http.util.RESTUtil;
 import org.apache.axis2.util.MessageContextBuilder;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.axis2.client.Axis2ConfigGBean;
 import org.apache.geronimo.jaxws.JAXWSAnnotationProcessor;
 import org.apache.geronimo.jaxws.JAXWSUtils;
@@ -79,7 +79,7 @@ import org.apache.geronimo.webservices.saaj.SAAJUniverse;
  */
 public abstract class Axis2WebServiceContainer implements WebServiceContainer {
 
-    private static final Log LOG = LogFactory.getLog(Axis2WebServiceContainer.class);
+    private final Logger LOG = LoggerFactory.getLogger(getClass());
 
     public static final String REQUEST = Axis2WebServiceContainer.class.getName() + "@Request";
     public static final String RESPONSE = Axis2WebServiceContainer.class.getName() + "@Response";

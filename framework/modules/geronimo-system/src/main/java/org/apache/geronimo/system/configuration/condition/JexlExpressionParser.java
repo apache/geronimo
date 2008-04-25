@@ -23,8 +23,8 @@ import org.apache.commons.jexl.ExpressionFactory;
 import org.apache.commons.jexl.JexlContext;
 import org.apache.commons.jexl.JexlHelper;
 import org.apache.commons.jexl.resolver.FlatResolver;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Parses expressions using <a href="http://jakarta.apache.org/commons/jexl/">Commons Jexl</a>.
@@ -32,7 +32,7 @@ import org.apache.commons.logging.LogFactory;
  * @version $Rev$ $Date$
  */
 public class JexlExpressionParser {
-    private static final Log log = LogFactory.getLog(JexlExpressionParser.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     protected JexlContext context;
 

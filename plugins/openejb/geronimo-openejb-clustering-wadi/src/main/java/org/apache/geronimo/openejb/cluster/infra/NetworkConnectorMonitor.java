@@ -25,8 +25,8 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.clustering.Node;
 import org.apache.geronimo.clustering.SessionManagerListener;
 import org.apache.geronimo.clustering.wadi.RemoteNode;
@@ -55,7 +55,7 @@ import org.codehaus.wadi.servicespace.ServiceSpace;
  * @version $Rev:$ $Date:$
  */
 public class NetworkConnectorMonitor implements GBeanLifecycle {
-    private static final Log log = LogFactory.getLog(NetworkConnectorMonitor.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
     
     private final Collection<NetworkConnector> connectors;
     private final Collection<EjbDeploymentIdAccessor> idAccessors;

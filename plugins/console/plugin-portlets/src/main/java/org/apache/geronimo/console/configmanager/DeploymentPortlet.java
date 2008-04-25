@@ -43,8 +43,8 @@ import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.portlet.PortletFileUpload;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.console.BasePortlet;
 import org.apache.geronimo.deployment.plugin.jmx.JMXDeploymentManager;
 import org.apache.geronimo.deployment.plugin.ConfigIDExtractor;
@@ -58,7 +58,7 @@ import org.w3c.dom.Document;
  * $Rev$ $Date$
  */
 public class DeploymentPortlet extends BasePortlet {
-    private final static Log log = LogFactory.getLog(DeploymentPortlet.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
     
     private static final String DEPLOY_VIEW          = "/WEB-INF/view/configmanager/deploy.jsp";
     private static final String HELP_VIEW            = "/WEB-INF/view/configmanager/deployHelp.jsp";

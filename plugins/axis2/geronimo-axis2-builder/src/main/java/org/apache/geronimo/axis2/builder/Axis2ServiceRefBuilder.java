@@ -17,8 +17,8 @@
 
 package org.apache.geronimo.axis2.builder;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.jaxws.builder.EndpointInfoBuilder;
 import org.apache.geronimo.jaxws.builder.JAXWSServiceRefBuilder;
 import org.apache.geronimo.jaxws.client.EndpointInfo;
@@ -51,7 +51,7 @@ import java.util.Map;
 
 public class Axis2ServiceRefBuilder extends JAXWSServiceRefBuilder {
 
-    private static final Log log = LogFactory.getLog(Axis2ServiceRefBuilder.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
     
     public Axis2ServiceRefBuilder(Environment defaultEnvironment,
                                  String[] eeNamespaces) {

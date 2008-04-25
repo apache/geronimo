@@ -20,8 +20,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.deployment.ModuleConfigurer;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
@@ -34,7 +34,7 @@ import org.apache.geronimo.kernel.Kernel;
  * @version $Rev$ $Date$
  */
 public class LocalDeploymentManager extends JMXDeploymentManager {
-    private static final Log log = LogFactory.getLog(LocalDeploymentManager.class);
+    private static final Logger log = LoggerFactory.getLogger(LocalDeploymentManager.class);
     private static final AbstractNameQuery CONFIGURER_QUERY = new AbstractNameQuery(ModuleConfigurer.class.getName());
 
     public LocalDeploymentManager(Kernel kernel) {

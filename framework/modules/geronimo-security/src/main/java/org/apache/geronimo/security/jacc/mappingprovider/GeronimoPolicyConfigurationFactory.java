@@ -23,8 +23,8 @@ import javax.security.jacc.PolicyConfiguration;
 import javax.security.jacc.PolicyConfigurationFactory;
 import javax.security.jacc.PolicyContextException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.security.GeronimoSecurityPermission;
 
 
@@ -33,7 +33,7 @@ import org.apache.geronimo.security.GeronimoSecurityPermission;
  */
 public class GeronimoPolicyConfigurationFactory extends PolicyConfigurationFactory implements PrincipalRoleConfigurationFactory {
 
-    private static final Log log = LogFactory.getLog(GeronimoPolicyConfigurationFactory.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
     private static GeronimoPolicyConfigurationFactory singleton;
     private Map<String, GeronimoPolicyConfiguration> configurations = new HashMap<String, GeronimoPolicyConfiguration>();
 

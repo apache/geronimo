@@ -127,32 +127,10 @@
         </dependency>
         
         <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
+            <groupId>org.codehaus.groovy.maven.support</groupId>
+            <artifactId>slf4j-gossip</artifactId>
         </dependency>
-        
-        <!--
-        HACK: Explicity add maven-artifact here (which is picked up plugin-support)
-              because w/o it clover will freak out, as it picks up an older version
-        -->
-        <dependency>
-            <groupId>org.apache.maven</groupId>
-            <artifactId>maven-artifact</artifactId>
-            <version>2.0.4</version>
-        </dependency>
-
-        <!-- HACK try to use our archiver version -->
-        <!--<dependency>-->
-            <!--<groupId>org.codehaus.plexus</groupId>-->
-            <!--<artifactId>plexus-archiver</artifactId>-->
-            <!--<version>1.0-alpha-9</version>-->
-        <!--</dependency>-->
     </dependencies>
-    
-    <build>
-        <plugins>
-        </plugins>
-    </build>
-   
+
 </project>
 

@@ -34,8 +34,8 @@ import java.util.StringTokenizer;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @version $Rev$ $Date$
@@ -43,7 +43,7 @@ import org.apache.commons.logging.LogFactory;
 public class UrlResourceFinder implements ResourceFinder {
     private final Object lock = new Object();
 
-    private static final Log log = LogFactory.getLog(UrlResourceFinder.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
     private final LinkedHashSet<URL> urls = new LinkedHashSet<URL>();
     private final LinkedHashMap<URL,ResourceLocation> classPath = new LinkedHashMap<URL,ResourceLocation>();
     private final LinkedHashSet<File> watchedFiles = new LinkedHashSet<File>();
@@ -203,7 +203,7 @@ public class UrlResourceFinder implements ResourceFinder {
                     } catch (UnsupportedOperationException ex) {
                         // the protocol for the JAR file's URL is not supported.  This can occur when
                         // the jar file is embedded in an EAR or CAR file.  Proceed but log the message.
-                        log.error(ex);
+                        log.error("The protocol for the JAR file's URL is not supported", ex);
                         continue;
                     }
                 }

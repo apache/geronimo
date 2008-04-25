@@ -24,8 +24,8 @@ import java.util.LinkedList;
 import java.util.Set;
 import javax.management.ObjectName;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.AbstractNameQuery;
@@ -75,16 +75,13 @@ public class BasicKernel implements Kernel {
      */
     private static final String[] NO_TYPES = new String[0];
     private static final Object[] NO_ARGS = new Object[0];
-
+    
+    private final Logger log = LoggerFactory.getLogger(getClass());
+    
     /**
      * Name of this kernel
      */
     private final String kernelName;
-
-    /**
-     * The log
-     */
-    private Log log;
 
     /**
      * Is this kernel running?
@@ -592,7 +589,6 @@ public class BasicKernel implements Kernel {
             return;
         }
         bootTime = new Date();
-        log = LogFactory.getLog(BasicKernel.class.getName());
         log.debug("Starting boot");
 
         // todo cleanup when boot fails

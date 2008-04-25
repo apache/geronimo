@@ -16,8 +16,8 @@
  */
 package org.apache.geronimo.jaxws.annotations;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -33,7 +33,7 @@ import java.util.Map;
 
 public class AnnotationProcessor {
 
-    private static final Log LOG = LogFactory.getLog(AnnotationProcessor.class);
+    private final Logger LOG = LoggerFactory.getLogger(getClass());
 
     private Map<Class<? extends Annotation>, AnnotationHandler> handlers;
 

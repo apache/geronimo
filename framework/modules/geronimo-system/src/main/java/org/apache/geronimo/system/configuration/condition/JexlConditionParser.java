@@ -25,8 +25,8 @@ import org.apache.commons.jexl.ExpressionFactory;
 import org.apache.commons.jexl.JexlContext;
 import org.apache.commons.jexl.JexlHelper;
 import org.apache.commons.jexl.context.HashMapContext;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Provides a simple facility to evaluate condition expressions using the
@@ -41,7 +41,7 @@ import org.apache.commons.logging.LogFactory;
 public class JexlConditionParser
     implements ConditionParser
 {
-    private static final Log log = LogFactory.getLog(JexlConditionParser.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     private final Map<String, Object> vars;
 

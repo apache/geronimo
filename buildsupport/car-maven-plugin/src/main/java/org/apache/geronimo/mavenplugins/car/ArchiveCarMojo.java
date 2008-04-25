@@ -45,7 +45,6 @@ import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.KernelConfigurationManager;
 import org.apache.geronimo.kernel.config.LifecycleException;
 import org.apache.geronimo.kernel.config.RecordingLifecycleMonitor;
-import org.apache.geronimo.kernel.log.GeronimoLogging;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
 import org.apache.geronimo.system.configuration.RepositoryConfigurationStore;

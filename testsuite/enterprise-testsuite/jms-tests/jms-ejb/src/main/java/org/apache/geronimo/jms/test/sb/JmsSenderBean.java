@@ -35,7 +35,8 @@ import javax.jms.MessageConsumer;
 
 import org.apache.geronimo.jms.test.mdb.to.SimpleTransferObject;
 import org.apache.geronimo.jms.test.mdb.MessageReceiver;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author <a href="mailto:tomasz[et]mazan[dot]pl">Tomasz Mazan</a>
@@ -46,7 +47,7 @@ public class JmsSenderBean implements JmsSenderRemote {
     /**
      * Logger
      */
-    private static Logger logger = Logger.getLogger(JmsSenderBean.class);
+    private static Logger logger = LoggerFactory.getLogger(JmsSenderBean.class);
 
     /**
      * Injected connection factory

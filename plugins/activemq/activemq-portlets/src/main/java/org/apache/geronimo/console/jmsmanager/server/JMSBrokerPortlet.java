@@ -30,8 +30,8 @@ import javax.portlet.PortletConfig;
 import org.apache.geronimo.console.util.PortletManager;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.management.geronimo.JMSManager;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Basic list of JMS brokers
@@ -39,7 +39,7 @@ import org.apache.commons.logging.LogFactory;
  * @version $Rev$ $Date$
  */
 public class JMSBrokerPortlet extends BaseJMSPortlet {
-    private final static Log log = LogFactory.getLog(JMSBrokerPortlet.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
     private PortletRequestDispatcher normalView;
 
     private PortletRequestDispatcher maximizedView;

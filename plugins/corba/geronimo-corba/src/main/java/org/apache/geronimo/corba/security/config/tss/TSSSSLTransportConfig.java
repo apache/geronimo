@@ -22,8 +22,8 @@ import javax.security.auth.Subject;
 import javax.security.auth.x500.X500Principal;
 import javax.security.cert.X509Certificate;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.NO_PERMISSION;
 import org.omg.CORBA.ORB;
@@ -48,7 +48,7 @@ import org.apache.geronimo.corba.security.config.ConfigUtil;
  */
 public class TSSSSLTransportConfig extends TSSTransportMechConfig {
 
-    private final static Log log = LogFactory.getLog(TSSSSLTransportConfig.class);
+    private final static Logger log = LoggerFactory.getLogger(TSSSSLTransportConfig.class);
 
     private short port;
     private String hostname;

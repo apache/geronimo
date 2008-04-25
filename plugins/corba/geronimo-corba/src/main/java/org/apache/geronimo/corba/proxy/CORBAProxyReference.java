@@ -19,8 +19,8 @@ package org.apache.geronimo.corba.proxy;
 import java.net.URI;
 import javax.naming.NameNotFoundException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
@@ -34,7 +34,7 @@ import org.apache.geronimo.naming.reference.ConfigurationAwareReference;
  */
 public final class CORBAProxyReference extends ConfigurationAwareReference {
 
-    private final static Log log = LogFactory.getLog(CORBAProxyReference.class);
+    private final static Logger log = LoggerFactory.getLogger(CORBAProxyReference.class);
 
     private final URI nsCorbaloc;
     private final String objectName;

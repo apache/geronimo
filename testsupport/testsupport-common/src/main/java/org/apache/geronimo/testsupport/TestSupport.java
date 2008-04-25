@@ -23,8 +23,8 @@ import java.io.File;
 
 import junit.framework.TestCase;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Provides support for tests.
@@ -53,7 +53,7 @@ public abstract class TestSupport
      * Unless you have a really good reason to, do not change this field from your sub-class.
      * And if you do, please document why you have done so.
      */
-    protected Log log = LogFactory.getLog(getClass());
+    protected final Logger log = LoggerFactory.getLogger(getClass());
     
     /**
      * Constructor for tests that specify a specific test name.

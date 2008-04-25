@@ -28,8 +28,8 @@ import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.broker.jmx.ManagementContext;
 import org.apache.activemq.store.DefaultPersistenceAdapterFactory;
 import org.apache.activemq.transport.TransportDisposedIOException;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
@@ -46,7 +46,7 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
  */
 public class BrokerServiceGBeanImpl implements GBeanLifecycle, BrokerServiceGBean {
 
-    private Log log = LogFactory.getLog(getClass());
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     private String brokerName;
     private String brokerUri;

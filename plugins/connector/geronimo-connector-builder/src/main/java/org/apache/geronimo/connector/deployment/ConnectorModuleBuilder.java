@@ -40,8 +40,8 @@ import java.util.zip.ZipEntry;
 
 import javax.xml.namespace.QName;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.common.propertyeditor.PropertyEditors;
 import org.apache.geronimo.connector.ActivationSpecWrapperGBean;
@@ -127,7 +127,7 @@ import org.apache.xmlbeans.XmlObject;
  * @version $Rev:385659 $ $Date$
  */
 public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfoLocator, GBeanLifecycle {
-    private final static Log log = LogFactory.getLog(ConnectorModuleBuilder.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     private static final QName RESOURCE_ADAPTER_VERSION = new QName(SchemaConversionUtils.J2EE_NAMESPACE, "resourceadapter-version");
     private static QName CONNECTOR_QNAME = GerConnectorDocument.type.getDocumentElementName();

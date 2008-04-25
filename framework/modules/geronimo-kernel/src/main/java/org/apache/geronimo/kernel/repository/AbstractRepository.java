@@ -34,8 +34,8 @@ import java.util.zip.ZipFile;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.kernel.util.XmlUtil;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -48,7 +48,7 @@ import org.xml.sax.SAXException;
  * @version $Rev: 506425 $ $Date: 2007-02-12 22:49:46 +1100 (Mon, 12 Feb 2007) $
  */
 public abstract class AbstractRepository implements WriteableRepository {
-    protected static final Log log = LogFactory.getLog(AbstractRepository.class);
+    protected final Logger log = LoggerFactory.getLogger(getClass());
     private final static ArtifactTypeHandler DEFAULT_TYPE_HANDLER = new CopyArtifactTypeHandler();
     protected final File rootFile;
     private final Map<String, ArtifactTypeHandler> typeHandlers = new HashMap<String, ArtifactTypeHandler>();

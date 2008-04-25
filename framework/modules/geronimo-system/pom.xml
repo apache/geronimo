@@ -63,7 +63,7 @@
             <classifier>tests</classifier>
             <scope>test</scope>
         </dependency>
-
+        
         <dependency>
             <groupId>commons-jexl</groupId>
             <artifactId>commons-jexl</artifactId>
@@ -93,6 +93,14 @@
         <dependency>
             <groupId>woodstox</groupId>
             <artifactId>wstx-asl</artifactId>
+        </dependency>
+        
+        <!--
+        Some dependencies require JCL, so use this adapter to force them into SLF4J.
+        -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jcl104-over-slf4j</artifactId>
         </dependency>
     </dependencies>
 

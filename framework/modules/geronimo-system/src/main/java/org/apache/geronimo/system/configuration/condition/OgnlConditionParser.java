@@ -23,8 +23,8 @@ import java.util.Properties;
 
 import ognl.Ognl;
 import ognl.OgnlContext;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Provides a simple facility to evaluate condition expressions using the
@@ -39,7 +39,7 @@ import org.apache.commons.logging.LogFactory;
 public class OgnlConditionParser
     implements ConditionParser
 {
-    private static final Log log = LogFactory.getLog(OgnlConditionParser.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
     
     private final Map<String, Object> vars;
     

@@ -36,8 +36,8 @@ import javax.management.ReflectionException;
 import javax.management.MBeanRegistration;
 import javax.management.MBeanServer;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.gbean.GOperationSignature;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
@@ -51,7 +51,7 @@ import org.apache.geronimo.kernel.management.NotificationType;
  * @version $Rev$ $Date$
  */
 public final class MBeanGBeanBridge implements MBeanRegistration, DynamicMBean, NotificationEmitter {
-    private static final Log log = LogFactory.getLog(MBeanGBeanBridge.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     /**
      * The kernel

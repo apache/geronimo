@@ -42,8 +42,8 @@ import org.apache.catalina.connector.Response;
 import org.apache.catalina.deploy.LoginConfig;
 import org.apache.catalina.deploy.SecurityConstraint;
 import org.apache.catalina.realm.JAASRealm;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.jacc.PolicyContextHandlerContainerSubject;
 import org.apache.geronimo.security.realm.providers.CertificateChainCallbackHandler;
@@ -54,7 +54,7 @@ import org.apache.geronimo.tomcat.interceptor.PolicyContextBeforeAfter;
 
 public class TomcatGeronimoRealm extends JAASRealm {
 
-    private static final Log log = LogFactory.getLog(TomcatGeronimoRealm.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     private static ThreadLocal<String> currentRequestWrapperName = new ThreadLocal<String>();
 
@@ -104,7 +104,7 @@ public class TomcatGeronimoRealm extends JAASRealm {
             subject = (Subject) PolicyContext.getContext(PolicyContextHandlerContainerSubject.HANDLER_KEY);
 
         } catch (PolicyContextException e) {
-            log.error(e);
+            log.error("Failed to get subject from context", e);
         }
 
         //If nothing has authenticated yet, do the normal

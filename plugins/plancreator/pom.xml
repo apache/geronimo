@@ -35,15 +35,7 @@
     <description>
         Geronimo deployment plan creator
     </description>
-    
-    <dependencies>
-        <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-            <scope>provided</scope>
-        </dependency>
-    </dependencies>
-    
+
     <modules>
         <module>plancreator-portlets</module>
         <module>plancreator-console-jetty</module>

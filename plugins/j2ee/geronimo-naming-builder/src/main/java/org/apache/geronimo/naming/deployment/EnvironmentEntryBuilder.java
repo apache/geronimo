@@ -25,8 +25,8 @@ import java.util.HashMap;
 
 import javax.annotation.Resource;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
@@ -51,7 +51,7 @@ import org.apache.xmlbeans.XmlObject;
  */
 public class EnvironmentEntryBuilder extends AbstractNamingBuilder implements GBeanLifecycle {
 
-    private static final Log log = LogFactory.getLog(EnvironmentEntryBuilder.class);
+    private static final Logger log = LoggerFactory.getLogger(EnvironmentEntryBuilder.class);
     private static final Map<String, String> NAMESPACE_UPDATES = new HashMap<String, String>();
     static {
         NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/naming", "http://geronimo.apache.org/xml/ns/naming-1.2");

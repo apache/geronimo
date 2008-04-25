@@ -38,7 +38,6 @@
     </description>
 
     <dependencies>
-
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-deploy-jsr88</artifactId>
@@ -51,13 +50,17 @@
             <version>${version}</version>
         </dependency>
         
+        <dependency>
+            <groupId>org.codehaus.groovy.maven.support</groupId>
+            <artifactId>slf4j-gossip</artifactId>
+        </dependency>
+
         <!-- Support for SurefireReporter -->
         <dependency>
             <groupId>org.apache.maven.surefire</groupId>
             <artifactId>surefire-api</artifactId>
             <version>2.3</version>
         </dependency>
-
     </dependencies>
 
 </project>

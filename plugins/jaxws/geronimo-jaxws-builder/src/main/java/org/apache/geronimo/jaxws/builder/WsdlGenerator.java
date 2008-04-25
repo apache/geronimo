@@ -34,8 +34,8 @@ import java.util.Set;
 
 import javax.xml.namespace.QName;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentConfigurationManager;
 import org.apache.geronimo.deployment.DeploymentContext;
@@ -48,7 +48,7 @@ import org.apache.geronimo.kernel.repository.Repository;
 
 public class WsdlGenerator {
 
-    private static final Log LOG = LogFactory.getLog(WsdlGenerator.class);
+    private final Logger LOG = LoggerFactory.getLogger(getClass());
     
     private final static String FORK_WSGEN_PROPERTY = 
         "org.apache.geronimo.jaxws.wsgen.fork";

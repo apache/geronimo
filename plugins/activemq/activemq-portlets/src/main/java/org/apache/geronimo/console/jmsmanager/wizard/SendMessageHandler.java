@@ -26,8 +26,8 @@ import javax.portlet.PortletException;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.console.MultiPageModel;
 import org.apache.geronimo.console.jmsmanager.JMSMessageInfo;
 import org.apache.geronimo.console.jmsmanager.helper.AmqJMSMessageHelper;
@@ -40,7 +40,7 @@ import org.apache.geronimo.console.jmsmanager.helper.JMSMessageHelperFactory;
  * @version $Rev$ $Date$
  */
 public class SendMessageHandler extends AbstractHandler {
-    private static final Log log = LogFactory.getLog(SendMessageHandler.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     public SendMessageHandler() {
         super(SEND_MESSAGE, "/WEB-INF/view/jmsmanager/sendMessage.jsp");
@@ -136,7 +136,7 @@ public class SendMessageHandler extends AbstractHandler {
                 request.setAttribute(STATUS, "success");
             } catch (Exception e) {
                 request.setAttribute(STATUS, "error");
-                log.error(e);
+                log.error("Failed to render view", e);
                 // throw new PortletException(e);
             }
         }

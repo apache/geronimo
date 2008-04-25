@@ -28,8 +28,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
@@ -45,7 +45,7 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
  * @version $Rev$ $Date$
  */
 public class FileCertificateRequestStore implements CertificateRequestStore, GBeanLifecycle {
-    private final static Log log = LogFactory.getLog(FileCertificateRequestStore.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
     
     // File name to store certificate request status
     private static final String CSR_STATUS_FILENAME = "csr-status.properties";

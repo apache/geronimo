@@ -36,8 +36,8 @@ import javax.transaction.InvalidTransactionException;
 import javax.transaction.TransactionRequiredException;
 import javax.transaction.TransactionRolledbackException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.naming.enc.EnterpriseNamingContext;
 import org.apache.geronimo.naming.java.RootContext;
 import org.apache.geronimo.openejb.EjbDeployment;
@@ -67,7 +67,7 @@ import org.omg.PortableServer.Servant;
  * @version $Revision: 494431 $ $Date: 2007-01-09 07:18:14 -0800 (Tue, 09 Jan 2007) $
  */
 public class StandardServant extends Servant implements InvokeHandler {
-    private static final Log log = LogFactory.getLog(StandardServant.class);
+    private static final Logger log = LoggerFactory.getLogger(StandardServant.class);
 
     private static final Method GETEJBMETADATA = getMethod(EJBHome.class, "getEJBMetaData", null);
     private static final Method GETHOMEHANDLE = getMethod(EJBHome.class, "getHomeHandle", null);

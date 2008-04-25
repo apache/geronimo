@@ -16,8 +16,8 @@
   */
 package org.apache.geronimo.corba;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.InvalidConfigurationException; 
 import org.apache.geronimo.system.serverinfo.ServerInfo;
@@ -39,7 +39,7 @@ import java.net.InetSocketAddress;
  * @version $Revision: 465108 $ $Date: 2006-10-17 17:23:40 -0700 (Tue, 17 Oct 2006) $
  */
 public class NameService implements GBeanLifecycle {
-    private static final Log log = LogFactory.getLog(NameService.class);
+    private static final Logger log = LoggerFactory.getLogger(NameService.class);
 
     // the ORB configurator
     private final ConfigAdapter config;

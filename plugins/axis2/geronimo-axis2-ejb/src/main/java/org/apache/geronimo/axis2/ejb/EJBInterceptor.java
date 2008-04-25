@@ -34,12 +34,12 @@ import org.apache.axis2.jaxws.message.util.MessageUtils;
 import org.apache.axis2.jaxws.server.JAXWSMessageReceiver;
 import org.apache.axis2.wsdl.WSDLConstants.WSDL20_2004_Constants;
 import org.apache.axis2.wsdl.WSDLConstants.WSDL20_2006Constants;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class EJBInterceptor {
 
-    private static final Log LOG = LogFactory.getLog(EJBInterceptor.class);
+    private final Logger LOG = LoggerFactory.getLogger(getClass());
 
     private MessageContext requestMsgCtx;
     private EJBWebServiceContainer container;

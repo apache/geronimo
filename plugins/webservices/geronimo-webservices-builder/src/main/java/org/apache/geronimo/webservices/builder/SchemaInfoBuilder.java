@@ -45,8 +45,8 @@ import javax.xml.namespace.QName;
 
 import com.ibm.wsdl.extensions.PopulatedExtensionRegistry;
 import com.ibm.wsdl.extensions.schema.SchemaConstants;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.webservices.WebServiceContainer;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.xbeans.wsdl.DefinitionsDocument;
@@ -75,7 +75,7 @@ import org.xml.sax.SAXException;
  * @version $Rev$ $Date$
  */
 public class SchemaInfoBuilder {
-    private static final Log log = LogFactory.getLog(SchemaInfoBuilder.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
     private static final SchemaTypeSystem basicTypeSystem;
 //  private static final String[] errorNames = {"Error", "Warning", "Info"};
     private static final String SOAP_NS = "http://schemas.xmlsoap.org/wsdl/soap/";
@@ -276,12 +276,12 @@ public class SchemaInfoBuilder {
                 for (Iterator iterator = errors.iterator(); iterator.hasNext();) {
                     XmlError xmlError = (XmlError) iterator.next();
                     if(xmlError.getSeverity() == XmlError.SEVERITY_ERROR) {
-                        log.error(xmlError);
+                        log.error(xmlError.toString(), xmlError);
                         wasError = true;
                     } else if(xmlError.getSeverity() == XmlError.SEVERITY_WARNING) {
-                        log.warn(xmlError);
+                        log.warn(xmlError.toString(), xmlError);
                     } else if(xmlError.getSeverity() == XmlError.SEVERITY_INFO) {
-                        log.debug(xmlError);
+                        log.debug(xmlError.toString(), xmlError);
                     }
                 }
                 if (wasError) {

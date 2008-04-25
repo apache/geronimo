@@ -18,12 +18,12 @@ package org.apache.geronimo.webservices.saaj;
 
 import java.util.LinkedList;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SAAJUniverse {
         
-    private static final Log LOG = LogFactory.getLog(SAAJUniverse.class);
+    private final Logger LOG = LoggerFactory.getLogger(getClass());
     
     enum Type { DEFAULT, AXIS1, AXIS2, SUN }
     

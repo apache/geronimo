@@ -17,8 +17,8 @@
 
 package org.apache.geronimo.derby;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
@@ -34,7 +34,7 @@ import java.sql.SQLException;
  * @version $Rev$ $Date$
  */
 public class DerbySystemGBean implements DerbySystem, GBeanLifecycle {
-    private static final Log log = LogFactory.getLog("DerbySystem");
+    private final Logger log = LoggerFactory.getLogger(getClass());
     private static final String SYSTEM_HOME = "derby.system.home";
     private static final String SHUTDOWN_ALL = "jdbc:derby:;shutdown=true";
 

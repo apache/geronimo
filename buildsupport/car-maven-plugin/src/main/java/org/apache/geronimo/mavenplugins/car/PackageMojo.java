@@ -44,7 +44,6 @@ import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.KernelConfigurationManager;
 import org.apache.geronimo.kernel.config.LifecycleException;
 import org.apache.geronimo.kernel.config.RecordingLifecycleMonitor;
-import org.apache.geronimo.kernel.log.GeronimoLogging;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
 import org.apache.geronimo.system.configuration.RepositoryConfigurationStore;
@@ -345,12 +344,6 @@ public class PackageMojo
         if (kernel != null) {
             return kernel;
         }
-
-        GeronimoLogging geronimoLogging = GeronimoLogging.getGeronimoLogging("WARN");
-        if (geronimoLogging == null) {
-            geronimoLogging = GeronimoLogging.DEBUG;
-        }
-        GeronimoLogging.initialize(geronimoLogging);
 
         // boot one ourselves
         kernel = KernelFactory.newInstance().createKernel(KERNEL_NAME);

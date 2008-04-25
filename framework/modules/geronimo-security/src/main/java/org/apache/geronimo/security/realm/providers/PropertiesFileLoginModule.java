@@ -43,8 +43,8 @@ import javax.security.auth.login.FailedLoginException;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.common.GeronimoSecurityException;
 import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
 import org.apache.geronimo.security.jaas.WrappingLoginModule;
@@ -72,7 +72,7 @@ public class PropertiesFileLoginModule implements LoginModule {
     public final static String ENCODING = "encoding";
     public final static List<String> supportedOptions = Collections.unmodifiableList(Arrays.asList(USERS_URI, GROUPS_URI, DIGEST, ENCODING));
 
-    private static Log log = LogFactory.getLog(PropertiesFileLoginModule.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
     final Properties users = new Properties();
     final Map<String, Set<String>> groups = new HashMap<String, Set<String>>();
     private String digest;

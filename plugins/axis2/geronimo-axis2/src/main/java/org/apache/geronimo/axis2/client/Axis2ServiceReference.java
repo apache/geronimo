@@ -24,8 +24,8 @@ import javax.xml.namespace.QName;
 import javax.xml.ws.handler.HandlerResolver;
 
 import org.apache.axis2.jaxws.context.WebServiceContextImpl;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.axis2.Axis2HandlerResolver;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.jaxws.JAXWSAnnotationProcessor;
@@ -42,7 +42,7 @@ import org.apache.xmlbeans.XmlException;
  */
 public class Axis2ServiceReference extends JAXWSServiceReference {
 
-    private static final Log LOG = LogFactory.getLog(Axis2ServiceReference.class);
+    private final Logger LOG = LoggerFactory.getLogger(getClass());
 
     public Axis2ServiceReference(String serviceClassName,
                                  String referenceClassName,

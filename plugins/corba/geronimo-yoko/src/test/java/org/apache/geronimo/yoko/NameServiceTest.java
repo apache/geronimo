@@ -21,8 +21,8 @@ import java.util.Properties;
 import org.apache.geronimo.corba.NameService;
 
 import junit.framework.TestCase;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 import org.omg.CORBA.ORB;
@@ -34,7 +34,7 @@ import org.omg.CosNaming.NamingContextExtHelper;
  * @version $Revision: 452600 $ $Date: 2006-10-03 12:29:42 -0700 (Tue, 03 Oct 2006) $
  */
 public class NameServiceTest extends TestCase {
-    private static final Log log = LogFactory.getLog(NameServiceTest.class);
+    private static final Logger log = LoggerFactory.getLogger(NameServiceTest.class);
     private ORB orb;
     private NameService nameService;
 

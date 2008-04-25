@@ -16,8 +16,8 @@
   */
 package org.apache.geronimo.yoko;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.omg.CORBA.LocalObject;
 import org.omg.PortableInterceptor.ORBInitInfo;
 import org.omg.PortableInterceptor.ORBInitInfoPackage.DuplicateName;
@@ -27,7 +27,7 @@ import org.omg.PortableInterceptor.ORBInitInfoPackage.DuplicateName;
  */
 public class ORBInitializer extends LocalObject implements org.omg.PortableInterceptor.ORBInitializer {
 
-    private final Log log = LogFactory.getLog(ORBInitializer.class);
+    private final Logger log = LoggerFactory.getLogger(ORBInitializer.class);
 
     public ORBInitializer() {
         if (log.isDebugEnabled()) log.debug("ORBInitializer.<init>");

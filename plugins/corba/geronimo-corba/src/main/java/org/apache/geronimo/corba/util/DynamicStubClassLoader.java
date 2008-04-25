@@ -24,8 +24,8 @@ import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.FixedValue;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.NoOp;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 
 import java.lang.reflect.Method;
@@ -36,7 +36,7 @@ import java.lang.reflect.Modifier;
  * @version $Revision: 451417 $ $Date: 2006-09-29 13:13:22 -0700 (Fri, 29 Sep 2006) $
  */
 public class DynamicStubClassLoader extends ClassLoader implements GBeanLifecycle {
-    private final static Log log = LogFactory.getLog(DynamicStubClassLoader.class);
+    private final static Logger log = LoggerFactory.getLogger(DynamicStubClassLoader.class);
     private final static String PACKAGE_PREFIX = "org.omg.stub.";
 
     private boolean stopped = true;

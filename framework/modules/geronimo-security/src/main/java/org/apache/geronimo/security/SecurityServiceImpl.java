@@ -20,8 +20,8 @@ package org.apache.geronimo.security;
 import java.security.Policy;
 import javax.security.jacc.PolicyConfigurationFactory;
 import javax.security.jacc.PolicyContextException;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
@@ -41,7 +41,7 @@ public class SecurityServiceImpl implements SecurityService {
 
     public static boolean POLICY_INSTALLED = false;
 
-    private final Log log = LogFactory.getLog(SecurityServiceImpl.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     /**
      * Permissions that protect access to sensitive security information

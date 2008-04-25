@@ -24,8 +24,8 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.Vector;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.xml.resolver.Catalog;
@@ -62,7 +62,7 @@ public class LocalEntityResolver implements EntityResolver {
     /**
      * used Logger
      */
-    private static final Log log = LogFactory.getLog(LocalEntityResolver.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     /**
      * The used Catalog Manager

@@ -19,8 +19,8 @@ package org.apache.geronimo.clustering.wadi;
 import java.net.URI;
 import java.util.Collections;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.clustering.LocalNode;
 import org.apache.geronimo.clustering.Node;
 import org.apache.geronimo.gbean.GBeanLifecycle;
@@ -44,7 +44,7 @@ import org.codehaus.wadi.web.impl.URIEndPoint;
  * @version $Rev$ $Date$
  */
 public class TribesDispatcherHolder implements GBeanLifecycle, DispatcherHolder {
-    private static final Log log = LogFactory.getLog(TribesDispatcherHolder.class); 
+    private final Logger log = LoggerFactory.getLogger(getClass());
     
     private final URI endPointURI;
     private final String clusterName;

@@ -23,8 +23,8 @@ import java.net.URL;
 import java.util.Map;
 import java.util.jar.JarFile;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
@@ -46,7 +46,7 @@ import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.repository.Environment;
 
 public abstract class JAXWSServiceBuilder implements WebServiceBuilder {
-    private static final Log LOG = LogFactory.getLog(JAXWSServiceBuilder.class);
+    private final Logger LOG = LoggerFactory.getLogger(getClass());
 
     protected final Environment defaultEnvironment;
     protected WebServiceFinder webServiceFinder;

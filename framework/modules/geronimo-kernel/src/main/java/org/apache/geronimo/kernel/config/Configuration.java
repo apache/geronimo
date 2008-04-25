@@ -37,8 +37,8 @@ import java.util.HashSet;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
@@ -86,7 +86,7 @@ import org.apache.geronimo.kernel.repository.MissingDependencyException;
  * @version $Rev:385718 $ $Date$
  */
 public class Configuration implements GBeanLifecycle, ConfigurationParent {
-    private static final Log log = LogFactory.getLog(Configuration.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     /**
      * Converts an Artifact to an AbstractName for a configuration.  Does not

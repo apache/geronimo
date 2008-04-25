@@ -46,8 +46,8 @@ import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLContext;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -75,7 +75,7 @@ import org.apache.geronimo.crypto.jce.X509V1CertificateGenerator;
  * @version $Rev$ $Date$
  */
 public class FileKeystoreManager implements KeystoreManager, GBeanLifecycle {
-    private static final Log log = LogFactory.getLog(FileKeystoreManager.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
     private File directory;
     private ServerInfo serverInfo;
     private URI configuredDir;

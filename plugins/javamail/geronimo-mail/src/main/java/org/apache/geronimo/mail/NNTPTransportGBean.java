@@ -18,8 +18,8 @@ package org.apache.geronimo.mail;
 
 import java.util.Properties;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
@@ -38,7 +38,7 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
  */
 public class NNTPTransportGBean extends ProtocolGBean implements NNTPGBeanConstants {
 
-    private final Log log = LogFactory.getLog(NNTPTransportGBean.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     private Integer port;
     private Integer connectionTimeout;

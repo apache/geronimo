@@ -50,8 +50,8 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.sql.DataSource;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.monitoring.snapshot.SnapshotConfigXMLBuilder;
 import org.apache.geronimo.monitoring.snapshot.SnapshotDBHelper;
 import org.apache.geronimo.monitoring.snapshot.SnapshotProcessor;
@@ -65,7 +65,7 @@ import org.apache.geronimo.monitoring.snapshot.SnapshotProcessor;
 @Local(MasterRemoteControlLocal.class)
 @PermitAll
 public class MasterRemoteControl {
-    private static Log log = LogFactory.getLog(MasterRemoteControl.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
     
     // mbean server to talk to other components
     private static MBeanServer mbServer = null;

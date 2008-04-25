@@ -36,7 +36,7 @@
     <description>
         Geronimo module that supplies the Spring framework in a single classloader.
     </description>
-
+    
     <dependencies>
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>

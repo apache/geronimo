@@ -27,8 +27,8 @@ import java.util.Set;
 
 import javax.net.ssl.KeyManagerFactory;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
@@ -65,7 +65,7 @@ import org.apache.geronimo.crypto.KeystoreUtil;
  * @version $Rev$ $Date$
  */
 public class TomcatManagerImpl implements WebManager {
-    private final static Log log = LogFactory.getLog(TomcatManagerImpl.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
     private final Kernel kernel;
     
     private static final ConnectorType HTTP_BIO = new ConnectorType(Messages.getString("TomcatManagerImpl.0")); //$NON-NLS-1$
@@ -241,7 +241,7 @@ public class TomcatManagerImpl implements WebManager {
         } catch (GBeanNotFoundException e) {
             log.warn("No such GBean '" + connectorName + "'"); //todo: what if we want to remove a failed GBean?
         } catch (Exception e) {
-            log.error(e);
+            log.error("Failed to remove connector", e);
         }
     }
 
@@ -537,7 +537,7 @@ public class TomcatManagerImpl implements WebManager {
         } catch (GBeanNotFoundException e) {
             log.warn("No such GBean '" + connectorName + "'");
         } catch (Exception e) {
-            log.error(e);
+            log.error("Failed to get connector type", e);
         }
             
         return connectorType;

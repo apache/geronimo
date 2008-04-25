@@ -28,8 +28,8 @@ import org.apache.catalina.Manager;
 import org.apache.catalina.Realm;
 import org.apache.catalina.Valve;
 import org.apache.catalina.core.StandardEngine;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
@@ -46,7 +46,7 @@ import org.apache.tomcat.util.modeler.Registry;
  */
 public class EngineGBean extends BaseGBean implements GBeanLifecycle, ObjectRetriever {
 
-    private static final Log log = LogFactory.getLog(EngineGBean.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     private static final String NAME = "name";
     private static final String DEFAULTHOST = "defaultHost";

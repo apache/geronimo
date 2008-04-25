@@ -24,11 +24,11 @@ import javax.transaction.Status;
 import javax.transaction.SystemException;
 import javax.transaction.UserTransaction;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class UserTransactionBeforeAfter implements BeforeAfter {
-    private static Log log = LogFactory.getLog(UserTransactionBeforeAfter.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     private final UserTransaction userTransaction;
 

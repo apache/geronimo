@@ -30,8 +30,8 @@ import javax.ejb.EJBs;
 import javax.ejb.Local;
 import javax.ejb.Remote;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.xbeans.javaee.DescriptionType;
 import org.apache.geronimo.xbeans.javaee.EjbLinkType;
@@ -76,7 +76,7 @@ import org.apache.xbean.finder.ClassFinder;
 public final class EJBAnnotationHelper {
 
     // Private instance variables
-    private static final Log log = LogFactory.getLog(EJBAnnotationHelper.class);
+    private static final Logger log = LoggerFactory.getLogger(EJBAnnotationHelper.class);
 
     // Private constructor to prevent instantiation
     private EJBAnnotationHelper() {

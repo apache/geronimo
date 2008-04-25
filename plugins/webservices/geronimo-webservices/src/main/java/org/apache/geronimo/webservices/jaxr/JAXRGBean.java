@@ -19,8 +19,8 @@ package org.apache.geronimo.webservices.jaxr;
 import javax.xml.registry.ConnectionFactory;
 import javax.xml.registry.JAXRException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.naming.ResourceSource;
@@ -33,7 +33,7 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
  */
 public class JAXRGBean implements ResourceSource {
 
-    private final Log log = LogFactory.getLog(JAXRGBean.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
     private final ClassLoader cl;
     private final String connectionFactoryClass;
 

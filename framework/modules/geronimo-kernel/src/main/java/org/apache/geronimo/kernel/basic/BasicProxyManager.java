@@ -27,8 +27,8 @@ import net.sf.cglib.proxy.Callback;
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.reflect.FastClass;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.kernel.ClassLoading;
@@ -46,7 +46,7 @@ import org.apache.geronimo.kernel.proxy.ProxyManager;
  */
 public class BasicProxyManager implements ProxyManager {
     private final static String MANAGED_BEAN_NAME = "org.apache.geronimo.kernel.proxy.GeronimoManagedBean";
-    private final static Log log = LogFactory.getLog(BasicProxyManager.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
     private final Kernel kernel;
 
     private final Map interceptors = Collections.synchronizedMap(new BasicProxyMap());

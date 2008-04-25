@@ -27,8 +27,8 @@ import javax.annotation.Resource;
 import javax.naming.Reference;
 import javax.xml.namespace.QName;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.common.UnresolvedReferenceException;
 import org.apache.geronimo.gbean.AbstractNameQuery;
@@ -66,7 +66,7 @@ import org.apache.xmlbeans.XmlObject;
  * @version $Rev$ $Date$
  */
 public class AdminObjectRefBuilder extends AbstractNamingBuilder {
-    private final static Log log = LogFactory.getLog(AdminObjectRefBuilder.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
     private final QNameSet adminOjbectRefQNameSet;
     private final QNameSet messageDestinationQNameSet;
     private final QNameSet messageDestinationRefQNameSet;

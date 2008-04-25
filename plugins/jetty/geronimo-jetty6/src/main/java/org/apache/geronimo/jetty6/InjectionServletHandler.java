@@ -28,15 +28,15 @@ import javax.naming.NamingException;
 import javax.servlet.Servlet;
 
 import org.mortbay.jetty.servlet.ServletHandler;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.j2ee.annotation.Injection;
 
 /**
  * @version $Rev$ $Date$
  */
 class InjectionServletHandler extends ServletHandler {
-    private static final Log log = LogFactory.getLog(InjectionServletHandler.class);
+    private static final Logger log = LoggerFactory.getLogger(InjectionServletHandler.class);
 
     private final Map<String, List<Injection>> injections;
 

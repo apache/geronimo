@@ -22,8 +22,8 @@ import org.apache.axis2.context.ConfigurationContext;
 import org.apache.axis2.jaxws.ClientConfigurationFactory;
 import org.apache.axis2.jaxws.description.impl.DescriptionFactoryImpl;
 import org.apache.axis2.metadata.registry.MetadataFactoryRegistry;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
@@ -33,7 +33,7 @@ import org.apache.geronimo.kernel.Kernel;
 
 public class Axis2ConfigGBean implements GBeanLifecycle {
 
-    private static final Log LOG = LogFactory.getLog(Axis2ConfigGBean.class);
+    private final static Logger LOG = LoggerFactory.getLogger(Axis2ConfigGBean.class);
     
     private AbstractName moduleName;
     private ClassLoader classLoder;   

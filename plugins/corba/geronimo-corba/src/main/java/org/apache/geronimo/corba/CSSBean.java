@@ -20,8 +20,8 @@ import java.net.URI;
 
 import javax.transaction.TransactionManager;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.InvalidConfigurationException; 
@@ -57,7 +57,7 @@ import org.omg.CosNaming.NamingContextExtHelper;
  */
 public class CSSBean implements GBeanLifecycle, ORBConfiguration {
 
-    private final static Log log = LogFactory.getLog(CSSBean.class);
+    private final static Logger log = LoggerFactory.getLogger(CSSBean.class);
 
     private final ClassLoader classLoader;
     private final ConfigAdapter configAdapter;

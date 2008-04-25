@@ -24,8 +24,8 @@ import java.util.Map;
 
 import javax.xml.namespace.QName;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.cxf.client.CXFServiceReference;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -45,7 +45,7 @@ import org.apache.xmlbeans.XmlOptions;
 
 public class CXFServiceRefBuilder extends JAXWSServiceRefBuilder {
 
-    private static final Log LOG = LogFactory.getLog(CXFServiceRefBuilder.class);
+    private final Logger LOG = LoggerFactory.getLogger(getClass());
         
     public CXFServiceRefBuilder(Environment defaultEnvironment,
                                 String[] eeNamespaces) {

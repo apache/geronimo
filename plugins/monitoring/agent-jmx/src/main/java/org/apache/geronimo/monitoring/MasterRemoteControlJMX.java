@@ -41,8 +41,8 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 import org.apache.geronimo.connector.outbound.ManagedConnectionFactoryWrapper;
@@ -64,7 +64,7 @@ import org.apache.geronimo.monitoring.snapshot.SnapshotDBHelper;
  * between the management node and the data in the server node.
  */
 public class MasterRemoteControlJMX implements GBeanLifecycle {
-    private static Log log = LogFactory.getLog(MasterRemoteControlJMX.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     // mbean server to talk to other components
     private static MBeanServer mbServer = null;

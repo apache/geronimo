@@ -23,8 +23,8 @@ import java.util.Iterator;
 import java.util.Properties;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A property editor for {@link java.util.Map}.
@@ -34,7 +34,7 @@ import org.apache.commons.logging.LogFactory;
 public class MapEditor
    extends TextPropertyEditorSupport
 {
-    private static final Log log = LogFactory.getLog(MapEditor.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
     /**
      *
      * @throws PropertyEditorException  An IOException occured.

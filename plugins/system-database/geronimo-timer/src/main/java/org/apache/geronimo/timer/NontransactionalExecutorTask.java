@@ -17,15 +17,15 @@
 
 package org.apache.geronimo.timer;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @version $Rev$ $Date$
  */
 public class NontransactionalExecutorTask implements ExecutorTask {
 
-    private static final Log log = LogFactory.getLog(NontransactionalExecutorTask.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     private final Runnable userTask;
     private final WorkInfo workInfo;

@@ -22,8 +22,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.apache.geronimo.activemq.ActiveMQBroker;
 import org.apache.geronimo.activemq.ActiveMQConnector;
@@ -53,7 +53,7 @@ import org.apache.geronimo.management.geronimo.NetworkConnector;
  * @version $Rev$ $Date$
  */
 public class ActiveMQManagerGBean implements ActiveMQManager {
-    private static final Log log = LogFactory.getLog(ActiveMQManagerGBean.class.getName());
+    private final Logger log = LoggerFactory.getLogger(getClass());
     private Kernel kernel;
     private String objectName;
 
@@ -247,7 +247,7 @@ public class ActiveMQManagerGBean implements ActiveMQManager {
         } catch (GBeanNotFoundException e) {
             log.warn("No such GBean '" + connectorName + "'"); //todo: what if we want to remove a failed GBean?
         } catch (Exception e) {
-            log.error(e);
+            log.error("Failed to remove connector", e);
         }
     }
 

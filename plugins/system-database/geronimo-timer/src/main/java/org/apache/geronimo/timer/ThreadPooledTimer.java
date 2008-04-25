@@ -35,8 +35,8 @@ import javax.transaction.TransactionManager;
 
 import java.util.concurrent.Executor;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 
 /**
@@ -47,7 +47,7 @@ import org.apache.geronimo.gbean.GBeanLifecycle;
  * */
 public class ThreadPooledTimer implements PersistentTimer, GBeanLifecycle {
 
-    private static final Log log = LogFactory.getLog(ThreadPooledTimer.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     private final ExecutorTaskFactory executorTaskFactory;
     private final WorkerPersistence workerPersistence;

@@ -22,8 +22,8 @@ import javax.net.ssl.SSLSocket;
 
 import org.apache.yoko.orb.PortableInterceptor.ServerRequestInfoExt;
 import org.apache.yoko.orb.OCI.IIOP.TransportInfo_impl;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.omg.CORBA.LocalObject;
 import org.omg.PortableInterceptor.ServerRequestInfo;
 import org.omg.PortableInterceptor.ServerRequestInterceptor;
@@ -37,7 +37,7 @@ import org.apache.geronimo.corba.security.SSLSessionManager;
  */
 final class ServiceContextInterceptor extends LocalObject implements ServerRequestInterceptor {
 
-    private final Log log = LogFactory.getLog(ServiceContextInterceptor.class);
+    private final Logger log = LoggerFactory.getLogger(ServiceContextInterceptor.class);
 
     public ServiceContextInterceptor() {
         if (log.isDebugEnabled()) log.debug("<init>");

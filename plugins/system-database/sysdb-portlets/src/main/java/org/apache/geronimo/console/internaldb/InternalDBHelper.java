@@ -17,8 +17,8 @@
 
 package org.apache.geronimo.console.internaldb;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -29,7 +29,7 @@ import java.util.Hashtable;
 import java.util.Map;
 
 public class InternalDBHelper {
-    private final static Log log = LogFactory.getLog(InternalDBHelper.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     private static final int RDBMS_DERBY = 1;
 

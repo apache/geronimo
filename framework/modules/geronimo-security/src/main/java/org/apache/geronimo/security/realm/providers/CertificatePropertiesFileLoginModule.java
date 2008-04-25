@@ -41,8 +41,8 @@ import javax.security.auth.login.FailedLoginException;
 import javax.security.auth.spi.LoginModule;
 import javax.security.auth.x500.X500Principal;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.common.GeronimoSecurityException;
 import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
 import org.apache.geronimo.security.jaas.WrappingLoginModule;
@@ -68,7 +68,7 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
  * @version $Rev$ $Date$
  */
 public class CertificatePropertiesFileLoginModule implements LoginModule {
-    private static Log log = LogFactory.getLog(CertificatePropertiesFileLoginModule.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
     public final static String USERS_URI = "usersURI";
     public final static String GROUPS_URI = "groupsURI";
     public final static List<String> supportedOptions = Collections.unmodifiableList(Arrays.asList(USERS_URI, GROUPS_URI));
@@ -97,7 +97,7 @@ public class CertificatePropertiesFileLoginModule implements LoginModule {
             URI groupsURI = new URI((String)options.get(GROUPS_URI));
             loadProperties(serverInfo, usersURI, groupsURI);
         } catch (Exception e) {
-            log.error(e);
+            log.error("Failed to load properties", e);
             throw new IllegalArgumentException("Unable to configure properties file login module: "+e.getMessage(), e);
         }
     }

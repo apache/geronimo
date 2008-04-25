@@ -24,14 +24,14 @@ import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.callback.CallbackHandler;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @version $Rev$ $Date$
  */
 public class CertificateChainCallbackHandler implements CallbackHandler {
-    private static final Log log = LogFactory.getLog(CertificateChainCallbackHandler.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
     Certificate[] certificateChain;
 
     public CertificateChainCallbackHandler(Certificate[] certificateChain) {

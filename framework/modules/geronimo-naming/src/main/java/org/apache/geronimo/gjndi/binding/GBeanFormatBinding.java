@@ -28,8 +28,8 @@ import java.util.regex.Pattern;
 import javax.naming.Name;
 import javax.naming.NamingException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -39,10 +39,10 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.repository.Artifact;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class GBeanFormatBinding extends KernelContextGBean {
-    protected static final Log log = LogFactory.getLog(GBeanFormatBinding.class);
+    protected final Logger log = LoggerFactory.getLogger(getClass());
     private static final Pattern PATTERN = Pattern.compile("(\\{)(\\w+)(})");
 
     protected final String format;

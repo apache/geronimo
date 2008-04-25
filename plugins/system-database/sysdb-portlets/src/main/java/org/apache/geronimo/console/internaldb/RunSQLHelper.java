@@ -17,8 +17,8 @@
 
 package org.apache.geronimo.console.internaldb;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.sql.Connection;
@@ -27,7 +27,7 @@ import java.sql.Statement;
 
 public class RunSQLHelper {
 
-    private final static Log log = LogFactory.getLog(RunSQLHelper.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     public static final String SQL_SUCCESS_MSG = "SQL command/s successful";
 

@@ -18,8 +18,8 @@ package org.apache.geronimo.mail;
 
 import java.util.Properties;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
@@ -57,7 +57,7 @@ public class POP3StoreGBean extends ProtocolGBean {
     static public final String GBEAN_APOP = "apopEnable";
     static public final String GBEAN_MESSAGE_CLASS = "messageClass";
 
-    private final Log log = LogFactory.getLog(POP3StoreGBean.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     private Integer port;
     private Integer connectionTimeout;

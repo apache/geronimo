@@ -23,8 +23,8 @@ import org.omg.CORBA.ORB;
 import org.omg.CSI.EstablishContext;
 import org.omg.CSIIOP.CompoundSecMech;
 import org.omg.IOP.Codec;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.apache.geronimo.corba.security.SASException;
 import org.apache.geronimo.corba.security.config.ConfigUtil;
@@ -35,7 +35,7 @@ import org.apache.geronimo.corba.security.config.ConfigUtil;
  */
 public class TSSCompoundSecMechConfig implements Serializable {
 
-    private final static Log log = LogFactory.getLog(TSSCompoundSecMechConfig.class);
+    private final static Logger log = LoggerFactory.getLogger(TSSCompoundSecMechConfig.class);
     private TSSTransportMechConfig transport_mech;
     private TSSASMechConfig as_mech;
     private TSSSASMechConfig sas_mech;

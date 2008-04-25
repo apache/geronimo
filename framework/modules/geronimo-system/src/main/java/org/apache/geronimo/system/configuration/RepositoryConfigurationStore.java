@@ -48,8 +48,8 @@ import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.config.IOUtil;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.WritableListableRepository;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Implementation of ConfigurationStore GBean that installs/loads Configurations from a 
@@ -58,7 +58,7 @@ import org.apache.commons.logging.LogFactory;
  * @version $Rev$ $Date$
  */
 public class RepositoryConfigurationStore implements ConfigurationStore {
-    private final static Log log = LogFactory.getLog(RepositoryConfigurationStore.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
     private final Kernel kernel;
     private final ObjectName objectName;
     private final AbstractName abstractName;

@@ -20,8 +20,8 @@ package org.apache.geronimo.j2ee.deployment.annotation;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.xbeans.javaee.EjbLocalRefType;
 import org.apache.geronimo.xbeans.javaee.EjbRefType;
 import org.apache.geronimo.xbeans.javaee.EnvEntryType;
@@ -49,7 +49,7 @@ import org.apache.geronimo.xbeans.javaee.WebAppType;
 public class AnnotatedWebApp implements AnnotatedApp {
 
     // Private instance variables
-    private static final Log log = LogFactory.getLog(AnnotatedWebApp.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
     private WebAppType webApp;
 
     // Protected instance variables

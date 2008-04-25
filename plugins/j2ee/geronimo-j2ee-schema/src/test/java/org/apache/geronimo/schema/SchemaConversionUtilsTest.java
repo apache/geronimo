@@ -29,8 +29,8 @@ import org.apache.geronimo.xbeans.javaee.EjbJarType;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.testsupport.XmlBeansTestSupport;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * ejb 1.1 dtd appears to be a subset of ejb 2.0 dtd so the same xsl should
@@ -39,7 +39,7 @@ import org.apache.commons.logging.LogFactory;
  * @version $Rev$ $Date$
  */
 public class SchemaConversionUtilsTest extends XmlBeansTestSupport {
-    private static final Log log = LogFactory.getLog(SchemaConversionUtilsTest.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
     
     private ClassLoader classLoader = this.getClass().getClassLoader();
 

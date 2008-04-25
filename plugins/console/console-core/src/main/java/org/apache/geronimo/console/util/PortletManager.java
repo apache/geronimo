@@ -28,8 +28,8 @@ import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 import javax.servlet.http.HttpSession;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.Kernel;
@@ -62,7 +62,7 @@ import org.apache.geronimo.system.logging.SystemLog;
  * @version $Rev$ $Date$
  */
 public class PortletManager {
-    private final static Log log = LogFactory.getLog(PortletManager.class);
+    private static final Logger log = LoggerFactory.getLogger(PortletManager.class);
     // The following are currently static due to having only one server/JVM/etc. per Geronimo
     private final static String HELPER_KEY = "org.apache.geronimo.console.ManagementHelper";
     private final static String DOMAIN_KEY = "org.apache.geronimo.console.J2EEDomain";

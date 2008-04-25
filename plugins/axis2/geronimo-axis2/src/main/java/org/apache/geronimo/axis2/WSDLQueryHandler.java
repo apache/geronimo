@@ -55,8 +55,8 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.apache.axis2.description.AxisService;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.webservices.WebServiceContainer.Request;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -64,7 +64,7 @@ import org.w3c.dom.NodeList;
 
 public class WSDLQueryHandler {
 
-    private static final Log LOG = LogFactory.getLog(WSDLQueryHandler.class);
+    private final Logger LOG = LoggerFactory.getLogger(getClass());
     
     private Map<String, Definition> mp = new ConcurrentHashMap<String, Definition>();
     private Map<String, SchemaReference> smp = new ConcurrentHashMap<String, SchemaReference>();

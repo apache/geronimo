@@ -16,8 +16,8 @@
  */
 package org.apache.geronimo.gbean.runtime;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.ReferenceCollection;
 import org.apache.geronimo.gbean.ReferenceCollectionEvent;
@@ -39,7 +39,7 @@ import java.util.Set;
  * @version $Rev$ $Date$
  */
 class ProxyCollection implements ReferenceCollection {
-    private static final Log log = LogFactory.getLog(ProxyCollection.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
     private final String name;
     private final Kernel kernel;
     private final Map proxies = new HashMap();

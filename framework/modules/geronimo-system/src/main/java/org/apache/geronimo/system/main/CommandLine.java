@@ -26,8 +26,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.common.GeronimoEnvironment;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
@@ -42,7 +42,6 @@ import org.apache.geronimo.kernel.config.LifecycleException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.config.LifecycleMonitor;
 import org.apache.geronimo.kernel.config.DebugLoggingLifecycleMonitor;
-import org.apache.geronimo.kernel.log.GeronimoLogging;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.MissingDependencyException;
 
@@ -51,22 +50,15 @@ import org.apache.geronimo.kernel.repository.MissingDependencyException;
  * @version $Rev$ $Date$
  */
 public class CommandLine {
-    protected static final Log log;
-
-    static {
-        // Perform initialization tasks common with the various Geronimo environments.
-        GeronimoEnvironment.init();
-
-        // This MUST be done before the first log is acquired
-        GeronimoLogging.initialize(GeronimoLogging.ERROR);
-        log = LogFactory.getLog(CommandLine.class.getName());
-    }
-
+    protected final Logger log = LoggerFactory.getLogger(getClass());
+    
     /**
      * Command line entry point called by executable jar
      * @param args command line args
      */
     public static void main(String[] args) {
+        Logger log = LoggerFactory.getLogger(CommandLine.class);
+        
         log.info("Server startup begun");
         try {
             // the interesting entries from the manifest

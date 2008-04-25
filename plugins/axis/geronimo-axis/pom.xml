@@ -90,11 +90,6 @@
         </dependency>
         
         <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-        </dependency>
-        
-        <dependency>
             <groupId>asm</groupId>
             <artifactId>asm</artifactId>
         </dependency>
@@ -103,8 +98,7 @@
             <groupId>axis</groupId>
             <artifactId>axis</artifactId>
         </dependency>
-        
-        <!-- this uses commons-logging 1.0.3 -->
+
         <dependency>
             <groupId>commons-discovery</groupId>
             <artifactId>commons-discovery</artifactId>

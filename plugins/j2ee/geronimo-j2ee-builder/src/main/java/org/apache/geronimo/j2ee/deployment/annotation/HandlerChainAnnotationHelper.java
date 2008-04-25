@@ -26,8 +26,8 @@ import java.util.List;
 import javax.jws.HandlerChain;
 import javax.xml.ws.WebServiceRef;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.xbeans.javaee.HandlerChainType;
@@ -67,7 +67,7 @@ import org.apache.xmlbeans.XmlObject;
 public final class HandlerChainAnnotationHelper extends AnnotationHelper {
 
     // Private instance variables
-    private static final Log log = LogFactory.getLog(HandlerChainAnnotationHelper.class);
+    private static final Logger log = LoggerFactory.getLogger(HandlerChainAnnotationHelper.class);
 
     // Private constructor to prevent instantiation
     private HandlerChainAnnotationHelper() {

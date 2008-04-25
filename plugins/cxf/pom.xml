@@ -35,7 +35,7 @@
     <description>
         CXF plugin
     </description>
-
+    
     <modules>
         <module>cxf</module>
         <module>cxf-deployer</module>

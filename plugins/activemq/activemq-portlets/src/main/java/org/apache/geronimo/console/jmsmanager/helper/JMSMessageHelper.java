@@ -40,8 +40,8 @@ import javax.management.ObjectName;
 import javax.portlet.PortletRequest;
 import javax.portlet.RenderRequest;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.console.core.jms.TopicBrowserGBean;
 import org.apache.geronimo.console.jmsmanager.JMSMessageInfo;
 import org.apache.geronimo.console.util.PortletManager;
@@ -59,7 +59,7 @@ import org.apache.geronimo.management.geronimo.ResourceAdapterModule;
  */
 public abstract class JMSMessageHelper {
     protected static final Kernel kernel = KernelRegistry.getSingleKernel();
-    private static final Log log = LogFactory.getLog(JMSMessageHelper.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     public void sendMessage(RenderRequest request, JMSMessageInfo messageInfo) throws Exception {
         Destination dest = getDestination(request, messageInfo.getAdapterObjectName(), messageInfo.getPhysicalName());
@@ -266,7 +266,7 @@ public abstract class JMSMessageHelper {
             }
         } catch (Exception ex) {
             // ignore exception
-            log.error(ex);
+            log.error("Failed to get destination", ex);
         }
         return dest;
     }

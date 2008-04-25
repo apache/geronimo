@@ -27,8 +27,8 @@ import java.io.InputStream;
 
 import junit.framework.TestCase;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.kernel.rmi.RMIClassLoaderSpiImpl;
 
 /**
@@ -37,7 +37,7 @@ import org.apache.geronimo.kernel.rmi.RMIClassLoaderSpiImpl;
  * @version $Rev$ $Date$
  */
 public class RMIClassLoaderSpiImplTest extends TestCase {
-    private static final Log log = LogFactory.getLog(RMIClassLoaderSpiImplTest.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
     
     private String baseURL;
     private String normalizedBaseURL;

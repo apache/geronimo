@@ -27,8 +27,8 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.Collections;
 import java.util.Comparator;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Describes an available login module, including how to create and configure it.
@@ -37,7 +37,7 @@ import org.apache.commons.logging.LogFactory;
  * @version $Rev$ $Date$
  */
 public class MasterLoginModuleInfo implements Serializable {
-    private final static Log log = LogFactory.getLog(MasterLoginModuleInfo.class);
+    private static final Logger log = LoggerFactory.getLogger(MasterLoginModuleInfo.class);
     private static MasterLoginModuleInfo[] allModules;
     private String name;
     private String className;

@@ -19,15 +19,14 @@ package org.apache.geronimo.tomcat.cluster;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.catalina.ha.deploy.FarmWarDeployer;
 
 
 public class FarmWarDeployerGBean extends ClusterDeployerGBean{
 
-    private static final Log log = LogFactory
-            .getLog(FarmWarDeployerGBean.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     private final ServerInfo serverInfo;
 

@@ -34,8 +34,8 @@ import javax.annotation.Resource;
 import javax.resource.ResourceException;
 import javax.xml.namespace.QName;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
@@ -78,7 +78,7 @@ import org.omg.CORBA.ORB;
  */
 public class ResourceRefBuilder extends AbstractNamingBuilder implements ResourceEnvironmentSetter {
 
-    private static final Log log = LogFactory.getLog(ResourceRefBuilder.class);
+    private static final Logger log = LoggerFactory.getLogger(ResourceRefBuilder.class);
 
     private static final QName GER_RESOURCE_REF_QNAME = GerResourceRefDocument.type.getDocumentElementName();
     private static final QNameSet GER_RESOURCE_REF_QNAME_SET = QNameSet.singleton(GER_RESOURCE_REF_QNAME);

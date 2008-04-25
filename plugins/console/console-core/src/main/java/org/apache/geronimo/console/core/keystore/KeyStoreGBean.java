@@ -45,8 +45,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
@@ -63,7 +63,7 @@ import org.apache.geronimo.crypto.jce.X509V1CertificateGenerator;
 
 public class KeyStoreGBean implements GBeanLifecycle {
 
-    private static Log log = LogFactory.getLog(KeyStoreGBean.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     private String keyStoreType;
 

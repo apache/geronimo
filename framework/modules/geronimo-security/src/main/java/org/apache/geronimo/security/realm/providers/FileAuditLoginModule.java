@@ -36,8 +36,8 @@ import javax.security.auth.callback.NameCallback;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
 import org.apache.geronimo.security.jaas.WrappingLoginModule;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
@@ -59,7 +59,7 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
  * @version $Rev$ $Date$
  */
 public class FileAuditLoginModule implements LoginModule {
-    private static Log log = LogFactory.getLog(FileAuditLoginModule.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     public static final String LOG_FILE_OPTION = "file";
     public final static List<String> supportedOptions = Collections.unmodifiableList(Arrays.asList(LOG_FILE_OPTION));

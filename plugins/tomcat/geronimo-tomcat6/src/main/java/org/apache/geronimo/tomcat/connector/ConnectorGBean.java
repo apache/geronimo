@@ -25,8 +25,8 @@ import javax.management.j2ee.statistics.Stats;
 
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.connector.Connector;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
@@ -39,7 +39,7 @@ import org.apache.geronimo.tomcat.TomcatContainer;
 
 public abstract class ConnectorGBean extends BaseGBean implements CommonProtocol, GBeanLifecycle, ObjectRetriever, TomcatWebConnector {
 
-    private static final Log log = LogFactory.getLog(ConnectorGBean.class);
+    private static final Logger log = LoggerFactory.getLogger(ConnectorGBean.class);
 
     public final static String CONNECTOR_CONTAINER_REFERENCE = "TomcatContainer";
 
@@ -94,21 +94,20 @@ public abstract class ConnectorGBean extends BaseGBean implements CommonProtocol
     public void doStart() throws LifecycleException {
         container.addConnector(connector);
         connector.start();
-        if (log.isDebugEnabled())
-            log.debug(name + " connector started");
+        
+        log.debug("{} connector started", name);
     }
 
     public void doStop() {
         try {
             connector.stop();
         } catch (LifecycleException e) {
-            log.error(e);
+            log.error("Failed to stop", e);
         }
 
         container.removeConnector(connector);
 
-        if (log.isDebugEnabled())
-            log.debug(name + " connector stopped");
+        log.debug("{} connector stopped", name);
     }
     
     /**

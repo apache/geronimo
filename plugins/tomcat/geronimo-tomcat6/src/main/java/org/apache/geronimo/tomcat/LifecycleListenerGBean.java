@@ -19,8 +19,8 @@ package org.apache.geronimo.tomcat;
 import java.util.Map;
 
 import org.apache.catalina.LifecycleListener;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
@@ -30,7 +30,7 @@ import org.apache.geronimo.gbean.GBeanLifecycle;
  */
 public class LifecycleListenerGBean extends BaseGBean implements GBeanLifecycle, ObjectRetriever {
 
-    private static final Log log = LogFactory.getLog(LifecycleListenerGBean.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     public static final String J2EE_TYPE = "TomcatLifecycleListener";
         

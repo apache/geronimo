@@ -27,8 +27,8 @@ import javax.management.remote.JMXConnectorServer;
 import javax.management.remote.JMXConnectorServerFactory;
 import javax.management.remote.JMXServiceURL;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
@@ -41,7 +41,7 @@ import org.apache.geronimo.system.jmx.MBeanServerReference;
  */
 public class JMXConnector implements JMXConnectorInfo, GBeanLifecycle {
     private final MBeanServer mbeanServer;
-    private final Log log;
+    private final Logger log;
     private final ClassLoader classLoader;
     private String applicationConfigName;
     private Authenticator authenticator;
@@ -70,7 +70,7 @@ public class JMXConnector implements JMXConnectorInfo, GBeanLifecycle {
     public JMXConnector(MBeanServer mbeanServer, String objectName, ClassLoader classLoader) {
         this.mbeanServer = mbeanServer;
         this.classLoader = classLoader;
-        log = LogFactory.getLog(objectName);
+        log = LoggerFactory.getLogger(objectName);
     }
 
     /**

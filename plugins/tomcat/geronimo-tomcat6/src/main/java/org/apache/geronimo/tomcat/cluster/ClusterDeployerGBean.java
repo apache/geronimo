@@ -19,8 +19,8 @@ package org.apache.geronimo.tomcat.cluster;
 import java.util.Map;
 
 import org.apache.catalina.ha.ClusterDeployer;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
@@ -29,8 +29,7 @@ import org.apache.geronimo.tomcat.ObjectRetriever;
 
 public class ClusterDeployerGBean  extends BaseGBean implements GBeanLifecycle, ObjectRetriever {
 
-    private static final Log log = LogFactory
-            .getLog(ClusterDeployerGBean.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     public static final String J2EE_TYPE = "ClusterDeployer";
 

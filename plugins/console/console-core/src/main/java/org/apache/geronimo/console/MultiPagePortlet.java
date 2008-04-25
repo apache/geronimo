@@ -16,8 +16,8 @@
  */
 package org.apache.geronimo.console;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.commons.fileupload.portlet.PortletFileUpload;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.FileItem;
@@ -45,7 +45,7 @@ import java.io.IOException;
  * @version $Rev$ $Date$
  */
 public abstract class MultiPagePortlet extends BasePortlet {
-    private final static Log log = LogFactory.getLog(MultiPagePortlet.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
     protected static final String MODE_KEY = "mode";
     protected final Map<String, MultiPageAbstractHandler> helpers = new HashMap<String, MultiPageAbstractHandler>();
 

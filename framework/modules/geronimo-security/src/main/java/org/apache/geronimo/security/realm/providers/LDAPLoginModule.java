@@ -52,8 +52,8 @@ import javax.security.auth.login.FailedLoginException;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
 import org.apache.geronimo.security.jaas.WrappingLoginModule;
 
@@ -68,7 +68,7 @@ import org.apache.geronimo.security.jaas.WrappingLoginModule;
  */
 public class LDAPLoginModule implements LoginModule {
 
-    private static Log log = LogFactory.getLog(LDAPLoginModule.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     private Subject subject;
     private CallbackHandler handler;
@@ -253,7 +253,7 @@ public class LDAPLoginModule implements LoginModule {
         try {
             context.close();
         } catch (Exception e) {
-            log.error(e);
+            log.error("Failed to close context", e);
         }
     }
 
@@ -452,9 +452,8 @@ public class LDAPLoginModule implements LoginModule {
             env.put(Context.PROVIDER_URL, connectionURL == null ? "" : connectionURL);
             env.put(Context.SECURITY_AUTHENTICATION, authentication == null ? "" : authentication);
             context = new InitialDirContext(env);
-
         } catch (NamingException e) {
-            log.error(e);
+            log.error("Failed to open context", e);
             throw e;
         }
         return context;

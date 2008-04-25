@@ -18,8 +18,8 @@ package org.apache.geronimo.tomcat.realm;
 
 import org.apache.catalina.realm.JAASCallbackHandler;
 import org.apache.catalina.realm.JAASRealm;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.tomcat.JAASTomcatPrincipal;
 
@@ -35,7 +35,7 @@ import java.util.List;
  * @version $Rev$ $Date$
  */
 public class TomcatJAASRealm extends JAASRealm implements Cloneable {
-    private static final Log log = LogFactory.getLog(TomcatJAASRealm.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     private static final String DEFAULT_NAME = "tomcat";
 

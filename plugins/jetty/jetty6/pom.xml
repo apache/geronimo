@@ -69,11 +69,6 @@
             <artifactId>slf4j-api</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-jcl</artifactId>
-        </dependency>
-
         <!--<dependency>-->
         <!--<groupId>org.apache.geronimo.configs</groupId>-->
         <!--<artifactId>jasper</artifactId>-->
@@ -143,11 +138,6 @@
                         <dependency start="true">
                             <groupId>org.slf4j</groupId>
                             <artifactId>slf4j-api</artifactId>
-                            <type>jar</type>
-                        </dependency>
-                        <dependency start="true">
-                            <groupId>org.slf4j</groupId>
-                            <artifactId>slf4j-jcl</artifactId>
                             <type>jar</type>
                         </dependency>
                         <dependency start="true">

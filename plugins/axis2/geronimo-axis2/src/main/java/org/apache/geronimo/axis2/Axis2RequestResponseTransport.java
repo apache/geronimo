@@ -24,13 +24,13 @@ import java.util.concurrent.CountDownLatch;
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.context.MessageContext;
 import org.apache.axis2.transport.RequestResponseTransport;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.webservices.WebServiceContainer.Response;
 
 public class Axis2RequestResponseTransport implements RequestResponseTransport {
     
-    private static final Log LOG = LogFactory.getLog(Axis2RequestResponseTransport.class);
+    private final Logger LOG = LoggerFactory.getLogger(getClass());
     
     private Response response;
 

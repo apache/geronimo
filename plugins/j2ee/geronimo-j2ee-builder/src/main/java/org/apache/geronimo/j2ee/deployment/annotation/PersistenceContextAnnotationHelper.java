@@ -28,8 +28,8 @@ import javax.persistence.PersistenceContexts;
 import javax.persistence.PersistenceContextType;
 import javax.persistence.PersistenceProperty;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.xbeans.javaee.DescriptionType;
 import org.apache.geronimo.xbeans.javaee.FullyQualifiedClassType;
@@ -71,7 +71,7 @@ import org.apache.xbean.finder.ClassFinder;
 public final class PersistenceContextAnnotationHelper extends AnnotationHelper {
 
     // Private instance variables
-    private static final Log log = LogFactory.getLog(PersistenceContextAnnotationHelper.class);
+    private static final Logger log = LoggerFactory.getLogger(PersistenceContextAnnotationHelper.class);
 
     // Private constructor to prevent instantiation
     private PersistenceContextAnnotationHelper() {

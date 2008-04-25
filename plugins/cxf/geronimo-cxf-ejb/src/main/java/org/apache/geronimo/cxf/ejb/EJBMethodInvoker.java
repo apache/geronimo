@@ -27,8 +27,8 @@ import java.util.List;
 import javax.interceptor.InvocationContext;
 import javax.xml.ws.handler.MessageContext;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.cxf.Bus;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.jaxws.context.WebServiceContextImpl;
@@ -41,7 +41,7 @@ import org.apache.openejb.RpcContainer;
 
 public class EJBMethodInvoker extends AbstractInvoker {
 
-    private static final Log LOG = LogFactory.getLog(EJBMethodInvoker.class);
+    private final Logger LOG = LoggerFactory.getLogger(getClass());
     
     private DeploymentInfo deploymentInfo;
     private Bus bus;

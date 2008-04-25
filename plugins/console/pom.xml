@@ -35,15 +35,7 @@
     <description>
         Geronimo administration console supporting dynamic extensions
     </description>
-    
-    <dependencies>
-        <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-            <scope>provided</scope>
-        </dependency>
-    </dependencies>
-    
+
     <modules>
         <module>geronimo-converter</module>
         <module>console-core</module>

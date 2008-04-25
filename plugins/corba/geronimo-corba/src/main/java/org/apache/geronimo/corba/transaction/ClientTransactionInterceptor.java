@@ -16,8 +16,8 @@
  */
 package org.apache.geronimo.corba.transaction;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.BAD_PARAM;
 import org.omg.CORBA.INTERNAL;
@@ -41,7 +41,7 @@ import org.apache.geronimo.corba.util.TypeCode;
  */
 class ClientTransactionInterceptor extends LocalObject implements ClientRequestInterceptor {
 
-    private final Log log = LogFactory.getLog(ClientTransactionInterceptor.class);
+    private final Logger log = LoggerFactory.getLogger(ClientTransactionInterceptor.class);
 
     public ClientTransactionInterceptor() {
         if (log.isDebugEnabled()) log.debug("Registered");

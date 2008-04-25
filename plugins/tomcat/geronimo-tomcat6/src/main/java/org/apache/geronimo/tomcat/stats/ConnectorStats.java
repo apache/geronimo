@@ -26,8 +26,8 @@ import javax.management.ObjectName;
 import javax.management.j2ee.statistics.Stats;
 import org.apache.geronimo.management.geronimo.stats.TomcatWebConnectorStatsImpl;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.tomcat.util.modeler.Registry;
 
 /**
@@ -36,7 +36,7 @@ import org.apache.tomcat.util.modeler.Registry;
  * @version $Revision$ $Date$
  */
 public class ConnectorStats {
-    private static final Log log = LogFactory.getLog(ConnectorStats.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
     protected MBeanServer mBeanServer = null;
 
     protected Registry registry;

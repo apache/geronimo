@@ -31,15 +31,15 @@ import javax.crypto.Cipher;
 import javax.crypto.SealedObject;
 
 import org.apache.geronimo.crypto.encoders.Base64;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @version $Rev$ $Date$
  */
 public abstract class AbstractEncryption implements Encryption {
-    private final static Log log = LogFactory.getLog(SimpleEncryption.class);
-
+    private Logger log = LoggerFactory.getLogger(getClass());
+    
     /**
      * Gets a String which contains the Base64-encoded form of the source,
      * encrypted with the key from getSecretKeySpec().

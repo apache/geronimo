@@ -40,8 +40,8 @@ import javax.xml.bind.JAXBException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanData;
@@ -71,7 +71,7 @@ import org.xml.sax.SAXException;
  * @version $Rev$ $Date$
  */
 public class LocalAttributeManager implements LocalPluginAttributeStore, PersistentConfigurationList, GBeanLifecycle {
-    private static final Log log = LogFactory.getLog(LocalAttributeManager.class);
+    private static final Logger log = LoggerFactory.getLogger(LocalAttributeManager.class);
 
     private static final String CONFIG_FILE_PROPERTY = "org.apache.geronimo.config.file";
     private final static String SUBSTITUTIONS_FILE_PROPERTY = "org.apache.geronimo.config.substitutions.file";

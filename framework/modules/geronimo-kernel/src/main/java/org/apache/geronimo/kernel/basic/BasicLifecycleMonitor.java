@@ -27,8 +27,8 @@ import java.util.LinkedHashSet;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.lifecycle.LifecycleMonitor;
@@ -42,7 +42,7 @@ import org.apache.geronimo.gbean.GBeanData;
  * @version $Rev$ $Date$
  */
 public class BasicLifecycleMonitor implements LifecycleMonitor {
-    private static final Log log = LogFactory.getLog(BasicLifecycleMonitor.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
 
     // todo we should only hold weak references to the listeners

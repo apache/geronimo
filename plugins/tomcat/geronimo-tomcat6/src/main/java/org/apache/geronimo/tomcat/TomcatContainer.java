@@ -31,8 +31,8 @@ import org.apache.catalina.LifecycleListener;
 import org.apache.catalina.Realm;
 import org.apache.catalina.connector.Connector;
 import org.apache.catalina.realm.JAASRealm;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
@@ -57,7 +57,7 @@ import org.apache.naming.resources.DirContextURLStreamHandlerFactory;
  */
 public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebContainer {
 
-    private static final Log log = LogFactory.getLog(TomcatContainer.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     /**
      * The default value of CATALINA_HOME variable

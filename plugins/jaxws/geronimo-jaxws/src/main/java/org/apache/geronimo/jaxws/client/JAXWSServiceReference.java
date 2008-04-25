@@ -22,8 +22,8 @@ import org.apache.geronimo.naming.reference.ClassLoaderAwareReference;
 import org.apache.geronimo.naming.reference.KernelAwareReference;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.gbean.AbstractName;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.naming.NamingException;
 import javax.xml.ws.Service;
@@ -43,7 +43,7 @@ import net.sf.cglib.reflect.FastConstructor;
 import net.sf.cglib.reflect.FastClass;
 
 public abstract class JAXWSServiceReference extends SimpleReference implements ClassLoaderAwareReference, KernelAwareReference {
-    private static final Log LOG = LogFactory.getLog(JAXWSServiceReference.class);
+    private final Logger LOG = LoggerFactory.getLogger(getClass());
     private static final Class[] URL_SERVICE_NAME_CONSTRUCTOR =
         new Class[] { URL.class, QName.class };
     

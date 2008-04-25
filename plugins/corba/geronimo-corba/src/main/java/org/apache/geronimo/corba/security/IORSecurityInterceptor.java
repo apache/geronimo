@@ -16,8 +16,8 @@
  */
 package org.apache.geronimo.corba.security;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.omg.CORBA.INV_POLICY;
 import org.omg.CORBA.LocalObject;
 import org.omg.IOP.TAG_INTERNET_IOP;
@@ -33,7 +33,7 @@ import org.apache.geronimo.corba.util.Util;
  */
 final class IORSecurityInterceptor extends LocalObject implements IORInterceptor {
 
-    private final Log log = LogFactory.getLog(IORSecurityInterceptor.class);
+    private final Logger log = LoggerFactory.getLogger(IORSecurityInterceptor.class);
     
     private final TSSConfig defaultConfig; 
     

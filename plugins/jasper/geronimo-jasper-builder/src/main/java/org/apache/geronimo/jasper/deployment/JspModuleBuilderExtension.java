@@ -37,8 +37,8 @@ import java.util.jar.JarFile;
 
 import javax.xml.namespace.QName;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
@@ -84,7 +84,7 @@ import org.apache.xmlbeans.XmlObject;
  */
 public class JspModuleBuilderExtension implements ModuleBuilderExtension {
 
-    private static final Log log = LogFactory.getLog(JspModuleBuilderExtension.class);
+    private static final Logger log = LoggerFactory.getLogger(JspModuleBuilderExtension.class);
 
     private final Environment defaultEnvironment;
     private final NamingBuilder namingBuilders;

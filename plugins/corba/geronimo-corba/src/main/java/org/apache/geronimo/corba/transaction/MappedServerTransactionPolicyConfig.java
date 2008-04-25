@@ -18,8 +18,8 @@ package org.apache.geronimo.corba.transaction;
 
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.omg.CORBA.SystemException;
 import org.omg.CosTransactions.PropagationContext;
 
@@ -27,7 +27,7 @@ import org.omg.CosTransactions.PropagationContext;
  * @version $Rev: 451417 $ $Date: 2006-09-29 13:13:22 -0700 (Fri, 29 Sep 2006) $
  */
 public class MappedServerTransactionPolicyConfig extends AbstractServerTransactionPolicyConfig {
-    private static Log log = LogFactory.getLog(MappedServerTransactionPolicyConfig.class);
+    private static Logger log = LoggerFactory.getLogger(MappedServerTransactionPolicyConfig.class);
     private final Map operationToPolicyMap;
     public MappedServerTransactionPolicyConfig(Map operationToPolicyMap) {
         this.operationToPolicyMap = operationToPolicyMap;

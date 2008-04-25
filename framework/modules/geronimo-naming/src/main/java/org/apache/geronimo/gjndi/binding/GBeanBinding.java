@@ -24,8 +24,8 @@ import java.util.Set;
 import javax.naming.Context;
 import javax.naming.NamingException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -40,7 +40,7 @@ import org.apache.geronimo.kernel.lifecycle.LifecycleListener;
  * @version $Rev$ $Date$
  */
 public class GBeanBinding implements GBeanLifecycle {
-    private static final Log log = LogFactory.getLog(GBeanBinding.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     private final Context context;
     private final String name;

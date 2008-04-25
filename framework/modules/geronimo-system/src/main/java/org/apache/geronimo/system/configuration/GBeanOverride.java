@@ -33,8 +33,8 @@ import java.util.Set;
 import javax.xml.bind.JAXBException;
 import javax.xml.stream.XMLStreamException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.common.propertyeditor.PropertyEditors;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
@@ -58,7 +58,7 @@ import org.apache.geronimo.crypto.EncryptionManager;
  */
 public class GBeanOverride implements Serializable {
 
-    private static final Log log = LogFactory.getLog(GBeanOverride.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     public static final String ATTRIBUTE_NAMESPACE = "http://geronimo.apache.org/xml/ns/attributes-1.2";
     private final Object name;

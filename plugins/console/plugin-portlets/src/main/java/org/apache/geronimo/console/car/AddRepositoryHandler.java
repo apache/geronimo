@@ -16,8 +16,8 @@
  */
 package org.apache.geronimo.console.car;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.console.MultiPageModel;
 import org.apache.geronimo.console.util.PortletManager;
 import org.apache.geronimo.system.plugin.PluginRepositoryList;
@@ -45,7 +45,7 @@ import java.util.List;
  * @version $Rev$ $Date$
  */
 public class AddRepositoryHandler extends BaseImportExportHandler {
-    private final static Log log = LogFactory.getLog(AddRepositoryHandler.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     public AddRepositoryHandler() {
         super(ADD_REPO_MODE, "/WEB-INF/view/car/addRepository.jsp");

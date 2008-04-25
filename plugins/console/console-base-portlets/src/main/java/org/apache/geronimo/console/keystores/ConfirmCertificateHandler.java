@@ -16,8 +16,8 @@
  */
 package org.apache.geronimo.console.keystores;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.console.MultiPageModel;
 import org.apache.geronimo.management.geronimo.KeystoreException;
 import org.apache.geronimo.crypto.CertificateUtil;
@@ -44,7 +44,7 @@ import java.util.Collection;
  * @version $Rev$ $Date$
  */
 public class ConfirmCertificateHandler extends BaseKeystoreHandler {
-    private final static Log log = LogFactory.getLog(ConfirmCertificateHandler.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     public ConfirmCertificateHandler() {
         super(CONFIRM_CERTIFICATE, "/WEB-INF/view/keystore/confirmCertificate.jsp");

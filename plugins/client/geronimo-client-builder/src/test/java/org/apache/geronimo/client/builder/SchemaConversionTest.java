@@ -20,8 +20,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.testsupport.XmlBeansTestSupport;
@@ -35,7 +35,7 @@ import org.apache.xmlbeans.XmlObject;
  * @version $Rev$ $Date$
  */
 public class SchemaConversionTest extends XmlBeansTestSupport {
-    private static final Log log = LogFactory.getLog(SchemaConversionTest.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     private ClassLoader classLoader = this.getClass().getClassLoader();
 

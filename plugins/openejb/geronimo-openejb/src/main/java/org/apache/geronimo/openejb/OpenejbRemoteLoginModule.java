@@ -37,8 +37,8 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.security.SubjectId;
 import org.apache.openejb.client.ClientSecurity;
 import org.apache.openejb.client.ServerMetaData;
@@ -56,7 +56,7 @@ import org.apache.openejb.client.ServerMetaData;
  * @version $Rev$ $Date$
  */
 public class OpenejbRemoteLoginModule implements LoginModule {
-    private static Log log = LogFactory.getLog(OpenejbRemoteLoginModule.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
 
     private static final String SECURITY_REALM_KEY = "RemoteSecurityRealm";

@@ -36,8 +36,8 @@ import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import javax.portlet.WindowState;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.console.BasePortlet;
 import org.apache.geronimo.console.util.PortletManager;
 import org.apache.geronimo.gbean.AbstractName;
@@ -61,7 +61,7 @@ import org.apache.geronimo.crypto.KeystoreUtil;
  * @version $Rev$ $Date$
  */
 public class ConnectorPortlet extends BasePortlet {
-    private final static Log log = LogFactory.getLog(ConnectorPortlet.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
     
     public static final String PARM_CONTAINER_URI = "containerURI";
     public static final String PARM_CONNECTOR_URI = "connectorURI";

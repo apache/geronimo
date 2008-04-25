@@ -39,8 +39,8 @@ import javax.ejb.SessionContext;
 import javax.ejb.TimerService;
 import javax.xml.namespace.QName;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.connector.ResourceAdapterWrapperGBean;
 import org.apache.geronimo.deployment.ClassPathList;
@@ -138,7 +138,7 @@ import org.apache.xmlbeans.XmlObject;
  * @version $Revision: 479481 $ $Date: 2006-11-26 16:52:20 -0800 (Sun, 26 Nov 2006) $
  */
 public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle {
-    private static final Log log = LogFactory.getLog(EjbModuleBuilder.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     private static final String OPENEJBJAR_NAMESPACE = XmlUtil.OPENEJBJAR_QNAME.getNamespaceURI();
     private static final Map<String, String> NAMESPACE_UPDATES = new HashMap<String, String>();

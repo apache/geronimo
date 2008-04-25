@@ -33,8 +33,8 @@ import javax.transaction.TransactionRolledbackException;
 import javax.ejb.EJBHome;
 import javax.ejb.EJBObject;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.omg.CORBA.CompletionStatus;
 import org.omg.CORBA.INVALID_TRANSACTION;
 import org.omg.CORBA.MARSHAL;
@@ -62,7 +62,7 @@ import org.apache.openejb.core.CoreDeploymentInfo;
  */
 public final class UtilDelegateImpl implements UtilDelegate {
 
-    private final Log log = LogFactory.getLog(UtilDelegateImpl.class);
+    private final Logger log = LoggerFactory.getLogger(UtilDelegateImpl.class);
     private final UtilDelegate delegate;
     private static ClassLoader classLoader;
 

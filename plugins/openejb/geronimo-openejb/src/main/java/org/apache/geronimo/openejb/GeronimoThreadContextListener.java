@@ -22,8 +22,8 @@ import javax.resource.ResourceException;
 import javax.security.auth.Subject;
 import javax.security.jacc.PolicyContext;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectorInstanceContext;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectorInstanceContextImpl;
 import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
@@ -38,7 +38,7 @@ import org.apache.openejb.core.ThreadContextListener;
  * @version $Rev$ $Date$
  */
 public class GeronimoThreadContextListener implements ThreadContextListener {
-    private static final Log log = LogFactory.getLog(GeronimoThreadContextListener.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     // A single stateless listener is used for Geronimo
     private static final GeronimoThreadContextListener instance = new GeronimoThreadContextListener();

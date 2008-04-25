@@ -21,16 +21,16 @@
 package org.apache.geronimo.kernel.config;
 
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.commons.logging.Log;
+import org.slf4j.Logger;
 
 /**
  * @version $Rev$ $Date$
  */
 public class DebugLoggingLifecycleMonitor implements LifecycleMonitor {
-    private final Log log;
+    private final Logger log;
 
 
-    public DebugLoggingLifecycleMonitor(Log log) {
+    public DebugLoggingLifecycleMonitor(Logger log) {
         this.log = log;
     }
 

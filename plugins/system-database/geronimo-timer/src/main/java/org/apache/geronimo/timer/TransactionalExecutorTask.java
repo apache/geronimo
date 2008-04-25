@@ -20,14 +20,14 @@ package org.apache.geronimo.timer;
 import javax.transaction.TransactionManager;
 import javax.transaction.Status;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @version $Rev$ $Date$
  */
 public class TransactionalExecutorTask implements ExecutorTask {
-    private static final Log log = LogFactory.getLog(TransactionalExecutorTask.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     private final Runnable userTask;
     private final WorkInfo workInfo;

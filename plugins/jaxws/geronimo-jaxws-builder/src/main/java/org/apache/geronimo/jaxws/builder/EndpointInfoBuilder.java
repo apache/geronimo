@@ -44,8 +44,8 @@ import javax.wsdl.xml.WSDLReader;
 import javax.xml.namespace.QName;
 import javax.xml.ws.WebServiceClient;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.jaxws.JAXWSUtils;
 import org.apache.geronimo.jaxws.client.EndpointInfo;
@@ -56,7 +56,7 @@ import org.xml.sax.InputSource;
 
 public class EndpointInfoBuilder {
 
-    private static final Log LOG = LogFactory.getLog(EndpointInfoBuilder.class);
+    private final Logger LOG = LoggerFactory.getLogger(getClass());
 
     private JarFile moduleFile;
 

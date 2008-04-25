@@ -41,8 +41,8 @@ import java.util.zip.ZipEntry;
 
 import javax.xml.namespace.QName;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.ConfigurationBuilder;
 import org.apache.geronimo.deployment.DeploymentContext;
@@ -105,7 +105,7 @@ import org.apache.xmlbeans.XmlObject;
  */
 public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSource, GBeanLifecycle {
 
-    private static final Log log = LogFactory.getLog(EARConfigBuilder.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
     private static final String LINE_SEP = System.getProperty("line.separator");
 
     private final static QName APPLICATION_QNAME = GerApplicationDocument.type.getDocumentElementName();

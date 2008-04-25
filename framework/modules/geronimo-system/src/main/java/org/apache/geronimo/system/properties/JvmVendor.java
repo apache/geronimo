@@ -19,15 +19,15 @@ package org.apache.geronimo.system.properties;
 import java.security.Provider;
 import java.security.Security;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @version $Rev: 5066 $ $Date: 2007-04-27 12:07:23 -0400 (Fri, 27 Apr 2007) $
  */
 public class JvmVendor {
 
-    private static final Log log = LogFactory.getLog(JvmVendor.class);
+    private static final Logger log = LoggerFactory.getLogger(JvmVendor.class);
 
     private static final String JVM_VENDOR_PROPERTY_NAME = "java.vm.vendor";
 

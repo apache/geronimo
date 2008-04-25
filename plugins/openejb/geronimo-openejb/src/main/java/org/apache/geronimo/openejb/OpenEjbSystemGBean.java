@@ -32,8 +32,8 @@ import javax.naming.Context;
 import javax.resource.spi.ResourceAdapter;
 import javax.transaction.TransactionManager;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.connector.ResourceAdapterWrapper;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
@@ -76,7 +76,7 @@ import org.omg.CORBA.ORB;
  * @version $Rev$ $Date$
  */
 public class OpenEjbSystemGBean implements OpenEjbSystem {
-    private static final Log log = LogFactory.getLog(OpenEjbSystemGBean.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
     private final ConfigurationFactory configurationFactory;
     private final Assembler assembler;
     private final Set<String> registeredResouceAdapters = new TreeSet<String>();

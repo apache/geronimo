@@ -25,8 +25,8 @@ import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;
 import javax.xml.ws.handler.HandlerResolver;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.cxf.jaxws.context.WebServiceContextImpl;
 import org.apache.cxf.jaxws.javaee.HandlerChainsType;
 import org.apache.geronimo.cxf.CXFHandlerResolver;
@@ -40,7 +40,7 @@ import org.apache.geronimo.jaxws.client.JAXWSServiceReference;
 
 public class CXFServiceReference extends JAXWSServiceReference {
 
-    private static final Log LOG = LogFactory.getLog(CXFServiceReference.class);
+    private final Logger LOG = LoggerFactory.getLogger(getClass());
 
     public CXFServiceReference(String serviceClassName,
                                String referenceClassName,

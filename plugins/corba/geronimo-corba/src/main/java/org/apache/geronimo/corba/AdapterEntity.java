@@ -22,8 +22,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.LocalObject;
 import org.omg.CORBA.OBJECT_NOT_EXIST;
@@ -46,7 +46,7 @@ import org.apache.geronimo.openejb.EjbDeployment;
  * @version $Revision: 497125 $ $Date: 2007-01-17 10:51:30 -0800 (Wed, 17 Jan 2007) $
  */
 public final class AdapterEntity extends Adapter {
-    private final Log log = LogFactory.getLog(AdapterEntity.class);
+    private final Logger log = LoggerFactory.getLogger(AdapterEntity.class);
 
     private final POA poa;
     private final String referenceInterface;

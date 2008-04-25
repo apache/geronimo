@@ -39,8 +39,8 @@ import java.util.jar.JarFile;
 import javax.management.ObjectName;
 import javax.servlet.Servlet;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
 import org.apache.geronimo.deployment.NamespaceDrivenBuilder;
@@ -120,7 +120,7 @@ import org.mortbay.jetty.security.FormAuthenticator;
  * @version $Rev:385659 $ $Date$
  */
 public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBeanLifecycle {
-    private final static Log log = LogFactory.getLog(JettyModuleBuilder.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
     private static final Map<String, String> NAMESPACE_UPDATES = new HashMap<String, String>();
     static {
         NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/web", "http://geronimo.apache.org/xml/ns/j2ee/web-2.0.1");
@@ -321,7 +321,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
                     }
                 }
             } catch (IOException e) {
-                log.warn(e);
+                log.warn("Failed to load geronimo-web.xml", e);
             }
 
             JettyWebAppType jettyWebApp;

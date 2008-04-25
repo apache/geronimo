@@ -31,7 +31,7 @@
     <groupId>org.apache.geronimo.modules</groupId>
     <artifactId>geronimo-jasper</artifactId>
     <name>Geronimo Plugins, Jasper :: Core</name>
-    
+
     <dependencies>
         <dependency>
             <groupId>org.apache.tomcat</groupId>
@@ -53,6 +53,7 @@
             <artifactId>geronimo-kernel</artifactId>
             <version>${version}</version>
         </dependency>
+        
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-j2ee</artifactId>
@@ -65,25 +66,28 @@
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-servlet_2.5_spec</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-jsp_2.1_spec</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-el_1.0_spec</artifactId>
         </dependency>
         
+        <!--
+        TODO: See if this logging package is really needed.
+        -->
         <dependency>
-          <groupId>org.apache.tomcat</groupId>
-          <artifactId>juli</artifactId>
+            <groupId>org.apache.tomcat</groupId>
+            <artifactId>juli</artifactId>
         </dependency>
-        
+
         <dependency>
-          <groupId>org.apache.tomcat</groupId>
-          <artifactId>catalina</artifactId>
+            <groupId>org.apache.tomcat</groupId>
+            <artifactId>catalina</artifactId>
         </dependency>
     </dependencies>
 

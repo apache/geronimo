@@ -42,8 +42,8 @@ import org.apache.geronimo.management.geronimo.JCAManagedConnectionFactory;
 import org.apache.geronimo.management.geronimo.JCAResource;
 import org.apache.geronimo.management.geronimo.ResourceAdapter;
 import org.apache.geronimo.management.geronimo.ResourceAdapterModule;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A handles for the front page that lists available resources.
@@ -51,7 +51,7 @@ import org.apache.commons.logging.LogFactory;
  * @version $Rev$ $Date$
  */
 public class ListScreenHandler extends AbstractHandler {
-    private static final Log log = LogFactory.getLog(ListScreenHandler.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     public ListScreenHandler() {
         super(LIST_MODE, "/WEB-INF/view/jmswizard/list.jsp");
@@ -182,8 +182,7 @@ public class ListScreenHandler extends AbstractHandler {
                     try {
                         physicalName = (String) admins[j].getConfigProperty("PhysicalName");
                     } catch (Exception e) {
-                        log.warn(e);
-                        log.warn("PhysicalName undefined, using queueName as PhysicalName");
+                        log.warn("PhysicalName undefined, using queueName as PhysicalName", e);
                         physicalName = queueName;
                     }
                     target.getAdminObjects().add(

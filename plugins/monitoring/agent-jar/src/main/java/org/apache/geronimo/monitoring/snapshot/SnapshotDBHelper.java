@@ -30,12 +30,12 @@ import java.util.TreeMap;
 
 import javax.sql.DataSource;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.monitoring.MonitorConstants;
 
 public class SnapshotDBHelper {
-    private static Log log = LogFactory.getLog(SnapshotDBHelper.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
     // Connection object used for DB interaction
     private static Connection conn = null;
     // Data Sources

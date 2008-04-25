@@ -33,7 +33,6 @@
     <packaging>car</packaging>
 
     <dependencies>
-
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-gbean-deployer</artifactId>
@@ -41,6 +40,7 @@
             <type>car</type>
             <scope>provided</scope>
         </dependency>
+
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-common</artifactId>
@@ -81,18 +81,22 @@
             <groupId>javax.xml.bind</groupId>
             <artifactId>jaxb-api</artifactId>
         </dependency>
+        
         <dependency>
             <groupId>com.sun.xml.bind</groupId>
             <artifactId>jaxb-impl</artifactId>
         </dependency>
+        
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-stax-api_1.0_spec</artifactId>
         </dependency>
+        
         <dependency>
             <groupId>woodstox</groupId>
             <artifactId>wstx-asl</artifactId>
         </dependency>
+        
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-activation_1.1_spec</artifactId>
@@ -134,12 +138,20 @@
                             <artifactId>asm-commons</artifactId>
                         </element>
                         <element>
-                            <groupId>commons-logging</groupId>
-                            <artifactId>commons-logging</artifactId>
-                        </element>
-                        <element>
                             <groupId>cglib</groupId>
                             <artifactId>cglib-nodep</artifactId>
+                        </element>
+                        <element>
+                            <groupId>org.slf4j</groupId>
+                            <artifactId>slf4j-api</artifactId>
+                        </element>
+                        <element>
+                            <groupId>org.slf4j</groupId>
+                            <artifactId>slf4j-log4j12</artifactId>
+                        </element>
+                        <element>
+                            <groupId>org.slf4j</groupId>
+                            <artifactId>jcl104-over-slf4j</artifactId>
                         </element>
                         <element>
                             <groupId>log4j</groupId>

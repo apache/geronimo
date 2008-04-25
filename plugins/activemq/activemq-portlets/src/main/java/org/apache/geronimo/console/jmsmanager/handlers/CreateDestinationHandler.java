@@ -28,8 +28,8 @@ import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
 import javax.portlet.PortletException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.console.core.jms.TopicBrowserGBean;
 import org.apache.geronimo.console.jmsmanager.AbstractJMSManager;
 import org.apache.geronimo.gbean.AbstractName;
@@ -43,8 +43,7 @@ import org.apache.geronimo.kernel.repository.Dependency;
 import org.apache.geronimo.kernel.repository.ImportType;
 
 public class CreateDestinationHandler extends AbstractJMSManager implements PortletResponseHandler {
-    protected static Log log = LogFactory
-            .getLog(CreateDestinationHandler.class);
+    protected final Logger log = LoggerFactory.getLogger(getClass());
 
     private static final Artifact parentId = new Artifact("geronimo", "activemq-broker", org.apache.geronimo.system.serverinfo.ServerConstants.getVersion(), "car");
 

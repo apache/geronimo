@@ -35,8 +35,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GAttributeInfo;
@@ -61,7 +61,7 @@ import org.apache.geronimo.kernel.repository.Maven2Repository;
  * @version $Rev:386276 $ $Date$
  */
 public final class ConfigurationUtil {
-    private static final Log log = LogFactory.getLog(ConfigurationUtil.class);
+    private static final Logger log = LoggerFactory.getLogger(ConfigurationUtil.class);
     private static final ConfigurationMarshaler configurationMarshaler;
 
     static {

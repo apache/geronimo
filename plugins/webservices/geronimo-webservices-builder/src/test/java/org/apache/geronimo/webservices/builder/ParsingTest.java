@@ -99,7 +99,7 @@ public class ParsingTest
         assertEquals(3, map.size());
         Map elements = schemaInfoBuilder.getElementToTypeMap();
         log.debug("ELEMENT MAP");
-        log.debug(elements);
+        log.debug("{}", elements);
         assertEquals(1, elements.size());
     }
 
@@ -110,7 +110,7 @@ public class ParsingTest
         assertEquals(8, map.size());
         Map elements = schemaInfoBuilder.getElementToTypeMap();
         log.debug("ELEMENT MAP");
-        log.debug(elements);
+        log.debug("{}", elements);
         assertEquals(4, elements.size());
     }
     

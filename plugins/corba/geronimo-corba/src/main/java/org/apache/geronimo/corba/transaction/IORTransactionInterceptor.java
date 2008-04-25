@@ -16,8 +16,8 @@
  */
 package org.apache.geronimo.corba.transaction;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.INV_POLICY;
 import org.omg.CORBA.LocalObject;
@@ -38,7 +38,7 @@ import org.apache.geronimo.corba.util.Util;
  */
 final class IORTransactionInterceptor extends LocalObject implements IORInterceptor {
 
-    private final Log log = LogFactory.getLog(IORTransactionInterceptor.class);
+    private final Logger log = LoggerFactory.getLogger(IORTransactionInterceptor.class);
 
     public void establish_components(IORInfo info) {
 

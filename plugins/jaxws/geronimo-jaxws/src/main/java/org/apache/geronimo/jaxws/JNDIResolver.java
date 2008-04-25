@@ -16,8 +16,8 @@
  */
 package org.apache.geronimo.jaxws;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -25,15 +25,14 @@ import javax.naming.NamingException;
 
 public class JNDIResolver {
 
-    private static final Log LOG = 
-        LogFactory.getLog(JNDIResolver.class.getName());
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     public Object resolve(String name, Class clz) throws NamingException {
         Context ctx = new InitialContext();
         ctx = (Context) ctx.lookup("java:comp/env");
 
-        LOG.debug("Looking up '" + name + "'");
-
+        log.debug("Looking up: {}", name);
+        
         Object o = ctx.lookup(name);
 
         return clz.cast(o);

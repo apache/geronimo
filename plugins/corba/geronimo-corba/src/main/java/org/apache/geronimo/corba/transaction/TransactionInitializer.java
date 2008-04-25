@@ -16,8 +16,8 @@
  */
 package org.apache.geronimo.corba.transaction;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.omg.CORBA.LocalObject;
 import org.omg.PortableInterceptor.ORBInitInfo;
 import org.omg.PortableInterceptor.ORBInitInfoPackage.DuplicateName;
@@ -29,7 +29,7 @@ import org.omg.PortableInterceptor.ORBInitializer;
  */
 public class TransactionInitializer extends LocalObject implements ORBInitializer {
 
-    private final Log log = LogFactory.getLog(TransactionInitializer.class);
+    private final Logger log = LoggerFactory.getLogger(TransactionInitializer.class);
 
     public TransactionInitializer() {
         if (log.isDebugEnabled()) log.debug("TransactionInitializer.<init>");

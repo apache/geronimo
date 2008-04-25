@@ -24,8 +24,8 @@ import java.io.FileNotFoundException;
 import java.net.URL;
 import java.net.URLConnection;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.PropertyConfigurator;
 import org.apache.log4j.spi.Configurator;
@@ -38,7 +38,7 @@ import org.apache.log4j.xml.DOMConfigurator;
  * @version $Rev$ $Date$
  */
 public class URLConfigurator implements Configurator {
-    private static final Log log = LogFactory.getLog(URLConfigurator.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     public static void configure(final URL url) {
         new URLConfigurator().doConfigure(url, LogManager.getLoggerRepository());

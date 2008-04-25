@@ -23,8 +23,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.bus.extension.ExtensionManagerBus;
@@ -35,7 +35,7 @@ import org.apache.geronimo.webservices.saaj.SAAJUniverse;
 
 public abstract class CXFWebServiceContainer implements WebServiceContainer {
 
-    private static final Log LOG = LogFactory.getLog(CXFWebServiceContainer.class);
+    private final Logger LOG = LoggerFactory.getLogger(getClass());
     
     protected final GeronimoDestination destination;
 

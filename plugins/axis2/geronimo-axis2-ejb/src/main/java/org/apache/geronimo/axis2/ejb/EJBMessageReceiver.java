@@ -34,15 +34,15 @@ import org.apache.axis2.jaxws.description.EndpointInterfaceDescription;
 import org.apache.axis2.jaxws.description.OperationDescription;
 import org.apache.axis2.jaxws.handler.SoapMessageContext;
 import org.apache.axis2.jaxws.i18n.Messages;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.openejb.ApplicationException;
 import org.apache.openejb.DeploymentInfo;
 import org.apache.openejb.RpcContainer;
 
 public class EJBMessageReceiver implements MessageReceiver {
 
-    private static final Log LOG = LogFactory.getLog(EJBMessageReceiver.class);
+    private final Logger LOG = LoggerFactory.getLogger(getClass());
     
     private DeploymentInfo deploymentInfo;
     private Class serviceImplClass;

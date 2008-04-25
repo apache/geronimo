@@ -32,8 +32,8 @@ import java.util.jar.JarFile;
 import javax.jws.WebService;
 import javax.xml.ws.WebServiceProvider;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.j2ee.deployment.Module;
@@ -48,7 +48,7 @@ import org.apache.xbean.finder.ClassFinder;
 
 public class WARWebServiceFinder implements WebServiceFinder {
 
-    private static final Log LOG = LogFactory.getLog(WARWebServiceFinder.class);
+    private final Logger LOG = LoggerFactory.getLogger(getClass());
     
     public Map<String, PortInfo> discoverWebServices(Module module, 
                                                      boolean isEJB,

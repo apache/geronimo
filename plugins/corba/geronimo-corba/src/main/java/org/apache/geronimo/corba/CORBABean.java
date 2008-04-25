@@ -22,8 +22,8 @@ import java.net.UnknownHostException;
 
 import javax.ejb.spi.HandleDelegate;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.InvalidConfigurationException; 
@@ -54,7 +54,7 @@ import org.omg.PortableServer.POAHelper;
  * @version $Revision: 497125 $ $Date: 2007-01-17 10:51:30 -0800 (Wed, 17 Jan 2007) $
  */
 public class CORBABean implements GBeanLifecycle, ORBRef, ORBConfiguration {
-    private final Log log = LogFactory.getLog(CORBABean.class);
+    private final Logger log = LoggerFactory.getLogger(CORBABean.class);
 
     private final ClassLoader classLoader;
     private final ConfigAdapter configAdapter;

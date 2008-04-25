@@ -23,8 +23,8 @@ import javax.portlet.ActionResponse;
 import javax.portlet.PortletException;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.console.MultiPageModel;
 import org.apache.geronimo.console.util.ConfigurationData;
 import org.apache.geronimo.console.util.PortletManager;
@@ -37,7 +37,7 @@ import org.apache.geronimo.management.geronimo.WebModule;
  * @version $Rev$ $Date$
  */
 public class WebAppHandler extends BaseApacheHandler {
-    private final static Log log = LogFactory.getLog(WebAppHandler.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     public WebAppHandler() {
         super(WEB_APP_MODE, "/WEB-INF/view/apache/jk/webApps.jsp");

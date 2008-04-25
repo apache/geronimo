@@ -18,8 +18,8 @@
 */
 package org.apache.myfaces.blank;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.faces.event.ActionEvent;
 import javax.annotation.PostConstruct;
@@ -32,7 +32,7 @@ import javax.annotation.Resource;
  */
 public class HelloWorldBacking {
 
-    private static Log log = LogFactory.getLog(HelloWorldBacking.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
     //properties
     private String name;
     private String greeting;

@@ -37,8 +37,8 @@ import org.apache.geronimo.management.geronimo.JMSConnector;
 import org.apache.geronimo.management.geronimo.JMSManager;
 import org.apache.geronimo.management.geronimo.JMSBroker;
 import org.apache.geronimo.gbean.AbstractName;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * List, edit, add, remove JMS network connectors
@@ -46,7 +46,7 @@ import org.apache.commons.logging.LogFactory;
  * @version $Rev$ $Date$
  */
 public class JMSConnectorPortlet extends BaseJMSPortlet {
-    private final static Log log = LogFactory.getLog(JMSConnectorPortlet.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     private PortletRequestDispatcher normalView;
 

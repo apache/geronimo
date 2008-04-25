@@ -19,8 +19,8 @@ package org.apache.geronimo.console.threads;
 import javax.portlet.ActionResponse;
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletSession;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.console.MultiPageAbstractHandler;
 import org.apache.geronimo.console.MultiPageModel;
 
@@ -30,7 +30,7 @@ import org.apache.geronimo.console.MultiPageModel;
  * @version $Rev$ $Date$
  */
 public abstract class AbstractThreadHandler extends MultiPageAbstractHandler {
-    private final static Log log = LogFactory.getLog(AbstractThreadHandler.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
     protected final static String ABSTRACT_NAME_PARAMETER = "abstractName";
 
     protected final static String LIST_MODE="list";
