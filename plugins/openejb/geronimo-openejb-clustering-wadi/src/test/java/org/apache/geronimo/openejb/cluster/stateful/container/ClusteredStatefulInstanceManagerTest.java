@@ -16,7 +16,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.apache.geronimo.openejb.cluster.stateful.container;
 
 import java.io.IOException;
@@ -32,6 +31,7 @@ import org.apache.geronimo.clustering.SessionListener;
 import org.apache.geronimo.clustering.wadi.WADISessionManager;
 import org.apache.geronimo.openejb.cluster.stateful.container.ClusteredStatefulContainerTest.SFSB;
 import org.apache.openejb.core.CoreDeploymentInfo;
+import org.apache.openejb.core.DeploymentContext;
 import org.apache.openejb.core.ThreadContext;
 import org.apache.openejb.core.stateful.BeanEntry;
 import org.apache.openejb.persistence.JtaEntityManagerRegistry;
@@ -44,8 +44,7 @@ import com.agical.rmock.core.match.operator.AbstractExpression;
 import com.agical.rmock.extension.junit.RMockTestCase;
 
 /**
- *
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class ClusteredStatefulInstanceManagerTest extends RMockTestCase {
 
@@ -68,7 +67,7 @@ public class ClusteredStatefulInstanceManagerTest extends RMockTestCase {
             new Object[] { txManager, securityService, jtaEntityManagerRegistry, null, 1, 1, 1 });
         
         deploymentId = "deploymentId";
-        deploymentInfo = new CoreDeploymentInfo(null,
+        deploymentInfo = new CoreDeploymentInfo(new DeploymentContext(deploymentId, null, null),
             SFSB.class,
             null,
             null,

@@ -16,7 +16,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.apache.geronimo.openejb.cluster.stateful.container;
 
 import java.lang.reflect.Method;
@@ -29,6 +28,7 @@ import org.apache.geronimo.clustering.wadi.WADISessionManager;
 import org.apache.geronimo.openejb.cluster.infra.NetworkConnectorTracker;
 import org.apache.openejb.OpenEJBException;
 import org.apache.openejb.core.CoreDeploymentInfo;
+import org.apache.openejb.core.DeploymentContext;
 import org.apache.openejb.spi.SecurityService;
 import org.codehaus.wadi.core.contextualiser.Invocation;
 import org.codehaus.wadi.core.contextualiser.InvocationException;
@@ -41,8 +41,7 @@ import com.agical.rmock.core.MethodHandle;
 import com.agical.rmock.extension.junit.RMockTestCase;
 
 /**
- *
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class ClusteredStatefulContainerTest extends RMockTestCase {
 
@@ -92,7 +91,7 @@ public class ClusteredStatefulContainerTest extends RMockTestCase {
             1,
             1});
         deploymentId = "deploymentId";
-        deploymentInfo = new CoreDeploymentInfo(null,
+        deploymentInfo = new CoreDeploymentInfo(new DeploymentContext(deploymentId, null, null),
             SFSB.class,
             null,
             null,
