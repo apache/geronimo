@@ -26,40 +26,46 @@ public interface SystemLog {
      * The most search lines that will ever be returned, no matter what you
      * ask for.  This is to conserve memory and transfer bandwidth.
      */
-    public final static int MAX_SEARCH_RESULTS = 1000;
+    int MAX_SEARCH_RESULTS = 1000;
+    
     /**
      * Gets the name of the file that configures the log system
      */
     String getConfigFileName();
+    
     /**
      * Sets the name of the file that the log system should configure itself from.
      */
     void setConfigFileName(String fileName);
+    
     /**
      * Gets the name of the log level used for the root logger.
      */
     String getRootLoggerLevel();
+    
     /**
-     * Sets the name of the log level used for the root logger.  Legal values
-     * are defined in GeronimoLogging.java (currently TRACE, DEBUG, INFO,
-     * WARN, ERROR, FATAL)
+     * Sets the name of the log level used for the root logger.
      */
     void setRootLoggerLevel(String level);
+    
     /**
      * Indicates how often the log system should check to see if its
      * configuration file has been updated.
      */
     int getRefreshPeriodSeconds();
+    
     /**
      * Sets how often the log system should check to see if its
      * configuration file has been updated.
      */
     void setRefreshPeriodSeconds(int seconds);
+    
     /**
      * Gets the name of all log files used by this log system.  Typically there
      * is only one, but specialized cases may use more.
      */
     String[] getLogFileNames();
+    
     /**
      * Searches the log for records matching the specified parameters.  The
      * maximum results returned will be the lesser of 1000 and the
@@ -68,7 +74,7 @@ public interface SystemLog {
      * @see #MAX_SEARCH_RESULTS
      */
     SearchResults getMatchingItems(String logFile, Integer firstLine, Integer lastLine, String minLevel,
-                                  String regex, int maxResults, boolean includeStackTraces);
+                                   String regex, int maxResults, boolean includeStackTraces);
 
     public static class LogMessage implements Serializable {
         private final int lineNumber;

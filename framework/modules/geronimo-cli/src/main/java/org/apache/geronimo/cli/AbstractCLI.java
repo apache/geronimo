@@ -21,7 +21,6 @@ import java.io.PrintStream;
 import org.apache.geronimo.cli.CLParserException;
 import org.apache.geronimo.kernel.util.MainConfigurationBootstrapper;
 
-
 /**
  * @version $Rev: 476049 $ $Date: 2006-11-17 15:35:17 +1100 (Fri, 17 Nov 2006) $
  */
@@ -70,22 +69,20 @@ public abstract class AbstractCLI {
         return false;
     }
 
-    protected void initializeLogging(CLParser parser) {
-        //
-        // FIXME: Update for new logging muck
-        //
+    protected void initializeLogging(final CLParser parser) {
+        assert parser != null;
         
-        /*
-        GeronimoLogging level = GeronimoLogging.WARN;
+        String level = "WARN";
+        
         if (parser.isVerboseInfo()) {
-            level = GeronimoLogging.INFO;
+            level = "INFO";
         } else if (parser.isVerboseDebug()) {
-            level = GeronimoLogging.DEBUG;
+            level = "DEBUG";
         } else if (parser.isVerboseTrace()) {
-            level = GeronimoLogging.TRACE;
+            level = "TRACE";
         }
-        GeronimoLogging.initialize(level);
-        */
+        
+        System.setProperty("org.apache.geronimo.log.ConsoleLogLevel", level);
     }
 
     protected abstract MainConfigurationBootstrapper newMainConfigurationBootstrapper();

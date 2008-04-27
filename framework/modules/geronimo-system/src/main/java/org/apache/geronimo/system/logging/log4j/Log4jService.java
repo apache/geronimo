@@ -151,12 +151,11 @@ public class Log4jService implements GBeanLifecycle, SystemLog {
      * @param level The level to change the logger to.
      */
     public synchronized void setRootLoggerLevel(final String level) {
-
         String currentLevel = this.getRootLoggerLevel();
 
         // ensure that the level has really been changed
         if (!currentLevel.equals(level)) {
-            LogManager.getRootLogger().setLevel(XLevel.toLevel(level));
+            LogManager.getRootLogger().setLevel(Level.toLevel(level));
         }
     }
 
@@ -213,7 +212,7 @@ public class Log4jService implements GBeanLifecycle, SystemLog {
         }
 
         log.info("Setting logger level: logger=" + logger + ", level=" + level);
-        Logger.getLogger(logger).setLevel(XLevel.toLevel(level));
+        Logger.getLogger(logger).setLevel(Level.toLevel(level));
     }
 
     /**
@@ -257,14 +256,12 @@ public class Log4jService implements GBeanLifecycle, SystemLog {
      * @param configurationFile the logging configuration file
      */
     public synchronized void setConfigFileName(final String configurationFile) {
-        if (log.isDebugEnabled()) {
-            log.debug("setConfigFileName() called with configurationFile=" + configurationFile);
-        }
-
         if (configurationFile == null) {
             throw new IllegalArgumentException("configurationFile is null");
         }
-
+        
+        log.debug("Using configuration file: {}", configurationFile);
+        
         // ensure that the file name has really been updated
         if (!this.configurationFile.equals(configurationFile)) {
             this.configurationFile = configurationFile;
@@ -337,7 +334,7 @@ public class Log4jService implements GBeanLifecycle, SystemLog {
         try {
             out = new FileOutputStream(file);
             out.write(configuration.getBytes());
-            log.info("Updated configuration file=" + file.toString());
+            log.info("Updated configuration file: {}", file);
         } finally {
             if (out != null) {
                 try {
@@ -504,12 +501,12 @@ public class Log4jService implements GBeanLifecycle, SystemLog {
             throw new IllegalArgumentException("Bad regular expression '"+text+"'", e);
         }
         // Make sure we can find the log file
-        File log = new File(substituteSystemProps(logFile));
-        if(!log.exists()) {
-            throw new IllegalArgumentException("Log file "+log.getAbsolutePath()+" does not exist");
+        File file = new File(substituteSystemProps(logFile));
+        if(!file.exists()) {
+            throw new IllegalArgumentException("Log file "+file.getAbsolutePath()+" does not exist");
         }
         // Run the search
-        return searchFile(log, minLevel, textPattern, firstLine, lastLine, maxResults, includeStackTraces);
+        return searchFile(file, minLevel, textPattern, firstLine, lastLine, maxResults, includeStackTraces);
     }
 
     /**
@@ -520,9 +517,7 @@ public class Log4jService implements GBeanLifecycle, SystemLog {
         if (file == null || !file.exists()) {
             return;
         } else {
-            if (log.isDebugEnabled()) {
-                log.debug("reconfigure() using configurationFile=" + configurationFile);
-            }
+            log.debug("Reconfiguring from: {}", configurationFile);
             lastChanged = file.lastModified();
         }
 
@@ -601,39 +596,38 @@ public class Log4jService implements GBeanLifecycle, SystemLog {
        try {
           log.info("----------------------------------------------");
           log.info("Started Logging Service");
-          if (log.isDebugEnabled()) {
-              log.debug("Log4jService created with configFileName=" + this.configurationFile + ", refreshPeriodSeconds=" + this.refreshPeriod);
-          }
+          
+          log.debug("Log4jService created with configFileName={}, refreshPeriodSeconds={}", configurationFile, refreshPeriod);
+          
           log.info("Runtime Information:");
-          log.info("  Install Directory = " + DirectoryUtils.getGeronimoInstallDirectory().toString());
-          log.info("  JVM in use = " + JvmVendor.getJvmInfo());
+          log.info("  Install Directory = " + DirectoryUtils.getGeronimoInstallDirectory());
+          log.info("  JVM in use        = " + JvmVendor.getJvmInfo());
           log.info("Java Information:");
-          log.info("  System property [java.runtime.name]  = " + System.getProperty("java.runtime.name"));
+          log.info("  System property [java.runtime.name]     = " + System.getProperty("java.runtime.name"));
           log.info("  System property [java.runtime.version]  = " + System.getProperty("java.runtime.version"));
-          log.info("  System property [os.name]             = " + System.getProperty("os.name"));
-          log.info("  System property [os.version]          = " + System.getProperty("os.version"));
-          log.info("  System property [sun.os.patch.level]  = " + System.getProperty("sun.os.patch.level"));
-          log.info("  System property [os.arch]             = " + System.getProperty("os.arch"));
-          log.info("  System property [java.class.version]  = " + System.getProperty("java.class.version"));
-          log.info("  System property [locale]              = " + System.getProperty("user.language") + "_" + System.getProperty("user.country"));
-          log.info("  System property [unicode.encoding]    = " + System.getProperty("sun.io.unicode.encoding"));
-          log.info("  System property [file.encoding]       = " + System.getProperty("file.encoding"));
-          log.info("  System property [java.vm.name]        = " + System.getProperty("java.vm.name"));
-          log.info("  System property [java.vm.vendor]      = " + System.getProperty("java.vm.vendor"));
-          log.info("  System property [java.vm.version]     = " + System.getProperty("java.vm.version"));
-          log.info("  System property [java.vm.info]        = " + System.getProperty("java.vm.info"));
-          log.info("  System property [java.home]           = " + System.getProperty("java.home"));
-          log.info("  System property [java.classpath]      = " + System.getProperty("java.classpath"));
-          log.info("  System property [java.library.path]   = " + System.getProperty("java.library.path"));
-          log.info("  System property [java.endorsed.dirs]  = " + System.getProperty("java.endorsed.dirs"));
-          log.info("  System property [java.ext.dirs]       = " + System.getProperty("java.ext.dirs"));
-          log.info("  System property [sun.boot.class.path] = " + System.getProperty("sun.boot.class.path"));
+          log.info("  System property [os.name]               = " + System.getProperty("os.name"));
+          log.info("  System property [os.version]            = " + System.getProperty("os.version"));
+          log.info("  System property [sun.os.patch.level]    = " + System.getProperty("sun.os.patch.level"));
+          log.info("  System property [os.arch]               = " + System.getProperty("os.arch"));
+          log.info("  System property [java.class.version]    = " + System.getProperty("java.class.version"));
+          log.info("  System property [locale]                = " + System.getProperty("user.language") + "_" + System.getProperty("user.country"));
+          log.info("  System property [unicode.encoding]      = " + System.getProperty("sun.io.unicode.encoding"));
+          log.info("  System property [file.encoding]         = " + System.getProperty("file.encoding"));
+          log.info("  System property [java.vm.name]          = " + System.getProperty("java.vm.name"));
+          log.info("  System property [java.vm.vendor]        = " + System.getProperty("java.vm.vendor"));
+          log.info("  System property [java.vm.version]       = " + System.getProperty("java.vm.version"));
+          log.info("  System property [java.vm.info]          = " + System.getProperty("java.vm.info"));
+          log.info("  System property [java.home]             = " + System.getProperty("java.home"));
+          log.info("  System property [java.classpath]        = " + System.getProperty("java.classpath"));
+          log.info("  System property [java.library.path]     = " + System.getProperty("java.library.path"));
+          log.info("  System property [java.endorsed.dirs]    = " + System.getProperty("java.endorsed.dirs"));
+          log.info("  System property [java.ext.dirs]         = " + System.getProperty("java.ext.dirs"));
+          log.info("  System property [sun.boot.class.path]   = " + System.getProperty("sun.boot.class.path"));
           log.info("----------------------------------------------");
        } catch (Exception e) {
           System.err.println("Exception caught during logging of Runtime Information.  Exception=" + e.toString());
        }
     }
-
 
     private class URLMonitorTask extends TimerTask {
         public void run() {
