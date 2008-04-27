@@ -86,11 +86,6 @@
             <artifactId>commons-jexl</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>ognl</groupId>
-            <artifactId>ognl</artifactId>
-        </dependency>
-
         <!-- used by plugin installer -->
         <dependency>
             <groupId>javax.xml.bind</groupId>
@@ -244,13 +239,6 @@
                             <groupId>org.apache.geronimo.framework</groupId>
                             <artifactId>geronimo-crypto</artifactId>
                             <version>2.2-SNAPSHOT</version>
-                            <type>jar</type>
-                            <import>classes</import>
-                        </dependency>
-                        <dependency>
-                            <groupId>ognl</groupId>
-                            <artifactId>ognl</artifactId>
-                            <version>2.6.9</version>
                             <type>jar</type>
                             <import>classes</import>
                         </dependency>

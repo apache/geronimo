@@ -99,11 +99,6 @@
             <artifactId>commons-jexl</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>ognl</groupId>
-            <artifactId>ognl</artifactId>
-        </dependency>
-
         <!-- used by plugin installer -->
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>

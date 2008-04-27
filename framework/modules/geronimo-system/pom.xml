@@ -69,11 +69,6 @@
             <artifactId>commons-jexl</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>ognl</groupId>
-            <artifactId>ognl</artifactId>
-        </dependency>
-
         <!-- plugin management -->
         <dependency>
             <groupId>javax.xml.bind</groupId>
