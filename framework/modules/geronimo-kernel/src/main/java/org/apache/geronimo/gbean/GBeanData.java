@@ -20,6 +20,7 @@ import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.io.NotSerializableException;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -231,6 +232,9 @@ public class GBeanData implements Externalizable {
             try {
                 out.writeObject(name);
                 out.writeObject(value);
+            } catch (NotSerializableException e) {
+                // When we find something that is not serialzable, include the type information as well as the name/abstractName for debugging
+                throw (IOException) new IOException("Unable to write attribute: " + name + " in gbean: " + abstractName + " type: " + value.getClass()).initCause(e);
             } catch (IOException e) {
                 throw (IOException) new IOException("Unable to write attribute: " + name + " in gbean: " + abstractName).initCause(e);
             } catch (NoClassDefFoundError e) {
