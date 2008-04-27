@@ -45,7 +45,7 @@ import org.apache.xbean.naming.context.WritableContext;
  * @version $Rev$ $Date$
  */
 public class KernelContextGBean extends WritableContext implements GBeanLifecycle {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(KernelContextGBean.class);
 
     private final Kernel kernel;
     private final AbstractNameQuery abstractNameQuery;

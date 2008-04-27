@@ -40,7 +40,7 @@ import org.apache.geronimo.kernel.lifecycle.LifecycleListener;
  * @version $Rev$ $Date$
  */
 public class GBeanBinding implements GBeanLifecycle {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(GBeanBinding.class);
 
     private final Context context;
     private final String name;

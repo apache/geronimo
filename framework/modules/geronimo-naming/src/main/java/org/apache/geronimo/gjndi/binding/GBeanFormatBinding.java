@@ -42,7 +42,7 @@ import org.apache.geronimo.kernel.repository.Artifact;
  * @version $Rev$ $Date$
  */
 public class GBeanFormatBinding extends KernelContextGBean {
-    protected final Logger log = LoggerFactory.getLogger(getClass());
+    protected static final Logger log = LoggerFactory.getLogger(GBeanFormatBinding.class);
     private static final Pattern PATTERN = Pattern.compile("(\\{)(\\w+)(})");
 
     protected final String format;
