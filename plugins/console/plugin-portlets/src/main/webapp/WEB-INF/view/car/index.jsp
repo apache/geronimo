@@ -23,7 +23,8 @@
 <script>
 function <portlet:namespace/>validateForm(){
     with(document.<portlet:namespace/>ExportForm){
-        if (configId.value==null || configId.value=="") {
+        selected = configId.options[configId.selectedIndex].text;
+        if (selected==null || selected=="") {
             alert("<fmt:message key="car.index.validateConfig"/>");
             return false;
         }
