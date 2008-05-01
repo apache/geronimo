@@ -124,7 +124,7 @@
             <img src="/console/images/powered_by_100x30.gif" alt="Powered by Apache Geronimo"/>
             </font><br />
             &nbsp;
-            <font size=-1>Copyright &copy; 1999-2007 Apache Software Foundation</font><br />
+            <font size=-1>Copyright &copy; 1999-2008 Apache Software Foundation</font><br />
             <font size=-1>All Rights Reserved</font></p>
 
         </td>
