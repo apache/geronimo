@@ -116,17 +116,7 @@
                 </command>
             </nodes>
         </group>
-        
-        <group>
-            <name>remote-control</name>
-            <nodes>
-                <command>
-                    <name>server-control</name>
-                    <id>geronimo-commands:remote-server-control</id>
-                </command>
-            </nodes>
-        </group>
-        
+
         <group>
             <name>deploy</name>
 
