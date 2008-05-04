@@ -40,9 +40,9 @@ import org.apache.geronimo.jaxws.annotations.AnnotationHolder;
 /**
  * @version $Rev$ $Date$
  */
-public class POJOWebServiceContainer extends Axis2WebServiceContainer {
-
-    private final Logger LOG = LoggerFactory.getLogger(getClass());
+public class POJOWebServiceContainer extends Axis2WebServiceContainer
+{
+    private static final Logger LOG = LoggerFactory.getLogger(POJOWebServiceContainer.class);
     
     private Object endpointInstance;
     private String contextRoot;

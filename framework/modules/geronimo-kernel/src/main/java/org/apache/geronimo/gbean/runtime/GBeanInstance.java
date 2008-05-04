@@ -63,8 +63,9 @@ import org.apache.xbean.recipe.Option;
  *
  * @version $Rev:385718 $ $Date$
  */
-public final class GBeanInstance implements StateManageable {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+public final class GBeanInstance implements StateManageable
+{
+    private static final Logger log = LoggerFactory.getLogger(GBeanInstance.class);
 
     private static final int DESTROYED = 0;
     private static final int CREATING = 1;

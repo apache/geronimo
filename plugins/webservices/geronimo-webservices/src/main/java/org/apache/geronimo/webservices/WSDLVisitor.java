@@ -27,9 +27,9 @@ import javax.wsdl.*;
 import javax.wsdl.extensions.soap.SOAPBody;
 import javax.wsdl.extensions.soap.SOAPBinding;
 
-public class WSDLVisitor {
-
-    private final Logger log = LoggerFactory.getLogger(getClass());
+public class WSDLVisitor
+{
+    private static final Logger log = LoggerFactory.getLogger(WSDLVisitor.class);
 
     protected final Definition definition;
 

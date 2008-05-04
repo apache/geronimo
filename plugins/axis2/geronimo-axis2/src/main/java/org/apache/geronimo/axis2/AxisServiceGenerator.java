@@ -67,9 +67,10 @@ import org.apache.ws.commons.schema.utils.NamespaceMap;
 /**
  * @version $Rev$ $Date$
  */
-public class AxisServiceGenerator {
-    private final Logger log = LoggerFactory.getLogger(getClass());
-        
+public class AxisServiceGenerator
+{
+    private static final Logger log = LoggerFactory.getLogger(AxisServiceGenerator.class);
+
     private MessageReceiver messageReceiver;
     
     public AxisServiceGenerator(){

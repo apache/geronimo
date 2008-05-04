@@ -37,9 +37,9 @@ import org.apache.axis2.wsdl.WSDLConstants.WSDL20_2006Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class EJBInterceptor {
-
-    private final Logger LOG = LoggerFactory.getLogger(getClass());
+public class EJBInterceptor
+{
+    private static final Logger LOG = LoggerFactory.getLogger(EJBInterceptor.class);
 
     private MessageContext requestMsgCtx;
     private EJBWebServiceContainer container;

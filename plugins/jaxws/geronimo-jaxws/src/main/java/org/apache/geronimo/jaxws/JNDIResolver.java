@@ -23,9 +23,9 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
-public class JNDIResolver {
-
-    private final Logger log = LoggerFactory.getLogger(getClass());
+public class JNDIResolver
+{
+    private static final Logger log = LoggerFactory.getLogger(JNDIResolver.class);
 
     public Object resolve(String name, Class clz) throws NamingException {
         Context ctx = new InitialContext();

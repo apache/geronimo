@@ -85,8 +85,9 @@ import org.apache.geronimo.kernel.repository.MissingDependencyException;
  *
  * @version $Rev:385718 $ $Date$
  */
-public class Configuration implements GBeanLifecycle, ConfigurationParent {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+public class Configuration implements GBeanLifecycle, ConfigurationParent
+{
+    private static final Logger log = LoggerFactory.getLogger(Configuration.class);
 
     /**
      * Converts an Artifact to an AbstractName for a configuration.  Does not

@@ -40,9 +40,9 @@ import org.apache.xmlbeans.XmlException;
 /**
  * @version $Rev$ $Date$
  */
-public class Axis2ServiceReference extends JAXWSServiceReference {
-
-    private final Logger LOG = LoggerFactory.getLogger(getClass());
+public class Axis2ServiceReference extends JAXWSServiceReference
+{
+    private static final Logger LOG = LoggerFactory.getLogger(Axis2ServiceReference.class);
 
     public Axis2ServiceReference(String serviceClassName,
                                  String referenceClassName,

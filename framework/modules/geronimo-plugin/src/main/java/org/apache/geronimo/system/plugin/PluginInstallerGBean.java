@@ -109,9 +109,9 @@ import org.xml.sax.helpers.DefaultHandler;
  *
  * @version $Rev$ $Date$
  */
-public class PluginInstallerGBean implements PluginInstaller {
-    private final Logger log = LoggerFactory.getLogger(getClass());
-
+public class PluginInstallerGBean implements PluginInstaller
+{
+    private static final Logger log = LoggerFactory.getLogger(PluginInstallerGBean.class);
 
     private static int counter;
     private final ConfigurationManager configManager;

@@ -50,8 +50,10 @@ import org.apache.geronimo.kernel.util.ClassLoaderRegistry;
  *
  * @version $Rev$ $Date$
  */
-public class MultiParentClassLoader extends URLClassLoader {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+public class MultiParentClassLoader extends URLClassLoader
+{
+    private static final Logger log = LoggerFactory.getLogger(MultiParentClassLoader.class);
+
     private final Artifact id;
     private final ClassLoader[] parents;
     private final boolean inverseClassLoading;

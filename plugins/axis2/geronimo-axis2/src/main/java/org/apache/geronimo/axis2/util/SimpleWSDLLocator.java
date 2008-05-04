@@ -27,9 +27,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.InputSource;
 
-public class SimpleWSDLLocator implements WSDLLocator {
-
-    private final Logger LOG = LoggerFactory.getLogger(getClass());
+public class SimpleWSDLLocator implements WSDLLocator
+{
+    private static final Logger LOG = LoggerFactory.getLogger(SimpleWSDLLocator.class);
     
     private String baseURI;
     private String lastImportLocation;

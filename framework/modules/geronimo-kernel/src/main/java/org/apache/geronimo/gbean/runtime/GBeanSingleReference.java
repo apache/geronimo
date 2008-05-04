@@ -29,8 +29,9 @@ import org.apache.geronimo.kernel.GBeanNotFoundException;
 /**
  * @version $Rev$ $Date$
  */
-public class GBeanSingleReference extends AbstractGBeanReference {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+public class GBeanSingleReference extends AbstractGBeanReference
+{
+    private static final Logger log = LoggerFactory.getLogger(GBeanSingleReference.class);
 
     /**
      * The object to which the proxy is bound

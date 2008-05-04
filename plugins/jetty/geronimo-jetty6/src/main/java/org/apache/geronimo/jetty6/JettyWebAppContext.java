@@ -77,7 +77,7 @@ import org.mortbay.jetty.servlet.SessionHandler;
  * @version $Rev$ $Date$
  */
 public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistration, WebModule {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(JettyWebAppContext.class);
 
     private final String originalSpecDD;
     private final J2EEServer server;

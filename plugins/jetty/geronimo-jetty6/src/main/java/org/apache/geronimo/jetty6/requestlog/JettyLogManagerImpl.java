@@ -46,7 +46,7 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
  * @version $Rev$ $Date$
  */
 public class JettyLogManagerImpl implements JettyLogManager {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(JettyLogManagerImpl.class);
 
     // Pattern that matches the date in the logfile name
     private final static Pattern FILENAME_DATE_PATTERN = Pattern.compile("[-_ /.](((19|20)\\d\\d)[-_ /.](0[1-9]|1[012])[-_ /.](0[1-9]|[12][0-9]|3[01]))");

@@ -28,9 +28,9 @@ import org.apache.axis2.jaxws.util.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Axis2ClientConfigurationFactory extends ClientConfigurationFactory {
-
-    private final Logger LOG = LoggerFactory.getLogger(getClass());
+public class Axis2ClientConfigurationFactory extends ClientConfigurationFactory
+{
+    private static final Logger LOG = LoggerFactory.getLogger(Axis2ClientConfigurationFactory.class);
     
     private Map<ClassLoader, ConfigurationContext> contextCache = 
         new Hashtable<ClassLoader, ConfigurationContext>();

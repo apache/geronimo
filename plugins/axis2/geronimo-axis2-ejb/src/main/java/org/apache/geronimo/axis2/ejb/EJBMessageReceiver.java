@@ -40,9 +40,9 @@ import org.apache.openejb.ApplicationException;
 import org.apache.openejb.DeploymentInfo;
 import org.apache.openejb.RpcContainer;
 
-public class EJBMessageReceiver implements MessageReceiver {
-
-    private final Logger LOG = LoggerFactory.getLogger(getClass());
+public class EJBMessageReceiver implements MessageReceiver
+{
+    private static final Logger LOG = LoggerFactory.getLogger(EJBMessageReceiver.class);
     
     private DeploymentInfo deploymentInfo;
     private Class serviceImplClass;

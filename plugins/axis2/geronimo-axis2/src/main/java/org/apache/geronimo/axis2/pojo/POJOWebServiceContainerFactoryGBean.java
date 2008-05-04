@@ -40,9 +40,9 @@ import org.apache.geronimo.webservices.WebServiceContainerFactory;
 /**
  * @version $Rev$ $Date$
  */
-public class POJOWebServiceContainerFactoryGBean implements WebServiceContainerFactory {
-
-    private final Logger LOG = LoggerFactory.getLogger(getClass());
+public class POJOWebServiceContainerFactoryGBean implements WebServiceContainerFactory
+{
+    private static final Logger LOG = LoggerFactory.getLogger(POJOWebServiceContainerFactoryGBean.class);
     
     private final ClassLoader classLoader;
     private final org.apache.geronimo.jaxws.PortInfo portInfo;

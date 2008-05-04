@@ -69,14 +69,15 @@ import org.apache.geronimo.kernel.proxy.ProxyManager;
  *
  * @version $Rev:386276 $ $Date$
  */
-public class BasicKernel implements Kernel {
+public class BasicKernel implements Kernel
+{
+    private static final Logger log = LoggerFactory.getLogger(BasicKernel.class);
+    
     /**
      * Helper objects for invoke and getAttribute
      */
     private static final String[] NO_TYPES = new String[0];
     private static final Object[] NO_ARGS = new Object[0];
-    
-    private final Logger log = LoggerFactory.getLogger(getClass());
     
     /**
      * Name of this kernel

@@ -55,8 +55,7 @@ public abstract class JAXWSServiceRefBuilder extends AbstractNamingBuilder imple
 
     private final QNameSet serviceRefQNameSet;
     
-    public JAXWSServiceRefBuilder(Environment defaultEnvironment,
-                                  String[] eeNamespaces) {
+    public JAXWSServiceRefBuilder(Environment defaultEnvironment, String[] eeNamespaces) {
         super(defaultEnvironment);
         serviceRefQNameSet = buildQNameSet(eeNamespaces, "service-ref");
     }
@@ -79,7 +78,7 @@ public abstract class JAXWSServiceRefBuilder extends AbstractNamingBuilder imple
             GerServiceRefType serviceRefType = (GerServiceRefType) serviceRefMap.get(name);
             serviceRefMap.remove(name);
             buildNaming(serviceRef, serviceRefType, module, componentContext);
-        }        
+        }
 
         if (serviceRefMap.size() > 0) {
             log.warn("Failed to build reference to service reference "+serviceRefMap.keySet()+" defined in plan file, reason - corresponding entry in deployment descriptor missing.");
@@ -90,8 +89,8 @@ public abstract class JAXWSServiceRefBuilder extends AbstractNamingBuilder imple
         try {
             return cl.loadClass(className);
         } catch (ClassNotFoundException e) {
-            throw new DeploymentException("Could not load " + classDescription + " class " + className, e);                
-        }         
+            throw new DeploymentException("Could not load " + classDescription + " class " + className, e);
+        }
     }
     
     public void buildNaming(XmlObject serviceRef, GerServiceRefType gerServiceRefType, Module module, Map componentContext) throws DeploymentException {
@@ -105,7 +104,7 @@ public abstract class JAXWSServiceRefBuilder extends AbstractNamingBuilder imple
         String name = getStringValue(serviceRef.getServiceRefName());
         
         String serviceInterfaceName = getStringValue(serviceRef.getServiceInterface());
-        Class serviceInterfaceClass = loadClass(serviceInterfaceName, cl, "service");        
+        Class serviceInterfaceClass = loadClass(serviceInterfaceName, cl, "service");
         if (!Service.class.isAssignableFrom(serviceInterfaceClass)) {
             throw new DeploymentException(serviceInterfaceName + " service class does not extend " + Service.class.getName());
         }
@@ -127,13 +126,13 @@ public abstract class JAXWSServiceRefBuilder extends AbstractNamingBuilder imple
         
         Class serviceReferenceType = null;
         if (serviceRef.isSetServiceRefType()) {
-            String referenceClassName = getStringValue(serviceRef.getServiceRefType());            
+            String referenceClassName = getStringValue(serviceRef.getServiceRefType());
             serviceReferenceType = loadClass(referenceClassName, cl, "service reference");
         }
   
         if (serviceRef.isSetHandlerChains()) {                   
             ServiceRefHandlerChainsType handlerChains = serviceRef.getHandlerChains();
-            for (ServiceRefHandlerChainType handlerChain : handlerChains.getHandlerChainArray()) {               
+            for (ServiceRefHandlerChainType handlerChain : handlerChains.getHandlerChainArray()) {
                 for (ServiceRefHandlerType handler : handlerChain.getHandlerArray()) {
                     String handlerClassName = getStringValue(handler.getHandlerClass());
                     Class handlerClass = loadClass(handlerClassName, cl, "handler");
@@ -189,5 +188,4 @@ public abstract class JAXWSServiceRefBuilder extends AbstractNamingBuilder imple
     public QNameSet getPlanQNameSet() {
         return GER_SERVICE_REF_QNAME_SET;
     }
-
 }

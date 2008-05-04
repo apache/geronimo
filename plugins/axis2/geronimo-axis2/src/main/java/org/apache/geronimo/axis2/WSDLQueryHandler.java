@@ -62,9 +62,9 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-public class WSDLQueryHandler {
-
-    private final Logger LOG = LoggerFactory.getLogger(getClass());
+public class WSDLQueryHandler
+{
+    private static final Logger LOG = LoggerFactory.getLogger(WSDLQueryHandler.class);
     
     private Map<String, Definition> mp = new ConcurrentHashMap<String, Definition>();
     private Map<String, SchemaReference> smp = new ConcurrentHashMap<String, SchemaReference>();

@@ -36,10 +36,10 @@ public class Axis2ConfigGBean implements GBeanLifecycle {
     private final static Logger LOG = LoggerFactory.getLogger(Axis2ConfigGBean.class);
     
     private AbstractName moduleName;
-    private ClassLoader classLoder;   
+    private ClassLoader classLoder;
 
-    public Axis2ConfigGBean(ClassLoader classLoader,                          
-                            Kernel kernel,                          
+    public Axis2ConfigGBean(ClassLoader classLoader,
+                            Kernel kernel,
                             URL configurationBaseUrl,
                             AbstractName moduleName) {
         this.moduleName = moduleName;

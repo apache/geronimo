@@ -77,9 +77,9 @@ import org.apache.geronimo.webservices.saaj.SAAJUniverse;
 /**
  * @version $Rev$ $Date$
  */
-public abstract class Axis2WebServiceContainer implements WebServiceContainer {
-
-    private final Logger LOG = LoggerFactory.getLogger(getClass());
+public abstract class Axis2WebServiceContainer implements WebServiceContainer
+{
+    private static final Logger LOG = LoggerFactory.getLogger(Axis2WebServiceContainer.class);
 
     public static final String REQUEST = Axis2WebServiceContainer.class.getName() + "@Request";
     public static final String RESPONSE = Axis2WebServiceContainer.class.getName() + "@Response";

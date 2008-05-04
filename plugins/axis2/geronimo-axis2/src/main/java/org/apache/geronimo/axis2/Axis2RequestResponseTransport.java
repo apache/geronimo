@@ -28,9 +28,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.geronimo.webservices.WebServiceContainer.Response;
 
-public class Axis2RequestResponseTransport implements RequestResponseTransport {
-    
-    private final Logger LOG = LoggerFactory.getLogger(getClass());
+public class Axis2RequestResponseTransport implements RequestResponseTransport
+{
+    private static final Logger LOG = LoggerFactory.getLogger(Axis2RequestResponseTransport.class);
     
     private Response response;
 

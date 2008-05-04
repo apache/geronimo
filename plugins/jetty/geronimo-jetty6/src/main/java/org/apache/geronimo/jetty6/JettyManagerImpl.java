@@ -62,7 +62,7 @@ import org.apache.geronimo.management.geronimo.WebManager.ConnectorAttribute;
  * @version $Rev:386276 $ $Date$
  */
 public class JettyManagerImpl implements WebManager {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(JettyManagerImpl.class);
 
     private static final ConnectorType HTTP_NIO = new ConnectorType(Messages.getString("JettyManagerImpl.0")); //$NON-NLS-1$
     private static final ConnectorType HTTPS_NIO = new ConnectorType(Messages.getString("JettyManagerImpl.1")); //$NON-NLS-1$

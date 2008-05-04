@@ -51,7 +51,7 @@ public class AxisWebServiceContainer implements WebServiceContainer {
     public static final String REQUEST = AxisWebServiceContainer.class.getName() + "@Request";
     public static final String RESPONSE = AxisWebServiceContainer.class.getName() + "@Response";
 
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(AxisWebServiceContainer.class);
 
     public static final String XSD_NS = "http://www.w3.org/2001/XMLSchema";
 

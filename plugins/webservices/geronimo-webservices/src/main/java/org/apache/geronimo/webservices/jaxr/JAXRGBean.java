@@ -31,9 +31,10 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
  *
  * @version $Rev$ $Date$
  */
-public class JAXRGBean implements ResourceSource {
+public class JAXRGBean implements ResourceSource
+{
+    private static final Logger log = LoggerFactory.getLogger(JAXRGBean.class);
 
-    private final Logger log = LoggerFactory.getLogger(getClass());
     private final ClassLoader cl;
     private final String connectionFactoryClass;
 

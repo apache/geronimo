@@ -37,9 +37,9 @@ import org.apache.geronimo.xbeans.javaee.PortComponentHandlerType;
 /**
  * @version $Rev$ $Date$
  */
-public class AnnotationHandlerChainBuilder {
-
-    private final Logger log = LoggerFactory.getLogger(getClass());
+public class AnnotationHandlerChainBuilder
+{
+    private static final Logger log = LoggerFactory.getLogger(AnnotationHandlerChainBuilder.class);
 
     public AnnotationHandlerChainBuilder() {
     }

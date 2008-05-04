@@ -30,8 +30,9 @@ import java.util.Set;
 /**
  * @version $Rev$ $Date$
  */
-public class GBeanInstanceState {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+public class GBeanInstanceState
+{
+    private static final Logger log = LoggerFactory.getLogger(GBeanInstanceState.class);
 
     /**
      * The GBeanInstance in which this server is registered.

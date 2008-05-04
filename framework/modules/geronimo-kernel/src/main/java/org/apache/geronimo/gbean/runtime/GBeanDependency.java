@@ -30,10 +30,9 @@ import org.apache.geronimo.kernel.management.State;
 /**
  * @version $Rev$ $Date$
  */
-public final class GBeanDependency {
-
-
-    private final Logger log = LoggerFactory.getLogger(getClass());
+public final class GBeanDependency
+{
+    private static final Logger log = LoggerFactory.getLogger(GBeanDependency.class);
 
     /**
      * The GBeanInstance to which this reference belongs.

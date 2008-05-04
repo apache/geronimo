@@ -142,6 +142,11 @@ public class SerializedGBeanState implements GBeanState, Serializable {
             try {
                 gbeanData.writeExternal(oos);
             } catch (Exception e) {
+                //
+                // HACK:
+                //
+                System.err.println("FAILED TO SERIALIZE: " + gbeanData.getGBeanInfo());
+                
                 throw (IOException) new IOException("Unable to serialize GBeanData for " + gbeanData.getAbstractName()).initCause(e);
             }
         }
