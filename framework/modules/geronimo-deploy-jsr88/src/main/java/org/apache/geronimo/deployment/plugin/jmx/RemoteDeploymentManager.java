@@ -242,7 +242,9 @@ public class RemoteDeploymentManager extends JMXDeploymentManager implements Ger
         }
         PluginInstaller installer = getPluginInstaller();
         try {
-            return installer.startInstall(carFile, defaultRepository, restrictToDefaultRepository, username, password);
+            // make sure to pass args[0] as RemoteDeployUtil.uploadFilesToServer will update
+            // the args argument with the filenames returned from the server
+            return installer.startInstall(args[0], defaultRepository, restrictToDefaultRepository, username, password);
         } finally {
             kernel.getProxyManager().destroyProxy(installer);
         }
@@ -339,7 +341,9 @@ public class RemoteDeploymentManager extends JMXDeploymentManager implements Ger
         Set<AbstractName> set = kernel.listGBeans(new AbstractNameQuery(PluginInstaller.class.getName()));
         for (AbstractName name : set) {
             PluginInstaller installer = (PluginInstaller) kernel.getProxyManager().createProxy(name, PluginInstaller.class);
-            Artifact artifact = installer.installLibrary(libFile, groupId);
+            // make sure to pass args[0] as RemoteDeployUtil.uploadFilesToServer will update
+            // the args argument with the filenames returned from the server
+            Artifact artifact = installer.installLibrary(args[0], groupId);
             kernel.getProxyManager().destroyProxy(installer);
             return artifact;
         }
