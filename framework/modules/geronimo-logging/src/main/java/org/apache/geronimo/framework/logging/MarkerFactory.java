@@ -17,27 +17,17 @@
  * under the License.
  */
 
-package org.slf4j.impl;
+package org.apache.geronimo.framework.logging;
 
-import org.slf4j.helpers.NOPMakerAdapter;
-import org.slf4j.spi.MDCAdapter;
+import org.slf4j.helpers.BasicMarkerFactory;
 
 /**
  * ???
  *
  * @version $Revision$ $Date$
  */
-public class StaticMDCBinder
+public class MarkerFactory
+    extends BasicMarkerFactory
 {
-    public static final StaticMDCBinder SINGLETON = new StaticMDCBinder();
-
-    private StaticMDCBinder() {}
-
-    public MDCAdapter getMDCA() {
-        return new NOPMakerAdapter();
-    }
-
-    public String getMDCAdapterClassStr() {
-        return NOPMakerAdapter.class.getName();
-    }
+    // TODO:
 }

@@ -46,6 +46,7 @@
     </dependencies>
     
     <modules>
+        <module>geronimo-logging</module>
         <module>geronimo-cli</module>
         <module>geronimo-commands</module>
         <module>geronimo-common</module>
