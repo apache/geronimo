@@ -59,7 +59,13 @@
         <dependency>
             <groupId>org.apache.geronimo.testsupport</groupId>
             <artifactId>testsupport-selenium</artifactId>
-            <scope>provided</scope>
+            <scope>test</scope>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
@@ -98,9 +104,9 @@
                 </plugin>
                 
                 <!--
-                 FIXME: Need to reset the default values here since our parent sets up wars
-                        for use with jspc.  Remove once parent pom has been fixed.
-                 -->
+                FIXME: Need to reset the default values here since our parent sets up wars
+                       for use with jspc.  Remove once parent pom has been fixed.
+                -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-war-plugin</artifactId>
@@ -217,7 +223,7 @@
                     <artifactId>selenium-maven-plugin</artifactId>
                     <executions>
                         <execution>
-                            <id>start-server</id>
+                            <id>start</id>
                             <phase>pre-integration-test</phase>
                             <goals>
                                 <goal>start-server</goal>
@@ -226,6 +232,13 @@
                                 <logOutput>true</logOutput>
                                 <background>true</background>
                             </configuration>
+                        </execution>
+                        <execution>
+                            <id>stop</id>
+                            <phase>post-integration-test</phase>
+                            <goals>
+                                <goal>stop-server</goal>
+                            </goals>
                         </execution>
                     </executions>
                 </plugin>
@@ -263,7 +276,7 @@
                             <artifactId>geronimo-maven-plugin</artifactId>
                             <executions>
                                 <execution>
-                                    <id>start-server</id>
+                                    <id>start</id>
                                     <phase>pre-integration-test</phase>
                                     <goals>
                                         <goal>start-server</goal>
@@ -283,7 +296,7 @@
                                     </configuration>
                                 </execution>
                                 <execution>
-                                    <id>stop-server</id>
+                                    <id>stop</id>
                                     <phase>install</phase>
                                     <goals>
                                         <goal>stop-server</goal>
@@ -346,7 +359,7 @@
                             <artifactId>geronimo-maven-plugin</artifactId>
                             <executions>
                                 <execution>
-                                    <id>start-server</id>
+                                    <id>start</id>
                                     <phase>pre-integration-test</phase>
                                     <goals>
                                         <goal>start-server</goal>
@@ -368,4 +381,5 @@
             <id>child</id>
         </profile>
     </profiles>
+
 </project>

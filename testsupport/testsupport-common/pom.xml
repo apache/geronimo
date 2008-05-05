@@ -31,7 +31,6 @@
     
     <artifactId>testsupport-common</artifactId>
     <name>Geronimo Test Support :: Common</name>
-    <packaging>jar</packaging>
     
     <dependencies>
         <dependency>
