@@ -101,11 +101,6 @@
                 </configuration>
             </plugin>
 
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>selenium-maven-plugin</artifactId>
-            </plugin>
-
              <!-- "ear" packaging doesn't compile test classes -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
