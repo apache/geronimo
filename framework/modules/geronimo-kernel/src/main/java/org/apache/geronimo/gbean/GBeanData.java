@@ -233,8 +233,8 @@ public class GBeanData implements Externalizable {
                 out.writeObject(name);
                 out.writeObject(value);
             } catch (NotSerializableException e) {
-                // When we find something that is not serialzable, include the type information as well as the name/abstractName for debugging
-                throw (IOException) new IOException("Unable to write attribute: " + name + " in gbean: " + abstractName + " type: " + value.getClass()).initCause(e);
+                // When we find something that is not serialzable, include the type and gbean details as well as the name/abstractName for debugging
+                throw (IOException) new IOException("Unable to write attribute: " + name + " in gbean: " + abstractName + " type: " + value.getClass() + " gbean-info: " + gbeanInfo).initCause(e);
             } catch (IOException e) {
                 throw (IOException) new IOException("Unable to write attribute: " + name + " in gbean: " + abstractName).initCause(e);
             } catch (NoClassDefFoundError e) {
