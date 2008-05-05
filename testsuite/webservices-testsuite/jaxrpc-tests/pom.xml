@@ -17,27 +17,27 @@
     specific language governing permissions and limitations
     under the License.
 -->
+
+<!-- $Rev$ $Date$ -->
+
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    
+    <modelVersion>4.0.0</modelVersion>
+    
     <parent>
         <artifactId>webservices-testsuite</artifactId>
         <groupId>org.apache.geronimo.testsuite</groupId>
         <version>2.2-SNAPSHOT</version>
     </parent>
 
-    <modelVersion>4.0.0</modelVersion>
     <artifactId>jaxrpc-tests</artifactId>
     <packaging>pom</packaging>
     <name>Geronimo TestSuite :: WebServices TestSuite :: JAX-RPC</name>
     <description>Geronimo JEE5 Webservices JAX-RPC tests</description>
 
-    <profiles>
-        <profile>
-            <id>child</id>
-            <modules>
-                <module>jaxrpc-war</module>
-                <module>jaxrpc-ejb</module>
-            </modules>
-        </profile>
-    </profiles>
+    <modules>
+        <module>jaxrpc-war</module>
+        <module>jaxrpc-ejb</module>
+    </modules>
 
 </project>

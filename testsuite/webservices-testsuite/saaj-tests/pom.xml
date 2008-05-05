@@ -17,27 +17,27 @@
     specific language governing permissions and limitations
     under the License.
 -->
+
+<!-- $Rev: 653503 $ $Date: 2008-05-05 22:35:18 +0700 (Mon, 05 May 2008) $ -->
+
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    
+    <modelVersion>4.0.0</modelVersion>
+    
     <parent>
         <artifactId>webservices-testsuite</artifactId>
         <groupId>org.apache.geronimo.testsuite</groupId>
         <version>2.2-SNAPSHOT</version>
     </parent>
 
-    <modelVersion>4.0.0</modelVersion>
     <artifactId>saaj-tests</artifactId>
     <packaging>pom</packaging>
     <name>Geronimo TestSuite :: WebServices TestSuite :: SAAJ</name>
     <description>Geronimo JEE5 Webservices SAAJ tests</description>
 
-    <profiles>
-        <profile>
-            <id>child</id>
-            <modules>
-                <module>saaj-war</module>
-                <module>saaj-client</module>
-            </modules>
-        </profile>
-    </profiles>
+    <modules>
+        <module>saaj-war</module>
+        <module>saaj-client</module>
+    </modules>
 
 </project>
