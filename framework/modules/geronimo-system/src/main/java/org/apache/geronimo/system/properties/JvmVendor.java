@@ -66,23 +66,27 @@ public class JvmVendor {
                     // Security.addProvider(new com.ibm.jsse2.IBMJSSEProvider2());
                     log.debug("Loaded the IBM JSSE2 Provider");
                 } else {
-                    log.debug("Found the IBM JSSE2 Provider = " + Security.getProvider("com.ibm.jsse2.IBMJSSEProvider2"));
+                    log.debug("Found the IBM JSSE2 Provider: {}", Security.getProvider("com.ibm.jsse2.IBMJSSEProvider2"));
                 }
+                
                 if (Security.getProvider("IBMCertPath") == null) {
                     // If we found IBMJSSE but not this one, then the JAVA_OPTS are probably messed up
                     log.debug("No IBMCertPath provider found.");
                     throw new RuntimeException("Could not find the IBMCertPath provider.");
                 } else {
-                    log.debug("Found the IBMCertPath Provider = " + Security.getProvider("IBMCertPath"));
+                    log.debug("Found the IBMCertPath Provider: {}", Security.getProvider("IBMCertPath"));
                 }
+                
                 if (Security.getProvider("IBMJCE") == null) {
                     // If we found IBMJSSE but not this one, then the JAVA_OPTS are probably messed up
                     log.debug("No IBMJCE provider found.");
                     throw new RuntimeException("Could not find the IBMJCE provider.");
                 } else {
-                    log.debug("Found the IBMJCE Provider" + Security.getProvider("IBMJCE"));
+                    log.debug("Found the IBMJCE Provider {}", Security.getProvider("IBMJCE"));
                 }
+                
                 System.setProperty("java.protocol.handler.pkgs", "com.ibm.net.ssl.www2.protocol");
+                
                 // All of the expected IBM Extensions were found, so we must be using the IBM Hybrid JDK
                 bSun = false;
                 bApache = false;
@@ -90,11 +94,11 @@ public class JvmVendor {
                 bIBMHybrid = true;
             } catch (ClassNotFoundException e) {
                 // Couldn't load the IBMJSSE Provider, so we must not be using the IBM Hybrid SDK
-                log.debug("Caught Exception="+e.toString());
+                log.debug("Caught Exception: {}", e.toString());
                 log.debug("Could not load the IBM JSSE Provider.  Must be using the OS provider's Java.");
             } catch (Throwable t) {
                 // Couldn't load the IBMJSSE Provider, so we must not be using the IBM Hybrid SDK
-                log.debug("Caught Throwable="+t.toString());
+                log.debug("Caught Throwable: {}", t.toString());
                 log.debug("Assume we could not load the IBM JSSE Provider and that we are using the OS provider's Java.");
             }
         }

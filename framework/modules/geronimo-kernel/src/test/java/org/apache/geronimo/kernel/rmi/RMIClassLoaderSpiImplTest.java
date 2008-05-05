@@ -55,8 +55,8 @@ public class RMIClassLoaderSpiImplTest extends TestCase {
             normalizedBaseURL = normalizedBaseURL.substring(0, normalizedBaseURL.length() - 1);
         }
 
-        log.debug("Using base URL: " + baseURL);
-        log.debug("Using normalized base URL: " + normalizedBaseURL);
+        log.debug("Using base URL: {}", baseURL);
+        log.debug("Using normalized base URL: {}", normalizedBaseURL);
     }
 
     public void testNormalizeURL() throws MalformedURLException {

@@ -386,7 +386,7 @@ public class PluginInstallerGBean implements PluginInstaller
                 readNameAndID(xml, plugins);
             } else {
                 if (!dir.isFile() || !dir.canRead()) {
-                    log.error("Cannot read artifact dir " + dir.getAbsolutePath());
+                    log.error("Cannot read artifact dir {}", dir.getAbsolutePath());
                     throw new IllegalStateException("Cannot read artifact dir " + dir.getAbsolutePath());
                 }
                 try {
@@ -448,7 +448,7 @@ public class PluginInstallerGBean implements PluginInstaller
         Artifact artifact = toArtifact(instance.getModuleId());
         File dir = writeableRepo.getLocation(artifact);
         if (dir == null) {
-            log.error(artifact + " is not installed.");
+            log.error("{} is not installed", artifact);
             throw new IllegalArgumentException(artifact + " is not installed.");
         }
         if (!dir.isDirectory()) { // must be a packed (JAR-formatted) plugin
@@ -484,11 +484,11 @@ public class PluginInstallerGBean implements PluginInstaller
                 out.close();
                 input.close();
                 if (!dir.delete()) {
-                    log.error("Unable to delete old plugin at " + dir.getAbsolutePath());
+                    log.error("Unable to delete old plugin at {}", dir.getAbsolutePath());
                     throw new IOException("Unable to delete old plugin at " + dir.getAbsolutePath());
                 }
                 if (!temp.renameTo(dir)) {
-                    log.error("Unable to move new plugin " + temp.getAbsolutePath() + " to " + dir.getAbsolutePath());
+                    log.error("Unable to move new plugin {} to {}", temp.getAbsolutePath(), dir.getAbsolutePath());
                     throw new IOException(
                             "Unable to move new plugin " + temp.getAbsolutePath() + " to " + dir.getAbsolutePath());
                 }
@@ -499,7 +499,7 @@ public class PluginInstallerGBean implements PluginInstaller
         } else {
             File meta = new File(dir, "META-INF");
             if (!meta.isDirectory() || !meta.canRead()) {
-                log.error(artifact + " is not a plugin.");
+                log.error("{} is not a plugin", artifact);
                 throw new IllegalArgumentException(artifact + " is not a plugin.");
             }
             File xml = new File(meta, "geronimo-plugin.xml");
@@ -507,7 +507,7 @@ public class PluginInstallerGBean implements PluginInstaller
             try {
                 if (!xml.isFile()) {
                     if (!xml.createNewFile()) {
-                        log.error("Cannot create plugin metadata file for " + artifact);
+                        log.error("Cannot create plugin metadata file for {}", artifact);
                         throw new RuntimeException("Cannot create plugin metadata file for " + artifact);
                     }
                 }
@@ -679,14 +679,14 @@ public class PluginInstallerGBean implements PluginInstaller
                 serverInstance.getAttributeStore().save();
             }
         } catch (Exception e) {
-            log.error("Unable to install plugin. ", e);
+            log.error("Unable to install plugin", e);
             poller.setFailure(e);
             //Attempt to cleanup a failed plugin installation
             for (Artifact artifact : downloadedArtifacts) {
                 try {
                     configManager.uninstallConfiguration(artifact);
                 } catch (Exception e2) {
-                    log.warn("Warning: ",e2);
+                    log.warn(e2.toString(), e2);
                 }
             }
         } finally {
@@ -834,7 +834,7 @@ public class PluginInstallerGBean implements PluginInstaller
             // 1. Extract the configuration metadata
             PluginType data = GeronimoSourceRepository.extractPluginMetadata(carFile);
             if (data == null) {
-                log.error("Invalid Configuration Archive " + carFile.getAbsolutePath() + " no plugin metadata found");
+                log.error("Invalid Configuration Archive {} no plugin metadata found", carFile.getAbsolutePath());
                 throw new IllegalArgumentException(
                         "Invalid Configuration Archive " + carFile.getAbsolutePath() + " no plugin metadata found");
             }
@@ -891,7 +891,7 @@ public class PluginInstallerGBean implements PluginInstaller
                     }
                 }
                 if (!upgrade) {
-                    log.debug("Configuration " + artifact + " is already installed.");
+                    log.debug("Configuration {} is already installed", artifact);
                     throw new MissingDependencyException(
                             "Configuration " + artifact + " is already installed.", toArtifact(metadata.getModuleId()), (Stack<Artifact>) null);
                 }
@@ -1047,10 +1047,8 @@ public class PluginInstallerGBean implements PluginInstaller
                 if (hash != null) {
                     String actual = ConfigurationStoreUtil.getActualChecksum(tempFile, hash.getType());
                     if (!actual.equals(hash.getValue())) {
-                        log.error(
-                                "File download incorrect (expected " + hash.getType() + " hash " + hash.getValue() + " but got " + actual + ")");
-                        throw new IOException(
-                                "File download incorrect (expected " + hash.getType() + " hash " + hash.getValue() + " but got " + actual + ")");
+                        log.error("File download incorrect (expected {} hash {} but got {})", new String[] { hash.getType(), hash.getValue(), actual });
+                        throw new IOException("File download incorrect (expected " + hash.getType() + " hash " + hash.getValue() + " but got " + actual + ")");
                     }
                 }
                 // See if the download file has plugin metadata and use it in preference to what is in the catalog.
@@ -1060,9 +1058,8 @@ public class PluginInstallerGBean implements PluginInstaller
                         pluginData = realPluginData;
                     }
                 } catch (Exception e) {
-                    log.error("Unable to read plugin metadata: " + e.getMessage());
-                    throw (IOException) new IOException(
-                            "Unable to read plugin metadata: " + e.getMessage()).initCause(e);
+                    log.error("Unable to read plugin metadata: {}", e.getMessage());
+                    throw (IOException) new IOException("Unable to read plugin metadata: " + e.getMessage()).initCause(e);
                 }
                 if (pluginData != null) { // it's a plugin, not a plain JAR
                     validatePlugin(pluginData);
@@ -1083,15 +1080,15 @@ public class PluginInstallerGBean implements PluginInstaller
                     monitor.getResults().addInstalledConfigID(configID);
                 }
                 pluginWasInstalled = true;
-                if (pluginData != null)
-                    log.info("Installed plugin with moduleId=" + pluginData.getPluginArtifact().get(0).getModuleId() + " and name=" + pluginData.getName());
-                else
-                    log.info("Installed artifact=" + configID);
+                if (pluginData != null) {
+                    log.debug("Installed plugin with moduleId={} and name={}", pluginData.getPluginArtifact().get(0).getModuleId(), pluginData.getName());
+                }
+                else {
+                    log.debug("Installed artifact={}", configID);
+                }
             } catch (InvalidGBeanException e) {
-                log.error("Invalid gbean configuration ", e);
-                throw new IllegalStateException(
-                        "Invalid GBean configuration: " + e.getMessage(), e);
-
+                log.error("Invalid gbean configuration", e);
+                throw new IllegalStateException("Invalid GBean configuration: " + e.getMessage(), e);
             } finally {
                 //todo probably not needede
                 result.close();
@@ -1110,10 +1107,10 @@ public class PluginInstallerGBean implements PluginInstaller
                 for (int i = matches.length - 1; i >= 0; i--) {
                     Artifact match = matches[i];
                     if (configStore.containsConfiguration(match) && configManager.isRunning(match)) {
-                        log.debug("Found required configuration=" + match + " and it is running.");
+                        log.debug("Found required configuration={} and it is running", match);
                         return; // its dependencies must be OK
                     } else {
-                        log.debug("Either required configuration=" + match + " is not installed or it is not running.");
+                        log.debug("Either required configuration={} is not installed or it is not running", match);
                     }
                 }
                 // Go with something that's installed
@@ -1124,7 +1121,7 @@ public class PluginInstallerGBean implements PluginInstaller
                 if (configManager.isRunning(configID)) {
                     return; // its dependencies must be OK
                 }
-                log.debug("Loading configuration=" + configID);
+                log.debug("Loading configuration={}", configID);
                 data = configStore.loadConfiguration(configID);
             }
             // Download the dependencies
@@ -1134,7 +1131,7 @@ public class PluginInstallerGBean implements PluginInstaller
                 Dependency[] dependencies = data == null ? getDependencies(writeableRepo, configID) : getDependencies(data);
                 for (Dependency dep : dependencies) {
                     Artifact artifact = dep.getArtifact();
-                    log.debug("Attempting to download dependency=" + artifact + " for configuration=" + configID);
+                    log.debug("Attempting to download dependency={} for configuration={}", artifact, configID);
                     downloadArtifact(artifact, metadata, repos, username, password, monitor, soFar, parentStack, true, servers, loadOverride);
                 }
             } else {
@@ -1142,19 +1139,17 @@ public class PluginInstallerGBean implements PluginInstaller
                 List<DependencyType> deps = instance.getDependency();
                 for (DependencyType dep : deps) {
                     Artifact artifact = toArtifact(dep);
-                    log.debug("Attempting to download dependency=" + artifact + " for configuration=" + configID);
+                    log.debug("Attempting to download dependency={} for configuration={}", artifact, configID);
                     downloadArtifact(artifact, metadata, repos, username, password, monitor, soFar, parentStack, true, servers, loadOverride & dep.isStart());
                 }
             }
             parentStack.pop();
         } catch (NoSuchConfigException e) {
-            log.error("Installed configuration into repository but ConfigStore does not see it: " + e.getMessage());
-            throw new IllegalStateException(
-                    "Installed configuration into repository but ConfigStore does not see it: " + e.getMessage(), e);
+            log.error("Installed configuration into repository but ConfigStore does not see it: {}", e.getMessage());
+            throw new IllegalStateException("Installed configuration into repository but ConfigStore does not see it: " + e.getMessage(), e);
         } catch (InvalidConfigException e) {
-            log.error("Installed configuration into repository but ConfigStore cannot load it: " + e.getMessage());
-            throw new IllegalStateException(
-                    "Installed configuration into repository but ConfigStore cannot load it: " + e.getMessage(), e);
+            log.error("Installed configuration into repository but ConfigStore cannot load it: {}", e.getMessage());
+            throw new IllegalStateException("Installed configuration into repository but ConfigStore cannot load it: " + e.getMessage(), e);
         }
         // Copy any files out of the artifact
         PluginType currentPlugin = getPluginMetadata(configID);
@@ -1179,11 +1174,11 @@ public class PluginInstallerGBean implements PluginInstaller
         try {
             set = configStore.resolve(configID, null, sourceFile);
         } catch (NoSuchConfigException e) {
-            log.error("Unable to identify module " + configID + " to copy files from");
+            log.error("Unable to identify module {} to copy files from", configID);
             throw new IllegalStateException("Unable to identify module " + configID + " to copy files from", e);
         }
         if (set.size() == 0) {
-            log.error("Installed configuration into repository but cannot locate file to copy " + sourceFile);
+            log.error("Installed configuration into repository but cannot locate file to copy {}", sourceFile);
             return;
         }
         if (set.iterator().next().getPath().endsWith("/")) {
@@ -1203,7 +1198,7 @@ public class PluginInstallerGBean implements PluginInstaller
                 });
                 set.addAll(configStore.resolve(configID, null, pattern));
             } catch (NoSuchConfigException e) {
-                log.error("Unable to list directory " + pattern + " to copy files from");
+                log.error("Unable to list directory {} to copy files from", pattern);
                 throw new IllegalStateException("Unable to list directory " + pattern + " to copy files from", e);
             }
         }
@@ -1215,13 +1210,11 @@ public class PluginInstallerGBean implements PluginInstaller
         createDirectory(targetDir);
         URI targetURI = targetDir.toURI();
         if (!targetDir.isDirectory()) {
-            log.error(
-                    "Plugin install cannot write file " + data.getValue() + " to " + destDir + " because " + targetDir.getAbsolutePath() + " is not a directory");
+            log.error("Plugin install cannot write file {} to {} because {} is not a directory", new String[] { data.getValue(), destDir, targetDir.getAbsolutePath() });
             return;
         }
         if (!targetDir.canWrite()) {
-            log.error(
-                    "Plugin install cannot write file " + data.getValue() + " to " + destDir + " because " + targetDir.getAbsolutePath() + " is not writable");
+            log.error("Plugin install cannot write file {} to {} because {} is not writable", new String[] { data.getValue(), destDir, targetDir.getAbsolutePath() });
             return;
         }
         int start = -1;
@@ -1250,12 +1243,12 @@ public class PluginInstallerGBean implements PluginInstaller
             if (!target.exists()) {
                 if (path.endsWith("/")) {
                     if (!target.mkdirs()) {
-                        log.error("Plugin install cannot create directory " + target.getAbsolutePath());
+                        log.error("Plugin install cannot create directory {}", target.getAbsolutePath());
                     }
                     continue;
                 }
                 if (!target.createNewFile()) {
-                    log.error("Plugin install cannot create new file " + target.getAbsolutePath());
+                    log.error("Plugin install cannot create new file {}", target.getAbsolutePath());
                     continue;
                 }
             }
@@ -1263,7 +1256,7 @@ public class PluginInstallerGBean implements PluginInstaller
                 continue;
             }
             if (!target.canWrite()) {
-                log.error("Plugin install cannot write to file " + target.getAbsolutePath());
+                log.error("Plugin install cannot write to file {}", target.getAbsolutePath());
                 continue;
             }
             copyFile(url.openStream(), new FileOutputStream(target));

@@ -79,52 +79,39 @@ public class JavaVariable
     public boolean getVersionMatches(String version) {
         version = version.trim();
         
-        boolean debug = log.isDebugEnabled();
         boolean result = false;
         
         if (version.endsWith("*")) {
             version = version.substring(0, version.length() - 1).trim();
             
-            if (debug) {
-                log.debug("Checking Java version is in the same group as: " + version);
-            }
+            log.debug("Checking Java version is in the same group as: {}", version);
             
             String tmp = SystemUtils.JAVA_VERSION_TRIMMED;
             
-            if (debug) {
-                log.debug("Requested version: " + tmp);
-                log.debug("JVM version: " + SystemUtils.JAVA_VERSION_FLOAT);
-            }
+            log.debug("Requested version: {}", tmp);
+            log.debug("JVM version: {}", SystemUtils.JAVA_VERSION_FLOAT);
             
             result = tmp.startsWith(version);
         }
         else if (version.endsWith("+")) {
             version = version.substring(0, version.length() - 1).trim();
             
-            if (debug) {
-                log.debug("Checking Java version is greater than: " + version);
-            }
+            log.debug("Checking Java version is greater than: {}", version);
             
             float tmp = Float.parseFloat(version);
             
-            if (debug) {
-                log.debug("Requested version: " + tmp);
-                log.debug("JVM version: " + SystemUtils.JAVA_VERSION_FLOAT);
-            }
+            log.debug("Requested version: {}", tmp);
+            log.debug("JVM version: {}", SystemUtils.JAVA_VERSION_FLOAT);
             
             result = tmp <= SystemUtils.JAVA_VERSION_FLOAT;
         }
         else {
-            if (debug) {
-                log.debug("Checking Java version is equal to: " + version);
-            }
+            log.debug("Checking Java version is equal to: {}", version);
             
             float tmp = Float.parseFloat(version);
             
-            if (debug) {
-                log.debug("Requested version: " + tmp);
-                log.debug("JVM version: " + SystemUtils.JAVA_VERSION_FLOAT);
-            }
+            log.debug("Requested version: {}", tmp);
+            log.debug("JVM version: {}", SystemUtils.JAVA_VERSION_FLOAT);
             
             result = tmp == SystemUtils.JAVA_VERSION_FLOAT;
         }

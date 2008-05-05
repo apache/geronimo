@@ -83,7 +83,7 @@ public class GBeanSingleReference extends AbstractGBeanReference
         } else {
             setProxy(getKernel().getProxyManager().createProxy(targetName, getReferenceType()));
         }
-        log.debug("Started " + abstractName);
+        log.debug("Started {}", abstractName);
         return true;
     }
 

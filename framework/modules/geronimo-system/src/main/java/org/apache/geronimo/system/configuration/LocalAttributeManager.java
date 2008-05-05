@@ -113,7 +113,9 @@ public class LocalAttributeManager implements LocalPluginAttributeStore, Persist
         this.readOnly = readOnly;
         this.serverInfo = serverInfo;
         serverOverride = new ServerOverride();
-        log.debug("setting configSubstitutionsFile to " + configSubstitutionsFile + ".");
+        
+        log.debug("setting configSubstitutionsFile to: {}", configSubstitutionsFile);
+        
         infoFactory = newGBeanInfoFactory();
     }
 
@@ -231,7 +233,9 @@ public class LocalAttributeManager implements LocalPluginAttributeStore, Persist
         }
         configuration.setLoad(load);
         configuration.setCondition(condition);
-        log.info("Added gbeans for module: " + moduleName + " load: " + load);
+        
+        log.debug("Added gbeans for module: {}  load: {}",  moduleName, load);
+        
         attributeChanged();
     }
 
@@ -310,7 +314,7 @@ public class LocalAttributeManager implements LocalPluginAttributeStore, Persist
         }
         ConfigurationOverride configuration = serverOverride.getConfiguration(configurationName);
         if (configuration == null) {
-            log.debug("Can not add GBean; Configuration not found " + configurationName);
+            log.debug("Can not add GBean; Configuration not found {}", configurationName);
             return;
         }
         try {
@@ -521,7 +525,7 @@ public class LocalAttributeManager implements LocalPluginAttributeStore, Persist
         if (!readOnly) {
             timer = new Timer(true);
         }
-        log.debug("Started LocalAttributeManager with data on " + serverOverride.getConfigurations().size() + " configurations");
+        log.debug("Started LocalAttributeManager with data on {} configurations", serverOverride.getConfigurations().size());
     }
 
     public synchronized void doStop() throws Exception {
@@ -538,7 +542,7 @@ public class LocalAttributeManager implements LocalPluginAttributeStore, Persist
         if (doSave) {
             save();
         }
-        log.debug("Stopped LocalAttributeManager with data on " + serverOverride.getConfigurations().size() + " configurations");
+        log.debug("Stopped LocalAttributeManager with data on {} configurations", serverOverride.getConfigurations().size());
         serverOverride = new ServerOverride();
     }
 
@@ -620,8 +624,7 @@ public class LocalAttributeManager implements LocalPluginAttributeStore, Persist
                     in.close();
                 }
             } catch (Exception e) {
-                log.error("Caught exception " + e
-                        + " trying to open properties file " + configSubstitutionsFile.getAbsolutePath());
+                log.error("Caught exception {} trying to open properties file {}", e, configSubstitutionsFile.getAbsolutePath());
             }
         }
         return properties;
@@ -637,8 +640,7 @@ public class LocalAttributeManager implements LocalPluginAttributeStore, Persist
                     out.close();
                 }
             } catch (Exception e) {
-                log.error("Caught exception " + e
-                        + " trying to open properties file " + configSubstitutionsFile.getAbsolutePath());
+                log.error("Caught exception {} trying to open properties file {}", e, configSubstitutionsFile.getAbsolutePath());
             }
         }
     }

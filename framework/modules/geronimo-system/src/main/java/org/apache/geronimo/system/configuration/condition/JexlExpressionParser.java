@@ -44,9 +44,7 @@ public class JexlExpressionParser {
         context = JexlHelper.createContext();
         context.setVars(vars);
 
-        if (log.isTraceEnabled()) {
-            log.trace("Using variables: " + context.getVars());
-        }
+        log.trace("Using variables: {}", context.getVars());
     }
 
     public JexlExpressionParser() {
@@ -112,16 +110,11 @@ public class JexlExpressionParser {
             throw new IllegalArgumentException("expression");
         }
 
-        boolean trace = log.isTraceEnabled();
-        if (trace) {
-            log.trace("Evaluating expression: " + expression);
-        }
+        log.trace("Evaluating expression: {}", expression);
 
         Expression expr = createExpression(expression);
         Object obj = expr.evaluate(context);
-        if (trace) {
-            log.trace("Result: " + obj);
-        }
+        log.trace("Result: {}", obj);
 
         return obj;
     }
@@ -131,10 +124,7 @@ public class JexlExpressionParser {
             throw new IllegalArgumentException("input");
         }
 
-        boolean trace = log.isTraceEnabled();
-        if (trace) {
-            log.trace("Parsing input: " + input);
-        }
+        log.trace("Parsing input: {}", input);
 
         StringBuffer buff = new StringBuffer();
 
@@ -169,9 +159,7 @@ public class JexlExpressionParser {
 
         buff.append(input.substring(cur));
 
-        if (trace) {
-            log.trace("Parsed result: " + buff);
-        }
+        log.trace("Parsed result: {}", buff);
 
         return buff.toString();
     }

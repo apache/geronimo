@@ -754,17 +754,17 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent
     }
 
     public void doStart() throws Exception {
-        log.debug("Started configuration " + id);
+        log.debug("Started configuration {}", id);
     }
 
     public synchronized void doStop() throws Exception {
-        log.debug("Stopping configuration " + id);
+        log.debug("Stopping configuration {}", id);
         shutdown();
 
     }
 
     public void doFail() {
-        log.debug("Failed configuration " + id);
+        log.debug("Failed configuration {}", id);
         shutdown();
     }
 

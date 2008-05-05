@@ -35,39 +35,39 @@ public class DebugLoggingLifecycleMonitor implements LifecycleMonitor {
     }
 
     public void addConfiguration(Artifact configurationId) {
-        log.debug("added module: " + configurationId);
+        log.debug("added module: {}", configurationId);
     }
 
     public void resolving(Artifact configurationId) {
-        log.debug("resolving dependencies for module: " + configurationId);
+        log.debug("resolving dependencies for module: {}", configurationId);
     }
 
     public void reading(Artifact configurationId) {
-        log.debug("reading module: " + configurationId);
+        log.debug("reading module: {}", configurationId);
     }
 
     public void loading(Artifact configurationId) {
-        log.debug("loading module: " + configurationId);
+        log.debug("loading module: {}", configurationId);
     }
 
     public void starting(Artifact configurationId) {
-        log.debug("starting module: " + configurationId);
+        log.debug("starting module: {}", configurationId);
     }
 
     public void stopping(Artifact configurationId) {
-        log.debug("stopping module: " + configurationId);
+        log.debug("stopping module: {}", configurationId);
     }
 
     public void unloading(Artifact configurationId) {
-        log.debug("unloading module: " + configurationId);
+        log.debug("unloading module: {}", configurationId);
     }
 
     public void succeeded(Artifact configurationId) {
-        log.debug("succeeded module: " + configurationId);
+        log.debug("succeeded module: {}", configurationId);
     }
 
     public void failed(Artifact configurationId, Throwable cause) {
-        log.debug("failed module: " + configurationId);
+        log.debug("failed module: {}", configurationId);
     }
 
     public void finished() {

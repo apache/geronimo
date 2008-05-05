@@ -61,7 +61,7 @@ public abstract class AbstractRepository implements WriteableRepository {
         }
 
         this.rootFile = rootFile;
-        log.debug("Repository root is " + rootFile.getAbsolutePath());
+        log.debug("Repository root is {}", rootFile.getAbsolutePath());
 
         typeHandlers.put("car", new UnpackArtifactTypeHandler());
     }
@@ -208,7 +208,7 @@ public abstract class AbstractRepository implements WriteableRepository {
         typeHandler.install(source, size, destination, monitor, location);
         
         if (destination.getType().equalsIgnoreCase("car")) {
-            log.debug("Installed module configuration; id=" + destination + "; location=" + location);
+            log.debug("Installed module configuration; id={}; location={}", destination, location);
         }
     }
 }

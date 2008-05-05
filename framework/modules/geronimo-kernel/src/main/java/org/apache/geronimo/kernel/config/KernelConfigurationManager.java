@@ -173,7 +173,7 @@ public class KernelConfigurationManager extends SimpleConfigurationManager imple
                 artifactManager.loadArtifacts(configurationId, configuration.getDependencies());
             }
 
-            log.debug("Loaded Configuration " + configurationName);
+            log.debug("Loaded Configuration {}", configurationName);
         } catch (Exception e) {
             unload(configurationId);
             if (e instanceof InvalidConfigException) {

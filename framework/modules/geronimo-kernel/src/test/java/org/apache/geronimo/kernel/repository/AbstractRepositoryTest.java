@@ -83,7 +83,7 @@ public class AbstractRepositoryTest extends TestCase {
 
     public void testListAll() {
         SortedSet artifacts = repository.list();
-        log.debug("Matched artifacts: "+artifacts);
+        log.debug("Matched artifacts: {}", artifacts);
 
         assertTrue(artifacts.contains(new Artifact("org.foo", "test", "2.0.1", "properties")));
         assertFalse(artifacts.contains(new Artifact("Unknown", "artifact", "2.0.1", "properties")));

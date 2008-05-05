@@ -97,21 +97,15 @@ public class JexlConditionParser
     private Object doEvaluate(final String expression) throws Exception {
         assert expression != null;
 
-        boolean debug = log.isDebugEnabled();
-
-        if (debug) {
-            log.debug("Evaluating expression: " + expression);
-        }
-
+        log.debug("Evaluating expression: {}", expression);
+        
         Expression expr = ExpressionFactory.createExpression(expression);
 
         JexlContext ctx = JexlHelper.createContext();
         ctx.setVars(vars);
 
         Object result = expr.evaluate(ctx);
-        if (debug) {
-            log.debug("Result: " + result);
-        }
+        log.debug("Result: {}", result);
 
         return result;
     }    

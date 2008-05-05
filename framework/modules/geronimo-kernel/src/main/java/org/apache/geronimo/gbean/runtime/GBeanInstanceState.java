@@ -175,11 +175,11 @@ public class GBeanInstanceState
         for (Iterator iterator = dependents.iterator(); iterator.hasNext();) {
             AbstractName child = (AbstractName) iterator.next();
             try {
-                log.trace("Checking if child is running: child=" + child);
+                log.trace("Checking if child is running: child={}", child);
                 if (kernel.getGBeanState(child) == State.RUNNING_INDEX) {
-                    log.trace("Stopping child: child=" + child);
+                    log.trace("Stopping child: child={}", child);
                     kernel.stopGBean(child);
-                    log.trace("Stopped child: child=" + child);
+                    log.trace("Stopped child: child={}", child);
                 }
             } catch (Exception ignore) {
                 // not a big deal... did my best
@@ -242,23 +242,23 @@ public class GBeanInstanceState
             for (Iterator i = parents.iterator(); i.hasNext();) {
                 AbstractName parent = (AbstractName) i.next();
                 if (!kernel.isLoaded(parent)) {
-                    log.trace("Cannot run because parent is not registered: parent=" + parent);
+                    log.trace("Cannot run because parent is not registered: parent={}", parent);
                     return;
                 }
                 try {
-                    log.trace("Checking if parent is running: parent=" + parent);
+                    log.trace("Checking if parent is running: parent={}", parent);
                     if (kernel.getGBeanState(parent) != State.RUNNING_INDEX) {
-                        log.trace("Cannot run because parent is not running: parent=" + parent);
+                        log.trace("Cannot run because parent is not running: parent={}", parent);
                         return;
                     }
-                    log.trace("Parent is running: parent=" + parent);
+                    log.trace("Parent is running: parent={}", parent);
                 } catch (GBeanNotFoundException e) {
                     // depended on instance was removed bewteen the register check and the invoke
-                    log.trace("Cannot run because parent is not registered: parent=" + parent);
+                    log.trace("Cannot run because parent is not registered: parent={}", parent);
                     return;
                 } catch (Exception e) {
                     // problem getting the attribute, parent has most likely failed
-                    log.trace("Cannot run because an error occurred while checking if parent is running: parent=" + parent);
+                    log.trace("Cannot run because an error occurred while checking if parent is running: parent={}", parent);
                     return;
                 }
             }
@@ -318,17 +318,17 @@ public class GBeanInstanceState
                 AbstractName child = (AbstractName) i.next();
                 if (kernel.isLoaded(child)) {
                     try {
-                        log.trace("Checking if child is stopped: child=" + child);
+                        log.trace("Checking if child is stopped: child={}", child);
                         int state = kernel.getGBeanState(child);
                         if (state == State.RUNNING_INDEX) {
-                            log.trace("Cannot stop because child is still running: child=" + child);
+                            log.trace("Cannot stop because child is still running: child={}", child);
                             return;
                         }
                     } catch (GBeanNotFoundException e) {
                         // depended on instance was removed between the register check and the invoke
                     } catch (Exception e) {
                         // problem getting the attribute, depended on bean has most likely failed
-                        log.trace("Cannot run because an error occurred while checking if child is stopped: child=" + child);
+                        log.trace("Cannot run because an error occurred while checking if child is stopped: child={}", child);
                         return;
                     }
                 }
@@ -439,7 +439,9 @@ public class GBeanInstanceState
                 }
                 break;
         }
-        log.debug(toString() + " State changed from " + state + " to " + newState);
+        
+        log.debug("{} State changed from {} to {}", new Object[] { toString(), state, newState });
+        
         state = newState;
     }
 
