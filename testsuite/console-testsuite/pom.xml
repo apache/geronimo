@@ -39,13 +39,70 @@
     </description>
     
     <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <configuration>
+                        <suiteXmlFiles>
+                            <suiteXmlFile>${project.build.directory}/test-classes/testng.xml</suiteXmlFile>
+                        </suiteXmlFiles>
+                        <systemProperties>
+                            <property>
+                                <name>geronimoVersion</name>
+                                <value>${version}</value>
+                            </property>
+                        </systemProperties>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+        
         <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>selenium-maven-plugin</artifactId>
+                <inherited>false</inherited>
+            </plugin>
+            
+            <plugin>
+                <groupId>org.apache.geronimo.buildsupport</groupId>
+                <artifactId>geronimo-maven-plugin</artifactId>
+                <inherited>false</inherited>
+            </plugin>
+            
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>shitty-maven-plugin</artifactId>
+                <inherited>false</inherited>
+                <configuration>
+                    <projects>
+                        <fileset>
+                            <directory>${project.basedir}</directory>
+                            <includes>
+                                <include>*/pom.xml</include>
+                            </includes>
+                        </fileset>
+                    </projects>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>clean</goal>
+                            <goal>install</goal>
+                            <goal>test</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            
             <plugin>
                 <groupId>org.apache.geronimo.buildsupport</groupId>
                 <artifactId>testsuite-maven-plugin</artifactId>
+                <inherited>false</inherited>
                 <executions>
                     <execution>
-                        <id>generate-surefire-xml</id>
                         <phase>install</phase>
                         <goals>
                             <goal>generate-surefire-xml</goal>
@@ -55,37 +112,5 @@
             </plugin>
         </plugins>
     </build>
-    
-    <profiles>
-        <profile>
-            <id>default</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>selenium-maven-plugin</artifactId>
-                    </plugin>
-                    
-                    <plugin>
-                        <groupId>org.apache.geronimo.genesis.plugins</groupId>
-                        <artifactId>maven-maven-plugin</artifactId>
-                    </plugin>
-                    
-                    <plugin>
-                        <groupId>org.apache.geronimo.buildsupport</groupId>
-                        <artifactId>geronimo-maven-plugin</artifactId>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        
-        <profile>
-            <id>child</id>
-        </profile>
-    </profiles>
 
 </project>

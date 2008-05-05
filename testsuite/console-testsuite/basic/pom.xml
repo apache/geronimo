@@ -32,31 +32,9 @@
 
     <artifactId>basic</artifactId>
     <name>Geronimo TestSuite :: Console Testsuite :: Basic Tests</name>
-    <packaging>jar</packaging>
 
     <description>
         Basic test for the Geronimo console.
-        maven-maven-plugin:invoke executes the 'child' profile.
-        Since build executions are done here, a 'child' profile is explicitly
-        defined here to prevent inheriting other configurations and executions from parent.
     </description>
-
-    <profiles>
-        <profile>
-            <id>child</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <artifactId>maven-surefire-plugin</artifactId>
-                        <configuration>
-                            <suiteXmlFiles>
-                                <suiteXmlFile>${project.build.directory}/test-classes/testng.xml</suiteXmlFile>
-                            </suiteXmlFiles>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
 
 </project>
