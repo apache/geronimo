@@ -33,17 +33,20 @@
             <artifactId>manifestcp-jar</artifactId>
             <version>${version}</version>
         </dependency>
+        
         <dependency>
             <groupId>org.apache.geronimo.testsuite</groupId>
             <artifactId>manifestcp-war-jar</artifactId>
             <version>${version}</version>
         </dependency>
+        
         <dependency>
             <groupId>org.apache.geronimo.testsuite</groupId>
             <artifactId>manifestcp-ejb</artifactId>
             <version>${version}</version>
             <type>ejb</type>
         </dependency>
+        
         <dependency>
             <groupId>org.apache.geronimo.testsuite</groupId>
             <artifactId>manifestcp-war</artifactId>
@@ -57,7 +60,6 @@
             <plugin>
                 <groupId>org.apache.geronimo.buildsupport</groupId>
                 <artifactId>testsuite-maven-plugin</artifactId>
-                <version>${version}</version>
                 <executions>
                     <execution>
                         <id>generate-surefire-xml</id>
@@ -67,7 +69,8 @@
                         </goals>
                         <!-- 
                         Merging the configuration of this plugin with the one it inherits.
-                        Updating the reports in the grandparent directly as we'd have missed the boat for the parent's install phase.
+                        Updating the reports in the grandparent directly as we'd have missed
+                        the boat for the parent's install phase.
                         -->
                         <configuration>
                             <grandParent>true</grandParent>
