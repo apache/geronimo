@@ -30,4 +30,19 @@ import org.slf4j.spi.LoggerFactoryBinder;
 public class StaticLoggerBinder
     implements LoggerFactoryBinder
 {
+    public static final StaticLoggerBinder SINGLETON = new StaticLoggerBinder();
+    
+    private final ILoggerFactory factory;
+
+    public StaticLoggerBinder() {
+        // TODO:
+    }
+    
+    public ILoggerFactory getLoggerFactory() {
+        return factory;
+    }
+
+    public String getLoggerFactoryClassStr() {
+        // TODO:
+    }
 }
