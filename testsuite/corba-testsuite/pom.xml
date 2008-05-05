@@ -7,9 +7,9 @@
     to you under the Apache License, Version 2.0 (the
     "License"); you may not use this file except in compliance
     with the License.  You may obtain a copy of the License at
-
+    
      http://www.apache.org/licenses/LICENSE-2.0
-
+    
     Unless required by applicable law or agreed to in writing,
     software distributed under the License is distributed on an
     "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -17,6 +17,8 @@
     specific language governing permissions and limitations
     under the License.
 -->
+
+<!-- $Rev$ $Date$ -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
@@ -28,20 +30,108 @@
         <version>2.2-SNAPSHOT</version>
     </parent>
 
-    <name>Geronimo TestSuite :: CORBA TestSuite</name>
-    <description>Test Geronimo CORBA Functions</description>
     <artifactId>corba-testsuite</artifactId>
+    <name>Geronimo TestSuite :: CORBA TestSuite</name>
     <packaging>pom</packaging>
 
+    <description>
+        Test Geronimo CORBA Functions
+    </description>
+
     <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <configuration>
+                        <suiteXmlFiles>
+                            <suiteXmlFile>${project.build.directory}/test-classes/testng.xml</suiteXmlFile>
+                        </suiteXmlFiles>
+                        <systemProperties>
+                            <property>
+                                <name>geronimoVersion</name>
+                                <value>${version}</value>
+                            </property>
+                        </systemProperties>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+        
         <plugins>
             <plugin>
-                <!--  This plugin is needed for all suite poms. -->
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>selenium-maven-plugin</artifactId>
+                <inherited>false</inherited>
+            </plugin>
+            
+            <plugin>
                 <groupId>org.apache.geronimo.buildsupport</groupId>
-                <artifactId>testsuite-maven-plugin</artifactId>
+                <artifactId>geronimo-maven-plugin</artifactId>
+                <inherited>false</inherited>
                 <executions>
                     <execution>
-                        <id>generate-surefire-xml</id>
+                        <id>start</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>start-server</goal>
+                        </goals>
+                        <configuration>
+                            <logOutput>true</logOutput>
+                            <background>true</background>
+                            <verifyTimeout>300</verifyTimeout>
+                            <optionSets>
+                                <optionSet>
+                                    <id>default</id>
+                                    <options>
+                                       <option>-XX:MaxPermSize=128m</option>
+                                    </options>
+                                </optionSet>
+                            </optionSets>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>stop</id>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>stop-server</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>shitty-maven-plugin</artifactId>
+                <inherited>false</inherited>
+                <configuration>
+                    <projects>
+                        <fileset>
+                            <directory>${project.basedir}</directory>
+                            <includes>
+                                <include>*/pom.xml</include>
+                            </includes>
+                        </fileset>
+                    </projects>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>clean</goal>
+                            <goal>install</goal>
+                            <goal>test</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            
+            <plugin>
+                <groupId>org.apache.geronimo.buildsupport</groupId>
+                <artifactId>testsuite-maven-plugin</artifactId>
+                <inherited>false</inherited>
+                <executions>
+                    <execution>
                         <phase>install</phase>
                         <goals>
                             <goal>generate-surefire-xml</goal>
@@ -51,54 +141,5 @@
             </plugin>
         </plugins>
     </build>
-
-    <profiles>
-        <profile>
-            <id>default</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <!--
-            TODO: Hook up m-m-p to allow child modules to be built early during this modules
-                  compile (or something) phase.
-            -->
-            <build>
-                <plugins>
-                    <plugin>
-                        <!--
-                          One of the pom that this invokes using m-m-p has packaging set to "pom".
-                          That expects it's parent (this pom) to be installed already.
-                          So installing it ahead before we invoke it in the integration-test phase
-                        -->
-                        <artifactId>maven-install-plugin</artifactId>
-                        <inherited>false</inherited>
-                        <executions>
-                            <execution>
-                                <id>install-ahead</id>
-                                <phase>pre-integration-test</phase>
-                                <goals>
-                                    <goal>install</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-
-                    <plugin>
-                        <groupId>org.apache.geronimo.buildsupport</groupId>
-                        <artifactId>geronimo-maven-plugin</artifactId>
-                    </plugin>
-
-                    <plugin>
-                        <groupId>org.apache.geronimo.genesis.plugins</groupId>
-                        <artifactId>maven-maven-plugin</artifactId>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-
-        <profile>
-            <id>child</id>
-        </profile>
-    </profiles>
 
 </project>

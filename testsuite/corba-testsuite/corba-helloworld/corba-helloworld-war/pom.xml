@@ -31,6 +31,7 @@
     <artifactId>corba-helloworld-war</artifactId>
     <name>Geronimo TestSuite :: CORBA TestSuite :: Hello World WAR</name>
     <packaging>war</packaging>
+    
     <description>Geronimo Hello World Enterprise Web Application</description>
 
     <dependencies>

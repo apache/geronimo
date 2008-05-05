@@ -18,6 +18,8 @@
     under the License.
 -->
 
+<!-- $Rev$ $Date$ -->
+
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
@@ -31,8 +33,13 @@
     <artifactId>corba-mytime-ear</artifactId>
     <name>Geronimo TestSuite :: CORBA TestSuite :: My Time EAR</name>
     <packaging>ear</packaging>
+    
     <description>Example using CORBA to access a stateless EJB</description>
-
+    
+    <!--
+    FIXME: Split this module up... one to build the ear, one to run the tests.
+    -->
+    
     <properties>
         <container>jetty6</container>
     </properties>
@@ -114,12 +121,6 @@
                         <suiteXmlFile>${project.build.directory}/test-classes/testng.xml</suiteXmlFile>
                     </suiteXmlFiles>
                 </configuration>
-            </plugin>
-
-            <!-- Start the selenium server for browser invocation and testing -->
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>selenium-maven-plugin</artifactId>
             </plugin>
 
             <!-- Start the Geronimo server in the pre-integration-test and

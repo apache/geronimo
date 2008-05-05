@@ -18,6 +18,8 @@
     under the License.
 -->
 
+<!-- $Rev$ $Date$ -->
+
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
@@ -31,20 +33,23 @@
     <artifactId>corba-mytime-war</artifactId>
     <name>Geronimo TestSuite :: CORBA TestSuite :: My Time WAR</name>
     <packaging>war</packaging>
+    
     <description>Geronimo My Time Enterprise Web Application</description>
 
     <dependencies>
         <dependency>
-            <groupId>${pom.groupId}</groupId>
+            <groupId>org.apache.geronimo.testsuite</groupId>
             <artifactId>corba-mytime-ejb</artifactId>
             <version>${version}</version>
             <scope>provided</scope>
         </dependency>
+        
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-ejb_3.0_spec</artifactId>
             <scope>provided</scope>
         </dependency>
+        
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-servlet_2.5_spec</artifactId>

@@ -18,6 +18,8 @@
     under the License.
 -->
 
+<!-- $Rev: 653503 $ $Date: 2008-05-05 22:35:18 +0700 (Mon, 05 May 2008) $ -->
+
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
@@ -31,8 +33,13 @@
     <artifactId>corba-marshal-ear</artifactId>
     <name>Geronimo TestSuite :: CORBA TestSuite :: Marshal EAR</name>
     <packaging>ear</packaging>
+    
     <description>Example using CORBA to access a stateless EJB</description>
-
+    
+    <!--
+    FIXME: Split this module up... one to build the ear, one to run the tests.
+    -->
+    
     <properties>
         <clientLogFile>${basedir}/target/client.log</clientLogFile>
     </properties>
@@ -44,6 +51,7 @@
             <version>${version}</version>
             <type>ejb</type>
         </dependency>
+        
         <dependency>
             <groupId>org.apache.geronimo.testsuite</groupId>
             <artifactId>corba-marshal-client</artifactId>
