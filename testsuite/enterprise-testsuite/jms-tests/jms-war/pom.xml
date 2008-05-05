@@ -39,7 +39,7 @@
     </description>
 
     <dependencies>
-      <!--
+        <!--
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-jsp_2.1_spec</artifactId>

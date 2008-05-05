@@ -34,6 +34,10 @@
     <name>Geronimo TestSuite :: Enterprise Testsuite :: JMS EAR</name>
     <packaging>ear</packaging>
     
+    <!--
+    FIXME: Split this module up... one to build the ear, one to run the tests.
+    -->
+    
     <description>
         Geronimo test EAR for JMS.
     </description>
@@ -45,17 +49,20 @@
             <version>${version}</version>
             <type>war</type>
         </dependency>
+        
         <dependency>
             <groupId>org.apache.geronimo.testsuite</groupId>
             <artifactId>jms-ejb</artifactId>
             <version>${version}</version>
             <type>ejb</type>
         </dependency>
+        
         <dependency>
             <groupId>org.apache.openejb</groupId>
             <artifactId>openejb-client</artifactId>
             <scope>test</scope>
         </dependency>
+        
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-ejb_3.0_spec</artifactId>

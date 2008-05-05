@@ -34,6 +34,10 @@
     <name>Geronimo TestSuite :: Enterprise Testsuite :: EJB Tests EAR</name>
     <packaging>ear</packaging>
 
+    <!--
+    FIXME: Split this module up... one to build the ear, one to run the tests.
+    -->
+    
     <description>
         Geronimo test EAR for EJB Tests
     </description>
@@ -46,6 +50,7 @@
             <type>war</type>
             <scope>provided</scope>
         </dependency>
+        
         <dependency>
             <groupId>org.apache.geronimo.testsuite</groupId>
             <artifactId>ejb-ejb</artifactId>
@@ -53,11 +58,13 @@
             <type>ejb</type>
             <scope>provided</scope>
         </dependency>
+        
         <dependency>
            <groupId>org.apache.openejb</groupId>
            <artifactId>openejb-core</artifactId>
            <scope>test</scope>
         </dependency>
+        
         <dependency>
            <groupId>org.apache.openejb</groupId>
            <artifactId>openejb-client</artifactId>
@@ -68,6 +75,7 @@
     <build>
         <plugins>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-ear-plugin</artifactId>
                 <configuration>
                     <displayName>Geronimo EAR for EJB Tests</displayName>
@@ -93,7 +101,6 @@
             <plugin>
                 <groupId>org.apache.geronimo.buildsupport</groupId>
                 <artifactId>testsuite-maven-plugin</artifactId>
-                <version>${version}</version>
                 <executions>
                     <execution>
                         <id>generate-surefire-xml</id>

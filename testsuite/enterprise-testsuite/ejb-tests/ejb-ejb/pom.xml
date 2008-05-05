@@ -32,7 +32,6 @@
 
     <artifactId>ejb-ejb</artifactId>
     <name>Geronimo TestSuite :: Enterprise Testsuite :: EJB Tests EJB</name>
-    <packaging>jar</packaging>
 
     <description>
         Geronimo test JAR for EJB Tests
