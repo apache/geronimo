@@ -43,7 +43,9 @@ import net.sf.cglib.reflect.FastConstructor;
 import net.sf.cglib.reflect.FastClass;
 
 public abstract class JAXWSServiceReference extends SimpleReference implements ClassLoaderAwareReference, KernelAwareReference {
-    private final Logger LOG = LoggerFactory.getLogger(getClass());
+    
+    private final static Logger LOG = LoggerFactory.getLogger(JAXWSServiceReference.class);
+    
     private static final Class[] URL_SERVICE_NAME_CONSTRUCTOR =
         new Class[] { URL.class, QName.class };
     
