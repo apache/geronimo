@@ -22,6 +22,8 @@ package org.slf4j.impl;
 import org.slf4j.ILoggerFactory;
 import org.slf4j.spi.LoggerFactoryBinder;
 
+import org.apache.geronimo.framework.logging.LoggerFactory;
+
 /**
  * ???
  *
@@ -32,17 +34,15 @@ public class StaticLoggerBinder
 {
     public static final StaticLoggerBinder SINGLETON = new StaticLoggerBinder();
     
-    private final ILoggerFactory factory;
-
-    public StaticLoggerBinder() {
-        // TODO:
-    }
+    private static final Class FACTORY_TYPE = LoggerFactory.class;
     
+    private final ILoggerFactory factory = new LoggerFactory();
+
     public ILoggerFactory getLoggerFactory() {
         return factory;
     }
 
     public String getLoggerFactoryClassStr() {
-        // TODO:
+        return FACTORY_TYPE.getName();
     }
 }

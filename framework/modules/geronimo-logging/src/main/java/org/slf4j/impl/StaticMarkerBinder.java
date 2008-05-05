@@ -20,8 +20,8 @@
 package org.slf4j.impl;
 
 import org.slf4j.IMarkerFactory;
-import org.slf4j.helpers.BasicMarkerFactory;
 import org.slf4j.spi.MarkerFactoryBinder;
+import org.apache.geronimo.framework.logging.MarkerFactory;
 
 /**
  * ???
@@ -33,13 +33,15 @@ public class StaticMarkerBinder
 {
     public static final StaticMarkerBinder SINGLETON = new StaticMarkerBinder();
 
-    private final IMarkerFactory factory = new BasicMarkerFactory();
+    private static final Class MARKER_TYPE = MarkerFactory.class;
+    
+    private final IMarkerFactory factory = new MarkerFactory();
 
     public IMarkerFactory getMarkerFactory() {
         return factory;
     }
 
     public String getMarkerFactoryClassStr() {
-        return BasicMarkerFactory.class.getName();
+        return MARKER_TYPE.getName();
     }
 }
