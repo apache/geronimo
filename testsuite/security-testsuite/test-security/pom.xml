@@ -21,7 +21,7 @@
 <!-- $Rev$ $Date$ -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    
+
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -29,16 +29,13 @@
         <artifactId>security-testsuite</artifactId>
         <version>2.2-SNAPSHOT</version>
     </parent>
-    
+
     <artifactId>test-security</artifactId>
     <name>Geronimo TestSuite :: Web Testsuite :: Test Security</name>
     <packaging>war</packaging>
-    
 
     <description>
         Tests for the test-deployables.
-        maven-maven-plugin:invoke executes the 'child' profile.
-        Since build executions are done here, a 'child' profile is explicitly defined here to prevent inheriting other configurations and executions from parent.
     </description>
 
     <dependencies>
@@ -60,6 +57,11 @@
             <scope>provided</scope>
         </dependency>
 
+        <!--
+        TODO: Depend upon the geronimo-openejb plugin here instead to avoid needing
+              to reference these dependencies directly.
+        -->
+        
         <dependency>
             <groupId>org.apache.openejb</groupId>
             <artifactId>openejb-core</artifactId>
@@ -80,51 +82,36 @@
         </dependency>
     </dependencies>
 
-    <profiles>
-        <profile>
-            <id>child</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-surefire-plugin</artifactId>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.geronimo.buildsupport</groupId>
+                <artifactId>geronimo-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>deploy</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>deploy-module</goal>
+                        </goals>
                         <configuration>
-                            <suiteXmlFiles>
-                                <suiteXmlFile>${project.build.directory}/test-classes/testng.xml</suiteXmlFile>
-                            </suiteXmlFiles>
+                            <moduleArchive>${project.build.directory}/${artifactId}-${version}.war</moduleArchive>
                         </configuration>
-                    </plugin>
-                    
-                    <plugin>
-                        <groupId>org.apache.geronimo.buildsupport</groupId>
-                        <artifactId>geronimo-maven-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>deploy-wars</id>
-                                <phase>pre-integration-test</phase>
-                                <goals>
-                                    <goal>deploy-module</goal>
-                                </goals>
-                                <configuration>
-                                  <moduleArchive>${project.build.directory}/${artifactId}-${version}.war</moduleArchive>
-                                </configuration>
-                            </execution>
-                            
-                            <execution>
-                                <id>undeploy-war-as-moduleId</id>
-                                <phase>post-integration-test</phase>
-                                <goals>
-                                    <goal>undeploy-module</goal>
-                                </goals>
-                                <configuration>
-                                    <moduleId>${groupId}/${artifactId}/${version}/war</moduleId>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
+                    </execution>
+
+                    <execution>
+                        <id>undeploy</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>undeploy-module</goal>
+                        </goals>
+                        <configuration>
+                            <moduleId>${groupId}/${artifactId}/${version}/war</moduleId>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>
