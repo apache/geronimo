@@ -17,10 +17,13 @@
     specific language governing permissions and limitations
     under the License.
 -->
-<!-- $Rev: 577928 $ $Date: 2007-09-20 17:20:00 -0400 (Thu, 20 Sep 2007) $ -->
+
+<!-- $Rev: 653498 $ $Date: 2008-05-05 22:11:20 +0700 (Mon, 05 May 2008) $ -->
+
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    
+
     <modelVersion>4.0.0</modelVersion>
+    
     <parent>
         <groupId>org.apache.geronimo.testsuite</groupId>
         <artifactId>test-web-forward</artifactId>
@@ -30,6 +33,10 @@
     <artifactId>web-forward-ear</artifactId>
     <name>Geronimo Test Suite :: Test Servlet Forwarding :: EAR</name>
     <packaging>ear</packaging>
+    
+    <!--
+    FIXME: Split this module up... one to build the ear, one to run the tests.
+    -->
     
     <description>
         Geronimo test EAR for Servlet forwarding
@@ -54,6 +61,7 @@
     <build>
         <plugins>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-ear-plugin</artifactId>
                 <configuration>
                     <modules>
@@ -72,6 +80,7 @@
                     </modules>
                 </configuration>
             </plugin>
+            
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>

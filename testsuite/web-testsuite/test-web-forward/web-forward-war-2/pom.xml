@@ -17,9 +17,11 @@
     specific language governing permissions and limitations
     under the License.
 -->
-<!-- $Rev: 558782 $ $Date: 2007-07-23 11:56:02 -0400 (Mon, 23 Jul 2007) $ -->
+
+<!-- $Rev: 653498 $ $Date: 2008-05-05 22:11:20 +0700 (Mon, 05 May 2008) $ -->
+
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    
+
     <modelVersion>4.0.0</modelVersion>
     
     <parent>

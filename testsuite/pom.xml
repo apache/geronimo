@@ -23,45 +23,30 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-    
+
     <parent>
         <groupId>org.apache.geronimo</groupId>
         <artifactId>geronimo</artifactId>
         <version>2.2-SNAPSHOT</version>
     </parent>
-    
+
     <groupId>org.apache.geronimo.testsuite</groupId>
     <artifactId>testsuite</artifactId>
     <name>Geronimo TestSuite</name>
     <packaging>pom</packaging>
-    
+
     <description>
-        Geronimo integration testsuite. This contains 2 profiles, default and child.
-        The default profile is used by the top level suites directly under this. The child profile is used by the test poms under the suites.
-        This pom defines the basic dependencies needed by most suites.
-        The start-selenium, start-server, invoke, and stop-server goals are globally configured here in the pluginManagement sections.
-        They just need to be bound in the suites where needed and appropriate.
-        The test poms under the suites should have this pom as their parent and set their relativePath appropriately
-        The test poms under the suites inherit an empty 'child' profile from here. But any other build executions within the test poms should all be inside a 'child' profile.
+        Geronimo integration testsuite.
     </description>
-    
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.apache.geronimo.testsupport</groupId>
-                <artifactId>testsupport-selenium</artifactId>
-                <version>${version}</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
 
     <dependencies>
         <dependency>
             <groupId>org.apache.geronimo.testsupport</groupId>
             <artifactId>testsupport-selenium</artifactId>
+            <version>${version}</version>
             <scope>test</scope>
         </dependency>
-        
+
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
@@ -74,15 +59,15 @@
         <module>corba-testsuite</module>
         <module>deployment-testsuite</module>
         <module>enterprise-testsuite</module>
+        <module>security-testsuite</module>
         <module>web-testsuite</module>
         <module>webservices-testsuite</module>
-        <module>security-testsuite</module>
     </modules>
 
     <build>
         <resources>
             <resource>
-                <directory>src/main/resources</directory>
+                <directory>${project.basedir}/src/main/resources</directory>
                 <filtering>true</filtering>
             </resource>
         </resources>
@@ -94,7 +79,7 @@
                     <artifactId>testsuite-maven-plugin</artifactId>
                     <version>${version}</version>
                 </plugin>
-                
+
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-ear-plugin</artifactId>
@@ -102,11 +87,7 @@
                         <resourcesDir>${project.build.outputDirectory}</resourcesDir>
                     </configuration>
                 </plugin>
-                
-                <!--
-                FIXME: Need to reset the default values here since our parent sets up wars
-                       for use with jspc.  Remove once parent pom has been fixed.
-                -->
+
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-war-plugin</artifactId>
@@ -123,7 +104,7 @@
                         </webResources>
                     </configuration>
                 </plugin>
-                
+
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
@@ -154,58 +135,7 @@
                         </execution>
                     </executions>
                 </plugin>
-                
-                <plugin>
-                    <groupId>org.apache.geronimo.genesis.plugins</groupId>
-                    <artifactId>maven-maven-plugin</artifactId>
-                    <configuration>
-                        <fileset>
-                            <basedir>${pom.basedir}</basedir>
-                            <includes>
-                                <include>*/pom.xml</include>
-                            </includes>
-                        </fileset>
-                        <profiles>
-                            <profile>child</profile>
-                        </profiles>
-                    </configuration>
-                    <executions>
-                        <execution>
-                            <phase>integration-test</phase>
-                            <goals>
-                                <goal>invoke</goal>
-                            </goals>
-                        </execution>
-                        <execution>
-                            <id>site-deploy</id>
-                            <phase>site-deploy</phase>
-                            <goals>
-                                <goal>invoke</goal>
-                            </goals>
-                            <configuration>
-                                <goals>
-                                    <goal>site-deploy</goal>
-                                </goals>
-                                <parameters>
-                                    <buildNumber>${buildNumber}</buildNumber>
-                                </parameters>
-                            </configuration>
-                        </execution>
-                        <execution>
-                            <id>clean</id>
-                            <phase>clean</phase>
-                            <goals>
-                                <goal>invoke</goal>
-                            </goals>
-                            <configuration>
-                                <goals>
-                                    <goal>clean</goal>
-                                </goals>
-                            </configuration>
-                        </execution>
-                    </executions>
-                </plugin>
-                
+
                 <plugin>
                     <groupId>org.apache.geronimo.buildsupport</groupId>
                     <artifactId>geronimo-maven-plugin</artifactId>
@@ -217,7 +147,7 @@
                         </reporters>
                     </configuration>
                 </plugin>
-                
+
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>selenium-maven-plugin</artifactId>
@@ -244,6 +174,23 @@
                 </plugin>
             </plugins>
         </pluginManagement>
+
+        <plugins>
+            <plugin>
+                <groupId>org.apache.geronimo.buildsupport</groupId>
+                <artifactId>testsuite-maven-plugin</artifactId>
+                <inherited>false</inherited>
+                <executions>
+                    <execution>
+                        <id>summarize</id>
+                        <phase>post-site</phase>
+                        <goals>
+                            <goal>summarize</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
     </build>
 
     <distributionManagement>
@@ -252,7 +199,7 @@
             <url>scp://people.apache.org/www/people.apache.org/builds/geronimo/server/testsuite/${buildNumber}</url>
         </site>
     </distributionManagement>
-    
+
     <reporting>
         <plugins>
             <plugin>
@@ -262,71 +209,8 @@
             </plugin>
         </plugins>
     </reporting>
-    
+
     <profiles>
-        <profile>
-            <id>default</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <build>
-                <pluginManagement>
-                    <plugins>
-                        <plugin>
-                            <groupId>org.apache.geronimo.buildsupport</groupId>
-                            <artifactId>geronimo-maven-plugin</artifactId>
-                            <executions>
-                                <execution>
-                                    <id>start</id>
-                                    <phase>pre-integration-test</phase>
-                                    <goals>
-                                        <goal>start-server</goal>
-                                    </goals>
-                                    <configuration>
-                                        <logOutput>true</logOutput>
-                                        <background>true</background>
-                                        <verifyTimeout>300</verifyTimeout>
-                                        <optionSets>
-                                            <optionSet>
-                                                <id>default</id>
-                                                <options>
-                                                   <option>-XX:MaxPermSize=128m</option>
-                                                </options>
-                                            </optionSet>
-                                        </optionSets>
-                                    </configuration>
-                                </execution>
-                                <execution>
-                                    <id>stop</id>
-                                    <phase>install</phase>
-                                    <goals>
-                                        <goal>stop-server</goal>
-                                    </goals>
-                                </execution>
-                            </executions>
-                        </plugin>
-                    </plugins>
-                </pluginManagement>
-
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.geronimo.buildsupport</groupId>
-                        <artifactId>testsuite-maven-plugin</artifactId>
-                        <inherited>false</inherited>
-                        <executions>
-                            <execution>
-                                <id>summarize</id>
-                                <phase>post-site</phase>
-                                <goals>
-                                    <goal>summarize</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-
         <profile>
             <id>headless</id>
             <build>
@@ -348,38 +232,6 @@
                     </plugins>
                 </pluginManagement>
             </build>
-        </profile>
-        
-        <profile>
-            <id>common</id>
-            <build>
-                <pluginManagement>
-                    <plugins>
-                        <plugin>
-                            <groupId>org.apache.geronimo.buildsupport</groupId>
-                            <artifactId>geronimo-maven-plugin</artifactId>
-                            <executions>
-                                <execution>
-                                    <id>start</id>
-                                    <phase>pre-integration-test</phase>
-                                    <goals>
-                                        <goal>start-server</goal>
-                                    </goals>
-                                    <configuration>
-                                        <logOutput>true</logOutput>
-                                        <background>true</background>
-                                        <installDirectory>${basedir}/../server</installDirectory>
-                                    </configuration>
-                                </execution>
-                            </executions>
-                        </plugin>
-                    </plugins>
-                </pluginManagement>
-            </build>
-        </profile>
-        
-        <profile>
-            <id>child</id>
         </profile>
     </profiles>
 

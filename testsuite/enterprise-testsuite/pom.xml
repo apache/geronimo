@@ -46,7 +46,7 @@
         - JavaMail
     </description>
 
-        <build>
+    <build>
         <pluginManagement>
             <plugins>
                 <plugin>
