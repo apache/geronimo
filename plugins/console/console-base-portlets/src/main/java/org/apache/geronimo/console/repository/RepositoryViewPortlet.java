@@ -55,7 +55,7 @@ import java.util.SortedSet;
  */
 public class RepositoryViewPortlet extends BasePortlet {
 
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(RepositoryViewPortlet.class);
 
     private Kernel kernel;
 

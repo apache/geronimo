@@ -33,7 +33,7 @@ import org.apache.geronimo.gbean.GBeanLifecycle;
  * @version $Rev$ $Date$
  */
 public class DerbyNetworkGBean implements GBeanLifecycle {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(DerbyNetworkGBean.class);
 
     private NetworkServerControl network;
     private String host = "localhost";

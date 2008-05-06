@@ -48,7 +48,7 @@ import org.apache.geronimo.kernel.repository.Repository;
 
 public class WsdlGenerator {
 
-    private final Logger LOG = LoggerFactory.getLogger(getClass());
+    private static final Logger LOG = LoggerFactory.getLogger(WsdlGenerator.class);
     
     private final static String FORK_WSGEN_PROPERTY = 
         "org.apache.geronimo.jaxws.wsgen.fork";

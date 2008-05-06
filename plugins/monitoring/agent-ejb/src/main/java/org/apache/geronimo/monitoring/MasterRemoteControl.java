@@ -65,7 +65,7 @@ import org.apache.geronimo.monitoring.snapshot.SnapshotProcessor;
 @Local(MasterRemoteControlLocal.class)
 @PermitAll
 public class MasterRemoteControl {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(MasterRemoteControl.class);
     
     // mbean server to talk to other components
     private static MBeanServer mbServer = null;

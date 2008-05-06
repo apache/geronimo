@@ -21,8 +21,6 @@ import java.net.URL;
 import java.util.List;
 import java.util.ArrayList;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.geronimo.testsupport.XmlBeansTestSupport;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
@@ -51,8 +49,6 @@ import org.apache.xmlbeans.XmlOptions;
  * </ul>
  */
 public class SchemaConversionTest extends XmlBeansTestSupport {
-
-    private final Logger log = LoggerFactory.getLogger(getClass());
     private ClassLoader classLoader = this.getClass().getClassLoader();
     private XmlOptions options = new XmlOptions();
 
@@ -131,7 +127,6 @@ public class SchemaConversionTest extends XmlBeansTestSupport {
         parseAndCompare(srcXML, expectedXML);
     }
     
-
     /**
      * Tests for missing TLD tags
     */
@@ -146,7 +141,6 @@ public class SchemaConversionTest extends XmlBeansTestSupport {
         parseAndCompare(srcXML, expectedXML);
     }
 
-
     /**
      * Common logic
      */
@@ -154,8 +148,6 @@ public class SchemaConversionTest extends XmlBeansTestSupport {
         XmlObject xmlObject = XmlObject.Factory.parse(srcXML, options);
         xmlObject = JspModuleBuilderExtension.convertToTaglibSchema(xmlObject);
         XmlObject expected = XmlObject.Factory.parse(expectedXML);
-        log.debug("[Source XML] " + '\n' + xmlObject.toString() + '\n');
-        log.debug("[Expected XML]" + '\n' + expected.toString() + '\n');
         List problems = new ArrayList();
         boolean ok = compareXmlObjects(xmlObject, expected, problems);
         assertTrue("Differences: " + problems, ok);

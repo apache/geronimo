@@ -41,7 +41,7 @@ import org.apache.pluto.driver.services.portal.admin.RenderConfigAdminService;
  *  </gbean>
  */
 public class AdminConsoleExtensionGBean implements GBeanLifecycle {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(AdminConsoleExtensionGBean.class);
     public static final GBeanInfo GBEAN_INFO;
     private final String pageTitle;
     private final String portletContext;

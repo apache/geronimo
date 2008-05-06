@@ -51,7 +51,7 @@ import java.util.Set;
  * to most typical servlets, JSPs, and static content.
  */
 public class GenericForwardServlet extends HttpServlet {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(GenericForwardServlet.class);
     private Map forwards = new HashMap(); // Maps a prefix String to ForwardData
     private Kernel kernel;
     private LifecycleListener listener;

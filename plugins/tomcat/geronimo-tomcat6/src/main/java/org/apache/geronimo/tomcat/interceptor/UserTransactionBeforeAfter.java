@@ -28,7 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class UserTransactionBeforeAfter implements BeforeAfter {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(UserTransactionBeforeAfter.class);
 
     private final UserTransaction userTransaction;
 

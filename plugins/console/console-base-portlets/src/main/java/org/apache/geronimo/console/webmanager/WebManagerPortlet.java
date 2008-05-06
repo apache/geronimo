@@ -44,7 +44,7 @@ import java.io.IOException;
  * @version $Rev$ $Date$
  */
 public class WebManagerPortlet extends BasePortlet {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(WebManagerPortlet.class);
 
     private PortletRequestDispatcher normalView;
 

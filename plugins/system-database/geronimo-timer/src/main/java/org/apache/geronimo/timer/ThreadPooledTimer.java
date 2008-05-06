@@ -40,14 +40,11 @@ import org.slf4j.LoggerFactory;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 
 /**
- *
- *
  * @version $Rev$ $Date$
- *
- * */
+ */
 public class ThreadPooledTimer implements PersistentTimer, GBeanLifecycle {
 
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(ThreadPooledTimer.class);
 
     private final ExecutorTaskFactory executorTaskFactory;
     private final WorkerPersistence workerPersistence;

@@ -52,7 +52,7 @@ import org.apache.geronimo.management.JavaMailResource;
  */
 public class MailGBean implements GBeanLifecycle, JavaMailResource, ResourceSource {
 
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(MailGBean.class);
 
     private final String objectName;
     private final Collection protocols;

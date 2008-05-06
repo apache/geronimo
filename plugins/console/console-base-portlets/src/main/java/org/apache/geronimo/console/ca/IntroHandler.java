@@ -36,7 +36,8 @@ import org.apache.geronimo.management.geronimo.CertificationAuthority;
  * @version $Rev$ $Date$
  */
 public class IntroHandler extends BaseCAHandler {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(IntroHandler.class);
+    
     public IntroHandler() {
         super(INDEX_MODE, "/WEB-INF/view/ca/index.jsp");
     }

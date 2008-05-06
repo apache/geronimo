@@ -80,7 +80,7 @@ public class IMAPStoreGBean extends ProtocolGBean {
     static public final String GBEAN_SASL_MECHANISMS = "saslMechanisms";
     static public final String GBEAN_SASL_AUTHORIZATIONID = "saslAuthorizationId";
 
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(IMAPStoreGBean.class);
 
     private Integer port;
     private Boolean partialFetch;

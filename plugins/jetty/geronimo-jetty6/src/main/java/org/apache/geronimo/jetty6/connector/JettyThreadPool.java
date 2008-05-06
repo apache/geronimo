@@ -32,10 +32,9 @@ import org.apache.geronimo.system.threads.ThreadPool;
  */
 public class JettyThreadPool implements org.mortbay.thread.ThreadPool {
 
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(JettyThreadPool.class);
     private final ThreadPool executor;
     private final String name;
-
 
     public JettyThreadPool(ThreadPool executor, String name) {
         this.executor = executor;

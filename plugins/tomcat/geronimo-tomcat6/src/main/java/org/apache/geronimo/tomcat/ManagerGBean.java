@@ -27,7 +27,7 @@ import org.apache.geronimo.gbean.GBeanLifecycle;
 
 public class ManagerGBean extends BaseGBean implements GBeanLifecycle, ObjectRetriever{
 
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(ManagerGBean.class);
     
     public static final String J2EE_TYPE = "Manager";
     

@@ -27,15 +27,10 @@ import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * @version $Rev$ $Date$
  */
 public class GenericToSpecificPlanConverterTest extends TestCase {
-    private final Logger log = LoggerFactory.getLogger(getClass());
-    
     private ClassLoader classLoader = this.getClass().getClassLoader();
 
     public void testConvertPlan1() throws Exception {
@@ -55,21 +50,15 @@ public class GenericToSpecificPlanConverterTest extends TestCase {
         URL srcXml = classLoader.getResource(prePlanName);
         URL expectedOutputXml = classLoader.getResource(postPlanName);
         XmlObject rawPlan = XmlBeansUtil.parse(srcXml, getClass().getClassLoader());
-        log.debug("RAW PLAN " + rawPlan.toString());
         
         XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
         XmlObject webPlan = new GenericToSpecificPlanConverter("http://geronimo.apache.org/xml/ns/web/tomcat/config-1.0",
                 "http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-2.0.1", "tomcat").convertToSpecificPlan(rawPlan);
-
-        log.debug("PROCESSED: " + webPlan.toString());
-        log.debug("EXPECTED: " + expected.toString());
         
         List problems = new ArrayList();
         boolean ok = compareXmlObjects(webPlan, expected, problems);
         assertTrue("Differences: " + problems, ok);
     }
-
-
 
     private boolean compareXmlObjects(XmlObject xmlObject, XmlObject expectedObject, List problems) {
         XmlCursor test = xmlObject.newCursor();

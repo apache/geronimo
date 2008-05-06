@@ -26,12 +26,12 @@ import org.apache.catalina.ha.deploy.FarmWarDeployer;
 
 public class FarmWarDeployerGBean extends ClusterDeployerGBean{
 
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(FarmWarDeployerGBean.class);
 
     private final ServerInfo serverInfo;
 
     public FarmWarDeployerGBean(){
-       serverInfo = null;     
+       serverInfo = null;
     }
     
     public FarmWarDeployerGBean(String tempDir,

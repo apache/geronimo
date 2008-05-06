@@ -120,7 +120,8 @@ import org.mortbay.jetty.security.FormAuthenticator;
  * @version $Rev:385659 $ $Date$
  */
 public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBeanLifecycle {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(JettyModuleBuilder.class);
+    
     private static final Map<String, String> NAMESPACE_UPDATES = new HashMap<String, String>();
     static {
         NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/web", "http://geronimo.apache.org/xml/ns/j2ee/web-2.0.1");

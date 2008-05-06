@@ -33,7 +33,8 @@ import java.io.IOException;
  * @version $Rev$ $Date$
  */
 public class UnlockKeystoreHandler extends BaseKeystoreHandler {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(UnlockKeystoreHandler.class);
+    
     public UnlockKeystoreHandler() {
         super(UNLOCK_KEYSTORE_FOR_USAGE, "/WEB-INF/view/keystore/unlockKeystore.jsp");
     }

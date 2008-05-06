@@ -57,7 +57,7 @@ import org.apache.naming.resources.DirContextURLStreamHandlerFactory;
  */
 public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebContainer {
 
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(TomcatContainer.class);
 
     /**
      * The default value of CATALINA_HOME variable

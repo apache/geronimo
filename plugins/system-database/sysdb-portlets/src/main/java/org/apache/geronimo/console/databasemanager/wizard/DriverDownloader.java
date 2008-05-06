@@ -49,7 +49,7 @@ import org.apache.geronimo.kernel.repository.WriteableRepository;
  * @version $Rev$ $Date$
  */
 public class DriverDownloader {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(DriverDownloader.class);
     Random random;
 
     public Properties readDriverFile(URL url) {

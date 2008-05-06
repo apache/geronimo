@@ -51,7 +51,7 @@ import org.slf4j.LoggerFactory;
  * @version $Rev$ $Date$
  */
 public class ListScreenHandler extends AbstractHandler {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(ListScreenHandler.class);
 
     public ListScreenHandler() {
         super(LIST_MODE, "/WEB-INF/view/jmswizard/list.jsp");

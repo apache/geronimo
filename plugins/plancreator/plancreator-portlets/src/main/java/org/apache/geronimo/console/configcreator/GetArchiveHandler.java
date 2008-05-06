@@ -36,7 +36,7 @@ import org.apache.geronimo.console.MultiPageModel;
  * @version $Rev$ $Date$
  */
 public class GetArchiveHandler extends AbstractHandler {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(GetArchiveHandler.class);
 
     public GetArchiveHandler() {
         super(GET_ARCHIVE_MODE, "/WEB-INF/view/configcreator/getArchive.jsp");

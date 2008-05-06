@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
  * @version $Rev$ $Date$
  */
 public class TransactionalExecutorTask implements ExecutorTask {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(TransactionalExecutorTask.class);
 
     private final Runnable userTask;
     private final WorkInfo workInfo;

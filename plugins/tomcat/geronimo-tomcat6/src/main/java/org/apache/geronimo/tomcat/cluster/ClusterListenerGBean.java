@@ -29,7 +29,7 @@ import org.apache.geronimo.tomcat.ObjectRetriever;
 
 public class ClusterListenerGBean extends BaseGBean implements GBeanLifecycle, ObjectRetriever {
 
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(ClusterListenerGBean.class);
 
     public static final String J2EE_TYPE = "ClusterListener";
         

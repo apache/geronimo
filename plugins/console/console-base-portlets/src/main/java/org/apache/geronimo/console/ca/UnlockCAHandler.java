@@ -36,7 +36,8 @@ import org.apache.geronimo.management.geronimo.CertificationAuthority;
  * @version $Rev$ $Date$
  */
 public class UnlockCAHandler extends BaseCAHandler {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(UnlockCAHandler.class);
+    
     public UnlockCAHandler() {
         super(UNLOCKCA_MODE, "/WEB-INF/view/ca/unlockCA.jsp");
     }

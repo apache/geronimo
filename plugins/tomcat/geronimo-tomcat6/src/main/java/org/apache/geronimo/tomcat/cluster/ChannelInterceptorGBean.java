@@ -27,7 +27,7 @@ import org.apache.catalina.tribes.ChannelInterceptor;
 
 public class ChannelInterceptorGBean extends BaseGBean {
 
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(ChannelInterceptorGBean.class);
 
     public static final String J2EE_TYPE = "ChannelInterceptor";
 

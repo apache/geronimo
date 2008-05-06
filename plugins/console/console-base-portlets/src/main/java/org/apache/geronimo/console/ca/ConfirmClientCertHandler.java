@@ -47,7 +47,8 @@ import org.apache.geronimo.crypto.asn1.x509.X509Name;
  * @version $Rev$ $Date$
  */
 public class ConfirmClientCertHandler extends BaseCAHandler {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(ConfirmClientCertHandler.class);
+    
     public ConfirmClientCertHandler() {
         super(CONFIRM_CLIENT_CERT_MODE, "/WEB-INF/view/ca/confirmClientCert.jsp");
     }

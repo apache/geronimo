@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
  * @version $Rev$ $Date$
  */
 public class JMSBrokerPortlet extends BaseJMSPortlet {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(JMSBrokerPortlet.class);
     private PortletRequestDispatcher normalView;
 
     private PortletRequestDispatcher maximizedView;

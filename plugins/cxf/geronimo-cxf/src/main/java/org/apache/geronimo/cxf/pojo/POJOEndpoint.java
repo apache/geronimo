@@ -37,8 +37,8 @@ import org.apache.geronimo.jaxws.JNDIResolver;
 import org.apache.geronimo.jaxws.annotations.AnnotationHolder;
 
 public class POJOEndpoint extends CXFEndpoint {
-  
-    private final Logger LOG = LoggerFactory.getLogger(getClass());
+
+    private static final Logger LOG = LoggerFactory.getLogger(POJOEndpoint.class);
     
     private AnnotationHolder holder;
 

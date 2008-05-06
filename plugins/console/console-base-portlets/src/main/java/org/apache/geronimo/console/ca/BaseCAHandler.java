@@ -38,7 +38,7 @@ import org.apache.geronimo.management.geronimo.KeystoreInstance;
  * @version $Rev$ $Date$
  */
 public abstract class BaseCAHandler extends MultiPageAbstractHandler {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(BaseCAHandler.class);
 
     protected static final String INDEX_MODE = "index";
     protected static final String SETUPCA_MODE = "setupCA";

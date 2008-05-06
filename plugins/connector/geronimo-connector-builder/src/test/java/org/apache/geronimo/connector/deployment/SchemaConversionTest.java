@@ -35,8 +35,6 @@ import org.apache.xmlbeans.XmlObject;
  * @version $Rev$ $Date$
  */
 public class SchemaConversionTest extends XmlBeansTestSupport {
-    private final Logger log = LoggerFactory.getLogger(getClass());
-
     private ClassLoader classLoader = this.getClass().getClassLoader();
 
     public void testConnector10ToConnector15Transform() throws Exception {
@@ -46,8 +44,6 @@ public class SchemaConversionTest extends XmlBeansTestSupport {
         XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
         XmlBeansUtil.validateDD(expected);
         xmlObject = ConnectorModuleBuilder.convertToConnectorSchema(xmlObject);
-//        log.debug(xmlObject.toString());
-//        log.debug(expected.toString());
         List problems = new ArrayList();
         boolean ok = compareXmlObjects(xmlObject, expected, problems);
         assertTrue("Differences: " + problems, ok);

@@ -33,7 +33,7 @@ import java.util.Map;
 
 public class AnnotationProcessor {
 
-    private final Logger LOG = LoggerFactory.getLogger(getClass());
+    private static final Logger LOG = LoggerFactory.getLogger(AnnotationProcessor.class);
 
     private Map<Class<? extends Annotation>, AnnotationHandler> handlers;
 

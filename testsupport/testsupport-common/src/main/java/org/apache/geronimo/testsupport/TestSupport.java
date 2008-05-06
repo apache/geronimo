@@ -125,7 +125,7 @@ public abstract class TestSupport
         
         // Complain if the file is already absolute... probably an error
         if (file.isAbsolute()) {
-            log.warn("Given path is already absolute; nothing to resolve: " + file);
+            log.warn("Given path is already absolute; nothing to resolve: {}", file);
         }
         else {
             file = new File(BASEDIR, path);

@@ -73,7 +73,7 @@ public class HeavyweightTypeInfoBuilder implements TypeInfoBuilder {
     private static final String SOAP_ENCODING_NS = "http://schemas.xmlsoap.org/soap/encoding/";
     private static final String XML_SCHEMA_NS = "http://www.w3.org/2001/XMLSchema";
     
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(HeavyweightTypeInfoBuilder.class);
 
     private final ClassLoader cl;
     private final Map schemaTypeKeyToSchemaTypeMap;

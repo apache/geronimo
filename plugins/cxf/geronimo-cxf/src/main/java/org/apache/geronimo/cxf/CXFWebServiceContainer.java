@@ -35,7 +35,7 @@ import org.apache.geronimo.webservices.saaj.SAAJUniverse;
 
 public abstract class CXFWebServiceContainer implements WebServiceContainer {
 
-    private final Logger LOG = LoggerFactory.getLogger(getClass());
+    private static final Logger LOG = LoggerFactory.getLogger(CXFWebServiceContainer.class);
     
     protected final GeronimoDestination destination;
 

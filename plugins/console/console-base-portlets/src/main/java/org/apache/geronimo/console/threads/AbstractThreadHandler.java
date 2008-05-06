@@ -30,7 +30,8 @@ import org.apache.geronimo.console.MultiPageModel;
  * @version $Rev$ $Date$
  */
 public abstract class AbstractThreadHandler extends MultiPageAbstractHandler {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(AbstractThreadHandler.class);
+    
     protected final static String ABSTRACT_NAME_PARAMETER = "abstractName";
 
     protected final static String LIST_MODE="list";

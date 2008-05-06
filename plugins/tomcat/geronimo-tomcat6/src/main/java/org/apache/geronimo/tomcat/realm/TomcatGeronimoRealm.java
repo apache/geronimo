@@ -51,10 +51,9 @@ import org.apache.geronimo.security.realm.providers.PasswordCallbackHandler;
 import org.apache.geronimo.tomcat.JAASTomcatPrincipal;
 import org.apache.geronimo.tomcat.interceptor.PolicyContextBeforeAfter;
 
-
 public class TomcatGeronimoRealm extends JAASRealm {
 
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(TomcatGeronimoRealm.class);
 
     private static ThreadLocal<String> currentRequestWrapperName = new ThreadLocal<String>();
 

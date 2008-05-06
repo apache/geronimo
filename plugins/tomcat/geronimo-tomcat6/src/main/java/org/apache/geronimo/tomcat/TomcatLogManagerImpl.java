@@ -42,7 +42,7 @@ import java.text.ParseException;
  * @version $Rev$ $Date$
  */
 public class TomcatLogManagerImpl implements TomcatLogManager {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(TomcatLogManagerImpl.class);
 
     // Pattern that matches the date in the logfile name
     private final static Pattern FILENAME_DATE_PATTERN = Pattern.compile("[-_ /.](((19|20)\\d\\d)[-_ /.](0[1-9]|1[012])[-_ /.](0[1-9]|[12][0-9]|3[01]))");

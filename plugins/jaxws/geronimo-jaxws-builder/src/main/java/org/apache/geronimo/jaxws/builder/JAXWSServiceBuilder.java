@@ -46,7 +46,7 @@ import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.repository.Environment;
 
 public abstract class JAXWSServiceBuilder implements WebServiceBuilder {
-    private final Logger LOG = LoggerFactory.getLogger(getClass());
+    private static final Logger LOG = LoggerFactory.getLogger(JAXWSServiceBuilder.class);
 
     protected final Environment defaultEnvironment;
     protected WebServiceFinder webServiceFinder;

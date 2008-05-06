@@ -59,7 +59,7 @@ public class ProtocolGBean implements GBeanLifecycle {
     static public final String GBEAN_LOCALADDRESS = "localaddress";
     static public final String GBEAN_LOCALPORT = "localport";
 
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(ProtocolGBean.class);
 
     private final String objectName;
     private Properties properties;

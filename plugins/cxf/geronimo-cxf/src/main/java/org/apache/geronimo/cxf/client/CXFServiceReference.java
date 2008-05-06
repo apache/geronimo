@@ -40,7 +40,7 @@ import org.apache.geronimo.jaxws.client.JAXWSServiceReference;
 
 public class CXFServiceReference extends JAXWSServiceReference {
 
-    private final Logger LOG = LoggerFactory.getLogger(getClass());
+    private static final Logger LOG = LoggerFactory.getLogger(CXFServiceReference.class);
 
     public CXFServiceReference(String serviceClassName,
                                String referenceClassName,

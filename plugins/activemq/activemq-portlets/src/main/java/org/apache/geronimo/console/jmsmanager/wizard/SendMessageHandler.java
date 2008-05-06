@@ -35,12 +35,10 @@ import org.apache.geronimo.console.jmsmanager.helper.JMSMessageHelper;
 import org.apache.geronimo.console.jmsmanager.helper.JMSMessageHelperFactory;
 
 /**
- * 
- * 
  * @version $Rev$ $Date$
  */
 public class SendMessageHandler extends AbstractHandler {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(SendMessageHandler.class);
 
     public SendMessageHandler() {
         super(SEND_MESSAGE, "/WEB-INF/view/jmsmanager/sendMessage.jsp");

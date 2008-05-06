@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
  */
 public class NontransactionalExecutorTask implements ExecutorTask {
 
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(NontransactionalExecutorTask.class);
 
     private final Runnable userTask;
     private final WorkInfo workInfo;

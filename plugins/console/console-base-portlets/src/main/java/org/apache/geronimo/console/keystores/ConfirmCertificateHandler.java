@@ -44,7 +44,7 @@ import java.util.Collection;
  * @version $Rev$ $Date$
  */
 public class ConfirmCertificateHandler extends BaseKeystoreHandler {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(ConfirmCertificateHandler.class);
 
     public ConfirmCertificateHandler() {
         super(CONFIRM_CERTIFICATE, "/WEB-INF/view/keystore/confirmCertificate.jsp");

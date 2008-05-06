@@ -37,7 +37,7 @@ import org.apache.geronimo.kernel.repository.Artifact;
  * @version $Rev$ $Date$
  */
 public class ResultsHandler extends BaseImportExportHandler {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(ResultsHandler.class);
 
     public ResultsHandler() {
         super(RESULTS_MODE, "/WEB-INF/view/car/results.jsp");

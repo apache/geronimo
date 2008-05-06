@@ -27,9 +27,9 @@ import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.tomcat.BaseGBean;
 import org.apache.geronimo.tomcat.ObjectRetriever;
 
-public class ClusterDeployerGBean  extends BaseGBean implements GBeanLifecycle, ObjectRetriever {
+public class ClusterDeployerGBean extends BaseGBean implements GBeanLifecycle, ObjectRetriever {
 
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(ClusterDeployerGBean.class);
 
     public static final String J2EE_TYPE = "ClusterDeployer";
 

@@ -55,7 +55,7 @@ import org.apache.geronimo.jaxws.builder.WsdlGenerator;
 import org.apache.geronimo.kernel.repository.Environment;
 
 public class CXFBuilder extends JAXWSServiceBuilder {
-    private final Logger LOG = LoggerFactory.getLogger(getClass());
+    private static final Logger LOG = LoggerFactory.getLogger(CXFBuilder.class);
     
     /**
      * This property if enabled will cause the Sun wsgen tool to be used to 

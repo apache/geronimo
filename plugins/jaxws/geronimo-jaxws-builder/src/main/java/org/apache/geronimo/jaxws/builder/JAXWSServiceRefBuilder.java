@@ -45,7 +45,7 @@ import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlObject;
 
 public abstract class JAXWSServiceRefBuilder extends AbstractNamingBuilder implements ServiceRefBuilder {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(JAXWSServiceRefBuilder.class);
 
     private static final QName GER_SERVICE_REF_QNAME = 
         GerServiceRefDocument.type.getDocumentElementName();

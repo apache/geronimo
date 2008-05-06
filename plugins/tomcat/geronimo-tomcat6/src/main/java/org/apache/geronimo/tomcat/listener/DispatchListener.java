@@ -36,7 +36,7 @@ import org.apache.tomcat.util.http.mapper.MappingData;
 
 public class DispatchListener implements InstanceListener {
 
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(DispatchListener.class);
 
     private static ThreadLocal currentContext = new ThreadLocal() {
         protected Object initialValue() {

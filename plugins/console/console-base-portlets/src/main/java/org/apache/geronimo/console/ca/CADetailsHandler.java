@@ -43,7 +43,8 @@ import org.apache.geronimo.crypto.CertificateUtil;
  * @version $Rev$ $Date$
  */
 public class CADetailsHandler extends BaseCAHandler {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(CADetailsHandler.class);
+    
     public CADetailsHandler() {
         super(CADETAILS_MODE, "/WEB-INF/view/ca/caDetails.jsp");
     }

@@ -51,7 +51,7 @@ import java.util.Map;
 
 public class Axis2ServiceRefBuilder extends JAXWSServiceRefBuilder {
 
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(Axis2ServiceRefBuilder.class);
     
     public Axis2ServiceRefBuilder(Environment defaultEnvironment,
                                  String[] eeNamespaces) {
@@ -64,7 +64,7 @@ public class Axis2ServiceRefBuilder extends JAXWSServiceRefBuilder {
                                 Map<Class, PortComponentRefType> portComponentRefMap) throws DeploymentException {
         registerConfigGBean(module);
         EndpointInfoBuilder builder = new EndpointInfoBuilder(serviceInterfaceClass,
-                gerServiceRef, portComponentRefMap, module.getModuleFile(),                
+                gerServiceRef, portComponentRefMap, module.getModuleFile(),
                 wsdlURI, serviceQName);
         builder.build();
 

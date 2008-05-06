@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
 import org.apache.geronimo.monitoring.MonitorConstants;
 
 public class SnapshotDBHelper {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(SnapshotDBHelper.class);
     // Connection object used for DB interaction
     private static Connection conn = null;
     // Data Sources

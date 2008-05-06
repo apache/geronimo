@@ -29,9 +29,6 @@ import org.apache.geronimo.xbeans.javaee.EjbJarType;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.testsupport.XmlBeansTestSupport;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * ejb 1.1 dtd appears to be a subset of ejb 2.0 dtd so the same xsl should
  * work for both.
@@ -39,8 +36,6 @@ import org.slf4j.LoggerFactory;
  * @version $Rev$ $Date$
  */
 public class SchemaConversionUtilsTest extends XmlBeansTestSupport {
-    private final Logger log = LoggerFactory.getLogger(getClass());
-    
     private ClassLoader classLoader = this.getClass().getClassLoader();
 
 //comment on validity of j2ee 1.4 schemas: validation doesn't work...
@@ -83,7 +78,6 @@ public class SchemaConversionUtilsTest extends XmlBeansTestSupport {
         } finally {
             srcCursor.dispose();
         }
-//        log.debug(srcObject.toString());
         XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
         List problems = new ArrayList();
         boolean ok = compareXmlObjects(srcObject, expected, problems);
@@ -112,7 +106,6 @@ public class SchemaConversionUtilsTest extends XmlBeansTestSupport {
         } finally {
             srcCursor.dispose();
         }
-//        log.debug(srcObject.toString());
         XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
         List problems = new ArrayList();
         boolean ok = compareXmlObjects(srcObject, expected, problems);
@@ -126,7 +119,6 @@ public class SchemaConversionUtilsTest extends XmlBeansTestSupport {
         XmlCursor cursor = xmlObject.newCursor();
         try {
             SchemaConversionUtils.convertToGeronimoSubSchemas(cursor);
-            log.debug(xmlObject.toString());
             
             XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
             log.debug(expected.toString());
@@ -141,14 +133,13 @@ public class SchemaConversionUtilsTest extends XmlBeansTestSupport {
             cursor.dispose();
         }
     }
-//
+    
     public void testGetNestedObjectAsType() throws Exception {
         URL srcXml = classLoader.getResource("geronimo/ejb-naming-pre.xml");
 //        URL expectedOutputXml = classLoader.getResource("geronimo/ejb-naming-post.xml");
         XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
         //this is not a usable type, we'll see what happens though
         xmlObject = SchemaConversionUtils.getNestedObjectAsType(xmlObject, new QName("http://openejb.apache.org/xml/ns/openejb-jar-2.3", "openejb-jar"), EjbJarType.type);
-//	        log.debug(xmlObject.toString());
     }
 
     public void testSecurityElementConverter() throws Exception {
@@ -160,7 +151,6 @@ public class SchemaConversionUtilsTest extends XmlBeansTestSupport {
         XmlCursor end = cursor.newCursor();
         try {
             elementConverter.convertElement(cursor, end);
-            //        log.debug(xmlObject.toString());
             XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
             List problems = new ArrayList();
             boolean ok = compareXmlObjects(xmlObject, expected, problems);
@@ -184,7 +174,6 @@ public class SchemaConversionUtilsTest extends XmlBeansTestSupport {
         XmlCursor end = cursor.newCursor();
         try {
             elementConverter.convertElement(cursor, end);
-            //        log.debug(xmlObject.toString());
             XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
             List problems = new ArrayList();
             boolean ok = compareXmlObjects(xmlObject, expected, problems);
@@ -208,7 +197,6 @@ public class SchemaConversionUtilsTest extends XmlBeansTestSupport {
         XmlCursor end = cursor.newCursor();
         try {
             elementConverter.convertElement(cursor, end);
-            //        log.debug(xmlObject.toString());
             XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
             List problems = new ArrayList();
             boolean ok = compareXmlObjects(xmlObject, expected, problems);
@@ -231,7 +219,6 @@ public class SchemaConversionUtilsTest extends XmlBeansTestSupport {
         XmlCursor end = cursor.newCursor();
         try {
             elementConverter.convertElement(cursor, end);
-            //        log.debug(xmlObject.toString());
             XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
             List problems = new ArrayList();
             boolean ok = compareXmlObjects(xmlObject, expected, problems);
@@ -252,10 +239,7 @@ public class SchemaConversionUtilsTest extends XmlBeansTestSupport {
         XmlCursor cursor = xmlObject.newCursor();
         try {
             SchemaConversionUtils.convertToGeronimoSubSchemas(cursor);
-            log.debug(xmlObject.toString());
-            
             XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
-            log.debug(expected.toString());
             
             List problems = new ArrayList();
             boolean ok = compareXmlObjects(xmlObject, expected, problems);

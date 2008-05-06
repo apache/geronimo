@@ -34,7 +34,8 @@ import java.io.IOException;
  * @version $Rev$ $Date$
  */
 public class UnlockKeyHandler extends BaseKeystoreHandler {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(UnlockKeyHandler.class);
+    
     public UnlockKeyHandler() {
         super(UNLOCK_KEY, "/WEB-INF/view/keystore/unlockKey.jsp");
     }

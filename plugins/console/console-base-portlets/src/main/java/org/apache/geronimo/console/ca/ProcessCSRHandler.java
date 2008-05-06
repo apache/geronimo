@@ -37,7 +37,8 @@ import org.apache.geronimo.crypto.CaUtils;
  * @version $Rev$ $Date$
  */
 public class ProcessCSRHandler extends BaseCAHandler {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(ProcessCSRHandler.class);
+    
     public ProcessCSRHandler() {
         super(PROCESS_CSR_MODE, "/WEB-INF/view/ca/processCSR.jsp");
     }

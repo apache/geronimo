@@ -38,7 +38,7 @@ import org.apache.openejb.core.ThreadContextListener;
  * @version $Rev$ $Date$
  */
 public class GeronimoThreadContextListener implements ThreadContextListener {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(GeronimoThreadContextListener.class);
 
     // A single stateless listener is used for Geronimo
     private static final GeronimoThreadContextListener instance = new GeronimoThreadContextListener();

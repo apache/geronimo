@@ -34,7 +34,7 @@ import java.sql.SQLException;
  * @version $Rev$ $Date$
  */
 public class DerbySystemGBean implements DerbySystem, GBeanLifecycle {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(DerbySystemGBean.class);
     private static final String SYSTEM_HOME = "derby.system.home";
     private static final String SHUTDOWN_ALL = "jdbc:derby:;shutdown=true";
 

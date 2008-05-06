@@ -29,7 +29,7 @@ import org.apache.geronimo.naming.ResourceSource;
 
 public class JMSConnectionFactoryBean implements GBeanLifecycle {
 
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(JMSConnectionFactoryBean.class);
 
     private final ResourceSource<ResourceException> managedConnectionFactoryWrapper;
 

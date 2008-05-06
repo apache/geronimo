@@ -37,7 +37,7 @@ import org.apache.geronimo.tomcat.ValveGBean;
 */
 public class CatalinaClusterGBean extends BaseGBean implements GBeanLifecycle, ObjectRetriever {
 
-   private final Logger log = LoggerFactory.getLogger(getClass());
+   private static final Logger log = LoggerFactory.getLogger(CatalinaClusterGBean.class);
    
    public static final String J2EE_TYPE = "Cluster";
    

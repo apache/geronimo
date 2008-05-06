@@ -42,7 +42,8 @@ import org.apache.geronimo.management.geronimo.CertificationAuthority;
  * @version $Rev$ $Date$
  */
 public class CertReqDetailsHandler extends BaseCAHandler {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(CertReqDetailsHandler.class);
+    
     public CertReqDetailsHandler() {
         super(CERT_REQ_DETAILS_MODE, "/WEB-INF/view/ca/certReqDetails.jsp");
     }

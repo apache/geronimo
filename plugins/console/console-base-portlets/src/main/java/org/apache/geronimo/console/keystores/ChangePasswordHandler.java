@@ -33,7 +33,8 @@ import java.io.IOException;
  * @version $Rev$ $Date$
  */
 public class ChangePasswordHandler extends BaseKeystoreHandler {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(ChangePasswordHandler.class);
+    
     public ChangePasswordHandler() {
         super(CHANGE_PASSWORD, "/WEB-INF/view/keystore/changePassword.jsp");
     }

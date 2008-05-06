@@ -40,9 +40,7 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
  * @version $Rev$ $Date$
  */
 public class DatabaseInitializationGBean {
-
-
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(DatabaseInitializationGBean.class);
 
     public DatabaseInitializationGBean(String testSQL, String path, ResourceSource<ResourceException> cfSource, ClassLoader classLoader) throws Exception {
 

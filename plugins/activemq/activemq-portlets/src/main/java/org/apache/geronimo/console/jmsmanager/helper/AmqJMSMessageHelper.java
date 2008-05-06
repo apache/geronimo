@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
  * @version $Rev$ $Date$
  */
 public class AmqJMSMessageHelper extends JMSMessageHelper {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(AmqJMSMessageHelper.class);
 
     public void purge(PortletRequest renderRequest, String type, String physicalQName) {
         try {

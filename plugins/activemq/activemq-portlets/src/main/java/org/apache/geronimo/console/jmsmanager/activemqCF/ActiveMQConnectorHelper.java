@@ -45,7 +45,7 @@ import java.util.SortedSet;
 
 public class ActiveMQConnectorHelper {
     //todo: this class is horrible and needs to be burned!
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(ActiveMQConnectorHelper.class);
 
     private static String MODULE_FILE;
 

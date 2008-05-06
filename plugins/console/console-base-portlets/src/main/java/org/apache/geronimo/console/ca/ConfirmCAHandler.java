@@ -55,7 +55,8 @@ import org.apache.geronimo.crypto.KeystoreUtil;
  * @version $Rev$ $Date$
  */
 public class ConfirmCAHandler extends BaseCAHandler {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(ConfirmCAHandler.class);
+    
     public ConfirmCAHandler() {
         super(CONFIRM_CA_MODE, "/WEB-INF/view/ca/confirmCA.jsp");
     }

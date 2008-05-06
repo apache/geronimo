@@ -165,7 +165,7 @@ public class ClusteredStatefulInstanceManager extends StatefulInstanceManager im
     }
     
     protected class MigrationListener implements SessionListener {
-        private final Logger log = LoggerFactory.getLogger(getClass());
+        private final Logger log = LoggerFactory.getLogger(MigrationListener.class);
 
         public void notifyInboundSessionMigration(org.apache.geronimo.clustering.Session session) {
             ClusteredBeanEntry beanEntry = new ClusteredBeanEntry(session);

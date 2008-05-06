@@ -31,7 +31,7 @@ import org.apache.openejb.assembler.classic.EnterpriseBeanInfo;
 
 public class EJBWebServiceFinder implements WebServiceFinder {
 
-    private final Logger LOG = LoggerFactory.getLogger(getClass());
+    private static final Logger LOG = LoggerFactory.getLogger(EJBWebServiceFinder.class);
     
     public Map<String, PortInfo> discoverWebServices(Module module, 
                                                      boolean isEJB,

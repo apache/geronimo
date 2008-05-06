@@ -38,7 +38,7 @@ import java.util.Set;
 
 public class PortMethodInterceptor implements MethodInterceptor {
 
-    private final Logger LOG = LoggerFactory.getLogger(getClass());
+    private static final Logger LOG = LoggerFactory.getLogger(PortMethodInterceptor.class);
     
     private Map<Object, EndpointInfo> seiInfoMap;
 

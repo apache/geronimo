@@ -33,7 +33,7 @@ import java.util.List;
  * @version $Rev$ $Date$
  */
 public class GeronimoHandlerChainBuilder extends AnnotationHandlerChainBuilder {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(GeronimoHandlerChainBuilder.class);
 
     private ClassLoader classLoader = null;
     private javax.xml.ws.handler.PortInfo portInfo;

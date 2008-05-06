@@ -64,7 +64,7 @@ import org.apache.geronimo.monitoring.snapshot.SnapshotDBHelper;
  * between the management node and the data in the server node.
  */
 public class MasterRemoteControlJMX implements GBeanLifecycle {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(MasterRemoteControlJMX.class);
 
     // mbean server to talk to other components
     private static MBeanServer mbServer = null;

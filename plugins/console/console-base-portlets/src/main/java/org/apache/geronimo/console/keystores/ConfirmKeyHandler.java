@@ -38,7 +38,7 @@ import java.util.GregorianCalendar;
  * @version $Rev$ $Date$
  */
 public class ConfirmKeyHandler extends BaseKeystoreHandler {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(ConfirmKeyHandler.class);
 
     public ConfirmKeyHandler() {
         super(CONFIRM_KEY, "/WEB-INF/view/keystore/confirmKey.jsp");

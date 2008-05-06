@@ -38,8 +38,7 @@ import org.slf4j.Logger;
  * @version $Revision$ $Date$
  */
 public class EjbModuleImpl implements EJBModule {
-
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(EjbModuleImpl.class);
     private final J2EEServer server;
     private final J2EEApplication application;
     private final String deploymentDescriptor;

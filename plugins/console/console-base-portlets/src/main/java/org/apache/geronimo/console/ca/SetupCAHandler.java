@@ -41,7 +41,8 @@ import org.apache.geronimo.console.MultiPageModel;
  * @version $Rev$ $Date$
  */
 public class SetupCAHandler extends BaseCAHandler {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(SetupCAHandler.class);
+    
     public SetupCAHandler() {
         super(SETUPCA_MODE, "/WEB-INF/view/ca/setupCA.jsp");
     }

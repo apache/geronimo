@@ -72,7 +72,7 @@ public class SMTPSTransportGBean extends ProtocolGBean {
     static public final String GBEAN_MAIL_EXTENSION = "mailExtension";
     static public final String GBEAN_STARTTLS_ENABLE = "startTLSEnable";
 
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(SMTPSTransportGBean.class);
 
     private Integer port;
     private Integer connectionTimeout;

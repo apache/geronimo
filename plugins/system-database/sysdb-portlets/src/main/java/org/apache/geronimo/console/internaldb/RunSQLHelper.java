@@ -27,7 +27,7 @@ import java.sql.Statement;
 
 public class RunSQLHelper {
 
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(RunSQLHelper.class);
 
     public static final String SQL_SUCCESS_MSG = "SQL command/s successful";
 

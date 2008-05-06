@@ -60,7 +60,7 @@ import org.apache.geronimo.system.configuration.RepositoryConfigurationStore;
  */
 @GBean(j2eeType=MasterConfigurationStore.GBEAN_J2EE_TYPE)
 public class MasterConfigurationStore implements ConfigurationStore {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(MasterConfigurationStore.class);
     
     private final ConfigurationStore delegate;
     private final Environment defaultEnvironment;

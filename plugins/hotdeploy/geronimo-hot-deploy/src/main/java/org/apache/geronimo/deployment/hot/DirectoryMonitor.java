@@ -45,7 +45,7 @@ import java.util.Set;
  * @version $Rev$ $Date$
  */
 public class DirectoryMonitor implements Runnable {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(DirectoryMonitor.class);
 
     public static interface Listener {
         /**

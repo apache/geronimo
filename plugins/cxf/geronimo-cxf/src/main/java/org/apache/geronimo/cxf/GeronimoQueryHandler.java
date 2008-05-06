@@ -39,7 +39,7 @@ import org.xmlsoap.schemas.wsdl.http.AddressType;
 
 public class GeronimoQueryHandler extends WSDLQueryHandler {
 
-    private final Logger LOG = LoggerFactory.getLogger(getClass());
+    private static final Logger LOG = LoggerFactory.getLogger(GeronimoQueryHandler.class);
 
     public GeronimoQueryHandler(Bus bus) {
         super(bus);

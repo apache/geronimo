@@ -58,7 +58,7 @@ import org.codehaus.wadi.servicespace.ServiceSpaceName;
  * @version $Rev$ $Date$
  */
 public class BasicWADISessionManager implements GBeanLifecycle, SessionManager, WADISessionManager {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(BasicWADISessionManager.class);
 
     protected final ClassLoader cl;
     private final WADICluster cluster;

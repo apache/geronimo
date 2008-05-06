@@ -58,7 +58,7 @@ import org.w3c.dom.Document;
  * $Rev$ $Date$
  */
 public class DeploymentPortlet extends BasePortlet {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(DeploymentPortlet.class);
     
     private static final String DEPLOY_VIEW          = "/WEB-INF/view/configmanager/deploy.jsp";
     private static final String HELP_VIEW            = "/WEB-INF/view/configmanager/deployHelp.jsp";

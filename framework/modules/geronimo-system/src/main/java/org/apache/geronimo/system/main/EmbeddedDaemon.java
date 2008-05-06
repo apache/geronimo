@@ -43,12 +43,11 @@ import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.util.Main;
 import org.apache.geronimo.system.serverinfo.DirectoryUtils;
 
-
 /**
  * @version $Rev:385659 $ $Date: 2007-03-07 14:40:07 +1100 (Wed, 07 Mar 2007) $
  */
 public class EmbeddedDaemon implements Main {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(EmbeddedDaemon.class);
 
     protected final Kernel kernel;
     private StartupMonitor monitor;

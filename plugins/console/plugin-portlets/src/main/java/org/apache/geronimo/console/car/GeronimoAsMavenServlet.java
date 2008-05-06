@@ -70,7 +70,7 @@ import org.w3c.dom.Text;
  * @version $Rev$ $Date$
  */
 public class GeronimoAsMavenServlet extends HttpServlet {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(GeronimoAsMavenServlet.class);
 
     protected void doHead(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws ServletException, IOException {
         handleRequest(httpServletRequest, httpServletResponse, false);

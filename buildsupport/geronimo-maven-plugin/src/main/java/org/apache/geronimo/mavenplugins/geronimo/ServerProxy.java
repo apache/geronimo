@@ -50,7 +50,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ServerProxy
 {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(ServerProxy.class);
 
     private JMXServiceURL url;
 

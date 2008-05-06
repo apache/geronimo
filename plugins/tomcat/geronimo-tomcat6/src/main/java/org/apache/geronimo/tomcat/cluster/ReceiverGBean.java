@@ -27,10 +27,10 @@ import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.tomcat.BaseGBean;
 import org.apache.geronimo.tomcat.ObjectRetriever;
 
-public class ReceiverGBean  extends BaseGBean implements
+public class ReceiverGBean extends BaseGBean implements
         GBeanLifecycle, ObjectRetriever {
 
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(ReceiverGBean.class);
 
     public static final String J2EE_TYPE = "Receiver";
 

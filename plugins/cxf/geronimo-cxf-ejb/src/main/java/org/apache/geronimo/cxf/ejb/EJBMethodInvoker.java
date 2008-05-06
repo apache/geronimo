@@ -41,7 +41,7 @@ import org.apache.openejb.RpcContainer;
 
 public class EJBMethodInvoker extends AbstractInvoker {
 
-    private final Logger LOG = LoggerFactory.getLogger(getClass());
+    private static final Logger LOG = LoggerFactory.getLogger(EJBMethodInvoker.class);
     
     private DeploymentInfo deploymentInfo;
     private Bus bus;

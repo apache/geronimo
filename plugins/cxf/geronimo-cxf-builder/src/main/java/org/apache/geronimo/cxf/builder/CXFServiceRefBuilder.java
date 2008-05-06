@@ -45,7 +45,7 @@ import org.apache.xmlbeans.XmlOptions;
 
 public class CXFServiceRefBuilder extends JAXWSServiceRefBuilder {
 
-    private final Logger LOG = LoggerFactory.getLogger(getClass());
+    private static final Logger LOG = LoggerFactory.getLogger(CXFServiceRefBuilder.class);
         
     public CXFServiceRefBuilder(Environment defaultEnvironment,
                                 String[] eeNamespaces) {

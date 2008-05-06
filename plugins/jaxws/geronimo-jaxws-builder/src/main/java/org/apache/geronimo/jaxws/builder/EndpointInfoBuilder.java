@@ -56,7 +56,7 @@ import org.xml.sax.InputSource;
 
 public class EndpointInfoBuilder {
 
-    private final Logger LOG = LoggerFactory.getLogger(getClass());
+    private static final Logger LOG = LoggerFactory.getLogger(EndpointInfoBuilder.class);
 
     private JarFile moduleFile;
 

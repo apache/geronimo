@@ -105,7 +105,7 @@ import org.apache.xmlbeans.XmlObject;
  * @version $Rev:385232 $ $Date$
  */
 public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSource, GBeanLifecycle {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(AppClientModuleBuilder.class);
     private static final String LINE_SEP = System.getProperty("line.separator");
     private static final String GERAPPCLIENT_NAMESPACE = GerApplicationClientDocument.type.getDocumentElementName().getNamespaceURI();
     private static final Map<String, String> NAMESPACE_UPDATES = new HashMap<String, String>();

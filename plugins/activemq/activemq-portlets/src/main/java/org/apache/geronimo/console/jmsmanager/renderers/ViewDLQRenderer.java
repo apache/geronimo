@@ -43,7 +43,7 @@ import org.slf4j.LoggerFactory;
 
 public class ViewDLQRenderer extends AbstractJMSManager implements PortletRenderer {
 
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(ViewDLQRenderer.class);
 
     private Destination dlq = null;
 

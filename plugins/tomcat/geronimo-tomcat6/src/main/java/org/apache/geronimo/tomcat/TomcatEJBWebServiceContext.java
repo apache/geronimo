@@ -49,7 +49,7 @@ import org.apache.geronimo.webservices.WebServiceContainer;
 
 public class TomcatEJBWebServiceContext extends StandardContext{
 
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(TomcatEJBWebServiceContext.class);
 
     private final String contextPath;
     private final WebServiceContainer webServiceContainer;

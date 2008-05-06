@@ -46,7 +46,7 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
  */
 public class BrokerServiceGBeanImpl implements GBeanLifecycle, BrokerServiceGBean {
 
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(BrokerServiceGBeanImpl.class);
 
     private String brokerName;
     private String brokerUri;

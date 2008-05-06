@@ -77,7 +77,7 @@ import org.apache.naming.resources.DirContextURLStreamHandler;
  */
 public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebModule, StatisticsProvider {
 
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(TomcatWebAppContext.class);
 
     protected final TomcatContainer container;
     private final ClassLoader classLoader;

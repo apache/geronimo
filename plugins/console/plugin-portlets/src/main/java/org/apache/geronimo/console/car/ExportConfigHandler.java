@@ -50,7 +50,7 @@ import org.apache.geronimo.system.plugin.model.PrerequisiteType;
  * @version $Rev$ $Date$
  */
 public class ExportConfigHandler extends BaseImportExportHandler {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(ExportConfigHandler.class);
 
     public ExportConfigHandler() {
         super(CONFIGURE_EXPORT_MODE, "/WEB-INF/view/car/pluginParams.jsp");

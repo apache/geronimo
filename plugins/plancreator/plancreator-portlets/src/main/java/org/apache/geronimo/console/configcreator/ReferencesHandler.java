@@ -36,7 +36,7 @@ import org.apache.geronimo.console.MultiPageModel;
  * @version $Rev$ $Date$
  */
 public class ReferencesHandler extends AbstractHandler {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(ReferencesHandler.class);
 
     public ReferencesHandler() {
         super(REFERENCES_MODE, "/WEB-INF/view/configcreator/references.jsp");

@@ -35,7 +35,7 @@ import java.util.List;
  * @version $Rev$ $Date$
  */
 public class TomcatJAASRealm extends JAASRealm implements Cloneable {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(TomcatJAASRealm.class);
 
     private static final String DEFAULT_NAME = "tomcat";
 

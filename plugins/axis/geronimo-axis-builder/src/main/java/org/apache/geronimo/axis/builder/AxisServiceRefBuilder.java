@@ -54,7 +54,7 @@ import org.apache.xmlbeans.XmlObject;
  * @version $Rev$ $Date$
  */
 public class AxisServiceRefBuilder extends AbstractNamingBuilder implements ServiceRefBuilder {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(AxisServiceRefBuilder.class);
     private final QNameSet serviceRefQNameSet;
     private static final QName GER_SERVICE_REF_QNAME = GerServiceRefDocument.type.getDocumentElementName();
     private static final QNameSet GER_SERVICE_REF_QNAME_SET = QNameSet.singleton(GER_SERVICE_REF_QNAME);

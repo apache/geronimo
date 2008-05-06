@@ -105,7 +105,7 @@ import org.apache.xmlbeans.XmlObject;
  */
 public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSource, GBeanLifecycle {
 
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(EARConfigBuilder.class);
     private static final String LINE_SEP = System.getProperty("line.separator");
 
     private final static QName APPLICATION_QNAME = GerApplicationDocument.type.getDocumentElementName();

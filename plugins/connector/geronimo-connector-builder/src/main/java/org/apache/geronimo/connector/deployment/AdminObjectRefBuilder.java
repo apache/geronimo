@@ -66,7 +66,7 @@ import org.apache.xmlbeans.XmlObject;
  * @version $Rev$ $Date$
  */
 public class AdminObjectRefBuilder extends AbstractNamingBuilder {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(AdminObjectRefBuilder.class);
     private final QNameSet adminOjbectRefQNameSet;
     private final QNameSet messageDestinationQNameSet;
     private final QNameSet messageDestinationRefQNameSet;

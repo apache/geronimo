@@ -84,9 +84,7 @@ import org.slf4j.LoggerFactory;
  */
 
 public class GeronimoTldLocationsCache extends TldLocationsCache {
-
-    // Logger
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(GeronimoTldLocationsCache.class);
 
     /**
      * The types of URI one may specify for a tag library

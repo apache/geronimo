@@ -36,7 +36,7 @@ import org.apache.geronimo.console.MultiPageModel;
  * @version $Rev$ $Date$
  */
 public class DependenciesHandler extends AbstractHandler {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(DependenciesHandler.class);
 
     public DependenciesHandler() {
         super(DEPENDENCIES_MODE, "/WEB-INF/view/configcreator/dependencies.jsp");

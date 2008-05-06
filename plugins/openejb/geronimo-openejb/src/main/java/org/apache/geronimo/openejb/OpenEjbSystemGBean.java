@@ -76,7 +76,7 @@ import org.omg.CORBA.ORB;
  * @version $Rev$ $Date$
  */
 public class OpenEjbSystemGBean implements OpenEjbSystem {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(OpenEjbSystemGBean.class);
     private final ConfigurationFactory configurationFactory;
     private final Assembler assembler;
     private final Set<String> registeredResouceAdapters = new TreeSet<String>();

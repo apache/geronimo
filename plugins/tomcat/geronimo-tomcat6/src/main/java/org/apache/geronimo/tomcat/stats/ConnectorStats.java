@@ -36,7 +36,7 @@ import org.apache.tomcat.util.modeler.Registry;
  * @version $Revision$ $Date$
  */
 public class ConnectorStats {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(ConnectorStats.class);
     protected MBeanServer mBeanServer = null;
 
     protected Registry registry;

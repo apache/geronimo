@@ -38,7 +38,7 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
  */
 public class NNTPTransportGBean extends ProtocolGBean implements NNTPGBeanConstants {
 
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(NNTPTransportGBean.class);
 
     private Integer port;
     private Integer connectionTimeout;

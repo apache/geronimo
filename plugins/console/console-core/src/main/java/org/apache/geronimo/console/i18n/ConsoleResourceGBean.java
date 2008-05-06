@@ -29,7 +29,7 @@ import org.apache.geronimo.gbean.GBeanLifecycle;
  * load the resource bundle.
  */
 public class ConsoleResourceGBean implements GBeanLifecycle {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(ConsoleResourceGBean.class);
     public static final GBeanInfo GBEAN_INFO;
     private ClassLoader classloader;
     private ConsoleResourceRegistry consoleResourceRegistry;

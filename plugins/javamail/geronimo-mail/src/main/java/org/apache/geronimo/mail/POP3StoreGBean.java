@@ -57,7 +57,7 @@ public class POP3StoreGBean extends ProtocolGBean {
     static public final String GBEAN_APOP = "apopEnable";
     static public final String GBEAN_MESSAGE_CLASS = "messageClass";
 
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(POP3StoreGBean.class);
 
     private Integer port;
     private Integer connectionTimeout;

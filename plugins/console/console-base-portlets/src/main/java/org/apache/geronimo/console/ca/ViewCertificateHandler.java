@@ -43,7 +43,8 @@ import org.apache.geronimo.crypto.CertificateUtil;
  * @version $Rev$ $Date$
  */
 public class ViewCertificateHandler extends BaseCAHandler {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(ViewCertificateHandler.class);
+    
     public ViewCertificateHandler() {
         super(VIEW_CERT_MODE, "/WEB-INF/view/ca/viewCertificate.jsp");
     }

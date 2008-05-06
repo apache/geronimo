@@ -48,7 +48,7 @@ import org.apache.xbean.finder.ClassFinder;
 
 public class WARWebServiceFinder implements WebServiceFinder {
 
-    private final Logger LOG = LoggerFactory.getLogger(getClass());
+    private static final Logger LOG = LoggerFactory.getLogger(WARWebServiceFinder.class);
     
     public Map<String, PortInfo> discoverWebServices(Module module, 
                                                      boolean isEJB,

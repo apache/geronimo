@@ -22,8 +22,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SAAJUniverse {
-        
-    private final Logger LOG = LoggerFactory.getLogger(getClass());
+
+    private static final Logger LOG = LoggerFactory.getLogger(SAAJUniverse.class);
     
     enum Type { DEFAULT, AXIS1, AXIS2, SUN }
     

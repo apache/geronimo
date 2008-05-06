@@ -38,7 +38,7 @@ import org.apache.geronimo.console.MultiPageModel;
  * @version $Rev$ $Date$
  */
 public class DeployStatusHandler extends AbstractHandler {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(DeployStatusHandler.class);
 
     public DeployStatusHandler() {
         super(DEPLOY_STATUS_MODE, "/WEB-INF/view/configcreator/deployStatus.jsp");

@@ -42,7 +42,7 @@ import org.apache.geronimo.management.geronimo.JCAManagedConnectionFactory;
  */
 public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicGBean, JCAManagedConnectionFactory, ResourceSource<ResourceException> {
 
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(ManagedConnectionFactoryWrapper.class);
 
     private final String managedConnectionFactoryClass;
     private final String connectionFactoryInterface;

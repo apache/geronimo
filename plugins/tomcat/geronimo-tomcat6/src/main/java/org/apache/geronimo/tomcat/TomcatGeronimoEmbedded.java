@@ -29,7 +29,7 @@ import org.apache.geronimo.webservices.WebServiceContainer;
  */
 public class TomcatGeronimoEmbedded extends Embedded{
     
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(TomcatGeronimoEmbedded.class);
     
     public Context createContext(String path, String docBase, ClassLoader cl) {
 

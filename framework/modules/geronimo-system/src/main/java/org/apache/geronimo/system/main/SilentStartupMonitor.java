@@ -32,7 +32,7 @@ import org.apache.geronimo.kernel.repository.Artifact;
  * @version $Rev$ $Date$
  */
 public class SilentStartupMonitor implements StartupMonitor {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(SilentStartupMonitor.class);
 
     private Kernel kernel;
 
@@ -65,11 +65,11 @@ public class SilentStartupMonitor implements StartupMonitor {
                 AbstractName name = (AbstractName) it.next();
                 int state = kernel.getGBeanState(name);
                 if (state != State.RUNNING_INDEX) {
-                    log.warn("Unable to start "+name+" ("+State.fromInt(state).getName()+")");
+                    log.warn("Unable to start {} ({})", name, State.fromInt(state).getName());
                 }
             }
-        } catch (GBeanNotFoundException e) {
-        }
+        } catch (GBeanNotFoundException ignore) {}
+        
         System.out.println("Geronimo startup complete");
     }
 

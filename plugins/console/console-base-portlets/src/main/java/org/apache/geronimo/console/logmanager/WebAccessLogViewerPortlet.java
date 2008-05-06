@@ -52,7 +52,7 @@ import java.util.Map;
  */
 public class WebAccessLogViewerPortlet extends BasePortlet {
     private final static String CRITERIA_KEY = "org.apache.geronimo.console.web.log.CRITERIA";
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(WebAccessLogViewerPortlet.class);
     private static final int DEFAULT_MAX_RESULTS = 10;
 
     protected PortletRequestDispatcher searchView;

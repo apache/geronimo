@@ -37,7 +37,7 @@ import org.apache.geronimo.management.geronimo.WebModule;
  * @version $Rev$ $Date$
  */
 public class WebAppHandler extends BaseApacheHandler {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(WebAppHandler.class);
 
     public WebAppHandler() {
         super(WEB_APP_MODE, "/WEB-INF/view/apache/jk/webApps.jsp");

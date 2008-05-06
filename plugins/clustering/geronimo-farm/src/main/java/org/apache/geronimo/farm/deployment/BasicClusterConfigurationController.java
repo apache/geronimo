@@ -38,7 +38,7 @@ import org.apache.geronimo.kernel.repository.Artifact;
  */
 @GBean(j2eeType=BasicClusterConfigurationController.GBEAN_J2EE_TYPE)
 public class BasicClusterConfigurationController implements GBeanLifecycle, ClusterConfigurationController {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(BasicClusterConfigurationController.class);
     
     private final ClusterInfo clusterInfo;
     private final String nodeName;

@@ -127,7 +127,7 @@ import org.apache.xmlbeans.XmlObject;
  * @version $Rev:385659 $ $Date$
  */
 public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfoLocator, GBeanLifecycle {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(ConnectorModuleBuilder.class);
 
     private static final QName RESOURCE_ADAPTER_VERSION = new QName(SchemaConversionUtils.J2EE_NAMESPACE, "resourceadapter-version");
     private static QName CONNECTOR_QNAME = GerConnectorDocument.type.getDocumentElementName();

@@ -44,7 +44,7 @@ import org.codehaus.wadi.web.impl.URIEndPoint;
  * @version $Rev$ $Date$
  */
 public class TribesDispatcherHolder implements GBeanLifecycle, DispatcherHolder {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(TribesDispatcherHolder.class);
     
     private final URI endPointURI;
     private final String clusterName;

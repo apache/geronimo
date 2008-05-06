@@ -63,7 +63,7 @@ import org.apache.geronimo.crypto.jce.X509V1CertificateGenerator;
 
 public class KeyStoreGBean implements GBeanLifecycle {
 
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(KeyStoreGBean.class);
 
     private String keyStoreType;
 

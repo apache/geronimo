@@ -27,9 +27,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.geronimo.console.jmsmanager.AbstractJMSManager;
 
-public class CreateDestinationRenderer extends AbstractJMSManager implements
-        PortletRenderer {
-
+public class CreateDestinationRenderer
+    extends AbstractJMSManager
+    implements PortletRenderer
+{
     protected final Logger log = LoggerFactory.getLogger(getClass());
 
     public String render(RenderRequest request, RenderResponse response)
@@ -37,5 +38,4 @@ public class CreateDestinationRenderer extends AbstractJMSManager implements
 
         return "/WEB-INF/view/jmsmanager/createdestination.jsp";
     }
-
 }

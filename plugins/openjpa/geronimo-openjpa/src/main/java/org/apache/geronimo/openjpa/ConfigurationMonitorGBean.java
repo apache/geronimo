@@ -45,7 +45,7 @@ import org.apache.openjpa.enhance.PCRegistry;
  * @version $Rev$ $Date$
  */
 public class ConfigurationMonitorGBean implements GBeanLifecycle {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(ConfigurationMonitorGBean.class);
     
     private final Kernel kernel;
     private final LifecycleListener listener;

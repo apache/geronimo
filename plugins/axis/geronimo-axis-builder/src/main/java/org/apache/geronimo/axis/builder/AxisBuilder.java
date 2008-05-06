@@ -94,7 +94,7 @@ import org.apache.geronimo.kernel.repository.Environment;
  */
 public class AxisBuilder implements WebServiceBuilder {
 
-    private final Logger LOG = LoggerFactory.getLogger(getClass());
+    private static final Logger LOG = LoggerFactory.getLogger(AxisBuilder.class);
     
     private static final SOAPConstants SOAP_VERSION = SOAPConstants.SOAP11_CONSTANTS;
 

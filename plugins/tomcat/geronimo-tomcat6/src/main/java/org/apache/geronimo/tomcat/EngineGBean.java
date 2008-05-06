@@ -46,7 +46,7 @@ import org.apache.tomcat.util.modeler.Registry;
  */
 public class EngineGBean extends BaseGBean implements GBeanLifecycle, ObjectRetriever {
 
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(EngineGBean.class);
 
     private static final String NAME = "name";
     private static final String DEFAULTHOST = "defaultHost";

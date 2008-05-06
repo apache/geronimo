@@ -41,7 +41,7 @@ import org.apache.geronimo.tomcat.cluster.CatalinaClusterGBean;
  */
 public class HostGBean extends BaseGBean implements GBeanLifecycle, ObjectRetriever {
 
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(HostGBean.class);
     
     public static final String J2EE_TYPE = "Host";
     private static final String WORKDIR = "workDir";

@@ -36,7 +36,7 @@ import org.apache.geronimo.management.geronimo.WebManager;
  * @version $Rev$ $Date$
  */
 public class AJPHandler extends BaseApacheHandler {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(AJPHandler.class);
 
     public AJPHandler() {
         super(AJP_MODE, "/WEB-INF/view/apache/jk/ajpPort.jsp");

@@ -54,7 +54,7 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
  * @version $Rev$ $Date$
  */
 public class DirectoryHotDeployer implements HotDeployer, DeploymentWatcher, GBeanLifecycle { //todo: write unit tests
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(DirectoryHotDeployer.class);
 
     // Try to make this stand out as the user is likely to get a ton of errors if this comes up
     private static final String BAD_LAYOUT_MESSAGE = "CANNOT DEPLOY: It looks like you unpacked an application or module " +

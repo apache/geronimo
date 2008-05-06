@@ -40,7 +40,7 @@ import org.apache.geronimo.management.stats.WebModuleStatsImpl;
 
 public class ModuleStats {
 
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(ModuleStats.class);
 
     private MBeanServer mBeanServer = null;
 

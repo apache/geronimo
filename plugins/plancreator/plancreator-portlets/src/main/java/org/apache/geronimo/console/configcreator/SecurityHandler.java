@@ -34,7 +34,7 @@ import org.apache.geronimo.console.MultiPageModel;
  * @version $Rev$ $Date$
  */
 public class SecurityHandler extends AbstractHandler {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(SecurityHandler.class);
 
     public SecurityHandler() {
         super(SECURITY_MODE, "/WEB-INF/view/configcreator/security.jsp");

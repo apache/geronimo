@@ -28,14 +28,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- *
- *
  * @version $Rev$ $Date$
- *
- * */
+ */
 public class ExecutorFeedingTimerTask extends TimerTask {
 
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(ExecutorFeedingTimerTask.class);
 
     private final WorkInfo workInfo;
     private final ThreadPooledTimer threadPooledTimer;

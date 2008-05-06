@@ -65,7 +65,7 @@ import org.apache.geronimo.crypto.KeystoreUtil;
  * @version $Rev$ $Date$
  */
 public class TomcatManagerImpl implements WebManager {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(TomcatManagerImpl.class);
     private final Kernel kernel;
     
     private static final ConnectorType HTTP_BIO = new ConnectorType(Messages.getString("TomcatManagerImpl.0")); //$NON-NLS-1$

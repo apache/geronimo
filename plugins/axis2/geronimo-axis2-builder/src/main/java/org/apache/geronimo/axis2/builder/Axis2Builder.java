@@ -57,7 +57,7 @@ import org.apache.xmlbeans.XmlObject;
  */
 public class Axis2Builder extends JAXWSServiceBuilder {
 
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(Axis2Builder.class);
         
     public Axis2Builder(Environment defaultEnviroment) {
         super(defaultEnviroment);

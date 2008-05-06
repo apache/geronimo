@@ -59,7 +59,7 @@ import org.apache.geronimo.management.geronimo.ResourceAdapterModule;
  */
 public abstract class JMSMessageHelper {
     protected static final Kernel kernel = KernelRegistry.getSingleKernel();
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(JMSMessageHelper.class);
 
     public void sendMessage(RenderRequest request, JMSMessageInfo messageInfo) throws Exception {
         Destination dest = getDestination(request, messageInfo.getAdapterObjectName(), messageInfo.getPhysicalName());

@@ -29,7 +29,7 @@ import java.util.Hashtable;
 import java.util.Map;
 
 public class InternalDBHelper {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(InternalDBHelper.class);
 
     private static final int RDBMS_DERBY = 1;
 

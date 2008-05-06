@@ -41,7 +41,8 @@ import org.apache.geronimo.crypto.asn1.x509.X509Name;
  * @version $Rev$ $Date$
  */
 public class ListRequestsIssueHandler extends BaseCAHandler {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(ListRequestsIssueHandler.class);
+    
     public ListRequestsIssueHandler() {
         super(LIST_REQUESTS_ISSUE_MODE, "/WEB-INF/view/ca/listRequestsIssue.jsp");
     }

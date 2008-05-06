@@ -41,7 +41,8 @@ import org.apache.geronimo.crypto.asn1.x509.X509Name;
  * @version $Rev$ $Date$
  */
 public class ListRequestsVerifyHandler extends BaseCAHandler {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(ListRequestsVerifyHandler.class);
+
     public ListRequestsVerifyHandler() {
         super(LIST_REQUESTS_VERIFY_MODE, "/WEB-INF/view/ca/listRequestsVerify.jsp");
     }

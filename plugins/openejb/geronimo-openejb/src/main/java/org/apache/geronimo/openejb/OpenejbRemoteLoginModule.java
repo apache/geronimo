@@ -56,9 +56,7 @@ import org.apache.openejb.client.ServerMetaData;
  * @version $Rev$ $Date$
  */
 public class OpenejbRemoteLoginModule implements LoginModule {
-    private final Logger log = LoggerFactory.getLogger(getClass());
-
-
+    private static final Logger log = LoggerFactory.getLogger(OpenejbRemoteLoginModule.class);
     private static final String SECURITY_REALM_KEY = "RemoteSecurityRealm";
     private static final String SECURITY_REALM_KEY_LONG = OpenejbRemoteLoginModule.class.getName() + "." + SECURITY_REALM_KEY;
     private static final String SERVER_URI_KEY = "ServerURI";

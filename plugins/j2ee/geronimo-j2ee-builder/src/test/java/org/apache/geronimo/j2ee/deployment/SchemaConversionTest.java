@@ -20,8 +20,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.testsupport.XmlBeansTestSupport;
@@ -35,8 +33,6 @@ import org.apache.xmlbeans.XmlObject;
  * @version $Rev$ $Date$
  */
 public class SchemaConversionTest extends XmlBeansTestSupport {
-    private final Logger log = LoggerFactory.getLogger(getClass());
-
     private ClassLoader classLoader = this.getClass().getClassLoader();
 
 
@@ -47,8 +43,6 @@ public class SchemaConversionTest extends XmlBeansTestSupport {
         XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
         XmlBeansUtil.validateDD(expected);
         xmlObject = EARConfigBuilder.convertToApplicationSchema(xmlObject);
-//        log.debug(xmlObject.toString());
-//        log.debug(expected.toString());
         List problems = new ArrayList();
         boolean ok = compareXmlObjects(xmlObject, expected, problems);
         assertTrue("Differences: " + problems, ok);
@@ -76,8 +70,6 @@ public class SchemaConversionTest extends XmlBeansTestSupport {
         XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
         XmlBeansUtil.validateDD(expected);
         xmlObject = EARConfigBuilder.convertToApplicationSchema(xmlObject);
-//        log.debug(xmlObject.toString());
-//        log.debug(expected.toString());
         List problems = new ArrayList();
         boolean ok = compareXmlObjects(xmlObject, expected, problems);
         assertTrue("Differences: " + problems, ok);

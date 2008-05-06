@@ -53,7 +53,7 @@ import org.apache.geronimo.management.geronimo.NetworkConnector;
  * @version $Rev$ $Date$
  */
 public class ActiveMQManagerGBean implements ActiveMQManager {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(ActiveMQManagerGBean.class);
     private Kernel kernel;
     private String objectName;
 

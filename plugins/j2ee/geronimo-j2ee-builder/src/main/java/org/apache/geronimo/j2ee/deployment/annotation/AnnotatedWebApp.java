@@ -47,9 +47,7 @@ import org.apache.geronimo.xbeans.javaee.WebAppType;
  * @since Geronimo 2.0
  */
 public class AnnotatedWebApp implements AnnotatedApp {
-
-    // Private instance variables
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(AnnotatedWebApp.class);
     private WebAppType webApp;
 
     // Protected instance variables

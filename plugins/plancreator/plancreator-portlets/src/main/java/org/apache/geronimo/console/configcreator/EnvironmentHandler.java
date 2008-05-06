@@ -34,7 +34,7 @@ import org.apache.geronimo.console.MultiPageModel;
  * @version $Rev$ $Date$
  */
 public class EnvironmentHandler extends AbstractHandler {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(EnvironmentHandler.class);
 
     public EnvironmentHandler() {
         super(ENVIRONMENT_MODE, "/WEB-INF/view/configcreator/environment.jsp");

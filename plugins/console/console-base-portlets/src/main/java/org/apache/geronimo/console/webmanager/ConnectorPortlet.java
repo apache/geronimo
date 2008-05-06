@@ -61,7 +61,7 @@ import org.apache.geronimo.crypto.KeystoreUtil;
  * @version $Rev$ $Date$
  */
 public class ConnectorPortlet extends BasePortlet {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(ConnectorPortlet.class);
     
     public static final String PARM_CONTAINER_URI = "containerURI";
     public static final String PARM_CONNECTOR_URI = "connectorURI";

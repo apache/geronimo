@@ -47,7 +47,7 @@ import org.apache.geronimo.kernel.repository.Artifact;
  * @version $Rev:$ $Date:$
  */
 public class BasicClusterConfigurationStoreClient implements ClusterConfigurationStoreClient {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(BasicClusterConfigurationStoreClient.class);
 
     private static final String[] METHOD_SIGNATURE_INSTALL =
         new String[] {ConfigurationData.class.getName(), File.class.getName()};

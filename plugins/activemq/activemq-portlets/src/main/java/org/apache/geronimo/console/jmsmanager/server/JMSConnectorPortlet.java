@@ -46,7 +46,7 @@ import org.slf4j.LoggerFactory;
  * @version $Rev$ $Date$
  */
 public class JMSConnectorPortlet extends BaseJMSPortlet {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(JMSConnectorPortlet.class);
 
     private PortletRequestDispatcher normalView;
 

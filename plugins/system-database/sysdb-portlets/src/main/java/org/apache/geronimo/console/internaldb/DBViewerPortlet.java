@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
 
 public class DBViewerPortlet extends BasePortlet {
 
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(DBViewerPortlet.class);
 
     private static final int RDBMS_DERBY = 1;
 

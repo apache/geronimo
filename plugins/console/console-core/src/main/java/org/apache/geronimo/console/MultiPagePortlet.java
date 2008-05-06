@@ -45,7 +45,7 @@ import java.io.IOException;
  * @version $Rev$ $Date$
  */
 public abstract class MultiPagePortlet extends BasePortlet {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(MultiPagePortlet.class);
     protected static final String MODE_KEY = "mode";
     protected final Map<String, MultiPageAbstractHandler> helpers = new HashMap<String, MultiPageAbstractHandler>();
 

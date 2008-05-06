@@ -55,7 +55,7 @@ import org.codehaus.wadi.servicespace.ServiceSpace;
  * @version $Rev:$ $Date:$
  */
 public class NetworkConnectorMonitor implements GBeanLifecycle {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(NetworkConnectorMonitor.class);
     
     private final Collection<NetworkConnector> connectors;
     private final Collection<EjbDeploymentIdAccessor> idAccessors;

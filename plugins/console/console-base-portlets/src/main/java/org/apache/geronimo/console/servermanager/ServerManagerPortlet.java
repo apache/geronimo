@@ -36,7 +36,7 @@ import org.apache.geronimo.system.main.Daemon;
 
 public class ServerManagerPortlet extends BasePortlet {
 
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(ServerManagerPortlet.class);
 
     private PortletRequestDispatcher normalView;
 

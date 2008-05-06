@@ -75,7 +75,7 @@ import org.xml.sax.SAXException;
  * @version $Rev$ $Date$
  */
 public class SchemaInfoBuilder {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(SchemaInfoBuilder.class);
     private static final SchemaTypeSystem basicTypeSystem;
 //  private static final String[] errorNames = {"Error", "Warning", "Info"};
     private static final String SOAP_NS = "http://schemas.xmlsoap.org/wsdl/soap/";

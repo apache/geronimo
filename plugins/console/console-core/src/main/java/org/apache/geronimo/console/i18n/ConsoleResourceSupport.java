@@ -28,7 +28,7 @@ import org.apache.geronimo.console.util.PortletManager;
  * This class provide the common functions for its subclasses.
  */
 public class ConsoleResourceSupport extends ResourceBundle {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(ConsoleResourceSupport.class);
     private static final String BASENAME = "portletinfo";
 
     @Override
@@ -48,5 +48,4 @@ public class ConsoleResourceSupport extends ResourceBundle {
         }
         return null;
     }
-
 }

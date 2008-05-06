@@ -53,7 +53,7 @@ import org.apache.geronimo.crypto.EncryptionManager;
  * @version $Rev$ $Date$
  */
 public class PropertiesLoginModuleManager implements GBeanLifecycle {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(PropertiesLoginModuleManager.class);
 
     private ServerInfo serverInfo;
 

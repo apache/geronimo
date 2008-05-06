@@ -45,7 +45,7 @@ import org.apache.geronimo.xbeans.geronimo.security.GerSubjectInfoType;
  * @version $Rev$ $Date$
  */
 public abstract class AbstractHandler extends MultiPageAbstractHandler {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(AbstractHandler.class);
 
     protected final static String GET_ARCHIVE_MODE = "index";
     // 'mode' of initial portlet must be one of "index" or "list"

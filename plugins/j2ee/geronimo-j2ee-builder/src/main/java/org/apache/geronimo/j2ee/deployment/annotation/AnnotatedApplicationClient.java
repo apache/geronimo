@@ -48,9 +48,7 @@ import org.apache.geronimo.xbeans.javaee.ServiceRefType;
  * @since Geronimo 2.0
  */
 public class AnnotatedApplicationClient implements AnnotatedApp {
-
-    // Private instance variables
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(AnnotatedApplicationClient.class);
     private final ApplicationClientType applicationClient;
     private List<EjbRefType> ambiguousEjbRefs;
     private final String componentType;

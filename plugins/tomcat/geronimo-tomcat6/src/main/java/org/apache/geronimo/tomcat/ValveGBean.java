@@ -30,7 +30,7 @@ import org.apache.geronimo.gbean.GBeanLifecycle;
  */
 public class ValveGBean extends BaseGBean implements GBeanLifecycle, ObjectRetriever {
 
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(ValveGBean.class);
 
     public static final String J2EE_TYPE = "TomcatValve";
         

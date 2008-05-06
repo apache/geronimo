@@ -49,7 +49,7 @@ import org.apache.geronimo.webservices.WebServiceContainerFactory;
  */
 public class POJOWebServiceContainerFactoryGBean implements WebServiceContainerFactory {
 
-    private final Logger LOG = LoggerFactory.getLogger(getClass());
+    private static final Logger LOG = LoggerFactory.getLogger(POJOWebServiceContainerFactoryGBean.class);
 
     private final Bus bus;
     private final Class servletClass;

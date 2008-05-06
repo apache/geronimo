@@ -37,7 +37,7 @@ import org.apache.geronimo.gbean.GConstructorInfo;
  * @version $Rev$ $Date$
  */
 public class TransportConnectorGBeanImpl implements GBeanLifecycle, ActiveMQConnector {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(TransportConnectorGBeanImpl.class);
 
     private TransportConnector transportConnector;
     private BrokerServiceGBean brokerServiceGBean;

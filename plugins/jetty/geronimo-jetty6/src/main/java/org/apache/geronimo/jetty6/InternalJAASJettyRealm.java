@@ -40,7 +40,7 @@ import org.mortbay.jetty.Request;
  * @version $Rev$ $Date$
  */
 public class InternalJAASJettyRealm {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(InternalJAASJettyRealm.class);
 
     private final String securityRealmName;
     private final HashMap<String, Principal> userMap = new HashMap<String, Principal>();

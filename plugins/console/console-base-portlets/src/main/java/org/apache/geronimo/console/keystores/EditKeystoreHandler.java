@@ -34,7 +34,8 @@ import java.io.IOException;
  * @version $Rev$ $Date$
  */
 public class EditKeystoreHandler extends BaseKeystoreHandler {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(EditKeystoreHandler.class);
+    
     public EditKeystoreHandler() {
         super(UNLOCK_KEYSTORE_FOR_EDITING, "/WEB-INF/view/keystore/unlockKeystore.jsp");
     }

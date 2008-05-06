@@ -39,7 +39,7 @@ import org.apache.geronimo.console.MultiPageModel;
  * @version $Rev$ $Date$
  */
 public class DisplayPlanHandler extends AbstractHandler {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(DisplayPlanHandler.class);
 
     public DisplayPlanHandler() {
         super(DISPLAY_PLAN_MODE, "/WEB-INF/view/configcreator/displayPlan.jsp");

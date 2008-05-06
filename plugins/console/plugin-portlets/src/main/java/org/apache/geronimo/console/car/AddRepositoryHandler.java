@@ -45,7 +45,7 @@ import java.util.List;
  * @version $Rev$ $Date$
  */
 public class AddRepositoryHandler extends BaseImportExportHandler {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(AddRepositoryHandler.class);
 
     public AddRepositoryHandler() {
         super(ADD_REPO_MODE, "/WEB-INF/view/car/addRepository.jsp");
