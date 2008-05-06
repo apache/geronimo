@@ -32,7 +32,8 @@ import javax.annotation.Resource;
  */
 public class HelloWorldBacking {
 
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(HelloWorldBacking.class);
+
     //properties
     private String name;
     private String greeting;

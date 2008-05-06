@@ -60,15 +60,11 @@
             <artifactId>geronimo-ejb_3.0_spec</artifactId>
             <scope>provided</scope>
         </dependency>
-
+        
         <dependency>
-            <groupId>org.apache.openejb</groupId>
-            <artifactId>openejb-core</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.openejb</groupId>
-            <artifactId>openejb-client</artifactId>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-openejb</artifactId>
+            <version>${version}</version>
         </dependency>
 
         <dependency>

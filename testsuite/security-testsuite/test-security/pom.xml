@@ -57,20 +57,10 @@
             <scope>provided</scope>
         </dependency>
 
-        <!--
-        TODO: Depend upon the geronimo-openejb plugin here instead to avoid needing
-              to reference these dependencies directly.
-        -->
-        
         <dependency>
-            <groupId>org.apache.openejb</groupId>
-            <artifactId>openejb-core</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.openejb</groupId>
-            <artifactId>openejb-client</artifactId>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-openejb</artifactId>
+            <version>${version}</version>
             <scope>test</scope>
         </dependency>
 

@@ -105,25 +105,6 @@
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>shitty-maven-plugin</artifactId>
                 <inherited>false</inherited>
-                <configuration>
-                    <projects>
-                        <fileset>
-                            <directory>${project.basedir}</directory>
-                            <includes>
-                                <include>*/pom.xml</include>
-                            </includes>
-                        </fileset>
-                    </projects>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>clean</goal>
-                            <goal>install</goal>
-                            <goal>test</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
             
             <plugin>

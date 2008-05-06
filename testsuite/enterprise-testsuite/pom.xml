@@ -113,32 +113,6 @@
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>shitty-maven-plugin</artifactId>
                 <inherited>false</inherited>
-                <configuration>
-                    <projects>
-                        <fileset>
-                            <directory>${project.basedir}</directory>
-                            <includes>
-                                <include>*/pom.xml</include>
-                            </includes>
-                            
-                            <!--
-                            FIXME: Why is this excluded?  If its bunk, then delete it.
-                            -->
-                            <excludes>
-                                <exclude>ejbcontainer-tests/pom.xml</exclude>
-                            </excludes>
-                        </fileset>
-                    </projects>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>clean</goal>
-                            <goal>install</goal>
-                            <goal>test</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
             
             <plugin>
