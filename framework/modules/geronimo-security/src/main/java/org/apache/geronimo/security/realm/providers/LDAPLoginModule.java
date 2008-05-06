@@ -68,7 +68,7 @@ import org.apache.geronimo.security.jaas.WrappingLoginModule;
  */
 public class LDAPLoginModule implements LoginModule {
 
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(LDAPLoginModule.class);
 
     private Subject subject;
     private CallbackHandler handler;

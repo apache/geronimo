@@ -35,7 +35,6 @@ import javax.security.auth.spi.LoginModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  * Inserts named Username/Password credential into private credentials of Subject.
  * <p/>
@@ -52,7 +51,7 @@ import org.slf4j.LoggerFactory;
  */
 @Deprecated
 public class NamedUPCredentialLoginModule implements LoginModule {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(NamedUPCredentialLoginModule.class);
 
     public static final String CREDENTIAL_NAME = "org.apache.geronimo.jaas.NamedUPCredentialLoginModule.Name";
     public final static List<String> supportedOptions = Collections.unmodifiableList(Arrays.asList(CREDENTIAL_NAME));

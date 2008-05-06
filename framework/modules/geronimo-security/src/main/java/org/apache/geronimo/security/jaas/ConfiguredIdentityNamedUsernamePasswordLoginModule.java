@@ -46,7 +46,7 @@ import org.slf4j.LoggerFactory;
  * @version $Rev$ $Date$
  */
 public class ConfiguredIdentityNamedUsernamePasswordLoginModule implements LoginModule {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(ConfiguredIdentityNamedUsernamePasswordLoginModule.class);
 
     public static final String CREDENTIAL_NAME = "org.apache.geronimo.jaas.NamedUsernamePasswordCredential.Name";
     public static final String USER_NAME = "org.apache.geronimo.jaas.NamedUsernamePasswordCredential.Username";

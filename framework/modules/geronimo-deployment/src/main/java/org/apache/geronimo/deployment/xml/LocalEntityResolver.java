@@ -59,10 +59,7 @@ import org.xml.sax.SAXException;
  * @version $Rev$ $Date$
  */
 public class LocalEntityResolver implements EntityResolver {
-    /**
-     * used Logger
-     */
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(LocalEntityResolver.class);
 
     /**
      * The used Catalog Manager

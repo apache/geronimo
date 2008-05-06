@@ -42,9 +42,8 @@ import org.apache.geronimo.gbean.GBeanData;
  * @version $Rev$ $Date$
  */
 public class BasicLifecycleMonitor implements LifecycleMonitor {
-    private final Logger log = LoggerFactory.getLogger(getClass());
-
-
+    private static final Logger log = LoggerFactory.getLogger(BasicLifecycleMonitor.class);
+    
     // todo we should only hold weak references to the listeners
     /**
      * Map of AbstractName to set of Listeners interested in this name.

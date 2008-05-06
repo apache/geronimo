@@ -67,7 +67,7 @@ import org.apache.geronimo.security.jaas.WrappingLoginModule;
  * @version $Rev$ $Date$
  */
 public class RepeatedFailureLockoutLoginModule implements LoginModule {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(RepeatedFailureLockoutLoginModule.class);
     
     public static final String FAILURE_COUNT_OPTION = "failureCount";
     public static final String FAILURE_PERIOD_OPTION = "failurePeriodSecs";

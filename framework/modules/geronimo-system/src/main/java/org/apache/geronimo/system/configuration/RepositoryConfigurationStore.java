@@ -58,7 +58,7 @@ import org.slf4j.LoggerFactory;
  * @version $Rev$ $Date$
  */
 public class RepositoryConfigurationStore implements ConfigurationStore {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(RepositoryConfigurationStore.class);
     private final Kernel kernel;
     private final ObjectName objectName;
     private final AbstractName abstractName;

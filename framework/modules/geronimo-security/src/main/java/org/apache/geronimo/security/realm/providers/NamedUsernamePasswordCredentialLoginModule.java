@@ -38,7 +38,6 @@ import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
 import org.apache.geronimo.security.jaas.NamedUsernamePasswordCredential;
 import org.apache.geronimo.security.jaas.WrappingLoginModule;
 
-
 /**
  * Inserts named Username/Password credential into private credentials of Subject.
  * <p/>
@@ -51,7 +50,7 @@ import org.apache.geronimo.security.jaas.WrappingLoginModule;
  * @version $Revision$ $Date$
  */
 public class NamedUsernamePasswordCredentialLoginModule implements LoginModule {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(NamedUsernamePasswordCredentialLoginModule.class);
 
     public static final String CREDENTIAL_NAME = "Name";
     public static final String CREDENTIAL_NAME_LONG = NamedUsernamePasswordCredentialLoginModule.class.getName() + "." + CREDENTIAL_NAME;

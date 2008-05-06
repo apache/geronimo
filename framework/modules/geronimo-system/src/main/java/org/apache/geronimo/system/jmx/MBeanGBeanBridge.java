@@ -51,7 +51,7 @@ import org.apache.geronimo.kernel.management.NotificationType;
  * @version $Rev$ $Date$
  */
 public final class MBeanGBeanBridge implements MBeanRegistration, DynamicMBean, NotificationEmitter {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(MBeanGBeanBridge.class);
 
     /**
      * The kernel

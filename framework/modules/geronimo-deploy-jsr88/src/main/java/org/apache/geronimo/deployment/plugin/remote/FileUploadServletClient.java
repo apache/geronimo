@@ -46,7 +46,7 @@ import org.apache.geronimo.crypto.encoders.Base64;
  * @version $Rev:$ $Date:$
  */
 public class FileUploadServletClient implements FileUploadClient {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(FileUploadServletClient.class);
 
     /** Note:  The below versions should be kept in sync with those in FileUploadServlet.java **/
     // Starting RemoteDeploy datastream versions

@@ -75,7 +75,7 @@ import org.apache.geronimo.crypto.jce.X509V1CertificateGenerator;
  * @version $Rev$ $Date$
  */
 public class FileKeystoreManager implements KeystoreManager, GBeanLifecycle {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(FileKeystoreManager.class);
     private File directory;
     private ServerInfo serverInfo;
     private URI configuredDir;

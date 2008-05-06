@@ -41,9 +41,9 @@ import org.slf4j.LoggerFactory;
  * @version $Rev$ $Date$
  */
 public class UrlResourceFinder implements ResourceFinder {
+    private static final Logger log = LoggerFactory.getLogger(UrlResourceFinder.class);
+    
     private final Object lock = new Object();
-
-    private final Logger log = LoggerFactory.getLogger(getClass());
     private final LinkedHashSet<URL> urls = new LinkedHashSet<URL>();
     private final LinkedHashMap<URL,ResourceLocation> classPath = new LinkedHashMap<URL,ResourceLocation>();
     private final LinkedHashSet<File> watchedFiles = new LinkedHashSet<File>();

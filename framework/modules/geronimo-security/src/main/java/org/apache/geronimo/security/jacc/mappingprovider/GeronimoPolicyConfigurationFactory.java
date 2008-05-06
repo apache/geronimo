@@ -33,7 +33,7 @@ import org.apache.geronimo.security.GeronimoSecurityPermission;
  */
 public class GeronimoPolicyConfigurationFactory extends PolicyConfigurationFactory implements PrincipalRoleConfigurationFactory {
 
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(GeronimoPolicyConfigurationFactory.class);
     private static GeronimoPolicyConfigurationFactory singleton;
     private Map<String, GeronimoPolicyConfiguration> configurations = new HashMap<String, GeronimoPolicyConfiguration>();
 

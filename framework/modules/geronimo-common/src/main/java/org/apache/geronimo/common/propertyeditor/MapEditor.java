@@ -34,7 +34,8 @@ import org.slf4j.LoggerFactory;
 public class MapEditor
    extends TextPropertyEditorSupport
 {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(MapEditor.class);
+    
     /**
      *
      * @throws PropertyEditorException  An IOException occured.

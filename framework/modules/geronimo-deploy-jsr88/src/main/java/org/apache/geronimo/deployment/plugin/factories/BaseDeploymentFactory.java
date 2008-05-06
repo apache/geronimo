@@ -48,7 +48,7 @@ import org.apache.geronimo.kernel.KernelRegistry;
  * @version $Rev$ $Date$
  */
 public class BaseDeploymentFactory implements DeploymentFactory {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(BaseDeploymentFactory.class);
 
     public static final String URI_PREFIX = "deployer:geronimo:";
     private static final int DEFAULT_PORT = 1099;

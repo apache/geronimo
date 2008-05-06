@@ -33,7 +33,8 @@ import org.apache.geronimo.gbean.GBeanLifecycle;
  * @version $Rev$ $Date$
  */
 public class RMIRegistryService implements GBeanLifecycle {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(RMIRegistryService.class);
+    
     private int port = Registry.REGISTRY_PORT;
     private String host = "0.0.0.0";
     private Registry registry;

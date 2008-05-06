@@ -73,7 +73,7 @@ import org.codehaus.plexus.archiver.ArchiverException;
  * @version $Rev$ $Date$
  */
 public class RemoteDeploymentManager extends JMXDeploymentManager implements GeronimoDeploymentManager, ServerArchiver {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(RemoteDeploymentManager.class);
 
     private JMXConnector jmxConnector;
     private boolean isSameMachine;

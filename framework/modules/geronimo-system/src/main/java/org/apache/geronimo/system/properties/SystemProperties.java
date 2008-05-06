@@ -29,9 +29,9 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
 /**
  * @version $Rev$ $Date$
  */
-public class SystemProperties {
-
-    private final Logger log = LoggerFactory.getLogger(getClass());
+public class SystemProperties
+{
+    private static final Logger log = LoggerFactory.getLogger(SystemProperties.class);
 
     public SystemProperties(Properties systemProperties, Properties systemPathProperties, ServerInfo serverInfo, Properties sunSystemProperties, Properties ibmSystemProperties, Properties apacheSystemProperties) {
         if (log.isDebugEnabled()) log.debug("Setting systemProperties");

@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
 public class JexlConditionParser
     implements ConditionParser
 {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(JexlConditionParser.class);
 
     private final Map<String, Object> vars;
 

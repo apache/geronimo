@@ -31,8 +31,9 @@ import org.slf4j.LoggerFactory;
  *
  * @version $Rev$ $Date$
  */
-public class JexlExpressionParser {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+public class JexlExpressionParser
+{
+    private static final Logger log = LoggerFactory.getLogger(JexlExpressionParser.class);
 
     protected JexlContext context;
 

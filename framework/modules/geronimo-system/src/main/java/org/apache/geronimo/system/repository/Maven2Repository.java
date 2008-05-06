@@ -30,12 +30,12 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
  */
 public class Maven2Repository extends org.apache.geronimo.kernel.repository.Maven2Repository {
 
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(Maven2Repository.class);
+    
     public Maven2Repository(URI root, ServerInfo serverInfo, boolean resolveToServer) {
         super(new ServerInfoRootResolver(serverInfo, resolveToServer).resolve(root));
-        log.debug("Maven2Repository(root = " + root + ", resolveToServer = "
-                + resolveToServer + ") rootFile = "
-                + rootFile.getAbsolutePath());
+        
+        log.debug("Maven2Repository(root = {}, resolveToServer = {}) rootFile = {}", new Object[] { root, resolveToServer, rootFile });
     }
 
     public Maven2Repository(File rootFile) {

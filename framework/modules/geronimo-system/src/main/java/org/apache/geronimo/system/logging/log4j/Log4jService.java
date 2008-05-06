@@ -80,7 +80,7 @@ public class Log4jService implements GBeanLifecycle, SystemLog {
     // Pattern that matches a single line  (used to calculate line numbers and check for follow-on stack traces)
     private final static Pattern FULL_LINE_PATTERN = Pattern.compile("^.*", Pattern.MULTILINE);
 
-    private final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(getClass());
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(Log4jService.class);
 
     private static final String LOG4JSERVICE_CONFIG_PROPERTY = "org.apache.geronimo.log4jservice.configuration";
 

@@ -45,7 +45,6 @@ import org.apache.geronimo.kernel.config.DebugLoggingLifecycleMonitor;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.MissingDependencyException;
 
-
 /**
  * @version $Rev$ $Date$
  */

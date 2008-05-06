@@ -26,9 +26,6 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import junit.framework.TestCase;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.geronimo.kernel.rmi.RMIClassLoaderSpiImpl;
 
 /**
@@ -37,8 +34,6 @@ import org.apache.geronimo.kernel.rmi.RMIClassLoaderSpiImpl;
  * @version $Rev$ $Date$
  */
 public class RMIClassLoaderSpiImplTest extends TestCase {
-    private final Logger log = LoggerFactory.getLogger(getClass());
-    
     private String baseURL;
     private String normalizedBaseURL;
 
@@ -54,9 +49,6 @@ public class RMIClassLoaderSpiImplTest extends TestCase {
         if (normalizedBaseURL.endsWith("/")) {
             normalizedBaseURL = normalizedBaseURL.substring(0, normalizedBaseURL.length() - 1);
         }
-
-        log.debug("Using base URL: {}", baseURL);
-        log.debug("Using normalized base URL: {}", normalizedBaseURL);
     }
 
     public void testNormalizeURL() throws MalformedURLException {

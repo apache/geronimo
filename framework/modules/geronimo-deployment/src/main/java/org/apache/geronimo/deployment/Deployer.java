@@ -66,8 +66,9 @@ import org.apache.geronimo.system.main.CommandLineManifest;
  * @version $Rev$ $Date$
  */
 public class Deployer implements GBeanLifecycle {
-    private final Logger log = LoggerFactory.getLogger(getClass());
-    private final int REAPER_INTERVAL = 60 * 1000;    
+    private static final Logger log = LoggerFactory.getLogger(Deployer.class);
+    
+    private final int REAPER_INTERVAL = 60 * 1000;
     private DeployerReaper reaper;
     private final String remoteDeployAddress;
     private final Collection builders;

@@ -301,7 +301,7 @@ public class KernelConfigurationManager extends SimpleConfigurationManager imple
     private static class ShutdownHook implements Runnable {
         private final Kernel kernel;
         
-        private final Logger log = LoggerFactory.getLogger(getClass());
+        private final Logger log = LoggerFactory.getLogger(ShutdownHook.class);
         
         public ShutdownHook(Kernel kernel) {
             this.kernel = kernel;

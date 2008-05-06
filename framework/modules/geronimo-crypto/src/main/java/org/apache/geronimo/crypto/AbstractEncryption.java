@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
  * @version $Rev$ $Date$
  */
 public abstract class AbstractEncryption implements Encryption {
-    private Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(AbstractEncryption.class);
     
     /**
      * Gets a String which contains the Base64-encoded form of the source,

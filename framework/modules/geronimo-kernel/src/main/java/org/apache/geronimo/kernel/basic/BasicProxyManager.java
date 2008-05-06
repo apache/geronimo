@@ -46,7 +46,7 @@ import org.apache.geronimo.kernel.proxy.ProxyManager;
  */
 public class BasicProxyManager implements ProxyManager {
     private final static String MANAGED_BEAN_NAME = "org.apache.geronimo.kernel.proxy.GeronimoManagedBean";
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private final static Logger log = LoggerFactory.getLogger(BasicProxyManager.class);
     private final Kernel kernel;
 
     private final Map interceptors = Collections.synchronizedMap(new BasicProxyMap());

@@ -46,12 +46,10 @@ import org.apache.geronimo.security.SecurityServiceImpl;
  * @version $Rev$ $Date$
  */
 public class GeronimoLoginConfiguration extends Configuration implements GBeanLifecycle, ReferenceCollectionListener {
-
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(GeronimoLoginConfiguration.class);
     private static Map<String, AppConfigurationEntry[]> entries = new Hashtable<String, AppConfigurationEntry[]>();
     private Configuration oldConfiguration;
     private Collection<ConfigurationEntryFactory> configurations = Collections.emptySet();
-
 
     public Collection getConfigurations() {
         SecurityManager sm = System.getSecurityManager();

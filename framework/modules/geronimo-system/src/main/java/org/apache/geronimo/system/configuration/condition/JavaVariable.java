@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
  */
 public class JavaVariable
 {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(JavaVariable.class);
     
     public String getVendor() {
         return SystemUtils.JAVA_VENDOR;

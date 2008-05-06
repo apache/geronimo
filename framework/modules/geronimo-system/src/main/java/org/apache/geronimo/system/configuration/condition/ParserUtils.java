@@ -28,12 +28,12 @@ import org.slf4j.LoggerFactory;
  *
  * @version $Rev: 476049 $ $Date: 2006-11-16 23:35:17 -0500 (Thu, 16 Nov 2006) $
  */
-public class ParserUtils {
-
+public class ParserUtils
+{
     public static void addDefaultVariables(Map vars) {
-        vars.put("java", new JavaVariable());    
+        vars.put("java", new JavaVariable());
         vars.put("os", new OsVariable());
-    
+        
         // Install properties (to allow getProperty(x,y) to be used for defaults
         Properties props = new Properties();
         props.putAll(System.getProperties());
@@ -41,10 +41,13 @@ public class ParserUtils {
     }
        
     public static class DebugHashMapContext extends HashMapContext {
-        private final Logger LOG = LoggerFactory.getLogger(getClass());
+        private static final Logger log = LoggerFactory.getLogger(DebugHashMapContext.class);
+        
         public Object get(Object o) {
             Object r = super.get(o);
-            LOG.debug("Get property: " + o + " " + r);
+            
+            log.debug("Get property: {} {}", o, r);
+            
             return r;
         }
     }

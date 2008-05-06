@@ -67,7 +67,7 @@ import org.apache.geronimo.crypto.asn1.x509.X509Name;
  * @version $Rev$ $Date$
  */
 public class GeronimoCertificationAuthority implements CertificationAuthority, GBeanLifecycle {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(GeronimoCertificationAuthority.class);
 
     private ServerInfo serverInfo;
     private Kernel kernel;

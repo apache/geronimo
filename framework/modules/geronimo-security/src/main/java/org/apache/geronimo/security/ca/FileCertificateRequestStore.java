@@ -45,7 +45,7 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
  * @version $Rev$ $Date$
  */
 public class FileCertificateRequestStore implements CertificateRequestStore, GBeanLifecycle {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(FileCertificateRequestStore.class);
     
     // File name to store certificate request status
     private static final String CSR_STATUS_FILENAME = "csr-status.properties";

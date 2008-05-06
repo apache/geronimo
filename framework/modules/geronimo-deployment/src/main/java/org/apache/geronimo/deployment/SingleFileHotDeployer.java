@@ -47,7 +47,7 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
  * @version $Rev$ $Date$
  */
 public class SingleFileHotDeployer {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(SingleFileHotDeployer.class);
     private static final String LINE_SEP = System.getProperty("line.separator");
     private final File dir;
     private final String[] watchPaths;

@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
  * @version $Rev$ $Date$
  */
 public class CertificateChainCallbackHandler implements CallbackHandler {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(CertificateChainCallbackHandler.class);
     Certificate[] certificateChain;
 
     public CertificateChainCallbackHandler(Certificate[] certificateChain) {

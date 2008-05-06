@@ -31,14 +31,10 @@ import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXParseException;
 
 /**
- *
- *
  * @version $Rev$ $Date$
- *
- * */
+ */
 public class ParserFactoryImpl implements ParserFactory {
-
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(ParserFactoryImpl.class);
 
     private final DocumentBuilderFactory factory;
     private EntityResolver entityResolver;

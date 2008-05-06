@@ -59,7 +59,6 @@ import org.apache.geronimo.security.jaas.WrappingLoginModule;
 import org.apache.geronimo.crypto.encoders.Base64;
 import org.apache.geronimo.crypto.encoders.HexTranslator;
 
-
 /**
  * A login module that loads security information from a SQL database.  Expects
  * to be run by a GenericSecurityRealm (doesn't work on its own).
@@ -85,7 +84,8 @@ import org.apache.geronimo.crypto.encoders.HexTranslator;
  * @version $Rev$ $Date$
  */
 public class SQLLoginModule implements LoginModule {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(SQLLoginModule.class);
+    
     public final static String USER_SELECT = "userSelect";
     public final static String GROUP_SELECT = "groupSelect";
     public final static String CONNECTION_URL = "jdbcURL";

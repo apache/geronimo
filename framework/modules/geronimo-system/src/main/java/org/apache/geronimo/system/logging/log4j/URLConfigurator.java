@@ -38,7 +38,7 @@ import org.apache.log4j.xml.DOMConfigurator;
  * @version $Rev$ $Date$
  */
 public class URLConfigurator implements Configurator {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(URLConfigurator.class);
 
     public static void configure(final URL url) {
         new URLConfigurator().doConfigure(url, LogManager.getLoggerRepository());

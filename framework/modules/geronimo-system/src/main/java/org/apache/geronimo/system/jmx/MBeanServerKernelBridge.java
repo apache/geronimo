@@ -45,7 +45,7 @@ import org.apache.geronimo.kernel.lifecycle.LifecycleAdapter;
  * @version $Rev$ $Date$
  */
 public class MBeanServerKernelBridge implements GBeanLifecycle {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(MBeanServerKernelBridge.class);
     private static final AbstractNameQuery ALL = new AbstractNameQuery(null, Collections.EMPTY_MAP, Collections.EMPTY_SET);
 
     private final HashMap registry = new HashMap();

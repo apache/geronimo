@@ -31,7 +31,6 @@ import org.apache.geronimo.security.jacc.PolicyContextHandlerSOAPMessage;
 import org.apache.geronimo.security.util.ConfigurationUtil;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 
-
 /**
  * An MBean that registers the JACC factory and handlers.
  *
@@ -41,7 +40,7 @@ public class SecurityServiceImpl implements SecurityService {
 
     public static boolean POLICY_INSTALLED = false;
 
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(SecurityServiceImpl.class);
 
     /**
      * Permissions that protect access to sensitive security information

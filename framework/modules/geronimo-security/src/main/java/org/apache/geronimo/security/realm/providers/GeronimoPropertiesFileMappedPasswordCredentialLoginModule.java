@@ -70,7 +70,7 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
  */
 public class GeronimoPropertiesFileMappedPasswordCredentialLoginModule implements LoginModule {
 
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(GeronimoPropertiesFileMappedPasswordCredentialLoginModule.class);
     public final static String CREDENTIALS_URI = "credentialsURI";
     public final static List<String> supportedOptions = Collections.unmodifiableList(Arrays.asList(CREDENTIALS_URI));
     private final static Pattern pattern = Pattern.compile("([^:,=]*):([^:,=]*)=([^:,=]*)");

@@ -41,7 +41,6 @@ import org.slf4j.LoggerFactory;
 import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
 import org.apache.geronimo.security.jaas.WrappingLoginModule;
 
-
 /**
  * An example LoginModule that authenticates based on a client certificate.
  * Authentication is provided by the SSL layer supplying the client certificate.
@@ -54,7 +53,7 @@ import org.apache.geronimo.security.jaas.WrappingLoginModule;
  * @version $Rev$ $Date$
  */
 public class CertificateChainLoginModule implements LoginModule {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(CertificateChainLoginModule.class);
 
     // Note: If this LoginModule supports any options, the Collections.EMPTY_LIST in the following should be
     // replaced with the list of supported options for e.g. Arrays.asList(option1, option2, ...) etc.

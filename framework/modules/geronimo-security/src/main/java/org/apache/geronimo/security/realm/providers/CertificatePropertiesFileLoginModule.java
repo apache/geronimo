@@ -68,7 +68,7 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
  * @version $Rev$ $Date$
  */
 public class CertificatePropertiesFileLoginModule implements LoginModule {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(CertificatePropertiesFileLoginModule.class);
     public final static String USERS_URI = "usersURI";
     public final static String GROUPS_URI = "groupsURI";
     public final static List<String> supportedOptions = Collections.unmodifiableList(Arrays.asList(USERS_URI, GROUPS_URI));

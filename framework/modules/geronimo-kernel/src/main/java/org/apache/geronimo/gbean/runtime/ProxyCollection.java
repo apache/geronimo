@@ -39,7 +39,7 @@ import java.util.Set;
  * @version $Rev$ $Date$
  */
 class ProxyCollection implements ReferenceCollection {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(ProxyCollection.class);
     private final String name;
     private final Kernel kernel;
     private final Map proxies = new HashMap();

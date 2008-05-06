@@ -59,7 +59,7 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
  * @version $Rev$ $Date$
  */
 public class FileAuditLoginModule implements LoginModule {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(FileAuditLoginModule.class);
 
     public static final String LOG_FILE_OPTION = "file";
     public final static List<String> supportedOptions = Collections.unmodifiableList(Arrays.asList(LOG_FILE_OPTION));

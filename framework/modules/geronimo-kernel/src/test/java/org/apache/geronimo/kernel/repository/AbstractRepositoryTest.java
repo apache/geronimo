@@ -26,15 +26,10 @@ import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ListableRepository;
 import org.apache.geronimo.kernel.repository.Version;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * @version $Rev: 476049 $ $Date: 2006-11-17 15:35:17 +1100 (Fri, 17 Nov 2006) $
  */
 public class AbstractRepositoryTest extends TestCase {
-    private final Logger log = LoggerFactory.getLogger(getClass());
-    
     protected ListableRepository repository;
     protected File rootRepoDir;
 
@@ -83,8 +78,6 @@ public class AbstractRepositoryTest extends TestCase {
 
     public void testListAll() {
         SortedSet artifacts = repository.list();
-        log.debug("Matched artifacts: {}", artifacts);
-
         assertTrue(artifacts.contains(new Artifact("org.foo", "test", "2.0.1", "properties")));
         assertFalse(artifacts.contains(new Artifact("Unknown", "artifact", "2.0.1", "properties")));
         assertEquals(4, artifacts.size());

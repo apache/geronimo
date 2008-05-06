@@ -46,9 +46,8 @@ import org.apache.geronimo.crypto.CaUtils;
  *
  * @version $Rev$ $Date$
  */
-
 public class FileCertificateStore implements CertificateStore, GBeanLifecycle {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(FileCertificateStore.class);
 
     private ServerInfo serverInfo;
     private Kernel kernel;

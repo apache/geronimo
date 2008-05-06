@@ -91,7 +91,7 @@ import org.apache.geronimo.crypto.jce.X509V1CertificateGenerator;
  * @version $Rev$ $Date$
  */
 public class FileKeystoreInstance implements KeystoreInstance, GBeanLifecycle {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(FileKeystoreInstance.class);
     final static String JKS = "JKS";
     private URI keystorePath; // relative path
     private ServerInfo serverInfo; // used to decode relative path

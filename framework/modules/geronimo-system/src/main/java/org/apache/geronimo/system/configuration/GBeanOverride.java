@@ -58,7 +58,7 @@ import org.apache.geronimo.crypto.EncryptionManager;
  */
 public class GBeanOverride implements Serializable {
 
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(GBeanOverride.class);
 
     public static final String ATTRIBUTE_NAMESPACE = "http://geronimo.apache.org/xml/ns/attributes-1.2";
     private final Object name;
