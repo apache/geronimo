@@ -60,7 +60,7 @@
                 <lc:login-module control-flag="REQUIRED" server-side="true" wrap-principals="true">
                     <lc:login-domain-name>default</lc:login-domain-name>
                     <lc:login-module-class>org.apache.geronimo.security.realm.providers.NamedUsernamePasswordCredentialLoginModule</lc:login-module-class>
-                    <lc:option name="org.apache.geronimo.jaas.NamedUsernamePasswordCredential.Name">default</lc:option>
+                    <lc:option name="Name">default</lc:option>
                 </lc:login-module>
             </lc:login-config>
         </xml-reference>
