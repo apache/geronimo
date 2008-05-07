@@ -78,7 +78,9 @@ public class DeployModuleMojo
 
         if (moduleArchive != null || modulePlan != null) {
             log.info("Using non-artifact based module archive: " + moduleArchive);
-            log.info("Using non-artifact based plan: " + modulePlan);
+            if (modulePlan != null) {
+                log.info("Using non-artifact based plan: " + modulePlan);
+            }
 
             TargetModuleID[] ids = distribute(moduleArchive, modulePlan);
             completed.add(ids);
@@ -143,7 +145,13 @@ public class DeployModuleMojo
     }
 
     private TargetModuleID[] distribute(final File file, final File plan) throws Exception {
-        log.info("Distributing module artifact: " + file + " with plan " + plan);
+        if (log.isInfoEnabled()) {
+            String msg = "Distributing module artifact: " + file;
+            if (plan != null) {
+                msg += " with plan " + plan;
+            }
+            log.info(msg);
+        }
 
         DeploymentManager manager = getDeploymentManager();
         Target[] targets = manager.getTargets();
