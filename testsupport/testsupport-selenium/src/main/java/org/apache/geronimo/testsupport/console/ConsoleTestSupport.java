@@ -22,7 +22,7 @@ package org.apache.geronimo.testsupport.console;
 import org.apache.geronimo.testsupport.SeleniumTestSupport;
 
 /**
- * ???
+ * Provides support for console-related tests.
  *
  * @version $Rev$ $Date$
  */
@@ -31,28 +31,27 @@ public abstract class ConsoleTestSupport
 {
     protected void login() throws Exception {
         selenium.open("/");
-        selenium.waitForPageToLoad("30000");
+        waitForLoad();
+        
         assertEquals("Apache Geronimo", selenium.getTitle());
         
         selenium.click("link=Console");
-        selenium.waitForPageToLoad("30000");
+        waitForLoad();
+        
         assertEquals("Geronimo Console Login", selenium.getTitle());
         
         selenium.type("j_username", "system");
         selenium.type("j_password", "manager");
         selenium.click("submit");
-        selenium.waitForPageToLoad("30000");
+        waitForLoad();
         assertEquals("Geronimo Console", selenium.getTitle());
     }
     
     protected void logout() throws Exception {
-        // log body for debugging purposes
-        if (!selenium.isElementPresent("//a[contains(@href, '/console/logout.jsp')]")) {
-            System.out.println(selenium.getBodyText());
-        }
-
         selenium.click("//a[contains(@href, '/console/logout.jsp')]");
-        selenium.waitForPageToLoad("30000");
+        
+        waitForLoad();
+        
         assertEquals("Geronimo Console Login", selenium.getTitle());
         
         //selenium.removeCookie("JSESSIONID", "/");

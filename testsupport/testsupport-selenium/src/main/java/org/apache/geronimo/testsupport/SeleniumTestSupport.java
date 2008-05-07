@@ -29,7 +29,7 @@ import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.AfterSuite;
 
 /**
- * ???
+ * Provides support for Selenium test cases.
  *
  * @version $Rev$ $Date$
  */
@@ -67,7 +67,11 @@ public class SeleniumTestSupport
         
         selenium.stop();
     }
-
+    
+    protected void waitForLoad() throws Exception {
+        selenium.waitForPageToLoad("30000");
+    }
+    
     /**
      * junit's per class setup.
      * 
@@ -87,6 +91,6 @@ public class SeleniumTestSupport
         
         selenium.stop();
     }
-     */
+    */
 }
 
