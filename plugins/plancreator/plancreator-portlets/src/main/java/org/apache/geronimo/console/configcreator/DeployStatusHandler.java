@@ -31,6 +31,7 @@ import javax.portlet.RenderResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.geronimo.console.MultiPageModel;
+import org.apache.geronimo.console.configcreator.configData.WARConfigData;
 
 /**
  * A handler for ...
@@ -51,7 +52,7 @@ public class DeployStatusHandler extends AbstractHandler {
 
     public void renderView(RenderRequest request, RenderResponse response, MultiPageModel model)
             throws PortletException, IOException {
-        WARConfigData data = getSessionData(request);
+        WARConfigData data = getWARSessionData(request);
         try {
             File moduleFile = new File(new URI(data.getUploadedWarUri()));
 

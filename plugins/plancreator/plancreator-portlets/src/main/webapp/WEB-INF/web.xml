@@ -30,9 +30,34 @@ limitations under the License.
         <load-on-startup>1</load-on-startup>
     </servlet>
 
+    <servlet>
+      <servlet-name>dwr-invoker</servlet-name>
+      <servlet-class>org.directwebremoting.servlet.DwrServlet</servlet-class>
+      <init-param>
+        <param-name>classes</param-name>
+        <param-value>
+            org.apache.geronimo.console.configcreator.configData.EARHelper,
+            org.apache.geronimo.console.configcreator.configData.EARHelper$EarJsonTree,
+            org.apache.geronimo.console.configcreator.configData.EARHelper$TreeNode,
+            org.apache.geronimo.console.configcreator.configData.EARHelper$TreeFolder,
+            org.apache.geronimo.console.configcreator.configData.EARHelper$EnvironmentJson,
+            org.apache.geronimo.console.configcreator.configData.EARHelper$DependenciesJsonTree
+        </param-value>
+      </init-param>
+      <init-param>
+          <param-name>activeReverseAjaxEnabled</param-name>
+          <param-value>true</param-value>
+      </init-param>
+    </servlet>
+
     <servlet-mapping>
         <servlet-name>PlanCreator</servlet-name>
         <url-pattern>/PlutoInvoker/PlanCreator</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>dwr-invoker</servlet-name>
+        <url-pattern>/dwr5/*</url-pattern>
     </servlet-mapping>
 
     <security-constraint>
@@ -55,4 +80,21 @@ limitations under the License.
         <role-name>admin</role-name>
     </security-role>
 
+    <!--
+    For security reasons requests to the dwr servlet go through
+    the "/console" web-app context. The purpose of dwr-filter is
+    to map the attributes such as pathInfo, requestURI, etc. of
+    the original request into the request that is delivered to
+    the dwr-invoker servlet.  The dwr-invoker servlet uses those
+    attributes to create URLs that it sends back to the client.
+    -->
+    <filter>
+        <filter-name>dwr-filter</filter-name>
+        <filter-class>org.apache.geronimo.console.servlet.ForwardDispatchFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>dwr-filter</filter-name>
+        <servlet-name>dwr-invoker</servlet-name>
+        <dispatcher>FORWARD</dispatcher>
+    </filter-mapping>
 </web-app>

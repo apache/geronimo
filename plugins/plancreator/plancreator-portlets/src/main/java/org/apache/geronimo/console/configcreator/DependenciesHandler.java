@@ -29,6 +29,7 @@ import javax.portlet.RenderResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.geronimo.console.MultiPageModel;
+import org.apache.geronimo.console.configcreator.configData.WARConfigData;
 
 /**
  * A handler for ...
@@ -49,10 +50,11 @@ public class DependenciesHandler extends AbstractHandler {
 
     public void renderView(RenderRequest request, RenderResponse response, MultiPageModel model)
             throws PortletException, IOException {
-        WARConfigData data = getSessionData(request);
+        WARConfigData data = getWARSessionData(request);
+        data.consolidateDependencies();
         request.setAttribute(DATA_PARAMETER, data);
-        List commonLibs = JSR77_Util.getCommonLibs(request);
-        List addedDependencies = data.getDependencies();
+        List<String> commonLibs = JSR77_Util.getCommonLibs(request);
+        List<String> addedDependencies = data.getEnvironmentConfig().getDependencies();
         //addedDependencies will be a subset of commonLibs
         //sort commonLibs so that addedDependencies show up towards the beginning
         commonLibs.removeAll(addedDependencies);
@@ -64,11 +66,11 @@ public class DependenciesHandler extends AbstractHandler {
 
     public String actionAfterView(ActionRequest request, ActionResponse response, MultiPageModel model)
             throws PortletException, IOException {
-        WARConfigData data = getSessionData(request);
-        data.getDependencies().clear();
+        WARConfigData data = getWARSessionData(request);
+        data.getEnvironmentConfig().getDependenciesSet().clear();
         String[] selectedJars = request.getParameterValues(SELECTED_LIBS_PARAMETER);
         for (int i = 0; selectedJars != null && i < selectedJars.length; i++) {
-            data.getDependencies().add(selectedJars[i]);
+            data.getEnvironmentConfig().getDependenciesSet().add(selectedJars[i]);
         }
         return DISPLAY_PLAN_MODE + "-before";
     }

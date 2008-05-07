@@ -19,7 +19,6 @@ package org.apache.geronimo.console.configcreator;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.SortedSet;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
@@ -28,6 +27,7 @@ import javax.portlet.PortletRequest;
 import org.apache.geronimo.console.util.PortletManager;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ListableRepository;
 import org.apache.geronimo.management.EJBModule;
 import org.apache.geronimo.management.J2EEResource;
@@ -70,8 +70,8 @@ public class JSR77_Util {
         }
     }
 
-    protected static List getDeployedEJBs(PortletRequest request) {
-        List ejbList = new ArrayList();
+    protected static List<ReferredData> getDeployedEJBs(PortletRequest request) {
+        List<ReferredData> ejbList = new ArrayList<ReferredData>();
         EJBModule[] ejbModules = PortletManager.getManagementHelper(request).getEJBModules(
                 PortletManager.getCurrentServer(request));
         for (int i = 0; ejbModules != null && i < ejbModules.length; i++) {
@@ -102,11 +102,11 @@ public class JSR77_Util {
         return ejbList;
     }
 
-    protected static List getJMSConnectionFactories(PortletRequest request) {
+    protected static List<ReferredData> getJMSConnectionFactories(PortletRequest request) {
         // TODO this is a duplicate of the code from
         // org.apache.geronimo.console.jmsmanager.wizard.ListScreenHandler.populateExistingList()
         // TODO need to eliminate this duplicate code probably by putting it in a common place
-        List connectionFactories = new ArrayList();
+        List<ReferredData> connectionFactories = new ArrayList<ReferredData>();
 
         // Get the list of connection factories
         ResourceAdapterModule[] modules = PortletManager.getOutboundRAModules(request, new String[] {
@@ -137,11 +137,11 @@ public class JSR77_Util {
         return connectionFactories;
     }
 
-    protected static List getJMSDestinations(PortletRequest request) {
+    protected static List<ReferredData> getJMSDestinations(PortletRequest request) {
         // TODO this is a duplicate of the code from
         // org.apache.geronimo.console.jmsmanager.wizard.ListScreenHandler.populateExistingList()
         // TODO need to eliminate this duplicate code probably by putting it in a common place
-        List jmsDestinations = new ArrayList();
+        List<ReferredData> jmsDestinations = new ArrayList<ReferredData>();
 
         // Get the list of connection factories
         ResourceAdapterModule[] modules = PortletManager.getOutboundRAModules(request, new String[] {
@@ -171,11 +171,11 @@ public class JSR77_Util {
         return jmsDestinations;
     }
 
-    protected static List getJDBCConnectionPools(PortletRequest request) {
+    protected static List<ReferredData> getJDBCConnectionPools(PortletRequest request) {
         // TODO this is a duplicate of the code from
         // org.apache.geronimo.console.databasemanager.wizard.DatabasePoolPortlet.populatePoolList()
         // TODO need to eliminate this duplicate code probably by putting it in a common place
-        List list = new ArrayList();
+        List<ReferredData> list = new ArrayList<ReferredData>();
         ResourceAdapterModule[] modules = PortletManager.getOutboundRAModules(request, "javax.sql.DataSource");
         for (int i = 0; i < modules.length; i++) {
             ResourceAdapterModule module = modules[i];
@@ -194,8 +194,8 @@ public class JSR77_Util {
         return list;
     }
 
-    protected static List getJavaMailSessions(PortletRequest request) {
-        List mailSessionList = new ArrayList();
+    protected static List<ReferredData> getJavaMailSessions(PortletRequest request) {
+        List<ReferredData> mailSessionList = new ArrayList<ReferredData>();
         J2EEResource[] j2eeResources = PortletManager.getManagementHelper(request).getResources(
                 PortletManager.getCurrentServer(request));
         for (int i = 0; i < j2eeResources.length; i++) {
@@ -219,8 +219,8 @@ public class JSR77_Util {
         return mailSessionList;
     }
 
-    protected static List getDeployedCredentialStores(PortletRequest request) {
-        List credentialStoreList = new ArrayList();
+    protected static List<ReferredData> getDeployedCredentialStores(PortletRequest request) {
+        List<ReferredData> credentialStoreList = new ArrayList<ReferredData>();
         Object[] objects = PortletManager.getGBeansImplementing(request,
                 org.apache.geronimo.security.credentialstore.CredentialStore.class);
         for (int i = 0; i < objects.length; i++) {
@@ -234,16 +234,15 @@ public class JSR77_Util {
         return credentialStoreList;
     }
 
-    protected static List getCommonLibs(PortletRequest request) {
+    protected static List<String> getCommonLibs(PortletRequest request) {
         // TODO this is a duplicate of the code from
         // org.apache.geronimo.console.repository.RepositoryViewPortlet.doView()
         // TODO need to eliminate this duplicate code probably by putting it in a common place
-        List list = new ArrayList();
+        List<String> list = new ArrayList<String>();
         ListableRepository[] repos = PortletManager.getCurrentServer(request).getRepositories();
         for (int i = 0; i < repos.length; i++) {
             ListableRepository repo = repos[i];
-            final SortedSet artifacts = repo.list();
-            for (Iterator iterator = artifacts.iterator(); iterator.hasNext();) {
+            for (Iterator<Artifact> iterator = repo.list().iterator(); iterator.hasNext();) {
                 String fileName = iterator.next().toString();
                 list.add(fileName);
             }

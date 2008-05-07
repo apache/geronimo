@@ -43,7 +43,7 @@ web-application is dependent. Default selections should be sufficient in most sc
   <c:forEach var="commonLib" items="${commonLibs}">
     <tr>
       <td><input type="checkbox" name="selectedLibs" value="${commonLib}"
-        <c:forEach var="dependency" items="${data.dependencies}">
+        <c:forEach var="dependency" items="${data.environmentConfig.dependencies}">
           <c:if test="${commonLib == dependency}">checked="checked"
           </c:if>
         </c:forEach> />

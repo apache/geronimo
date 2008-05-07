@@ -144,7 +144,7 @@ to which they can be linked are shown to the right.</p>
 <input type="hidden" name="mode" value="references-after" />
 
 <!-- ENTRY FIELD: EJB References -->
-<c:if test="${!empty(data.ejbRefs)}">
+<c:if test="${!empty(data.webApp.ejbRefArray)}">
   <p><b>EJB References:</b></p>
   <table border="0" width="100%">
     <tr>
@@ -152,7 +152,7 @@ to which they can be linked are shown to the right.</p>
       <th class="DarkBackground" align="center">EJBs Deployed</th>
     </tr>
     <c:set var="backgroundClass" value='MediumBackground'/>
-    <c:forEach var="refData" items="${data.ejbRefs}" varStatus="status">
+    <c:forEach var="ejbRef" items="${data.webApp.ejbRefArray}" varStatus="status">
       <c:choose>
         <c:when test="${backgroundClass == 'MediumBackground'}" >
           <c:set var="backgroundClass" value='LightBackground'/>
@@ -161,10 +161,10 @@ to which they can be linked are shown to the right.</p>
           <c:set var="backgroundClass" value='MediumBackground'/>
         </c:otherwise>
       </c:choose>
-      <input type="hidden" name="ejbRef.${status.index}.refName" value="${refData.refName}" />
+      <input type="hidden" name="ejbRef.${status.index}.refName" value="${ejbRef.refName}" />
       <tr>
         <td class="${backgroundClass}">
-          <div align="right">${refData.refName}</div>
+          <div align="right">${ejbRef.refName}</div>
         </td>
         <td class="${backgroundClass}">
           <select name="ejbRef.${status.index}.refLink">
@@ -179,7 +179,7 @@ to which they can be linked are shown to the right.</p>
 </c:if>
 
 <!-- ENTRY FIELD: EJB Local References -->
-<c:if test="${!empty(data.ejbLocalRefs)}">
+<c:if test="${!empty(data.webApp.ejbLocalRefArray)}">
   <p><b>EJB Local References:</b></p>
   <table border="0" width="100%">
     <tr>
@@ -187,7 +187,7 @@ to which they can be linked are shown to the right.</p>
       <th class="DarkBackground" align="center">EJBs Deployed</th>
     </tr>
     <c:set var="backgroundClass" value='MediumBackground'/>
-    <c:forEach var="refData" items="${data.ejbLocalRefs}" varStatus="status">
+    <c:forEach var="ejbLocalRef" items="${data.webApp.ejbLocalRefArray}" varStatus="status">
       <c:choose>
         <c:when test="${backgroundClass == 'MediumBackground'}" >
           <c:set var="backgroundClass" value='LightBackground'/>
@@ -196,10 +196,10 @@ to which they can be linked are shown to the right.</p>
           <c:set var="backgroundClass" value='MediumBackground'/>
         </c:otherwise>
       </c:choose>
-      <input type="hidden" name="ejbLocalRef.${status.index}.refName" value="${refData.refName}" />
+      <input type="hidden" name="ejbLocalRef.${status.index}.refName" value="${ejbLocalRef.refName}" />
       <tr>
         <td class="${backgroundClass}">
-          <div align="right">${refData.refName}</div>
+          <div align="right">${ejbLocalRef.refName}</div>
         </td>
         <td class="${backgroundClass}">
           <select name="ejbLocalRef.${status.index}.refLink">
@@ -214,7 +214,7 @@ to which they can be linked are shown to the right.</p>
 </c:if>
 
 <!-- ENTRY FIELD: JDBC Connection Pool References -->
-<c:if test="${!empty(data.jdbcPoolRefs)}">
+<c:if test="${!empty(data.jndiRefsConfig.jdbcPoolRefs)}">
   <p><b>JDBC Pool References:</b></p>
   <table border="0" width="100%">
     <tr>
@@ -222,7 +222,7 @@ to which they can be linked are shown to the right.</p>
       <th class="DarkBackground" align="center">JDBC Pools</th>
     </tr>
     <c:set var="backgroundClass" value='MediumBackground'/>
-    <c:forEach var="refData" items="${data.jdbcPoolRefs}" varStatus="status">
+    <c:forEach var="refData" items="${data.jndiRefsConfig.jdbcPoolRefs}" varStatus="status">
       <c:choose>
         <c:when test="${backgroundClass == 'MediumBackground'}" >
           <c:set var="backgroundClass" value='LightBackground'/>
@@ -249,7 +249,7 @@ to which they can be linked are shown to the right.</p>
 </c:if>
 
 <!-- ENTRY FIELD: JMS Connection Factory References -->
-<c:if test="${!empty(data.jmsConnectionFactoryRefs)}">
+<c:if test="${!empty(data.jndiRefsConfig.jmsConnectionFactoryRefs)}">
   <p><b>JMS Connection Factory References:</b></p>
   <table border="0" width="100%">
     <tr>
@@ -257,7 +257,7 @@ to which they can be linked are shown to the right.</p>
       <th class="DarkBackground" align="center">JMS Factories</th>
     </tr>
     <c:set var="backgroundClass" value='MediumBackground'/>
-    <c:forEach var="refData" items="${data.jmsConnectionFactoryRefs}" varStatus="status">
+    <c:forEach var="refData" items="${data.jndiRefsConfig.jmsConnectionFactoryRefs}" varStatus="status">
       <c:choose>
         <c:when test="${backgroundClass == 'MediumBackground'}" >
           <c:set var="backgroundClass" value='LightBackground'/>
@@ -284,7 +284,7 @@ to which they can be linked are shown to the right.</p>
 </c:if>
 
 <!-- ENTRY FIELD: JMS Destination References -->
-<c:if test="${!empty(data.jmsDestinationRefs) || !empty(data.messageDestinations)}">
+<c:if test="${!empty(data.webApp.resourceEnvRefArray) || !empty(data.webApp.messageDestinationArray)}">
   <p><b>JMS Destination References:</b></p>
   <table border="0" width="100%">
     <tr>
@@ -292,7 +292,7 @@ to which they can be linked are shown to the right.</p>
       <th class="DarkBackground" align="center">JMS Destinations</th>
     </tr>
     <c:set var="backgroundClass" value='MediumBackground'/>
-    <c:forEach var="refData" items="${data.jmsDestinationRefs}" varStatus="status">
+    <c:forEach var="resourceEnvRef" items="${data.webApp.resourceEnvRefArray}" varStatus="status">
       <c:choose>
         <c:when test="${backgroundClass == 'MediumBackground'}" >
           <c:set var="backgroundClass" value='LightBackground'/>
@@ -301,23 +301,23 @@ to which they can be linked are shown to the right.</p>
           <c:set var="backgroundClass" value='MediumBackground'/>
         </c:otherwise>
       </c:choose>
-      <input type="hidden" name="jmsDestinationRef.${status.index}.refName" value="${refData.refName}" />
+      <input type="hidden" name="jmsDestinationRef.${status.index}.refName" value="${resourceEnvRef.refName}" />
       <tr>
         <td class="${backgroundClass}">
-          <div align="right">${refData.refName}</div>
+          <div align="right">${resourceEnvRef.refName}</div>
         </td>
         <td class="${backgroundClass}">
           <select name="jmsDestinationRef.${status.index}.refLink">
             <c:forEach var="jmsDestination" items="${deployedJmsDestinations}">
               <option value="${jmsDestination.patternName}" 
-                <c:if test="${fn:startsWith(jmsDestination.displayName, refData.refLink)}"> selected="selected"</c:if>
+                <c:if test="${fn:startsWith(jmsDestination.displayName, resourceEnvRef.messageDestinationLink)}"> selected="selected"</c:if>
               >${jmsDestination.displayName}</option>
             </c:forEach>
           </select>
         </td>
       </tr>
     </c:forEach>
-    <c:forEach var="refData" items="${data.messageDestinations}" varStatus="status">
+    <c:forEach var="messageDestination" items="${data.webApp.messageDestinationArray}" varStatus="status">
       <c:choose>
         <c:when test="${backgroundClass == 'MediumBackground'}" >
           <c:set var="backgroundClass" value='LightBackground'/>
@@ -326,16 +326,16 @@ to which they can be linked are shown to the right.</p>
           <c:set var="backgroundClass" value='MediumBackground'/>
         </c:otherwise>
       </c:choose>
-      <input type="hidden" name="messageDestination.${status.index}.refName" value="${refData.refName}" />
+      <input type="hidden" name="messageDestination.${status.index}.refName" value="${messageDestination.messageDestinationName}" />
       <tr>
         <td class="${backgroundClass}">
-          <div align="right">${refData.refName}</div>
+          <div align="right">${messageDestination.messageDestinationName}</div>
         </td>
         <td class="${backgroundClass}">
           <select name="messageDestination.${status.index}.refLink">
             <c:forEach var="jmsDestination" items="${deployedJmsDestinations}">
               <option value="${jmsDestination.patternName}" 
-                <c:if test="${fn:startsWith(jmsDestination.displayName, refData.refLink)}"> selected="selected"</c:if>
+                <c:if test="${fn:startsWith(jmsDestination.displayName, messageDestination.adminObjectLink)}"> selected="selected"</c:if>
               >${jmsDestination.displayName}</option>
             </c:forEach>
           </select>
@@ -346,7 +346,7 @@ to which they can be linked are shown to the right.</p>
 </c:if>
 
 <!-- ENTRY FIELD: JavaMail Session References -->
-<c:if test="${!empty(data.javaMailSessionRefs)}">
+<c:if test="${!empty(data.jndiRefsConfig.javaMailSessionRefs)}">
   <p><b>JavaMail Session References:</b></p>
   <table border="0" width="100%">
     <tr>
@@ -354,7 +354,7 @@ to which they can be linked are shown to the right.</p>
       <th class="DarkBackground" align="center">Mail Sessions Available</th>
     </tr>
     <c:set var="backgroundClass" value='MediumBackground'/>
-    <c:forEach var="refData" items="${data.javaMailSessionRefs}" varStatus="status">
+    <c:forEach var="refData" items="${data.jndiRefsConfig.javaMailSessionRefs}" varStatus="status">
       <c:choose>
         <c:when test="${backgroundClass == 'MediumBackground'}" >
           <c:set var="backgroundClass" value='LightBackground'/>
@@ -381,7 +381,7 @@ to which they can be linked are shown to the right.</p>
 </c:if>
 
 <!-- ENTRY FIELD: Web Service References -->
-<c:if test="${!empty(data.webServiceRefs)}">
+<c:if test="${!empty(data.webApp.serviceRefArray)}">
   <p><b>Web Service References:</b></p>
   <p>Service references declared in your application are shown below to the left. If the WSDL doesn't contain 
   the port information to contact the service or if that information is ambiguous, then resolve the service-ref
@@ -398,7 +398,7 @@ to which they can be linked are shown to the right.</p>
     </thead>
     <tfoot></tfoot>
     <c:set var="backgroundClass" value='MediumBackground'/>
-    <c:forEach var="serviceRef" items="${data.webServiceRefs}" varStatus="status">
+    <c:forEach var="serviceRef" items="${data.webApp.serviceRefArray}" varStatus="status">
       <c:choose>
         <c:when test="${backgroundClass == 'MediumBackground'}" >
           <c:set var="backgroundClass" value='LightBackground'/>

@@ -24,21 +24,19 @@ import javax.portlet.PortletException;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.geronimo.console.MultiPageModel;
-import org.apache.geronimo.console.configcreator.configData.WARConfigData;
+import org.apache.geronimo.console.configcreator.configData.EjbConfigData;
 
 /**
  * A handler for ...
  * 
  * @version $Rev$ $Date$
  */
-public class SecurityHandler extends AbstractHandler {
-    private static final Logger log = LoggerFactory.getLogger(SecurityHandler.class);
+public class EjbHandler extends AbstractHandler {
+    //private static final Log log = LogFactory.getLog(EjbHandler.class);
 
-    public SecurityHandler() {
-        super(SECURITY_MODE, "/WEB-INF/view/configcreator/security.jsp");
+    public EjbHandler() {
+        super(EJB_MODE, "/WEB-INF/view/configcreator/ejbPage.jsp");
     }
 
     public String actionBeforeView(ActionRequest request, ActionResponse response, MultiPageModel model)
@@ -48,16 +46,12 @@ public class SecurityHandler extends AbstractHandler {
 
     public void renderView(RenderRequest request, RenderResponse response, MultiPageModel model)
             throws PortletException, IOException {
-        WARConfigData data = getWARSessionData(request);
+        EjbConfigData data = getEjbJarSessionData(request);
         request.setAttribute(DATA_PARAMETER, data);
-        request.setAttribute(DEPLOYED_SECURITY_REALMS_PARAMETER, JSR77_Util.getDeployedSecurityRealms(request));
-        request.setAttribute(DEPLOYED_CREDENTIAL_STORES_PARAMETER, JSR77_Util.getDeployedCredentialStores(request));
     }
 
     public String actionAfterView(ActionRequest request, ActionResponse response, MultiPageModel model)
             throws PortletException, IOException {
-        WARConfigData data = getWARSessionData(request);
-        data.readSecurityData(request);
-        return DEPENDENCIES_MODE + "-before";
+        return "";
     }
 }

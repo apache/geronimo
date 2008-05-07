@@ -39,7 +39,7 @@
   <!-- ENTRY FIELD: Context Root -->
   <tr>
     <th><div align="right">Web Context Root:</div></th>
-    <td><input name="contextRoot" type="text" size="25" value="${data.contextRoot}" /></td>
+    <td><input name="contextRoot" type="text" size="25" value="${data.webApp.contextRoot}" /></td>
   </tr>
   <tr>
     <td></td>
@@ -59,7 +59,7 @@
   </tr>
   <tr>
     <th><div align="right">Group Id:</div></th>
-    <td><input name="groupId" type="text" size="25" value="${data.groupId}" /></td>
+    <td><input name="groupId" type="text" size="25" value="${data.webApp.environment.moduleId.groupId}" /></td>
   </tr>
   <tr>
     <td></td>
@@ -68,7 +68,7 @@
   </tr>
   <tr>
     <th><div align="right">Artifact Id:</div></th>
-    <td><input name="artifactId" type="text" size="25" value="${data.artifactId}" /></td>
+    <td><input name="artifactId" type="text" size="25" value="${data.webApp.environment.moduleId.artifactId}" /></td>
   </tr>
   <tr>
     <td></td>
@@ -76,7 +76,7 @@
   </tr>
   <tr>
     <th><div align="right">Version:</div></th>
-    <td><input name="version" type="text" size="25" value="${data.version}" /></td>
+    <td><input name="version" type="text" size="25" value="${data.webApp.environment.moduleId.version}" /></td>
   </tr>
   <tr>
     <td></td>
@@ -84,7 +84,7 @@
   </tr>
   <tr>
     <th><div align="right">Type:</div></th>
-    <td><input name="type" type="text" size="25" value="${data.type}" /></td>
+    <td><input name="type" type="text" size="25" value="${data.webApp.environment.moduleId.type}" /></td>
   </tr>
   <tr>
     <td></td>
@@ -98,7 +98,7 @@
   </tr>
   <tr>
     <th><div align="right">Hidden Classes:</div></th>
-    <td><input name="hiddenClasses" type="text" size="25" value="${data.hiddenClasses}" /></td>
+    <td><input name="hiddenClasses" type="text" size="25" value="${data.environmentConfig.hiddenClassesString}" /></td>
   </tr>
   <tr>
     <td></td>
@@ -109,7 +109,7 @@
   </tr>
   <tr>
     <th><div align="right">Non Overridable Classes:</div></th>
-    <td><input name="nonOverridableClasses" type="text" size="25" value="${data.nonOverridableClasses}" /></td>
+    <td><input name="nonOverridableClasses" type="text" size="25" value="${data.environmentConfig.nonOverridableClassesString}" /></td>
   </tr>
   <tr>
     <td></td>
@@ -121,7 +121,7 @@
   <tr>
     <th><div align="right">Inverse Class Loading:</div></th>
     <td><input name="inverseClassLoading" type="checkbox" value="true" 
-      <c:if test="${data.inverseClassLoading}">CHECKED </c:if> /></td>
+      <c:if test="${data.environmentConfig.inverseClassLoading}">CHECKED </c:if> /></td>
   </tr>
   <tr>
     <td></td>

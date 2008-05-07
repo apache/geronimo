@@ -54,7 +54,15 @@ public class NamingBuilderCollection extends AbstractBuilderCollection<NamingBui
 
     public void buildNaming(XmlObject specDD, XmlObject plan, Module module, Map componentContext) throws DeploymentException {
         for (NamingBuilder namingBuilder : getSortedBuilders()) {
-            namingBuilder.buildNaming(specDD, plan, module, componentContext);
+            if (EARConfigBuilder.createPlanMode.get().booleanValue()) {
+                try {
+                    namingBuilder.buildNaming(specDD, plan, module, componentContext);
+                } catch (Exception e) {
+                    // ignore exceptions & continue processing with rest of the builders
+                }
+            } else {
+                namingBuilder.buildNaming(specDD, plan, module, componentContext);
+            }
         }
     }
     

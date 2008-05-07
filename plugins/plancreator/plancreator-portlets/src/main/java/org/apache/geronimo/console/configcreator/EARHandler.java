@@ -17,6 +17,7 @@
 package org.apache.geronimo.console.configcreator;
 
 import java.io.IOException;
+import java.util.List;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
@@ -24,21 +25,19 @@ import javax.portlet.PortletException;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.geronimo.console.MultiPageModel;
-import org.apache.geronimo.console.configcreator.configData.WARConfigData;
+import org.apache.geronimo.console.configcreator.configData.EARConfigData;
 
 /**
  * A handler for ...
  * 
  * @version $Rev$ $Date$
  */
-public class SecurityHandler extends AbstractHandler {
-    private static final Logger log = LoggerFactory.getLogger(SecurityHandler.class);
+public class EARHandler extends AbstractHandler {
+    //private static final Log log = LogFactory.getLog(EARHandler.class);
 
-    public SecurityHandler() {
-        super(SECURITY_MODE, "/WEB-INF/view/configcreator/security.jsp");
+    public EARHandler() {
+        super(EAR_MODE, "/WEB-INF/view/configcreator/enterpriseApp.jsp");
     }
 
     public String actionBeforeView(ActionRequest request, ActionResponse response, MultiPageModel model)
@@ -48,16 +47,14 @@ public class SecurityHandler extends AbstractHandler {
 
     public void renderView(RenderRequest request, RenderResponse response, MultiPageModel model)
             throws PortletException, IOException {
-        WARConfigData data = getWARSessionData(request);
+        EARConfigData data = getEARSessionData(request);
         request.setAttribute(DATA_PARAMETER, data);
-        request.setAttribute(DEPLOYED_SECURITY_REALMS_PARAMETER, JSR77_Util.getDeployedSecurityRealms(request));
-        request.setAttribute(DEPLOYED_CREDENTIAL_STORES_PARAMETER, JSR77_Util.getDeployedCredentialStores(request));
+        List<String> commonLibs = JSR77_Util.getCommonLibs(request);
+        request.setAttribute(COMMON_LIBS_PARAMETER, commonLibs);
     }
 
     public String actionAfterView(ActionRequest request, ActionResponse response, MultiPageModel model)
             throws PortletException, IOException {
-        WARConfigData data = getWARSessionData(request);
-        data.readSecurityData(request);
-        return DEPENDENCIES_MODE + "-before";
+        return "";
     }
 }

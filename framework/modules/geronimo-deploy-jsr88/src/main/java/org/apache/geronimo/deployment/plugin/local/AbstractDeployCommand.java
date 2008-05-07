@@ -109,7 +109,7 @@ public abstract class AbstractDeployCommand extends CommandSupport {
         }
     }
 
-    protected void doDeploy(Target target, boolean finished) throws Exception {
+    public void doDeploy(Target target, boolean finished) throws Exception {
         File[] args = {moduleArchive, deploymentPlan};
         massageFileNames(args);
         Object deployParams[] = new Object[] {Boolean.valueOf(commandContext.isInPlace()), args[0], args[1], target.getName()};

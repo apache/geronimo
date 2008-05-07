@@ -27,6 +27,7 @@ import javax.portlet.RenderResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.geronimo.console.MultiPageModel;
+import org.apache.geronimo.console.configcreator.configData.WARConfigData;
 
 /**
  * A handler for ...
@@ -47,18 +48,15 @@ public class EnvironmentHandler extends AbstractHandler {
 
     public void renderView(RenderRequest request, RenderResponse response, MultiPageModel model)
             throws PortletException, IOException {
-        WARConfigData data = getSessionData(request);
+        WARConfigData data = getWARSessionData(request);
         request.setAttribute(DATA_PARAMETER, data);
     }
 
     public String actionAfterView(ActionRequest request, ActionResponse response, MultiPageModel model)
             throws PortletException, IOException {
-        WARConfigData data = getSessionData(request);
+        WARConfigData data = getWARSessionData(request);
         data.readEnvironmentData(request);
-        if (data.getEjbRefs().size() > 0 || data.getEjbLocalRefs().size() > 0 
-                || data.getJdbcPoolRefs().size() > 0 || data.getJavaMailSessionRefs().size() > 0 
-                || data.getJmsConnectionFactoryRefs().size() > 0 || data.getJmsDestinationRefs().size() > 0
-                || data.getWebServiceRefs().size() > 0) {
+        if (data.needsResolveReferences()) {
             return REFERENCES_MODE + "-before";
         }
         if (data.getSecurity() != null) {

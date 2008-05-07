@@ -37,6 +37,8 @@ public class CreatePlanPortlet extends MultiPagePortlet {
         addHelper(new DependenciesHandler(), config);
         addHelper(new DisplayPlanHandler(), config);
         addHelper(new DeployStatusHandler(), config);
+        addHelper(new EjbHandler(), config);
+        addHelper(new EARHandler(), config);
     }
 
     protected String getModelJSPVariableName() {
@@ -44,6 +46,6 @@ public class CreatePlanPortlet extends MultiPagePortlet {
     }
 
     protected MultiPageModel getModel(PortletRequest request) {
-        return new AbstractHandler.WARConfigModel(request);
+        return new AbstractHandler.TempConfigModel(request);
     }
 }

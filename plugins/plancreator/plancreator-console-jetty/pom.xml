@@ -85,6 +85,13 @@
         </dependency>
 
         <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>openejb-deployer</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+
+        <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-test-ddbean</artifactId>
             <version>${version}</version>

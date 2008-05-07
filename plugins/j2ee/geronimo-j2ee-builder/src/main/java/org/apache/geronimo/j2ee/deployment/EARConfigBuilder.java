@@ -137,6 +137,20 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
     private final Naming naming;
     private final Collection<? extends ArtifactResolver> artifactResolvers;
 
+    public static ThreadLocal<Boolean> createPlanMode = new ThreadLocal<Boolean>() {
+        @Override
+        protected Boolean initialValue() {
+            return Boolean.FALSE;
+        }
+    };
+
+    public static ThreadLocal<ApplicationInfo> appInfo = new ThreadLocal<ApplicationInfo>() {
+        @Override
+        protected ApplicationInfo initialValue() {
+            return (ApplicationInfo) null;
+        }
+    };
+
     public EARConfigBuilder(Environment defaultEnvironment,
             AbstractNameQuery transactionManagerAbstractName,
             AbstractNameQuery connectionTrackerAbstractName,
@@ -592,7 +606,16 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
             ClassLoader cl = earContext.getClassLoader();
             for (Object module3 : modules) {
                 Module module = (Module) module3;
-                getBuilder(module).initContext(earContext, module, cl);
+                if (createPlanMode.get().booleanValue()) {
+                    try {
+                        getBuilder(module).initContext(earContext, module, cl);
+                    } catch (Exception e) {
+                        // ignore any exceptions to continue processing with the rest of the modules;
+                        System.out.println("Exception during initContext() phase");
+                    }
+                } else {
+                    getBuilder(module).initContext(earContext, module, cl);
+                }
             }
 
             // add gbeans declared in the geronimo-application.xml
@@ -644,7 +667,21 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
             // each module can now add it's GBeans
             for (Object module1 : modules) {
                 Module module = (Module) module1;
-                getBuilder(module).addGBeans(earContext, module, cl, repositories);
+                if (createPlanMode.get().booleanValue()) {
+                    try {
+                        getBuilder(module).addGBeans(earContext, module, cl, repositories);
+                    } catch (DeploymentException e) {
+                        // ignore any exceptions to continue processing with the rest of the modules;
+                        System.out.println("Exception during addGBeans() phase");
+                    }
+                } else {
+                    getBuilder(module).addGBeans(earContext, module, cl, repositories);
+                }
+            }
+
+            if (createPlanMode.get().booleanValue()) {
+                EARConfigBuilder.appInfo.set(applicationInfo);
+                throw new DeploymentException();
             }
 
             // it's the caller's responsibility to close the context...

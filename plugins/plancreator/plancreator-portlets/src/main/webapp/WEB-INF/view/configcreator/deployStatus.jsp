@@ -52,7 +52,7 @@ function <portlet:namespace/>toggleDisplay(id) {
 </c:if>
 
 <c:if test="${empty fullStatusMessage}">
-<p><a href="/${data.contextRoot}">Launch Web App</a></p>
+<p><a href="/${data.webApp.contextRoot}">Launch Web App</a></p>
 </c:if>
 
 <p><a href="<portlet:actionURL portletMode="view">

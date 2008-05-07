@@ -29,6 +29,13 @@ import org.apache.commons.fileupload.FileItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.geronimo.console.MultiPageModel;
+import org.apache.geronimo.console.configcreator.configData.EARConfigData;
+import org.apache.geronimo.console.configcreator.configData.EjbConfigData;
+import org.apache.geronimo.console.configcreator.configData.WARConfigData;
+import org.apache.geronimo.j2ee.ApplicationInfo;
+import org.apache.geronimo.j2ee.deployment.WebModule;
+import org.apache.geronimo.kernel.config.ConfigurationModuleType;
+import org.apache.geronimo.openejb.deployment.EjbModule;
 
 /**
  * A handler for ...
@@ -49,7 +56,6 @@ public class GetArchiveHandler extends AbstractHandler {
 
     public void renderView(RenderRequest request, RenderResponse response, MultiPageModel model)
             throws PortletException, IOException {
-        setNewSessionData(request);
         if ("true".equals(request.getParameter(ARCHIVE_NOT_SUPPORTED_PARAMETER))) {
             request.setAttribute(ARCHIVE_NOT_SUPPORTED_PARAMETER, "true");
         }
@@ -57,43 +63,31 @@ public class GetArchiveHandler extends AbstractHandler {
 
     public String actionAfterView(ActionRequest request, ActionResponse response, MultiPageModel model)
             throws PortletException, IOException {
-        WARConfigData data = getSessionData(request);
         FileItem fileItem = (FileItem) getUploadFiles().get(MODULE_URI_PARAMETER);
-
         String fileName = fileItem.getName();
-        if (fileName == null || fileName.length() <= 0) {
-            return getMode();
+        if (fileName != null && fileName.length() > 0) {
+            File uploadedFile = uploadFile(fileItem);
+            ApplicationInfo applicationInfo = JSR88_Util.createApplicationInfo(request, uploadedFile);
+            ConfigurationModuleType applicationType = applicationInfo.getType();
+            if (ConfigurationModuleType.WAR == applicationType) {
+                WARConfigData data = setNewWARSessionData(request);
+                data.setUploadedWarUri(uploadedFile.toURI().toString());
+                data.parseWeb((WebModule) (applicationInfo.getModules().toArray()[0]));
+                return ENVIRONMENT_MODE + "-before";
+            }
+            if (ConfigurationModuleType.EAR == applicationType) {
+                EARConfigData earConfigData = setNewEARSessionData(request);
+                earConfigData.parseEAR(applicationInfo);
+                return EAR_MODE + "-before";
+            }
+            if (ConfigurationModuleType.EJB == applicationType) {
+                EjbConfigData ejbJarConfigData = setNewEjbJarSessionData(request);
+                ejbJarConfigData.parseEjbJar((EjbModule) (applicationInfo.getModules().toArray()[0]));
+                return EJB_MODE + "-before";
+            }
         }
-
-        // TODO Is there a better way of checking whether the archive is a WAR or not?
-        int i = fileName.length() - 4;
-        if (!fileName.substring(i).equalsIgnoreCase(".war")) {
-            response.setRenderParameter(ARCHIVE_NOT_SUPPORTED_PARAMETER, "true");
-            return getMode();
-        }
-
-        File uploadedFile = uploadFile(fileItem);
-        data.setUploadedWarUri(uploadedFile.toURI().toString());
-
-        String str = getBasename(fileItem.getName().trim());
-        String warName = str.substring(0, str.length() - 4);
-        data.setContextRoot(warName);
-        data.setGroupId("default");
-        data.setArtifactId(warName);
-        data.setVersion("1.0");
-        data.setType("war");
-        data.setHiddenClasses("");
-        data.setNonOverridableClasses("");
-        data.setInverseClassLoading(false);
-
-        try {
-            JSR88_Util.parseWarReferences(request, data, uploadedFile.toURL());
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            return getMode();
-        }
-
-        return ENVIRONMENT_MODE + "-before";
+        response.setRenderParameter(ARCHIVE_NOT_SUPPORTED_PARAMETER, "true");
+        return getMode();
     }
 
     private File uploadFile(FileItem fileItem) throws PortletException, IOException {

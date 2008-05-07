@@ -17,8 +17,6 @@
 package org.apache.geronimo.console.configcreator;
 
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.List;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
@@ -29,6 +27,7 @@ import javax.portlet.RenderResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.geronimo.console.MultiPageModel;
+import org.apache.geronimo.console.configcreator.configData.WARConfigData;
 
 /**
  * A handler for ...
@@ -49,7 +48,7 @@ public class ReferencesHandler extends AbstractHandler {
 
     public void renderView(RenderRequest request, RenderResponse response, MultiPageModel model)
             throws PortletException, IOException {
-        WARConfigData data = getSessionData(request);
+        WARConfigData data = getWARSessionData(request);
         request.setAttribute(DATA_PARAMETER, data);
         request.setAttribute(DEPLOYED_EJBS_PARAMETER, JSR77_Util.getDeployedEJBs(request));
         request.setAttribute(DEPLOYED_JDBC_CONNECTION_POOLS_PARAMETER, JSR77_Util.getJDBCConnectionPools(request));
@@ -60,35 +59,14 @@ public class ReferencesHandler extends AbstractHandler {
 
     public String actionAfterView(ActionRequest request, ActionResponse response, MultiPageModel model)
             throws PortletException, IOException {
-        WARConfigData data = getSessionData(request);
+        WARConfigData data = getWARSessionData(request);
         data.readReferencesData(request);
-        HashSet dependenciesSet = new HashSet();
-        if (processRefs(data.getEjbRefs(), dependenciesSet)
-                && processRefs(data.getEjbLocalRefs(), dependenciesSet)
-                && processRefs(data.getJdbcPoolRefs(), dependenciesSet)
-                && processRefs(data.getJavaMailSessionRefs(), dependenciesSet)
-                && processRefs(data.getJmsConnectionFactoryRefs(), dependenciesSet)
-                && processRefs(data.getJmsDestinationRefs(), dependenciesSet)) {
-            data.getDependencies().clear();
-            data.getDependencies().addAll(dependenciesSet);
-            if (data.getSecurity() != null) {
-                return SECURITY_MODE + "-before";
-            }
-            return DEPENDENCIES_MODE + "-before";
+        if (data.isReferenceNotResolved()) {
+            return getMode() + "-before";
         }
-        data.setReferenceNotResolved(true);
-        return getMode() + "-before";
-    }
-
-    private boolean processRefs(List refList, HashSet dependenciesSet) {
-        for (int i = 0; i < refList.size(); i++) {
-            ReferenceData referenceData = (ReferenceData) refList.get(i);
-            String referenceLink = referenceData.getRefLink();
-            if (referenceLink == null || referenceLink.length() <= 0) {
-                return false;
-            }
-            dependenciesSet.add(JSR88_Util.getDependencyString(referenceLink));
+        if (data.getSecurity() != null) {
+            return SECURITY_MODE + "-before";
         }
-        return true;
+        return DEPENDENCIES_MODE + "-before";
     }
 }

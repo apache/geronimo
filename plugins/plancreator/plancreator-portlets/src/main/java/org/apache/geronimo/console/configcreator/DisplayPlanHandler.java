@@ -17,11 +17,7 @@
 package org.apache.geronimo.console.configcreator;
 
 import java.io.IOException;
-import java.net.URL;
 
-import javax.enterprise.deploy.model.exceptions.DDBeanCreateException;
-import javax.enterprise.deploy.spi.exceptions.ConfigurationException;
-import javax.enterprise.deploy.spi.exceptions.InvalidModuleException;
 import javax.enterprise.deploy.spi.exceptions.DeploymentManagerCreationException;
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
@@ -32,6 +28,7 @@ import javax.portlet.RenderResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.geronimo.console.MultiPageModel;
+import org.apache.geronimo.console.configcreator.configData.WARConfigData;
 
 /**
  * A handler for ...
@@ -52,25 +49,14 @@ public class DisplayPlanHandler extends AbstractHandler {
 
     public void renderView(RenderRequest request, RenderResponse response, MultiPageModel model)
             throws PortletException, IOException {
-        WARConfigData data = getSessionData(request);
-        try {
-            String plan = JSR88_Util.createDeploymentPlan(request, data, new URL(data.getUploadedWarUri()));
-            data.setDeploymentPlan(plan);
-        } catch (DDBeanCreateException e) {
-            log.error(e.getMessage(), e);
-        } catch (InvalidModuleException e) {
-            log.error(e.getMessage(), e);
-        } catch (ConfigurationException e) {
-            log.error(e.getMessage(), e);
-        } catch (DeploymentManagerCreationException e) {
-            log.error(e.getMessage(), e);
-        }
+        WARConfigData data = getWARSessionData(request);
+        data.createDeploymentPlan();
         request.setAttribute(DATA_PARAMETER, data);
     }
 
     public String actionAfterView(ActionRequest request, ActionResponse response, MultiPageModel model)
             throws PortletException, IOException {
-        WARConfigData data = getSessionData(request);
+        WARConfigData data = getWARSessionData(request);
         data.setDeploymentPlan(request.getParameter(DEPLOYMENT_PLAN_PARAMETER));
         return DEPLOY_STATUS_MODE;
     }
