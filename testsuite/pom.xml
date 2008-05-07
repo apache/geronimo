@@ -54,16 +54,6 @@
         </dependency>
     </dependencies>
 
-    <modules>
-        <module>console-testsuite</module>
-        <module>corba-testsuite</module>
-        <module>deployment-testsuite</module>
-        <module>enterprise-testsuite</module>
-        <module>security-testsuite</module>
-        <module>web-testsuite</module>
-        <module>webservices-testsuite</module>
-    </modules>
-
     <build>
         <resources>
             <resource>
@@ -200,6 +190,12 @@
         </pluginManagement>
 
         <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>shitty-maven-plugin</artifactId>
+                <inherited>false</inherited>
+            </plugin>
+            
             <plugin>
                 <groupId>org.apache.geronimo.buildsupport</groupId>
                 <artifactId>testsuite-maven-plugin</artifactId>
