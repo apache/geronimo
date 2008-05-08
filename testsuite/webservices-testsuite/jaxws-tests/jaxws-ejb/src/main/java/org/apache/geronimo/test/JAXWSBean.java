@@ -18,6 +18,11 @@
  */
 package org.apache.geronimo.test;
 
+import java.util.Iterator;
+import java.util.Map;
+import java.util.logging.Logger;
+
+import javax.annotation.Resource;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
 import javax.jws.WebService;
@@ -27,6 +32,8 @@ import javax.xml.namespace.QName;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPFactory;
 import javax.xml.soap.SOAPFault;
+import javax.xml.ws.WebServiceContext;
+import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.soap.SOAPFaultException;
 
 @WebService
@@ -39,12 +46,35 @@ import javax.xml.ws.soap.SOAPFaultException;
 )
 public class JAXWSBean implements JAXWSGreeter { 
 
+    private static final Logger LOG =
+        Logger.getLogger(JAXWSBean.class.getName());
+
+    @Resource
+    private WebServiceContext context;
+
     public String greetMe(String me) {
+        LOG.info("WebServiceContext: " + context);
+        LOG.info("Principal: " + context.getUserPrincipal());
+        LOG.info("Context: " + context.getMessageContext());
+
+        MessageContext ctx = context.getMessageContext();
+        Iterator iter = ctx.entrySet().iterator();
+        while(iter.hasNext()) {
+            Map.Entry entry = (Map.Entry)iter.next();
+            System.out.println("Key: "+entry.getKey());
+            System.out.println("Value: " +entry.getValue());
+        }
+
         System.out.println("i'm a ejb ws: " + me);
+
         if (!"foo bar".equals(me)) {
             throw new RuntimeException("Wrong parameter");
         }
         return "Hello " + me;
+    }
+    
+    public String greetMeEjb(String me) {
+        return "Hello EJB " + me;
     }
     
     public void greetMeFault(String me) {

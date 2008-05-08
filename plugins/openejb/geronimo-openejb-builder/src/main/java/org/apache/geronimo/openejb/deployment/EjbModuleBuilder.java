@@ -38,6 +38,7 @@ import javax.ejb.MessageDrivenContext;
 import javax.ejb.SessionContext;
 import javax.ejb.TimerService;
 import javax.xml.namespace.QName;
+import javax.xml.ws.WebServiceContext;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -400,7 +401,9 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle {
                 } else if (ref.getType().equals(MessageDrivenContext.class.getName())) {
                     iterator.remove();
                 } else if (ref.getType().equals(TimerService.class.getName())) {
-                    iterator.remove();                
+                    iterator.remove();   
+                } else if (ref.getType().equals(WebServiceContext.class.getName())) {
+                    iterator.remove();
                 } else {
                     ref.setMappedName(null);
                 }

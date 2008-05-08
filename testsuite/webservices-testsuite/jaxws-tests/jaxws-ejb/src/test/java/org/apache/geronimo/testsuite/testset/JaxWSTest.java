@@ -245,11 +245,11 @@ public class JaxWSTest extends TestSupport {
         
         JAXWSGreeter greeter = (JAXWSGreeter)ctx.lookup("/JAXWSBeanRemote");
         
-        String response = greeter.greetMe("foo bar");
+        String response = greeter.greetMeEjb("foo bar");
         
         System.out.println(response);
         
-        assertEquals("Hello foo bar", response);
+        assertEquals("Hello EJB foo bar", response);
     }
 
 }
