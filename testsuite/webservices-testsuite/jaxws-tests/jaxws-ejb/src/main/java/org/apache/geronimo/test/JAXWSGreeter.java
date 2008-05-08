@@ -19,7 +19,7 @@
 package org.apache.geronimo.test;
 
 public interface JAXWSGreeter { 
-
-    public String greetMe(String me);
+    
+    public String greetMeEjb(String me);
 
 }
