@@ -34,13 +34,13 @@ public class ServerInfoPortletTest
     @Test
     public void testServerInfoLink() throws Exception {
         selenium.click("link=Information");
-        selenium.waitForPageToLoad("30000");
+        waitForPageLoad();
         assertEquals("Geronimo Console", selenium.getTitle());
         assertEquals("Server Info", 
                      selenium.getText(getPortletTitleLocation())); 
         // Test help link
         selenium.click(getPortletHelpLocation());
-        selenium.waitForPageToLoad("30000");
+        waitForPageLoad();
         selenium.isTextPresent("This page provides information about the uptime of the server and the resources being used by the JVM.");
     }
 }

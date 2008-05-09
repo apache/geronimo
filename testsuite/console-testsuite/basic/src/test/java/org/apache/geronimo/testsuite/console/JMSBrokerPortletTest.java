@@ -34,13 +34,13 @@ public class JMSBrokerPortletTest
     @Test
     public void testJMSBrokerLink() throws Exception {
         selenium.click("link=JMS Server");
-        selenium.waitForPageToLoad("30000");
+        waitForPageLoad();
         assertEquals("Geronimo Console", selenium.getTitle());
         assertEquals("JMS Server Manager", 
                      selenium.getText(getPortletTitleLocation())); 
         // Test help link
         selenium.click(getPortletHelpLocation());
-        selenium.waitForPageToLoad("30000");
+        waitForPageLoad();
         selenium.isTextPresent("Shows the available JMS brokers");
     }
 }

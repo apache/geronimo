@@ -34,13 +34,13 @@ public class ConnectorPortletTest
     @Test
     public void testConnectorLink() throws Exception {
         selenium.click("link=Web Server");
-        selenium.waitForPageToLoad("30000");
+        waitForPageLoad();
         assertEquals("Geronimo Console", selenium.getTitle());
         assertEquals("Network Listeners", 
                      selenium.getText(getPortletTitleLocation(2)));  
         // Test help link
         selenium.click(getPortletHelpLocation(2));
-        selenium.waitForPageToLoad("30000");
+        waitForPageLoad();
         selenium.isTextPresent("The Connector Manager displays connections of all types");
     }
 }

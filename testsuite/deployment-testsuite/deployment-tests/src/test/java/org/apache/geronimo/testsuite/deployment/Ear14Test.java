@@ -34,7 +34,7 @@ public class Ear14Test
     @Test
     public void testIndexContent() throws Exception {
         selenium.open("/test-1_4/");
-        selenium.waitForPageToLoad("30000");
+        waitForPageLoad();
         assertEquals("Hello J2EE 1.4", selenium.getTitle());
         assertEquals("Hello J2EE 1.4", selenium.getText("xpath=/html/body"));
     }

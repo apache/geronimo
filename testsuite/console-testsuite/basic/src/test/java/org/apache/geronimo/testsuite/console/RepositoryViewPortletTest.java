@@ -34,13 +34,13 @@ public class RepositoryViewPortletTest
     @Test
     public void testRepositoryViewLink() throws Exception {
         selenium.click("link=Repository");
-        selenium.waitForPageToLoad("30000");
+        waitForPageLoad();
         assertEquals("Geronimo Console", selenium.getTitle());
         assertEquals("Repository Viewer",
                      selenium.getText(getPortletTitleLocation())); 
         // Test help link
         selenium.click(getPortletHelpLocation());
-        selenium.waitForPageToLoad("30000");
+        waitForPageLoad();
         selenium.isTextPresent("This page displays the artifacts installed in the server's repository.");
     }
 }

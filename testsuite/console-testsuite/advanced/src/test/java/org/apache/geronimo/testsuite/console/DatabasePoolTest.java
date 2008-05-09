@@ -32,20 +32,20 @@ public class DatabasePoolTest extends ConsoleTestSupport {
             String geronimoVersion = System.getProperty("geronimoVersion");
 
             selenium.click("link=Database Pools");
-            selenium.waitForPageToLoad("30000");
+            waitForPageLoad();
             selenium.click("link=Using the Geronimo database pool wizard");
-            selenium.waitForPageToLoad("30000");
+            waitForPageLoad();
             selenium.type("name", "UniquePool");
             selenium.select("dbtype", "label=Derby embedded");
             selenium.click("//input[@value='Next']");
-            selenium.waitForPageToLoad("30000");
+            waitForPageLoad();
             selenium.addSelection("jars", "label=org.apache.geronimo.configs/system-database/" + geronimoVersion + "/car");
             selenium.type("property-DatabaseName", "SystemDatabase");
             selenium.click("//input[@value='Deploy']");
-            selenium.waitForPageToLoad("30000");
+            waitForPageLoad();
             assertTrue(selenium.isTextPresent("UniquePool"));
             selenium.click("//tr[td[1] = 'UniquePool']/td[4]/a[3]");
-            selenium.waitForPageToLoad("30000");
+            waitForPageLoad();
             assertFalse(selenium.isTextPresent("UniquePool"));
         } finally {
             logout();
@@ -60,21 +60,21 @@ public class DatabasePoolTest extends ConsoleTestSupport {
             login();
             
             selenium.click("link=Database Pools");
-            selenium.waitForPageToLoad("30000");
+            waitForPageLoad();
             assertTrue(selenium.isTextPresent("running"));
             selenium.click("link=edit");
-            selenium.waitForPageToLoad("30000");
+            waitForPageLoad();
             selenium.type("maxSize", "101");
             selenium.click("//input[@value='Save']");
-            selenium.waitForPageToLoad("30000");
+            waitForPageLoad();
             selenium.click("link=edit");
-            selenium.waitForPageToLoad("30000");
+            waitForPageLoad();
             assertEquals("101", selenium.getValue("maxSize"));
             selenium.type("maxSize", "100");
             selenium.click("//input[@value='Save']");
-            selenium.waitForPageToLoad("30000");
+            waitForPageLoad();
             selenium.click("link=edit");
-            selenium.waitForPageToLoad("30000");
+            waitForPageLoad();
             assertEquals("100", selenium.getValue("maxSize"));
         } catch(Exception e) {
         

@@ -30,26 +30,26 @@ public class DBManagerTest extends ConsoleTestSupport {
             login();
 
             selenium.click("link=DB Manager");
-            selenium.waitForPageToLoad("30000");
+            waitForPageLoad();
             selenium.type("createDB", "MyUniqueDB");
             selenium.click("action");
-            selenium.waitForPageToLoad("30000");
+            waitForPageLoad();
             assertTrue(selenium.isTextPresent("MyUniqueDB"));
             selenium.type("sqlStmts", "create table myTable ( id int primary key );");
             selenium.select("useDB", "label=SystemDatabase");
             selenium.select("useDB", "label=MyUniqueDB");
             selenium.click("//input[@value = 'Run SQL']");
-            selenium.waitForPageToLoad("30000");
+            waitForPageLoad();
             //selenium.click("link=Application");
             selenium.click("//a[contains(@href, 'db=MyUniqueDB')]");
-            selenium.waitForPageToLoad("30000");
+            waitForPageLoad();
             assertTrue(selenium.isTextPresent("MYTABLE"));
             selenium.select("deleteDB", "label=SystemDatabase");
             selenium.select("deleteDB", "label=MyUniqueDB");
             selenium.click("//input[@value = 'Delete']");
-            selenium.waitForPageToLoad("30000");
+            waitForPageLoad();
             assertTrue(selenium.getConfirmation().matches("^Are you sure you want to delete this database[\\s\\S]$"));
-            selenium.waitForPageToLoad("30000");
+            waitForPageLoad();
             assertTrue(selenium.isTextPresent("Database deleted: MyUniqueDB"));
         } finally {
             logout();

@@ -28,7 +28,7 @@ public class TestServlets extends SeleniumTestSupport
     @Test
     public void testIndexContent() throws Exception {
         selenium.open("/servlet25/SampleServlet");
-        selenium.waitForPageToLoad("30000");
+        waitForPageLoad();
         assertEquals("Sample application with Servlets 2.5", selenium.getTitle());
         assertEquals("Welcome to Servlets 2.5 samples. Sample Servlet!", selenium.getText("xpath=/html/body"));
     }
@@ -37,7 +37,7 @@ public class TestServlets extends SeleniumTestSupport
     @Test
     public void testIndexContent2() throws Exception {
         selenium.open("/servlet25/SampleServlet2");
-        selenium.waitForPageToLoad("30000");
+        waitForPageLoad();
         assertEquals("Sample application with Servlets 2.5", selenium.getTitle());
         assertEquals("Welcome to Servlets 2.5 samples. Another Sample Servlet!", selenium.getText("xpath=/html/body"));
 

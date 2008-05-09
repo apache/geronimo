@@ -45,7 +45,7 @@ public class RunAsTest
     @Test
     public void testServletRunAs() throws Exception {
         selenium.open("/sec/servlet");
-        selenium.waitForPageToLoad("30000");
+        waitForPageLoad();
         System.out.println("----------------------------------------------");
         System.out.println(selenium.getText("xpath=/html/body"));
         assertEquals("TestServlet principal: foo\n" +
@@ -57,7 +57,7 @@ public class RunAsTest
     @Test
     public void testJspRunAs() throws Exception {
         selenium.open("/sec/jsp");
-        selenium.waitForPageToLoad("30000");
+        waitForPageLoad();
         System.out.println("----------------------------------------------");
         System.out.println(selenium.getText("xpath=/html/body"));
         assertEquals("TestServlet principal: foo Test EJB principal: bar Correctly received security exception on noAccess method", selenium.getText("xpath=/html/body"));

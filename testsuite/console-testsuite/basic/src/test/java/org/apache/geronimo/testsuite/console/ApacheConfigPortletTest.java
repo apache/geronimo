@@ -34,7 +34,7 @@ public class ApacheConfigPortletTest
     @Test
     public void testApacheConfigLink() throws Exception {
         selenium.click("link=Apache HTTP");
-        selenium.waitForPageToLoad("30000");
+        waitForPageLoad();
         assertEquals("Geronimo Console", selenium.getTitle());
         assertEquals("Apache mod_jk Configuration", 
                      selenium.getText(getPortletTitleLocation()));               

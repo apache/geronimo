@@ -29,7 +29,7 @@ public class TestJsps extends SeleniumTestSupport
     @Test
     public void testDeferral() throws Exception {
         selenium.open("/jsp21/testDeferral.jsp");
-        selenium.waitForPageToLoad("30000");
+        waitForPageLoad();
         
         //throw new Exception(selenium.getText("xpath=/html/body"));
         assertEquals("OneTwo", selenium.getText("xpath=/html/body"));
@@ -38,21 +38,21 @@ public class TestJsps extends SeleniumTestSupport
     @Test
     public void testScopes() throws Exception {
         selenium.open("/jsp21/testScopes.jsp");
-        selenium.waitForPageToLoad("30000");
+        waitForPageLoad();
         assertEquals("value1 value2 value3 value4", selenium.getText("xpath=/html/body"));
     }
 
     @Test
     public void testTaglibs() throws Exception {
         selenium.open("/jsp21/testTaglibs.jsp");
-        selenium.waitForPageToLoad("30000");
+        waitForPageLoad();
         assertEquals("Hello", selenium.getText("xpath=/html/body"));
     }
 
     @Test
     public void testTrimWhitespace() throws Exception {
         selenium.open("/jsp21/testTrimWhitespace.jsp");
-        selenium.waitForPageToLoad("30000");
+        waitForPageLoad();
         assertEquals("source html of this page should not contain empty lines", selenium.getText("xpath=/html/body"));
     }
 

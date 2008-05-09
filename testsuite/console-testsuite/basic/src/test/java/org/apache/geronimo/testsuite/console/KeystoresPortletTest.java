@@ -34,7 +34,7 @@ public class KeystoresPortletTest
     @Test
     public void testKeystoresLink() throws Exception {
         selenium.click("link=Keystores");
-        selenium.waitForPageToLoad("30000");
+        waitForPageLoad();
         assertEquals("Geronimo Console", selenium.getTitle());
         assertEquals("Keystore Configuration", 
                      selenium.getText(getPortletTitleLocation())); 

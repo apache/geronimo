@@ -34,13 +34,13 @@ public class JMXManagerPortletTest
     @Test
     public void testJMXManagerLink() throws Exception {
         selenium.click("link=JMX Viewer");
-        selenium.waitForPageToLoad("30000");
+        waitForPageLoad();
         assertEquals("Geronimo Console", selenium.getTitle());
         assertEquals("JMX Viewer", 
                      selenium.getText(getPortletTitleLocation())); 
         // Test help link
         selenium.click(getPortletHelpLocation());
-        selenium.waitForPageToLoad("30000");
+        waitForPageLoad();
         selenium.isTextPresent("JMX Viewer Portlet Help");
     }
 }

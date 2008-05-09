@@ -39,7 +39,7 @@ public class Ear13Test
          */
         /*
         selenium.open("/test-1_3/");
-        selenium.waitForPageToLoad("30000");
+        waitForPageLoad();
         assertEquals("Hello J2EE 1.3", selenium.getTitle());
         assertEquals("Hello J2EE 1.3", selenium.getText("xpath=/html/body"));
         */

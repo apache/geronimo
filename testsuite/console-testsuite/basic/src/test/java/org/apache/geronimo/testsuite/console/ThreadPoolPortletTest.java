@@ -34,7 +34,7 @@ public class ThreadPoolPortletTest
     @Test
     public void testThreadPoolLink() throws Exception {
         selenium.click("link=Thread Pools");
-        selenium.waitForPageToLoad("30000");
+        waitForPageLoad();
         assertEquals("Geronimo Console", selenium.getTitle());
         assertEquals("Thread Pool Configuration", 
                      selenium.getText(getPortletTitleLocation())); 

@@ -34,26 +34,26 @@ public class PluginsTest extends ConsoleTestSupport {
             String actualLink = "http://localhost:8080/plugin/maven-repo/";
             	
             selenium.click("link=Plugins");
-            selenium.waitForPageToLoad("30000");            
+            waitForPageLoad();            
             assertTrue(selenium.isTextPresent(link));                     
             
             selenium.click("link=Add Repository");
-            selenium.waitForPageToLoad("30000");
+            waitForPageLoad();
             assertTrue(selenium.isTextPresent(link));
                         
             selenium.type("newRepository", actualLink);
             selenium.click("//input[@value='Add Repository']");
-            selenium.waitForPageToLoad("30000");
+            waitForPageLoad();
             
             selenium.select("repository", "label=" + actualLink);
             selenium.type("username", "system");
             selenium.type("password", "manager");            
             selenium.click("//input[@value = 'Show Plugins in selected repository']");
-            selenium.waitForPageToLoad("30000");
+            waitForPageLoad();
             
             assertTrue(selenium.isTextPresent("Geronimo Assemblies :: Boilerplate Minimal"));
             selenium.click("link=Geronimo Assemblies :: Boilerplate Minimal");
-            selenium.waitForPageToLoad("30000");
+            waitForPageLoad();
             
             assertTrue(selenium.isTextPresent("Geronimo-Versions"));
         } finally {

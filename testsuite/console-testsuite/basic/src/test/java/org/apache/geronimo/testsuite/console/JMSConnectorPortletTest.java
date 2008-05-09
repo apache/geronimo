@@ -34,13 +34,13 @@ public class JMSConnectorPortletTest
     @Test
     public void testJMSConnectorLink() throws Exception {
         selenium.click("link=JMS Server");
-        selenium.waitForPageToLoad("30000");
+        waitForPageLoad();
         assertEquals("Geronimo Console", selenium.getTitle());
         assertEquals("JMS Network Listeners", 
                      selenium.getText(getPortletTitleLocation(2))); 
         // Test help link
         selenium.click(getPortletHelpLocation(2));
-        selenium.waitForPageToLoad("30000");
+        waitForPageLoad();
         selenium.isTextPresent("Shows all the network connectors configured for the currently available JMS brokers.");
     }
 }

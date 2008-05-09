@@ -34,13 +34,13 @@ public class ServerManagerPortletTest
     @Test
     public void testServerManagerLink() throws Exception {
         selenium.click("link=Shutdown");
-        selenium.waitForPageToLoad("30000");
+        waitForPageLoad();
         assertEquals("Geronimo Console", selenium.getTitle());
         assertEquals("Server Manager", 
                      selenium.getText(getPortletTitleLocation())); 
         // Test help link
         selenium.click(getPortletHelpLocation());
-        selenium.waitForPageToLoad("30000");
+        waitForPageLoad();
         selenium.isTextPresent("This portlet give the admin the ability to remotely shutdown the Geronimo server.");
     }
 }

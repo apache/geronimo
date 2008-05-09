@@ -34,13 +34,13 @@ public class WebManagerPortletTest
     @Test
     public void testWebManagerLink() throws Exception {
         selenium.click("link=Web Server");
-        selenium.waitForPageToLoad("30000");
+        waitForPageLoad();
         assertEquals("Geronimo Console", selenium.getTitle());
         assertEquals("Web Server Manager", 
                      selenium.getText(getPortletTitleLocation())); 
         // Test help link
         selenium.click(getPortletHelpLocation());
-        selenium.waitForPageToLoad("30000");
+        waitForPageLoad();
         selenium.isTextPresent("Geronimo Console will collect statistics on the number of requests received");
     }
 }

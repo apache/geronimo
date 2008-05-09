@@ -29,7 +29,7 @@ public class TestMyFaces extends SeleniumTestSupport
     @Test
     public void testManagedBean() throws Exception {
         selenium.open("/myfaces");
-        selenium.waitForPageToLoad("30000");
+        waitForPageLoad();
         assertEquals("0.99 Please enter your nameHelloUpdate greeting", selenium.getBodyText());
     }
     

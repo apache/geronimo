@@ -30,18 +30,18 @@ public class JMSServerTest extends ConsoleTestSupport {
             login();
             
             selenium.click("link=JMS Server");
-            selenium.waitForPageToLoad("30000");
+            waitForPageLoad();
             selenium.click("link=Add new tcp listener");
-            selenium.waitForPageToLoad("30000");
+            waitForPageLoad();
             selenium.type("name", "uniquename");
             selenium.type("host", "0.0.0.0");
             selenium.type("port", "2097");
             selenium.click("submit");
-            selenium.waitForPageToLoad("30000");
+            waitForPageLoad();
             assertTrue(selenium.isTextPresent("uniquename"));
             //selenium.click("link=delete");
             selenium.click("//a[@onclick=\"return confirm('Are you sure you want to delete uniquename?');\"]");
-            selenium.waitForPageToLoad("30000");
+            waitForPageLoad();
             assertTrue(selenium.getConfirmation().matches("^Are you sure you want to delete uniquename[\\s\\S]$"));
         } finally {
             logout();
@@ -54,12 +54,12 @@ public class JMSServerTest extends ConsoleTestSupport {
             login();
         
             selenium.click("link=JMS Server");
-            selenium.waitForPageToLoad("30000");
+            waitForPageLoad();
             selenium.click("//tr[4]/td[6]/a[1]");
-            selenium.waitForPageToLoad("30000");
+            waitForPageLoad();
             assertEquals("stopped", selenium.getText("//tr[4]/td[5]"));
             selenium.click("//tr[4]/td[6]/a[1]");
-            selenium.waitForPageToLoad("30000");
+            waitForPageLoad();
             assertEquals("running", selenium.getText("//tr[4]/td[5]"));
         } finally {
             logout();
@@ -72,19 +72,19 @@ public class JMSServerTest extends ConsoleTestSupport {
             login();
             
             selenium.click("link=JMS Server");
-            selenium.waitForPageToLoad("30000");
+            waitForPageLoad();
             assertTrue(selenium.isTextPresent("61613"));
             selenium.click("link=edit");
-            selenium.waitForPageToLoad("30000");
+            waitForPageLoad();
             selenium.type("port", "6161");
             selenium.click("submit");
-            selenium.waitForPageToLoad("30000");
+            waitForPageLoad();
             assertTrue(selenium.isTextPresent("6161"));
             selenium.click("link=edit");
-            selenium.waitForPageToLoad("30000");
+            waitForPageLoad();
             selenium.type("port", "61612");
             selenium.click("submit");
-            selenium.waitForPageToLoad("30000");
+            waitForPageLoad();
             assertTrue(selenium.isTextPresent("61612"));
         } finally {
             logout();

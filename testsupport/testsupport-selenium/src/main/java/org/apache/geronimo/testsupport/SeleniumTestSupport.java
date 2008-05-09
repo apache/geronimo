@@ -76,7 +76,7 @@ public class SeleniumTestSupport
         selenium.stop();
     }
     
-    protected void waitForLoad() throws Exception {
+    protected void waitForPageLoad() throws Exception {
         ensureSeleniumClientInitialized();
         
         selenium.waitForPageToLoad("30000");

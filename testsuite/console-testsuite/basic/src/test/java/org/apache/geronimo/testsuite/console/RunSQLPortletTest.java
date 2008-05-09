@@ -34,13 +34,13 @@ public class RunSQLPortletTest
     @Test
     public void testRunSQLLink() throws Exception {
         selenium.click("link=DB Manager");
-        selenium.waitForPageToLoad("30000");
+        waitForPageLoad();
         assertEquals("Geronimo Console", selenium.getTitle());
         assertEquals("Run SQL", 
                      selenium.getText(getPortletTitleLocation(2))); 
         // Test help link
         selenium.click(getPortletHelpLocation(2));
-        selenium.waitForPageToLoad("30000");
+        waitForPageLoad();
         selenium.isTextPresent("Allows the user to run SQL commands");
     }
 }

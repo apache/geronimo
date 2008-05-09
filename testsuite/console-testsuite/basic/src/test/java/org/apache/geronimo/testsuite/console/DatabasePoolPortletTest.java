@@ -34,7 +34,7 @@ public class DatabasePoolPortletTest
     @Test
     public void testDatabasePoolLink() throws Exception {
         selenium.click("link=Database Pools");
-        selenium.waitForPageToLoad("30000");
+        waitForPageLoad();
         assertEquals("Geronimo Console", selenium.getTitle());
         assertEquals("Database Pools", 
                      selenium.getText(getPortletTitleLocation()));

@@ -31,7 +31,7 @@ public class TestSecurity extends SeleniumTestSupport {
         selenium.type("j_username", "george");
         selenium.type("j_password", "bone");
         selenium.click("submit");
-        selenium.waitForPageToLoad("30000");
+        waitForPageLoad();
         assertEquals("hello world.", selenium.getText("xpath=/html"));
     }
 
@@ -74,7 +74,7 @@ public class TestSecurity extends SeleniumTestSupport {
             selenium.type("j_password", password);
         }
         selenium.click("submit");
-        selenium.waitForPageToLoad("30000");
+        waitForPageLoad();
         
         assertTrue(selenium.isTextPresent("Authentication ERROR"));
     }

@@ -34,17 +34,17 @@ extends SeleniumTestSupport {
     @Test
     public void testIndexContent() throws Exception {
         selenium.open("/testjms/JMSQueueSender");
-        selenium.waitForPageToLoad("30000");
+        waitForPageLoad();
         assertEquals("JMS Sender", selenium.getTitle());
         assertEquals("Sent JMS Queue Message", selenium.getText("xpath=/html/body"));
 
         selenium.open("/testjms/JMSQueueReceiver");
-        selenium.waitForPageToLoad("30000");
+        waitForPageLoad();
         assertEquals("JMS Receiver", selenium.getTitle());
         assertEquals("Received JMS Queue Message", selenium.getText("xpath=/html/body"));
 
         selenium.open("/testjms/JMSTopicSenderReceiver");
-        selenium.waitForPageToLoad("30000");
+        waitForPageLoad();
         assertEquals("JMS Topic Sender Receiver", selenium.getTitle());
         assertEquals("Received JMS Topic Message", selenium.getText("xpath=/html/body"));
 

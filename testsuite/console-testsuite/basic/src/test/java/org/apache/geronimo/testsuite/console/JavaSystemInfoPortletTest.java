@@ -34,13 +34,13 @@ public class JavaSystemInfoPortletTest
     @Test
     public void testJavaSystemInfoLink() throws Exception {
         selenium.click("link=Java System Info");
-        selenium.waitForPageToLoad("30000");
+        waitForPageLoad();
         assertEquals("Geronimo Console", selenium.getTitle());
         assertEquals("System Property values for the Server JVM", 
                      selenium.getText(getPortletTitleLocation())); 
         // Test help link
         selenium.click(getPortletHelpLocation());
-        selenium.waitForPageToLoad("30000");
+        waitForPageLoad();
         selenium.isTextPresent("This page displays the values of the system properties available to the server process.");
     }
 }

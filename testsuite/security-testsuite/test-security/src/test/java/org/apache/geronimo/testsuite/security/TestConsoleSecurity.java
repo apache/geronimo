@@ -32,7 +32,7 @@ public class TestConsoleSecurity extends SeleniumTestSupport {
         selenium.type("j_username", "system");
         selenium.type("j_password", "manager");
         selenium.click("submit");
-        selenium.waitForPageToLoad("30000");
+        waitForPageLoad();
         assertTrue(selenium.isTextPresent("Deploy New"));
     }
 
@@ -75,7 +75,7 @@ public class TestConsoleSecurity extends SeleniumTestSupport {
             selenium.type("j_password", password);
         }
         selenium.click("submit");
-        selenium.waitForPageToLoad("30000");
+        waitForPageLoad();
         
         assertTrue(selenium.isTextPresent("Invalid Username and"));
     }

@@ -36,13 +36,13 @@ public class LDAPManagerPortletTest
         // TODO: Add a way to close problem connecting to server alert message.
         
         // selenium.click("link=LDAP Viewer");
-        // selenium.waitForPageToLoad("30000");
+        // waitForPageLoad();
         // assertEquals("Geronimo Console", selenium.getTitle());
         // assertEquals("LDAP Viewer", selenium.getText(
         //     "xpath=/html/body/table[@id='rootfragment']/tbody/tr[2]/td/table/tbody/tr[2]/td[4]/table/tbody/tr[1]/td/table/tbody/tr[1]/td/div/table/tbody/tr/td[2]/table/tbody/tr/td[1]/strong"));
         // Test help link
         // selenium.click("link=help");
-        // selenium.waitForPageToLoad("30000");
+        // waitForPageLoad();
         // selenium.isTextPresent("The LDAP viewer portlet can be used to do the following");
     }
 }

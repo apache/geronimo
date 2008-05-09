@@ -34,7 +34,7 @@ public class LinkCheckTest
     @Test
     public void testServerInfoLink() throws Exception {
         selenium.click("link=Information");
-        selenium.waitForPageToLoad("30000");
+        waitForPageLoad();
         assertEquals("Geronimo Console", selenium.getTitle());
         
         assertTrue(selenium.isTextPresent("Version"));

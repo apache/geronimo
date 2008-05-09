@@ -34,7 +34,7 @@ public class CmsTest
     @Test
     public void testPageContent1() throws Exception {
         selenium.open("http://localhost:8080/jca-cms/default-subject-servlet");
-        selenium.waitForPageToLoad("30000");
+        waitForPageLoad();
 
         String body = selenium.getText("xpath=/html/body");
 
@@ -65,7 +65,7 @@ public class CmsTest
     @Test
     public void testPageContent2() throws Exception {
         selenium.open("http://localhost:8080/jca-cms/run-as-servlet");
-        selenium.waitForPageToLoad("30000");
+        waitForPageLoad();
 
         String body = selenium.getText("xpath=/html/body");
 

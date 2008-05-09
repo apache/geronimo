@@ -34,7 +34,7 @@ public class JMSResourcePortletTest
     @Test
     public void testJMSResourceLink() throws Exception {
         selenium.click("link=JMS Resources");
-        selenium.waitForPageToLoad("30000");
+        waitForPageLoad();
         assertEquals("Geronimo Console", selenium.getTitle());
         assertEquals("JMS Resources", 
                      selenium.getText(getPortletTitleLocation())); 

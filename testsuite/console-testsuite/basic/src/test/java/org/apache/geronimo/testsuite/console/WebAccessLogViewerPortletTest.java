@@ -34,13 +34,13 @@ public class WebAccessLogViewerPortletTest
     @Test
     public void testWebAccessLogViewerLink() throws Exception {
         selenium.click("link=Server Logs");
-        selenium.waitForPageToLoad("30000");
+        waitForPageLoad();
         assertEquals("Geronimo Console", selenium.getTitle());
         assertEquals("Web Access Log Viewer", 
                      selenium.getText(getPortletTitleLocation(3))); 
         // Test help link
         selenium.click(getPortletHelpLocation(3));
-        selenium.waitForPageToLoad("30000");
+        waitForPageLoad();
         selenium.isTextPresent("This portlet displays and filters the Jetty log file.");
     }
 }

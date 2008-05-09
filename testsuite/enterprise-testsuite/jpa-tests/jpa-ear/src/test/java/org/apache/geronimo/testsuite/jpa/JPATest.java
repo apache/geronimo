@@ -34,7 +34,7 @@ public class JPATest
     @Test
     public void testIndexContent() throws Exception {
         selenium.open("/jpa/servlet");
-        selenium.waitForPageToLoad("30000");
+        waitForPageLoad();
         //assertEquals("Hello J2EE 1.4", selenium.getTitle());
         assertEquals("TestServlet\n" +
                 "Test EJB container managed entity manager test OK: true\n" +

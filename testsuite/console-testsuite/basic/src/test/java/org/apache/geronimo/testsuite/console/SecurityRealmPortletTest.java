@@ -34,7 +34,7 @@ public class SecurityRealmPortletTest
     @Test
     public void testSecurityRealmLink() throws Exception {
         selenium.click("link=Security Realms");
-        selenium.waitForPageToLoad("30000");
+        waitForPageLoad();
         assertEquals("Geronimo Console", selenium.getTitle());
         assertEquals("Security Realms", 
                      selenium.getText(getPortletTitleLocation())); 

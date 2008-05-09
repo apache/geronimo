@@ -34,7 +34,7 @@ public class CertificationAuthorityPortletTest
     @Test
     public void testCertificationAuthorityLink() throws Exception {
         selenium.click("link=Certificate Authority");
-        selenium.waitForPageToLoad("30000");
+        waitForPageLoad();
         assertEquals("Geronimo Console", selenium.getTitle());        
         assertEquals("Certification Authority", 
                      selenium.getText(getPortletTitleLocation()));   

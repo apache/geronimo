@@ -34,13 +34,13 @@ public class SEUsersPortletTest
     @Test
     public void testSEUsersLink() throws Exception {
         selenium.click("link=Users and Groups");
-        selenium.waitForPageToLoad("30000");
+        waitForPageLoad();
         assertEquals("Geronimo Console", selenium.getTitle());
         assertEquals("Console Realm Users", 
                      selenium.getText(getPortletTitleLocation())); 
         // Test help link
         selenium.click(getPortletHelpLocation());
-        selenium.waitForPageToLoad("30000");
+        waitForPageLoad();
         selenium.isTextPresent("This portlet lists all the console realm users");
     }
 }

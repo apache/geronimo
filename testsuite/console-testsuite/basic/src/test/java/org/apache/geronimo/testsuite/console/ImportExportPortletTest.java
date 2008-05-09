@@ -34,7 +34,7 @@ public class ImportExportPortletTest
     @Test
     public void testImportExportLink() throws Exception {
         selenium.click("link=Plugins");
-        selenium.waitForPageToLoad("30000");
+        waitForPageLoad();
         assertEquals("Geronimo Console", selenium.getTitle());
         assertEquals("Create and Install Plugins", 
                      selenium.getText(getPortletTitleLocation()));                

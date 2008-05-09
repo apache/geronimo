@@ -28,17 +28,17 @@ public class ServletForwardTest extends SeleniumTestSupport {
     @Test
     public void testServletForward() throws Exception {
         selenium.open("/dispatch1/TestServlet");
-        selenium.waitForPageToLoad("30000");
+        waitForPageLoad();
         System.out.println(selenium.getBodyText());
         assertTrue("Servlet1", selenium.isTextPresent("TestServlet1: 10"));
 
         selenium.open("/dispatch2/TestServlet");
-        selenium.waitForPageToLoad("30000");
+        waitForPageLoad();
         System.out.println(selenium.getBodyText());
         assertTrue("Servlet2", selenium.isTextPresent("TestServlet2: 20"));
 
         selenium.open("/dispatch2/TestServlet?mode=forward");
-        selenium.waitForPageToLoad("30000");
+        waitForPageLoad();
         System.out.println(selenium.getBodyText());
         assertTrue("Servlet2->Servlet1 forward", selenium.isTextPresent("TestServlet1: 10"));
         

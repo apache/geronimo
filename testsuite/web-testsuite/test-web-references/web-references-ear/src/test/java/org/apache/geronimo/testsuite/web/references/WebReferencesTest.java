@@ -34,7 +34,7 @@ public class WebReferencesTest
     @Test
     public void testWebReferences() throws Exception {
         selenium.open("/webref/TomcatTestServlet");
-        selenium.waitForPageToLoad("30000");
+        waitForPageLoad();
         assertEquals("Sample application to check references", selenium.getTitle());
         System.out.println(selenium.getText("xpath=/html/body/font"));
         assertEquals("Check EJB Reference : Call to bean method returned ->bean Test", selenium.getText("xpath=/html/body/font"));

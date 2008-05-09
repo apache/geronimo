@@ -53,19 +53,19 @@ public class WebServerTest extends ConsoleTestSupport {
             String connectorSelector = "//tr[td[1] = \"" + name + "\"]";
             
             selenium.click(connectorSelector + "/td[5]/a[3]");        
-            selenium.waitForPageToLoad("30000");
+            waitForPageLoad();
 
             selenium.type("port", "8008");
             selenium.click("submit");
-            selenium.waitForPageToLoad("30000");
+            waitForPageLoad();
             assertTrue(selenium.isTextPresent("8008"));
             
             selenium.click(connectorSelector + "/td[5]/a[3]"); 
 
-            selenium.waitForPageToLoad("30000");
+            waitForPageLoad();
             selenium.type("port", "8009");
             selenium.click("submit");
-            selenium.waitForPageToLoad("30000");
+            waitForPageLoad();
             assertTrue(selenium.isTextPresent("8009"));
 
             deleteConnector(name);
@@ -86,10 +86,10 @@ public class WebServerTest extends ConsoleTestSupport {
 
             assertEquals("running", selenium.getText(connectorSelector + "/td[4]"));
             selenium.click(connectorSelector + "/td[5]/a[1]");
-            selenium.waitForPageToLoad("30000");
+            waitForPageLoad();
             assertEquals("stopped", selenium.getText(connectorSelector + "/td[4]"));
             selenium.click(connectorSelector + "/td[5]/a[1]");
-            selenium.waitForPageToLoad("30000");
+            waitForPageLoad();
             assertEquals("running", selenium.getText(connectorSelector + "/td[4]"));
 
             deleteConnector(name);
@@ -100,24 +100,24 @@ public class WebServerTest extends ConsoleTestSupport {
 
     private void addConnector(String name, int port) throws Exception {
         selenium.click("link=Web Server");
-        selenium.waitForPageToLoad("30000");
+        waitForPageLoad();
         String container = JETTY;
         if(selenium.isTextPresent(TOMCAT)) {
             container = TOMCAT;
         }
         
         selenium.click("link=" + container + " BIO HTTP Connector");
-        selenium.waitForPageToLoad("30000");
+        waitForPageLoad();
         selenium.type("uniqueName", name);
         selenium.type("port", String.valueOf(port));
         selenium.click("submit");
-        selenium.waitForPageToLoad("30000");
+        waitForPageLoad();
         assertTrue(selenium.isTextPresent(name));
     }
 
     private void deleteConnector(String name) throws Exception {
         selenium.click("//a[@onclick=\"return confirm('Are you sure you want to delete " + name + "?');\"]");
-        selenium.waitForPageToLoad("30000");
+        waitForPageLoad();
         assertTrue(selenium.getConfirmation().matches("^Are you sure you want to delete " + name + "[\\s\\S]$"));
     }
 

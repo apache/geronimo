@@ -34,13 +34,13 @@ public class InternalDBPortletTest
     @Test
     public void testInternalDBLink() throws Exception {
         selenium.click("link=DB Info");
-        selenium.waitForPageToLoad("30000");
+        waitForPageLoad();
         assertEquals("Geronimo Console", selenium.getTitle());
         assertEquals("DB Info", 
                      selenium.getText(getPortletTitleLocation())); 
         // Test help link
         selenium.click(getPortletHelpLocation());
-        selenium.waitForPageToLoad("30000");
+        waitForPageLoad();
         selenium.isTextPresent("This page provides information about the internal database");
     }
 }

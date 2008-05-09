@@ -34,13 +34,13 @@ public class LogManagerPortletTest
     @Test
     public void testLogManagerLink() throws Exception {
         selenium.click("link=Server Logs");
-        selenium.waitForPageToLoad("30000");
+        waitForPageLoad();
         assertEquals("Geronimo Console", selenium.getTitle());
         assertEquals("Log Manager", 
                      selenium.getText(getPortletTitleLocation())); 
         // Test help link
         selenium.click(getPortletHelpLocation());
-        selenium.waitForPageToLoad("30000");
+        waitForPageLoad();
         selenium.isTextPresent("This portlet allows the user to select a configuration file for logging");
     }
 }

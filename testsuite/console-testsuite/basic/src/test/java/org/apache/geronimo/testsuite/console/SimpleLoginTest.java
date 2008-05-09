@@ -50,15 +50,15 @@ public class SimpleLoginTest
             login();
             
             selenium.click("link=Information");
-            selenium.waitForPageToLoad("30000");
+            waitForPageLoad();
             assertEquals("Geronimo Console", selenium.getTitle());
             
             selenium.click("link=Java System Info");
-            selenium.waitForPageToLoad("30000");
+            waitForPageLoad();
             assertEquals("Geronimo Console", selenium.getTitle());
             
             selenium.click("link=DB Info");
-            selenium.waitForPageToLoad("30000");
+            waitForPageLoad();
             assertEquals("Geronimo Console", selenium.getTitle());
         } finally {
             logout();

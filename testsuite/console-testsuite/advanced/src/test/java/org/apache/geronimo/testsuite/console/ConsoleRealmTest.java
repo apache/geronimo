@@ -30,19 +30,19 @@ public class ConsoleRealmTest extends ConsoleTestSupport {
             login();
 
             selenium.click("link=Users and Groups");
-            selenium.waitForPageToLoad("30000");
+            waitForPageLoad();
             selenium.click("link=Create New User");
-            selenium.waitForPageToLoad("30000");
+            waitForPageLoad();
             selenium.type("userId", "myuser");
             selenium.type("password", "myuser");
             selenium.type("confirmpassword", "myuser");
             selenium.click("//input[@value='Add']");
-            selenium.waitForPageToLoad("30000");
+            waitForPageLoad();
             assertTrue(selenium.isTextPresent("myuser"));
             selenium.click("link=Delete");
-            selenium.waitForPageToLoad("30000");
+            waitForPageLoad();
             assertTrue(selenium.getConfirmation().matches("^Confirm Delete user myuser[\\s\\S]$"));
-            selenium.waitForPageToLoad("30000");
+            waitForPageLoad();
             assertFalse(selenium.isTextPresent("myuser"));
         } finally {
             logout();
@@ -55,17 +55,17 @@ public class ConsoleRealmTest extends ConsoleTestSupport {
             login();
             
             selenium.click("link=Users and Groups");
-            selenium.waitForPageToLoad("30000");
+            waitForPageLoad();
             selenium.click("link=Create New Group");
-            selenium.waitForPageToLoad("30000");
+            waitForPageLoad();
             selenium.type("group", "mygroup");
             selenium.click("//input[@value='Add']");
-            selenium.waitForPageToLoad("30000");
+            waitForPageLoad();
             assertTrue(selenium.isTextPresent("mygroup"));
             selenium.click("//a[@onclick=\"return confirm('Confirm Delete group mygroup?');\"]");
-            selenium.waitForPageToLoad("30000");
+            waitForPageLoad();
             assertTrue(selenium.getConfirmation().matches("^Confirm Delete group mygroup[\\s\\S]$"));
-            selenium.waitForPageToLoad("30000");
+            waitForPageLoad();
             assertFalse(selenium.isTextPresent("mygroup"));
         } finally {
             logout();
