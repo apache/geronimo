@@ -48,8 +48,8 @@
         </dependency>
         
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
+            <groupId>org.codehaus.groovy.maven.support</groupId>
+            <artifactId>slf4j-gossip</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
