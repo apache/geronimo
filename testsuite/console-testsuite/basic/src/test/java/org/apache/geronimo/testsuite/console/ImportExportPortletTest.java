@@ -20,14 +20,12 @@
 package org.apache.geronimo.testsuite.console;
 
 import org.testng.annotations.Test;
-import org.apache.geronimo.testsupport.console.ConsoleTestSupport;
 
 /**
  * Import/export plugin portlet tests
  *
  * @version $Rev$ $Date$
  */
-@Test
 public class ImportExportPortletTest
     extends BasicConsoleTestSupport
 {
@@ -37,6 +35,6 @@ public class ImportExportPortletTest
         waitForPageLoad();
         assertEquals("Geronimo Console", selenium.getTitle());
         assertEquals("Create and Install Plugins", 
-                     selenium.getText(getPortletTitleLocation()));                
+                     selenium.getText(getPortletTitleLocation()));
     }
 }

@@ -20,14 +20,12 @@
 package org.apache.geronimo.testsuite.console;
 
 import org.testng.annotations.Test;
-import org.apache.geronimo.testsupport.console.ConsoleTestSupport;
 
 /**
  * Configuration manager (J2EE Connectors) portlet tests
  *
  * @version $Rev$ $Date$
  */
-@Test
 public class ConfigManagerPortletRARTest
     extends BasicConsoleTestSupport
 {
@@ -37,6 +35,6 @@ public class ConfigManagerPortletRARTest
         waitForPageLoad();
         assertEquals("Geronimo Console", selenium.getTitle());
         assertEquals("Installed J2EE Connectors", 
-                     selenium.getText(getPortletTitleLocation()));                
+                     selenium.getText(getPortletTitleLocation()));
     }
 }

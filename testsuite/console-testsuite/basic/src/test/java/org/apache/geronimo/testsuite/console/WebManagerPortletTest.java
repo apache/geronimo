@@ -20,14 +20,12 @@
 package org.apache.geronimo.testsuite.console;
 
 import org.testng.annotations.Test;
-import org.apache.geronimo.testsupport.console.ConsoleTestSupport;
 
 /**
  * Web manager portlet tests
  *
  * @version $Rev$ $Date$
  */
-@Test
 public class WebManagerPortletTest
     extends BasicConsoleTestSupport
 {

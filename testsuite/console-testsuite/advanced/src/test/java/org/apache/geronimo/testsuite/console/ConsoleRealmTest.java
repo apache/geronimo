@@ -20,55 +20,44 @@
 package org.apache.geronimo.testsuite.console;
 
 import org.testng.annotations.Test;
-import org.apache.geronimo.testsupport.console.ConsoleTestSupport;
 
-@Test
-public class ConsoleRealmTest extends ConsoleTestSupport {
+/**
+ * @version $Rev$ $Date$
+ */
+public class ConsoleRealmTest extends TestSupport {
     @Test
     public void testNewUser() throws Exception {
-        try {
-            login();
-
-            selenium.click("link=Users and Groups");
-            waitForPageLoad();
-            selenium.click("link=Create New User");
-            waitForPageLoad();
-            selenium.type("userId", "myuser");
-            selenium.type("password", "myuser");
-            selenium.type("confirmpassword", "myuser");
-            selenium.click("//input[@value='Add']");
-            waitForPageLoad();
-            assertTrue(selenium.isTextPresent("myuser"));
-            selenium.click("link=Delete");
-            waitForPageLoad();
-            assertTrue(selenium.getConfirmation().matches("^Confirm Delete user myuser[\\s\\S]$"));
-            waitForPageLoad();
-            assertFalse(selenium.isTextPresent("myuser"));
-        } finally {
-            logout();
-        }
+        selenium.click("link=Users and Groups");
+        waitForPageLoad();
+        selenium.click("link=Create New User");
+        waitForPageLoad();
+        selenium.type("userId", "myuser");
+        selenium.type("password", "myuser");
+        selenium.type("confirmpassword", "myuser");
+        selenium.click("//input[@value='Add']");
+        waitForPageLoad();
+        assertTrue(selenium.isTextPresent("myuser"));
+        selenium.click("link=Delete");
+        waitForPageLoad();
+        assertTrue(selenium.getConfirmation().matches("^Confirm Delete user myuser[\\s\\S]$"));
+        waitForPageLoad();
+        assertFalse(selenium.isTextPresent("myuser"));
     }
 
     @Test
     public void testNewGroup() throws Exception {
-        try {
-            login();
-            
-            selenium.click("link=Users and Groups");
-            waitForPageLoad();
-            selenium.click("link=Create New Group");
-            waitForPageLoad();
-            selenium.type("group", "mygroup");
-            selenium.click("//input[@value='Add']");
-            waitForPageLoad();
-            assertTrue(selenium.isTextPresent("mygroup"));
-            selenium.click("//a[@onclick=\"return confirm('Confirm Delete group mygroup?');\"]");
-            waitForPageLoad();
-            assertTrue(selenium.getConfirmation().matches("^Confirm Delete group mygroup[\\s\\S]$"));
-            waitForPageLoad();
-            assertFalse(selenium.isTextPresent("mygroup"));
-        } finally {
-            logout();
-        }
+        selenium.click("link=Users and Groups");
+        waitForPageLoad();
+        selenium.click("link=Create New Group");
+        waitForPageLoad();
+        selenium.type("group", "mygroup");
+        selenium.click("//input[@value='Add']");
+        waitForPageLoad();
+        assertTrue(selenium.isTextPresent("mygroup"));
+        selenium.click("//a[@onclick=\"return confirm('Confirm Delete group mygroup?');\"]");
+        waitForPageLoad();
+        assertTrue(selenium.getConfirmation().matches("^Confirm Delete group mygroup[\\s\\S]$"));
+        waitForPageLoad();
+        assertFalse(selenium.isTextPresent("mygroup"));
     }
 }

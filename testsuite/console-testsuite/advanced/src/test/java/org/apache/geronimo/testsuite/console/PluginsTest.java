@@ -20,45 +20,38 @@
 package org.apache.geronimo.testsuite.console;
 
 import org.testng.annotations.Test;
-import org.apache.geronimo.testsupport.console.ConsoleTestSupport;
 
-@Test
-public class PluginsTest extends ConsoleTestSupport {
-    
+/**
+ * @version $Rev$ $Date$
+ */
+public class PluginsTest extends TestSupport {
     @Test
     public void testListPlugins() throws Exception {
-        try {
-            login();
-
-            String link = "http://geronimo-server:8080/plugin/maven-repo/";
-            String actualLink = "http://localhost:8080/plugin/maven-repo/";
-            	
-            selenium.click("link=Plugins");
-            waitForPageLoad();            
-            assertTrue(selenium.isTextPresent(link));                     
+        String link = "http://geronimo-server:8080/plugin/maven-repo/";
+        String actualLink = "http://localhost:8080/plugin/maven-repo/";
             
-            selenium.click("link=Add Repository");
-            waitForPageLoad();
-            assertTrue(selenium.isTextPresent(link));
-                        
-            selenium.type("newRepository", actualLink);
-            selenium.click("//input[@value='Add Repository']");
-            waitForPageLoad();
-            
-            selenium.select("repository", "label=" + actualLink);
-            selenium.type("username", "system");
-            selenium.type("password", "manager");            
-            selenium.click("//input[@value = 'Show Plugins in selected repository']");
-            waitForPageLoad();
-            
-            assertTrue(selenium.isTextPresent("Geronimo Assemblies :: Boilerplate Minimal"));
-            selenium.click("link=Geronimo Assemblies :: Boilerplate Minimal");
-            waitForPageLoad();
-            
-            assertTrue(selenium.isTextPresent("Geronimo-Versions"));
-        } finally {
-            logout();
-        }
+        selenium.click("link=Plugins");
+        waitForPageLoad();
+        assertTrue(selenium.isTextPresent(link));
+        
+        selenium.click("link=Add Repository");
+        waitForPageLoad();
+        assertTrue(selenium.isTextPresent(link));
+                    
+        selenium.type("newRepository", actualLink);
+        selenium.click("//input[@value='Add Repository']");
+        waitForPageLoad();
+        
+        selenium.select("repository", "label=" + actualLink);
+        selenium.type("username", "system");
+        selenium.type("password", "manager");            
+        selenium.click("//input[@value = 'Show Plugins in selected repository']");
+        waitForPageLoad();
+        
+        assertTrue(selenium.isTextPresent("Geronimo Assemblies :: Boilerplate Minimal"));
+        selenium.click("link=Geronimo Assemblies :: Boilerplate Minimal");
+        waitForPageLoad();
+        
+        assertTrue(selenium.isTextPresent("Geronimo-Versions"));
     }
-
 }

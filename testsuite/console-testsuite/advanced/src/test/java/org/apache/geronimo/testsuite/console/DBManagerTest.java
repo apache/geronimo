@@ -20,39 +20,34 @@
 package org.apache.geronimo.testsuite.console;
 
 import org.testng.annotations.Test;
-import org.apache.geronimo.testsupport.console.ConsoleTestSupport;
 
-@Test
-public class DBManagerTest extends ConsoleTestSupport {
+/**
+ * @version $Rev$ $Date$
+ */
+public class DBManagerTest extends TestSupport {
     @Test
     public void testNewDB() throws Exception {
-        try {
-            login();
-
-            selenium.click("link=DB Manager");
-            waitForPageLoad();
-            selenium.type("createDB", "MyUniqueDB");
-            selenium.click("action");
-            waitForPageLoad();
-            assertTrue(selenium.isTextPresent("MyUniqueDB"));
-            selenium.type("sqlStmts", "create table myTable ( id int primary key );");
-            selenium.select("useDB", "label=SystemDatabase");
-            selenium.select("useDB", "label=MyUniqueDB");
-            selenium.click("//input[@value = 'Run SQL']");
-            waitForPageLoad();
-            //selenium.click("link=Application");
-            selenium.click("//a[contains(@href, 'db=MyUniqueDB')]");
-            waitForPageLoad();
-            assertTrue(selenium.isTextPresent("MYTABLE"));
-            selenium.select("deleteDB", "label=SystemDatabase");
-            selenium.select("deleteDB", "label=MyUniqueDB");
-            selenium.click("//input[@value = 'Delete']");
-            waitForPageLoad();
-            assertTrue(selenium.getConfirmation().matches("^Are you sure you want to delete this database[\\s\\S]$"));
-            waitForPageLoad();
-            assertTrue(selenium.isTextPresent("Database deleted: MyUniqueDB"));
-        } finally {
-            logout();
-        }
+        selenium.click("link=DB Manager");
+        waitForPageLoad();
+        selenium.type("createDB", "MyUniqueDB");
+        selenium.click("action");
+        waitForPageLoad();
+        assertTrue(selenium.isTextPresent("MyUniqueDB"));
+        selenium.type("sqlStmts", "create table myTable ( id int primary key );");
+        selenium.select("useDB", "label=SystemDatabase");
+        selenium.select("useDB", "label=MyUniqueDB");
+        selenium.click("//input[@value = 'Run SQL']");
+        waitForPageLoad();
+        //selenium.click("link=Application");
+        selenium.click("//a[contains(@href, 'db=MyUniqueDB')]");
+        waitForPageLoad();
+        assertTrue(selenium.isTextPresent("MYTABLE"));
+        selenium.select("deleteDB", "label=SystemDatabase");
+        selenium.select("deleteDB", "label=MyUniqueDB");
+        selenium.click("//input[@value = 'Delete']");
+        waitForPageLoad();
+        assertTrue(selenium.getConfirmation().matches("^Are you sure you want to delete this database[\\s\\S]$"));
+        waitForPageLoad();
+        assertTrue(selenium.isTextPresent("Database deleted: MyUniqueDB"));
     }
 }

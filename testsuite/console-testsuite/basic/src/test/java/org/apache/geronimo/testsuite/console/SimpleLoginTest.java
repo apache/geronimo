@@ -23,21 +23,11 @@ import org.testng.annotations.Test;
 import org.apache.geronimo.testsupport.console.ConsoleTestSupport;
 
 /**
- * ???
- *
  * @version $Rev$ $Date$
  */
-@Test
 public class SimpleLoginTest
     extends ConsoleTestSupport
 {
-    // @Test
-    // public void testLogin() throws Exception {
-    //     login();
-    //     
-    //     selenium.removeCookie("JSESSIONID", "/");
-    // }
-    
     @Test
     public void testLoginAndLogout() throws Exception {
         login();

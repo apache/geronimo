@@ -20,66 +20,55 @@
 package org.apache.geronimo.testsuite.console;
 
 import org.testng.annotations.Test;
-import org.apache.geronimo.testsupport.console.ConsoleTestSupport;
 
-@Test
-public class DatabasePoolTest extends ConsoleTestSupport {
+/**
+ * @version $Rev$ $Date$
+ */
+public class DatabasePoolTest extends TestSupport {
     @Test
     public void testNewDBPool() throws Exception {
-        try {
-            login();
-            
-            String geronimoVersion = System.getProperty("geronimoVersion");
-
-            selenium.click("link=Database Pools");
-            waitForPageLoad();
-            selenium.click("link=Using the Geronimo database pool wizard");
-            waitForPageLoad();
-            selenium.type("name", "UniquePool");
-            selenium.select("dbtype", "label=Derby embedded");
-            selenium.click("//input[@value='Next']");
-            waitForPageLoad();
-            selenium.addSelection("jars", "label=org.apache.geronimo.configs/system-database/" + geronimoVersion + "/car");
-            selenium.type("property-DatabaseName", "SystemDatabase");
-            selenium.click("//input[@value='Deploy']");
-            waitForPageLoad();
-            assertTrue(selenium.isTextPresent("UniquePool"));
-            selenium.click("//tr[td[1] = 'UniquePool']/td[4]/a[3]");
-            waitForPageLoad();
-            assertFalse(selenium.isTextPresent("UniquePool"));
-        } finally {
-            logout();
-        }
+        String geronimoVersion = System.getProperty("geronimoVersion");
+        assertNotNull(geronimoVersion);
+        
+        selenium.click("link=Database Pools");
+        waitForPageLoad();
+        selenium.click("link=Using the Geronimo database pool wizard");
+        waitForPageLoad();
+        selenium.type("name", "UniquePool");
+        selenium.select("dbtype", "label=Derby embedded");
+        selenium.click("//input[@value='Next']");
+        waitForPageLoad();
+        selenium.addSelection("jars", "label=org.apache.geronimo.configs/system-database/" + geronimoVersion + "/car");
+        selenium.type("property-DatabaseName", "SystemDatabase");
+        selenium.click("//input[@value='Deploy']");
+        waitForPageLoad();
+        assertTrue(selenium.isTextPresent("UniquePool"));
+        selenium.click("//tr[td[1] = 'UniquePool']/td[4]/a[3]");
+        waitForPageLoad();
+        assertFalse(selenium.isTextPresent("UniquePool"));
     }
+    
     /*
     // cannot test yet. jetty is having problems rending the page
     
     @Test
     public void testDatabasePoolEdit() throws Exception {
-        try {
-            login();
-            
-            selenium.click("link=Database Pools");
-            waitForPageLoad();
-            assertTrue(selenium.isTextPresent("running"));
-            selenium.click("link=edit");
-            waitForPageLoad();
-            selenium.type("maxSize", "101");
-            selenium.click("//input[@value='Save']");
-            waitForPageLoad();
-            selenium.click("link=edit");
-            waitForPageLoad();
-            assertEquals("101", selenium.getValue("maxSize"));
-            selenium.type("maxSize", "100");
-            selenium.click("//input[@value='Save']");
-            waitForPageLoad();
-            selenium.click("link=edit");
-            waitForPageLoad();
-            assertEquals("100", selenium.getValue("maxSize"));
-        } catch(Exception e) {
-        
-        } finally {
-            logout();
-        }
+        selenium.click("link=Database Pools");
+        waitForPageLoad();
+        assertTrue(selenium.isTextPresent("running"));
+        selenium.click("link=edit");
+        waitForPageLoad();
+        selenium.type("maxSize", "101");
+        selenium.click("//input[@value='Save']");
+        waitForPageLoad();
+        selenium.click("link=edit");
+        waitForPageLoad();
+        assertEquals("101", selenium.getValue("maxSize"));
+        selenium.type("maxSize", "100");
+        selenium.click("//input[@value='Save']");
+        waitForPageLoad();
+        selenium.click("link=edit");
+        waitForPageLoad();
+        assertEquals("100", selenium.getValue("maxSize"));
     }*/
 }

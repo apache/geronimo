@@ -20,51 +20,46 @@
 package org.apache.geronimo.testsuite.console;
 
 import org.testng.annotations.Test;
-import org.apache.geronimo.testsupport.console.ConsoleTestSupport;
 
-@Test
-public class JMSResourcesTest extends ConsoleTestSupport {
+/**
+ * @version $Rev$ $Date$
+ */
+public class JMSResourcesTest extends TestSupport {
     @Test
     public void testNewJMSResource() throws Exception {
-        try {
-            login();
-            
-            selenium.click("link=JMS Resources");
-            waitForPageLoad();
-            selenium.click("link=For ActiveMQ");
-            waitForPageLoad();
-            selenium.type("instanceName", "UniqueName");
-            selenium.click("//input[@value='Next']");
-            waitForPageLoad();
-            selenium.click("//input[@value='Add Connection Factory']");
-            waitForPageLoad();
-            selenium.select("factoryType", "label=javax.jms.QueueConnectionFactory");
-            selenium.click("//input[@value='Next']");
-            waitForPageLoad();
-            selenium.type("factory.0.instanceName", "ConnectionFactory");
-            selenium.click("//input[@value='Next']");
-            waitForPageLoad();
-            selenium.click("//input[@value='Add Destination']");
-            waitForPageLoad();
-            selenium.click("//input[@value='Next']");
-            waitForPageLoad();
-            selenium.type("destination.0.name", "mdb/Unique");
-            selenium.type("destination.0.instance-config-0", "mdb/Unique");
-            selenium.click("//input[@value='Next']");
-            waitForPageLoad();
-            selenium.click("//input[@value='Deploy Now']");
-            waitForPageLoad();
-            assertTrue(selenium.isTextPresent("UniqueName (console.jms/UniqueName/1.0/rar)"));
-            selenium.click("link=J2EE Connectors");
-            waitForPageLoad();
-            selenium.click("link=Uninstall");
-            waitForPageLoad();
-            assertTrue(selenium.getConfirmation().matches("^Are you certain you wish to uninstall console\\.jms/UniqueName/1\\.0/rar[\\s\\S]*"));
-            selenium.click("link=JMS Resources");
-            waitForPageLoad();
-            assertFalse(selenium.isTextPresent("UniqueName (console.jms/UniqueName/1.0/rar)"));
-        } finally {
-            logout();
-        }
+        selenium.click("link=JMS Resources");
+        waitForPageLoad();
+        selenium.click("link=For ActiveMQ");
+        waitForPageLoad();
+        selenium.type("instanceName", "UniqueName");
+        selenium.click("//input[@value='Next']");
+        waitForPageLoad();
+        selenium.click("//input[@value='Add Connection Factory']");
+        waitForPageLoad();
+        selenium.select("factoryType", "label=javax.jms.QueueConnectionFactory");
+        selenium.click("//input[@value='Next']");
+        waitForPageLoad();
+        selenium.type("factory.0.instanceName", "ConnectionFactory");
+        selenium.click("//input[@value='Next']");
+        waitForPageLoad();
+        selenium.click("//input[@value='Add Destination']");
+        waitForPageLoad();
+        selenium.click("//input[@value='Next']");
+        waitForPageLoad();
+        selenium.type("destination.0.name", "mdb/Unique");
+        selenium.type("destination.0.instance-config-0", "mdb/Unique");
+        selenium.click("//input[@value='Next']");
+        waitForPageLoad();
+        selenium.click("//input[@value='Deploy Now']");
+        waitForPageLoad();
+        assertTrue(selenium.isTextPresent("UniqueName (console.jms/UniqueName/1.0/rar)"));
+        selenium.click("link=J2EE Connectors");
+        waitForPageLoad();
+        selenium.click("link=Uninstall");
+        waitForPageLoad();
+        assertTrue(selenium.getConfirmation().matches("^Are you certain you wish to uninstall console\\.jms/UniqueName/1\\.0/rar[\\s\\S]*"));
+        selenium.click("link=JMS Resources");
+        waitForPageLoad();
+        assertFalse(selenium.isTextPresent("UniqueName (console.jms/UniqueName/1.0/rar)"));
     }
 }

@@ -20,14 +20,12 @@
 package org.apache.geronimo.testsuite.console;
 
 import org.testng.annotations.Test;
-import org.apache.geronimo.testsupport.console.ConsoleTestSupport;
 
 /**
  * Apache mod_jk configuration portlet tests
  *
  * @version $Rev$ $Date$
  */
-@Test
 public class ApacheConfigPortletTest
     extends BasicConsoleTestSupport
 {
@@ -36,7 +34,6 @@ public class ApacheConfigPortletTest
         selenium.click("link=Apache HTTP");
         waitForPageLoad();
         assertEquals("Geronimo Console", selenium.getTitle());
-        assertEquals("Apache mod_jk Configuration", 
-                     selenium.getText(getPortletTitleLocation()));               
+        assertEquals("Apache mod_jk Configuration", selenium.getText(getPortletTitleLocation()));
     }
 }

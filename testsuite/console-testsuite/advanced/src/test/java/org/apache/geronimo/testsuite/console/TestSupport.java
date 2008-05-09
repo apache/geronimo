@@ -19,26 +19,25 @@
 
 package org.apache.geronimo.testsuite.console;
 
-import org.testng.annotations.Test;
+import org.apache.geronimo.testsupport.console.ConsoleTestSupport;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
 
 /**
- * Server info portlet tests
+ * Support for tests.
  *
  * @version $Rev$ $Date$
  */
-public class ServerInfoPortletTest
-    extends BasicConsoleTestSupport
+public class TestSupport
+    extends ConsoleTestSupport
 {
-    @Test
-    public void testServerInfoLink() throws Exception {
-        selenium.click("link=Information");
-        waitForPageLoad();
-        assertEquals("Geronimo Console", selenium.getTitle());
-        assertEquals("Server Info", 
-                     selenium.getText(getPortletTitleLocation())); 
-        // Test help link
-        selenium.click(getPortletHelpLocation());
-        waitForPageLoad();
-        selenium.isTextPresent("This page provides information about the uptime of the server and the resources being used by the JVM.");
+    @BeforeMethod
+    public void signIn() throws Exception {
+        login();
+    }
+
+    @AfterMethod
+    public void signOut() throws Exception {
+        logout();
     }
 }

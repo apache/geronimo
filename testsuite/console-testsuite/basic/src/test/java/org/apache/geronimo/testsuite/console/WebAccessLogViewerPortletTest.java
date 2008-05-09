@@ -20,14 +20,12 @@
 package org.apache.geronimo.testsuite.console;
 
 import org.testng.annotations.Test;
-import org.apache.geronimo.testsupport.console.ConsoleTestSupport;
 
 /**
  * Web access log portlet tests
  *
  * @version $Rev$ $Date$
  */
-@Test
 public class WebAccessLogViewerPortletTest
     extends BasicConsoleTestSupport
 {

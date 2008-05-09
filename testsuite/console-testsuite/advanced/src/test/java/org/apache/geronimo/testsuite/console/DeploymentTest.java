@@ -20,22 +20,17 @@
 package org.apache.geronimo.testsuite.console;
 
 import org.testng.annotations.Test;
-import org.apache.geronimo.testsupport.console.ConsoleTestSupport;
 
-@Test
-public class DeploymentTest extends ConsoleTestSupport {
+/**
+ * @version $Rev$ $Date$
+ */
+public class DeploymentTest extends TestSupport {
     @Test
     public void testEmptyDeployment() throws Exception {
-        try {
-            login();
-
-            selenium.click("link=Deploy New");
-            waitForPageLoad();
-            selenium.click("//input[@value='Install']");
-            waitForPageLoad();
-            assertTrue(selenium.isTextPresent("Deployment failed:"));
-        } finally {
-            logout();
-        }
+        selenium.click("link=Deploy New");
+        waitForPageLoad();
+        selenium.click("//input[@value='Install']");
+        waitForPageLoad();
+        assertTrue(selenium.isTextPresent("Deployment failed:"));
     }
 }

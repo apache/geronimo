@@ -20,14 +20,10 @@
 package org.apache.geronimo.testsuite.console;
 
 import org.testng.annotations.Test;
-import org.apache.geronimo.testsupport.console.ConsoleTestSupport;
 
 /**
- * ???
- *
  * @version $Rev$ $Date$
  */
-@Test
 public class LinkCheckTest
     extends BasicConsoleTestSupport
 {

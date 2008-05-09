@@ -20,14 +20,12 @@
 package org.apache.geronimo.testsuite.console;
 
 import org.testng.annotations.Test;
-import org.apache.geronimo.testsupport.console.ConsoleTestSupport;
 
 /**
  * Certification authority portlet tests
  *
  * @version $Rev$ $Date$
  */
-@Test
 public class CertificationAuthorityPortletTest
     extends BasicConsoleTestSupport
 {
@@ -35,8 +33,8 @@ public class CertificationAuthorityPortletTest
     public void testCertificationAuthorityLink() throws Exception {
         selenium.click("link=Certificate Authority");
         waitForPageLoad();
-        assertEquals("Geronimo Console", selenium.getTitle());        
+        assertEquals("Geronimo Console", selenium.getTitle());
         assertEquals("Certification Authority", 
-                     selenium.getText(getPortletTitleLocation()));   
+                     selenium.getText(getPortletTitleLocation()));
     }
 }

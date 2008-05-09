@@ -31,7 +31,7 @@ public class BasicConsoleTestSupport extends ConsoleTestSupport {
     }
 
     @AfterMethod
-    public void singOut() throws Exception {
+    public void signOut() throws Exception {
         logout();
     }
     

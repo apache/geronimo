@@ -20,82 +20,65 @@
 package org.apache.geronimo.testsuite.console;
 
 import org.testng.annotations.Test;
-import org.apache.geronimo.testsupport.console.ConsoleTestSupport;
 
-@Test
-public class WebServerTest extends ConsoleTestSupport {
+/**
+ * @version $Rev$ $Date$
+ */
+public class WebServerTest extends TestSupport {
 
-    String TOMCAT = "Tomcat";
-    String JETTY = "Jetty";
+    public static final String TOMCAT = "Tomcat";
+    public static final String JETTY = "Jetty";
 
     @Test
     public void testNewConnector() throws Exception {
-        try {
-            login();
-
-            String name = "uniquename";
-            addConnector(name, 8081);
-            
-            deleteConnector(name);
-        } finally {
-            logout();
-        }
+        String name = "uniquename";
+        addConnector(name, 8081);
+        
+        deleteConnector(name);
     }
 
     @Test
     public void testEditConnector() throws Exception{
-        try {
-            login();
-            
-            String name = "uniquename2";
-            addConnector(name, 8082);
+        String name = "uniquename2";
+        addConnector(name, 8082);
 
-            String connectorSelector = "//tr[td[1] = \"" + name + "\"]";
-            
-            selenium.click(connectorSelector + "/td[5]/a[3]");        
-            waitForPageLoad();
+        String connectorSelector = "//tr[td[1] = \"" + name + "\"]";
+        
+        selenium.click(connectorSelector + "/td[5]/a[3]");
+        waitForPageLoad();
 
-            selenium.type("port", "8008");
-            selenium.click("submit");
-            waitForPageLoad();
-            assertTrue(selenium.isTextPresent("8008"));
-            
-            selenium.click(connectorSelector + "/td[5]/a[3]"); 
+        selenium.type("port", "8008");
+        selenium.click("submit");
+        waitForPageLoad();
+        assertTrue(selenium.isTextPresent("8008"));
+        
+        selenium.click(connectorSelector + "/td[5]/a[3]"); 
 
-            waitForPageLoad();
-            selenium.type("port", "8009");
-            selenium.click("submit");
-            waitForPageLoad();
-            assertTrue(selenium.isTextPresent("8009"));
+        waitForPageLoad();
+        selenium.type("port", "8009");
+        selenium.click("submit");
+        waitForPageLoad();
+        assertTrue(selenium.isTextPresent("8009"));
 
-            deleteConnector(name);
-        } finally {
-            logout();
-        }
+        deleteConnector(name);
     }
     
     @Test
     public void testStartStopConnector() throws Exception {
-        try {
-            login();
-        
-            String name = "uniquename3";
-            addConnector(name, 8083);
+        String name = "uniquename3";
+        addConnector(name, 8083);
 
-            String connectorSelector = "//tr[td[1] = \"" + name + "\"]";
+        String connectorSelector = "//tr[td[1] = \"" + name + "\"]";
 
-            assertEquals("running", selenium.getText(connectorSelector + "/td[4]"));
-            selenium.click(connectorSelector + "/td[5]/a[1]");
-            waitForPageLoad();
-            assertEquals("stopped", selenium.getText(connectorSelector + "/td[4]"));
-            selenium.click(connectorSelector + "/td[5]/a[1]");
-            waitForPageLoad();
-            assertEquals("running", selenium.getText(connectorSelector + "/td[4]"));
+        assertEquals("running", selenium.getText(connectorSelector + "/td[4]"));
+        selenium.click(connectorSelector + "/td[5]/a[1]");
+        waitForPageLoad();
+        assertEquals("stopped", selenium.getText(connectorSelector + "/td[4]"));
+        selenium.click(connectorSelector + "/td[5]/a[1]");
+        waitForPageLoad();
+        assertEquals("running", selenium.getText(connectorSelector + "/td[4]"));
 
-            deleteConnector(name);
-        } finally {
-            logout();
-        }
+        deleteConnector(name);
     }
 
     private void addConnector(String name, int port) throws Exception {
@@ -120,6 +103,5 @@ public class WebServerTest extends ConsoleTestSupport {
         waitForPageLoad();
         assertTrue(selenium.getConfirmation().matches("^Are you sure you want to delete " + name + "[\\s\\S]$"));
     }
-
 }
 

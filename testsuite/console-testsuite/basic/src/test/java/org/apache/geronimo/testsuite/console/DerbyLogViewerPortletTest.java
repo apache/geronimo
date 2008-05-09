@@ -20,14 +20,12 @@
 package org.apache.geronimo.testsuite.console;
 
 import org.testng.annotations.Test;
-import org.apache.geronimo.testsupport.console.ConsoleTestSupport;
 
 /**
  * Derby log viewer portlet tests
  *
  * @version $Rev$ $Date$
  */
-@Test
 public class DerbyLogViewerPortletTest
     extends BasicConsoleTestSupport
 {

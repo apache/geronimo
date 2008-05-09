@@ -20,14 +20,12 @@
 package org.apache.geronimo.testsuite.console;
 
 import org.testng.annotations.Test;
-import org.apache.geronimo.testsupport.console.ConsoleTestSupport;
 
 /**
  * Configuration manager (EJB JARs) portlet tests
  *
  * @version $Rev$ $Date$
  */
-@Test
 public class ConfigManagerPortletEJBTest
     extends BasicConsoleTestSupport
 {
@@ -37,6 +35,6 @@ public class ConfigManagerPortletEJBTest
         waitForPageLoad();
         assertEquals("Geronimo Console", selenium.getTitle());
         assertEquals("Installed EJB JARs", 
-                     selenium.getText(getPortletTitleLocation()));         
+                     selenium.getText(getPortletTitleLocation()));
     }
 }
