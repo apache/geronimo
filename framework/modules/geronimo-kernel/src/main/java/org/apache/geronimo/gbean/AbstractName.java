@@ -118,7 +118,10 @@ public class AbstractName implements Serializable {
         //
         name = new TreeMap();
         String nameString = uri.getQuery();
-        if (nameString == null) throw new IllegalArgumentException("uri does not contain a query part used for the name map");
+        if (nameString == null) {
+            throw new IllegalArgumentException("uri does not contain a query part used for the name map; uri: " + uri);
+        }
+        
         List nameParts = split(nameString, ',');
         for (Iterator iterator = nameParts.iterator(); iterator.hasNext();) {
             String namePart = (String) iterator.next();
