@@ -66,7 +66,7 @@ public class JaxWSRestTest extends TestSupport {
         }
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testGET"})
     public void testPOST() throws Exception {
         String warName = System.getProperty("webAppName");
         assertNotNull("Web application name not specified", warName);

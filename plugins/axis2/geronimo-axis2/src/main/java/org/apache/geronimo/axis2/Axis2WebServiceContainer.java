@@ -32,6 +32,7 @@ import javax.xml.ws.WebServiceException;
 import javax.xml.ws.handler.Handler;
 
 import org.apache.axiom.om.util.UUIDGenerator;
+import org.apache.axis2.AxisFault;
 import org.apache.axis2.Constants;
 import org.apache.axis2.addressing.AddressingHelper;
 import org.apache.axis2.addressing.EndpointReference;
@@ -327,27 +328,12 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer
             pw.flush();
         } else {            
             // REST request
-            setMsgContextProperties(request, response, service, msgContext);
-            
-            String contentType = request.getHeader(HTTPConstants.HEADER_CONTENT_TYPE);
-            
-            msgContext.setTo(new EndpointReference(request.getURI().toString()));
-            
-            msgContext.setProperty(MessageContext.TRANSPORT_OUT, response.getOutputStream());
-            msgContext.setProperty(Constants.OUT_TRANSPORT_INFO, new Axis2TransportInfo(response));
-
-            InvocationResponse processed = RESTUtil.processURLRequest(msgContext, 
-                                                                      response.getOutputStream(),
-                                                                      contentType);
-
-            if (!processed.equals(InvocationResponse.CONTINUE)) {
-                response.setStatusCode(HttpURLConnection.HTTP_OK);
-                String s = HTTPTransportReceiver.getServicesHTML(configurationContext);
-                PrintWriter pw = new PrintWriter(response.getOutputStream());
-                pw.write(s);
-                pw.flush();
-            }            
+            processURLRequest(request, response, service, msgContext);            
         }
+    }
+
+    protected void processPOSTRequest(Request request, Response response, AxisService service, MessageContext msgContext) throws Exception {
+        processXMLRequest(request, response, service, msgContext);
     }
     
     protected void setMsgContextProperties(Request request, Response response, AxisService service, MessageContext msgContext) {
@@ -379,8 +365,11 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer
             msgContext.setProperty(JAXWSMessageReceiver.PARAM_BINDING, this.binding);  
         }
     }
-
-    protected void processPOSTRequest(Request request, Response response, AxisService service, MessageContext msgContext) throws Exception {
+    
+    protected void processXMLRequest(Request request, 
+                                     Response response, 
+                                     AxisService service, 
+                                     MessageContext msgContext) throws Exception {
         String contentType = request.getHeader(HTTPConstants.HEADER_CONTENT_TYPE);
         String soapAction = request.getHeader(HTTPConstants.HEADER_SOAP_ACTION);
         if (soapAction == null) {
@@ -399,6 +388,35 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer
                                                   soapAction, 
                                                   request.getURI().getPath());
     }
+    
+    protected void processURLRequest(Request request,
+                                     Response response,
+                                     AxisService service,
+                                     MessageContext msgContext) throws Exception {
+        ConfigurationContext configurationContext = msgContext.getConfigurationContext();
+        configurationContext.fillServiceContextAndServiceGroupContext(msgContext);
+        
+        setMsgContextProperties(request, response, service, msgContext);
+        
+        String contentType = request.getHeader(HTTPConstants.HEADER_CONTENT_TYPE);
+        
+        msgContext.setTo(new EndpointReference(request.getURI().toString()));
+        
+        msgContext.setProperty(MessageContext.TRANSPORT_OUT, response.getOutputStream());
+        msgContext.setProperty(Constants.OUT_TRANSPORT_INFO, new Axis2TransportInfo(response));
+
+        InvocationResponse processed = RESTUtil.processURLRequest(msgContext, 
+                                                                  response.getOutputStream(),
+                                                                  contentType);
+
+        if (!processed.equals(InvocationResponse.CONTINUE)) {
+            response.setStatusCode(HttpURLConnection.HTTP_OK);
+            String s = HTTPTransportReceiver.getServicesHTML(configurationContext);
+            PrintWriter pw = new PrintWriter(response.getOutputStream());
+            pw.write(s);
+            pw.flush();
+        }
+    }    
     
     /*
      * Gets the right handlers for the port/service/bindings and performs injection.
