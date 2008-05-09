@@ -75,30 +75,6 @@
         <pluginManagement>
             <plugins>
                 <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>shitty-maven-plugin</artifactId>
-                    <configuration>
-                        <projects>
-                            <fileset>
-                                <directory>${project.basedir}</directory>
-                                <includes>
-                                    <include>*/pom.xml</include>
-                                </includes>
-                            </fileset>
-                        </projects>
-                    </configuration>
-                    <executions>
-                        <execution>
-                            <goals>
-                                <goal>clean</goal>
-                                <goal>install</goal>
-                                <goal>test</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                </plugin>
-                
-                <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-ear-plugin</artifactId>
                     <configuration>
@@ -214,6 +190,7 @@
                             <logOutput>true</logOutput>
                             <background>true</background>
                             <verifyTimeout>300</verifyTimeout>
+                            <refresh>true</refresh>
                             <optionSets>
                                 <optionSet>
                                     <id>default</id>
@@ -238,6 +215,25 @@
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>shitty-maven-plugin</artifactId>
                 <inherited>false</inherited>
+                <configuration>
+                    <projects>
+                        <fileset>
+                            <directory>${project.basedir}</directory>
+                            <includes>
+                                <include>*/*/pom.xml</include>
+                            </includes>
+                        </fileset>
+                    </projects>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>clean</goal>
+                            <goal>install</goal>
+                            <goal>test</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
             
             <plugin>

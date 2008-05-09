@@ -70,6 +70,7 @@
         </pluginManagement>
         
         <plugins>
+            <!--
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>shitty-maven-plugin</artifactId>
@@ -81,10 +82,9 @@
                             <includes>
                                 <include>*/pom.xml</include>
                             </includes>
-                            
-                            <!--
+                            <!- -
                             HACK: Skip tomcat (or jetty) tests for now till we figure out how to switch it dynamically
-                            -->
+                            - ->
                             <excludes>
                                 <exclude>${excludeTest}/pom.xml</exclude>
                             </excludes>
@@ -101,6 +101,7 @@
                     </execution>
                 </executions>
             </plugin>
+            -->
             
             <plugin>
                 <groupId>org.apache.geronimo.buildsupport</groupId>
