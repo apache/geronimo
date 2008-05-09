@@ -80,7 +80,7 @@
     </gbean>
 
     <gbean name="DownloadedPluginRepos" class="org.apache.geronimo.system.plugin.PluginRepositoryDownloader">
-        <attribute name="repositoryList">http://geronimo.apache.org/plugins/plugin-repository-list-2.0.txt</attribute>
+        <attribute name="repositoryList">http://geronimo.apache.org/plugins/plugin-repository-list-2.0.3.txt</attribute>
         <attribute name="userRepositories">[]</attribute>
     </gbean>
     
