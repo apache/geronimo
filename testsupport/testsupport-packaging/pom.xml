@@ -21,31 +21,15 @@
 <!-- $Rev$ $Date$ -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    
     <modelVersion>4.0.0</modelVersion>
     
     <parent>
-        <groupId>org.apache.geronimo</groupId>
-        <artifactId>geronimo</artifactId>
+        <groupId>org.apache.geronimo.testsupport</groupId>
+        <artifactId>testsupport</artifactId>
         <version>2.2-SNAPSHOT</version>
     </parent>
     
-    <groupId>org.apache.geronimo.testsupport</groupId>
-    <artifactId>testsupport</artifactId>
-    <name>Geronimo Test Support</name>
-    <packaging>pom</packaging>
-    
-    <description>
-        Provides support for Geronimo tests.
-    </description>
-
-    <modules>
-        <module>testsupport-common</module>
-        <module>testsupport-selenium</module>
-        <module>testsupport-packaging</module>
-        <module>test-deployment-j2ee_1.3</module>
-        <module>test-deployment-j2ee_1.4</module>
-        <module>test-deployment-javaee_5</module>
-    </modules>
+    <artifactId>testsupport-packaging</artifactId>
+    <name>Geronimo Test Support :: Packaging</name>
 
 </project>
