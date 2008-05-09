@@ -75,12 +75,6 @@
         <pluginManagement>
             <plugins>
                 <plugin>
-                    <groupId>org.apache.geronimo.buildsupport</groupId>
-                    <artifactId>testsuite-maven-plugin</artifactId>
-                    <version>${version}</version>
-                </plugin>
-                
-                <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>shitty-maven-plugin</artifactId>
                     <configuration>

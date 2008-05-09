@@ -1869,19 +1869,6 @@
     <build>
         <pluginManagement>
             <plugins>
-                <plugin>
-                    <groupId>org.apache.geronimo.buildsupport</groupId>
-                    <artifactId>buildsupport-maven-plugin</artifactId>
-                    <version>${version}</version>
-                </plugin>
-
-                <plugin>
-                    <groupId>org.apache.geronimo.buildsupport</groupId>
-                    <artifactId>car-maven-plugin</artifactId>
-                    <version>${version}</version>
-                    <extensions>true</extensions>
-                </plugin>
-
                 <!--
                 TODO: Upgrade to 2.2-beta-2
                 -->
@@ -2059,82 +2046,7 @@
                         <redirectTestOutputToFile>true</redirectTestOutputToFile>
                     </configuration>
                 </plugin>
-
-                <plugin>
-                    <groupId>org.apache.geronimo.buildsupport</groupId>
-                    <artifactId>geronimo-maven-plugin</artifactId>
-                    <version>${version}</version>
-
-                    <configuration>
-                        <assemblies>
-                            <assembly>
-                                <id>jetty</id>
-                                <groupId>org.apache.geronimo.assemblies</groupId>
-                                <artifactId>geronimo-jetty6-javaee5</artifactId>
-                                <version>${version}</version>
-                                <classifier>bin</classifier>
-                                <type>zip</type>
-                            </assembly>
-
-                            <assembly>
-                                <id>jetty-minimal</id>
-                                <groupId>org.apache.geronimo.assemblies</groupId>
-                                <artifactId>geronimo-jetty6-minimal</artifactId>
-                                <version>${version}</version>
-                                <classifier>bin</classifier>
-                                <type>zip</type>
-                            </assembly>
-
-                            <assembly>
-                                <id>tomcat</id>
-                                <groupId>org.apache.geronimo.assemblies</groupId>
-                                <artifactId>geronimo-tomcat6-javaee5</artifactId>
-                                <version>${version}</version>
-                                <classifier>bin</classifier>
-                                <type>zip</type>
-                            </assembly>
-
-                            <assembly>
-                                <id>tomcat-minimal</id>
-                                <groupId>org.apache.geronimo.assemblies</groupId>
-                                <artifactId>geronimo-tomcat6-minimal</artifactId>
-                                <version>${version}</version>
-                                <classifier>bin</classifier>
-                                <type>zip</type>
-                            </assembly>
-
-                            <assembly>
-                                <id>framework</id>
-                                <groupId>org.apache.geronimo.assemblies</groupId>
-                                <artifactId>geronimo-framework</artifactId>
-                                <version>${version}</version>
-                                <classifier>bin</classifier>
-                                <type>zip</type>
-                            </assembly>
-                        </assemblies>
-
-                        <defaultAssemblyId>jetty</defaultAssemblyId>
-
-                        <optionSets>
-                            <optionSet>
-                                <id>morememory</id>
-                                <options>
-                                    <option>-Xmx512m</option>
-                                    <option>-XX:MaxPermSize=128m</option>
-                                </options>
-                            </optionSet>
-
-                            <optionSet>
-                                <id>debug</id>
-                                <options>
-                                    <option>-Xdebug</option>
-                                    <option>-Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n</option>
-                                </options>
-                            </optionSet>
-                        </optionSets>
-                    </configuration>
-                </plugin>
-
+                
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>shitty-maven-plugin</artifactId>
@@ -2220,6 +2132,102 @@
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>ianal-maven-plugin</artifactId>
                     <version>1.0-alpha-1-SNAPSHOT</version>
+                </plugin>
+                
+                <!-- INTERNAL -->
+                
+                <plugin>
+                    <groupId>org.apache.geronimo.buildsupport</groupId>
+                    <artifactId>buildsupport-maven-plugin</artifactId>
+                    <version>${version}</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.geronimo.buildsupport</groupId>
+                    <artifactId>car-maven-plugin</artifactId>
+                    <version>${version}</version>
+                    <extensions>true</extensions>
+                </plugin>
+                
+                <plugin>
+                    <groupId>org.apache.geronimo.buildsupport</groupId>
+                    <artifactId>testsuite-maven-plugin</artifactId>
+                    <version>${version}</version>
+                </plugin>
+                
+                <plugin>
+                    <groupId>org.apache.geronimo.buildsupport</groupId>
+                    <artifactId>geronimo-maven-plugin</artifactId>
+                    <version>${version}</version>
+
+                    <configuration>
+                        <assemblies>
+                            <assembly>
+                                <id>jetty</id>
+                                <groupId>org.apache.geronimo.assemblies</groupId>
+                                <artifactId>geronimo-jetty6-javaee5</artifactId>
+                                <version>${version}</version>
+                                <classifier>bin</classifier>
+                                <type>zip</type>
+                            </assembly>
+
+                            <assembly>
+                                <id>jetty-minimal</id>
+                                <groupId>org.apache.geronimo.assemblies</groupId>
+                                <artifactId>geronimo-jetty6-minimal</artifactId>
+                                <version>${version}</version>
+                                <classifier>bin</classifier>
+                                <type>zip</type>
+                            </assembly>
+
+                            <assembly>
+                                <id>tomcat</id>
+                                <groupId>org.apache.geronimo.assemblies</groupId>
+                                <artifactId>geronimo-tomcat6-javaee5</artifactId>
+                                <version>${version}</version>
+                                <classifier>bin</classifier>
+                                <type>zip</type>
+                            </assembly>
+
+                            <assembly>
+                                <id>tomcat-minimal</id>
+                                <groupId>org.apache.geronimo.assemblies</groupId>
+                                <artifactId>geronimo-tomcat6-minimal</artifactId>
+                                <version>${version}</version>
+                                <classifier>bin</classifier>
+                                <type>zip</type>
+                            </assembly>
+
+                            <assembly>
+                                <id>framework</id>
+                                <groupId>org.apache.geronimo.assemblies</groupId>
+                                <artifactId>geronimo-framework</artifactId>
+                                <version>${version}</version>
+                                <classifier>bin</classifier>
+                                <type>zip</type>
+                            </assembly>
+                        </assemblies>
+
+                        <defaultAssemblyId>jetty</defaultAssemblyId>
+
+                        <optionSets>
+                            <optionSet>
+                                <id>morememory</id>
+                                <options>
+                                    <option>-Xmx512m</option>
+                                    <option>-XX:MaxPermSize=128m</option>
+                                </options>
+                            </optionSet>
+
+                            <optionSet>
+                                <id>debug</id>
+                                <options>
+                                    <option>-Xdebug</option>
+                                    <option>-Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n</option>
+                                </options>
+                            </optionSet>
+                        </optionSets>
+                    </configuration>
                 </plugin>
             </plugins>
         </pluginManagement>
