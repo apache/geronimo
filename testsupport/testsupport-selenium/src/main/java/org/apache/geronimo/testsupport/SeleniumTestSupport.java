@@ -38,14 +38,14 @@ public class SeleniumTestSupport
 {
     protected static ExtendedSelenium selenium;
     
-    protected ExtendedSelenium createSeleniumClient(String url) throws Exception {
+    private ExtendedSelenium createSeleniumClient(String url) throws Exception {
         super.setUp();
         
         if (url == null) {
             url = "http://localhost:" + SeleniumServer.DEFAULT_PORT;
         }
         
-        log.info("Creating Selenium client for URL: " + url);
+        log.info("Creating Selenium client for URL: {}", url);
         
         ExtendedSelenium selenium = new ExtendedSelenium(
             "localhost", SeleniumServer.DEFAULT_PORT, "*firefox", url);
@@ -53,8 +53,14 @@ public class SeleniumTestSupport
         return selenium;
     }
     
+    protected void ensureSeleniumClientInitialized() {
+        if (selenium == null) {
+            throw new IllegalStateException("Selenium client was not initalized");
+        }
+    }
+    
     @BeforeSuite
-    protected void startSeleniumClient() throws Exception {
+    protected synchronized void startSeleniumClient() throws Exception {
         log.info("Starting Selenium client");
         
         selenium = createSeleniumClient("http://localhost:8080/");
@@ -62,35 +68,18 @@ public class SeleniumTestSupport
     }
     
     @AfterSuite
-    protected void stopSeleniumClient() throws Exception {
+    protected synchronized void stopSeleniumClient() throws Exception {
+        ensureSeleniumClientInitialized();
+        
         log.info("Stopping Selenium client");
         
         selenium.stop();
     }
     
     protected void waitForLoad() throws Exception {
+        ensureSeleniumClientInitialized();
+        
         selenium.waitForPageToLoad("30000");
     }
-    
-    /**
-     * junit's per class setup.
-     * 
-    protected void setUp() throws Exception {
-        log.info("Starting Selenium client");
-        
-        selenium = createSeleniumClient("http://localhost:8080/");
-        selenium.start();
-    }
-     */
-    
-    /**
-     * junit's per class teardown.
-     * 
-    protected void tearDown() throws Exception {
-        log.info("Stopping Selenium client");
-        
-        selenium.stop();
-    }
-    */
 }
 

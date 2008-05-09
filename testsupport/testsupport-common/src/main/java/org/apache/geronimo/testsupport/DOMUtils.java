@@ -59,7 +59,7 @@ public class DOMUtils {
         if (expected instanceof Document) {
             Document expectedDoc = (Document)expected;
             Document actualDoc = (Document)actual;
-            compareNodes(expectedDoc.getDocumentElement(), actualDoc.getDocumentElement());            
+            compareNodes(expectedDoc.getDocumentElement(), actualDoc.getDocumentElement());
         } else if (expected instanceof Element) {
             Element expectedElement = (Element)expected;
             Element actualElement = (Element)actual;
@@ -71,7 +71,7 @@ public class DOMUtils {
             // compare element ns
             String expectedNS = expectedElement.getNamespaceURI();
             String actualNS = actualElement.getNamespaceURI();
-            if ((expectedNS == null && actualNS != null) || (expectedNS != null && !expectedNS.equals(actualNS))) {               
+            if ((expectedNS == null && actualNS != null) || (expectedNS != null && !expectedNS.equals(actualNS))) {
                 throw new Exception("Element namespaces names do not match: " + expectedNS + " " + actualNS);
             }
             
@@ -100,7 +100,7 @@ public class DOMUtils {
                 if (!expectedAttr.getValue().equals(actualAttr.getValue())) {
                     throw new Exception(elementName + ": Attribute values do not match: " + expectedAttr.getValue() + " " + actualAttr.getValue());
                 }
-            }            
+            }
             
             // compare children
             NodeList expectedChildren = expectedElement.getChildNodes();
