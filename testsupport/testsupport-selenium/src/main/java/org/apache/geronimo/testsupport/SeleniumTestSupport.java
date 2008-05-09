@@ -38,7 +38,7 @@ public class SeleniumTestSupport
 {
     protected static ExtendedSelenium selenium;
     
-    private ExtendedSelenium createSeleniumClient(String url) throws Exception {
+    protected ExtendedSelenium createSeleniumClient(String url) throws Exception {
         super.setUp();
         
         if (url == null) {
