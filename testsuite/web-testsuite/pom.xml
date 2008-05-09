@@ -44,65 +44,8 @@
          - JSTL
     </description>
 
-    <properties>
-        <excludeTest>test-tomcat</excludeTest>
-    </properties>
-
     <build>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-surefire-plugin</artifactId>
-                    <configuration>
-                        <suiteXmlFiles>
-                            <suiteXmlFile>${project.build.testOutputDirectory}/testng.xml</suiteXmlFile>
-                        </suiteXmlFiles>
-                        <systemProperties>
-                            <property>
-                                <name>geronimoVersion</name>
-                                <value>${version}</value>
-                            </property>
-                        </systemProperties>
-                    </configuration>
-                </plugin>
-            </plugins>
-        </pluginManagement>
-        
         <plugins>
-            <!--
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>shitty-maven-plugin</artifactId>
-                <inherited>false</inherited>
-                <configuration>
-                    <projects>
-                        <fileset>
-                            <directory>${project.basedir}</directory>
-                            <includes>
-                                <include>*/pom.xml</include>
-                            </includes>
-                            <!- -
-                            HACK: Skip tomcat (or jetty) tests for now till we figure out how to switch it dynamically
-                            - ->
-                            <excludes>
-                                <exclude>${excludeTest}/pom.xml</exclude>
-                            </excludes>
-                        </fileset>
-                    </projects>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>clean</goal>
-                            <goal>install</goal>
-                            <goal>test</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            -->
-            
             <plugin>
                 <groupId>org.apache.geronimo.buildsupport</groupId>
                 <artifactId>testsuite-maven-plugin</artifactId>

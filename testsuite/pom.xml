@@ -231,6 +231,13 @@
                             <includes>
                                 <include>*/*/pom.xml</include>
                             </includes>
+                            
+                            <!--
+                            TODO: Need to find a better way to run container specific integration tests.
+                            -->
+                            <excludes>
+                                <exclude>web-testsuite/test-tomcat/pom.xml</exclude>
+                            </excludes>
                         </fileset>
                     </projects>
                 </configuration>

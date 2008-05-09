@@ -24,8 +24,9 @@ import org.testng.annotations.Test;
 /**
  * @version $Rev$ $Date$
  */
-public class WebServerTest extends TestSupport {
-
+public class WebServerTest
+    extends TestSupport
+{
     public static final String TOMCAT = "Tomcat";
     public static final String JETTY = "Jetty";
 
@@ -38,7 +39,7 @@ public class WebServerTest extends TestSupport {
     }
 
     @Test
-    public void testEditConnector() throws Exception{
+    public void testEditConnector() throws Exception {
         String name = "uniquename2";
         addConnector(name, 8082);
 
@@ -85,7 +86,7 @@ public class WebServerTest extends TestSupport {
         selenium.click("link=Web Server");
         waitForPageLoad();
         String container = JETTY;
-        if(selenium.isTextPresent(TOMCAT)) {
+        if (selenium.isTextPresent(TOMCAT)) {
             container = TOMCAT;
         }
         
