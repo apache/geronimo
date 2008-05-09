@@ -152,7 +152,6 @@
                                 <goal>test</goal>
                             </goals>
                             <configuration>
-                                <testFailureIgnore>true</testFailureIgnore>
                                 <skip>false</skip>
                             </configuration>
                         </execution>
