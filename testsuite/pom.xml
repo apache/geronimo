@@ -55,6 +55,16 @@
     </dependencies>
 
     <build>
+        <!--
+        <extensions>
+            <extension>
+                <groupId>org.apache.geronimo.testsupport</groupId>
+                <artifactId>testsupport-packaging</artifactId>
+                <version>${version}</version>
+            </extension>
+        </extensions>
+        -->
+        
         <resources>
             <resource>
                 <directory>${project.basedir}/src/main/resources</directory>
