@@ -31,26 +31,25 @@ public abstract class ConsoleTestSupport
 {
     protected void login() throws Exception {
         selenium.open("/");
-        waitForLoad();
+        waitForPageLoad();
         
         assertEquals("Apache Geronimo", selenium.getTitle());
         
         selenium.click("link=Console");
-        waitForLoad();
+        waitForPageLoad();
         
         assertEquals("Geronimo Console Login", selenium.getTitle());
         
         selenium.type("j_username", "system");
         selenium.type("j_password", "manager");
         selenium.click("submit");
-        waitForLoad();
+        waitForPageLoad();
         assertEquals("Geronimo Console", selenium.getTitle());
     }
     
     protected void logout() throws Exception {
         selenium.click("//a[contains(@href, '/console/logout.jsp')]");
-        
-        waitForLoad();
+        waitForPageLoad();
         
         assertEquals("Geronimo Console Login", selenium.getTitle());
         
