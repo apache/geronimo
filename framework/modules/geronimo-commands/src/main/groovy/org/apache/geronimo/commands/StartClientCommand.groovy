@@ -135,7 +135,7 @@ class StartClientCommand
                                         
                     arg(value: moduleName)
                     
-                    if (moduleArguments) {                                                
+                    if (moduleArguments) {
                         moduleArguments.each {
                             arg(value: it)
                         }
@@ -154,10 +154,9 @@ class StartClientCommand
                 throw e
             }
         }
-                
+        
         launcher.launch()
         
         return SUCCESS
     }
-       
 }

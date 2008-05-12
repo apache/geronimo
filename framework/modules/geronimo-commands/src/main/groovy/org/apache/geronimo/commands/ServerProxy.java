@@ -71,7 +71,7 @@ public class ServerProxy
         log.debug("Initialized with URL: " + url + ", environment: " + environment);
     }
 
-    public ServerProxy(final String hostname, final int port, final String username, final String password) throws Exception {        
+    public ServerProxy(final String hostname, final int port, final String username, final String password) throws Exception {
         this("service:jmx:rmi://" + hostname + "/jndi/rmi://" + hostname + ":" + port + "/JMXConnector", username, password);
     }
 

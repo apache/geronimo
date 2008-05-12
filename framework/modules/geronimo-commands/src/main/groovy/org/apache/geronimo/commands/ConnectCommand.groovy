@@ -57,7 +57,7 @@ class ConnectCommand
     @Requirement
     PromptReader prompter
 
-    protected Object doExecute() throws Exception {               
+    protected Object doExecute() throws Exception {
         return openConnection()
     }
     
