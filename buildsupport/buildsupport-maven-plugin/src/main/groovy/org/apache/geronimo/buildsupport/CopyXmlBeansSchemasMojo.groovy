@@ -19,7 +19,7 @@
 
 package org.apache.geronimo.buildsupport
 
-import org.codehaus.mojo.groovy.GroovyMojoSupport
+import org.codehaus.groovy.maven.mojo.GroovyMojo
 
 import org.apache.maven.project.MavenProject
 
@@ -32,7 +32,7 @@ import org.apache.maven.project.MavenProject
  * @version $Rev$ $Date$
  */
 class CopyXmlBeansSchemasMojo
-    extends GroovyMojoSupport
+    extends GroovyMojo
 {
     /**
      * @parameter expression="${project}"

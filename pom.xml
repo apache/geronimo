@@ -1655,15 +1655,27 @@
             </dependency>
 
             <dependency>
-                <groupId>org.codehaus.groovy</groupId>
-                <artifactId>groovy-all</artifactId>
-                <version>1.1-rc-1</version>
+                <groupId>org.codehaus.groovy.maven</groupId>
+                <artifactId>gmaven-mojo</artifactId>
+                <version>1.0-rc-2</version>
             </dependency>
-            
+
             <dependency>
-                <groupId>org.codehaus.mojo.groovy</groupId>
-                <artifactId>groovy-mojo-support</artifactId>
-                <version>1.0-beta-2</version>
+                <groupId>org.codehaus.groovy.maven.runtime</groupId>
+                <artifactId>gmaven-runtime-default</artifactId>
+                <version>1.0-rc-2</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.codehaus.groovy.maven.support</groupId>
+                <artifactId>slf4j-gossip</artifactId>
+                <version>1.0-rc-2</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.codehaus.groovy</groupId>
+                <artifactId>groovy-all-minimal</artifactId>
+                <version>1.5.6</version>
             </dependency>
 
             <dependency>
@@ -1900,9 +1912,9 @@
                 </plugin>
 
                 <plugin>
-                    <groupId>org.codehaus.mojo.groovy</groupId>
-                    <artifactId>groovy-maven-plugin</artifactId>
-                    <version>1.0-beta-2</version>
+                    <groupId>org.codehaus.groovy.maven</groupId>
+                    <artifactId>gmaven-plugin</artifactId>
+                    <version>1.0-rc-2</version>
                 </plugin>
 
                 <plugin>
@@ -2244,24 +2256,6 @@
                 <artifactId>maven-release-plugin</artifactId>
                 <configuration>
                     <tagBase>https://svn.apache.org/repos/asf/geronimo/server/tags</tagBase>
-                </configuration>
-            </plugin>
-            
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-plugin-plugin</artifactId>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.codehaus.mojo.groovy</groupId>
-                        <artifactId>groovy-mojo-tools</artifactId>
-                        <version>1.0-beta-2</version>
-                    </dependency>
-                </dependencies>
-                <configuration>
-                    <extractors>
-                        <extractor>java</extractor>
-                        <extractor>groovy</extractor>
-                    </extractors>
                 </configuration>
             </plugin>
         </plugins>

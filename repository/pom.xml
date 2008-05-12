@@ -160,7 +160,6 @@
             <groupId>org.apache.ant</groupId>
             <artifactId>ant-launcher</artifactId>
         </dependency>
-
     </dependencies>
 
     <repositories>
