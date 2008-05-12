@@ -38,7 +38,7 @@
     <description>
         Apache Geronimo, the JavaEE server project of the Apache Software Foundation.
     </description>
-    
+
     <organization>
         <name>The Apache Geronimo development community</name>
         <url>http://geronimo.apache.org/</url>
@@ -64,7 +64,7 @@
         
         <!-- This property is required by the car:package mojo -->
         <geronimoVersion>${version}</geronimoVersion>
-        
+
         <geronimoSchemaVersion>1.2</geronimoSchemaVersion>
 
         <!--
@@ -101,7 +101,7 @@
         <plutoVersion>1.1.6-G643117</plutoVersion>
 
         <wadiVersion>2.0-M10</wadiVersion>
-        
+
         <gbeanDeployerBootstrap>org.apache.geronimo.framework/geronimo-gbean-deployer-bootstrap/${version}/car</gbeanDeployerBootstrap>
         <gbeanDeployer>org.apache.geronimo.framework/geronimo-gbean-deployer/${version}/car</gbeanDeployer>
         <j2eeDeployer>org.apache.geronimo.configs/j2ee-deployer/${version}/car</j2eeDeployer>
@@ -138,7 +138,7 @@
         <PlanORBSunSSLPort>2001</PlanORBSunSSLPort>
         <PlanJMXPort>9999</PlanJMXPort>
     </properties>
-    
+
     <dependencyManagement>
         <dependencies>
 
@@ -739,8 +739,7 @@
                         <groupId>commons-logging</groupId>
                         <artifactId>commons-logging</artifactId>
                     </exclusion>
-                    -->
-                </exclusions>
+                    --></exclusions>
             </dependency>
 
             <dependency>
@@ -809,7 +808,7 @@
                 <version>1.2</version>
             </dependency>
 
-           <dependency>
+            <dependency>
                 <groupId>org.directwebremoting</groupId>
                 <artifactId>dwr</artifactId>
                 <version>2.0.1</version>
@@ -819,84 +818,84 @@
                 <groupId>org.apache.openejb</groupId>
                 <artifactId>openejb-core</artifactId>
                 <version>${openejbVersion}</version>
-		<exclusions>
-		    <exclusion>
-		        <groupId>org.apache.openejb</groupId>
-			<artifactId>javaee-api</artifactId>
-		    </exclusion>
-		</exclusions>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.openejb</groupId>
+                        <artifactId>javaee-api</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.openejb</groupId>
                 <artifactId>openejb-client</artifactId>
                 <version>${openejbVersion}</version>
-		<exclusions>
-		    <exclusion>
-		        <groupId>org.apache.openejb</groupId>
-			<artifactId>javaee-api</artifactId>
-		    </exclusion>
-		</exclusions>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.openejb</groupId>
+                        <artifactId>javaee-api</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.openejb</groupId>
                 <artifactId>openejb-ejbd</artifactId>
                 <version>${openejbVersion}</version>
-		<exclusions>
-		    <exclusion>
-		        <groupId>org.apache.openejb</groupId>
-			<artifactId>javaee-api</artifactId>
-		    </exclusion>
-		</exclusions>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.openejb</groupId>
+                        <artifactId>javaee-api</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.openejb</groupId>
                 <artifactId>openejb-axis</artifactId>
                 <version>${openejbVersion}</version>
-		<exclusions>
-		    <exclusion>
-		        <groupId>org.apache.openejb</groupId>
-			<artifactId>javaee-api</artifactId>
-		    </exclusion>
-		</exclusions>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.openejb</groupId>
+                        <artifactId>javaee-api</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.openejb</groupId>
                 <artifactId>openejb-server</artifactId>
                 <version>${openejbVersion}</version>
-		<exclusions>
-		    <exclusion>
-		        <groupId>org.apache.openejb</groupId>
-			<artifactId>javaee-api</artifactId>
-		    </exclusion>
-		</exclusions>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.openejb</groupId>
+                        <artifactId>javaee-api</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.openejb</groupId>
                 <artifactId>openejb-loader</artifactId>
                 <version>${openejbVersion}</version>
-		<exclusions>
-		    <exclusion>
-		        <groupId>org.apache.openejb</groupId>
-			<artifactId>javaee-api</artifactId>
-		    </exclusion>
-		</exclusions>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.openejb</groupId>
+                        <artifactId>javaee-api</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.openejb</groupId>
                 <artifactId>openejb-jee</artifactId>
                 <version>${openejbVersion}</version>
-		<exclusions>
-		    <exclusion>
-		        <groupId>org.apache.openejb</groupId>
-			<artifactId>javaee-api</artifactId>
-		    </exclusion>
-		</exclusions>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.openejb</groupId>
+                        <artifactId>javaee-api</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.apache.openejb</groupId>
@@ -1512,23 +1511,23 @@
                 </exclusions>
             </dependency>
 
-           <dependency>
-               <groupId>com.sun.xml.ws</groupId>
-               <artifactId>jaxws-tools</artifactId>
+            <dependency>
+                <groupId>com.sun.xml.ws</groupId>
+                <artifactId>jaxws-tools</artifactId>
                 <version>2.0</version>
-           </dependency>
+            </dependency>
 
-           <dependency>
-               <groupId>com.sun.xml.ws</groupId>
-               <artifactId>jaxws-rt</artifactId>
+            <dependency>
+                <groupId>com.sun.xml.ws</groupId>
+                <artifactId>jaxws-rt</artifactId>
                 <version>2.0</version>
-           </dependency>
+            </dependency>
 
-           <dependency>
-               <groupId>com.sun.xml.bind</groupId>
-               <artifactId>jaxb-xjc</artifactId>
-               <version>2.0.5</version>
-           </dependency>
+            <dependency>
+                <groupId>com.sun.xml.bind</groupId>
+                <artifactId>jaxb-xjc</artifactId>
+                <version>2.0.5</version>
+            </dependency>
 
             <dependency>
                 <groupId>commons-httpclient</groupId>
@@ -1581,13 +1580,13 @@
             </dependency>
 
             <!-- GShell Support -->
-            
+
             <dependency>
                 <groupId>org.apache.geronimo.gshell</groupId>
                 <artifactId>gshell-embeddable</artifactId>
                 <version>1.0-alpha-1</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>org.apache.geronimo.gshell</groupId>
                 <artifactId>gshell-bootstrap</artifactId>
@@ -1817,25 +1816,28 @@
             <!-- archive support -->
             <!-- archiver version matches maven 2.0.7.  Upgrading maven may require upgrading this version -->
             <dependency>
-                 <groupId>org.codehaus.plexus</groupId>
-                 <artifactId>plexus-archiver</artifactId>
-                 <version>1.0-alpha-7</version>
-             </dependency>
-             <dependency>
-                 <groupId>org.codehaus.plexus</groupId>
-                 <artifactId>plexus-utils</artifactId>
-                 <version>1.4.1</version>
-             </dependency>
-             <dependency>
-               <groupId>org.codehaus.plexus</groupId>
-               <artifactId>plexus-container-default</artifactId>
-               <version>1.0-alpha-9</version>
-             </dependency>
-             <dependency>
-               <groupId>org.codehaus.plexus</groupId>
-               <artifactId>plexus-component-api</artifactId>
-               <version>1.0-alpha-15</version>
-             </dependency>
+                <groupId>org.codehaus.plexus</groupId>
+                <artifactId>plexus-archiver</artifactId>
+                <version>1.0-alpha-7</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>org.codehaus.plexus</groupId>
+                <artifactId>plexus-utils</artifactId>
+                <version>1.4.1</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>org.codehaus.plexus</groupId>
+                <artifactId>plexus-container-default</artifactId>
+                <version>1.0-alpha-9</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>org.codehaus.plexus</groupId>
+                <artifactId>plexus-component-api</artifactId>
+                <version>1.0-alpha-15</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -1847,7 +1849,7 @@
                     <artifactId>buildsupport-maven-plugin</artifactId>
                     <version>${version}</version>
                 </plugin>
-                
+
                 <plugin>
                     <groupId>org.apache.geronimo.buildsupport</groupId>
                     <artifactId>car-maven-plugin</artifactId>
@@ -1860,13 +1862,13 @@
                     <artifactId>maven-enforcer-plugin</artifactId>
                     <version>1.0-alpha-3</version>
                 </plugin>
-                
+
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-assembly-plugin</artifactId>
                     <version>2.2-beta-1</version>
                 </plugin>
-                
+
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-javadoc-plugin</artifactId>
@@ -1875,7 +1877,7 @@
                         <source>1.5</source>
                     </configuration>
                 </plugin>
-                
+
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-dependency-plugin</artifactId>
@@ -1930,7 +1932,7 @@
                     <executions>
                         <execution>
                             <goals>
-                                 <goal>compile</goal>
+                                <goal>compile</goal>
                             </goals>
                             <configuration>
                                 <warSourceDirectory>${pom.basedir}/src/main/webapp</warSourceDirectory>
@@ -1953,7 +1955,7 @@
                                 </exclusion>
                             </exclusions>
                         </dependency>
-                        
+
                         <dependency>
                             <groupId>org.apache.tomcat</groupId>
                             <artifactId>jasper</artifactId>
@@ -2039,7 +2041,7 @@
                         </archive>
                     </configuration>
                 </plugin>
-                
+
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
@@ -2048,7 +2050,7 @@
                         <redirectTestOutputToFile>true</redirectTestOutputToFile>
                     </configuration>
                 </plugin>
-                
+
                 <plugin>
                     <groupId>org.apache.geronimo.buildsupport</groupId>
                     <artifactId>geronimo-maven-plugin</artifactId>
@@ -2091,7 +2093,7 @@
                                 <classifier>bin</classifier>
                                 <type>zip</type>
                             </assembly>
-                            
+
                             <assembly>
                                 <id>framework</id>
                                 <groupId>org.apache.geronimo.assemblies</groupId>
@@ -2123,7 +2125,7 @@
                         </optionSets>
                     </configuration>
                 </plugin>
-                
+
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>shitty-maven-plugin</artifactId>
@@ -2162,7 +2164,7 @@
                         </execution>
                     </executions>
                 </plugin>
-            
+
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-release-plugin</artifactId>
@@ -2197,7 +2199,7 @@
                     </execution>
                 </executions>
             </plugin>
-            
+
             <plugin>
                 <groupId>org.apache.geronimo.genesis.plugins</groupId>
                 <artifactId>tools-maven-plugin</artifactId>
@@ -2279,7 +2281,7 @@
                     </links>
                 </configuration>
             </plugin>
-            
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-pmd-plugin</artifactId>
@@ -2290,7 +2292,7 @@
             </plugin>
         </plugins>
     </reporting>
-    
+
     <repositories>
         <!--
         NOTE: The default repositories are picked up by Genesis, but need to
@@ -2355,7 +2357,7 @@
                 <module>testsuite</module>
             </modules>
         </profile>
-        
+
         <profile>
             <id>no-it</id>
 
@@ -2437,9 +2439,9 @@
             </activation>
 
             <modules>
-              <module>framework/configs</module>
-              <module>plugins</module>
-              <module>assemblies</module>
+                <module>framework/configs</module>
+                <module>plugins</module>
+                <module>assemblies</module>
             </modules>
         </profile>
 
@@ -2478,13 +2480,13 @@
                 <module>framework/modules</module>
             </modules>
         </profile>
-        
+
         <profile>
             <id>idea</id>
-            
+
             <build>
                 <defaultGoal>validate</defaultGoal>
-                
+
                 <plugins>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
@@ -2507,13 +2509,13 @@
                 </plugins>
             </build>
         </profile>
-        
+
         <profile>
             <id>makeeclipse</id>
-            
+
             <build>
                 <defaultGoal>validate</defaultGoal>
-                
+
                 <plugins>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
@@ -2527,7 +2529,7 @@
                             </execution>
                         </executions>
                     </plugin>
-                    
+
                     <plugin>
                         <groupId>org.apache.geronimo.buildsupport</groupId>
                         <artifactId>buildsupport-maven-plugin</artifactId>
