@@ -412,7 +412,7 @@
                             <outputDirectory>${project.build.directory}</outputDirectory>
                             <appendAssemblyId>false</appendAssemblyId>
                             <descriptors>
-                                <descriptor>${pom.basedir}/src/main/assembly/boilerplate.xml</descriptor>
+                                <descriptor>${project.basedir}/src/main/assembly/boilerplate.xml</descriptor>
                             </descriptors>
                         </configuration>
                     </execution>

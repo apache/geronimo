@@ -118,7 +118,7 @@
                             <outputDirectory>${project.build.directory}</outputDirectory> 
                             <appendAssemblyId>false</appendAssemblyId>
                             <descriptors>
-                                <descriptor>${pom.basedir}/src/main/assembly/bin.xml</descriptor>
+                                <descriptor>${project.basedir}/src/main/assembly/bin.xml</descriptor>
                             </descriptors>
                         </configuration>
                     </execution>
