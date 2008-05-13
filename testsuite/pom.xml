@@ -38,7 +38,15 @@
     <description>
         Geronimo integration testsuite.
     </description>
-
+    
+    <properties>
+        <!--
+        NOTE: The default assembly is jetty, so exclude any tomcat tests by default.
+              Profiles below should toggle this as the assemblyId is changed.
+        -->
+        <shittyTestExcludes>**/*tomcat*/pom.xml</shittyTestExcludes>
+    </properties>
+    
     <dependencies>
         <dependency>
             <groupId>org.apache.geronimo.testsupport</groupId>
@@ -53,7 +61,7 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
+    
     <build>
         <!--
         <extensions>
@@ -231,12 +239,8 @@
                             <includes>
                                 <include>*/*/pom.xml</include>
                             </includes>
-                            
-                            <!--
-                            TODO: Need to find a better way to run container specific integration tests.
-                            -->
                             <excludes>
-                                <exclude>web-testsuite/test-tomcat/pom.xml</exclude>
+                                <exclude>${shittyTestExcludes}</exclude>
                             </excludes>
                         </fileset>
                     </projects>
@@ -288,6 +292,32 @@
 
     <profiles>
         <profile>
+            <id>testsuite-with-jetty</id>
+            <activation>
+                <property>
+                    <name>assemblyId</name>
+                    <value>jetty</value>
+                </property>
+            </activation>
+            <properties>
+                <shittyTestExcludes>**/*tomcat*/pom.xml</shittyTestExcludes>
+            </properties>
+        </profile>
+        
+        <profile>
+            <id>testsuite-with-tomcat</id>
+            <activation>
+                <property>
+                    <name>assemblyId</name>
+                    <value>tomcat</value>
+                </property>
+            </activation>
+            <properties>
+                <shittyTestExcludes>**/*jetty*/pom.xml</shittyTestExcludes>
+            </properties>
+        </profile>
+        
+        <profile>
             <id>headless</id>
             <build>
                 <pluginManagement>
@@ -295,6 +325,7 @@
                         <plugin>
                             <groupId>org.codehaus.mojo</groupId>
                             <artifactId>selenium-maven-plugin</artifactId>
+                            <inherited>false</inherited>
                             <executions>
                                 <execution>
                                     <id>xvfb</id>
