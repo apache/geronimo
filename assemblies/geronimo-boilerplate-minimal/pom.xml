@@ -46,6 +46,7 @@
             <version>${version}</version>
         </dependency>
 
+        <!-- following are now pulled in by gshell-geronimo -> gshell-remote -> gshell-framework
         <dependency>
             <groupId>org.apache.geronimo.gshell</groupId>
             <artifactId>gshell-bootstrap</artifactId>
@@ -57,10 +58,28 @@
         </dependency>
 
         <dependency>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy-all-minimal</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.ant</groupId>
+            <artifactId>ant</artifactId>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.apache.ant</groupId>
+            <artifactId>ant-launcher</artifactId>
+        </dependency>
+
+        And gshell-embeddable has been replaced with individual depends
+        <dependency>
             <groupId>org.apache.geronimo.gshell</groupId>
             <artifactId>gshell-embeddable</artifactId>
         </dependency>
+        -->
 
+        <!-- following are now pulled in by gshell-geronimo -> gshell-remote
         <dependency>
             <groupId>org.apache.geronimo.gshell</groupId>
             <artifactId>gshell-whisper</artifactId>
@@ -90,29 +109,8 @@
             <groupId>org.apache.mina</groupId>
             <artifactId>mina-filter-ssl</artifactId>
         </dependency>
-
-        <dependency>
-            <groupId>org.codehaus.groovy</groupId>
-            <artifactId>groovy-all-minimal</artifactId>
-        </dependency>
-        
-        <dependency>
-            <groupId>org.codehaus.groovy.maven.support</groupId>
-            <artifactId>ant-1.7.0</artifactId>
-        </dependency>
-        
-        <!--
-        <dependency>
-            <groupId>org.apache.ant</groupId>
-            <artifactId>ant</artifactId>
-        </dependency>
         -->
-        
-        <dependency>
-            <groupId>org.apache.ant</groupId>
-            <artifactId>ant-launcher</artifactId>
-        </dependency>
-
+      
         <!-- lib Dependencies -->
         <dependency>
             <groupId>asm</groupId>
@@ -210,6 +208,13 @@
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>online-deployer</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>gshell-geronimo</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>

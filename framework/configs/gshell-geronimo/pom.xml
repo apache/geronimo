@@ -39,7 +39,7 @@
     <dependencies>
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
-            <artifactId>gshell-framework</artifactId>
+            <artifactId>gshell-remote</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>

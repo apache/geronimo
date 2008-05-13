@@ -67,38 +67,27 @@
         <geronimoSchemaVersion>1.2</geronimoSchemaVersion>
         
         <!--
-        Having a single well named property makes automatic updating for the weekly build much easier.
+        Having a single well named version properties makes automatic updating for the weekly build much easier.
         -->
         <openejbVersion>3.1-SNAPSHOT</openejbVersion>
-
-        <!--
-        HACK: Used by uddi-db to execute the sql plugin with the Derby driver.
-        -->
+        <yokoVersion>1.0-SNAPSHOT</yokoVersion>
         <derbyVersion>10.2.2.0</derbyVersion>
-
-        <!--
-        HACK: Used by jsp and servlet example configs to point to the tomcat deployer
-        -->
         <tomcatVersion>6.0.14</tomcatVersion>
-
-        <!--
-        HACK: Used by uddi-jetty and uddi-tomcat config plans
-        -->
         <tranqlVendorsVersion>1.4</tranqlVendorsVersion>
-
-        <!--
-        HACK: Used by geronimo-dojo
-        -->
         <dojoVersion>1.1.0</dojoVersion>
         <dojoLegacyVersion>0.4.3</dojoLegacyVersion>
-
         <cxfVersion>2.0.2-incubator</cxfVersion>
-
         <axis2Version>1.3</axis2Version>
         <axiomVersion>1.2.5</axiomVersion>
         <springVersion>2.0.5</springVersion>
         <plutoVersion>1.1.6-G643117</plutoVersion>
-
+        <openjpaVersion>1.0.2</openjpaVersion>
+        <xbeanVersion>3.3</xbeanVersion>
+        <gshellVersion>1.0-alpha-1</gshellVersion>
+        <gmavenVersion>1.0-rc-1</gmavenVersion>
+        <minaVersion>1.1.6</minaVersion>
+        <slf4jVersion>1.5.0</slf4jVersion>
+        <groovyVersion>1.5.6</groovyVersion>
         <wadiVersion>2.0-SNAPSHOT</wadiVersion>
 
         <!-- Deployers -->
@@ -320,12 +309,12 @@
             <dependency>
                 <groupId>org.apache.openjpa</groupId>
                 <artifactId>openjpa</artifactId>
-                <version>1.0.2</version>
+                <version>${openjpaVersion}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.openjpa</groupId>
                 <artifactId>openjpa-persistence-jdbc</artifactId>
-                <version>1.0.2</version>
+                <version>${openjpaVersion}</version>
             </dependency>
 
             <dependency>
@@ -337,25 +326,19 @@
             <dependency>
                 <groupId>org.apache.xbean</groupId>
                 <artifactId>xbean-finder</artifactId>
-                <version>3.3</version>
+                <version>${xbeanVersion}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.xbean</groupId>
                 <artifactId>xbean-naming</artifactId>
-                <version>3.3</version>
+                <version>${xbeanVersion}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.xbean</groupId>
                 <artifactId>xbean-reflect</artifactId>
-                <version>3.3</version>
-            </dependency>
-
-            <dependency>
-                <groupId>jline</groupId>
-                <artifactId>jline</artifactId>
-                <version>0.9.94</version>
+                <version>${xbeanVersion}</version>
             </dependency>
 
             <dependency>
@@ -498,28 +481,29 @@
                 </exclusions>
             </dependency>
 
+            <!-- SLF4J support - used by Server and GShell -->
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
-                <version>1.5.0</version>
+                <version>${slf4jVersion}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-simple</artifactId>
-                <version>1.5.0</version>
+                <version>${slf4jVersion}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-log4j12</artifactId>
-                <version>1.5.0</version>
+                <version>${slf4jVersion}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>jcl104-over-slf4j</artifactId>
-                <version>1.5.0</version>
+                <version>${slf4jVersion}</version>
             </dependency>
 
             <dependency>
@@ -636,25 +620,25 @@
             <dependency>
                 <groupId>org.apache.yoko</groupId>
                 <artifactId>yoko-core</artifactId>
-                <version>1.0-SNAPSHOT</version>
+                <version>${yokoVersion}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.yoko</groupId>
                 <artifactId>yoko-spec-corba</artifactId>
-                <version>1.0-SNAPSHOT</version>
+                <version>${yokoVersion}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.yoko</groupId>
                 <artifactId>yoko-rmi-spec</artifactId>
-                <version>1.0-SNAPSHOT</version>
+                <version>${yokoVersion}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.yoko</groupId>
                 <artifactId>yoko-rmi-impl</artifactId>
-                <version>1.0-SNAPSHOT</version>
+                <version>${yokoVersion}</version>
             </dependency>
 
             <dependency>
@@ -839,6 +823,7 @@
                 <version>1.0</version>
             </dependency>
 
+            <!-- Need a non-Sun RI version for Apache Harmony and IBM SDK -->
             <dependency>
                 <groupId>jstl</groupId>
                 <artifactId>jstl</artifactId>
@@ -1031,6 +1016,7 @@
                 <version>0.9rc4</version>
             </dependency>
 
+            <!-- Tomcat web container -->
             <dependency>
                 <groupId>org.apache.tomcat</groupId>
                 <artifactId>jasper</artifactId>
@@ -1091,6 +1077,7 @@
                 <version>${tomcatVersion}</version>
             </dependency>
 
+            <!-- WADI support -->
             <dependency>
                 <groupId>org.codehaus.wadi</groupId>
                 <artifactId>wadi-aop</artifactId>
@@ -1115,6 +1102,7 @@
                 <version>${wadiVersion}</version>
             </dependency>
 
+            <!-- Jetty web container -->
             <dependency>
                 <groupId>org.mortbay.jetty</groupId>
                 <artifactId>jetty</artifactId>
@@ -1353,131 +1341,109 @@
                 <version>0.1.0</version>
             </dependency>
 
-            <dependency>
-                <groupId>org.dojotoolkit</groupId>
-                <artifactId>dojo</artifactId>
-                <version>${dojoVersion}</version>
-                <type>tgz</type>
-            </dependency>
-
-            <dependency>
-                <groupId>org.dojotoolkit</groupId>
-                <artifactId>dojolegacy</artifactId>
-                <version>${dojoLegacyVersion}</version>
-                <type>tgz</type>
-            </dependency>
-
-            <!-- GShell Support -->
-
-            <dependency>
-                <groupId>org.apache.geronimo.gshell</groupId>
-                <artifactId>gshell-embeddable</artifactId>
-                <version>1.0-alpha-1</version>
-            </dependency>
-
+            <!-- GShell Framework Support -->
+            <!-- replaced gshell-embeddable with individual jars -->
             <dependency>
                 <groupId>org.apache.geronimo.gshell</groupId>
                 <artifactId>gshell-bootstrap</artifactId>
-                <version>1.0-alpha-1</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.geronimo.gshell</groupId>
-                <artifactId>gshell-command-api</artifactId>
-                <version>1.0-alpha-1</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.geronimo.gshell</groupId>
-                <artifactId>gshell-core</artifactId>
-                <version>1.0-alpha-1</version>
+                <version>${gshellVersion}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.geronimo.gshell</groupId>
                 <artifactId>gshell-cli</artifactId>
-                <version>1.0-alpha-1</version>
+                <version>${gshellVersion}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.geronimo.gshell</groupId>
-                <artifactId>gshell-whisper</artifactId>
-                <version>1.0-alpha-1</version>
+                <artifactId>gshell-command-api</artifactId>
+                <version>${gshellVersion}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.geronimo.gshell</groupId>
+                <artifactId>gshell-core</artifactId>
+                <version>${gshellVersion}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.geronimo.gshell</groupId>
+                <artifactId>gshell-parser</artifactId>
+                <version>${gshellVersion}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.geronimo.gshell.commands</groupId>
                 <artifactId>gshell-builtins</artifactId>
-                <version>1.0-alpha-1</version>
+                <version>${gshellVersion}</version>
             </dependency>
 
             <dependency>
-                <groupId>org.apache.geronimo.gshell.remote</groupId>
-                <artifactId>gshell-remote-client</artifactId>
-                <version>1.0-alpha-1</version>
+                <groupId>org.apache.geronimo.gshell.support</groupId>
+                <artifactId>gshell-ansi</artifactId>
+                <version>${gshellVersion}</version>
             </dependency>
 
             <dependency>
-                <groupId>org.apache.geronimo.gshell.remote</groupId>
-                <artifactId>gshell-remote-common</artifactId>
-                <version>1.0-alpha-1</version>
+                <groupId>org.apache.geronimo.gshell.support</groupId>
+                <artifactId>gshell-clp</artifactId>
+                <version>${gshellVersion}</version>
             </dependency>
 
             <dependency>
-                <groupId>org.apache.geronimo.gshell.remote</groupId>
-                <artifactId>gshell-remote-server</artifactId>
-                <version>1.0-alpha-1</version>
+                <groupId>org.apache.geronimo.gshell.support</groupId>
+                <artifactId>gshell-common</artifactId>
+                <version>${gshellVersion}</version>
             </dependency>
 
             <dependency>
-                <groupId>org.apache.mina</groupId>
-                <artifactId>mina-core</artifactId>
-                <version>1.1.6</version>
+                <groupId>org.apache.geronimo.gshell.support</groupId>
+                <artifactId>gshell-i18n</artifactId>
+                <version>${gshellVersion}</version>
             </dependency>
 
             <dependency>
-                <groupId>org.apache.mina</groupId>
-                <artifactId>mina-filter-ssl</artifactId>
-                <version>1.1.6</version>
+                <groupId>org.apache.geronimo.gshell.support</groupId>
+                <artifactId>gshell-prefs</artifactId>
+                <version>${gshellVersion}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>jline</groupId>
+                <artifactId>jline</artifactId>
+                <version>0.9.94</version>
             </dependency>
 
             <dependency>
                 <groupId>org.codehaus.groovy.maven</groupId>
                 <artifactId>gmaven-mojo</artifactId>
-                <version>1.0-rc-1</version>
+                <version>${gmavenVersion}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.codehaus.groovy.maven.runtime</groupId>
                 <artifactId>gmaven-runtime-default</artifactId>
-                <version>1.0-rc-1</version>
+                <version>${gmavenVersion}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.codehaus.groovy.maven.support</groupId>
                 <artifactId>slf4j-gossip</artifactId>
-                <version>1.0-rc-1</version>
+                <version>${gmavenVersion}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.codehaus.groovy</groupId>
                 <artifactId>groovy-all-minimal</artifactId>
-                <version>1.5.6</version>
+                <version>${groovyVersion}</version>
             </dependency>
 
-            <dependency>
-                <groupId>org.codehaus.groovy.maven.support</groupId>
-                <artifactId>ant-1.7.0</artifactId>
-                <version>1.0-rc-1</version>
-            </dependency>
-            
-            <!--
             <dependency>
                 <groupId>org.apache.ant</groupId>
                 <artifactId>ant</artifactId>
                 <version>1.7.0</version>
             </dependency>
-            -->
 
             <dependency>
                 <groupId>org.apache.ant</groupId>
@@ -1485,6 +1451,74 @@
                 <version>1.7.0</version>
             </dependency>
 
+            <dependency>
+                <groupId>org.codehaus.plexus</groupId>
+                <artifactId>plexus-classworlds</artifactId>
+                <version>1.2-alpha-10</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.codehaus.plexus</groupId>
+                <artifactId>plexus-component-annotations</artifactId>
+                <version>1.0-alpha-1</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.codehaus.plexus</groupId>
+                <artifactId>plexus-component-api</artifactId>
+                <version>1.0-alpha-32</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.codehaus.plexus</groupId>
+                <artifactId>plexus-container-default</artifactId>
+                <version>1.0-alpha-32</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.codehaus.plexus</groupId>
+                <artifactId>plexus-utils</artifactId>
+                <version>1.4.5</version>
+            </dependency>
+
+            <!-- GShell Remote Support -->
+            <dependency>
+                <groupId>org.apache.geronimo.gshell</groupId>
+                <artifactId>gshell-whisper</artifactId>
+                <version>${gshellVersion}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.geronimo.gshell.remote</groupId>
+                <artifactId>gshell-remote-client</artifactId>
+                <version>${gshellVersion}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.geronimo.gshell.remote</groupId>
+                <artifactId>gshell-remote-common</artifactId>
+                <version>${gshellVersion}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.geronimo.gshell.remote</groupId>
+                <artifactId>gshell-remote-server</artifactId>
+                <version>${gshellVersion}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.mina</groupId>
+                <artifactId>mina-core</artifactId>
+                <version>${minaVersion}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.mina</groupId>
+                <artifactId>mina-filter-ssl</artifactId>
+                <version>${minaVersion}</version>
+            </dependency>
+
+            <!-- Admin Console support -->
             <dependency>
                 <groupId>org.apache.pluto</groupId>
                 <artifactId>pluto-portal-driver</artifactId>
@@ -1609,31 +1643,26 @@
                 <version>${plutoVersion}</version>
             </dependency>
 
+            <dependency>
+                <groupId>org.dojotoolkit</groupId>
+                <artifactId>dojo</artifactId>
+                <version>${dojoVersion}</version>
+                <type>tgz</type>
+            </dependency>
+
+            <dependency>
+                <groupId>org.dojotoolkit</groupId>
+                <artifactId>dojolegacy</artifactId>
+                <version>${dojoLegacyVersion}</version>
+                <type>tgz</type>
+            </dependency>
+
             <!-- archive support -->
             <!-- archiver version matches maven 2.0.7.  Upgrading maven may require upgrading this version -->
-            
             <dependency>
                 <groupId>org.codehaus.plexus</groupId>
                 <artifactId>plexus-archiver</artifactId>
                 <version>1.0-alpha-7</version>
-            </dependency>
-            
-            <dependency>
-                <groupId>org.codehaus.plexus</groupId>
-                <artifactId>plexus-utils</artifactId>
-                <version>1.4.1</version>
-            </dependency>
-            
-            <dependency>
-                <groupId>org.codehaus.plexus</groupId>
-                <artifactId>plexus-container-default</artifactId>
-                <version>1.0-alpha-9</version>
-            </dependency>
-            
-            <dependency>
-                <groupId>org.codehaus.plexus</groupId>
-                <artifactId>plexus-component-api</artifactId>
-                <version>1.0-alpha-15</version>
             </dependency>
 
             <!-- Spring Plugin -->
@@ -2056,7 +2085,7 @@
                 <plugin>
                     <groupId>org.apache.geronimo.gshell</groupId>
                     <artifactId>gshell-maven-plugin</artifactId>
-                    <version>1.0-alpha-1</version>
+                    <version>${gshellVersion}</version>
                 </plugin>
 
                 <plugin>
