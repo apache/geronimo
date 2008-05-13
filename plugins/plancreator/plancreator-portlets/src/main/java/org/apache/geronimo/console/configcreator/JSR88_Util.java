@@ -129,7 +129,7 @@ public class JSR88_Util {
 
     private static ApplicationInfo createApplicationInfo(PortletRequest request, URL moduleUrl) throws Exception {
         ConfigurationBuilder configurationBuilderBuilder = getConfigurationBuilder(request);
-        File moduleFile = new File(moduleUrl.toURI());
+        File moduleFile = new File(moduleUrl.getFile());
         JarFile moduleJar = new JarFile(moduleFile);
         ApplicationInfo applicationInfo = (ApplicationInfo) configurationBuilderBuilder.getDeploymentPlan(null, moduleJar,
                 new ModuleIDBuilder());
