@@ -63,8 +63,8 @@
                         </goals>
                         <configuration>
                             <tasks>
-                                <mkdir dir="${project.build.directory}/classes"/>
-                                <copy todir="${project.build.directory}/classes">
+                                <mkdir dir="${project.build.outputDirectory}"/>
+                                <copy todir="${project.build.outputDirectory}">
                                     <fileset dir="${project.build.directory}/${project.build.finalName}.dir/${project.build.finalName}">
                                         <include name="**"/>
                                     </fileset>
