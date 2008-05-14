@@ -1,6 +1,6 @@
 Private Build of Pluto for Geronimo.										       
 
-How to build Pluto 1.1.6 (w/ locally applied PLUTO-437 and PLUTO-484 patches) for Geronimo -
+How to build Pluto 1.1.6 (w/ locally applied PLUTO-437, PLUTO-484 and PLUTO-485 patches) for Geronimo -
 
 Checkout pluto 1.1.6
   svn co -r 643117 https://svn.apache.org/repos/asf/portals/pluto/branches/pluto-1.1.x pluto
@@ -20,6 +20,7 @@ svn info for Pluto image:
 Apply the following patches to the source -
   PLUTO-437 - Allow icons in navigation pane
   PLUTO-484 - Fix HTTPS problems
+  PLUTO0485 - Fix to handle URIs that contain a question mark
 
 Build pluto
   cd pluto
