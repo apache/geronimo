@@ -16,6 +16,11 @@
  */
 package org.apache.geronimo.web.deployment;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import javax.xml.namespace.QName;
 
 import org.apache.geronimo.common.DeploymentException;
@@ -83,6 +88,7 @@ public class GenericToSpecificPlanConverter {
                         cursor.removeXml();
                     }
                     cursor.pop();
+                    
                     cursor.push();
                     while (cursor.hasNextToken()) {
                         if (cursor.isStart()) {
@@ -93,31 +99,19 @@ public class GenericToSpecificPlanConverter {
                         }
                         cursor.toNextToken();
                     }
-                    //move security elements after refs
-
                     cursor.pop();
-                    cursor.push();
-                    if (cursor.toChild(this.namespace, "security-realm-name")) {
-                        XmlCursor other = cursor.newCursor();
-                        try {
-                            other.toParent();
-                            if (other.toChild(SYSTEM_NAMESPACE, "gbean")) {
-                                other.toPrevToken();
-                            } else {
-                                other.toEndToken();
-                                other.toPrevToken();
-                            }
-                            cursor.moveXml(other);
-                            cursor.pop();
-                            cursor.push();
-                            if (cursor.toChild(SECURITY_QNAME)) {
-                                cursor.moveXml(other);
-                            }
-                        } finally {
-                            other.dispose();
-                        }
-                    }
+                    
+                    cursor.push();                    
+                    Map<Object, List<XmlCursor>> map = createElementMap(cursor);
                     cursor.pop();
+                                                            
+                    moveToBottom(cursor, map.get("security-realm-name"));
+                    moveToBottom(cursor, map.get("security"));
+                    moveToBottom(cursor, map.get("gbean"));
+                    moveToBottom(cursor, map.get("persistence"));
+                                
+                    clearElementMap(map);
+                    
                     return webPlan;
                 } finally {
                     cursor.dispose();
@@ -130,5 +124,40 @@ public class GenericToSpecificPlanConverter {
             rawCursor.dispose();
         }
     }
-
+               
+    private static Map<Object, List<XmlCursor>> createElementMap(XmlCursor cursor) {        
+        Map<Object, List<XmlCursor>> map = new HashMap<Object, List<XmlCursor>>();   
+        cursor.toStartDoc();
+        cursor.toFirstChild();
+        do {
+            QName name = cursor.getName();            
+            List<XmlCursor> locations = map.get(name);
+            if (locations == null) {
+                locations = new ArrayList<XmlCursor>();
+                map.put(name, locations);
+                map.put(name.getLocalPart(), locations);
+            }
+            locations.add(cursor.newCursor());
+        } while(cursor.toNextSibling());
+        return map;
+    }
+    
+    private static void clearElementMap(Map<Object, List<XmlCursor>> map) {
+        for (Map.Entry<Object, List<XmlCursor>> entry : map.entrySet()) {
+            for (XmlCursor cursor : entry.getValue()) {
+                cursor.dispose();
+            }
+        }
+        map.clear();
+    }
+    
+    private static void moveToBottom(XmlCursor cursor, List<XmlCursor> locations) {
+        if (locations != null) {
+            for (XmlCursor location : locations) {
+                cursor.toEndDoc();
+                location.moveXml(cursor);
+            }
+        }
+    }
+    
 }
