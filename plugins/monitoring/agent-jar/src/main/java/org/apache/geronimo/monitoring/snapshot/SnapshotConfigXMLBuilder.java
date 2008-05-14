@@ -41,9 +41,12 @@ public class SnapshotConfigXMLBuilder {
 
     static {
         try {
-            jc = JAXBContext.newInstance("org.apache.geronimo.monitoring.snapshot");
+            ObjectFactory objFactory = new ObjectFactory();
+            ClassLoader cl = objFactory.getClass().getClassLoader();
+            jc = JAXBContext.newInstance("org.apache.geronimo.monitoring.snapshot", cl);
         } catch(Exception e) {
             log.error(e.getMessage());
+            e.printStackTrace();
         }
     }
 

@@ -58,6 +58,7 @@ import org.apache.xbean.naming.context.WritableContext.NestedWritableContext;
 import org.apache.geronimo.monitoring.snapshot.SnapshotThread;
 import org.apache.geronimo.monitoring.snapshot.SnapshotConfigXMLBuilder;
 import org.apache.geronimo.monitoring.snapshot.SnapshotDBHelper;
+import org.apache.geronimo.monitoring.snapshot.ObjectFactory;
 
 /**
  * This is the GBean that will be the bottleneck for the communication
