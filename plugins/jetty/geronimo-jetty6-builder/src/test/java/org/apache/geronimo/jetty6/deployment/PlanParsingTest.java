@@ -139,6 +139,19 @@ public class PlanParsingTest extends XmlBeansTestSupport {
 //        assertEquals(4, jettyWebApp.getSecurity().getRoleMappings().getRoleArray().length);
     }
 
+    public void testConvertPlan() throws Exception {
+        URL srcXml = classLoader.getResource("plans/plan-convert.xml");
+        XmlObject rawPlan = XmlBeansUtil.parse(srcXml, getClass().getClassLoader());
+
+        XmlObject webPlan = new GenericToSpecificPlanConverter(
+                "http://geronimo.apache.org/xml/ns/web/jetty/config-1.0.1",
+                "http://geronimo.apache.org/xml/ns/j2ee/web/jetty-2.0.2", 
+                "jetty").convertToSpecificPlan(rawPlan);
+        
+        XmlObject p = webPlan.changeType(JettyWebAppType.type);
+        XmlBeansUtil.validateDD(p);
+    }
+    
     public void testOldFormatExploded() throws Exception {
         URL war = classLoader.getResource("deployables/war5");
         assertTrue(war != null);

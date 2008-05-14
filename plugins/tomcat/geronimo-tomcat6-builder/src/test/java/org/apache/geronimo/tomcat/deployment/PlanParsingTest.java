@@ -34,11 +34,13 @@ import org.apache.geronimo.kernel.Jsr77Naming;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.web.deployment.GenericToSpecificPlanConverter;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceRefType;
 import org.apache.geronimo.xbeans.geronimo.web.GerWebAppDocument;
 import org.apache.geronimo.xbeans.geronimo.web.GerWebAppType;
 import org.apache.geronimo.xbeans.geronimo.web.tomcat.TomcatWebAppType;
 import org.apache.geronimo.security.deployment.GeronimoSecurityBuilderImpl;
+import org.apache.xmlbeans.XmlObject;
 
 /**
  */
@@ -71,6 +73,19 @@ public class PlanParsingTest extends TestCase {
         builder.doStop();
     }
 
+    public void testConvertPlan() throws Exception {
+        URL srcXml = classLoader.getResource("plans/plan-convert.xml");
+        XmlObject rawPlan = XmlBeansUtil.parse(srcXml, getClass().getClassLoader());
+
+        XmlObject webPlan = new GenericToSpecificPlanConverter(
+                "http://geronimo.apache.org/xml/ns/web/tomcat/config-1.0",
+                "http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-2.0.1", 
+                "tomcat").convertToSpecificPlan(rawPlan);
+        
+        XmlObject p = webPlan.changeType(TomcatWebAppType.type);
+        XmlBeansUtil.validateDD(p);
+    }
+    
     public void testResourceRef() throws Exception {
         URL resourceURL = classLoader.getResource("plans/plan1.xml");
         File resourcePlan = new File(resourceURL.getFile());
