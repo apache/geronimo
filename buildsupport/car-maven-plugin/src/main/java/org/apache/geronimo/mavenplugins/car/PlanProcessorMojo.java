@@ -34,6 +34,10 @@ import org.apache.geronimo.deployment.xbeans.EnvironmentType;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.ImportType;
+import org.apache.maven.project.MavenProject;
+import org.apache.maven.project.ProjectBuildingException;
+import org.apache.maven.project.artifact.InvalidDependencyVersionException;
+import org.apache.maven.artifact.resolver.ArtifactResolutionException;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.Velocity;
@@ -41,6 +45,7 @@ import org.apache.velocity.app.VelocityEngine;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
+import org.codehaus.mojo.pluginsupport.dependency.DependencyTree;
 
 //
 // TODO: Rename to PreparePlanMojo
@@ -255,7 +260,7 @@ public class PlanProcessorMojo
         }
     }
 
-    private LinkedHashSet<org.apache.geronimo.kernel.repository.Dependency> toDependencies() {
+    private LinkedHashSet<org.apache.geronimo.kernel.repository.Dependency> toDependencies() throws InvalidDependencyVersionException, ArtifactResolutionException, ProjectBuildingException {
         LinkedHashSet<org.apache.geronimo.kernel.repository.Dependency> dependencies = new LinkedHashSet<org.apache.geronimo.kernel.repository.Dependency>();
 
         if (useMavenDependencies == null || !useMavenDependencies.isValue()) {
@@ -264,27 +269,42 @@ public class PlanProcessorMojo
                 dependencies.add(gdep);
             }
         } else {
-            List<org.apache.maven.model.Dependency> includedDependencies = project.getOriginalModel().getDependencies();
             List<org.apache.maven.model.Dependency> artifacts = project.getDependencies();
-            for (org.apache.maven.model.Dependency dependency : includedDependencies) {
-                dependency = resolveDependency(dependency, artifacts);
-                if (includeDependency(dependency)) {
-                    org.apache.geronimo.kernel.repository.Dependency gdep = toGeronimoDependency(dependency, useMavenDependencies.isIncludeVersion());
-                    dependencies.add(gdep);
-                }
-            }
+            processProject(dependencies, artifacts, dependencyHelper.getDependencies(project).getRootNode(), useMavenDependencies.isUseTransitiveDependencies());
         }
 
         return dependencies;
     }
 
+    private void processProject(LinkedHashSet<org.apache.geronimo.kernel.repository.Dependency> dependencies, List<org.apache.maven.model.Dependency> artifacts, DependencyTree.Node node, boolean useTransitiveDependencies) {
+        List<DependencyTree.Node> includedNodes = node.getChildren();
+        for (DependencyTree.Node childNode : includedNodes) {
+            org.apache.maven.artifact.Artifact artifact = childNode.getArtifact();
+            if (includeDependency(artifact)) {
+                org.apache.geronimo.kernel.repository.Dependency gdep = toGeronimoDependency(artifact, useMavenDependencies.isIncludeVersion());
+                dependencies.add(gdep);
+                if (useTransitiveDependencies && !artifact.getType().equalsIgnoreCase("car")) {
+                    processProject(dependencies, artifacts, childNode, useTransitiveDependencies);
+                }
+            }
+        }
+    }
 
-    private static org.apache.geronimo.kernel.repository.Dependency toGeronimoDependency(final org.apache.maven.model.Dependency dependency, boolean includeVersion) {
+    private boolean includeDependency(org.apache.maven.artifact.Artifact dependency) {
+        if (dependency.getGroupId().startsWith("org.apache.geronimo.genesis")) {
+            return false;
+        }
+        String scope = dependency.getScope();
+        return scope == null || "runtime".equalsIgnoreCase(scope) || "compile".equalsIgnoreCase(scope);
+    }
+
+
+    private static org.apache.geronimo.kernel.repository.Dependency toGeronimoDependency(final org.apache.maven.artifact.Artifact dependency, boolean includeVersion) {
         Artifact artifact = toGeronimoArtifact(dependency, includeVersion);
         return new org.apache.geronimo.kernel.repository.Dependency(artifact, ImportType.ALL);
     }
 
-    private static Artifact toGeronimoArtifact(final org.apache.maven.model.Dependency dependency, boolean includeVersion) {
+    private static Artifact toGeronimoArtifact(final org.apache.maven.artifact.Artifact dependency, boolean includeVersion) {
         String groupId = dependency.getGroupId();
         String artifactId = dependency.getArtifactId();
         String version = includeVersion ? dependency.getVersion() : null;

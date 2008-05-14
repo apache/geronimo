@@ -35,6 +35,11 @@ public class UseMavenDependencies {
      */
     private boolean includeVersion;
 
+    /**
+     * @parameter
+     */
+    private boolean useTransitiveDependencies;
+
 
     public boolean isValue() {
         return value;
@@ -42,5 +47,9 @@ public class UseMavenDependencies {
 
     public boolean isIncludeVersion() {
         return includeVersion;
+    }
+
+    public boolean isUseTransitiveDependencies() {
+        return useTransitiveDependencies;
     }
 }
