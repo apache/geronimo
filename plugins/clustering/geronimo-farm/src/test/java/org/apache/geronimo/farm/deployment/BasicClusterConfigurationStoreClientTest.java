@@ -101,7 +101,7 @@ public class BasicClusterConfigurationStoreClientTest extends RMockTestCase {
     }
 
     private void setUpNode2Remote(Collection<NodeInfo> nodeInfos) throws IOException {
-        node2Info = (NodeInfo) mock(NodeInfo.class);
+        node2Info = (NodeInfo) mock(NodeInfo.class, "NodeInfo2");
         nodeInfos.add(node2Info);
         node2Kernel = node2Info.newKernel();
         modify().multiplicity(expect.from(0));
@@ -110,7 +110,7 @@ public class BasicClusterConfigurationStoreClientTest extends RMockTestCase {
     }
 
     private void setUpNode1Local(Collection<NodeInfo> nodeInfos) throws IOException {
-        node1Info = (NodeInfo) mock(NodeInfo.class);
+        node1Info = (NodeInfo) mock(NodeInfo.class, "NodeInfo1");
         nodeInfos.add(node1Info);
         node1Kernel = node1Info.newKernel();
         modify().multiplicity(expect.from(0));
