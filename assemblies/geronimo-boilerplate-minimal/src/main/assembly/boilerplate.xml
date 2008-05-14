@@ -30,14 +30,6 @@
     
     <dependencySets>
         <dependencySet>
-            <outputDirectory>contents/lib/gshell</outputDirectory>
-            <useStrictFiltering>true</useStrictFiltering>
-            <includes>
-                <include>org.apache.geronimo.framework:geronimo-commands</include>
-            </includes>
-        </dependencySet>
-
-        <dependencySet>
             <outputDirectory>contents/lib/boot</outputDirectory>
             <useStrictFiltering>true</useStrictFiltering>
             <includes>
