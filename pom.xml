@@ -68,37 +68,28 @@
         <geronimoSchemaVersion>1.2</geronimoSchemaVersion>
 
         <!--
-        Having a single well named property makes automatic updating for the weekly build much easier.
+        Having a single well named version properties makes automatic updating for the weekly build much easier.
         -->
         <openejbVersion>3.0</openejbVersion>
-
-        <!--
-        HACK: Used by uddi-db to execute the sql plugin with the Derby driver.
-        -->
+        <yokoVersion>1.0-r646887</yokoVersion>
         <derbyVersion>10.2.2.0</derbyVersion>
-
-        <!--
-        HACK: Used by jsp and servlet example configs to point to the tomcat deployer
-        -->
         <tomcatVersion>6.0.14</tomcatVersion>
-
-        <!--
-        HACK: Used by uddi-jetty and uddi-tomcat config plans
-        -->
         <tranqlVendorsVersion>1.4</tranqlVendorsVersion>
-        
-        <!--
-        HACK: Used by geronimo-dojo
-        -->
         <dojoVersion>1.0.2</dojoVersion>
         <dojoLegacyVersion>0.4.3</dojoLegacyVersion>
-
         <cxfVersion>2.0.2-incubator</cxfVersion>
-
         <axis2Version>1.3</axis2Version>
         <axiomVersion>1.2.5</axiomVersion>
         <springVersion>2.0.5</springVersion>
         <plutoVersion>1.1.6-G643117</plutoVersion>
+        <openjpaVersion>1.0.2</openjpaVersion>
+        <xbeanVersion>3.3</xbeanVersion>
+        <gshellVersion>1.0-alpha-1</gshellVersion>
+        <gmavenVersion>1.0-rc-2</gmavenVersion>
+        <minaVersion>1.1.5</minaVersion>
+        <slf4jVersion>1.4.3</slf4jVersion>
+        <groovyVersion>1.5.6</groovyVersion>
+        <wadiVersion>2.0-M10</wadiVersion>
 
         <wadiVersion>2.0-M10</wadiVersion>
 
@@ -141,7 +132,6 @@
 
     <dependencyManagement>
         <dependencies>
-
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
                 <artifactId>geronimo-activation_1.1_spec</artifactId>
@@ -315,12 +305,12 @@
             <dependency>
                 <groupId>org.apache.openjpa</groupId>
                 <artifactId>openjpa</artifactId>
-                <version>1.0.2</version>
+                <version>${openjpaVersion}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.openjpa</groupId>
                 <artifactId>openjpa-persistence-jdbc</artifactId>
-                <version>1.0.2</version>
+                <version>${openjpaVersion}</version>
             </dependency>
 
             <dependency>
@@ -332,25 +322,19 @@
             <dependency>
                 <groupId>org.apache.xbean</groupId>
                 <artifactId>xbean-finder</artifactId>
-                <version>3.3</version>
+                <version>${xbeanVersion}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.xbean</groupId>
                 <artifactId>xbean-naming</artifactId>
-                <version>3.3</version>
+                <version>${xbeanVersion}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.xbean</groupId>
                 <artifactId>xbean-reflect</artifactId>
-                <version>3.3</version>
-            </dependency>
-
-            <dependency>
-                <groupId>jline</groupId>
-                <artifactId>jline</artifactId>
-                <version>0.9.91</version>
+                <version>${xbeanVersion}</version>
             </dependency>
 
             <dependency>
@@ -380,7 +364,7 @@
             <dependency>
                 <groupId>aspectj</groupId>
                 <artifactId>aspectjrt</artifactId>
-                <version>1.5.2a</version>
+                <version>1.5.3</version>
             </dependency>
 
             <!--
@@ -396,7 +380,7 @@
             <dependency>
                 <groupId>com.agical.rmock</groupId>
                 <artifactId>rmock</artifactId>
-                <version>2.0.0-rc-6</version>
+                <version>2.0.0</version>
             </dependency>
 
             <dependency>
@@ -462,12 +446,6 @@
             </dependency>
 
             <dependency>
-                <groupId>commons-io</groupId>
-                <artifactId>commons-io</artifactId>
-                <version>1.2</version>
-            </dependency>
-
-            <dependency>
                 <groupId>commons-logging</groupId>
                 <artifactId>commons-logging</artifactId>
                 <version>1.0.4</version>
@@ -506,31 +484,31 @@
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
-                <version>1.4.3</version>
+                <version>${slf4jVersion}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-jcl</artifactId>
-                <version>1.4.3</version>
+                <version>${slf4jVersion}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-simple</artifactId>
-                <version>1.4.3</version>
+                <version>${slf4jVersion}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-log4j12</artifactId>
-                <version>1.4.3</version>
+                <version>${slf4jVersion}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>jcl104-over-slf4j</artifactId>
-                <version>1.4.3</version>
+                <version>${slf4jVersion}</version>
             </dependency>
 
             <dependency>
@@ -647,25 +625,25 @@
             <dependency>
                 <groupId>org.apache.yoko</groupId>
                 <artifactId>yoko-core</artifactId>
-                <version>1.0-r646887</version>
+                <version>${yokoVersion}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.yoko</groupId>
                 <artifactId>yoko-spec-corba</artifactId>
-                <version>1.0-r646887</version>
+                <version>${yokoVersion}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.yoko</groupId>
                 <artifactId>yoko-rmi-spec</artifactId>
-                <version>1.0-r646887</version>
+                <version>${yokoVersion}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.yoko</groupId>
                 <artifactId>yoko-rmi-impl</artifactId>
-                <version>1.0-r646887</version>
+                <version>${yokoVersion}</version>
             </dependency>
 
             <dependency>
@@ -696,6 +674,12 @@
                 <groupId>antlr</groupId>
                 <artifactId>antlr</artifactId>
                 <version>2.7.5</version>
+            </dependency>
+
+            <dependency>
+                <groupId>commons-io</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>1.2</version>
             </dependency>
 
             <dependency>
@@ -791,6 +775,30 @@
             </dependency>
 
             <dependency>
+                <groupId>commons-httpclient</groupId>
+                <artifactId>commons-httpclient</artifactId>
+                <version>3.0.1</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>junit</groupId>
+                        <artifactId>junit</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>commons-codec</groupId>
+                <artifactId>commons-codec</artifactId>
+                <version>1.3</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>junit</groupId>
+                        <artifactId>junit</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
                 <groupId>portlet-api</groupId>
                 <artifactId>portlet-api</artifactId>
                 <version>1.0</version>
@@ -802,6 +810,7 @@
                 <version>1.0</version>
             </dependency>
 
+            <!-- Need a non-Sun RI version for Apache Harmony and IBM SDK -->
             <dependency>
                 <groupId>jstl</groupId>
                 <artifactId>jstl</artifactId>
@@ -897,6 +906,7 @@
                     </exclusion>
                 </exclusions>
             </dependency>
+            
             <dependency>
                 <groupId>org.apache.openejb</groupId>
                 <artifactId>openejb-javaagent</artifactId>
@@ -993,6 +1003,7 @@
                 <version>0.9rc4</version>
             </dependency>
 
+            <!-- Tomcat web container -->
             <dependency>
                 <groupId>org.apache.tomcat</groupId>
                 <artifactId>jasper</artifactId>
@@ -1053,6 +1064,7 @@
                 <version>${tomcatVersion}</version>
             </dependency>
 
+            <!-- WADI support -->
             <dependency>
                 <groupId>org.codehaus.wadi</groupId>
                 <artifactId>wadi-aop</artifactId>
@@ -1077,6 +1089,7 @@
                 <version>${wadiVersion}</version>
             </dependency>
 
+            <!-- Jetty web container -->
             <dependency>
                 <groupId>org.mortbay.jetty</groupId>
                 <artifactId>jetty</artifactId>
@@ -1101,6 +1114,582 @@
                 <version>6.1.7</version>
             </dependency>
 
+            <dependency>
+                <groupId>org.apache.geronimo.specs</groupId>
+                <artifactId>geronimo-stax-api_1.0_spec</artifactId>
+                <version>1.0.1</version>
+            </dependency>
+
+            <dependency>
+                <groupId>woodstox</groupId>
+                <artifactId>wstx-asl</artifactId>
+                <version>3.2.1</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>stax</groupId>
+                        <artifactId>stax-api</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.ws.commons.schema</groupId>
+                <artifactId>XmlSchema</artifactId>
+                <version>1.3.1</version>
+            </dependency>
+
+            <dependency>
+                <groupId>javax.xml.bind</groupId>
+                <artifactId>jaxb-api</artifactId>
+                <version>2.0</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>javax.xml.bind</groupId>
+                        <artifactId>jsr173_api</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>com.sun.xml.messaging.saaj</groupId>
+                <artifactId>saaj-impl</artifactId>
+                <version>1.3</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>javax.activation</groupId>
+                        <artifactId>activation</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>com.sun.xml.bind</groupId>
+                <artifactId>jaxb-impl</artifactId>
+                <version>2.0.5</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>javax.xml.bind</groupId>
+                        <artifactId>jsr173_api</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>javax.xml.bind</groupId>
+                        <artifactId>activation</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <!--JSF 1.2 JARs from Apache MyFaces -->
+            <dependency>
+                <groupId>org.apache.myfaces.core</groupId>
+                <artifactId>myfaces-api</artifactId>
+                <version>1.2.2</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.myfaces.core</groupId>
+                <artifactId>myfaces-impl</artifactId>
+                <version>1.2.2</version>
+            </dependency>
+
+            <!--Axis2 modules dependencies-->
+            <dependency>
+                <groupId>org.apache.axis2</groupId>
+                <artifactId>axis2-java2wsdl</artifactId>
+                <version>${axis2Version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.axis2</groupId>
+                <artifactId>axis2-kernel</artifactId>
+                <version>${axis2Version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.woden</groupId>
+                        <artifactId>woden</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.axis2</groupId>
+                <artifactId>axis2-adb</artifactId>
+                <version>${axis2Version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.axis2</groupId>
+                <artifactId>axis2-jaxws-api</artifactId>
+                <version>${axis2Version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.axis2</groupId>
+                <artifactId>axis2-jaxws</artifactId>
+                <version>${axis2Version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.axis2</groupId>
+                <artifactId>axis2-metadata</artifactId>
+                <version>${axis2Version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.axis2</groupId>
+                <artifactId>axis2-saaj</artifactId>
+                <version>${axis2Version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpcore</artifactId>
+                <version>4.0-alpha5</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.ws.commons.axiom</groupId>
+                <artifactId>axiom-api</artifactId>
+                <version>${axiomVersion}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>log4j</groupId>
+                        <artifactId>log4j</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.ws.commons.axiom</groupId>
+                <artifactId>axiom-impl</artifactId>
+                <version>${axiomVersion}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>log4j</groupId>
+                        <artifactId>log4j</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.ws.commons.axiom</groupId>
+                <artifactId>axiom-dom</artifactId>
+                <version>${axiomVersion}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>log4j</groupId>
+                        <artifactId>log4j</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.neethi</groupId>
+                <artifactId>neethi</artifactId>
+                <version>2.0</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.ws.commons.axiom</groupId>
+                        <artifactId>axiom-impl</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.ws.commons.axiom</groupId>
+                        <artifactId>axiom-api</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>com.sun.xml.ws</groupId>
+                <artifactId>jaxws-tools</artifactId>
+                <version>2.0</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.sun.xml.ws</groupId>
+                <artifactId>jaxws-rt</artifactId>
+                <version>2.0</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.sun.xml.bind</groupId>
+                <artifactId>jaxb-xjc</artifactId>
+                <version>2.0.5</version>
+            </dependency>
+
+            <dependency>
+                <groupId>jaxen</groupId>
+                <artifactId>jaxen</artifactId>
+                <version>1.1-beta-11</version>
+            </dependency>
+
+            <dependency>
+                <groupId>annogen</groupId>
+                <artifactId>annogen</artifactId>
+                <version>0.1.0</version>
+            </dependency>
+
+            <!-- GShell Framework Support -->
+            <!-- TODO - Remove gshell-embeddable once G4012 work is done -->
+            <dependency>
+                <groupId>org.apache.geronimo.gshell</groupId>
+                <artifactId>gshell-embeddable</artifactId>
+                <version>${gshellVersion}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.geronimo.gshell</groupId>
+                <artifactId>gshell-bootstrap</artifactId>
+                <version>${gshellVersion}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.geronimo.gshell</groupId>
+                <artifactId>gshell-cli</artifactId>
+                <version>${gshellVersion}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.geronimo.gshell</groupId>
+                <artifactId>gshell-command-api</artifactId>
+                <version>${gshellVersion}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.geronimo.gshell</groupId>
+                <artifactId>gshell-core</artifactId>
+                <version>${gshellVersion}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.geronimo.gshell</groupId>
+                <artifactId>gshell-parser</artifactId>
+                <version>${gshellVersion}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.geronimo.gshell.commands</groupId>
+                <artifactId>gshell-builtins</artifactId>
+                <version>${gshellVersion}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.geronimo.gshell.support</groupId>
+                <artifactId>gshell-ansi</artifactId>
+                <version>${gshellVersion}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.geronimo.gshell.support</groupId>
+                <artifactId>gshell-clp</artifactId>
+                <version>${gshellVersion}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.geronimo.gshell.support</groupId>
+                <artifactId>gshell-common</artifactId>
+                <version>${gshellVersion}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.geronimo.gshell.support</groupId>
+                <artifactId>gshell-i18n</artifactId>
+                <version>${gshellVersion}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.geronimo.gshell.support</groupId>
+                <artifactId>gshell-prefs</artifactId>
+                <version>${gshellVersion}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>jline</groupId>
+                <artifactId>jline</artifactId>
+                <version>0.9.94</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.codehaus.groovy.maven</groupId>
+                <artifactId>gmaven-mojo</artifactId>
+                <version>${gmavenVersion}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.codehaus.groovy.maven.runtime</groupId>
+                <artifactId>gmaven-runtime-default</artifactId>
+                <version>${gmavenVersion}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.codehaus.groovy.maven.support</groupId>
+                <artifactId>slf4j-gossip</artifactId>
+                <version>${gmavenVersion}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.codehaus.groovy</groupId>
+                <artifactId>groovy-all-minimal</artifactId>
+                <version>${groovyVersion}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.ant</groupId>
+                <artifactId>ant</artifactId>
+                <version>1.7.0</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.ant</groupId>
+                <artifactId>ant-launcher</artifactId>
+                <version>1.7.0-G589756</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.codehaus.plexus</groupId>
+                <artifactId>plexus-classworlds</artifactId>
+                <version>1.2-alpha-10</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.codehaus.plexus</groupId>
+                <artifactId>plexus-component-annotations</artifactId>
+                <version>1.0-alpha-1</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.codehaus.plexus</groupId>
+                <artifactId>plexus-component-api</artifactId>
+                <version>1.0-alpha-32</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.codehaus.plexus</groupId>
+                <artifactId>plexus-container-default</artifactId>
+                <version>1.0-alpha-32</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.codehaus.plexus</groupId>
+                <artifactId>plexus-utils</artifactId>
+                <version>1.4.5</version>
+            </dependency>
+
+            <!-- GShell Remote Support -->
+            <dependency>
+                <groupId>org.apache.geronimo.gshell</groupId>
+                <artifactId>gshell-whisper</artifactId>
+                <version>${gshellVersion}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.geronimo.gshell.remote</groupId>
+                <artifactId>gshell-remote-client</artifactId>
+                <version>${gshellVersion}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.geronimo.gshell.remote</groupId>
+                <artifactId>gshell-remote-common</artifactId>
+                <version>${gshellVersion}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.geronimo.gshell.remote</groupId>
+                <artifactId>gshell-remote-server</artifactId>
+                <version>${gshellVersion}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.mina</groupId>
+                <artifactId>mina-core</artifactId>
+                <version>${minaVersion}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.mina</groupId>
+                <artifactId>mina-filter-ssl</artifactId>
+                <version>${minaVersion}</version>
+            </dependency>
+
+            <!-- Admin Console support -->
+            <dependency>
+                <groupId>org.apache.pluto</groupId>
+                <artifactId>pluto-portal-driver</artifactId>
+                <version>${plutoVersion}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>javax.servlet</groupId>
+                        <artifactId>jstl</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>taglibs</groupId>
+                        <artifactId>standard</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>javax.servlet</groupId>
+                        <artifactId>jsp-api</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>javax.servlet</groupId>
+                        <artifactId>servlet-api</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>xml-apis</groupId>
+                        <artifactId>xml-apis</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>junit</groupId>
+                        <artifactId>junit</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>junit</groupId>
+                        <artifactId>junit</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring-beans</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring-context</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring-core</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring-web</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.pluto</groupId>
+                <artifactId>pluto-portal-driver-impl</artifactId>
+                <version>${plutoVersion}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>javax.servlet</groupId>
+                        <artifactId>jstl</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>taglibs</groupId>
+                        <artifactId>standard</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>javax.servlet</groupId>
+                        <artifactId>jsp-api</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>javax.servlet</groupId>
+                        <artifactId>servlet-api</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>xml-apis</groupId>
+                        <artifactId>xml-apis</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>junit</groupId>
+                        <artifactId>junit</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring-beans</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring-context</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring-core</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring-web</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.pluto</groupId>
+                <artifactId>pluto-container</artifactId>
+                <version>${plutoVersion}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.pluto</groupId>
+                <artifactId>pluto-taglib</artifactId>
+                <version>${plutoVersion}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.pluto</groupId>
+                <artifactId>pluto-descriptor-impl</artifactId>
+                <version>${plutoVersion}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.pluto</groupId>
+                <artifactId>pluto-descriptor-api</artifactId>
+                <version>${plutoVersion}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.dojotoolkit</groupId>
+                <artifactId>dojo</artifactId>
+                <version>${dojoVersion}</version>
+                <type>tgz</type>
+            </dependency>
+
+            <dependency>
+                <groupId>org.dojotoolkit</groupId>
+                <artifactId>dojolegacy</artifactId>
+                <version>${dojoLegacyVersion}</version>
+                <type>tgz</type>
+            </dependency>
+
+            <!-- archive support -->
+            <!-- archiver version matches maven 2.0.7.  Upgrading maven may require upgrading this version -->
+            <dependency>
+                <groupId>org.codehaus.plexus</groupId>
+                <artifactId>plexus-archiver</artifactId>
+                <version>1.0-alpha-7</version>
+            </dependency>
+
+            <!-- Spring Plugin -->
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring</artifactId>
+                <version>${springVersion}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-core</artifactId>
+                <version>${springVersion}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-beans</artifactId>
+                <version>${springVersion}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-context</artifactId>
+                <version>${springVersion}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-web</artifactId>
+                <version>${springVersion}</version>
+            </dependency>
+
+            <!-- CXF Plugin -->
             <dependency>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-api</artifactId>
@@ -1295,548 +1884,6 @@
                         <artifactId>jaxb-impl</artifactId>
                     </exclusion>
                 </exclusions>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.geronimo.specs</groupId>
-                <artifactId>geronimo-stax-api_1.0_spec</artifactId>
-                <version>1.0.1</version>
-            </dependency>
-
-            <dependency>
-                <groupId>woodstox</groupId>
-                <artifactId>wstx-asl</artifactId>
-                <version>3.2.1</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>stax</groupId>
-                        <artifactId>stax-api</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.ws.commons.schema</groupId>
-                <artifactId>XmlSchema</artifactId>
-                <version>1.3.1</version>
-            </dependency>
-
-            <dependency>
-                <groupId>javax.xml.bind</groupId>
-                <artifactId>jaxb-api</artifactId>
-                <version>2.0</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>javax.xml.bind</groupId>
-                        <artifactId>jsr173_api</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-            <dependency>
-                <groupId>com.sun.xml.messaging.saaj</groupId>
-                <artifactId>saaj-impl</artifactId>
-                <version>1.3</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>javax.activation</groupId>
-                        <artifactId>activation</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-            <dependency>
-                <groupId>com.sun.xml.bind</groupId>
-                <artifactId>jaxb-impl</artifactId>
-                <version>2.0.5</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>javax.xml.bind</groupId>
-                        <artifactId>jsr173_api</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>javax.xml.bind</groupId>
-                        <artifactId>activation</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring</artifactId>
-                <version>${springVersion}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-core</artifactId>
-                <version>${springVersion}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-beans</artifactId>
-                <version>${springVersion}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-context</artifactId>
-                <version>${springVersion}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-web</artifactId>
-                <version>${springVersion}</version>
-            </dependency>
-
-            <!--JSF 1.2 JARs from Apache MyFaces -->
-            <dependency>
-                <groupId>org.apache.myfaces.core</groupId>
-                <artifactId>myfaces-api</artifactId>
-                <version>1.2.2</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.myfaces.core</groupId>
-                <artifactId>myfaces-impl</artifactId>
-                <version>1.2.2</version>
-            </dependency>
-
-            <!--Axis2 modules dependencies-->
-            <dependency>
-                <groupId>org.apache.axis2</groupId>
-                <artifactId>axis2-java2wsdl</artifactId>
-                <version>${axis2Version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.axis2</groupId>
-                <artifactId>axis2-kernel</artifactId>
-                <version>${axis2Version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.apache.woden</groupId>
-                        <artifactId>woden</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.axis2</groupId>
-                <artifactId>axis2-adb</artifactId>
-                <version>${axis2Version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.axis2</groupId>
-                <artifactId>axis2-jaxws-api</artifactId>
-                <version>${axis2Version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.axis2</groupId>
-                <artifactId>axis2-jaxws</artifactId>
-                <version>${axis2Version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.axis2</groupId>
-                <artifactId>axis2-metadata</artifactId>
-                <version>${axis2Version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.axis2</groupId>
-                <artifactId>axis2-saaj</artifactId>
-                <version>${axis2Version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.httpcomponents</groupId>
-                <artifactId>httpcore</artifactId>
-                <version>4.0-alpha5</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.ws.commons.axiom</groupId>
-                <artifactId>axiom-api</artifactId>
-                <version>${axiomVersion}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>log4j</groupId>
-                        <artifactId>log4j</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.ws.commons.axiom</groupId>
-                <artifactId>axiom-impl</artifactId>
-                <version>${axiomVersion}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>log4j</groupId>
-                        <artifactId>log4j</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.ws.commons.axiom</groupId>
-                <artifactId>axiom-dom</artifactId>
-                <version>${axiomVersion}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>log4j</groupId>
-                        <artifactId>log4j</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.neethi</groupId>
-                <artifactId>neethi</artifactId>
-                <version>2.0</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.apache.ws.commons.axiom</groupId>
-                        <artifactId>axiom-impl</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.ws.commons.axiom</groupId>
-                        <artifactId>axiom-api</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-            <dependency>
-                <groupId>com.sun.xml.ws</groupId>
-                <artifactId>jaxws-tools</artifactId>
-                <version>2.0</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.sun.xml.ws</groupId>
-                <artifactId>jaxws-rt</artifactId>
-                <version>2.0</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.sun.xml.bind</groupId>
-                <artifactId>jaxb-xjc</artifactId>
-                <version>2.0.5</version>
-            </dependency>
-
-            <dependency>
-                <groupId>commons-httpclient</groupId>
-                <artifactId>commons-httpclient</artifactId>
-                <version>3.0.1</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>junit</groupId>
-                        <artifactId>junit</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-            <dependency>
-                <groupId>commons-codec</groupId>
-                <artifactId>commons-codec</artifactId>
-                <version>1.3</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>junit</groupId>
-                        <artifactId>junit</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-            <dependency>
-                <groupId>jaxen</groupId>
-                <artifactId>jaxen</artifactId>
-                <version>1.1-beta-11</version>
-            </dependency>
-
-            <dependency>
-                <groupId>annogen</groupId>
-                <artifactId>annogen</artifactId>
-                <version>0.1.0</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.dojotoolkit</groupId>
-                <artifactId>dojo</artifactId>
-                <version>${dojoVersion}</version>
-                <type>tgz</type>
-            </dependency>
-
-            <dependency>
-                <groupId>org.dojotoolkit</groupId>
-                <artifactId>dojolegacy</artifactId>
-                <version>${dojoLegacyVersion}</version>
-                <type>tgz</type>
-            </dependency>
-
-            <!-- GShell Support -->
-
-            <dependency>
-                <groupId>org.apache.geronimo.gshell</groupId>
-                <artifactId>gshell-embeddable</artifactId>
-                <version>1.0-alpha-1</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.geronimo.gshell</groupId>
-                <artifactId>gshell-bootstrap</artifactId>
-                <version>1.0-alpha-1</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.geronimo.gshell</groupId>
-                <artifactId>gshell-command-api</artifactId>
-                <version>1.0-alpha-1</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.geronimo.gshell</groupId>
-                <artifactId>gshell-core</artifactId>
-                <version>1.0-alpha-1</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.geronimo.gshell</groupId>
-                <artifactId>gshell-cli</artifactId>
-                <version>1.0-alpha-1</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.geronimo.gshell</groupId>
-                <artifactId>gshell-whisper</artifactId>
-                <version>1.0-alpha-1</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.geronimo.gshell.commands</groupId>
-                <artifactId>gshell-builtins</artifactId>
-                <version>1.0-alpha-1</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.geronimo.gshell.remote</groupId>
-                <artifactId>gshell-remote-client</artifactId>
-                <version>1.0-alpha-1</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.geronimo.gshell.remote</groupId>
-                <artifactId>gshell-remote-common</artifactId>
-                <version>1.0-alpha-1</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.geronimo.gshell.remote</groupId>
-                <artifactId>gshell-remote-server</artifactId>
-                <version>1.0-alpha-1</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.mina</groupId>
-                <artifactId>mina-core</artifactId>
-                <version>1.1.5</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.mina</groupId>
-                <artifactId>mina-filter-ssl</artifactId>
-                <version>1.1.5</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.codehaus.groovy.maven</groupId>
-                <artifactId>gmaven-mojo</artifactId>
-                <version>1.0-rc-2</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.codehaus.groovy.maven.runtime</groupId>
-                <artifactId>gmaven-runtime-default</artifactId>
-                <version>1.0-rc-2</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.codehaus.groovy.maven.support</groupId>
-                <artifactId>slf4j-gossip</artifactId>
-                <version>1.0-rc-2</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.codehaus.groovy</groupId>
-                <artifactId>groovy-all-minimal</artifactId>
-                <version>1.5.6</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.ant</groupId>
-                <artifactId>ant</artifactId>
-                <version>1.7.0</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.ant</groupId>
-                <artifactId>ant-launcher</artifactId>
-                <version>1.7.0-G589756</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.pluto</groupId>
-                <artifactId>pluto-portal-driver</artifactId>
-                <version>${plutoVersion}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>javax.servlet</groupId>
-                        <artifactId>jstl</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>taglibs</groupId>
-                        <artifactId>standard</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>javax.servlet</groupId>
-                        <artifactId>jsp-api</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>javax.servlet</groupId>
-                        <artifactId>servlet-api</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>xml-apis</groupId>
-                        <artifactId>xml-apis</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>junit</groupId>
-                        <artifactId>junit</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>junit</groupId>
-                        <artifactId>junit</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.springframework</groupId>
-                        <artifactId>spring-beans</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.springframework</groupId>
-                        <artifactId>spring-context</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.springframework</groupId>
-                        <artifactId>spring-core</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.springframework</groupId>
-                        <artifactId>spring-web</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.pluto</groupId>
-                <artifactId>pluto-portal-driver-impl</artifactId>
-                <version>${plutoVersion}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>javax.servlet</groupId>
-                        <artifactId>jstl</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>taglibs</groupId>
-                        <artifactId>standard</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>javax.servlet</groupId>
-                        <artifactId>jsp-api</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>javax.servlet</groupId>
-                        <artifactId>servlet-api</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>xml-apis</groupId>
-                        <artifactId>xml-apis</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>junit</groupId>
-                        <artifactId>junit</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.springframework</groupId>
-                        <artifactId>spring-beans</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.springframework</groupId>
-                        <artifactId>spring-context</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.springframework</groupId>
-                        <artifactId>spring-core</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.springframework</groupId>
-                        <artifactId>spring-web</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.pluto</groupId>
-                <artifactId>pluto-container</artifactId>
-                <version>${plutoVersion}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.pluto</groupId>
-                <artifactId>pluto-taglib</artifactId>
-                <version>${plutoVersion}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.pluto</groupId>
-                <artifactId>pluto-descriptor-impl</artifactId>
-                <version>${plutoVersion}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.pluto</groupId>
-                <artifactId>pluto-descriptor-api</artifactId>
-                <version>${plutoVersion}</version>
-            </dependency>
-
-            <!-- archive support -->
-            <!-- archiver version matches maven 2.0.7.  Upgrading maven may require upgrading this version -->
-            <dependency>
-                <groupId>org.codehaus.plexus</groupId>
-                <artifactId>plexus-archiver</artifactId>
-                <version>1.0-alpha-7</version>
-            </dependency>
-            
-            <dependency>
-                <groupId>org.codehaus.plexus</groupId>
-                <artifactId>plexus-utils</artifactId>
-                <version>1.4.1</version>
-            </dependency>
-            
-            <dependency>
-                <groupId>org.codehaus.plexus</groupId>
-                <artifactId>plexus-container-default</artifactId>
-                <version>1.0-alpha-9</version>
-            </dependency>
-            
-            <dependency>
-                <groupId>org.codehaus.plexus</groupId>
-                <artifactId>plexus-component-api</artifactId>
-                <version>1.0-alpha-15</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -2582,7 +2629,6 @@
                 </plugins>
             </build>
         </profile>
-
     </profiles>
 
 </project>

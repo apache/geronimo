@@ -53,7 +53,7 @@ specific services - those should be provided by children.-->
       <dependency>
         <groupId>jline</groupId>
         <artifactId>jline</artifactId>
-        <version>0.9.91</version>
+        <version>0.9.94</version>
         <type>jar</type>
         <import>classes</import>
       </dependency>
