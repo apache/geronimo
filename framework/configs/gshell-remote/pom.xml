@@ -89,6 +89,7 @@
                     <useMavenDependencies>
                         <value>true</value>
                         <includeVersion>true</includeVersion>
+                        <useTransitiveDependencies>true</useTransitiveDependencies>
                     </useMavenDependencies>
                     <config-xml-content load="false"/>
                 </configuration>
