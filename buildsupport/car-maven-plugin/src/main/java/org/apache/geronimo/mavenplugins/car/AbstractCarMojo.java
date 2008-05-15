@@ -29,8 +29,10 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.Collections;
+import java.util.HashMap;
 
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.handler.DefaultArtifactHandler;
 import org.apache.maven.artifact.factory.ArtifactFactory;
 import org.apache.maven.artifact.resolver.ArtifactResolutionException;
 import org.apache.maven.artifact.resolver.ArtifactResolutionResult;
@@ -95,7 +97,9 @@ public abstract class AbstractCarMojo
      * @readonly
      */
     protected ArtifactFactory artifactFactory;
-    protected Set<Artifact> dependencies;// = new DependencyTree();
+    protected Set<Artifact> dependencies;
+    protected Map<Artifact, Artifact> dependencyMap = new HashMap<Artifact, Artifact>();
+    protected ProjectNode projectNode;
 
     //
     // MojoSupport Hooks
@@ -234,6 +238,8 @@ public abstract class AbstractCarMojo
             project.setDependencyArtifacts(project.createArtifacts(artifactFactory, null, null));
         }
 
+        DependencyListener listener = new DependencyListener();
+
         ArtifactResolutionResult artifactResolutionResult = dependencyHelper.getArtifactCollector().collect(
                 project.getDependencyArtifacts(),
                 project.getArtifact(),
@@ -242,9 +248,13 @@ public abstract class AbstractCarMojo
                 project.getRemoteArtifactRepositories(),
                 dependencyHelper.getArtifactMetadataSource(),
                 null,
-                Collections.emptyList());
+                Collections.singletonList(listener));
 
         dependencies = artifactResolutionResult.getArtifacts();
+        projectNode = listener.getTop();
+        for (Artifact artifact: dependencies) {
+            dependencyMap.put(DependencyListener.shrink(artifact), artifact);
+        }
     }
 
     protected class ArtifactLookupImpl

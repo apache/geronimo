@@ -34,7 +34,6 @@ import org.apache.geronimo.deployment.xbeans.EnvironmentType;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.ImportType;
-import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.ProjectBuildingException;
 import org.apache.maven.project.artifact.InvalidDependencyVersionException;
 import org.apache.maven.artifact.resolver.ArtifactResolutionException;
@@ -269,22 +268,29 @@ public class PlanProcessorMojo
                 dependencies.add(gdep);
             }
         } else {
-            List<org.apache.maven.model.Dependency> artifacts = project.getDependencies();
-            processProject(dependencies, artifacts, dependencyHelper.getDependencies(project).getRootNode(), useMavenDependencies.isUseTransitiveDependencies());
+            LinkedHashSet<org.apache.geronimo.kernel.repository.Dependency> carDependencies = new LinkedHashSet<org.apache.geronimo.kernel.repository.Dependency>();
+            getDependencies(project);
+            processProject(dependencies, carDependencies, projectNode, useMavenDependencies.isUseTransitiveDependencies());
+            dependencies.removeAll(carDependencies);
         }
 
         return dependencies;
     }
 
-    private void processProject(LinkedHashSet<org.apache.geronimo.kernel.repository.Dependency> dependencies, List<org.apache.maven.model.Dependency> artifacts, DependencyTree.Node node, boolean useTransitiveDependencies) {
-        List<DependencyTree.Node> includedNodes = node.getChildren();
-        for (DependencyTree.Node childNode : includedNodes) {
+    private void processProject(LinkedHashSet<org.apache.geronimo.kernel.repository.Dependency> dependencies, LinkedHashSet<org.apache.geronimo.kernel.repository.Dependency> carDependencies, ProjectNode node, boolean useTransitiveDependencies) {
+        List<ProjectNode> includedNodes = node.getChildNodes();
+        for (ProjectNode childNode : includedNodes) {
             org.apache.maven.artifact.Artifact artifact = childNode.getArtifact();
             if (includeDependency(artifact)) {
-                org.apache.geronimo.kernel.repository.Dependency gdep = toGeronimoDependency(artifact, useMavenDependencies.isIncludeVersion());
+                org.apache.geronimo.kernel.repository.Dependency gdep = toGeronimoDependency(dependencyMap.get(artifact), useMavenDependencies.isIncludeVersion());
                 dependencies.add(gdep);
-                if (useTransitiveDependencies && !artifact.getType().equalsIgnoreCase("car")) {
-                    processProject(dependencies, artifacts, childNode, useTransitiveDependencies);
+                if (useTransitiveDependencies) {
+
+                    if (artifact.getType().equalsIgnoreCase("car")) {
+                        processProject(carDependencies, carDependencies, childNode, useTransitiveDependencies);
+                    } else {
+                        processProject(dependencies, carDependencies, childNode, useTransitiveDependencies);
+                    }
                 }
             }
         }
