@@ -45,9 +45,7 @@ import org.apache.maven.project.ProjectBuildingException;
 import org.apache.maven.project.artifact.InvalidDependencyVersionException;
 import org.codehaus.mojo.pluginsupport.MojoSupport;
 import org.codehaus.mojo.pluginsupport.dependency.DependencyHelper;
-import org.codehaus.mojo.pluginsupport.dependency.DependencyTree;
 import org.codehaus.mojo.pluginsupport.dependency.DependencyResolutionListener;
-import org.codehaus.mojo.pluginsupport.dependency.DependencyTree.Node;
 import org.codehaus.mojo.pluginsupport.util.ArtifactItem;
 
 /**
