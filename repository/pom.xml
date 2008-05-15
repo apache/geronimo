@@ -31,7 +31,6 @@
 
     <artifactId>repository</artifactId>
     <name>Geronimo Local Repository</name>
-    <packaging>jar</packaging>
 
     <description>
         Container for local artifacts, this is a temporary solution until a more
@@ -51,16 +50,14 @@
 
         <dependency>
             <groupId>org.dojotoolkit</groupId>
-            <artifactId>dojolegacy</artifactId>
-            <version>${dojoLegacyVersion}</version>
-            <type>tgz</type>
+            <artifactId>dojo-ajax</artifactId>
+            <type>zip</type>
         </dependency>
 
         <dependency>
             <groupId>org.dojotoolkit</groupId>
-            <artifactId>dojo</artifactId>
-            <version>${dojoVersion}</version>
-            <type>tgz</type>
+            <artifactId>dojo-release</artifactId>
+            <type>zip</type>
         </dependency>
 
         <!--

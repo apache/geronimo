@@ -49,13 +49,12 @@
         
         <dependency>
             <groupId>org.dojotoolkit</groupId>
-            <artifactId>dojo</artifactId>
-            <version>${dojoVersion}</version>
-            <type>tgz</type>
+            <artifactId>dojo-release</artifactId>
+            <type>zip</type>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
-    <!-- this build process extracts certain files from dojo.tgz into a webapp. -->
     <build>
         <plugins>
             <plugin>
@@ -63,7 +62,6 @@
                 <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>unpack</id>
                         <goals>
                             <goal>unpack</goal>
                         </goals>
@@ -71,13 +69,41 @@
                             <artifactItems>
                                 <artifactItem>
                                     <groupId>org.dojotoolkit</groupId>
-                                    <artifactId>dojo</artifactId>
-                                    <version>${dojoVersion}</version>
-                                    <type>tgz</type>
-                                    <outputDirectory>${project.build.directory}</outputDirectory>
+                                    <artifactId>dojo-release</artifactId>
+                                    <type>zip</type>
                                 </artifactItem>
                             </artifactItems>
                             <outputDirectory>${project.build.directory}</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            
+            <!--
+            NOTE: This will figure out where we have upacked the dojo bits (above).
+            -->
+            
+            <plugin>
+                <groupId>org.codehaus.groovy.maven</groupId>
+                <artifactId>gmaven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>execute</goal>
+                        </goals>
+                        <configuration>
+                            <source>
+                                def targetDir = new File(project.build.directory)
+                                def unpackDir
+                                
+                                targetDir.eachFileMatch(~'dojo-.*') {
+                                    unpackDir = it
+                                }
+                                assert unpackDir
+                                
+                                session.currentProject.properties['dojoUnpackDir'] = unpackDir.absolutePath
+                            </source>
                         </configuration>
                     </execution>
                 </executions>
@@ -89,13 +115,9 @@
                 <configuration>
                     <webResources>
                         <resource>
-                            <directory>${project.build.directory}/dojo-release-${dojoVersion}/</directory>
+                            <directory>${dojoUnpackDir}</directory>
                             <includes>
                                 <include>**</include>
-                                <include>dojo/**</include>
-                                <include>dojox/**</include>
-                                <include>util/**</include>
-                                <include>dijit/**</include>
                             </includes>
                         </resource>
                         
@@ -114,7 +136,7 @@
                             </includes>
                         </resource>
                     </webResources>
-                    <webXml>${pom.basedir}/src/main/webapp/WEB-INF/web.xml</webXml>
+                    <webXml>${project.basedir}/src/main/webapp/WEB-INF/web.xml</webXml>
                 </configuration>
             </plugin>
         </plugins>

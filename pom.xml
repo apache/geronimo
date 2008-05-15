@@ -76,8 +76,6 @@
         <derbyVersion>10.2.2.0</derbyVersion>
         <tomcatVersion>6.0.14</tomcatVersion>
         <tranqlVendorsVersion>1.4</tranqlVendorsVersion>
-        <dojoVersion>1.1.0</dojoVersion>
-        <dojoLegacyVersion>0.4.3</dojoLegacyVersion>
         <cxfVersion>2.0.2-incubator</cxfVersion>
         <axis2Version>1.3</axis2Version>
         <axiomVersion>1.2.5</axiomVersion>
@@ -1414,7 +1412,7 @@
                 <artifactId>ant-launcher</artifactId>
                 <version>1.7.0</version>
             </dependency>
-
+            
             <dependency>
                 <groupId>org.codehaus.plexus</groupId>
                 <artifactId>plexus-classworlds</artifactId>
@@ -1621,16 +1619,16 @@
 
             <dependency>
                 <groupId>org.dojotoolkit</groupId>
-                <artifactId>dojo</artifactId>
-                <version>${dojoVersion}</version>
-                <type>tgz</type>
+                <artifactId>dojo-release</artifactId>
+                <version>1.1.0</version>
+                <type>zip</type>
             </dependency>
 
             <dependency>
                 <groupId>org.dojotoolkit</groupId>
-                <artifactId>dojolegacy</artifactId>
-                <version>${dojoLegacyVersion}</version>
-                <type>tgz</type>
+                <artifactId>dojo-ajax</artifactId>
+                <version>0.4.3</version>
+                <type>zip</type>
             </dependency>
 
             <!-- archive support -->
@@ -1874,13 +1872,10 @@
     <build>
         <pluginManagement>
             <plugins>
-                <!--
-                TODO: Upgrade to 2.2-beta-2
-                -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-assembly-plugin</artifactId>
-                    <version>2.2-beta-1</version>
+                    <version>2.2-beta-2</version>
                 </plugin>
 
                 <plugin>
@@ -2112,7 +2107,10 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-dependency-plugin</artifactId>
-                    <version>2.0-alpha-4</version>
+                    <version>2.0</version>
+                    <configuration>
+                        <silent>true</silent>
+                    </configuration>
                 </plugin>
 
                 <plugin>

@@ -102,14 +102,12 @@
                 <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>copy-test-deployments</id>
                         <phase>generate-test-resources</phase>
                         <goals>
                             <goal>copy</goal>
                         </goals>
                         <configuration>
                             <outputDirectory>${project.build.directory}</outputDirectory>
-
                             <artifactItems>
                                 <artifactItem>
                                     <groupId>org.apache.geronimo.testsupport</groupId>
