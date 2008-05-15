@@ -56,7 +56,6 @@ import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.factory.ArtifactFactory;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.mojo.pluginsupport.dependency.DependencyTree;
 import org.codehaus.mojo.pluginsupport.util.ArtifactItem;
 import org.codehaus.plexus.archiver.jar.JarArchiver;
 import org.codehaus.plexus.util.FileUtils;

@@ -39,7 +39,6 @@ import org.apache.geronimo.system.plugin.model.PluginType;
 import org.apache.geronimo.system.plugin.model.AttributesType;
 import org.apache.geronimo.system.resolver.AliasedArtifactResolver;
 import org.apache.maven.artifact.repository.ArtifactRepository;
-import org.codehaus.mojo.pluginsupport.dependency.DependencyTree;
 
 /**
  * Installs Geronimo module CAR files into a target repository to support assembly.

@@ -44,7 +44,6 @@ import org.apache.velocity.app.VelocityEngine;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
-import org.codehaus.mojo.pluginsupport.dependency.DependencyTree;
 
 //
 // TODO: Rename to PreparePlanMojo
