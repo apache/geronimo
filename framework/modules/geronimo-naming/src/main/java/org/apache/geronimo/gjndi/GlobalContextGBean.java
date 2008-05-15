@@ -37,21 +37,25 @@ public class GlobalContextGBean extends KernelContextGBean implements GBeanLifec
         super("", new AbstractNameQuery(null, Collections.EMPTY_MAP, Context.class.getName()), kernel);
     }
 
+    @Override
     public void doStart() {
         super.doStart();
         GlobalContextManager.setGlobalContext(this);
     }
 
+    @Override
     public void doStop() {
         GlobalContextManager.setGlobalContext(null);
         super.doStop();
     }
 
+    @Override
     public void doFail() {
         GlobalContextManager.setGlobalContext(null);
         super.doFail();
     }
 
+    @Override
     protected Name createBindingName(AbstractName abstractName, Object value) throws NamingException {
         if (value instanceof Context) {
             // don't bind yourself

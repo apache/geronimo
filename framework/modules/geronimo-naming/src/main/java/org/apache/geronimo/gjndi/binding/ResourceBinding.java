@@ -17,6 +17,7 @@
 package org.apache.geronimo.gjndi.binding;
 
 import javax.naming.NamingException;
+import javax.naming.Name;
 
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
@@ -42,7 +43,8 @@ public class ResourceBinding extends GBeanFormatBinding {
      * @param value        the gbean instance
      * @return the value to bind  or null if there was a problem
      */
-    protected Object preprocessVaue(AbstractName abstractName, Object value) {
+    @Override
+    protected Object preprocessVaue(AbstractName abstractName, Name name, Object value) {
         if (!(value instanceof ResourceSource)) {
             log.info("value at " + abstractName + " is not a ResourceSource: " + value.getClass().getName());
             return null;
