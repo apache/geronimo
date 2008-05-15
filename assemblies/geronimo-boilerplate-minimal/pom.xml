@@ -194,14 +194,12 @@
                 <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>unpack-schemas</id>
                         <phase>generate-resources</phase>
                         <goals>
                             <goal>unpack</goal>
                         </goals>
                         <configuration>
                             <outputDirectory>${project.build.directory}/schema</outputDirectory>
-
                             <artifactItems>
                                 <artifactItem>
                                     <groupId>org.apache.geronimo.framework</groupId>
@@ -256,6 +254,16 @@
                                 <artifactItem>
                                     <groupId>org.apache.geronimo.modules</groupId>
                                     <artifactId>geronimo-openejb-builder</artifactId>
+                                    <version>${version}</version>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.apache.geronimo.modules</groupId>
+                                    <artifactId>geronimo-tomcat6-builder</artifactId>
+                                    <version>${version}</version>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.apache.geronimo.modules</groupId>
+                                    <artifactId>geronimo-jetty6-builder</artifactId>
                                     <version>${version}</version>
                                 </artifactItem>
                             </artifactItems>
