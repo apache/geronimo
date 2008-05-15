@@ -49,13 +49,11 @@
         <module>agent</module>
         <module>agent-ds</module>
         <module>agent-jar</module>
-        <module>agent-ear</module>
         <module>agent-ejb</module>
-	    <module>agent-jmx</module>
+	<module>agent-jmx</module>
         <module>agent-car-jmx</module>
         <module>agent-sql</module>
         <module>mconsole-ds</module>
-        <module>mconsole-ear</module>
         <module>mconsole-jetty</module>
         <module>mconsole-tomcat</module>
         <module>mconsole-war</module>

@@ -76,9 +76,10 @@
 
         <dependency>
             <groupId>org.apache.geronimo.plugins.monitoring</groupId>
-            <artifactId>mconsole-ear</artifactId>
+            <artifactId>mconsole-war</artifactId>
             <version>${monitoringConsoleVersion}</version>
-            <type>ear</type>
+            <type>war</type>
+            <scope>provided</scope>
         </dependency>
 	
         <dependency>
@@ -111,9 +112,9 @@
                     </deploymentConfigs>
                     <module>
                         <groupId>org.apache.geronimo.plugins.monitoring</groupId>
-                        <artifactId>mconsole-ear</artifactId>
+                        <artifactId>mconsole-war</artifactId>
                         <version>${monitoringConsoleVersion}</version>
-                        <type>ear</type>
+                        <type>war</type>
                     </module>
                     <category>Monitoring</category>
                 </configuration>
