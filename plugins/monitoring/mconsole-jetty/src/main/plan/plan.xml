@@ -18,5 +18,25 @@
 
 <!-- $Rev: 590502 $ $Date: 2007-10-30 18:59:24 -0400 (Tue, 30 Oct 2007) $ -->
 
-<application xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-1.2">
-</application>
+<web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web-1.2">
+    
+    <context-root>/monitoring</context-root>
+   <!-- define a reference name to the db pool-->
+    <!--<resource-ref>-->
+        <!--<ref-name>MonitoringClientDS</ref-name>-->
+        <!--<pattern>-->
+            <!--<groupId>org.apache.geronimo.plugins</groupId>-->
+            <!--<artifactId>mconsole-ds</artifactId>-->
+            <!--<name>MonitoringClientDS</name>-->
+        <!--</pattern>-->
+    <!--</resource-ref>-->
+    <gbean name="MonitoringPortlet" class="org.apache.geronimo.pluto.AdminConsoleExtensionGBean">
+        <attribute name="pageTitle">Server/Monitoring</attribute>
+        <attribute name="portletContext">/monitoring</attribute>
+        <attribute name="portletList">[monitoring]</attribute>
+        <reference name="PortalContainerServices">
+            <name>PlutoPortalServices</name>
+        </reference>
+    </gbean>
+
+</web-app>

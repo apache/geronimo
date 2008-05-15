@@ -18,5 +18,32 @@
 
 <!-- $Rev$ $Date$ -->
 
-<application xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-1.2">
-</application>
+<openejb-jar
+        xmlns="http://www.openejb.org/xml/ns/openejb-jar-2.1"
+        xmlns:sec="http://geronimo.apache.org/xml/ns/security-2.0"
+        xmlns:sys="http://geronimo.apache.org/xml/ns/deployment-2.0">
+
+
+    <enterprise-beans>
+        <session>
+            <ejb-name>ejb/mgmt/MRC</ejb-name>
+            <jndi-name>ejb/mgmt/MRC</jndi-name>
+        </session>
+    </enterprise-beans>
+
+    <sec:security>
+        <sec:role-mappings>
+            <sec:role role-name="mejbuser">
+                <sec:principal name="admin"
+                    class="org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal"/>
+                <sec:principal name="mejb-admin"
+                    class="org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal"/>
+            </sec:role>
+
+            <sec:role role-name="mejbadmin">
+                <sec:principal name="mejb-admin"
+                    class="org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal"/>
+            </sec:role>
+        </sec:role-mappings>
+    </sec:security>
+</openejb-jar>
