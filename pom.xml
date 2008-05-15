@@ -83,7 +83,6 @@
         <plutoVersion>1.1.6-G643117</plutoVersion>
         <openjpaVersion>1.0.2</openjpaVersion>
         <xbeanVersion>3.3</xbeanVersion>
-        <gshellVersion>1.0-alpha-1</gshellVersion>
         <gmavenVersion>1.0-rc-1</gmavenVersion>
         <minaVersion>1.1.6</minaVersion>
         <slf4jVersion>1.5.0</slf4jVersion>
@@ -1346,71 +1345,22 @@
             </dependency>
 
             <!-- GShell Framework Support -->
-            <!-- replaced gshell-embeddable with individual jars -->
             <dependency>
                 <groupId>org.apache.geronimo.gshell</groupId>
                 <artifactId>gshell-bootstrap</artifactId>
-                <version>${gshellVersion}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.geronimo.gshell</groupId>
-                <artifactId>gshell-cli</artifactId>
-                <version>${gshellVersion}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.geronimo.gshell</groupId>
-                <artifactId>gshell-command-api</artifactId>
-                <version>${gshellVersion}</version>
+                <version>1.0-alpha-1</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.geronimo.gshell</groupId>
                 <artifactId>gshell-core</artifactId>
-                <version>${gshellVersion}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.geronimo.gshell</groupId>
-                <artifactId>gshell-parser</artifactId>
-                <version>${gshellVersion}</version>
+                <version>1.0-alpha-1</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.geronimo.gshell.commands</groupId>
                 <artifactId>gshell-builtins</artifactId>
-                <version>${gshellVersion}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.geronimo.gshell.support</groupId>
-                <artifactId>gshell-ansi</artifactId>
-                <version>${gshellVersion}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.geronimo.gshell.support</groupId>
-                <artifactId>gshell-clp</artifactId>
-                <version>${gshellVersion}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.geronimo.gshell.support</groupId>
-                <artifactId>gshell-common</artifactId>
-                <version>${gshellVersion}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.geronimo.gshell.support</groupId>
-                <artifactId>gshell-i18n</artifactId>
-                <version>${gshellVersion}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.geronimo.gshell.support</groupId>
-                <artifactId>gshell-prefs</artifactId>
-                <version>${gshellVersion}</version>
+                <version>1.0-alpha-1</version>
             </dependency>
 
             <dependency>
@@ -1517,27 +1467,15 @@
 
             <!-- GShell Remote Support -->
             <dependency>
-                <groupId>org.apache.geronimo.gshell</groupId>
-                <artifactId>gshell-whisper</artifactId>
-                <version>${gshellVersion}</version>
-            </dependency>
-
-            <dependency>
                 <groupId>org.apache.geronimo.gshell.remote</groupId>
                 <artifactId>gshell-remote-client</artifactId>
-                <version>${gshellVersion}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.geronimo.gshell.remote</groupId>
-                <artifactId>gshell-remote-common</artifactId>
-                <version>${gshellVersion}</version>
+                <version>1.0-alpha-1</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.geronimo.gshell.remote</groupId>
                 <artifactId>gshell-remote-server</artifactId>
-                <version>${gshellVersion}</version>
+                <version>1.0-alpha-1</version>
             </dependency>
 
             <dependency>
@@ -2119,7 +2057,7 @@
                 <plugin>
                     <groupId>org.apache.geronimo.gshell</groupId>
                     <artifactId>gshell-maven-plugin</artifactId>
-                    <version>${gshellVersion}</version>
+                    <version>1.0-alpha-1</version>
                 </plugin>
 
                 <plugin>

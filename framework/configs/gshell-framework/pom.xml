@@ -54,11 +54,6 @@
             <groupId>org.apache.geronimo.gshell.commands</groupId>
             <artifactId>gshell-builtins</artifactId>
         </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.gshell</groupId>
-            <artifactId>gshell-cli</artifactId>
-        </dependency>
     </dependencies>
 
     <build>

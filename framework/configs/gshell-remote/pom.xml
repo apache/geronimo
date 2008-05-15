@@ -45,33 +45,13 @@
         </dependency>
         
         <dependency>
-            <groupId>org.apache.geronimo.gshell</groupId>
-            <artifactId>gshell-whisper</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>org.apache.geronimo.gshell.remote</groupId>
             <artifactId>gshell-remote-client</artifactId>
         </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.gshell.remote</groupId>
-            <artifactId>gshell-remote-common</artifactId>
-        </dependency>
-
+        
         <dependency>
             <groupId>org.apache.geronimo.gshell.remote</groupId>
             <artifactId>gshell-remote-server</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.mina</groupId>
-            <artifactId>mina-core</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.mina</groupId>
-            <artifactId>mina-filter-ssl</artifactId>
         </dependency>
     </dependencies>
 
