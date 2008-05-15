@@ -67,8 +67,10 @@
         <geronimoSchemaVersion>1.2</geronimoSchemaVersion>
         
         <!--
-        Having a single well named version properties makes automatic updating for the weekly build much easier.
+        FIXME: STOP using properties for dependency versions unless you absolutly need them,
+               ie. you have a hundred dependencies that all use the same version.
         -->
+        
         <openejbVersion>3.1-SNAPSHOT</openejbVersion>
         <yokoVersion>1.0-SNAPSHOT</yokoVersion>
         <derbyVersion>10.2.2.0</derbyVersion>
@@ -83,10 +85,6 @@
         <plutoVersion>1.1.6-G643117</plutoVersion>
         <openjpaVersion>1.0.2</openjpaVersion>
         <xbeanVersion>3.3</xbeanVersion>
-        <gmavenVersion>1.0-rc-1</gmavenVersion>
-        <minaVersion>1.1.6</minaVersion>
-        <slf4jVersion>1.5.0</slf4jVersion>
-        <groovyVersion>1.5.6</groovyVersion>
         <wadiVersion>2.0-SNAPSHOT</wadiVersion>
 
         <!-- Deployers -->
@@ -484,25 +482,25 @@
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
-                <version>${slf4jVersion}</version>
+                <version>1.5.0</version>
             </dependency>
 
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-simple</artifactId>
-                <version>${slf4jVersion}</version>
+                <version>1.5.0</version>
             </dependency>
 
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-log4j12</artifactId>
-                <version>${slf4jVersion}</version>
+                <version>1.5.0</version>
             </dependency>
 
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>jcl104-over-slf4j</artifactId>
-                <version>${slf4jVersion}</version>
+                <version>1.5.0</version>
             </dependency>
 
             <dependency>
@@ -1378,25 +1376,25 @@
             <dependency>
                 <groupId>org.codehaus.groovy.maven</groupId>
                 <artifactId>gmaven-mojo</artifactId>
-                <version>${gmavenVersion}</version>
+                <version>1.0-rc-1</version>
             </dependency>
 
             <dependency>
                 <groupId>org.codehaus.groovy.maven.runtime</groupId>
                 <artifactId>gmaven-runtime-default</artifactId>
-                <version>${gmavenVersion}</version>
+                <version>1.0-rc-1</version>
             </dependency>
 
             <dependency>
                 <groupId>org.codehaus.groovy.maven.support</groupId>
                 <artifactId>slf4j-gossip</artifactId>
-                <version>${gmavenVersion}</version>
+                <version>1.0-rc-1</version>
             </dependency>
 
             <dependency>
                 <groupId>org.codehaus.groovy</groupId>
                 <artifactId>groovy-all-minimal</artifactId>
-                <version>${groovyVersion}</version>
+                <version>1.5.6</version>
             </dependency>
 
             <dependency>
@@ -1481,13 +1479,13 @@
             <dependency>
                 <groupId>org.apache.mina</groupId>
                 <artifactId>mina-core</artifactId>
-                <version>${minaVersion}</version>
+                <version>1.1.6</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.mina</groupId>
                 <artifactId>mina-filter-ssl</artifactId>
-                <version>${minaVersion}</version>
+                <version>1.1.6</version>
             </dependency>
 
             <!-- Admin Console support -->
