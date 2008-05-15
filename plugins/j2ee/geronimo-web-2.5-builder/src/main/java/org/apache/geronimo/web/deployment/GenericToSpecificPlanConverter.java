@@ -128,17 +128,18 @@ public class GenericToSpecificPlanConverter {
     private static Map<Object, List<XmlCursor>> createElementMap(XmlCursor cursor) {        
         Map<Object, List<XmlCursor>> map = new HashMap<Object, List<XmlCursor>>();   
         cursor.toStartDoc();
-        cursor.toFirstChild();
-        do {
-            QName name = cursor.getName();            
-            List<XmlCursor> locations = map.get(name);
-            if (locations == null) {
-                locations = new ArrayList<XmlCursor>();
-                map.put(name, locations);
-                map.put(name.getLocalPart(), locations);
-            }
-            locations.add(cursor.newCursor());
-        } while(cursor.toNextSibling());
+        if (cursor.toFirstChild()) {
+            do {
+                QName name = cursor.getName();            
+                List<XmlCursor> locations = map.get(name);
+                if (locations == null) {
+                    locations = new ArrayList<XmlCursor>();
+                    map.put(name, locations);
+                    map.put(name.getLocalPart(), locations);
+                }
+                locations.add(cursor.newCursor());
+            } while(cursor.toNextSibling());
+        }
         return map;
     }
     
