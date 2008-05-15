@@ -105,7 +105,6 @@ public class MasterRemoteControlJMX implements GBeanLifecycle {
             archiveDS = (DataSource)ic.lookup("jca:/org.apache.geronimo.plugins/agent-ds/JCAManagedConnectionFactory/jdbc/ArchiveDS");
         } catch(Exception e) {
             log.error(e.getMessage());
-            e.printStackTrace();
         }
         snapshotDBHelper = new SnapshotDBHelper(activeDS, archiveDS);
     }
