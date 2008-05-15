@@ -230,20 +230,12 @@
     </dependencies>
 
     <build>
-        <resources>
-            <resource>
-                <directory>${pom.basedir}/src/main/resources</directory>
-                <filtering>true</filtering>
-            </resource>
-        </resources>
-
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>unpack-boilerplate</id>
                         <phase>process-resources</phase>
                         <goals>
                             <goal>unpack</goal>
@@ -254,29 +246,11 @@
                                     <groupId>org.apache.geronimo.assemblies</groupId>
                                     <artifactId>geronimo-framework</artifactId>
                                     <version>${version}</version>
-                                    <type>tar.gz</type>
+                                    <type>zip</type>
                                     <classifier>bin</classifier>
                                 </artifactItem>
                             </artifactItems>
                             <outputDirectory>${project.build.directory}/unpack</outputDirectory>
-                        </configuration>
-                    </execution>
-
-                    <execution>
-                        <id>unpack-schemas</id>
-                        <phase>process-resources</phase>
-                        <goals>
-                            <goal>unpack</goal>
-                        </goals>
-                        <configuration>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>org.apache.geronimo.modules</groupId>
-                                    <artifactId>geronimo-tomcat6-builder</artifactId>
-                                    <version>${version}</version>
-                                </artifactItem>
-                            </artifactItems>
-                            <outputDirectory>${project.build.directory}/scratch/schema</outputDirectory>
                         </configuration>
                     </execution>
                 </executions>
@@ -287,7 +261,6 @@
                 <artifactId>maven-antrun-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>copy-framework</id>
                         <phase>process-resources</phase>
                         <goals>
                             <goal>run</goal>
@@ -299,26 +272,6 @@
                                 <copy todir="${project.build.directory}/assembly">
                                     <fileset dir="${project.build.directory}/unpack/geronimo-framework-${version}">
                                     </fileset>
-                                </copy>
-                            </tasks>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>copy-schemas</id>
-                        <phase>process-resources</phase>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                        <configuration>
-                            <tasks>
-                                <!-- Flatten all schemas -->
-                                <mkdir dir="${project.build.directory}/schema"/>
-                                <copy todir="${project.build.directory}/schema">
-                                    <fileset dir="${project.build.directory}/scratch/schema">
-                                        <include name="**/*.xsd"/>
-                                        <include name="**/*.dtd"/>
-                                    </fileset>
-                                    <mapper type="flatten"/>
                                 </copy>
                             </tasks>
                         </configuration>
