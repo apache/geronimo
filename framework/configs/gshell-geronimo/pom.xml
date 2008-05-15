@@ -50,6 +50,10 @@
             <version>${version}</version>
         </dependency>
         
+        <!--
+        FIXME: Remove these, they should be picked up transitivly from geronimo-commands.
+        -->
+        
         <dependency>
             <groupId>org.codehaus.groovy</groupId>
             <artifactId>groovy-all-minimal</artifactId>
