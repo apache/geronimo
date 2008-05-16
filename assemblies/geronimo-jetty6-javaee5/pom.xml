@@ -46,6 +46,18 @@
             <scope>provided</scope>
         </dependency>
         
+        <!--
+        HACK: This is currently included from geronimo-framework, which is not really
+              desirable, once the problems related to this are fixed, enable this plugin here.
+        
+        <dependency>
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>gshell-remote</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+        -->
+        
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>j2ee-system</artifactId>
