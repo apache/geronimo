@@ -17,7 +17,7 @@
         <!-- You will need the boilerplate to get a runnable server -->
         <dependency>
             <groupId>org.apache.geronimo.assemblies</groupId>
-            <artifactId>geronimo-boilerplate-minimal</artifactId>
+            <artifactId>geronimo-boilerplate</artifactId>
             <version>${geronimoVersion}</version>
             <type>jar</type>
         </dependency>
