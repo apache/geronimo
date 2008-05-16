@@ -48,8 +48,8 @@ public class PluginsTest extends TestSupport {
         selenium.click("//input[@value = 'Show Plugins in selected repository']");
         waitForPageLoad();
         
-        assertTrue(selenium.isTextPresent("Geronimo Assemblies :: Boilerplate Minimal"));
-        selenium.click("link=Geronimo Assemblies :: Boilerplate Minimal");
+        assertTrue(selenium.isTextPresent("Geronimo Assemblies :: Boilerplate"));
+        selenium.click("link=Geronimo Assemblies :: Boilerplate");
         waitForPageLoad();
         
         assertTrue(selenium.isTextPresent("Geronimo-Versions"));
