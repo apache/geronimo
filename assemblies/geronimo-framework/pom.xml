@@ -39,7 +39,7 @@
     <dependencies>
         <dependency>
             <groupId>org.apache.geronimo.assemblies</groupId>
-            <artifactId>geronimo-boilerplate-minimal</artifactId>
+            <artifactId>geronimo-boilerplate</artifactId>
             <version>${version}</version>
         </dependency>
 

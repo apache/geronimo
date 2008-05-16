@@ -39,7 +39,7 @@
     </properties>
 
     <modules>
-        <module>geronimo-boilerplate-minimal</module>
+        <module>geronimo-boilerplate</module>
         <module>geronimo-framework</module>
         <module>geronimo-jetty6-minimal</module>
         <module>geronimo-jetty6-javaee5</module>
