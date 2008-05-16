@@ -25,6 +25,7 @@ import java.security.Security;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateFactory;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -50,6 +51,10 @@ public class KeystoreUtil {
     public static final String defaultType;
 
     static {
+        Set<String> ignoreKeystores = new HashSet<String>();
+        ignoreKeystores.add("windows-my");
+        ignoreKeystores.add("windows-root");
+        
         TreeSet<String> tempKeystoreTypes = new TreeSet<String>();
         TreeSet<String> tempEmptyKeystoreTypes = new TreeSet<String>();
         TreeSet<String> tempCertKeystoreTypes = new TreeSet<String>();
@@ -77,8 +82,10 @@ public class KeystoreUtil {
         }
         for(Provider provider: providers) {
             for(Provider.Service service: provider.getServices()) {
-                if(service.getType().equals("KeyStore")) {
-                    String type = service.getAlgorithm();
+                String type = service.getAlgorithm();
+                if (service.getType().equals("KeyStore") && 
+                    !ignoreKeystores.contains(type.toLowerCase())) {
+
                     tempKeystoreTypes.add(type);
                     if(type.equalsIgnoreCase(KeyStore.getDefaultType())) {
                         tempDefaultType = type;
