@@ -85,10 +85,6 @@
         <openjpaVersion>1.0.2</openjpaVersion>
         <xbeanVersion>3.3</xbeanVersion>
         <gshellVersion>1.0-alpha-1</gshellVersion>
-        <gmavenVersion>1.0-rc-2</gmavenVersion>
-        <minaVersion>1.1.5</minaVersion>
-        <slf4jVersion>1.4.3</slf4jVersion>
-        <groovyVersion>1.5.6</groovyVersion>
         <wadiVersion>2.0-M10</wadiVersion>
 
         <!-- Deployers -->
@@ -483,31 +479,31 @@
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
-                <version>${slf4jVersion}</version>
+                <version>1.4.3</version>
             </dependency>
 
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-jcl</artifactId>
-                <version>${slf4jVersion}</version>
+                <version>1.4.3</version>
             </dependency>
 
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-simple</artifactId>
-                <version>${slf4jVersion}</version>
+                <version>1.4.3</version>
             </dependency>
 
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-log4j12</artifactId>
-                <version>${slf4jVersion}</version>
+                <version>1.4.3</version>
             </dependency>
 
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>jcl104-over-slf4j</artifactId>
-                <version>${slf4jVersion}</version>
+                <version>1.4.3</version>
             </dependency>
 
             <dependency>
@@ -1410,25 +1406,25 @@
             <dependency>
                 <groupId>org.codehaus.groovy.maven</groupId>
                 <artifactId>gmaven-mojo</artifactId>
-                <version>${gmavenVersion}</version>
+                <version>1.0-rc-2</version>
             </dependency>
 
             <dependency>
                 <groupId>org.codehaus.groovy.maven.runtime</groupId>
                 <artifactId>gmaven-runtime-default</artifactId>
-                <version>${gmavenVersion}</version>
+                <version>1.0-rc-2</version>
             </dependency>
 
             <dependency>
                 <groupId>org.codehaus.groovy.maven.support</groupId>
                 <artifactId>slf4j-gossip</artifactId>
-                <version>${gmavenVersion}</version>
+                <version>1.0-rc-2</version>
             </dependency>
 
             <dependency>
                 <groupId>org.codehaus.groovy</groupId>
                 <artifactId>groovy-all-minimal</artifactId>
-                <version>${groovyVersion}</version>
+                <version>1.5.6</version>
             </dependency>
 
             <dependency>
@@ -1501,13 +1497,13 @@
             <dependency>
                 <groupId>org.apache.mina</groupId>
                 <artifactId>mina-core</artifactId>
-                <version>${minaVersion}</version>
+                <version>1.1.5</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.mina</groupId>
                 <artifactId>mina-filter-ssl</artifactId>
-                <version>${minaVersion}</version>
+                <version>1.1.5</version>
             </dependency>
 
             <!-- Admin Console support -->
