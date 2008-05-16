@@ -559,7 +559,6 @@
             <type>car</type>
         </dependency>
 
-        <!-- Monitoring plugins -->
         <dependency>
             <groupId>org.apache.geronimo.plugins</groupId>
             <artifactId>agent</artifactId>
@@ -596,7 +595,7 @@
                                     <classifier>bin</classifier>
                                 </artifactItem>
                             </artifactItems>
-                            <outputDirectory>${project.build.directory}/unpack</outputDirectory>
+                            <outputDirectory>${project.build.directory}</outputDirectory>
                         </configuration>
                     </execution>
                 </executions>
@@ -613,11 +612,9 @@
                         </goals>
                         <configuration>
                             <tasks>
-                                <!-- remove geronimo-framework-${version} prefix -->
                                 <mkdir dir="${project.build.directory}/assembly"/>
                                 <copy todir="${project.build.directory}/assembly">
-                                    <fileset dir="${project.build.directory}/unpack/geronimo-framework-${version}">
-                                    </fileset>
+                                    <fileset dir="${project.build.directory}/geronimo-framework-${version}"/>
                                 </copy>
                             </tasks>
                         </configuration>

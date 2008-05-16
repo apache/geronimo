@@ -41,7 +41,6 @@
             <groupId>org.apache.geronimo.assemblies</groupId>
             <artifactId>geronimo-boilerplate-minimal</artifactId>
             <version>${version}</version>
-            <type>jar</type>
         </dependency>
 
         <dependency>
