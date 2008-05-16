@@ -224,6 +224,12 @@ public class MonitoringPortlet extends GenericPortlet {
             String retention = actionRequest.getParameter("retention");
             Integer port = Integer.parseInt(actionRequest.getParameter("port"));
             Integer protocol = Integer.parseInt(actionRequest.getParameter("protocol"));
+            if(snapshot == null) {
+                snapshot = "";
+            }
+            if(retention == null) {
+                retention = "";
+            }
             String message = testConnection(name, ip, username, password, port, protocol);
             actionResponse.setRenderParameter("message", message);
             actionResponse.setRenderParameter("name", name);
