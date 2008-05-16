@@ -89,12 +89,12 @@ public class ArchiveMojo extends MojoSupport {
     private File targetFile;
 
     protected void doExecute() throws Exception {
-        //this installs the pom using the default artifact handler configured in components.xml
-        log.info("Setting artifact file: " + targetFile);
-
+        // this installs the pom using the default artifact handler configured in components.xml
+        log.debug("Setting artifact file: " + targetFile);
         org.apache.maven.artifact.Artifact artifact = project.getArtifact();
         artifact.setFile(targetFile);
-        //now pack up the server.
+        
+        // now pack up the server.
         ServerInfo serverInfo = new BasicServerInfo(targetServerDirectory.getAbsolutePath(), false);
         ArchiverGBean archiver = new ArchiverGBean(serverInfo);
         if (excludes != null) {
