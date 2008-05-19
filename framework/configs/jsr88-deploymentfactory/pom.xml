@@ -64,6 +64,11 @@
             <artifactId>geronimo-deploy-jsr88</artifactId>
             <version>${version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>geronimo-deploy-jsr88-bootstrapper</artifactId>
+            <version>${version}</version>
+        </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>

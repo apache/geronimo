@@ -23,29 +23,31 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Iterator;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.Collections;
-import java.util.HashMap;
 
+import org.apache.geronimo.kernel.repository.ImportType;
 import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.handler.DefaultArtifactHandler;
 import org.apache.maven.artifact.factory.ArtifactFactory;
+import org.apache.maven.artifact.metadata.ArtifactMetadataSource;
+import org.apache.maven.artifact.repository.ArtifactRepository;
+import org.apache.maven.artifact.resolver.ArtifactCollector;
 import org.apache.maven.artifact.resolver.ArtifactResolutionException;
 import org.apache.maven.artifact.resolver.ArtifactResolutionResult;
-import org.apache.maven.artifact.repository.ArtifactRepository;
+import org.apache.maven.plugin.Mojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugin.logging.Log;
+import org.apache.maven.plugin.logging.SystemStreamLog;
 import org.apache.maven.project.MavenProject;
-import org.apache.maven.project.MavenProjectHelper;
-import org.apache.maven.project.ProjectBuildingException;
 import org.apache.maven.project.artifact.InvalidDependencyVersionException;
-import org.codehaus.mojo.pluginsupport.MojoSupport;
-import org.codehaus.mojo.pluginsupport.dependency.DependencyHelper;
-import org.codehaus.mojo.pluginsupport.util.ArtifactItem;
+import org.apache.maven.shared.dependency.tree.DependencyNode;
+import org.apache.maven.shared.dependency.tree.DependencyTreeResolutionListener;
+import org.codehaus.plexus.logging.AbstractLogEnabled;
 
 /**
  * Support for <em>packaging</em> Mojos.
@@ -53,8 +55,10 @@ import org.codehaus.mojo.pluginsupport.util.ArtifactItem;
  * @version $Rev$ $Date$
  */
 public abstract class AbstractCarMojo
-    extends MojoSupport
-{
+        extends AbstractLogEnabled implements Mojo {
+
+    private Log log;
+
     /**
      * The maven project.
      *
@@ -73,30 +77,50 @@ public abstract class AbstractCarMojo
      */
     protected File basedir;
 
+    protected Set<Artifact> dependencies;
+    protected Set<Artifact> localDependencies;
+
+
     /**
-     * The maven project's helper.
+     * The artifact repository to use.
      *
-     * @component
+     * @parameter expression="${localRepository}"
      * @required
      * @readonly
      */
-    protected MavenProjectHelper projectHelper;
-    
+    private ArtifactRepository localRepository;
+
     /**
-     * dependency resolution for the maven repository
+     * The artifact factory to use.
      *
-     * @component
-     */
-    protected DependencyHelper dependencyHelper = null;
-    /**
      * @component
      * @required
      * @readonly
      */
     protected ArtifactFactory artifactFactory;
-    protected Set<Artifact> dependencies;
-    protected Map<Artifact, Artifact> dependencyMap = new HashMap<Artifact, Artifact>();
-    protected ProjectNode projectNode;
+
+    /**
+     * The artifact metadata source to use.
+     *
+     * @component
+     * @required
+     * @readonly
+     */
+    private ArtifactMetadataSource artifactMetadataSource;
+
+    /**
+     * The artifact collector to use.
+     *
+     * @component
+     * @required
+     * @readonly
+     */
+    private ArtifactCollector artifactCollector;
+
+    /**
+     * The computed dependency tree root node of the Maven project.
+     */
+    private DependencyNode rootNode;
 
     //
     // MojoSupport Hooks
@@ -116,28 +140,26 @@ public abstract class AbstractCarMojo
     protected ArtifactRepository getArtifactRepository() {
         return artifactRepository;
     }
-    
+
     protected void init() throws MojoExecutionException, MojoFailureException {
-        super.init();
-        
-        dependencyHelper.setArtifactRepository(artifactRepository);
+//        super.init();
     }
-    
+
     /**
      * Generates a properties file with explicit versions of artifacts of the current project transitivly.
      */
     protected void generateExplicitVersionProperties(final File outputFile, Set<org.apache.maven.artifact.Artifact> dependencies) throws MojoExecutionException, IOException {
-        log.debug("Generating explicit version properties: " + outputFile);
+        getLog().debug("Generating explicit version properties: " + outputFile);
 
         // Generate explicit_versions for all our dependencies...
         Properties props = new Properties();
 
-        for (org.apache.maven.artifact.Artifact artifact: dependencies) {
+        for (org.apache.maven.artifact.Artifact artifact : dependencies) {
             String name = artifact.getGroupId() + "/" + artifact.getArtifactId() + "//" + artifact.getType();
             String value = artifact.getGroupId() + "/" + artifact.getArtifactId() + "/" + artifact.getVersion() + "/" + artifact.getType();
 
-            if (log.isDebugEnabled()) {
-                log.debug("Setting " + name + "=" + value);
+            if (getLog().isDebugEnabled()) {
+                getLog().debug("Setting " + name + "=" + value);
             }
             props.setProperty(name, value);
         }
@@ -146,12 +168,11 @@ public abstract class AbstractCarMojo
         output.flush();
         output.close();
     }
-   
+
     protected static File getArchiveFile(final File basedir, final String finalName, String classifier) {
         if (classifier == null) {
             classifier = "";
-        }
-        else if (classifier.trim().length() > 0 && !classifier.startsWith("-")) {
+        } else if (classifier.trim().length() > 0 && !classifier.startsWith("-")) {
             classifier = "-" + classifier;
         }
 
@@ -167,7 +188,7 @@ public abstract class AbstractCarMojo
 
         return new org.apache.geronimo.kernel.repository.Artifact(artifact.getGroupId(), artifact.getArtifactId(), artifact.getVersion(), artifact.getType());
     }
-    
+
     protected org.apache.geronimo.kernel.repository.Artifact mavenToGeronimoArtifact(final org.apache.maven.model.Dependency artifact) {
         assert artifact != null;
 
@@ -176,21 +197,14 @@ public abstract class AbstractCarMojo
 
     protected org.apache.maven.artifact.Artifact geronimoToMavenArtifact(final org.apache.geronimo.kernel.repository.Artifact artifact) throws MojoExecutionException {
         assert artifact != null;
-
-        ArtifactItem item = new ArtifactItem();
-        item.setGroupId(artifact.getGroupId());
-        item.setArtifactId(artifact.getArtifactId());
-        item.setVersion(artifact.getVersion().toString());
-        item.setType(artifact.getType());
-
-        return createArtifact(item);
+        return artifactFactory.createArtifactWithClassifier(artifact.getGroupId(), artifact.getArtifactId(), artifact.getVersion().toString(), artifact.getType(), null);
     }
 
     /**
      * Determine if the given artifact is a Geronimo module.
      *
-     * @param artifact  The artifact to check; must not be null.
-     * @return          True if the artifact is a Geronimo module.
+     * @param artifact The artifact to check; must not be null.
+     * @return True if the artifact is a Geronimo module.
      */
     protected boolean isModuleArtifact(final org.apache.geronimo.kernel.repository.Artifact artifact) {
         assert artifact != null;
@@ -207,7 +221,7 @@ public abstract class AbstractCarMojo
     }
 
     protected org.apache.maven.model.Dependency resolveDependency(org.apache.maven.model.Dependency dependency, List<org.apache.maven.model.Dependency> artifacts) {
-        for (org.apache.maven.model.Dependency match: artifacts) {
+        for (org.apache.maven.model.Dependency match : artifacts) {
             if (matches(dependency, match)) {
                 return match;
             }
@@ -228,35 +242,147 @@ public abstract class AbstractCarMojo
         return true;
     }
 
-    protected void getDependencies(MavenProject project) throws ProjectBuildingException, InvalidDependencyVersionException, ArtifactResolutionException {
-        Map managedVersions = DependencyHelper.getManagedVersionMap(project, artifactFactory);
+    protected void getDependencies(MavenProject project, boolean useTransitiveDependencies) throws MojoExecutionException {
 
-        if (project.getDependencyArtifacts() == null) {
-            project.setDependencyArtifacts(project.createArtifacts(artifactFactory, null, null));
+        DependencyTreeResolutionListener listener = new DependencyTreeResolutionListener(getLogger());
+
+        try {
+            Map managedVersions = project.getManagedVersionMap();
+
+            Set dependencyArtifacts = project.getDependencyArtifacts();
+
+            if (dependencyArtifacts == null) {
+                dependencyArtifacts = project.createArtifacts(artifactFactory, null, null);
+            }
+            ArtifactResolutionResult result = artifactCollector.collect(dependencyArtifacts, project.getArtifact(), managedVersions, localRepository,
+                    project.getRemoteArtifactRepositories(), artifactMetadataSource, null,
+                    Collections.singletonList(listener));
+
+            dependencies = result.getArtifacts();
+            rootNode = listener.getRootNode();
+        }
+        catch (ArtifactResolutionException exception) {
+            throw new MojoExecutionException("Cannot build project dependency tree", exception);
+        }
+        catch (InvalidDependencyVersionException e) {
+            throw new MojoExecutionException("Invalid dependency version for artifact "
+                    + project.getArtifact());
         }
 
-        DependencyListener listener = new DependencyListener();
+        Scanner scanner = new Scanner();
+        scanner.scan(rootNode, useTransitiveDependencies);
+        localDependencies = scanner.localDependencies;
 
-        ArtifactResolutionResult artifactResolutionResult = dependencyHelper.getArtifactCollector().collect(
-                project.getDependencyArtifacts(),
-                project.getArtifact(),
-                managedVersions,
-                getArtifactRepository(),
-                project.getRemoteArtifactRepositories(),
-                dependencyHelper.getArtifactMetadataSource(),
-                null,
-                Collections.singletonList(listener));
+    }
 
-        dependencies = artifactResolutionResult.getArtifacts();
-        projectNode = listener.getTop();
-        for (Artifact artifact: dependencies) {
-            dependencyMap.put(DependencyListener.shrink(artifact), artifact);
+    public void setLog(Log log) {
+        this.log = log;
+    }
+
+    public Log getLog() {
+        if (log == null) {
+            setLog(new SystemStreamLog());
         }
+        return log;
+    }
+
+    protected static org.apache.geronimo.kernel.repository.Dependency toGeronimoDependency(final Artifact dependency, boolean includeVersion) {
+        org.apache.geronimo.kernel.repository.Artifact artifact = toGeronimoArtifact(dependency, includeVersion);
+        return new org.apache.geronimo.kernel.repository.Dependency(artifact, ImportType.ALL);
+    }
+
+    private static org.apache.geronimo.kernel.repository.Artifact toGeronimoArtifact(final Artifact dependency, boolean includeVersion) {
+        String groupId = dependency.getGroupId();
+        String artifactId = dependency.getArtifactId();
+        String version = includeVersion ? dependency.getVersion() : null;
+        String type = dependency.getType();
+
+        return new org.apache.geronimo.kernel.repository.Artifact(groupId, artifactId, version, type);
+    }
+
+    private static class Scanner {
+        private static enum Accept {
+            ACCEPT(true, true),
+            PROVIDED(true, false),
+            STOP(false, false);
+
+            private final boolean more;
+            private final boolean local;
+
+            private Accept(boolean more, boolean local) {
+                this.more = more;
+                this.local = local;
+            }
+
+            public boolean isContinue() {
+                return more;
+            }
+
+            public boolean isLocal() {
+                return local;
+            }
+        }
+
+        //all the dependencies, including provided and their dependencies
+        private final Set<Artifact> dependencies = new HashSet<Artifact>();
+        //all the dependencies needed for this car, with provided dependencies removed
+        private final Set<Artifact> localDependencies = new HashSet<Artifact>();
+        //dependencies from ancestor cars, to be removed from localDependencies.
+        private final Set<Artifact> carDependencies = new HashSet<Artifact>();
+
+        public void scan(DependencyNode rootNode, boolean useTransitiveDependencies) {
+            for (DependencyNode child : (List<DependencyNode>) rootNode.getChildren()) {
+                scan(child, localDependencies, carDependencies, Accept.ACCEPT, useTransitiveDependencies);
+            }
+            if (useTransitiveDependencies) {
+                localDependencies.removeAll(carDependencies);
+            }
+        }
+
+        private void scan(DependencyNode rootNode, Set<Artifact> localDependencies, Set<Artifact> carDependencies, Accept accept, boolean useTransitiveDependencies) {
+            Artifact artifact = getArtifact(rootNode);
+
+            accept = accept(artifact, accept);
+            if (accept.isContinue()) {
+                dependencies.add(artifact);
+                if (accept.isLocal()) {
+                    localDependencies.add(artifact);
+                    if (artifact.getType().equals("car") || !useTransitiveDependencies) {
+                        localDependencies = carDependencies;
+                    }
+                }
+                for (DependencyNode child : (List<DependencyNode>) rootNode.getChildren()) {
+                    scan(child, localDependencies, carDependencies, accept, useTransitiveDependencies);
+                }
+            }
+        }
+
+        private Artifact getArtifact(DependencyNode rootNode) {
+            Artifact artifact = rootNode.getArtifact();
+            if (rootNode.getRelatedArtifact() != null) {
+                artifact = rootNode.getRelatedArtifact();
+            }
+            return artifact;
+        }
+
+        private Accept accept(Artifact dependency, Accept previous) {
+            if (dependency.getGroupId().startsWith("org.apache.geronimo.genesis")) {
+                return Accept.STOP;
+            }
+            String scope = dependency.getScope();
+            if (scope == null || "runtime".equalsIgnoreCase(scope) || "compile".equalsIgnoreCase(scope)) {
+                return previous;
+            }
+            if ("provided".equalsIgnoreCase(scope)) {
+                return Accept.PROVIDED;
+            }
+            return Accept.STOP;
+        }
+
     }
 
     protected class ArtifactLookupImpl
-        implements Maven2RepositoryAdapter.ArtifactLookup
-    {
+            implements Maven2RepositoryAdapter.ArtifactLookup {
 
         private final Map<org.apache.geronimo.kernel.repository.Artifact, Artifact> resolvedArtifacts;
 
@@ -273,31 +399,31 @@ public abstract class AbstractCarMojo
             MavenProject project = getProject();
 
             return artifact.getGroupId().equals(project.getGroupId()) &&
-                   artifact.getArtifactId().equals(project.getArtifactId());
+                    artifact.getArtifactId().equals(project.getArtifactId());
         }
 
         public File getLocation(final org.apache.geronimo.kernel.repository.Artifact artifact) {
             assert artifact != null;
 
-            boolean debug = log.isDebugEnabled();
+            boolean debug = getLog().isDebugEnabled();
 
             Artifact mavenArtifact = resolvedArtifacts.get(artifact);
 
             // If not cached, then make a new artifact
             if (mavenArtifact == null) {
-                mavenArtifact = getArtifactFactory().createArtifact(
+                mavenArtifact = artifactFactory.createArtifactWithClassifier(
                         artifact.getGroupId(),
                         artifact.getArtifactId(),
                         artifact.getVersion().toString(),
-                        null,
-                        artifact.getType()
+                        artifact.getType(),
+                        null
                 );
             }
 
             // Do not attempt to resolve an artifact that is the same as the project
             if (isProjectArtifact(artifact)) {
                 if (debug) {
-                    log.debug("Skipping resolution of project artifact: " + artifact);
+                    getLog().debug("Skipping resolution of project artifact: " + artifact);
                 }
 
                 //
@@ -309,32 +435,47 @@ public abstract class AbstractCarMojo
             }
 
             File file;
-            try {
-                if (!mavenArtifact.isResolved()) {
-                    if (debug) {
-                        log.debug("Resolving artifact: " + mavenArtifact);
-                    }
-                    mavenArtifact = resolveArtifact(mavenArtifact);
-
-                    // Cache the resolved artifact
-                    resolvedArtifacts.put(artifact, mavenArtifact);
+            if (!mavenArtifact.isResolved()) {
+                if (debug) {
+                    getLog().debug("Resolving artifact: " + mavenArtifact);
                 }
+                mavenArtifact = resolveArtifact(mavenArtifact);
 
-                //
-                // HACK: Construct the real local filename from the path and resolved artifact file.
-                //       Probably a better way to do this with the Maven API directly, but this is the
-                //       best I can do for now.
-                //
-                String path = getArtifactRepository().pathOf(mavenArtifact);
-                file = new File(getBasedir(), path);
-                file = new File(mavenArtifact.getFile().getParentFile(), file.getName());
+                // Cache the resolved artifact
+                resolvedArtifacts.put(artifact, mavenArtifact);
             }
-            catch (MojoExecutionException e) {
-                throw new RuntimeException("Failed to resolve: " + mavenArtifact, e);
-            }
+
+            //
+            // HACK: Construct the real local filename from the path and resolved artifact file.
+            //       Probably a better way to do this with the Maven API directly, but this is the
+            //       best I can do for now.
+            //
+            String path = getArtifactRepository().pathOf(mavenArtifact);
+            file = new File(getBasedir(), path);
 
             return file;
         }
     }
-    
+
+    protected Artifact resolveArtifact(Artifact mavenArtifact) {
+        return resolveArtifact(mavenArtifact.getGroupId(), mavenArtifact.getArtifactId(), mavenArtifact.getType());
+    }
+
+    protected Artifact resolveArtifact(String groupId, String artifactId, String type) {
+        for (Artifact artifact : dependencies) {
+            if (matches(groupId, artifactId, type, artifact)) {
+                return artifact;
+            }
+        }
+        return null;
+    }
+
+    private boolean matches(String groupId, String artifactId, String type, Artifact artifact) {
+        if (!groupId.equals(artifact.getGroupId())) return false;
+        if (!artifactId.equals(artifact.getArtifactId())) return false;
+        if (!type.equals(artifact.getType())) return false;
+
+        return true;
+    }
+
 }

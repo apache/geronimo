@@ -27,24 +27,23 @@ import java.io.StringReader;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.geronimo.kernel.config.ConfigurationData;
-import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
-import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.system.configuration.RepositoryConfigurationStore;
-import org.apache.geronimo.system.plugin.PluginInstallerGBean;
 import org.apache.geronimo.system.plugin.PluginXmlUtil;
 import org.apache.geronimo.system.plugin.model.ArtifactType;
 import org.apache.geronimo.system.plugin.model.DependencyType;
 import org.apache.geronimo.system.plugin.model.LicenseType;
 import org.apache.geronimo.system.plugin.model.PluginArtifactType;
 import org.apache.geronimo.system.plugin.model.PluginType;
-import org.apache.geronimo.system.repository.Maven2Repository;
+import org.apache.maven.artifact.resolver.ArtifactResolutionException;
 import org.apache.maven.model.License;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.model.PluginExecution;
 import org.apache.maven.model.Resource;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.project.ProjectBuildingException;
+import org.apache.maven.project.artifact.InvalidDependencyVersionException;
 import org.codehaus.plexus.configuration.PlexusConfiguration;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 
@@ -133,149 +132,138 @@ public class PluginMetadataGeneratorMojo
      * since maven will not merge them correctly.  Actually we have to fish this out of the model since maven mangles the xml for us.
      */
 //    private PlexusConfiguration instance;
-    protected void doExecute() throws Exception {
-
-        PluginType metadata = new PluginType();
-        metadata.setName(project.getName());
-        metadata.setAuthor(project.getOrganization() == null? "unknown": project.getOrganization().getName());
-        metadata.setUrl(project.getOrganization() == null? "unknown": project.getOrganization().getUrl());
-        metadata.setDescription(project.getDescription());
-        metadata.setCategory(category);
-
-        if (project.getLicenses() != null) {
-            for (Object licenseObj : project.getLicenses()) {
-                License license = (License) licenseObj;
-                LicenseType licenseType = new LicenseType();
-                licenseType.setValue(license.getName());
-                licenseType.setOsiApproved(osiApproved);
-                metadata.getLicense().add(licenseType);
-            }
-        }
-
-        PluginArtifactType instance;
-        Plugin plugin = (Plugin) project.getModel().getBuild().getPluginsAsMap().get("org.apache.geronimo.buildsupport:car-maven-plugin");
-        if (plugin == null) {
-            throw new Error("Unable to resolve car plugin");
-        }
-
-        Xpp3Dom dom;
-        if (plugin.getExecutions().isEmpty()) {
-            dom = (Xpp3Dom) plugin.getConfiguration();
-        } else {
-            if (plugin.getExecutions().size() > 1) {
-                throw new IllegalStateException("Cannot determine correct configuration for PluginMetadataGeneratorMojo: " + plugin.getExecutionsAsMap().keySet());
-            }
-            dom = (Xpp3Dom) ((PluginExecution) plugin.getExecutions().get(0)).getConfiguration();
-        }
-        Xpp3Dom instanceDom = dom.getChild("instance");
-
-        if (instanceDom == null || instanceDom.getChild("plugin-artifact") == null) {
-            instance = new PluginArtifactType();
-        } else {
-            String instanceString = instanceDom.getChild("plugin-artifact").toString();
-            instance = PluginXmlUtil.loadPluginArtifactMetadata(new StringReader(instanceString.replace("#{", "${")));
-        }
-        if (this.commonInstance != null && this.commonInstance.getChild("plugin-artifact") != null) {
-            PluginArtifactType commonInstance = PluginXmlUtil.loadPluginArtifactMetadata(new StringReader(this.commonInstance.getChild("plugin-artifact").toString().replace("#{", "${")));
-            //merge
-            if (instance.getArtifactAlias().isEmpty()) {
-                instance.getArtifactAlias().addAll(commonInstance.getArtifactAlias());
-            }
-            if (instance.getConfigSubstitution().isEmpty()) {
-                instance.getConfigSubstitution().addAll(commonInstance.getConfigSubstitution());
-            }
-            //it doesn't make sense to copy a "generic" config.xml content into a specific module.
-//            if ((instance.getConfigXmlContent() == null || instance.getConfigXmlContent().getGbean().isEmpty())
-//                    && (commonInstance.getConfigXmlContent() != null && !commonInstance.getConfigXmlContent().getGbean().isEmpty())) {
-//                instance.setConfigXmlContent(new ConfigXmlContentType());
-//                instance.getConfigXmlContent().getGbean().addAll(commonInstance.getConfigXmlContent().getGbean());
-//            }
-            if (instance.getCopyFile().isEmpty()) {
-                instance.getCopyFile().addAll(commonInstance.getCopyFile());
-            }
-            if (instance.getDependency().isEmpty()) {
-                instance.getDependency().addAll(commonInstance.getDependency());
-            }
-            if (instance.getGeronimoVersion().isEmpty()) {
-                instance.getGeronimoVersion().addAll(commonInstance.getGeronimoVersion());
-            }
-            if (instance.getJvmVersion().isEmpty()) {
-                instance.getJvmVersion().addAll(commonInstance.getJvmVersion());
-            }
-            if (instance.getObsoletes().isEmpty()) {
-                instance.getObsoletes().addAll(commonInstance.getObsoletes());
-            }
-            if (instance.getPrerequisite().isEmpty()) {
-                instance.getPrerequisite().addAll(commonInstance.getPrerequisite());
-            }
-            if (instance.getSourceRepository().isEmpty()) {
-                instance.getSourceRepository().addAll(commonInstance.getSourceRepository());
-            }
-        }
-        metadata.getPluginArtifact().add(instance);
-
-        ArtifactType artifactType = new ArtifactType();
-        artifactType.setGroupId(project.getGroupId());
-        artifactType.setArtifactId(project.getArtifactId());
-        artifactType.setVersion(project.getVersion());
-        ArtifactType existingArtifact = instance.getModuleId();
-        if (existingArtifact != null && existingArtifact.getType() != null) {
-            artifactType.setType(existingArtifact.getType());
-        } else {
-            artifactType.setType(project.getArtifact().getType());
-        }
-        instance.setModuleId(artifactType);
-        addDependencies(instance);
-        targetDir.mkdirs();
-        File targetFile = new File(targetDir.toURI().resolve(pluginMetadataFileName));
-        targetFile.getParentFile().mkdirs();
-        FileOutputStream out = new FileOutputStream(targetFile);
+    public void execute() throws MojoExecutionException, MojoFailureException {
         try {
-            PluginXmlUtil.writePluginMetadata(metadata, out);
-        } finally {
-            out.close();
+            PluginType metadata = new PluginType();
+            metadata.setName(project.getName());
+            metadata.setAuthor(project.getOrganization() == null? "unknown": project.getOrganization().getName());
+            metadata.setUrl(project.getOrganization() == null? "unknown": project.getOrganization().getUrl());
+            metadata.setDescription(project.getDescription());
+            metadata.setCategory(category);
+
+            if (project.getLicenses() != null) {
+                for (Object licenseObj : project.getLicenses()) {
+                    License license = (License) licenseObj;
+                    LicenseType licenseType = new LicenseType();
+                    licenseType.setValue(license.getName());
+                    licenseType.setOsiApproved(osiApproved);
+                    metadata.getLicense().add(licenseType);
+                }
+            }
+
+            PluginArtifactType instance;
+            Plugin plugin = (Plugin) project.getModel().getBuild().getPluginsAsMap().get("org.apache.geronimo.buildsupport:car-maven-plugin");
+            if (plugin == null) {
+                throw new Error("Unable to resolve car plugin");
+            }
+
+            Xpp3Dom dom;
+            if (plugin.getExecutions().isEmpty()) {
+                dom = (Xpp3Dom) plugin.getConfiguration();
+            } else {
+                if (plugin.getExecutions().size() > 1) {
+                    throw new IllegalStateException("Cannot determine correct configuration for PluginMetadataGeneratorMojo: " + plugin.getExecutionsAsMap().keySet());
+                }
+                dom = (Xpp3Dom) ((PluginExecution) plugin.getExecutions().get(0)).getConfiguration();
+            }
+            Xpp3Dom instanceDom = dom.getChild("instance");
+
+            if (instanceDom == null || instanceDom.getChild("plugin-artifact") == null) {
+                instance = new PluginArtifactType();
+            } else {
+                String instanceString = instanceDom.getChild("plugin-artifact").toString();
+                instance = PluginXmlUtil.loadPluginArtifactMetadata(new StringReader(instanceString.replace("#{", "${")));
+            }
+            if (this.commonInstance != null && this.commonInstance.getChild("plugin-artifact") != null) {
+                PluginArtifactType commonInstance = PluginXmlUtil.loadPluginArtifactMetadata(new StringReader(this.commonInstance.getChild("plugin-artifact").toString().replace("#{", "${")));
+                //merge
+                if (instance.getArtifactAlias().isEmpty()) {
+                    instance.getArtifactAlias().addAll(commonInstance.getArtifactAlias());
+                }
+                if (instance.getConfigSubstitution().isEmpty()) {
+                    instance.getConfigSubstitution().addAll(commonInstance.getConfigSubstitution());
+                }
+                //it doesn't make sense to copy a "generic" config.xml content into a specific module.
+    //            if ((instance.getConfigXmlContent() == null || instance.getConfigXmlContent().getGbean().isEmpty())
+    //                    && (commonInstance.getConfigXmlContent() != null && !commonInstance.getConfigXmlContent().getGbean().isEmpty())) {
+    //                instance.setConfigXmlContent(new ConfigXmlContentType());
+    //                instance.getConfigXmlContent().getGbean().addAll(commonInstance.getConfigXmlContent().getGbean());
+    //            }
+                if (instance.getCopyFile().isEmpty()) {
+                    instance.getCopyFile().addAll(commonInstance.getCopyFile());
+                }
+                if (instance.getDependency().isEmpty()) {
+                    instance.getDependency().addAll(commonInstance.getDependency());
+                }
+                if (instance.getGeronimoVersion().isEmpty()) {
+                    instance.getGeronimoVersion().addAll(commonInstance.getGeronimoVersion());
+                }
+                if (instance.getJvmVersion().isEmpty()) {
+                    instance.getJvmVersion().addAll(commonInstance.getJvmVersion());
+                }
+                if (instance.getObsoletes().isEmpty()) {
+                    instance.getObsoletes().addAll(commonInstance.getObsoletes());
+                }
+                if (instance.getPrerequisite().isEmpty()) {
+                    instance.getPrerequisite().addAll(commonInstance.getPrerequisite());
+                }
+                if (instance.getSourceRepository().isEmpty()) {
+                    instance.getSourceRepository().addAll(commonInstance.getSourceRepository());
+                }
+            }
+            metadata.getPluginArtifact().add(instance);
+
+            ArtifactType artifactType = new ArtifactType();
+            artifactType.setGroupId(project.getGroupId());
+            artifactType.setArtifactId(project.getArtifactId());
+            artifactType.setVersion(project.getVersion());
+            ArtifactType existingArtifact = instance.getModuleId();
+            if (existingArtifact != null && existingArtifact.getType() != null) {
+                artifactType.setType(existingArtifact.getType());
+            } else {
+                artifactType.setType(project.getArtifact().getType());
+            }
+            instance.setModuleId(artifactType);
+            addDependencies(instance);
+            targetDir.mkdirs();
+            File targetFile = new File(targetDir.toURI().resolve(pluginMetadataFileName));
+            targetFile.getParentFile().mkdirs();
+            FileOutputStream out = new FileOutputStream(targetFile);
+            try {
+                PluginXmlUtil.writePluginMetadata(metadata, out);
+            } finally {
+                out.close();
+            }
+            Resource resource = new Resource();
+            resource.setDirectory(targetDir.getPath());
+            resource.addInclude(pluginMetadataFileName);
+            getProject().getResources().add(resource);
+        } catch (Exception e) {
+            throw new MojoExecutionException("Could not create plugin metadata", e);
         }
-        Resource resource = new Resource();
-        resource.setDirectory(targetDir.getPath());
-        resource.addInclude(pluginMetadataFileName);
-        getProject().getResources().add(resource);
     }
 
-    private void addDependencies(PluginArtifactType instance) throws InvalidConfigException, IOException, NoSuchConfigException {
+    private void addDependencies(PluginArtifactType instance) throws InvalidConfigException, IOException, NoSuchConfigException, InvalidDependencyVersionException, ArtifactResolutionException, ProjectBuildingException, MojoExecutionException {
         if (useMavenDependencies == null || !useMavenDependencies.isValue()) {
             for (Dependency dependency : dependencies) {
                 instance.getDependency().add(dependency.toDependencyType());
             }
         } else {
-            if (targetRepository.exists() && targetRepository.isDirectory()) {
-                Maven2Repository targetRepo = new Maven2Repository(targetRepository);
-                ConfigurationStore configStore = new RepositoryConfigurationStore(targetRepo);
-                Artifact pluginArtifact = PluginInstallerGBean.toArtifact(instance.getModuleId());
-                ConfigurationData data = configStore.loadConfiguration(pluginArtifact);
-                PluginInstallerGBean.addGeronimoDependencies(data, instance.getDependency(), useMavenDependencies.isIncludeVersion());
-            } else {
-                List<org.apache.maven.model.Dependency> includedDependencies = project.getOriginalModel().getDependencies();
-                List<org.apache.maven.model.Dependency> artifacts = project.getDependencies();
-                for (org.apache.maven.model.Dependency dependency : includedDependencies) {
-                    dependency = resolveDependency(dependency, artifacts);
-                    if (includeDependency(dependency)) {
-                        DependencyType gdep = toGeronimoDependency(dependency, useMavenDependencies.isIncludeVersion());
-                        instance.getDependency().add(gdep);
-                    }
-                }
+            getDependencies(project, useMavenDependencies.isUseTransitiveDependencies());
+            for (org.apache.maven.artifact.Artifact artifact: localDependencies) {
+                instance.getDependency().add(toDependencyType(toGeronimoDependency(artifact, useMavenDependencies.isIncludeVersion())));
             }
-
         }
     }
 
-    private static DependencyType toGeronimoDependency(final org.apache.maven.model.Dependency dependency, boolean includeVersion) {
+    private DependencyType toDependencyType(org.apache.geronimo.kernel.repository.Dependency dependency) {
         DependencyType dependencyType = new DependencyType();
-        dependencyType.setGroupId(dependency.getGroupId());
-        dependencyType.setArtifactId(dependency.getArtifactId());
-        if (includeVersion) {
-            dependencyType.setVersion(dependency.getVersion());
+        dependencyType.setGroupId(dependency.getArtifact().getGroupId());
+        dependencyType.setArtifactId(dependency.getArtifact().getArtifactId());
+        if (dependency.getArtifact().getVersion() != null) {
+            dependencyType.setVersion(dependency.getArtifact().getVersion().toString());
         }
-        dependencyType.setType(dependency.getType());
+        dependencyType.setType(dependency.getArtifact().getType());
         dependencyType.setStart(true);
         return dependencyType;
     }

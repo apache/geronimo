@@ -39,10 +39,19 @@
     
     <dependencies>
         <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>derby</artifactId>
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>geronimo-gbean-deployer</artifactId>
             <version>${version}</version>
             <type>car</type>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>j2ee-deployer</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
@@ -50,7 +59,14 @@
             <artifactId>connector-deployer</artifactId>
             <version>${version}</version>
             <type>car</type>
-            <scope>test</scope>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>derby</artifactId>
+            <version>${version}</version>
+            <type>car</type>
         </dependency>
 
         <dependency>
@@ -78,13 +94,6 @@
             <type>rar</type>
         </dependency>
         
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>connector-deployer</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-            <scope>provided</scope>
-        </dependency>
     </dependencies>
     
     <build>

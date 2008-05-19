@@ -52,6 +52,12 @@
             <artifactId>geronimo-crypto</artifactId>
             <version>${version}</version>
         </dependency>
+        
+        <dependency>
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>geronimo-transformer</artifactId>
+            <version>${version}</version>
+        </dependency>
 
         <!-- Used by TemporaryClassLoader in kernel -->
         <dependency>
@@ -99,7 +105,11 @@
             <groupId>woodstox</groupId>
             <artifactId>wstx-asl</artifactId>
         </dependency>
-        
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-activation_1.1_spec</artifactId>

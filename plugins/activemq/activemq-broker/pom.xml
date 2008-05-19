@@ -36,6 +36,14 @@
     <description>Apache ActiveMQ integration into geronimo.  This module starts an activemq broker embedded in geronimo.</description>
     
     <dependencies>
+        <dependency>
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>geronimo-gbean-deployer</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+            <scope>provided</scope>
+        </dependency>
+
         <!-- parent config -->
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>

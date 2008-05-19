@@ -19,8 +19,6 @@
 
 package org.apache.geronimo.mavenplugins.car;
 
-import org.codehaus.mojo.pluginsupport.util.ArtifactItem;
-
 /**
  * Represents a Maven-artifact with additional classpath prefix details to build a
  * jar's Manifest Class-Path.
@@ -28,21 +26,128 @@ import org.codehaus.mojo.pluginsupport.util.ArtifactItem;
  * @version $Rev:385659 $ $Date$
  */
 public class ClasspathElement
-    extends ArtifactItem
 {
+    /**
+     * Group Id of artifact.
+     *
+     * @parameter
+     * @required
+     */
+    private String groupId;
+
+    /**
+     * Name of artifact.
+     *
+     * @parameter
+     * @required
+     */
+    private String artifactId;
+
+    /**
+     * Version of artifact.
+     *
+     * @parameter
+     */
+    private String version = null;
+
+    /**
+     * Type of artifact.
+     *
+     * @parameter
+     * @required
+     */
+    private String type = "jar";
+
+    /**
+     * Classifier for artifact.
+     *
+     * @parameter
+     */
+    private String classifier;
+
     /**
      * Prefix to be prepended to the artifact, like <tt>../lib</tt>.
      *
      * @parameter
      */
     private String classpathPrefix;
-    
+
     /**
      * Entry name used in replacement for ArtifactItem that is not resolved
      *
      * @parameter
      */
     private String entry;
+
+    /**
+     * @return Returns the artifactId.
+     */
+    public String getArtifactId() {
+        return artifactId;
+    }
+
+    /**
+     * @param artifactId The artifactId to set.
+     */
+    public void setArtifactId(final String artifactId) {
+        this.artifactId = artifactId;
+    }
+
+    /**
+     * @return Returns the groupId.
+     */
+    public String getGroupId() {
+        return groupId;
+    }
+
+    /**
+     * @param groupId The groupId to set.
+     */
+    public void setGroupId(final String groupId) {
+        this.groupId = groupId;
+    }
+
+    /**
+     * @return Returns the type.
+     */
+    public String getType() {
+        return type;
+    }
+
+    /**
+     * @param type The type to set.
+     */
+    public void setType(final String type) {
+        this.type = type;
+    }
+
+    /**
+     * @return Returns the version.
+     */
+    public String getVersion() {
+        return version;
+    }
+
+    /**
+     * @param version The version to set.
+     */
+    public void setVersion(final String version) {
+        this.version = version;
+    }
+
+    /**
+     * @return Classifier.
+     */
+    public String getClassifier() {
+        return classifier;
+    }
+
+    /**
+     * @param classifier Classifier.
+     */
+    public void setClassifier(final String classifier) {
+        this.classifier = classifier;
+    }
 
     /**
      * @return Returns the classpath prefix.
@@ -65,4 +170,10 @@ public class ClasspathElement
     public void setEntry(final String entry) {
         this.entry = entry;
     }
+
+    public String toString() {
+        return classpathPrefix + "::" + groupId + ":" + artifactId + ":" + classifier + ":" + version + ":" + type + "::" + entry;
+    }
+
+
 }

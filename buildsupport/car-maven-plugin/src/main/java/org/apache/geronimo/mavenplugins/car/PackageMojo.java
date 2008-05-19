@@ -50,7 +50,8 @@ import org.apache.geronimo.system.configuration.RepositoryConfigurationStore;
 import org.apache.geronimo.system.repository.Maven2Repository;
 import org.apache.geronimo.system.resolver.ExplicitDefaultArtifactResolver;
 import org.apache.maven.artifact.Artifact;
-import org.codehaus.mojo.pluginsupport.util.ArtifactItem;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
 import org.codehaus.plexus.util.FileUtils;
 
 /**
@@ -61,9 +62,7 @@ import org.codehaus.plexus.util.FileUtils;
  *
  * @version $Rev$ $Date$
  */
-public class PackageMojo
-    extends AbstractCarMojo
-{
+public class PackageMojo extends AbstractCarMojo {
 
 
     /**
@@ -131,15 +130,15 @@ public class PackageMojo
     private File moduleFile = null;
 
     /**
-     * An {@link ArtifactItem} to include as a module of the CAR.
+     * An {@link Dependency} to include as a module of the CAR.
      *
      * @parameter
      */
-    private ArtifactItem module = null;
+    private Dependency module = null;
 
     /**
      * The location where the properties mapping will be generated.
-     *
+     * <p/>
      * <p>
      * Probably don't want to change this.
      * </p>
@@ -165,66 +164,46 @@ public class PackageMojo
     // Mojo
     //
 
-    protected void doExecute() throws Exception {
-        // We need to make sure to clean up any previous work first or this operation will fail
-        FileUtils.forceDelete(targetRepository);
-        FileUtils.forceMkdir(targetRepository);
+    public void execute() throws MojoExecutionException, MojoFailureException {
+        try {
+// We need to make sure to clean up any previous work first or this operation will fail
+            FileUtils.forceDelete(targetRepository);
+            FileUtils.forceMkdir(targetRepository);
 
-        // Use the default configs if none specified
-        if (deploymentConfigs == null) {
-            if (!bootstrap) {
-                deploymentConfigs = new String[] {defaultDeploymentConfig};
-            } else {
-                deploymentConfigs = new String[] {};
+            // Use the default configs if none specified
+            if (deploymentConfigs == null) {
+                if (!bootstrap) {
+                    deploymentConfigs = new String[]{defaultDeploymentConfig};
+                } else {
+                    deploymentConfigs = new String[]{};
+                }
             }
-        }
-        log.debug("Deployment configs: " + Arrays.asList(deploymentConfigs));
+            getLog().debug("Deployment configs: " + Arrays.asList(deploymentConfigs));
 
-        //
-        // NOTE: Resolve deployment modules, this is needed to ensure that the proper artifacts are in the
-        //       local repository to perform deployment.  If the deployer modules (or their dependencies)
-        //       are missing from the source respository, then strange packaging failures will occur.
-        //
-        Set<Artifact> additionalArtifacts = new HashSet<Artifact>();
-        for (String deploymentConfig : deploymentConfigs) {
-            Artifact artifact = geronimoToMavenArtifact(org.apache.geronimo.kernel.repository.Artifact.create(deploymentConfig));
-            log.debug("Resolving deployer module: " + artifact);
-            Artifact resolved = resolveArtifact(artifact, true);
-            additionalArtifacts.add(resolved);
-        }
-        //Ensure that these dependencies are available to geronimo
-        if (project.getDependencyArtifacts() == null) {
-            Set<Artifact> oldArtifacts = project.createArtifacts(dependencyHelper.getArtifactFactory(), null, null);
-            additionalArtifacts.addAll(oldArtifacts);
-        } else {
-            Set<Artifact> oldArtifacts = project.getDependencyArtifacts();
-            additionalArtifacts.addAll(oldArtifacts);
-        }
-        project.setDependencyArtifacts(additionalArtifacts);
+            getDependencies(project, false);
+            // If module is set, then resolve the artifact and set moduleFile
+            if (module != null) {
+                Artifact artifact = resolveArtifact(module.getGroupId(), module.getArtifactId(), module.getType());
+                moduleFile = artifact.getFile();
+                getLog().debug("Using module file: " + moduleFile);
+            }
 
 
-        // If module is set, then resolve the artifact and set moduleFile
-        if (module != null) {
-            Artifact artifact = getArtifact(module);
-            moduleFile = artifact.getFile();
-            log.debug("Using module file: " + moduleFile);
-        }
+            generateExplicitVersionProperties(explicitResolutionProperties, dependencies);
 
-        getDependencies(project);
+            //
+            // NOTE: Install a local lookup, so that the cached kernel can resolve based on the current project
+            //       and not the project where the kernel was first initialized.
+            //
+            lookupHolder.set(new ArtifactLookupImpl(new HashMap()));
 
-        generateExplicitVersionProperties(explicitResolutionProperties, dependencies);
-
-        //
-        // NOTE: Install a local lookup, so that the cached kernel can resolve based on the current project
-        //       and not the project where the kernel was first initialized.
-        //
-        lookupHolder.set(new ArtifactLookupImpl(new HashMap()));
-
-        if (bootstrap) {
-            executeBootShell();
-        }
-        else {
-            buildPackage();
+            if (bootstrap) {
+                executeBootShell();
+            } else {
+                buildPackage();
+            }
+        } catch (Exception e) {
+            throw new MojoExecutionException("could not package plugin", e);
         }
     }
 
@@ -242,7 +221,7 @@ public class PackageMojo
     }
 
     public void executeBootShell() throws Exception {
-        log.debug("Starting bootstrap shell...");
+        getLog().debug("Starting bootstrap shell...");
 
         PluginBootstrap2 boot = new PluginBootstrap2();
 
@@ -256,7 +235,6 @@ public class PackageMojo
 
         boot.bootstrap();
     }
-
 
     //
     // Deployment
@@ -277,7 +255,7 @@ public class PackageMojo
     private boolean targetSet;
 
     public void buildPackage() throws Exception {
-        log.info("Packaging module configuration: " + planFile);
+        getLog().info("Packaging module configuration: " + planFile);
 
         Kernel kernel = createKernel();
         if (!targetSet) {
@@ -292,7 +270,7 @@ public class PackageMojo
             targetSet = true;
         }
 
-        log.debug("Starting configurations..." + Arrays.asList(deploymentConfigs));
+        getLog().debug("Starting configurations..." + Arrays.asList(deploymentConfigs));
 
         // start the Configuration we're going to use for this deployment
         ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
@@ -304,14 +282,14 @@ public class PackageMojo
                     try {
                         configurationManager.loadConfiguration(configName, monitor);
                     } catch (LifecycleException e) {
-                        log.error("Could not load deployer configuration: " + configName + "\n" + monitor.toString(), e);
+                        getLog().error("Could not load deployer configuration: " + configName + "\n" + monitor.toString(), e);
                     }
                     monitor = new RecordingLifecycleMonitor();
                     try {
                         configurationManager.startConfiguration(configName, monitor);
-                        log.info("Started deployer: " + configName);
+                        getLog().info("Started deployer: " + configName);
                     } catch (LifecycleException e) {
-                        log.error("Could not start deployer configuration: " + configName + "\n" + monitor.toString(), e);
+                        getLog().error("Could not start deployer configuration: " + configName + "\n" + monitor.toString(), e);
                     }
                 }
             }
@@ -319,7 +297,7 @@ public class PackageMojo
             ConfigurationUtil.releaseConfigurationManager(kernel, configurationManager);
         }
 
-        log.debug("Deploying...");
+        getLog().debug("Deploying...");
 
         AbstractName deployer = locateDeployer(kernel);
         invokeDeployer(kernel, deployer, targetConfigStoreAName.toString());
@@ -337,7 +315,7 @@ public class PackageMojo
             return kernel;
         }
 
-        log.debug("Creating kernel...");
+        getLog().debug("Creating kernel...");
 
         // check the registry in case someone else created one
         kernel = KernelRegistry.getKernel(KERNEL_NAME);
@@ -356,14 +334,14 @@ public class PackageMojo
 
     /**
      * Boot the in-Maven deployment system.
-     *
+     * <p/>
      * <p>
      * This contains Repository and ConfigurationStore GBeans that map to
      * the local maven installation.
      * </p>
      */
     private void bootDeployerSystem() throws Exception {
-        log.debug("Booting deployer system...");
+        getLog().debug("Booting deployer system...");
 
         org.apache.geronimo.kernel.repository.Artifact baseId =
                 new org.apache.geronimo.kernel.repository.Artifact("geronimo", "packaging", "fixed", "car");
@@ -381,7 +359,7 @@ public class PackageMojo
             private Maven2RepositoryAdapter.ArtifactLookup getDelegate() {
                 return lookupHolder.get();
             }
-            
+
             public File getBasedir() {
                 return getDelegate().getBasedir();
             }
@@ -445,7 +423,6 @@ public class PackageMojo
      *
      * @param kernel the kernel to search.
      * @return the ObjectName of the Deployer GBean
-     *
      * @throws IllegalStateException if there is not exactly one GBean matching the deployerName pattern
      */
     private AbstractName locateDeployer(final Kernel kernel) {
@@ -456,7 +433,7 @@ public class PackageMojo
             throw new IllegalStateException("No deployer found matching deployerName: " + name);
         }
 
-        AbstractName deployer = (AbstractName)i.next();
+        AbstractName deployer = (AbstractName) i.next();
         if (i.hasNext()) {
             throw new IllegalStateException("Multiple deployers found matching deployerName: " + name);
         }
@@ -465,36 +442,36 @@ public class PackageMojo
     }
 
     private static final String[] DEPLOY_SIGNATURE = {
-        boolean.class.getName(),
-        File.class.getName(),
-        File.class.getName(),
-        File.class.getName(),
-        Boolean.TYPE.getName(),
-        String.class.getName(),
-        String.class.getName(),
-        String.class.getName(),
-        String.class.getName(),
-        String.class.getName(),
-        String.class.getName(),
-        String.class.getName(),
-        String.class.getName(),
+            boolean.class.getName(),
+            File.class.getName(),
+            File.class.getName(),
+            File.class.getName(),
+            Boolean.TYPE.getName(),
+            String.class.getName(),
+            String.class.getName(),
+            String.class.getName(),
+            String.class.getName(),
+            String.class.getName(),
+            String.class.getName(),
+            String.class.getName(),
+            String.class.getName(),
     };
 
     private List invokeDeployer(final Kernel kernel, final AbstractName deployer, final String targetConfigStore) throws Exception {
         Object[] args = {
-            Boolean.FALSE, // Not in-place
-            moduleFile,
-            planFile,
-            null, // Target file
-            Boolean.TRUE, // Install
-            null, // main-class
-            null, // main-gbean
-            null, // main-method
-            null, // Manifest configurations
-            null, // class-path
-            null, // endorsed-dirs
-            null, // extension-dirs
-            targetConfigStore
+                Boolean.FALSE, // Not in-place
+                moduleFile,
+                planFile,
+                null, // Target file
+                Boolean.TRUE, // Install
+                null, // main-class
+                null, // main-gbean
+                null, // main-method
+                null, // Manifest configurations
+                null, // class-path
+                null, // endorsed-dirs
+                null, // extension-dirs
+                targetConfigStore
         };
 
         return (List) kernel.invoke(deployer, "deploy", args, DEPLOY_SIGNATURE);

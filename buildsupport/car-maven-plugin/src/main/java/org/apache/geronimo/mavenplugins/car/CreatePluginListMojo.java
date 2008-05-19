@@ -27,21 +27,28 @@ import java.io.Writer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.SortedSet;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
+import java.lang.*;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.stream.XMLStreamException;
 
 import org.apache.geronimo.kernel.config.NoSuchStoreException;
+import org.apache.geronimo.kernel.repository.*;
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.repository.ListableRepository;
-import org.apache.geronimo.kernel.repository.Maven2Repository;
 import org.apache.geronimo.system.plugin.PluginInstallerGBean;
 import org.apache.geronimo.system.plugin.PluginXmlUtil;
 import org.apache.geronimo.system.plugin.model.PluginListType;
 import org.apache.geronimo.system.plugin.model.PluginType;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.project.artifact.InvalidDependencyVersionException;
+import org.apache.maven.project.ProjectBuildingException;
+import org.apache.maven.artifact.resolver.ArtifactResolutionException;
 import org.xml.sax.SAXException;
 
 /**
@@ -55,18 +62,22 @@ import org.xml.sax.SAXException;
  */
 public class CreatePluginListMojo extends AbstractCarMojo {
 
-    protected void doExecute() throws Exception {
+    public void execute() throws MojoExecutionException, MojoFailureException {
         String path = getArtifactRepository().getBasedir();
         File baseDir = new File(path);
 
         ListableRepository repository = new Maven2Repository(baseDir);
-        PluginListType pluginList = createPluginListForRepositories(repository,  path);
-        File outFile = new File(baseDir, "geronimo-plugins.xml");
-        Writer out = new FileWriter(outFile, false);
         try {
-            PluginXmlUtil.writePluginList(pluginList, out);
-        } finally {
-            out.close();
+            PluginListType pluginList = createPluginListForRepositories(repository,  path);
+            File outFile = new File(baseDir, "geronimo-plugins.xml");
+            Writer out = new FileWriter(outFile, false);
+            try {
+                PluginXmlUtil.writePluginList(pluginList, out);
+            } finally {
+                out.close();
+            }
+        } catch (Exception e) {
+            throw new MojoExecutionException("Could not create plugin list", e);
         }
     }
 
@@ -95,7 +106,7 @@ public class CreatePluginListMojo extends AbstractCarMojo {
     private PluginType getPluginMetadata(ListableRepository repository, Artifact configId) {
         File dir = repository.getLocation(configId);
         if (!dir.isFile() || !dir.canRead()) {
-            log.error("Cannot read artifact dir " + dir.getAbsolutePath());
+            getLog().error("Cannot read artifact dir " + dir.getAbsolutePath());
             throw new IllegalStateException("Cannot read artifact dir " + dir.getAbsolutePath());
         }
         if (dir.toString().endsWith(".pom")) {
@@ -124,13 +135,13 @@ public class CreatePluginListMojo extends AbstractCarMojo {
         } catch (ZipException e) {
             //not a zip file, ignore
         } catch (SAXException e) {
-            log.error("Unable to read JAR file " + dir.getAbsolutePath(), e);
+            getLog().error("Unable to read JAR file " + dir.getAbsolutePath(), e);
         } catch (XMLStreamException e) {
-            log.error("Unable to read JAR file " + dir.getAbsolutePath(), e);
+            getLog().error("Unable to read JAR file " + dir.getAbsolutePath(), e);
         } catch (JAXBException e) {
-            log.error("Unable to read JAR file " + dir.getAbsolutePath(), e);
+            getLog().error("Unable to read JAR file " + dir.getAbsolutePath(), e);
         } catch (IOException e) {
-            log.error("Unable to read JAR file " + dir.getAbsolutePath(), e);
+            getLog().error("Unable to read JAR file " + dir.getAbsolutePath(), e);
         }
         return null;
     }

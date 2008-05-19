@@ -20,45 +20,18 @@
 package org.apache.geronimo.mavenplugins.car;
 
 import java.io.File;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 
-import org.apache.geronimo.deployment.PluginBootstrap2;
-import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.gbean.AbstractNameQuery;
-import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.ReferencePatterns;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.KernelFactory;
-import org.apache.geronimo.kernel.KernelRegistry;
-import org.apache.geronimo.kernel.Naming;
-import org.apache.geronimo.kernel.config.ConfigurationData;
-import org.apache.geronimo.kernel.config.ConfigurationManager;
-import org.apache.geronimo.kernel.config.ConfigurationUtil;
-import org.apache.geronimo.kernel.config.KernelConfigurationManager;
-import org.apache.geronimo.kernel.config.LifecycleException;
-import org.apache.geronimo.kernel.config.RecordingLifecycleMonitor;
-import org.apache.geronimo.kernel.management.State;
-import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
-import org.apache.geronimo.system.configuration.RepositoryConfigurationStore;
-import org.apache.geronimo.system.repository.Maven2Repository;
-import org.apache.geronimo.system.resolver.ExplicitDefaultArtifactResolver;
 import org.apache.maven.archiver.MavenArchiveConfiguration;
 import org.apache.maven.archiver.MavenArchiver;
 import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.factory.ArtifactFactory;
+import org.apache.maven.artifact.resolver.ArtifactResolutionException;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.project.MavenProject;
-import org.codehaus.mojo.pluginsupport.util.ArtifactItem;
+import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.project.artifact.InvalidDependencyVersionException;
+import org.apache.maven.project.ProjectBuildingException;
 import org.codehaus.plexus.archiver.jar.JarArchiver;
-import org.codehaus.plexus.util.FileUtils;
 
 /**
  * Jar up a packaged plugin
@@ -172,8 +145,8 @@ public class ArchiveCarMojo
     // Mojo
     //
 
-    protected void doExecute() throws Exception {
-
+    public void execute() throws MojoExecutionException, MojoFailureException {
+        getDependencies(project, false);
         // Build the archive
         File archive = createArchive();
 
@@ -257,8 +230,10 @@ public class ArchiveCarMojo
             if (entry != null) {
                 buff.append(entry);
             } else {
-                Artifact artifact = getArtifact(classpath[i]);
-
+                Artifact artifact = resolveArtifact(classpath[i].getGroupId(), classpath[i].getArtifactId(), classpath[i].getType());
+                if (artifact == null) {
+                    throw new MojoExecutionException("Could not resolve classpath item: " + classpath[i]);
+                }
                 //
                 // TODO: Need to optionally get all transitive dependencies... but dunno how to get that intel from m2
                 //
@@ -276,7 +251,8 @@ public class ArchiveCarMojo
                     }
                 }
 
-                File file = artifact.getFile();
+                String path = getArtifactRepository().pathOf(artifact);
+                File file = new File(path);
                 buff.append(file.getName());
             }
 
@@ -285,7 +261,7 @@ public class ArchiveCarMojo
             }
         }
 
-        log.debug("Using classpath: " + buff);
+        getLog().debug("Using classpath: " + buff);
 
         return buff.toString();
     }

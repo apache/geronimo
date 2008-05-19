@@ -33,10 +33,11 @@ import org.apache.geronimo.deployment.xbeans.ArtifactType;
 import org.apache.geronimo.deployment.xbeans.EnvironmentType;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
-import org.apache.geronimo.kernel.repository.ImportType;
+import org.apache.maven.artifact.resolver.ArtifactResolutionException;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.ProjectBuildingException;
 import org.apache.maven.project.artifact.InvalidDependencyVersionException;
-import org.apache.maven.artifact.resolver.ArtifactResolutionException;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.Velocity;
@@ -118,7 +119,7 @@ public class PlanProcessorMojo
             String key = (String) o;
             String value = props.getProperty(key);
 
-            log.debug("Setting " + key + "=" + value);
+            getLog().debug("Setting " + key + "=" + value);
             context.put(key, value);
         }
 
@@ -127,57 +128,63 @@ public class PlanProcessorMojo
         return context;
     }
 
-    protected void doExecute() throws Exception {
-        //
-        // FIXME: Do not need velocity here, we only need to filter,
-        //        could use resources plugin to do this for us, or
-        //        implement what resources plugin does here
-        //
-        //        Also velocity does not handle property expansion of expressions like
-        //        ${foo.bar} to the value of the "foo.bar" property :-(
-        //
-        //        Might be better of just hand rolling something...
-        //
-
-        VelocityContext context = createContext();
-
-        VelocityEngine velocity = new VelocityEngine();
-        velocity.setProperty(Velocity.FILE_RESOURCE_LOADER_PATH, sourceDir.getAbsolutePath());
-
-        // Don't spit out any logs
-        velocity.setProperty(Velocity.RUNTIME_LOG_LOGSYSTEM_CLASS, "org.apache.velocity.runtime.log.NullLogSystem");
-        velocity.init();
-
-        Template template = velocity.getTemplate(planFileName);
-        StringWriter writer = new StringWriter();
-        template.merge(context, writer);
-
-        String plan = writer.toString();
-
-        XmlObject doc = XmlObject.Factory.parse(plan);
-        XmlCursor xmlCursor = doc.newCursor();
-        LinkedHashSet<org.apache.geronimo.kernel.repository.Dependency> dependencies = toDependencies();
-        Artifact configId = new Artifact(project.getGroupId(), project.getArtifactId(), project.getVersion(), "car");
-
+    public void execute() throws MojoExecutionException, MojoFailureException {
         try {
-            mergeEnvironment(xmlCursor, configId, dependencies);
+//
+            // FIXME: Do not need velocity here, we only need to filter,
+            //        could use resources plugin to do this for us, or
+            //        implement what resources plugin does here
+            //
+            //        Also velocity does not handle property expansion of expressions like
+            //        ${foo.bar} to the value of the "foo.bar" property :-(
+            //
+            //        Might be better of just hand rolling something...
+            //
 
-            if (targetDir.exists()) {
-                if (!targetDir.isDirectory()) {
-                    throw new RuntimeException("TargetDir: " + this.targetDir + " exists and is not a directory");
+            VelocityContext context = createContext();
+
+            VelocityEngine velocity = new VelocityEngine();
+            velocity.setProperty(Velocity.FILE_RESOURCE_LOADER_PATH, sourceDir.getAbsolutePath());
+
+            // Don't spit out any logs
+            velocity.setProperty(Velocity.RUNTIME_LOG_LOGSYSTEM_CLASS, "org.apache.velocity.runtime.log.NullLogSystem");
+            velocity.init();
+
+            Template template = velocity.getTemplate(planFileName);
+            StringWriter writer = new StringWriter();
+            template.merge(context, writer);
+
+            String plan = writer.toString();
+
+            XmlObject doc = XmlObject.Factory.parse(plan);
+            XmlCursor xmlCursor = doc.newCursor();
+            LinkedHashSet<org.apache.geronimo.kernel.repository.Dependency> dependencies = toDependencies(this.dependencies, useMavenDependencies);
+            Artifact configId = new Artifact(project.getGroupId(), project.getArtifactId(), project.getVersion(), "car");
+
+            try {
+                mergeEnvironment(xmlCursor, configId, dependencies);
+
+                if (targetDir.exists()) {
+                    if (!targetDir.isDirectory()) {
+                        throw new RuntimeException("TargetDir: " + this.targetDir + " exists and is not a directory");
+                    }
+                } else {
+                    targetDir.mkdirs();
                 }
-            } else {
-                targetDir.mkdirs();
+
+                XmlOptions xmlOptions = new XmlOptions();
+                xmlOptions.setSavePrettyPrint();
+                doc.save(targetFile, xmlOptions);
+
+                if (getLog() != null) {
+                    getLog().info("Generated: " + targetFile);
+                }
             }
-
-            XmlOptions xmlOptions = new XmlOptions();
-            xmlOptions.setSavePrettyPrint();
-            doc.save(targetFile, xmlOptions);
-
-            log.info("Generated: " + targetFile);
-        }
-        finally {
-            xmlCursor.dispose();
+            finally {
+                xmlCursor.dispose();
+            }
+        } catch (Exception e) {
+            throw new MojoExecutionException("Could not process plan", e);
         }
     }
 
@@ -258,64 +265,22 @@ public class PlanProcessorMojo
         }
     }
 
-    private LinkedHashSet<org.apache.geronimo.kernel.repository.Dependency> toDependencies() throws InvalidDependencyVersionException, ArtifactResolutionException, ProjectBuildingException {
+    protected LinkedHashSet<org.apache.geronimo.kernel.repository.Dependency> toDependencies(List<Dependency> listedDependencies, UseMavenDependencies useMavenDependencies) throws InvalidDependencyVersionException, ArtifactResolutionException, ProjectBuildingException, MojoExecutionException {
         LinkedHashSet<org.apache.geronimo.kernel.repository.Dependency> dependencies = new LinkedHashSet<org.apache.geronimo.kernel.repository.Dependency>();
 
         if (useMavenDependencies == null || !useMavenDependencies.isValue()) {
-            for (Dependency dependency : this.dependencies) {
+            for (Dependency dependency : listedDependencies) {
                 org.apache.geronimo.kernel.repository.Dependency gdep = dependency.toDependency();
                 dependencies.add(gdep);
             }
         } else {
-            LinkedHashSet<org.apache.geronimo.kernel.repository.Dependency> carDependencies = new LinkedHashSet<org.apache.geronimo.kernel.repository.Dependency>();
-            getDependencies(project);
-            processProject(dependencies, carDependencies, projectNode, useMavenDependencies.isUseTransitiveDependencies());
-            dependencies.removeAll(carDependencies);
+            getDependencies(project, useMavenDependencies.isUseTransitiveDependencies());
+            for (org.apache.maven.artifact.Artifact artifact: localDependencies) {
+                dependencies.add(toGeronimoDependency(artifact, useMavenDependencies.isIncludeVersion()));
+            }
         }
 
         return dependencies;
-    }
-
-    private void processProject(LinkedHashSet<org.apache.geronimo.kernel.repository.Dependency> dependencies, LinkedHashSet<org.apache.geronimo.kernel.repository.Dependency> carDependencies, ProjectNode node, boolean useTransitiveDependencies) {
-        List<ProjectNode> includedNodes = node.getChildNodes();
-        for (ProjectNode childNode : includedNodes) {
-            org.apache.maven.artifact.Artifact artifact = childNode.getArtifact();
-            if (includeDependency(artifact)) {
-                org.apache.geronimo.kernel.repository.Dependency gdep = toGeronimoDependency(dependencyMap.get(artifact), useMavenDependencies.isIncludeVersion());
-                dependencies.add(gdep);
-                if (useTransitiveDependencies) {
-
-                    if (artifact.getType().equalsIgnoreCase("car")) {
-                        processProject(carDependencies, carDependencies, childNode, useTransitiveDependencies);
-                    } else {
-                        processProject(dependencies, carDependencies, childNode, useTransitiveDependencies);
-                    }
-                }
-            }
-        }
-    }
-
-    private boolean includeDependency(org.apache.maven.artifact.Artifact dependency) {
-        if (dependency.getGroupId().startsWith("org.apache.geronimo.genesis")) {
-            return false;
-        }
-        String scope = dependency.getScope();
-        return scope == null || "runtime".equalsIgnoreCase(scope) || "compile".equalsIgnoreCase(scope);
-    }
-
-
-    private static org.apache.geronimo.kernel.repository.Dependency toGeronimoDependency(final org.apache.maven.artifact.Artifact dependency, boolean includeVersion) {
-        Artifact artifact = toGeronimoArtifact(dependency, includeVersion);
-        return new org.apache.geronimo.kernel.repository.Dependency(artifact, ImportType.ALL);
-    }
-
-    private static Artifact toGeronimoArtifact(final org.apache.maven.artifact.Artifact dependency, boolean includeVersion) {
-        String groupId = dependency.getGroupId();
-        String artifactId = dependency.getArtifactId();
-        String version = includeVersion ? dependency.getVersion() : null;
-        String type = dependency.getType();
-
-        return new Artifact(groupId, artifactId, version, type);
     }
 
 

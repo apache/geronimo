@@ -25,7 +25,6 @@ import java.io.InputStream;
 
 import org.apache.geronimo.testsupport.TestSupport;
 import org.apache.maven.model.Model;
-import org.apache.maven.plugin.logging.SystemStreamLog;
 import org.apache.maven.project.MavenProject;
 
 /**
@@ -36,7 +35,7 @@ public class PlanProcessorMojoTest extends TestSupport {
     private PlanProcessorMojo processorMojo;
 
     protected void setUp() throws Exception {
-        processorMojo = new PlanProcessorMojoTester();
+        processorMojo = new PlanProcessorMojo();
         Model model = new Model();
         MavenProject mavenProject = new MavenProject(model);
         mavenProject.setGroupId("dummy-group");
@@ -52,7 +51,7 @@ public class PlanProcessorMojoTest extends TestSupport {
         processorMojo.planFileName = planName;
         processorMojo.targetFile = new File(processorMojo.targetDir, "actual-" + planName);
         
-        processorMojo.doExecute();
+        processorMojo.execute();
         
         assertResultingPlan(planName);
     }
@@ -62,7 +61,7 @@ public class PlanProcessorMojoTest extends TestSupport {
         processorMojo.planFileName = planName;
         processorMojo.targetFile = new File(processorMojo.targetDir, "actual-" + planName);
         
-        processorMojo.doExecute();
+        processorMojo.execute();
         
         assertResultingPlan(planName);
     }
@@ -81,9 +80,4 @@ public class PlanProcessorMojoTest extends TestSupport {
         }
     }
     
-    private class PlanProcessorMojoTester extends PlanProcessorMojo {
-        public PlanProcessorMojoTester() {
-            log = new SystemStreamLog();
-        }
-    }
 }

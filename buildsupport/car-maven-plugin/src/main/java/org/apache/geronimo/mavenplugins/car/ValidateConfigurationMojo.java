@@ -20,8 +20,11 @@
 
 package org.apache.geronimo.mavenplugins.car;
 
-import java.util.List;
 import java.util.Collections;
+import java.util.List;
+
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
 
 /**
  * Check that all dependencies mentioned explicitly in the car-maven-plugin configuration are present as maven dependencies.
@@ -39,7 +42,7 @@ public class ValidateConfigurationMojo extends AbstractCarMojo {
      */
     private List<Dependency> dependencies = Collections.emptyList();
 
-    public void doExecute() {
+    public void execute() throws MojoExecutionException, MojoFailureException {
         for (Dependency dependency: dependencies) {
             checkForMatch(dependency);
         }

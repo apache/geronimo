@@ -26,19 +26,19 @@
         </session>
     </enterprise-beans>
 
-    <security xmlns="http://geronimo.apache.org/xml/ns/security-2.0">
-        <role-mappings>
-            <role role-name="mejbuser">
-                <principal name="admin"
+    <s:security xmlns:s="http://geronimo.apache.org/xml/ns/security-2.0">
+        <s:role-mappings>
+            <s:role role-name="mejbuser">
+                <s:principal name="admin"
                     class="org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal"/>
-                <principal name="mejb-admin"
+                <s:principal name="mejb-admin"
                     class="org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal"/>
-            </role>
+            </s:role>
 
-            <role role-name="mejbadmin">
-                <principal name="mejb-admin"
+            <s:role role-name="mejbadmin">
+                <s:principal name="mejb-admin"
                     class="org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal"/>
-            </role>
-        </role-mappings>
-    </security>
+            </s:role>
+        </s:role-mappings>
+    </s:security>
 </openejb-jar>

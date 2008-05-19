@@ -27,25 +27,17 @@ import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.system.plugin.ArchiverGBean;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
-import org.codehaus.mojo.pluginsupport.MojoSupport;
 import org.codehaus.plexus.archiver.ArchiverException;
 
 /**
  * @version $Rev$ $Date$
  * @goal archive
  */
-public class ArchiveMojo extends MojoSupport {
-
-    /**
-     * The maven project.
-     *
-     * @parameter expression="${project}"
-     * @required
-     * @readonly
-     */
-    private MavenProject project;
+public class ArchiveMojo extends AbstractCarMojo {
 
     /**
      * The target directory of the project.
@@ -88,22 +80,25 @@ public class ArchiveMojo extends MojoSupport {
      */
     private File targetFile;
 
-    protected void doExecute() throws Exception {
+    public void execute() throws MojoExecutionException, MojoFailureException {
         // this installs the pom using the default artifact handler configured in components.xml
-        log.debug("Setting artifact file: " + targetFile);
+        getLog().debug("Setting artifact file: " + targetFile);
         org.apache.maven.artifact.Artifact artifact = project.getArtifact();
         artifact.setFile(targetFile);
-        
-        // now pack up the server.
-        ServerInfo serverInfo = new BasicServerInfo(targetServerDirectory.getAbsolutePath(), false);
-        ArchiverGBean archiver = new ArchiverGBean(serverInfo);
-        if (excludes != null) {
-            for (String exclude : excludes) {
-                archiver.addExclude(exclude);
+        try {
+            //now pack up the server.
+            ServerInfo serverInfo = new BasicServerInfo(targetServerDirectory.getAbsolutePath(), false);
+            ArchiverGBean archiver = new ArchiverGBean(serverInfo);
+            if (excludes != null) {
+                for (String exclude : excludes) {
+                    archiver.addExclude(exclude);
+                }
             }
+            archive("tar.gz", archiver);
+            archive("zip", archiver);
+        } catch (Exception e) {
+            throw new MojoExecutionException("Could not archive plugin", e);
         }
-        archive("tar.gz", archiver);
-        archive("zip", archiver);
     }
 
     private void archive(String type, ArchiverGBean archiver) throws ArchiverException, IOException {

@@ -39,6 +39,14 @@
     <dependencies>
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>geronimo-gbean-deployer-bootstrap</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>gshell-framework</artifactId>
             <version>${version}</version>
             <type>car</type>

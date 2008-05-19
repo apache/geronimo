@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.LinkedHashSet;
 
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.basic.BasicKernel;
@@ -33,12 +34,17 @@ import org.apache.geronimo.system.plugin.DownloadResults;
 import org.apache.geronimo.system.plugin.PluginInstallerGBean;
 import org.apache.geronimo.system.plugin.SourceRepository;
 import org.apache.geronimo.system.plugin.model.ArtifactType;
+import org.apache.geronimo.system.plugin.model.AttributesType;
 import org.apache.geronimo.system.plugin.model.PluginArtifactType;
 import org.apache.geronimo.system.plugin.model.PluginListType;
 import org.apache.geronimo.system.plugin.model.PluginType;
-import org.apache.geronimo.system.plugin.model.AttributesType;
 import org.apache.geronimo.system.resolver.AliasedArtifactResolver;
 import org.apache.maven.artifact.repository.ArtifactRepository;
+import org.apache.maven.artifact.resolver.ArtifactResolutionException;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.project.artifact.InvalidDependencyVersionException;
+import org.apache.maven.project.ProjectBuildingException;
 
 /**
  * Installs Geronimo module CAR files into a target repository to support assembly.
@@ -46,9 +52,7 @@ import org.apache.maven.artifact.repository.ArtifactRepository;
  * @version $Rev$ $Date$
  * @goal install-modules
  */
-public class InstallModulesMojo
-    extends AbstractCarMojo
-{
+public class InstallModulesMojo extends AbstractCarMojo {
     /**
      * The location of the server repository.
      *
@@ -133,8 +137,8 @@ public class InstallModulesMojo
      */
     private Set installedArtifacts = new HashSet();
 
-    protected void doExecute() throws Exception {
-        getDependencies(project);
+    public void execute() throws MojoExecutionException, MojoFailureException {
+        getDependencies(project, false);
         Maven2RepositoryAdapter.ArtifactLookup lookup = new ArtifactLookupImpl(new HashMap<Artifact, org.apache.maven.artifact.Artifact>());
         SourceRepository sourceRepo = new Maven2RepositoryAdapter(dependencies, lookup);
         PluginListType pluginList = new PluginListType();
@@ -166,19 +170,21 @@ public class InstallModulesMojo
                     installer.mergeOverrides(override.getServer(), attributes);
                 }
             }
+        } catch (Exception e) {
+            throw new MojoExecutionException("Could not use plugin installer bean", e);
         } finally {
             kernel.shutdown();
         }
-        log.info("Installed plugins: ");
+        getLog().info("Installed plugins: ");
         for (Artifact artifact: downloadPoller.getInstalledConfigIDs()) {
-            log.info("    " + artifact);
+            getLog().info("    " + artifact);
         }
-        log.info("Installed dependencies: ");
+        getLog().info("Installed dependencies: ");
         for (Artifact artifact: downloadPoller.getDependenciesInstalled()) {
-            log.info("    " + artifact);
+            getLog().info("    " + artifact);
         }
         if (downloadPoller.isFailed()) {
-            throw downloadPoller.getFailure();
+            throw new MojoExecutionException("Could not download all dependencies", downloadPoller.getFailure());
         }
     }
 

@@ -34,6 +34,8 @@ import org.apache.geronimo.system.plugin.PluginXmlUtil;
 import org.apache.geronimo.system.plugin.model.PluginArtifactType;
 import org.apache.geronimo.system.plugin.model.PluginListType;
 import org.apache.geronimo.system.plugin.model.PluginType;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
 
 /**
  * Maintain the geronimo-plugins.xml catalog in the local maven repository by merging in the geronimo-plugin.xml from the current project.
@@ -51,39 +53,42 @@ public class UpdatePluginListMojo extends AbstractCarMojo {
      */
     protected File targetFile;
 
-    protected void doExecute() throws Exception {
-
-        InputStream min = new FileInputStream(targetFile);
-        PluginType plugin;
+    public void execute() throws MojoExecutionException, MojoFailureException {
         try {
-            plugin = PluginXmlUtil.loadPluginMetadata(min);
-        } finally {
-            min.close();
-        }
-
-        String path = getArtifactRepository().getBasedir();
-        File baseDir = new File(path);
-
-        File outFile = new File(baseDir, "geronimo-plugins.xml");
-        PluginListType pluginList;
-        if (outFile.exists()) {
-            InputStream in = new FileInputStream(outFile);
+            InputStream min = new FileInputStream(targetFile);
+            PluginType plugin;
             try {
-                pluginList = PluginXmlUtil.loadPluginList(in);
+                plugin = PluginXmlUtil.loadPluginMetadata(min);
             } finally {
-                in.close();
+                min.close();
             }
-        } else {
-            pluginList = new PluginListType();
-            pluginList.getDefaultRepository().add(path);
-        }
 
-        updatePluginList(plugin, pluginList);
-        Writer out = new FileWriter(outFile, false);
-        try {
-            PluginXmlUtil.writePluginList(pluginList, out);
-        } finally {
-            out.close();
+            String path = getArtifactRepository().getBasedir();
+            File baseDir = new File(path);
+
+            File outFile = new File(baseDir, "geronimo-plugins.xml");
+            PluginListType pluginList;
+            if (outFile.exists()) {
+                InputStream in = new FileInputStream(outFile);
+                try {
+                    pluginList = PluginXmlUtil.loadPluginList(in);
+                } finally {
+                    in.close();
+                }
+            } else {
+                pluginList = new PluginListType();
+                pluginList.getDefaultRepository().add(path);
+            }
+
+            updatePluginList(plugin, pluginList);
+            Writer out = new FileWriter(outFile, false);
+            try {
+                PluginXmlUtil.writePluginList(pluginList, out);
+            } finally {
+                out.close();
+            }
+        } catch (Exception e) {
+            throw new MojoExecutionException("Could not update plugin list", e);
         }
     }
 
