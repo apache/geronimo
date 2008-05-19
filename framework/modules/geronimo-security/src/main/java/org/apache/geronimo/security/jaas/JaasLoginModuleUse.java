@@ -96,15 +96,15 @@ public class JaasLoginModuleUse implements JaasLoginModuleChain {
             options.put(CLASSLOADER_LM_OPTION, classLoader);
         }
         AppConfigurationEntry entry;
+        Class loginModuleClass;
+        loginModuleClass = classLoader.loadClass(loginModule.getLoginModuleClass());
+        options.put(WrappingLoginModule.CLASS_OPTION, loginModuleClass);
         if (loginModule.isWrapPrincipals()) {
-            Class loginModuleClass;
-            loginModuleClass = classLoader.loadClass(loginModule.getLoginModuleClass());
-            options.put(WrappingLoginModule.CLASS_OPTION, loginModuleClass);
             options.put(WrappingLoginModule.DOMAIN_OPTION, loginModule.getLoginDomainName());
             options.put(WrappingLoginModule.REALM_OPTION, realmName);
             entry = new AppConfigurationEntry(WrappingLoginModule.class.getName(), controlFlag.getFlag(), options);
         } else {
-            entry = new AppConfigurationEntry(loginModule.getLoginModuleClass(), controlFlag.getFlag(), options);
+            entry = new AppConfigurationEntry(ClassOptionLoginModule.class.getName(), controlFlag.getFlag(), options);
         }
         if (loginModule.getLoginDomainName() != null) {
             if (domainNames.contains(loginModule.getLoginDomainName())) {
