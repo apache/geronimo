@@ -38,6 +38,7 @@
     <modules>
         <module>sec-ejb</module>
         <module>sec-war</module>
+        <module>sec-client</module>
         <module>sec-ear</module>
     </modules>
 

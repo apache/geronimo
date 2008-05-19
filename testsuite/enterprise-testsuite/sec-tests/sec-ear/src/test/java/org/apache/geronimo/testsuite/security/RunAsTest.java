@@ -44,14 +44,23 @@ public class RunAsTest
 
     @Test
     public void testServletRunAs() throws Exception {
-        selenium.open("/sec/servlet");
+        String path = "/sec/servlet";
+        testPath(path);
+    }
+
+    @Test
+    public void testInjectionServletRunAs() throws Exception {
+        testPath("/sec/injectionServlet");
+    }
+
+    private void testPath(String path) throws Exception {
+        selenium.open(path);
         waitForPageLoad();
         System.out.println("----------------------------------------------");
         System.out.println(selenium.getText("xpath=/html/body"));
         assertEquals("TestServlet principal: foo\n" +
                 "Test EJB principal: bar\n" +
                 "Correctly received security exception on noAccess method", selenium.getText("xpath=/html/body"));
-
     }
 
     @Test

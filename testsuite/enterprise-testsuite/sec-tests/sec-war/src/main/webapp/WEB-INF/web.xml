@@ -34,6 +34,15 @@ limitations under the License.
         </run-as>
     </servlet>
     <servlet>
+        <display-name>Security itest servlet</display-name>
+        <servlet-name>injectionServlet</servlet-name>
+        <servlet-class>org.apache.geronimo.itest.TestServlet</servlet-class>
+        <load-on-startup>0</load-on-startup>
+        <run-as>
+            <role-name>bar</role-name>
+        </run-as>
+    </servlet>
+    <servlet>
         <display-name>Security itest jsp</display-name>
         <servlet-name>testjsp</servlet-name>
         <jsp-file>/TestJsp.jsp</jsp-file>
@@ -46,6 +55,10 @@ limitations under the License.
     <servlet-mapping>
         <servlet-name>servlet</servlet-name>
         <url-pattern>/servlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>injectionServlet</servlet-name>
+        <url-pattern>/injectionServlet</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>testjsp</servlet-name>
