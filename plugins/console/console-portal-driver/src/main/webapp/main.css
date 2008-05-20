@@ -505,3 +505,32 @@ a:hover
     border: thin solid #000000;
 }
 
+.access
+{
+    display: none;
+    position: absolute;
+    left: -3000px;
+    width: 500px;
+}
+
+.skip a {
+    position: absolute;
+    overflow: hidden;
+    width: 0;
+    height: 0;
+}
+
+.skip a:active, .skip a:focus {
+    position: absolute;
+    overflow: visible;
+    width: 135px;
+    height: auto;
+    background-color: #FFFFFF;
+    color: #000000;
+    top: 75px;
+    left: 5px;
+    z-index:1000;
+    padding: 5px;
+    border: 2px solid #000000;
+    font-weight: bold;
+}

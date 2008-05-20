@@ -25,7 +25,20 @@ limitations under the License.
 
 <html>
 <%@ include file="./head.jsp" %>
-<body marginwidth="0" marginheight="0" leftmargin="0" topmargin="0" rightmargin="0">
+<body id="admin-console" marginwidth="0" marginheight="0" leftmargin="0" topmargin="0" rightmargin="0">
+
+<!-- start accessibility prolog -->
+<div class="skip"><a href="#left-nav" accesskey="1">Skip to navigation</a></div>
+<div class="skip"><a href="#content" accesskey="2">Skip to main content</a></div>
+<div id="access-info">
+    <p class="access" >The access keys for this page are:</p>
+    <ul class="access">
+        <li>ALT plus 1 skips to navigation.</li>
+        <li>ALT plus 2 skips to main content.</li>
+    </ul>
+</div>
+<!-- end accessibility prolog -->
+
 <table width="100%" cellpadding="0" cellspacing="0" border="0" id="rootfragment">
 
     <!-- Header -->
@@ -48,7 +61,7 @@ limitations under the License.
                     <!-- Navigation Column -->
                     <td class="Gutter">&nbsp;</td> <!-- Spacer -->
                     <td width="200px" valign="top"> 
-                        <div class="Menu"> 
+                        <div class="Menu" id="left-nav"> 
                             <table width="100%"  border="0" cellpadding="0" cellspacing="0"> 
                                 <tr> 
                                     <td>
@@ -64,7 +77,7 @@ limitations under the License.
                     <td class="Gutter">&nbsp;</td> <!-- Spacer -->
                     <td valign="top">
                         <!-- Content block: portlets are divided into two columns/groups -->
-                         <!--<div id="body-block" style="height:100%">-->
+                          <!--<div id="body-block" style="height:100%">-->
                             <div id="content">
                                 <pluto:isMaximized var="isMax"/>
                                 <c:forEach var="portlet" varStatus="status" items="${currentPage.portletIds}">
