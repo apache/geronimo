@@ -1,5 +1,5 @@
 <%@ page language="java"%>
- <%--
+<%--
 Licensed to the Apache Software Foundation (ASF) under one or more
 contributor license agreements.  See the NOTICE file distributed with
 this work for additional information regarding copyright ownership.
@@ -19,16 +19,16 @@ limitations under the License.
 --%>
   <tr>
     <td>
-	  <table width="100%" height="86"  border="0" cellpadding="0" cellspacing="0">
+      <table width="100%" height="86"  border="0" cellpadding="0" cellspacing="0">
         <tr>
           <td height="86" class="Logo" border="0"></td>
-          <td height="86" class="Top" border="0">&nbsp; </TD>
+          <td height="86" class="Top" border="0">&nbsp;</td>
           <td height="86" class="Top" border="0" width="40"></td>
           <td height="86" class="Top" border="0" width="40">
 <a href="<%=request.getContextPath()%>/logout.jsp"><img border="0" src="<%=request.getContextPath()%>/images/head_logout_63x86.gif" alt="Logout"/></a>
           </td>
         </tr>
       </table>
-	</td>
+    </td>
   </tr>
 
