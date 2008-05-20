@@ -82,7 +82,7 @@ limitations under the License.
 
     <!-- Footer block: copyright -->
     <div id="footer">
-        &copy; 2003-2005 Apache Software Foundation
+        &copy; 2003-2008 Apache Software Foundation
     </div>
 
 </div>

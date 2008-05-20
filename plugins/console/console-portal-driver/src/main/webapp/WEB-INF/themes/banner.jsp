@@ -25,7 +25,7 @@ limitations under the License.
           <td height="86" class="Top" border="0">&nbsp; </TD>
           <td height="86" class="Top" border="0" width="40"></td>
           <td height="86" class="Top" border="0" width="40">
-<a href="<%=request.getContextPath()%>/logout.jsp"><img border="0" src="<%=request.getContextPath()%>/images/head_logout_63x86.gif"></a>
+<a href="<%=request.getContextPath()%>/logout.jsp"><img border="0" src="<%=request.getContextPath()%>/images/head_logout_63x86.gif" alt="Logout"/></a>
           </td>
         </tr>
       </table>
