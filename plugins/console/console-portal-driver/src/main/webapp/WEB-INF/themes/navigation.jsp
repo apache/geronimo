@@ -72,10 +72,10 @@ limitations under the License.
     <tr><td><div class="Selection">
         <table width="100%" border="0" cellpadding="0" cellspacing="0">
             <tr>
-                <td class="CollapsedLeft"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="1"/></td>
-                <td class="Indent"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="1"/></td>
-                <td class="TopMiddle"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="1"/></td>
-                <td class="CollapsedRight"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="1"/></td> 
+                <td class="CollapsedLeft"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="1" alt=""/></td>
+                <td class="Indent"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="1" alt=""/></td>
+                <td class="TopMiddle"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="1" alt=""/></td>
+                <td class="CollapsedRight"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="1" alt=""/></td> 
             </tr>
         </table>
     </div></td></tr>
@@ -98,7 +98,7 @@ limitations under the License.
                         <td class="CollapsedLeft">&nbsp;</td>
                         <td class="Indent">&nbsp;</td>
                         <td class="TopMiddle">
-                            <img border="0" src="<%=request.getContextPath()%>/images/ico_geronimo_16x16.gif"/>&nbsp;<a href='<c:out value="${pageContext.request.contextPath}"/>/portal/<c:out value="${page.name}"/>'><fmt:message key="<%=pageName%>"/></a>
+                            <img border="0" src="<%=request.getContextPath()%>/images/ico_geronimo_16x16.gif" alt=""/>&nbsp;<a href='<c:out value="${pageContext.request.contextPath}"/>/portal/<c:out value="${page.name}"/>'><fmt:message key="<%=pageName%>"/></a>
                         </td>
                         <td class="CollapsedRight">&nbsp;</td> 
                     </tr> 
@@ -119,7 +119,7 @@ limitations under the License.
                     <td class="CollapsedLeft">&nbsp;</td>
                     <td class="Indent">&nbsp;</td>
                     <td class="TopMiddle">
-                        <img border="0" src="<%=request.getContextPath()%>/images/ico_folder_16x16.gif"/>&nbsp;<fmt:message key="<%=catName%>"/>
+                        <img border="0" src="<%=request.getContextPath()%>/images/ico_folder_16x16.gif" alt=""/>&nbsp;<fmt:message key="<%=catName%>"/>
                     </td>
                     <td class="CollapsedRight">&nbsp;</td> 
                 </tr>
@@ -146,7 +146,7 @@ limitations under the License.
                         <td class="Indent">&nbsp;</td> 
                         <td class="Middle">
                             &nbsp;&nbsp;&nbsp;
-                            <img border="0" src="<%=request.getContextPath()%>/images/ico_doc_16x16.gif"/>&nbsp;<a href='<c:out value="${pageContext.request.contextPath}"/>/portal/<c:out value="${page.name}"/>'><fmt:message key="<%=pageName%>"/></a>
+                            <img border="0" src="<%=request.getContextPath()%>/images/ico_doc_16x16.gif" alt=""/>&nbsp;<a href='<c:out value="${pageContext.request.contextPath}"/>/portal/<c:out value="${page.name}"/>'><fmt:message key="<%=pageName%>"/></a>
                         </td> 
                         <td class="Right">&nbsp;</td> 
                     </tr> 
@@ -158,10 +158,10 @@ limitations under the License.
 %>
     <tr><td><div class="Selection"><table width="100%" border="0" cellpadding="0" cellspacing="0">
         <tr>
-            <td class="CollapsedLeft"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="1"/></td>
-            <td class="Indent"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="1"/></td>
-            <td class="TopMiddle"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="1"/></td>
-            <td class="CollapsedRight"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="1"/></td> 
+            <td class="CollapsedLeft"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="1" alt=""/></td>
+            <td class="Indent"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="1" alt=""/></td>
+            <td class="TopMiddle"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="1" alt=""/></td>
+            <td class="CollapsedRight"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="1" alt=""/></td> 
         </tr>
     </table></div></td></tr>
 </table>

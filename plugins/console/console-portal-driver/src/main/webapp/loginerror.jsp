@@ -77,7 +77,7 @@
                 <td width="25%" class="MediumBackground">&nbsp;</td>
               </tr>
               <tr>
-                <td class="MediumBackground" ROWSPAN=3 ALIGN="center" ><img border="0" align="center" src="<%=request.getContextPath()%>/images/login_lock_64x55.gif"></td> 
+                <td class="MediumBackground" ROWSPAN=3 ALIGN="center" ><img border="0" align="center" src="<%=request.getContextPath()%>/images/login_lock_64x55.gif" alt=""/></td> 
                 <td align="right" class="MediumBackground"><strong><fmt:message key="console.common.username"/></strong></td>
                 <td class="MediumBackground"><strong>:</strong></td>
                 <td width="1" class="MediumBackground">&nbsp;</td>
