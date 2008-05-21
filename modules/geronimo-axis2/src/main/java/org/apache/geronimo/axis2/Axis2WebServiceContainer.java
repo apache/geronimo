@@ -32,7 +32,6 @@ import javax.xml.ws.WebServiceException;
 import javax.xml.ws.handler.Handler;
 
 import org.apache.axiom.om.util.UUIDGenerator;
-import org.apache.axis2.AxisFault;
 import org.apache.axis2.Constants;
 import org.apache.axis2.addressing.AddressingHelper;
 import org.apache.axis2.addressing.EndpointReference;
@@ -364,6 +363,8 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
         if (this.binding != null) {
             msgContext.setProperty(JAXWSMessageReceiver.PARAM_BINDING, this.binding);  
         }
+        
+        msgContext.setTo(new EndpointReference(request.getURI().toString()));
     }
     
     protected void processXMLRequest(Request request, 
@@ -381,30 +382,32 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
 
         setMsgContextProperties(request, response, service, msgContext);
 
-        HTTPTransportUtils.processHTTPPostRequest(msgContext,
-                                                  request.getInputStream(), 
-                                                  response.getOutputStream(), 
-                                                  contentType, 
-                                                  soapAction, 
-                                                  request.getURI().getPath());
+        if (!HTTPTransportUtils.isRESTRequest(contentType)) {
+            HTTPTransportUtils.processHTTPPostRequest(msgContext,
+                                                      request.getInputStream(), 
+                                                      response.getOutputStream(), 
+                                                      contentType, 
+                                                      soapAction, 
+                                                      request.getURI().getPath());
+        } else {
+            RESTUtil.processXMLRequest(msgContext, 
+                                       request.getInputStream(),
+                                       response.getOutputStream(), 
+                                       contentType);
+        }
     }
     
     protected void processURLRequest(Request request,
                                      Response response,
                                      AxisService service,
                                      MessageContext msgContext) throws Exception {
+        String contentType = request.getHeader(HTTPConstants.HEADER_CONTENT_TYPE);
+        
         ConfigurationContext configurationContext = msgContext.getConfigurationContext();
         configurationContext.fillServiceContextAndServiceGroupContext(msgContext);
         
         setMsgContextProperties(request, response, service, msgContext);
-        
-        String contentType = request.getHeader(HTTPConstants.HEADER_CONTENT_TYPE);
-        
-        msgContext.setTo(new EndpointReference(request.getURI().toString()));
-        
-        msgContext.setProperty(MessageContext.TRANSPORT_OUT, response.getOutputStream());
-        msgContext.setProperty(Constants.OUT_TRANSPORT_INFO, new Axis2TransportInfo(response));
-
+                
         InvocationResponse processed = RESTUtil.processURLRequest(msgContext, 
                                                                   response.getOutputStream(),
                                                                   contentType);
