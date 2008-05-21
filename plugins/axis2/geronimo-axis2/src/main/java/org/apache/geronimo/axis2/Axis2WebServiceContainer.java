@@ -32,7 +32,6 @@ import javax.xml.ws.WebServiceException;
 import javax.xml.ws.handler.Handler;
 
 import org.apache.axiom.om.util.UUIDGenerator;
-import org.apache.axis2.AxisFault;
 import org.apache.axis2.Constants;
 import org.apache.axis2.addressing.AddressingHelper;
 import org.apache.axis2.addressing.EndpointReference;
@@ -63,8 +62,6 @@ import org.apache.axis2.transport.http.HTTPTransportUtils;
 import org.apache.axis2.transport.http.TransportHeaders;
 import org.apache.axis2.transport.http.util.RESTUtil;
 import org.apache.axis2.util.MessageContextBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.geronimo.axis2.client.Axis2ConfigGBean;
 import org.apache.geronimo.jaxws.JAXWSAnnotationProcessor;
 import org.apache.geronimo.jaxws.JAXWSUtils;
@@ -74,6 +71,8 @@ import org.apache.geronimo.jaxws.ServerJNDIResolver;
 import org.apache.geronimo.jaxws.annotations.AnnotationException;
 import org.apache.geronimo.webservices.WebServiceContainer;
 import org.apache.geronimo.webservices.saaj.SAAJUniverse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @version $Rev$ $Date$
@@ -364,6 +363,8 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer
         if (this.binding != null) {
             msgContext.setProperty(JAXWSMessageReceiver.PARAM_BINDING, this.binding);  
         }
+        
+        msgContext.setTo(new EndpointReference(request.getURI().toString()));
     }
     
     protected void processXMLRequest(Request request, 
@@ -381,30 +382,32 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer
 
         setMsgContextProperties(request, response, service, msgContext);
 
-        HTTPTransportUtils.processHTTPPostRequest(msgContext,
-                                                  request.getInputStream(), 
-                                                  response.getOutputStream(), 
-                                                  contentType, 
-                                                  soapAction, 
-                                                  request.getURI().getPath());
+        if (!HTTPTransportUtils.isRESTRequest(contentType)) {
+            HTTPTransportUtils.processHTTPPostRequest(msgContext,
+                                                      request.getInputStream(), 
+                                                      response.getOutputStream(), 
+                                                      contentType, 
+                                                      soapAction, 
+                                                      request.getURI().getPath());
+        } else {
+            RESTUtil.processXMLRequest(msgContext, 
+                                       request.getInputStream(),
+                                       response.getOutputStream(), 
+                                       contentType);
+        }
     }
     
     protected void processURLRequest(Request request,
                                      Response response,
                                      AxisService service,
                                      MessageContext msgContext) throws Exception {
+        String contentType = request.getHeader(HTTPConstants.HEADER_CONTENT_TYPE);
+        
         ConfigurationContext configurationContext = msgContext.getConfigurationContext();
         configurationContext.fillServiceContextAndServiceGroupContext(msgContext);
         
         setMsgContextProperties(request, response, service, msgContext);
-        
-        String contentType = request.getHeader(HTTPConstants.HEADER_CONTENT_TYPE);
-        
-        msgContext.setTo(new EndpointReference(request.getURI().toString()));
-        
-        msgContext.setProperty(MessageContext.TRANSPORT_OUT, response.getOutputStream());
-        msgContext.setProperty(Constants.OUT_TRANSPORT_INFO, new Axis2TransportInfo(response));
-
+                
         InvocationResponse processed = RESTUtil.processURLRequest(msgContext, 
                                                                   response.getOutputStream(),
                                                                   contentType);

@@ -24,8 +24,6 @@ import java.net.URL;
 import javax.naming.Context;
 import javax.xml.ws.WebServiceException;
 
-import org.apache.axis2.Constants;
-import org.apache.axis2.addressing.EndpointReference;
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.axis2.context.MessageContext;
 import org.apache.axis2.context.ServiceContext;
@@ -125,14 +123,21 @@ public class POJOWebServiceContainer extends Axis2WebServiceContainer
 
         ServiceContext serviceContext = msgContext.getServiceContext();
         serviceContext.setProperty(ServiceContext.SERVICE_OBJECT, this.endpointInstance);
-
+                
         try {
-            HTTPTransportUtils.processHTTPPostRequest(msgContext,
-                                                      request.getInputStream(),
-                                                      response.getOutputStream(),
-                                                      contentType,
-                                                      soapAction,
-                                                      request.getURI().getPath());
+            if (!HTTPTransportUtils.isRESTRequest(contentType)) {
+                HTTPTransportUtils.processHTTPPostRequest(msgContext,
+                                                          request.getInputStream(),
+                                                          response.getOutputStream(),
+                                                          contentType,
+                                                          soapAction,
+                                                          request.getURI().getPath());
+            } else {
+                RESTUtil.processXMLRequest(msgContext, 
+                                           request.getInputStream(),
+                                           response.getOutputStream(), 
+                                           contentType);
+            }
         } finally {                        
             // de-associate JAX-WS MessageContext with the thread
             // (association happens in POJOEndpointLifecycleManager.createService() call)
@@ -145,6 +150,8 @@ public class POJOWebServiceContainer extends Axis2WebServiceContainer
                                      Response response,
                                      AxisService service,
                                      MessageContext msgContext) throws Exception {
+        String contentType = request.getHeader(HTTPConstants.HEADER_CONTENT_TYPE);
+        
         ConfigurationContext configurationContext = msgContext.getConfigurationContext();
         configurationContext.fillServiceContextAndServiceGroupContext(msgContext);
         
@@ -152,14 +159,7 @@ public class POJOWebServiceContainer extends Axis2WebServiceContainer
         
         ServiceContext serviceContext = msgContext.getServiceContext();
         serviceContext.setProperty(ServiceContext.SERVICE_OBJECT, this.endpointInstance);
-        
-        String contentType = request.getHeader(HTTPConstants.HEADER_CONTENT_TYPE);
-        
-        msgContext.setTo(new EndpointReference(request.getURI().toString()));
-        
-        msgContext.setProperty(MessageContext.TRANSPORT_OUT, response.getOutputStream());
-        msgContext.setProperty(Constants.OUT_TRANSPORT_INFO, new Axis2TransportInfo(response));
-
+                
         InvocationResponse processed = null;
         try {
             processed = RESTUtil.processURLRequest(msgContext, 
