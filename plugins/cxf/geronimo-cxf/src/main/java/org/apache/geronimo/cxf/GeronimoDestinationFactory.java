@@ -20,10 +20,11 @@ import java.io.IOException;
 
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.Destination;
+import org.apache.cxf.transport.DestinationFactory;
 import org.apache.cxf.transport.http.AbstractHTTPTransportFactory;
 import org.apache.cxf.Bus;
 
-public class GeronimoDestinationFactory extends AbstractHTTPTransportFactory {
+public class GeronimoDestinationFactory extends AbstractHTTPTransportFactory implements DestinationFactory {
 
     public GeronimoDestinationFactory() {       
     }
