@@ -20,11 +20,9 @@
 package org.apache.geronimo.mavenplugins.car;
 
 import java.io.File;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.LinkedHashSet;
 
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.basic.BasicKernel;
@@ -40,11 +38,8 @@ import org.apache.geronimo.system.plugin.model.PluginListType;
 import org.apache.geronimo.system.plugin.model.PluginType;
 import org.apache.geronimo.system.resolver.AliasedArtifactResolver;
 import org.apache.maven.artifact.repository.ArtifactRepository;
-import org.apache.maven.artifact.resolver.ArtifactResolutionException;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.project.artifact.InvalidDependencyVersionException;
-import org.apache.maven.project.ProjectBuildingException;
 
 /**
  * Installs Geronimo module CAR files into a target repository to support assembly.
@@ -139,7 +134,7 @@ public class InstallModulesMojo extends AbstractCarMojo {
 
     public void execute() throws MojoExecutionException, MojoFailureException {
         getDependencies(project, false);
-        Maven2RepositoryAdapter.ArtifactLookup lookup = new ArtifactLookupImpl(new HashMap<Artifact, org.apache.maven.artifact.Artifact>());
+        Maven2RepositoryAdapter.ArtifactLookup lookup = new ArtifactLookupImpl();
         SourceRepository sourceRepo = new Maven2RepositoryAdapter(dependencies, lookup);
         PluginListType pluginList = new PluginListType();
         String localRepo = sourceRepository.getUrl();

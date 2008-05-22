@@ -384,12 +384,6 @@ public abstract class AbstractCarMojo
     protected class ArtifactLookupImpl
             implements Maven2RepositoryAdapter.ArtifactLookup {
 
-        private final Map<org.apache.geronimo.kernel.repository.Artifact, Artifact> resolvedArtifacts;
-
-        public ArtifactLookupImpl(Map<org.apache.geronimo.kernel.repository.Artifact, Artifact> resolvedArtifacts) {
-            this.resolvedArtifacts = resolvedArtifacts;
-        }
-
         public File getBasedir() {
             String path = getArtifactRepository().getBasedir();
             return new File(path);
@@ -404,61 +398,31 @@ public abstract class AbstractCarMojo
 
         public File getLocation(final org.apache.geronimo.kernel.repository.Artifact artifact) {
             assert artifact != null;
+            Artifact mavenArtifact;
 
-            boolean debug = getLog().isDebugEnabled();
+            // Do not attempt to resolve an artifact that is the same as the project
+            if (isProjectArtifact(artifact) && artifact.getVersion() == null) {
+                throw new IllegalStateException("WTF? project has no version??");
+            }
 
-            Artifact mavenArtifact = resolvedArtifacts.get(artifact);
+            if (artifact.getVersion() == null) {
+                if (log.isDebugEnabled()) {
+                    getLog().debug("Resolving artifact: " + artifact);
+                }
+                mavenArtifact = resolveArtifact(artifact.getGroupId(), artifact.getArtifactId(), artifact.getType());
 
-            // If not cached, then make a new artifact
-            if (mavenArtifact == null) {
+            } else {
                 mavenArtifact = artifactFactory.createArtifactWithClassifier(
                         artifact.getGroupId(),
                         artifact.getArtifactId(),
                         artifact.getVersion().toString(),
                         artifact.getType(),
-                        null
-                );
+                        null);
             }
 
-            // Do not attempt to resolve an artifact that is the same as the project
-            if (isProjectArtifact(artifact)) {
-                if (debug) {
-                    getLog().debug("Skipping resolution of project artifact: " + artifact);
-                }
-
-                //
-                // HACK: Still have to return something, otherwise some CAR packaging will fail...
-                //       no idea what is using this file, or if the files does exist if that will be
-                //       used instead of any details we are currently building
-                //
-                return new File(getBasedir(), getArtifactRepository().pathOf(mavenArtifact));
-            }
-
-            File file;
-            if (!mavenArtifact.isResolved()) {
-                if (debug) {
-                    getLog().debug("Resolving artifact: " + mavenArtifact);
-                }
-                mavenArtifact = resolveArtifact(mavenArtifact);
-
-                // Cache the resolved artifact
-                resolvedArtifacts.put(artifact, mavenArtifact);
-            }
-
-            //
-            // HACK: Construct the real local filename from the path and resolved artifact file.
-            //       Probably a better way to do this with the Maven API directly, but this is the
-            //       best I can do for now.
-            //
             String path = getArtifactRepository().pathOf(mavenArtifact);
-            file = new File(getBasedir(), path);
-
-            return file;
+            return new File(getBasedir(), path);
         }
-    }
-
-    protected Artifact resolveArtifact(Artifact mavenArtifact) {
-        return resolveArtifact(mavenArtifact.getGroupId(), mavenArtifact.getArtifactId(), mavenArtifact.getType());
     }
 
     protected Artifact resolveArtifact(String groupId, String artifactId, String type) {

@@ -22,7 +22,6 @@ package org.apache.geronimo.mavenplugins.car;
 import java.io.File;
 import java.net.URI;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -195,7 +194,7 @@ public class PackageMojo extends AbstractCarMojo {
             // NOTE: Install a local lookup, so that the cached kernel can resolve based on the current project
             //       and not the project where the kernel was first initialized.
             //
-            lookupHolder.set(new ArtifactLookupImpl(new HashMap()));
+            lookupHolder.set(new ArtifactLookupImpl());
 
             if (bootstrap) {
                 executeBootShell();
