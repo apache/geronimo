@@ -346,7 +346,7 @@ public abstract class ModuleMojoSupport
 
         for (int i=0; i<targetIds.length; i++) {
             String url = targetIds[i].getWebURL();
-            log.info(pad + "[" + i + "] " + targetIds[i].getModuleID() + (url == null ? "" : ("; URL: " + url)));
+            getLog().info(pad + "[" + i + "] " + targetIds[i].getModuleID() + (url == null ? "" : ("; URL: " + url)));
 
             TargetModuleID[] children = targetIds[i].getChildTargetModuleID();
             if (children != null) {
