@@ -60,7 +60,7 @@ Name: svn:eol-style
 
 Index: java/org/apache/jasper/JspCompilationContext.java
 ===================================================================
---- java/org/apache/jasper/JspCompilationContext.java	(revision 604245)
+--- java/org/apache/jasper/JspCompilationContext.java	(revision 653549)
 +++ java/org/apache/jasper/JspCompilationContext.java	(working copy)
 @@ -589,12 +589,7 @@
          try {
@@ -95,7 +95,7 @@ Index: java/org/apache/jasper/JspCompilationContext.java
      static Object outputDirLock = new Object();
 Index: java/org/apache/jasper/runtime/TagHandlerPool.java
 ===================================================================
---- java/org/apache/jasper/runtime/TagHandlerPool.java	(revision 604245)
+--- java/org/apache/jasper/runtime/TagHandlerPool.java	(revision 653549)
 +++ java/org/apache/jasper/runtime/TagHandlerPool.java	(working copy)
 @@ -21,7 +21,7 @@
  import javax.servlet.jsp.JspException;
@@ -191,7 +191,7 @@ Index: java/org/apache/jasper/runtime/TagHandlerPool.java
      }
 Index: java/org/apache/jasper/runtime/AnnotationHelper.java
 ===================================================================
---- java/org/apache/jasper/runtime/AnnotationHelper.java	(revision 604245)
+--- java/org/apache/jasper/runtime/AnnotationHelper.java	(revision 653549)
 +++ java/org/apache/jasper/runtime/AnnotationHelper.java	(working copy)
 @@ -1,61 +0,0 @@
 -/*
@@ -316,7 +316,7 @@ Name: svn:eol-style
 
 Index: java/org/apache/jasper/servlet/JspServletWrapper.java
 ===================================================================
---- java/org/apache/jasper/servlet/JspServletWrapper.java	(revision 604245)
+--- java/org/apache/jasper/servlet/JspServletWrapper.java	(revision 653549)
 +++ java/org/apache/jasper/servlet/JspServletWrapper.java	(working copy)
 @@ -31,7 +31,7 @@
  import javax.servlet.http.HttpServletResponse;
@@ -362,7 +362,7 @@ Index: java/org/apache/jasper/servlet/JspServletWrapper.java
                      } catch (IllegalAccessException e) {
                          throw new JasperException(e);
                      } catch (InstantiationException e) {
-@@ -442,15 +437,13 @@
+@@ -423,15 +418,13 @@
      public void destroy() {
          if (theServlet != null) {
              theServlet.destroy();
@@ -387,7 +387,7 @@ Index: java/org/apache/jasper/servlet/JspServletWrapper.java
      }
 Index: java/org/apache/jasper/Constants.java
 ===================================================================
---- java/org/apache/jasper/Constants.java	(revision 604245)
+--- java/org/apache/jasper/Constants.java	(revision 653549)
 +++ java/org/apache/jasper/Constants.java	(working copy)
 @@ -199,4 +199,7 @@
       */
@@ -399,7 +399,7 @@ Index: java/org/apache/jasper/Constants.java
  }
 Index: java/org/apache/jasper/compiler/Generator.java
 ===================================================================
---- java/org/apache/jasper/compiler/Generator.java	(revision 604245)
+--- java/org/apache/jasper/compiler/Generator.java	(revision 653549)
 +++ java/org/apache/jasper/compiler/Generator.java	(working copy)
 @@ -73,8 +73,8 @@
  
@@ -588,7 +588,7 @@ Index: java/org/apache/jasper/compiler/Generator.java
          }
 Index: java/org/apache/AnnotationProcessor.java
 ===================================================================
---- java/org/apache/AnnotationProcessor.java	(revision 604245)
+--- java/org/apache/AnnotationProcessor.java	(revision 653549)
 +++ java/org/apache/AnnotationProcessor.java	(working copy)
 @@ -1,37 +0,0 @@
 -/*
@@ -723,7 +723,7 @@ Index: java/org/apache/catalina/core/DefaultInstanceManager.java
 +                    this.getClass().getClassLoader().getResourceAsStream
 +                            ("org/apache/catalina/core/RestrictedListeners.properties");
 +            if (is != null) {
-+                restrictedFilters.load(is);
++                restrictedListeners.load(is);
 +            } else {
 +                catalinaContext.getLogger().error(sm.getString("defaultInstanceManager.restrictedListenersResources"));
 +            }
@@ -1080,9 +1080,39 @@ Name: svn:keywords
 Name: svn:eol-style
    + native
 
+Index: java/org/apache/catalina/core/RestrictedListeners.properties
+===================================================================
+--- java/org/apache/catalina/core/RestrictedListeners.properties	(revision 0)
++++ java/org/apache/catalina/core/RestrictedListeners.properties	(revision 0)
+@@ -0,0 +1,15 @@
++# Licensed to the Apache Software Foundation (ASF) under one or more
++# contributor license agreements.  See the NOTICE file distributed with
++# this work for additional information regarding copyright ownership.
++# The ASF licenses this file to You under the Apache License, Version 2.0
++# (the "License"); you may not use this file except in compliance with
++# the License.  You may obtain a copy of the License at
++#
++#     http://www.apache.org/licenses/LICENSE-2.0
++#
++# Unless required by applicable law or agreed to in writing, software
++# distributed under the License is distributed on an "AS IS" BASIS,
++# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++# See the License for the specific language governing permissions and
++# limitations under the License.
++
+
+Property changes on: java/org/apache/catalina/core/RestrictedListeners.properties
+___________________________________________________________________
+Name: svn:mime-type
+   + text/plain
+Name: svn:keywords
+   + Date Revision
+Name: svn:eol-style
+   + native
+
 Index: java/org/apache/catalina/core/ApplicationFilterConfig.java
 ===================================================================
---- java/org/apache/catalina/core/ApplicationFilterConfig.java	(revision 604245)
+--- java/org/apache/catalina/core/ApplicationFilterConfig.java	(revision 653549)
 +++ java/org/apache/catalina/core/ApplicationFilterConfig.java	(working copy)
 @@ -19,14 +19,12 @@
  package org.apache.catalina.core;
@@ -1327,7 +1357,7 @@ Index: java/org/apache/catalina/core/ApplicationFilterConfig.java
  }
 Index: java/org/apache/catalina/core/StandardWrapper.java
 ===================================================================
---- java/org/apache/catalina/core/StandardWrapper.java	(revision 604245)
+--- java/org/apache/catalina/core/StandardWrapper.java	(revision 653549)
 +++ java/org/apache/catalina/core/StandardWrapper.java	(working copy)
 @@ -18,27 +18,14 @@
  
@@ -1585,7 +1615,7 @@ Index: java/org/apache/catalina/core/StandardWrapper.java
          if (c.equals(javax.servlet.http.HttpServlet.class)) {
 Index: java/org/apache/catalina/core/StandardContext.java
 ===================================================================
---- java/org/apache/catalina/core/StandardContext.java	(revision 604245)
+--- java/org/apache/catalina/core/StandardContext.java	(revision 653549)
 +++ java/org/apache/catalina/core/StandardContext.java	(working copy)
 @@ -31,6 +31,8 @@
  import java.util.HashMap;
@@ -1652,7 +1682,7 @@ Index: java/org/apache/catalina/core/StandardContext.java
      }
  
      
-@@ -3761,7 +3764,6 @@
+@@ -3774,7 +3777,6 @@
              log.debug("Configuring application event listeners");
  
          // Instantiate the required listeners
@@ -1660,7 +1690,7 @@ Index: java/org/apache/catalina/core/StandardContext.java
          String listeners[] = findApplicationListeners();
          Object results[] = new Object[listeners.length];
          boolean ok = true;
-@@ -3770,13 +3772,7 @@
+@@ -3783,13 +3785,7 @@
                  getLogger().debug(" Configuring event listener class '" +
                      listeners[i] + "'");
              try {
@@ -1675,7 +1705,7 @@ Index: java/org/apache/catalina/core/StandardContext.java
              } catch (Throwable t) {
                  getLogger().error
                      (sm.getString("standardContext.applicationListener",
-@@ -3876,29 +3872,26 @@
+@@ -3889,29 +3885,26 @@
                          ok = false;
                      }
                  }
@@ -1714,7 +1744,7 @@ Index: java/org/apache/catalina/core/StandardContext.java
                  } catch (Throwable t) {
                      getLogger().error
                          (sm.getString("standardContext.listenerStop",
-@@ -4303,21 +4296,18 @@
+@@ -4316,21 +4309,18 @@
          // Binding thread
          oldCCL = bindThread();
  
@@ -1745,7 +1775,7 @@ Index: java/org/apache/catalina/core/StandardContext.java
          }
  
          try {
-@@ -4398,6 +4388,48 @@
+@@ -4411,6 +4401,48 @@
          //cacheContext();
      }
  
@@ -1796,9 +1826,9 @@ Index: java/org/apache/catalina/core/StandardContext.java
       *
 Index: java/org/apache/catalina/core/LocalStrings.properties
 ===================================================================
---- java/org/apache/catalina/core/LocalStrings.properties	(revision 604245)
+--- java/org/apache/catalina/core/LocalStrings.properties	(revision 653549)
 +++ java/org/apache/catalina/core/LocalStrings.properties	(working copy)
-@@ -185,7 +185,6 @@
+@@ -201,7 +201,6 @@
  standardWrapper.notContext=Parent container of a Wrapper must be a Context
  standardWrapper.notFound=Servlet {0} is not available
  standardWrapper.notServlet=Class {0} is not a Servlet
@@ -1806,7 +1836,7 @@ Index: java/org/apache/catalina/core/LocalStrings.properties
  standardWrapper.releaseFilters=Release filters exception for servlet {0}
  standardWrapper.serviceException=Servlet.service() for servlet {0} threw exception
  standardWrapper.statusHeader=HTTP Status {0} - {1}
-@@ -194,7 +193,9 @@
+@@ -210,7 +209,9 @@
  standardWrapper.unloadException=Servlet {0} threw unload() exception
  standardWrapper.unloading=Cannot allocate servlet {0} because it is being unloaded
  standardWrapper.waiting=Waiting for {0} instance(s) to be deallocated
@@ -1822,9 +1852,9 @@ Index: java/org/apache/catalina/core/LocalStrings.properties
 \ No newline at end of file
 Index: java/org/apache/catalina/core/mbeans-descriptors.xml
 ===================================================================
---- java/org/apache/catalina/core/mbeans-descriptors.xml	(revision 604245)
+--- java/org/apache/catalina/core/mbeans-descriptors.xml	(revision 653549)
 +++ java/org/apache/catalina/core/mbeans-descriptors.xml	(working copy)
-@@ -25,9 +25,9 @@
+@@ -41,9 +41,9 @@
                 is="true"
                 type="boolean"/>
        
@@ -1839,85 +1869,85 @@ Index: java/org/apache/catalina/core/mbeans-descriptors.xml
                 description="Take care to not lock jar files"
 Index: java/org/apache/catalina/servlets/LocalStrings.properties
 ===================================================================
---- java/org/apache/catalina/servlets/LocalStrings.properties	(revision 604245)
+--- java/org/apache/catalina/servlets/LocalStrings.properties	(revision 653549)
 +++ java/org/apache/catalina/servlets/LocalStrings.properties	(working copy)
-@@ -10,6 +10,7 @@
+@@ -25,7 +25,6 @@
  invokerServlet.notNamed=Cannot call invoker servlet with a named dispatcher
  invokerServlet.noWrapper=Container has not called setWrapper() for this servlet
  webdavservlet.jaxpfailed=JAXP initialization failed
-+webdavservlet.enternalEntityIgnored=The request included a reference to an external entity with PublicID {0} and SystemID {1} which was ignored
+-webdavservlet.enternalEntityIgnored=The request included a reference to an external entity with PublicID {0} and SystemID {1} which was ignored
  directory.filename=Filename
  directory.lastModified=Last Modified
  directory.parent=Up To {0}
 Index: java/org/apache/catalina/servlets/WebdavServlet.java
 ===================================================================
---- java/org/apache/catalina/servlets/WebdavServlet.java	(revision 604245)
+--- java/org/apache/catalina/servlets/WebdavServlet.java	(revision 653549)
 +++ java/org/apache/catalina/servlets/WebdavServlet.java	(working copy)
-@@ -20,6 +20,7 @@
+@@ -20,7 +20,6 @@
  
  
  import java.io.IOException;
-+import java.io.StringReader;
+-import java.io.StringReader;
  import java.io.StringWriter;
  import java.io.Writer;
  import java.security.MessageDigest;
-@@ -36,6 +37,7 @@
+@@ -37,7 +36,6 @@
  import javax.naming.NamingEnumeration;
  import javax.naming.NamingException;
  import javax.naming.directory.DirContext;
-+import javax.servlet.ServletContext;
+-import javax.servlet.ServletContext;
  import javax.servlet.ServletException;
  import javax.servlet.UnavailableException;
  import javax.servlet.http.HttpServletRequest;
-@@ -56,6 +58,7 @@
+@@ -59,7 +57,6 @@
  import org.w3c.dom.Element;
  import org.w3c.dom.Node;
  import org.w3c.dom.NodeList;
-+import org.xml.sax.EntityResolver;
+-import org.xml.sax.EntityResolver;
  import org.xml.sax.InputSource;
  import org.xml.sax.SAXException;
  
-@@ -243,6 +246,8 @@
-             documentBuilderFactory = DocumentBuilderFactory.newInstance();
+@@ -290,8 +287,6 @@
              documentBuilderFactory.setNamespaceAware(true);
+             documentBuilderFactory.setExpandEntityReferences(false);
              documentBuilder = documentBuilderFactory.newDocumentBuilder();
-+            documentBuilder.setEntityResolver(
-+                    new WebdavResolver(this.getServletContext()));
+-            documentBuilder.setEntityResolver(
+-                    new WebdavResolver(this.getServletContext()));
          } catch(ParserConfigurationException e) {
              throw new ServletException
                  (sm.getString("webdavservlet.jaxpfailed"));
-@@ -2746,6 +2751,26 @@
+@@ -2828,26 +2823,6 @@
      }
  
  
-+    // --------------------------------------------- WebdavResolver Inner Class
-+    /**
-+     * Work around for XML parsers that don't fully respect
-+     * {@link DocumentBuilderFactory#setExpandEntityReferences(false)}. External
-+     * references are filtered out for security reasons. See CVE-2007-5461.
-+     */
-+    private class WebdavResolver implements EntityResolver {
-+        private ServletContext context;
-+        
-+        public WebdavResolver(ServletContext theContext) {
-+            context = theContext;
-+        }
-+     
-+        public InputSource resolveEntity (String publicId, String systemId) {
-+            context.log(sm.getString("webdavservlet.enternalEntityIgnored",
-+                    publicId, systemId));
-+            return new InputSource(
-+                    new StringReader("Ignored external entity"));
-+        }
-+    }
+-    // --------------------------------------------- WebdavResolver Inner Class
+-    /**
+-     * Work around for XML parsers that don't fully respect
+-     * {@link DocumentBuilderFactory#setExpandEntityReferences(false)}. External
+-     * references are filtered out for security reasons. See CVE-2007-5461.
+-     */
+-    private class WebdavResolver implements EntityResolver {
+-        private ServletContext context;
+-        
+-        public WebdavResolver(ServletContext theContext) {
+-            context = theContext;
+-        }
+-     
+-        public InputSource resolveEntity (String publicId, String systemId) {
+-            context.log(sm.getString("webdavservlet.enternalEntityIgnored",
+-                    publicId, systemId));
+-            return new InputSource(
+-                    new StringReader("Ignored external entity"));
+-        }
+-    }
  };
  
  
-@@ -3068,3 +3093,4 @@
+@@ -3170,4 +3145,3 @@
  
  };
  
-+
+-
 Index: java/org/apache/catalina/deploy/Injectable.java
 ===================================================================
 --- java/org/apache/catalina/deploy/Injectable.java	(revision 0)
@@ -1964,7 +1994,7 @@ Name: svn:eol-style
 
 Index: java/org/apache/catalina/deploy/ContextEnvironment.java
 ===================================================================
---- java/org/apache/catalina/deploy/ContextEnvironment.java	(revision 604245)
+--- java/org/apache/catalina/deploy/ContextEnvironment.java	(revision 653549)
 +++ java/org/apache/catalina/deploy/ContextEnvironment.java	(working copy)
 @@ -19,6 +19,8 @@
  package org.apache.catalina.deploy;
@@ -2005,7 +2035,7 @@ Index: java/org/apache/catalina/deploy/ContextEnvironment.java
  
 Index: java/org/apache/catalina/deploy/ResourceBase.java
 ===================================================================
---- java/org/apache/catalina/deploy/ResourceBase.java	(revision 604245)
+--- java/org/apache/catalina/deploy/ResourceBase.java	(revision 653549)
 +++ java/org/apache/catalina/deploy/ResourceBase.java	(working copy)
 @@ -21,6 +21,8 @@
  import java.io.Serializable;
@@ -2048,7 +2078,7 @@ Index: java/org/apache/catalina/deploy/ResourceBase.java
  
 Index: java/org/apache/catalina/deploy/MessageDestinationRef.java
 ===================================================================
---- java/org/apache/catalina/deploy/MessageDestinationRef.java	(revision 604245)
+--- java/org/apache/catalina/deploy/MessageDestinationRef.java	(revision 653549)
 +++ java/org/apache/catalina/deploy/MessageDestinationRef.java	(working copy)
 @@ -19,6 +19,8 @@
  package org.apache.catalina.deploy;
@@ -2158,26 +2188,9 @@ Name: svn:eol-style
 
 Index: java/org/apache/catalina/startup/ConnectorCreateRule.java
 ===================================================================
---- java/org/apache/catalina/startup/ConnectorCreateRule.java	(revision 604245)
+--- java/org/apache/catalina/startup/ConnectorCreateRule.java	(revision 653549)
 +++ java/org/apache/catalina/startup/ConnectorCreateRule.java	(working copy)
-@@ -20,13 +20,12 @@
- package org.apache.catalina.startup;
- 
- 
-+import org.apache.catalina.Executor;
-+import org.apache.catalina.Service;
- import org.apache.catalina.connector.Connector;
-+import org.apache.tomcat.util.IntrospectionUtils;
- import org.apache.tomcat.util.digester.Rule;
- import org.xml.sax.Attributes;
--import org.apache.catalina.Service;
--import org.apache.catalina.Executor;
--import org.apache.tomcat.util.IntrospectionUtils;
--import java.lang.reflect.Method;
- 
- 
- /**
-@@ -51,14 +50,14 @@
+@@ -53,18 +53,14 @@
              ex = svc.getExecutor(attributes.getValue("executor"));
          }
          Connector con = new Connector(attributes.getValue("protocol"));
@@ -2189,14 +2202,18 @@ Index: java/org/apache/catalina/startup/ConnectorCreateRule.java
      
 -    public void _setExecutor(Connector con, Executor ex) throws Exception {
 -        Method m = IntrospectionUtils.findMethod(con.getProtocolHandler().getClass(),"setExecutor",new Class[] {java.util.concurrent.Executor.class});
--        m.invoke(con.getProtocolHandler(),new Object[] {ex});
+-        if (m!=null) {
+-            m.invoke(con.getProtocolHandler(), new Object[] {ex});
+-        }else {
+-            log.warn("Connector ["+con+"] does not support external executors. Method setExecutor(java.util.concurrent.Executor) not found.");
+-        }
 +    public void setExecutor(Connector con, Executor ex) throws Exception {
-+    	IntrospectionUtils.callMethod1(con.getProtocolHandler(), "setExecutor", 
-+    			ex, java.util.concurrent.Executor.class.getName(), getClass().getClassLoader());
++        IntrospectionUtils.callMethod1(con.getProtocolHandler(), "setExecutor", 
++            ex, java.util.concurrent.Executor.class.getName(), getClass().getClassLoader());
      }
  
  
-@@ -66,7 +65,7 @@
+@@ -72,7 +68,7 @@
       * Process the end of this element.
       */
      public void end() throws Exception {
@@ -2207,7 +2224,7 @@ Index: java/org/apache/catalina/startup/ConnectorCreateRule.java
  
 Index: java/org/apache/catalina/startup/WebRuleSet.java
 ===================================================================
---- java/org/apache/catalina/startup/WebRuleSet.java	(revision 604245)
+--- java/org/apache/catalina/startup/WebRuleSet.java	(revision 653549)
 +++ java/org/apache/catalina/startup/WebRuleSet.java	(working copy)
 @@ -139,59 +139,8 @@
          digester.addRule(prefix + "web-app/distributable",
@@ -2587,7 +2604,7 @@ Index: java/org/apache/catalina/startup/WebRuleSet.java
       */
 Index: java/org/apache/catalina/util/DefaultAnnotationProcessor.java
 ===================================================================
---- java/org/apache/catalina/util/DefaultAnnotationProcessor.java	(revision 604245)
+--- java/org/apache/catalina/util/DefaultAnnotationProcessor.java	(revision 653549)
 +++ java/org/apache/catalina/util/DefaultAnnotationProcessor.java	(working copy)
 @@ -1,244 +0,0 @@
 -/*
@@ -2834,20 +2851,3 @@ Index: java/org/apache/catalina/util/DefaultAnnotationProcessor.java
 -    
 -
 -}
-Index: build.properties.default
-===================================================================
---- build.properties.default	(revision 604245)
-+++ build.properties.default	(working copy)
-@@ -41,8 +41,10 @@
- # ----- Eclipse JDT, version 3.2 or later -----
- jdt.home=${base.path}/eclipse/plugins
- jdt.lib=${jdt.home}
--jdt.jar=${jdt.lib}/org.eclipse.jdt.core_3.2.3.v_686_R32x.jar
--jdt.loc=http://sunsite.informatik.rwth-aachen.de/eclipse/downloads/drops/R-3.2.2-200702121330/eclipse-JDT-3.2.2.zip
-+# jdt.jar=${jdt.lib}/org.eclipse.jdt.core_3.2.3.v_686_R32x.jar
-+jdt.jar=${jdt.lib}/org.eclipse.jdt.core_3.3.1.v_780_R33x.jar
-+# jdt.loc=http://sunsite.informatik.rwth-aachen.de/eclipse/downloads/drops/R-3.2.2-200702121330/eclipse-JDT-3.2.2.zip
-+jdt.loc=http://www.eclipse.org/downloads/download.php?file=/eclipse/downloads/drops/R-3.3.1-200709211145/eclipse-JDT-3.3.1.zip
- 
- # ----- Tomcat native library -----
- tomcat-native.home=${base.path}/tomcat-native-1.1.10
