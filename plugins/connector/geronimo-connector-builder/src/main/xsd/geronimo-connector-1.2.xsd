@@ -38,7 +38,7 @@
             element as connector with namespace specified as xmlns=
             "http://geronimo.apache.org/xml/ns/j2ee/connector-1.2". The default
             location for this document is
-            http://geronimo.apache.org/schemas-1.2/geronimo-connector-1.2.xsd
+            http://geronimo.apache.org/xml/ns/j2ee/connector-1.2
         </xs:documentation>
     </xs:annotation>
     <xs:import namespace="http://geronimo.apache.org/xml/ns/naming-1.2"

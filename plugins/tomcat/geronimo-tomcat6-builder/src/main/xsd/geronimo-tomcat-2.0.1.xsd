@@ -38,9 +38,9 @@
             included in the EAR and referenced by an alt-dd element of the EAR
             deployment plan. All the web application deployment plan must
             specify the top level element as web-app with namespace specified as
-            xmlns="http://geronimo.apache.org/xml/ns/j2ee/tomcat-1.2". The
+            xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-2.0.1". The
             default location for this document is
-            http://geronimo.apache.org/schemas-1.2/geronimo-tomcat-2.0.xsd
+            http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-2.0.1
         </xs:documentation>
     </xs:annotation>
 

@@ -32,15 +32,16 @@
             deployment plan is provided externally, the deployment descriptor
             can be named anything and provided to the deploy tool. All the
             Service deployment plan must specify the top level element as module
-            with namespace specified as xmlns=
-            "http://geronimo.apache.org/xml/ns/j2ee/deployment-1.2". The default
+            with namespace specified as 
+            xmlns="http://geronimo.apache.org/xml/ns/deployment-1.2". The default
             location for this document is
-            http://geronimo.apache.org/schemas-1.2/geronimo-module-1.2.xsd.
+            http://geronimo.apache.org/xml/ns/deployment-1.2
+
             Typical Geronimo Service Deployment plan will look like this:
             <![CDATA[
             <?xml version="1.0" encoding="UTF-8"?>
             <module
-                xmlns="http://geronimo.apache.org/xml/ns/j2ee/deployment-1.2">
+                xmlns="http://geronimo.apache.org/xml/ns/deployment-1.2">
                 <environment>
                     ...
                 </environment>

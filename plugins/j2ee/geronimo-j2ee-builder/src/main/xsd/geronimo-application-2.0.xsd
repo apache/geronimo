@@ -36,7 +36,7 @@
             with namespace specified as xmlns =
             "http://geronimo.apache.org/xml/ns/j2ee/application-2.0". The
             default location for this document is
-            http://geronimo.apache.org/schemas-1.2/geronimo-application-2.0.xsd
+            http://geronimo.apache.org/xml/ns/j2ee/application-2.0
         </xs:documentation>
     </xs:annotation>
 
