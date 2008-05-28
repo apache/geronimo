@@ -38,9 +38,9 @@
             included in the EAR and referenced by an alt-dd element of the EAR
             deployment plan. All the web application deployment plan must
             specify the top level element as web-app with namespace specified as
-            xmlns="http://geronimo.apache.org/xml/ns/j2ee/jetty-1.2". The
+            xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/jetty-2.0.2". The
             default location for this document is
-            http://geronimo.apache.org/schemas-1.2/geronimo-jetty-2.0.xsd
+            http://geronimo.apache.org/xml/ns/j2ee/web/jetty-2.0.2
         </xs:documentation>
     </xs:annotation>
 

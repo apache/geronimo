@@ -32,9 +32,9 @@
             geronimo-jetty-2.0.2.xsd. All the schema's or plans using elements of
             this schema must specify the top level element with one of the
             namespace specified as
-            "http://geronimo.apache.org/xml/ns/j2ee/naming-1.2". The default
+            "http://geronimo.apache.org/xml/ns/naming-1.2". The default
             location for this document is
-            http://geronimo.apache.org/schemas-1.2/geronimo-naming-1.2.xsd.
+            http://geronimo.apache.org/xml/ns/naming-1.2
         </xsd:documentation>
     </xsd:annotation>
 

@@ -29,9 +29,9 @@
             container-config element of web application plan. The top level
             element included in container-config is jetty with namespace
             specified as
-            xmlns="http://geronimo.apache.org/xml/ns/j2ee/jetty-config-1.0". The
+            xmlns="http://geronimo.apache.org/xml/ns/web/jetty/config-1.0.1". The
             default location for this document is
-            http://geronimo.apache.org/schemas-1.2/geronimo-jetty-config-1.0.1.xsd
+            http://geronimo.apache.org/xml/ns/web/jetty/config-1.0.1
         </xs:documentation>
     </xs:annotation>
     <xs:element name="jetty" type="jetty:jetty-configType">

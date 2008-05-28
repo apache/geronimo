@@ -33,8 +33,9 @@
             specified by the level element as login-config with namespace
             specified as xmlns =
             "http://geronimo.apache.org/xml/ns/loginconfig-2.0". The default
-            location for this document is somewhere vaguely related to
-            http://geronimo.apache.org/schemas-1.2/geronimo-login-config-2.0.xsd
+            location for this document is:
+            http://geronimo.apache.org/xml/ns/loginconfig-2.0
+
             The definition of the XML format for storing login-config should
             look like this:
             <![CDATA[

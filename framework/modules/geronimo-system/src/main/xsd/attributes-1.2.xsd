@@ -28,9 +28,10 @@
             This is an XML Schema Definition for storing manageable attribute
             values. All the schema's or plans using elements of this schema must
             specify the top level element with one of the namespace specified as
-            "http://geronimo.apache.org/xml/ns/j2ee/attributes-1.2". The default
+            "http://geronimo.apache.org/xml/ns/attributes-1.2". The default
             location for this document is:
-            http://geronimo.apache.org/schemas-1.1/attributes-1.2.xsd.
+            http://geronimo.apache.org/xml/ns/attributes-1.2
+
             The definition of the XML format for storing manageable attribute
             values. Should look like this:
             <![CDATA[
