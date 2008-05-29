@@ -178,9 +178,6 @@ public class BaseDeploymentFactory implements DeploymentFactory {
             }
             return manager;
         } catch (IOException e) {
-        	if (log.isDebugEnabled()) {
-                log.debug("caught ", e);
-        	}
             DeploymentManagerCreationException deploymentManagerCreationException = 
                     (DeploymentManagerCreationException) new DeploymentManagerCreationException(e.getMessage()).initCause(e);
             if (log.isDebugEnabled()) {
@@ -188,9 +185,6 @@ public class BaseDeploymentFactory implements DeploymentFactory {
             }
             throw deploymentManagerCreationException;
         } catch (SecurityException e) {
-            if (log.isDebugEnabled()) {
-                log.debug("caught ", e);
-            }
             AuthenticationFailedException authenticationFailedException = 
                     (AuthenticationFailedException) new AuthenticationFailedException("Invalid login.").initCause(e);
             if (log.isDebugEnabled()) {
