@@ -20,10 +20,9 @@ package org.apache.geronimo.system.main;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.LinkedHashSet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -37,6 +36,7 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.DebugLoggingLifecycleMonitor;
+import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.LifecycleMonitor;
 import org.apache.geronimo.kernel.config.PersistentConfigurationList;
 import org.apache.geronimo.kernel.repository.Artifact;
@@ -58,9 +58,9 @@ public class EmbeddedDaemon implements Main {
     public EmbeddedDaemon(Kernel kernel) {
         this.kernel = kernel;
     }
-    
+
     public int execute(Object opaque) {
-        if (! (opaque instanceof DaemonCLParser)) {
+        if (!(opaque instanceof DaemonCLParser)) {
             throw new IllegalArgumentException("Argument type is [" + opaque.getClass() + "]; expected [" + DaemonCLParser.class + "]");
         }
         DaemonCLParser parser = (DaemonCLParser) opaque;
@@ -71,10 +71,10 @@ public class EmbeddedDaemon implements Main {
 
         System.out.println("Booting Geronimo Kernel (in Java " + System.getProperty("java.version") + ")...");
         System.out.flush();
-        
+
         // Perform initialization tasks common with the various Geronimo environments
         GeronimoEnvironment.init();
-        
+
         monitor.systemStarting(start);
         return doStartup();
     }
@@ -100,7 +100,7 @@ public class EmbeddedDaemon implements Main {
         }
         lifecycleMonitor = new DebugLoggingLifecycleMonitor(log);
     }
-    
+
     protected int doStartup() {
         try {
             // Check that the tmpdir exists - if not give friendly msg and exit
@@ -108,7 +108,7 @@ public class EmbeddedDaemon implements Main {
             // (since 1.0 release) the same way Tomcat allows it to be configured.
             String tmpDir = System.getProperty("java.io.tmpdir");
             if (tmpDir == null || (!(new File(tmpDir)).exists()) || (!(new File(tmpDir)).isDirectory())) {
-                System.err.println("The java.io.tmpdir system property specifies a non-existent directory: "  + tmpDir);
+                System.err.println("The java.io.tmpdir system property specifies a non-existent directory: " + tmpDir);
                 return 1;
             }
 
@@ -149,22 +149,29 @@ public class EmbeddedDaemon implements Main {
             try {
                 ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
                 try {
-                    LinkedHashSet<Artifact> sorted = configurationManager.sort(configs, lifecycleMonitor);
-                    for (Artifact configID : sorted) {
-                        monitor.moduleLoading(configID);
-                        configurationManager.loadConfiguration(configID, lifecycleMonitor);
-                        monitor.moduleLoaded(configID);
-                        monitor.moduleStarting(configID);
-                        configurationManager.startConfiguration(configID, lifecycleMonitor);
-                        monitor.moduleStarted(configID);
+                    List<Artifact> unloadedConfigs = new ArrayList(configs);
+                    int unloadedConfigsCount;
+                    do {
+                        unloadedConfigsCount = unloadedConfigs.size();
+                        LinkedHashSet<Artifact> sorted = configurationManager.sort(unloadedConfigs, lifecycleMonitor);
+                        for (Artifact configID : sorted) {
+                            monitor.moduleLoading(configID);
+                            configurationManager.loadConfiguration(configID, lifecycleMonitor);
+                            monitor.moduleLoaded(configID);
+                            monitor.moduleStarting(configID);
+                            configurationManager.startConfiguration(configID, lifecycleMonitor);
+                            monitor.moduleStarted(configID);
+                        }
+                    } while (unloadedConfigsCount > unloadedConfigs.size());
+                    if (!unloadedConfigs.isEmpty()) {
+                        throw new InvalidConfigException("Could not locate configs to start: " + unloadedConfigs);
                     }
                     // the server has finished loading the persistent configuration so inform the gbean
                     AbstractNameQuery startedQuery = new AbstractNameQuery(ServerStatus.class.getName());
-                    Set statusBeans = kernel.listGBeans(startedQuery);
-                    for(Iterator itr = statusBeans.iterator();itr.hasNext();) {
-                        AbstractName statusName = (AbstractName)itr.next();
-                        ServerStatus status = (ServerStatus)kernel.getGBean(statusName);
-                        if(status != null) {
+                    Set<AbstractName> statusBeans = kernel.listGBeans(startedQuery);
+                    for (AbstractName statusName : statusBeans) {
+                        ServerStatus status = (ServerStatus) kernel.getGBean(statusName);
+                        if (status != null) {
                             status.setServerStarted(true);
                         }
                     }
@@ -233,5 +240,5 @@ public class EmbeddedDaemon implements Main {
     public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
     }
-    
+
 }
