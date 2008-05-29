@@ -32,48 +32,26 @@ import javax.management.ObjectName;
  */
 @Local
 public interface MasterRemoteControlLocal {
-    @RolesAllowed("mejbuser")
     public HashMap<String, Long> getStats(String s) throws Exception;
-    @RolesAllowed("mejbadmin")
     public void setAttribute(String s, String ss, Object o) throws Exception;
-    @RolesAllowed("mejbuser")
     public boolean startSnapshot(Long l);
-    @RolesAllowed("mejbuser")
     public boolean stopSnapshot();
-    @RolesAllowed("mejbuser")
     public ArrayList<HashMap<String, HashMap<String, Object>>> fetchSnapshotData(Integer i, Integer ii);
-    @RolesAllowed("mejbuser")
     public HashMap<String, HashMap<String, Long>> fetchMaxSnapshotData(Integer i);
-    @RolesAllowed("mejbuser")
     public HashMap<String, HashMap<String, Long>> fetchMinSnapshotData(Integer i);
-    @RolesAllowed("mejbuser")
     public Long getSnapshotDuration();
-    @RolesAllowed("mejbuser")
     public Long getSnapshotCount();
-    @RolesAllowed("mejbuser")
     public void setSnapshotDuration(Long l);
-    @RolesAllowed("mejbuser")
     public Set<String> getStatisticsProviderMBeanNames();
-    @RolesAllowed("mejbuser")
     public Set<String> getAllMBeanNames();
-    @RolesAllowed("mejbuser")
     public HashMap<String, ArrayList<String>> getAllSnapshotStatAttributes();
-    @RolesAllowed("mejbuser")
     public boolean addMBeanForSnapshot(String s);
-    @RolesAllowed("mejbuser")
     public boolean removeMBeanForSnapshot(String s);
-    @RolesAllowed("mejbuser")
     public boolean isSnapshotRunning();
-    @RolesAllowed("mejbuser")
     public void setUpMEJB(String username, String password);
-    @RolesAllowed("mejbadmin")
     public Object invoke(ObjectName name, String operationName, Object[] params, String[] signature);
-    @RolesAllowed("mejbuser")
     public TreeMap<Long, Long> getSpecificStatistics(String mbeanName, String statsName, int numberOfSnapshots, int everyNthSnapshot, boolean showArchive);
-    @RolesAllowed("mejbuser")
     public Set<String> getTrackedMBeans();
-    @RolesAllowed("mejbuser")
     public void setSnapshotRetention(int retention);
-    @RolesAllowed("mejbuser")
     public String getSnapshotRetention();
 }
