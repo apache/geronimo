@@ -178,10 +178,14 @@ public class BaseDeploymentFactory implements DeploymentFactory {
             }
             return manager;
         } catch (IOException e) {
-            log.fatal("caught ", e);
+        	if (log.isDebugEnabled()) {
+                log.debug("caught ", e);
+        	}
             DeploymentManagerCreationException deploymentManagerCreationException = 
                     (DeploymentManagerCreationException) new DeploymentManagerCreationException(e.getMessage()).initCause(e);
-            log.fatal("throwing ", deploymentManagerCreationException);
+            if (log.isDebugEnabled()) {
+                log.debug("throwing ", deploymentManagerCreationException);
+            }
             throw deploymentManagerCreationException;
         } catch (SecurityException e) {
             if (log.isDebugEnabled()) {
