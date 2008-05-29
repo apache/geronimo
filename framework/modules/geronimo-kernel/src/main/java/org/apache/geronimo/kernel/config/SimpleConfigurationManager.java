@@ -443,20 +443,33 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         }
     }
 
+    // Return ids that can be loaded in sorted order.  Remove loadable ids from source set.
     public LinkedHashSet<Artifact> sort(List<Artifact> ids, LifecycleMonitor monitor) throws InvalidConfigException, IOException, NoSuchConfigException, MissingDependencyException {
         LinkedHashSet<Artifact> sorted = new LinkedHashSet<Artifact>();
         sort(ids, sorted, monitor);
         sorted.retainAll(ids);
+        ids.removeAll(sorted);
         return sorted;
     }
 
     private void sort(Collection<Artifact> ids, LinkedHashSet<Artifact> sorted, LifecycleMonitor monitor) throws InvalidConfigException, IOException, NoSuchConfigException, MissingDependencyException {
         for (Artifact id : ids) {
             if (!sorted.contains(id)) {
-                ConfigurationData data = loadConfigurationData(id, monitor);
-                LinkedHashSet<Artifact> parents = resolveParentIds(data);
-                sort(parents, sorted, monitor);
-                sorted.add(id);
+                try {
+                    //configuration may not be loadable yet, the config-store may not be available to load from
+                    ConfigurationData data = loadConfigurationData(id, monitor);
+                    LinkedHashSet<Artifact> parents = resolveParentIds(data);
+                    sort(parents, sorted, monitor);
+                    sorted.add(id);
+                } catch (NoSuchConfigException e) {
+                    //ignore
+                } catch (IOException e) {
+                    //ignore
+                } catch (InvalidConfigException e) {
+                    //ignore
+                } catch (MissingDependencyException e) {
+                    //ignore
+                }
             }
         }
     }
