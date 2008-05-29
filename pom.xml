@@ -2049,6 +2049,7 @@
                     <version>2.4.2</version>
                     <configuration>
                         <redirectTestOutputToFile>true</redirectTestOutputToFile>
+                        <failIfNoTests>false</failIfNoTests>
                     </configuration>
                 </plugin>
                 
