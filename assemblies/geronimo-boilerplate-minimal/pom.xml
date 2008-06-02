@@ -39,81 +39,10 @@
     </description>
 
     <dependencies>
-        <!-- lib/gshell Dependencies -->
-        <dependency>
-            <groupId>org.apache.geronimo.framework</groupId>
-            <artifactId>geronimo-commands</artifactId>
-            <version>${version}</version>
-        </dependency>
-
+        <!-- lib/boot Dependencies -->
         <dependency>
             <groupId>org.apache.geronimo.gshell</groupId>
             <artifactId>gshell-bootstrap</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.gshell</groupId>
-            <artifactId>gshell-cli</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.gshell</groupId>
-            <artifactId>gshell-embeddable</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.gshell</groupId>
-            <artifactId>gshell-whisper</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.gshell.remote</groupId>
-            <artifactId>gshell-remote-client</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.gshell.remote</groupId>
-            <artifactId>gshell-remote-common</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.gshell.remote</groupId>
-            <artifactId>gshell-remote-server</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.mina</groupId>
-            <artifactId>mina-core</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.mina</groupId>
-            <artifactId>mina-filter-ssl</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>jcl104-over-slf4j</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.codehaus.groovy</groupId>
-            <artifactId>groovy-all-minimal</artifactId>
-        </dependency>
-        
-        <dependency>
-            <groupId>org.apache.ant</groupId>
-            <artifactId>ant</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.ant</groupId>
-            <artifactId>ant-launcher</artifactId>
         </dependency>
 
         <!-- lib Dependencies -->
@@ -198,6 +127,20 @@
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>online-deployer</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>gshell-geronimo</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>gshell-remote</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>
@@ -307,6 +250,16 @@
                                     <artifactId>geronimo-openejb-builder</artifactId>
                                     <version>${version}</version>
                                 </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.apache.geronimo.modules</groupId>
+                                    <artifactId>geronimo-tomcat6-builder</artifactId>
+                                    <version>${version}</version>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.apache.geronimo.modules</groupId>
+                                    <artifactId>geronimo-jetty6-builder</artifactId>
+                                    <version>${version}</version>
+                                </artifactItem>
                             </artifactItems>
                         </configuration>
                     </execution>
@@ -325,8 +278,8 @@
                         </goals>
                         <configuration>
                             <tasks>
-                                <mkdir dir="${project.build.directory}/classes/contents/schema"/>
-                                <copy todir="${project.build.directory}/classes/contents/schema">
+                                <mkdir dir="${project.build.outputDirectory}/contents/schema"/>
+                                <copy todir="${project.build.outputDirectory}/contents/schema">
                                     <fileset dir="${project.build.directory}/schema">
                                         <include name="**/*.xsd"/>
                                         <include name="**/*.dtd"/>
@@ -345,8 +298,8 @@
                         </goals>
                         <configuration>
                             <tasks>
-                                <mkdir dir="${project.build.directory}/classes"/>
-                                <copy todir="${project.build.directory}/classes">
+                                <mkdir dir="${project.build.outputDirectory}"/>
+                                <copy todir="${project.build.outputDirectory}">
                                     <fileset dir="${project.build.directory}/${project.build.finalName}.dir/${project.build.finalName}">
                                         <include name="**"/>
                                     </fileset>
@@ -400,7 +353,7 @@
                             <outputDirectory>${project.build.directory}</outputDirectory>
                             <appendAssemblyId>false</appendAssemblyId>
                             <descriptors>
-                                <descriptor>${pom.basedir}/src/main/assembly/boilerplate.xml</descriptor>
+                                <descriptor>${project.basedir}/src/main/assembly/boilerplate.xml</descriptor>
                             </descriptors>
                         </configuration>
                     </execution>
