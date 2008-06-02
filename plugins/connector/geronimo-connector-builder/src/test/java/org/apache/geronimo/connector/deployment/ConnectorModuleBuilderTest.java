@@ -145,7 +145,7 @@ public class ConnectorModuleBuilderTest extends TestSupport {
             ArtifactResolver artifactResolver = new DefaultArtifactResolver(artifactManager, Collections.singleton(repository), null);
 
             try {
-                File planFile = new File(BASEDIR, "src/test/data/data/external-application-plan.xml");
+                File planFile = new File(BASEDIR, "src/test/resources/data/external-application-plan.xml");
                 ModuleIDBuilder idBuilder = new ModuleIDBuilder();
                 Object plan = configBuilder.getDeploymentPlan(planFile, rarFile, idBuilder);
                 context = configBuilder.buildConfiguration(false, configBuilder.getConfigurationID(plan, rarFile, idBuilder), plan, rarFile, Collections.singleton(configurationStore), artifactResolver, configurationStore);
