@@ -29,12 +29,12 @@ import java.sql.Statement;
 import javax.resource.ResourceException;
 import javax.sql.DataSource;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.naming.ResourceSource;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.naming.ResourceSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @version $Rev$ $Date$
@@ -52,16 +52,21 @@ public class DatabaseInitializationGBean {
                 boolean pass = true;
                 // SQL statement in testSQL can be used to determine if the sql script in path attribute should be executed.
                 // This attribute can be left blank or skipped altogether.
-                if ( testSQL != null && !testSQL.trim().equals("") ) {
-                    ResultSet rs = s.executeQuery(testSQL);
-                    // passes sql test when there are one or more elements
-                    while ( rs.next() ) {
-                        pass = false;
-                        break;
+                if (testSQL != null && !testSQL.trim().equals("")) {
+                    ResultSet rs = null;
+                    try {
+                        rs = s.executeQuery(testSQL);
+                        // passes sql test when there are one or more elements
+                        pass = !rs.next();
+                    } catch (SQLException e) {
+                        log.info("Exception running test query, executing script: " + e.getMessage());
+                    }
+                    if (rs != null) {
+                        rs.close();
                     }
                 }
 
-                if ( pass ) {
+                if (pass) {
                     //script needs to be run
                     log.debug("Executing script: " + path);
                     URL sourceURL = classLoader.getResource(path);
@@ -70,11 +75,11 @@ public class DatabaseInitializationGBean {
                     try {
                         String line;
                         StringBuffer buf = new StringBuffer();
-                        while ( (line = r.readLine()) != null ) {
+                        while ((line = r.readLine()) != null) {
                             line = line.trim();
-                            if ( !line.startsWith("--") && line.length() > 0 ) {
+                            if (!line.startsWith("--") && line.length() > 0) {
                                 buf.append(line).append(" ");
-                                if ( line.endsWith(";") ) {
+                                if (line.endsWith(";")) {
                                     int size = buf.length();
                                     buf.delete(size - 2, size - 1);
                                     String sql = buf.toString();
@@ -84,19 +89,18 @@ public class DatabaseInitializationGBean {
                             }
                         }
                     }
-                    catch ( Exception ex ) {
+                    catch (Exception ex) {
                         log.error(ex.getMessage());
                     }
                     finally {
                         r.close();
                     }
-                }
-                else {
+                } else {
                     //script need not be run
                     log.debug("Script did not run");
                 }
             }
-            catch ( SQLException e ) {
+            catch (SQLException e) {
                 log.error(e.getMessage());
             }
             finally {
