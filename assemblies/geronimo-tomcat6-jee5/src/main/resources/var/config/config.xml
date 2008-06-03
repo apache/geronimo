@@ -316,7 +316,7 @@
     <module name="org.apache.geronimo.configs/javamail/${version}/car">
         <gbean name="SMTPTransport">
             <attribute name="host">localhost</attribute>
-            <attribute name="port">${SMTPPort + PortOffset}</attribute>
+            <attribute name="port">${SMTPPort}</attribute>
         </gbean>
     </module>
 
