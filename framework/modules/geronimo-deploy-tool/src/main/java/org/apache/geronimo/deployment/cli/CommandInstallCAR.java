@@ -68,7 +68,7 @@ public class CommandInstallCAR extends AbstractCommand {
                 throw new DeploymentException("Cannot install plugin", e);
             }
         } else {
-            throw new DeploymentException("Cannot install plugins when connected to "+connection.getServerURI());
+            throw new DeploymentException("Cannot install plugins using " + dmgr.getClass().getName() + " deployment manager");
         }
     }
 

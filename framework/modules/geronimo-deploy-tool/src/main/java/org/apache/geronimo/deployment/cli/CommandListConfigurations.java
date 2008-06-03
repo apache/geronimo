@@ -77,7 +77,7 @@ public class CommandListConfigurations extends AbstractCommand {
                 throw new DeploymentException("Invalid response");
             }
         } else {
-            throw new DeploymentException("Cannot list repositories when connected to " + connection.getServerURI());
+            throw new DeploymentException("Cannot list repositories using " + dmgr.getClass().getName() + " deployment manager");
         }
     }
 

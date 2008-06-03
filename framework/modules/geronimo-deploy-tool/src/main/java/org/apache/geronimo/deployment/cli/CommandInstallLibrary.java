@@ -61,7 +61,7 @@ public class CommandInstallLibrary extends AbstractCommand {
                 throw new DeploymentException("Unable to install library "+installLibraryCommandArgs.getArgs()[0], e);
             }
         } else {
-            throw new DeploymentException("Cannot install library when connected to "+connection.getServerURI());
+            throw new DeploymentException("Cannot install library using " + dmgr.getClass().getName() + " deployment manager");
         }
     }
 }
