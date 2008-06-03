@@ -79,7 +79,7 @@
                             <config-xml-content>
                                 <gbean name="SMTPTransport">
                                     <attribute name="host">${SMTPHost}</attribute>
-                                    <attribute name="port">${SMTPPort + PortOffset}</attribute>
+                                    <attribute name="port">${SMTPPort}</attribute>
                                 </gbean>
                              </config-xml-content>
                             <config-substitution key="SMTPHost">localhost</config-substitution>
