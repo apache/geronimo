@@ -32,7 +32,7 @@ public class DBManagerTest extends ConsoleTestSupport {
             selenium.click("link=DB Manager");
             selenium.waitForPageToLoad("30000");
             selenium.type("createDB", "MyUniqueDB");
-            selenium.click("action");
+            selenium.click("//input[@value = 'Create']");
             selenium.waitForPageToLoad("30000");
             assertTrue(selenium.isTextPresent("MyUniqueDB"));
             selenium.type("sqlStmts", "create table myTable ( id int primary key );");
