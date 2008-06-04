@@ -63,7 +63,7 @@ public class ClientCommandLine extends CommandLine {
             return startClient(configuration, parser.getApplicationClientArgs());
         } catch (Exception e) {
             ExceptionUtil.trimStackTrace(e);
-            e.printStackTrace();
+            log.error("Client failed with exception: ", e);
             return 2;
         }
     }
