@@ -31,6 +31,3 @@ if (command.profiles.contains('debug')) {
     command.javaFlags << '-Xdebug'
     command.javaFlags << '-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8000'
 }
-
-// Uncomment this property so that Tribes work on Mac OS X
-// command.properties['java.net.preferIPv4Stack'] = true
