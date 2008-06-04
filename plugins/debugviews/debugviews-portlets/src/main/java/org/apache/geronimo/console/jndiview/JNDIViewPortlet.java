@@ -17,8 +17,12 @@
 package org.apache.geronimo.console.jndiview;
 
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.naming.java.RootContext;
 import org.apache.geronimo.gbean.AbstractName;
 import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NameClassPair;
+import javax.naming.NamingEnumeration;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -32,6 +36,8 @@ import java.util.Collections;
 
 import org.apache.geronimo.console.BasePortlet;
 import org.apache.geronimo.console.util.StringTree;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
@@ -44,6 +50,8 @@ import javax.portlet.WindowState;
 
 public class JNDIViewPortlet extends BasePortlet {
 
+    private static final Logger log = LoggerFactory.getLogger(JNDIViewPortlet.class);
+        
     private static final String NORMALVIEW_JSP = "/WEB-INF/view/jndiview/view.jsp";
 
     private static final String MAXIMIZEDVIEW_JSP = "/WEB-INF/view/jndiview/view.jsp";
@@ -55,7 +63,7 @@ public class JNDIViewPortlet extends BasePortlet {
     private PortletRequestDispatcher maximizedView;
 
     private PortletRequestDispatcher helpView;
-
+  
     public void processAction(ActionRequest actionRequest,
             ActionResponse actionResponse) throws PortletException, IOException {
     }
@@ -322,22 +330,34 @@ public class JNDIViewPortlet extends BasePortlet {
         }
     }
 
-    public void buildContext(StringTree node, Context ctx, String nodeCurr) {
+    public void buildContext(StringTree node, Context compCtx, String nodeCurr) {
+        Context oldCtx = RootContext.getComponentContext();
+        RootContext.setComponentContext(compCtx);
         try {
-            javax.naming.NamingEnumeration enumName = ctx.list("");
+            InitialContext ctx = new InitialContext();
+            buildContextSub(node, (Context)ctx.lookup("java:comp"), nodeCurr);
+        } catch (Exception e) {
+            log.warn("Error looking up java:comp context", e);
+        } finally {        
+            RootContext.setComponentContext(oldCtx);
+        }
+    }
+    
+    private void buildContextSub(StringTree node, Context ctx, String nodeCurr) {
+        try {
+            NamingEnumeration enumName = ctx.list("");
             while (enumName.hasMoreElements()) {
-                javax.naming.NameClassPair pair = (javax.naming.NameClassPair) enumName
-                        .next();
+                NameClassPair pair = (NameClassPair) enumName.next();
                 Object obj = ctx.lookup(pair.getName());
                 if (obj instanceof Context) {
-                    buildContext(node, (Context) obj, nodeCurr + "/"
+                    buildContextSub(node, (Context) obj, nodeCurr + "/"
                             + pair.getName());
                 } else {
                     node.addChild(new StringTree(nodeCurr + "/" + pair.getName()));
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.warn("Error listing context", e);
         }
     }
 
