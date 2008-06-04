@@ -26,21 +26,31 @@
 var <portlet:namespace/>formName = "<portlet:namespace/>DBForm";
 var <portlet:namespace/>requiredFields = new Array("createDB");
 var <portlet:namespace/>requiredFields2 = new Array("sqlStmts");
-function <portlet:namespace/>validateForm(){
+
+function <portlet:namespace/>validateForm1(){
+    var action = eval("document.forms[<portlet:namespace/>formName].elements['action']");
+    action.value="Create";
     return textElementsNotEmpty(<portlet:namespace/>formName, <portlet:namespace/>requiredFields);
 }
 function <portlet:namespace/>validateForm2(){
+    var action = eval("document.forms[<portlet:namespace/>formName].elements['action']");
+    action.value="Delete";
+    return confirm('<fmt:message key="internaldb.runSQLNormal.reallyDeleteDatabase"/>')
+}
+function <portlet:namespace/>validateForm3(){
+    var action = eval("document.forms[<portlet:namespace/>formName].elements['action']");
+    action.value="Run SQL";
     return textElementsNotEmpty(<portlet:namespace/>formName, <portlet:namespace/>requiredFields2);
 }
 </script>
 
 <form name="<portlet:namespace/>DBForm" action="<portlet:actionURL portletMode='view'/>" method="post">
-
+<input type="hidden" name="action" value="" />
 <table width="100%"  border="0">
   <tr>
     <td><div align="right"><fmt:message key="internaldb.common.createDB"/>:</div></td>
     <td><input name="createDB" type="text" size="30">&nbsp;
-      <input type="submit" name="action" value='<fmt:message key="internaldb.common.create"/>' onClick="return <portlet:namespace/>validateForm();"></td>
+      <input type="submit" value='<fmt:message key="internaldb.common.create"/>' onClick="return <portlet:namespace/>validateForm1();"></td>
     </tr>
   <tr>
     <td><div align="right"><fmt:message key="internaldb.common.deleteDB"/>:</div></td>
@@ -50,7 +60,7 @@ function <portlet:namespace/>validateForm2(){
         <option value="${db}">${db}</option>
       </c:forEach>
       </select>&nbsp;
-      <input type="submit" name="action" value='<fmt:message key="internaldb.common.delete"/>' onClick="javascript:return confirm('<fmt:message key="internaldb.runSQLNormal.reallyDeleteDatabase"/>')">
+      <input type="submit" value='<fmt:message key="internaldb.common.delete"/>' onClick="return <portlet:namespace/>validateForm2();">
     </td>
   </tr>
   <tr>
@@ -61,7 +71,7 @@ function <portlet:namespace/>validateForm2(){
         <option value="${db}">${db}</option>
       </c:forEach>
       </select>&nbsp;
-      <input type="submit" name="action" value="Run SQL" onClick="return <portlet:namespace/>validateForm2();"></td>
+      <input type="submit" value="Run SQL" onClick="return <portlet:namespace/>validateForm3();"></td>
   </tr>
   <tr>
     <td></td>
