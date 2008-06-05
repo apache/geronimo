@@ -46,7 +46,7 @@
     <p><fmt:message key="ca.index.CAInitialized"/>
     <c:choose>
       <c:when test="${caLocked}">
-        <fmt:message key="ca.index.CALocked"/>
+        &nbsp;<fmt:message key="ca.index.CALocked"/>
         <table border="0">
         <tr>
           <td><a href="<portlet:actionURL portletMode="view"><portlet:param name="mode" value="unlockCA-before" /></portlet:actionURL>">
@@ -56,30 +56,19 @@
         </table>
       </c:when>
       <c:otherwise>
-      <fmt:message key="ca.index.CAFunctionsAccessed"/>        
+      &nbsp;<fmt:message key="ca.index.CAFunctionsAccessed"/>        
         <table border="0">
         <tr>
-          <td>&nbsp;<a href="<portlet:actionURL portletMode="view"><portlet:param name="mode" value="index-after" /><portlet:param name="lock" value="lock" /></portlet:actionURL>">
-           <fmt:message key="ca.common.lockCA"/>
-           </a> &nbsp;</td>
-          <td>&nbsp;<a href="<portlet:actionURL portletMode="view"><portlet:param name="mode" value="caDetails-before" /></portlet:actionURL>">
-          <fmt:message key="ca.common.viewCADetails"/>
-          </a> &nbsp;</td>
-          <td>&nbsp;<a href="<portlet:actionURL portletMode="view"><portlet:param name="mode" value="index-after" /><portlet:param name="publish" value="publish" /></portlet:actionURL>">
-          <fmt:message key="ca.index.publishCACert"/>
-          </a> &nbsp;</td>
+          <td>&nbsp;<a href="<portlet:actionURL portletMode="view"><portlet:param name="mode" value="index-after" /><portlet:param name="lock" value="lock" /></portlet:actionURL>"><fmt:message key="ca.common.lockCA"/></a>&nbsp;</td>
+          <td>&nbsp;<a href="<portlet:actionURL portletMode="view"><portlet:param name="mode" value="caDetails-before" /></portlet:actionURL>"><fmt:message key="ca.common.viewCADetails"/></a>&nbsp;</td>
+          <td>&nbsp;<a href="<portlet:actionURL portletMode="view"><portlet:param name="mode" value="index-after" /><portlet:param name="publish" value="publish" /></portlet:actionURL>"><fmt:message key="ca.index.publishCACert"/></a>&nbsp;</td>
           <td>&nbsp;</td>
         </tr>
         <tr>
-          <td>&nbsp;<a href="<portlet:actionURL portletMode="view"><portlet:param name="mode" value="listRequestsVerify-before" /></portlet:actionURL>">
-          <fmt:message key="ca.index.requestsToBeVerified"/></a>&nbsp;</td>
-          <td>&nbsp;<a href="<portlet:actionURL portletMode="view"><portlet:param name="mode" value="listRequestsIssue-before" /></portlet:actionURL>">
-          <fmt:message key="ca.index.requestsToBeFulfilled"/></a>&nbsp;</td>
-          <td>&nbsp;<a href="<portlet:actionURL portletMode="view"><portlet:param name="mode" value="processCSR-before" /></portlet:actionURL>">
-          <fmt:message key="ca.common.issueNewCert"/></a> &nbsp;</td>
-          <td>&nbsp;<a href="<portlet:actionURL portletMode="view"><portlet:param name="mode" value="viewCert-before" /></portlet:actionURL>">
-          <fmt:message key="ca.common.viewIssuedCert"/>
-          </a> &nbsp;</td>
+          <td>&nbsp;<a href="<portlet:actionURL portletMode="view"><portlet:param name="mode" value="listRequestsVerify-before" /></portlet:actionURL>"><fmt:message key="ca.index.requestsToBeVerified"/></a>&nbsp;</td>
+          <td>&nbsp;<a href="<portlet:actionURL portletMode="view"><portlet:param name="mode" value="listRequestsIssue-before" /></portlet:actionURL>"><fmt:message key="ca.index.requestsToBeFulfilled"/></a>&nbsp;</td>
+          <td>&nbsp;<a href="<portlet:actionURL portletMode="view"><portlet:param name="mode" value="processCSR-before" /></portlet:actionURL>"><fmt:message key="ca.common.issueNewCert"/></a>&nbsp;</td>
+          <td>&nbsp;<a href="<portlet:actionURL portletMode="view"><portlet:param name="mode" value="viewCert-before" /></portlet:actionURL>"><fmt:message key="ca.common.viewIssuedCert"/></a>&nbsp;</td>
         </tr>
         </table>
       </c:otherwise>
