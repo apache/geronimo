@@ -19,7 +19,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <fmt:setBundle basename="consolebase"/>
 <portlet:defineObjects/>
-<b><fmt:message key="ca.confirmCertReq.confirmCertRequest"/>Confirm Certificate Request</b>
+<b><fmt:message key="ca.confirmCertReq.confirmCertRequest"/></b>
 
 <p><fmt:message key="ca.confirmCertReq.summary"/></p>
 
@@ -46,8 +46,8 @@
         </tr>
         <tr><td>&nbsp;</td></tr>
     </table>
-    <input type="submit" name="approve" value='<fmt:message key="ca.common.publicKey"/>'/>
-    <input type="submit" name="reject" value='<fmt:message key="ca.common.publicKey"/>'>
+    <input type="submit" name="approve" value='<fmt:message key="ca.confirmCertReq.approveCSR"/>'/>
+    <input type="submit" name="reject" value='<fmt:message key="ca.confirmCertReq.rejectCSR"/>'>
 </form>
 
 <p><a href="<portlet:actionURL portletMode="view">
