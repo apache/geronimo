@@ -101,6 +101,7 @@ public class ArchiverGBean implements ServerArchiver {
 */
         
         // add in all files and mark them with default file permissions
+        Map<File, Boolean> emptyDirs = new HashMap<File, Boolean>();
         Map<String, File> all = IOUtil.listAllFileNames(source);
         removeExcludes(source, all);
         for (Map.Entry<String, File> entry : all.entrySet()) {
@@ -108,9 +109,44 @@ public class ArchiverGBean implements ServerArchiver {
             File sourceFile = entry.getValue();
             if (sourceFile.isFile()) {
                 archiver.addFile(sourceFile, destFileName, UnixStat.DEFAULT_FILE_PERM);
+                // mark parent directories non-empty
+                for (File parentDir = sourceFile.getParentFile();
+                     parentDir != null && !parentDir.equals(source);
+                     parentDir = parentDir.getParentFile()) {               
+                    emptyDirs.put(parentDir, Boolean.FALSE);
+                }
+                
+            } else if (sourceFile.isDirectory()) {                           
+                Boolean isEmpty = emptyDirs.get(sourceFile);                
+                if (isEmpty == null) {       
+                    emptyDirs.put(sourceFile, Boolean.TRUE);
+                    // mark parent directories non-empty
+                    for (File parentDir = sourceFile.getParentFile();
+                         parentDir != null && !parentDir.equals(source);
+                         parentDir = parentDir.getParentFile()) {               
+                        emptyDirs.put(parentDir, Boolean.FALSE);
+                    }
+                }              
             }
         }
-
+        
+        if (!all.isEmpty()) {
+            emptyDirs.put(source, Boolean.FALSE);
+        }
+                
+        String sourceDirPath = source.getAbsolutePath();
+        for (Map.Entry<File, Boolean> entry : emptyDirs.entrySet()) {
+            if (entry.getValue().booleanValue()) {                
+                String emptyDirPath = entry.getKey().getAbsolutePath();
+                String relativeDir = emptyDirPath.substring(sourceDirPath.length());
+                relativeDir = relativeDir.replace('\\', '/');
+                archiver.addDirectory(entry.getKey(), serverName + relativeDir);
+            }
+        }
+        emptyDirs.clear();
+        
+        all.clear();
+        
         // add execute permissions to all non-batch files in the bin/ directory
         File bin = new File(source, "bin");
         if (bin.exists()) {
