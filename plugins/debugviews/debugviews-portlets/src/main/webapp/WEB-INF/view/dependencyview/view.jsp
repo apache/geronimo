@@ -227,11 +227,57 @@
 </td></tr>
 </table>
 <br/>
-
 <div dojoType="TreeBasicControllerV3" widgetId="controller"></div>    
 <div dojoType="TreeSelectorV3" widgetId="selector" eventNames="select:nodeSelected"></div>    
 <div dojoType="TreeEmphasizeOnSelect" selector="selector"></div>
 <div dojoType="TreeToggleOnSelect" selector="selector" controller="controller"></div>
-<div dojoType="TreeDocIconExtension"  widgetId="iconcontroller" templateCssPath="<%= renderResponse.encodeURL(renderRequest.getContextPath() + "TreeDocIcon.css") %>"></div>
+<div dojoType="TreeDocIconExtension"  widgetId="iconcontroller" templateCssString="
+.TreeStateChildrenYes-ExpandOpen .TreeIconContent {
+    background-image : url('../templates/images/TreeV3/i_long.gif');
+    background-repeat : no-repeat;
+    background-position: 18px 9px;
+}
+
+.TreeStateChildrenYes-ExpandClosed .TreeIconContent {
+    background-image : url();
+}
+
+.TreeStateChildrenNo-ExpandLeaf .TreeIconContent {
+    background-image : url();
+}
+
+.TreeStateChildrenNo-ExpandClosed .TreeIconContent {
+    background-image : url();
+}
+
+.TreeStateChildrenNo-ExpandOpen .TreeIconContent {
+    background-image : url();
+}
+
+.TreeIconDocument {
+    background-image: url(<%= renderResponse.encodeURL(renderRequest.getContextPath() + "/ico_filetree_16x16.gif") %>);
+}
+
+.TreeExpandOpen .TreeIconFolder {
+    background-image: url(<%= renderResponse.encodeURL(renderRequest.getContextPath() + "/ico_filetree_16x16.gif") %>);
+}
+
+.TreeExpandClosed .TreeIconFolder {
+    background-image: url(<%= renderResponse.encodeURL(renderRequest.getContextPath() + "/ico_filetree_16x16.gif") %>);
+}
+
+/* generic class for docIcon */
+.TreeIcon {
+    width: 18px;
+    height: 18px;
+    float: left;
+    display: inline;
+    background-repeat : no-repeat;
+}
+
+div.TreeContent {
+    margin-left: 36px;
+}"></div>
 <div dojoType="TreeV3" listeners="controller;selector;iconcontroller" widgetId='tree' allowedMulti='false'></div>
+
 
