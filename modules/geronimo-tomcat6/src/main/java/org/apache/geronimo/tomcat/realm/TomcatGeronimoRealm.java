@@ -216,10 +216,6 @@ public class TomcatGeronimoRealm extends JAASRealm {
      */
     public boolean hasRole(Principal principal, String role) {
 
-        if ((principal == null) || (role == null) || !(principal instanceof JAASTomcatPrincipal)) {
-            return false;
-        }
-
         String name = currentRequestWrapperName.get();
 
         /**
@@ -228,10 +224,6 @@ public class TomcatGeronimoRealm extends JAASRealm {
         if (name == null || name.equals("jsp")) {
             name = "";
         }
-
-        //Set the caller
-        Subject currentCaller = ((JAASTomcatPrincipal) principal).getSubject();
-        ContextManager.setCallers(currentCaller, currentCaller);
 
         AccessControlContext acc = ContextManager.getCurrentContext();
 
