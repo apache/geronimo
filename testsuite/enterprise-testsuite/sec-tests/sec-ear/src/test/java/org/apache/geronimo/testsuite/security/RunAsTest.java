@@ -59,8 +59,12 @@ public class RunAsTest
         System.out.println("----------------------------------------------");
         System.out.println(selenium.getText("xpath=/html/body"));
         assertEquals("TestServlet principal: foo\n" +
-                "Test EJB principal: bar\n" +
-                "Correctly received security exception on noAccess method", selenium.getText("xpath=/html/body"));
+            "TestServlet isUserInRole foo: true\n" +
+            "TestServlet isUserInRole bar: false\n" +
+            "Test EJB principal: bar\n" +
+            "Correctly received security exception on noAccess method\n" +
+            "TestSession isCallerInRole foo: false\n" +
+            "TestSession isCallerInRole bar: true", selenium.getText("xpath=/html/body"));
     }
 
     @Test

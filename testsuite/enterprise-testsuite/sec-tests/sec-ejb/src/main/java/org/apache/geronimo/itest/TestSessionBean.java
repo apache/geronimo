@@ -23,6 +23,7 @@ import javax.ejb.SessionContext;
 /**
  * @version $Rev$ $Date$
  */
+@javax.annotation.security.DeclareRoles({"foo", "bar"})
 public class TestSessionBean implements SessionBean {
 
     SessionContext sessionContext;
@@ -33,6 +34,10 @@ public class TestSessionBean implements SessionBean {
 
     public String testNoAccess() {
         return sessionContext.getCallerPrincipal().getName();
+    }
+
+    public boolean isCallerInRole(String role) {
+        return sessionContext.isCallerInRole(role);
     }
 
     public void ejbCreate() {

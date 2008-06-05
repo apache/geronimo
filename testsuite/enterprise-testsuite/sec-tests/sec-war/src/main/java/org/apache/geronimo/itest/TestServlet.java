@@ -43,6 +43,8 @@ public class TestServlet extends HttpServlet {
     protected void service(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws ServletException, IOException {
         PrintWriter out = httpServletResponse.getWriter();
         out.println("TestServlet principal: " + httpServletRequest.getUserPrincipal().getName());
+        out.println("TestServlet isUserInRole foo: " + httpServletRequest.isUserInRole("foo"));
+        out.println("TestServlet isUserInRole bar: " + httpServletRequest.isUserInRole("bar"));
         try {
             InitialContext ctx = new InitialContext();
 
@@ -57,6 +59,8 @@ public class TestServlet extends HttpServlet {
             } catch (AccessException e) {
                 out.println("Correctly received security exception on noAccess method");
             }
+            out.println("TestSession isCallerInRole foo: " + session.isCallerInRole("foo"));
+            out.println("TestSession isCallerInRole bar: " + session.isCallerInRole("bar"));
 
         } catch (NamingException e) {
             System.out.print("Exception:");

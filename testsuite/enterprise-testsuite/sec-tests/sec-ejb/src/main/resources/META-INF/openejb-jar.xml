@@ -32,34 +32,34 @@ limitations under the License.
             <ejb-name>TestSession</ejb-name>
         </session>
     </enterprise-beans>
-    <security xmlns="http://geronimo.apache.org/xml/ns/security-2.0">
-        <credential-store-ref>
-            <name xmlns="http://geronimo.apache.org/xml/ns/deployment-1.2">TestCredentialStore</name>
-        </credential-store-ref>
-        <role-mappings>
-            <role role-name="foo">
-                <run-as-subject>
-                    <realm>test-realm</realm>
-                    <id>foo-subject</id>
-                </run-as-subject>
-                <principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="foo"/>
-            </role>
-            <role role-name="bar">
-                <run-as-subject>
-                    <realm>test-realm</realm>
-                    <id>bar-subject</id>
-                </run-as-subject>
-                <principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="bar"/>
-            </role>
-        </role-mappings>
-    </security>
+    <s:security xmlns:s="http://geronimo.apache.org/xml/ns/security-2.0">
+        <s:credential-store-ref>
+            <d:name xmlns:d="http://geronimo.apache.org/xml/ns/deployment-1.2">TestCredentialStore</d:name>
+        </s:credential-store-ref>
+        <s:role-mappings>
+            <s:role role-name="foo">
+                <s:run-as-subject>
+                    <s:realm>test-realm</s:realm>
+                    <s:id>foo-subject</s:id>
+                </s:run-as-subject>
+                <s:principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="foo"/>
+            </s:role>
+            <s:role role-name="bar">
+                <s:run-as-subject>
+                    <s:realm>test-realm</s:realm>
+                    <s:id>bar-subject</s:id>
+                </s:run-as-subject>
+                <s:principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="bar"/>
+            </s:role>
+        </s:role-mappings>
+    </s:security>
     <gbean name="test-realm"
            class="org.apache.geronimo.security.realm.GenericSecurityRealm">
         <attribute name="realmName">test-realm</attribute>
         <xml-reference name="LoginModuleConfiguration">
             <lc:login-config xmlns:lc="http://geronimo.apache.org/xml/ns/loginconfig-${geronimoSchemaVersion}">
                 <lc:login-module control-flag="REQUIRED" wrap-principals="false">
-                    <lc:login-domain-name>test-realm</lc:login-domain-name>
+                    <lc:login-domain-name>test-domain</lc:login-domain-name>
                     <lc:login-module-class>org.apache.geronimo.itest.TestLoginModule</lc:login-module-class>
                     <lc:option name="users">foo,bar</lc:option>
                 </lc:login-module>
@@ -98,6 +98,9 @@ limitations under the License.
                 </realm>
             </credential-store>
         </xml-attribute>
+        <dependency>
+            <n:name xmlns:n="http://geronimo.apache.org/xml/ns/naming-1.2">test-realm</n:name>
+        </dependency>
     </gbean>
 </openejb-jar>
 

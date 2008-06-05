@@ -77,6 +77,7 @@ limitations under the License.
             <web-resource-name>secureServlet</web-resource-name>
             <url-pattern>/servlet</url-pattern>
             <url-pattern>/jsp</url-pattern>
+            <url-pattern>/injectionServlet</url-pattern>
             <http-method>GET</http-method>
             <http-method>POST</http-method>
         </web-resource-collection>

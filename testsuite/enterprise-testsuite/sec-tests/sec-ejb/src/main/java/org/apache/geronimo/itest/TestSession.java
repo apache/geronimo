@@ -24,5 +24,5 @@ import java.rmi.RemoteException;
 public interface TestSession  extends javax.ejb.EJBObject {
     String testAccess() throws RemoteException;
     String testNoAccess() throws RemoteException;
-
+    boolean isCallerInRole(String role);
 }
