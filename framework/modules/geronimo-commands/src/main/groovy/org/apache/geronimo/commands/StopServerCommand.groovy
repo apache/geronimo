@@ -49,6 +49,7 @@ class StopServerCommand extends ConnectCommand {
         try {
                 server.shutdown();
                 io.out.println("Shutdown request has been issued");
+                super.disconnect();
         } catch (Exception e) {
                 io.out.println("Unable to shutdown the server: " + e.getMessage());
         }                
