@@ -72,7 +72,15 @@ public class JAXWSToolsCLI {
         tools.setUseSunSAAJ();
         tools.setOverrideContextClassLoader(true);
         
-        File [] jars = tools.getClasspath(repositories);            
+        File [] jars;
+        try {
+            jars = tools.getClasspath(repositories);
+        } catch (Exception e) {
+            //if we cannot find SUN's SAAJ impl, try Axis2's. 
+            tools.setUseAxis2SAAJ();
+            jars = tools.getClasspath(repositories);
+        }
+                 
         URL[] jarUrls = JAXWSTools.toURL(jars);
                 
         String javaClassPath = System.getProperty("java.class.path");
