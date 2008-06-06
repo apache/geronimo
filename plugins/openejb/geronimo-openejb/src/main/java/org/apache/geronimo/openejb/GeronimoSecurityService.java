@@ -28,6 +28,7 @@ import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 import javax.security.jacc.EJBMethodPermission;
+import javax.security.jacc.EJBRoleRefPermission;
 
 import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.SubjectId;
@@ -121,7 +122,15 @@ public class GeronimoSecurityService implements SecurityService {
             return false;
         }
 
-        return ContextManager.isCallerInRole(deploymentInfo.getEjbName(), role);
+        String EJBName = deploymentInfo.getEjbName();
+        if (EJBName == null) throw new IllegalArgumentException("EJBName must not be null");
+        try {
+            AccessControlContext context = ContextManager.getCurrentContext();
+            context.checkPermission(new EJBRoleRefPermission(EJBName, role));
+        } catch (AccessControlException e) {
+            return false;
+        }
+        return true;
     }
 
     public Principal getCallerPrincipal() {

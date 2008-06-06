@@ -18,7 +18,6 @@
 package org.apache.geronimo.security;
 
 import java.security.AccessControlContext;
-import java.security.AccessControlException;
 import java.security.AccessController;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -38,7 +37,6 @@ import javax.security.auth.Subject;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
-import javax.security.jacc.EJBRoleRefPermission;
 
 import org.apache.geronimo.security.realm.providers.GeronimoCallerPrincipal;
 
@@ -204,31 +202,6 @@ public class ContextManager {
         Context context = subjectContexts.get(subject);
 
         return (context != null ? context.id : null);
-    }
-
-    public static boolean isCallerInRole(String EJBName, String role) {
-        if (EJBName == null) throw new IllegalArgumentException("EJBName must not be null");
-        if (role == null) throw new IllegalArgumentException("Role must not be null");
-
-        try {
-            Callers currentCallers = callers.get();
-            if (currentCallers == null) {
-                return false;
-            }
-            Subject currentSubject = currentCallers.getCurrentCaller();
-            if (currentSubject == null) {
-                return false;
-            }
-
-            Context context = subjectContexts.get(currentSubject);
-
-            assert context != null : "No registered context";
-
-            context.context.checkPermission(new EJBRoleRefPermission(EJBName, role));
-        } catch (AccessControlException e) {
-            return false;
-        }
-        return true;
     }
 
     public static Subject getRegisteredSubject(SubjectId id) {
