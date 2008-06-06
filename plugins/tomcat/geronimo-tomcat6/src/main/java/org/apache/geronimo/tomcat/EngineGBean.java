@@ -56,7 +56,6 @@ public class EngineGBean extends BaseGBean implements GBeanLifecycle, ObjectRetr
     public EngineGBean(String className,
             Map initParams,
             HostGBean defaultHost,
-            Collection hosts,
             ObjectRetriever realmGBean,
             ValveGBean tomcatValveChain,
             LifecycleListenerGBean listenerChain,
@@ -100,9 +99,12 @@ public class EngineGBean extends BaseGBean implements GBeanLifecycle, ObjectRetr
         }
         
         //Set the default Host
-        final String defaultHostName = ((Host)defaultHost.getInternalObject()).getName();
-        engine.setDefaultHost(defaultHostName);
-        addHost(defaultHost);
+        Host host = (Host) defaultHost.getInternalObject();
+        if (host.getParent() != null) {
+            throw new IllegalStateException("Default host is already in use by another engine: " + host.getParent());
+        }
+        engine.setDefaultHost(host.getName());
+        addHost(host);
 
         if (manager != null)
             engine.setManager((Manager)manager.getInternalObject());
@@ -130,36 +132,6 @@ public class EngineGBean extends BaseGBean implements GBeanLifecycle, ObjectRetr
             Registry.setServer(mbeanServerReference.getMBeanServer());
         }
         
-        //Add the hosts
-        if (hosts instanceof ReferenceCollection) {
-            ReferenceCollection refs = (ReferenceCollection)hosts;
-            refs.addReferenceCollectionListener(new ReferenceCollectionListener() {
-
-                public void memberAdded(ReferenceCollectionEvent event) {
-                    Object o = event.getMember();
-                    ObjectRetriever objectRetriever = (ObjectRetriever) o;
-                    String hostName = ((Host)objectRetriever.getInternalObject()).getName();
-                    if (!hostName.equals(defaultHostName))
-                        addHost(objectRetriever);
-                }
-
-                public void memberRemoved(ReferenceCollectionEvent event) {
-                    Object o = event.getMember();
-                    ObjectRetriever objectRetriever = (ObjectRetriever) o;
-                    String hostName = ((Host)objectRetriever.getInternalObject()).getName();
-                    if (!hostName.equals(defaultHostName))
-                        removeHost(objectRetriever);
-                }
-            });
-            Iterator iterator = refs.iterator();
-            while (iterator.hasNext()){
-                ObjectRetriever objRetriever = (ObjectRetriever)iterator.next();
-                String hostName = ((Host)objRetriever.getInternalObject()).getName();
-                if (!hostName.equals(defaultHostName))
-                    addHost(objRetriever);
-            }
-        }
-
 
         //Add clustering
         if (clusterGBean != null){
@@ -167,18 +139,11 @@ public class EngineGBean extends BaseGBean implements GBeanLifecycle, ObjectRetr
         }
     }
 
-    private void removeHost(ObjectRetriever objRetriever) {
-        Host host = (Host)objRetriever.getInternalObject();
+    public void removeHost(Host host) {
         engine.removeChild(host);
     }
 
-    private void addHost(ObjectRetriever objRetriever) {
-        Host host = (Host)objRetriever.getInternalObject();
-
-        //If we didn't set a realm, then use the default
-        if (host.getRealm() == null) {
-            host.setRealm(engine.getRealm());
-        }
+    public void addHost(Host host) {
         engine.addChild(host);
     }
 
@@ -205,7 +170,6 @@ public class EngineGBean extends BaseGBean implements GBeanLifecycle, ObjectRetr
         infoFactory.addAttribute("className", String.class, true);
         infoFactory.addAttribute("initParams", Map.class, true);
         infoFactory.addReference("DefaultHost", HostGBean.class, HostGBean.J2EE_TYPE);
-        infoFactory.addReference("Hosts", ObjectRetriever.class, HostGBean.J2EE_TYPE);
         infoFactory.addReference("RealmGBean", ObjectRetriever.class, NameFactory.GERONIMO_SERVICE);
         infoFactory.addReference("TomcatValveChain", ValveGBean.class, ValveGBean.J2EE_TYPE);
         infoFactory.addReference("LifecycleListenerChain", LifecycleListenerGBean.class, LifecycleListenerGBean.J2EE_TYPE);
@@ -217,8 +181,7 @@ public class EngineGBean extends BaseGBean implements GBeanLifecycle, ObjectRetr
                 "className", 
                 "initParams", 
                 "DefaultHost",
-                "Hosts", 
-                "RealmGBean", 
+                "RealmGBean",
                 "TomcatValveChain",
                 "LifecycleListenerChain",
                 "CatalinaCluster",

@@ -48,9 +48,11 @@ public class HostGBean extends BaseGBean implements GBeanLifecycle, ObjectRetrie
     private static final String NAME = "name";
     
     private final Host host;
+    private final EngineGBean engine;
     
     public HostGBean(){
         host = null;
+        engine = null;
     }
 
     public HostGBean(String className, 
@@ -60,7 +62,8 @@ public class HostGBean extends BaseGBean implements GBeanLifecycle, ObjectRetrie
             ValveGBean tomcatValveChain,
             LifecycleListenerGBean listenerChain,
             CatalinaClusterGBean clusterGBean,
-            ManagerGBean manager) throws Exception {
+            ManagerGBean manager,
+            EngineGBean engine) throws Exception {
         super(); // TODO: make it an attribute
         
         //Validate
@@ -128,6 +131,11 @@ public class HostGBean extends BaseGBean implements GBeanLifecycle, ObjectRetrie
         //Add manager
         if (manager != null)
             host.setManager((Manager)manager.getInternalObject());
+
+        this.engine = engine;
+        if (engine != null) {
+            engine.addHost(host);
+        }
     }
 
     public Object getInternalObject() {
@@ -144,6 +152,9 @@ public class HostGBean extends BaseGBean implements GBeanLifecycle, ObjectRetrie
 
     public void doStop() throws Exception {
         log.debug("Stopped host '" + host.getName() + "'");
+        if (engine != null) {
+            engine.removeHost(host);
+        }
     }
 
     public static final GBeanInfo GBEAN_INFO;
@@ -158,6 +169,7 @@ public class HostGBean extends BaseGBean implements GBeanLifecycle, ObjectRetrie
         infoFactory.addReference("LifecycleListenerChain", LifecycleListenerGBean.class, LifecycleListenerGBean.J2EE_TYPE);
         infoFactory.addReference("CatalinaCluster", CatalinaClusterGBean.class, CatalinaClusterGBean.J2EE_TYPE);
         infoFactory.addReference("Manager", ManagerGBean.class, ManagerGBean.J2EE_TYPE);
+        infoFactory.addReference("Engine", EngineGBean.class, NameFactory.GERONIMO_SERVICE);
         infoFactory.addOperation("getInternalObject");
         infoFactory.setConstructor(new String[] { 
                 "className", 
@@ -167,7 +179,8 @@ public class HostGBean extends BaseGBean implements GBeanLifecycle, ObjectRetrie
                 "TomcatValveChain",
                 "LifecycleListenerChain",
                 "CatalinaCluster",
-                "Manager"});
+                "Manager",
+                "Engine"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

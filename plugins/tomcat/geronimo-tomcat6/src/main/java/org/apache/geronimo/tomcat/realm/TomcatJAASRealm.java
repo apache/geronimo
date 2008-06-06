@@ -32,6 +32,7 @@ import java.util.List;
 
 
 /**
+ * This is a non-JACC security solution using default tomcat security.  Not recommended for javaee apps.
  * @version $Rev$ $Date$
  */
 public class TomcatJAASRealm extends JAASRealm implements Cloneable {

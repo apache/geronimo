@@ -330,6 +330,8 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
                     } else {
                         //JAAS
                         realm = new TomcatJAASRealm();
+                        ((JAASRealm) realm).setUserClassNames("org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal");
+                        ((JAASRealm) realm).setRoleClassNames("org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal");
                     }
 
                     if (log.isDebugEnabled()) {
@@ -339,8 +341,6 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
                             " adapter for this context.");
                     }
 
-                    ((JAASRealm) realm).setUserClassNames("org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal");
-                    ((JAASRealm) realm).setRoleClassNames("org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal");
                     ((JAASRealm) realm).setAppName(securityRealmName);
 
                     anotherCtxObj.setRealm(realm);

@@ -294,7 +294,6 @@ public class TomcatModuleBuilderTest extends TestSupport {
         engine.setAttribute("initParams", initParams);
         engine.setReferencePattern("DefaultHost", host.getAbstractName());
         engine.setReferencePattern("RealmGBean", realm.getAbstractName());
-        engine.setReferencePattern("Hosts", host.getAbstractName());
 
         WebServiceBuilder webServiceBuilder = new MockWebServiceBuilder();
 

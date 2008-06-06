@@ -122,11 +122,6 @@
         <reference name="DefaultHost">
             <name>TomcatHost</name>
         </reference>
-        <references name="Hosts">
-            <pattern>
-                <type>Host</type>
-            </pattern>
-        </references>
         <reference name="RealmGBean">
             <name>TomcatJAASRealm</name>
         </reference>
@@ -178,12 +173,13 @@
     -->
 
     <!-- Realm -->
-    <!-- This is an example TomcatJAASRealm -->
+    <!-- This is an example TomcatJAASRealm, used only if you specify "DefaultJAASRealm" as the security realm name in your geronimo plan -->
     <gbean name="TomcatJAASRealm" class="org.apache.geronimo.tomcat.RealmGBean">
         <attribute name="className">org.apache.geronimo.tomcat.realm.TomcatJAASRealm</attribute>
         <attribute name="initParams">
             userClassNames=org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal
             roleClassNames=org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal
+            appName=DefaultJAASRealm
         </attribute>
     </gbean>
 

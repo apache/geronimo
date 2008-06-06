@@ -51,6 +51,9 @@ import org.apache.geronimo.security.realm.providers.PasswordCallbackHandler;
 import org.apache.geronimo.tomcat.JAASTomcatPrincipal;
 import org.apache.geronimo.tomcat.interceptor.PolicyContextBeforeAfter;
 
+/**
+ * This class adapts the tomcat framework to use JACC security.
+ */
 public class TomcatGeronimoRealm extends JAASRealm {
 
     private static final Logger log = LoggerFactory.getLogger(TomcatGeronimoRealm.class);
