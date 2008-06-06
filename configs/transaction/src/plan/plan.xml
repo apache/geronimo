@@ -48,16 +48,20 @@
         </reference>
     </gbean>
 
+    <!-- 
+        Maximum log file size is 2 MB (4K * 512). Buffer size can't be changed
+        once the files have been created. 
+    -->
     <gbean name="HOWLTransactionLog" class="org.apache.geronimo.transaction.log.HOWLLogGBean">
         <attribute name="bufferClassName">org.objectweb.howl.log.BlockLogBuffer</attribute>
-        <attribute name="bufferSizeKBytes">32</attribute>
+        <attribute name="bufferSizeKBytes">4</attribute>
+        <attribute name="maxBlocksPerFile">512</attribute>
         <attribute name="checksumEnabled">true</attribute>
         <attribute name="adler32Checksum">true</attribute>
         <attribute name="flushSleepTimeMilliseconds">50</attribute>
         <attribute name="logFileDir">var/txlog</attribute>
         <attribute name="logFileExt">log</attribute>
         <attribute name="logFileName">howl</attribute>
-        <attribute name="maxBlocksPerFile">-1</attribute>
         <attribute name="maxBuffers">0</attribute>
         <attribute name="maxLogFiles">2</attribute>
         <attribute name="minBuffers">4</attribute>
