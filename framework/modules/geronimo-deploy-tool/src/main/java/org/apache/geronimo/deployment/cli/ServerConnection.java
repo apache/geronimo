@@ -91,7 +91,7 @@ public class ServerConnection {
             startOfflineDeployer(kernel);
             manager = new LocalDeploymentManager(kernel);
         } else {
-            tryToConnect(uri, driver, user, password, true);
+            tryToConnect(uri, driver, user, password);
         }
         if (manager == null) {
             throw new DeploymentException("Unexpected error; connection failed.");
@@ -117,7 +117,7 @@ public class ServerConnection {
         return auth.uri;
     }
 
-    private void tryToConnect(String argURI, String driver, String user, String password, boolean authPrompt) throws DeploymentException {
+    private void tryToConnect(String argURI, String driver, String user, String password) throws DeploymentException {
         DeploymentFactoryManager mgr = DeploymentFactoryManager.getInstance();
         if (driver != null) {
             loadDriver(driver, mgr);
@@ -126,7 +126,7 @@ public class ServerConnection {
         }
         String useURI = argURI == null ? DEFAULT_URI : argURI;
 
-        if (authPrompt && user == null && password == null) {
+        if (user == null && password == null) {
             InputStream in;
             // First check for .geronimo-deployer on class path (e.g. packaged in deployer.jar)
             in = ServerConnection.class.getResourceAsStream("/.geronimo-deployer");
@@ -177,24 +177,27 @@ public class ServerConnection {
             }
         }
 
-        if (authPrompt && !useURI.equals(DEFAULT_URI) && user == null && password == null) {
-            // Non-standard URI, but no authentication information
-            doAuthPromptAndRetry(useURI, user, password);
-            return;
-        } else { // Standard URI with no auth, Non-standard URI with auth, or else this is the 2nd try already
+        if (user == null || password == null) {
             try {
-                manager = mgr.getDeploymentManager(useURI, user, password);
-                auth = new SavedAuthentication(useURI, user, password == null ? null : password.toCharArray());
-            } catch (AuthenticationFailedException e) { // server's there, you just can't talk to it
-                if (authPrompt) {
-                    doAuthPromptAndRetry(useURI, user, password);
-                    return;
-                } else {
-                    throw new DeploymentException("Login Failed");
+                InputPrompt prompt = new InputPrompt(in, out);
+                if (user == null) {
+                    user = prompt.getInput("Username: ");
                 }
-            } catch (DeploymentManagerCreationException e) {
-                throw new DeploymentException("Unable to connect to server at " + useURI + " -- " + e.getMessage(), e);
+                if (password == null) {
+                    password = prompt.getPassword("Password: ");
+                }
+            } catch (IOException e) {
+                throw new DeploymentException("Unable to prompt for login", e);
             }
+        }
+        try {
+            manager = mgr.getDeploymentManager(useURI, user, password);
+            auth = new SavedAuthentication(useURI, user, password == null ? null : password.toCharArray());
+        } catch (AuthenticationFailedException e) {
+            // server's there, you just can't talk to it
+            throw new DeploymentException("Login Failed");
+        } catch (DeploymentManagerCreationException e) {
+            throw new DeploymentException("Unable to connect to server at " + useURI + " -- " + e.getMessage(), e);
         }
 
         if (manager instanceof JMXDeploymentManager) {
@@ -223,21 +226,6 @@ public class ServerConnection {
         } catch (Exception e) {
             throw new DeploymentSyntaxException("Unable to load driver class " + className + " from JAR " + file.getAbsolutePath(), e);
         }
-    }
-
-    private void doAuthPromptAndRetry(String uri, String user, String password) throws DeploymentException {
-        try {
-            InputPrompt prompt = new InputPrompt(in, out);
-            if (user == null) {
-                user = prompt.getInput("Username: ");
-            }
-            if (password == null) {
-                password = prompt.getPassword("Password: ");
-            }
-        } catch (IOException e) {
-            throw new DeploymentException("Unable to prompt for login", e);
-        }
-        tryToConnect(uri, null, user, password, false);
     }
 
     public DeploymentManager getDeploymentManager() {
