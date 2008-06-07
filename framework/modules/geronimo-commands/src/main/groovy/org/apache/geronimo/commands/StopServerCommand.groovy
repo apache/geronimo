@@ -43,9 +43,9 @@ class StopServerCommand
         io.out.println('Stopping Geronimo server...')
         
         try {
-            server.shutdown()
-            
+            server.shutdown();
             io.out.println('Shutdown request has been issued')
+            super.disconnect();
         }
         catch (Exception e) {
             log.debug("Failed to request shutdown: $e", e)

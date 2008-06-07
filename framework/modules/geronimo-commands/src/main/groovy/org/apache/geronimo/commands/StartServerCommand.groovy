@@ -184,7 +184,12 @@ class StartServerCommand
         def server = new ServerProxy(hostname, port, username, password)
         
         launcher.verifier = {
-            return server.fullyStarted
+             if(server.fullyStarted) {
+                 server.closeConnection();
+                 return true;
+             } else {
+                 return false
+             }
         }
         
         launcher.launch()

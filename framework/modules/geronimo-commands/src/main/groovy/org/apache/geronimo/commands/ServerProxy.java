@@ -54,6 +54,8 @@ public class ServerProxy
     private static final Logger log = LoggerFactory.getLogger(ServerProxy.class);
 
     private JMXServiceURL url;
+    
+    private JMXConnector connector;
 
     private Map environment;
 
@@ -95,13 +97,29 @@ public class ServerProxy
         if (this.mbeanConnection == null) {
             log.debug("Connecting to: " + url);
             
-            JMXConnector connector = JMXConnectorFactory.connect(url, environment);
+            connector = JMXConnectorFactory.connect(url, environment);
             this.mbeanConnection = connector.getMBeanServerConnection();
             
             log.debug("Connected");
         }
 
         return mbeanConnection;
+    }
+    
+    public void closeConnection() {
+        if (connector != null) {
+            try {
+                connector.close();
+            } catch (IOException e) {
+                String msg = "Failed to close JMXConnector";
+                if (log.isTraceEnabled()) {
+                    log.trace(msg,e);
+                }
+                if (log.isDebugEnabled()) {
+                    log.debug(msg + ":" + e);
+                }
+            }
+        }
     }
 
     public boolean isFullyStarted() {
