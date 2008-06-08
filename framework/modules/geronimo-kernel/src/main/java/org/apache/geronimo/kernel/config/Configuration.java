@@ -342,7 +342,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent
         String[] hiddenClasses = hiddenClassesSet.toArray(new String[hiddenClassesSet.size()]);
 
         // we need to propagate the non-overrideable classes from parents
-        LinkedHashSet<String> nonOverridableSet = new LinkedHashSet<String>();
+        LinkedHashSet<String> nonOverridableSet = new LinkedHashSet<String>(environment.getNonOverrideableClasses());
         for (Configuration parent : classParents) {
 
             Environment parentEnvironment = parent.getEnvironment();
