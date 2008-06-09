@@ -93,7 +93,7 @@ public interface PluginInstaller {
      * @param username         Optional username, if the maven repo uses HTTP Basic authentication.
      *                         Set this to null if no authentication is required.
      * @param password         Optional password, if the maven repo uses HTTP Basic authentication.
- *                         Set this to null if no authentication is required.
+     *                         Set this to null if no authentication is required.
      */
     public DownloadResults install(PluginListType pluginsToInstall, String defaultRepository, boolean restrictToDefaultRepository, String username, String password);
 
@@ -112,7 +112,7 @@ public interface PluginInstaller {
      * @param username         Optional username, if the maven repo uses HTTP Basic authentication.
      *                         Set this to null if no authentication is required.
      * @param password         Optional password, if the maven repo uses HTTP Basic authentication.
- *                         Set this to null if no authentication is required.
+     *                         Set this to null if no authentication is required.
      * @param poller           Will be notified with status updates as the download proceeds
      */
     public void install(PluginListType pluginsToInstall, String defaultRepository, boolean restrictToDefaultRepository, String username, String password, DownloadPoller poller);
@@ -126,12 +126,12 @@ public interface PluginInstaller {
      *
      * @param pluginsToInstall The list of configurations to install
      * @param defaultRepository
-     *@param restrictToDefaultRepository
+     * @param restrictToDefaultRepository
      * @param username         Optional username, if the maven repo uses HTTP Basic authentication.
      *                         Set this to null if no authentication is required.
      * @param password         Optional password, if the maven repo uses HTTP Basic authentication.
- *                         Set this to null if no authentication is required.
- * @return A key that can be passed to checkOnInstall
+     *                         Set this to null if no authentication is required.
+     * @return A key that can be passed to checkOnInstall
      */
     public Object startInstall(PluginListType pluginsToInstall, String defaultRepository, boolean restrictToDefaultRepository, String username, String password);
 
@@ -149,12 +149,12 @@ public interface PluginInstaller {
      *                  for these downloads, and the username and password arguments are
      *                  used in conjunction with that.
      * @param defaultRepository
-     *@param restrictToDefaultRepository
+     * @param restrictToDefaultRepository
      * @param username  Optional username, if the maven repo uses HTTP Basic authentication.
      *                  Set this to null if no authentication is required.
      * @param password  Optional password, if the maven repo uses HTTP Basic authentication.
- *                  Set this to null if no authentication is required.
- * @return A key that can be passed to checkOnInstall
+     *                  Set this to null if no authentication is required.
+     * @return A key that can be passed to checkOnInstall
      */
     public Object startInstall(File carFile, String defaultRepository, boolean restrictToDefaultRepository, String username, String password);
 
@@ -167,6 +167,19 @@ public interface PluginInstaller {
      * @param key Identifies the operation to check on
      */
     public DownloadResults checkOnInstall(Object key);
+    
+    /**
+     * Gets the current progress of a download operation.  
+     *
+     * @param key Identifies the operation to check on
+     * @param remove If true and the download operation has finished, the DownloadResults
+     *        will be forgotten and the next call to this function will return null. 
+     *        Otherwise, the DownloadResults will be retained until this function is 
+     *        called with the <tt>remove</tt> parameter set to true. This parameter is
+     *        only used when the download operation has finished 
+     *        (DownloadResults.isFinished() returns true).
+     */
+    public DownloadResults checkOnInstall(Object key, boolean remove);
 
     /**
      * Ensures that a plugin artifact is installable. Checks the Geronimo version,
