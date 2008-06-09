@@ -259,6 +259,15 @@ public class RemoteDeploymentManager extends JMXDeploymentManager implements Ger
         }
     }
 
+    public DownloadResults checkOnInstall(Object key, boolean remove) {
+        PluginInstaller installer = getPluginInstaller();
+        try {
+            return installer.checkOnInstall(key, remove);
+        } finally {
+            kernel.getProxyManager().destroyProxy(installer);
+        }
+    }
+
     private PluginInstaller getPluginInstaller() {
         Set<AbstractName> set = kernel.listGBeans(new AbstractNameQuery(PluginInstaller.class.getName()));
         for (AbstractName name : set) {
