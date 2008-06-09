@@ -51,6 +51,7 @@ public class DownloadResults implements Serializable, DownloadPoller {
         other.installedConfigIDs.addAll(installedConfigIDs);
         other.dependenciesPresent.addAll(dependenciesPresent);
         other.dependenciesInstalled.addAll(dependenciesInstalled);
+        other.skippedPlugins.addAll(skippedPlugins);
         other.currentFile = currentFile;
         other.currentMessage = currentMessage;
         other.currentFileProgress = currentFileProgress;
