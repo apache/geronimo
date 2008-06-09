@@ -546,6 +546,15 @@ public class PluginInstallerGBean implements PluginInstaller {
         }
     }
 
+    private SourceRepository getDefaultSourceRepository(String defaultRepository,
+                                                        boolean restrictToDefaultRepository) {
+        if (restrictToDefaultRepository && defaultRepository == null) {
+            throw new IllegalArgumentException("You must supply a default repository if you want to restrict to it");
+        }
+        SourceRepository defaultSourceRepository = defaultRepository == null ? null : SourceRepositoryFactory.getSourceRepository(defaultRepository);
+        return defaultSourceRepository;
+    }
+    
     /**
      * Installs a configuration from a remote repository into the local Geronimo server,
      * including all its dependencies.  The caller will get the results when the
@@ -585,14 +594,15 @@ public class PluginInstallerGBean implements PluginInstaller {
      * @param poller                      Will be notified with status updates as the download proceeds
      */
     public void install(PluginListType pluginsToInstall, String defaultRepository, boolean restrictToDefaultRepository, String username, String password, DownloadPoller poller) {
-        if (restrictToDefaultRepository && defaultRepository == null) {
-            throw new IllegalArgumentException("You must supply a default repository if you want to restrict to it");
-        }
-        SourceRepository defaultSourceRepository = defaultRepository == null ? null : SourceRepositoryFactory.getSourceRepository(defaultRepository);
+        SourceRepository defaultSourceRepository = getDefaultSourceRepository(defaultRepository, restrictToDefaultRepository);
         install(pluginsToInstall, defaultSourceRepository, restrictToDefaultRepository, username, password, poller);
     }
 
     public void install(PluginListType pluginsToInstall, SourceRepository defaultRepository, boolean restrictToDefaultRepository, String username, String password, DownloadPoller poller) {
+        install(pluginsToInstall, defaultRepository, restrictToDefaultRepository, username, password, poller, true);
+    }
+    
+    public void install(PluginListType pluginsToInstall, SourceRepository defaultRepository, boolean restrictToDefaultRepository, String username, String password, DownloadPoller poller, boolean validatePlugins) {
         List<Artifact> downloadedArtifacts = new ArrayList<Artifact>();
         try {
             Map<Artifact, PluginType> metaMap = new HashMap<Artifact, PluginType>();
@@ -600,8 +610,10 @@ public class PluginInstallerGBean implements PluginInstaller {
             List<PluginType> toInstall = new ArrayList<PluginType>();
             for (PluginType metadata : pluginsToInstall.getPlugin()) {
                 try {
-                    validatePlugin(metadata);
-                    verifyPrerequisites(metadata);
+                    if (validatePlugins) {
+                        validatePlugin(metadata);
+                        verifyPrerequisites(metadata);
+                    }
 
                     PluginArtifactType instance = metadata.getPluginArtifact().get(0);
 
@@ -841,6 +853,8 @@ public class PluginInstallerGBean implements PluginInstaller {
 
             // 2. Validate that we can install this
             validatePlugin(data);
+            verifyPrerequisites(data);
+            
             PluginArtifactType instance = data.getPluginArtifact().get(0);
             // 3. Install the CAR into the repository (it shouldn't be re-downloaded)
             if (instance.getModuleId() != null) {
@@ -854,11 +868,13 @@ public class PluginInstallerGBean implements PluginInstaller {
             }
 
             // 4. Use the standard logic to remove obsoletes, install dependencies, etc.
-            //    This will validate all over again (oh, well)
             PluginListType pluginList = new PluginListType();
             pluginList.getPlugin().add(data);
             pluginList.getDefaultRepository().addAll(instance.getSourceRepository());
-            install(pluginList, defaultRepository, restrictToDefaultRepository, username, password, poller);
+            
+            SourceRepository defaultSourceRepository = getDefaultSourceRepository(defaultRepository, restrictToDefaultRepository);
+            
+            install(pluginList, defaultSourceRepository, restrictToDefaultRepository, username, password, poller, false);
         } catch (Exception e) {
             poller.setFailure(e);
         } finally {
