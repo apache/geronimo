@@ -40,6 +40,20 @@
 @if "%GERONIMO_BATCH_ECHO%" == "on"  echo on
 @if not "%GERONIMO_BATCH_ECHO%" == "on"  echo off
 
+@REM handle spaces in provided paths
+if defined var JAVA_HOME(
+set JAVA_HOME=###%JAVA_HOME%###
+set JAVA_HOME=%JAVA_HOME:"###=%
+set JAVA_HOME=%JAVA_HOME:###"=%
+set JAVA_HOME=%JAVA_HOME:###=%
+@)
+if defined var JRE_HOME(
+set JAVA_HOME=###%JRE_HOME%###
+set JAVA_HOME=%JRE_HOME:"###=%
+set JAVA_HOME=%JRE_HOME:###"=%
+set JAVA_HOME=%JRE_HOME:###=%
+@)
+
 @REM check that either JAVA_HOME or JRE_HOME are set
 set jdkOrJreHomeSet=0
 if not "%JAVA_HOME%" == "" set jdkOrJreHomeSet=1
@@ -74,28 +88,12 @@ goto end
 @REM default JRE_HOME to JAVA_HOME if not set.
 if "%JRE_HOME%" == "" set JRE_HOME=%JAVA_HOME%\jre
 
-if not "%BASEDIR%" == "" goto gotBasedir
-echo The BASEDIR environment variable is not defined
-echo This environment variable is needed to run this program
-set ERRORLEVEL=1
-goto end
-
-:gotBasedir
-if exist "%BASEDIR%\bin\setjavaenv.bat" goto okBasedir
-echo The BASEDIR environment variable is not defined correctly
-echo This environment variable is needed to run this program
-set ERRORLEVEL=1
-goto end
-
-:okBasedir
 @REM Set standard command for invoking Java.
 @REM Note that NT requires a window name argument when using start.
 @REM Also note the quoting as JAVA_HOME may contain spaces.
 set _RUNJAVA="%JRE_HOME%\bin\java"
 set _RUNJAVAW="%JRE_HOME%\bin\javaw"
 set _RUNJDB="%JAVA_HOME%\bin\jdb"
-
-goto end
 
 :end
 @REM pause the batch file if GERONIMO_BATCH_PAUSE is set to 'on'

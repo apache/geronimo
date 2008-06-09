@@ -22,7 +22,61 @@
 ## $Rev: 539227 $ $Date: 2007-05-17 19:48:49 -0700 (Thu, 17 May 2007) $
 ##
 
-DIRNAME=`dirname "$0"`
+# --------------------------------------------------------------------
+# Startup script for Geronimo that starts Geronimo in the foreground.
+#
+# This script calls the gsh script passing "geronimo/start-server" as the
+# first argument followed by the arguments supplied by the caller.
+#
+# Alternatively you can use the more comprehensive gsh interface directly.
+#
+# Invocation Syntax:
+#
+#   start-server [geronimo_args ...]
+#
+# Environment Variable Prequisites:
+#
+#   Refer to the documentation in the gsh file for information
+#   on environment variables etc.
+#
+# --------------------------------------------------------------------
+
+os400=false
+case "`uname`" in
+CYGWIN*) cygwin=true;;
+OS400*) os400=true;;
+esac
+
+# resolve links - $0 may be a softlink
+PRG="$0"
+
+while [ -h "$PRG" ] ; do
+  ls=`ls -ld "$PRG"`
+  link=`expr "$ls" : '.*-> \(.*\)$'`
+  if expr "$link" : '/.*' > /dev/null; then
+    PRG="$link"
+  else
+    PRG=`dirname "$PRG"`/"$link"
+  fi
+done
+
+PRGDIR=`dirname "$PRG"`
+EXECUTABLE=gsh
+
+# Check that target executable exists
+if $os400; then
+  # -x will Only work on the os400 if the files are:
+  # 1. owned by the user
+  # 2. owned by the PRIMARY group of the user
+  # this will not work if the user belongs in secondary groups
+  eval
+else
+  if [ ! -x "$PRGDIR"/"$EXECUTABLE" ]; then
+    echo "Cannot find $PRGDIR/$EXECUTABLE"
+    echo "This file is needed to run this program"
+    exit 1
+  fi
+fi
 
 ARGS=
 while [ $# -ge 1 ]; do
@@ -30,5 +84,5 @@ while [ $# -ge 1 ]; do
   shift
 done
 
-exec "$DIRNAME/gsh" -c "geronimo/start-server $ARGS"
+exec "$PRGDIR"/"$EXECUTABLE" -c "geronimo/start-server $ARGS"
 
