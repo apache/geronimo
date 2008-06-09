@@ -14,12 +14,21 @@
 *   See the License for the specific language governing permissions and
 *   limitations under the License.
 ======================================================================*/
-@import url("../dojo/src/widget/templates/TreeDocIcon.css");
+
+/*
+File Not Used. The Widget Has Problems Referencing Using the templateCssPath
+
+@import url("http://localhost:8080/dojo/0.4/src/widget/templates/TreeDocIcon.css");
+
+.TreeIconDocument {
+	background-image: url(http://localhost:8080/debug-views/ico_filetree_16x16.gif);
+}
 
 .TreeExpandOpen .TreeIconFolder {
-    background-image: url('./images/ico_filetree_16x16.gif');
+	background-image: url(http://localhost:8080/debug-views/ico_filetree_16x16.gif);
 }
 
 .TreeExpandClosed .TreeIconFolder {
-    background-image: url('./images/ico_filetree_16x16.gif');
+	background-image: url(http://localhost:8080/debug-views/ico_filetree_16x16.gif);
 }
+*/
