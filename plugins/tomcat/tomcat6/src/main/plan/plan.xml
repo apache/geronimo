@@ -46,6 +46,13 @@
         <reference name="WebManager">
             <name>TomcatWebManager</name>
         </reference>
+        <reference name="LifecycleListenerChain">
+            <name>AprLifecycleListener</name>
+        </reference>
+    </gbean>
+
+    <gbean name="AprLifecycleListener" class="org.apache.geronimo.tomcat.LifecycleListenerGBean">
+        <attribute name="className">org.apache.geronimo.tomcat.listener.GeronimoAprLifecycleListener</attribute>
     </gbean>
 
     <gbean name="TomcatWebConnector" class="org.apache.geronimo.tomcat.connector.Http11ConnectorGBean">
