@@ -51,9 +51,14 @@ public class CommandTestSupport {
         } catch (Exception e) {
             throw new RuntimeException("Unable to setup ServerProxy", e);
         }
+        
         String home = server.getGeronimoHome();
-        if (server.getLastError() != null) {
-            throw new RuntimeException("Failed to get Geronimo home", server.getLastError());
+        Throwable exception = server.getLastError();
+        
+        server.closeConnection();
+        
+        if (exception != null) {
+            throw new RuntimeException("Failed to get Geronimo home", exception);
         } else {
             return home;
         }
