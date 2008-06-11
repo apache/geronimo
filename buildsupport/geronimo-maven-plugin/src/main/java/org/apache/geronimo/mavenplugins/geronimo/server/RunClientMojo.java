@@ -82,6 +82,8 @@ public class RunClientMojo extends ReportingMojoSupport
 
         String geronimoHomeStr = server.getGeronimoHome();
 
+        server.closeConnection();
+        
         log.info("Geronimo Home: " + geronimoHomeStr);
 
         if (geronimoHomeStr == null) {

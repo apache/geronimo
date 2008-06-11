@@ -62,6 +62,7 @@ public class StopServerMojo
             log.info("Stopping Geronimo server...");
             
             server.shutdown();
+            server.closeConnection();
 
             //
             // TODO: Verify its down?

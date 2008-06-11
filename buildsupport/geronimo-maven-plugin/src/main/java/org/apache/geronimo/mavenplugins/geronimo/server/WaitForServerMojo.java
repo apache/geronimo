@@ -87,6 +87,7 @@ public class WaitForServerMojo
                 Thread.sleep(1000);
             }
         }
+        server.closeConnection();
 
         // Stop the timer, server should be up now
         timeoutTask.cancel();

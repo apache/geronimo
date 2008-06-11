@@ -54,11 +54,13 @@ public class ServerProxy
 
     private JMXServiceURL url;
 
+    private JMXConnector connector;
+    
     private Map environment;
 
     private MBeanServerConnection mbeanConnection;
 
-    private Throwable lastError;
+    private Throwable lastError;    
 
     public ServerProxy(final JMXServiceURL url, final Map environment) throws Exception {
         assert url != null;
@@ -90,8 +92,8 @@ public class ServerProxy
         if (this.mbeanConnection == null) {
             log.debug("Connecting to: " + url);
             
-            JMXConnector connector = JMXConnectorFactory.connect(url, environment);
-            this.mbeanConnection = connector.getMBeanServerConnection();
+            this.connector = JMXConnectorFactory.connect(url, environment);
+            this.mbeanConnection = this.connector.getMBeanServerConnection();
             
             log.debug("Connected");
         }
@@ -99,6 +101,26 @@ public class ServerProxy
         return mbeanConnection;
     }
 
+    public void closeConnection() {
+        if (this.connector != null) {
+            try {
+                this.connector.close();
+            } catch (IOException e) {
+                String msg = "Failed to close JMXConnector";
+                if (log.isTraceEnabled()) {
+                    log.trace(msg,e);
+                }
+                if (log.isDebugEnabled()) {
+                    log.debug(msg + ":" + e);
+                }
+            } finally {
+                this.connector = null;
+                this.mbeanConnection = null;
+                this.lastError = null;
+            }
+        }
+    }
+    
     public boolean isFullyStarted() {
         boolean fullyStarted = true;
 
