@@ -114,10 +114,6 @@ public class Http11APRConnectorGBean extends BaseHttp11ConnectorGBean implements
         Object value = connector.getAttribute("useSendfile");
         return value == null ? true : new Boolean(value.toString()).booleanValue();
     }
-    
-    public String getSslPassword() {
-        return (String) connector.getAttribute("SSLPassword");
-    }
 
     public void setPollTime(int pollTime) {
         connector.setAttribute("pollTime", pollTime);
