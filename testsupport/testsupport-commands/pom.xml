@@ -17,36 +17,43 @@
     specific language governing permissions and limitations
     under the License.
 -->
-
-<!-- $Rev$ $Date$ -->
-
+<!-- $Rev: 649297 $ $Date: 2008-04-17 17:54:06 -0400 (Thu, 17 Apr 2008) $ -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    
     <modelVersion>4.0.0</modelVersion>
     
     <parent>
-        <groupId>org.apache.geronimo</groupId>
-        <artifactId>geronimo</artifactId>
+        <groupId>org.apache.geronimo.testsupport</groupId>
+        <artifactId>testsupport</artifactId>
         <version>2.2-SNAPSHOT</version>
     </parent>
     
-    <groupId>org.apache.geronimo.testsupport</groupId>
-    <artifactId>testsupport</artifactId>
-    <name>Geronimo Test Support</name>
-    <packaging>pom</packaging>
+    <artifactId>testsupport-commands</artifactId>
+    <name>Geronimo Test Support :: Commands</name>
     
-    <description>
-        Provides support for Geronimo tests.
-    </description>
+    <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>compile</scope>
+        </dependency>
 
-    <modules>
-        <module>testsupport-common</module>
-        <module>testsupport-selenium</module>
-        <module>testsupport-commands</module>
-        <module>testsupport-packaging</module>
-        <module>test-deployment-j2ee_1.3</module>
-        <module>test-deployment-j2ee_1.4</module>
-        <module>test-deployment-javaee_5</module>
-    </modules>
+        <dependency>
+            <groupId>org.apache.geronimo.testsupport</groupId>
+            <artifactId>testsupport-common</artifactId>
+            <version>${version}</version>
+            <scope>compile</scope>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.apache.geronimo.buildsupport</groupId>
+            <artifactId>geronimo-maven-plugin</artifactId>
+            <version>${version}</version>
+        </dependency>
+         
+        <dependency>
+            <groupId>org.apache.ant</groupId>
+            <artifactId>ant</artifactId>
+        </dependency>
+    </dependencies>
 
 </project>
