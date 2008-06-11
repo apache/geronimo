@@ -58,11 +58,13 @@ class ConnectCommand
     PromptReader prompter
 
     protected Object doExecute() throws Exception {
-        return openConnection()
+        return openConnection(false)
     }
     
-    private ServerConnection openConnection() throws Exception {
-        io.out.println("Connecting to Geronimo server: ${hostname}:${port}")
+    protected ServerConnection openConnection(boolean quiet) throws Exception {
+        if (!quiet) {
+        	io.out.println("Connecting to Geronimo server: ${hostname}:${port}")
+        }
         
         // If the username/password was not configured via cli, then prompt the user for the values
         if (username == null || password == null) {
@@ -90,7 +92,9 @@ class ConnectCommand
         
         variables.parent.set(SERVER_CONNECTION, connection)
 
-        io.out.println('Connection established')
+        if (!quiet) {
+        	io.out.println('Connection established')
+        }
         
         return connection
     }
@@ -99,7 +103,7 @@ class ConnectCommand
         def connection = variables.get(SERVER_CONNECTION)
         
         if (!connection) {
-            connection = openConnection()
+            connection = openConnection(false)
         }
         
         return connection
