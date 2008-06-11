@@ -39,6 +39,7 @@ public interface Http11APRProtocol {
     public void setSslCertificateFile(String sslCertificateFile);
     public String getSslCertificateKeyFile();
     public void setSslCertificateKeyFile(String sslCertificateKeyFile);
+    public String getSslPassword();
     public void setSslPassword(String sslPassword);
     public String getSslVerifyClient();
     public void setSslVerifyClient(String sslVerifyClient);
