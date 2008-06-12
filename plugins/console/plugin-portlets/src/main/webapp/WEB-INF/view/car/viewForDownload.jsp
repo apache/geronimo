@@ -52,7 +52,7 @@
   <c:forEach var="license" items="${plugin.license}">
       <tr>
         <th align="right" valign="top"><fmt:message key="car.viewForDownload.license" />:</th>
-        <td>${license.value}
+        <td>${license.value}&nbsp;
           <c:choose>
               <c:when test="${license.osiApproved}">(Open Source)</c:when>
               <c:otherwise>(Proprietary)</c:otherwise>
@@ -85,7 +85,7 @@
           </c:when>
           <c:otherwise>
             <c:forEach var="jvmVersion" items="${plugin.jvmVersion}">
-              ${jvmVersion}
+              ${jvmVersion}<br/>
             </c:forEach>
           </c:otherwise>
       </c:choose>
