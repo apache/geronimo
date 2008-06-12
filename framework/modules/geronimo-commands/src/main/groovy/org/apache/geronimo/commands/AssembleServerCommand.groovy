@@ -60,10 +60,7 @@ extends ConnectCommand
     protected Object doExecute() throws Exception {
         io.out.println("Listing configurations from Geronimo server")
 
-        def connection = variables.get("ServerConnection")
-        if (!connection) {
-            connection = super.doExecute()
-        }
+        def connection = connect()
               
         if (!artifact) {
             artifact = prompter.readLine("Server artifact name: ")

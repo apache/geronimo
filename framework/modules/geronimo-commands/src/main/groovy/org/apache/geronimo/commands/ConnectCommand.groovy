@@ -39,6 +39,8 @@ import java.util.Collections
 @CommandComponent(id='geronimo-commands:connect', description="Connect to a Geronimo server")
 class ConnectCommand extends CommandSupport {
 
+    public static final String SERVER_CONNECTION = 'geronimo.ServerConnection'
+
     @Option(name='-s', aliases=['--hostname', '--server'], description='Hostname, default localhost')
     String hostname = 'localhost'
 
@@ -54,8 +56,14 @@ class ConnectCommand extends CommandSupport {
     @Requirement
     PromptReader prompter
 
-    protected Object doExecute() throws Exception {               
-        io.out.println("Connecting to Geronimo server: ${hostname}:${port}")
+    protected Object doExecute() throws Exception {
+        return openConnection(false)
+    }
+
+    protected ServerConnection openConnection(boolean quiet) throws Exception {
+        if (!quiet) {
+            io.out.println("Connecting to Geronimo server: ${hostname}:${port}")
+        }
         
         // If the username/password was not configured via cli, then prompt the user for the values
         if (username == null || password == null) {
@@ -80,20 +88,42 @@ class ConnectCommand extends CommandSupport {
 
         disconnect();
         
-        variables.parent.set("ServerConnection", connection)
+        variables.parent.set(SERVER_CONNECTION, connection)
 
-        io.out.println("Connection established")
+        if (!quiet) {
+            io.out.println("Connection established")
+        }
+
         return connection
     }
-    
-    private void disconnect() {
-        def connection = variables.get("ServerConnection")
+
+    protected ServerConnection connect() {
+        def connection = variables.get(SERVER_CONNECTION)
+
+        if (!connection) {
+            connection = openConnection(false)
+        }
+
+        return connection
+    }
+
+    protected boolean isConnected() {
+        return variables.contains(SERVER_CONNECTION)
+    }
+
+    protected void disconnect() {
+        def connection = variables.get(SERVER_CONNECTION)
+
         if (connection) {
             try {
-            	connection.close()
-            } catch (Exception e) {
+                connection.close()
+            }
+            catch (Exception e) {
                 // ignore
             }
         }
+
+        variables.parent.unset(SERVER_CONNECTION)
     }
+
 }

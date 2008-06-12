@@ -35,10 +35,7 @@ import org.apache.geronimo.deployment.cli.CommandListTargets
 class ListTargetsCommand extends ConnectCommand {
      
     protected Object doExecute() throws Exception {
-        def connection = variables.get("ServerConnection")
-        if (!connection) {
-            connection = super.doExecute()
-        }
+        def connection = connect()
         
         def command = new CommandListTargets()
         def consoleReader = new ConsoleReader(io.inputStream, io.out)

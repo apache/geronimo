@@ -38,10 +38,7 @@ class InstallPluginCommand extends ConnectCommand {
     String pluginFile
     
     protected Object doExecute() throws Exception {
-        def connection = variables.get("ServerConnection")
-        if (!connection) {
-            connection = super.doExecute()
-        }
+        def connection = connect()
         
         def command = new CommandInstallCAR()
         def consoleReader = new ConsoleReader(io.inputStream, io.out)

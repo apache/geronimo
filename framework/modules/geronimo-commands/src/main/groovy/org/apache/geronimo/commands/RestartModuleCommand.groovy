@@ -38,10 +38,7 @@ class RestartModuleCommand extends ConnectCommand {
     List<String> moduleNames = []
 
     protected Object doExecute() throws Exception {
-        def connection = variables.get("ServerConnection")
-        if (!connection) {
-            connection = super.doExecute()
-        }
+        def connection = connect()
         
         def command = new CommandRestart()
         def consoleReader = new ConsoleReader(io.inputStream, io.out)

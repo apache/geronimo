@@ -47,10 +47,8 @@ extends ConnectCommand
     List<String> pluginArtifacts
 
     protected Object doExecute() throws Exception {
-        def connection = variables.get("ServerConnection")
-        if (!connection) {
-            connection = super.doExecute()
-        }
+        def connection = connect()
+
         def command = new CommandListConfigurations()
         def consoleReader = new ConsoleReader(io.inputStream, io.out)
         def repo = null

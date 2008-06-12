@@ -47,10 +47,7 @@ class DeployModuleCommand extends ConnectCommand {
     String modulePlan
     
     protected Object doExecute() throws Exception {
-        def connection = variables.get("ServerConnection")
-        if (!connection) {
-            connection = super.doExecute()
-        }
+        def connection = connect()
         
         def command = new CommandDeploy()
         def consoleReader = new ConsoleReader(io.inputStream, io.out)

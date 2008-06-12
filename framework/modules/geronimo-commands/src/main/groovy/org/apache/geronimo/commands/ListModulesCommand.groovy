@@ -47,10 +47,7 @@ class ListModulesCommand extends ConnectCommand {
     List<String> targets = []
     
     protected Object doExecute() throws Exception {
-        def connection = variables.get("ServerConnection")
-        if (!connection) {
-            connection = super.doExecute()
-        }
+        def connection = connect()
         
         def command = new CommandListModules()
         def consoleReader = new ConsoleReader(io.inputStream, io.out)

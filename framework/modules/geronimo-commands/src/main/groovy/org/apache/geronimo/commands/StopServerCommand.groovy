@@ -35,15 +35,9 @@ import org.apache.geronimo.deployment.plugin.jmx.RemoteDeploymentManager
 class StopServerCommand extends ConnectCommand {
     
     protected Object doExecute() throws Exception {
-        def connection = variables.get("ServerConnection")
-        if (!connection) {
-            connection = super.doExecute()
-        }
+        def connection = connect()
                                  
-        RemoteDeploymentManager deploymentManager = 
-            (RemoteDeploymentManager)connection.getDeploymentManager();
-        
-        def server = new ServerProxy(deploymentManager.getJMXConnector())
+        def server = new ServerProxy(connection.deploymentManager.getJMXConnector())
 
         io.out.println("Stopping Geronimo server...");  
         try {
