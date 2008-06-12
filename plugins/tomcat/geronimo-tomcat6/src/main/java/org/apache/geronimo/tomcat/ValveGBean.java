@@ -16,6 +16,7 @@
  */
 package org.apache.geronimo.tomcat;
 
+import java.lang.ClassLoader;
 import java.util.Map;
 
 import org.apache.catalina.Valve;
@@ -37,7 +38,6 @@ public class ValveGBean extends BaseGBean implements GBeanLifecycle, ObjectRetri
     private final Valve valve;
     private final ValveGBean nextValve;
     private final String className;
- 
     
     public ValveGBean(){      
         valve = null;
@@ -45,7 +45,7 @@ public class ValveGBean extends BaseGBean implements GBeanLifecycle, ObjectRetri
         className = null;
     }
     
-    public ValveGBean(String className, Map initParams, ValveGBean nextValve) throws Exception{
+    public ValveGBean(String className, Map initParams, ValveGBean nextValve, ClassLoader classLoader) throws Exception{
 
         //Validate
         if (className == null){
@@ -62,9 +62,9 @@ public class ValveGBean extends BaseGBean implements GBeanLifecycle, ObjectRetri
         }
         
         this.className = className;
-        
+
         //Create the Valve object
-        valve = (Valve)Class.forName(className).newInstance();
+        valve = (Valve)classLoader.loadClass(className).newInstance();
 
         //Set the parameters
         setParameters(valve, initParams);
@@ -97,10 +97,11 @@ public class ValveGBean extends BaseGBean implements GBeanLifecycle, ObjectRetri
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(ValveGBean.class, J2EE_TYPE);
         infoFactory.addAttribute("className", String.class, true);
         infoFactory.addAttribute("initParams", Map.class, true);
+        infoFactory.addAttribute("classLoader", ClassLoader.class, false);
         infoFactory.addReference("NextValve", ValveGBean.class, J2EE_TYPE);
         infoFactory.addOperation("getInternalObject");
         infoFactory.addOperation("getNextValve");
-        infoFactory.setConstructor(new String[] { "className", "initParams", "NextValve" });
+        infoFactory.setConstructor(new String[] { "className", "initParams", "NextValve", "classLoader" });
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 
