@@ -49,10 +49,18 @@ public class ExplicitDefaultArtifactResolver extends DefaultArtifactResolver imp
     private final ServerInfo serverInfo;
 
     public ExplicitDefaultArtifactResolver(String versionMapLocation,
+                                           ArtifactManager artifactManager,
+                                           Collection<? extends ListableRepository> repositories,
+                                           ServerInfo serverInfo ) throws IOException {
+        this(versionMapLocation, artifactManager, repositories, null, serverInfo);
+    }
+
+    public ExplicitDefaultArtifactResolver(String versionMapLocation,
             ArtifactManager artifactManager,
             Collection<? extends ListableRepository> repositories,
+            Map<String, String> additionalAliases,
             ServerInfo serverInfo ) throws IOException {
-        super(artifactManager, repositories, buildExplicitResolution(versionMapLocation, serverInfo));
+        super(artifactManager, repositories, buildExplicitResolution(versionMapLocation, additionalAliases, serverInfo));
         this.artifactAliasesFile = versionMapLocation;
         this.serverInfo = serverInfo;
     }
@@ -62,7 +70,7 @@ public class ExplicitDefaultArtifactResolver extends DefaultArtifactResolver imp
         return artifactAliasesFile;
     }
 
-    private static Map<Artifact, Artifact> buildExplicitResolution(String versionMapLocation, ServerInfo serverInfo) throws IOException {
+    private static Map<Artifact, Artifact> buildExplicitResolution(String versionMapLocation, Map<String, String> additionalAliases, ServerInfo serverInfo) throws IOException {
         if (versionMapLocation == null) {
             return null;
         }
@@ -75,6 +83,9 @@ public class ExplicitDefaultArtifactResolver extends DefaultArtifactResolver imp
             } finally {
                 in.close();
             }
+        }
+        if (additionalAliases != null) {
+            properties.putAll(additionalAliases);
         }
         return propertiesToArtifactMap(properties);
     }
@@ -136,6 +147,7 @@ public class ExplicitDefaultArtifactResolver extends DefaultArtifactResolver imp
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(ExplicitDefaultArtifactResolver.class, "ArtifactResolver");
         infoFactory.addAttribute("versionMapLocation", String.class, true, true);
+        infoFactory.addAttribute("additionalAliases", Map.class, true, true);
         infoFactory.addReference("ArtifactManager", ArtifactManager.class, "ArtifactManager");
         infoFactory.addReference("Repositories", ListableRepository.class, "Repository");
         infoFactory.addReference("ServerInfo", ServerInfo.class, "GBean");
@@ -145,6 +157,7 @@ public class ExplicitDefaultArtifactResolver extends DefaultArtifactResolver imp
                 "versionMapLocation",
                 "ArtifactManager",
                 "Repositories",
+                "additionalAliases",
                 "ServerInfo"
         });
 
