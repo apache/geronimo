@@ -48,9 +48,22 @@
         </reference>
         <reference name="Repositories"></reference>
         <attribute name="versionMapLocation">var/config/artifact_aliases.properties</attribute>
+        <attribute name="additionalAliases">
+            org.apache.geronimo.framework/j2ee-system//car=org.apache.geronimo.framework/online-deployer/${version}/car
+            org.apache.geronimo.framework/j2ee-system/${version}/car=org.apache.geronimo.framework/online-deployer/${version}/car
+        </attribute>
         <reference name="ServerInfo">
             <name>ServerInfo</name>
         </reference>
+    </gbean>
+
+    <!--User-editable attribute service-->
+    <gbean name="AttributeManager" class="org.apache.geronimo.system.configuration.LocalAttributeManager">
+        <reference name="ServerInfo">
+            <name>ServerInfo</name>
+        </reference>
+        <attribute name="readOnly">true</attribute>
+        <attribute name="configFile">var/config/jsr88-configurer-config.xml</attribute>
     </gbean>
 
     <!--Server attribute service-->
@@ -98,30 +111,5 @@
             <name>ServerInfo</name>
         </reference>
     </gbean>
-
-    <gbean name="DeployTool" class="org.apache.geronimo.deployment.cli.DeployTool" >
-                      <reference name="DeploymentFactory">
-                          <name>DeploymentFactory</name>
-                      </reference>
-                  </gbean>
-
-    <gbean name="DeploymentFactory" class="org.apache.geronimo.deployment.plugin.factories.DeploymentFactoryWithKernel" />
-
-    <gbean name="ModuleConfigurerRegistry" class="org.apache.geronimo.deployment.plugin.jmx.RemoteDeploymentManager">
-                  <references name="ModuleConfigurers">
-                      <pattern>
-                          <name>ClientConfigurer</name>
-                      </pattern>
-                      <pattern>
-                          <name>EARConfigurer</name>
-                      </pattern>
-                      <pattern>
-                          <name>RARConfigurer</name>
-                      </pattern>
-                      <pattern>
-                          <name>WARConfigurer</name>
-                      </pattern>
-                  </references>
-              </gbean>
 
 </module>
