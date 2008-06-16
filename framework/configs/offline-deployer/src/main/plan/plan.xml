@@ -26,6 +26,8 @@
         </reference>
         <attribute name="readOnly">true</attribute>
         <attribute name="configFile">var/config/offline-deployer-config.xml</attribute>
+        <attribute name="substitutionsFile">var/config/config-substitutions.properties</attribute>
+        <attribute name="substitutionPrefix">org.apache.geronimo.config.substitution.</attribute>
     </gbean>
 
     <!-- System Properties -->
