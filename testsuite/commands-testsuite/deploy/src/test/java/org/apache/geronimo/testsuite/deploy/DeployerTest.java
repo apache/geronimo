@@ -47,8 +47,8 @@ public class DeployerTest extends CommandTestSupport {
         String[] args = new String[]{ "list-modules" };
  
         String output = execute(args);
-
-        if (output.indexOf("org.apache.geronimo.configs/activemq-broker") < 0) {
+     
+        if (output.indexOf("org.apache.geronimo.configs/j2ee-deployer") < 0) {
             Assert.fail("list-modules failed : " + output);
         }
     }
@@ -59,10 +59,7 @@ public class DeployerTest extends CommandTestSupport {
  
         String output = execute(args);
 
-        if (output.indexOf("org.apache.geronimo.configs/activemq-broker") < 0) {
-            Assert.fail("list-modules failed : " + output);
-        }
-        if (output.indexOf("org.apache.geronimo.configs/client-corba-yoko") > 0) {
+        if (output.indexOf("org.apache.geronimo.configs/j2ee-deployer") < 0) {
             Assert.fail("list-modules failed : " + output);
         }
     }
@@ -73,30 +70,20 @@ public class DeployerTest extends CommandTestSupport {
  
         String output = execute(args);
 
-        if (output.indexOf("org.apache.geronimo.configs/activemq-broker") > 0) {
-            Assert.fail("deploy/list-modules failed : " + output);
-        }
-        if (output.indexOf("org.apache.geronimo.configs/client-corba-yoko") < 0) {
-            Assert.fail("deploy/list-modules failed : " + output);
+        if (output.indexOf("org.apache.geronimo.configs/j2ee-deployer") > 0) {
+            Assert.fail("list-modules failed : " + output);
         }
     }
     
     @Test
-    public void testOfflineDeployment() throws Exception {
-        //todo doesn't work now
-        /*
-        String[] args = new String[]{ "--offline", "deploy", "" };
+    public void testListTargets() throws Exception {
+        String[] args = new String[]{ "list-targets" };
  
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        execute( command, args, null, baos );
+        String output = execute(args);
 
-        if (baos.toString().indexOf("org.apache.geronimo.configs/activemq-broker") > 0) {
-                Assert.fail("deploy/list-modules failed : " + baos.toString());
+        if (output.indexOf("j2eeType=ConfigurationStore,name=Local") < 0) {
+            Assert.fail("deploy/list-targets failed : " + output);
         }
-        if (baos.toString().indexOf("org.apache.geronimo.configs/client-corba-yoko") < 0) {
-                Assert.fail("deploy/list-modules failed : " + baos.toString());
-        }
-        */
     }
-    
+        
 }
