@@ -67,6 +67,7 @@
     </dependencies>
 
     <modules>
+        <module>commands-testsuite</module>
         <module>console-testsuite</module>
         <module>corba-testsuite</module>
         <module>deployment-testsuite</module>
