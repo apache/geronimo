@@ -76,11 +76,7 @@ public class GeronimoThreadContextListener implements ThreadContextListener {
         // Geronimo call context is used to track old state that must be restored
         GeronimoCallContext geronimoCallContext = new GeronimoCallContext();
 
-        // Get the jndi context
-        Context jndiContext = ejbDeployment.getComponentContext();
-        geronimoCallContext.oldJndiContext = RootContext.getComponentContext();
-
-        // Demark component boundries for connection tracking if we have a tracker
+        // Demarcate component boundaries for connection tracking if we have a tracker
         TrackedConnectionAssociator trackedConnectionAssociator = ejbDeployment.getTrackedConnectionAssociator();
         if (trackedConnectionAssociator != null) {
             // create the connector context... this only works with a TrackedConnectionAssociator using lazy association
@@ -96,10 +92,14 @@ public class GeronimoThreadContextListener implements ThreadContextListener {
             }
         }
 
+        // Get the jndi context
+        Context jndiContext = ejbDeployment.getComponentContext();
+        geronimoCallContext.oldJndiContext = RootContext.getComponentContext();
         // Set the jndi context into Geronimo's root context
         RootContext.setComponentContext(jndiContext);
 
         // set the policy (security) context id
+        geronimoCallContext.contextID = PolicyContext.getContextID();
         String moduleID = newContext.getDeploymentInfo().getModuleID();
         PolicyContext.setContextID(moduleID);
 
@@ -139,6 +139,9 @@ public class GeronimoThreadContextListener implements ThreadContextListener {
             ContextManager.clearCallers();
         }
 
+        //reset ContextID
+        PolicyContext.setContextID(geronimoCallContext.contextID);
+
         // reset Geronimo's root jndi context
         RootContext.setComponentContext(geronimoCallContext.oldJndiContext);
 
@@ -158,5 +161,6 @@ public class GeronimoThreadContextListener implements ThreadContextListener {
         private ConnectorInstanceContext oldConnectorContext;
         private boolean clearCallers;
         private Callers callers;
+        private String contextID;
     }
 }
