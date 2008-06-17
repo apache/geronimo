@@ -23,13 +23,12 @@ import java.rmi.RemoteException;
 
 import javax.ejb.CreateException;
 import javax.ejb.EJB;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
 import javax.servlet.ServletException;
-import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.apache.geronimo.security.ContextManager;
 
 
 /**
@@ -37,8 +36,8 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class TestInjectionServlet extends HttpServlet {
 
-    @EJB(name="TestSession")
-    private TestSession session;
+    @EJB
+    private TestSessionHome sessionHome;
 
 
     public void init() {
@@ -47,10 +46,15 @@ public class TestInjectionServlet extends HttpServlet {
 
     protected void service(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws ServletException, IOException {
         PrintWriter out = httpServletResponse.getWriter();
-        out.println("TestServlet principal: " + httpServletRequest.getUserPrincipal().getName());
+        if (httpServletRequest.getUserPrincipal() == null) {
+            out.println("TestServlet principal is null, current caller Subject: " + ContextManager.getCurrentCaller());
+        } else {
+            out.println("TestServlet principal: " + httpServletRequest.getUserPrincipal().getName());
+        }
         out.println("TestServlet isUserInRole foo: " + httpServletRequest.isUserInRole("foo"));
         out.println("TestServlet isUserInRole bar: " + httpServletRequest.isUserInRole("bar"));
         try {
+            TestSession session = sessionHome.create();
             String principalName = session.testAccess();
             out.println("Test EJB principal: " + principalName);
             try {
@@ -63,7 +67,11 @@ public class TestInjectionServlet extends HttpServlet {
             out.println("TestSession isCallerInRole bar: " + session.isCallerInRole("bar"));
         } catch (RemoteException e) {
             e.printStackTrace();
+        } catch (CreateException e) {
+            e.printStackTrace();
         }
+        out.println("TestServlet isUserInRole foo: " + httpServletRequest.isUserInRole("foo"));
+        out.println("TestServlet isUserInRole bar: " + httpServletRequest.isUserInRole("bar"));
         out.flush();
     }
 

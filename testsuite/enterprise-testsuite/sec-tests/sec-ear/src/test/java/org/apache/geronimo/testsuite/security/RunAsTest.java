@@ -64,7 +64,9 @@ public class RunAsTest
             "Test EJB principal: bar\n" +
             "Correctly received security exception on noAccess method\n" +
             "TestSession isCallerInRole foo: false\n" +
-            "TestSession isCallerInRole bar: true", selenium.getText("xpath=/html/body"));
+            "TestSession isCallerInRole bar: true\n" +
+            "TestServlet isUserInRole foo: true\n" +
+            "TestServlet isUserInRole bar: false", selenium.getText("xpath=/html/body"));
     }
 
     @Test

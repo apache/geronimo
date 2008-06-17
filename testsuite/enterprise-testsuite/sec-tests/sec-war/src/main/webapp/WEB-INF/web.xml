@@ -34,9 +34,9 @@ limitations under the License.
         </run-as>
     </servlet>
     <servlet>
-        <display-name>Security itest servlet</display-name>
+        <display-name>Security itest servlet (injection)</display-name>
         <servlet-name>injectionServlet</servlet-name>
-        <servlet-class>org.apache.geronimo.itest.TestServlet</servlet-class>
+        <servlet-class>org.apache.geronimo.itest.TestInjectionServlet</servlet-class>
         <load-on-startup>0</load-on-startup>
         <run-as>
             <role-name>bar</role-name>

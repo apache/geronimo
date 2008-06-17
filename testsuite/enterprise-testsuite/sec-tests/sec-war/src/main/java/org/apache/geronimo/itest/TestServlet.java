@@ -30,6 +30,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.geronimo.security.ContextManager;
+
 
 /**
  * @version $Rev$ $Date$
@@ -42,7 +44,11 @@ public class TestServlet extends HttpServlet {
 
     protected void service(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws ServletException, IOException {
         PrintWriter out = httpServletResponse.getWriter();
-        out.println("TestServlet principal: " + httpServletRequest.getUserPrincipal().getName());
+        if (httpServletRequest.getUserPrincipal() == null) {
+            out.println("TestServlet principal is null, current caller Subject: " + ContextManager.getCurrentCaller());
+        } else {
+            out.println("TestServlet principal: " + httpServletRequest.getUserPrincipal().getName());
+        }
         out.println("TestServlet isUserInRole foo: " + httpServletRequest.isUserInRole("foo"));
         out.println("TestServlet isUserInRole bar: " + httpServletRequest.isUserInRole("bar"));
         try {
@@ -70,6 +76,8 @@ public class TestServlet extends HttpServlet {
         } catch (CreateException e) {
             e.printStackTrace();
         }
+        out.println("TestServlet isUserInRole foo: " + httpServletRequest.isUserInRole("foo"));
+        out.println("TestServlet isUserInRole bar: " + httpServletRequest.isUserInRole("bar"));
         out.flush();
     }
 

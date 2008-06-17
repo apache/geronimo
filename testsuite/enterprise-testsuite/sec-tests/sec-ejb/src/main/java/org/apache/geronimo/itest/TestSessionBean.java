@@ -16,14 +16,18 @@
  */
 package org.apache.geronimo.itest;
 
-import javax.ejb.SessionBean;
 import javax.ejb.EJBException;
+import javax.ejb.SessionBean;
 import javax.ejb.SessionContext;
+import javax.ejb.Remote;
+import javax.ejb.Local;
+import javax.ejb.Stateless;
+import javax.annotation.security.DeclareRoles;
 
 /**
  * @version $Rev$ $Date$
  */
-@javax.annotation.security.DeclareRoles({"foo", "bar"})
+@DeclareRoles({"foo", "bar"})
 public class TestSessionBean implements SessionBean {
 
     SessionContext sessionContext;
