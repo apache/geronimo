@@ -19,8 +19,8 @@ package org.apache.geronimo.console.configcreator;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.MalformedURLException;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
@@ -53,7 +53,7 @@ public class DeployStatusHandler extends AbstractHandler {
             throws PortletException, IOException {
         WARConfigData data = getSessionData(request);
         try {
-            File moduleFile = new File(new URI(data.getUploadedWarUri()));
+            File moduleFile = new File((new URL(data.getUploadedWarUri())).getPath());
 
             File planFile = File.createTempFile("console-deployment", ".xml");
             planFile.deleteOnExit();
@@ -64,7 +64,7 @@ public class DeployStatusHandler extends AbstractHandler {
             String[] status = JSR88_Util.deploy(request, moduleFile, planFile);
             request.setAttribute(DEPLOY_ABBR_STATUS_PARAMETER, status[0]);
             request.setAttribute(DEPLOY_FULL_STATUS_PARAMETER, status[1]);
-        } catch (URISyntaxException e) {
+        } catch (MalformedURLException e) {
             log.error(e.getMessage(), e);
         }
         request.setAttribute(DATA_PARAMETER, data);

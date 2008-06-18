@@ -73,7 +73,7 @@ public class GetArchiveHandler extends AbstractHandler {
         }
 
         File uploadedFile = uploadFile(fileItem);
-        data.setUploadedWarUri(uploadedFile.toURI().toString());
+        data.setUploadedWarUri(uploadedFile.toURL().toString());
 
         String str = getBasename(fileItem.getName().trim());
         String warName = str.substring(0, str.length() - 4);
