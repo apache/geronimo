@@ -42,6 +42,7 @@ limitations under the License.
         <attribute name="pageTitle">Debug Views/JMX Viewer</attribute>
         <attribute name="portletContext">/debug-views</attribute>
         <attribute name="portletList">[JMXViewer]</attribute>
+        <attribute name="icon">/images/ico_filetree_16x16.gif</attribute>
         <reference name="PortalContainerServices">
             <name>PlutoPortalServices</name>
         </reference>
@@ -51,6 +52,7 @@ limitations under the License.
         <attribute name="pageTitle">Debug Views/LDAP Viewer</attribute>
         <attribute name="portletContext">/debug-views</attribute>
         <attribute name="portletList">[LDAPViewer]</attribute>
+        <attribute name="icon">/images/ico_filetree_16x16.gif</attribute>
         <reference name="PortalContainerServices">
             <name>PlutoPortalServices</name>
         </reference>
@@ -60,6 +62,7 @@ limitations under the License.
         <attribute name="pageTitle">Debug Views/ClassLoader Viewer</attribute>
         <attribute name="portletContext">/debug-views</attribute>
         <attribute name="portletList">[ClassLoaderViewer]</attribute>
+        <attribute name="icon">/images/ico_filetree_16x16.gif</attribute>
         <reference name="PortalContainerServices">
             <name>PlutoPortalServices</name>
         </reference>
@@ -69,6 +72,7 @@ limitations under the License.
         <attribute name="pageTitle">Debug Views/JNDI Viewer</attribute>
         <attribute name="portletContext">/debug-views</attribute>
         <attribute name="portletList">[JNDIViewer]</attribute>
+        <attribute name="icon">/images/ico_filetree_16x16.gif</attribute>
         <reference name="PortalContainerServices">
             <name>PlutoPortalServices</name>
         </reference>
@@ -78,6 +82,7 @@ limitations under the License.
         <attribute name="pageTitle">Debug Views/Dependency Viewer</attribute>
         <attribute name="portletContext">/debug-views</attribute>
         <attribute name="portletList">[DependencyViewer]</attribute>
+        <attribute name="icon">/images/ico_filetree_16x16.gif</attribute>
         <reference name="PortalContainerServices">
             <name>PlutoPortalServices</name>
         </reference>

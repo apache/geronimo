@@ -133,6 +133,10 @@ limitations under the License.
             PageConfig pageConfig = list.get(k);
             pageContext.setAttribute("page",pageConfig);
             pageName = shortNames.get(pageConfig.getName());
+            String icon = pageConfig.getIcon();
+            if (icon == null || icon.trim().length() == 0) {
+               icon = "/images/ico_doc_16x16.gif";
+            }
     %>
     <c:choose>
         <c:when test="${page == currentPage}">
@@ -146,7 +150,7 @@ limitations under the License.
                         <td class="Indent">&nbsp;</td> 
                         <td class="Middle">
                             &nbsp;&nbsp;&nbsp;
-                            <img border="0" src="<%=request.getContextPath()%>/images/ico_doc_16x16.gif" alt=""/>&nbsp;<a href='<c:out value="${pageContext.request.contextPath}"/>/portal/<c:out value="${page.name}"/>'><fmt:message key="<%=pageName%>"/></a>
+                            <img border="0" src="<%=request.getContextPath()%><%=icon%>" alt=""/>&nbsp;<a href='<c:out value="${pageContext.request.contextPath}"/>/portal/<c:out value="${page.name}"/>'><fmt:message key="<%=pageName%>"/></a>
                         </td> 
                         <td class="Right">&nbsp;</td> 
                     </tr> 
