@@ -41,6 +41,7 @@ limitations under the License.
         <attribute name="pageTitle">Server/JMS Server</attribute>
         <attribute name="portletContext">/activemq</attribute>
         <attribute name="portletList">[JMSServerManager,JMSConnectorManager]</attribute>
+        <attribute name="icon">/images/ico_servcomp_16x16.gif</attribute>
         <reference name="PortalContainerServices">
             <name>PlutoPortalServices</name>
         </reference>
@@ -50,6 +51,7 @@ limitations under the License.
         <attribute name="pageTitle">Services/JMS Resources</attribute>
         <attribute name="portletContext">/activemq</attribute>
         <attribute name="portletList">[JMSWizard]</attribute>
+        <attribute name="icon">/images/ico_beanjar_16x16.gif</attribute>
         <reference name="PortalContainerServices">
             <name>PlutoPortalServices</name>
         </reference>

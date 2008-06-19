@@ -44,6 +44,7 @@
         <attribute name="pageTitle">Applications/Deploy New</attribute>
         <attribute name="portletContext">/plugin</attribute>
         <attribute name="portletList">[Deployment]</attribute>
+        <attribute name="icon">/images/ico_list_16x16.gif</attribute>
         <reference name="PortalContainerServices">
             <name>PlutoPortalServices</name>
         </reference>
@@ -52,6 +53,7 @@
         <attribute name="pageTitle">Applications/Plugins</attribute>
         <attribute name="portletContext">/plugin</attribute>
         <attribute name="portletList">[ImportExport]</attribute>
+        <attribute name="icon">/images/ico_list_16x16.gif</attribute>
         <reference name="PortalContainerServices">
             <name>PlutoPortalServices</name>
         </reference>
@@ -61,6 +63,7 @@
         <attribute name="pageTitle">Security/Security Realms</attribute>
         <attribute name="portletContext">/plugin</attribute>
         <attribute name="portletList">[RealmWizard]</attribute>
+        <attribute name="icon">/images/ico_lock_16x16.gif</attribute>
         <reference name="PortalContainerServices">
             <name>PlutoPortalServices</name>
         </reference>
