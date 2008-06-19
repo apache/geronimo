@@ -603,7 +603,7 @@ public class LocalAttributeManager implements LocalPluginAttributeStore, Persist
 
     private static Properties loadConfigSubstitutions(File configSubstitutionsFile) {
         Properties properties = new Properties();
-        if (configSubstitutionsFile != null) {
+        if (configSubstitutionsFile != null && configSubstitutionsFile.exists()) {
             try {
                 FileInputStream in = new FileInputStream(configSubstitutionsFile);
                 try {
