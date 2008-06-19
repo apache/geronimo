@@ -60,8 +60,11 @@ Copyright (c) 2000-2005
 The Legion Of The Bouncy Castle (http://www.bouncycastle.org)
 
 =========================================================================
-==  W3C¨ SOFTWARE NOTICE AND LICENSE                                   ==
+==  Apache Geronimo Webservices Builder Notices                        ==
 =========================================================================
+For soap_encoding_1_1.xsd -
+
+W3C SOFTWARE NOTICE AND LICENSE
 Copyright © 1994-2002 World Wide Web Consortium, (Massachusetts Institute of Technology, Institut National de Recherche en Informatique et en Automatique, Keio University). All Rights Reserved. http://www.w3.org/Consortium/Legal/
 
 This W3C work (including software, documents, or other related items) is being provided by the copyright holders under the following license. By obtaining, using and/or copying this work, you (the licensee) agree that you have read, understood, and will comply with the following terms and conditions:
@@ -77,6 +80,11 @@ THIS SOFTWARE AND DOCUMENTATION IS PROVIDED "AS IS," AND COPYRIGHT HOLDERS MAKE 
 COPYRIGHT HOLDERS WILL NOT BE LIABLE FOR ANY DIRECT, INDIRECT, SPECIAL OR CONSEQUENTIAL DAMAGES ARISING OUT OF ANY USE OF THE SOFTWARE OR DOCUMENTATION.
 
 The name and trademarks of copyright holders may NOT be used in advertising or publicity pertaining to the software without specific, written prior permission. Title to copyright in this software and any associated documentation will at all times remain with copyright holders.
+
+
+For wsdl.xsd -
+
+Copyright 2001-2003 International Business Machines Corporation, Microsoft Corporation. All rights reserved.
 
 
 #########################################################################
