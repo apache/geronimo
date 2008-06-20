@@ -19,6 +19,7 @@ package org.apache.geronimo.console.configcreator.configData;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
@@ -346,7 +347,48 @@ public class EARHelper {
     }
 
     @DataTransferObject
-    public static class DependenciesJsonTree extends TreeJson implements Serializable {
+    public static class DependencyItem implements Serializable {
+        String name;
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+    }
+
+    @DataTransferObject
+    public static class DependenciesJsonTree implements Serializable {
+        String identifier = "name";
+        String label = "name";
+        List<DependencyItem> items = new ArrayList<DependencyItem>();
+
+        public String getIdentifier() {
+            return identifier;
+        }
+
+        public void setIdentifier(String identifier) {
+            this.identifier = identifier;
+        }
+
+        public String getLabel() {
+            return label;
+        }
+
+        public void setLabel(String label) {
+            this.label = label;
+        }
+
+        public List<DependencyItem> getItems() {
+            return items;
+        }
+
+        public void setItems(List<DependencyItem> items) {
+            this.items = items;
+        }
 
         public DependenciesJsonTree() {
         }
@@ -355,12 +397,18 @@ public class EARHelper {
             Iterator<String> iter = environmentConfig.getDependenciesSet().iterator();
             while (iter.hasNext()) {
                 String depString = iter.next();
-                items.add(new TreeNode(depString, depString));
+                DependencyItem item = new DependencyItem();
+                item.setName(depString);
+                items.add(item);
             }
         }
 
-        public void save(EnvironmentType environment) {
-            ;
+        public void save(HashSet<String> dependenciesSet) {
+            dependenciesSet.clear();
+            for (int i = 0; i < items.size(); i++) {
+                String depString = items.get(i).getName();
+                dependenciesSet.add(depString);
+            }
         }
     }
 
@@ -371,7 +419,7 @@ public class EARHelper {
 
     @RemoteMethod
     public void saveDependenciesJsonTree(HttpServletRequest request, DependenciesJsonTree dependenciesJsonTree){
-        dependenciesJsonTree.save(getEarConfigData(request).getEnvironmentConfig().getEnvironment());
+        dependenciesJsonTree.save(getEarConfigData(request).getEnvironmentConfig().getDependenciesSet());
     }
 
     @RemoteMethod

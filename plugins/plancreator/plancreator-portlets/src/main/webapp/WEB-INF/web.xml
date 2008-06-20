@@ -41,6 +41,7 @@ limitations under the License.
             org.apache.geronimo.console.configcreator.configData.EARHelper$TreeNode,
             org.apache.geronimo.console.configcreator.configData.EARHelper$TreeFolder,
             org.apache.geronimo.console.configcreator.configData.EARHelper$EnvironmentJson,
+            org.apache.geronimo.console.configcreator.configData.EARHelper$DependencyItem,
             org.apache.geronimo.console.configcreator.configData.EARHelper$DependenciesJsonTree
         </param-value>
       </init-param>
