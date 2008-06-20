@@ -66,10 +66,6 @@
                             </suiteXmlFiles>
                             <systemProperties>
                                <property>
-                                   <name>project.build.directory</name>
-                                   <value>${project.build.directory}</value>
-                               </property>
-                               <property>
                                    <name>project.directory</name>
                                    <value>${basedir}</value>
                                </property>

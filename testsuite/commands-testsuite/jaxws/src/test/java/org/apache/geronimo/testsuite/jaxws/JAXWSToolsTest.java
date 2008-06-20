@@ -57,10 +57,10 @@ public class JAXWSToolsTest extends CommandTestSupport {
     @Test
     public void testWsGen() throws Exception {
         String projectDir = System.getProperty("project.directory");
-        String targetDir = System.getProperty("project.build.directory");
+        File targetDir = new File(projectDir, "target");
         
         File outputDir = createUniqueDirectory(targetDir, "wsgen-");
-        File testClassesDir = new File(projectDir, "target/test-classes");
+        File testClassesDir = new File(targetDir, "test-classes");
         
         String[] args = new String[]{ "-verbose", "-keep", "-d", outputDir.getAbsolutePath(), "-cp", testClassesDir.getAbsolutePath(), "org.apache.geronimo.testsuite.jaxws.Greeter" };
  
@@ -72,7 +72,7 @@ public class JAXWSToolsTest extends CommandTestSupport {
     @Test
     public void testWsImport() throws Exception {
         String projectDir = System.getProperty("project.directory");
-        String targetDir = System.getProperty("project.build.directory");
+        File targetDir = new File(projectDir, "target");
         
         File outputDir = createUniqueDirectory(targetDir, "wsimport-");        
         File wsdlFile = new File(projectDir, "src/test/java/org/apache/geronimo/testsuite/jaxws/greeter_control.wsdl");
@@ -97,7 +97,7 @@ public class JAXWSToolsTest extends CommandTestSupport {
         }
     }
     
-    private File createUniqueDirectory(String targetDir, String prefix) {
+    private File createUniqueDirectory(File targetDir, String prefix) {
         File dir = new File(targetDir, prefix + System.currentTimeMillis());
         if (!dir.mkdir()) {
             throw new RuntimeException("Failed to create unqiue directory " + dir);
