@@ -25,7 +25,7 @@
         <version>2.2-SNAPSHOT</version>
     </parent>
 
-    <artifactId>deployer-testsuite</artifactId>
+    <artifactId>deploy</artifactId>
     <name>Geronimo TestSuite :: Commands Testsuite :: Deployer</name>
 
     <description>

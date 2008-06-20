@@ -25,7 +25,7 @@
         <version>2.2-SNAPSHOT</version>
     </parent>
 
-    <artifactId>jaxws-testsuite</artifactId>
+    <artifactId>jaxws</artifactId>
     <name>Geronimo TestSuite :: Commands Testsuite :: JAXWS Tools</name>
 
     <description>
