@@ -85,7 +85,8 @@ public class JAXWSToolsTest extends CommandTestSupport {
     }
 
     private void checkGeneratedFiles(File outputDir, String output) {
-        String packageName = "org\\apache\\greeter_control\\types\\";
+        String packageName = "org.apache.greeter_control.types.";
+        packageName = packageName.replace('.', File.separatorChar);
         List<String> expectedFiles = Arrays.asList("GreetMe.java",  "GreetMeOneWay.java", "GreetMeResponse.java", "SayHi.java", "SayHiResponse.java");
                                       
         for (String file : expectedFiles) {
