@@ -655,8 +655,7 @@ public class LocalAttributeManager implements LocalPluginAttributeStore, Persist
                     out.close();
                 }
             } catch (Exception e) {
-                log.error("Caught exception " + e
-                        + " trying to open properties file " + configSubstitutionsFile.getAbsolutePath());
+                log.error("Caught exception {} trying to open properties file {}", e, configSubstitutionsFile.getAbsolutePath());
             }
         }
     }
