@@ -1406,7 +1406,7 @@ public class PluginInstallerGBean implements PluginInstaller {
         PluginType meta = new PluginType();
         PluginArtifactType instance = new PluginArtifactType();
         meta.getPluginArtifact().add(instance);
-        meta.setName(toArtifactType(moduleId).toString());
+        meta.setName(toArtifactType(moduleId).getArtifactId());
         instance.setModuleId(toArtifactType(moduleId));
         meta.setCategory("Unknown");
         instance.getGeronimoVersion().add(serverInfo.getVersion());
