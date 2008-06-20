@@ -17,9 +17,6 @@
 package org.apache.geronimo.console.car;
 
 import java.io.IOException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
@@ -29,46 +26,30 @@ import javax.portlet.RenderResponse;
 import javax.portlet.WindowState;
 
 import org.apache.geronimo.console.MultiPageModel;
-import org.apache.geronimo.system.plugin.PluginRepositoryList;
+import org.apache.geronimo.console.util.ConfigurationData;
+import org.apache.geronimo.console.util.PortletManager;
 
 /**
- * Handler for the import export main screen.
+ * Handler for the create a plugin main screen.
  *
- * @version $Rev$ $Date$
+ * @version $Rev: 609072 $ $Date: 2008-01-04 19:47:14 -0500 (Fri, 04 Jan 2008) $
  */
-public class IndexHandler extends BaseImportExportHandler {
-    public IndexHandler() {
-        super(INDEX_MODE, "/WEB-INF/view/car/index.jsp");
+public class CreatePluginIndexHandler extends BaseImportExportHandler {
+    public CreatePluginIndexHandler() {
+        super(INDEX_MODE, "/WEB-INF/view/car/createPluginIndex.jsp");
     }
 
     public String actionBeforeView(ActionRequest request, ActionResponse response, MultiPageModel model) throws PortletException, IOException {
-        String repo = request.getParameter("repository");
-        if(repo != null) response.setRenderParameter("repository", repo);
         response.setWindowState(WindowState.NORMAL);
         return getMode();
     }
 
     public void renderView(RenderRequest request, RenderResponse response, MultiPageModel model) throws PortletException, IOException {
-        List<PluginRepositoryList> lists = ManagementHelper.getManagementHelper(request).getPluginRepositoryLists();
-
-        // clear out the catalog if it was previously loaded 
-        request.getPortletSession(true).removeAttribute(CONFIG_LIST_SESSION_KEY);
-        
-        List<URL> list = new ArrayList<URL>();
-        for (PluginRepositoryList repo: lists) {
-            list.addAll(repo.getRepositories());
-        }
-
-        request.setAttribute("repositories", list);
-        String repository = request.getParameter("repository");
-        request.setAttribute("repository", repository);
+        ConfigurationData[] configs = PortletManager.getConfigurations(request, null, false);
+        request.setAttribute("configurations", configs);        
     }
 
-    public String actionAfterView(ActionRequest request, ActionResponse response, MultiPageModel model) throws PortletException, IOException {
-        request.setAttribute("column", request.getParameter("column"));
-        request.setAttribute("repository", request.getParameter("repository"));
-        request.setAttribute("repo-user", request.getParameter("username"));
-        request.setAttribute("repo-pass", request.getParameter("password"));
+    public String actionAfterView(ActionRequest request, ActionResponse response, MultiPageModel model) throws PortletException, IOException {        
         return LIST_MODE+BEFORE_ACTION;
     }
 }

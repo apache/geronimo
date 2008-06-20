@@ -248,7 +248,7 @@
           </tr>
         <!-- ENTRY FIELD: Prerequisite 3 -->
           <tr>
-            <th style="min-width: 140px"><div align="right">><fmt:message key="car.common.prerequisite3ID" />:</div></th>
+            <th style="min-width: 140px"><div align="right"><fmt:message key="car.common.prerequisite3ID" />:</div></th>
             <td><input name="prereq3" type="text" size="30" value="${prereq3}" /></td>
           </tr>
           <tr>
@@ -279,13 +279,8 @@
     <!-- SUBMIT BUTTON -->
       <tr>
         <td></td>
-        <td><input type="submit" value='<fmt:message key="car.common.savePluginData" />' /></td>
+        <td><input type="submit" value='<fmt:message key="car.common.savePluginData" />' /> <input type="submit" value='<fmt:message key="consolebase.common.cancel" />' onclick="history.go(-1); return false;" /></td>
       </tr>
     </table>
 </form>
 <!--   END OF FORM TO COLLECT DATA FOR THIS PAGE   -->
-
-
-<p><a href="<portlet:actionURL portletMode="view">
-              <portlet:param name="mode" value="index" />
-            </portlet:actionURL>"><fmt:message key="consolebase.common.cancel"/></a></p>

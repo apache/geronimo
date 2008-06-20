@@ -24,20 +24,17 @@ import javax.portlet.PortletConfig;
 import javax.portlet.PortletException;
 
 /**
- * Portlet that can import and export CAR files
+ * Portlet for assembling a server.
  *
- * @version $Rev$ $Date$
+ * @version $Rev: 627838 $ $Date: 2008-02-14 13:54:30 -0500 (Thu, 14 Feb 2008) $
  */
-public class ImportExportPortlet extends MultiPagePortlet {
+public class AssemblyPortlet extends MultiPagePortlet {
     public void init(PortletConfig config) throws PortletException {
         super.init(config);
-        addHelper(new IndexHandler(), config);
-        addHelper(new ListHandler(), config);
-        addHelper(new ResultsHandler(), config);
-        addHelper(new DownloadStatusHandler(), config);
-        addHelper(new UpdateListHandler(), config);
-        addHelper(new AddRepositoryHandler(), config);
-        addHelper(new ViewPluginDownloadHandler(), config);
+        addHelper(new AssemblyIndexHandler(), config);
+        addHelper(new AssemblyConfirmHandler(), config);
+        addHelper(new AssemblyListHandler(), config);
+        addHelper(new AssemblyViewHandler(), config);
     }
 
     protected String getModelJSPVariableName() {

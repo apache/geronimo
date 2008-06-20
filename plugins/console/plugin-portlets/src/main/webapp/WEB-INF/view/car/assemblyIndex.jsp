@@ -14,25 +14,18 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 --%>
-<%@ page import="org.apache.geronimo.console.util.PortletManager"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
-<%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<%@ taglib uri="http://java.sun.com/portlet" prefix="portlet" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <fmt:setBundle basename="pluginportlets"/>
+
 <portlet:defineObjects/>
 
-<p><fmt:message key="car.confirmExport.title" /></p>
+<h2><fmt:message key="car.index.assembleServerLong"/></h2>
 
-<p>
-<fmt:message key="car.confirmExport.useBtnBelow" >
-<fmt:param  value="${name}"/>
-</fmt:message>
-</p>
-
-<%-- todo: calculate the /console prefix somehow --%>
-<form action="/console/forwards/car-export" method="GET">
-    <input type="hidden" name="configId" value="${configId}" />
-    <input type="submit" value='<fmt:message key="car.common.exportPlugin" />' />
-    <input type="submit" value='<fmt:message key="consolebase.common.done" />' onclick="history.go(-2); return false;" />
+<form name="<portlet:namespace/>AssemblyForm" action="<portlet:actionURL/>" method="POST">
+    <input type="hidden" name="mode" value="listServer-before"/>
+    <input type="submit" value='<fmt:message key="car.index.assembleServer"/>'/>
 </form>
+

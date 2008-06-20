@@ -51,14 +51,33 @@
 <form name="frmlst" action="<portlet:actionURL/>">
     <h3>Name the server to be assembled</h3>
     <input id="mode" type="hidden" name="mode" value="assemblyView-before"/>
-    <p><fmt:message key="car.list.assemblyPath"/><input type="text" name="relativeServerPath" value="${relativeServerPath}"/></p>
-    <p><fmt:message key="car.list.assemblyGroupId"/><input type="text" name="groupId" value="${groupId}"/></p>
-    <p><fmt:message key="car.list.assemblyArtifactId"/><input type="text" name="artifactId" value="${artifactId}"/></p>
-    <p><fmt:message key="car.list.assemblyVersion"/><input type="text" name="version" value="${version}"/></p>
-    <p><fmt:message key="car.list.assemblyFormat"/><select name="format">
+    
+<table border="0" cellpadding="3">
+<tr>
+  <td><fmt:message key="car.list.assemblyGroupId"/></td>
+  <td><input type="text" name="groupId" value="${groupId}"/></td>
+</tr>
+<tr>
+  <td><fmt:message key="car.list.assemblyArtifactId"/></td>
+  <td><input type="text" name="artifactId" value="${artifactId}"/></td>
+</tr>
+<tr>
+  <td><fmt:message key="car.list.assemblyVersion"/></td>
+  <td><input type="text" name="version" value="${version}"/></td>
+</tr>
+<tr>
+  <td><fmt:message key="car.list.assemblyPath"/></td>
+  <td><input type="text" name="relativeServerPath" value="${relativeServerPath}"/></td>
+</tr>
+<tr>
+  <td><fmt:message key="car.list.assemblyFormat"/></td>
+  <td><select name="format">
         <option <c:if test="${format ne 'zip'}">selected="true"</c:if>>tar.gz</option>
         <option <c:if test="${format eq 'zip'}">selected="true"</c:if>>zip</option>
-    </select></p>
+      </select>
+  </td>
+</table>
+
     <h3><fmt:message key="car.list.pluginLocal"/></h3>
 
 <table border="0" cellpadding="3">

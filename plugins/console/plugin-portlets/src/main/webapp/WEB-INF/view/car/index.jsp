@@ -20,23 +20,9 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <fmt:setBundle basename="pluginportlets"/>
 
-<script>
-function <portlet:namespace/>validateForm(){
-    with(document.<portlet:namespace/>ExportForm){
-        selected = configId.options[configId.selectedIndex].text;
-        if (selected==null || selected=="") {
-            alert("<fmt:message key="car.index.validateConfig"/>");
-            return false;
-        }
-    }
-    return true;
-}
-</script>
-
 
 <portlet:defineObjects/>
 <fmt:message key="car.index.summary"/>
-
 
 <form name="<portlet:namespace/>PluginForm" action="<portlet:actionURL/>">
     <input type="hidden" name="mode" value="index-after"/>
@@ -59,26 +45,3 @@ function <portlet:namespace/>validateForm(){
         <br/><input type="submit" value='<fmt:message key="car.common.searchForPlugins" />'/>
     </c:if>
 </form>
-
-<h2><fmt:message key="car.common.createGeronimoPlugin"/></h2>
-
-<p><fmt:message key="car.index.createGeronimoPluginExp"/></p>
-
-<form name="<portlet:namespace/>ExportForm" action="<portlet:actionURL/>" method="POST" onsubmit="return <portlet:namespace/>validateForm()">
-    <input type="hidden" name="mode" value="configure-before"/>
-    <select name="configId">
-        <option/>
-        <c:forEach var="config" items="${configurations}">
-            <option>${config.configID}</option>
-        </c:forEach>
-    </select>
-    <input type="submit" value='<fmt:message key="car.common.exportPlugin" />'/>
-</form>
-
-<h2><fmt:message key="car.index.assembleServerLong"/></h2>
-
-<form name="<portlet:namespace/>AssemblyForm" action="<portlet:actionURL/>" method="POST">
-    <input type="hidden" name="mode" value="listServer-before"/>
-    <input type="submit" value='<fmt:message key="car.index.assembleServer"/>'/>
-</form>
-

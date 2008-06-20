@@ -27,6 +27,7 @@ import javax.portlet.ActionResponse;
 import javax.portlet.PortletException;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
+import javax.portlet.WindowState;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,6 +62,9 @@ public class ExportConfigHandler extends BaseImportExportHandler {
         if (configId != null) {
             response.setRenderParameter("configId", configId);
         }
+        
+        response.setWindowState(WindowState.MAXIMIZED);
+        
         return getMode();
     }
 

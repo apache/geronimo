@@ -24,6 +24,7 @@ import javax.portlet.ActionResponse;
 import javax.portlet.PortletException;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
+import javax.portlet.WindowState;
 import javax.security.auth.login.FailedLoginException;
 
 import org.apache.geronimo.console.MultiPageModel;
@@ -54,6 +55,9 @@ public class ListHandler extends AbstractListHandler {
         if(!isEmpty(user)) response.setRenderParameter("repo-user", user);
         if(!isEmpty(pass)) response.setRenderParameter("repo-pass", pass);
         if(!isEmpty(column)) response.setRenderParameter("column", column);
+        
+        response.setWindowState(WindowState.MAXIMIZED);
+        
         return getMode();
     }
 

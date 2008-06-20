@@ -55,9 +55,45 @@ limitations under the License.
         </supports>
         <supported-locale>en</supported-locale>
         <portlet-info>
-            <title>Create and Install Plugins</title>
-            <short-title>Create/Install Plugins</short-title>
-            <keywords>Import Export Create Install Plugins Modules</keywords>
+            <title>Install Plugins</title>
+            <short-title>Install Plugins</short-title>
+            <keywords>Import Install Plugins Modules</keywords>
+        </portlet-info>
+    </portlet>
+
+    <portlet>
+        <description>Assemble Server Portlet</description>
+        <portlet-name>AssembleServer</portlet-name>
+        <display-name>Assemble Server Portlet</display-name>
+        <portlet-class>org.apache.geronimo.console.car.AssemblyPortlet</portlet-class>
+        <expiration-cache>-1</expiration-cache>
+        <supports>
+            <mime-type>text/html</mime-type>
+            <portlet-mode>VIEW</portlet-mode>
+        </supports>
+        <supported-locale>en</supported-locale>
+        <portlet-info>
+            <title>Assemble Server</title>
+            <short-title>Assemble Server</short-title>
+            <keywords>Assemble Server Plugins Modules</keywords>
+        </portlet-info>
+    </portlet>
+
+    <portlet>
+        <description>Create Plugin Portlet</description>
+        <portlet-name>CreatePlugin</portlet-name>
+        <display-name>Create Plugin Portle</display-name>
+        <portlet-class>org.apache.geronimo.console.car.CreatePluginPortlet</portlet-class>
+        <expiration-cache>-1</expiration-cache>
+        <supports>
+            <mime-type>text/html</mime-type>
+            <portlet-mode>VIEW</portlet-mode>
+        </supports>
+        <supported-locale>en</supported-locale>
+        <portlet-info>
+            <title>Create Plugin</title>
+            <short-title>Create Plugin</short-title>
+            <keywords>Create Export Plugins Modules</keywords>
         </portlet-info>
     </portlet>
 
