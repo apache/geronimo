@@ -31,7 +31,7 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>gshell-testsuite</artifactId>
+    <artifactId>gshell</artifactId>
     <name>Geronimo TestSuite :: Commands Testsuite :: GShell</name>
 
     <description>

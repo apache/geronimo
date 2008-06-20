@@ -31,7 +31,7 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>deployer-testsuite</artifactId>
+    <artifactId>deploy</artifactId>
     <name>Geronimo TestSuite :: Commands Testsuite :: Deployer</name>
 
     <description>
