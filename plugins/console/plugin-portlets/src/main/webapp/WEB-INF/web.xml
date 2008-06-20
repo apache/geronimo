@@ -113,6 +113,34 @@ limitations under the License.
     </servlet-mapping>
 
     <servlet>
+        <servlet-name>AssembleServer</servlet-name>
+        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <init-param>
+            <param-name>portlet-name</param-name>
+            <param-value>AssembleServer</param-value>
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>AssembleServer</servlet-name>
+        <url-pattern>/PlutoInvoker/AssembleServer</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>CreatePlugin</servlet-name>
+        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <init-param>
+            <param-name>portlet-name</param-name>
+            <param-value>CreatePlugin</param-value>
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>CreatePlugin</servlet-name>
+        <url-pattern>/PlutoInvoker/CreatePlugin</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
         <servlet-name>RealmWizard</servlet-name>
         <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
         <init-param>

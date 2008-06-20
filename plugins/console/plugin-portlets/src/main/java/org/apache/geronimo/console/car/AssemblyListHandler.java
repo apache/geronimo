@@ -23,6 +23,7 @@ import javax.portlet.ActionResponse;
 import javax.portlet.PortletException;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
+import javax.portlet.WindowState;
 
 import org.apache.geronimo.console.MultiPageModel;
 import org.apache.geronimo.system.plugin.PluginInstaller;
@@ -53,6 +54,9 @@ public class AssemblyListHandler extends AbstractListHandler {
         if(!isEmpty(artifactId)) response.setRenderParameter("artifactId", artifactId);
         response.setRenderParameter("version", isEmpty(version) ? "1.0" : version);
         if(!isEmpty(format)) response.setRenderParameter("format", format);
+        
+        response.setWindowState(WindowState.MAXIMIZED);
+        
         return getMode();
     }
 
