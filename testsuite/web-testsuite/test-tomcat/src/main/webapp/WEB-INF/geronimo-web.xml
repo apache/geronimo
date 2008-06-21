@@ -50,6 +50,9 @@
 			appBase=
 			workDir=work
         </attribute>
+        <reference name="Engine">
+            <name>TomcatEngine</name>
+        </reference>
     </gbean>
     <gbean name="FirstValve"
         class="org.apache.geronimo.tomcat.ValveGBean">
