@@ -29,8 +29,6 @@ import javax.security.auth.login.CredentialExpiredException;
 import javax.security.auth.login.FailedLoginException;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
-import javax.security.jacc.PolicyContext;
-import javax.security.jacc.PolicyContextException;
 import javax.security.jacc.WebResourcePermission;
 import javax.security.jacc.WebRoleRefPermission;
 import javax.security.jacc.WebUserDataPermission;
@@ -42,14 +40,13 @@ import org.apache.catalina.connector.Response;
 import org.apache.catalina.deploy.LoginConfig;
 import org.apache.catalina.deploy.SecurityConstraint;
 import org.apache.catalina.realm.JAASRealm;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.geronimo.security.ContextManager;
-import org.apache.geronimo.security.jacc.PolicyContextHandlerContainerSubject;
 import org.apache.geronimo.security.realm.providers.CertificateChainCallbackHandler;
 import org.apache.geronimo.security.realm.providers.PasswordCallbackHandler;
 import org.apache.geronimo.tomcat.JAASTomcatPrincipal;
 import org.apache.geronimo.tomcat.interceptor.PolicyContextBeforeAfter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class adapts the tomcat framework to use JACC security.
@@ -96,25 +93,7 @@ public class TomcatGeronimoRealm extends JAASRealm {
                                          SecurityConstraint[] constraints)
             throws IOException {
 
-        //Get an authenticated subject, if there is one
-        Subject subject = null;
-        try {
-
-            //We will use the PolicyContextHandlerContainerSubject.HANDLER_KEY to see if a user
-            //has authenticated, since a request.getUserPrincipal() will not pick up the user
-            //unless its using a cached session.
-            subject = (Subject) PolicyContext.getContext(PolicyContextHandlerContainerSubject.HANDLER_KEY);
-
-        } catch (PolicyContextException e) {
-            log.error("Failed to get subject from context", e);
-        }
-
-        //If nothing has authenticated yet, do the normal
-        if (subject == null)
-            return super.hasUserDataPermission(request, response, constraints);
-
-        ContextManager.setCallers(subject, subject);
-
+        setSubject(request);
         try {
 
             AccessControlContext acc = ContextManager.getCurrentContext();
@@ -175,20 +154,10 @@ public class TomcatGeronimoRealm extends JAASRealm {
             }
         }
 
+        setSubject(request);
+
         //Set the current wrapper name (Servlet mapping)
         currentRequestWrapperName.set(request.getWrapper().getName());
-
-        // Which user principal have we already authenticated?
-        Principal principal = request.getUserPrincipal();
-
-        //If we have no principal, then we should use the default.
-        if (principal == null) {
-            Subject defaultSubject = (Subject) request.getAttribute(PolicyContextBeforeAfter.DEFAULT_SUBJECT);
-            ContextManager.setCallers(defaultSubject, defaultSubject);
-        } else {
-            Subject currentCaller = ((JAASTomcatPrincipal) principal).getSubject();
-            ContextManager.setCallers(currentCaller, currentCaller);
-        }
 
         try {
 
@@ -206,6 +175,18 @@ public class TomcatGeronimoRealm extends JAASRealm {
 
         return true;
 
+    }
+
+    private void setSubject(Request request) {
+        Principal principal = request.getUserPrincipal();
+        //If we have no principal, then we should use the default.
+        if (principal == null) {
+            Subject defaultSubject = (Subject) request.getAttribute(PolicyContextBeforeAfter.DEFAULT_SUBJECT);
+            ContextManager.setCallers(defaultSubject, defaultSubject);
+        } else {
+            Subject subject = ((JAASTomcatPrincipal) principal).getSubject();
+            ContextManager.setCallers(subject, subject);
+        }
     }
 
     /**
@@ -323,6 +304,7 @@ public class TomcatGeronimoRealm extends JAASRealm {
 
                 // Negotiate a login via this LoginContext
                 Subject subject = loginContext.getSubject();
+                //very iffy -- see if needed for basic auth
                 ContextManager.setCallers(subject, subject);
 
                 if (log.isDebugEnabled())

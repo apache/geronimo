@@ -72,6 +72,7 @@ public class PolicyContextBeforeAfter implements BeforeAfter{
 
         //Replace the old
         PolicyContext.setContextID((String)context[policyContextIDIndex]);
+        PolicyContext.setHandlerData(httpRequest);
         ContextManager.popCallers((Callers) context[callersIndex]);
         if (httpRequest != null)
             httpRequest.setAttribute(DEFAULT_SUBJECT, context[defaultSubjectIndex]);

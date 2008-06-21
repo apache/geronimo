@@ -38,8 +38,8 @@ public class DispatchListener implements InstanceListener {
 
     private static final Logger log = LoggerFactory.getLogger(DispatchListener.class);
 
-    private static ThreadLocal currentContext = new ThreadLocal() {
-        protected Object initialValue() {
+    private static ThreadLocal<Stack<Object[]>> currentContext = new ThreadLocal<Stack<Object[]>>() {
+        protected Stack<Object[]> initialValue() {
             return new Stack<Object[]>();
         }
     };
@@ -65,7 +65,7 @@ public class DispatchListener implements InstanceListener {
 
         BeforeAfter beforeAfter = webContext.getBeforeAfter();
         if (beforeAfter != null) {
-            Stack<Object[]> stack = (Stack<Object[]>) currentContext.get();
+            Stack<Object[]> stack = currentContext.get();
             Object context[] = new Object[webContext.getContextCount() + 1];
             String wrapperName = getWrapperName(request, webContext);
             context[webContext.getContextCount()] = TomcatGeronimoRealm.setRequestWrapperName(wrapperName);
@@ -80,8 +80,8 @@ public class DispatchListener implements InstanceListener {
 
         BeforeAfter beforeAfter = webContext.getBeforeAfter();
         if (beforeAfter != null) {
-            Stack stack = (Stack) currentContext.get();
-            Object context[] = (Object[]) stack.pop();
+            Stack<Object[]> stack = currentContext.get();
+            Object context[] = stack.pop();
 
             beforeAfter.after(context, request, response, BeforeAfter.DISPATCHED);
 

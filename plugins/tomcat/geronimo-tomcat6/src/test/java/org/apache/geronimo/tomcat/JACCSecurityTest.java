@@ -75,19 +75,19 @@ public class JACCSecurityTest extends AbstractWebModuleTest {
 
         securityConfig.getRoleMappings().put(role.getRoleName(), role);
 
-        Map roleDesignates = new HashMap();
-        Map principalRoleMap = new HashMap();
+        Map<String, SubjectInfo> roleDesignates = new HashMap<String, SubjectInfo>();
+        Map<String, Set<Principal>> principalRoleMap = new HashMap<String, Set<Principal>>();
         buildPrincipalRoleMap(securityConfig, roleDesignates, principalRoleMap);
 
         PermissionCollection uncheckedPermissions = new Permissions();
+        uncheckedPermissions.add(new WebUserDataPermission("/protected/*", ""));
 
         PermissionCollection excludedPermissions = new Permissions();
-        excludedPermissions.add(new WebResourcePermission("/auth/login.html", ""));
-        excludedPermissions.add(new WebUserDataPermission("/auth/login.html", ""));
+        uncheckedPermissions.add(new WebResourcePermission("/auth/logon.html", ""));
+        uncheckedPermissions.add(new WebUserDataPermission("/auth/logon.html", ""));
 
-        Map rolePermissions = new HashMap();
+        Map<String, PermissionCollection> rolePermissions = new HashMap<String, PermissionCollection>();
         PermissionCollection permissions = new Permissions();
-        permissions.add(new WebUserDataPermission("/protected/*", ""));
         permissions.add(new WebResourcePermission("/protected/*", ""));
         rolePermissions.put("content-administrator", permissions);
         rolePermissions.put("auto-administrator", permissions);
