@@ -34,17 +34,24 @@ limitations under the License.
     </enterprise-beans>
     <assembly-descriptor>
         <method-permission>
-            <role-name>bar</role-name>
-            <method>
-                <ejb-name>TestSession</ejb-name>
-                <method-name>testAccess</method-name>
-            </method>
-        </method-permission>
-        <method-permission>
             <role-name>foo</role-name>
             <method>
                 <ejb-name>TestSession</ejb-name>
-                <method-name>testNoAccess</method-name>
+                <method-name>testAccessFoo</method-name>
+            </method>
+        </method-permission>
+        <method-permission>
+            <role-name>bar</role-name>
+            <method>
+                <ejb-name>TestSession</ejb-name>
+                <method-name>testAccessBar</method-name>
+            </method>
+        </method-permission>
+        <method-permission>
+            <role-name>baz</role-name>
+            <method>
+                <ejb-name>TestSession</ejb-name>
+                <method-name>testAccessBaz</method-name>
             </method>
         </method-permission>
     </assembly-descriptor>

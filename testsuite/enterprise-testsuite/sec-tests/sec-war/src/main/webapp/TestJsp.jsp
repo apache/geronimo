@@ -14,40 +14,55 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 --%>
-<%@ page import="org.apache.geronimo.itest.TestSession" %>
-<%@ page import="javax.naming.InitialContext" %>
-<%@ page import="org.apache.geronimo.itest.TestSessionHome" %>
-<%@ page import="javax.naming.NamingException" %>
 <%@ page import="java.io.PrintWriter" %>
 <%@ page import="java.rmi.AccessException" %>
-<%@ page import="java.rmi.RemoteException" %>
-<%@ page import="javax.ejb.CreateException" %>
+<%@ page import="javax.naming.InitialContext" %>
+<%@ page import="org.apache.geronimo.itest.TestSession" %>
+<%@ page import="org.apache.geronimo.itest.TestSessionHome" %>
+<%@ page import="org.apache.geronimo.security.ContextManager" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%
     PrintWriter myout = response.getWriter();
-    myout.println("TestServlet principal: " + request.getUserPrincipal().getName());
+    if (request.getUserPrincipal() == null) {
+        myout.println("TestServlet principal is null, current caller Subject: " + ContextManager.getCurrentCaller());
+    } else {
+        myout.println("TestServlet principal: " + request.getUserPrincipal().getName());
+    }
+    myout.println("TestServlet isUserInRole foo: " + request.isUserInRole("foo"));
+    myout.println("TestServlet isUserInRole bar: " + request.isUserInRole("bar"));
+    myout.println("TestServlet isUserInRole baz: " + request.isUserInRole("baz"));
     try {
         InitialContext ctx = new InitialContext();
 
         //test ejb access using geronimo plan refs
-        TestSessionHome home = (TestSessionHome) ctx.lookup("java:comp/env/TestSession");
-        TestSession sessionBean = home.create();
-        String principalName = sessionBean.testAccess();
-        myout.println("Test EJB principal: " + principalName);
+        TestSessionHome home = (TestSessionHome)ctx.lookup("java:comp/env/TestSession");
+        TestSession testSession = home.create();
         try {
-            String bad = sessionBean.testNoAccess();
-            myout.println("NoAccess method call succeeded with principal: " + bad);
+            myout.print(testSession.testAccessFoo());
         } catch (AccessException e) {
-            myout.println("Correctly received security exception on noAccess method");
+            myout.println("security exception on testAccessFoo method");
+        }
+        try {
+            myout.print(testSession.testAccessBar());
+        } catch (AccessException e) {
+            myout.println("security exception on testAccessBar method");
+        }
+        try {
+            myout.print(testSession.testAccessBaz());
+        } catch (AccessException e) {
+            myout.println("security exception on testAccessBaz method");
         }
 
-    } catch (NamingException e) {
-        myout.print("Exception:");
-        e.printStackTrace();
-    } catch (RemoteException e) {
-        e.printStackTrace();
-    } catch (CreateException e) {
-        e.printStackTrace();
+    } catch (Exception e) {
+        myout.println("Exception:");
+        e.printStackTrace(myout);
     }
-    out.flush();
+    if (request.getUserPrincipal() == null) {
+        myout.println("TestServlet principal is null, current caller Subject: " + ContextManager.getCurrentCaller());
+    } else {
+        myout.println("TestServlet principal: " + request.getUserPrincipal().getName());
+    }
+    myout.println("TestServlet isUserInRole foo: " + request.isUserInRole("foo"));
+    myout.println("TestServlet isUserInRole bar: " + request.isUserInRole("bar"));
+    myout.println("TestServlet isUserInRole baz: " + request.isUserInRole("baz"));
 %>

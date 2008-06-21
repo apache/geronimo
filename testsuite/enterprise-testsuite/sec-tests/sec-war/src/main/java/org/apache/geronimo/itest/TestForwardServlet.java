@@ -22,12 +22,14 @@ import java.rmi.AccessException;
 import java.rmi.RemoteException;
 
 import javax.ejb.CreateException;
-import javax.ejb.EJB;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 import javax.servlet.ServletException;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.RequestDispatcher;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.naming.NamingException;
 
 import org.apache.geronimo.security.ContextManager;
 
@@ -35,18 +37,23 @@ import org.apache.geronimo.security.ContextManager;
 /**
  * @version $Rev$ $Date$
  */
-public class TestInjectionServlet extends TestServlet {
-
-    @EJB
-    private TestSessionHome sessionHome;
-
-
+public class TestForwardServlet extends TestServlet {
+    private String forwardPath;
     public void init() {
         System.out.println("Test Servlet init");
+        forwardPath = getInitParameter("forward-path");
     }
 
-    @Override
-    protected TestSession getSession() throws NamingException, RemoteException, CreateException {
-        return sessionHome.create();
+    protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        PrintWriter out = response.getWriter();
+        showServletState(request, out);
+
+        RequestDispatcher dispatcher = request.getRequestDispatcher(forwardPath);
+        dispatcher.include(request, response);
+
+        showServletState(request, out);
+        out.flush();
     }
+
+
 }

@@ -26,6 +26,12 @@ limitations under the License.
 
     <servlet>
         <display-name>Security itest servlet</display-name>
+        <servlet-name>noRunAsServlet</servlet-name>
+        <servlet-class>org.apache.geronimo.itest.TestServlet</servlet-class>
+        <load-on-startup>0</load-on-startup>
+    </servlet>
+    <servlet>
+        <display-name>Security itest servlet</display-name>
         <servlet-name>servlet</servlet-name>
         <servlet-class>org.apache.geronimo.itest.TestServlet</servlet-class>
         <load-on-startup>0</load-on-startup>
@@ -52,6 +58,58 @@ limitations under the License.
         </run-as>
     </servlet>
 
+    <servlet>
+        <display-name>Security itest servlet</display-name>
+        <servlet-name>forwardServlet</servlet-name>
+        <servlet-class>org.apache.geronimo.itest.TestForwardServlet</servlet-class>
+        <init-param>
+            <param-name>forward-path</param-name>
+            <param-value>/noRunAsServlet</param-value>
+        </init-param>
+        <load-on-startup>0</load-on-startup>
+    </servlet>
+    <servlet>
+        <display-name>Security itest servlet</display-name>
+        <servlet-name>forwardServletToRunAs</servlet-name>
+        <servlet-class>org.apache.geronimo.itest.TestForwardServlet</servlet-class>
+        <init-param>
+            <param-name>forward-path</param-name>
+            <param-value>/servlet</param-value>
+        </init-param>
+        <load-on-startup>0</load-on-startup>
+    </servlet>
+    <servlet>
+        <display-name>Security itest servlet</display-name>
+        <servlet-name>forwardRunAsServlet</servlet-name>
+        <servlet-class>org.apache.geronimo.itest.TestForwardServlet</servlet-class>
+        <init-param>
+            <param-name>forward-path</param-name>
+            <param-value>/noRunAsServlet</param-value>
+        </init-param>
+        <load-on-startup>0</load-on-startup>
+        <run-as>
+            <role-name>baz</role-name>
+        </run-as>
+    </servlet>
+    <servlet>
+        <display-name>Security itest servlet</display-name>
+        <servlet-name>forwardRunAsServletToRunAs</servlet-name>
+        <servlet-class>org.apache.geronimo.itest.TestForwardServlet</servlet-class>
+        <init-param>
+            <param-name>forward-path</param-name>
+            <param-value>/servlet</param-value>
+        </init-param>
+        <load-on-startup>0</load-on-startup>
+        <run-as>
+            <role-name>baz</role-name>
+        </run-as>
+    </servlet>
+
+
+    <servlet-mapping>
+        <servlet-name>noRunAsServlet</servlet-name>
+        <url-pattern>/noRunAsServlet</url-pattern>
+    </servlet-mapping>
     <servlet-mapping>
         <servlet-name>servlet</servlet-name>
         <url-pattern>/servlet</url-pattern>
@@ -65,6 +123,23 @@ limitations under the License.
         <url-pattern>/jsp</url-pattern>
     </servlet-mapping>
 
+    <servlet-mapping>
+        <servlet-name>forwardServlet</servlet-name>
+        <url-pattern>/forwardServlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>forwardServletToRunAs</servlet-name>
+        <url-pattern>/forwardServletToRunAs</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>forwardRunAsServlet</servlet-name>
+        <url-pattern>/forwardRunAsServlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>forwardRunAsServletToRunAs</servlet-name>
+        <url-pattern>/forwardRunAsServletToRunAs</url-pattern>
+    </servlet-mapping>
+
     <ejb-ref>
         <ejb-ref-name>TestSession</ejb-ref-name>
         <ejb-ref-type>Session</ejb-ref-type>
@@ -75,9 +150,10 @@ limitations under the License.
     <security-constraint>
         <web-resource-collection>
             <web-resource-name>secureServlet</web-resource-name>
-            <url-pattern>/servlet</url-pattern>
-            <url-pattern>/jsp</url-pattern>
-            <url-pattern>/injectionServlet</url-pattern>
+            <url-pattern>/*</url-pattern>
+            <!--<url-pattern>/jsp</url-pattern>-->
+            <!--<url-pattern>/injectionServlet</url-pattern>-->
+            <!--<url-pattern>/noRunAsServlet</url-pattern>-->
             <http-method>GET</http-method>
             <http-method>POST</http-method>
         </web-resource-collection>
@@ -97,6 +173,9 @@ limitations under the License.
     </security-role>
     <security-role>
         <role-name>bar</role-name>
+    </security-role>
+    <security-role>
+        <role-name>baz</role-name>
     </security-role>
 
 </web-app>

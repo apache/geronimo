@@ -22,7 +22,7 @@ import java.rmi.RemoteException;
  * @version $Rev$ $Date$
  */
 public interface TestSession extends javax.ejb.EJBObject {
-    String testAccess() throws RemoteException;
-    String testNoAccess() throws RemoteException;
+    String testAccessFoo() throws RemoteException;
+    String testAccessBar() throws RemoteException;
 
 }

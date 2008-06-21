@@ -16,13 +16,10 @@
  */
 package org.apache.geronimo.itest;
 
+import javax.annotation.security.DeclareRoles;
 import javax.ejb.EJBException;
 import javax.ejb.SessionBean;
 import javax.ejb.SessionContext;
-import javax.ejb.Remote;
-import javax.ejb.Local;
-import javax.ejb.Stateless;
-import javax.annotation.security.DeclareRoles;
 
 /**
  * @version $Rev$ $Date$
@@ -32,16 +29,24 @@ public class TestSessionBean implements SessionBean {
 
     SessionContext sessionContext;
 
-    public String testAccess() {
-        return sessionContext.getCallerPrincipal().getName();
+    public String testAccessBar() {
+        return testAccess();
     }
 
-    public String testNoAccess() {
-        return sessionContext.getCallerPrincipal().getName();
+    public String testAccessFoo() {
+        return testAccess();
     }
 
-    public boolean isCallerInRole(String role) {
-        return sessionContext.isCallerInRole(role);
+    public String testAccessBaz() {
+        return testAccess();
+    }
+
+    private String testAccess() {
+        StringBuilder r = new StringBuilder("Test EJB principal: ").append(sessionContext.getCallerPrincipal().getName()).append("\n");
+        r.append("TestSession isCallerInRole foo: ").append(sessionContext.isCallerInRole("foo")).append("\n");
+        r.append("TestSession isCallerInRole bar: ").append(sessionContext.isCallerInRole("bar")).append("\n");
+        r.append("TestSession isCallerInRole baz: ").append(sessionContext.isCallerInRole("baz")).append("\n");
+        return r.toString();
     }
 
     public void ejbCreate() {

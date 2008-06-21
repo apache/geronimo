@@ -47,13 +47,11 @@ public class TestClient {
         System.out.println("Context: " + ContextManager.getCurrentCaller());
         try {
             TestSession session = sessionHome.create();
-            String principalName = session.testAccess();
-            System.out.println("Test EJB principal: " + principalName);
+            System.out.print(session.testAccessBar());
             try {
-                String bad = session.testNoAccess();
-                System.out.println("NoAccess method call succeeded with principal: " + bad);
+                System.out.println(session.testAccessFoo());
             } catch (AccessException e) {
-                System.out.println("Correctly received security exception on noAccess method");
+                System.out.println("Correctly received security exception on testAccessFoo method");
             }
         } catch (RemoteException e) {
             e.printStackTrace();

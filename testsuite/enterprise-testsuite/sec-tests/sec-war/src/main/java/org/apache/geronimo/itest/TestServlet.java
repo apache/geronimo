@@ -21,14 +21,13 @@ import java.io.PrintWriter;
 import java.rmi.AccessException;
 import java.rmi.RemoteException;
 
-import javax.ejb.CreateException;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.servlet.ServletException;
-import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.ejb.CreateException;
 
 import org.apache.geronimo.security.ContextManager;
 
@@ -42,43 +41,53 @@ public class TestServlet extends HttpServlet {
         System.out.println("Test Servlet init");
     }
 
-    protected void service(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws ServletException, IOException {
-        PrintWriter out = httpServletResponse.getWriter();
-        if (httpServletRequest.getUserPrincipal() == null) {
+    protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        PrintWriter out = response.getWriter();
+        showServletState(request, out);
+        try {
+            TestSession session = getSession();
+            try {
+                out.print(session.testAccessFoo());
+            } catch (AccessException e) {
+                out.println("security exception on testAccessFoo method");
+            }
+            try {
+                out.print(session.testAccessBar());
+            } catch (AccessException e) {
+                out.println("security exception on testAccessBar method");
+            }
+            try {
+                out.print(session.testAccessBaz());
+            } catch (AccessException e) {
+                out.println("security exception on testAccessBaz method");
+            }
+
+        } catch (Exception e) {
+            out.println("Exception:");
+            e.printStackTrace(out);
+        }
+        showServletState(request, out);
+        out.flush();
+    }
+
+    protected void showServletState(HttpServletRequest request, PrintWriter out) {
+        if (request.getUserPrincipal() == null) {
             out.println("TestServlet principal is null, current caller Subject: " + ContextManager.getCurrentCaller());
         } else {
-            out.println("TestServlet principal: " + httpServletRequest.getUserPrincipal().getName());
+            out.println("TestServlet principal: " + request.getUserPrincipal().getName());
         }
-        out.println("TestServlet isUserInRole foo: " + httpServletRequest.isUserInRole("foo"));
-        out.println("TestServlet isUserInRole bar: " + httpServletRequest.isUserInRole("bar"));
-        try {
-            InitialContext ctx = new InitialContext();
+        out.println("TestServlet isUserInRole foo: " + request.isUserInRole("foo"));
+        out.println("TestServlet isUserInRole bar: " + request.isUserInRole("bar"));
+        out.println("TestServlet isUserInRole baz: " + request.isUserInRole("baz"));
+    }
 
-            //test ejb access using geronimo plan refs
-            TestSessionHome home = (TestSessionHome)ctx.lookup("java:comp/env/TestSession");
-            TestSession session = home.create();
-            String principalName = session.testAccess();
-            out.println("Test EJB principal: " + principalName);
-            try {
-                String bad = session.testNoAccess();
-                out.println("NoAccess method call succeeded with principal: " + bad);
-            } catch (AccessException e) {
-                out.println("Correctly received security exception on noAccess method");
-            }
-            out.println("TestSession isCallerInRole foo: " + session.isCallerInRole("foo"));
-            out.println("TestSession isCallerInRole bar: " + session.isCallerInRole("bar"));
+    protected TestSession getSession() throws NamingException, RemoteException, CreateException {
+        InitialContext ctx = new InitialContext();
 
-        } catch (NamingException e) {
-            System.out.print("Exception:");
-            e.printStackTrace();
-        } catch (RemoteException e) {
-            e.printStackTrace();
-        } catch (CreateException e) {
-            e.printStackTrace();
-        }
-        out.println("TestServlet isUserInRole foo: " + httpServletRequest.isUserInRole("foo"));
-        out.println("TestServlet isUserInRole bar: " + httpServletRequest.isUserInRole("bar"));
-        out.flush();
+        //test ejb access using geronimo plan refs
+        TestSessionHome home = (TestSessionHome)ctx.lookup("java:comp/env/TestSession");
+        TestSession session = home.create();
+        return session;
     }
 
 

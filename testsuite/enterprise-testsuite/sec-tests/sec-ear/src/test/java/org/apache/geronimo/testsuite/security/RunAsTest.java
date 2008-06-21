@@ -19,9 +19,9 @@
 
 package org.apache.geronimo.testsuite.security;
 
-import org.testng.annotations.Test;
-import org.testng.annotations.BeforeSuite;
 import org.apache.geronimo.testsupport.SeleniumTestSupport;
+import org.testng.annotations.BeforeSuite;
+import org.testng.annotations.Test;
 
 /**
  * ???
@@ -30,12 +30,37 @@ import org.apache.geronimo.testsupport.SeleniumTestSupport;
  */
 @Test
 public class RunAsTest
-        extends SeleniumTestSupport
-{
+        extends SeleniumTestSupport {
+    private static final String SERVLET_FOO = "TestServlet principal: foo\n" +
+            "TestServlet isUserInRole foo: true\n" +
+            "TestServlet isUserInRole bar: false\n" +
+            "TestServlet isUserInRole baz: false";
+    private static final String SERVLET_BAZ = "TestServlet principal: baz\n" +
+            "TestServlet isUserInRole foo: false\n" +
+            "TestServlet isUserInRole bar: false\n" +
+            "TestServlet isUserInRole baz: true";
+    private static final String EJB_FOO = "\nTest EJB principal: foo\n" +
+                "TestSession isCallerInRole foo: true\n" +
+                "TestSession isCallerInRole bar: false\n" +
+                "TestSession isCallerInRole baz: false\n" +
+                "security exception on testAccessBar method\n" +
+                "security exception on testAccessBaz method\n";
+    private static final String EJB_BAR = "\nsecurity exception on testAccessFoo method\n" +
+                "Test EJB principal: bar\n" +
+                "TestSession isCallerInRole foo: false\n" +
+                "TestSession isCallerInRole bar: true\n" +
+                "TestSession isCallerInRole baz: false\n" +
+                "security exception on testAccessBaz method\n";
+    private static final String EJB_BAZ = "\nsecurity exception on testAccessFoo method\n" +
+                "security exception on testAccessBar method\n" +
+                "Test EJB principal: baz\n" +
+                "TestSession isCallerInRole foo: false\n" +
+                "TestSession isCallerInRole bar: false\n" +
+                "TestSession isCallerInRole baz: true\n";
 
 
     @BeforeSuite
-     protected void startSeleniumClient() throws Exception {
+    protected void startSeleniumClient() throws Exception {
         log.info("Starting Selenium client");
 
         selenium = createSeleniumClient("http://foo:foo@localhost:8080/");
@@ -43,40 +68,60 @@ public class RunAsTest
     }
 
     @Test
+    public void testServletNoRunAs() throws Exception {
+        String path = "/sec/noRunAsServlet";
+        testPath(path, SERVLET_FOO + EJB_FOO + SERVLET_FOO);
+    }
+
+    @Test
     public void testServletRunAs() throws Exception {
         String path = "/sec/servlet";
-        testPath(path);
+        testPath(path, SERVLET_FOO + EJB_BAR + SERVLET_FOO);
     }
 
     @Test
     public void testInjectionServletRunAs() throws Exception {
-        testPath("/sec/injectionServlet");
-    }
-
-    private void testPath(String path) throws Exception {
-        selenium.open(path);
-        waitForPageLoad();
-        System.out.println("----------------------------------------------");
-        System.out.println(selenium.getText("xpath=/html/body"));
-        assertEquals("TestServlet principal: foo\n" +
-            "TestServlet isUserInRole foo: true\n" +
-            "TestServlet isUserInRole bar: false\n" +
-            "Test EJB principal: bar\n" +
-            "Correctly received security exception on noAccess method\n" +
-            "TestSession isCallerInRole foo: false\n" +
-            "TestSession isCallerInRole bar: true\n" +
-            "TestServlet isUserInRole foo: true\n" +
-            "TestServlet isUserInRole bar: false", selenium.getText("xpath=/html/body"));
+        testPath("/sec/injectionServlet", SERVLET_FOO + EJB_BAR + SERVLET_FOO);
     }
 
     @Test
     public void testJspRunAs() throws Exception {
-        selenium.open("/sec/jsp");
+        testPath("/sec/jsp", (SERVLET_FOO + EJB_BAR + SERVLET_FOO).replace("\n", " "));
+    }
+
+    @Test
+    public void testForwardServlet() throws Exception {
+        String path = "/sec/forwardServlet";
+        testPath(path, SERVLET_FOO + "\n" + SERVLET_FOO + EJB_FOO + SERVLET_FOO + "\n" + SERVLET_FOO);
+    }
+    @Test
+    public void testForwardServletToRunAs() throws Exception {
+        String path = "/sec/forwardServletToRunAs";
+        testPath(path, SERVLET_FOO + "\n" + SERVLET_FOO + EJB_BAR + SERVLET_FOO + "\n" + SERVLET_FOO);
+    }
+    @Test
+    public void testForwardRunAsServlet() throws Exception {
+        String path = "/sec/forwardRunAsServlet";
+//        testPath(path, SERVLET_FOO + "\n" + SERVLET_BAZ + EJB_BAZ + SERVLET_BAZ + "\n" + SERVLET_FOO);
+        //currently
+        testPath(path, SERVLET_FOO + "\n" + SERVLET_FOO + EJB_FOO + SERVLET_FOO + "\n" + SERVLET_FOO);
+    }
+    @Test
+    public void testForwardRunAsServletToRunAs() throws Exception {
+        String path = "/sec/forwardRunAsServletToRunAs";
+//        testPath(path, SERVLET_FOO + "\n" + SERVLET_BAZ + EJB_BAR + SERVLET_BAZ + "\n" + SERVLET_FOO);
+        testPath(path, SERVLET_FOO + "\n" + SERVLET_FOO + EJB_BAR + SERVLET_FOO + "\n" + SERVLET_FOO);
+    }
+
+
+
+    private void testPath(String path, String expected) throws Exception {
+        selenium.open(path);
         waitForPageLoad();
         System.out.println("----------------------------------------------");
         System.out.println(selenium.getText("xpath=/html/body"));
-        assertEquals("TestServlet principal: foo Test EJB principal: bar Correctly received security exception on noAccess method", selenium.getText("xpath=/html/body"));
-
+        assertEquals(expected, selenium.getText("xpath=/html/body"));
     }
+
 }
 
