@@ -36,7 +36,7 @@ public class ImportExportPortletTest
         selenium.click("link=Plugins");
         selenium.waitForPageToLoad("30000");
         assertEquals("Geronimo Console", selenium.getTitle());
-        assertEquals("Create and Install Plugins", 
+        assertEquals("Install Plugins", 
                      selenium.getText(getPortletTitleLocation()));                
     }
 }
