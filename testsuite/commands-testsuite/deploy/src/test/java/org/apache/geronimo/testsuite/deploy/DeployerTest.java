@@ -47,8 +47,8 @@ public class DeployerTest extends CommandTestSupport {
         String[] args = new String[]{ "list-modules" };
  
         String output = execute(args);
-     
-        if (output.indexOf("org.apache.geronimo.configs/j2ee-deployer") < 0) {
+
+        if (output.indexOf(getDefaultStartedModuleName()) < 0) {
             Assert.fail("list-modules failed : " + output);
         }
     }
@@ -59,7 +59,10 @@ public class DeployerTest extends CommandTestSupport {
  
         String output = execute(args);
 
-        if (output.indexOf("org.apache.geronimo.configs/j2ee-deployer") < 0) {
+        if (output.indexOf(getDefaultStartedModuleName()) < 0) {
+            Assert.fail("list-modules failed : " + output);
+        }
+        if (output.indexOf(getDefaultStoppedModuleName()) > 0) {
             Assert.fail("list-modules failed : " + output);
         }
     }
@@ -70,20 +73,20 @@ public class DeployerTest extends CommandTestSupport {
  
         String output = execute(args);
 
-        if (output.indexOf("org.apache.geronimo.configs/j2ee-deployer") > 0) {
-            Assert.fail("list-modules failed : " + output);
+        if (output.indexOf(getDefaultStartedModuleName()) > 0) {
+            Assert.fail("deploy/list-modules failed : " + output);
+        }
+        if (output.indexOf(getDefaultStoppedModuleName()) < 0) {
+            Assert.fail("deploy/list-modules failed : " + output);
         }
     }
     
-    @Test
-    public void testListTargets() throws Exception {
-        String[] args = new String[]{ "list-targets" };
- 
-        String output = execute(args);
-
-        if (output.indexOf("j2eeType=ConfigurationStore,name=Local") < 0) {
-            Assert.fail("deploy/list-targets failed : " + output);
-        }
+    protected String getDefaultStartedModuleName() {
+        return "org.apache.geronimo.configs/activemq-broker";
     }
-        
+    
+    protected String getDefaultStoppedModuleName() {
+        return "org.apache.geronimo.configs/client-corba-yoko";
+    }
+    
 }

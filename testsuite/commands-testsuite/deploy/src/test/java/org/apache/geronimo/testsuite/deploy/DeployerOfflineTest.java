@@ -41,5 +41,12 @@ public class DeployerOfflineTest extends DeployerTest {
         execute(CommandTestSupport.DEPLOY, cmd, null, baos);
         return baos.toString();
     }
-        
+
+    protected String getDefaultStartedModuleName() {
+        return "org.apache.geronimo.configs/openejb-deployer";
+    }
+    
+    protected String getDefaultStoppedModuleName() {
+        return "org.apache.geronimo.framework/online-deployer";
+    }
 }
