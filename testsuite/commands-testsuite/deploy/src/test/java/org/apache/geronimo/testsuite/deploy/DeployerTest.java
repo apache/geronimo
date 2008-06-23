@@ -81,6 +81,17 @@ public class DeployerTest extends CommandTestSupport {
         }
     }
     
+    @Test
+    public void testListTargets() throws Exception {
+        String[] args = new String[]{ "list-targets" };
+
+        String output = execute(args);
+
+        if (output.indexOf("j2eeType=ConfigurationStore,name=Local") < 0) {
+            Assert.fail("deploy/list-targets failed : " + output);
+        }
+    }
+
     protected String getDefaultStartedModuleName() {
         return "org.apache.geronimo.configs/activemq-broker";
     }
