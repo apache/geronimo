@@ -24,7 +24,7 @@ import javax.ejb.SessionContext;
 /**
  * @version $Rev$ $Date$
  */
-@DeclareRoles({"foo", "bar"})
+@DeclareRoles({"foo", "bar", "baz"})
 public class TestSessionBean implements SessionBean {
 
     SessionContext sessionContext;

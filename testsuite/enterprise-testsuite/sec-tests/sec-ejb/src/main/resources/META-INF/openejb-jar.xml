@@ -51,6 +51,13 @@ limitations under the License.
                 </s:run-as-subject>
                 <s:principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="bar"/>
             </s:role>
+            <s:role role-name="baz">
+                <s:run-as-subject>
+                    <s:realm>test-realm</s:realm>
+                    <s:id>baz-subject</s:id>
+                </s:run-as-subject>
+                <s:principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="baz"/>
+            </s:role>
         </s:role-mappings>
     </s:security>
     <gbean name="test-realm"
@@ -61,7 +68,7 @@ limitations under the License.
                 <lc:login-module control-flag="REQUIRED" wrap-principals="false">
                     <lc:login-domain-name>test-domain</lc:login-domain-name>
                     <lc:login-module-class>org.apache.geronimo.itest.TestLoginModule</lc:login-module-class>
-                    <lc:option name="users">foo,bar</lc:option>
+                    <lc:option name="users">foo,bar,baz</lc:option>
                 </lc:login-module>
             </lc:login-config>
         </xml-reference>
@@ -93,6 +100,17 @@ limitations under the License.
                         <credential>
                             <type>org.apache.geronimo.security.credentialstore.PasswordCallbackHandler</type>
                             <value>bar</value>
+                        </credential>
+                    </subject>
+                    <subject>
+                        <id>baz-subject</id>
+                        <credential>
+                            <type>org.apache.geronimo.security.credentialstore.NameCallbackHandler</type>
+                            <value>baz</value>
+                        </credential>
+                        <credential>
+                            <type>org.apache.geronimo.security.credentialstore.PasswordCallbackHandler</type>
+                            <value>baz</value>
                         </credential>
                     </subject>
                 </realm>

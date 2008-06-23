@@ -35,7 +35,11 @@ public class RunAsTest
             "TestServlet isUserInRole foo: true\n" +
             "TestServlet isUserInRole bar: false\n" +
             "TestServlet isUserInRole baz: false";
-    private static final String SERVLET_BAZ = "TestServlet principal: baz\n" +
+    private static final String SERVLET_BAR = "TestServlet principal: foo\n" +
+            "TestServlet isUserInRole foo: false\n" +
+            "TestServlet isUserInRole bar: true\n" +
+            "TestServlet isUserInRole baz: false";
+    private static final String SERVLET_BAZ = "TestServlet principal: foo\n" +
             "TestServlet isUserInRole foo: false\n" +
             "TestServlet isUserInRole bar: false\n" +
             "TestServlet isUserInRole baz: true";
@@ -102,15 +106,12 @@ public class RunAsTest
     @Test
     public void testForwardRunAsServlet() throws Exception {
         String path = "/sec/forwardRunAsServlet";
-//        testPath(path, SERVLET_FOO + "\n" + SERVLET_BAZ + EJB_BAZ + SERVLET_BAZ + "\n" + SERVLET_FOO);
-        //currently
-        testPath(path, SERVLET_FOO + "\n" + SERVLET_FOO + EJB_FOO + SERVLET_FOO + "\n" + SERVLET_FOO);
+        testPath(path, SERVLET_FOO + "\n" + SERVLET_FOO + EJB_BAZ + SERVLET_FOO + "\n" + SERVLET_FOO);
     }
     @Test
     public void testForwardRunAsServletToRunAs() throws Exception {
         String path = "/sec/forwardRunAsServletToRunAs";
-//        testPath(path, SERVLET_FOO + "\n" + SERVLET_BAZ + EJB_BAR + SERVLET_BAZ + "\n" + SERVLET_FOO);
-        testPath(path, SERVLET_FOO + "\n" + SERVLET_FOO + EJB_BAR + SERVLET_FOO + "\n" + SERVLET_FOO);
+        testPath(path, SERVLET_FOO + "\n" + SERVLET_BAZ + EJB_BAR + SERVLET_BAZ + "\n" + SERVLET_FOO);
     }
 
 
