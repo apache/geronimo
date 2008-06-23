@@ -69,6 +69,8 @@ public class ConfigManagerPortlet extends BasePortlet {
 
     private static final String CONFIG_INIT_PARAM = "config-type";
 
+    private static final String SHOW_DEPENDENCIES_COOKIE = "org.apache.geronimo.configmanager.showDependencies";
+    
     private Kernel kernel;
 
     private PortletRequestDispatcher normalView;
@@ -201,7 +203,10 @@ public class ConfigManagerPortlet extends BasePortlet {
         if (WindowState.MINIMIZED.equals(renderRequest.getWindowState())) {
             return;
         }
-
+              
+        String cookies = renderRequest.getProperty("cookie");
+        boolean showDependencies = (cookies != null && cookies.indexOf(SHOW_DEPENDENCIES_COOKIE + "=true") > 0);
+        
         List<ModuleDetails> moduleDetails = new ArrayList<ModuleDetails>();
         ConfigurationManager configManager = ConfigurationUtil.getConfigurationManager(kernel);
         List<ConfigurationInfo> infos = configManager.listConfigurations();
@@ -221,7 +226,9 @@ public class ConfigManagerPortlet extends BasePortlet {
                             details.getContextPaths().add(webModule.getContextPath());
                         }
 
-                        addDependencies(details, configObjName);
+                        if (showDependencies) {
+                            addDependencies(details, configObjName);
+                        }
                         if (loaded) {
                             unloadModule(configManager, configObjName);
                         }
@@ -244,7 +251,9 @@ public class ConfigManagerPortlet extends BasePortlet {
                                 if (webModule != null) {
                                     childDetails.getContextPaths().add(webModule.getContextPath());
                                 }
-                                addDependencies(childDetails, configObjName);
+                                if (showDependencies) {
+                                    addDependencies(childDetails, configObjName);
+                                }
                                 moduleDetails.add(childDetails);
                             }
                         }
@@ -278,7 +287,9 @@ public class ConfigManagerPortlet extends BasePortlet {
                         }
                     }
 
-                    addDependencies(details, configObjName);
+                    if (showDependencies) {
+                        addDependencies(details, configObjName);
+                    }
                     if (loaded) {
                         unloadModule(configManager, configObjName);
                     }
@@ -292,6 +303,7 @@ public class ConfigManagerPortlet extends BasePortlet {
         Collections.sort(moduleDetails);
         renderRequest.setAttribute("configurations", moduleDetails);
         renderRequest.setAttribute("showWebInfo", Boolean.valueOf(showWebInfo()));
+        renderRequest.setAttribute("showDependencies", Boolean.valueOf(showDependencies));
         if (moduleDetails.size() == 0) {
             renderRequest.setAttribute("messageInstalled", "No modules found of this type<br /><br />");
         } else {
