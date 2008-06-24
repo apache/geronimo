@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+
+<web-app xmlns="http://java.sun.com/xml/ns/j2ee"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
+    version="2.4">
+
+    <servlet>
+        <servlet-name>ManagedExecutorServiceServlet</servlet-name>
+        <servlet-class>org.apache.geronimo.concurrent.test.ManagedExecutorServiceServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ManagedExecutorServiceServlet</servlet-name>
+        <url-pattern>/ManagedExecutorServiceServlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ManagedExecutorServiceServlet</servlet-name>
+        <url-pattern>/secure/ManagedExecutorServiceServlet</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>ManagedScheduledExecutorServiceServlet</servlet-name>
+        <servlet-class>org.apache.geronimo.concurrent.test.ManagedScheduledExecutorServiceServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ManagedScheduledExecutorServiceServlet</servlet-name>
+        <url-pattern>/ManagedScheduledExecutorServiceServlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ManagedScheduledExecutorServiceServlet</servlet-name>
+        <url-pattern>/secure/ManagedScheduledExecutorServiceServlet</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>ManagedThreadFactoryServlet</servlet-name>
+        <servlet-class>org.apache.geronimo.concurrent.test.ManagedThreadFactoryServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ManagedThreadFactoryServlet</servlet-name>
+        <url-pattern>/ManagedThreadFactoryServlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ManagedThreadFactoryServlet</servlet-name>
+        <url-pattern>/secure/ManagedThreadFactoryServlet</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>ContextServiceServlet</servlet-name>
+        <servlet-class>org.apache.geronimo.concurrent.test.ContextServiceServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ContextServiceServlet</servlet-name>
+        <url-pattern>/ContextServiceServlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ContextServiceServlet</servlet-name>
+        <url-pattern>/secure/ContextServiceServlet</url-pattern>
+    </servlet-mapping>
+
+    <env-entry>
+        <description>Welcome message</description>
+        <env-entry-name>greeting</env-entry-name>
+        <env-entry-type>java.lang.String</env-entry-type>
+        <env-entry-value>Hello</env-entry-value>
+    </env-entry>
+
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>secure</web-resource-name>
+            <url-pattern>/secure/*</url-pattern>			
+        </web-resource-collection>
+        <auth-constraint>
+            <role-name>employee</role-name>			 
+        </auth-constraint>
+    </security-constraint>
+
+    <login-config>
+        <auth-method>BASIC</auth-method>
+        <realm-name>geronimo-admin</realm-name>
+    </login-config>
+	
+    <security-role>
+        <role-name>employee</role-name>		
+    </security-role>
+
+    <ejb-local-ref>
+	<ejb-ref-name>ejb/Calculator</ejb-ref-name>
+	<ejb-ref-type>Session</ejb-ref-type>
+	<local>org.apache.geronimo.concurrent.test.CalculatorLocal</local>
+    </ejb-local-ref>
+
+</web-app>
