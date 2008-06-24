@@ -101,6 +101,14 @@ public class LocalAttributeManager implements LocalPluginAttributeStore, Persist
     private Properties localConfigSubstitutions;
     private String resolvedPropertiesFile;
     private final GBeanInfoFactory infoFactory;
+    private static final byte[] INSTRUCTION = ("#Put variables and their substitution values in this file: \n"
+            + "#they will be used when processing the corresponding config.xml. \n"
+            + "#Values in this file will be overridden by environment variables and system properties \n"
+            + "#by prefixing the property name with 'org.apache.geronimo.config.substitution.'"
+            + "#For example an entry such as hostName=localhost \n"
+            + "#can be overridden by an environment variable or system property org.apache.geronimo.config.substitution.hostName=foo \n"
+            + "#To run multiple instances of geronimo choose a portOffset such that none of the ports conflict \n"
+            + "#Try PortOffset=10 \n").getBytes();
 
     public LocalAttributeManager(String configFile, String configSubstitutionsFileName, String configSubstitutionsPrefix, boolean readOnly, ServerInfo serverInfo) {
         this.configFile = System.getProperty(CONFIG_FILE_PROPERTY, configFile);
@@ -617,8 +625,8 @@ public class LocalAttributeManager implements LocalPluginAttributeStore, Persist
         Properties properties = new Properties();
         if (configSubstitutionsFile != null) {
             if (!configSubstitutionsFile.exists()) {
-                log.warn("Could not find the config substitution file: "
-                        + configSubstitutionsFile.getAbsolutePath());
+                //write out empty file with instructions as a hint to users.
+                storeConfigSubstitutions(configSubstitutionsFile, properties);
             } else {
                 try {
                     FileInputStream in = new FileInputStream(configSubstitutionsFile);
@@ -629,7 +637,7 @@ public class LocalAttributeManager implements LocalPluginAttributeStore, Persist
                     }
                 } catch (Exception e) {
                     log.error("Caught exception " + e
-                            + " trying to open properties file " + configSubstitutionsFile.getAbsolutePath());
+                            + " trying to read properties file " + configSubstitutionsFile.getAbsolutePath());
                 }
             }
         }
@@ -641,21 +649,13 @@ public class LocalAttributeManager implements LocalPluginAttributeStore, Persist
             try {
                 FileOutputStream out = new FileOutputStream(configSubstitutionsFile);
                 try {
-                    String instruction = "#Put variables and their substitution values in this file: \n"
-                            + "#they will be used when processing config.xml. \n"
-                            + "#Values in this file will be overridden by environment variables and system properties: \n"
-                            + "#    hostName=localhost \n"
-                            + "#    httpPort=8080 \n"
-                            + "#    httpsPort=8443 \n"
-                            + "#To run multiple instances of geronimo choose a portOffset such that none of the ports conflict \n"
-                            + "#Try PortOffset=10 \n";
-                    out.write(instruction.getBytes());                    
+                    out.write(INSTRUCTION);                    
                     properties.store(out, null);
                 } finally {
                     out.close();
                 }
             } catch (Exception e) {
-                log.error("Caught exception {} trying to open properties file {}", e, configSubstitutionsFile.getAbsolutePath());
+                log.error("Caught exception {} trying to write properties file {}", e, configSubstitutionsFile.getAbsolutePath());
             }
         }
     }
@@ -668,7 +668,7 @@ public class LocalAttributeManager implements LocalPluginAttributeStore, Persist
                 if (((String) entry.getKey()).startsWith(prefix)) {
                     String key = ((String) entry.getKey()).substring(start);
                     if (!vars.containsKey(key)) {
-                        vars.put(key, (String) entry.getValue());
+                        vars.put(key, entry.getValue());
                     }
                 }
             }
