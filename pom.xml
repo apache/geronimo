@@ -2003,6 +2003,12 @@
                     <version>1.0</version>
                 </plugin>
                 
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>jaxb2-maven-plugin</artifactId>
+                    <version>1.2</version>
+                </plugin>
+
                 <!--
                 FIXME: Should not configure war to assume jsp by default
                 -->
