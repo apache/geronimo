@@ -137,6 +137,9 @@
             <pattern>
                 <name>LifecycleMethodBuilder</name>
             </pattern>
+            <pattern>
+                <name>ManagedResourceRefBuilder</name>
+            </pattern>
         </references>
     </gbean>
 

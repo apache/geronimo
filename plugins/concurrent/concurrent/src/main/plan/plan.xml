@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<!-- $Rev: 589946 $ $Date: 2008/03/06 21:37:46 $ -->
+
+<module xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
+
+   <gbean name="DefaultManagedThreadFactory" 
+          class="org.apache.geronimo.concurrent.impl.thread.ManagedThreadFactoryWrapperGBean">
+        <attribute name="hungTaskThreshold">30000</attribute>
+        <attribute name="hungTaskMonitorFrequency">60000</attribute>
+        <attribute name="contextHandlers">
+             org.apache.geronimo.concurrent.handlers.ClassLoaderContextHandler, 
+             org.apache.geronimo.concurrent.impl.handlers.NamingContextHandler,
+             org.apache.geronimo.concurrent.impl.handlers.SecurityContextHandler,
+             org.apache.geronimo.concurrent.impl.handlers.TransactionContextHandler
+        </attribute>
+    </gbean>
+
+   <gbean name="DefaultContextService" 
+          class="org.apache.geronimo.concurrent.impl.context.ContextServiceGBean">
+        <attribute name="contextHandlers">
+             org.apache.geronimo.concurrent.handlers.ClassLoaderContextHandler, 
+             org.apache.geronimo.concurrent.impl.handlers.NamingContextHandler,
+             org.apache.geronimo.concurrent.impl.handlers.SecurityContextHandler,
+             org.apache.geronimo.concurrent.impl.handlers.TransactionContextHandler
+        </attribute>
+   </gbean>
+
+   <gbean name="DefaultManagedExecutorService" 
+          class="org.apache.geronimo.concurrent.impl.executor.ServerManagedExecutorServiceWrapperGBean">
+        <attribute name="minPoolSize">5</attribute>
+        <attribute name="maxPoolSize">20</attribute> 
+        <attribute name="keepAliveTime">60000</attribute> 
+        <reference name="threadFactory">
+            <name>DefaultManagedThreadFactory</name>
+        </reference>
+        <attribute name="contextHandlers">
+             org.apache.geronimo.concurrent.handlers.ClassLoaderContextHandler, 
+             org.apache.geronimo.concurrent.impl.handlers.NamingContextHandler,
+             org.apache.geronimo.concurrent.impl.handlers.SecurityContextHandler,
+             org.apache.geronimo.concurrent.impl.handlers.TransactionContextHandler
+        </attribute>
+   </gbean>
+
+   <gbean name="DefaultManagedScheduledExecutorService" 
+          class="org.apache.geronimo.concurrent.impl.executor.ServerManagedScheduledExecutorServiceWrapperGBean">
+        <attribute name="corePoolSize">5</attribute>
+        <reference name="threadFactory">
+            <name>DefaultManagedThreadFactory</name>
+        </reference>
+        <attribute name="contextHandlers">
+             org.apache.geronimo.concurrent.handlers.ClassLoaderContextHandler, 
+             org.apache.geronimo.concurrent.impl.handlers.NamingContextHandler,
+             org.apache.geronimo.concurrent.impl.handlers.SecurityContextHandler,
+             org.apache.geronimo.concurrent.impl.handlers.TransactionContextHandler
+        </attribute>
+   </gbean>
+
+</module>

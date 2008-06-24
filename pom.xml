@@ -1132,6 +1132,12 @@
             </dependency>
 
             <dependency>
+                <groupId>org.apache.geronimo.specs</groupId>
+                <artifactId>geronimo-concurrent_1.0_spec</artifactId>
+                <version>1.0-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
                 <groupId>woodstox</groupId>
                 <artifactId>wstx-asl</artifactId>
                 <version>3.2.1</version>

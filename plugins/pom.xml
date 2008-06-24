@@ -91,6 +91,7 @@
         <module>remote-deploy</module>
         <module>sharedlib</module>
         <module>welcome</module>
+        <module>concurrent</module>
     </modules>
     
     <build>
