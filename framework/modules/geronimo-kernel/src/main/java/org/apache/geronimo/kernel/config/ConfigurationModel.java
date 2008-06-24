@@ -226,4 +226,12 @@ public class ConfigurationModel {
         }
         return result;
     }
+    
+    public LinkedHashSet getStartedChildren(Artifact configurationId) {
+        ConfigurationStatus configurationStatus = (ConfigurationStatus) configurations.get(configurationId);
+        if (configurationStatus == null) {
+            return new LinkedHashSet();
+        }
+        return configurationStatus.getStartedChildren();
+    }
 }

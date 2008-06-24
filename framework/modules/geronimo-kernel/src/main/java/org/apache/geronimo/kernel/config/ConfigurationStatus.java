@@ -85,6 +85,35 @@ public class ConfigurationStatus {
     public Artifact getConfigurationId() {
         return configurationId;
     }
+    
+    public LinkedHashSet getStartedChildren() {
+        LinkedHashSet childrenStatuses = new LinkedHashSet();
+        getStartedChildrenInternal(childrenStatuses);
+
+        LinkedHashSet childrenIds = new LinkedHashSet(childrenStatuses.size());
+        for (Iterator iterator = childrenStatuses.iterator(); iterator.hasNext();) {
+            ConfigurationStatus configurationStatus = (ConfigurationStatus) iterator.next();
+            childrenIds.add(configurationStatus.configurationId);
+        }
+
+        return childrenIds;
+    }
+
+    private void getStartedChildrenInternal(LinkedHashSet childrenStatuses) {
+        // if we aren't started, there is nothing to do
+        if (!started) {
+            return;
+        }
+
+        // visit all children
+        for (Iterator iterator = startChildren.iterator(); iterator.hasNext();) {
+            ConfigurationStatus child = (ConfigurationStatus) iterator.next();
+            if (child.isStarted() && !child.configurationId.equals(configurationId)) {
+                child.getStartedChildrenInternal(childrenStatuses);
+            }
+        }
+        childrenStatuses.add(this);
+    }
 
     public boolean isLoaded() {
         return loaded;
