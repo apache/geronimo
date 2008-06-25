@@ -101,14 +101,14 @@ public class LocalAttributeManager implements LocalPluginAttributeStore, Persist
     private Properties localConfigSubstitutions;
     private String resolvedPropertiesFile;
     private final GBeanInfoFactory infoFactory;
-    private static final byte[] INSTRUCTION = ("#Put variables and their substitution values in this file: \n"
-            + "#they will be used when processing the corresponding config.xml. \n"
-            + "#Values in this file will be overridden by environment variables and system properties \n"
-            + "#by prefixing the property name with 'org.apache.geronimo.config.substitution.'"
-            + "#For example an entry such as hostName=localhost \n"
-            + "#can be overridden by an environment variable or system property org.apache.geronimo.config.substitution.hostName=foo \n"
-            + "#To run multiple instances of geronimo choose a portOffset such that none of the ports conflict \n"
-            + "#Try PortOffset=10 \n").getBytes();
+    private static final byte[] INSTRUCTION = ("# Put variables and their substitution values in this file. \n"
+            + "# They will be used when processing the corresponding config.xml. \n"
+            + "# Values in this file can be overridden by environment variables and system properties \n"
+            + "# by prefixing the property name with 'org.apache.geronimo.config.substitution.' \n"
+            + "# For example, an entry such as hostName=localhost \n"
+            + "# can be overridden by an environment variable or system property org.apache.geronimo.config.substitution.hostName=foo \n"
+            + "# When running multiple instances of Geronimo choose a PortOffset value such that none of the ports conflict. \n"
+            + "# For example, try PortOffset=10 \n").getBytes();
 
     public LocalAttributeManager(String configFile, String configSubstitutionsFileName, String configSubstitutionsPrefix, boolean readOnly, ServerInfo serverInfo) {
         this.configFile = System.getProperty(CONFIG_FILE_PROPERTY, configFile);
