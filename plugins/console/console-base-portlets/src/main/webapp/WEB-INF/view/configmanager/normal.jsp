@@ -22,6 +22,7 @@
 
 <script>
 var EXPERT_COOKIE = "org.apache.geronimo.configmanager.expertmode";
+var SHOW_DEPENDENCIES_COOKIE = "org.apache.geronimo.configmanager.showDependencies";
 
 // Check to see if a component is "safe" to stop within a running server.
 // Service components with names that begin with "org.apache.geronimo.configs/", for example,
@@ -190,28 +191,48 @@ function getCookie(name) {
 function init() {
     if (getCookie(EXPERT_COOKIE) == 'true') {
         document.checkExpert.expertMode.checked = true;
-    }
-    else {
+    } else {
         document.checkExpert.expertMode.checked = false;
     }
     toggleExpertMode();
+    
+    if (getCookie(SHOW_DEPENDENCIES_COOKIE) == 'true') {
+        document.showDependenciesForm.showDependenciesMode.checked = true;
+    } else {
+        document.showDependenciesForm.showDependenciesMode.checked = false;
+    }
 }
+
+function toggleShowDependenciesMode() {
+    if (document.showDependenciesForm.showDependenciesMode.checked) {
+        document.cookie=SHOW_DEPENDENCIES_COOKIE+"=true";
+    } else {
+        document.cookie=SHOW_DEPENDENCIES_COOKIE+"=false";
+    }
+    window.location.reload();
+}
+
 </script>
 
 
-<br />
 <form name="checkExpert">
-<input type="checkbox" name="expertMode" onClick="toggleExpertMode();" />&nbsp;Expert User (enable all actions on Geronimo Provided Components)   
+<input type="checkbox" name="expertMode" onClick="toggleExpertMode();" />&nbsp;Expert User (enable all actions on Geronimo Provided Components)  
 </form>
-<br />
+
+<form name="showDependenciesForm">
+<input type="checkbox" name="showDependenciesMode" onClick="toggleShowDependenciesMode();" />&nbsp;Show parent and child components
+</form>
+
 <table width="100%">
     <tr class="DarkBackground">
         <th align="left">&nbsp;<fmt:message key="configmanager.normal.componentName" /></th>
         <c:if test="${showWebInfo}"><th>URL</th></c:if>
         <th>&nbsp;<fmt:message key="consolebase.common.state"/></th>
         <th align="center" colspan="3"> <fmt:message key="consolebase.common.commands"/></th>
-        <th align="left"><fmt:message key="configmanager.normal.parentComponents" /></th>
-        <th align="left"><fmt:message key="configmanager.normal.childComponents" /></th>
+        <c:if test="${showDependencies}">
+           <th align="left"><fmt:message key="configmanager.normal.parentComponents" /></th>
+           <th align="left"><fmt:message key="configmanager.normal.childComponents" /></th>
+        </c:if>
     </tr>
   <c:set var="backgroundClass" value='MediumBackground'/>
   <c:forEach var="moduleDetails" items="${configurations}">
@@ -291,19 +312,21 @@ function init() {
             </c:if>
         </td>
 
-        <!-- Parents -->
-        <td class="${backgroundClass}">
-            <c:forEach var="parent" items="${moduleDetails.parents}">
-                ${parent} <br>
-            </c:forEach>
-        </td>
+        <c:if test="${showDependencies}">
+           <!-- Parents -->
+           <td class="${backgroundClass}">
+               <c:forEach var="parent" items="${moduleDetails.parents}">
+                  ${parent} <br>
+               </c:forEach>
+           </td>
 
-        <!-- Children -->
-        <td class="${backgroundClass}">
-        <c:forEach var="child" items="${moduleDetails.children}">
-            ${child} <br>
-        </c:forEach>
-        </td>
+           <!-- Children -->
+           <td class="${backgroundClass}">
+               <c:forEach var="child" items="${moduleDetails.children}">
+                  ${child} <br>
+               </c:forEach>
+           </td>
+        </c:if>
     </tr>
   </c:forEach>
 </table>
