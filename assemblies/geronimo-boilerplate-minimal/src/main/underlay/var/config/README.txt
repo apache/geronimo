@@ -45,14 +45,15 @@ comments added to this file will be lost.
 
 
 *-config-substitutions.properties
-
-  Put variables and their substitution values in this file: they will be used when processing config.xml
-   Values in this file will be overridden by environment variables and system properties
-hostName=localhost
-httpPort=8080
-httpsPort=8443
-   To run multiple instances of geronimo choose a portOffset such that none of the ports conflict
-   Try PortOffset=10
+   
+Put variables and their substitution values in this file. 
+They will be used when processing the corresponding config.xml. 
+Values in this file can be overridden by environment variables and system properties 
+by prefixing the property name with 'org.apache.geronimo.config.substitution.' 
+For example, an entry such as hostName=localhost 
+can be overridden by an environment variable or system property org.apache.geronimo.config.substitution.hostName=foo 
+When running multiple instances of Geronimo choose a PortOffset value such that none of the ports conflict. 
+For example, try PortOffset=10 
 
 
 *-artifact-aliases.properties
