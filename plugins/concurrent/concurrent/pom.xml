@@ -47,11 +47,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-concurrent_1.0_spec</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-concurrent-management</artifactId>
             <version>${version}</version>
@@ -78,10 +73,33 @@
                 <artifactId>car-maven-plugin</artifactId>
                 <configuration>
                     <useMavenDependencies>
-                        <value>true</value>
-                        <includeVersion>true</includeVersion>
+                        <value>false</value>
                     </useMavenDependencies>
                     <category>Core</category>
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.apache.geronimo.modules</groupId>
+                            <artifactId>geronimo-concurrent-management</artifactId>
+                            <type>jar</type>
+                        </dependency>
+                        <dependency>
+                            <groupId>org.apache.geronimo.modules</groupId>
+                            <artifactId>geronimo-concurrent-core</artifactId>
+                            <type>jar</type>
+                        </dependency>
+                        <dependency>
+                            <groupId>org.apache.geronimo.modules</groupId>
+                            <artifactId>geronimo-concurrent</artifactId>
+                            <type>jar</type>
+                        </dependency>
+                        <dependency>
+                            <groupId>org.apache.geronimo.configs</groupId>
+                            <artifactId>transaction</artifactId>
+                            <type>car</type>
+                            <import>classes</import>
+                        </dependency>
+                    </dependencies>
+
                 </configuration>
             </plugin>
         </plugins>

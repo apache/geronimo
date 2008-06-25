@@ -27,15 +27,6 @@
       <dep:version>${version}</dep:version>
       <dep:type>jar</dep:type>
     </dep:moduleId>
-
-    <dep:dependencies>
-      <dep:dependency>
-        <dep:groupId>org.apache.geronimo.configs</dep:groupId>
-        <dep:artifactId>concurrent</dep:artifactId>
-        <dep:version>2.2-SNAPSHOT</dep:version>
-        <dep:type>car</dep:type>
-      </dep:dependency>
-    </dep:dependencies>
   </dep:environment>
 
     <enterprise-beans>

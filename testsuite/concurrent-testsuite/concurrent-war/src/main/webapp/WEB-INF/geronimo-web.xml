@@ -24,16 +24,6 @@
       <dep:version>1.0</dep:version>
       <dep:type>war</dep:type>
     </dep:moduleId>
-    
-    <dep:dependencies>
-      <dep:dependency>
-        <dep:groupId>org.apache.geronimo.configs</dep:groupId>
-        <dep:artifactId>concurrent</dep:artifactId>
-        <dep:version>2.2-SNAPSHOT</dep:version>
-        <dep:type>car</dep:type>
-      </dep:dependency>
-    </dep:dependencies>
-    
   </dep:environment>
 
   <security-realm-name>geronimo-admin</security-realm-name>
