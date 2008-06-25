@@ -43,10 +43,10 @@ public class DeployerOfflineTest extends DeployerTest {
     }
 
     protected String getDefaultStartedModuleName() {
-        return "org.apache.geronimo.configs/openejb-deployer";
+        return "org.apache.geronimo.framework/geronimo-gbean-deployer";
     }
     
     protected String getDefaultStoppedModuleName() {
-        return "org.apache.geronimo.framework/online-deployer";
+        return "org.apache.geronimo.framework/rmi-naming";
     }
 }

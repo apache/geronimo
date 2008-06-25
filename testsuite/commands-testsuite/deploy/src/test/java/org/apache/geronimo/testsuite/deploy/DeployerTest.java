@@ -93,11 +93,11 @@ public class DeployerTest extends CommandTestSupport {
     }
 
     protected String getDefaultStartedModuleName() {
-        return "org.apache.geronimo.configs/activemq-broker";
+        return "org.apache.geronimo.framework/rmi-naming";
     }
     
     protected String getDefaultStoppedModuleName() {
-        return "org.apache.geronimo.configs/client-corba-yoko";
+        return "org.apache.geronimo.framework/offline-deployer";
     }
     
 }
