@@ -238,11 +238,9 @@
                             <directory>${project.basedir}</directory>
                             <includes>
                                 <include>*/*/pom.xml</include>
-                                <include>concurrent-testsuite/pom.xml</include>
                             </includes>
                             <excludes>
                                 <exclude>${shittyTestExcludes}</exclude>
-                                <exclude>concurrent-testsuite/*/pom.xml</exclude>
                             </excludes>
                         </fileset>
                     </projects>

@@ -23,32 +23,22 @@
 
     <parent>
         <groupId>org.apache.geronimo.testsuite</groupId>
-        <artifactId>testsuite</artifactId>
+        <artifactId>concurrent-testsuite</artifactId>
         <version>2.2-SNAPSHOT</version>
     </parent>
 
-    <artifactId>concurrent-testsuite</artifactId>
+    <artifactId>concurrent-basic</artifactId>
     <packaging>pom</packaging>
-    <name>Geronimo TestSuite :: Concurrent TestSuite</name>
+    <name>Geronimo TestSuite :: Concurrent TestSuite :: Basic Tests</name>
     <description>Tests for Concurrency Utilities for Java EE implementation</description>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.geronimo.buildsupport</groupId>
-                <artifactId>testsuite-maven-plugin</artifactId>
-                <inherited>false</inherited>
-                <executions>
-                    <execution>
-                        <phase>install</phase>
-                        <goals>
-                            <goal>generate-surefire-xml</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
-
+    <modules>
+        <module>common-ejb</module>
+        <module>common-jar</module>
+        <module>concurrent-war</module>
+        <module>concurrent-ejb</module>
+        <module>concurrent-web-ear</module>
+        <module>concurrent-ejb-ear</module>
+    </modules>
 
 </project>

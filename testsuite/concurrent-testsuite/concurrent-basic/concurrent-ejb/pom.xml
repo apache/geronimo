@@ -24,37 +24,21 @@
 
     <parent>
         <groupId>org.apache.geronimo.testsuite</groupId>
-        <artifactId>concurrent-testsuite</artifactId>
+        <artifactId>concurrent-basic</artifactId>
         <version>2.2-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>common-jar</artifactId>
-    <name>Geronimo TestSuite :: Concurrent TestSuite :: Common JAR</name>
+    <artifactId>concurrent-ejb</artifactId>
+    <name>Geronimo TestSuite :: Concurrent TestSuite :: EJB</name>
     <packaging>jar</packaging>
 
     <description>This project executes testcases for your testsuite</description>
 
-    <dependencies>
+   <dependencies>
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-concurrent_1.0_spec</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-concurrent-management</artifactId>
-            <version>${version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-annotation_1.0_spec</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-jta_1.1_spec</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -63,17 +47,32 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.apache.geronimo.testsuite</groupId>
-            <artifactId>common-ejb</artifactId>
-            <version>${version}</version>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-annotation_1.0_spec</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.testng</groupId>
-            <artifactId>testng</artifactId>
-            <classifier>jdk15</classifier>
+            <groupId>org.apache.geronimo.testsuite</groupId>
+            <artifactId>common-jar</artifactId>
+            <version>${version}</version>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addClasspath>true</addClasspath>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>
 
