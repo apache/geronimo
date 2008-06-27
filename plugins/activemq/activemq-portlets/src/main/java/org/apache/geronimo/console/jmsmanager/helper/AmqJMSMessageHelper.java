@@ -127,7 +127,7 @@ public class AmqJMSMessageHelper extends JMSMessageHelper {
             stat.setQueueSize(proxy.getQueueSize());
         } catch (Exception ex) {
             // ignoring the exception
-            log.error(ex);
+            log.error("Failed to get ActiveMQ stats", ex);
         }
         return stat;
     }
@@ -144,7 +144,7 @@ public class AmqJMSMessageHelper extends JMSMessageHelper {
             BrokerServiceGBeanImpl ref = (BrokerServiceGBeanImpl) kernel.getGBean(BrokerServiceGBeanImpl.class);
             brokerName = ref.getBrokerName();
         } catch (Exception e) {
-            log.equals(e);
+            log.error("Failed to get broker name", e);
         }
         return brokerName;
     }

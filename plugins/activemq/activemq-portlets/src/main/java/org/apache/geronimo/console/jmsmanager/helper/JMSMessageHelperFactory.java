@@ -56,11 +56,11 @@ public class JMSMessageHelperFactory {
                     .forName("org.apache.geronimo.console.jmsmanager.helper.AmqJMSMessageHelper");
                 messageHelper = (JMSMessageHelper) class_.newInstance();
             } catch (IllegalAccessException e) {
-                log.error(e);
+                log.error("Failed to load class", e);
             } catch (InstantiationException e) {
-                log.error(e);
+                log.error("Failed to load class", e);
             } catch (ClassNotFoundException e) {
-                log.error(e);
+                log.error("Failed to load class", e);
             }
         }
         if(messageHelper == null){
