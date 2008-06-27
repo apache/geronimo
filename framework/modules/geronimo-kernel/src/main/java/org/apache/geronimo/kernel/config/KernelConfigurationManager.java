@@ -18,6 +18,7 @@
 package org.apache.geronimo.kernel.config;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -80,7 +81,7 @@ public class KernelConfigurationManager extends SimpleConfigurationManager imple
         this.artifactManager = artifactManager;
         this.classLoader = classLoader;
 
-        shutdownHook = new ShutdownHook(kernel);
+        shutdownHook = new ShutdownHook(kernel, configurationModel);
     }
 
     private static ArtifactResolver createArtifactResolver(ArtifactResolver artifactResolver, ArtifactManager artifactManager, Collection repositories) {
@@ -300,11 +301,12 @@ public class KernelConfigurationManager extends SimpleConfigurationManager imple
 
     private static class ShutdownHook implements Runnable {
         private final Kernel kernel;
-        
+        private final ConfigurationModel configurationModel;
         private final Logger log = LoggerFactory.getLogger(ShutdownHook.class);
         
-        public ShutdownHook(Kernel kernel) {
+        public ShutdownHook(Kernel kernel, ConfigurationModel configurationModel) {
             this.kernel = kernel;
+            this.configurationModel = configurationModel;
         }
 
         public void run() {
@@ -313,21 +315,37 @@ public class KernelConfigurationManager extends SimpleConfigurationManager imple
                 if (configs.isEmpty()) {
                     return;
                 }
+                LinkedHashSet orderedConfigs = new LinkedHashSet();
                 for (Iterator i = configs.iterator(); i.hasNext();) {
                     AbstractName configName = (AbstractName) i.next();
-                    if (kernel.isLoaded(configName)) {
-                        try {
-                            kernel.stopGBean(configName);
-                        } catch (GBeanNotFoundException e) {
-                            // ignore
-                        } catch (InternalKernelException e) {
-                            log.warn("Could not stop configuration: " + configName, e);
+                    if (kernel.isLoaded(configName) && !orderedConfigs.contains(configName)) {
+                        LinkedHashSet startedChildren = configurationModel.getStartedChildren(configName.getArtifact());
+                        for (Iterator iterator = startedChildren.iterator(); iterator.hasNext();) {
+                            Artifact configurationId = (Artifact) iterator.next();
+                            Set childConfig = kernel.listGBeans(new AbstractNameQuery(configurationId, Collections.emptyMap() , Configuration.class.getName()));
+                            if (!childConfig.isEmpty()) {
+                                AbstractName childConfigName = (AbstractName) childConfig.iterator().next();
+                                if (!orderedConfigs.contains(childConfigName))
+                                    orderedConfigs.add(childConfigName);
+                            }
                         }
-                        try {
-                            kernel.unloadGBean(configName);
-                        } catch (GBeanNotFoundException e) {
-                            // ignore
-                        }
+                        orderedConfigs.add(configName);
+                    }
+                }
+
+                for (Iterator i = orderedConfigs.iterator(); i.hasNext();) {
+                    AbstractName configName = (AbstractName) i.next();
+                    try {
+                        kernel.stopGBean(configName);
+                    } catch (GBeanNotFoundException e) {
+                        // ignore
+                    } catch (InternalKernelException e) {
+                        log.warn("Could not stop configuration: " + configName, e);
+                    }
+                    try {
+                        kernel.unloadGBean(configName);
+                    } catch (GBeanNotFoundException e) {
+                        // ignore
                     }
                 }
             }
