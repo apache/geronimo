@@ -95,7 +95,7 @@ limitations under the License.
         <attribute name="RARName">org.tranql/tranql-connector-ra//rar</attribute>
     </gbean>
     <gbean name="Database2" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean">
-        <attribute name="name">DB2</attribute>
+        <attribute name="name">DB2 XA</attribute>
         <attribute name="URLPrototype">null</attribute>
         <attribute name="driverClassName">null</attribute>
         <attribute name="defaultPort">0</attribute>
