@@ -73,7 +73,7 @@
                         <value>true</value>
                         <includeVersion>true</includeVersion>
                     </useMavenDependencies>
-                    <category>Fluff</category>
+                    <category>Deployment</category>
                     <instance>
                         <plugin-artifact>
                             <config-xml-content>

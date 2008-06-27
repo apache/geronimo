@@ -82,6 +82,7 @@
                         <deploymentConfig>${gbeanDeployer}</deploymentConfig>
                         <deploymentConfig>${connectorDeployer}</deploymentConfig>
                     </deploymentConfigs>
+                    <category>Monitoring</category>
                     <module>
                         <groupId>org.tranql</groupId>
                         <artifactId>tranql-connector-derby-embed-local</artifactId>

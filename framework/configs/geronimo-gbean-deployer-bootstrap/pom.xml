@@ -87,6 +87,7 @@
                     <deploymentConfigs>
                     </deploymentConfigs>
                     <bootstrap>true</bootstrap>
+                    <category>Geronimo Core</category>
                 </configuration>
             </plugin>
         </plugins>
