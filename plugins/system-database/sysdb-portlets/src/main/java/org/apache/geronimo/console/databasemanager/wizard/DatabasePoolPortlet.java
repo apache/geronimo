@@ -173,6 +173,9 @@ public class DatabasePoolPortlet extends BasePortlet {
     private static final String USAGE_MODE = "usage";
     private static final String IMPORT_EDIT_MODE = "importEdit";
     private static final String MODE_KEY = "mode";
+    private static final String LOCAL = "LOCAL";
+    private static final String XA = "XA";
+    private static final String NONE = "NONE";
 
     private PortletRequestDispatcher listView;
     private PortletRequestDispatcher editView;
@@ -1017,7 +1020,14 @@ public class DatabasePoolPortlet extends BasePortlet {
                     }
                 }
                 ConnectionManager manager = instance.getConnectionManager();
-                manager.setTransactionLocal(true);
+                if(XA.equals(data.transactionType)){
+                    manager.setTransactionXA(true);
+                } else if (NONE.equals(data.transactionType)){
+                    manager.setTransactionNone(true);
+                } else {
+                    manager.setTransactionLocal(true);
+                }
+
                 SinglePool pool = new SinglePool();
                 manager.setPoolSingle(pool);
                 pool.setMatchOne(true);
@@ -1298,6 +1308,7 @@ public class DatabasePoolPortlet extends BasePortlet {
         private String adapterDisplayName;
         private String adapterDescription;
         private String rarPath;
+        private String transactionType;
         private String importSource;
         private Map<String, String> abstractNameMap; // generated as needed, don't need to read/write it
         private String deployError;
@@ -1346,6 +1357,14 @@ public class DatabasePoolPortlet extends BasePortlet {
             if (rarPath != null && rarPath.equals("")) rarPath = null;
             importSource = request.getParameter("importSource");
             if (importSource != null && importSource.equals("")) importSource = null;
+            transactionType = request.getParameter("transactionType");
+            if (transactionType != null && "".equals(transactionType)) {
+                if(dbtype.endsWith("XA")){
+                    transactionType = XA;
+                } else {
+                    transactionType = LOCAL;
+                }
+            }
             Map map = request.getParameterMap();
             propertyNames = new HashMap<String, String>();
             for (Object o : map.keySet()) {
@@ -1417,6 +1436,7 @@ public class DatabasePoolPortlet extends BasePortlet {
             if (adapterDescription != null) response.setRenderParameter("adapterDescription", adapterDescription);
             if (importSource != null) response.setRenderParameter("importSource", importSource);
             if (rarPath != null) response.setRenderParameter("rarPath", rarPath);
+            if (transactionType != null) response.setRenderParameter("transactionType", transactionType);
             for (Map.Entry<String, Object> entry : urlProperties.entrySet()) {
                 if (entry.getValue() != null) {
                     response.setRenderParameter(entry.getKey(), entry.getValue().toString());
@@ -1531,6 +1551,15 @@ public class DatabasePoolPortlet extends BasePortlet {
         public String getDeployError() {
             return deployError;
         }
+        
+        public String getTransactionType() {
+            return transactionType;
+        }
+
+        public void setTransactionType(String transactionType) {
+            this.transactionType = transactionType;
+        }
+        
     }
 
     public static class ConnectionPool implements Serializable, Comparable {

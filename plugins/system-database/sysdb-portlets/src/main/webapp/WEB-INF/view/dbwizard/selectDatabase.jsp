@@ -54,6 +54,7 @@ function <portlet:namespace/>validateForm(){
     <input type="hidden" name="adapterDisplayName" value="${pool.adapterDisplayName}" />
     <input type="hidden" name="adapterDescription" value="${pool.adapterDescription}" />
     <input type="hidden" name="rarPath" value="${pool.rarPath}" />
+    <input type="hidden" name="transactionType" value="${pool.transactionType}" />
   <c:forEach var="prop" items="${pool.properties}">
     <input type="hidden" name="${prop.key}" value="${prop.value}" />
   </c:forEach>
