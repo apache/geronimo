@@ -319,6 +319,23 @@ function <portlet:namespace/>validate() {
       <tr>
         <th colspan="2"><fmt:message key="dbwizard.common.connectionPoolParameters"/></th>
       </tr>
+     <c:if test="${pool.transactionType != null}"> 
+       <!-- ENTRY FIELD: TRANSACTION TYPE -->
+        <tr>
+          <th><div align="right"><fmt:message key="dbwizard.common.transactionType"/>:</div></th>
+          <td>
+            <select name="transactionType">
+              <option <c:if test="${'LOCAL' == pool.transactionType}">selected</c:if>>LOCAL</option>       
+              <option <c:if test="${'XA' == pool.transactionType}">selected</c:if>>XA</option>       
+              <option <c:if test="${'NONE' == pool.transactionType}">selected</c:if>>NONE</option>       
+            </select>
+          </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td><fmt:message key="dbwizard.common.driverTransactionTypes"/></td>
+        </tr>
+      </c:if>
     <!-- ENTRY FIELD: Min Size -->
       <tr>
         <th><div align="right"><fmt:message key="dbwizard.common.poolMinSize"/>:</div></th>
