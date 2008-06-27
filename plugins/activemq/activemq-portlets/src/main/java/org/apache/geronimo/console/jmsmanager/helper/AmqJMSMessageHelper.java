@@ -27,9 +27,11 @@ import javax.management.ObjectName;
 import javax.portlet.PortletRequest;
 
 import org.apache.geronimo.activemq.BrokerServiceGBeanImpl;
+import org.apache.geronimo.console.jmsmanager.DestinationStatistics;
 import org.apache.geronimo.console.util.PortletManager;
 import org.apache.geronimo.system.jmx.MBeanServerReference;
 import org.apache.activemq.broker.jmx.BrokerViewMBean;
+import org.apache.activemq.broker.jmx.DestinationViewMBean;
 import org.apache.activemq.broker.jmx.QueueViewMBean;
 import org.apache.activemq.broker.jmx.TopicViewMBean;
 import org.slf4j.Logger;
@@ -82,6 +84,52 @@ public class AmqJMSMessageHelper extends JMSMessageHelper {
          * return mbean.browseMessages();
          */
         return null;
+    }
+    public  DestinationStatistics getDestinationStatistics(String destType,String physicalName){
+        DestinationStatistics stat = new DestinationStatistics();
+        try {
+            MBeanServer server = getMBeanServer();
+            String brokerName = getBrokerName();
+            ObjectName objName = new ObjectName("org.apache.activemq" + ":BrokerName=" + brokerName + ",Type=" + destType + ",Destination=" + physicalName);
+            DestinationViewMBean proxy = null;
+            if ("Queue".equals(destType)) {
+                if (!server.isRegistered(objName)) {
+                    // mbean is not yet registered.Adding the destination to activemq broker.
+                    ObjectName brokerObj = new ObjectName("org.apache.activemq" + ":BrokerName=" + brokerName + ",Type=Broker");
+                    Set set = server.queryMBeans(brokerObj, null);
+                    Iterator it = set.iterator();
+                    if (it.hasNext()) {
+                        ObjectInstance instance = (ObjectInstance) it.next();
+                        brokerObj = instance.getObjectName();
+                    }
+                    BrokerViewMBean brokerMBean = (BrokerViewMBean) MBeanServerInvocationHandler.newProxyInstance(server, brokerObj, BrokerViewMBean.class, true);
+                    brokerMBean.addQueue(physicalName);
+                }
+                proxy = (DestinationViewMBean) MBeanServerInvocationHandler.newProxyInstance(server, objName, QueueViewMBean.class, true);
+            }else{
+                if (!server.isRegistered(objName)) {
+                    // mbean is not yet registered.Adding the destination to activemq broker.
+                    ObjectName brokerObj = new ObjectName("org.apache.activemq" + ":BrokerName=" + brokerName + ",Type=Broker");
+                    Set set = server.queryMBeans(brokerObj, null);
+                    Iterator it = set.iterator();
+                    if (it.hasNext()) {
+                        ObjectInstance instance = (ObjectInstance) it.next();
+                        brokerObj = instance.getObjectName();
+                    }
+                    BrokerViewMBean brokerMBean = (BrokerViewMBean) MBeanServerInvocationHandler.newProxyInstance(server, brokerObj, BrokerViewMBean.class, true);
+                    brokerMBean.addTopic(physicalName);
+                }
+                proxy = (DestinationViewMBean) MBeanServerInvocationHandler.newProxyInstance(server, objName, TopicViewMBean.class, true);
+            }
+            stat.setConsumerCount(proxy.getConsumerCount());
+            stat.setEnqueueCount(proxy.getEnqueueCount());
+            stat.setDequeueCount(proxy.getDequeueCount());
+            stat.setQueueSize(proxy.getQueueSize());
+        } catch (Exception ex) {
+            // ignoring the exception
+            log.error(ex);
+        }
+        return stat;
     }
 
     private MBeanServer getMBeanServer() throws Exception {

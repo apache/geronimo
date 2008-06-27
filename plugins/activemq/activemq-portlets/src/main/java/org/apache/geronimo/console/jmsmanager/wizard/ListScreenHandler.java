@@ -31,6 +31,7 @@ import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 
 import org.apache.geronimo.console.MultiPageModel;
+import org.apache.geronimo.console.jmsmanager.DestinationStatistics;
 import org.apache.geronimo.console.jmsmanager.helper.JMSMessageHelper;
 import org.apache.geronimo.console.jmsmanager.helper.JMSMessageHelperFactory;
 import org.apache.geronimo.console.util.PortletManager;
@@ -185,10 +186,12 @@ public class ListScreenHandler extends AbstractHandler {
                         log.warn("PhysicalName undefined, using queueName as PhysicalName", e);
                         physicalName = queueName;
                     }
+                    String destType = admins[j].getAdminObjectInterface().indexOf("Queue") > -1 ? "Queue" : "Topic";
+                    String vendorName = module.getVendorName();
+                    DestinationStatistics destinationStat = JMSMessageHelperFactory.getJMSMessageHelper(vendorName).getDestinationStatistics(destType, physicalName);
                     target.getAdminObjects().add(
-                            new AdminObjectSummary(bean.getObjectName(), queueName, physicalName, admins[j]
-                                    .getAdminObjectInterface().indexOf("Queue") > -1 ? "Queue" : "Topic", bean
-                                    .getState()));
+                            new AdminObjectSummary(bean.getObjectName(), queueName, physicalName,destType , bean
+                                    .getState(),destinationStat));
                 }
             }
         } catch (MalformedObjectNameException e) {
@@ -327,15 +330,20 @@ public class ListScreenHandler extends AbstractHandler {
         private final String type;
         private final int state;
         private final String physicalName;
- 
-        public AdminObjectSummary(String adminObjectName, String name, String physicalName, String type, int state) {
+        private final DestinationStatistics destinationStat;
+        
+        public AdminObjectSummary(String adminObjectName, String name, String physicalName, String type, int state,DestinationStatistics destinationStat) {
             this.adminObjectName = adminObjectName;
             this.name = name;
             this.physicalName = physicalName;
             this.type = type;
             this.state = state;
+            this.destinationStat = destinationStat;
         }
-
+        
+        public DestinationStatistics getdestinationStat(){
+            return this.destinationStat;
+        }
         public String getAdminObjectName() {
             return adminObjectName;
         }

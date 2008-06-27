@@ -43,6 +43,7 @@ import javax.portlet.RenderRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.geronimo.console.core.jms.TopicBrowserGBean;
+import org.apache.geronimo.console.jmsmanager.DestinationStatistics;
 import org.apache.geronimo.console.jmsmanager.JMSMessageInfo;
 import org.apache.geronimo.console.util.PortletManager;
 import org.apache.geronimo.gbean.AbstractName;
@@ -274,5 +275,7 @@ public abstract class JMSMessageHelper {
     protected abstract List getMessagesFromTopic(String type, String physicalQName) throws Exception;
 
     public abstract void purge(PortletRequest renderRequest, String type, String physicalQName);
+    
+    public abstract DestinationStatistics getDestinationStatistics(String destType,String physicalName);
 
 }

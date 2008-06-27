@@ -39,6 +39,8 @@
           <th class="DarkBackground"><fmt:message key="jmswizard.common.name"/></th>
           <th class="DarkBackground" align="center"><fmt:message key="jmswizard.common.deployedAs"/></th>
           <th class="DarkBackground" align="center"><fmt:message key="jmswizard.common.state"/></th>
+          <th class="DarkBackground" align="center"><fmt:message key="jmswizard.common.consumerCount"/></th>
+          <th class="DarkBackground" align="center"><fmt:message key="jmswizard.common.queueSize"/></th>
           <th class="DarkBackground" align="center"><fmt:message key="jmswizard.common.actions"/></th>
         </tr>
         <c:set var="backgroundClass" value='MediumBackground'/>
@@ -106,6 +108,16 @@
                 </c:choose>
               </td>
               <td class="${backgroundClass}">${admin.stateName}</td>
+              <td class="${backgroundClass}">
+              <c:if test="${admin.destinationStat != null}">
+              	${admin.destinationStat.consumerCount}
+              </c:if>
+              </td>
+              <td class="${backgroundClass}">
+              <c:if test="${admin.destinationStat != null}">
+              	${admin.destinationStat.queueSize}
+              </c:if>
+              </td>
               <td class="${backgroundClass}">
               <c:if test="${ admin.type == 'Queue'}">
                  <a href="<portlet:actionURL portletMode="view">
