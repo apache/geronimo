@@ -82,7 +82,7 @@
                 <groupId>org.apache.geronimo.buildsupport</groupId>
                 <artifactId>car-maven-plugin</artifactId>
                 <configuration>
-                    <category>Example</category>
+                    <category>Shared</category>
                     <useMavenDependencies>
                         <value>true</value>
                         <includeVersion>true</includeVersion>
