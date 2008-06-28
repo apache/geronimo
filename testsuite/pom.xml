@@ -180,6 +180,12 @@
                         <configuration>
                             <logOutput>true</logOutput>
                             <background>true</background>
+                            <systemProperties>
+                                <property>
+                                    <name>browser</name>
+                                    <value>${browser}</value>
+                                </property>
+                            </systemProperties>
                         </configuration>
                     </execution>
                     <execution>
@@ -339,6 +345,28 @@
                     </plugins>
                 </pluginManagement>
             </build>
+        </profile>
+
+        <profile>
+            <id>firefox</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <browser>*firefox</browser>
+            </properties>
+        </profile>
+        <profile>
+            <id>iexplore</id>
+            <properties>
+                <browser>*iexplore</browser>
+            </properties>
+        </profile>
+        <profile>
+            <id>otherbrowser</id>
+            <properties>
+                <browser>${browserPath}</browser>
+            </properties>
         </profile>
     </profiles>
 
