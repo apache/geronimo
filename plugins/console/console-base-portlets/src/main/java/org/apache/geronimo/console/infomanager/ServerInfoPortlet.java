@@ -73,6 +73,12 @@ public class ServerInfoPortlet extends BasePortlet {
         Date bootDate = jvm.getKernelBootTime();
         svrProps.put("Kernel Boot Time", bootDate);
         svrProps.put("Geronimo Version", ServerConstants.getVersion());
+        svrProps.put("Build", ServerConstants.getBuildDate() + "-" + ServerConstants.getBuildTime());
+        svrProps.put("os.name", System.getProperty("os.name"));
+        svrProps.put("os.version", System.getProperty("os.version"));
+        svrProps.put("sun.os.patch.level", System.getProperty("sun.os.patch.level"));
+        svrProps.put("os.arch", System.getProperty("os.arch"));
+        svrProps.put("os.locale", System.getProperty("user.language") + "_" + System.getProperty("user.country"));
         renderRequest.setAttribute("svrProps", svrProps);
 
         jvmProps.put("Java Version", jvm.getJavaVersion());

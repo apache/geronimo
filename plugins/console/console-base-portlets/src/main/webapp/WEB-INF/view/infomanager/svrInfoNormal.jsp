@@ -33,6 +33,10 @@
     <td class="LightBackground" width="80%">${svrProps['Geronimo Version']}</td>
   </tr>
   <tr>
+    <td class="LightBackground" width="20%" nowrap><fmt:message key="infomanager.svrInfoNormal.build"/></td>
+    <td class="LightBackground" width="80%">${svrProps['Build']}</td>
+  </tr>
+  <tr>
     <td class="MediumBackground" width="20%" nowrap><fmt:message key="infomanager.svrInfoNormal.startTime"/></td>
     <td class="MediumBackground" width="80%">${svrProps['Kernel Boot Time']}</td>
   </tr>
@@ -42,52 +46,32 @@
   </tr>
 </table>
 <br>
-<!--
 <table width="100%">
   <tr>
-    <td class="DarkBackground" width="100%" colspan="2" align="center">Server</td>
-  </tr>
-
-  base directory is commented originally
-  <tr>
-    <td class="LightBackground" width="20%" nowrap><fmt:message key="infomanager.svrInfoNormal.architecture"/></td>
-    <td class="LightBackground" width="80%">${svrProps['Base Directory']}</td>
+    <td class="DarkBackground" width="100%" colspan="2" align="center"><fmt:message key="infomanager.svrInfoNormal.os"/></td>
   </tr>
 
   <tr>
-    <td class="MediumBackground" width="20%" nowrap><fmt:message key="consolebase.common.name"/></td>
-    <td class="LightBackground">${svrProps['Platform Architecture']}</td>
+    <td class="LightBackground" width="20%" nowrap><fmt:message key="infomanager.svrInfoNormal.os.arch"/></td>
+    <td class="LightBackground" width="80%">${svrProps['os.arch']}</td>
   </tr>
   <tr>
-    <td class="LightBackground" width="20%" nowrap><fmt:message key="infomanager.svrInfoNormal.version"/></td>
-    <td class="MediumBackground"  width="80%">${svrProps['Version']}</td>
+    <td class="MediumBackground" width="20%" nowrap><fmt:message key="infomanager.svrInfoNormal.os.name"/></td>
+    <td class="MediumBackground" width="80%">${svrProps['os.name']}</td>
   </tr>
   <tr>
-    <td class="MediumBackground" width="20%" nowrap><fmt:message key="infomanager.svrInfoNormal.patchLevel"/></td>
-    <td class="LightBackground">${svrProps['Apache Geronimo Build Version']}</td>
+    <td class="LightBackground" width="20%" nowrap><fmt:message key="infomanager.svrInfoNormal.os.version"/></td>
+    <td class="LightBackground" width="80%">${svrProps['os.version']}</td>
   </tr>
   <tr>
-    <td class="LightBackground" width="20%" nowrap><fmt:message key="infomanager.svrInfoNormal.locale"/></td>
-    <td class="MediumBackground">${svrProps['J2EE Specifications Version']}</td>
+    <td class="MediumBackground" width="20%" nowrap><fmt:message key="infomanager.svrInfoNormal.os.patchlevel"/></td>
+    <td class="MediumBackground" width="80%">${svrProps['sun.os.patch.level']}</td>
   </tr>
   <tr>
-    <td class="LightBackground">JSR-168 Portal Version</td>
-    <td class="LightBackground">${svrProps['JSR 168 Portal Version']}</td>
-  </tr>
-  <tr>
-    <td class="MediumBackground">Build Date</td>
-    <td class="MediumBackground">${svrProps['Build Date']}</td>
-  </tr>
-  <tr>
-    <td class="LightBackground">Build Time</td>
-    <td class="LightBackground">${svrProps['Build Time']}</td>
-  </tr>
-  <tr>
-    <td class="MediumBackground">Copyright</td>
-    <td class="MediumBackground">${svrProps['Copyright']}</td>
+    <td class="LightBackground" width="20%" nowrap><fmt:message key="infomanager.svrInfoNormal.os.locale"/></td>
+    <td class="LightBackground" width="80%">${svrProps['os.locale']}</td>
   </tr>
 </table>
--->
 <br>
 <table width="100%">
   <tr>
