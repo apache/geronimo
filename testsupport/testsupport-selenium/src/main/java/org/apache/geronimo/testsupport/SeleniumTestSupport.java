@@ -42,17 +42,17 @@ public class SeleniumTestSupport
         super.setUp();
         
         if (url == null) {
-            url = "http://localhost:" + SeleniumServer.DEFAULT_PORT;
+            // url = "http://localhost:" + SeleniumServer.DEFAULT_PORT;
             // post 1.0-beta-1 builds don't define DEFAULT_PORT
-            // url = "http://localhost:4444";
+            url = "http://localhost:4444";
         }
         
         String browser = System.getProperty("browser", "*firefox");
 
         log.info("Creating Selenium client for URL: {}, Browser: {}", url, browser);
         
-        ExtendedSelenium selenium = new ExtendedSelenium("localhost", SeleniumServer.DEFAULT_PORT, browser, url);
-        // ExtendedSelenium selenium = new ExtendedSelenium("localhost", 4444, browser, url);
+        //ExtendedSelenium selenium = new ExtendedSelenium("localhost", SeleniumServer.DEFAULT_PORT, "*firefox", url);
+        ExtendedSelenium selenium = new ExtendedSelenium("localhost", 4444, browser, url);
         
         return selenium;
     }
