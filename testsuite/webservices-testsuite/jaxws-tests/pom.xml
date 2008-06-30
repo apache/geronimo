@@ -41,6 +41,7 @@
         <module>jaxws-client</module>
         <module>jaxws-ejb</module>
         <module>jaxws-rest-war</module>
+        <module>jaxws-partial</module>
     </modules>
 
 </project>
