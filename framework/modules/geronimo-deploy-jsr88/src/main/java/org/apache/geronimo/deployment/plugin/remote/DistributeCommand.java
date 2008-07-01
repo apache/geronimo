@@ -42,4 +42,12 @@ public class DistributeCommand extends org.apache.geronimo.deployment.plugin.loc
     protected void massageFileNames(File[] inputs) {
         RemoteDeployUtil.uploadFilesToServer(inputs, this);
     }
+    
+    public void run() {
+        if (commandContext.isInPlace()) {
+            fail("Remote in-place deployment is not supported");
+        } else {
+            super.run();
+        }
+    }
 }
