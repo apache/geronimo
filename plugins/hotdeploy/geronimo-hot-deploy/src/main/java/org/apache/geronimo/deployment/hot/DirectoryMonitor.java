@@ -322,7 +322,7 @@ log.info("At startup, found "+now.getPath()+" with deploy time "+now.getModified
                     try {
                         if (action.action == FileAction.REMOVED_FILE) {
                             workingOnConfigId = action.info.getConfigId();
-                            if (listener.fileRemoved(action.child, action.info.getConfigId())) {
+                            if (action.info.getConfigId() == null || listener.fileRemoved(action.child, action.info.getConfigId())) {
                                 files.remove(action.child.getPath());
                             }
                             workingOnConfigId = null;
