@@ -128,6 +128,12 @@
             <artifactId>jtidy</artifactId>
             <version>8.0-20060801</version>
         </dependency>
+
+        <!-- See GERONIMO-3858 -->
+        <dependency>
+            <groupId>org.apache.ant</groupId>
+            <artifactId>ant-launcher</artifactId>
+        </dependency>
     </dependencies>
 
     <repositories>
