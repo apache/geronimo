@@ -35,6 +35,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
+import org.apache.geronimo.deployment.util.UnpackedJarFile;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.jaxws.PortInfo;
 import org.apache.geronimo.kernel.classloader.JarFileClassLoader;
@@ -89,24 +90,32 @@ public class WARWebServiceFinder implements WebServiceFinder {
                 throw new DeploymentException(e);
             }
         } else {
-            /*
-             * Can't get ClassLoader to load nested Jar files, so
-             * unpack the module Jar file and discover all nested Jar files
-             * within it and the classes/ directory.
-             */
-            try {
-                tmpDir = DeploymentUtil.createTempDir();
+            File baseDir = null;
+            
+            if (moduleFile instanceof UnpackedJarFile) {
+                baseDir = ((UnpackedJarFile)moduleFile).getBaseDir();
+            } else {
                 /*
-                 * This is needed becuase DeploymentUtil.unzipToDirectory()
-                 * always closes the passed JarFile.
+                 * Can't get ClassLoader to load nested Jar files, so
+                 * unpack the module Jar file and discover all nested Jar files
+                 * within it and the classes/ directory.
                  */
-                JarFile module = new JarFile(moduleFile.getName());
-                DeploymentUtil.unzipToDirectory(module, tmpDir);
-            } catch (IOException e) {
-                if (tmpDir != null) {
-                    DeploymentUtil.recursiveDelete(tmpDir);
+                try {
+                    tmpDir = DeploymentUtil.createTempDir();
+                    /*
+                     * This is needed becuase DeploymentUtil.unzipToDirectory()
+                     * always closes the passed JarFile.
+                     */
+                    JarFile module = new JarFile(moduleFile.getName());
+                    DeploymentUtil.unzipToDirectory(module, tmpDir);
+                } catch (IOException e) {
+                    if (tmpDir != null) {
+                        DeploymentUtil.recursiveDelete(tmpDir);
+                    }
+                    throw new DeploymentException("Failed to expand the module archive", e);
                 }
-                throw new DeploymentException("Failed to expand the module archive", e);
+                
+                baseDir = tmpDir;
             }
 
             // create URL list
@@ -116,7 +125,7 @@ public class WARWebServiceFinder implements WebServiceFinder {
                 String name = entry.getName();
                 if (name.equals("WEB-INF/classes/")) {
                     // ensure it is first
-                    File classesDir = new File(tmpDir, "WEB-INF/classes/");
+                    File classesDir = new File(baseDir, "WEB-INF/classes/");
                     try {
                         urlList.add(0, classesDir.toURL());
                     } catch (MalformedURLException e) {
@@ -124,7 +133,7 @@ public class WARWebServiceFinder implements WebServiceFinder {
                     }
                 } else if (name.startsWith("WEB-INF/lib/")
                         && name.endsWith(".jar")) {
-                    File jarFile = new File(tmpDir, name);
+                    File jarFile = new File(baseDir, name);
                     try {
                         urlList.add(jarFile.toURL());
                     } catch (MalformedURLException e) {
