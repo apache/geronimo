@@ -42,7 +42,7 @@ public class FarmWarDeployerGBean extends ClusterDeployerGBean{
                                 int processDeployFrequency,
                                 ServerInfo serverInfo) throws Exception {
 
-        super("org.apache.catalina.cluster.deploy.FarmWarDeployer", null);
+        super("org.apache.catalina.ha.deploy.FarmWarDeployer", null);
 
         if (serverInfo == null){
             throw new IllegalArgumentException("serverInfo cannot be null.");
