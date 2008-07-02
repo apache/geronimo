@@ -32,6 +32,7 @@ import java.security.PermissionCollection;
 import java.security.Permission;
 
 import javax.security.jacc.WebResourcePermission;
+import javax.security.jacc.WebUserDataPermission;
 
 import junit.framework.TestCase;
 import org.apache.geronimo.common.DeploymentException;
@@ -142,6 +143,25 @@ public class SpecSecurityParsingTest extends TestCase {
         p = new WebResourcePermission("/Bar/Bar/Bar", "GET");
         assertFalse(implies(p, permissions, "Admin"));
         assertFalse(implies(p, permissions, "Peon"));
+    }
+
+    //overlapping excluded and role constraint, excluded constraint wins.
+    public void testExcludedAndRoleConstraint() throws Exception {
+        URL srcXml = classLoader.getResource("security/web5.xml");
+        WebAppDocument webAppDoc = WebAppDocument.Factory.parse(srcXml, options);
+        WebAppType webAppType = webAppDoc.getWebApp();
+        SpecSecurityBuilder builder = new SpecSecurityBuilder();
+        ComponentPermissions permissions = builder.buildSpecSecurityConfig(webAppType);
+        // test excluding longer path than allowed
+        Permission p = new WebResourcePermission("/foo/Baz", "GET");
+        assertFalse(implies(p, permissions, "user"));
+        assertFalse(implies(p, permissions, null));
+        p = new WebResourcePermission("/bar", "GET");
+        assertTrue(implies(p, permissions, "user"));
+        assertTrue(implies(p, permissions, null));
+        p = new WebUserDataPermission("/bar", "GET");
+        assertTrue(implies(p, permissions, "user"));
+        assertTrue(implies(p, permissions, null));
     }
 
     private boolean implies(Permission p, ComponentPermissions permissions, String role) {
