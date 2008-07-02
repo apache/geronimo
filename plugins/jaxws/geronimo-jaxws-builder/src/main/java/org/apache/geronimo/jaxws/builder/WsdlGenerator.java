@@ -269,7 +269,10 @@ public class WsdlGenerator {
                                PortInfo portInfo) throws DeploymentException {
         //call wsgen tool to generate the wsdl file based on the bindingtype.
         //let's set the outputDir as the module base directory in server repository.
-        File moduleBase = module.getEarContext().getBaseDir();
+        File moduleBase = module.getEarContext().getInPlaceConfigurationDir();
+        if (moduleBase == null) {      
+            moduleBase = module.getEarContext().getBaseDir();
+        }
         File moduleBaseDir = (moduleBase.isFile()) ? moduleBase.getParentFile() : moduleBase;
         File baseDir;
         
