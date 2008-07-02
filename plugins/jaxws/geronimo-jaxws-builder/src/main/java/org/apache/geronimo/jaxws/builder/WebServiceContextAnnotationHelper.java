@@ -18,6 +18,7 @@ package org.apache.geronimo.jaxws.builder;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -31,6 +32,15 @@ public class WebServiceContextAnnotationHelper {
       
     public static final String RELATIVE_JNDI_NAME = "env/WebServiceContext";
     public static final String ABSOLUTE_JNDI_NAME = "java:comp/" + RELATIVE_JNDI_NAME;
+    
+    public static void addWebServiceContextInjections(Holder holder, Class clazz) {
+        List<Class> classes = new ArrayList<Class>();
+        while (clazz != Object.class) {
+            classes.add(clazz);
+            clazz = clazz.getSuperclass();
+        }
+        addWebServiceContextInjections(holder, new ClassFinder(classes));
+    }
     
     public static void addWebServiceContextInjections(Holder holder, ClassFinder finder) {        
         List<Field> fields = finder.findAnnotatedFields(Resource.class);

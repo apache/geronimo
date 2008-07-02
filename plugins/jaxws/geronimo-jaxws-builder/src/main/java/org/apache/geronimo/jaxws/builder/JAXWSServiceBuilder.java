@@ -142,10 +142,10 @@ public abstract class JAXWSServiceBuilder implements WebServiceBuilder {
         AnnotationHolder serviceHolder = 
             (AnnotationHolder)sharedContext.get(WebServiceContextAnnotationHelper.class.getName());
         if (serviceHolder == null) {
-            serviceHolder = new AnnotationHolder(moduleHolder);
-            WebServiceContextAnnotationHelper.addWebServiceContextInjections(serviceHolder, module.getClassFinder());
+            serviceHolder = new AnnotationHolder(moduleHolder);            
             sharedContext.put(WebServiceContextAnnotationHelper.class.getName(), serviceHolder);
         }
+        WebServiceContextAnnotationHelper.addWebServiceContextInjections(serviceHolder, servletClass);
         
         String location = portInfo.getLocation();
         LOG.info("Configuring JAX-WS Web Service: " + servletName + " at " + location);

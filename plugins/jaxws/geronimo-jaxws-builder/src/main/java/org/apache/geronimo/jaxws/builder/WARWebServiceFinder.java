@@ -35,6 +35,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
+import org.apache.geronimo.deployment.util.NestedJarFile;
 import org.apache.geronimo.deployment.util.UnpackedJarFile;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.jaxws.PortInfo;
@@ -93,8 +94,13 @@ public class WARWebServiceFinder implements WebServiceFinder {
             File baseDir = null;
             
             if (moduleFile instanceof UnpackedJarFile) {
+                // war directory is being deployed (--inPlace)
                 baseDir = ((UnpackedJarFile)moduleFile).getBaseDir();
+            } else if (moduleFile instanceof NestedJarFile && ((NestedJarFile)moduleFile).isUnpacked()) {
+                // ear directory is being deployed (--inPlace)
+                baseDir = new File(moduleFile.getName());                
             } else {
+                // war file or ear file is being deployed                
                 /*
                  * Can't get ClassLoader to load nested Jar files, so
                  * unpack the module Jar file and discover all nested Jar files
