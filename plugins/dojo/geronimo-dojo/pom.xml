@@ -92,10 +92,6 @@
                             <directory>${project.build.directory}/dojo-release-${dojoVersion}/</directory>
                             <includes>
                                 <include>**</include>
-                                <include>dojo/**</include>
-                                <include>dojox/**</include>
-                                <include>util/**</include>
-                                <include>dijit/**</include>
                             </includes>
                             <excludes>
                                 <exclude>dijit/demos/**</exclude>
