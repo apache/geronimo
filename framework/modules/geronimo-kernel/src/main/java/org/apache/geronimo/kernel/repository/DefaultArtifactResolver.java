@@ -78,6 +78,11 @@ public class DefaultArtifactResolver implements ArtifactResolver {
     }
 
     public Artifact[] queryArtifacts(Artifact artifact) {
+        //see if there is an explicit resolution for this artifact.
+        Artifact deAliased = explicitResolution.get(artifact);
+        if (deAliased != null) {
+            artifact = deAliased;
+        }
         LinkedHashSet<Artifact> set = new LinkedHashSet<Artifact>();
         for (ListableRepository repository : repositories) {
             set.addAll(repository.list(artifact));
