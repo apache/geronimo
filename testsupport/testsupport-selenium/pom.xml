@@ -25,7 +25,6 @@
         <groupId>org.apache.geronimo.testsupport</groupId>
         <artifactId>testsupport</artifactId>
         <version>2.1.2-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
     
     <artifactId>testsupport-selenium</artifactId>
@@ -46,34 +45,47 @@
             <scope>compile</scope>
         </dependency>
         
-        <!-- selenium -->
         <dependency>
             <groupId>org.openqa.selenium.client-drivers</groupId>
             <artifactId>selenium-java-client-driver</artifactId>
-            <version>0.8.1</version>
+            <version>1.0-beta-1</version>
         </dependency>
+        
         <dependency>
             <groupId>org.openqa.selenium.server</groupId>
             <artifactId>selenium-server</artifactId>
-            <version>0.8.1</version>
+            <version>1.0-beta-1</version>
         </dependency>
+        
         <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
-            <classifier>jdk15</classifier>
             <version>5.1</version>
+            <classifier>jdk15</classifier>
         </dependency>
     </dependencies>
 
-
     <!--
-    NOTE: This is needed to pull Selenium artifacts.
+    NOTE: These are needed to pull Selenium artifacts.
     -->
+    
     <repositories>
         <repository>
-            <id>openqa</id>
-            <name>OpenQA Repository</name>
-            <url>http://maven.openqa.org</url>
+            <id>releases.openqa.org</id>
+            <name>Openqa Release Repository</name>
+            <url>http://archiva.openqa.org/repository/releases</url>
+            <layout>default</layout>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+        <repository>
+            <id>snapshots.openqa.org</id>
+            <name>Openqa Snapshot Repository</name>
+            <url>http://archiva.openqa.org/repository/snapshots</url>
             <layout>default</layout>
             <snapshots>
                 <enabled>true</enabled>
@@ -81,7 +93,7 @@
                 <checksumPolicy>ignore</checksumPolicy>
             </snapshots>
             <releases>
-                <enabled>true</enabled>
+                <enabled>false</enabled>
             </releases>
         </repository>
     </repositories>
