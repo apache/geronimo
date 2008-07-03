@@ -119,6 +119,11 @@
                             <includes>
                                 <include>**</include>
                             </includes>
+                            <excludes>
+                                <exclude>dijit/demos/**</exclude>
+                                <exclude>dijit/tests/**</exclude>
+                                <exclude>dojo/tests/**</exclude>
+                            </excludes>
                         </resource>
                         
                         <!--
