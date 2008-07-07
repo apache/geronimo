@@ -56,9 +56,13 @@ import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.MissingDependencyException;
 import org.apache.geronimo.management.geronimo.WebModule;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ConfigManagerPortlet extends BasePortlet {
 
+    private static final Logger logger = LoggerFactory.getLogger(ConfigManagerPortlet.class);
+    
     private static final String START_ACTION = "start";
 
     private static final String STOP_ACTION = "stop";
@@ -167,14 +171,14 @@ public class ConfigManagerPortlet extends BasePortlet {
         } catch (NoSuchConfigException e) {
             // ignore this for now
             message(actionResponse, null, "Configuration not found<br /><br />");
-            throw new PortletException("Configuration not found", e);
+            logger.error("Configuration not found", e);
         } catch (LifecycleException e) {
             // todo we have a much more detailed report now
             message(actionResponse, null, "Lifecycle operation failed<br /><br />");
-            throw new PortletException("Exception", e);
+            logger.error("Lifecycle operation failed ", e);
         } catch (Exception e) {
             message(actionResponse, null, "Encountered an unhandled exception<br /><br />");
-            throw new PortletException("Exception", e);
+            logger.error("Exception", e);
         }
     }
 
@@ -243,18 +247,20 @@ public class ConfigManagerPortlet extends BasePortlet {
                         boolean loaded = loadModule(configManager, configObjName);
 
                         Configuration config = configManager.getConfiguration(info.getConfigID());
-                        for (Configuration child : config.getChildren()) {
-                            if (child.getModuleType().getValue() == ConfigurationModuleType.WAR.getValue()) {
-                                ModuleDetails childDetails = new ModuleDetails(info.getConfigID(), child.getModuleType(), info.getState());
-                                childDetails.setComponentName(child.getId().toString());
-                                WebModule webModule = getWebModule(config, child);
-                                if (webModule != null) {
-                                    childDetails.getContextPaths().add(webModule.getContextPath());
+                        if(config != null){
+                            for (Configuration child : config.getChildren()) {
+                                if (child.getModuleType().getValue() == ConfigurationModuleType.WAR.getValue()) {
+                                    ModuleDetails childDetails = new ModuleDetails(info.getConfigID(), child.getModuleType(), info.getState());
+                                    childDetails.setComponentName(child.getId().toString());
+                                    WebModule webModule = getWebModule(config, child);
+                                    if (webModule != null) {
+                                        childDetails.getContextPaths().add(webModule.getContextPath());
+                                    }
+                                    if (showDependencies) {
+                                        addDependencies(childDetails, configObjName);
+                                    }
+                                    moduleDetails.add(childDetails);
                                 }
-                                if (showDependencies) {
-                                    addDependencies(childDetails, configObjName);
-                                }
-                                moduleDetails.add(childDetails);
                             }
                         }
 
@@ -275,20 +281,21 @@ public class ConfigManagerPortlet extends BasePortlet {
 
                     if (info.getType().getValue() == ConfigurationModuleType.EAR.getValue()) {
                         Configuration config = configManager.getConfiguration(info.getConfigID());
-                        Iterator childs = config.getChildren().iterator();
-                        while (childs.hasNext()) {
-                            Configuration child = (Configuration) childs.next();
-                            if (child.getModuleType().getValue() == ConfigurationModuleType.WAR.getValue()) {
-                                WebModule webModule = getWebModule(config, child);
-                                if (webModule != null) {
-                                    details.getContextPaths().add(webModule.getContextPath());
+                        if(config != null){
+                            Iterator childs = config.getChildren().iterator();
+                            while (childs.hasNext()) {
+                                Configuration child = (Configuration) childs.next();
+                                if (child.getModuleType().getValue() == ConfigurationModuleType.WAR.getValue()) {
+                                    WebModule webModule = getWebModule(config, child);
+                                    if (webModule != null) {
+                                        details.getContextPaths().add(webModule.getContextPath());
+                                    }
                                 }
+                            }                                            
+                            if (showDependencies) {
+                                addDependencies(details, configObjName);
                             }
                         }
-                    }
-
-                    if (showDependencies) {
-                        addDependencies(details, configObjName);
                     }
                     if (loaded) {
                         unloadModule(configManager, configObjName);
