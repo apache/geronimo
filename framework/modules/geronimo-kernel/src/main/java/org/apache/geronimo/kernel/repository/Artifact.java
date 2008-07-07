@@ -58,7 +58,7 @@ public class Artifact implements Comparable, Serializable {
     private static Artifact create(String id, boolean requireArtifactId) {
         String[] parts = id.split("/", -1);
         if (parts.length != 4) {
-            throw new IllegalArgumentException("Invalid id: " + id);
+            throw new IllegalArgumentException("id must be in the form [groupId]/[artifactId]/[version]/[type] : " + id);
         }
         for (int i = 0; i < parts.length; i++) {
             if (parts[i].equals("")) {

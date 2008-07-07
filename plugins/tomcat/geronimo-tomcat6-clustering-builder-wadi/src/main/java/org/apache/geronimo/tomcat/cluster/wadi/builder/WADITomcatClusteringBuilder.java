@@ -21,8 +21,11 @@ package org.apache.geronimo.tomcat.cluster.wadi.builder;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import javax.xml.namespace.QName;
@@ -42,6 +45,8 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.Dependency;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.schema.SchemaConversionUtils;
@@ -74,14 +79,15 @@ public class WADITomcatClusteringBuilder implements NamespaceDrivenBuilder {
     private final int defaultNumPartitions;
     private final AbstractNameQuery defaultBackingStrategyFactoryName;
     private final AbstractNameQuery defaultClusterName;
+    private final Artifact artifactToRemoveFromEnvironment;
     private final Environment defaultEnvironment;
-
     
     public WADITomcatClusteringBuilder(@ParamAttribute(name=GBEAN_ATTR_DFT_SWEEP_INTERVAL) int defaultSweepInterval,
         @ParamAttribute(name=GBEAN_ATTR_DFT_SESSION_TIMEOUT) int defaultSessionTimeout,
         @ParamAttribute(name=GBEAN_ATTR_DFT_NUM_PARTITIONS) int defaultNumPartitions,
         @ParamAttribute(name=GBEAN_ATTR_DFT_BACKING_STRATEGY_FACTORY_NAME) AbstractNameQuery defaultBackingStrategyFactoryName,
         @ParamAttribute(name=GBEAN_ATTR_DFT_CLUSTER_NAME) AbstractNameQuery defaultClusterName,
+        @ParamAttribute(name=GBEAN_ATTR_ARTIFACT_TO_REMOVE) Artifact artifactToRemoveFromEnvironment,
         @ParamAttribute(name=GBEAN_ATTR_DFT_ENVIRONMENT) Environment defaultEnvironment) {
         if (defaultSweepInterval < 1) {
             throw new IllegalArgumentException("defaultSweepInterval is lower than 1");
@@ -93,6 +99,8 @@ public class WADITomcatClusteringBuilder implements NamespaceDrivenBuilder {
             throw new IllegalArgumentException("defaultBackingStrategyFactoryName is required");
         } else if (null == defaultClusterName) {
             throw new IllegalArgumentException("defaultClusterName is required");
+        } else if (null == artifactToRemoveFromEnvironment) {
+            throw new IllegalArgumentException("artifactToRemoveFromEnvironment is required");
         } else if (null == defaultEnvironment) {
             throw new IllegalArgumentException("defaultEnvironment is required");
         }
@@ -101,11 +109,13 @@ public class WADITomcatClusteringBuilder implements NamespaceDrivenBuilder {
         this.defaultNumPartitions = defaultNumPartitions;
         this.defaultBackingStrategyFactoryName = defaultBackingStrategyFactoryName;
         this.defaultClusterName = defaultClusterName;
+        this.artifactToRemoveFromEnvironment = artifactToRemoveFromEnvironment;
         this.defaultEnvironment = defaultEnvironment;
     }
 
     public void buildEnvironment(XmlObject container, Environment environment) throws DeploymentException {
         if (getWadiClusterConfig(container) != null) {
+            filterDependencies(environment);
             EnvironmentBuilder.mergeEnvironments(environment, defaultEnvironment);
         }
     }
@@ -123,6 +133,19 @@ public class WADITomcatClusteringBuilder implements NamespaceDrivenBuilder {
                 throw new DeploymentException("Duplicate GBean", e);
             }
         }
+    }
+
+    protected void filterDependencies(Environment environment) {
+        List<Dependency> dependencies = environment.getDependencies();
+        dependencies = new ArrayList<Dependency>(dependencies);
+        for (Iterator<Dependency> iterator = dependencies.iterator(); iterator.hasNext();) {
+            Dependency dependency = iterator.next();
+            Artifact dependencyArtifact = dependency.getArtifact();
+            if (artifactToRemoveFromEnvironment.matches(dependencyArtifact)) {
+                iterator.remove();
+            }
+        }
+        environment.setDependencies(dependencies);
     }
 
     protected GBeanData extractWebModule(DeploymentContext moduleContext) throws DeploymentException {
@@ -300,5 +323,6 @@ public class WADITomcatClusteringBuilder implements NamespaceDrivenBuilder {
     public static final String GBEAN_ATTR_DFT_NUM_PARTITIONS = "defaultNumPartitions";
     public static final String GBEAN_ATTR_DFT_BACKING_STRATEGY_FACTORY_NAME = "defaultBackingStrategyFactoryName";
     public static final String GBEAN_ATTR_DFT_CLUSTER_NAME = "defaultClusterName";
+    public static final String GBEAN_ATTR_ARTIFACT_TO_REMOVE = "artifactToRemoveFromEnvironment";
     public static final String GBEAN_ATTR_DFT_ENVIRONMENT = "defaultEnvironment";
 }

@@ -24,6 +24,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -41,7 +42,9 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.Dependency;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.kernel.repository.ImportType;
 import org.apache.geronimo.tomcat.TomcatWebAppContext;
 import org.apache.geronimo.tomcat.cluster.ClusteredManagerRetriever;
 import org.apache.geronimo.tomcat.cluster.wadi.WADIClusteredValveRetriever;
@@ -64,40 +67,48 @@ public class WADITomcatClusteringBuilderTest extends TestCase {
     private AbstractNameQuery backingStrategyFactoryQuery;
     private WADITomcatClusteringBuilder builder;
     private Artifact artifact;
+    private Artifact artifactToRemove;
     private Map<AbstractName, GBeanData> addedGBeanData;
     private String contextPath;
+    private Artifact dependencyToMerge;
 
     @Override
     protected void setUp() throws Exception {
         artifact = new Artifact("groupId", "artifactId", "2.0", "car");
+        artifactToRemove = new Artifact("groupId", "artifactToRemoveId", (String) null, "car");
         clusterNameQuery = new AbstractNameQuery(artifact, Collections.singletonMap("name", "ClusterName"));
         backingStrategyFactoryQuery = new AbstractNameQuery(BackingStrategyFactory.class.getName());
         contextPath = "/test-path";
         addedGBeanData = new HashMap<AbstractName, GBeanData>();
         
-        builder = new WADITomcatClusteringBuilder(1,
-            2,
-            3,
-            backingStrategyFactoryQuery,
-            clusterNameQuery,
-            new Environment()) {
-            @Override
-            protected GBeanData extractWebModule(DeploymentContext moduleContext) throws DeploymentException {
-                GBeanData gbeanData = new GBeanData(TomcatWebAppContext.GBEAN_INFO);
-                gbeanData.setAttribute("contextPath", contextPath);
-                return gbeanData;
-            }
-            @Override
-            protected AbstractName newGBeanName(DeploymentContext moduleContext, String name) {
-                return newGBeanNameFor(name);
-            }
-            @Override
-            protected void addGBean(DeploymentContext moduleContext, GBeanData beanData) throws GBeanAlreadyExistsException {
-                addedGBeanData.put(beanData.getAbstractName(), beanData);
-            }
-        };
+        Environment defaultEnvironment = new Environment();
+        dependencyToMerge = new Artifact("groupId", "artifactToMergeId", "2.0", "car");
+        defaultEnvironment.addDependency(new Dependency(dependencyToMerge, ImportType.ALL));
+        builder = new MockedEnvironment(1,
+                2,
+                3,
+                backingStrategyFactoryQuery,
+                clusterNameQuery,
+                artifactToRemove,
+                defaultEnvironment);
         
-        new NamespaceDrivenBuilderCollection(Collections.singleton(builder), GerClusteringDocument.type.getDocumentElementName());
+        new NamespaceDrivenBuilderCollection(Collections.singleton(builder),
+                GerClusteringDocument.type.getDocumentElementName());
+    }
+    
+    public void testBuiltEnvironmentDoesNotContainArtifactToRemove() throws Exception {
+        XmlObject container = newContainer("testBuiltGBeans");
+
+        Environment environment = new Environment();
+        environment.addDependency(new Dependency(new Artifact(artifactToRemove.getGroupId(),
+                artifactToRemove.getArtifactId(),
+                "2.0",
+                artifactToRemove.getType()), ImportType.ALL));
+        builder.buildEnvironment(container, environment);
+        
+        List<Dependency> dependencies = environment.getDependencies();
+        assertEquals(1, dependencies.size());
+        assertEquals(dependencyToMerge, dependencies.get(0).getArtifact());
     }
     
     public void testBuiltGBeans() throws Exception {
@@ -191,6 +202,42 @@ public class WADITomcatClusteringBuilderTest extends TestCase {
         container = container.changeType(TomcatWebAppType.type);
         XmlBeansUtil.validateDD(container);
         return container;
+    }
+
+    private final class MockedEnvironment extends WADITomcatClusteringBuilder {
+
+        private MockedEnvironment(int defaultSweepInterval,
+                int defaultSessionTimeout,
+                int defaultNumPartitions,
+                AbstractNameQuery defaultBackingStrategyFactoryName,
+                AbstractNameQuery defaultClusterName,
+                Artifact artifactToRemoveFromEnvironment,
+                Environment defaultEnvironment) {
+            super(defaultSweepInterval,
+                    defaultSessionTimeout,
+                    defaultNumPartitions,
+                    defaultBackingStrategyFactoryName,
+                    defaultClusterName,
+                    artifactToRemoveFromEnvironment,
+                    defaultEnvironment);
+        }
+
+        @Override
+        protected GBeanData extractWebModule(DeploymentContext moduleContext) throws DeploymentException {
+            GBeanData gbeanData = new GBeanData(TomcatWebAppContext.GBEAN_INFO);
+            gbeanData.setAttribute("contextPath", contextPath);
+            return gbeanData;
+        }
+
+        @Override
+        protected AbstractName newGBeanName(DeploymentContext moduleContext, String name) {
+            return newGBeanNameFor(name);
+        }
+
+        @Override
+        protected void addGBean(DeploymentContext moduleContext, GBeanData beanData) throws GBeanAlreadyExistsException {
+            addedGBeanData.put(beanData.getAbstractName(), beanData);
+        }
     }
 
 }
