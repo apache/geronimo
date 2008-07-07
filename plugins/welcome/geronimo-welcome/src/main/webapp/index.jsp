@@ -264,7 +264,7 @@ java -jar bin/deployer.jar deploy MyWebApp.war</pre>
             --%>
 
             <p align="right"><font size=-1>
-            <img src="<%=request.getContextPath()%>/images/powered_by_100x30.gif"/>
+            <img src="<%=request.getContextPath()%>/images/powered_by_100x30.gif" alt="Powered by Geronimo"/>
             </font><br />
             &nbsp;
             <font size=-1>Copyright &copy; 1999-2008 Apache Software Foundation</font><br />
