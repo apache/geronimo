@@ -16,7 +16,7 @@
     limitations under the License.
 -->
 
-<!-- $Rev: 590482 $ $Date: 2007-10-30 14:51:54 -0700 (Tue, 30 Oct 2007) $ -->
+<!-- $Rev: 657880 $ $Date: 2008-05-20 03:48:13 +1000 (Tue, 20 May 2008) $ -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
@@ -25,38 +25,40 @@
     <parent>
         <groupId>org.apache.geronimo.plugins</groupId>
         <artifactId>tomcat</artifactId>
-        <version>2.1.2-SNAPSHOT</version>
+        <version>2.2-SNAPSHOT</version>
     </parent>
     
     <groupId>org.apache.geronimo.configs</groupId>
-    <artifactId>tomcat6-clustering-wadi</artifactId>
-    <name>Geronimo Plugins, Tomcat :: Clustering over WADI</name>
+    <artifactId>tomcat6-no-ha</artifactId>
+    <name>Geronimo Plugins, Tomcat :: Tomcat without HA</name>
     <packaging>car</packaging>
 
-    <description>WADI clustering for Tomcat.</description>
-    
+    <description>Geronimo Tomcat web server integration without HA.</description>
+
     <dependencies>
         <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-tomcat6-clustering-wadi</artifactId>
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>geronimo-gbean-deployer</artifactId>
             <version>${version}</version>
+            <type>car</type>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>tomcat6-no-ha</artifactId>
+            <artifactId>j2ee-server</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>wadi-clustering</artifactId>
+            <artifactId>tomcat6</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>
     </dependencies>
-    
+
     <build>
         <plugins>
             <plugin>
@@ -68,11 +70,6 @@
                         <includeVersion>true</includeVersion>
                     </useMavenDependencies>
                     <category>Tomcat</category>
-                    <instance>
-                        <plugin-artifact>
-                            <config-xml-content load="false"/>
-                        </plugin-artifact>
-                    </instance>
                 </configuration>
             </plugin>
         </plugins>

@@ -40,6 +40,7 @@
         <module>geronimo-tomcat6</module>
         <module>geronimo-tomcat6-builder</module>
         <module>tomcat6</module>
+        <module>tomcat6-no-ha</module>
         <module>tomcat6-deployer</module>
         <module>geronimo-tomcat6-clustering-wadi</module>
         <module>geronimo-tomcat6-clustering-builder-wadi</module>

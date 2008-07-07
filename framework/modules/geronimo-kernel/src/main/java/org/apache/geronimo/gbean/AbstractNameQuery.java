@@ -99,24 +99,7 @@ public class AbstractNameQuery implements Serializable {
 //        if (artifactString == null) throw new IllegalArgumentException("uri does not contain a path part used for the artifact");
 
         if (artifactString != null && artifactString.length() > 0) {
-            List artifactParts = split(artifactString, '/');
-            if (artifactParts.size() != 4) {
-                throw new IllegalArgumentException("uri path must be in the form [groupId]/[artifactId]/[version]/[type] : " + artifactString);
-            }
-
-            String groupId = (String) artifactParts.get(0);
-            if (groupId.length() == 0) groupId = null;
-
-            String artifactId = (String) artifactParts.get(1);
-            if (artifactId.length() == 0) artifactId = null;
-
-            String version = (String) artifactParts.get(2);
-            if (version.length() == 0) version = null;
-
-            String type = (String) artifactParts.get(3);
-            if (type.length() == 0) type = null;
-
-            artifact = new Artifact(groupId, artifactId, version, type);
+            artifact = Artifact.createPartial(artifactString);
         } else {
             artifact = null;
         }
