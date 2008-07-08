@@ -25,11 +25,11 @@
 <!-- Show existing connectors -->
 <c:if test="${empty(brokers)}"><fmt:message key="jmsmanager.server.normal.noJMSBrokers"/></c:if>
 <c:if test="${!empty(brokers)}">
-<table width="50%">
-  <tr><td style="padding: 0 20px"></td></tr>
+<table width="50%" class="TableLine" summary="JMS Server Manager - Brokers">
+
           <tr>
-            <th class="DarkBackground"><fmt:message key="jmsmanager.common.name"/></th>
-            <th class="DarkBackground" align="center"><fmt:message key="jmsmanager.common.state"/></th>
+            <th scope="col" class="DarkBackground"><fmt:message key="jmsmanager.common.name"/></th>
+            <th scope="col" class="DarkBackground" align="center"><fmt:message key="jmsmanager.common.state"/></th>
 <!--
             <th class="DarkBackground" align="center">Actions</th>
 -->

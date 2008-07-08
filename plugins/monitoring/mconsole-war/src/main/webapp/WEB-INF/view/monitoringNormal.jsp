@@ -41,15 +41,14 @@ function openNewWindow(theURL,winName,features) {
         <p><%= message %></p>
 <%  } %>
 <br>
-<table width="100%" style="border-style: solid;
-border-width: 1px;">
- <thead align="center"><strong>Views</strong></thead>
+<b>Views:</b>
+<table width="100%" class="TableLine" summary="Monitoring - Views">
  <tr>
-  <th class="DarkBackground" width="30%">Name</th>
-  <th class="DarkBackground" width="10%">Elements</th>
-  <th class="DarkBackground" width="10%">Created</th>
-  <th class="DarkBackground" width="10%">Modified</th>
-  <th class="DarkBackground" width="30%" colspan="2">Actions</th>
+  <th scope="col" class="DarkBackground" width="30%">Name</th>
+  <th scope="col" class="DarkBackground" width="10%">Elements</th>
+  <th scope="col" class="DarkBackground" width="10%">Created</th>
+  <th scope="col" class="DarkBackground" width="10%">Modified</th>
+  <th scope="col" class="DarkBackground" width="30%" colspan="2">Actions</th>
  </tr>
  <%
  DBManager DBase = new DBManager();
@@ -83,15 +82,14 @@ border-width: 1px;">
  %>
 </table>
 <div align="right"><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="showAddView" /></portlet:actionURL>"><img border=0 src="/monitoring/images/max-b.png">Create View</a></div>
-<table width="100%" style="border-style: solid;
-border-width: 1px;">
- <thead align="center"><strong>Servers</strong></thead>
+<b>Servers:</b>
+<table width="100%" class="TableLine" summary="Monitoring - Servers">
  <tr>
-  <th class="DarkBackground" width="30%">Name</th>
-  <th class="DarkBackground" width="10%">IP/Hostname</th>
-  <th class="DarkBackground" width="15%">Status</th>
-  <th class="DarkBackground" width="15%">Stat. Query</th>
-  <th class="DarkBackground" width="30%" colspan="3">Actions</th>
+  <th scope="col" class="DarkBackground" width="30%">Name</th>
+  <th scope="col" class="DarkBackground" width="10%">IP/Hostname</th>
+  <th scope="col" class="DarkBackground" width="15%">Status</th>
+  <th scope="col" class="DarkBackground" width="15%">Stat. Query</th>
+  <th scope="col" class="DarkBackground" width="30%" colspan="3">Actions</th>
  </tr>
  <%
  
@@ -257,15 +255,14 @@ if(enabled) {   // enabled server
 %>
 </table>
 <div align="right"><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="showAddServer" /></portlet:actionURL>"><img border=0 src="/monitoring/images/max-b.png">Add Server</a></div>
-<table width="100%" style="border-style: solid;
-border-width: 1px;">
- <thead align="center"><strong>Graphs</strong></thead>
+<b>Graphs:</b>
+<table width="100%" class="TableLine" summary="Monitoring - Graphs">
  <tr>
-  <th class="DarkBackground" width="30%">Name</th>
-  <th class="DarkBackground" width="20%">Server</th>
-  <th class="DarkBackground" width="15%">Timeframe</th>
-  <th class="DarkBackground" width="20%">Data Series</th>
-  <th class="DarkBackground" width="15%">Actions</th>
+  <th scope="col" class="DarkBackground" width="30%">Name</th>
+  <th scope="col" class="DarkBackground" width="20%">Server</th>
+  <th scope="col" class="DarkBackground" width="15%">Timeframe</th>
+  <th scope="col" class="DarkBackground" width="20%">Data Series</th>
+  <th scope="col" class="DarkBackground" width="15%">Actions</th>
  </tr>
  <%
  

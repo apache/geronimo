@@ -534,3 +534,8 @@ a:hover
     border: 2px solid #000000;
     font-weight: bold;
 }
+
+.TableLine {
+    border-style: solid;
+    border-width: 1px;	
+}

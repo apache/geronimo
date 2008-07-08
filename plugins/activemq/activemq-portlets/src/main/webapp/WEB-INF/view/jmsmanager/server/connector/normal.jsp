@@ -25,16 +25,16 @@
 <!-- Show existing connectors -->
 <c:if test="${empty(connectors)}"><fmt:message key="jmsmanager.server.connector.normal.noJMSNetworkConnectors" /></c:if>
 <c:if test="${!empty(connectors)}">
-<table width="100%">
-  <tr>
-    <td style="padding: 0 20px">
+<table width="100%" class="TableLine" summary="JMS Network Listeners - Connectors">
+
+
           <tr>
-            <th class="DarkBackground"><fmt:message key="jmsmanager.common.name"/></th>
-            <th class="DarkBackground" align="center"><fmt:message key="jmsmanager.common.broker" /></th>
-            <th class="DarkBackground" align="center"><fmt:message key="jmsmanager.common.protocol" /></th>
-            <th class="DarkBackground" align="center"><fmt:message key="jmsmanager.common.port" /></th>
-            <th class="DarkBackground" align="center"><fmt:message key="jmsmanager.common.state"/></th>
-            <th class="DarkBackground" align="center"><fmt:message key="jmsmanager.common.actions"/></th>
+            <th scope="col" class="DarkBackground"><fmt:message key="jmsmanager.common.name"/></th>
+            <th scope="col" class="DarkBackground" align="center"><fmt:message key="jmsmanager.common.broker" /></th>
+            <th scope="col" class="DarkBackground" align="center"><fmt:message key="jmsmanager.common.protocol" /></th>
+            <th scope="col" class="DarkBackground" align="center"><fmt:message key="jmsmanager.common.port" /></th>
+            <th scope="col" class="DarkBackground" align="center"><fmt:message key="jmsmanager.common.state"/></th>
+            <th scope="col" class="DarkBackground" align="center"><fmt:message key="jmsmanager.common.actions"/></th>
           </tr>
 <c:set var="backgroundClass" value='MediumBackground'/>
 <c:forEach var="info" items="${connectors}">

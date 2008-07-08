@@ -29,19 +29,18 @@
 <p>For each resource listed, you can click the <b>usage</b> link to see examples of how
   to use the connection factories and destinations from your application.</p>
 -->
-    <table width="100%">
-      <c:forEach var="resource" items="${resources}">
+
+    <c:forEach var="resource" items="${resources}">
+      <b><c:out value="${resource.name}"/> (<c:out value="${resource.configurationName}"/>):</b>
+      <table width="100%" class="TableLine" summary="JMS Resources">
         <tr>
-            <td colspan="5" style="padding-top: 10px"><b><c:out value="${resource.name}"/> (<c:out value="${resource.configurationName}"/>)</b></td>
-        </tr>
-        <tr>
-          <th class="DarkBackground"><fmt:message key="jmswizard.common.type"/></th>
-          <th class="DarkBackground"><fmt:message key="jmswizard.common.name"/></th>
-          <th class="DarkBackground" align="center"><fmt:message key="jmswizard.common.deployedAs"/></th>
-          <th class="DarkBackground" align="center"><fmt:message key="jmswizard.common.state"/></th>
-          <th class="DarkBackground" align="center"><fmt:message key="jmswizard.common.consumerCount"/></th>
-          <th class="DarkBackground" align="center"><fmt:message key="jmswizard.common.queueSize"/></th>
-          <th class="DarkBackground" align="center"><fmt:message key="jmswizard.common.actions"/></th>
+          <th scope="col" class="DarkBackground"><fmt:message key="jmswizard.common.type"/></th>
+          <th scope="col" class="DarkBackground"><fmt:message key="jmswizard.common.name"/></th>
+          <th scope="col" class="DarkBackground" align="center"><fmt:message key="jmswizard.common.deployedAs"/></th>
+          <th scope="col" class="DarkBackground" align="center"><fmt:message key="jmswizard.common.state"/></th>
+          <th scope="col" class="DarkBackground" align="center"><fmt:message key="jmswizard.common.consumerCount"/></th>
+          <th scope="col" class="DarkBackground" align="center"><fmt:message key="jmswizard.common.queueSize"/></th>
+          <th scope="col" class="DarkBackground" align="center"><fmt:message key="jmswizard.common.actions"/></th>
         </tr>
         <c:set var="backgroundClass" value='MediumBackground'/>
         <c:forEach var="factory" items="${resource.connectionFactories}">
@@ -162,8 +161,8 @@
               </td>
             </tr>
         </c:forEach>
-      </c:forEach>
-    </table>
+      </table><br/>
+    </c:forEach>
   </c:otherwise>
 </c:choose>
 
