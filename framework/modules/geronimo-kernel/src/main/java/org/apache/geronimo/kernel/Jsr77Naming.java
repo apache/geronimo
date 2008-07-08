@@ -33,8 +33,8 @@ import org.apache.geronimo.kernel.repository.Artifact;
 public class Jsr77Naming extends Naming {
     private static final String DEFAULT_DOMAIN_NAME = "geronimo";
     private static final String DEFAULT_SERVER_NAME = "geronimo";
-    private static final String J2EE_TYPE = "j2eeType";
-    private static final String J2EE_NAME = "name";
+    public static final String J2EE_TYPE = "j2eeType";
+    public static final String J2EE_NAME = "name";
     private static final String INVALID_GENERIC_PARENT_TYPE = "GBean";
 
     public Jsr77Naming() {
