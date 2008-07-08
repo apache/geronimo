@@ -44,6 +44,7 @@ import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
+import org.apache.geronimo.kernel.Jsr77Naming;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Dependency;
@@ -149,15 +150,20 @@ public class WADITomcatClusteringBuilder implements NamespaceDrivenBuilder {
     }
 
     protected GBeanData extractWebModule(DeploymentContext moduleContext) throws DeploymentException {
+        AbstractNameQuery webModuleQuery = createTomcatWebAppContextNameQuery(moduleContext);
         Configuration configuration = moduleContext.getConfiguration();
-        AbstractNameQuery webModuleQuery = new AbstractNameQuery(configuration.getId(),
-            Collections.EMPTY_MAP,
-            Collections.singleton(TomcatWebAppContext.class.getName()));
         try {
             return configuration.findGBeanData(webModuleQuery);
         } catch (GBeanNotFoundException e) {
             throw new DeploymentException("Could not locate web module gbean in web app configuration", e);
         }
+    }
+
+    protected AbstractNameQuery createTomcatWebAppContextNameQuery(DeploymentContext moduleContext) {
+        String name = moduleContext.getModuleName().getNameProperty(Jsr77Naming.J2EE_NAME);
+        return new AbstractNameQuery(null,
+            Collections.singletonMap(Jsr77Naming.J2EE_NAME, name),
+            Collections.singleton(TomcatWebAppContext.class.getName()));
     }
 
     public QNameSet getSpecQNameSet() {
