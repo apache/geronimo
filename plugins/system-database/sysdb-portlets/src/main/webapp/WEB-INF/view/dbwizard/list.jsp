@@ -27,12 +27,12 @@
   <c:otherwise>
 <p><fmt:message key="dbwizard.list.hasDatabasePools"/></p>
 
-<table width="100%">
+<table width="100%" style="border-style: solid;border-width: 1px;" summary="Database Pools - List">
   <tr>
-    <th class="DarkBackground" align="left"><fmt:message key="dbwizard.common.name"/></th>
-    <th class="DarkBackground" align="center"><fmt:message key="dbwizard.list.deployedAs"/></th>
-    <th class="DarkBackground" align="center"><fmt:message key="dbwizard.common.state"/></th>
-    <th class="DarkBackground" align="center"><fmt:message key="dbwizard.common.actions"/></th>
+    <th scope="col" class="DarkBackground" align="left"><fmt:message key="dbwizard.common.name"/></th>
+    <th scope="col" class="DarkBackground" align="center"><fmt:message key="dbwizard.list.deployedAs"/></th>
+    <th scope="col" class="DarkBackground" align="center"><fmt:message key="dbwizard.common.state"/></th>
+    <th scope="col" class="DarkBackground" align="center"><fmt:message key="dbwizard.common.actions"/></th>
   </tr>
 <c:set var="backgroundClass" value='MediumBackground'/>
 <c:forEach var="pool" items="${pools}">
