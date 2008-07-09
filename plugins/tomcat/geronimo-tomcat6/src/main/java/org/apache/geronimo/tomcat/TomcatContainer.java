@@ -359,8 +359,13 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
                 anotherCtxObj.addApplicationListener(listener);
             }
         }
-
-        host.addChild(anotherCtxObj);
+        
+        try {
+            host.addChild(anotherCtxObj);
+        } catch (IllegalArgumentException ex) {
+            log.error("Unable to add the child container: " + anotherCtxObj.getName() 
+                    + " .  Please check if your project's context-root is unique.", ex);
+        }
     }
 
     public void removeContext(TomcatContext ctx) {
@@ -377,7 +382,9 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
                 }
 
             }
-            context.getParent().removeChild(context);
+            if (context.getParent() != null) {
+                context.getParent().removeChild(context);
+            }
         }
 
     }
