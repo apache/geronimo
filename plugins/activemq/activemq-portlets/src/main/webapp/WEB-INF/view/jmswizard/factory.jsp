@@ -63,8 +63,8 @@
     <table border="0">
     <!-- ENTRY FIELD: Factory Instance Name -->
       <tr>
-        <th><div align="right"><fmt:message key="jmswizard.common.connectionFactoryName" />:</div></th>
-        <td><input name="factory.${data.currentFactoryID}.instanceName" type="text" size="20" value="${data.currentFactory.instanceName}" /></td>
+        <th><div align="right"><label for="<portlet:namespace/>factory.${data.currentFactoryID}.instanceName"><fmt:message key="jmswizard.common.connectionFactoryName" /></label>:</div></th>
+        <td><input name="factory.${data.currentFactoryID}.instanceName" id="<portlet:namespace/>factory.${data.currentFactoryID}.instanceName" type="text" size="20" value="${data.currentFactory.instanceName}" /></td>
       </tr>
       <tr>
         <td></td>
@@ -73,9 +73,9 @@
 
     <!-- ENTRY FIELD: Transactions -->
       <tr>
-        <th><div align="right"><fmt:message key="jmswizard.common.transactionSupport" />:</div></th>
+        <th><div align="right"><label for="<portlet:namespace/>factory.${data.currentFactoryID}.transaction"><fmt:message key="jmswizard.common.transactionSupport" /></label>:</div></th>
         <td>
-          <select name="factory.${data.currentFactoryID}.transaction">
+          <select name="factory.${data.currentFactoryID}.transaction" id="<portlet:namespace/>factory.${data.currentFactoryID}.transaction">
             <option value="none"<c:if test="${data.currentFactory.transaction eq 'none'}"> selected</c:if>>None</option>
             <option value="local"<c:if test="${data.currentFactory.transaction eq 'local'}"> selected</c:if>>Local</option>
             <option value="xa"<c:if test="${data.currentFactory.transaction eq 'xa'}"> selected</c:if>>XA</option>
@@ -92,8 +92,8 @@
     </tr>
   <!-- ENTRY FIELD: Min Size -->
     <tr>
-      <th><div align="right"><fmt:message key="jmswizard.common.poolMinSize" />:</div></th>
-      <td><input name="factory.${data.currentFactoryID}.poolMinSize" type="text" size="5" value="${data.currentFactory.poolMinSize}"></td>
+      <th><div align="right"><label for="<portlet:namespace/>factory.${data.currentFactoryID}.poolMinSize"><fmt:message key="jmswizard.common.poolMinSize" /></label>:</div></th>
+      <td><input name="factory.${data.currentFactoryID}.poolMinSize" id="<portlet:namespace/>factory.${data.currentFactoryID}.poolMinSize" type="text" size="5" value="${data.currentFactory.poolMinSize}"></td>
     </tr>
     <tr>
       <td></td>
@@ -101,8 +101,8 @@
     </tr>
   <!-- ENTRY FIELD: Max Size -->
     <tr>
-      <th><div align="right"><fmt:message key="jmswizard.common.poolMaxSize" />:</div></th>
-      <td><input name="factory.${data.currentFactoryID}.poolMaxSize" type="text" size="5" value="${data.currentFactory.poolMaxSize}"></td>
+      <th><div align="right"><label for="<portlet:namespace/>factory.${data.currentFactoryID}.poolMaxSize"><fmt:message key="jmswizard.common.poolMaxSize" /></label>:</div></th>
+      <td><input name="factory.${data.currentFactoryID}.poolMaxSize" id="<portlet:namespace/>factory.${data.currentFactoryID}.poolMaxSize" type="text" size="5" value="${data.currentFactory.poolMaxSize}"></td>
     </tr>
     <tr>
       <td></td>
@@ -110,8 +110,8 @@
     </tr>
   <!-- ENTRY FIELD: Blocking Timeout -->
     <tr>
-      <th><div align="right"><fmt:message key="jmswizard.common.blockingTimeout"/>:</div></th>
-      <td><input name="factory.${data.currentFactoryID}.poolBlockingTimeout" type="text" size="7" value="${data.currentFactory.poolBlockingTimeout}"> (in milliseconds)</td>
+      <th><div align="right"><label for="<portlet:namespace/>factory.${data.currentFactoryID}.poolBlockingTimeout"><fmt:message key="jmswizard.common.blockingTimeout"/></label>:</div></th>
+      <td><input name="factory.${data.currentFactoryID}.poolBlockingTimeout" id="<portlet:namespace/>factory.${data.currentFactoryID}.poolBlockingTimeout" type="text" size="7" value="${data.currentFactory.poolBlockingTimeout}"> (in milliseconds)</td>
     </tr>
     <tr>
       <td></td>
@@ -119,8 +119,8 @@
     </tr>
   <!-- ENTRY FIELD: Idle timeout -->
     <tr>
-      <th><div align="right"><fmt:message key="jmswizard.common.idleTimeout"/>:</div></th>
-      <td><input name="factory.${data.currentFactoryID}.poolIdleTimeout" type="text" size="5" value="${data.currentFactory.poolIdleTimeout}"> (in minutes)</td>
+      <th><div align="right"><label for="<portlet:namespace/>factory.${data.currentFactoryID}.poolIdleTimeout"><fmt:message key="jmswizard.common.idleTimeout"/></label>:</div></th>
+      <td><input name="factory.${data.currentFactoryID}.poolIdleTimeout" id="<portlet:namespace/>factory.${data.currentFactoryID}.poolIdleTimeout" type="text" size="5" value="${data.currentFactory.poolIdleTimeout}"> (in minutes)</td>
     </tr>
     <tr>
       <td></td>
@@ -136,7 +136,7 @@
       <c:set var="index" value="instance-config-${status.index}" />
       <tr>
         <th><div align="right">${prop.name}:</div></th>
-        <td><input name="factory.${data.currentFactoryID}.instance-config-${status.index}" type="text" size="20" value="${data.currentFactory.instanceProps[index] == null ? prop.defaultValue : data.currentFactory.instanceProps[index]}" /></td>
+        <td><input name="factory.${data.currentFactoryID}.instance-config-${status.index}" title="${prop.name}" type="text" size="20" value="${data.currentFactory.instanceProps[index] == null ? prop.defaultValue : data.currentFactory.instanceProps[index]}" /></td>
       </tr>
       <tr>
         <td></td>

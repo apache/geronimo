@@ -42,11 +42,11 @@
 <strong><fmt:message key="jmsmanager.activemq.common.connName" />:</strong>&nbsp;${ds.name}
 <br><br>
 <table width="100%">
-    <tr><td><strong><fmt:message key="jmsmanager.activemq.config.userName" /></strong></td><td><input type="text" name="UserName" value="${ds.userName}" size="75" /></td></tr>
-    <tr><td><strong><fmt:message key="jmsmanager.common.psassword"/></strong></td><td><input type="password" name="password1" size="75" /></td></tr>
-    <tr><td><strong><fmt:message key="jmsmanager.activemq.config.repeatPassword" /></strong></td><td><input type="password" name="password2" size="75" /></td></tr>
+    <tr><td><strong><label for="<portlet:namespace/>UserName"><fmt:message key="jmsmanager.activemq.config.userName" /></label></strong></td><td><input type="text" name="UserName" id="<portlet:namespace/>UserName" value="${ds.userName}" size="75" /></td></tr>
+    <tr><td><strong><label for="<portlet:namespace/>password1"><fmt:message key="jmsmanager.common.psassword"/></label></strong></td><td><input type="password" name="password1" id="<portlet:namespace/>password1" size="75" /></td></tr>
+    <tr><td><strong><label for="<portlet:namespace/>password2"><fmt:message key="jmsmanager.activemq.config.repeatPassword" /></label></strong></td><td><input type="password" name="password2" id="<portlet:namespace/>password2" size="75" /></td></tr>
 <c:if test="${badPassword}"><tr><td colspan="2"><fmt:message key="jmsmanager.activemq.config.passwordsNotMatch"/></td></tr></c:if>
-    <tr><td><strong><fmt:message key="jmsmanager.activemq.config.serverUrl"/></strong></td><td><input type="text" name="ServerUrl" value="${ds.serverUrl}" size="75" /></td></tr>
+    <tr><td><strong><label for="<portlet:namespace/>ServerUrl"><fmt:message key="jmsmanager.activemq.config.serverUrl"/></label></strong></td><td><input type="text" name="ServerUrl" id="<portlet:namespace/>ServerUrl" value="${ds.serverUrl}" size="75" /></td></tr>
     <!--<tr><td><strong>Clientid</strong></td><td><input type="text" name="Clientid" value="${ds.clientid}" size="75" /></td></tr>
 
 

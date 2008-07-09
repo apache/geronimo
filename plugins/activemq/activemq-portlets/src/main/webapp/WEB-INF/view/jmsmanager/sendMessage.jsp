@@ -42,40 +42,40 @@
     <table border="0">
     <!-- ENTRY FIELD: JMS Connection RAR -->
       <tr>
-        <th><div align="right"><fmt:message key="jmsmanager.sendmessage.destination" />:</div></th>
+        <th><div align="right"><label for="<portlet:namespace/>destination"><fmt:message key="jmsmanager.sendmessage.destination" /></label>:</div></th>
         <td>
-          <input type="text" name="destination" value="${adminObjName}" readonly="readonly"/>
+          <input type="text" name="destination" id="<portlet:namespace/>destination" value="${adminObjName}" readonly="readonly"/>
         </td>
       </tr>
       <tr>
-        <th><div align="right"><fmt:message key="jmsmanager.sendmessage.correlationId" />:</div></th>
+        <th><div align="right"><label for="<portlet:namespace/>correlationId"><fmt:message key="jmsmanager.sendmessage.correlationId" /></label>:</div></th>
         <td>
-          <input type="text" name="correlationId"/>
+          <input type="text" name="correlationId" id="<portlet:namespace/>correlationId"/>
         </td>
       </tr>
       <tr>
-        <th><div align="right"><fmt:message key="jmsmanager.sendmessage.persistence" />:</div></th>
+        <th><div align="right"><label for="<portlet:namespace/>isPersistent"><fmt:message key="jmsmanager.sendmessage.persistence" /></label>:</div></th>
         <td>
-          <input type="checkbox" name="isPersistent"/>
+          <input type="checkbox" name="isPersistent" id="<portlet:namespace/>isPersistent"/>
         </td>
       </tr>
       
       <tr>
-        <th><div align="right"><fmt:message key="jmsmanager.sendmessage.priority" />:</div></th>
+        <th><div align="right"><label for="<portlet:namespace/>priority"><fmt:message key="jmsmanager.sendmessage.priority" /></label>:</div></th>
         <td>
-          <input type="text" name="priority"/>
+          <input type="text" name="priority" id="<portlet:namespace/>priority"/>
         </td>
       </tr>
       <tr>
-        <th><div align="right"><fmt:message key="jmsmanager.sendmessage.type" />:</div></th>
+        <th><div align="right"><label for="<portlet:namespace/>jmsType"><fmt:message key="jmsmanager.sendmessage.type" /></label>:</div></th>
         <td>
-          <input type="text" name="jmsType"/>
+          <input type="text" name="jmsType" id="<portlet:namespace/>jmsType"/>
         </td>
       </tr>
       <tr>
-        <th><div align="right"><fmt:message key="jmsmanager.sendmessage.message" />:</div></th>
+        <th><div align="right"><label for="<portlet:namespace/>message"><fmt:message key="jmsmanager.sendmessage.message" /></label>:</div></th>
         <td>
-          <textarea name="message" cols="50" rows="8"/></textarea>
+          <textarea name="message" id="<portlet:namespace/>message" cols="50" rows="8"/></textarea>
         </td>
       </tr>
     <!-- SUBMIT BUTTON -->

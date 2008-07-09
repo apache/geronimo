@@ -59,8 +59,8 @@
     <table border="0">
     <!-- ENTRY FIELD: RA Instance Name -->
       <tr>
-        <th><div align="right"><fmt:message key="jmswizard.raInstance.resourceGroupName" />:</div></th>
-        <td><input name="instanceName" type="text" size="20" value="${data.instanceName}" /></td>
+        <th><div align="right"><label for="<portlet:namespace/>instanceName"><fmt:message key="jmswizard.raInstance.resourceGroupName" /></label>:</div></th>
+        <td><input name="instanceName" id="<portlet:namespace/>instanceName" type="text" size="20" value="${data.instanceName}" /></td>
       </tr>
       <tr>
         <td></td>
@@ -74,7 +74,7 @@
       <c:set var="index" value="instance-config-${status.index}" />
       <tr>
         <th><div align="right">${prop.name}:</div></th>
-        <td><input name="${index}" type="text" size="20" value="${data.instanceProps[index] == null ? prop.defaultValue : data.instanceProps[index]}" /></td>
+        <td><input name="${index}" title="${prop.name}" type="text" size="20" value="${data.instanceProps[index] == null ? prop.defaultValue : data.instanceProps[index]}" /></td>
       </tr>
       <tr>
         <td></td>

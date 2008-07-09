@@ -51,26 +51,26 @@
        </tr>
          <tr>
              <td  align=LEFT>
-                  <fmt:message key="jmsmanager.common.messageDestinationName" />
+                  <label for="<portlet:namespace/>destinationMessageDestinationName"><fmt:message key="jmsmanager.common.messageDestinationName" /></label>
              </td>
              <td  align=LEFT>
-                   <input type="text" name="destinationMessageDestinationName" value=""/>
-             </td>
-         </tr>
-         <tr>
-             <td  align=LEFT>
-                   <fmt:message key="jmsmanager.common.destinationPhysicalName" />
-             </td>
-             <td  align=LEFT>
-                   <input type="text" name="destinationPhysicalName" value=""/>
+                   <input type="text" name="destinationMessageDestinationName" id="<portlet:namespace/>destinationMessageDestinationName" value=""/>
              </td>
          </tr>
          <tr>
              <td  align=LEFT>
-                   <fmt:message key="jmsmanager.common.type"/>
+                   <label for="<portlet:namespace/>destinationPhysicalName"><fmt:message key="jmsmanager.common.destinationPhysicalName" /></label>
              </td>
              <td  align=LEFT>
-               <select name="destinationType">
+                   <input type="text" name="destinationPhysicalName" id="<portlet:namespace/>destinationPhysicalName" value=""/>
+             </td>
+         </tr>
+         <tr>
+             <td  align=LEFT>
+                   <label for="<portlet:namespace/>destinationType"><fmt:message key="jmsmanager.common.type"/></label>
+             </td>
+             <td  align=LEFT>
+               <select name="destinationType" id="<portlet:namespace/>destinationType">
                   <option value="javax.jms.Queue" selected="true" >QUEUE</option>
                   <option value="javax.jms.Topic" >TOPIC</option>
                </select>
@@ -78,19 +78,19 @@
          </tr>
          <tr>
              <td  align=LEFT>
-                   <fmt:message key="jmsmanager.common.applicationName" />
+                   <label for="<portlet:namespace/>destinationApplicationName"><fmt:message key="jmsmanager.common.applicationName" /></label>
              </td>
              <td  align=LEFT>
-                   <input type="text" name="destinationApplicationName" value="null"/>
+                   <input type="text" name="destinationApplicationName" id="<portlet:namespace/>destinationApplicationName" value="null"/>
                </select>
              </td>
          </tr>
          <tr>
              <td  align=LEFT>
-                    <fmt:message key="jmsmanager.common.moduleName" />
+                    <label for="<portlet:namespace/>destinationModuleName"><fmt:message key="jmsmanager.common.moduleName" /></label>
              </td>
              <td  align=LEFT>
-                   <input type="text" name="destinationModuleName" value="defaultJMS"/>
+                   <input type="text" name="destinationModuleName" id="<portlet:namespace/>destinationModuleName" value="defaultJMS"/>
                </select>
              </td>
          </tr>

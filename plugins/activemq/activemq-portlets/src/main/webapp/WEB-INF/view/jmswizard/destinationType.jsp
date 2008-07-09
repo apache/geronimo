@@ -60,9 +60,9 @@
     <table border="0">
     <!-- ENTRY FIELD: Destination Type -->
       <tr>
-        <th><div align="right"><fmt:message key="jmswizard.destinationType.JMSDestinationType" />:</div></th>
+        <th><div align="right"><label for="<portlet:namespace/>destinationType"><fmt:message key="jmswizard.destinationType.JMSDestinationType" /></label>:</div></th>
         <td>
-          <select name="destinationType">
+          <select name="destinationType" id="<portlet:namespace/>destinationType">
         <c:forEach var="dest" items="${provider.adminObjectDefinitions}" varStatus="status">
             <option <c:if test="${status.index == data.destinationType}">selected</c:if> value="${status.index}">${dest.adminObjectInterface}</option>
         </c:forEach>

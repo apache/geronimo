@@ -63,8 +63,8 @@
     <table border="0">
     <!-- ENTRY FIELD: Admin Object Name -->
       <tr>
-        <th><div align="right"><fmt:message key="jmswizard.destination.messageDestinationName" />:</div></th>
-        <td><input name="destination.${data.currentDestinationID}.name" type="text" size="20" value="${data.currentDestination.name}" /></td>
+        <th><div align="right"><label for="<portlet:namespace/>destination.${data.currentDestinationID}.name"><fmt:message key="jmswizard.destination.messageDestinationName" /></label>:</div></th>
+        <td><input name="destination.${data.currentDestinationID}.name" id="<portlet:namespace/>destination.${data.currentDestinationID}.name" type="text" size="20" value="${data.currentDestination.name}" /></td>
       </tr>
       <tr>
         <td></td>
@@ -80,7 +80,7 @@
       <c:set var="index" value="instance-config-${status.index}" />
       <tr>
         <th><div align="right">${prop.name}:</div></th>
-        <td><input name="destination.${data.currentDestinationID}.instance-config-${status.index}" type="text" size="20" value="${data.currentDestination.instanceProps[index] == null ? prop.defaultValue : data.currentDestination.instanceProps[index]}" /></td>
+        <td><input name="destination.${data.currentDestinationID}.instance-config-${status.index}" title="${prop.name}" type="text" size="20" value="${data.currentDestination.instanceProps[index] == null ? prop.defaultValue : data.currentDestination.instanceProps[index]}" /></td>
       </tr>
       <tr>
         <td></td>

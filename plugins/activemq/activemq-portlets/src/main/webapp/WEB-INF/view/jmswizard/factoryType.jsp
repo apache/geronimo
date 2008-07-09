@@ -60,9 +60,9 @@
     <table border="0">
     <!-- ENTRY FIELD: Connection Factory Type -->
       <tr>
-        <th><div align="right"><fmt:message key="jmswizard.common.JMSFactoryType" />:</div></th>
+        <th><div align="right"><label for="<portlet:namespace/>factoryType"><fmt:message key="jmswizard.common.JMSFactoryType" /></label>:</div></th>
         <td>
-          <select name="factoryType">
+          <select name="factoryType" id="<portlet:namespace/>factoryType">
         <c:forEach var="factory" items="${provider.connectionDefinitions}" varStatus="status">
             <option <c:if test="${status.index == data.factoryType}">selected</c:if> value="${status.index}">${factory.connectionFactoryInterface}</option>
         </c:forEach>

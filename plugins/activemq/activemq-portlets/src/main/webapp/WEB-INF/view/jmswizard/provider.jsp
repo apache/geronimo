@@ -29,9 +29,9 @@
     <table border="0">
     <!-- ENTRY FIELD: JMS Connection RAR -->
       <tr>
-        <th><div align="right"><fmt:message key="jmswizard.provider.JMSProviderRAR" />:</div></th>
+        <th><div align="right"><label for="<portlet:namespace/>rar"><fmt:message key="jmswizard.provider.JMSProviderRAR" /></label>:</div></th>
         <td>
-          <select name="rar">
+          <select name="rar" id="<portlet:namespace/>rar">
             <option></option>
         <c:forEach var="rar" items="${rars}">
             <option <c:if test="${rar == pool.rar}">selected</c:if>>${rar}</option>

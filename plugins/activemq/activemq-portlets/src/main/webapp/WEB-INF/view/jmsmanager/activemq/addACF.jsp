@@ -42,48 +42,48 @@
 <input type="hidden" name="mode" value="addACF">
 <table width="100%%"  border="0">
   <tr>
-    <td width="16%"> <div align="right"><fmt:message key="jmsmanager.common.name"/>: </div></td>
-    <td width="84%"><input name="acfName" type="text" size="50"></td>
+    <td width="16%"> <div align="right"><label for="<portlet:namespace/>acfName"><fmt:message key="jmsmanager.common.name"/></label>: </div></td>
+    <td width="84%"><input name="acfName" id="<portlet:namespace/>acfName" type="text" size="50"></td>
   </tr>
   <tr>
     <td><div align="right"></div></td>
     <td> <p><fmt:message key="jmsmanager.activemq.addACF.nameExp" /></td>
   </tr>
   <tr>
-    <td> <div align="right"><fmt:message key="jmsmanager.activemq.common.serverURL" />: </div></td>
-    <td><input name="serverURL" type="text" size="50"></td>
+    <td> <div align="right"><label for="<portlet:namespace/>serverURL"><fmt:message key="jmsmanager.activemq.common.serverURL" /></label>: </div></td>
+    <td><input name="serverURL" id="<portlet:namespace/>serverURL" type="text" size="50"></td>
   </tr>
   <tr>
     <td><div align="right"></div></td>
     <td><fmt:message key="jmsmanager.activemq.common.serverURLExp" /> </td>
   </tr>
   <tr>
-    <td> <div align="right"><fmt:message key="jmsmanager.common.userName" />: </div></td>
-    <td><input name="userName" type="text" size="50"></td>
+    <td> <div align="right"><label for="<portlet:namespace/>userName"><fmt:message key="jmsmanager.common.userName" /></label>: </div></td>
+    <td><input name="userName" id="<portlet:namespace/>userName" type="text" size="50"></td>
   </tr>
   <tr>
     <td><div align="right"></div></td>
     <td><fmt:message key="jmsmanager.activemq.common.userNameExp" /> </td>
   </tr>
   <tr>
-    <td> <div align="right"><fmt:message key="jmsmanager.common.password"/>: </div></td>
-    <td><input name="pword" type="password"></td>
+    <td> <div align="right"><label for="<portlet:namespace/>pword"><fmt:message key="jmsmanager.common.password"/></label>: </div></td>
+    <td><input name="pword" id="<portlet:namespace/>pword" type="password"></td>
   </tr>
   <tr>
     <td><div align="right"></div></td>
     <td> <fmt:message key="jmsmanager.activemq.common.passwordExp" /> </td>
   </tr>
   <tr>
-    <td> <div align="right"><fmt:message key="jmsmanager.activemq.common.poolMaxCapacity" />: </div></td>
-    <td><input name="poolMaxSize" type="text" size="20" value="0"></td>
+    <td> <div align="right"><label for="<portlet:namespace/>poolMaxSize"><fmt:message key="jmsmanager.activemq.common.poolMaxCapacity" /></label>: </div></td>
+    <td><input name="poolMaxSize" id="<portlet:namespace/>poolMaxSize" type="text" size="20" value="0"></td>
   </tr>
   <tr>
     <td><div align="right"></div></td>
     <td><fmt:message key="jmsmanager.activemq.common.poolMaxCapacityExp" /> </td>
   </tr>
   <tr>
-    <td> <div align="right"><fmt:message key="jmsmanager.activemq.common.blockingTimeout" />: </div></td>
-    <td><input name="blocking" type="text" size="20" value="0"></td>
+    <td> <div align="right"><label for="<portlet:namespace/>blocking"><fmt:message key="jmsmanager.activemq.common.blockingTimeout" /></label>: </div></td>
+    <td><input name="blocking" id="<portlet:namespace/>blocking" type="text" size="20" value="0"></td>
   </tr>
   <tr>
     <td><div align="right"></div></td>

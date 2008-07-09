@@ -61,8 +61,8 @@ function <portlet:namespace/>validateForm(){
 <!-- Name Field -->
 <c:if test="${mode eq 'add'}">
   <tr>
-    <td><div align="right"><fmt:message key="jmsmanager.server.connector.editGeneric.uniqueName" />: </div></td>
-    <td><input name="name" type="text" size="30"></td>
+    <td><div align="right"><label for="<portlet:namespace/>name"><fmt:message key="jmsmanager.server.connector.editGeneric.uniqueName" /></label>: </div></td>
+    <td><input name="name" id="<portlet:namespace/>name" type="text" size="30"></td>
   </tr>
   <tr>
     <td><div align="right"></div></td>
@@ -74,9 +74,9 @@ function <portlet:namespace/>validateForm(){
 </c:if>
 <!-- Host Field -->
   <tr>
-    <td><div align="right"><fmt:message key="jmsmanager.common.host"/>: </div></td>
+    <td><div align="right"><label for="<portlet:namespace/>host"><fmt:message key="jmsmanager.common.host"/></label>: </div></td>
     <td>
-      <input name="host" type="text" size="30" value="${host}">
+      <input name="host" id="<portlet:namespace/>host" type="text" size="30" value="${host}">
     </td>
   </tr>
   <tr>
@@ -85,9 +85,9 @@ function <portlet:namespace/>validateForm(){
   </tr>
 <!-- Port Field -->
   <tr>
-    <td><div align="right"><fmt:message key="jmsmanager.common.port" />: </div></td>
+    <td><div align="right"><label for="<portlet:namespace/>port"><fmt:message key="jmsmanager.common.port" /></label>: </div></td>
     <td>
-      <input name="port" type="text" size="5" value="${port}">
+      <input name="port" id="<portlet:namespace/>port" type="text" size="5" value="${port}">
     </td>
   </tr>
   <tr>
