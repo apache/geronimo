@@ -47,12 +47,12 @@ public class JMSServerTest extends TestSupport {
     public void testStartStopListener() throws Exception {
         selenium.click("link=JMS Server");
         waitForPageLoad();
-        selenium.click("//tr[4]/td[6]/a[1]");
+        selenium.click("//tr[3]/td[6]/a[1]");
         waitForPageLoad();
-        assertEquals("stopped", selenium.getText("//tr[4]/td[5]"));
-        selenium.click("//tr[4]/td[6]/a[1]");
+        assertEquals("stopped", selenium.getText("//tr[3]/td[5]"));
+        selenium.click("//tr[3]/td[6]/a[1]");
         waitForPageLoad();
-        assertEquals("running", selenium.getText("//tr[4]/td[5]"));
+        assertEquals("running", selenium.getText("//tr[3]/td[5]"));
     }
     
     @Test
