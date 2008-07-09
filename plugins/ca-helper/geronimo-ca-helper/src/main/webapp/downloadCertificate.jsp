@@ -44,9 +44,9 @@ install the CA's certificate in your web browser by visiting <a href="downloadCA
 <form action="installPersonalCertificate.jsp" method="post">
     <table border="0">
         <tr>
-            <th align="right">CSR Id:</th>
+            <th align="right"><label for="csrId">CSR Id</label>:</th>
             <td>
-                <input type="text" name="csrId" size="20" maxlength="200"/>
+                <input type="text" name="csrId" id="csrId" size="20" maxlength="200"/>
             </td>
         </tr>
     </table>

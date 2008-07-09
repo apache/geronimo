@@ -72,10 +72,10 @@ For other web browsers, click on <a href="DownloadCertificateServlet?type=ca">th
     <input type="button" value="Install CA's Certificate" onClick="Install_Onclick()"/>
 </form>
 
-<br><b>Base64 encoded Certificate Text</b>
+<br><b><label for="cacert">Base64 encoded Certificate Text</label></b>
 <br>
 <form name="installForm">
-    <textarea name="cacert" rows="10" cols="80" READONLY><%=base64Cert%></textarea>
+    <textarea name="cacert" id="cacert" rows="10" cols="80" READONLY><%=base64Cert%></textarea>
 </form>
 
     <table border="0">

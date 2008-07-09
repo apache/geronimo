@@ -71,54 +71,54 @@ use the <a href="submitCSR.jsp">CSR submission page</a> instead.</p>
             <th colspan="2" align="left">Identity Details</th>
         </tr>
         <tr>
-            <th align="right">Common Name (CN):</th>
+            <th align="right"><label for="reqCN">Common Name (CN)</label>:</th>
             <td>
-                <input type="text" name="reqCN" size="20" maxlength="200"/>
+                <input type="text" name="reqCN" id="reqCN" size="20" maxlength="200"/>
             </td>
         </tr>
         <tr>
-            <th align="right">Division/Business Unit (OU):</th>
+            <th align="right"><label for="reqOU">Division/Business Unit (OU)</label>:</th>
             <td>
-                <input type="text" name="reqOU" size="20" maxlength="200"/>
+                <input type="text" name="reqOU" id="reqOU" size="20" maxlength="200"/>
             </td>
         </tr>
         <tr>
-            <th align="right">Company/Organization (O):</th>
+            <th align="right"><label for="reqO">Company/Organization (O)</label>:</th>
             <td>
-                <input type="text" name="reqO" size="20" maxlength="200"/>
+                <input type="text" name="reqO" id="reqO" size="20" maxlength="200"/>
             </td>
         </tr>
         <tr>
-            <th align="right">City/Locality (L):</th>
+            <th align="right"><label for="reqL">City/Locality (L)</label>:</th>
             <td>
-                <input type="text" name="reqL" size="20" maxlength="200"/>
+                <input type="text" name="reqL" id="reqL" size="20" maxlength="200"/>
             </td>
         </tr>
         <tr>
-            <th align="right">State/Province (ST):</th>
+            <th align="right"><label for="reqST">State/Province (ST)</label>:</th>
             <td>
-                <input type="text" name="reqST" size="20" maxlength="200"/>
+                <input type="text" name="reqST" id="reqST" size="20" maxlength="200"/>
             </td>
         </tr>
         <tr>
-            <th align="right">Country Code (2 char) (C):</th>
+            <th align="right"><label for="reqC">Country Code (2 char) (C)</label>:</th>
             <td>
-                <input type="text" name="reqC" size="3" maxlength="2"/>
+                <input type="text" name="reqC" id="reqC" size="3" maxlength="2"/>
             </td>
         </tr>
         <tr>
             <td>&nbsp;</td>
         </tr>
         <tr>
-            <th align="right">Challenge Phrase</th>
+            <th align="right"><label for="challenge">Challenge Phrase</label></th>
             <td>
-                <input type="password" name="challenge" size="20" maxlength="200"/>
+                <input type="password" name="challenge" id="challenge" size="20" maxlength="200"/>
             </td>
         </tr>
         <tr>
-            <th align="right">Confirm Challenge</th>
+            <th align="right"><label for="confirm">Confirm Challenge</label></th>
             <td>
-                <input type="password" name="confirm" size="20" maxlength="200"/>
+                <input type="password" name="confirm" id="confirm" size="20" maxlength="200"/>
             </td>
         </tr>
     </table>

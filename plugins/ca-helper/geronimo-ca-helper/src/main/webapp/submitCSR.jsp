@@ -44,11 +44,11 @@ function validateForm(){
 <form name="Confirmform" action="CertificateRequestServlet" method="post">
     <table border="0">
         <tr>
-            <th colspan="2" align="left">CSR Text</th>
+            <th colspan="2" align="left"><label for="pkcs10req">CSR Text</label></th>
         </tr>
         <tr>
             <td colspan="2">
-                <textarea rows="15" cols="80" name="pkcs10req">
+                <textarea rows="15" cols="80" name="pkcs10req" id="pkcs10req">
                 ...paste pkcs10 encoded certificate request here...
                 </textarea>
             </td>

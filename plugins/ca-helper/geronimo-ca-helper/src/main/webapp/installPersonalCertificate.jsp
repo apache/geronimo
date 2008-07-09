@@ -86,10 +86,10 @@ For other web browsers, click on <a href="DownloadCertificateServlet?csrId=<%=cs
     <input type="button" value="Install Certificate" onClick="Install_Onclick()"/>
 </form>
 
-<br><b>Base64 encoded Certificate Text</b>
+<br><b><label for="cert">Base64 encoded Certificate Text</label></b>
 <br>
 <form name="installForm">
-    <textarea name="cert" rows="10" cols="80" READONLY><%=base64Cert%></textarea>
+    <textarea name="cert" id="cert" rows="10" cols="80" READONLY><%=base64Cert%></textarea>
 </form>
 
     <table border="0">
