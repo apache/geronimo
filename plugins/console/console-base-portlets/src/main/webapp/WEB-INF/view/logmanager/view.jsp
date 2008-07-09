@@ -63,17 +63,17 @@ function <portlet:namespace/>validateForm(){
         renderRequest.setAttribute("refreshPeriod", LogHelper.getRefreshPeriod());
 
 -->
-    <td nowrap><fmt:message key="logmanager.common.configFile"/></td>
-    <td><input type="text" name="configFile" value="${configFile}" size="45"/></td>
+    <td nowrap><label for="<portlet:namespace/>configFile"><fmt:message key="logmanager.common.configFile"/></label></td>
+    <td><input type="text" name="configFile" id="<portlet:namespace/>configFile" value="${configFile}" size="45"/></td>
 </tr>
 <tr>
-    <td nowrap><fmt:message key="logmanager.common.refreshPeriod"/></td>
-    <td><input type="text" name="refreshPeriod" value="${refreshPeriod}" size="45"/></td>
+    <td nowrap><label for="<portlet:namespace/>refreshPeriod"><fmt:message key="logmanager.common.refreshPeriod"/></label></td>
+    <td><input type="text" name="refreshPeriod" id="<portlet:namespace/>refreshPeriod" value="${refreshPeriod}" size="45"/></td>
 </tr>
 <tr>
-    <td nowrap><fmt:message key="logmanager.common.logLevel"/></td>
+    <td nowrap><label for="<portlet:namespace/>logLevel"><fmt:message key="logmanager.common.logLevel"/></label></td>
     <td>
-    <select name="logLevel">
+    <select name="logLevel" id="<portlet:namespace/>logLevel">
         <option<c:if test="${logLevel eq 'ALL'}"> selected</c:if>>ALL</option>
         <option<c:if test="${logLevel eq 'TRACE'}"> selected</c:if>>TRACE</option>
         <option<c:if test="${logLevel eq 'DEBUG'}"> selected</c:if>>DEBUG</option>

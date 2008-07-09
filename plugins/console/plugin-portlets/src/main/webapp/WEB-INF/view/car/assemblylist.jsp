@@ -54,24 +54,24 @@
     
 <table border="0" cellpadding="3">
 <tr>
-  <td><fmt:message key="car.list.assemblyGroupId"/></td>
-  <td><input type="text" name="groupId" value="${groupId}"/></td>
+  <td><label for="<portlet:namespace/>groupId"><fmt:message key="car.list.assemblyGroupId"/></label></td>
+  <td><input type="text" name="groupId" id="<portlet:namespace/>groupId" value="${groupId}"/></td>
 </tr>
 <tr>
-  <td><fmt:message key="car.list.assemblyArtifactId"/></td>
-  <td><input type="text" name="artifactId" value="${artifactId}"/></td>
+  <td><label for="<portlet:namespace/>artifactId"><fmt:message key="car.list.assemblyArtifactId"/></label></td>
+  <td><input type="text" name="artifactId" id="<portlet:namespace/>artifactId" value="${artifactId}"/></td>
 </tr>
 <tr>
-  <td><fmt:message key="car.list.assemblyVersion"/></td>
-  <td><input type="text" name="version" value="${version}"/></td>
+  <td><label for="<portlet:namespace/>version"><fmt:message key="car.list.assemblyVersion"/></label></td>
+  <td><input type="text" name="version" id="<portlet:namespace/>version" value="${version}"/></td>
 </tr>
 <tr>
-  <td><fmt:message key="car.list.assemblyPath"/></td>
-  <td><input type="text" name="relativeServerPath" value="${relativeServerPath}"/></td>
+  <td><label for="<portlet:namespace/>relativeServerPath"><fmt:message key="car.list.assemblyPath"/></label></td>
+  <td><input type="text" name="relativeServerPath" id="<portlet:namespace/>relativeServerPath" value="${relativeServerPath}"/></td>
 </tr>
 <tr>
-  <td><fmt:message key="car.list.assemblyFormat"/></td>
-  <td><select name="format">
+  <td><label for="<portlet:namespace/>format"><fmt:message key="car.list.assemblyFormat"/></label></td>
+  <td><select name="format" id="<portlet:namespace/>format">
         <option <c:if test="${format ne 'zip'}">selected="true"</c:if>>tar.gz</option>
         <option <c:if test="${format eq 'zip'}">selected="true"</c:if>>zip</option>
       </select>
@@ -95,7 +95,7 @@
 <c:set var="artifact" value="${plugin.pluginArtifact.moduleId}"/>
 <tr>
     <td class="${style}">
-        <input type="checkbox" name="plugin" value="${artifact.groupId}/${artifact.artifactId}/${artifact.version}/${artifact.type}"/>
+        <input type="checkbox" name="plugin" title="${artifact.groupId}/${artifact.artifactId}/${artifact.version}/${artifact.type}" value="${artifact.groupId}/${artifact.artifactId}/${artifact.version}/${artifact.type}"/>
     </td>
   <td class="${style}">
     ${artifact.groupId}/${artifact.artifactId}/${artifact.version}/${artifact.type}

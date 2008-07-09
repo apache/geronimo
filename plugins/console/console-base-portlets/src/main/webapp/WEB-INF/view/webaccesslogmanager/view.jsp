@@ -64,9 +64,9 @@ function <portlet:namespace/>validateForm(){
                                 <td colspan="4" class="DarkBackground"><b><fmt:message key="webaccesslogmanager.view.container" />:</b></td>
                             </tr>
                             <tr>
-                                <td><fmt:message key="webaccesslogmanager.view.searchWebContainer" />:</td>
+                                <td><label for="<portlet:namespace/>selectedContainer"><fmt:message key="webaccesslogmanager.view.searchWebContainer" /></label>:</td>
                                 <td>
-                                    <select name="selectedContainer">
+                                    <select name="selectedContainer" id="<portlet:namespace/>selectedContainer">
                                         <c:forEach var="webContainer" items="${webContainers}">
                                             <option value="${webContainer.value}"<c:if test="${webContainer.value eq selectedContainer}">selected</c:if>>${webContainer.key}</option>
                                         </c:forEach>
@@ -92,9 +92,9 @@ function <portlet:namespace/>validateForm(){
                                 <td colspan="4" class="DarkBackground"><b>Log:</b></td>
                             </tr>
                             <tr>
-                                <td><fmt:message key="webaccesslogmanager.view.searchWebLog" />:</td>
+                                <td><label for="<portlet:namespace/>selectedLog"><fmt:message key="webaccesslogmanager.view.searchWebLog" /></label>:</td>
                                 <td>
-                                    <select name="selectedLog">
+                                    <select name="selectedLog" id="<portlet:namespace/>selectedLog">
                                         <c:forEach var="webLog" items="${webLogs}">
                                             <option<c:if test="${webLog eq selectedLog}">selected</c:if>>${webLog}</option>
                                         </c:forEach>
@@ -116,41 +116,41 @@ function <portlet:namespace/>validateForm(){
                         <td colspan="4" class="DarkBackground"><b><fmt:message key="consolebase.common.date"/>:</b></td>
                     </tr>
                     <tr>
-                        <td><fmt:message key="webaccesslogmanager.common.from"/>:</td>
+                        <td><label for="<portlet:namespace/>fromDate"><fmt:message key="webaccesslogmanager.common.from"/></label>:</td>
                         <td>
-                            <input type="text" name="fromDate" value="${fromDate}">
+                            <input type="text" name="fromDate" id="<portlet:namespace/>fromDate" value="${fromDate}">
                         </td>
-                        <td><fmt:message key="webaccesslogmanager.common.to"/>:</td>
+                        <td><label for="<portlet:namespace/>toDate"><fmt:message key="webaccesslogmanager.common.to"/></label>:</td>
                         <td>
-                            <input type="text" name="toDate" value="${toDate}">
+                            <input type="text" name="toDate" id="<portlet:namespace/>toDate" value="${toDate}">
                         </td>
                     </tr>
                     <tr>
-                        <td><fmt:message key="webaccesslogmanager.view.ignoreDates"/>:</td>
+                        <td><label for="<portlet:namespace/>ignoreDates"><fmt:message key="webaccesslogmanager.view.ignoreDates"/></label>:</td>
                         <td>
-                            <input type="checkbox" name="ignoreDates" < c:if test="${ignoreDates}">checked</c:if>/>
+                            <input type="checkbox" name="ignoreDates" id="<portlet:namespace/>ignoreDates" < c:if test="${ignoreDates}">checked</c:if>/>
                         </td>
                     </tr>
                     <tr>
                         <td colspan="4" class="DarkBackground"><b><fmt:message key="webaccesslogmanager.view.identity"/>:</b></td>
                     </tr>
                     <tr>
-                        <td><fmt:message key="webaccesslogmanager.common.remoteAddress"/>:</td>
+                        <td><label for="<portlet:namespace/>requestHost"><fmt:message key="webaccesslogmanager.common.remoteAddress"/></label>:</td>
                         <td>
-                            <input type="text" name="requestHost" value="${requestHost}"/>
+                            <input type="text" name="requestHost" id="<portlet:namespace/>requestHost" value="${requestHost}"/>
                         </td>
-                        <td><fmt:message key="webaccesslogmanager.common.authenticatedUser"/>:</td>
+                        <td><label for="<portlet:namespace/>authUser"><fmt:message key="webaccesslogmanager.common.authenticatedUser"/></label>:</td>
                         <td>
-                            <input type="text" name="authUser" value="${authUser}"/>
+                            <input type="text" name="authUser" id="<portlet:namespace/>authUser" value="${authUser}"/>
                         </td>
                     </tr>
                     <tr>
                         <td colspan="4" class="DarkBackground"><b><fmt:message key="webaccesslogmanager.common.request"/>:</b></td>
                     </tr>
                     <tr>
-                        <td><fmt:message key="webaccesslogmanager.common.requestMethod"/>:</td>
+                        <td><label for="<portlet:namespace/>requestMethod"><fmt:message key="webaccesslogmanager.common.requestMethod"/></label>:</td>
                         <td>
-                            <select name="requestMethod">
+                            <select name="requestMethod" id="<portlet:namespace/>requestMethod">
                                 <option value="" < c:if test="${empty requestMethod or requestMethod eq ''}">selected</c:if>>ANY</option>
                                 <option <c:if test="${requestMethod == 'GET'}">selected</c:if>>GET</option>
                                 <option <c:if test="${requestMethod == 'POST'}">selected</c:if>>POST</option>
@@ -158,22 +158,22 @@ function <portlet:namespace/>validateForm(){
                                 <option <c:if test="${requestMethod == 'DELETE'}">selected</c:if>>DELETE</option>
                             </select>
                         </td>
-                        <td><fmt:message key="webaccesslogmanager.common.requestedURI"/>:</td>
+                        <td><label for="<portlet:namespace/>requestedURI"><fmt:message key="webaccesslogmanager.common.requestedURI"/></label>:</td>
                         <td>
-                            <input type="text" name="requestedURI" value="${requestedURI}"/>
+                            <input type="text" name="requestedURI" id="<portlet:namespace/>requestedURI" value="${requestedURI}"/>
                         </td>
                     </tr>
                     <tr>
                         <td colspan="4" class="DarkBackground"><b><fmt:message key="webaccesslogmanager.view.resultSize"/>:</b></td>
                     </tr>
                     <tr>
-                        <td><fmt:message key="webaccesslogmanager.view.startResult"/>:</td>
+                        <td><label for="<portlet:namespace/>startResult"><fmt:message key="webaccesslogmanager.view.startResult"/></label>:</td>
                         <td>
-                            <input type="text" name="startResult" value="${startResult}"/>
+                            <input type="text" name="startResult" id="<portlet:namespace/>startResult" value="${startResult}"/>
                         </td>
-                        <td><fmt:message key="webaccesslogmanager.view.maxResults"/>:</td>
+                        <td><label for="<portlet:namespace/>maxResult"><fmt:message key="webaccesslogmanager.view.maxResults"/></label>:</td>
                         <td>
-                            <input type="text" name="maxResult" value="${maxResult}"/>
+                            <input type="text" name="maxResult" id="<portlet:namespace/>maxResult" value="${maxResult}"/>
                         </td>
                     </tr>
                     <tr>

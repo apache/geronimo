@@ -28,10 +28,10 @@ action="<portlet:actionURL>
 <portlet:param name="id" value="${id}" />
 <portlet:param name="alias" value="${alias}" /></portlet:actionURL>">
 <table>
-<th><fmt:message key="keystore.importCAReply.PKCS7CertificateReply"/></th>
+<th><label for="<portlet:namespace/>pkcs7cert"><fmt:message key="keystore.importCAReply.PKCS7CertificateReply"/></label></th>
 <tr>
 <td>
-<textarea rows="20" cols="80" name="pkcs7cert">
+<textarea rows="20" cols="80" name="pkcs7cert" id="<portlet:namespace/>pkcs7cert">
 <fmt:message key="keystore.importCAReply.pasteHere"/>
 </textarea>
 </td>

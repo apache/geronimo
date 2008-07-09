@@ -19,7 +19,7 @@
 
 <%@ taglib prefix="portlet" uri="http://java.sun.com/portlet" %>
 <portlet:defineObjects/>
-
+<fmt:setBundle basename="consolebase"/>
 <script language="JavaScript">
 // validate the form submission
 function <portlet:namespace/>validateForm(){
@@ -82,11 +82,11 @@ function <portlet:namespace/>validateForm(){
   <th class="DarkBackground">Description</th>
 </tr>
 <tr>
-  <td class="LightBackground"><strong>*uniqueName</strong></td>
+  <td class="LightBackground"><strong>*<fmt:message key="webmanager.common.uniqueName"/></strong></td>
   <td>String</td>
   <td><c:choose>
         <c:when test="${empty connectorURI}">
-            <input name="uniqueName" type="text" size="30">
+            <input name="uniqueName" title='<fmt:message key="webmanager.common.uniqueName"/>' type="text" size="30">
         </c:when>
         <c:otherwise>
             <input name="uniqueName" type="hidden" value='<c:out escapeXml="true" value="${uniqueName}"/>'>
@@ -102,14 +102,14 @@ function <portlet:namespace/>validateForm(){
   <tr>
     <td class="${style}">
     <c:if test="${connectorAttribute.required}"><strong>*</c:if>
-    ${connectorAttribute.attributeName}
+    <label for="<portlet:namespace/>${connectorAttribute.attributeName}">${connectorAttribute.attributeName}</label>
     <c:if test="${connectorAttribute.required}"></strong></c:if>
     </td>
     <td class="${style}">${connectorAttribute.attributeClass.simpleName}</td>
     <c:choose>
         <c:when test="${enumValues != null}">
     	    <td class="${style}">
-    	    <select name="${connectorAttribute.attributeName}">
+    	    <select name="${connectorAttribute.attributeName}" id="<portlet:namespace/>${connectorAttribute.attributeName}">
                 <c:if test="${fn:length(connectorAttribute.value) > 0}">
                     <option selected>
                       <c:out escapeXml="true" value="${connectorAttribute.value}"/>
@@ -126,19 +126,19 @@ function <portlet:namespace/>validateForm(){
     	     </td>
         </c:when>
         <c:when test="${connectorAttribute.attributeClass.simpleName eq 'Integer'}">
-    	    <td class="${style}"><input name="${connectorAttribute.attributeName}" type="text" size="5" 
+    	    <td class="${style}"><input name="${connectorAttribute.attributeName}" id="<portlet:namespace/>${connectorAttribute.attributeName}" type="text" size="5" 
     	     value="<c:out escapeXml="true" value="${connectorAttribute.stringValue}"/>"></td>
         </c:when>
         <c:when test="${connectorAttribute.attributeClass.simpleName eq 'Boolean'}">
-		    <td class="${style}"><input name="${connectorAttribute.attributeName}" type="checkbox" 
-		    <c:if test="${connectorAttribute.value}">checked</c:if>></td>
+		    <td class="${style}"><input name="${connectorAttribute.attributeName}" id="<portlet:namespace/>${connectorAttribute.attributeName}" type="checkbox" 
+		    <c:if test="${connectorAttribute.value}"><label for="<portlet:namespace/>${connectorAttribute.attributeName}">checked</label></c:if>></td>
         </c:when>
         <c:when test="${fn:containsIgnoreCase(connectorAttribute.attributeName, 'pass')}">
-		    <td class="${style}"><input name="${connectorAttribute.attributeName}" type="password" size="30"
+		    <td class="${style}"><input name="${connectorAttribute.attributeName}" id="<portlet:namespace/>${connectorAttribute.attributeName}" type="password" size="30"
     	     value="<c:out escapeXml="true" value="${connectorAttribute.stringValue}"/>"></td>
         </c:when>
         <c:otherwise>
-		    <td class="${style}"><input name="${connectorAttribute.attributeName}" type="text" size="30"
+		    <td class="${style}"><input name="${connectorAttribute.attributeName}" id="<portlet:namespace/>${connectorAttribute.attributeName}" type="text" size="30"
     	     value="<c:out escapeXml="true" value="${connectorAttribute.stringValue}"/>"></td>
         </c:otherwise>
     </c:choose>

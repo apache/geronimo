@@ -83,7 +83,7 @@ function <portlet:namespace/>selectAll(formName, objName){
        <c:choose>
 	   <c:when test="${add}"> 
 	    <input type="hidden" name="action" value="add">
-	    <input type="text" name="group" value="">
+	    <input type="text" name="group" title='<fmt:message key="consolebase.common.groupName"/>' value="">
        </c:when>
        <c:otherwise>
 	    <input type="hidden" name="action" value="update">
@@ -104,7 +104,7 @@ function <portlet:namespace/>selectAll(formName, objName){
             <table>
             <tr>
                 <td>
-                <select name="availusers" size="4" multiple>
+                <select name="availusers" title='<fmt:message key="consolebase.common.users"/>' size="4" multiple>
                 <%
                 for(int i = 0;i<users.length;i++){
                     String user = users[i];
@@ -129,7 +129,7 @@ function <portlet:namespace/>selectAll(formName, objName){
                     />                
                 </td> 
                 <td>
-                <select name="users" size="4" multiple>
+                <select name="users" title='<fmt:message key="consolebase.common.users"/>' size="4" multiple>
                 <%
                 for(int i = 0;i<users.length;i++){
                     String user = users[i];

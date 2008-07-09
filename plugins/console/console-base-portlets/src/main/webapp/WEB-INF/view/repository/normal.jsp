@@ -100,24 +100,24 @@ function <portlet:namespace/>parse(localFile) {
       <th colspan="2"><fmt:message key="repository.normal.addArchiveToRepository"/></th>
     </tr>
     <tr>
-      <td><fmt:message key="consolebase.common.file"/></td>
-      <td><input name="local" onchange="<portlet:namespace/>parse(value);" type="file">&nbsp;&nbsp;&nbsp;</td>
+      <td><label for="<portlet:namespace/>local"><fmt:message key="consolebase.common.file"/></label></td>
+      <td><input name="local" id="<portlet:namespace/>local" onchange="<portlet:namespace/>parse(value);" type="file">&nbsp;&nbsp;&nbsp;</td>
     </tr>
     <tr>
-      <td><fmt:message key="consolebase.common.group"/>:</td>
-      <td><input type="text" name="group" value="${group}"/></td>
+      <td><label for="<portlet:namespace/>group"><fmt:message key="consolebase.common.group"/></label>:</td>
+      <td><input type="text" name="group" id="<portlet:namespace/>group" value="${group}"/></td>
     </tr>
     <tr>
-      <td><fmt:message key="repository.normal.artifact"/>:</td>
-      <td><input type="text" name="artifact" value="${artifact}"/></td>
+      <td><label for="<portlet:namespace/>artifact"><fmt:message key="repository.normal.artifact"/></label>:</td>
+      <td><input type="text" name="artifact" id="<portlet:namespace/>artifact" value="${artifact}"/></td>
     </tr>
     <tr>
-      <td><fmt:message key="consolebase.common.version"/>:</td>
-      <td><input type="text" name="version" value="${version}"/></td>
+      <td><label for="<portlet:namespace/>version"><fmt:message key="consolebase.common.version"/></label>:</td>
+      <td><input type="text" name="version" id="<portlet:namespace/>version" value="${version}"/></td>
     </tr>
     <tr>
-      <td><fmt:message key="consolebase.common.type"/>:</td>
-      <td><input type="text" name="fileType" value="${fileType}"/></td>
+      <td><label for="<portlet:namespace/>fileType"><fmt:message key="consolebase.common.type"/></label>:</td>
+      <td><input type="text" name="fileType" id="<portlet:namespace/>fileType" value="${fileType}"/></td>
     </tr>
     <tr><td colspan="2"><font size="-2">&nbsp;</font></td></tr>
     <tr>

@@ -53,7 +53,7 @@
         <td>
       <c:choose> <%-- Can't change the realm name after deployment because it's wired into all the abstractNames --%>
         <c:when test="${empty realm.abstractName}">
-          <input name="name" type="text" size="30" value="${realm.name}">
+          <input name="name" title='<fmt:message key="realmwizard.common.realmName" />' type="text" size="30" value="${realm.name}">
         </c:when>
         <c:otherwise>
           <input name="name" type="hidden" value="${realm.name}" />
@@ -70,9 +70,9 @@
     <c:choose>
       <c:when test="${mode eq 'custom'}">
       <tr>
-        <th><div align="right"><fmt:message key="realmwizard.edit.loginModuleJAR" />:</div></th>
+        <th><div align="right"><label for="<portlet:namespace/>jar"><fmt:message key="realmwizard.edit.loginModuleJAR" /></label>:</div></th>
         <td>
-          <select name="jar">
+          <select name="jar" id="<portlet:namespace/>jar">
                   <option />
               <c:forEach var="availableJar" items="${jars}">
                   <option <c:if test="${availableJar == realm.jar}">selected</c:if>>
@@ -101,7 +101,7 @@
         <td>
       <c:choose> <%-- Can't change the login domain name after deployment because it's how we know which GBean is which --%>
         <c:when test="${empty realm.abstractName}">
-          <input name="module-domain-${status.index}" type="text" size="20" value="${module.loginDomainName}" />
+          <input name="module-domain-${status.index}" title='<fmt:message key="realmwizard.common.loginDomainName" />' type="text" size="20" value="${module.loginDomainName}" />
         </c:when>
         <c:otherwise>
           <input name="module-domain-${status.index}" type="hidden" value="${module.loginDomainName}" />
@@ -117,17 +117,17 @@
         <td><fmt:message key="realmwizard.edit.loginDomainExp" /></td>
       </tr>
       <tr>
-        <th><div align="right"><fmt:message key="realmwizard.common.loginModuleClass" />:</div></th>
-        <td><input name="module-class-${status.index}" type="text" size="60" value="${module.className}" /></td>
+        <th><div align="right"><label for="<portlet:namespace/>module-class-${status.index}"><fmt:message key="realmwizard.common.loginModuleClass" /></label>:</div></th>
+        <td><input name="module-class-${status.index}" id="<portlet:namespace/>module-class-${status.index}" type="text" size="60" value="${module.className}" /></td>
       </tr>
       <tr>
         <td></td>
         <td><fmt:message key="realmwizard.edit.loginModuleClassExp" /></td>
       </tr>
       <tr>
-        <th><div align="right"><fmt:message key="realmwizard.common.controlFlag" />:</div></th>
+        <th><div align="right"><label for="<portlet:namespace/>module-control-${status.index}"><fmt:message key="realmwizard.common.controlFlag" /></label>:</div></th>
         <td>
-          <select name="module-control-${status.index}">
+          <select name="module-control-${status.index}" id="<portlet:namespace/>module-control-${status.index}">
             <option value="OPTIONAL"<c:if test="${module.controlFlag eq 'OPTIONAL'}"> selected</c:if>>Optional</option>
             <option value="REQUIRED"<c:if test="${module.controlFlag eq 'REQUIRED'}"> selected</c:if>>Required</option>
             <option value="REQUISITE"<c:if test="${module.controlFlag eq 'REQUISITE'}"> selected</c:if>>Requisite</option>
@@ -141,9 +141,9 @@
           <a href="http://java.sun.com/j2se/1.4.2/docs/api/javax/security/auth/login/Configuration.html">javax.security.auth.login.Configuration</a>.</td>
       </tr>
       <tr>
-        <th><div align="right"><fmt:message key="realmwizard.common.supportAdvancedMapping" />:</div></th>
+        <th><div align="right"><label for="<portlet:namespace/>module-wrap-${status.index}"><fmt:message key="realmwizard.common.supportAdvancedMapping" /></label>:</div></th>
         <td>
-          <select name="module-wrap-${status.index}">
+          <select name="module-wrap-${status.index}" id="<portlet:namespace/>module-wrap-${status.index}">
             <option value="true"<c:if test="${module.wrapPrincipals}"> selected</c:if>>Yes</option>
             <option value="false"<c:if test="${!module.wrapPrincipals}"> selected</c:if>>No</option>
           </select>
@@ -154,8 +154,8 @@
         <td><fmt:message key="realmwizard.edit.supportAdvancedMappingExp" /></td>
       </tr>
       <tr>
-        <th><div align="right"><fmt:message key="realmwizard.common.configurationOptions" />:</div></th>
-        <td><textarea name="module-options-${status.index}" rows="5" cols="60">${module.optionString}</textarea></td>
+        <th><div align="right"><label for="<portlet:namespace/>module-options-${status.index}"><fmt:message key="realmwizard.common.configurationOptions" /></label>:</div></th>
+        <td><textarea name="module-options-${status.index}" id="<portlet:namespace/>module-options-${status.index}" rows="5" cols="60">${module.optionString}</textarea></td>
       </tr>
       <tr>
         <td></td>

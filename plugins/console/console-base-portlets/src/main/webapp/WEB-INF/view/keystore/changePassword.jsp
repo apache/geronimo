@@ -55,21 +55,21 @@ function <portlet:namespace/>validateForm(){
     <input type="hidden" name="mode" value="${mode}" />
     <table border="0">
         <tr>
-            <th align="right"><fmt:message key="keystore.changePassword.oldPassword"/>:</th>
+            <th align="right"><label for="<portlet:namespace/>password"><fmt:message key="keystore.changePassword.oldPassword"/></label>:</th>
             <td>
-                <input type="password" name="password" size="20" maxlength="200" />
+                <input type="password" name="password" id="<portlet:namespace/>password" size="20" maxlength="200" />
             </td>
         </tr>
         <tr>
-            <th align="right"><fmt:message key="keystore.changePassword.newPassword"/>:</th>
+            <th align="right"><label for="<portlet:namespace/>newPassword"><fmt:message key="keystore.changePassword.newPassword"/></label>:</th>
             <td>
-                <input type="password" name="newPassword" size="20" maxlength="200" />
+                <input type="password" name="newPassword" id="<portlet:namespace/>newPassword" size="20" maxlength="200" />
             </td>
         </tr>
         <tr>
-            <th align="right"><fmt:message key="keystore.changePassword.confirmPassword"/>:</th>
+            <th align="right"><label for="<portlet:namespace/>confirm-newPassword"><fmt:message key="keystore.changePassword.confirmPassword"/></label>:</th>
             <td>
-                <input type="password" name="confirm-newPassword" size="20" maxlength="200" />
+                <input type="password" name="confirm-newPassword" id="<portlet:namespace/>confirm-newPassword" size="20" maxlength="200" />
             </td>
         </tr>
     </table>

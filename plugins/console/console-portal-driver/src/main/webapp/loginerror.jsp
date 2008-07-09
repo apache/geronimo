@@ -78,17 +78,17 @@
               </tr>
               <tr>
                 <td class="MediumBackground" ROWSPAN=3 ALIGN="center" ><img border="0" align="center" src="<%=request.getContextPath()%>/images/login_lock_64x55.gif" alt=""/></td> 
-                <td align="right" class="MediumBackground"><strong><fmt:message key="console.common.username"/></strong></td>
+                <td align="right" class="MediumBackground"><strong><label for="<portlet:namespace/>j_username"><fmt:message key="console.common.username"/></label></strong></td>
                 <td class="MediumBackground"><strong>:</strong></td>
                 <td width="1" class="MediumBackground">&nbsp;</td>
-                <td class="MediumBackground"><input name="j_username" type="text" class="InputField" value="" size="20px" maxlength="25"/></td>
+                <td class="MediumBackground"><input name="j_username" id="<portlet:namespace/>j_username" type="text" class="InputField" value="" size="20px" maxlength="25"/></td>
                 <td width="17" class="MediumBackground">&nbsp;</td>
               </tr>
               <tr>
-                <td align="right" class="MediumBackground"><strong><fmt:message key="console.common.password"/></strong></td>
+                <td align="right" class="MediumBackground"><strong><label for="<portlet:namespace/>j_password"><fmt:message key="console.common.password"/></label></strong></td>
                 <td class="MediumBackground"><strong>:</strong></td>
                 <td width="1" class="MediumBackground">&nbsp;</td>
-                <td class="MediumBackground"><input name="j_password" type="password" class="InputField" value="" size="20px" maxlength="25"/></td>
+                <td class="MediumBackground"><input name="j_password" id="<portlet:namespace/>j_password" type="password" class="InputField" value="" size="20px" maxlength="25"/></td>
                 <td class="MediumBackground">&nbsp;</td>
               </tr>
               <tr>

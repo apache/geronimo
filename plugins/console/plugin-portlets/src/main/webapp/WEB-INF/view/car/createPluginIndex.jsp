@@ -37,11 +37,11 @@ function <portlet:namespace/>validateForm(){
 
 <h2><fmt:message key="car.common.createGeronimoPlugin"/></h2>
 
-<p><fmt:message key="car.index.createGeronimoPluginExp"/></p>
+<p><label for="<portlet:namespace/>configId"><fmt:message key="car.index.createGeronimoPluginExp"/></label></p>
 
 <form name="<portlet:namespace/>ExportForm" action="<portlet:actionURL/>" method="POST" onsubmit="return <portlet:namespace/>validateForm()">
     <input type="hidden" name="mode" value="configure-before"/>
-    <select name="configId">
+    <select name="configId" id="<portlet:namespace/>configId">
         <option/>
         <c:forEach var="config" items="${configurations}">
             <option>${config.configID}</option>

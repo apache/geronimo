@@ -70,39 +70,39 @@ function <portlet:namespace/>validateForm(){
             <th colspan="2" align="left"><fmt:message key="ca.common.certAuthorityIdentity"/></th>
         </tr>
         <tr>
-            <th align="right"><fmt:message key="ca.common.commonName"/> (CN):</th>
+            <th align="right"><label for="<portlet:namespace/>caCN"><fmt:message key="ca.common.commonName"/> (CN)</label>:</th>
             <td>
-                <input type="text" name="caCN" size="20" maxlength="200" value="${caCN}"/>
+                <input type="text" name="caCN" id="<portlet:namespace/>caCN" size="20" maxlength="200" value="${caCN}"/>
             </td>
         </tr>
         <tr>
-            <th align="right"><fmt:message key="ca.common.Division_BusinessUnit"/> (OU):</th>
+            <th align="right"><label for="<portlet:namespace/>caOU"><fmt:message key="ca.common.Division_BusinessUnit"/> (OU)</label>:</th>
             <td>
-                <input type="text" name="caOU" size="20" maxlength="200" value="${caOU}"/>
+                <input type="text" name="caOU" id="<portlet:namespace/>caOU" size="20" maxlength="200" value="${caOU}"/>
             </td>
         </tr>
         <tr>
-            <th align="right"><fmt:message key="ca.common.company_Organization"/> (O):</th>
+            <th align="right"><label for="<portlet:namespace/>caO"><fmt:message key="ca.common.company_Organization"/> (O)</label>:</th>
             <td>
-                <input type="text" name="caO" size="20" maxlength="200" value="${caO}"/>
+                <input type="text" name="caO" id="<portlet:namespace/>caO" size="20" maxlength="200" value="${caO}"/>
             </td>
         </tr>
         <tr>
-            <th align="right"><fmt:message key="ca.common.city_Locality"/> (L):</th>
+            <th align="right"><label for="<portlet:namespace/>caL"><fmt:message key="ca.common.city_Locality"/> (L)</label>:</th>
             <td>
-                <input type="text" name="caL" size="20" maxlength="200" value="${caL}"/>
+                <input type="text" name="caL" id="<portlet:namespace/>caL" size="20" maxlength="200" value="${caL}"/>
             </td>
         </tr>
         <tr>
-            <th align="right"><fmt:message key="ca.common.state_Province"/> (ST):</th>
+            <th align="right"><label for="<portlet:namespace/>caST"><fmt:message key="ca.common.state_Province"/> (ST)</label>:</th>
             <td>
-                <input type="text" name="caST" size="20" maxlength="200" value="${caST}"/>
+                <input type="text" name="caST" id="<portlet:namespace/>caST" size="20" maxlength="200" value="${caST}"/>
             </td>
         </tr>
         <tr>
-            <th align="right"><fmt:message key="ca.common.countryCode"/> (2 char) (C):</th>
+            <th align="right"><label for="<portlet:namespace/>caC"><fmt:message key="ca.common.countryCode"/> (2 char) (C)</label>:</th>
             <td>
-                <input type="text" name="caC" size="3" maxlength="2" value="${caC}"/>
+                <input type="text" name="caC" id="<portlet:namespace/>caC" size="3" maxlength="2" value="${caC}"/>
             </td>
         </tr>
         <tr><td>&nbsp;</td></tr>
@@ -110,24 +110,24 @@ function <portlet:namespace/>validateForm(){
             <th colspan="2" align="left"><fmt:message key="ca.common.keyDetails"/></th>
         </tr>
         <tr>
-            <th align="right"><fmt:message key="consolebase.common.alias"/>:</th>
+            <th align="right"><label for="<portlet:namespace/>alias"><fmt:message key="consolebase.common.alias"/></label>:</th>
             <td>
-                <input type="text" name="alias" size="20" maxlength="100" value="${alias}"/>
+                <input type="text" name="alias" id="<portlet:namespace/>alias" size="20" maxlength="100" value="${alias}"/>
             </td>
         </tr>
 
         <tr>
-            <th align="right"><fmt:message key="ca.common.keyAlgorithm"/>:</th>
+            <th align="right"><label for="<portlet:namespace/>keyAlgorithm"><fmt:message key="ca.common.keyAlgorithm"/></label>:</th>
             <td>
-                <select name="keyAlgorithm">
+                <select name="keyAlgorithm" id="<portlet:namespace/>keyAlgorithm">
                     <option <c:if test="${keyAlgorithm eq 'RSA' || keyAlgorithm eq '' || empty(keyAlgorithm)}">selected</c:if> >RSA</option>
                 </select>
             </td>
         </tr>
         <tr>
-            <th align="right"><fmt:message key="ca.common.keySize"/>:</th>
+            <th align="right"><label for="<portlet:namespace/>keySize"><fmt:message key="ca.common.keySize"/></label>:</th>
             <td>
-                <select name="keySize">
+                <select name="keySize" id="<portlet:namespace/>keySize">
                     <option <c:if test="${keySize eq '512'}">selected</c:if> >512</option>
                     <option <c:if test="${keySize eq '1024' || keySize eq '' || empty(keySize)}">selected</c:if> >1024</option>
                     <option <c:if test="${keySize eq '2048'}">selected</c:if> >2048</option>
@@ -135,15 +135,15 @@ function <portlet:namespace/>validateForm(){
             </td>
         </tr>
         <tr>
-            <th align="right"><fmt:message key="consolebase.common.password"/>:</th>
+            <th align="right"><label for="<portlet:namespace/>password"><fmt:message key="consolebase.common.password"/></label>:</th>
             <td>
-                <input type="password" name="password" size="20" maxlength="200"/>
+                <input type="password" name="password" id="<portlet:namespace/>password" size="20" maxlength="200"/>
             </td>
         </tr>
         <tr>
-            <th align="right"><fmt:message key="consolebase.common.confirmPassword"/>:</th>
+            <th align="right"><label for="<portlet:namespace/>confirm"><fmt:message key="consolebase.common.confirmPassword"/></label>:</th>
             <td>
-                <input type="password" name="confirm" size="20" maxlength="200"/>
+                <input type="password" name="confirm" id="<portlet:namespace/>confirm" size="20" maxlength="200"/>
             </td>
         </tr>
         <tr><td>&nbsp</td></tr>
@@ -151,27 +151,27 @@ function <portlet:namespace/>validateForm(){
             <th colspan="2" align="left"><fmt:message key="ca.common.certificateDetails"/></th>
         </tr>
         <tr>
-            <th align="right"><fmt:message key="ca.common.certSerialNumber"/>:</th>
+            <th align="right"><label for="<portlet:namespace/>sNo"><fmt:message key="ca.common.certSerialNumber"/></label>:</th>
             <td>
-                <input type="text" name="sNo" size="20" maxlength="200" value="${sNo}"/>
+                <input type="text" name="sNo" id="<portlet:namespace/>sNo" size="20" maxlength="200" value="${sNo}"/>
             </td>
         </tr>
         <tr>
-            <th align="right"><fmt:message key="ca.common.validFromDate"/>(mm/dd/yyyy):</th>
+            <th align="right"><label for="<portlet:namespace/>validFrom"><fmt:message key="ca.common.validFromDate"/>(mm/dd/yyyy)</label>:</th>
             <td>
-                <input type="text" name="validFrom" size="20" maxlength="200" value="${validFrom}"/>
+                <input type="text" name="validFrom" id="<portlet:namespace/>validFrom" size="20" maxlength="200" value="${validFrom}"/>
             </td>
         </tr>
         <tr>
-            <th align="right"><fmt:message key="ca.common.validToDate"/>(mm/dd/yyyy):</th>
+            <th align="right"><label for="<portlet:namespace/>validTo"><fmt:message key="ca.common.validToDate"/>(mm/dd/yyyy)</label>:</th>
             <td>
-                <input type="text" name="validTo" size="20" maxlength="200" value="${validTo}"/>
+                <input type="text" name="validTo" id="<portlet:namespace/>validTo" size="20" maxlength="200" value="${validTo}"/>
             </td>
         </tr>
         <tr>
-            <th align="right"><fmt:message key="ca.common.signatureAlgorithm"/>:</th>
+            <th align="right"><label for="<portlet:namespace/>algorithm"><fmt:message key="ca.common.signatureAlgorithm"/></label>:</th>
             <td>
-                <select name="algorithm">
+                <select name="algorithm" id="<portlet:namespace/>algorithm">
                     <option <c:if test="${algorithm eq 'MD2withRSA'}">selected</c:if> >MD2withRSA</option>
                     <option <c:if test="${algorithm eq 'MD5withRSA' || algorithm eq '' || empty(algorithm)}">selected</c:if> >MD5withRSA</option>
                     <option <c:if test="${algorithm eq 'SHA1withRSA'}">selected</c:if> >SHA1withRSA</option>

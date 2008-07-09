@@ -216,11 +216,11 @@ function toggleShowDependenciesMode() {
 
 
 <form name="checkExpert">
-<input type="checkbox" name="expertMode" onClick="toggleExpertMode();" />&nbsp;Expert User (enable all actions on Geronimo Provided Components)  
+<input type="checkbox" name="expertMode" id="<portlet:namespace/>expertMode" onClick="toggleExpertMode();" />&nbsp;<label for="<portlet:namespace/>expertMode">Expert User (enable all actions on Geronimo Provided Components)</label>  
 </form>
 
 <form name="showDependenciesForm">
-<input type="checkbox" name="showDependenciesMode" onClick="toggleShowDependenciesMode();" />&nbsp;Show parent and child components
+<input type="checkbox" name="showDependenciesMode" id="<portlet:namespace/>showDependenciesMode" onClick="toggleShowDependenciesMode();" />&nbsp;<label for="<portlet:namespace/>showDependenciesMode">Show parent and child components</label>
 </form>
 
 <table width="100%">

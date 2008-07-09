@@ -80,7 +80,7 @@ function <portlet:namespace/>selectAll(formName, objName){
        <c:choose>
        <c:when test="${add}"> 
         <input type="hidden" name="action" value="add">
-        <input type="text" name="GroupName" value="">
+        <input type="text" name="GroupName" title='<fmt:message key="consolebase.common.groupName"/>' value="">
        </c:when>
        <c:otherwise>
         <input type="hidden" name="action" value="update">
@@ -92,8 +92,8 @@ function <portlet:namespace/>selectAll(formName, objName){
     </tr>   
 
     <tr>
-        <td width="200" class="formLabel"><fmt:message key="consolebase.common.description"/></td>
-        <td class="formElement"><input type="text" name="Description" value="${Description}"></td>
+        <td width="200" class="formLabel"><label for="<portlet:namespace/>Description"><fmt:message key="consolebase.common.description"/></label></td>
+        <td class="formElement"><input type="text" name="Description" id="<portlet:namespace/>Description" value="${Description}"></td>
     </tr>   
     <tr>
         <td class="formLabel"><fmt:message key="consolebase.common.users"/></td>
@@ -103,7 +103,7 @@ function <portlet:namespace/>selectAll(formName, objName){
         <table>
             <tr>
                 <td>
-                    <select name="usersToRemove" size="4" multiple>
+                    <select name="usersToRemove" title='<fmt:message key="consolebase.common.users"/>' size="4" multiple>
                     <c:forEach var="user" items="${otherUsers}">
                         <option value="${user}">${user}</option>
                     </c:forEach>    
@@ -121,7 +121,7 @@ function <portlet:namespace/>selectAll(formName, objName){
                     />                
                 </td> 
                 <td>
-                <select name="Members" size="4" multiple>
+                <select name="Members" title='<fmt:message key="consolebase.common.users"/>' size="4" multiple>
                 <c:forEach var="user" items="${users}">
                     <option value="${user}">${user}</option>
                 </c:forEach>    

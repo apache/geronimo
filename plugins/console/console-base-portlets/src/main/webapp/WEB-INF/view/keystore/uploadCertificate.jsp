@@ -40,7 +40,7 @@ step will be to review the certificate before committing it to the keystore.</p>
     <input type="hidden" name="id" value="${id}" />
     <input type="hidden" name="mode" value="uploadCertificate-after" />
     <table border="0">
-        <th align="left"> <fmt:message key="keystore.common.trustedCertificate"/> </th>
+        <th align="left"> <label for="<portlet:namespace/>certificate"><fmt:message key="keystore.common.trustedCertificate"/></label> </th>
 <!-- Uploading certificate using a disk file fails on Windows.  Certificate text is used instead.
         <tr>
             <th align="right">Certificate file:</th>
@@ -51,13 +51,13 @@ step will be to review the certificate before committing it to the keystore.</p>
  -->
         <tr>
             <td colspan="2">
-                <textarea rows="15" cols="80" name="certificate"><fmt:message key="keystore.uploadCertificate.pasteHere"/></textarea>
+                <textarea rows="15" cols="80" name="certificate" id="<portlet:namespace/>certificate"><fmt:message key="keystore.uploadCertificate.pasteHere"/></textarea>
             </td>
         </tr>
         <tr>
-            <th align="left"><fmt:message key="keystore.uploadCertificate.aliasForCertificate"/>:</th>
+            <th align="left"><label for="<portlet:namespace/>alias"><fmt:message key="keystore.uploadCertificate.aliasForCertificate"/></label>:</th>
             <td>
-                <input type="text" name="alias" size="20" maxlength="200" />
+                <input type="text" name="alias" id="<portlet:namespace/>alias" size="20" maxlength="200" />
             </td>
         </tr>
     </table>

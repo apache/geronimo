@@ -50,27 +50,27 @@ function <portlet:namespace/>validateForm(){
     <input type="hidden" name="mode" value="configureKey-after" />
     <table border="0">
         <tr>
-            <th align="right"><fmt:message key="keystore.configureKey.aliasForKey"/>:</th>
+            <th align="right"><label for="<portlet:namespace/>alias"><fmt:message key="keystore.configureKey.aliasForKey"/></label>:</th>
             <td>
-                <input type="text" name="alias" size="20" maxlength="100" />
+                <input type="text" name="alias" id="<portlet:namespace/>alias" size="20" maxlength="100" />
             </td>
         </tr>
         <tr>
-            <th align="right"><fmt:message key="keystore.configureKey.passwordForKey"/></th>
+            <th align="right"><label for="<portlet:namespace/>password"><fmt:message key="keystore.configureKey.passwordForKey"/></label></th>
             <td>
-                <input type="password" name="password" size="20" maxlength="200" />
+                <input type="password" name="password" id="<portlet:namespace/>password" size="20" maxlength="200" />
             </td>
         </tr>
         <tr>
-            <th align="right"><fmt:message key="consolebase.common.confirmPassword"/>:</th>
+            <th align="right"><label for="<portlet:namespace/>confirm-password"><fmt:message key="consolebase.common.confirmPassword"/></label>:</th>
             <td>
-                <input type="password" name="confirm-password" size="20" maxlength="200" />
+                <input type="password" name="confirm-password" id="<portlet:namespace/>confirm-password" size="20" maxlength="200" />
             </td>
         </tr>
         <tr>
-            <th align="right"><fmt:message key="keystore.configureKey.keySize"/>:</th>
+            <th align="right"><label for="<portlet:namespace/>keySize"><fmt:message key="keystore.configureKey.keySize"/></label>:</th>
             <td>
-                <select name="keySize">
+                <select name="keySize" id="<portlet:namespace/>keySize">
                     <option>512</option>
                     <option selected="true">1024</option>
                     <option>2048</option>
@@ -78,9 +78,9 @@ function <portlet:namespace/>validateForm(){
             </td>
         </tr>
         <tr>
-            <th align="right"><fmt:message key="keystore.configureKey.algorithm"/>:</th>
+            <th align="right"><label for="<portlet:namespace/>algorithm"><fmt:message key="keystore.configureKey.algorithm"/></label>:</th>
             <td>
-                <select name="algorithm">
+                <select name="algorithm" id="<portlet:namespace/>algorithm">
                     <option>MD2withRSA</option>
                     <option selected="true">MD5withRSA</option>
                     <option>SHA1withRSA</option>
@@ -88,48 +88,48 @@ function <portlet:namespace/>validateForm(){
             </td>
         </tr>
         <tr>
-            <th align="right"><fmt:message key="keystore.configureKey.validFor"/> :</th>
+            <th align="right"><label for="<portlet:namespace/>valid"><fmt:message key="keystore.configureKey.validFor"/> </label>:</th>
             <td>
-                <input type="text" name="valid" size="5" maxlength="8" />
+                <input type="text" name="valid" id="<portlet:namespace/>valid" size="5" maxlength="8" />
             </td>
         </tr>
         <tr>
             <th colspan="2"><fmt:message key="keystore.configureKey.certificateIdentity"/></th>
         </tr>
         <tr>
-            <th align="right"><fmt:message key="keystore.configureKey.serverHostname"/> (CN):</th>
+            <th align="right"><label for="<portlet:namespace/>certCN"><fmt:message key="keystore.configureKey.serverHostname"/> (CN)</label>:</th>
             <td>
-                <input type="text" name="certCN" size="20" maxlength="200" />
+                <input type="text" name="certCN" id="<portlet:namespace/>certCN" size="20" maxlength="200" />
             </td>
         </tr>
         <tr>
-            <th align="right"><fmt:message key="keystore.configureKey.company_Org"/> (O):</th>
+            <th align="right"><label for="<portlet:namespace/>certO"><fmt:message key="keystore.configureKey.company_Org"/> (O)</label>:</th>
             <td>
-                <input type="text" name="certO" size="20" maxlength="200" />
+                <input type="text" name="certO" id="<portlet:namespace/>certO" size="20" maxlength="200" />
             </td>
         </tr>
         <tr>
-            <th align="right"><fmt:message key="keystore.configureKey.division_BusinessUnit"/> (OU):</th>
+            <th align="right"><label for="<portlet:namespace/>certOU"><fmt:message key="keystore.configureKey.division_BusinessUnit"/> (OU)</label>:</th>
             <td>
-                <input type="text" name="certOU" size="20" maxlength="200" />
+                <input type="text" name="certOU" id="<portlet:namespace/>certOU" size="20" maxlength="200" />
             </td>
         </tr>
         <tr>
-            <th align="right"><fmt:message key="keystore.configureKey.city_Locality"/> (L):</th>
+            <th align="right"><label for="<portlet:namespace/>certL"><fmt:message key="keystore.configureKey.city_Locality"/> (L)</label>:</th>
             <td>
-                <input type="text" name="certL" size="20" maxlength="200" />
+                <input type="text" name="certL" id="<portlet:namespace/>certL" size="20" maxlength="200" />
             </td>
         </tr>
         <tr>
-            <th align="right"><fmt:message key="keystore.configureKey.state_Province"/> (ST):</th>
+            <th align="right"><label for="<portlet:namespace/>certST"><fmt:message key="keystore.configureKey.state_Province"/> (ST)</label>:</th>
             <td>
-                <input type="text" name="certST" size="20" maxlength="200" />
+                <input type="text" name="certST" id="<portlet:namespace/>certST" size="20" maxlength="200" />
             </td>
         </tr>
         <tr>
-            <th align="right"><fmt:message key="keystore.configureKey.country_Code"/> (2 char) (C):</th>
+            <th align="right"><label for="<portlet:namespace/>certC"><fmt:message key="keystore.configureKey.country_Code"/> (2 char) (C)</label>:</th>
             <td>
-                <input type="text" name="certC" size="3" maxlength="2" />
+                <input type="text" name="certC" id="<portlet:namespace/>certC" size="3" maxlength="2" />
             </td>
         </tr>
     </table>

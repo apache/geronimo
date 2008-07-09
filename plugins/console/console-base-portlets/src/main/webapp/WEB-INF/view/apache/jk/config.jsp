@@ -36,9 +36,9 @@
     <table border="0">
         <!-- ENTRY FIELD: OS -->
         <tr>
-            <th><div align="right"><fmt:message key="apache.jk.config.operatingSystem"/>:</div></th>
+            <th><div align="right"><label for="<portlet:namespace/>os"><fmt:message key="apache.jk.config.operatingSystem"/></label>:</div></th>
             <td>
-                <select name="os">
+                <select name="os" id="<portlet:namespace/>os">
                     <option></option>
                     <option <c:if test="${model.os == 'Fedora Core 4'}">selected</c:if>>Fedora Core 4</option>
                     <option <c:if test="${model.os == 'SuSE Pro 9.0'}">selected</c:if>>SuSE Pro 9.0</option>
@@ -58,8 +58,8 @@
 
         <!-- ENTRY FIELD: workers.properties path -->
         <tr>
-            <th><div align="right"><fmt:message key="apache.jk.config.pathToProperties"/>:</div></th>
-            <td><input name="workersPath" type="text" size="30" maxlength="255"
+            <th><div align="right"><label for="<portlet:namespace/>workersPath"><fmt:message key="apache.jk.config.pathToProperties"/></label>:</div></th>
+            <td><input name="workersPath" id="<portlet:namespace/>workersPath" type="text" size="30" maxlength="255"
                        value="${model.workersPath}"/></td>
         </tr>
         <tr>
@@ -69,8 +69,8 @@
 
         <!-- ENTRY FIELD: log file path -->
         <tr>
-            <th><div align="right"><fmt:message key="apache.jk.config.logFileLocation"/>:</div></th>
-            <td><input name="logFilePath" type="text" size="30" maxlength="255"
+            <th><div align="right"><label for="<portlet:namespace/>logFilePath"><fmt:message key="apache.jk.config.logFileLocation"/></label>:</div></th>
+            <td><input name="logFilePath" id="<portlet:namespace/>logFilePath" type="text" size="30" maxlength="255"
                        value="${model.logFilePath}"/></td>
         </tr>
         <tr>

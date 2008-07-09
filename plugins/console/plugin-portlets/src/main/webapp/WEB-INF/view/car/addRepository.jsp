@@ -45,7 +45,7 @@
 
 <form name="<portlet:namespace/>PluginForm" action="<portlet:actionURL/>">
     <input type="hidden" name="mode" value="addRepository-after" />
-    <b><fmt:message key="car.common.newRepository" />:</b> <input type="text" name="newRepository" size="40" maxlength="200" />
+    <b><label for="<portlet:namespace/>newRepository"><fmt:message key="car.common.newRepository" /></label>:</b> <input type="text" name="newRepository" id="<portlet:namespace/>newRepository" size="40" maxlength="200" />
     <br />
     <c:if test="${!empty repoError}">
       <p><font color="red">${repoError}</font></p>

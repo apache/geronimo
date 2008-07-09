@@ -119,10 +119,10 @@
     </tr>
     <tr><td>&nbsp;</td></tr>
     <tr>
-        <th colspan="2" align="left"><fmt:message key="ca.common.base64EncodedCertText"/></th>
+        <th colspan="2" align="left"><label for="<portlet:namespace/>base64EncodedCertText"><fmt:message key="ca.common.base64EncodedCertText"/></label></th>
     </tr>
     <tr>
-        <td colspan="2"><form><textarea rows="15" cols="80" READONLY>${certText}</textarea></form></td>
+        <td colspan="2"><form><textarea rows="15" cols="80" id="<portlet:namespace/>base64EncodedCertText" READONLY>${certText}</textarea></form></td>
     </tr>
   </table>
 </c:if>

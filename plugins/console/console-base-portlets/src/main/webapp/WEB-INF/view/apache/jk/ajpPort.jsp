@@ -38,8 +38,8 @@
     <table border="0">
         <!-- ENTRY FIELD: AJP Port -->
         <tr>
-            <th><div align="right"><fmt:message key="apache.jk.ajpPort.networkPort"/>:</div></th>
-            <td><input name="addAjpPort" type="text" size="5" maxlength="5"
+            <th><div align="right"><label for="<portlet:namespace/>addAjpPort"><fmt:message key="apache.jk.ajpPort.networkPort"/></label>:</div></th>
+            <td><input name="addAjpPort" id="<portlet:namespace/>addAjpPort" type="text" size="5" maxlength="5"
                        value="${model.addAjpPort}"/></td>
         </tr>
         <tr>

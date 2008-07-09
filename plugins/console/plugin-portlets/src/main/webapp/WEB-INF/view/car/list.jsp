@@ -69,7 +69,7 @@
 <c:set var="artifact" value="${plugin.pluginArtifact.moduleId}"/>
 <tr>
     <td class="${style}">
-        <input type="checkbox" name="plugin" value="${artifact.groupId}/${artifact.artifactId}/${artifact.version}/${artifact.type}" ${plugin.installable ? "": "disabled='true'"}/>
+        <input type="checkbox" name="plugin" title="${artifact.groupId}/${artifact.artifactId}/${artifact.version}/${artifact.type}" value="${artifact.groupId}/${artifact.artifactId}/${artifact.version}/${artifact.type}" ${plugin.installable ? "": "disabled='true'"}/>
     </td>
   <td class="${style}">
     <a href='<portlet:actionURL>

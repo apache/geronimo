@@ -20,7 +20,7 @@ limitations under the License.
 <%@ taglib uri="http://java.sun.com/jstl/fmt" prefix="fmt" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet" %>
 <%@ taglib uri="http://portals.apache.org/pluto/portlet-el" prefix="portlet-el" %>
-
+<fmt:setBundle basename="portaldriver"/>
 <portlet:defineObjects/>
 
 <portlet:actionURL var="formActionUrl"/>
@@ -70,14 +70,14 @@ limitations under the License.
 
 
 
-    <select name="page" onChange="<portlet:namespace/>doSwitchPage(this)">
+    <select name="page" title='<fmt:message key="console.common.pages" />' onChange="<portlet:namespace/>doSwitchPage(this)">
       <option value="Select. . .">Select. . .</option>
     <c:forEach items="${driverConfig.pages}" var="page">
       <option value="<c:out value="${page.name}"/>"><c:out value="${page.name}"/></option>
     </c:forEach>
     </select>
 
-    <select name="placedPortlets" size="5">
+    <select name="placedPortlets" title='<fmt:message key="console.common.pages" />' size="5">
 
     </select>
 
@@ -124,14 +124,14 @@ limitations under the License.
         }
     </script>
 
-    <select name="applications" onChange="<portlet:namespace/>doSwitch(this)">
+    <select name="applications" title='<fmt:message key="console.common.applications" />' onChange="<portlet:namespace/>doSwitch(this)">
       <option value='-'>Select. . .</option>
       <c:forEach items="${portletContainer.optionalContainerServices.portletRegistryService.registeredPortletApplications}" var="app">
       <option value="<c:out value="${app.applicationId}"/>"><c:out value="${app.applicationName}"/></option>
       </c:forEach>
     </select>
 
-    <select name="availablePortlets" disabled="true" onChange='<portlet:namespace/>doSwitchButton(this)'>
+    <select name="availablePortlets" title='<fmt:message key="console.common.applications" />' disabled="true" onChange='<portlet:namespace/>doSwitchButton(this)'>
 
     </select>
 

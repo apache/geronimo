@@ -43,27 +43,27 @@ function <portlet:namespace/>validateForm(){
     <input type="hidden" name="mode" value="createKeystore-after" />
     <table border="0">
         <tr>
-            <th align="right"><fmt:message key="keystore.createKeystore.keystoreFileName"/>:</th>
+            <th align="right"><label for="<portlet:namespace/>filename"><fmt:message key="keystore.createKeystore.keystoreFileName"/></label>:</th>
             <td>
-                <input type="text" name="filename" size="20" maxlength="100" />
+                <input type="text" name="filename" id="<portlet:namespace/>filename" size="20" maxlength="100" />
             </td>
         </tr>
         <tr>
-            <th align="right"><fmt:message key="keystore.createKeystore.passwordForKeystore"/>:</th>
+            <th align="right"><label for="<portlet:namespace/>password"><fmt:message key="keystore.createKeystore.passwordForKeystore"/></label>:</th>
             <td>
-                <input type="password" name="password" size="20" maxlength="200" />
+                <input type="password" name="password" id="<portlet:namespace/>password" size="20" maxlength="200" />
             </td>
         </tr>
         <tr>
-            <th align="right"><fmt:message key="consolebase.common.confirmPassword"/>:</th>
+            <th align="right"><label for="<portlet:namespace/>confirm-password"><fmt:message key="consolebase.common.confirmPassword"/></label>:</th>
             <td>
-                <input type="password" name="confirm-password" size="20" maxlength="200" />
+                <input type="password" name="confirm-password" id="<portlet:namespace/>confirm-password" size="20" maxlength="200" />
             </td>
         </tr>
         <tr>
-            <th align="right"><fmt:message key="keystore.createKeystore.type"/>:</th>
+            <th align="right"><label for="<portlet:namespace/>type"><fmt:message key="keystore.createKeystore.type"/></label>:</th>
             <td>
-                <select name="type">
+                <select name="type" id="<portlet:namespace/>type">
                     <c:forEach var="keystoreType" items="${keystoreTypes}">
                         <option <c:if test="${defaultType eq keystoreType}">selected</c:if>>${keystoreType}</option>
                     </c:forEach>

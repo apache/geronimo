@@ -48,9 +48,9 @@
       <c:if test="${web.running}">
         <tr>
             <td>${web.name}</td>
-            <td align="center"><input type="checkbox" name="webapp.${status.index}.enabled"<c:if test="${model.webApps[status.index].enabled}"> checked="checked"</c:if> /></td>
-            <td align="center"><input type="checkbox" name="webapp.${status.index}.serveStaticContent"<c:if test="${model.webApps[status.index].serveStaticContent}"> checked="checked"</c:if> /></td>
-            <td><input type="text" name="webapp.${status.index}.dynamicPattern" size="20" maxlength="250"
+            <td align="center"><input type="checkbox" title='${web.name} <fmt:message key="apache.jk.webApps.throughApache"/>' name="webapp.${status.index}.enabled" <c:if test="${model.webApps[status.index].enabled}"> checked="checked"</c:if> /></td>
+            <td align="center"><input type="checkbox" title='${web.name} <fmt:message key="apache.jk.webApps.staticContent"/>' name="webapp.${status.index}.serveStaticContent" <c:if test="${model.webApps[status.index].serveStaticContent}"> checked="checked"</c:if> /></td>
+            <td><input type="text" name="webapp.${status.index}.dynamicPattern" size="20" maxlength="250" title="${web.name} ${model.webApps[status.index].dynamicPattern}"
                        value="${model.webApps[status.index].dynamicPattern}"/></td>
         </tr>
       </c:if>

@@ -59,18 +59,18 @@ function <portlet:namespace/>toggleDisplay(id) {
 
 <p/>
 <div id="<portlet:namespace/>migratedPlan" style="display:inline">
-<fmt:message key="configmanager.deploy.migratedPlan" />:
+<label for="<portlet:namespace/>migratedPlan"><fmt:message key="configmanager.deploy.migratedPlan" /></label>:
 <form method="POST" action="/console/forwards/plan-export">
-    <textarea name="migratedPlan" rows=10 cols=80><c:out escapeXml="true" value="${migratedPlan}"/></textarea>
+    <textarea name="migratedPlan" id="<portlet:namespace/>migratedPlan" rows=10 cols=80><c:out escapeXml="true" value="${migratedPlan}"/></textarea>
     <br/>
     <button onclick="<portlet:namespace/>toggleDisplay('originalPlan');<portlet:namespace/>toggleDisplay('migratedPlan');return false;"><fmt:message key="configmanager.deploy.showOriginalPlan" /></button>
     <input type="submit" value='<fmt:message key="configmanager.deploy.saveLocally" />' />
 </form>
 </div>
 <div id="<portlet:namespace/>originalPlan" style="display:none">
-<fmt:message key="configmanager.deploy.originalPlan" />:
+<label for="<portlet:namespace/>originalPlan"><fmt:message key="configmanager.deploy.originalPlan" /></label>:
 <form>
-    <textarea rows=10 cols=80><c:out escapeXml="true" value="${originalPlan}"/></textarea><br/>
+    <textarea rows="10" cols="80" id="<portlet:namespace/>originalPlan"><c:out escapeXml="true" value="${originalPlan}"/></textarea><br/>
     <button onclick="<portlet:namespace/>toggleDisplay('migratedPlan');<portlet:namespace/>toggleDisplay('originalPlan');return false;"><fmt:message key="configmanager.deploy.showMigratedPlan" /></button>
 </form>
 </div>
@@ -79,13 +79,13 @@ function <portlet:namespace/>toggleDisplay(id) {
 
 <form enctype="multipart/form-data" method="POST" action="<portlet:actionURL><portlet:param name="action" value="deploy"/></portlet:actionURL>">
 <table>
-  <tr><th align="right"><fmt:message key="configmanager.common.archive" />: </th><td><input type="file" name="module" /></td></tr>
-  <tr><th align="right"><fmt:message key="configmanager.common.plan" />: </th><td><input type="file" name="plan" /></td></tr>
+  <tr><th align="right"><label for="<portlet:namespace/>module"><fmt:message key="configmanager.common.archive" /></label>: </th><td><input type="file" name="module" id="<portlet:namespace/>module" /></td></tr>
+  <tr><th align="right"><label for="<portlet:namespace/>plan"><fmt:message key="configmanager.common.plan" /></label>: </th><td><input type="file" name="plan" id="<portlet:namespace/>plan" /></td></tr>
   <tr>
     <td></td>
     <td>
-        <input name="startApp" type="checkbox" value="yes" checked><fmt:message key="configmanager.common.startAppAfterInstall" /> <br />
-        <input name="redeploy" type="checkbox" value="yes"><fmt:message key="configmanager.deploy.redeployApplication" /> <br />
+        <input name="startApp" id="<portlet:namespace/>startApp" type="checkbox" value="yes" checked><label for="<portlet:namespace/>startApp"><fmt:message key="configmanager.common.startAppAfterInstall" /> </label><br />
+        <input name="redeploy" id="<portlet:namespace/>redeploy" type="checkbox" value="yes"><label for="<portlet:namespace/>redeploy"><fmt:message key="configmanager.deploy.redeployApplication" /> </label><br />
     </td>
   </tr>
   <tr>

@@ -29,19 +29,19 @@
 <form name="<portlet:namespace/>KeystoreForm" action="<portlet:actionURL/>">
     <input type="hidden" name="keystore" value="${keystore}" />
     <input type="hidden" name="mode" value="${mode}-after" />
-    <b><fmt:message key="keystore.unlockKeystore.enterKeystorePassword"/>:</b>
-    <input type="password" name="password" size="20" maxlength="200" />
+    <b><label for="<portlet:namespace/>password"><fmt:message key="keystore.unlockKeystore.enterKeystorePassword"/></label>:</b>
+    <input type="password" name="password" id="<portlet:namespace/>password" size="20" maxlength="200" />
     <br />
 
     <c:if test="${mode eq 'unlockKeystore' && !empty keys}">
-        <b><fmt:message key="keystore.common.unlockPrivateKey"/>:</b>
-        <select name="keyAlias">
+        <b><label for="<portlet:namespace/>keyAlias"><fmt:message key="keystore.common.unlockPrivateKey"/></label>:</b>
+        <select name="keyAlias" id="<portlet:namespace/>keyAlias">
             <c:forEach var="alias" items="${keys}">
                 <option>${alias}</option>
             </c:forEach>
         </select>
-        <fmt:message key="consolebase.common.password"/>:
-        <input type="password" name="keyPassword" size="20" maxlength="200" />
+        <label for="<portlet:namespace/>keyPassword"><fmt:message key="consolebase.common.password"/></label>:
+        <input type="password" name="keyPassword" id="<portlet:namespace/>keyPassword" size="20" maxlength="200" />
         <br />
     </c:if>
 

@@ -75,8 +75,8 @@ function <portlet:namespace/>validateForm(){
     <table border="0">
     <!-- ENTRY FIELD: NAME -->
       <tr>
-        <th style="min-width: 140px"><div align="right"><fmt:message key="realmwizard.common.nameOfSecurityRealm" />:</div></th>
-        <td><input name="name" type="text" size="30" value="${realm.name}" /></td>
+        <th style="min-width: 140px"><div align="right"><label for="<portlet:namespace/>name"><fmt:message key="realmwizard.common.nameOfSecurityRealm" /></label>:</div></th>
+        <td><input name="name" id="<portlet:namespace/>name" type="text" size="30" value="${realm.name}" /></td>
       </tr>
       <tr>
         <td></td>
@@ -84,9 +84,9 @@ function <portlet:namespace/>validateForm(){
       </tr>
     <!-- ENTRY FIELD: REALM TYPE -->
       <tr>
-        <th><div align="right"><fmt:message key="realmwizard.common.realmType" />:</div></th>
+        <th><div align="right"><label for="<portlet:namespace/>realmType"><fmt:message key="realmwizard.common.realmType" /></label>:</div></th>
         <td>
-          <select name="realmType">
+          <select name="realmType" id="<portlet:namespace/>realmType">
         <c:forEach var="module" items="${moduleTypes}">
             <option <c:if test="${module.name == realm.realmType}">selected</c:if>>${module.name}</option>
         </c:forEach>

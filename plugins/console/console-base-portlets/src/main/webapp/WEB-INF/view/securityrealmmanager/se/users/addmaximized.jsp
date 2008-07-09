@@ -64,7 +64,7 @@ function <portlet:namespace/>passwordMatch(){
         <input type="hidden" name="action" value="${Action}">
         <c:choose>
         <c:when test="${add}"> 
-            <input type="text" name="userId" value="${UserName}">
+            <input type="text" name="userId" title='<fmt:message key="consolebase.common.userID"/>' value="${UserName}">
         </c:when>
         <c:otherwise>
             <input type="hidden" name="userId" value="${UserName}">
@@ -77,9 +77,9 @@ function <portlet:namespace/>passwordMatch(){
     <c:choose>
       <c:when test="${add}">
         <tr>
-          <td width="200"><fmt:message key="consolebase.common.group"/></td>
+          <td width="200"><label for="<portlet:namespace/>group"><fmt:message key="consolebase.common.group"/></label></td>
           <td>
-            <select name="group">
+            <select name="group" id="<portlet:namespace/>group">
               <c:forEach var="groups" items="${groupsInfo}">
                 <option value="${groups.key}">${groups.key}</option>
               </c:forEach>
@@ -91,12 +91,12 @@ function <portlet:namespace/>passwordMatch(){
       </c:otherwise>
     </c:choose>
     <tr>
-        <td width="200"><fmt:message key="consolebase.common.password"/></td>
-        <td><input type="password" name="password" value=""></td>
+        <td width="200"><label for="<portlet:namespace/>password"><fmt:message key="consolebase.common.password"/></label></td>
+        <td><input type="password" name="password" id="<portlet:namespace/>password" value=""></td>
     </tr>   
     <tr>
-        <td width="200"><fmt:message key="consolebase.common.confirmPassword"/></td>
-        <td><input type="password" name="confirmpassword" value=""></td>
+        <td width="200"><label for="<portlet:namespace/>confirmpassword"><fmt:message key="consolebase.common.confirmPassword"/></label></td>
+        <td><input type="password" name="confirmpassword" id="<portlet:namespace/>confirmpassword" value=""></td>
     </tr>
     <tr>   
        <td>&nbsp;</td> <td  align="left" class="formElement"><input type="submit" value="${Submit}" onclick="return <portlet:namespace/>validateForm()"> <input type="submit" name="cancel"  value="<fmt:message key="consolebase.common.cancel"/>"></td>

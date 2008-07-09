@@ -23,11 +23,11 @@
 <fmt:message key="keystore.common.alias"/>: ${alias}<br/>
 
 <table>
-<th><fmt:message key="keystore.generateCSR.PKCS10CertificatioRequest"/>t</th>
+<th><label for="<portlet:namespace/>csr"><fmt:message key="keystore.generateCSR.PKCS10CertificatioRequest"/></label></th>
 <tr>
 <td>
 <form action=>
-<textarea rows="15" cols="80" readonly>
+<textarea rows="15" cols="80" id="<portlet:namespace/>csr" readonly>
 ${csr}
 </textarea>
 </td>

@@ -74,7 +74,7 @@ function <portlet:namespace/>passwordMatch(){
        <c:choose>
        <c:when test="${add}"> 
         <input type="hidden" name="action" value="add">
-        <input type="text" name="UserName" value="" maxlength="30">
+        <input type="text" name="UserName" title='<fmt:message key="consolebase.common.userName"/>' value="" maxlength="30">
        </c:when>
        <c:otherwise>
         <input type="hidden" name="action" value="update">
@@ -85,30 +85,30 @@ function <portlet:namespace/>passwordMatch(){
         </td>
     </tr>   
     <tr>
-        <td width="200" class="formLabel"> <fmt:message key="consolebase.common.password"/></td>
-        <td class="formElement"><input type="password" name="Password" value="${Password}" maxlength="30"></td>
+        <td width="200" class="formLabel"> <label for="<portlet:namespace/>Password"><fmt:message key="consolebase.common.password"/></label></td>
+        <td class="formElement"><input type="password" name="Password" id="<portlet:namespace/>Password" value="${Password}" maxlength="30"></td>
     </tr>   
     <tr>
-        <td width="200"><fmt:message key="consolebase.common.confirmPassword"/>Confirm Password</td>
-        <td><input type="password" name="ConfirmPassword" value="${Password2}" maxlength="30"></td>
+        <td width="200"><label for="<portlet:namespace/>ConfirmPassword"><fmt:message key="consolebase.common.confirmPassword"/>Confirm Password</label></td>
+        <td><input type="password" name="ConfirmPassword" id="<portlet:namespace/>ConfirmPassword" value="${Password2}" maxlength="30"></td>
     </tr>
     <tr>
-        <td width="200" class="formLabel"><fmt:message key="consolebase.common.givenName"/></td>
-        <td class="formElement"><input type="text" name="FirstName" value="${FirstName}" maxlength="30"></td>
+        <td width="200" class="formLabel"><label for="<portlet:namespace/>FirstName"><fmt:message key="consolebase.common.givenName"/></label></td>
+        <td class="formElement"><input type="text" name="FirstName" id="<portlet:namespace/>FirstName" value="${FirstName}" maxlength="30"></td>
     </tr>
 
     <input type="hidden" name="MiddleInit" value="" >
     <tr>
-        <td width="200" class="formLabel"><fmt:message key="consolebase.common.familyName"/></td>
-        <td class="formElement"><input type="text" name="LastName" value="${LastName}" maxlength="30"></td>
+        <td width="200" class="formLabel"><label for="<portlet:namespace/>LastName"><fmt:message key="consolebase.common.familyName"/></label></td>
+        <td class="formElement"><input type="text" name="LastName" id="<portlet:namespace/>LastName" value="${LastName}" maxlength="30"></td>
     </tr>
     <tr>
-        <td width="200" class="formLabel"><fmt:message key="consolebase.common.department"/></td>
-        <td class="formElement"><input type="text" name="Department" value="${Department}" maxlength="30"></td>
+        <td width="200" class="formLabel"><label for="<portlet:namespace/>Department"><fmt:message key="consolebase.common.department"/></label></td>
+        <td class="formElement"><input type="text" name="Department" id="<portlet:namespace/>Department" value="${Department}" maxlength="30"></td>
     </tr>
     <tr>
-        <td width="200" class="formLabel"><fmt:message key="consolebase.common.email"/></td>
-        <td class="formElement"><input type="text" name="Email" value="${Email}" maxlength="30"></td>
+        <td width="200" class="formLabel"><label for="<portlet:namespace/>Email"><fmt:message key="consolebase.common.email"/></label></td>
+        <td class="formElement"><input type="text" name="Email" id="<portlet:namespace/>Email" value="${Email}" maxlength="30"></td>
     </tr>
 
     <tr>   

@@ -73,27 +73,27 @@ function <portlet:namespace/>validateForm(){
             <th colspan="2" align="left"><fmt:message key="ca.common.detailsOfCert"/></th>
         </tr>
         <tr>
-            <th align="right"><fmt:message key="ca.common.certSerialNo"/>:</th>
+            <th align="right"><label for="<portlet:namespace/>sNo"><fmt:message key="ca.common.certSerialNo"/></label>:</th>
             <td>
-                <input type="text" name="sNo" size="20" maxlength="200" value="${sNo}" READONLY/>
+                <input type="text" name="sNo" id="<portlet:namespace/>sNo" size="20" maxlength="200" value="${sNo}" READONLY/>
             </td>
         </tr>
         <tr>
-            <th align="right"><fmt:message key="ca.common.validFromDate"/> (mm/dd/yyyy):</th>
+            <th align="right"><label for="<portlet:namespace/>validFrom"><fmt:message key="ca.common.validFromDate"/> (mm/dd/yyyy)</label>:</th>
             <td>
-                <input type="text" name="validFrom" size="20" maxlength="200" value="${validFrom}"/>
+                <input type="text" name="validFrom" id="<portlet:namespace/>validFrom" size="20" maxlength="200" value="${validFrom}"/>
             </td>
         </tr>
         <tr>
-            <th align="right"><fmt:message key="ca.common.validToDate"/> (mm/dd/yyyy):</th>
+            <th align="right"><label for="<portlet:namespace/>validTo"><fmt:message key="ca.common.validToDate"/> (mm/dd/yyyy)</label>:</th>
             <td>
-                <input type="text" name="validTo" size="20" maxlength="200" value="${validTo}"/>
+                <input type="text" name="validTo" id="<portlet:namespace/>validTo" size="20" maxlength="200" value="${validTo}"/>
             </td>
         </tr>
         <tr>
-            <th align="right"><fmt:message key="ca.common.signatureAlgorithm"/>:</th>
+            <th align="right"><label for="<portlet:namespace/>algorithm"><fmt:message key="ca.common.signatureAlgorithm"/></label>:</th>
             <td>
-                <select name="algorithm">
+                <select name="algorithm" id="<portlet:namespace/>algorithm">
                     <option <c:if test="${algorithm eq 'MD2withRSA'}">selected</c:if> >MD2withRSA</option>
                     <option <c:if test="${algorithm eq 'MD5withRSA' || algorithm eq '' || empty(algorithm)}">selected</c:if> >MD5withRSA</option>
                     <option <c:if test="${algorithm eq 'SHA1withRSA'}">selected</c:if> >SHA1withRSA</option>

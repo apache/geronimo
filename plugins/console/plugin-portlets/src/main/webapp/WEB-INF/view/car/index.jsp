@@ -26,8 +26,8 @@
 
 <form name="<portlet:namespace/>PluginForm" action="<portlet:actionURL/>">
     <input type="hidden" name="mode" value="index-after"/>
-    <b><fmt:message key="car.common.repository"/>:</b> <%-- todo: entry field for user-specified list --%>
-    <select name="repository">
+    <b><label for="<portlet:namespace/>repository"><fmt:message key="car.common.repository"/></label>:</b> <%-- todo: entry field for user-specified list --%>
+    <select name="repository" id="<portlet:namespace/>repository">
         <c:forEach var="repo" items="${repositories}">
             <option<c:if test="${repo eq repository}"> selected</c:if>>${repo}</option>
         </c:forEach>
@@ -40,8 +40,8 @@
     </p>
     <c:if test="${!empty repositories}">
         <br/><b><fmt:message key="car.index.optionalAuthentication"/>:</b>
-        <fmt:message key="consolebase.common.user"/>: <input type="text" name="username" value="${repouser}" size="12" maxlength="200"/>
-        <fmt:message key="consolebase.common.password"/>: <input type="password" name="password" value="${repopass}" size="12" maxlength="200"/>
+        <label for="<portlet:namespace/>username"><fmt:message key="consolebase.common.user"/></label>: <input type="text" name="username" id="<portlet:namespace/>username" value="${repouser}" size="12" maxlength="200"/>
+        <label for="<portlet:namespace/>password"><fmt:message key="consolebase.common.password"/></label>: <input type="password" name="password" id="<portlet:namespace/>password" value="${repopass}" size="12" maxlength="200"/>
         <br/><input type="submit" value='<fmt:message key="car.common.searchForPlugins" />'/>
     </c:if>
 </form>

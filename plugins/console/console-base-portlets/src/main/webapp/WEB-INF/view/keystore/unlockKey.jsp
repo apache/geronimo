@@ -32,14 +32,14 @@
     <input type="hidden" name="keystore" value="${keystore}" />
     <input type="hidden" name="password" value="${password}" />
     <input type="hidden" name="mode" value="unlockKey-after" />
-    <b><fmt:message key="keystore.unlockKey.unlockPrivateKey"/>:</b>
-    <select name="keyAlias">
+    <b><label for="<portlet:namespace/>keyAlias"><fmt:message key="keystore.unlockKey.unlockPrivateKey"/></label>:</b>
+    <select name="keyAlias" id="<portlet:namespace/>keyAlias">
         <c:forEach var="alias" items="${keys}">
             <option>${alias}</option>
         </c:forEach>
     </select>
-    <fmt:message key="consolebase.common.password"/>:
-    <input type="password" name="keyPassword" size="20" maxlength="200" />
+    <label for="<portlet:namespace/>keyPassword"><fmt:message key="consolebase.common.password"/></label>:
+    <input type="password" name="keyPassword" id="<portlet:namespace/>keyPassword" size="20" maxlength="200" />
     <br />
 
     <input type="submit" value='<fmt:message key="keystore.unlockKey.unlockPrivateKey"/>' />

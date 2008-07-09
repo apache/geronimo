@@ -43,11 +43,11 @@ function <portlet:namespace/>validateForm(){
     <input type="hidden" name="mode" value="processCSR-after" />
     <table border="0">
         <tr>
-            <th colspan="2" align="left"><fmt:message key="ca.common.CSRText"/></th>
+            <th colspan="2" align="left"><label for="<portlet:namespace/>pkcs10certreq"><fmt:message key="ca.common.CSRText"/></label></th>
         </tr>
         <tr>
             <td colspan="2">
-                <textarea rows="20" cols="80" name="pkcs10certreq">
+                <textarea rows="20" cols="80" name="pkcs10certreq" id="<portlet:namespace/>pkcs10certreq">
                 <fmt:message key="ca.processCSR.pastePkcs10here"/>                
                 </textarea>
             </td>

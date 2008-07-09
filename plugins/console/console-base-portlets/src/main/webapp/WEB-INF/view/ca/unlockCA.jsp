@@ -40,8 +40,8 @@ function <portlet:namespace/>validateForm(){
 
 <form name="<portlet:namespace/>UnlockCAForm" action="<portlet:actionURL/>">
     <input type="hidden" name="mode" value="unlockCA-after" />
-    <b><fmt:message key="ca.unlockCA.enterCAPrivateKeyPassword"/>:</b>
-    <input type="password" name="password" size="20" maxlength="200" />
+    <b><label for="<portlet:namespace/>password"><fmt:message key="ca.unlockCA.enterCAPrivateKeyPassword"/></label>:</b>
+    <input type="password" name="password" id="<portlet:namespace/>password" size="20" maxlength="200" />
     <br />
 
     <input type="submit" value='<fmt:message key="ca.common.unlockCertAuthority"/>' onClick="return <portlet:namespace/>validateForm();"/>

@@ -79,8 +79,8 @@ function <portlet:namespace/>validateForm(){
     <table border="0">
     <!-- ENTRY FIELD: Username -->
       <tr>
-        <th style="min-width: 140px"><div align="right"><fmt:message key="consolebase.common.userName"/>:</div></th>
-        <td><input name="username" type="text" size="20" /></td>
+        <th style="min-width: 140px"><div align="right"><label for="<portlet:namespace/>username"><fmt:message key="consolebase.common.userName"/></label>:</div></th>
+        <td><input name="username" id="<portlet:namespace/>username" type="text" size="20" /></td>
       </tr>
       <tr>
         <td></td>
@@ -88,8 +88,8 @@ function <portlet:namespace/>validateForm(){
       </tr>
     <!-- ENTRY FIELD: Password -->
       <tr>
-        <th><div align="right"><fmt:message key="consolebase.common.password"/>:</div></th>
-        <td><input name="password" type="password" size="20" /></td>
+        <th><div align="right"><label for="<portlet:namespace/>password"><fmt:message key="consolebase.common.password"/></label>:</div></th>
+        <td><input name="password" id="<portlet:namespace/>password" type="password" size="20" /></td>
       </tr>
       <tr>
         <td></td>

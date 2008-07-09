@@ -47,9 +47,9 @@ function <portlet:namespace/>validateForm(){
       <input type="hidden" name="mode" value="viewCert-before" />
       <table border="0">
         <tr>
-            <th align="right"><fmt:message key="ca.common.certSerialNo"/>:</th>
+            <th align="right"><label for="<portlet:namespace/>sNo"><fmt:message key="ca.common.certSerialNo"/></label>:</th>
             <td>
-                <input type="text" name="sNo" size="20" maxlength="200" />
+                <input type="text" name="sNo" id="<portlet:namespace/>sNo" size="20" maxlength="200" />
             </td>
         </tr>
       </table>
@@ -147,11 +147,11 @@ function <portlet:namespace/>validateForm(){
         </tr>
         <tr><td>&nbsp;</td></tr>
         <tr>
-            <th colspan="2" align="left"><fmt:message key="ca.common.base64EncodedCertText"/></th>
+            <th colspan="2" align="left"><label for="<portlet:namespace/>certText"><fmt:message key="ca.common.base64EncodedCertText"/></label></th>
         </tr>
         <tr>
             <td colspan="2">
-                <form><textarea rows="15" cols="80" READONLY>${certText}</textarea></form>
+                <form><textarea rows="15" cols="80" id="<portlet:namespace/>certText" READONLY>${certText}</textarea></form>
             </td>
         </tr>
     </table>
