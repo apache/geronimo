@@ -30,7 +30,7 @@
     </parent>
 
     <artifactId>agent-car-jmx</artifactId>
-    <name>Geronimo Plugins :: Monitoring Agent (JMX)</name>
+    <name>Geronimo Plugins, Monitoring :: Agent JMX CAR</name>
     <packaging>car</packaging>
 
     <dependencies>

@@ -29,7 +29,7 @@
     </parent>
 
     <artifactId>agent-jmx</artifactId>
-    <name>Geronimo Monitoring :: Monitoring Agent :: JMX</name>
+    <name>Geronimo Plugins, Monitoring :: Agent JMX</name>
     <description>Geronimo Monitoring Agent JMX</description>
 
     <dependencies>
