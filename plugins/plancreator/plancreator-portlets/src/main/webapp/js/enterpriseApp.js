@@ -29,7 +29,7 @@ function updateDependenciesTree(dependenciesJson) {
   	    {
             id: 'dependenciesTree', 
             store: dependenciesStore,
-            label: 'Dependencies',
+            label: 'Dependencies'
         }, dojo.byId("dependenciesTree"));
         
     var items = dependenciesJson.items;

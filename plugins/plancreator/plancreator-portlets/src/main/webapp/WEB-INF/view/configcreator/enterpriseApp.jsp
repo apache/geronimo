@@ -191,7 +191,7 @@
     <!-- Dependencies -->
     <div dojoType="dijit.TitlePane" title="Dependencies" open="false" 
         style="width:100%; margin:0; padding:0;">
-      <table border="0" width="100%">
+      <table border="0" width="720px">
         <tr>
           <th>Dependencies:</th><th><a id="dependenciesHelp" class="helpIcon">&nbsp;</a>
           <div dojoType="dijit.Tooltip" connectId="dependenciesHelp"
@@ -255,8 +255,8 @@
 </div>
 <div id="dependenciesDialog" dojotype="dijit.Dialog"
     title="Select dependencies to add" execute="addDependencies(arguments[0])" extractContent="false">
-  <div style="height:400px; width:100%; overflow:auto">
-    <table width="640" cellspacing="0">
+  <div style="height:400px; width:700px; overflow:auto">
+    <table width="100%" cellspacing="0">
       <c:forEach var="commonLib" items="${commonLibs}" varStatus="vs">
         <tr>
           <td>
