@@ -23,17 +23,6 @@
     <module>
         <web>portal-driver.war</web>
         <web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.2" xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.2">
-            <dep:environment>
-                <dep:moduleId>
-                    <dep:groupId>org.apache.geronimo.plugins</dep:groupId>
-                    <dep:artifactId>console-portal-driver</dep:artifactId>
-                    <dep:version>1.0-SNAPSHOT</dep:version>
-                    <dep:type>war</dep:type>
-                </dep:moduleId>
-                <dep:dependencies/> <!-- deps are declared in pom.xml -->
-                <dep:hidden-classes />
-                <dep:non-overridable-classes />
-            </dep:environment>
             <context-root>/console</context-root>
             <cross-context />
             <security-realm-name>geronimo-admin</security-realm-name>
@@ -58,24 +47,9 @@
     <module>
         <web>base-portlets.war</web>
         <web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.2" xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.2">
-            <dep:environment>
-                <dep:moduleId>
-                    <dep:groupId>org.apache.geronimo.plugins</dep:groupId>
-                    <dep:artifactId>console-base-portlets</dep:artifactId>
-                    <dep:version>1.0-SNAPSHOT</dep:version>
-                    <dep:type>war</dep:type>
-                </dep:moduleId>
-                <dep:dependencies/> <!-- deps are declared in pom.xml -->
-                <dep:hidden-classes>
-                    <filter>org.apache.commons.digester</filter>
-                </dep:hidden-classes>
-                <dep:non-overridable-classes />
-            </dep:environment>
-
             <context-root>/console-base</context-root>
             <cross-context />
             <security-realm-name>geronimo-admin</security-realm-name>
-
             <gbean name="PropertiesLoginManager" class="org.apache.geronimo.console.core.security.PropertiesLoginModuleManager">
                 <reference name="ServerInfo">
                     <name>ServerInfo</name>
@@ -84,14 +58,12 @@
                     <name>properties-login</name>
                 </reference>
             </gbean>
-             
             <!-- i18n support -->
             <gbean name="ConsoleResourceGBean" class="org.apache.geronimo.console.i18n.ConsoleResourceGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-1.2">
                 <reference name="ConsoleResourceRegistry">
                     <name>ConsoleResourceRegistry</name>
                 </reference>
             </gbean>
-
             <gbean name="Welcome" class="org.apache.geronimo.pluto.AdminConsoleExtensionGBean">
                 <attribute name="pageTitle">Welcome</attribute>
                 <attribute name="portletContext">/console-base</attribute>
@@ -100,7 +72,6 @@
                     <name>PlutoPortalServices</name>
                 </reference>
             </gbean>
-
             <gbean name="ServerInfo" class="org.apache.geronimo.pluto.AdminConsoleExtensionGBean">
                 <attribute name="pageTitle">Server/Information</attribute>
                 <attribute name="portletContext">/console-base</attribute>
@@ -164,7 +135,6 @@
                     <name>PlutoPortalServices</name>
                 </reference>
             </gbean>
-
             <gbean name="RepositoryViewer" class="org.apache.geronimo.pluto.AdminConsoleExtensionGBean">
                 <attribute name="pageTitle">Services/Repository</attribute>
                 <attribute name="portletContext">/console-base</attribute>
@@ -252,7 +222,6 @@
                     <name>PlutoPortalServices</name>
                 </reference>
             </gbean>
-
         </web-app>
     </module>
 
