@@ -546,6 +546,12 @@
             <type>car</type>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>jmx-security</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
     </dependencies>
 
     <build>

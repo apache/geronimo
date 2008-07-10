@@ -121,6 +121,7 @@
         <PlanORBSSLPort>2001</PlanORBSSLPort>
         <PlanORBSunSSLPort>2001</PlanORBSunSSLPort>
         <PlanJMXPort>9999</PlanJMXPort>
+        <PlanJMXSecurePort>9998</PlanJMXSecurePort>
     </properties>
 
     <dependencyManagement>
