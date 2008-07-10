@@ -54,6 +54,7 @@
         <module>gshell-framework</module>
         <module>gshell-remote</module>
         <module>gshell-geronimo</module>
+        <module>jmx-security</module>
     </modules>
     
     <build>

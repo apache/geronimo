@@ -16,6 +16,7 @@
  */
 package org.apache.geronimo.jmxremoting;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
@@ -35,24 +36,23 @@ import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.system.jmx.MBeanServerReference;
 
 /**
- * A Connector that supports the server sideof JSR 160 JMX Remoting.
+ * A connector that supports the server side of JSR 160 JMX Remoting.
  *
  * @version $Rev$ $Date$
  */
 public class JMXConnector implements JMXConnectorInfo, GBeanLifecycle {
-    private final MBeanServer mbeanServer;
-    private final Logger log;
-    private final ClassLoader classLoader;
-    private String applicationConfigName;
-    private Authenticator authenticator;
+    protected final MBeanServer mbeanServer;
+    protected final Logger log;
+    protected final ClassLoader classLoader;
+    protected String applicationConfigName;
 
-    private String protocol;
-    private String host;
-    private int port = -1;
-    private String urlPath;
+    protected String protocol;
+    protected String host;
+    protected int port = -1;
+    protected String urlPath;
 
-    private JMXConnectorServer server;
-    private JMXServiceURL jmxServiceURL;
+    protected JMXConnectorServer server;
+    protected JMXServiceURL jmxServiceURL;
 
     // todo remove this as soon as Geronimo supports factory beans
     public JMXConnector(MBeanServerReference mbeanServerReference, String objectName, ClassLoader classLoader) {
@@ -175,6 +175,7 @@ public class JMXConnector implements JMXConnectorInfo, GBeanLifecycle {
 
     public void doStart() throws Exception {
         jmxServiceURL = new JMXServiceURL(protocol, host, port, urlPath);
+        Authenticator authenticator = null;
         Map env = new HashMap();
         if (applicationConfigName != null) {
             authenticator = new Authenticator(applicationConfigName, classLoader);
@@ -195,13 +196,12 @@ public class JMXConnector implements JMXConnectorInfo, GBeanLifecycle {
     public void doStop() throws Exception {
         try {
               server.stop();
-        } catch (java.io.IOException e) {
+        } catch (IOException e) {
               // java.io.IOException is expected.
         } catch (Exception e) {
               // Otherwise, something bad happened.  Rethrow the exception.
               throw e;
-        }
-        finally {
+        } finally {
           server = null;
           log.debug("Stopped JMXConnector " + jmxServiceURL);
         }
