@@ -29,6 +29,8 @@ import javax.enterprise.deploy.spi.factories.DeploymentFactory;
 import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
+import javax.management.remote.rmi.RMIConnectorServer;
+import javax.rmi.ssl.SslRMIClientSocketFactory;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,14 +82,15 @@ public class BaseDeploymentFactory implements DeploymentFactory {
         int pos = uri.indexOf(":");
         String protocol = pos == -1 ? uri : uri.substring(0, pos);
         uri = pos == -1 ? "" : uri.substring(pos+1);
-        if(protocol.equals("jmx")) {
+        if(protocol.equals("jmx") || protocol.equals("jmxs")) {
+            boolean secure = protocol.equals("jmxs");
             if(!uri.startsWith("//")) {
-                return new ConnectParams(protocol, "localhost", DEFAULT_PORT);
+                return new ConnectParams(protocol, "localhost", DEFAULT_PORT, secure);
             }
             uri = uri.substring(2);
             pos = uri.indexOf(':');
             if(pos == -1) {
-                return new ConnectParams(protocol, uri.equals("") ? "localhost" : uri, DEFAULT_PORT);
+                return new ConnectParams(protocol, uri.equals("") ? "localhost" : uri, DEFAULT_PORT, secure);
             }
             if(uri.indexOf('/', pos+1) > -1) {
                 return null;
@@ -98,7 +101,7 @@ public class BaseDeploymentFactory implements DeploymentFactory {
             String host = uri.substring(0, pos);
             String port = uri.substring(pos+1);
             try {
-                return new ConnectParams(protocol, host.equals("") ? "localhost" : host, Integer.parseInt(port));
+                return new ConnectParams(protocol, host.equals("") ? "localhost" : host, Integer.parseInt(port), secure);
             } catch (NumberFormatException e) {
                 return null;
             }
@@ -133,7 +136,7 @@ public class BaseDeploymentFactory implements DeploymentFactory {
         }
 
         try {
-            if (params.getProtocol().equals("jmx")) {
+            if (params.getProtocol().equals("jmx") || params.getProtocol().equals("jmxs")) {
                 return newRemoteDeploymentManager(username, password, params);
             } else if(params.getProtocol().equals("inVM")) {
                 return new LocalDeploymentManager(KernelRegistry.getKernel(params.getHost()));
@@ -160,6 +163,12 @@ public class BaseDeploymentFactory implements DeploymentFactory {
         String[] credentials = new String[]{username, password};
         environment.put(JMXConnector.CREDENTIALS, credentials);
         environment.put(JMXConnectorFactory.DEFAULT_CLASS_LOADER, BaseDeploymentFactory.class.getClassLoader());
+        String connectorName = "/JMXConnector";
+        if (params.isSecure()) {
+            connectorName = "/JMXSecureConnector";
+            SslRMIClientSocketFactory csf = new SslRMIClientSocketFactory();
+            environment.put(RMIConnectorServer.RMI_CLIENT_SOCKET_FACTORY_ATTRIBUTE, csf);
+        }    
         try {
             // if ipv6 numeric address wrap with "[" "]"
             String host = params.getHost();
@@ -167,9 +176,9 @@ public class BaseDeploymentFactory implements DeploymentFactory {
                 host = "[" + host + "]";
             }
             if (log.isDebugEnabled()) {
-                log.debug("Using JMXServiceURL with host=" + host + ", port=" + params.getPort());
+                log.debug("Using JMXServiceURL with host=" + host + ", port=" + params.getPort() + ", secure=" + params.isSecure());
             }
-            JMXServiceURL address = new JMXServiceURL("service:jmx:rmi:///jndi/rmi://"+ host +":"+params.getPort()+"/JMXConnector");
+            JMXServiceURL address = new JMXServiceURL("service:jmx:rmi:///jndi/rmi://"+ host +":"+params.getPort()+connectorName);
             JMXConnector jmxConnector = JMXConnectorFactory.connect(address, environment);
             RemoteDeploymentManager manager = getRemoteDeploymentManager();
             manager.init(jmxConnector, host);
@@ -199,11 +208,17 @@ public class BaseDeploymentFactory implements DeploymentFactory {
         private String protocol;
         private String host;
         private int port;
+        private boolean secure;
 
         public ConnectParams(String protocol, String host, int port) {
+            this(protocol, host, port, false);
+        }
+        
+        public ConnectParams(String protocol, String host, int port, boolean secure) {
             this.protocol = protocol;
             this.host = host;
             this.port = port;
+            this.secure = secure;
         }
 
         public String getProtocol() {
@@ -218,6 +233,10 @@ public class BaseDeploymentFactory implements DeploymentFactory {
             return port;
         }
 
+        public boolean isSecure() {
+            return secure;
+        }
+        
         public String toString() {
             return protocol+" / "+host+" / "+port;
         }

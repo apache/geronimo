@@ -19,7 +19,7 @@
 package org.apache.geronimo.cli.deployer;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public interface ConnectionParams {
     String getURI();
@@ -39,4 +39,6 @@ public interface ConnectionParams {
     boolean isVerbose();
 
     boolean isOffline();
+    
+    boolean isSecure();
 }

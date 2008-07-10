@@ -54,6 +54,9 @@ class ConnectCommand
     @Option(name='-w', aliases=['--password'], description='Password')
     String password
     
+    @Option(name='--secure', description='Use secure channel')
+    boolean secure = false
+
     @Requirement
     PromptReader prompter
 
@@ -84,7 +87,7 @@ class ConnectCommand
         def kernel = new BasicKernel('gshell deployer')
         def deploymentManager = new RemoteDeploymentManager(Collections.emptySet())
         def deploymentFactory = new DeploymentFactoryWithKernel(kernel, deploymentManager)
-        def connectionParams = new ConnectionParamsImpl(host: hostname, port: port, user: username, password: password, offline: false)
+        def connectionParams = new ConnectionParamsImpl(host: hostname, port: port, user: username, password: password, offline: false, secure: secure)
         def connection = new ServerConnection(connectionParams, io.out, io.inputStream, kernel, deploymentFactory)
 
         // Disconnect previous connection if any
@@ -93,7 +96,7 @@ class ConnectCommand
         variables.parent.set(SERVER_CONNECTION, connection)
 
         if (!quiet) {
-        	io.out.println('Connection established')
+            io.out.println('Connection established')
         }
         
         return connection
