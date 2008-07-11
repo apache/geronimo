@@ -35,6 +35,7 @@ limitations under the License.
         <attribute name="pageTitle">Applications/Plan Creator</attribute>
         <attribute name="portletContext">/plan-creator</attribute>
         <attribute name="portletList">[PlanCreator]</attribute>
+        <attribute name="icon">/images/ico_xml_16x16.gif</attribute>        
         <reference name="PortalContainerServices">
             <name>PlutoPortalServices</name>
         </reference>
