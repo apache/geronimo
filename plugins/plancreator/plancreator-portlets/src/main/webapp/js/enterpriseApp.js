@@ -40,6 +40,45 @@ function saveEnvironment() {
     });
 }
 
+function _formatElements(planHtml, expr, className, prefix, suffix, beg, end) {
+    var values = planHtml.match(expr);
+    if(values != null) {
+        beg = prefix.length;
+        end = suffix.length;
+        dojo.forEach(values, function(v) {
+            planHtml = planHtml.replace(v, prefix + '<span class="' + className + '">' + v.substring(beg,v.length-end) + '</span>' + suffix);
+        }, this);
+    }
+    return planHtml;
+}
+
+function _formatPlan(planHtml) {
+    planHTML = planHtml.replace(/\r/g, '');
+    planHTML = planHtml.replace(/\n/g, '<br/>');
+
+    // strings
+    planHtml = _formatElements(planHtml, /(=(\")(\S)+(\"))+/g, 'string', '=', '');
+    planHtml = _formatElements(planHtml, /(=(\')(\S)+(\'))+/g, 'string', "=", "");
+
+    // values
+    planHtml = _formatElements(planHtml, /&gt;(.)*?&lt;/g, 'value', "&gt;", "&lt;");    
+    
+    // opening tags
+    values = planHtml.match(/&lt;(\S)+/g);
+    if(values) {
+        dojo.forEach(values, function(v) {
+            var end = v.indexOf('&gt;');
+            if(end != -1)
+                v = v.substring(0,end);
+            planHtml = planHtml.replace(v, '&lt;<span class="tag">' + v.substring(4) + '</span>');
+        }, this);
+    }
+
+    // closing tags
+    planHtml = _formatElements(planHtml, /&lt;\/(\S)+/g, 'tag', "&lt;", "&gt;");
+    return planHtml;
+}
+
 function refreshGeneratedPlan() {
     EARHelper.getGeneratedPlan(function(plan) {
         var elem = dojo.byId('generatedPlanDisplayer');
@@ -48,6 +87,7 @@ function refreshGeneratedPlan() {
         } else {
             elem.innerText = plan;
         }
+        elem.innerHTML = _formatPlan(elem.innerHTML);
     });
 }
 
@@ -645,7 +685,7 @@ function onTabSwitch(page) {
         case 'environment': saveEnvironment(); break;
         case 'references': /* saveReferences() */; break;
         case 'security': saveSecurity(); break;
-        case 'generatedPlan': saveGeneratedPlan(); break;
+        case 'generatedPlan': /* saveGeneratedPlan(); */ break;
     }
     this.currentTab = page.id;
     switch(this.currentTab) {
