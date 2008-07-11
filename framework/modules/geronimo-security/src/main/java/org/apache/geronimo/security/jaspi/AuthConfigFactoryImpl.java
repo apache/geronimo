@@ -22,7 +22,6 @@ import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -115,35 +114,29 @@ public class AuthConfigFactoryImpl extends AuthConfigFactory {
         loadConfig();
     }
 
-    public String registerConfigProvider(AuthConfigProvider authConfigProvider, String string, String string1, String string2) throws AuthException, SecurityException {
-        return null;
-    }
-
-    public synchronized String registerConfigProvider(final String className, final Map properties, String layer, String appContext, String description) throws AuthException, SecurityException {
+    public String registerConfigProvider(AuthConfigProvider authConfigProvider, String layer, String appContext, String description) throws AuthException, SecurityException {
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) {
             sm.checkPermission(new AuthPermission("registerAuthConfigProvider"));
         }
-        String key = getRegistrationKey(layer, appContext);
-        // Get or create context
-        Context ctx = registrations.get(key);
-        if (ctx == null) {
-            ctx = new Context(layer, appContext);
+        return registerConfigProvider(authConfigProvider, layer, appContext, description, false, null);
+    }
+
+    public synchronized String registerConfigProvider(final String className, final Map constructorParam, String layer, String appContext, String description) throws AuthException, SecurityException {
+        SecurityManager sm = System.getSecurityManager();
+        if (sm != null) {
+            sm.checkPermission(new AuthPermission("registerAuthConfigProvider"));
         }
-        // Create provider
+        AuthConfigProvider authConfigProvider;
         try {
-            AuthConfigProvider provider = java.security.AccessController
+            authConfigProvider = java.security.AccessController
             .doPrivileged(new PrivilegedExceptionAction<AuthConfigProvider>() {
                 public AuthConfigProvider run() throws ClassNotFoundException, SecurityException, NoSuchMethodException, IllegalArgumentException, InstantiationException, IllegalAccessException, InvocationTargetException  {
                     Class<? extends AuthConfigProvider> cl = (Class<? extends AuthConfigProvider>) Class.forName(className, true, contextClassLoader);
                     Constructor<? extends AuthConfigProvider> cnst = cl.getConstructor(Map.class);
-                    return cnst.newInstance(properties);
+                    return cnst.newInstance(constructorParam);
                 }
             });
-            ctx.setProvider(provider);
-            ctx.setDescription(description);
-            registrations.put(key, ctx);
-            saveConfig();
         } catch (PrivilegedActionException e) {
             Exception inner = e.getException();
             if (inner instanceof InstantiationException) {
@@ -155,6 +148,26 @@ public class AuthConfigFactoryImpl extends AuthConfigFactory {
         } catch (Exception e) {
             throw (AuthException) new AuthException("AuthConfigFactory error: " + e).initCause(e);
         }
+        String key = registerConfigProvider(authConfigProvider, layer, appContext, description, true, constructorParam);
+        saveConfig();
+        return key;
+    }
+
+    private String registerConfigProvider(AuthConfigProvider provider, String layer, String appContext, String description, boolean persistent, Map<String, String> constructorParam) throws AuthException {
+        String key = getRegistrationKey(layer, appContext);
+        // Get or create context
+        Context ctx = registrations.get(key);
+        if (ctx == null) {
+            ctx = new Context(layer, appContext, persistent);
+        } else {
+            if (persistent != ctx.isPersistent()) {
+                throw new IllegalArgumentException("Cannot change the persistence state");
+            }
+        }
+        // Create provider
+        ctx.setProvider(provider);
+        ctx.setDescription(description);
+        registrations.put(key, ctx);
         // Notify listeners
         List<RegistrationListener> listeners = ctx.getListeners();
         for (RegistrationListener listener : listeners) {
@@ -199,10 +212,13 @@ public class AuthConfigFactoryImpl extends AuthConfigFactory {
         private final List<RegistrationListener> listeners = new ArrayList<RegistrationListener>();
         private String description;
         private AuthConfigProvider provider;
+        private final boolean persistent;
+        private Map<String, String> constructorParam;
         
-        public Context(String layer, String appContext) {
+        public Context(String layer, String appContext, boolean persistent) {
             this.layer = layer;
             this.appContext = appContext;
+            this.persistent = persistent;
         }
         
         public String getAppContext() {
@@ -214,7 +230,11 @@ public class AuthConfigFactoryImpl extends AuthConfigFactory {
         }
 
         public boolean isPersistent() {
-            return false;
+            return persistent;
+        }
+
+        public String getDescription() {
+            return description;
         }
 
         public List<RegistrationListener> getListeners() {
@@ -229,14 +249,17 @@ public class AuthConfigFactoryImpl extends AuthConfigFactory {
             this.provider = provider;
         }
 
-        public String getDescription() {
-            return description;
-        }
-
         public void setDescription(String description) {
             this.description = description;
         }
 
+        public Map<String, String> getConstructorParam() {
+            return constructorParam;
+        }
+
+        public void setConstructorParam(Map<String, String> constructorParam) {
+            this.constructorParam = constructorParam;
+        }
     }
     
 }
