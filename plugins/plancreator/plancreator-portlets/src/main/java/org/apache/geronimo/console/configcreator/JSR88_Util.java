@@ -21,7 +21,6 @@ import java.io.File;
 import javax.enterprise.deploy.shared.factories.DeploymentFactoryManager;
 import javax.enterprise.deploy.spi.DeploymentManager;
 import javax.enterprise.deploy.spi.Target;
-import javax.enterprise.deploy.spi.factories.DeploymentFactory;
 import javax.enterprise.deploy.spi.status.ProgressObject;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -29,7 +28,6 @@ import javax.portlet.PortletException;
 import javax.portlet.PortletRequest;
 
 import org.apache.geronimo.deployment.plugin.jmx.CommandContext;
-import org.apache.geronimo.deployment.plugin.factories.DeploymentFactoryWithKernel;
 import org.apache.geronimo.deployment.plugin.jmx.JMXDeploymentManager;
 import org.apache.geronimo.deployment.plugin.local.DistributeCommand;
 import org.apache.geronimo.j2ee.ApplicationInfo;

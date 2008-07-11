@@ -28,7 +28,6 @@ import org.apache.geronimo.deployment.xbeans.DependenciesType;
 import org.apache.geronimo.deployment.xbeans.DependencyType;
 import org.apache.geronimo.deployment.xbeans.EnvironmentType;
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.repository.Dependency;
 import org.apache.geronimo.kernel.repository.Environment;
 
 /**
@@ -42,6 +41,15 @@ public class EnvironmentConfigData {
 
     public EnvironmentConfigData(EnvironmentType environment) {
         this.environment = environment;
+        DependenciesType dependencies = environment.getDependencies();
+        if(dependencies != null) {
+            DependencyType[] depArray = dependencies.getDependencyArray();
+            for(int i = 0; i < depArray.length; i++) {
+                DependencyType d = depArray[i];
+                Artifact artifact = new Artifact(d.getGroupId(), d.getArtifactId(), d.getVersion(), d.getType());
+                dependenciesSet.add(artifact.toString());
+            }
+        }
     }
 
     public void parseEnvironment(Environment env) {

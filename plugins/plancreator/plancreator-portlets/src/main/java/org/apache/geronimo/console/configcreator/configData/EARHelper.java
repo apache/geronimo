@@ -20,6 +20,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 
@@ -28,6 +29,15 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.geronimo.console.configcreator.AbstractHandler;
 import org.apache.geronimo.deployment.xbeans.ArtifactType;
 import org.apache.geronimo.deployment.xbeans.EnvironmentType;
+import org.apache.geronimo.deployment.xbeans.PatternType;
+import org.apache.geronimo.xbeans.geronimo.security.GerDistinguishedNameType;
+import org.apache.geronimo.xbeans.geronimo.security.GerLoginDomainPrincipalType;
+import org.apache.geronimo.xbeans.geronimo.security.GerPrincipalType;
+import org.apache.geronimo.xbeans.geronimo.security.GerRealmPrincipalType;
+import org.apache.geronimo.xbeans.geronimo.security.GerRoleMappingsType;
+import org.apache.geronimo.xbeans.geronimo.security.GerRoleType;
+import org.apache.geronimo.xbeans.geronimo.security.GerSecurityType;
+import org.apache.geronimo.xbeans.geronimo.security.GerSubjectInfoType;
 import org.directwebremoting.annotations.DataTransferObject;
 import org.directwebremoting.annotations.RemoteMethod;
 import org.directwebremoting.annotations.RemoteProxy;
@@ -38,131 +48,6 @@ import org.directwebremoting.annotations.RemoteProxy;
 @RemoteProxy
 public class EARHelper {
     //private EARConfigData earConfig;
-
-    /**
-     * 
-     * Dojo tree expects a JSON in the below format:
-     * { label: 'name',
-     *   identifier: 'name',
-     *   items: [
-     *     { name:'Web Modules', type:'webModules',
-     *       children: [
-     *         { name:'module-name-1', type:'webModule' },
-     *         ...
-     *         { name:'module-name-n', type:'webModule' }
-     *       ]
-     *     },
-     *     { name:'EJB Modules', type: 'ejbModules',
-     *       children: [
-     *         { name:'module-name-1', type:'ejbModule' },
-     *         ...
-     *         { name:'module-name-n', type:'ejbModule' }
-     *       ]
-     *     }
-     *   ]
-     * }
-     * 
-     */
-    public static class TreeJson implements Serializable {
-        String identifier = "name";
-        String label = "name";
-        List<TreeNode> items = new ArrayList<TreeNode>();
-
-        public TreeJson() {
-        }
-
-        public String getIdentifier() {
-            return identifier;
-        }
-
-        public void setIdentifier(String identifier) {
-            this.identifier = identifier;
-        }
-
-        public String getLabel() {
-            return label;
-        }
-
-        public void setLabel(String label) {
-            this.label = label;
-        }
-
-        public List<TreeNode> getItems() {
-            return items;
-        }
-
-        public void setItems(List<TreeNode> items) {
-            this.items = items;
-        }
-    }
-
-    @DataTransferObject
-    public static class EarJsonTree extends TreeJson implements Serializable {
-
-        public EarJsonTree(EARConfigData earConfig) {
-            if (earConfig.getWebModules().size() > 0) {
-                TreeFolder webModules = new TreeFolder("Web Modules", "folder");
-                items.add(webModules);
-                for (Enumeration<String> e = earConfig.getWebModules().keys(); e.hasMoreElements();) {
-                    String moduleName = e.nextElement();
-                    webModules.getChildren().add(new TreeNode(moduleName, "webModule"));
-                }
-            }
-            if (earConfig.getEjbModules().size() > 0) {
-                TreeFolder ejbModules = new TreeFolder("EJB Modules", "folder");
-                items.add(ejbModules);
-                for (Enumeration<String> e = earConfig.getEjbModules().keys(); e.hasMoreElements();) {
-                    String moduleName = e.nextElement();
-                    ejbModules.getChildren().add(new TreeNode(moduleName, "ejbModule"));
-                }
-            }
-        }
-    }
-
-    @DataTransferObject
-    public static class TreeNode implements Serializable {
-        String name;
-        String type;
-
-        public TreeNode(String name, String type) {
-            this.name = name;
-            this.type = type;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        public String getType() {
-            return type;
-        }
-
-        public void setType(String type) {
-            this.type = type;
-        }
-    }
-
-    @DataTransferObject
-    public static class TreeFolder extends TreeNode implements Serializable {
-        List<TreeNode> children = new ArrayList<TreeNode>();
-
-        public TreeFolder(String name, String type) {
-            super(name, type);
-        }
-
-        public List<TreeNode> getChildren() {
-            return children;
-        }
-
-        public void setChildren(List<TreeNode> children) {
-            this.children = children;
-        }
-    }
-
     public EARHelper() {
         //earConfig = (EARConfigData) WebContextFactory.get().getHttpServletRequest().getSession().getAttribute(
         //        AbstractHandler.EAR_CONFIG_DATA_ID);
@@ -170,11 +55,6 @@ public class EARHelper {
 
     private EARConfigData getEarConfigData(HttpServletRequest request) {
         return (EARConfigData) request.getSession().getAttribute(AbstractHandler.EAR_CONFIG_DATA_ID);
-    }
-
-    @RemoteMethod
-    public EarJsonTree getEarTree(HttpServletRequest request) {
-        return new EarJsonTree(getEarConfigData(request));
     }
 
     @DataTransferObject
@@ -422,11 +302,585 @@ public class EARHelper {
         dependenciesJsonTree.save(getEarConfigData(request).getEnvironmentConfig().getDependenciesSet());
     }
 
+    @DataTransferObject
+    public static class SecurityPrincipalJson implements Serializable {
+        private String name;
+        private String principalName;
+        private String type;
+        private String className;
+        private String domainName;
+        private String realmName;
+
+        public SecurityPrincipalJson() {
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public String getPrincipalName() {
+            return principalName;
+        }
+
+        public void setPrincipalName(String principalName) {
+            this.principalName = principalName;
+        }
+
+        public String getType() {
+            return type;
+        }
+
+        public void setType(String type) {
+            this.type = type;
+        }
+
+        public String getClassName() {
+            return className;
+        }
+
+        public void setClassName(String className) {
+            this.className = className;
+        }
+
+        public String getDomainName() {
+            return domainName;
+        }
+
+        public void setDomainName(String domainName) {
+            this.domainName = domainName;
+        }
+
+        public String getRealmName() {
+            return realmName;
+        }
+
+        public void setRealmName(String realmName) {
+            this.realmName = realmName;
+        }
+    }
+
+    @DataTransferObject
+    public static class SecurityRoleJson implements Serializable {
+        private String roleName;
+        private SecurityPrincipalJson[] children;
+
+        public SecurityRoleJson() {
+        }
+
+        public String getName() {
+            return "role = '" + roleName + "'";
+        }
+
+        public void setName(String name) {
+            int beg = name.indexOf('\'');
+            this.roleName = name.substring(beg, name.indexOf('\'', beg + 1));
+        }
+
+        public String getRoleName() {
+            return roleName;
+        }
+
+        public void setRoleName(String roleName) {
+            this.roleName = roleName;
+        }
+
+        public SecurityPrincipalJson[] getChildren() {
+            return children;
+        }
+
+        public void setChildren(SecurityPrincipalJson[] children) {
+            this.children = children;
+        }
+    }
+
+    @DataTransferObject
+    public static class ModuleSecurityJsonTree implements Serializable {
+        SecurityRoleJson[] items;
+
+        public String getIdentifier() {
+            return "name";
+        }
+
+        public void setIdentifier(String name) {
+        }
+
+        public String getLabel() {
+            return "name";
+        }
+
+        public void setLabel(String label) {
+        }
+
+        public SecurityRoleJson[] getItems() {
+            return items;
+        }
+
+        public void setItems(SecurityRoleJson[] items) {
+            this.items = items;
+        }
+
+        public ModuleSecurityJsonTree() {
+        }
+
+        public ModuleSecurityJsonTree(WARConfigData warConfig) {
+            GerRoleType[] roles = warConfig.getSecurity().getRoleMappings().getRoleArray();
+            items = new SecurityRoleJson[roles.length];
+
+            for (int i = 0; i < roles.length; i++) {
+                SecurityRoleJson jRole = new SecurityRoleJson();
+                GerRoleType role = roles[i];
+                String roleName = role.getRoleName();
+                jRole.setRoleName(roleName);
+
+                GerPrincipalType[] principals = role.getPrincipalArray();
+                GerLoginDomainPrincipalType[] loginDomainPrincipals = role.getLoginDomainPrincipalArray();
+                GerRealmPrincipalType[] realmPrincipals = role.getRealmPrincipalArray();
+                GerDistinguishedNameType[] distinguishedNames = role.getDistinguishedNameArray();
+
+                int jLength = principals.length + loginDomainPrincipals.length + realmPrincipals.length + distinguishedNames.length;
+
+                if (jLength > 0) {
+                    SecurityPrincipalJson[] jPrincipals = new SecurityPrincipalJson[jLength];
+                    int jIndex;
+
+                    for (int j = 0; j < principals.length; j++) {
+                        SecurityPrincipalJson jPrincipal = new SecurityPrincipalJson();
+                        jPrincipal.setPrincipalName(principals[j].getName());
+                        jPrincipal.setClassName(principals[j].getClass1());
+                        jPrincipal.setType("Principal");
+                        jPrincipal.setName(roleName + ".principal" + (1 + j));
+                        jPrincipals[j] = jPrincipal;
+                    }
+                    jIndex = principals.length;
+
+                    for (int j = 0; j < loginDomainPrincipals.length; j++) {
+                        SecurityPrincipalJson jPrincipal = new SecurityPrincipalJson();
+                        jPrincipal.setPrincipalName(loginDomainPrincipals[j].getName());
+                        jPrincipal.setClassName(loginDomainPrincipals[j].getClass1());
+                        jPrincipal.setDomainName(loginDomainPrincipals[j].getDomainName());
+                        jPrincipal.setType("LoginDomainPrincipal");
+                        jPrincipal.setName(roleName + ".principal" + (1 + j + jIndex));
+                        jPrincipals[j + jIndex] = jPrincipal;
+                    }
+                    jIndex += loginDomainPrincipals.length;
+
+                    for (int j = 0; j < realmPrincipals.length; j++) {
+                        SecurityPrincipalJson jPrincipal = new SecurityPrincipalJson();
+                        jPrincipal.setPrincipalName(realmPrincipals[j].getName());
+                        jPrincipal.setClassName(realmPrincipals[j].getClass1());
+                        jPrincipal.setDomainName(realmPrincipals[j].getDomainName());
+                        jPrincipal.setRealmName(realmPrincipals[j].getRealmName());
+                        jPrincipal.setType("RealmPrincipal");
+                        jPrincipal.setName(roleName + ".principal" + (1 + j + jIndex));
+                        jPrincipals[j + jIndex] = jPrincipal;
+                    }
+                    jIndex += realmPrincipals.length;
+
+                    for (int j = 0; j < distinguishedNames.length; j++) {
+                        SecurityPrincipalJson jPrincipal = new SecurityPrincipalJson();
+                        jPrincipal.setPrincipalName(distinguishedNames[j].getName());
+                        jPrincipal.setType("DistinguishedName");
+                        jPrincipal.setName(roleName + ".principal" + (1 + j + jIndex));
+                        jPrincipals[j + jIndex] = jPrincipal;
+                    }
+
+                    jRole.setChildren(jPrincipals);
+                }
+                items[i] = jRole;
+            }
+        }
+
+        public void save(WARConfigData warConfig, Hashtable<String, Subject> runAsSubjects) {
+            if (warConfig.getSecurity().isSetRoleMappings())
+                warConfig.getSecurity().unsetRoleMappings();
+            GerRoleMappingsType roleMappings = warConfig.getSecurity().addNewRoleMappings();
+
+            for (int i = 0; i < items.length; i++) {
+                SecurityPrincipalJson[] jPrincipals = items[i].getChildren();
+                SecurityRoleJson item = items[i];
+
+                GerRoleType role = roleMappings.addNewRole();
+                role.setRoleName(item.getRoleName());
+
+                for (int j = 0; j < jPrincipals.length; j++) {
+                    SecurityPrincipalJson jPrincipal = jPrincipals[j];
+                    String type = jPrincipal.getType();
+
+                    if (type.equals("Principal")) {
+                        GerPrincipalType principal = role.addNewPrincipal();
+                        principal.setName(jPrincipal.getPrincipalName());
+                        principal.setClass1(jPrincipal.getClassName());
+                    } else if (type.equals("LoginDomainPrincipal")) {
+                        GerLoginDomainPrincipalType principal = role.addNewLoginDomainPrincipal();
+                        principal.setName(jPrincipal.getPrincipalName());
+                        principal.setClass1(jPrincipal.getClassName());
+                        principal.setDomainName(jPrincipal.getDomainName());
+                    } else if (type.equals("RealmPrincipal")) {
+                        GerRealmPrincipalType principal = role.addNewRealmPrincipal();
+                        principal.setName(jPrincipal.getPrincipalName());
+                        principal.setClass1(jPrincipal.getClassName());
+                        principal.setDomainName(jPrincipal.getDomainName());
+                        principal.setRealmName(jPrincipal.getRealmName());
+                    } else if (type.equals("DistinguishedName")) {
+                        GerDistinguishedNameType principal = role.addNewDistinguishedName();
+                        principal.setName(jPrincipal.getPrincipalName());
+                    }
+                }
+
+                if (runAsSubjects != null
+                        && runAsSubjects.containsKey(item.getRoleName())) {
+                    GerSubjectInfoType gerRunAsSubject = role.addNewRunAsSubject();
+                    Subject runAsSubject = runAsSubjects.get(item.getRoleName());
+                    gerRunAsSubject.setId(runAsSubject.getId());
+                    gerRunAsSubject.setRealm(runAsSubject.getRealm());
+                }
+            }
+        }
+    }
+
+    @DataTransferObject
+    public static class Subject implements Serializable {
+        String realm;
+        String id;
+
+        public Subject() {
+        }
+
+        public Subject(String id, String realm) {
+            this.id = id;
+            this.realm = realm;
+        }
+
+        public String getRealm() {
+            return realm;
+        }
+
+        public void setRealm(String realm) {
+            this.realm = realm;
+        }
+
+        public String getId() {
+            return id;
+        }
+
+        public void setId(String id) {
+            this.id = id;
+        }
+    }
+
+    @DataTransferObject
+    public static class CredentialStoreRef implements Serializable {
+        String groupId;
+        String artifactId;
+        String version;
+        String type;
+        String module;
+        String name;
+
+        public String getGroupId() {
+            return groupId;
+        }
+
+        public void setGroupId(String groupId) {
+            this.groupId = groupId;
+        }
+
+        public String getArtifactId() {
+            return artifactId;
+        }
+
+        public void setArtifactId(String artifactId) {
+            this.artifactId = artifactId;
+        }
+
+        public String getVersion() {
+            return version;
+        }
+
+        public void setVersion(String version) {
+            this.version = version;
+        }
+
+        public String getType() {
+            return type;
+        }
+
+        public void setType(String type) {
+            this.type = type;
+        }
+
+        public String getModule() {
+            return module;
+        }
+
+        public void setModule(String module) {
+            this.module = module;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public CredentialStoreRef() {
+        }
+
+        public CredentialStoreRef(String groupId, String artifactId,
+                String version, String type, String module, String name) {
+            this.groupId = groupId;
+            this.artifactId = artifactId;
+            this.version = version;
+            this.type = type;
+            this.module = module;
+            this.name = name;
+        }
+
+        public CredentialStoreRef(String combined) {
+            String[] values = combined.split("/", 6);
+            groupId = values[0];
+            artifactId = values[1];
+            version = values[2];
+            type = values[3];
+            module = values[4];
+            name = values[5];
+        }
+
+        public void save(PatternType credentialStoreRef) {
+            credentialStoreRef.setGroupId(groupId);
+            credentialStoreRef.setArtifactId(artifactId);
+            credentialStoreRef.setVersion(version);
+            credentialStoreRef.setType(type);
+            credentialStoreRef.setModule(module);
+            credentialStoreRef.setName(name);
+        }
+
+        public String toString() {
+            String combined = groupId;
+            if (artifactId != null)
+                combined = combined + '/' + artifactId;
+            if (version != null)
+                combined = combined + '/' + version;
+            if (type != null)
+                combined = combined + '/' + type;
+            if (module != null)
+                combined = combined + '/' + module;
+            if (name != null)
+                combined = combined + '/' + name;
+
+            return combined;
+        }
+    }
+
+    @DataTransferObject
+    public static class ModuleSecurityConfig implements Serializable {
+        private ModuleSecurityJsonTree roleMappings;
+        private String securityRealmName;
+        private Hashtable<String, Subject> runAsSubjects;
+        private String defaultSubjectRealm, defaultSubjectId;
+        private CredentialStoreRef credentialStoreRef;
+        private boolean doasCurrentCaller;
+        private boolean useContextHandler;
+
+        public ModuleSecurityConfig() {
+        }
+
+        public ModuleSecurityConfig(WARConfigData warConfig) {
+            roleMappings = new ModuleSecurityJsonTree(warConfig);
+            setSecurityRealmName(warConfig.getWebApp().getSecurityRealmName());
+
+            GerSecurityType security = warConfig.getSecurity();
+
+            GerRoleType[] roles = security.getRoleMappings().getRoleArray();
+            runAsSubjects = new Hashtable<String, Subject>();
+            for (int i = 0; i < roles.length; i++) {
+                GerSubjectInfoType runAsSubject = roles[i].getRunAsSubject();
+                if (runAsSubject != null && runAsSubject.getId() != null && runAsSubject.getRealm() != null) {
+                    runAsSubjects.put(roles[i].getRoleName(), new Subject(runAsSubject.getId(), runAsSubject.getRealm()));
+                }
+            }
+
+            GerSubjectInfoType gerDefaultSubject = security.getDefaultSubject();
+            if (gerDefaultSubject != null && gerDefaultSubject.getId() != null && gerDefaultSubject.getRealm() != null) {
+                defaultSubjectId = gerDefaultSubject.getId();
+                defaultSubjectRealm = gerDefaultSubject.getRealm();
+            }
+
+            if (security.isSetCredentialStoreRef()) {
+                PatternType c = security.getCredentialStoreRef();
+                credentialStoreRef = new CredentialStoreRef(c.getGroupId(), c.getArtifactId(), c.getVersion(), c.getType(), c.getModule(), c.getName());
+            }
+            doasCurrentCaller = security.getDoasCurrentCaller();
+            useContextHandler = security.getUseContextHandler();
+        }
+
+        public void save(WARConfigData warConfig) {
+            roleMappings.save(warConfig, runAsSubjects);
+            warConfig.getWebApp().setSecurityRealmName(securityRealmName);
+
+            GerSecurityType security = warConfig.getSecurity();
+
+            if (security.isSetDefaultSubject())
+                security.unsetDefaultSubject();
+            if (defaultSubjectRealm != null && defaultSubjectId != null) {
+                GerSubjectInfoType gerDefaultSubject = security
+                        .addNewDefaultSubject();
+                gerDefaultSubject.setId(defaultSubjectId);
+                gerDefaultSubject.setRealm(defaultSubjectRealm);
+            }
+
+            if (security.isSetCredentialStoreRef())
+                security.unsetCredentialStoreRef();
+            if (credentialStoreRef != null)
+                credentialStoreRef.save(security.addNewCredentialStoreRef());
+
+            if (security.isSetDoasCurrentCaller())
+                security.unsetDoasCurrentCaller();
+            if (doasCurrentCaller)
+                security.setDoasCurrentCaller(doasCurrentCaller);
+
+            if (security.isSetUseContextHandler())
+                security.unsetUseContextHandler();
+            if (useContextHandler)
+                security.setUseContextHandler(useContextHandler);
+        }
+
+        public String getSecurityRealmName() {
+            return securityRealmName;
+        }
+
+        public void setSecurityRealmName(String securityRealmName) {
+            this.securityRealmName = securityRealmName;
+        }
+
+        public ModuleSecurityJsonTree getRoleMappings() {
+            return roleMappings;
+        }
+
+        public void setRoleMappings(ModuleSecurityJsonTree roleMappings) {
+            this.roleMappings = roleMappings;
+        }
+
+        public Hashtable<String, Subject> getRunAsSubjects() {
+            return runAsSubjects;
+        }
+
+        public void setRunAsSubjects(Hashtable<String, Subject> runAsSubjects) {
+            this.runAsSubjects = runAsSubjects;
+        }
+
+        public boolean isDoasCurrentCaller() {
+            return doasCurrentCaller;
+        }
+
+        public void setDoasCurrentCaller(boolean doasCurrentCaller) {
+            this.doasCurrentCaller = doasCurrentCaller;
+        }
+
+        public boolean isUseContextHandler() {
+            return useContextHandler;
+        }
+
+        public void setUseContextHandler(boolean useContextHandler) {
+            this.useContextHandler = useContextHandler;
+        }
+
+        public String getCredentialStoreRef() {
+            if (credentialStoreRef != null)
+                return credentialStoreRef.toString();
+            return "";
+        }
+
+        public void setCredentialStoreRef(String credentialStoreRef) {
+            if (credentialStoreRef.trim().length() == 0) {
+                this.credentialStoreRef = null;
+            } else {
+                this.credentialStoreRef = new CredentialStoreRef(credentialStoreRef);
+            }
+        }
+
+        public String getDefaultSubjectRealm() {
+            return defaultSubjectRealm;
+        }
+
+        public void setDefaultSubjectRealm(String defaultSubjectRealm) {
+            this.defaultSubjectRealm = defaultSubjectRealm;
+        }
+
+        public String getDefaultSubjectId() {
+            return defaultSubjectId;
+        }
+
+        public void setDefaultSubjectId(String defaultSubjectId) {
+            this.defaultSubjectId = defaultSubjectId;
+        }
+    }
+
+    @DataTransferObject
+    public static class SecurityJson implements Serializable {
+        private Hashtable<String, ModuleSecurityConfig> webModules = new Hashtable<String, ModuleSecurityConfig>();
+
+        // TODO EJB Modules
+        // private Hashtable<String, ModuleSecurityConfig> ejbModules = new
+        // Hashtable<String, ModuleSecurityConfig>();
+        public SecurityJson() {
+        }
+
+        public SecurityJson(EARConfigData earConfig) {
+            Hashtable<String, WARConfigData> webConfigs = earConfig.getWebModules();
+
+            Enumeration keys = webConfigs.keys();
+            while (keys.hasMoreElements()) {
+                String key = (String) keys.nextElement();
+                webModules.put(key, new ModuleSecurityConfig(webConfigs.get(key)));
+            }
+        }
+
+        public Hashtable<String, ModuleSecurityConfig> getWebModules() {
+            return webModules;
+        }
+
+        public void setWebModules(Hashtable<String, ModuleSecurityConfig> webModules) {
+            this.webModules = webModules;
+        }
+
+        public void save(EARConfigData earConfig) {
+            Hashtable<String, WARConfigData> webConfigs = earConfig
+                    .getWebModules();
+
+            Enumeration keys = webConfigs.keys();
+            while (keys.hasMoreElements()) {
+                String key = (String) keys.nextElement();
+                webModules.get(key).save(webConfigs.get(key));
+            }
+        }
+    }
+
+    @RemoteMethod
+    public SecurityJson getSecurityJson(HttpServletRequest request) {
+        return new SecurityJson(getEarConfigData(request));
+    }
+
+    @RemoteMethod
+    public void saveSecurityJson(HttpServletRequest request, SecurityJson securityData) {
+        securityData.save(getEarConfigData(request));
+    }
+
     @RemoteMethod
     public String getGeneratedPlan(HttpServletRequest request) {
         return getEarConfigData(request).getDeploymentPlan();
     }
 
+    @RemoteMethod
+    public String saveGeneratedPlan(HttpServletRequest request, String plan) {
+        return getEarConfigData(request).setDeploymentPlan(plan);
+    }
     /*@RemoteMethod
     public String[] getWebModules() {
         return null;

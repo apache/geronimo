@@ -38,6 +38,7 @@
   dojo.require("dijit.layout.TabContainer");
   dojo.require("dijit.layout.ContentPane");
   dojo.require("dijit.layout.SplitContainer");
+  dojo.require("dijit.layout.AccordionContainer");
   dojo.require("dojo.data.ItemFileReadStore");
   dojo.require("dojo.data.ItemFileWriteStore");
   dojo.require("dijit.Tree");
@@ -60,8 +61,14 @@
 
 <script type='text/javascript' src='<%=request.getContextPath()%>/js/enterpriseApp.js'></script>
 
-<body class="tundra"> 
-<div id="mainTabContainer" dojoType="dijit.layout.TabContainer" style="width:750px; height:800px">
+<body class="tundra">
+<table width="750px">
+    <tr>
+        <td align="left" width="100px"><button dojoType="dijit.form.Button" onClick="doPrevious()">&lt; Previous</button></td>
+        <td align="left"><button dojoType="dijit.form.Button" onClick="doNext()">Next &gt;</button></td>
+    </tr>
+</table>
+<div id="mainTabContainer" dojoType="dijit.layout.TabContainer" style="width:750px; height: 700px">
   <div id="environment" dojoType="dijit.layout.ContentPane" title="Environment">
     <form dojoType="dijit.form.Form" id="environmentForm" 
       execute="saveEnvironment(arguments[0]); saveDependencies()"
@@ -218,12 +225,6 @@
         </tr>
       </table>
     </div>
-      <CENTER>
-        <!-- Save button -->
-        <button dojoType="dijit.form.Button" iconClass="dijitEditorIcon dijitEditorIconSave" type="submit">
-          Save
-        </button>
-      </CENTER>
     </form>
   </div>
   <div id="references" dojoType="dijit.layout.ContentPane" title="References">
@@ -237,20 +238,101 @@
       </div>
     </div>
   </div>
+  <!-- Security -->
   <div id="security" dojoType="dijit.layout.ContentPane" title="Security">
-    <div dojoType="dijit.layout.SplitContainer" orientation="horizontal" sizerWidth="7"
-        activeSizing="true" style="border: 1px solid #bfbfbf;">
-      <div dojoType="dijit.layout.ContentPane" sizeMin="100" sizeShare="20">
-        <div id="securityTreeHolder">EAR tree goes here</div>
-      </div>
-      <div dojoType="dijit.layout.ContentPane" sizeMin="200" sizeShare="80">
-        Editors for security go here
-      </div>
+    <div dojoType="dijit.layout.AccordionContainer" id="securityAccordionContainer" duration="200">
+        <c:forEach var="webModule" items="${data.webModules}"> 
+            <c:set var="moduleName" value="${webModule.key}"/>                       
+                <div dojoType="dijit.layout.AccordionPane" selected="true" title="${webModule.key}" id="${webModule.key}">
+                    <form dojoType="dijit.form.Form" id="${moduleName}.form" 
+                    execute="saveSecurity(arguments[0]);" onsubmit="return false;">
+                        <table width="720px" cellspacing="15px">
+                            <tr>
+                                <td colspan="2">Realm-name:
+                                    <select dojoType="dijit.form.FilteringSelect" name="securityRealmName" id="${moduleName}.form.txtSecurityRealmName" value="">
+                                        <c:forEach var="securityRealm" items="${deployedSecurityRealms}"><option value="${securityRealm.realmName}">${securityRealm.realmName}</option></c:forEach>
+                                    </select>
+                                </td>                    
+                            </tr>
+                        </table>
+                        <div dojoType="dijit.TitlePane" title="Role Mappings" open="true" style="margin:0px 10px; padding:0;">
+                            <table width="700px">
+                                <tr>
+                                    <td valign="top">
+                                        <div id="${moduleName}.form.securityTree">Security roles tree</div>
+                                    </td>
+                                    <td align="right" valign="top">
+                                        <button dojoType="dijit.form.Button" id="${moduleName}.form.btnAdd" onclick="doAddOrEditRoleMapping('${moduleName}.form.securityTree',true)" disabled="true">
+                                          <div style="width:58px">Add</div>
+                                        </button><br/>
+                                        <button dojoType="dijit.form.Button" id="${moduleName}.form.btnEdit" onclick="doAddOrEditRoleMapping('${moduleName}.form.securityTree',false)" disabled="true">
+                                          <div style="width:58px">Edit</div>
+                                        </button><br/>
+                                        <button dojoType="dijit.form.Button" id="${moduleName}.form.btnDelete" onclick="doDeleteRoleMapping('${moduleName}.form.securityTree')" disabled="true">
+                                          <div style="width:58px">Delete</div>
+                                        </button><br/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div dojoType="dijit.TitlePane" title="Advanced Settings" open="false" style="margin:0px 10px; padding:0;">
+                            <table width="700px" cellspacing="10px">
+                                <tr>
+                                    <td><b>Credential Store:</b></td>
+                                    <td>
+                                        <select name="credentialStoreRef" dojoType="dijit.form.FilteringSelect" id="${moduleName}.form.selCredentialStore" style="width:520px" value="">
+                                        <option value=""></option>
+                                        <c:forEach var="credentialStore" items="${deployedCredentialStores}"><option value="${credentialStore.patternName}">${credentialStore.displayName}</option></c:forEach>
+                                        </select>
+                                     </td>
+                                </tr>
+                                <tr><td colspan="2" align="left"><b>Default Subject:</b></td></tr>
+                                <tr>
+                                    <td align="right" width="120px">Realm:</td>
+                                    <td><input name="defaultSubjectRealm" dojotype="dijit.form.TextBox" type="text" size="25"/></td>
+                                </tr>
+                                <tr>
+                                    <td align="right">Id:</td>
+                                    <td><input name="defaultSubjectId" dojotype="dijit.form.TextBox" type="text" size="25"/></td>
+                                </tr>
+                            </table>
+                            <table cellspacing="10px">
+                                <tr>
+                                    <td align="right"><input name="doasCurrentCaller" dojotype="dijit.form.CheckBox" type="checkbox" value="true"/></td>                                    
+                                    <td>Do as current caller</td>
+                                </tr>
+                                <tr>
+                                    <td align="right"><input name="useContextHandler" dojotype="dijit.form.CheckBox" type="checkbox" value="true"/></td>                                    
+                                    <td>Use context handler</td>
+                                </tr>
+                            </table>
+                            <table width="700px">
+                                <tr>
+                                    <td valign="top">
+                                        <div id="${moduleName}.form.runAsSubjectsTree">Run-as-subjects tree</div>
+                                    </td>
+                                    <td align="right" valign="top">
+                                        <button dojoType="dijit.form.Button" id="${moduleName}.form.btnAddRunAsSubject" onclick="doAddOrEditRunAsSubject('${moduleName}.form.runAsSubjectsTree',true)" disabled="true">
+                                          <div style="width:58px">Add</div>
+                                        </button><br/>
+                                        <button dojoType="dijit.form.Button" id="${moduleName}.form.btnEditRunAsSubject" onclick="doAddOrEditRunAsSubject('${moduleName}.form.runAsSubjectsTree',false)" disabled="true">
+                                          <div style="width:58px">Edit</div>
+                                        </button><br/>
+                                        <button dojoType="dijit.form.Button" id="${moduleName}.form.btnDeleteRunAsSubject" onclick="doDeleteRunAsSubject('${moduleName}.form.runAsSubjectsTree')" disabled="true">
+                                          <div style="width:58px">Delete</div>
+                                        </button><br/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </form>
+                </div>
+            <c:remove var="moduleName"/>
+        </c:forEach>
     </div>
   </div>
   <div id="generatedPlan" dojoType="dijit.layout.ContentPane" title="Generated Plan">
-    <textarea rows="30" cols="85" id="generatedPlanDisplayer" name="deploymentPlan">${data.deploymentPlan}</textarea>
-    <!--<textarea id="generatedPlanDisplayer" dojoType="dijit.form.Textarea" style="width:600px">${data.deploymentPlan}</textarea>-->
+    <pre id="generatedPlanDisplayer" class="dijitTextarea" contentEditable="true" style="padding:0px; width:744px; height: 668px; font-family: monospace">${data.deploymentPlan}</pre>
   </div>
 </div>
 <div id="dependenciesDialog" dojotype="dijit.Dialog"
@@ -260,7 +342,8 @@
       <c:forEach var="commonLib" items="${commonLibs}" varStatus="vs">
         <tr>
           <td>
-            <input dojotype="dijit.form.CheckBox" id="depChkBox_${vs.index}" name="dependencies" value="${commonLib}" type="checkbox"/>
+            <input dojotype="dijit.form.CheckBox" id="depChkBox_${vs.index}" 
+            name="dependencies" value="${commonLib}" type="checkbox"/>
           </td>
           <td valign="middle" align="left">
             <label for="dependencies">${commonLib}</label>
@@ -271,6 +354,9 @@
   </div>
   <center><button dojoType="dijit.form.Button" type="submit">OK</button></center>
 </div>
+<!-- 
+    Dependency Dialog 
+-->
 <div id="editDependencyDialog" dojotype="dijit.Dialog" 
     title="Edit dependency" execute="editDependencyTo(arguments[0])" extractContent="false">
   <input type="hidden" name="prevName" id="depEditPrevName" value="none"/>
@@ -303,5 +389,88 @@
     <tr><td colspan="2"><div id="depEditStatus"></div></td></tr>
   </table>
   <center><button dojoType="dijit.form.Button" type="submit" id="btnDepEditOK">OK</button></center>
+</div>
+<!-- 
+    Role Mapping Dialog 
+-->
+<div id="roleMappingDialog" dojotype="dijit.Dialog" 
+    title="Role Mapping" execute="addOrEditRoleMapping(arguments[0])" extractContent="false">
+  <table cellspacing="15">
+    <tr>
+      <td width="100px">Type:</td>
+      <td>
+        <select dojoType="dijit.form.FilteringSelect" name="type" id="selRoleMappingType" 
+        onchange="modifyRoleMappingForm(this.getValue())" style="width:200px">
+            <option value="Principal">Principal</option>
+            <option value="LoginDomainPrincipal">Login Domain Principal</option>
+            <option value="RealmPrincipal">Realm Principal</option>
+            <option value="DistinguishedName">Distinguished Name</option>
+        </select>
+      </td>
+    </tr>
+    <tr>
+      <td>Name:</td>
+      <td>
+        <input type="text" dojoType="dijit.form.ValidationTextBox" name="principalName" required="true" style="width:200px"
+        id="txtRoleMappingName" trim="true" validator="validatePrincipalName" onBlur="checkRoleMappingFields"
+        invalidMessage="Please enter a unique principal name for this role"/>
+      </td>
+    </tr>
+    <tr>
+      <td>Class:</td>
+      <td>
+        <select dojoType="dijit.form.FilteringSelect" name="className" id="selRoleMappingClass" style="width:200px"
+         onBlur="checkRoleMappingFields">
+            <option value="org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal">Group Principal</option>
+            <option value="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal">User Principal</option>
+        </select>
+      </td>
+    </tr>
+    <tr style="display:none">
+      <td>Domain Name:</td>
+      <td>
+        <input type="text" dojoType="dijit.form.ValidationTextBox" name="domainName" style="width:200px" disabled="true"
+        id="txtRoleMappingDomainName" trim="true" required="true" onBlur="checkRoleMappingFields"
+        invalidMessage="Please enter a domain name for this role"/>
+      </td>
+    </tr>
+    <tr style="display:none">
+      <td>Realm Name:</td>
+      <td>
+        <select dojoType="dijit.form.FilteringSelect" name="realmName" style="width:200px" id="selRoleMappingRealmName" disabled="true">
+            <c:forEach var="securityRealm" items="${deployedSecurityRealms}"><option value="${securityRealm.realmName}">${securityRealm.realmName}</option></c:forEach>
+        </select>
+      </td>
+    </tr>
+  </table>
+  <center><button dojoType="dijit.form.Button" type="submit" id="btnRoleMappingOK">OK</button></center>
+</div>
+<!-- 
+    Run-as-subject Dialog 
+-->
+<div id="runAsSubjectDialog" dojotype="dijit.Dialog" 
+    title="Run-as-subject" execute="addOrEditRunAsSubject(arguments[0])" extractContent="false">
+  <table cellspacing="15">
+    <tr id="selRunAsSubjectRoleRow">
+      <td align="right">Role:</td>
+      <td>
+        <select dojoType="dijit.form.FilteringSelect" name="name" id="selRunAsSubjectRole" onBlur="checkRunAsSubjectFields">
+        </select>
+      </td>
+    </tr>
+    <tr>
+      <td align="right">Realm:</td>
+      <td>
+        <input type="text" dojoType="dijit.form.ValidationTextBox" name="realm" required="true" style="width:200px" trim="true" onBlur="checkRunAsSubjectFields"/>
+      </td>
+    </tr>
+    <tr>
+      <td align="right">Id:</td>
+      <td>
+        <input type="text" dojoType="dijit.form.ValidationTextBox" name="id" required="true" style="width:200px" trim="true" onBlur="checkRunAsSubjectFields"/>
+      </td>
+    </tr>
+  </table>
+  <center><button dojoType="dijit.form.Button" type="submit" id="btnRunAsSubjectOK" disabled="true">OK</button></center>
 </div>
 </body>

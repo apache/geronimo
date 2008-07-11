@@ -33,6 +33,7 @@ import org.apache.geronimo.xbeans.geronimo.j2ee.GerApplicationType;
 import org.apache.geronimo.xbeans.geronimo.j2ee.GerModuleType;
 import org.apache.geronimo.xbeans.geronimo.web.GerWebAppDocument;
 import org.apache.xmlbeans.XmlCursor;
+import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlOptions;
 
 /**
@@ -128,11 +129,13 @@ public class EARConfigData {
             GerModuleType newModule = getEnterpriseApp().addNewModule();
             newModule.addNewWeb().setStringValue(moduleName);
 
-            /*WARConfigData warConfig = webModules.get(moduleName);
+            WARConfigData warConfig = webModules.get(moduleName);
+
             warConfig.getJndiRefsConfig().storeResourceRefs(warConfig.getWebApp());
             if (warConfig.getSecurity() != null) {
                 warConfig.getWebApp().setSecurity(warConfig.getSecurity());
             }
+            
             GerWebAppDocument webAppDocument = GerWebAppDocument.Factory.newInstance();
             webAppDocument.setWebApp(warConfig.getWebApp());
 
@@ -143,7 +146,7 @@ public class EARConfigData {
             rootCursor.toEndToken();
             xsAnyCursor.moveXml(rootCursor);
             xsAnyCursor.dispose();
-            rootCursor.dispose();*/
+            rootCursor.dispose();
         }
         for (Enumeration<String> e = ejbModules.keys(); e.hasMoreElements();) {
             String moduleName = e.nextElement();
@@ -178,8 +181,16 @@ public class EARConfigData {
         return "";
     }
 
-    public void setDeploymentPlan(String deploymentPlan) {
+    public String setDeploymentPlan(String deploymentPlan) {
         this.deploymentPlan = deploymentPlan;
+        try {
+            GerApplicationDocument doc = GerApplicationDocument.Factory.parse(deploymentPlan);            
+            this.enterpriseApp = doc.getApplication();
+            this.environmentConfig = new EnvironmentConfigData(this.enterpriseApp.getEnvironment());
+        } catch(XmlException e) {
+            return e.getMessage();
+        }
+        return null;
     }
 
     public Hashtable<String, WARConfigData> getWebModules() {

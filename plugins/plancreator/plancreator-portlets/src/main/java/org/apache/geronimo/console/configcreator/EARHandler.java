@@ -51,6 +51,8 @@ public class EARHandler extends AbstractHandler {
         request.setAttribute(DATA_PARAMETER, data);
         List<String> commonLibs = JSR77_Util.getCommonLibs(request);
         request.setAttribute(COMMON_LIBS_PARAMETER, commonLibs);
+        request.setAttribute(DEPLOYED_SECURITY_REALMS_PARAMETER, JSR77_Util.getDeployedSecurityRealms(request));
+        request.setAttribute(DEPLOYED_CREDENTIAL_STORES_PARAMETER, JSR77_Util.getDeployedCredentialStores(request));
     }
 
     public String actionAfterView(ActionRequest request, ActionResponse response, MultiPageModel model)

@@ -33,3 +33,25 @@ a.helpIcon {
     width: 16px;
     height: 16px;
 }
+.tundra .dijitPrincipalIcon {
+    background: transparent url('images/principalIcon.gif') no-repeat scroll 0% 0%;
+}
+.tundra .dijitLoginDomainPrincipalIcon {
+    background: transparent url('images/loginDomainPrincipalIcon.gif') no-repeat scroll 0% 0%;
+}
+.tundra .dijitRealmPrincipalIcon {
+    background: transparent url('images/realmPrincipalIcon.gif') no-repeat scroll 0% 0%;
+}
+.tundra .dijitDistinguishedNameIcon {
+    background: transparent url('images/distinguishedNameIcon.gif') no-repeat scroll 0% 0%;
+}
+pre .tag {
+    color: purple;
+}
+pre .value {
+    font-weight: bold;
+    color: #49C;
+}
+pre .string {
+    color: #B84;
+}

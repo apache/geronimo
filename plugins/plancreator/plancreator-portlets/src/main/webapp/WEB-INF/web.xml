@@ -31,24 +31,28 @@ limitations under the License.
     </servlet>
 
     <servlet>
-      <servlet-name>dwr-invoker</servlet-name>
-      <servlet-class>org.directwebremoting.servlet.DwrServlet</servlet-class>
-      <init-param>
-        <param-name>classes</param-name>
-        <param-value>
-            org.apache.geronimo.console.configcreator.configData.EARHelper,
-            org.apache.geronimo.console.configcreator.configData.EARHelper$EarJsonTree,
-            org.apache.geronimo.console.configcreator.configData.EARHelper$TreeNode,
-            org.apache.geronimo.console.configcreator.configData.EARHelper$TreeFolder,
-            org.apache.geronimo.console.configcreator.configData.EARHelper$EnvironmentJson,
-            org.apache.geronimo.console.configcreator.configData.EARHelper$DependencyItem,
-            org.apache.geronimo.console.configcreator.configData.EARHelper$DependenciesJsonTree
-        </param-value>
-      </init-param>
-      <init-param>
-          <param-name>activeReverseAjaxEnabled</param-name>
-          <param-value>true</param-value>
-      </init-param>
+        <servlet-name>dwr-invoker</servlet-name>
+        <servlet-class>org.directwebremoting.servlet.DwrServlet</servlet-class>
+        <init-param>
+            <param-name>classes</param-name>
+            <param-value>
+                org.apache.geronimo.console.configcreator.configData.EARHelper,
+                org.apache.geronimo.console.configcreator.configData.EARHelper$EnvironmentJson,
+                org.apache.geronimo.console.configcreator.configData.EARHelper$DependencyItem,
+                org.apache.geronimo.console.configcreator.configData.EARHelper$DependenciesJsonTree,
+                org.apache.geronimo.console.configcreator.configData.EARHelper$SecurityJson,
+                org.apache.geronimo.console.configcreator.configData.EARHelper$SecurityRoleJson,
+                org.apache.geronimo.console.configcreator.configData.EARHelper$SecurityPrincipalJson,
+                org.apache.geronimo.console.configcreator.configData.EARHelper$Subject,
+                org.apache.geronimo.console.configcreator.configData.EARHelper$CredentialStoreRef,
+                org.apache.geronimo.console.configcreator.configData.EARHelper$ModuleSecurityConfig,
+                org.apache.geronimo.console.configcreator.configData.EARHelper$ModuleSecurityJsonTree
+            </param-value>
+        </init-param>
+        <init-param>
+            <param-name>activeReverseAjaxEnabled</param-name>
+            <param-value>true</param-value>
+        </init-param>
     </servlet>
 
     <servlet>
