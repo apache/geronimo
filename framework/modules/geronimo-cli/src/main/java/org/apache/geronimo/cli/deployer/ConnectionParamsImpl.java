@@ -21,7 +21,7 @@
 package org.apache.geronimo.cli.deployer;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class ConnectionParamsImpl implements ConnectionParams {
 
@@ -34,9 +34,14 @@ public class ConnectionParamsImpl implements ConnectionParams {
     private boolean syserr;
     private boolean verbose;
     private boolean offline;
+    private boolean secure;
 
 
     public ConnectionParamsImpl(String uri, String host, Integer port, String driver, String user, String password, boolean syserr, boolean verbose, boolean offline) {
+        this(uri, host, port, driver, user, password, syserr, verbose, offline, false);
+    }
+    
+    public ConnectionParamsImpl(String uri, String host, Integer port, String driver, String user, String password, boolean syserr, boolean verbose, boolean offline, boolean secure) {
         this.uri = uri;
         this.host = host;
         this.port = port;
@@ -46,6 +51,7 @@ public class ConnectionParamsImpl implements ConnectionParams {
         this.syserr = syserr;
         this.verbose = verbose;
         this.offline = offline;
+        this.secure = secure;
     }
 
     public ConnectionParamsImpl() {
@@ -121,5 +127,13 @@ public class ConnectionParamsImpl implements ConnectionParams {
 
     public void setOffline(boolean offline) {
         this.offline = offline;
+    }
+    
+    public boolean isSecure() {
+        return secure;
+    }
+
+    public void setSecure(boolean secure) {
+        this.secure = secure;
     }
 }

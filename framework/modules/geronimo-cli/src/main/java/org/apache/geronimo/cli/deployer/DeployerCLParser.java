@@ -62,6 +62,9 @@ public class DeployerCLParser extends BaseCLParser implements ConnectionParams {
 
     private final static String ARGUMENT_OFFLINE_SHORTFORM = "o";
     private final static String ARGUMENT_OFFLINE = "offline";
+    
+    private final static String ARGUMENT_SECURE_SHORTFORM = "s";
+    private final static String ARGUMENT_SECURE = "secure";
 
     private final Collection<CommandMetaData> commandMetaData;
 
@@ -96,6 +99,7 @@ public class DeployerCLParser extends BaseCLParser implements ConnectionParams {
         addSyserr();
         addVerbose();
         addOffline();
+        addSecure();
     }
     
     public CommandMetaData getCommandMetaData() {
@@ -144,6 +148,10 @@ public class DeployerCLParser extends BaseCLParser implements ConnectionParams {
     
     public boolean isOffline() {
         return commandLine.hasOption(ARGUMENT_OFFLINE_SHORTFORM);
+    }
+    
+    public boolean isSecure() {
+        return commandLine.hasOption(ARGUMENT_SECURE_SHORTFORM);
     }
     
     @Override
@@ -280,6 +288,13 @@ public class DeployerCLParser extends BaseCLParser implements ConnectionParams {
                 ARGUMENT_OFFLINE,
                 false,
                 "Deploy offline to a local server, using whatever deployers are available in the local server");
+    }
+    
+    protected void addSecure() {
+        options.addOption(ARGUMENT_SECURE_SHORTFORM,
+                ARGUMENT_SECURE,
+                false,
+                "Use secure channel to communicate with the server.  Unsecured channel is used by default.");
     }
 
     protected void addVerbose() {

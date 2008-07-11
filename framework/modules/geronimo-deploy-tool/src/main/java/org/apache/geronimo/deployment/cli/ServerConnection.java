@@ -51,6 +51,7 @@ import org.apache.geronimo.crypto.EncryptionManager;
 public class ServerConnection {
 
     private final static String DEFAULT_URI = "deployer:geronimo:jmx";
+    private final static String DEFAULT_SECURE_URI = "deployer:geronimo:jmxs";
 
     private final DeploymentFactory geronimoDeploymentFactory;
 
@@ -68,8 +69,7 @@ public class ServerConnection {
         this.geronimoDeploymentFactory = geronimoDeploymentFactory;
 
         this.out = out;
-        this.in = in;
-        boolean offline = false;
+        this.in = in;        
 
         String uri = params.getURI();
         String driver = params.getDriver();
@@ -79,19 +79,20 @@ public class ServerConnection {
         Integer port = params.getPort();
         verboseMessages = params.isVerbose();
         logToSysErr = params.isSyserr();
-        offline = params.isOffline();
-
+        boolean offline = params.isOffline();
+        boolean secure = params.isSecure();
+        
         if ((driver != null) && uri == null) {
             throw new DeploymentSyntaxException("A custom driver requires a custom URI");
         }
         if (host != null || port != null) {
-            uri = DEFAULT_URI + "://" + (host == null ? "" : host) + (port == null ? "" : ":" + port);
+            uri = getDefaultURI(secure) + "://" + (host == null ? "" : host) + (port == null ? "" : ":" + port);
         }
         if (offline) {
             startOfflineDeployer(kernel);
             manager = new LocalDeploymentManager(kernel);
         } else {
-            tryToConnect(uri, driver, user, password);
+            tryToConnect(uri, driver, user, password, secure);
         }
         if (manager == null) {
             throw new DeploymentException("Unexpected error; connection failed.");
@@ -103,6 +104,10 @@ public class ServerConnection {
         offlineDeployerStarter.start();
     }
 
+    private static String getDefaultURI(boolean secure) {
+        return (secure) ? DEFAULT_SECURE_URI : DEFAULT_URI;
+    }
+    
     public void close() throws DeploymentException {
         if (manager != null) {
             manager.release();
@@ -117,14 +122,14 @@ public class ServerConnection {
         return auth.uri;
     }
 
-    private void tryToConnect(String argURI, String driver, String user, String password) throws DeploymentException {
+    private void tryToConnect(String argURI, String driver, String user, String password, boolean secure) throws DeploymentException {
         DeploymentFactoryManager mgr = DeploymentFactoryManager.getInstance();
         if (driver != null) {
             loadDriver(driver, mgr);
         } else {
             mgr.registerDeploymentFactory(geronimoDeploymentFactory);
         }
-        String useURI = argURI == null ? DEFAULT_URI : argURI;
+        String useURI = argURI == null ? getDefaultURI(secure) : argURI;
 
         if (user == null && password == null) {
             InputStream in;
