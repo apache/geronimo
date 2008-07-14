@@ -649,6 +649,12 @@
                                 <copy todir="${project.build.directory}/assembly">
                                     <fileset dir="${project.build.directory}/geronimo-framework-${version}"/>
                                 </copy>
+                                <java classname="org.apache.geronimo.jaxws.builder.GShellCommandRegistration" 
+                                      fork="yes" failonerror="true">
+                                   <classpath refid="maven.runtime.classpath"/>
+                                   <arg value="${project.build.directory}/assembly"/>
+                                   <arg value="gsh-wsgen.properties"/>
+                                </java>
                             </tasks>
                         </configuration>
                     </execution>
