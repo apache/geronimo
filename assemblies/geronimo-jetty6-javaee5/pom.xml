@@ -645,6 +645,12 @@
                                     </fileset>
                                     <mapper type="flatten"/>
                                 </copy>
+                                <java classname="org.apache.geronimo.jaxws.builder.GShellCommandRegistration" 
+                                      fork="yes" failonerror="true">
+                                   <classpath refid="maven.runtime.classpath"/>
+                                   <arg value="${project.build.directory}/assembly"/>
+                                   <arg value="gsh-wsgen.properties"/>
+                                </java>
                             </tasks>
                         </configuration>
                     </execution>
