@@ -61,7 +61,7 @@ public class ConstantLoginModule implements LoginModule {
 
     /**
      * Add the user and group principals to the Subject. Group names are separated
-     * by ':' characters.
+     * by ',' characters.
      */
     public boolean commit() throws LoginException {
         if(userName != null) {
