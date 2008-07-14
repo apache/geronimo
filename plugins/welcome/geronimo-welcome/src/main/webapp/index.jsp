@@ -111,10 +111,10 @@
                 </tr>
                 <tr>
                     <td bgcolor="#FFFFFF" bordercolor="#000000" nowrap>
-                        <a href="/servlets-examples/">Servlet Examples </a><br />
-                        <a href="/jsp-examples/">JSP Examples </a><br />
-                        <a href="/ldap-demo/">LDAP Demo</a><br />
-                        <a href="http://geronimo.apache.org/redirects/additionalSamples.html">Additional Samples</a><br />
+                        <!--<a href="/servlets-examples/">Servlet Examples </a><br />-->
+                        <!--<a href="/jsp-examples/">JSP Examples </a><br />-->
+                        <!--<a href="/ldap-demo/">LDAP Demo</a><br />-->
+                        <a href="http://geronimo.apache.org/redirects/additionalSamples.html">Geronimo Sample Applications</a><br />
                     </td>
                 </tr>
             </table>
