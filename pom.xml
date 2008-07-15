@@ -180,7 +180,7 @@
             <dependency>
                 <groupId>org.apache.geronimo.javamail</groupId>
                 <artifactId>geronimo-javamail_1.4_mail</artifactId>
-                <version>1.4</version>
+                <version>1.5</version>
             </dependency>
 
             <dependency>
