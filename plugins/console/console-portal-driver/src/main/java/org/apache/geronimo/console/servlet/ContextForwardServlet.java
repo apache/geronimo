@@ -41,18 +41,17 @@ public class ContextForwardServlet extends HttpServlet {
     // name of the configuration parameter containing the servlet path
     public static final String SERVLET_PATH = "servlet-path";
 
-    private ServletContext forwardContext;
     private String servletPath;
-
+    private String contextPath;
+    
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
-        String contextPath = config.getInitParameter(CONTEXT_PATH);
+        contextPath = config.getInitParameter(CONTEXT_PATH);
         servletPath = config.getInitParameter(SERVLET_PATH);
         if (contextPath == null || servletPath == null) {
             throw new UnavailableException("context-path and servlet-path " +
                     "must be provided as configuration parameters");
         }
-        forwardContext = getServletContext().getContext(contextPath);
     }
 
     public void doGet(HttpServletRequest req, HttpServletResponse resp)
@@ -67,7 +66,8 @@ public class ContextForwardServlet extends HttpServlet {
         if (queryString != null) {
             dispatchURI += "?" + queryString;
         }
-        RequestDispatcher dispatcher = forwardContext.getRequestDispatcher(dispatchURI);
+        ServletContext forwardContext = getServletContext().getContext(contextPath);
+        RequestDispatcher dispatcher = forwardContext.getRequestDispatcher(dispatchURI);    
         dispatcher.forward(req, resp);
     }
 }
