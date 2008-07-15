@@ -49,6 +49,12 @@
         </dependency>
         
         <dependency>
+          <groupId>org.apache.openejb</groupId>
+          <artifactId>ejb31-api-experimental</artifactId>
+          <scope>provided</scope>
+       </dependency>
+        
+        <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-jms_1.1_spec</artifactId>
             <version>1.1.1</version>

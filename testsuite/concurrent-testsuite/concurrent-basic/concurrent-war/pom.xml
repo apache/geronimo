@@ -64,6 +64,11 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
+          <groupId>org.apache.openejb</groupId>
+          <artifactId>ejb31-api-experimental</artifactId>
+          <scope>provided</scope>
+       </dependency>
+        <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-servlet_2.5_spec</artifactId>
             <scope>provided</scope>

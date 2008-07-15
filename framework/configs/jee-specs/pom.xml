@@ -52,6 +52,11 @@
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-ejb_3.0_spec</artifactId>
         </dependency>
+        
+         <dependency>
+           <groupId>org.apache.openejb</groupId>
+           <artifactId>ejb31-api-experimental</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
@@ -232,6 +237,11 @@
                             <artifactId>geronimo-ejb_3.0_spec</artifactId>
                             <type>jar</type>
                         </dependency>
+                        <dependency>
+                          <groupId>org.apache.openejb</groupId>
+                          <artifactId>ejb31-api-experimental</artifactId>
+                          <type>jar</type>
+                       </dependency>
                         <dependency>
                             <groupId>org.apache.geronimo.specs</groupId>
                             <artifactId>geronimo-el_1.0_spec</artifactId>

@@ -84,6 +84,12 @@
             <artifactId>geronimo-ejb_3.0_spec</artifactId>
             <scope>test</scope>
         </dependency>
+        
+        <dependency>
+          <groupId>org.apache.openejb</groupId>
+          <artifactId>ejb31-api-experimental</artifactId>
+          <scope>test</scope>
+       </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>

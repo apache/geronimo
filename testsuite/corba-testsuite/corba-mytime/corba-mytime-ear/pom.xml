@@ -64,6 +64,11 @@
             <artifactId>geronimo-ejb_3.0_spec</artifactId>
             <type>jar</type>
         </dependency>
+        <dependency>
+          <groupId>org.apache.openejb</groupId>
+          <artifactId>ejb31-api-experimental</artifactId>
+          <type>jar</type>
+       </dependency>
     </dependencies>
 
     <build>

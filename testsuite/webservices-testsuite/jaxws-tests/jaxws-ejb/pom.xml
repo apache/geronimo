@@ -62,6 +62,12 @@
         </dependency>
         
         <dependency>
+          <groupId>org.apache.openejb</groupId>
+          <artifactId>ejb31-api-experimental</artifactId>
+          <scope>provided</scope>
+       </dependency>
+        
+        <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-openejb</artifactId>
             <version>${version}</version>

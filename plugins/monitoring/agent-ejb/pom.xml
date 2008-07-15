@@ -67,6 +67,11 @@
         </dependency>
         
         <dependency>
+          <groupId>org.apache.openejb</groupId>
+          <artifactId>ejb31-api-experimental</artifactId>
+       </dependency>
+
+        <dependency>
             <groupId>org.apache.geronimo.plugins.monitoring</groupId>
             <artifactId>agent-jar</artifactId>
             <version>2.2-SNAPSHOT</version>

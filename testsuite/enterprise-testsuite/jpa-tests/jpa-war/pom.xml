@@ -55,6 +55,12 @@
         </dependency>
         
         <dependency>
+          <groupId>org.apache.openejb</groupId>
+          <artifactId>ejb31-api-experimental</artifactId>
+          <scope>provided</scope>
+       </dependency>
+        
+        <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-security</artifactId>
             <version>${version}</version>

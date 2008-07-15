@@ -136,6 +136,12 @@
                 <artifactId>geronimo-ejb_3.0_spec</artifactId>
                 <version>1.0.1</version>
             </dependency>
+            
+            <dependency>
+              <groupId>org.apache.openejb</groupId>
+              <artifactId>ejb31-api-experimental</artifactId>
+              <version>${openejbVersion}</version>
+           </dependency>
 
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
