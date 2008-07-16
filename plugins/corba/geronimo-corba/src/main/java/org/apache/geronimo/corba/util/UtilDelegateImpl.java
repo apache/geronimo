@@ -16,13 +16,16 @@
  */
 package org.apache.geronimo.corba.util;
 
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Proxy;
 import java.rmi.AccessException;
 import java.rmi.MarshalException;
 import java.rmi.NoSuchObjectException;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
-import java.lang.reflect.Proxy;
-import java.lang.reflect.InvocationHandler;
+
+import javax.ejb.EJBHome;
+import javax.ejb.EJBObject;
 import javax.rmi.CORBA.Stub;
 import javax.rmi.CORBA.Tie;
 import javax.rmi.CORBA.UtilDelegate;
@@ -30,11 +33,18 @@ import javax.rmi.CORBA.ValueHandler;
 import javax.transaction.InvalidTransactionException;
 import javax.transaction.TransactionRequiredException;
 import javax.transaction.TransactionRolledbackException;
-import javax.ejb.EJBHome;
-import javax.ejb.EJBObject;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.geronimo.corba.AdapterWrapper;
+import org.apache.geronimo.corba.CORBAException;
+import org.apache.geronimo.corba.RefGenerator;
+import org.apache.geronimo.corba.StandardServant;
+import org.apache.openejb.BeanType;
+import org.apache.openejb.InterfaceType;
+import org.apache.openejb.core.CoreDeploymentInfo;
+import org.apache.openejb.core.ivm.BaseEjbProxyHandler;
+import org.apache.openejb.core.ivm.EjbObjectProxyHandler;
+import org.apache.openejb.core.stateful.StatefulEjbObjectHandler;
+import org.apache.openejb.core.stateful.StatefulEjbObjectHandler.RegistryId;
 import org.omg.CORBA.CompletionStatus;
 import org.omg.CORBA.INVALID_TRANSACTION;
 import org.omg.CORBA.MARSHAL;
@@ -47,15 +57,8 @@ import org.omg.CORBA.TRANSACTION_ROLLEDBACK;
 import org.omg.CORBA.UNKNOWN;
 import org.omg.CORBA.portable.InputStream;
 import org.omg.CORBA.portable.OutputStream;
-
-import org.apache.geronimo.corba.AdapterWrapper;
-import org.apache.geronimo.corba.CORBAException;
-import org.apache.geronimo.corba.RefGenerator;
-import org.apache.geronimo.corba.StandardServant;
-import org.apache.openejb.InterfaceType;
-import org.apache.openejb.BeanType;
-import org.apache.openejb.core.ivm.BaseEjbProxyHandler;
-import org.apache.openejb.core.CoreDeploymentInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @version $Revision: 451417 $ $Date: 2006-09-29 13:13:22 -0700 (Fri, 29 Sep 2006) $
@@ -247,7 +250,11 @@ public final class UtilDelegateImpl implements UtilDelegate {
                 return refGenerator.genHomeReference();
             } else if (proxy instanceof EJBObject) {
                 Object primaryKey = null;
-                if (deploymentInfo.getComponentType() != BeanType.STATELESS) {
+                if (deploymentInfo.getComponentType() == BeanType.STATEFUL) {
+                    RegistryId id = (RegistryId)((EjbObjectProxyHandler)ejbProxyHandler).getRegistryId(); 
+                    primaryKey = id.getPrimaryKey(); 
+                }
+                else if (deploymentInfo.getComponentType() != BeanType.STATELESS) {
                     EJBObject ejbObject = (EJBObject) proxy;
                     primaryKey = ejbObject.getPrimaryKey();
                 }
