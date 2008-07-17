@@ -293,6 +293,22 @@
                     </execution>
 
                     <execution>
+                        <phase>process-resources</phase>
+                        <id>copy-txt-files</id>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <tasks>
+                                <echo>Copying README, RELEASE_NOTES, and DISCLAIMER txt files ${project.basedir}/../.. to underlay - ${project.build.outputDirectory}/contents</echo>
+                                <copy file ="${project.basedir}/../../README.txt" todir="${project.build.outputDirectory}/contents" failonerror="true" overwrite="true" />
+                                <copy file ="${project.basedir}/../../RELEASE_NOTES-2.1.2.txt" todir="${project.build.outputDirectory}/contents" failonerror="true" overwrite="true" />
+                                <copy file ="${project.basedir}/../../DISCLAIMER.txt" todir="${project.build.outputDirectory}/contents" failonerror="true" overwrite="true" />
+                            </tasks>
+                        </configuration>
+                    </execution>
+
+                    <execution>
                         <id>install-underlay</id>
                         <phase>process-classes</phase>
                         <goals>
