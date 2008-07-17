@@ -360,16 +360,16 @@ public class MultiParentClassLoader extends URLClassLoader {
      * This method is the normal way to resolve class loads.  This method recursively calls its parents to resolve 
      * classloading requests.  Here is the sequence of operations:
      * 
-     *   1. Call findClass to see if we already have this class loaded.
-     *   2. If not, call the SystemClassLoader which needs to be called anyway.
-     *   3. Check if inverse loading, if so look in our class loader.
-     *   4. Search our parents, recursively.  Keeping track of which parents have already been called.
-     *      Since MultiParentClassLoaders can appear more than once we do not search an already searched classloader.
-     *   5. Search our classloader.  
+     *   1. Call findLoadedClass to see if we already have this class loaded.
+     *   2. If this class is a java.* or data primitive class, call the SystemClassLoader.
+     *   3. If inverse loading and class is not in the non-overridable list, check the local ClassLoader.
+     *   4. If the class is not a hidden class, search our parents, recursively.  Keeping track of which parents have already been called.
+     *      Since MultiParentClassLoaders can appear more than once we do not search an already searched ClassLoader.
+     *   5. Finally, search this ClassLoader.  
      * 
      */
     protected synchronized Class<?> loadOptimizedClass(String name, boolean resolve) throws ClassNotFoundException {
-    	// System.err.println("Started load for class "+name+" in classloader "+this);
+
         //
         // Check if class is in the loaded classes cache
         //
@@ -379,12 +379,20 @@ public class MultiParentClassLoader extends URLClassLoader {
         }
 
         //
-        // No dice, let's offer the primordial loader a shot...
+        // If this is a java.* or primitive class, use the primordial ClassLoader...
         //
-        try {
-        	return resolveClass(findSystemClass(name), resolve);
-        } catch (ClassNotFoundException cnfe) {
-        	// ignore...just being a good citizen.
+        // The order is based on profiling the server.  It may not be optimal for all
+        // workloads.
+        if (name.startsWith("java.") ||
+                name.equals("boolean") ||
+                name.equals("int") ||
+                name.equals("double") ||
+                name.equals("long")) {
+            try {
+        	    return resolveClass(findSystemClass(name), resolve);
+            } catch (ClassNotFoundException cnfe) {
+                // ignore...just being a good citizen.
+            }
         }
 
         //
@@ -471,7 +479,7 @@ public class MultiParentClassLoader extends URLClassLoader {
             return resolveClass(clazz, resolve);
         }
 
-        return null;  // Caler is expecting a class.  Null indicates CNFE and will save some time.
+        return null;  // Caller is expecting a class.  Null indicates CNFE and will save some time.
     }
 
     /**
@@ -488,9 +496,6 @@ public class MultiParentClassLoader extends URLClassLoader {
      */
     private synchronized Class<?> checkParents(String name, boolean resolve, LinkedList<ClassLoader> visitedClassLoaders) throws ClassNotFoundException {
      	for (ClassLoader parent : parents) {
-    		//  When we've encountered the primordial loader we are done.  Since we've already looked there we do not need
-     		// to repeat the check.  Simply return null and all things will be handled nicely.
-    		if (parent == ClassLoader.getSystemClassLoader()) return null;
     		if (!visitedClassLoaders.contains(parent)) {
     	        visitedClassLoaders.add(parent);  // Track that we've been here before
     		    try {
