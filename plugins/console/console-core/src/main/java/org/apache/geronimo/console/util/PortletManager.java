@@ -40,9 +40,7 @@ import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.proxy.GeronimoManagedBean;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Repository;
-import org.apache.geronimo.management.EJBModule;
 import org.apache.geronimo.management.J2EEDeployedObject;
-import org.apache.geronimo.management.J2EEResource;
 import org.apache.geronimo.management.geronimo.J2EEDomain;
 import org.apache.geronimo.management.geronimo.J2EEServer;
 import org.apache.geronimo.management.geronimo.JCAAdminObject;
@@ -123,15 +121,7 @@ public class PortletManager {
             request.getPortletSession().setAttribute(DOMAIN_KEY, domain, PortletSession.APPLICATION_SCOPE);
         }
         return domain;
-    }
 
-    public static J2EEDomain getCurrentDomain(HttpSession session) {
-        J2EEDomain domain = (J2EEDomain) session.getAttribute(DOMAIN_KEY);
-        if (domain == null) {
-            domain = getManagementHelper(session).getDomains()[0]; //todo: some day, select a domain
-            session.setAttribute(DOMAIN_KEY, domain);
-        }
-        return domain;
     }
 
     public static J2EEServer getCurrentServer(PortletRequest request) {
@@ -139,17 +129,6 @@ public class PortletManager {
         if (server == null) {
             server = getCurrentDomain(request).getServerInstances()[0]; //todo: some day, select a server from the domain
             request.getPortletSession().setAttribute(SERVER_KEY, server, PortletSession.APPLICATION_SCOPE);
-        } else {
-            // to do     handle "should not occur" error   - message?
-        }
-        return server;
-    }
-
-    public static J2EEServer getCurrentServer(HttpSession session) {
-        J2EEServer server = (J2EEServer) session.getAttribute(SERVER_KEY);
-        if (server == null) {
-            server = getCurrentDomain(session).getServerInstances()[0]; //todo: some day, select a server from the domain
-            session.setAttribute(SERVER_KEY, server);
         } else {
             // to do     handle "should not occur" error   - message?
         }
@@ -176,42 +155,14 @@ public class PortletManager {
         return helper.testLoginModule(getCurrentServer(request), module, options, username, password);
     }
 
-    public static EJBModule[] getEJBModules(PortletRequest request) {
-        ManagementHelper helper = getManagementHelper(request);
-        return helper.getEJBModules(PortletManager.getCurrentServer(request));
-    }
-
-    public static EJBModule[] getEJBModules(HttpSession session) {
-        ManagementHelper helper = getManagementHelper(session);
-        return helper.getEJBModules(PortletManager.getCurrentServer(session));
-    }
-
-    public static J2EEResource[] getJ2EEResources(PortletRequest request) {
-        ManagementHelper helper = getManagementHelper(request);
-        return helper.getResources(PortletManager.getCurrentServer(request));
-    }
-
-    public static J2EEResource[] getJ2EEResources(HttpSession session) {
-        ManagementHelper helper = getManagementHelper(session);
-        return helper.getResources(PortletManager.getCurrentServer(session));
-    }
-
     public static ResourceAdapterModule[] getOutboundRAModules(PortletRequest request, String iface) {
         ManagementHelper helper = getManagementHelper(request);
         return helper.getOutboundRAModules(getCurrentServer(request), iface);
-    }
-    public static ResourceAdapterModule[] getOutboundRAModules(HttpSession session, String iface) {
-        ManagementHelper helper = getManagementHelper(session);
-        return helper.getOutboundRAModules(getCurrentServer(session), iface);
     }
 
     public static ResourceAdapterModule[] getOutboundRAModules(PortletRequest request, String[] iface) {
         ManagementHelper helper = getManagementHelper(request);
         return helper.getOutboundRAModules(getCurrentServer(request), iface);
-    }
-    public static ResourceAdapterModule[] getOutboundRAModules(HttpSession session, String[] iface) {
-        ManagementHelper helper = getManagementHelper(session);
-        return helper.getOutboundRAModules(getCurrentServer(session), iface);
     }
 
     public static ResourceAdapterModule[] getAdminObjectModules(PortletRequest request, String[] ifaces) {
@@ -243,27 +194,15 @@ public class PortletManager {
         ManagementHelper helper = getManagementHelper(request);
         return helper.getOutboundFactories(module, iface);
     }
-    public static JCAManagedConnectionFactory[] getOutboundFactoriesForRA(HttpSession session, ResourceAdapterModule module, String iface) {
-        ManagementHelper helper = getManagementHelper(session);
-        return helper.getOutboundFactories(module, iface);
-    }
 
     public static JCAManagedConnectionFactory[] getOutboundFactoriesForRA(PortletRequest request, ResourceAdapterModule module, String[] iface) {
         ManagementHelper helper = getManagementHelper(request);
-        return helper.getOutboundFactories(module, iface);
-    }
-    public static JCAManagedConnectionFactory[] getOutboundFactoriesForRA(HttpSession session, ResourceAdapterModule module, String[] iface) {
-        ManagementHelper helper = getManagementHelper(session);
         return helper.getOutboundFactories(module, iface);
     }
 
     //todo: Create an interface for admin objects
     public static JCAAdminObject[] getAdminObjectsForRA(PortletRequest request, ResourceAdapterModule module, String[] ifaces) {
         ManagementHelper helper = getManagementHelper(request);
-        return helper.getAdminObjects(module, ifaces);
-    }
-    public static JCAAdminObject[] getAdminObjectsForRA(HttpSession session, ResourceAdapterModule module, String[] ifaces) {
-        ManagementHelper helper = getManagementHelper(session);
         return helper.getAdminObjects(module, ifaces);
     }
 
@@ -397,17 +336,9 @@ public class PortletManager {
         ManagementHelper helper = getManagementHelper(request);
         return helper.getConfigurationNameFor(objectName);
     }
-    public static Artifact getConfigurationFor(HttpSession session, AbstractName objectName) {
-        ManagementHelper helper = getManagementHelper(session);
-        return helper.getConfigurationNameFor(objectName);
-    }
 
     public static AbstractName getNameFor(PortletRequest request, Object component) {
         ManagementHelper helper = getManagementHelper(request);
-        return helper.getNameFor(component);
-    }
-    public static AbstractName getNameFor(HttpSession session, Object component) {
-        ManagementHelper helper = getManagementHelper(session);
         return helper.getNameFor(component);
     }
 
@@ -444,10 +375,6 @@ public class PortletManager {
     
     public static Object[] getGBeansImplementing(PortletRequest request, Class iface) {
         ManagementHelper helper = getManagementHelper(request);
-        return helper.getGBeansImplementing(iface);
-    }    
-    public static Object[] getGBeansImplementing(HttpSession session, Class iface) {
-        ManagementHelper helper = getManagementHelper(session);
         return helper.getGBeansImplementing(iface);
     }    
 

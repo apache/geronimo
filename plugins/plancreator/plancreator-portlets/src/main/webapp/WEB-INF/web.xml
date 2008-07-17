@@ -55,17 +55,6 @@ limitations under the License.
         </init-param>
     </servlet>
 
-    <servlet>
-        <display-name>ServerInfoServlet</display-name>
-        <servlet-name>ServerInfoServlet</servlet-name>
-        <servlet-class>org.apache.geronimo.console.configcreator.ServerInfoServlet</servlet-class>
-    </servlet>
-
-    <servlet-mapping>
-        <servlet-name>ServerInfoServlet</servlet-name>
-        <url-pattern>/ServerInfoServlet</url-pattern>
-    </servlet-mapping>
-
     <servlet-mapping>
         <servlet-name>PlanCreator</servlet-name>
         <url-pattern>/PlutoInvoker/PlanCreator</url-pattern>
