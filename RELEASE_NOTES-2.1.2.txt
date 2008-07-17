@@ -1,4 +1,4 @@
-Release Notes -- Apache Geronimo -- Version 2.1.1
+Release Notes -- Apache Geronimo -- Version 2.1.2
 
 
 Geronimo URLs
@@ -130,14 +130,14 @@ Geronimo 2.1.1 Issues Resolved
 
 Certification Status
 --------------------
-Apache Geronimo v2.1.1 has passed 100% of SUN's Java Enterprise Edition 5.0 
+Apache Geronimo v2.1.2 has passed 100% of SUN's Java Enterprise Edition 5.0 
 Certification Test Suite. See "Distributions" for further details.
 
 
 Distributions
 -------------
-Apache Geronimo v2.1.1 is available in five distributions so you can pick the 
-one that better fits your environment.
+Apache Geronimo v2.1.2 is available in five distributions so you can pick the 
+one that best fits your environment.
 
 The available distributions are as follows:
 

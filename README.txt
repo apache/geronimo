@@ -9,7 +9,7 @@ ______________________
 Release Notes
 ======================
 
- Please read the RELEASE_NOTES-2.1.txt for a complete list of new features 
+ Please read the RELEASE_NOTES-2.1.2.txt for a complete list of new features 
  available in this release. 
  
   
@@ -57,8 +57,8 @@ Application Deployment
 
  Applications can be deployed to a Geronimo server in several ways:
 
- 1. Administrative commands -- "./bin/gsh deploy/deploy MyApp.war MyDeploymentPlan.xml"
- 2. Admin console -- login to the admin console and click "Deploy New" under Applications
+ 1. Administrative command scripts -- "./bin/gsh deploy/deploy MyApp.war MyDeploymentPlan.xml"
+ 2. Administrative console -- login to the admin console and click "Deploy New" under Applications
  3. Hot deploy -- copy your archive(s) into the "<geronimo-home>/deploy" directory. The
     hot deploy service will automatically deploy these artifacts.
  4. maven -- applications can be installed as part of a maven build
@@ -80,6 +80,8 @@ Configuration
  Additional configuration attributes can be updated in the file:
 
  <geronimo_home>/var/config/config.xml
+
+ Note: The server must not be running when these files are modified.
 
  Once the server has started, you can access the Geronimo Administration Console
  at http://localhost:8080/console/ . The default user name is "system" and the
@@ -118,7 +120,7 @@ GShell
  Geronimo provides a command shell environment for executing commands, called GShell. 
 
  To start a GShell environment, from the <geronimo_home> directory, execute "./bin/gsh" (unix)
- or "bin\gsh" windows. This will start a GShell command environment. From here,
+ or "bin\gsh" (windows). This will start a GShell command environment. From here,
  you can execute Geronimo administrative commands as well as general GShell commands.
  Alternatively, you can invoke a GShell command at the same time that you invoke gsh, for
  example:
