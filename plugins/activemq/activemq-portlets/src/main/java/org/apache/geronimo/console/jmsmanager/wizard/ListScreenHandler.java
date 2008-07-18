@@ -183,7 +183,7 @@ public class ListScreenHandler extends AbstractHandler {
                     try {
                         physicalName = (String) admins[j].getConfigProperty("PhysicalName");
                     } catch (Exception e) {
-                        log.warn("PhysicalName undefined, using queueName as PhysicalName", e);
+                        log.warn("PhysicalName undefined, using queueName as PhysicalName");
                         physicalName = queueName;
                     }
                     String destType = admins[j].getAdminObjectInterface().indexOf("Queue") > -1 ? "Queue" : "Topic";

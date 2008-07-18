@@ -48,6 +48,7 @@ import org.apache.geronimo.console.jmsmanager.JMSMessageInfo;
 import org.apache.geronimo.console.util.PortletManager;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelRegistry;
 import org.apache.geronimo.kernel.proxy.GeronimoManagedBean;
@@ -256,7 +257,14 @@ public abstract class JMSMessageHelper {
                     for (int j = 0; j < admins.length; j++) {
                         GeronimoManagedBean bean = (GeronimoManagedBean) admins[j];
                         ObjectName name = ObjectName.getInstance(bean.getObjectName());
-                        String physicalNameTemp = (String) admins[j].getConfigProperty("PhysicalName");
+                        String queueName = name.getKeyProperty(NameFactory.J2EE_NAME);
+                        String physicalNameTemp = null;
+                        try {
+                            physicalNameTemp = (String) admins[j].getConfigProperty("PhysicalName");
+                        } catch (Exception e) {
+                            log.warn("PhysicalName undefined, using queueName as PhysicalName");
+                            physicalNameTemp = queueName;
+                        }
                         if (physicalName != null && physicalName.equals(physicalNameTemp)) {
                             AbstractName absName = kernel.getAbstractNameFor(bean);
                             dest = (Destination) kernel.invoke(absName, "$getResource");
