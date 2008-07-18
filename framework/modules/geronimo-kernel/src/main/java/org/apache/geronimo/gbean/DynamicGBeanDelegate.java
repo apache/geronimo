@@ -37,6 +37,19 @@ import net.sf.cglib.reflect.FastMethod;
  * @version $Rev$ $Date$
  */
 public class DynamicGBeanDelegate implements DynamicGBean {
+    
+    private static final Map<Class, Class> TYPE_LOOKUP = new HashMap<Class, Class>();
+    static {
+        TYPE_LOOKUP.put(Byte.class, byte.class);
+        TYPE_LOOKUP.put(Integer.class, int.class);
+        TYPE_LOOKUP.put(Short.class, short.class);
+        TYPE_LOOKUP.put(Long.class, long.class);
+        TYPE_LOOKUP.put(Float.class, float.class);
+        TYPE_LOOKUP.put(Double.class, double.class);
+        TYPE_LOOKUP.put(Boolean.class, boolean.class);
+        TYPE_LOOKUP.put(Character.class, char.class);
+    }
+    
     protected final Map getters = new HashMap();
     protected final Map setters = new HashMap();
     protected final Map operations = new HashMap();
@@ -89,12 +102,23 @@ public class DynamicGBeanDelegate implements DynamicGBean {
         if (!(method.getParameterTypes().length == 1 && method.getReturnType() == Void.TYPE)) {
             throw new IllegalArgumentException("Method must take one parameter and not return anything " + method);
         }
-        setters.put(name, new Operation(target, method));
+        Class type = method.getParameterTypes()[0];
+        Operation operation = new Operation(target, method);
+        addSetter(name, type, operation);        
         // we want to be user-friendly so we put the attribute name in
         // the Map in both lower-case and upper-case
-        setters.put(Introspector.decapitalize(name), new Operation(target, method));
+        addSetter(Introspector.decapitalize(name), type, operation);    
     }
 
+    private void addSetter(String name, Class type, Operation operation) {
+        Map<Class, Operation> operations = (Map<Class, Operation>)setters.get(name);
+        if (operations == null) {
+            operations = new HashMap<Class, Operation>();
+            setters.put(name, operations);
+        }
+        operations.put(type, operation);
+    }
+    
     public void addOperation(Object target, Method method) {
         Class[] parameters = method.getParameterTypes();
         String[] types = new String[parameters.length];
@@ -127,13 +151,45 @@ public class DynamicGBeanDelegate implements DynamicGBean {
     }
 
     public void setAttribute(String name, Object value) throws Exception {
-        Operation operation = (Operation) setters.get(name);
-        if (operation == null) {
-            throw new IllegalArgumentException(targetClass.getName() + ": no setter for " + name);
+        Map<Class, Operation> operations = (Map<Class, Operation>)setters.get(name);
+        if (operations == null) {
+            throw new IllegalArgumentException(targetClass.getName() + ": no setters for " + name);
+        }        
+        Operation operation = null;                   
+        if (operations.size() == 1) {
+            operation = operations.values().iterator().next();
+        } else if (value == null) {
+            // TODO: use better algorithm?
+            operation = operations.values().iterator().next();
+        } else if (value != null) {
+            Class valueType = value.getClass();
+            // lookup using the specific type
+            operation = operations.get(valueType);
+            if (operation == null) {
+                // if not found, check all setters if they accept the given type  
+                operation = findOperation(operations, valueType);
+                if (operation == null && TYPE_LOOKUP.containsKey(valueType)) {
+                    // if not found, check all setters if they accept the primitive type
+                    operation = findOperation(operations, TYPE_LOOKUP.get(valueType));
+                }
+                if (operation == null) {
+                    throw new IllegalArgumentException(targetClass.getName() + ": no setter for " + name + " of type " + valueType);
+                }
+            }            
         }
+        
         operation.invoke(new Object[]{value});
     }
 
+    private Operation findOperation(Map<Class, Operation> operations, Class type) {
+        for (Map.Entry<Class, Operation> entry : operations.entrySet()) {
+            if (entry.getKey().isAssignableFrom(type)) {
+                return entry.getValue();                
+            }                    
+        }
+        return null;
+    }
+    
     public Object invoke(String name, Object[] arguments, String[] types) throws Exception {
         GOperationSignature signature = new GOperationSignature(name, types);
         Operation operation = (Operation) operations.get(signature);
