@@ -138,6 +138,27 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
         NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/j2ee/connector-1.1", "http://geronimo.apache.org/xml/ns/j2ee/connector-1.2");
     }
 
+    private static final Map<String, Class> TYPE_LOOKUP = new HashMap<String, Class>();
+    static {
+        TYPE_LOOKUP.put("byte", Byte.class);
+        TYPE_LOOKUP.put(Byte.class.getName(), Byte.class);
+        TYPE_LOOKUP.put("int", Integer.class);
+        TYPE_LOOKUP.put(Integer.class.getName(), Integer.class);
+        TYPE_LOOKUP.put("short", Short.class);
+        TYPE_LOOKUP.put(Short.class.getName(), Short.class);
+        TYPE_LOOKUP.put("long", Long.class);
+        TYPE_LOOKUP.put(Long.class.getName(), Long.class);
+        TYPE_LOOKUP.put("float", Float.class);
+        TYPE_LOOKUP.put(Float.class.getName(), Float.class);
+        TYPE_LOOKUP.put("double", Double.class);
+        TYPE_LOOKUP.put(Double.class.getName(), Double.class);
+        TYPE_LOOKUP.put("boolean", Boolean.class);
+        TYPE_LOOKUP.put(Boolean.class.getName(), Boolean.class);
+        TYPE_LOOKUP.put("char", Character.class);
+        TYPE_LOOKUP.put(Character.class.getName(), Character.class);
+        TYPE_LOOKUP.put(String.class.getName(), String.class);
+    }
+    
     private final int defaultMaxSize;
     private final int defaultMinSize;
     private final int defaultBlockingTimeoutMilliseconds;
@@ -648,6 +669,19 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
             return attributeName;
         }
     }
+    
+    private static String capitalize(String name) {
+        if (name == null || name.length() == 0) {
+            return name;
+        }
+        if (Character.isUpperCase(name.charAt(0))) {
+            return name;
+        } else {
+            char chars[] = name.toCharArray();
+            chars[0] = Character.toUpperCase(chars[0]);
+            return new String(chars);
+        }
+    }
 
     private Map getManagedConnectionFactoryInfoMap(ConnectionDefinitionType[] connectionDefinitionArray, ClassLoader cl) throws DeploymentException {
         Map<String, GBeanData> managedConnectionFactoryInfos = new HashMap<String, GBeanData>();
@@ -710,12 +744,16 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
             String name = configProperty.getName();
             GAttributeInfo attributeInfo = gbeanData.getGBeanInfo().getAttribute(name);
             if (attributeInfo == null) {
-                unknownNames.add(name);
-//                    throw new DeploymentException("The plan is trying to set attribute: " + name + " which does not exist.  Known attributes are: " + gbeanData.getGBeanInfo().getAttributes());
-            } else {
-                String type = attributeInfo.getType();
-                gbeanData.setAttribute(name, getValue(type, configProperty.getStringValue().trim(), cl));
+                name = capitalize(name);
+                attributeInfo = gbeanData.getGBeanInfo().getAttribute(name);
+                if (attributeInfo == null) {
+                    unknownNames.add(name);
+                    continue;
+                }
             }
+
+            String type = attributeInfo.getType();
+            gbeanData.setAttribute(name, getValue(type, configProperty.getStringValue().trim(), cl));
         }
         if (unknownNames.size() > 0) {
             StringBuffer buf = new StringBuffer("The plan is trying to set attributes: ").append(unknownNames).append("\n");
@@ -732,11 +770,13 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
             return null;
         }
 
-        Class clazz;
-        try {
-            clazz = cl.loadClass(type);
-        } catch (ClassNotFoundException e) {
-            throw new DeploymentException("Could not load attribute class:  type: " + type, e);
+        Class clazz = TYPE_LOOKUP.get(type);
+        if (clazz == null) {
+            try {
+                clazz = cl.loadClass(type);
+            } catch (ClassNotFoundException e) {
+                throw new DeploymentException("Could not load attribute class:  type: " + type, e);
+            }
         }
 
         // Handle numeric fields with no value set
