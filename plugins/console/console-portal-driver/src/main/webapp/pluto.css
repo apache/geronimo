@@ -253,6 +253,7 @@ legend {
   font-weight: bold;
 }
 
+/* removed by GERONIMO-4204
 label {
   clear: both;
   width: 40%;
@@ -260,6 +261,7 @@ label {
   text-align: right;
   margin: 0px 5px 10px 0px;
 }
+*/
 /*
 input {
   color: #2E6794;
