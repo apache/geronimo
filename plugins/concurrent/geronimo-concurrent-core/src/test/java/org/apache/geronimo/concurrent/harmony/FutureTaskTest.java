@@ -29,6 +29,8 @@ import javax.util.concurrent.SkippedException;
 import junit.framework.TestCase;
 
 public class FutureTaskTest extends TestCase {
+        
+    private static int TIMEOUT = 60 * 2;
     
     private ExecutorService executor;
     
@@ -55,7 +57,7 @@ public class FutureTaskTest extends TestCase {
         });
         
         try {
-            future.get();
+            future.get(TIMEOUT, TimeUnit.SECONDS);
             fail("Did not throw exception");
         } catch (CancellationException e) {
             // that's what we expect
@@ -147,7 +149,7 @@ public class FutureTaskTest extends TestCase {
         this.executor.execute(thread);
         
         try {
-            future.get();
+            future.get(TIMEOUT, TimeUnit.SECONDS);
             fail("Did not throw exception");
         } catch (SkippedException e) {
             // that's what we expect
@@ -157,7 +159,7 @@ public class FutureTaskTest extends TestCase {
         Thread.sleep(1000 * 2);
         
         try {
-            future.get();
+            future.get(TIMEOUT, TimeUnit.SECONDS);
             fail("Did not throw exception");
         } catch (SkippedException e) {
             // that's what we expect
@@ -185,7 +187,7 @@ public class FutureTaskTest extends TestCase {
          });
         
         try {
-            future.get();
+            future.get(TIMEOUT, TimeUnit.SECONDS);
             fail("Did not throw exception");
         } catch (CancellationException e) {
             // that's what we expect
@@ -203,7 +205,7 @@ public class FutureTaskTest extends TestCase {
         this.executor.execute(thread);
         
         try {
-            future.get();
+            future.get(TIMEOUT, TimeUnit.SECONDS);
             fail("Did not throw exception");
         } catch (SkippedException e) {
             // that's what we expect
@@ -213,7 +215,7 @@ public class FutureTaskTest extends TestCase {
         Thread.sleep(1000 * 2);
         
         try {
-            future.get();
+            future.get(TIMEOUT, TimeUnit.SECONDS);
             fail("Did not throw exception");
         } catch (SkippedException e) {
             // that's what we expect
@@ -234,7 +236,7 @@ public class FutureTaskTest extends TestCase {
         thread.getLatch().countDown();
                 
         try {
-            future.get();
+            future.get(TIMEOUT, TimeUnit.SECONDS);
             fail("Did not throw exception");
         } catch (CancellationException e) {
             // that's what we expect
