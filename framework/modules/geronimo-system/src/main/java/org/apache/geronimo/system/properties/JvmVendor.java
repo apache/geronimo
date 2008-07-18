@@ -47,7 +47,7 @@ public class JvmVendor {
         boolean bApache = fullVendorName.substring(0, 6).equalsIgnoreCase("Apache");    // aka. Apache Harmony
         boolean bIBM = fullVendorName.substring(0, 3).equalsIgnoreCase("IBM");           // aka. IBM, but not IBM Hybrid
         boolean bSun = !bIBM && !bApache;                                               // default all others to Sun
-        boolean bHP = fullVendorName.substring(0, 7).equalsIgnoreCase("Hewlett");       // aka. Hewlett-Packard Company
+        boolean bHP = fullVendorName.substring(0, 6).equalsIgnoreCase("Hewlet");       // aka. Hewlett-Packard Company
         boolean bIBMHybrid = false;
         
         // Special code for IBM Hybrid SDK (Sun JVM with IBM extensions on Solaris and HP-UX)
