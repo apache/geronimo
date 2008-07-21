@@ -670,16 +670,20 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
         }
     }
     
-    private static String capitalize(String name) {
+    private static String switchCase(String name) {
         if (name == null || name.length() == 0) {
             return name;
         }
         if (Character.isUpperCase(name.charAt(0))) {
-            return name;
-        } else {
+            char chars[] = name.toCharArray();
+            chars[0] = Character.toLowerCase(chars[0]);
+            return new String(chars);
+        } else if (Character.isLowerCase(name.charAt(0))) {
             char chars[] = name.toCharArray();
             chars[0] = Character.toUpperCase(chars[0]);
             return new String(chars);
+        } else{ 
+            return name;
         }
     }
 
@@ -729,25 +733,34 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
         GBeanData gbeanData = new GBeanData(gbeanInfo);
         for (ConfigPropertyType configProperty : configProperties) {
             if (configProperty.isSetConfigPropertyValue()) {
-                gbeanData.setAttribute(configProperty.getConfigPropertyName().getStringValue(),
-                        getValue(configProperty.getConfigPropertyType().getStringValue(),
-                                configProperty.getConfigPropertyValue().getStringValue(),
-                                cl));
+                String name = configProperty.getConfigPropertyName().getStringValue();
+                if (gbeanInfo.getAttribute(name) == null) {
+                    String originalName = name;
+                    name = switchCase(name);
+                    if (gbeanInfo.getAttribute(name) == null) {
+                        log.warn("Unsupported config-property: " + originalName);
+                        continue;
+                    }
+                }
+                String type = configProperty.getConfigPropertyType().getStringValue();
+                String value = configProperty.getConfigPropertyValue().getStringValue();
+                gbeanData.setAttribute(name, getValue(type, value, cl));
             }
         }
         return gbeanData;
     }
-
+    
     private void setDynamicGBeanDataAttributes(GBeanData gbeanData, GerConfigPropertySettingType[] configProperties, ClassLoader cl) throws DeploymentException {
         List<String> unknownNames = new ArrayList<String>();
         for (GerConfigPropertySettingType configProperty : configProperties) {
             String name = configProperty.getName();
             GAttributeInfo attributeInfo = gbeanData.getGBeanInfo().getAttribute(name);
             if (attributeInfo == null) {
-                name = capitalize(name);
+                String originalName = name;
+                name = switchCase(name);
                 attributeInfo = gbeanData.getGBeanInfo().getAttribute(name);
                 if (attributeInfo == null) {
-                    unknownNames.add(name);
+                    unknownNames.add(originalName);
                     continue;
                 }
             }
