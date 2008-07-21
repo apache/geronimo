@@ -52,7 +52,7 @@ limitations under the License.
         <attribute name="pageTitle">Embedded DB/DB Info</attribute>
         <attribute name="portletContext">/system-database</attribute>
         <attribute name="portletList">[InternalDB]</attribute>
-        <attribute name="icon">/images/ico_db_16x16.gif</attribute>
+        <attribute name="icon">/images/ico_dbinfo_16x16.gif</attribute>
         <reference name="PortalContainerServices">
             <name>PlutoPortalServices</name>
         </reference>
@@ -62,7 +62,7 @@ limitations under the License.
         <attribute name="pageTitle">Embedded DB/DB Manager</attribute>
         <attribute name="portletContext">/system-database</attribute>
         <attribute name="portletList">[DBViewer,RunSQL]</attribute>
-        <attribute name="icon">/images/ico_servcomp_16x16.gif</attribute>
+        <attribute name="icon">/images/ico_dbmgr_16x16.gif</attribute>
         <reference name="PortalContainerServices">
             <name>PlutoPortalServices</name>
         </reference>
@@ -72,6 +72,7 @@ limitations under the License.
         <attribute name="pageTitle">Server/Server Logs</attribute>
         <attribute name="portletContext">/system-database</attribute>
         <attribute name="portletList">[DerbyLogViewer]</attribute>
+        <attribute name="icon">/images/ico_look_16x16.gif</attribute>
         <reference name="PortalContainerServices">
             <name>PlutoPortalServices</name>
         </reference>
