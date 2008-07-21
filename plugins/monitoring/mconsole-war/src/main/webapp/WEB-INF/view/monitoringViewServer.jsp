@@ -31,6 +31,7 @@
 <%@ page import="java.sql.ResultSet" %>
 <%@ page import="java.sql.SQLException" %>
 <%@ page import="java.sql.Timestamp" %>
+<%@ page import="javax.management.InstanceNotFoundException" %>
 <%@ page import="org.apache.geronimo.monitoring.console.util.*" %>
 <%@ page import="org.apache.geronimo.monitoring.console.MRCConnector" %>
 <portlet:defineObjects/>
@@ -204,7 +205,14 @@ document.getElementById(x).style.display='';
             {
                 String prettyBean = it.next().toString();
                 Set<String> statAttributes = mrc.getStatAttributesOnMBean(trackedBeansMap.get(prettyBean));
-                HashMap<String, Long> beanStats = mrc.getStats(trackedBeansMap.get(prettyBean));
+                boolean started = true;
+                HashMap<String, Long> beanStats = null;
+                try {
+                    beanStats = mrc.getStats(trackedBeansMap.get(prettyBean));
+                } catch (InstanceNotFoundException infe) {
+                    //The bean is not available
+                    started = false;
+                }
                 if ((counter%3) == 0)
                 {
                  %>
@@ -216,14 +224,20 @@ document.getElementById(x).style.display='';
                 <table style="padding-left: 8px; padding-bottom: 10px;">
                 <tr><th colspan="2"><%=prettyBean%></th></tr>
                 <%
-                for (Iterator <String> itt = statAttributes.iterator(); itt.hasNext();)
-                {
-                    String dataName = itt.next().toString();
+                if (started) {
+                    for (Iterator <String> itt = statAttributes.iterator(); itt.hasNext();)
+                    {
+                        String dataName = itt.next().toString();
                 %>
-                    <tr><td><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="showAddGraph" /><portlet:param name="server_id" value="<%=server_id%>" /><portlet:param name="mbean" value="<%=trackedBeansMap.get(prettyBean)%>" /><portlet:param name="dataname" value="<%=dataName%>" /></portlet:actionURL>"><%=dataName%></a></td><td><%=beanStats.get(dataName) %></td></tr>
+                        <tr><td><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="showAddGraph" /><portlet:param name="server_id" value="<%=server_id%>" /><portlet:param name="mbean" value="<%=trackedBeansMap.get(prettyBean)%>" /><portlet:param name="dataname" value="<%=dataName%>" /></portlet:actionURL>"><%=dataName%></a></td><td><%=beanStats.get(dataName) %></td></tr>
+                <%
+                    }
+                } else {
+                %>
+                    <tr><td>The statistics bean is not available now.</td></tr>
                 <%
                 }
-                %>
+                %>                
                 </table>
                 </td>
                 <%
