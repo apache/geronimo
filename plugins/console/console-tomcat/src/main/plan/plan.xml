@@ -76,7 +76,7 @@
                 <attribute name="pageTitle">Server/Information</attribute>
                 <attribute name="portletContext">/console-base</attribute>
                 <attribute name="portletList">[ServerInfo]</attribute>
-                <attribute name="icon">/images/ico_look_16x16.gif</attribute>
+                <attribute name="icon">/images/ico_servinfo_16x16.gif</attribute>
                 <reference name="PortalContainerServices">
                     <name>PlutoPortalServices</name>
                 </reference>
@@ -85,7 +85,7 @@
                 <attribute name="pageTitle">Server/Java System Info</attribute>
                 <attribute name="portletContext">/console-base</attribute>
                 <attribute name="portletList">[JavaSysInfo]</attribute>
-                <attribute name="icon">/images/ico_beanjar_16x16.gif</attribute>
+                <attribute name="icon">/images/ico_info_16x16.gif</attribute>
                 <reference name="PortalContainerServices">
                     <name>PlutoPortalServices</name>
                 </reference>
@@ -94,7 +94,7 @@
                 <attribute name="pageTitle">Server/Server Logs</attribute>
                 <attribute name="portletContext">/console-base</attribute>
                 <attribute name="portletList">[LogManager, LogViewer, WebAccessLogViewer]</attribute>
-                <attribute name="icon">/images/ico_list_16x16.gif</attribute>
+                <attribute name="icon">/images/ico_look_16x16.gif</attribute>
                 <reference name="PortalContainerServices">
                     <name>PlutoPortalServices</name>
                 </reference>
@@ -112,7 +112,7 @@
                 <attribute name="pageTitle">Server/Web Server</attribute>
                 <attribute name="portletContext">/console-base</attribute>
                 <attribute name="portletList">[WebServerManager, ConnectorManager]</attribute>
-                <attribute name="icon">/images/ico_servcomp_16x16.gif</attribute>
+                <attribute name="icon">/images/ico_webserv_16x16.gif</attribute>
                 <reference name="PortalContainerServices">
                     <name>PlutoPortalServices</name>
                 </reference>
@@ -121,7 +121,7 @@
                 <attribute name="pageTitle">Server/Thread Pools</attribute>
                 <attribute name="portletContext">/console-base</attribute>
                 <attribute name="portletList">[ThreadPool]</attribute>
-                <attribute name="icon">/images/ico_connect_16x16.gif</attribute>
+                <attribute name="icon">/images/ico_threads_16x16.gif</attribute>
                 <reference name="PortalContainerServices">
                     <name>PlutoPortalServices</name>
                 </reference>
@@ -130,7 +130,7 @@
                 <attribute name="pageTitle">Server/Apache HTTP</attribute>
                 <attribute name="portletContext">/console-base</attribute>
                 <attribute name="portletList">[ApacheJK]</attribute>
-                <attribute name="icon">/images/ico_servcomp_16x16.gif</attribute>
+                <attribute name="icon">/images/ico_web_16x16.gif</attribute>
                 <reference name="PortalContainerServices">
                     <name>PlutoPortalServices</name>
                 </reference>
@@ -139,7 +139,7 @@
                 <attribute name="pageTitle">Services/Repository</attribute>
                 <attribute name="portletContext">/console-base</attribute>
                 <attribute name="portletList">[RepositoryViewer]</attribute>
-                <attribute name="icon">/images/ico_list_16x16.gif</attribute>
+                <attribute name="icon">/images/ico_repo_16x16.gif</attribute>
                 <reference name="PortalContainerServices">
                     <name>PlutoPortalServices</name>
                 </reference>
@@ -148,7 +148,7 @@
                 <attribute name="pageTitle">Applications/Web App WARs</attribute>
                 <attribute name="portletContext">/console-base</attribute>
                 <attribute name="portletList">[WARModules]</attribute>
-                <attribute name="icon">/images/ico_list_16x16.gif</attribute>
+                <attribute name="icon">/images/ico_webapp_16x16.gif</attribute>
                 <reference name="PortalContainerServices">
                     <name>PlutoPortalServices</name>
                 </reference>
@@ -157,7 +157,7 @@
                 <attribute name="pageTitle">Applications/System Modules</attribute>
                 <attribute name="portletContext">/console-base</attribute>
                 <attribute name="portletList">[SystemModules]</attribute>
-                <attribute name="icon">/images/ico_list_16x16.gif</attribute>
+                <attribute name="icon">/images/ico_car_16x16.gif</attribute>
                 <reference name="PortalContainerServices">
                     <name>PlutoPortalServices</name>
                 </reference>
@@ -166,7 +166,7 @@
                  <attribute name="pageTitle">Applications/Application EARs</attribute>
                  <attribute name="portletContext">/console-base</attribute>
                  <attribute name="portletList">[EARModules]</attribute>
-                 <attribute name="icon">/images/ico_list_16x16.gif</attribute>
+                 <attribute name="icon">/images/ico_ear_16x16.gif</attribute>
                  <reference name="PortalContainerServices">
                      <name>PlutoPortalServices</name>
                  </reference>
@@ -193,7 +193,7 @@
                 <attribute name="pageTitle">Applications/App Clients</attribute>
                 <attribute name="portletContext">/console-base</attribute>
                 <attribute name="portletList">[ClientModules]</attribute>
-                <attribute name="icon">/images/ico_list_16x16.gif</attribute>
+                <attribute name="icon">/images/ico_jar_16x16.gif</attribute>
                 <reference name="PortalContainerServices">
                     <name>PlutoPortalServices</name>
                 </reference>
@@ -202,6 +202,7 @@
                 <attribute name="pageTitle">Security/Users and Groups</attribute>
                 <attribute name="portletContext">/console-base</attribute>
                 <attribute name="portletList">[SEUsers, SEGroups]</attribute>
+                <attribute name="icon">/images/ico_usergroup_16x16.gif</attribute>
                 <reference name="PortalContainerServices">
                     <name>PlutoPortalServices</name>
                 </reference>
@@ -210,6 +211,7 @@
                 <attribute name="pageTitle">Security/Keystores</attribute>
                 <attribute name="portletContext">/console-base</attribute>
                 <attribute name="portletList">[Keystores]</attribute>
+                <attribute name="icon">/images/ico_keystore_16x16.gif</attribute>
                 <reference name="PortalContainerServices">
                     <name>PlutoPortalServices</name>
                 </reference>
@@ -218,6 +220,7 @@
                 <attribute name="pageTitle">Security/Certificate Authority</attribute>
                 <attribute name="portletContext">/console-base</attribute>
                 <attribute name="portletList">[CertificationAuthority]</attribute>
+                <attribute name="icon">/images/ico_cert_16x16.gif</attribute>
                 <reference name="PortalContainerServices">
                     <name>PlutoPortalServices</name>
                 </reference>
