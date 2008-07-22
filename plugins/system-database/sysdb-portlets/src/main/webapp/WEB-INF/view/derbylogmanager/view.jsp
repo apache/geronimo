@@ -33,10 +33,10 @@
                 <b><fmt:message key="derbylogmanager.view.filterResults"/>:</b>
                 <input type="hidden" value="search" name="action"/>
                 <br/>
-                <fmt:message key="derbylogmanager.view.Lines"/> <input type="text" name="startPos" value="${startPos}" size="3"/>
-                <fmt:message key="derbylogmanager.view.to"/> <input type="text" name="endPos" value="${endPos}" size="3"/>
-                <fmt:message key="derbylogmanager.view.maxResults"/> <input type="text" name="maxRows" value="${maxRows}" size="3"/>
-                <fmt:message key="derbylogmanager.view.containingText"/> <input type="text" name="searchString" value="${searchString}"/>
+                <fmt:message key="derbylogmanager.view.Lines"/>&nbsp;<input type="text" name="startPos" value="${startPos}" size="3"/>
+                <fmt:message key="derbylogmanager.view.to"/>&nbsp;<input type="text" name="endPos" value="${endPos}" size="3"/>
+                <fmt:message key="derbylogmanager.view.maxResults"/>&nbsp;<input type="text" name="maxRows" value="${maxRows}" size="3"/>
+                <fmt:message key="derbylogmanager.view.containingText"/>&nbsp;<input type="text" name="searchString" value="${searchString}"/>
                 <br/>
                 <input type="submit" value="<fmt:message key="derbylogmanager.view.filterLog"/>"/>
             </form>
@@ -54,9 +54,7 @@
                                         <fmt:param   value="${lineCount}" />
                                         <fmt:param   value="${fn:length(searchResults)}" />
                                     </fmt:message>
-                                    <c:if test="${!empty capped}">
-                                       <fmt:message key="derbylogmanager.view.numberOfResultsCapped"/>
-                                    </c:if>.
+                                    <c:if test="${!empty capped}">&nbsp;(<fmt:message key="derbylogmanager.view.numberOfResultsCapped"/>)</c:if>.
                                 </b>
                             </td>
                         </tr>
