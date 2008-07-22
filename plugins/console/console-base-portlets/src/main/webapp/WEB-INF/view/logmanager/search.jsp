@@ -80,16 +80,16 @@ function <portlet:namespace/>validateForm(){
                 <b><fmt:message key="logmanager.common.filterCriteria"/>:</b>
                 <input type="hidden" value="search" name="action"/>
                 <br/>
-                File 
+                <fmt:message key="consolebase.common.file"/>&nbsp;
                 <select name="logFile">
                     <c:forEach var="file" items="${logFiles}">
                         <option value="${file.fullName}" < c:if test="${logFile eq file.fullName}">selected</c:if>>${file.name}</option>
                     </c:forEach>
                 </select>
-                <fmt:message key="logmanager.search.lines"/> <input type="text" name="startPos" value="${startPos}" size="3"/>
-                <fmt:message key="logmanager.search.to"/> <input type="text" name="endPos" value="${endPos}" size="3"/>
-                <fmt:message key="logmanager.search.maxResults"/> <input type="text" name="maxRows" value="${maxRows}" size="3"/>
-                <fmt:message key="logmanager.search.level"/>
+                <fmt:message key="logmanager.search.lines"/>&nbsp;<input type="text" name="startPos" value="${startPos}" size="3"/>
+                <fmt:message key="logmanager.search.to"/>&nbsp;<input type="text" name="endPos" value="${endPos}" size="3"/>
+                <fmt:message key="logmanager.search.maxResults"/>&nbsp;<input type="text" name="maxRows" value="${maxRows}" size="3"/>
+                <fmt:message key="logmanager.search.level"/>&nbsp;
                 <select name="logLevel">
                     <option <c:if test="${logLevel == 'TRACE' || logLevel == ''}">selected</c:if>>TRACE</option>
                     <option <c:if test="${logLevel == 'DEBUG'}">selected</c:if>>DEBUG</option>
@@ -98,8 +98,8 @@ function <portlet:namespace/>validateForm(){
                     <option <c:if test="${logLevel == 'ERROR'}">selected</c:if>>ERROR</option>
                     <option <c:if test="${logLevel == 'FATAL'}">selected</c:if>>FATAL</option>
                 </select>
-                <fmt:message key="logmanager.search.containingText"/> <input type="text" name="searchString" value="${searchString}"/>
-                <fmt:message key="logmanager.search.withExceptions"/> <input type="checkbox" name="stackTraces" < c:if test="${!empty stackTraces}">CHECKED </c:if>/>
+                <fmt:message key="logmanager.search.containingText"/>&nbsp;<input type="text" name="searchString" value="${searchString}"/>
+                <fmt:message key="logmanager.search.withExceptions"/>&nbsp;<input type="checkbox" name="stackTraces" < c:if test="${!empty stackTraces}">CHECKED </c:if>/>
                 <br/>
                 <input type="submit" value="<fmt:message key="logmanager.search.fileterLog"/>"/>
             </form>
@@ -116,7 +116,7 @@ function <portlet:namespace/>validateForm(){
                               <fmt:param value="${lineCount}"/>
                               <fmt:param value="${fn:length(searchResults)}"/>
                            </fmt:message>
-                           <c:if test="${!empty capped}">(<fmt:message key="logmanager.search.numberOfResultsCapped"/>)</c:if>.
+                           <c:if test="${!empty capped}">&nbsp;(<fmt:message key="logmanager.search.numberOfResultsCapped"/>)</c:if>.
                         </b>
                     </td>
                 </tr>
