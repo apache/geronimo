@@ -53,7 +53,7 @@ Monitoring Console Plugin
   servers and graphically display this data to users.
 
 
-Geronimo 2.1.1 Issues Resolved
+Geronimo 2.1.2 Issues Resolved
 ------------------------------
 ** Bug
     * [GERONIMO-3503] - DBPool wizzard creates plans only for local-transactions
