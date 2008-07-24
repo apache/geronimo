@@ -156,6 +156,7 @@ Geronimo 2.1.2 Issues Resolved
     * [GERONIMO-4152] - Add a way to show/hide parent and child components of modules in the console
     * [GERONIMO-4191] - give users a better message when context-root is not unique
     * [GERONIMO-4207] - Provide a LoginModule which can be used to add user or group principals via configuration
+    * [GERONIMO-4211] - Upgrade wsdl4j to 1.6.2 version
 
 ** New Feature
     * [GERONIMO-2814] - Add a second repository to Geronimo
