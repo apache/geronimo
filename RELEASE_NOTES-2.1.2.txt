@@ -6,8 +6,8 @@ Geronimo URLs
 Home Page:     http://geronimo.apache.org/
 Downloads:     http://geronimo.apache.org/downloads.html
 Documentation: http://geronimo.apache.org/documentation.html
-Mailing Lists: http://geronimo.apache.org/mailing.html
-Source Code:   http://geronimo.apache.org/svn.html
+Mailing Lists: http://geronimo.apache.org/mailing-lists.html
+Source Code:   http://geronimo.apache.org/source-code.html
 Bug Tracking:  http://issues.apache.org/jira/browse/GERONIMO
 Wiki:          http://cwiki.apache.org/geronimo
 
