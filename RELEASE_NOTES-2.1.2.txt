@@ -43,14 +43,19 @@ GShell
   for editing, command history, and tab completion. 
 
 Clustering Support
-- WADI can now be used to support clustering of web applications for Geronimo configurations which
-  use the Tomcat Web Container (WADI support for Jetty was in previous releases). 
+- WADI can now be used to support clustering of web applications for Geronimo configurations 
+  which use the Tomcat Web Container (WADI support for Jetty was in previous releases). 
 - Applications can be deployed to administratively-defined groups of Geronimo servers
 
 Monitoring Console Plugin
 - The monitoring console plugin provides monitoring support in the Geronimo admin console. 
   The monitoring console can gather statistics and performance data from multiple Geronimo 
   servers and graphically display this data to users.
+
+Plan Creator
+- Plan Creator is a new portlet added to admin console to simplify the creation of Geronimo 
+  specific deployment plans. Given a web application archive (war), Plan Creator walks the user 
+  through a sequence of steps and generates geronimo-web.xml automatically.
 
 
 Geronimo 2.1.2 Issues Resolved
