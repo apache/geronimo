@@ -97,8 +97,8 @@ Security Configuration
 
  The default administration user/password for the Geronimo Administration Console
  and command line deployment tool is system/manager.  You can change these defaults
- directly from the Geronimo Administration Console by accessing Security -> Console
- Realm and change the user name and password from the Console Realm Users portlet.
+ directly from the Geronimo Administration Console by accessing Security -> Users 
+ and Groups and change the user name and password from the Console Realm Users portlet.
 
  As an alternative, you can make the same changes by editing the
  <geronimo_home>/var/security/users.properties and
