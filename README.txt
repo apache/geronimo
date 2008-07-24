@@ -47,7 +47,7 @@ Starting Geronimo
  is <geronimo_home>):
 
  1. GShell -- "./bin/gsh geronimo/start-server"
- 2. Script -- "./bin/geronimo.sh run" (Must first set the JRE_HOME or JAVA_HOME environment variable)
+ 2. Script -- "./bin/geronimo.sh run"
  3. Java   -- "java -Djava.endorsed.dirs=%JRE_HOME%/lib/endorsed:lib/endorsed -Djava.ext.dirs=%JRE_HOME%/lib/ext:lib/ext -javaagent:bin/jpa.jar -jar bin/server.jar"
 
 
@@ -64,7 +64,7 @@ Application Deployment
  2. Administrative console -- login to the admin console and click "Deploy New" under Applications
  3. Hot deploy -- copy your archive(s) into the "<geronimo-home>/deploy" directory. The
     hot deploy service will automatically deploy these artifacts.
- 4. maven -- applications can be installed as part of a maven build
+ 4. Maven -- applications can be installed as part of a maven build
 
  When you deploy an application using an administrative command, you will need
  to supply an administrator's username/password. If you do not specify the username
@@ -164,8 +164,9 @@ Script
    geronimo.sh -- used to start and stop servers; either as a foreground or background process.
    startup.sh -- start a Geronimo server running as a background process
    shutdown.sh -- stop a running Geronimo server
+   client.sh -- start a Geronimo application client
    deploy.sh -- deploy, list, and undeploy plugins and applications
-   jaxws-tools.sh -- used to generate wsdl from java code or java code from wsdl
+   jaxws-tools.sh -- generate WSDL from Java code or Java code from WSDL
 
  For example, "./bin/deploy.sh list-modules"
 
