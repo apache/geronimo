@@ -576,7 +576,7 @@
             <dependency>
                 <groupId>wsdl4j</groupId>
                 <artifactId>wsdl4j</artifactId>
-                <version>1.6.1</version>
+                <version>1.6.2</version>
             </dependency>
 
             <!-- org.apache.xml.serialize.XMLSerializer is used by castor, hence this is still needed -->
