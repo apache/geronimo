@@ -124,6 +124,9 @@ function <portlet:namespace/>updateValues(serverStats) {
     DWRUtil.setValue("<portlet:namespace/>MostMemory", serverStats.memoryMost);
     DWRUtil.setValue("<portlet:namespace/>AvailableMemory", serverStats.memoryAllocated);
     DWRUtil.setValue("<portlet:namespace/>UpTime", serverStats.upTime);
+    if(!<portlet:namespace/>stopped) {
+        setTimeout("<portlet:namespace/>callServer()", 5000);
+    }
 }
 function <portlet:namespace/>onError() {
     <portlet:namespace/>stopped=true;
