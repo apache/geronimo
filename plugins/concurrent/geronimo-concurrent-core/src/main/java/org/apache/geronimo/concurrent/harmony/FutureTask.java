@@ -173,6 +173,7 @@ public class FutureTask<V> implements Future<V>, Runnable {
      * Uses AQS sync state to represent run status
      */
     private final class Sync extends AbstractQueuedSynchronizer {
+        private static final int READY     = 0;
         /** State value representing that task is running */
         private static final int RUNNING   = 1;
         /** State value representing that task ran */
@@ -254,18 +255,30 @@ public class FutureTask<V> implements Future<V>, Runnable {
         }
 
         void innerSet(V v) {
-            int s = getState();
-            if (ranOrCancelled(s) || !compareAndSetState(s, RAN))
-                return;
+            for (;;) {
+                int s = getState();
+                if (ranOrCancelled(s)) {
+                    return;
+                }
+                if (compareAndSetState(s, RAN)) {
+                    break;
+                }
+            }
             result = v;
             releaseShared(0);
             done();
         }
 
         void innerSetException(Throwable t) {
-            int s = getState();
-            if (ranOrCancelled(s) || !compareAndSetState(s, RAN)) 
-                return;
+            for (;;) {
+                int s = getState();
+                if (ranOrCancelled(s)) {
+                    return;
+                } 
+                if (compareAndSetState(s, RAN)) {
+                    break;
+                }
+            }            
             exception = t;
             result = null;
             releaseShared(0);
@@ -273,9 +286,15 @@ public class FutureTask<V> implements Future<V>, Runnable {
         }
 
         boolean innerCancel(boolean mayInterruptIfRunning) {
-            int s = getState();
-            if (ranOrCancelled(s) || !compareAndSetState(s, CANCELLED)) 
-                return false;
+            for (;;) {
+                int s = getState();
+                if (ranOrCancelled(s)) {
+                    return false;
+                }
+                if (compareAndSetState(s, CANCELLED)) {
+                    break;
+                }
+            }
             if (mayInterruptIfRunning) {
                 Thread r = runner;
                 if (r != null)
@@ -291,16 +310,21 @@ public class FutureTask<V> implements Future<V>, Runnable {
         }
         
         boolean innerSetSkipped() {
-            int s = getState();
-            if (ranOrCancelled(s) || !compareAndSetState(s, SKIPPED)) {
-                return false;
+            for (;;) {
+                int s = getState();
+                if (ranOrCancelled(s)) {
+                    return false;
+                } 
+                if (compareAndSetState(s, SKIPPED)) {
+                    break;
+                }              
             }
             releaseShared(0);
             return true;
         }
 
         void innerRun() {
-            if (!compareAndSetState(0, RUNNING)) 
+            if (!compareAndSetState(READY, RUNNING)) 
                 return;
             try {
                 taskStart();
@@ -315,14 +339,14 @@ public class FutureTask<V> implements Future<V>, Runnable {
         }
 
         boolean innerRunAndReset() {
-            if (!(compareAndSetState(0, RUNNING) || compareAndSetState(SKIPPED, RUNNING)))  
+            if (!(compareAndSetState(READY, RUNNING) || compareAndSetState(SKIPPED, RUNNING)))  
                 return false;
             try {
                 taskStart();
                 runner = Thread.currentThread();
                 callable.call(); // don't set result
                 runner = null;                
-                boolean rs = compareAndSetState(RUNNING, 0);
+                boolean rs = compareAndSetState(RUNNING, READY);
                 taskDone(null);
                 return rs;
             } catch(Throwable ex) {                
