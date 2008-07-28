@@ -1,5 +1,5 @@
 ======================================================
-Apache Geronimo v2.1.2  (July 31, 2008)
+Apache Geronimo v2.1.2  (TBD)
 
 http://geronimo.apache.org/
 ------------------------------------------------------
@@ -9,7 +9,7 @@ ______________________
 Release Notes
 ======================
 
- Please read the RELEASE_NOTES-2.1.2.txt for a complete list of new features 
+ Please read the RELEASE_NOTES-2.1.3.txt for a complete list of new features 
  available in this release. 
  
   
