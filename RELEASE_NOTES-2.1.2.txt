@@ -60,12 +60,11 @@ Plan Creator
 
 Geronimo 2.1.2 Issues Resolved
 ------------------------------
+
 ** Bug
     * [GERONIMO-3503] - DBPool wizzard creates plans only for local-transactions
     * [GERONIMO-3562] - customizable navigator icons for admin console extensions
-    * [GERONIMO-3599] - Unable to create new JMS Resource group through console in IE7
     * [GERONIMO-3700] - alias command fails
-    * [GERONIMO-3705] - Maven 2.0.8 causes build problems
     * [GERONIMO-3858] - start-server.bat fails to start server if there is a space in the path
     * [GERONIMO-3864] - Security warning about installation a certificate from a CA claiming to represent: Me
     * [GERONIMO-3930] - IllegalArgumentException reading Transaction Log
@@ -100,7 +99,6 @@ Geronimo 2.1.2 Issues Resolved
     * [GERONIMO-4024] - Accessibility issue: missing image alt tags and no skip to main content support
     * [GERONIMO-4036] - Warning message after running gsh geronimo/stop-server
     * [GERONIMO-4072] - Fail to offline deploy an application because of the dependency to rmi-naming
-    * [GERONIMO-4076] - Console runs in unhandled exception when user starts module with unresolved dependencies
     * [GERONIMO-4082] - <hidden-classes> ignored for certain classes that are loaded by system class loader
     * [GERONIMO-4086] - sharelib plugin does not include or create shared/lib or shared/classes directories
     * [GERONIMO-4088] - Make it more obvious and document how to set the tmId so you can use more than one geronimo server with a distributed transaction.
@@ -120,15 +118,12 @@ Geronimo 2.1.2 Issues Resolved
     * [GERONIMO-4116] - Upgrade from DWR 2.0.1 to 2.0.3
     * [GERONIMO-4119] - request.isUserInRole("some-role") always return false after @EJB injection
     * [GERONIMO-4123] - Some License/Notice file updates
-    * [GERONIMO-4124] - Tomcat jacc usage is messed up
     * [GERONIMO-4131] - Problems with WebSphere MQ RA deployment
-    * [GERONIMO-4155] - Can use a run-as role without defining it
     * [GERONIMO-4166] - EAR missing dependency on j2ee-security breaks Server Console
     * [GERONIMO-4169] - JAX-WS web services not discovered with partial web.xml file
     * [GERONIMO-4175] - dojo v1.0.2 dijit/demos/i18n directory contains wikipedia content
     * [GERONIMO-4177] - FarmWarDeployerGBean.java uses incorrect hardcoded tomcat class
     * [GERONIMO-4182] - Artifact aliases are not honored when deploying a plugin that has a dependency on another plugin with an alias
-    * [GERONIMO-4184] - In-doubt transaction Id's could be reused during server startup
     * [GERONIMO-4185] - Cannot deployed WADI clustered Jetty and Tomcat Web applications within an EAR
     * [GERONIMO-4188] - View Server portlet runs in unhandled exception if the statistics bean is not available
     * [GERONIMO-4194] - jsp sample view source links are broken
@@ -163,7 +158,6 @@ Geronimo 2.1.2 Issues Resolved
     * [GERONIMO-3665] - Create ghell commands for wsgen and wsimport tools
     * [GERONIMO-3876] - Allow configuring JMX over SSL
     * [GERONIMO-4115] - Add wait-for-server gshell command
-
 
 
 Certification Status
@@ -212,11 +206,11 @@ Known Issues and Limitations
     * [GERONIMO-3419] -  Console displays wrong database pool type when derby embed local is used.
     * [GERONIMO-3442] -  Tomcat exception reports reference non-existent log files
     * [GERONIMO-3445] -  Verify log levels can be changed for openejb related log categories
-    * [GERONIMO-3457] -  Drools BRMS issue using geronimo 2.0.1-jetty6 	Unassigned
+    * [GERONIMO-3457] -  Drools BRMS issue using geronimo 2.0.1-jetty6
     * [GERONIMO-3466] -  car-maven-plugin can not generate server plugin which includes EJB
     * [GERONIMO-3468] -  Links broken through Ajp13.
     * [GERONIMO-3469] -  From console: database pool doesn't work well if the name contains a / like jdbc/EmployeeDataSource
-    * [GERONIMO-3470] -  Setting system properties through the deployment plan fails
+    * [GERONIMO-3470] -  Setting system properties through the deployment plan fails.
     * [GERONIMO-3483] -  Redeploy should start any dependent configurations it stops.
     * [GERONIMO-3488] -  car file left over after failed deployment
     * [GERONIMO-3581] -  Default security relam name in ContextManager
@@ -250,10 +244,10 @@ Known Issues and Limitations
     * [GERONIMO-3894] -  java.lang.NoClassDefFoundError: org/jdom/Parent using JDOM 1.0
     * [GERONIMO-3907] -  Persistence Exception is not visible/lost for client.
     * [GERONIMO-3934] -  geronimo/start-server --timeout option does not work as expected
-    * [GERONIMO-3938] -  Geronimo must add Java2 security to run with security manager
+    * [GERONIMO-3938] -  Geronimo must add Java2 security to run with security manager 	Unassigned
     * [GERONIMO-3942] -  IllegalStateException warning message for Jetty plugin installer
     * [GERONIMO-3946] -  WARN [JettyModuleBuilder] Web application . does not contain a WEB-INF/geronimo-web.xml deployment plan
-    * [GERONIMO-3949] -  Problem creating a DB2 datasource 	Unassigned
+    * [GERONIMO-3949] -  Problem creating a DB2 datasource
     * [GERONIMO-3951] -  org.apache.geronimo.cxf.CXFHandlerResolverTest fails on Harmony intermittently
     * [GERONIMO-3957] -  Updating svn:ignore lists
     * [GERONIMO-3989] -  gshell - infinite loop
@@ -268,14 +262,13 @@ Known Issues and Limitations
     * [GERONIMO-4030] -  Accessibility issue: The tree and tabbed content in Debug views is not keyboard navigatable
     * [GERONIMO-4032] -  Accessibility issue: descriptions should be shown explicitly for automatic change
     * [GERONIMO-4037] -  Geronimo 2.0.3 (and I guess at least 2.0.2) can't run with a security manager settled from the command line using -Djava.security.manager
+    * [GERONIMO-4071] -  car-maven-plugin should be able to download provided dependencies
     * [GERONIMO-4076] -  Console runs in unhandled exception when user starts module with unresolved dependencies
     * [GERONIMO-4078] -  Database Pools page: JNDI name formatting inconsistent
     * [GERONIMO-4080] -  Accessibility issue: No input error messages are shown in some forms if anything is unexpected
     * [GERONIMO-4081] -  Accessibility issue: Webking scan errors against "Check Web Accessibility(Section 508)" rules
-    * [GERONIMO-4082] -  <hidden-classes> ignored for certain classes that are loaded by system class loader
     * [GERONIMO-4097] -  unable to download extensible administration console using Little G
     * [GERONIMO-4124] -  Tomcat jacc usage is messed up
-    * [GERONIMO-4131] -  Problems with WebSphere MQ RA deployment
     * [GERONIMO-4141] -  The war exported as a geronimo plugin in admin console cannot be installed with install-plugin command of deploy.bat|.sh
     * [GERONIMO-4153] -  Messages are not being redelivered correctly
     * [GERONIMO-4155] -  Can use a run-as role without defining it
@@ -283,11 +276,13 @@ Known Issues and Limitations
     * [GERONIMO-4184] -  In-doubt transaction Id's could be reused during server startup
     * [GERONIMO-4186] -  Use start-server.bat to start non-default server and shutdown it using stop-server.bat , but can not exit to command prompt
     * [GERONIMO-4210] -  EJB Injection in JSF Managed Bean
-
+    * [GERONIMO-4218] -  NullPointerException in ConnectorModuleBuilder
+    * [GERONIMO-4219] -  Edited GBean properties not reflected on restart
 
 ** Improvement
     * [GERONIMO-3389] -  console: java.lang.UnsatisfiedLinkError is thrown when create a Tomcat APR HTTP Connector
     * [GERONIMO-3399] -  Need JSR88 DConfigBeans for GerSecurityType
+    * [GERONIMO-3402] -  Remove depricated DeployUtils with FileUtils
     * [GERONIMO-3448] -  New threads launched from an EJB do not run as the same Subject as the launching thread
     * [GERONIMO-3530] -  provide activemq destination and connector stats
     * [GERONIMO-3661] -  Optimize GShell libs for G server assemblies
@@ -306,9 +301,8 @@ Known Issues and Limitations
     * [GERONIMO-3940] -  A easy way to create a new server instance via command/gsh/console
     * [GERONIMO-3948] -  Allow multiple containers to be created for different types of ejbs
     * [GERONIMO-3958] -  No web-app element when geronimo-web.xml contains other root element
-    * [GERONIMO-3969] -  maven2 module goals should use standard server definitions
+    * [GERONIMO-3969] -  maven2 module goals should use standard server definitions.
     * [GERONIMO-4023] -  Provide Column Names in the Database Table View of the Admin Console
-
 
 ** New Feature
     * [GERONIMO-3417] -  Implement JASPI
@@ -316,4 +310,5 @@ Known Issues and Limitations
     * [GERONIMO-3572] -  Disable access log by default and provide an easy way for the user to enable/disable logging at will.
     * [GERONIMO-3619] -  Allow context-param's to be overridden in geronimo-web.xml
     * [GERONIMO-3662] -  Provide JCA Resource statistics
+    * [GERONIMO-4089] -  Investigate building and running Geronimo on JSE 6
 
