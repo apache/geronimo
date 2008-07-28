@@ -1,0 +1,118 @@
+Release Notes -- Apache Geronimo -- Version 2.1.3
+
+
+Geronimo URLs
+-------------
+Home Page:     http://geronimo.apache.org/
+Downloads:     http://geronimo.apache.org/downloads.html
+Documentation: http://geronimo.apache.org/documentation.html
+Mailing Lists: http://geronimo.apache.org/mailing-lists.html
+Source Code:   http://geronimo.apache.org/source-code.html
+Bug Tracking:  http://issues.apache.org/jira/browse/GERONIMO
+Wiki:          http://cwiki.apache.org/geronimo
+
+
+Documentation
+-------------
+Please see http://cwiki.apache.org/GMOxDOC21/documentation.html for the
+latest documentation on this release.
+
+
+System Requirements
+-------------------
+You need a platform that supports the Sun JDK 5.0+ (J2SE 1.5.0+) or greater.
+
+Most testing has been done on Linux, Mac OS X, and Windows.
+
+
+Geronimo 2.1 Enhancements
+-------------------------
+
+Custom server assemblies
+- Lightweight server assemblies may be created that contain only the functional 
+  components required by your application(s).
+
+Flexible admin console
+- The admin console is now component-based to mirror the server capabilities. 
+  This allows the admin console to provide flexible administrative capabilities 
+  that will mirrors the capabilities of a custom server assembly.
+
+GShell
+- GShell is a command-line processing environment that can be used for the execution
+  of Geronimo commands. GShell is an extensible environment and includes support
+  for editing, command history, and tab completion. 
+
+Clustering Support
+- WADI can now be used to support clustering of web applications for Geronimo configurations 
+  which use the Tomcat Web Container (WADI support for Jetty was in previous releases). 
+- Applications can be deployed to administratively-defined groups of Geronimo servers
+
+Monitoring Console Plugin
+- The monitoring console plugin provides monitoring support in the Geronimo admin console. 
+  The monitoring console can gather statistics and performance data from multiple Geronimo 
+  servers and graphically display this data to users.
+
+Plan Creator
+- Plan Creator is a new portlet added to admin console to simplify the creation of Geronimo 
+  specific deployment plans. Given a web application archive (war), Plan Creator walks the user 
+  through a sequence of steps and generates geronimo-web.xml automatically.
+
+
+Geronimo 2.1.3 Issues Resolved
+------------------------------
+** Bug
+TBD
+
+** Improvement
+TBD
+
+** New Feature
+TBD
+
+
+
+Certification Status
+--------------------
+Apache Geronimo v2.1.3 has passed 100% of SUN's Java Enterprise Edition 5.0 
+Certification Test Suite. See "Distributions" for further details.
+
+
+Distributions
+-------------
+Apache Geronimo v2.1.3 is available in five distributions so you can pick the 
+one that best fits your environment.
+
+The available distributions are as follows:
+
+Certified distributions:
+- Apache Geronimo with Tomcat web container, AXIS2 for Web Services and OpenJPA
+  for persistence.
+- Apache Geronimo with Jetty web container, CXF for Web Services and OpenJPA 
+  for persistence.
+
+Non-Certified distributions:
+- Little-G with Tomcat web container, minimal configuration.
+- Little-G with Jetty web container, minimal configuration.
+- Geronimo framework, stripped down Geronimo pluggable framework.
+
+Note: Non-Certified distributions do not contain a complete JavaEE5 stack and so 
+cannot be certified.  Certified distributions can be reconfigured by the user 
+(such as Tomcat web container with CXF for Web Services). 
+
+
+Supported features
+------------------
+All programming elements of the Java EE 5.0 Specification are available.  
+
+
+Known Issues and Limitations
+----------------------------
+** Bug
+TBD
+
+** Improvement
+TBD
+
+** New Feature
+TBD
+
