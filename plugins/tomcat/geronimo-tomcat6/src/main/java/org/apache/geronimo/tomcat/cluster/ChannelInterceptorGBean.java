@@ -24,6 +24,8 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.catalina.tribes.ChannelInterceptor;
+import org.apache.catalina.tribes.group.interceptors.StaticMembershipInterceptor;
+import org.apache.catalina.tribes.membership.StaticMember;
 
 public class ChannelInterceptorGBean extends BaseGBean {
 
@@ -39,7 +41,8 @@ public class ChannelInterceptorGBean extends BaseGBean {
         nextInterceptor = null;
     }
 
-    public ChannelInterceptorGBean(String className, Map initParams, ChannelInterceptorGBean nextInterceptor) throws Exception {
+    public ChannelInterceptorGBean(String className, Map initParams,
+       StaticMemberGBean staticMember, ChannelInterceptorGBean nextInterceptor) throws Exception {
 
         super(); // TODO: make it an attribute
 
@@ -63,6 +66,21 @@ public class ChannelInterceptorGBean extends BaseGBean {
 
         // Set the parameters
         setParameters(interceptor, initParams);
+
+        //Add the static member
+        boolean addNextStaticMember = true;
+        
+        while (addNextStaticMember) {
+            if (staticMember != null && interceptor instanceof StaticMembershipInterceptor){
+                StaticMembershipInterceptor staticMembershipInterceptor= (StaticMembershipInterceptor) interceptor;
+                staticMembershipInterceptor.addStaticMember((StaticMember)staticMember.getInternalObject());
+                if ( addNextStaticMember = (staticMember.getNextStaticMember() != null) ? true : false ) {
+                    staticMember = (StaticMemberGBean) staticMember.getNextStaticMember();
+                }
+            } else {
+                addNextStaticMember = false;
+            }
+        }
 
     }
 
@@ -92,12 +110,14 @@ public class ChannelInterceptorGBean extends BaseGBean {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("ChannelInterceptor", ChannelInterceptorGBean.class, J2EE_TYPE);
         infoFactory.addAttribute("className", String.class, true);
         infoFactory.addAttribute("initParams", Map.class, true);
+        infoFactory.addReference("StaticMember", StaticMemberGBean.class, StaticMemberGBean.J2EE_TYPE);
         infoFactory.addReference("NextInterceptor", ChannelInterceptorGBean.class, J2EE_TYPE);
         infoFactory.addOperation("getInternalObject", "Object");
         infoFactory.addOperation("getNextInterceptor","ChannelInterceptorGBean");
         infoFactory.setConstructor(new String[] { 
                 "className", 
                 "initParams", 
+                "StaticMember", 
                 "NextInterceptor" });
         
         GBEAN_INFO = infoFactory.getBeanInfo();
