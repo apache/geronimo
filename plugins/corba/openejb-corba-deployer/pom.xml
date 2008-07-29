@@ -42,7 +42,7 @@
             <artifactId>openejb-deployer</artifactId>
             <version>${version}</version>
             <type>car</type>
-            <scope>runtime</scope>
+            <!--<scope>runtime</scope>-->
         </dependency>
 
         <!-- maybe gbean-deployer?? -->
