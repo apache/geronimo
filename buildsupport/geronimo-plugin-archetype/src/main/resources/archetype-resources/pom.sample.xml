@@ -24,7 +24,7 @@
 
     <properties>
         <!-- This property is required by the car:package mojo -->
-        <geronimoVersion>2.1.2-SNAPSHOT</geronimoVersion>
+        <geronimoVersion>2.1.2</geronimoVersion>
 
         <gbeanDeployerBootstrap>org.apache.geronimo.framework/geronimo-gbean-deployer-bootstrap/${geronimoVersion}/car</gbeanDeployerBootstrap>
         <gbeanDeployer>org.apache.geronimo.framework/geronimo-gbean-deployer/${geronimoVersion}/car</gbeanDeployer>

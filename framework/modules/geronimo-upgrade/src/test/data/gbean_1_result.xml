@@ -28,7 +28,7 @@
       <dep:dependency>
         <dep:groupId>geronimo</dep:groupId>
         <dep:artifactId>j2ee-security</dep:artifactId>
-        <dep:version>2.1.2-SNAPSHOT</dep:version>
+        <dep:version>2.1.2</dep:version>
         <dep:type>car</dep:type>
       </dep:dependency>
     </dep:dependencies>
