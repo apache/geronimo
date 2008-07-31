@@ -148,18 +148,22 @@
                 <p>Your web deployment plan should look like this, and you can either pack it into
                 the WAR at <tt>WEB-INF/geronimo-web.xml</tt> or provide it as a separate argument
                 to the deploy tool.</p>
-<pre>&lt;web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web-1.1"&gt;
-    &lt;environment&gt;
-        &lt;moduleId&gt;
-            &lt;artifactId&gt;MyApplication&lt;/artifactId&gt;
-        &lt;/moduleId&gt;
-    &lt;/environment&gt;
+<pre>&lt;web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web-2.0" 
+        xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.2"&gt;
+
+    &lt;dep:environment&gt;
+        &lt;dep:moduleId&gt;
+            &lt;dep:groupId&gt;com.MyCompany&lt;/dep:groupId&gt;
+            &lt;dep:artifactId&gt;MyWebApp&lt;/dep:artifactId&gt;
+            &lt;dep:version&gt;1.0&lt;/dep:version&gt;
+        &lt;/dep:moduleId&gt;
+    &lt;/dep:environment&gt;
     &lt;context-root&gt;/&lt;/context-root&gt;
 &lt;/web-app&gt;</pre>
                 <p>Then you can stop this application and deploy yours from the <a href="/console">Admin Console</a> or from the command line with a sequence of commands like this:</p>
                 <% boolean jetty = application.getServerInfo().toLowerCase().indexOf("jetty") > -1; %>
-<pre>java -jar bin/deployer.jar stop welcome-<% if(jetty) {%>jetty<%} else {%>tomcat<%}%>
-java -jar bin/deployer.jar deploy MyWebApp.war</pre>
+<pre>deploy.[bat|sh] stop org.apache.geronimo.configs/welcome-<% if(jetty) {%>jetty<%} else {%>tomcat<%}%>/{geronimoVersion}/car
+deploy.[bat|sh] deploy MyWebApp-1.0.war</pre>
             </div>
 
             <p>Geronimo mailing lists are available at the Geronimo project web site:</p>
