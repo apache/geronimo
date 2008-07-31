@@ -176,13 +176,7 @@ public class LogViewerPortlet extends BasePortlet {
 
         public LogFile(String fullName) {
             this.fullName = fullName;
-            //todo: what if portla JVM has different separator than server JVM?
-            int pos = fullName.lastIndexOf(File.separatorChar);
-            if(pos > -1) {
-                name = fullName.substring(pos+1);
-            } else {
-                name = fullName;
-            }
+            this.name = (new File(fullName)).getName();
         }
 
         public String getFullName() {
