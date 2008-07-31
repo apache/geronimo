@@ -16,13 +16,12 @@
  */
 package org.apache.geronimo.jetty6.requestlog;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FilenameFilter;
-import java.io.RandomAccessFile;
-import java.nio.CharBuffer;
-import java.nio.MappedByteBuffer;
-import java.nio.channels.FileChannel;
-import java.nio.charset.Charset;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -183,6 +182,7 @@ public class JettyLogManagerImpl implements JettyLogManager {
         if (logFiles !=null) {
             for (int i = 0; i < logFiles.length; i++) {
                 fileCount = 0;
+                FileInputStream logInputStream = null;
                 try {
                     // Obtain the date for the current log file
                     String fileName = logFiles[i].getName();
@@ -196,22 +196,20 @@ public class JettyLogManagerImpl implements JettyLogManager {
                        || (start>0 && start<=logFileTime && end>0 && end>=logFileTime)) {
 
                         // It's in the range, so process the file
-                        RandomAccessFile raf = new RandomAccessFile(logFiles[i], "r");
-                        FileChannel fc = raf.getChannel();
-                        MappedByteBuffer bb = fc.map(FileChannel.MapMode.READ_ONLY, 0, fc.size());
-                        CharBuffer cb = Charset.forName("US-ASCII").decode(bb); //todo: does Jetty use a different charset on a foreign PC?
-                        Matcher lines = FULL_LINE_PATTERN.matcher(cb);
+                        logInputStream = new FileInputStream(logFiles[i]);
+                        BufferedReader reader = new BufferedReader(new InputStreamReader(logInputStream, "US-ASCII"));
+                        
                         Matcher target = ACCESS_LOG_PATTERN.matcher("");
                         SimpleDateFormat format = (start == 0 && end == 0) ? null : new SimpleDateFormat(ACCESS_LOG_DATE_FORMAT);
                         int max = maxResults == null ? MAX_SEARCH_RESULTS : Math.min(maxResults.intValue(), MAX_SEARCH_RESULTS);
 
-                        while(lines.find()) {
+                        String line;
+                        while ((line = reader.readLine()) != null) {
                             ++lineCount;
                             ++fileCount;
                             if(capped) {
                                 continue;
                             }
-                            CharSequence line = cb.subSequence(lines.start(), lines.end());
                             target.reset(line);
                             if(target.find()) {
                                 if(host != null && !host.equals(target.group(GROUP_HOST))) {
@@ -249,11 +247,17 @@ public class JettyLogManagerImpl implements JettyLogManager {
                                 list.add(new LogMessage(fileCount,line.toString()));
                             }
                         }
-                        fc.close();
-                        raf.close();
                     }
                 } catch (Exception e) {
                     log.error("Unexpected error processing logs", e);
+                } finally {
+                    if (logInputStream != null) {
+                        try {
+                            logInputStream.close();
+                        } catch (IOException e) {
+                            // ignore
+                        }
+                    }
                 }
             }
         }
