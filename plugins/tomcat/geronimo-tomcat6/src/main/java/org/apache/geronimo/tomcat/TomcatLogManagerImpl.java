@@ -23,16 +23,20 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.catalina.valves.AccessLogValve;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FilenameFilter;
-import java.io.RandomAccessFile;
-import java.nio.channels.FileChannel;
-import java.nio.MappedByteBuffer;
-import java.nio.CharBuffer;
-import java.nio.charset.Charset;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.text.ParseException;
 
@@ -180,6 +184,7 @@ public class TomcatLogManagerImpl implements TomcatLogManager {
         if (logFiles !=null) {
             for (int i = 0; i < logFiles.length; i++) {
                 fileLineCount = 0;
+                FileInputStream logInputStream = null;
                 try {
                     // Obtain the date for the current log file
                     String fileName = logFiles[i].getName();
@@ -187,29 +192,26 @@ public class TomcatLogManagerImpl implements TomcatLogManager {
                     fileDate.find();
                     SimpleDateFormat simpleFileDate = new SimpleDateFormat(LOG_FILE_NAME_FORMAT);
                     long logFileTime = simpleFileDate.parse(fileDate.group(GROUP_FILENAME_FULL_DATE)).getTime();
-                    Date logFileDate = new Date(logFileTime);
 
                     // Check if the dates are null (ignore) or fall within the search range
                     if (  (start==0 && end==0)
                        || (start>0 && start<=logFileTime && end>0 && end>=logFileTime)) {
 
                         // It's in the range, so process the file
-                        RandomAccessFile raf = new RandomAccessFile(logFiles[i], "r");
-                        FileChannel fc = raf.getChannel();
-                        MappedByteBuffer bb = fc.map(FileChannel.MapMode.READ_ONLY, 0, fc.size());
-                        CharBuffer cb = Charset.forName("US-ASCII").decode(bb); //todo: does Tomcat use a different charset on a foreign PC?
-                        Matcher lines = FULL_LINE_PATTERN.matcher(cb);
+                        logInputStream = new FileInputStream(logFiles[i]);
+                        BufferedReader reader = new BufferedReader(new InputStreamReader(logInputStream, "US-ASCII"));
+
                         Matcher target = ACCESS_LOG_PATTERN.matcher("");
                         SimpleDateFormat format = (start == 0 && end == 0) ? null : new SimpleDateFormat(ACCESS_LOG_DATE_FORMAT);
                         int max = maxResults == null ? MAX_SEARCH_RESULTS : Math.min(maxResults.intValue(), MAX_SEARCH_RESULTS);
 
-                        while(lines.find()) {
+                        String line;
+                        while ((line = reader.readLine()) != null) {
                             ++lineCount;
                             ++fileLineCount;
                             if(capped) {
                                 continue;
                             }
-                            CharSequence line = cb.subSequence(lines.start(), lines.end());
                             target.reset(line);
                             if(target.find()) {
                                 if(host != null && !host.equals(target.group(GROUP_HOST))) {
@@ -247,11 +249,17 @@ public class TomcatLogManagerImpl implements TomcatLogManager {
                                 list.add(new LogMessage(fileLineCount,line.toString()));
                             }
                         }
-                        fc.close();
-                        raf.close();
                     }
                 } catch (Exception e) {
                     log.error("Unexpected error processing logs", e);
+                } finally {
+                    if (logInputStream != null) {
+                        try {
+                            logInputStream.close();
+                        } catch (IOException e) {
+                            // ignore
+                        }
+                    }
                 }
             }
         }
