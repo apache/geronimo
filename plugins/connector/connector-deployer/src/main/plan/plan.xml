@@ -27,6 +27,7 @@
         <attribute name="defaultIdleTimeoutMinutes">15</attribute>
         <attribute name="defaultXATransactionCaching">true</attribute>
         <attribute name="defaultXAThreadCaching">false</attribute>
+        <attribute name="defaultWorkManagerName">DefaultWorkManager</attribute>
         <reference name="ServiceBuilders">
             <name>GBeanBuilder</name>
         </reference>

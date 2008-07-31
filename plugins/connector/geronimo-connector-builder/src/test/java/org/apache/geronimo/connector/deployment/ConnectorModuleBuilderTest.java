@@ -85,6 +85,7 @@ public class ConnectorModuleBuilderTest extends TestSupport {
     private int defaultMinSize = 0;
     private int defaultBlockingTimeoutMilliseconds = 5000;
     private int defaultidleTimeoutMinutes = 15;
+    private String defaultWorkManagerName = "DefaultWorkManager";
     private Environment defaultEnvironment;
     private ConfigurationStore configurationStore = new MockConfigStore();
     private MockRepository repository;
@@ -130,7 +131,7 @@ public class ConnectorModuleBuilderTest extends TestSupport {
                     Collections.singleton(repository),
                     null,
                     null,
-                    new ConnectorModuleBuilder(defaultEnvironment, defaultMaxSize, defaultMinSize, defaultBlockingTimeoutMilliseconds, defaultidleTimeoutMinutes, defaultXATransactionCaching, defaultXAThreadCaching, Collections.singleton(serviceBuilder)),
+                    new ConnectorModuleBuilder(defaultEnvironment, defaultMaxSize, defaultMinSize, defaultBlockingTimeoutMilliseconds, defaultidleTimeoutMinutes, defaultXATransactionCaching, defaultXAThreadCaching, defaultWorkManagerName, Collections.singleton(serviceBuilder)),
                     activationSpecInfoLocator,
                     null,
                     null,
@@ -313,7 +314,7 @@ public class ConnectorModuleBuilderTest extends TestSupport {
         String resourceAdapterName = "testRA";
 
         try {
-            ConnectorModuleBuilder moduleBuilder = new ConnectorModuleBuilder(defaultEnvironment, defaultMaxSize, defaultMinSize, defaultBlockingTimeoutMilliseconds, defaultidleTimeoutMinutes, defaultXATransactionCaching, defaultXAThreadCaching, Collections.singleton(new GBeanBuilder(null, null)));
+            ConnectorModuleBuilder moduleBuilder = new ConnectorModuleBuilder(defaultEnvironment, defaultMaxSize, defaultMinSize, defaultBlockingTimeoutMilliseconds, defaultidleTimeoutMinutes, defaultXATransactionCaching, defaultXAThreadCaching, defaultWorkManagerName, Collections.singleton(new GBeanBuilder(null, null)));
             File rarFile = action.getRARFile();
 
             ClassLoader oldCl = Thread.currentThread().getContextClassLoader();

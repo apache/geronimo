@@ -108,6 +108,7 @@ import org.apache.geronimo.xbeans.geronimo.GerConnectionmanagerType;
 import org.apache.geronimo.xbeans.geronimo.GerConnectorDocument;
 import org.apache.geronimo.xbeans.geronimo.GerConnectorType;
 import org.apache.geronimo.xbeans.geronimo.GerPartitionedpoolType;
+import org.apache.geronimo.xbeans.geronimo.GerResourceadapterInstanceType;
 import org.apache.geronimo.xbeans.geronimo.GerResourceadapterType;
 import org.apache.geronimo.xbeans.geronimo.GerSinglepoolType;
 import org.apache.geronimo.xbeans.j2ee.ActivationspecType;
@@ -167,7 +168,8 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
     private final boolean defaultXAThreadCaching;
     private final Environment defaultEnvironment;
     private final NamespaceDrivenBuilderCollection serviceBuilders;
-
+    private final String defaultWorkManagerName;
+    
     public ConnectorModuleBuilder(Environment defaultEnvironment,
             int defaultMaxSize,
             int defaultMinSize,
@@ -175,6 +177,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
             int defaultIdleTimeoutMinutes,
             boolean defaultXATransactionCaching,
             boolean defaultXAThreadCaching,
+            String defaultWorkManagerName,
             Collection serviceBuilders) {
         this.defaultEnvironment = defaultEnvironment;
 
@@ -184,6 +187,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
         this.defaultIdleTimeoutMinutes = defaultIdleTimeoutMinutes;
         this.defaultXATransactionCaching = defaultXATransactionCaching;
         this.defaultXAThreadCaching = defaultXAThreadCaching;
+        this.defaultWorkManagerName = defaultWorkManagerName;
         this.serviceBuilders = new NamespaceDrivenBuilderCollection(serviceBuilders, GBeanBuilder.SERVICE_QNAME);
     }
 
@@ -540,16 +544,25 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
                 GBeanData resourceAdapterGBeanData = locateResourceAdapterGBeanData(resourceAdapterModuleData);
                 GBeanData resourceAdapterInstanceGBeanData = new GBeanData(resourceAdapterGBeanData);
 
-                setDynamicGBeanDataAttributes(resourceAdapterInstanceGBeanData, geronimoResourceAdapter.getResourceadapterInstance().getConfigPropertySettingArray(), cl);
-
+                String resourceAdapterName;
+                AbstractNameQuery workManagerName;                
+                if (geronimoResourceAdapter.isSetResourceadapterInstance()) {                    
+                    GerResourceadapterInstanceType resourceAdapterInstance = geronimoResourceAdapter.getResourceadapterInstance();
+                    setDynamicGBeanDataAttributes(resourceAdapterInstanceGBeanData, resourceAdapterInstance.getConfigPropertySettingArray(), cl);
+                    workManagerName = ENCConfigBuilder.getGBeanQuery(NameFactory.JCA_WORK_MANAGER, resourceAdapterInstance.getWorkmanager());
+                    resourceAdapterName = resourceAdapterInstance.getResourceadapterName();
+                } else {                 
+                    workManagerName = ENCConfigBuilder.buildAbstractNameQuery(null, null, defaultWorkManagerName, NameFactory.JCA_WORK_MANAGER, null);
+                    resourceAdapterName = "ResourceAdapterInstance-" + System.currentTimeMillis();
+                    log.warn("Resource adapter instance information was not specified in Geronimo plan. Using defaults.");
+                }
+                    
                 // set the work manager name
-                AbstractNameQuery workManagerName = ENCConfigBuilder.getGBeanQuery(NameFactory.JCA_WORK_MANAGER, geronimoResourceAdapter.getResourceadapterInstance().getWorkmanager());
                 resourceAdapterInstanceGBeanData.setReferencePattern("WorkManager", workManagerName);
 
                 // set the xa terminator name which is the same as our transaction manager
                 resourceAdapterInstanceGBeanData.setReferencePattern("XATerminator", earContext.getTransactionManagerName());
 
-                String resourceAdapterName = geronimoResourceAdapter.getResourceadapterInstance().getResourceadapterName();
                 resourceAdapterAbstractName = earContext.getNaming().createChildName(jcaResourceName, resourceAdapterName, NameFactory.JCA_RESOURCE_ADAPTER);
                 resourceAdapterInstanceGBeanData.setAbstractName(resourceAdapterAbstractName);
                 try {
@@ -1031,6 +1044,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
         infoBuilder.addAttribute("defaultIdleTimeoutMinutes", int.class, true, true);
         infoBuilder.addAttribute("defaultXATransactionCaching", boolean.class, true, true);
         infoBuilder.addAttribute("defaultXAThreadCaching", boolean.class, true, true);
+        infoBuilder.addAttribute("defaultWorkManagerName", String.class, true, true);
 
         infoBuilder.addReference("ServiceBuilders", NamespaceDrivenBuilder.class, NameFactory.MODULE_BUILDER);
 
@@ -1044,6 +1058,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
                 "defaultIdleTimeoutMinutes",
                 "defaultXATransactionCaching",
                 "defaultXAThreadCaching",
+                "defaultWorkManagerName", 
                 "ServiceBuilders"});
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }
