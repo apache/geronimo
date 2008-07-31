@@ -17,25 +17,19 @@
 
 package org.apache.geronimo.system.logging.log4j;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.RandomAccessFile;
 import java.io.Reader;
 import java.net.MalformedURLException;
-import java.nio.CharBuffer;
-import java.nio.MappedByteBuffer;
-import java.nio.channels.FileChannel;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.regex.Matcher;
@@ -48,7 +42,6 @@ import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.system.logging.SystemLog;
 import org.apache.geronimo.system.properties.JvmVendor;
 import org.apache.geronimo.system.serverinfo.DirectoryUtils;
-import org.apache.geronimo.system.serverinfo.ServerConstants;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.log4j.FileAppender;
 import org.apache.log4j.Level;
@@ -77,8 +70,6 @@ public class Log4jService implements GBeanLifecycle, SystemLog {
     private final static Pattern UNKNOWN_WARN_START = Pattern.compile("(WARN|ERROR|FATAL)");
     private final static Pattern UNKNOWN_INFO_START = Pattern.compile("(INFO|WARN|ERROR|FATAL)");
     private final static Pattern UNKNOWN_DEBUG_START = Pattern.compile("(DEBUG|INFO|WARN|ERROR|FATAL)");
-    // Pattern that matches a single line  (used to calculate line numbers and check for follow-on stack traces)
-    private final static Pattern FULL_LINE_PATTERN = Pattern.compile("^.*", Pattern.MULTILINE);
 
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(Log4jService.class);
 
@@ -361,21 +352,20 @@ public class Log4jService implements GBeanLifecycle, SystemLog {
         List list = new LinkedList();
         boolean capped = false;
         int lineCount = 0;
+        FileInputStream logInputStream = null;
         try {
-            RandomAccessFile raf = new RandomAccessFile(file, "r");
-            FileChannel fc = raf.getChannel();
-            MappedByteBuffer bb = fc.map(FileChannel.MapMode.READ_ONLY, 0, fc.size());
-            CharBuffer cb = Charset.forName(System.getProperty("file.encoding")).decode(bb);
+            logInputStream = new FileInputStream(file);
+            BufferedReader reader = new BufferedReader(new InputStreamReader(logInputStream, System.getProperty("file.encoding")));
             Matcher target = null;
             Matcher any = null;
-            Matcher lines = FULL_LINE_PATTERN.matcher(cb);
             Matcher text = textSearch == null ? null : textSearch.matcher("");
             boolean hit = false;
             max = Math.min(max, MAX_SEARCH_RESULTS);
-            while(lines.find()) {
+            String line;
+            while ((line = reader.readLine()) != null) {
                 ++lineCount;
                 if(target == null) {
-                    if(DEFAULT_ANY_START.matcher(cb.subSequence(lines.start(), lines.end())).find()) {
+                    if(DEFAULT_ANY_START.matcher(line).find()) {
                         target = getDefaultPatternForLevel(targetLevel).matcher("");
                         any = DEFAULT_ANY_START.matcher("");
                     } else {
@@ -389,7 +379,6 @@ public class Log4jService implements GBeanLifecycle, SystemLog {
                 if(stop != null && stop.intValue() < lineCount) {
                     continue;
                 }
-                CharSequence line = cb.subSequence(lines.start(), lines.end());
                 target.reset(line);
                 if(target.find()) {
                     if(text != null) {
@@ -418,9 +407,17 @@ public class Log4jService implements GBeanLifecycle, SystemLog {
                     }
                 }
             }
-            fc.close();
-            raf.close();
-        } catch (Exception e) {} // TODO: improve exception handling
+        } catch (Exception e) {
+            // TODO: improve exception handling
+        } finally {
+            if (logInputStream != null) {
+                try {
+                    logInputStream.close();
+                } catch (IOException e) {
+                    // ignore
+                }
+            }
+        }
         return new SearchResults(lineCount, (LogMessage[]) list.toArray(new LogMessage[list.size()]), capped);
     }
 

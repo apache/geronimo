@@ -19,12 +19,11 @@ package org.apache.geronimo.derby;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 
+import java.io.BufferedReader;
 import java.io.File;
-import java.io.RandomAccessFile;
-import java.nio.CharBuffer;
-import java.nio.MappedByteBuffer;
-import java.nio.channels.FileChannel;
-import java.nio.charset.Charset;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -37,8 +36,7 @@ import java.util.regex.PatternSyntaxException;
  * @version $Rev$ $Date$
  */
 public class DerbyLogGBean implements DerbyLog {
-    // Pattern that matches a single line  (used to calculate line numbers and text search in a line)
-    private final static Pattern FULL_LINE_PATTERN = Pattern.compile("^.*", Pattern.MULTILINE);
+
     private final DerbySystem derby;
     private File logFile = null;
 
@@ -69,15 +67,14 @@ public class DerbyLogGBean implements DerbyLog {
         List list = new LinkedList();
         boolean capped = false;
         int lineCount = 0;
+        FileInputStream logInputStream = null;
         try {
-            RandomAccessFile raf = new RandomAccessFile(file, "r");
-            FileChannel fc = raf.getChannel();
-            MappedByteBuffer bb = fc.map(FileChannel.MapMode.READ_ONLY, 0, fc.size());
-            CharBuffer cb = Charset.forName("US-ASCII").decode(bb); //todo: does Derby use a different charset on a foreign PC?
-            Matcher lines = FULL_LINE_PATTERN.matcher(cb);
+            logInputStream = new FileInputStream(file);
+            BufferedReader reader = new BufferedReader(new InputStreamReader(logInputStream, "US-ASCII"));
             Matcher text = textSearch == null ? null : textSearch.matcher("");
             max = Math.min(max, MAX_SEARCH_RESULTS);
-            while(lines.find()) {
+            String line;
+            while ((line = reader.readLine()) != null) {
                 ++lineCount;
                 if(start != null && start.intValue() > lineCount) {
                     continue;
@@ -85,7 +82,6 @@ public class DerbyLogGBean implements DerbyLog {
                 if(stop != null && stop.intValue() < lineCount) {
                     continue;
                 }
-                CharSequence line = cb.subSequence(lines.start(), lines.end());
                 if(text != null) {
                     text.reset(line);
                     if(!text.find()) {
@@ -98,9 +94,18 @@ public class DerbyLogGBean implements DerbyLog {
                     capped = true;
                 }
             }
-            fc.close();
-            raf.close();
-        } catch (Exception e) {}
+
+        } catch (Exception e) {            
+            // TODO: improve exception handling
+        } finally {
+            if (logInputStream != null) {
+                try {
+                    logInputStream.close();
+                } catch (IOException e) {
+                    // ignore
+                }
+            }
+        }
         return new SearchResults(lineCount, (LogMessage[]) list.toArray(new LogMessage[list.size()]), capped);
     }
     public static final GBeanInfo GBEAN_INFO;
