@@ -19,6 +19,7 @@
 
 package org.apache.geronimo.axis2;
 
+import java.io.FileNotFoundException;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -76,19 +77,28 @@ public class WSDLQueryHandler
     
     public void writeResponse(String baseUri, String wsdlUri, OutputStream os) throws Exception {
 
-        int idx = baseUri.toLowerCase().indexOf("?wsdl");
         String base = null;
         String wsdl = "";
         String xsd = null;
+        
+        int idx = baseUri.toLowerCase().indexOf("?wsdl");
         if (idx != -1) {
-            base = baseUri.substring(0, baseUri.toLowerCase().indexOf("?wsdl"));
-            wsdl = baseUri.substring(baseUri.toLowerCase().indexOf("?wsdl") + 5);
+            base = baseUri.substring(0, idx);
+            wsdl = baseUri.substring(idx + 5);
             if (wsdl.length() > 0) {
                 wsdl = wsdl.substring(1);
             }
         } else {
-            base = baseUri.substring(0, baseUri.toLowerCase().indexOf("?xsd="));
-            xsd = baseUri.substring(baseUri.toLowerCase().indexOf("?xsd=") + 5);
+            idx = baseUri.toLowerCase().indexOf("?xsd");
+            if (idx != -1) {
+                base = baseUri.substring(0, idx);
+                xsd = baseUri.substring(idx + 4);
+                if (xsd.length() > 0) {
+                    xsd = xsd.substring(1);
+                }
+            } else {
+                throw new Exception("Invalid request: " + baseUri);
+            }
         }
 
         if (!mp.containsKey(wsdl)) {
@@ -107,12 +117,21 @@ public class WSDLQueryHandler
         if (xsd == null) {
             Definition def = mp.get(wsdl);
 
+            if (def == null) {
+                throw new FileNotFoundException("WSDL not found: " + wsdl);
+            }
+            
             WSDLFactory factory = WSDLFactory.newInstance();
             WSDLWriter writer = factory.newWSDLWriter();
 
             rootElement = writer.getDocument(def).getDocumentElement();
         } else {
             SchemaReference si = smp.get(xsd);
+            
+            if (si == null) {
+                throw new FileNotFoundException("Schema not found: " + xsd);
+            }
+            
             rootElement = si.getReferencedSchema().getElement();
         }
 

@@ -314,5 +314,10 @@ public class AxisServiceGenerator
         return javax.xml.ws.soap.SOAPBinding.SOAP11HTTP_BINDING.equals(desc.getBindingType()) ||
                javax.xml.ws.soap.SOAPBinding.SOAP11HTTP_MTOM_BINDING.equals(desc.getBindingType());
     }
+    
+    public static boolean isHTTP(AxisService service) {
+        EndpointDescription desc = AxisServiceGenerator.getEndpointDescription(service);
+        return javax.xml.ws.http.HTTPBinding.HTTP_BINDING.equals(desc.getBindingType());
+    }
          
 }
