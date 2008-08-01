@@ -32,6 +32,7 @@ import javax.xml.ws.WebServiceException;
 import javax.xml.ws.handler.Handler;
 
 import org.apache.axiom.om.util.UUIDGenerator;
+import org.apache.axis2.AxisFault;
 import org.apache.axis2.Constants;
 import org.apache.axis2.addressing.AddressingHelper;
 import org.apache.axis2.addressing.EndpointReference;
@@ -202,39 +203,43 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
             msgContext.setAxisService(this.service);
             
             doService2(request, response, msgContext);
-        } catch (Throwable e) {
+        } catch (AxisFault e) {
+            LOG.debug(e.getMessage(), e);
+            handleFault(msgContext, response, e);
+        } catch (Throwable e) {            
             String msg = "Exception occurred while trying to invoke service method doService()";
             LOG.error(msg, e);
-            try {
-                AxisEngine engine = new AxisEngine(this.configurationContext);
-
-                msgContext.setProperty(MessageContext.TRANSPORT_OUT, response.getOutputStream());
-                msgContext.setProperty(Constants.OUT_TRANSPORT_INFO, new Axis2TransportInfo(response));
-
-                MessageContext faultContext = MessageContextBuilder.createFaultMessageContext(msgContext, e);
-                // If the fault is not going along the back channel we should be 202ing
-                if (AddressingHelper.isFaultRedirected(msgContext)) {
-                    response.setStatusCode(HttpURLConnection.HTTP_ACCEPTED);
-                } else {
-                    response.setStatusCode(HttpURLConnection.HTTP_INTERNAL_ERROR);
-                }
-                engine.sendFault(faultContext);
-            } catch (Exception ex) {
-                if (AddressingHelper.isFaultRedirected(msgContext)) {
-                    response.setStatusCode(HttpURLConnection.HTTP_ACCEPTED);
-                } else {
-                    response.setStatusCode(HttpURLConnection.HTTP_INTERNAL_ERROR);
-                    response.setHeader(HTTPConstants.HEADER_CONTENT_TYPE, "text/plain");
-                    PrintWriter pw = new PrintWriter(response.getOutputStream());
-                    ex.printStackTrace(pw);
-                    pw.flush();
-                    LOG.error(msg, ex);
-                }
-            }
+            handleFault(msgContext, response, new AxisFault(msg, e));
         }
 
     }
 
+    private void handleFault(MessageContext msgContext, Response response, AxisFault e) {
+        // If the fault is not going along the back channel we should be 202ing
+        if (AddressingHelper.isFaultRedirected(msgContext)) {
+            response.setStatusCode(HttpURLConnection.HTTP_ACCEPTED);
+        } else {
+            response.setStatusCode(HttpURLConnection.HTTP_INTERNAL_ERROR);
+        }
+        
+        msgContext.setProperty(MessageContext.TRANSPORT_OUT, response.getOutputStream());
+        msgContext.setProperty(Constants.OUT_TRANSPORT_INFO, new Axis2TransportInfo(response));
+
+        try {
+            MessageContext faultContext = MessageContextBuilder.createFaultMessageContext(msgContext, e);
+            AxisEngine.sendFault(faultContext);
+        } catch (Exception ex) {
+            LOG.warn("Error sending fault", ex);
+            if (!AddressingHelper.isFaultRedirected(msgContext)) {
+                response.setStatusCode(HttpURLConnection.HTTP_INTERNAL_ERROR);
+                response.setHeader(HTTPConstants.HEADER_CONTENT_TYPE, "text/plain");
+                PrintWriter pw = new PrintWriter(response.getOutputStream());
+                ex.printStackTrace(pw);
+                pw.flush();
+            }
+        }
+    }
+    
     protected String getServicePath(String contextRoot) {
         String location = this.portInfo.getLocation();
         if (location != null && location.startsWith(contextRoot)) {
