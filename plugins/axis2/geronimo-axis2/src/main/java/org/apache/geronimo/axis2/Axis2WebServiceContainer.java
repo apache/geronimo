@@ -307,10 +307,12 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
         }
     }
     
-    protected void processGETRequest(Request request, Response response, AxisService service, MessageContext msgContext) throws Exception{        
-        if (request.getURI().getQuery() != null &&
-            (request.getURI().getQuery().startsWith("wsdl") ||
-             request.getURI().getQuery().startsWith("xsd"))) {
+    protected void processGETRequest(Request request, Response response, AxisService service, MessageContext msgContext) throws Exception{
+        if (AxisServiceGenerator.isHTTP(service)) {
+            processURLRequest(request, response, service, msgContext);
+        } else if (request.getURI().getQuery() != null &&
+                   (request.getURI().getQuery().startsWith("wsdl") ||
+                    request.getURI().getQuery().startsWith("xsd"))) {
             // wsdl or xsd request
             
             if (portInfo.getWsdlFile() != null && !portInfo.getWsdlFile().equals("")) { 
