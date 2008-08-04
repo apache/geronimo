@@ -85,9 +85,7 @@ public abstract class CXFWebServiceContainer implements WebServiceContainer {
     }
     
     protected void processGET(Request request, Response response) throws Exception {
-        if (endpoint.isHTTP()) {
-            processPOST(request, response);
-        } else if (request.getParameter("wsdl") != null || request.getParameter("WSDL") != null ||
+        if (request.getParameter("wsdl") != null || request.getParameter("WSDL") != null ||
                    request.getParameter("xsd") != null || request.getParameter("XSD") != null) {
             GeronimoQueryHandler queryHandler = new GeronimoQueryHandler(this.bus);
             URI requestURI = request.getURI();

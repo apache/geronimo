@@ -308,13 +308,12 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer
     }
     
     protected void processGETRequest(Request request, Response response, AxisService service, MessageContext msgContext) throws Exception{
-        if (AxisServiceGenerator.isHTTP(service)) {
-            processURLRequest(request, response, service, msgContext);
-        } else if (request.getURI().getQuery() != null &&
-                   (request.getURI().getQuery().startsWith("wsdl") ||
-                    request.getURI().getQuery().startsWith("xsd"))) {
+        String query = request.getURI().getQuery();
+        if (query != null &&
+            (query.startsWith("wsdl") || query.startsWith("WSDL") ||
+             query.startsWith("xsd") || query.startsWith("XSD"))) {
             // wsdl or xsd request
-            
+
             if (portInfo.getWsdlFile() != null && !portInfo.getWsdlFile().equals("")) { 
                 URL wsdlURL = AxisServiceGenerator.getWsdlURL(portInfo.getWsdlFile(),
                                                               configurationBaseUrl, 
@@ -323,7 +322,7 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer
                                                     wsdlURL.toString(), 
                                                     response.getOutputStream());
             } else {
-                service.printWSDL(response.getOutputStream());
+                throw new Exception("Service does not have WSDL");
             }
         } else if (AxisServiceGenerator.isSOAP11(service)) {
             response.setContentType("text/html");
