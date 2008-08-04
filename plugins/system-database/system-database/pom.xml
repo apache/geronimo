@@ -131,6 +131,7 @@
                                    <attribute name="port">#{DerbyPort + PortOffset}</attribute>
                                </gbean>
                            </config-xml-content>
+                           <config-substitution key="DerbyPort">1527</config-substitution>
                         </plugin-artifact>
                      </instance>
                 </configuration>
