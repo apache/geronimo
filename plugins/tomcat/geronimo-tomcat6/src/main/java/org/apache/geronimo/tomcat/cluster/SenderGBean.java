@@ -19,6 +19,8 @@ package org.apache.geronimo.tomcat.cluster;
 import java.util.Map;
 
 import org.apache.catalina.tribes.ChannelSender;
+import org.apache.catalina.tribes.transport.MultiPointSender;
+import org.apache.catalina.tribes.transport.ReplicationTransmitter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -40,7 +42,7 @@ public class SenderGBean extends BaseGBean implements
         sender = null;
     }
 
-    public SenderGBean(String className, Map initParams) throws Exception {
+    public SenderGBean(String className, Map initParams, TransportGBean transport) throws Exception {
 
         super(); // TODO: make it an attribute
 
@@ -49,8 +51,20 @@ public class SenderGBean extends BaseGBean implements
             throw new IllegalArgumentException("Must have a 'className' attribute.");
         }
 
-        // Create the CatalinaCluster object
+        // Create the Sender object
         sender = (ChannelSender) Class.forName(className).newInstance();
+        
+        if (sender instanceof ReplicationTransmitter) {
+            
+            ReplicationTransmitter replicationTransmitter = (ReplicationTransmitter) sender;
+            
+            if (transport != null) {
+                replicationTransmitter.setTransport((MultiPointSender)transport.getInternalObject());
+            }
+            
+        } else {
+            log.warn("Sender is not of type ReplicationTransmitter, no transport object will be set");
+        }
 
         // Set the parameters
         setParameters(sender, initParams);
@@ -79,8 +93,9 @@ public class SenderGBean extends BaseGBean implements
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("Sender", SenderGBean.class, J2EE_TYPE);
         infoFactory.addAttribute("className", String.class, true);
         infoFactory.addAttribute("initParams", Map.class, true);
+        infoFactory.addReference("Transport", TransportGBean.class, TransportGBean.J2EE_TYPE);
         infoFactory.addOperation("getInternalObject", "Object");
-        infoFactory.setConstructor(new String[] { "className", "initParams" });
+        infoFactory.setConstructor(new String[] { "className", "initParams", "Transport" });
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 
