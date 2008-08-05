@@ -50,6 +50,9 @@ public class WsdlGenerator {
 
     private static final Logger LOG = LoggerFactory.getLogger(WsdlGenerator.class);
     
+    private final static String ADD_TO_CLASSPATH_WSGEN_PROPERTY =
+        "org.apache.geronimo.jaxws.wsgen.addToClassPath";
+    
     private final static String FORK_WSGEN_PROPERTY = 
         "org.apache.geronimo.jaxws.wsgen.fork";
     
@@ -62,6 +65,7 @@ public class WsdlGenerator {
     private QName wsdlPort;
     private boolean forkWsgen = getForkWsgen();
     private long forkTimeout = getForTimeout();
+    private boolean addToClassPath = getDefaultAddToClassPath();
     private JAXWSTools jaxwsTools;
         
     private static boolean getForkWsgen() {
@@ -85,6 +89,15 @@ public class WsdlGenerator {
             return Long.parseLong(value);
         } else {
             return 1000 * 60; // 60 seconds
+        }
+    }
+    
+    private static boolean getDefaultAddToClassPath() {
+        String value = System.getProperty(ADD_TO_CLASSPATH_WSGEN_PROPERTY);
+        if (value == null) {
+            return true;
+        } else {
+            return Boolean.parseBoolean(value);
         }
     }
     
@@ -114,6 +127,14 @@ public class WsdlGenerator {
     
     public QName getWsdlPort() {
         return this.wsdlPort;
+    }
+    
+    public void setAddToClassPath(boolean addToClassPath) {
+        this.addToClassPath = addToClassPath;        
+    }
+    
+    public boolean getAddToClassPath() {
+        return this.addToClassPath;
     }
     
     private URL[] getWsgenClasspath(DeploymentContext context) throws Exception {
@@ -315,6 +336,9 @@ public class WsdlGenerator {
                 File wsdlFile = findWsdlFile(baseDir, portInfo);
                 if (wsdlFile == null) {
                     throw new DeploymentException("Unable to find the service wsdl file");
+                }
+                if (this.addToClassPath) {
+                    context.getConfiguration().addToClassPath(baseDir.getName());
                 }
                 return getRelativeNameOrURL(moduleBase, wsdlFile);
             } else {

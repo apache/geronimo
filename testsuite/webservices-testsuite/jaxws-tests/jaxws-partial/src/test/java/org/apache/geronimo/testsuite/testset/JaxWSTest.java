@@ -51,15 +51,37 @@ public class JaxWSTest extends TestSupport {
     
     @Test
     public void testInvocation1() throws Exception {
-        testInvocation("/JAXWSBean1Service", "/request1.xml", "JAXWSBean1");
+        Document doc = getResponse("/JAXWSBean1Service", "/request1.xml");
+        
+        Text replyMsg = findText(doc.getDocumentElement(), "JAXWSBean1 foo bar");
+        assertTrue("reply message", replyMsg != null);
     }
 
     @Test
     public void testInvocation2() throws Exception {
-        testInvocation("/bean2", "/request1.xml", "JAXWSBean2");
+        Document doc = getResponse("/bean2", "/request1.xml");
+        
+        Text replyMsg = findText(doc.getDocumentElement(), "JAXWSBean2 foo bar");
+        assertTrue("reply message", replyMsg != null);
     }
 
-    private void testInvocation(String servlet, String requestFile, String name) throws Exception {
+    @Test
+    public void testInvocation3() throws Exception {
+        Document doc = getResponse("/JAXWSBean3Service", "/request2a.xml");
+        
+        assertTrue(findText(doc.getDocumentElement(), "simpson") != null);
+        assertTrue(findText(doc.getDocumentElement(), "cartman") != null);
+    }
+    
+    @Test
+    public void testInvocation4() throws Exception {
+        Document doc = getResponse("/JAXWSBean3Service", "/request2b.xml");
+        
+        assertTrue(findText(doc.getDocumentElement(), "simpson") != null);
+        assertTrue(findText(doc.getDocumentElement(), "cartman") != null);
+    }
+    
+    private Document getResponse(String servlet, String requestFile) throws Exception {
         String warName = System.getProperty("webAppName");
         assertNotNull("Web application name not specified", warName);
         
@@ -78,14 +100,13 @@ public class JaxWSTest extends TestSupport {
             InputSource is = new InputSource(new StringReader(reply));
             Document doc = parseMessage(is);
             
-            Text replyMsg = findText(doc.getDocumentElement(), name + " foo bar");
-            assertTrue("reploy message", replyMsg != null);
+            return doc;
             
         } finally {
             conn.disconnect();
         }
     }
-       
+    
     private Document parseMessage(InputSource is) throws Exception {
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         dbf.setNamespaceAware(true);
@@ -153,6 +174,7 @@ public class JaxWSTest extends TestSupport {
             buf.append(inputLine);
         }
         in.close();
+        System.out.println("--");
         
         return buf.toString();
     }
