@@ -161,7 +161,12 @@ public class DeploymentPortlet extends BasePortlet {
                         while(progress.getDeploymentStatus().isRunning()) {
                             Thread.sleep(100);
                         }
-                        abbrStatusMessage+="The application was successfully started";
+                        if (progress.getDeploymentStatus().isCompleted()) {
+                            abbrStatusMessage += "The application was successfully started";
+                        } else {
+                            abbrStatusMessage += "The application was not successfully started";
+                            fullStatusMessage = progress.getDeploymentStatus().getMessage();
+                        }
                     }
                 } else {
                     fullStatusMessage = progress.getDeploymentStatus().getMessage();
