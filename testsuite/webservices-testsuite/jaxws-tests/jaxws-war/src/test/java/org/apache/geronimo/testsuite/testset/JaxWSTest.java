@@ -52,20 +52,31 @@ public class JaxWSTest extends TestSupport {
     
     @Test
     public void testInvocation1() throws Exception {
-        testInvocation("/servlet1", "/request1.xml");
+        // service without WSDL
+        Document doc = getResponse("/servlet1", "/request3.xml");
+        Text replyMsg = findText(doc.getDocumentElement(), "Hello foo bar");
+        if (replyMsg == null) {
+            // XXX: work-around for CXF, wants <requestType> to be unqualified
+            doc = getResponse("/servlet1", "/request1.xml");
+            replyMsg = findText(doc.getDocumentElement(), "Hello foo bar");
+        }
+        assertTrue("reply message", replyMsg != null);
     }
 
     @Test
-    public void testInvocation2() throws Exception {
-        testInvocation("/servlet2", "/request3.xml");
+    public void testInvocation2() throws Exception { 
+        // service with WSDL
+        Document doc = getResponse("/servlet2", "/request3.xml");
+        Text replyMsg = findText(doc.getDocumentElement(), "Hello foo bar");
+        assertTrue("reply message", replyMsg != null);
     }
 
-    private void testInvocation(String servlet, String requestFile) throws Exception {
+    private Document getResponse(String servlet, String requestFile) throws Exception {
         String warName = System.getProperty("webAppName");
         assertNotNull("Web application name not specified", warName);
         
         InputStream requestInput = JaxWSTest.class.getResourceAsStream(requestFile);
-        assertNotNull("SOAP request not specified", requestInput);
+        assertNotNull("SOAP request not found: " + requestFile, requestInput);
                 
         URL url = new URL(baseURL + warName + servlet);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -79,8 +90,7 @@ public class JaxWSTest extends TestSupport {
             InputSource is = new InputSource(new StringReader(reply));
             Document doc = parseMessage(is);
             
-            Text replyMsg = findText(doc.getDocumentElement(), "Hello foo bar");
-            assertTrue("reploy message", replyMsg != null);
+            return doc;
             
         } finally {
             conn.disconnect();
