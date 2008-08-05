@@ -19,9 +19,11 @@
 package org.apache.geronimo.testsuite.testset;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.StringReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Iterator;
@@ -31,9 +33,16 @@ import javax.wsdl.Definition;
 import javax.wsdl.PortType;
 import javax.wsdl.factory.WSDLFactory;
 import javax.wsdl.xml.WSDLReader;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.geronimo.testsupport.TestSupport;
 import org.testng.annotations.Test;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.w3c.dom.Text;
 import org.xml.sax.InputSource;
 
 public class WSTest extends TestSupport {
@@ -42,67 +51,121 @@ public class WSTest extends TestSupport {
     
     @Test
     public void testJAXRPCInvocation() throws Exception {
-        testInvocation("servlet1", "/request1.xml");
+        Document doc = getResponse("/servlet1", "/request1.xml");
+        Text replyText = findText(doc.getDocumentElement(), "Hello foo bar");
+        assertTrue("reply message", replyText != null);
     }
 
     @Test
     public void testJAXWSInvocation() throws Exception {
-        testInvocation("servlet2", "/request2.xml");
+        Document doc = getResponse("/servlet1", "/request2.xml");
+        Text replyText = findText(doc.getDocumentElement(), "Hello foo bar");
+        if (replyText == null) {
+            // XXX: work-around for CXF, wants <requestType> to be unqualified
+            doc = getResponse("/servlet1", "/request3.xml");
+            replyText = findText(doc.getDocumentElement(), "Hello foo bar");            
+        }
+        assertTrue("reply message", replyText != null);
     }
 
-    private void testInvocation(String servlet, String request) throws Exception {
+    private Document getResponse(String servlet, String requestFile) throws Exception {
         String warName = System.getProperty("webAppName");
         assertNotNull("Web application name not specified", warName);
         
-        InputStream requestInput = WSTest.class.getResourceAsStream(request);
+        InputStream requestInput = WSTest.class.getResourceAsStream(requestFile);
         assertNotNull("SOAP request not specified", requestInput);
                 
-        URL url = new URL(baseURL + warName + "/" + servlet);
+        URL url = new URL(baseURL + warName + servlet);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-        conn.setConnectTimeout(30 * 1000);
-        conn.setReadTimeout(30 * 1000);
         try {
-            conn.setDoOutput(true);
-            conn.setDoInput(true);
-            conn.setUseCaches(false);
-            conn.setRequestMethod("POST");
-            conn.setRequestProperty("Content-Type", "text/xml");
-
-            OutputStream out = conn.getOutputStream();
-
-            byte[] data = new byte[1024];
-            int read = 0;
-            while ((read = requestInput.read(data, 0, data.length)) != -1) {
-                out.write(data, 0, read);
-            }
-
-            requestInput.close();
-
-            out.flush();
-            out.close();
-
-            boolean found = false;
-
-            BufferedReader in = 
-                new BufferedReader(new InputStreamReader(conn.getInputStream()));
-            String inputLine;
-            while ((inputLine = in.readLine()) != null) {
-                System.out.println(inputLine);
-
-                if (found == false &&
-                    inputLine.indexOf("Hello foo bar") != -1) {
-                    found = true;
-                }
-            }
-            in.close();
-
-            assertTrue("Reply", found);
-
+            String reply = call(requestInput, conn);
+            
+            assertEquals("responseCode", 200, conn.getResponseCode());
+            String contentType = conn.getHeaderField("Content-Type");
+            assertTrue("contentType", contentType.indexOf("text/xml") != -1);
+                        
+            InputSource is = new InputSource(new StringReader(reply));
+            Document doc = parseMessage(is);
+            
+            return doc;
+            
         } finally {
             conn.disconnect();
         }
     }
+    
+    private Document parseMessage(InputSource is) throws Exception {
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        dbf.setNamespaceAware(true);
+        DocumentBuilder db = dbf.newDocumentBuilder();
 
+        Document doc = db.parse(is);
+        return doc;
+    }
+    
+    private Text findText(Element element, String value) {
+        NodeList list = element.getChildNodes();
+        for (int i = 0; i < list.getLength(); i++) {
+            Node child = (Node)list.item(i);
+            if (child instanceof Text) {
+                Text text = (Text)child;
+                if (text.getData().indexOf(value) != -1) {
+                    return text;
+                }
+            } else if (child instanceof Element) {
+                Element childEl = (Element)child;
+                Text text = findText(childEl, value);
+                if (text != null) {
+                    return text;
+                }
+            }
+        }   
+        return null;
+    }
+    
+    private String call(InputStream requestInput, HttpURLConnection conn) throws IOException {        
+        conn.setConnectTimeout(30 * 1000);
+        conn.setReadTimeout(30 * 1000);
+        conn.setDoOutput(true);
+        conn.setDoInput(true);
+        conn.setUseCaches(false);
+        conn.setRequestMethod("POST");
+        conn.setRequestProperty("Content-Type", "text/xml");
+
+        OutputStream out = conn.getOutputStream();
+
+        byte[] data = new byte[1024];
+        int read = 0;
+        while ((read = requestInput.read(data, 0, data.length)) != -1) {
+            out.write(data, 0, read);
+        }
+
+        requestInput.close();
+
+        out.flush();
+        out.close();
+
+        InputStream is = null;
+        
+        try {
+            is = conn.getInputStream();
+        } catch (IOException e) {
+            is = conn.getErrorStream();
+        }
+        
+        StringBuffer buf = new StringBuffer();
+        BufferedReader in = new BufferedReader(new InputStreamReader(is));
+        String inputLine;
+        while ((inputLine = in.readLine()) != null) {
+            System.out.println(inputLine);
+            buf.append(inputLine);
+        }
+        in.close();
+        System.out.println("--");
+        
+        return buf.toString();
+    }
+    
     @Test
     public void testJAXRPCWSDL() throws Exception {
         testWSDL("servlet1", new String [] {"greetMe"});
