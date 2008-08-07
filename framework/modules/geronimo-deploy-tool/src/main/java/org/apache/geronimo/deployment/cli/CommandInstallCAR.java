@@ -58,12 +58,6 @@ public class CommandInstallCAR extends AbstractCommand {
                 DownloadResults results = showProgress(consoleReader, mgr, key);
                 int time = (int)(System.currentTimeMillis() - start) / 1000;
                 printResults(consoleReader, results, time);            
-                if(results.isFinished() && !results.isFailed() && results.getInstalledConfigIDs().size() == 1) {
-                    Artifact target = results.getInstalledConfigIDs().get(0);
-                    consoleReader.printString(DeployUtils.reformat("Now starting "+target+"...", 4, 72));
-                    consoleReader.flushConsole();
-                    new CommandStart().execute(consoleReader, connection, new BaseCommandArgs(new String[]{target.toString()}));
-                }
             } catch (IOException e) {
                 throw new DeploymentException("Cannot install plugin", e);
             }
