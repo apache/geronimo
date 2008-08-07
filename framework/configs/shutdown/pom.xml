@@ -121,6 +121,10 @@
                             <groupId>log4j</groupId>
                             <artifactId>log4j</artifactId>
                         </element>
+                        <element>
+                            <groupId>org.apache.xbean</groupId>
+                            <artifactId>xbean-reflect</artifactId>
+                        </element>
                     </classpath>
                     <classpathPrefix>../lib</classpathPrefix>
                     <category>Geronimo Core</category>
