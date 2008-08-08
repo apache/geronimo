@@ -22,6 +22,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.ObjectStreamClass;
 import java.lang.reflect.Field;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.net.URLStreamHandlerFactory;
@@ -450,7 +451,7 @@ public class MultiParentClassLoader extends URLClassLoader
      * @return
      * @throws ClassNotFoundException
      */
-    protected synchronized Class<?> loadClassInternal(String name, boolean resolve, LinkedList<ClassLoader> visitedClassLoaders) throws ClassNotFoundException {
+    protected synchronized Class<?> loadClassInternal(String name, boolean resolve, LinkedList<ClassLoader> visitedClassLoaders) throws ClassNotFoundException, MalformedURLException {
         //
         // Check if class is in the loaded classes cache
         //
@@ -498,10 +499,10 @@ public class MultiParentClassLoader extends URLClassLoader
      * @throws ClassNotFoundException
      */
     private synchronized Class<?> checkParents(String name, boolean resolve, LinkedList<ClassLoader> visitedClassLoaders) throws ClassNotFoundException {
-     	for (ClassLoader parent : parents) {
-    		if (!visitedClassLoaders.contains(parent)) {
-    	        visitedClassLoaders.add(parent);  // Track that we've been here before
-    		    try {
+        for (ClassLoader parent : parents) {
+            if (!visitedClassLoaders.contains(parent)) {
+                visitedClassLoaders.add(parent);  // Track that we've been here before
+                try {
         	        if (parent instanceof MultiParentClassLoader) {
         	        	Class clazz = ((MultiParentClassLoader) parent).loadClassInternal(name, resolve, visitedClassLoaders);
         	        	if (clazz != null) return resolveClass(clazz, resolve);
@@ -509,9 +510,11 @@ public class MultiParentClassLoader extends URLClassLoader
         	        	return parent.loadClass(name);
         	        }
     	    	} catch (ClassNotFoundException cnfe) {
-        	    	// ignore
-        	    }
-    		}
+                    // ignore
+                } catch (MalformedURLException me) {
+                    log.debug("Failed findClass for {}", name, me);
+                }
+            }
     	} 
      	// To avoid yet another CNFE we'll simply return null and let the caller handle appropriately.
     	return null;
