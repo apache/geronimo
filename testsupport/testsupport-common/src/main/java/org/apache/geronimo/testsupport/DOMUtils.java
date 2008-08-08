@@ -114,8 +114,8 @@ public class DOMUtils {
                 compareNodes(expectedChild, actualChild);
             }
         } else if (expected instanceof Text) {
-            String expectedData = ((Text)expected).getData();
-            String actualData = ((Text)actual).getData();
+            String expectedData = ((Text)expected).getData().trim();
+            String actualData = ((Text)actual).getData().trim();
             
             if (!expectedData.equals(actualData)) {
                 throw new Exception("Text does not match: " + expectedData + " " + actualData);
