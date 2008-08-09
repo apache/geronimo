@@ -273,6 +273,6 @@ public class LocalAttributeManagerReadWriteTest extends TestCase {
         Document expectedDoc = DOMUtils.load(CONFIG);
         Document actualDoc = DOMUtils.load(result);
         
-        DOMUtils.compareNodes(expectedDoc, actualDoc);
+        DOMUtils.compareNodes(expectedDoc, actualDoc, true);
     }
 }
