@@ -20,6 +20,8 @@
 package org.apache.geronimo.testsupport;
 
 import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -50,6 +52,43 @@ public class DOMUtils {
         builderFactory.setNamespaceAware(true);
         DocumentBuilder builder = builderFactory.newDocumentBuilder();
         return builder;
+    }
+    
+    private static void trimEmptyTextNodes(Node node) {
+        Element element = null;
+        if (node instanceof Document) {
+            element = ((Document)node).getDocumentElement();
+        } else if (node instanceof Element) {
+            element = (Element)node;
+        } else {
+            return;
+        }
+        
+        List<Node> nodesToRemove = new ArrayList<Node>();
+        NodeList children = element.getChildNodes();
+        for (int i = 0; i < children.getLength(); i++) {
+            Node child = children.item(i);
+            if (child instanceof Element) {
+                trimEmptyTextNodes(child);
+            } else if (child instanceof Text) {
+                Text t = (Text)child;
+                if (t.getData().trim().length() == 0) {
+                    nodesToRemove.add(child);
+                }
+            }
+        }
+        
+        for (Node n : nodesToRemove) {
+            element.removeChild(n);
+        }
+    }
+    
+    public static void compareNodes(Node expected, Node actual, boolean trimEmptyTextNodes) throws Exception {
+        if (trimEmptyTextNodes) {
+            trimEmptyTextNodes(expected);
+            trimEmptyTextNodes(actual);
+        }
+        compareNodes(expected, actual);
     }
     
     public static void compareNodes(Node expected, Node actual) throws Exception {
