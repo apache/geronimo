@@ -147,6 +147,11 @@
             <groupId>org.apache.xbean</groupId>
             <artifactId>xbean-finder</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>org.codehaus.swizzle</groupId>
+            <artifactId>swizzle-stream</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
