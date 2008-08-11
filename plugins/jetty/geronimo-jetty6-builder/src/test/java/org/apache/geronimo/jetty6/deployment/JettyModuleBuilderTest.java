@@ -176,7 +176,6 @@ public class JettyModuleBuilderTest extends TestSupport {
     private EARContext createEARContext(File outputPath, Environment environment, Repository repository, ConfigurationStore configStore, AbstractName moduleName) throws DeploymentException {
         Set repositories = repository == null ? Collections.EMPTY_SET : Collections.singleton(repository);
         ArtifactManager artifactManager = new DefaultArtifactManager();
-        ArtifactResolver artifactResolver = new DefaultArtifactResolver(artifactManager, repositories, null);
         return new EARContext(outputPath,
                 null,
                 environment,
@@ -188,8 +187,6 @@ public class JettyModuleBuilderTest extends TestSupport {
                 moduleName,
                 new AbstractNameQuery(tmName),
                 new AbstractNameQuery(ctcName),
-                null,
-                null,
                 null
         );
     }

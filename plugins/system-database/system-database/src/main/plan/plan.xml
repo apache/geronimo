@@ -83,19 +83,4 @@
         <attribute name="driverClassName">org.apache.derby.jdbc.ClientDriver</attribute>
     </gbean>
 
-    <gbean name="TransactionalThreadPooledTimer" class="org.apache.geronimo.timer.jdbc.JDBCStoreThreadPooledTransactionalTimer">
-        <attribute name="repeatCount">5</attribute>
-        <reference name="TransactionManager"><name>TransactionManager</name></reference>
-        <reference name="ManagedConnectionFactoryWrapper"><name>SystemDatasource</name></reference>
-        <reference name="ThreadPool"><name>DefaultThreadPool</name></reference>
-        <dependency><name>DerbySystem</name></dependency>
-    </gbean>
-
-    <gbean name="NonTransactionalThreadPooledTimer" class="org.apache.geronimo.timer.jdbc.JDBCStoreThreadPooledNonTransactionalTimer">
-        <reference name="TransactionManager"><name>TransactionManager</name></reference>
-        <reference name="ManagedConnectionFactoryWrapper"><name>SystemDatasource</name></reference>
-        <reference name="ThreadPool"><name>DefaultThreadPool</name></reference>
-        <dependency><name>DerbySystem</name></dependency>
-    </gbean>
-
 </connector>

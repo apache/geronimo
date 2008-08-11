@@ -113,10 +113,6 @@ public abstract class EARConfigBuilderTestSupport
     
     protected final AbstractNameQuery connectionTrackerAbstractNameQuery = new AbstractNameQuery(connectionTrackerObjectName, null);
     
-    protected final AbstractNameQuery transactionalTimerAbstractNameQuery = new AbstractNameQuery(transactionalTimerObjectName, null);
-    
-    protected final AbstractNameQuery nonTransactionalTimerAbstractNameQuery = new AbstractNameQuery(nonTransactionalTimerObjectName, null);
-    
     protected final AbstractNameQuery corbaGBeanAbstractNameQuery = new AbstractNameQuery(serverName, null);
 
     private ListableRepository repository;
@@ -139,8 +135,6 @@ public abstract class EARConfigBuilderTestSupport
             EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId,
                     transactionManagerAbstractNameQuery,
                     connectionTrackerAbstractNameQuery,
-                    transactionalTimerAbstractNameQuery,
-                    nonTransactionalTimerAbstractNameQuery,
                     corbaGBeanAbstractNameQuery,
                     null,
                     Collections.singleton(repository),
@@ -171,8 +165,6 @@ public abstract class EARConfigBuilderTestSupport
         EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId,
                 transactionManagerAbstractNameQuery,
                 connectionTrackerAbstractNameQuery,
-                transactionalTimerAbstractNameQuery,
-                nonTransactionalTimerAbstractNameQuery,
                 corbaGBeanAbstractNameQuery,
                 null,
                 null,
@@ -209,8 +201,6 @@ public abstract class EARConfigBuilderTestSupport
         EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId,
                 transactionManagerAbstractNameQuery,
                 connectionTrackerAbstractNameQuery,
-                transactionalTimerAbstractNameQuery,
-                nonTransactionalTimerAbstractNameQuery,
                 corbaGBeanAbstractNameQuery,
                 null,
                 null,
@@ -247,8 +237,6 @@ public abstract class EARConfigBuilderTestSupport
         EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId,
                 transactionManagerAbstractNameQuery,
                 connectionTrackerAbstractNameQuery,
-                transactionalTimerAbstractNameQuery,
-                nonTransactionalTimerAbstractNameQuery,
                 corbaGBeanAbstractNameQuery,
                 null,
                 null,
@@ -285,8 +273,6 @@ public abstract class EARConfigBuilderTestSupport
         EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId,
                 transactionManagerAbstractNameQuery,
                 connectionTrackerAbstractNameQuery,
-                transactionalTimerAbstractNameQuery,
-                nonTransactionalTimerAbstractNameQuery,
                 corbaGBeanAbstractNameQuery,
                 null,
                 null,
@@ -323,8 +309,6 @@ public abstract class EARConfigBuilderTestSupport
         EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId,
                 transactionManagerAbstractNameQuery,
                 connectionTrackerAbstractNameQuery,
-                transactionalTimerAbstractNameQuery,
-                nonTransactionalTimerAbstractNameQuery,
                 corbaGBeanAbstractNameQuery,
                 null,
                 null,
@@ -362,8 +346,6 @@ public abstract class EARConfigBuilderTestSupport
         EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId,
                 transactionManagerAbstractNameQuery,
                 connectionTrackerAbstractNameQuery,
-                transactionalTimerAbstractNameQuery,
-                nonTransactionalTimerAbstractNameQuery,
                 corbaGBeanAbstractNameQuery,
                 null,
                 null,
@@ -400,8 +382,6 @@ public abstract class EARConfigBuilderTestSupport
         EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId,
                 transactionManagerAbstractNameQuery,
                 connectionTrackerAbstractNameQuery,
-                transactionalTimerAbstractNameQuery,
-                nonTransactionalTimerAbstractNameQuery,
                 corbaGBeanAbstractNameQuery,
                 null,
                 null,

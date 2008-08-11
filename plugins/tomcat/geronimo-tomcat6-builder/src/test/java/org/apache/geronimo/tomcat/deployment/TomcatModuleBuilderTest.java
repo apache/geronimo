@@ -18,9 +18,7 @@ package org.apache.geronimo.tomcat.deployment;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URL;
 import java.security.PermissionCollection;
 import java.security.Permissions;
 import java.util.Collection;
@@ -39,8 +37,6 @@ import org.apache.geronimo.deployment.util.UnpackedJarFile;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.NamingBuilderCollection;
@@ -51,7 +47,6 @@ import org.apache.geronimo.kernel.Jsr77Naming;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.Naming;
-import org.apache.geronimo.kernel.mock.MockConfigStore;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
@@ -59,10 +54,8 @@ import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.EditableKernelConfigurationManager;
-import org.apache.geronimo.kernel.config.InvalidConfigException;
-import org.apache.geronimo.kernel.config.NoSuchConfigException;
-import org.apache.geronimo.kernel.config.NullConfigurationStore;
 import org.apache.geronimo.kernel.management.State;
+import org.apache.geronimo.kernel.mock.MockConfigStore;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ArtifactManager;
 import org.apache.geronimo.kernel.repository.ArtifactResolver;
@@ -76,8 +69,8 @@ import org.apache.geronimo.security.credentialstore.DirectConfigurationCredentia
 import org.apache.geronimo.security.deployment.GeronimoSecurityBuilderImpl;
 import org.apache.geronimo.security.jacc.ApplicationPolicyConfigurationManager;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
-import org.apache.geronimo.security.jacc.mappingprovider.GeronimoPolicyConfigurationFactory;
 import org.apache.geronimo.security.jacc.mappingprovider.GeronimoPolicy;
+import org.apache.geronimo.security.jacc.mappingprovider.GeronimoPolicyConfigurationFactory;
 import org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 import org.apache.geronimo.testsupport.TestSupport;
@@ -200,8 +193,6 @@ public class TomcatModuleBuilderTest extends TestSupport {
                 moduleName,
                 new AbstractNameQuery(tmName),
                 new AbstractNameQuery(ctcName),
-                null,
-                null,
                 null
         );
     }
@@ -346,6 +337,8 @@ public class TomcatModuleBuilderTest extends TestSupport {
             new MockResourceEnvironmentSetter(),
             null);
         builder.doStart();
+        GeronimoSecurityBuilderImpl securityBuilder = new GeronimoSecurityBuilderImpl(null);
+        securityBuilder.doStart();
     }
 
     protected void tearDown() throws Exception {

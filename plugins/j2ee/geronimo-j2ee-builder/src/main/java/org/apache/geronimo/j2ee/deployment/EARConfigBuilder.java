@@ -131,8 +131,6 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
     private final AbstractNameQuery serverName;
     private final AbstractNameQuery transactionManagerObjectName;
     private final AbstractNameQuery connectionTrackerObjectName;
-    private final AbstractNameQuery transactionalTimerObjectName;
-    private final AbstractNameQuery nonTransactionalTimerObjectName;
     private final AbstractNameQuery corbaGBeanObjectName;
     private final Naming naming;
     private final Collection<? extends ArtifactResolver> artifactResolvers;
@@ -152,28 +150,24 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
     };
 
     public EARConfigBuilder(Environment defaultEnvironment,
-            AbstractNameQuery transactionManagerAbstractName,
-            AbstractNameQuery connectionTrackerAbstractName,
-            AbstractNameQuery transactionalTimerAbstractName,
-            AbstractNameQuery nonTransactionalTimerAbstractName,
-            AbstractNameQuery corbaGBeanAbstractName,
-            AbstractNameQuery serverName,
-            Collection<? extends Repository> repositories,
-            Collection ejbConfigBuilder,
-            Collection webConfigBuilder,
-            Collection connectorConfigBuilder,
-            Collection resourceReferenceBuilder,
-            Collection appClientConfigBuilder,
-            Collection securityBuilders,
-            Collection serviceBuilders,
-            Collection<ModuleBuilderExtension> persistenceUnitBuilders,
-            Collection<? extends ArtifactResolver> artifactResolvers,
-            Kernel kernel) {
+                            AbstractNameQuery transactionManagerAbstractName,
+                            AbstractNameQuery connectionTrackerAbstractName,
+                            AbstractNameQuery corbaGBeanAbstractName,
+                            AbstractNameQuery serverName,
+                            Collection<? extends Repository> repositories,
+                            Collection ejbConfigBuilder,
+                            Collection webConfigBuilder,
+                            Collection connectorConfigBuilder,
+                            Collection resourceReferenceBuilder,
+                            Collection appClientConfigBuilder,
+                            Collection securityBuilders,
+                            Collection serviceBuilders,
+                            Collection<ModuleBuilderExtension> persistenceUnitBuilders,
+                            Collection<? extends ArtifactResolver> artifactResolvers,
+                            Kernel kernel) {
         this(defaultEnvironment,
                 transactionManagerAbstractName,
                 connectionTrackerAbstractName,
-                transactionalTimerAbstractName,
-                nonTransactionalTimerAbstractName,
                 corbaGBeanAbstractName,
                 serverName,
                 ConfigurationUtil.getConfigurationManager(kernel),
@@ -190,28 +184,24 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
     }
 
     public EARConfigBuilder(Environment defaultEnvironment,
-            AbstractNameQuery transactionManagerAbstractName,
-            AbstractNameQuery connectionTrackerAbstractName,
-            AbstractNameQuery transactionalTimerAbstractName,
-            AbstractNameQuery nonTransactionalTimerAbstractName,
-            AbstractNameQuery corbaGBeanAbstractName,
-            AbstractNameQuery serverName,
-            Collection<? extends Repository> repositories,
-            ModuleBuilder ejbConfigBuilder,
-            ModuleBuilder webConfigBuilder,
-            ModuleBuilder connectorConfigBuilder,
-            ActivationSpecInfoLocator activationSpecInfoLocator,
-            ModuleBuilder appClientConfigBuilder,
-            NamespaceDrivenBuilder securityBuilder,
-            NamespaceDrivenBuilder serviceBuilder,
-            ModuleBuilderExtension persistenceUnitBuilder,
-            Naming naming,
-            Collection<? extends ArtifactResolver> artifactResolvers) {
+                            AbstractNameQuery transactionManagerAbstractName,
+                            AbstractNameQuery connectionTrackerAbstractName,
+                            AbstractNameQuery corbaGBeanAbstractName,
+                            AbstractNameQuery serverName,
+                            Collection<? extends Repository> repositories,
+                            ModuleBuilder ejbConfigBuilder,
+                            ModuleBuilder webConfigBuilder,
+                            ModuleBuilder connectorConfigBuilder,
+                            ActivationSpecInfoLocator activationSpecInfoLocator,
+                            ModuleBuilder appClientConfigBuilder,
+                            NamespaceDrivenBuilder securityBuilder,
+                            NamespaceDrivenBuilder serviceBuilder,
+                            ModuleBuilderExtension persistenceUnitBuilder,
+                            Naming naming,
+                            Collection<? extends ArtifactResolver> artifactResolvers) {
         this(defaultEnvironment,
                 transactionManagerAbstractName,
                 connectionTrackerAbstractName,
-                transactionalTimerAbstractName,
-                nonTransactionalTimerAbstractName,
                 corbaGBeanAbstractName,
                 serverName,
                 null,
@@ -229,24 +219,22 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
     }
 
     private EARConfigBuilder(Environment defaultEnvironment,
-             AbstractNameQuery transactionManagerAbstractName,
-             AbstractNameQuery connectionTrackerAbstractName,
-             AbstractNameQuery transactionalTimerAbstractName,
-             AbstractNameQuery nonTransactionalTimerAbstractName,
-             AbstractNameQuery corbaGBeanAbstractName,
-             AbstractNameQuery serverName,
-             ConfigurationManager configurationManager,
-             Collection<? extends Repository> repositories,
-             SingleElementCollection ejbConfigBuilder,
-             SingleElementCollection webConfigBuilder,
-             SingleElementCollection connectorConfigBuilder,
-             SingleElementCollection resourceReferenceBuilder,
-             SingleElementCollection appClientConfigBuilder,
-             Collection securityBuilders,
-             Collection serviceBuilders,
-             Collection<ModuleBuilderExtension> persistenceUnitBuilders,
-             Naming naming,
-             Collection<? extends ArtifactResolver> artifactResolvers) {
+                             AbstractNameQuery transactionManagerAbstractName,
+                             AbstractNameQuery connectionTrackerAbstractName,
+                             AbstractNameQuery corbaGBeanAbstractName,
+                             AbstractNameQuery serverName,
+                             ConfigurationManager configurationManager,
+                             Collection<? extends Repository> repositories,
+                             SingleElementCollection ejbConfigBuilder,
+                             SingleElementCollection webConfigBuilder,
+                             SingleElementCollection connectorConfigBuilder,
+                             SingleElementCollection resourceReferenceBuilder,
+                             SingleElementCollection appClientConfigBuilder,
+                             Collection securityBuilders,
+                             Collection serviceBuilders,
+                             Collection<ModuleBuilderExtension> persistenceUnitBuilders,
+                             Naming naming,
+                             Collection<? extends ArtifactResolver> artifactResolvers) {
         this.configurationManager = configurationManager;
         this.repositories = repositories;
         this.defaultEnvironment = defaultEnvironment;
@@ -262,8 +250,6 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
         
         this.transactionManagerObjectName = transactionManagerAbstractName;
         this.connectionTrackerObjectName = connectionTrackerAbstractName;
-        this.transactionalTimerObjectName = transactionalTimerAbstractName;
-        this.nonTransactionalTimerObjectName = nonTransactionalTimerAbstractName;
         this.corbaGBeanObjectName = corbaGBeanAbstractName;
         this.serverName = serverName;
         this.naming = naming;
@@ -552,8 +538,6 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                     applicationInfo.getModuleName(),
                     transactionManagerObjectName,
                     connectionTrackerObjectName,
-                    transactionalTimerObjectName,
-                    nonTransactionalTimerObjectName,
                     corbaGBeanObjectName
             );
             applicationInfo.setEarContext(earContext);
@@ -1136,8 +1120,6 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
         infoBuilder.addAttribute("defaultEnvironment", Environment.class, true, true);
         infoBuilder.addAttribute("transactionManagerAbstractName", AbstractNameQuery.class, true);
         infoBuilder.addAttribute("connectionTrackerAbstractName", AbstractNameQuery.class, true);
-        infoBuilder.addAttribute("transactionalTimerAbstractName", AbstractNameQuery.class, true);
-        infoBuilder.addAttribute("nonTransactionalTimerAbstractName", AbstractNameQuery.class, true);
         infoBuilder.addAttribute("corbaGBeanAbstractName", AbstractNameQuery.class, true);
         infoBuilder.addAttribute("serverName", AbstractNameQuery.class, true);
 
@@ -1158,8 +1140,6 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                 "defaultEnvironment",
                 "transactionManagerAbstractName",
                 "connectionTrackerAbstractName",
-                "transactionalTimerAbstractName",
-                "nonTransactionalTimerAbstractName",
                 "corbaGBeanAbstractName",
                 "serverName",
                 "Repositories",

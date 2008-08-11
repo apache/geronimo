@@ -17,17 +17,16 @@
 package org.apache.geronimo.connector.deployment;
 
 import java.io.File;
-import java.util.Collections;
-import java.util.Map;
-import java.util.HashMap;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import junit.framework.TestCase;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.connector.AdminObjectWrapperGBean;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.j2ee.deployment.ConnectorModule;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
@@ -36,22 +35,11 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Jsr77Naming;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.Configuration;
-import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
-import org.apache.geronimo.kernel.config.ConfigurationResolver;
-import org.apache.geronimo.kernel.config.ConfigurationStore;
-import org.apache.geronimo.kernel.config.LifecycleException;
-import org.apache.geronimo.kernel.config.LifecycleMonitor;
-import org.apache.geronimo.kernel.config.LifecycleResults;
-import org.apache.geronimo.kernel.config.NoSuchConfigException;
-import org.apache.geronimo.kernel.config.NoSuchStoreException;
 import org.apache.geronimo.kernel.mock.MockConfigurationManager;
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.kernel.repository.Environment;
-import org.apache.geronimo.kernel.repository.Version;
-import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
@@ -82,8 +70,6 @@ public class MessageDestinationTest extends TestCase {
             naming,
             configurationManager,
             (Collection) null,
-            null,
-            null,
             null,
             null,
             null,

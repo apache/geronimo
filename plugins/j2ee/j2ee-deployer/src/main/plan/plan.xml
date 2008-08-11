@@ -23,8 +23,6 @@
     <gbean name="EARBuilder" class="org.apache.geronimo.j2ee.deployment.EARConfigBuilder">
         <attribute name="transactionManagerAbstractName">?name=TransactionManager</attribute>
         <attribute name="connectionTrackerAbstractName">?name=ConnectionTracker</attribute>
-        <attribute name="transactionalTimerAbstractName">?name=TransactionalThreadPooledTimer</attribute>
-        <attribute name="nonTransactionalTimerAbstractName">?name=NonTransactionalThreadPooledTimer</attribute>
         <attribute name="corbaGBeanAbstractName">?name=Server</attribute>
         <attribute name="serverName">?j2eeType=J2EEServer#org.apache.geronimo.management.geronimo.J2EEServer</attribute>
         <reference name="Repositories">
@@ -91,6 +89,11 @@
             </pattern>
         </references>
     </gbean>
+
+    <!--<gbean name="SecurityBuilder" class="org.apache.geronimo.security.deployment.rbac.RbacSecurityBuilder">-->
+        <!--<attribute name="credentialStoreName">?name=CredentialStore#</attribute>-->
+        <!--<attribute name="defaultSystemRbacName">?name=SystemRbac#</attribute>-->
+    <!--</gbean>-->
 
     <gbean name="SecurityBuilder" class="org.apache.geronimo.security.deployment.GeronimoSecurityBuilderImpl">
         <attribute name="credentialStoreName">?name=CredentialStore#</attribute>

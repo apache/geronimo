@@ -83,12 +83,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-timer</artifactId>
-            <version>${version}</version>
-        </dependency>
-
-        <dependency>
             <groupId>org.tranql</groupId>
             <artifactId>tranql-connector-derby-embed-xa</artifactId>
             <type>rar</type>

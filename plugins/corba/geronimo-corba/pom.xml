@@ -42,12 +42,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-timer</artifactId>
-            <version>${version}</version>
-        </dependency>
- 
-        <dependency>
             <groupId>org.apache.yoko</groupId>
             <artifactId>yoko-spec-corba</artifactId>
         </dependency>

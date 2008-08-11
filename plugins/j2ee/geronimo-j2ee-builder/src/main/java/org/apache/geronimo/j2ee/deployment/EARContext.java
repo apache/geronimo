@@ -38,8 +38,6 @@ public class EARContext extends DeploymentContext {
     private final AbstractNameQuery serverName;
     private final AbstractNameQuery transactionManagerObjectName;
     private final AbstractNameQuery connectionTrackerObjectName;
-    private final AbstractNameQuery transactedTimerName;
-    private final AbstractNameQuery nonTransactedTimerName;
     private final AbstractNameQuery corbaGBeanObjectName;
 
     private final Map contextIDToPermissionsMap = new HashMap();
@@ -51,53 +49,45 @@ public class EARContext extends DeploymentContext {
     private final Map<Object,Object> generalData = new HashMap<Object,Object>();
 
     public EARContext(File baseDir,
-            File inPlaceConfigurationDir,
-            Environment environment,
-            ConfigurationModuleType moduleType,
-            Naming naming,
-            ConfigurationManager configurationManager, 
-            Collection repositories,
-            AbstractNameQuery serverName,
-            AbstractName baseName,
-            AbstractNameQuery transactionManagerObjectName,
-            AbstractNameQuery connectionTrackerObjectName,
-            AbstractNameQuery transactedTimerName,
-            AbstractNameQuery nonTransactedTimerName,
-            AbstractNameQuery corbaGBeanObjectName
+                      File inPlaceConfigurationDir,
+                      Environment environment,
+                      ConfigurationModuleType moduleType,
+                      Naming naming,
+                      ConfigurationManager configurationManager,
+                      Collection repositories,
+                      AbstractNameQuery serverName,
+                      AbstractName baseName,
+                      AbstractNameQuery transactionManagerObjectName,
+                      AbstractNameQuery connectionTrackerObjectName,
+                      AbstractNameQuery corbaGBeanObjectName
     ) throws DeploymentException {
         super(baseDir, inPlaceConfigurationDir, environment, baseName, moduleType, naming, configurationManager, repositories);
 
         this.serverName = serverName;
         this.transactionManagerObjectName = transactionManagerObjectName;
         this.connectionTrackerObjectName = connectionTrackerObjectName;
-        this.transactedTimerName = transactedTimerName;
-        this.nonTransactedTimerName = nonTransactedTimerName;
         this.corbaGBeanObjectName = corbaGBeanObjectName;
         this.messageDestinations = new HashMap();
     }
 
     public EARContext(File baseDir,
-            File inPlaceConfigurationDir,
-            Environment environment,
-            ConfigurationModuleType moduleType,
-            Naming naming,
-            ConfigurationManager configurationManager,
-            AbstractNameQuery serverName,
-            AbstractName baseName,
-            AbstractNameQuery transactionManagerObjectName,
-            AbstractNameQuery connectionTrackerObjectName,
-            AbstractNameQuery transactedTimerName,
-            AbstractNameQuery nonTransactedTimerName,
-            AbstractNameQuery corbaGBeanObjectName,
-            Map messageDestinations) throws DeploymentException {
+                      File inPlaceConfigurationDir,
+                      Environment environment,
+                      ConfigurationModuleType moduleType,
+                      Naming naming,
+                      ConfigurationManager configurationManager,
+                      AbstractNameQuery serverName,
+                      AbstractName baseName,
+                      AbstractNameQuery transactionManagerObjectName,
+                      AbstractNameQuery connectionTrackerObjectName,
+                      AbstractNameQuery corbaGBeanObjectName,
+                      Map messageDestinations) throws DeploymentException {
         super(baseDir, inPlaceConfigurationDir, environment, baseName, moduleType, naming, configurationManager);
 
         this.serverName = serverName;
 
         this.transactionManagerObjectName = transactionManagerObjectName;
         this.connectionTrackerObjectName = connectionTrackerObjectName;
-        this.transactedTimerName = transactedTimerName;
-        this.nonTransactedTimerName = nonTransactedTimerName;
         this.corbaGBeanObjectName = corbaGBeanObjectName;
         this.messageDestinations = messageDestinations;
     }
@@ -108,8 +98,6 @@ public class EARContext extends DeploymentContext {
 
         this.transactionManagerObjectName = parent.getTransactionManagerName();
         this.connectionTrackerObjectName = parent.getConnectionTrackerName();
-        this.transactedTimerName = parent.getTransactedTimerName();
-        this.nonTransactedTimerName = parent.getNonTransactedTimerName();
         this.corbaGBeanObjectName = parent.getCORBAGBeanName();
         this.messageDestinations  = new HashMap();
     }
@@ -124,14 +112,6 @@ public class EARContext extends DeploymentContext {
 
     public AbstractNameQuery getConnectionTrackerName() {
         return connectionTrackerObjectName;
-    }
-
-    public AbstractNameQuery getTransactedTimerName() {
-        return transactedTimerName;
-    }
-
-    public AbstractNameQuery getNonTransactedTimerName() {
-        return nonTransactedTimerName;
     }
 
     public AbstractNameQuery getCORBAGBeanName() {

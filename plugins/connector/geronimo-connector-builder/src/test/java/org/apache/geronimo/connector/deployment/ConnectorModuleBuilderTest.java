@@ -24,7 +24,6 @@ import java.net.URLClassLoader;
 import java.sql.Connection;
 import java.sql.Statement;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -69,7 +68,6 @@ import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
 import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.ImportType;
-import org.apache.geronimo.kernel.repository.ListableRepository;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 import org.apache.geronimo.testsupport.TestSupport;
 import org.apache.geronimo.transaction.manager.GeronimoTransactionManagerGBean;
@@ -124,8 +122,6 @@ public class ConnectorModuleBuilderTest extends TestSupport {
             EARConfigBuilder configBuilder = new EARConfigBuilder(defaultEnvironment,
                     transactionManagerName,
                     connectionTrackerName,
-                    null,
-                    null,
                     null,
                     new AbstractNameQuery(serverName, J2EEServerImpl.GBEAN_INFO.getInterfaces()),
                     Collections.singleton(repository),
@@ -345,8 +341,6 @@ public class ConnectorModuleBuilderTest extends TestSupport {
                         module.getModuleName(), //hardcode standalone here.
                         transactionManagerName,
                         connectionTrackerName,
-                        null,
-                        null,
                         null
                 );
 

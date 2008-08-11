@@ -552,8 +552,6 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                     appClientModule.getAppClientName(),
                     transactionManagerObjectName,
                     connectionTrackerObjectName,
-                    null,
-                    null,
                     corbaGBeanObjectName,
                     earContext.getMessageDestinations());
             appClientModule.setEarContext(appClientDeploymentContext);
