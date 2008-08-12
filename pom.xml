@@ -352,6 +352,12 @@
                 <groupId>org.apache.xbean</groupId>
                 <artifactId>xbean-reflect</artifactId>
                 <version>${xbeanVersion}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging-api</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
