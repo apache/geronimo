@@ -97,6 +97,7 @@
         <axis2Deployer>org.apache.geronimo.configs/axis2-deployer/${version}/car</axis2Deployer>
         <tomcatDeployer>org.apache.geronimo.configs/tomcat6-deployer/${version}/car</tomcatDeployer>
         <jetty6Deployer>org.apache.geronimo.configs/jetty6-deployer/${version}/car</jetty6Deployer>
+        <jetty7Deployer>org.apache.geronimo.configs/jetty7-deployer/${version}/car</jetty7Deployer>
         <jasperDeployer>org.apache.geronimo.configs/jasper-deployer/${version}/car</jasperDeployer>
         <jpaDeployer>org.apache.geronimo.configs/persistence-jpa10-deployer/${version}/car</jpaDeployer>
         
@@ -166,6 +167,11 @@
                 <artifactId>geronimo-jacc_1.1_spec</artifactId>
                 <version>1.0.1</version>
             </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.specs</groupId>
+                <artifactId>geronimo-jaspi_1.1_spec</artifactId>
+                <version>1.0-SNAPSHOT</version>
+            </dependency>
 
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
@@ -229,6 +235,11 @@
                 <groupId>org.apache.geronimo.specs</groupId>
                 <artifactId>geronimo-servlet_2.5_spec</artifactId>
                 <version>1.2</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.specs</groupId>
+                <artifactId>geronimo-servlet_3.0_spec</artifactId>
+                <version>1.0-EA-SNAPSHOT</version>
             </dependency>
 
             <dependency>
@@ -305,6 +316,12 @@
                 <groupId>org.apache.geronimo.components</groupId>
                 <artifactId>geronimo-transaction</artifactId>
                 <version>2.1.1</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.geronimo.components</groupId>
+                <artifactId>geronimo-jaspi</artifactId>
+                <version>1.0-SNAPSHOT</version>
             </dependency>
 
             <dependency>
@@ -850,6 +867,10 @@
                         <groupId>org.apache.openejb</groupId>
                         <artifactId>javaee-api</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>log4j</groupId>
+                        <artifactId>log4j</artifactId>
+                    </exclusion>
                 </exclusions>
             </dependency>
 
@@ -861,6 +882,10 @@
                     <exclusion>
                         <groupId>org.apache.openejb</groupId>
                         <artifactId>javaee-api</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>log4j</groupId>
+                        <artifactId>log4j</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -874,6 +899,10 @@
                         <groupId>org.apache.openejb</groupId>
                         <artifactId>javaee-api</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>log4j</groupId>
+                        <artifactId>log4j</artifactId>
+                    </exclusion>
                 </exclusions>
             </dependency>
 
@@ -885,6 +914,10 @@
                     <exclusion>
                         <groupId>org.apache.openejb</groupId>
                         <artifactId>javaee-api</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>log4j</groupId>
+                        <artifactId>log4j</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -898,6 +931,10 @@
                         <groupId>org.apache.openejb</groupId>
                         <artifactId>javaee-api</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>log4j</groupId>
+                        <artifactId>log4j</artifactId>
+                    </exclusion>
                 </exclusions>
             </dependency>
 
@@ -910,6 +947,10 @@
                         <groupId>org.apache.openejb</groupId>
                         <artifactId>javaee-api</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>log4j</groupId>
+                        <artifactId>log4j</artifactId>
+                    </exclusion>
                 </exclusions>
             </dependency>
 
@@ -921,6 +962,10 @@
                     <exclusion>
                         <groupId>org.apache.openejb</groupId>
                         <artifactId>javaee-api</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>log4j</groupId>
+                        <artifactId>log4j</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -1107,31 +1152,6 @@
                 <version>${wadiVersion}</version>
             </dependency>
 
-            <!-- Jetty web container -->
-            <dependency>
-                <groupId>org.mortbay.jetty</groupId>
-                <artifactId>jetty</artifactId>
-                <version>6.1.7</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.mortbay.jetty</groupId>
-                <artifactId>jetty-ajp</artifactId>
-                <version>6.1.7</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.mortbay.jetty</groupId>
-                <artifactId>jetty-sslengine</artifactId>
-                <version>6.1.7</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.mortbay.jetty</groupId>
-                <artifactId>jetty-util</artifactId>
-                <version>6.1.7</version>
-            </dependency>
-
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
                 <artifactId>geronimo-stax-api_1.0_spec</artifactId>
@@ -1194,6 +1214,29 @@
                 <groupId>com.sun.xml.bind</groupId>
                 <artifactId>jaxb-impl</artifactId>
                 <version>2.1.7</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.envoisolutions.sxc</groupId>
+                <artifactId>sxc-jaxb</artifactId>
+                <version>0.8-SNAPSHOT</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>stax</groupId>
+                        <artifactId>stax-api</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>com.envoisolutions.sxc</groupId>
+                <artifactId>sxc-runtime</artifactId>
+                <version>0.8-SNAPSHOT</version>
+                <!--<exclusions>-->
+                    <!--<exclusion>-->
+                        <!--<groupId>stax</groupId>-->
+                        <!--<artifactId>stax-api</artifactId>-->
+                    <!--</exclusion>-->
+                <!--</exclusions>-->
             </dependency>
 
             <!--JSF 1.2 JARs from Apache MyFaces -->

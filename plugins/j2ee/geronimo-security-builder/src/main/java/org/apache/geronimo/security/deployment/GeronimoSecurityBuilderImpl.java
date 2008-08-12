@@ -50,6 +50,7 @@ import org.apache.geronimo.security.deploy.Role;
 import org.apache.geronimo.security.deploy.Security;
 import org.apache.geronimo.security.deploy.SubjectInfo;
 import org.apache.geronimo.security.jacc.ApplicationPolicyConfigurationManager;
+import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.geronimo.security.jacc.mappingprovider.ApplicationPrincipalRoleConfigurationManager;
 import org.apache.geronimo.security.util.ConfigurationUtil;
 import org.apache.geronimo.security.credentialstore.CredentialStore;
@@ -61,6 +62,11 @@ import org.apache.geronimo.xbeans.geronimo.security.GerRoleType;
 import org.apache.geronimo.xbeans.geronimo.security.GerSecurityDocument;
 import org.apache.geronimo.xbeans.geronimo.security.GerSecurityType;
 import org.apache.geronimo.xbeans.geronimo.security.GerSubjectInfoType;
+import org.apache.geronimo.schema.ElementConverter;
+import org.apache.geronimo.schema.NamespaceElementConverter;
+import org.apache.geronimo.schema.GBeanElementConverter;
+import org.apache.geronimo.schema.SecurityElementConverter;
+import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
@@ -71,6 +77,7 @@ import org.apache.xmlbeans.XmlObject;
 public class GeronimoSecurityBuilderImpl implements NamespaceDrivenBuilder, GBeanLifecycle {
     private static final QName SECURITY_QNAME = GerSecurityDocument.type.getDocumentElementName();
     private static final QNameSet SECURITY_QNAME_SET = QNameSet.singleton(SECURITY_QNAME);
+    public static final String GERONIMO_SECURITY_NAMESPACE = "http://geronimo.apache.org/xml/ns/security-2.0";
     private static final Map<String, String> NAMESPACE_UPDATES = new HashMap<String, String>();
     static {
         NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/loginconfig", "http://geronimo.apache.org/xml/ns/loginconfig-2.0");
@@ -81,6 +88,13 @@ public class GeronimoSecurityBuilderImpl implements NamespaceDrivenBuilder, GBea
         NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/security-1.2", "http://geronimo.apache.org/xml/ns/security-2.0");
     }
 
+    private static final Map<String, ElementConverter> GERONIMO_SCHEMA_CONVERSIONS = new HashMap<String, ElementConverter>();
+
+    static {
+        GERONIMO_SCHEMA_CONVERSIONS.put("security", new SecurityElementConverter());
+        GERONIMO_SCHEMA_CONVERSIONS.put("default-subject", new NamespaceElementConverter(GERONIMO_SECURITY_NAMESPACE));
+    }
+
     private final AbstractNameQuery credentialStoreName;
 
     public GeronimoSecurityBuilderImpl(AbstractNameQuery credentialStoreName) {
@@ -89,10 +103,12 @@ public class GeronimoSecurityBuilderImpl implements NamespaceDrivenBuilder, GBea
 
     public void doStart() {
         XmlBeansUtil.registerNamespaceUpdates(NAMESPACE_UPDATES);
+        SchemaConversionUtils.registerNamespaceConversions(GERONIMO_SCHEMA_CONVERSIONS);
     }
 
     public void doStop() {
         XmlBeansUtil.unregisterNamespaceUpdates(NAMESPACE_UPDATES);
+        SchemaConversionUtils.unregisterNamespaceConversions(GERONIMO_SCHEMA_CONVERSIONS);
     }
 
     public void doFail() {
@@ -296,7 +312,7 @@ public class GeronimoSecurityBuilderImpl implements NamespaceDrivenBuilder, GBea
         return roleMapperData;
     }
 
-    protected GBeanData configureApplicationPolicyManager(Naming naming, AbstractName moduleName, Map contextIDToPermissionsMap, SecurityConfiguration securityConfiguration, AbstractNameQuery credentialStoreName) {
+    protected GBeanData configureApplicationPolicyManager(Naming naming, AbstractName moduleName, Map<String, ComponentPermissions> contextIDToPermissionsMap, SecurityConfiguration securityConfiguration, AbstractNameQuery credentialStoreName) {
         AbstractName jaccBeanName = naming.createChildName(moduleName, NameFactory.JACC_MANAGER, NameFactory.JACC_MANAGER);
         GBeanData jaccBeanData = new GBeanData(jaccBeanName, ApplicationPolicyConfigurationManager.GBEAN_INFO);
         jaccBeanData.setAttribute("contextIdToPermissionsMap", contextIDToPermissionsMap);

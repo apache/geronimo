@@ -24,6 +24,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.security.PermissionCollection;
 import java.security.Permissions;
+import java.security.Principal;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -68,8 +69,8 @@ public class SecurityTest extends AbstractWebModuleTest {
 
         securityConfig.getRoleMappings().put(role.getRoleName(), role);
 
-        Map roleDesignates = new HashMap();
-        Map principalRoleMap = new HashMap();
+        Map<String, SubjectInfo> roleDesignates = new HashMap<String, SubjectInfo>();
+        Map<String, Set<Principal>> principalRoleMap = new HashMap<String, Set<Principal>>();
         buildPrincipalRoleMap(securityConfig, roleDesignates, principalRoleMap);
 
         PermissionCollection uncheckedPermissions = new Permissions();
@@ -79,13 +80,13 @@ public class SecurityTest extends AbstractWebModuleTest {
         uncheckedPermissions.add(new WebResourcePermission("/auth/logon.html", ""));
         uncheckedPermissions.add(new WebUserDataPermission("/auth/logon.html", ""));
 
-        Map rolePermissions = new HashMap();
+        Map<String, PermissionCollection> rolePermissions = new HashMap<String, PermissionCollection>();
         PermissionCollection permissions = new Permissions();
         permissions.add(new WebResourcePermission("/protected/*", ""));
         rolePermissions.put("content-administrator", permissions);
         rolePermissions.put("auto-administrator", permissions);
 
-        Set securityRoles = new HashSet();
+        Set<String> securityRoles = new HashSet<String>();
         securityRoles.add("content-administrator");
         securityRoles.add("auto-administrator");
 

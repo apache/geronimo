@@ -96,13 +96,13 @@
         </xsd:simpleContent>
     </xsd:complexType>
 
-    <xsd:complexType name="named-username-password-credentialType">
-        <xsd:sequence>
-            <xsd:element name="name" type="xsd:string"/>
-            <xsd:element name="username" type="xsd:string"/>
-            <xsd:element name="password" type="xsd:string"/>
-        </xsd:sequence>
-    </xsd:complexType>
+    <!--<xsd:complexType name="named-username-password-credentialType">-->
+        <!--<xsd:sequence>-->
+            <!--<xsd:element name="name" type="xsd:string"/>-->
+            <!--<xsd:element name="username" type="xsd:string"/>-->
+            <!--<xsd:element name="password" type="xsd:string"/>-->
+        <!--</xsd:sequence>-->
+    <!--</xsd:complexType>-->
 
     <xsd:complexType name="role-mappingsType">
         <xsd:sequence>

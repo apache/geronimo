@@ -63,6 +63,24 @@
             <artifactId>geronimo-jmx-remoting</artifactId>
             <version>${version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.components</groupId>
+            <artifactId>geronimo-jaspi</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+<!--
+        <dependency>
+            <groupId>org.soter.rbac</groupId>
+            <artifactId>rbac-xml-model</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.soter.rbac</groupId>
+            <artifactId>rbac-jacc</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+-->
     </dependencies>
     
     <build>
@@ -74,6 +92,7 @@
                     <useMavenDependencies>
                         <value>true</value>
                         <includeVersion>true</includeVersion>
+                        <!--<useTransitiveDependencies>true</useTransitiveDependencies>-->
                     </useMavenDependencies>
                     <category>Security</category>
                     <instance>

@@ -51,8 +51,8 @@ import org.apache.geronimo.xbeans.geronimo.web.jetty.config.GerJettyDocument;
 import org.apache.geronimo.xbeans.javaee.WebAppDocument;
 import org.apache.geronimo.xbeans.javaee.WebAppType;
 import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlObject;
 
 /**
  */
@@ -73,6 +73,8 @@ public class PlanParsingTest extends XmlBeansTestSupport {
 
     protected void setUp() throws Exception {
         super.setUp();
+        GeronimoSecurityBuilderImpl securityBuilder = new GeronimoSecurityBuilderImpl(null);
+        securityBuilder.doStart();
         builder = new JettyModuleBuilder(defaultEnvironment,
                 new Integer(1800),
                 null,

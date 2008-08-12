@@ -37,7 +37,6 @@ public class SchemaConversionUtils {
     public static final String JAVAEE_NAMESPACE = "http://java.sun.com/xml/ns/javaee";
 
     static final String GERONIMO_NAMING_NAMESPACE = "http://geronimo.apache.org/xml/ns/naming-1.2";
-    private static final String GERONIMO_SECURITY_NAMESPACE = "http://geronimo.apache.org/xml/ns/security-2.0";
     private static final String GERONIMO_SERVICE_NAMESPACE = "http://geronimo.apache.org/xml/ns/deployment-1.2";
     private static final String JPA_PERSISTENCE_NAMESPACE = "http://java.sun.com/xml/ns/persistence";
 
@@ -57,9 +56,6 @@ public class SchemaConversionUtils {
         GERONIMO_SCHEMA_CONVERSIONS.put("resource-adapter", new NamespaceElementConverter(GERONIMO_NAMING_NAMESPACE));
         GERONIMO_SCHEMA_CONVERSIONS.put("web-container", new NamespaceElementConverter(GERONIMO_NAMING_NAMESPACE));
 
-        GERONIMO_SCHEMA_CONVERSIONS.put("security", new SecurityElementConverter());
-        GERONIMO_SCHEMA_CONVERSIONS.put("default-subject", new NamespaceElementConverter(GERONIMO_SECURITY_NAMESPACE));
-
         GERONIMO_SCHEMA_CONVERSIONS.put("gbean", new GBeanElementConverter());
         GERONIMO_SCHEMA_CONVERSIONS.put("environment", new NamespaceElementConverter(GERONIMO_SERVICE_NAMESPACE));
         GERONIMO_SCHEMA_CONVERSIONS.put("client-environment", new NamespaceElementConverter(GERONIMO_SERVICE_NAMESPACE));
@@ -70,8 +66,12 @@ public class SchemaConversionUtils {
     private SchemaConversionUtils() {
     }
 
-    public static void registerNamespaceConversions(Map conversions) {
+    public static void registerNamespaceConversions(Map<String, ? extends ElementConverter> conversions) {
         GERONIMO_SCHEMA_CONVERSIONS.putAll(conversions);
+    }
+
+    public static void unregisterNamespaceConversions(Map<String, ? extends ElementConverter> conversions) {
+        GERONIMO_SCHEMA_CONVERSIONS.keySet().removeAll(conversions.keySet());
     }
 
     public static void convertToGeronimoSubSchemas(XmlCursor cursor) {

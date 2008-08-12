@@ -67,6 +67,8 @@ public class PlanParsingTest extends TestCase {
             new MockResourceEnvironmentSetter(),
             null);
         builder.doStart();
+        GeronimoSecurityBuilderImpl securityBuilder = new GeronimoSecurityBuilderImpl(null);
+        securityBuilder.doStart();
     }
 
     protected void tearDown() throws Exception {

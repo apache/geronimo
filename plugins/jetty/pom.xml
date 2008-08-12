@@ -36,6 +36,38 @@
         Jetty plugin
     </description>
     
+    <dependencyManagement>
+        <dependencies>
+
+            <dependency>
+                <groupId>org.mortbay.jetty</groupId>
+                <artifactId>jetty</artifactId>
+                <version>6.1.7</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.mortbay.jetty</groupId>
+                <artifactId>jetty-ajp</artifactId>
+                <version>6.1.7</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.mortbay.jetty</groupId>
+                <artifactId>jetty-sslengine</artifactId>
+                <version>6.1.7</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.mortbay.jetty</groupId>
+                <artifactId>jetty-util</artifactId>
+                <version>6.1.7</version>
+            </dependency>
+
+	</dependencies>
+    </dependencyManagement>
+
+
+
     <modules>
         <module>geronimo-jetty6</module>
         <module>geronimo-jetty6-builder</module>

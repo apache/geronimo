@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.HashSet;
 
 import javax.xml.namespace.QName;
 
@@ -47,11 +49,13 @@ public class GenericToSpecificPlanConverter {
     private final String configNamespace;
     private final String namespace;
     private final String element;
+    private final Set<String> excludedNamespaces = new HashSet<String>();
 
     public GenericToSpecificPlanConverter(String configNamespace, String namespace, String element) {
         this.configNamespace = configNamespace;
         this.namespace = namespace;
         this.element = element;
+        excludedNamespaces.add("http://geronimo.apache.org/xml/ns/geronimo-jaspi");
     }
 
     public XmlObject convertToSpecificPlan(XmlObject plan) throws DeploymentException {
@@ -93,7 +97,8 @@ public class GenericToSpecificPlanConverter {
                     while (cursor.hasNextToken()) {
                         if (cursor.isStart()) {
                             if (!SchemaConversionUtils.convertSingleElementToGeronimoSubSchemas(cursor, end)
-                            && !this.namespace.equals(cursor.getName().getNamespaceURI())) {
+                            && !this.namespace.equals(cursor.getName().getNamespaceURI())
+                                    && !excludedNamespaces.contains(cursor.getName().getNamespaceURI())) {
                                 cursor.setName(new QName(this.namespace, cursor.getName().getLocalPart()));
                             }
                         }
@@ -106,6 +111,7 @@ public class GenericToSpecificPlanConverter {
                     cursor.pop();
                                                             
                     moveToBottom(cursor, map.get("security-realm-name"));
+                    moveToBottom(cursor, map.get("authentication"));
                     moveToBottom(cursor, map.get("security"));
                     moveToBottom(cursor, map.get("gbean"));
                     moveToBottom(cursor, map.get("persistence"));
