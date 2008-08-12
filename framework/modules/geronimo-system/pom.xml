@@ -89,6 +89,11 @@
             <groupId>woodstox</groupId>
             <artifactId>wstx-asl</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-activation_1.1_spec</artifactId>
+        </dependency>
         
         <!--
         Some dependencies require JCL, so use this adapter to force them into SLF4J.
