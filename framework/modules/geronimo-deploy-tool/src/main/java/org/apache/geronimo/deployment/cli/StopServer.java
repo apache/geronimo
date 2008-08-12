@@ -26,6 +26,8 @@ import javax.management.MBeanServerConnection;
 import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
+import javax.management.remote.rmi.RMIConnectorServer;
+import javax.rmi.ssl.SslRMIClientSocketFactory;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
@@ -42,11 +44,15 @@ public class StopServer implements Main {
 
 	public static final String DEFAULT_PORT = "1099"; // 1099 is used by java.rmi.registry.Registry
 
+	String host = "localhost";
+	
 	String port;
 
 	String user;
 
 	String password;
+	
+	boolean secure = false;
 
 	private String[] args;
 
@@ -104,7 +110,8 @@ public class StopServer implements Main {
             try {
                 kernel = getRunningKernel();
             } catch (IOException e) {
-                System.out.println("\nCould not communicate with the server.  The server may not be running or the port number may be incorrect.");
+                System.out.println();
+                System.out.println("Could not communicate with the server.  The server may not be running or the port number may be incorrect (" + e.getMessage() + ")");
             }
             if (kernel != null) {
                 System.out.println("Server found.");
@@ -131,10 +138,14 @@ public class StopServer implements Main {
 				password = args[++i];
 			} else if (args[i].equals("--port")) {
 				port = args[++i];
+            } else if (args[i].equals("--host")) {
+                host = args[++i];
 			} else {
 				printUsage();
 			}
 			return true;
+		} else if (args[i].equals("--secure")) {
+		    secure = true;
 		} else {
 			printUsage();
 		}
@@ -143,11 +154,17 @@ public class StopServer implements Main {
 
 	public Kernel getRunningKernel() throws IOException {
 		Map map = new HashMap();
-		map.put("jmx.remote.credentials", new String[] { user, password });
+		map.put(JMXConnector.CREDENTIALS, new String[] { user, password });
+        String connectorName = "/JMXConnector";
+        if (secure) {
+            connectorName = "/JMXSecureConnector";
+            SslRMIClientSocketFactory csf = new SslRMIClientSocketFactory();
+            map.put(RMIConnectorServer.RMI_CLIENT_SOCKET_FACTORY_ATTRIBUTE, csf);
+        }
 		Kernel kernel = null;
 		try {
 			JMXServiceURL address = new JMXServiceURL(
-					"service:jmx:rmi:///jndi/rmi://localhost" + ":" + port + "/JMXConnector");
+					"service:jmx:rmi:///jndi/rmi://" + host + ":" + port + connectorName);
 			JMXConnector jmxConnector = JMXConnectorFactory.connect(address, map);
 			MBeanServerConnection mbServerConnection = jmxConnector.getMBeanServerConnection();
 			kernel = new KernelDelegate(mbServerConnection);
@@ -163,9 +180,11 @@ public class StopServer implements Main {
 		System.out.println("    shutdown [options]");
 		System.out.println();
 		System.out.println("The available options are:");
-		System.out.println("    --user");
-		System.out.println("    --password");
-		System.out.println("    --port");
+		System.out.println("    --user <username>");
+		System.out.println("    --password <password>");
+		System.out.println("    --host <hostname>");
+		System.out.println("    --port <port>");
+		System.out.println("    --secure");
 		System.exit(1);
 	}
 

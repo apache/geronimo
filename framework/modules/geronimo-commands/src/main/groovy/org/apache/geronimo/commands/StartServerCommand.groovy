@@ -73,6 +73,9 @@ class StartServerCommand
     
     @Option(name='-w', aliases=['--password'], description='Password (used to check server startup status)')
     String password = 'manager'
+    
+    @Option(name='--secure', description='Use secure channel')
+    boolean secure = false
         
     protected Object doExecute() throws Exception {
         ant = new AntBuilder(log, io)
@@ -181,7 +184,7 @@ class StartServerCommand
             }
         }
         
-        def server = new ServerProxy(hostname, port, username, password)
+        def server = new ServerProxy(hostname, port, username, password, secure)
         
         launcher.verifier = {
              if(server.fullyStarted) {
