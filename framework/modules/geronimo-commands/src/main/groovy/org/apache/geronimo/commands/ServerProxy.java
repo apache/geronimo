@@ -28,8 +28,10 @@ import java.io.IOException;
 import javax.management.remote.JMXServiceURL;
 import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
+import javax.management.remote.rmi.RMIConnectorServer;
 import javax.management.MBeanServerConnection;
 import javax.management.ObjectName;
+import javax.rmi.ssl.SslRMIClientSocketFactory;
 
 //
 // FIXME: It should be possible to query state with-out any Geronimo classes,
@@ -73,24 +75,41 @@ public class ServerProxy
         log.debug("Initialized with URL: " + url + ", environment: " + environment);
     }
 
-    public ServerProxy(final String hostname, final int port, final String username, final String password) throws Exception {        
-        this("service:jmx:rmi://" + hostname + "/jndi/rmi://" + hostname + ":" + port + "/JMXConnector", username, password);
+    public ServerProxy(String hostname, int port, String username, String password) throws Exception {
+        this(hostname, port, username, password, false);
+    }
+    
+    public ServerProxy(String hostname, int port, String username, String password, boolean secure) throws Exception {
+        this(createJMXServiceURL(hostname, port, secure), username, password, secure);
     }
 
-    public ServerProxy(final String url, final String username, final String password) throws Exception {
+    public ServerProxy(String url, String username, String password) throws Exception {
+        this(url, username, password, false);
+    }
+
+    public ServerProxy(String url, String username, String password, boolean secure) throws Exception {
         assert url != null;
         assert username != null;
         assert password != null;
         
         this.url = new JMXServiceURL(url);
         this.environment = new HashMap();
-        this.environment.put("jmx.remote.credentials", new String[] {username, password});
+        this.environment.put(JMXConnector.CREDENTIALS, new String[] {username, password});
+        if (secure) {
+            SslRMIClientSocketFactory csf = new SslRMIClientSocketFactory();
+            this.environment.put(RMIConnectorServer.RMI_CLIENT_SOCKET_FACTORY_ATTRIBUTE, csf);
+        }
 
         log.debug("Initialized with URL: " + url + ", environment: " + environment);
     }
 
     public ServerProxy(JMXConnector connector) throws Exception {
         this.mbeanConnection = connector.getMBeanServerConnection();
+    }
+    
+    private static String createJMXServiceURL(String hostname, int port, boolean secure) {
+        String connectorName = (secure) ? "/JMXSecureConnector" : "/JMXConnector";
+        return "service:jmx:rmi://" + hostname + "/jndi/rmi://" + hostname + ":" + port + connectorName;
     }
     
     private MBeanServerConnection getConnection() throws IOException {
