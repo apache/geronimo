@@ -1224,7 +1224,7 @@
             <dependency>
                 <groupId>com.envoisolutions.sxc</groupId>
                 <artifactId>sxc-jaxb</artifactId>
-                <version>0.8-SNAPSHOT</version>
+                <version>0.7.2</version>
                 <exclusions>
                     <exclusion>
                         <groupId>stax</groupId>
@@ -1235,7 +1235,7 @@
             <dependency>
                 <groupId>com.envoisolutions.sxc</groupId>
                 <artifactId>sxc-runtime</artifactId>
-                <version>0.8-SNAPSHOT</version>
+                <version>0.7.2</version>
                 <!--<exclusions>-->
                     <!--<exclusion>-->
                         <!--<groupId>stax</groupId>-->
