@@ -32,7 +32,7 @@
         <dependency start="false">
             <groupId>com.sun.xml.bind</groupId>
             <artifactId>jaxb-impl</artifactId>
-            <version>2.0.5</version>
+            <version>2.1.7</version>
             <type>jar</type>
         </dependency>
         <dependency start="false">
@@ -98,7 +98,7 @@
         <dependency start="false">
             <groupId>javax.xml.bind</groupId>
             <artifactId>jaxb-api</artifactId>
-            <version>2.0</version>
+            <version>2.1</version>
             <type>jar</type>
         </dependency>
         <dependency start="false">

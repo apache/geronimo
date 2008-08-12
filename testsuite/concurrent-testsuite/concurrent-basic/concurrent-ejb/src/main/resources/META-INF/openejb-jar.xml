@@ -48,13 +48,13 @@
         </session>
     </enterprise-beans>
 
-  <security>
-     <role-mappings>                 
-        <role role-name="employee">
-           <principal name="admin"
+  <s:security xmlns:s="http://geronimo.apache.org/xml/ns/security-2.0">
+     <s:role-mappings>                 
+        <s:role role-name="employee">
+           <s:principal name="admin"
                       class="org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal" />
-        </role>
-     </role-mappings>
-  </security>
+        </s:role>
+     </s:role-mappings>
+  </s:security>
 
 </openejb-jar>

@@ -32,7 +32,7 @@ specific services - those should be provided by children.-->
       <dependency>
         <groupId>com.sun.xml.bind</groupId>
         <artifactId>jaxb-impl</artifactId>
-        <version>2.0.5</version>
+        <version>2.1.7</version>
         <type>jar</type>
         <import>classes</import>
       </dependency>
@@ -109,7 +109,7 @@ specific services - those should be provided by children.-->
       <dependency>
         <groupId>javax.xml.bind</groupId>
         <artifactId>jaxb-api</artifactId>
-        <version>2.0</version>
+        <version>2.1</version>
         <type>jar</type>
         <import>classes</import>
       </dependency>

@@ -78,43 +78,43 @@ limitations under the License.
     </gbean>
     <gbean name="TestCredentialStore" class="org.apache.geronimo.security.credentialstore.SimpleCredentialStoreImpl">
         <xml-attribute name="credentialStore">
-            <credential-store xmlns="http://geronimo.apache.org/xml/ns/credentialstore-1.0">
-                <realm name="test-realm">
-                    <subject>
-                        <id>foo-subject</id>
-                        <credential>
-                            <type>org.apache.geronimo.security.credentialstore.NameCallbackHandler</type>
-                            <value>foo</value>
-                        </credential>
-                        <credential>
-                            <type>org.apache.geronimo.security.credentialstore.PasswordCallbackHandler</type>
-                            <value>foo</value>
-                        </credential>
-                    </subject>
-                    <subject>
-                        <id>bar-subject</id>
-                        <credential>
-                            <type>org.apache.geronimo.security.credentialstore.NameCallbackHandler</type>
-                            <value>bar</value>
-                        </credential>
-                        <credential>
-                            <type>org.apache.geronimo.security.credentialstore.PasswordCallbackHandler</type>
-                            <value>bar</value>
-                        </credential>
-                    </subject>
-                    <subject>
-                        <id>baz-subject</id>
-                        <credential>
-                            <type>org.apache.geronimo.security.credentialstore.NameCallbackHandler</type>
-                            <value>baz</value>
-                        </credential>
-                        <credential>
-                            <type>org.apache.geronimo.security.credentialstore.PasswordCallbackHandler</type>
-                            <value>baz</value>
-                        </credential>
-                    </subject>
-                </realm>
-            </credential-store>
+            <c:credential-store xmlns:c="http://geronimo.apache.org/xml/ns/credentialstore-1.0">
+                <c:realm name="test-realm">
+                    <c:subject>
+                        <c:id>foo-subject</c:id>
+                        <c:credential>
+                            <c:type>org.apache.geronimo.security.credentialstore.NameCallbackHandler</c:type>
+                            <c:value>foo</c:value>
+                        </c:credential>
+                        <c:credential>
+                            <c:type>org.apache.geronimo.security.credentialstore.PasswordCallbackHandler</c:type>
+                            <c:value>foo</c:value>
+                        </c:credential>
+                    </c:subject>
+                    <c:subject>
+                        <c:id>bar-subject</c:id>
+                        <c:credential>
+                            <c:type>org.apache.geronimo.security.credentialstore.NameCallbackHandler</c:type>
+                            <c:value>bar</c:value>
+                        </c:credential>
+                        <c:credential>
+                            <c:type>org.apache.geronimo.security.credentialstore.PasswordCallbackHandler</c:type>
+                            <c:value>bar</c:value>
+                        </c:credential>
+                    </c:subject>
+                    <c:subject>
+                        <c:id>baz-subject</c:id>
+                        <c:credential>
+                            <c:type>org.apache.geronimo.security.credentialstore.NameCallbackHandler</c:type>
+                            <c:value>baz</c:value>
+                        </c:credential>
+                        <c:credential>
+                            <c:type>org.apache.geronimo.security.credentialstore.PasswordCallbackHandler</c:type>
+                            <c:value>baz</c:value>
+                        </c:credential>
+                    </c:subject>
+                </c:realm>
+            </c:credential-store>
         </xml-attribute>
         <dependency>
             <n:name xmlns:n="http://geronimo.apache.org/xml/ns/naming-1.2">test-realm</n:name>
