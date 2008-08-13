@@ -48,6 +48,11 @@
       <version>${openejbVersion}</version>
     </dependency>
     <dependency>
+      <groupId>org.apache.openejb</groupId>
+      <artifactId>asm-finder</artifactId>
+      <version>${openejbVersion}</version>
+    </dependency>
+    <dependency>
       <groupId>org.apache.xbean</groupId>
       <artifactId>xbean-reflect</artifactId>
       <version>${xbeanVersion}</version>
