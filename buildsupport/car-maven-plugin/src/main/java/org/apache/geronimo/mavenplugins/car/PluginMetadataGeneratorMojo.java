@@ -26,6 +26,9 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
 
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
@@ -244,27 +247,10 @@ public class PluginMetadataGeneratorMojo
     }
 
     private void addDependencies(PluginArtifactType instance) throws InvalidConfigException, IOException, NoSuchConfigException, InvalidDependencyVersionException, ArtifactResolutionException, ProjectBuildingException, MojoExecutionException {
-        if (useMavenDependencies == null || !useMavenDependencies.isValue()) {
-            for (Dependency dependency : dependencies) {
-                instance.getDependency().add(dependency.toDependencyType());
-            }
-        } else {
-            getDependencies(project, useMavenDependencies.isUseTransitiveDependencies());
-            for (org.apache.maven.artifact.Artifact artifact: localDependencies) {
-                instance.getDependency().add(toDependencyType(toGeronimoDependency(artifact, useMavenDependencies.isIncludeVersion())));
-            }
+        LinkedHashSet<Dependency> resolvedDependencies = toDependencies(dependencies, useMavenDependencies);
+        for (Dependency dependency: resolvedDependencies) {
+            instance.getDependency().add(dependency.toDependencyType());
         }
     }
 
-    private DependencyType toDependencyType(org.apache.geronimo.kernel.repository.Dependency dependency) {
-        DependencyType dependencyType = new DependencyType();
-        dependencyType.setGroupId(dependency.getArtifact().getGroupId());
-        dependencyType.setArtifactId(dependency.getArtifact().getArtifactId());
-        if (dependency.getArtifact().getVersion() != null) {
-            dependencyType.setVersion(dependency.getArtifact().getVersion().toString());
-        }
-        dependencyType.setType(dependency.getArtifact().getType());
-        dependencyType.setStart(true);
-        return dependencyType;
-    }
 }

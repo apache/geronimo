@@ -158,7 +158,7 @@ public class PlanProcessorMojo
 
             XmlObject doc = XmlObject.Factory.parse(plan);
             XmlCursor xmlCursor = doc.newCursor();
-            LinkedHashSet<org.apache.geronimo.kernel.repository.Dependency> dependencies = toDependencies(this.dependencies, useMavenDependencies);
+            LinkedHashSet<org.apache.geronimo.kernel.repository.Dependency> dependencies = toKernelDependencies(this.dependencies, useMavenDependencies);
             Artifact configId = new Artifact(project.getGroupId(), project.getArtifactId(), project.getVersion(), "car");
 
             try {
@@ -265,22 +265,13 @@ public class PlanProcessorMojo
         }
     }
 
-    protected LinkedHashSet<org.apache.geronimo.kernel.repository.Dependency> toDependencies(List<Dependency> listedDependencies, UseMavenDependencies useMavenDependencies) throws InvalidDependencyVersionException, ArtifactResolutionException, ProjectBuildingException, MojoExecutionException {
-        LinkedHashSet<org.apache.geronimo.kernel.repository.Dependency> dependencies = new LinkedHashSet<org.apache.geronimo.kernel.repository.Dependency>();
-
-        if (useMavenDependencies == null || !useMavenDependencies.isValue()) {
-            for (Dependency dependency : listedDependencies) {
-                org.apache.geronimo.kernel.repository.Dependency gdep = dependency.toDependency();
-                dependencies.add(gdep);
-            }
-        } else {
-            getDependencies(project, useMavenDependencies.isUseTransitiveDependencies());
-            for (org.apache.maven.artifact.Artifact artifact: localDependencies) {
-                dependencies.add(toGeronimoDependency(artifact, useMavenDependencies.isIncludeVersion()));
-            }
+    protected LinkedHashSet<org.apache.geronimo.kernel.repository.Dependency> toKernelDependencies(List<Dependency> listedDependencies, UseMavenDependencies useMavenDependencies) throws InvalidDependencyVersionException, ArtifactResolutionException, ProjectBuildingException, MojoExecutionException {
+        LinkedHashSet<org.apache.geronimo.kernel.repository.Dependency> kernelDependencies = new LinkedHashSet<org.apache.geronimo.kernel.repository.Dependency>();
+        LinkedHashSet<Dependency> dependencies = toDependencies(listedDependencies, useMavenDependencies);
+        for (Dependency dependency: dependencies) {
+            kernelDependencies.add(dependency.toDependency());
         }
-
-        return dependencies;
+        return kernelDependencies;
     }
 
 

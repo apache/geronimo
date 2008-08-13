@@ -73,6 +73,22 @@ public class ModuleId {
         return importType;
     }
 
+    public void setGroupId(String groupId) {
+        this.groupId = groupId;
+    }
+
+    public void setArtifactId(String artifactId) {
+        this.artifactId = artifactId;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
     public ArtifactType toArtifactType() {
         ArtifactType artifact = new ArtifactType();
         artifact.setGroupId(groupId);

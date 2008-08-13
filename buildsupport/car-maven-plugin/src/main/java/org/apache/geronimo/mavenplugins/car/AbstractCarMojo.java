@@ -29,8 +29,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.LinkedHashSet;
+import java.util.HashMap;
+import java.util.Collection;
 
-import org.apache.geronimo.kernel.repository.ImportType;
+import org.apache.geronimo.kernel.repository.*;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.factory.ArtifactFactory;
 import org.apache.maven.artifact.metadata.ArtifactMetadataSource;
@@ -44,6 +47,7 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugin.logging.SystemStreamLog;
 import org.apache.maven.project.MavenProject;
+import org.apache.maven.project.ProjectBuildingException;
 import org.apache.maven.project.artifact.InvalidDependencyVersionException;
 import org.apache.maven.shared.dependency.tree.DependencyNode;
 import org.apache.maven.shared.dependency.tree.DependencyTreeResolutionListener;
@@ -299,6 +303,53 @@ public abstract class AbstractCarMojo
 
         return new org.apache.geronimo.kernel.repository.Artifact(groupId, artifactId, version, type);
     }
+
+    protected LinkedHashSet<Dependency> toDependencies(Collection<Dependency> listedDependencies, UseMavenDependencies useMavenDependencies) throws InvalidDependencyVersionException, ArtifactResolutionException, ProjectBuildingException, MojoExecutionException {
+        LinkedHashSet<Dependency> dependencies = new LinkedHashSet<Dependency>();
+
+        if (useMavenDependencies == null || !useMavenDependencies.isValue()) {
+            dependencies.addAll(listedDependencies);
+        } else {
+            Map<String, Dependency> explicitDependencyMap = new HashMap<String, Dependency>();
+            for (Dependency dependency : dependencies) {
+                explicitDependencyMap.put(getKey(dependency), dependency);
+            }
+
+
+            getDependencies(project, useMavenDependencies.isUseTransitiveDependencies());
+            for (org.apache.maven.artifact.Artifact artifact: localDependencies) {
+                Dependency explicitDependency = explicitDependencyMap.get(getKey(artifact));
+                dependencies.add(toDependency(artifact, useMavenDependencies.isIncludeVersion(), explicitDependency));
+            }
+        }
+
+        return dependencies;
+    }
+
+    private Dependency toDependency(Artifact artifact, boolean includeVersion, Dependency explicitDependency) {
+        Dependency dependency = new Dependency();
+        dependency.setGroupId(artifact.getGroupId());
+        dependency.setArtifactId(artifact.getArtifactId());
+        dependency.setVersion(includeVersion ? artifact.getVersion() : null);
+        dependency.setType(artifact.getType());
+        String importType = ImportType.ALL.getName();
+        if (explicitDependency != null && explicitDependency.getImport() != null) {
+            importType = explicitDependency.getImport();
+        }
+        dependency.setImport(importType);
+        if (explicitDependency != null) {
+            dependency.setStart(explicitDependency.isStart());
+        }
+        return dependency;
+    }
+
+    private String getKey(Dependency dependency) {
+        return dependency.getGroupId() + "/" + dependency.getArtifactId() + "/" + dependency.getType();
+    }
+    private String getKey(Artifact dependency) {
+        return dependency.getGroupId() + "/" + dependency.getArtifactId() + "/" + dependency.getType();
+    }
+
 
     private static class Scanner {
         private static enum Accept {

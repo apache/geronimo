@@ -41,6 +41,10 @@ public class Dependency extends ModuleId {
         return start;
     }
 
+    public void setStart(Boolean start) {
+        this.start = start;
+    }
+
     public DependencyType toDependencyType() {
         DependencyType dependency = new DependencyType();
         dependency.setGroupId(groupId);
