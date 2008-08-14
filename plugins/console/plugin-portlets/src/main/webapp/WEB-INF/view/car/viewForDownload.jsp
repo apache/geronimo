@@ -143,9 +143,9 @@
 <tr>
 <c:if test="${allInstallable}">
 <td valign="top">
-    <input type="submit" value="<fmt:message key="consolebase.common.install" />" />
-    <%--<input type="hidden" name="configIds" value="${configIds}" />--%>
     <input type="hidden" name="mode" value="${mode}" />
+    <input <c:choose><c:when test="${mode eq 'assemblyView-after'}">type="hidden"</c:when><c:otherwise>type="submit"</c:otherwise></c:choose> value="<fmt:message key="consolebase.common.install" />" />
+    <%--<input type="hidden" name="configIds" value="${configIds}" />--%>
     <input type="hidden" name="repository" value="${repository}" />
     <input type="hidden" name="repo-user" value="${repouser}" />
     <input type="hidden" name="repo-pass" value="${repopass}" />
