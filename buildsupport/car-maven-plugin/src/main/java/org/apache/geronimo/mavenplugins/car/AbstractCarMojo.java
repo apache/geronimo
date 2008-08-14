@@ -34,6 +34,7 @@ import java.util.HashMap;
 import java.util.Collection;
 
 import org.apache.geronimo.kernel.repository.*;
+import org.apache.geronimo.system.plugin.model.ArtifactType;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.factory.ArtifactFactory;
 import org.apache.maven.artifact.metadata.ArtifactMetadataSource;
@@ -348,6 +349,15 @@ public abstract class AbstractCarMojo
     }
     private String getKey(Artifact dependency) {
         return dependency.getGroupId() + "/" + dependency.getArtifactId() + "/" + dependency.getType();
+    }
+
+    protected ArtifactType getModuleId() {
+        ArtifactType artifactType = new ArtifactType();
+        artifactType.setGroupId(project.getGroupId());
+        artifactType.setArtifactId(project.getArtifactId());
+        artifactType.setVersion(project.getVersion());
+        artifactType.setType(project.getArtifact().getType());
+        return artifactType;
     }
 
 

@@ -269,7 +269,7 @@ public class PlanProcessorMojo
         LinkedHashSet<org.apache.geronimo.kernel.repository.Dependency> kernelDependencies = new LinkedHashSet<org.apache.geronimo.kernel.repository.Dependency>();
         LinkedHashSet<Dependency> dependencies = toDependencies(listedDependencies, useMavenDependencies);
         for (Dependency dependency: dependencies) {
-            kernelDependencies.add(dependency.toDependency());
+            kernelDependencies.add(dependency.toKernelDependency());
         }
         return kernelDependencies;
     }

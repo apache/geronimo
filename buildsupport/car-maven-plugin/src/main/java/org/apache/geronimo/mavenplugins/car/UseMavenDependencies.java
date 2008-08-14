@@ -40,6 +40,14 @@ public class UseMavenDependencies {
      */
     private boolean useTransitiveDependencies;
 
+    public UseMavenDependencies() {
+    }
+
+    public UseMavenDependencies(boolean value, boolean includeVersion, boolean useTransitiveDependencies) {
+        this.value = value;
+        this.includeVersion = includeVersion;
+        this.useTransitiveDependencies = useTransitiveDependencies;
+    }
 
     public boolean isValue() {
         return value;

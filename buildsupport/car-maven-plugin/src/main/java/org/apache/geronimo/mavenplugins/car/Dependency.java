@@ -55,7 +55,7 @@ public class Dependency extends ModuleId {
         return dependency;
     }
 
-    public org.apache.geronimo.kernel.repository.Dependency toDependency() {
+    public org.apache.geronimo.kernel.repository.Dependency toKernelDependency() {
         org.apache.geronimo.kernel.repository.Artifact artifact = new org.apache.geronimo.kernel.repository.Artifact(groupId, artifactId, version, type);
         ImportType importType = getImport() == null? ImportType.ALL: ImportType.getByName(getImport());
         return new org.apache.geronimo.kernel.repository.Dependency(artifact, importType);
@@ -63,5 +63,26 @@ public class Dependency extends ModuleId {
 
     public String toString() {
         return groupId + ":" + artifactId + ":" + version + ":" + type;
+    }
+
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Dependency that = (Dependency) o;
+        if (!super.equals(that)) return false;
+        return isStart().equals(that.isStart());
+    }
+    //rely on super.hashcode();
+
+    public static Dependency newDependency(DependencyType dependencyType) {
+        Dependency dependency = new Dependency();
+        dependency.setGroupId(dependencyType.getGroupId());
+        dependency.setArtifactId(dependencyType.getArtifactId());
+        dependency.setVersion(dependencyType.getVersion());
+        dependency.setType(dependencyType.getType());
+        dependency.setStart(dependencyType.isStart());
+        dependency.setImport(ImportType.ALL.toString());
+        return dependency;
     }
 }

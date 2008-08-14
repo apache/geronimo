@@ -216,15 +216,10 @@ public class PluginMetadataGeneratorMojo
             }
             metadata.getPluginArtifact().add(instance);
 
-            ArtifactType artifactType = new ArtifactType();
-            artifactType.setGroupId(project.getGroupId());
-            artifactType.setArtifactId(project.getArtifactId());
-            artifactType.setVersion(project.getVersion());
+            ArtifactType artifactType = getModuleId();
             ArtifactType existingArtifact = instance.getModuleId();
             if (existingArtifact != null && existingArtifact.getType() != null) {
                 artifactType.setType(existingArtifact.getType());
-            } else {
-                artifactType.setType(project.getArtifact().getType());
             }
             instance.setModuleId(artifactType);
             addDependencies(instance);
