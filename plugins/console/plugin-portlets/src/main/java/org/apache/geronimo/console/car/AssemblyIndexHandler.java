@@ -46,6 +46,7 @@ public class AssemblyIndexHandler extends BaseImportExportHandler {
     }
 
     public String actionAfterView(ActionRequest request, ActionResponse response, MultiPageModel model) throws PortletException, IOException {
-        return LIST_MODE+BEFORE_ACTION;
+        request.setAttribute("column", request.getParameter("column"));
+        return LIST_SERVER_MODE+BEFORE_ACTION;
     }
 }

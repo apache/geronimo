@@ -86,7 +86,7 @@
   <c:forEach var="column" items="Name,Version,Category">
   <th class="DarkBackground"><a href='<portlet:actionURL>
 	                                   <portlet:param name="column" value="${column}"/>
-	                                   <portlet:param name="mode" value="listServer-after"/>
+	                                   <portlet:param name="mode" value="index-after"/>
 	                                  </portlet:actionURL>'>${column}</a></th>
   </c:forEach>
 </tr>
@@ -98,7 +98,10 @@
         <input type="checkbox" name="plugin" title="${artifact.groupId}/${artifact.artifactId}/${artifact.version}/${artifact.type}" value="${artifact.groupId}/${artifact.artifactId}/${artifact.version}/${artifact.type}"/>
     </td>
   <td class="${style}">
-    ${artifact.groupId}/${artifact.artifactId}/${artifact.version}/${artifact.type}
+    <a href='<portlet:actionURL>
+      <portlet:param name="configId" value="${artifact.groupId}/${artifact.artifactId}/${artifact.version}/${artifact.type}"/>
+      <portlet:param name="mode" value="assemblyView-before"/>
+    </portlet:actionURL>'>${plugin.name}</a>
   </td>
   <td class="${style}">${artifact.version}</td>
   <td class="${style}">${plugin.category}</td>

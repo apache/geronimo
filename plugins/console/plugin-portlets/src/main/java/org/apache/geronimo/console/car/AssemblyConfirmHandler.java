@@ -52,7 +52,7 @@ public class AssemblyConfirmHandler extends BaseImportExportHandler {
         
         request.setAttribute("plugins", plugins);
         request.setAttribute("absoluteDeployedPath", absoluteDeployedPath);
-        request.setAttribute("mode", ASSEMBLY_CONFIRM_MODE+"-after");
+        request.setAttribute("mode", ASSEMBLY_CONFIRM_MODE + AFTER_ACTION);
     }
 
     public String actionAfterView(ActionRequest request, ActionResponse response, MultiPageModel model) throws PortletException, IOException {

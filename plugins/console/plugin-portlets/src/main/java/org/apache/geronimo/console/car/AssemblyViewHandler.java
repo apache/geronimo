@@ -48,7 +48,11 @@ public class AssemblyViewHandler extends BaseImportExportHandler {
     }
 
     public String actionBeforeView(ActionRequest request, ActionResponse response, MultiPageModel model) throws PortletException, IOException {
+        String configId = request.getParameter("configId");
         String[] pluginIds = request.getParameterValues("plugin");
+        if (configId != null) {
+            pluginIds = new String[]{configId};
+        }
         String relativeServerPath = request.getParameter("relativeServerPath");
         String groupId = request.getParameter("groupId");
         String artifactId = request.getParameter("artifactId");
