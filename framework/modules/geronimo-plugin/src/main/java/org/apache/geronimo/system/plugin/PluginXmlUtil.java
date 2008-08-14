@@ -40,6 +40,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.parsers.SAXParser;
 import javax.xml.transform.sax.SAXSource;
+import javax.xml.namespace.QName;
 
 import org.xml.sax.helpers.XMLFilterImpl;
 import org.xml.sax.XMLReader;
@@ -63,6 +64,7 @@ public class PluginXmlUtil {
     public static final JAXBContext PLUGIN_CONTEXT;
     public static final JAXBContext PLUGIN_LIST_CONTEXT;
     public static final JAXBContext PLUGIN_ARTIFACT_CONTEXT;
+    private final static QName _PluginArtifact_QNAME = new QName("http://geronimo.apache.org/xml/ns/plugins-1.3", "plugin-artifact");
 
     static {
         try {
@@ -78,6 +80,13 @@ public class PluginXmlUtil {
         Marshaller marshaller = PLUGIN_CONTEXT.createMarshaller();
         marshaller.setProperty("jaxb.formatted.output", true);
         JAXBElement<PluginType> element = new ObjectFactory().createGeronimoPlugin(metadata);
+        marshaller.marshal(element, out);
+    }
+
+    public static void writePluginArtifact(PluginArtifactType value, Writer out) throws XMLStreamException, JAXBException {
+        Marshaller marshaller = PLUGIN_ARTIFACT_CONTEXT.createMarshaller();
+        marshaller.setProperty("jaxb.formatted.output", true);
+        JAXBElement<PluginArtifactType> element = new JAXBElement<PluginArtifactType>(_PluginArtifact_QNAME, PluginArtifactType.class, null, value);
         marshaller.marshal(element, out);
     }
 
