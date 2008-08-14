@@ -1176,6 +1176,12 @@
             </dependency>
 
             <dependency>
+                <groupId>org.apache.geronimo.specs</groupId>
+                <artifactId>geronimo-jaxws_2.1_spec</artifactId>
+                <version>1.0</version>
+            </dependency>
+
+            <dependency>
                 <groupId>woodstox</groupId>
                 <artifactId>wstx-asl</artifactId>
                 <version>3.2.1</version>
@@ -1285,12 +1291,6 @@
             <dependency>
                 <groupId>org.apache.axis2</groupId>
                 <artifactId>axis2-adb</artifactId>
-                <version>${axis2Version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.axis2</groupId>
-                <artifactId>axis2-jaxws-api</artifactId>
                 <version>${axis2Version}</version>
             </dependency>
 

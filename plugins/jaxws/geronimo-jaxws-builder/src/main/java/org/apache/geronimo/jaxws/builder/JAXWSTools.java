@@ -40,7 +40,7 @@ public class JAXWSTools {
 
     private final static String [][] LIBS =
     { 
-        { "org.apache.axis2", "axis2-jaxws-api" },
+        { "org.apache.geronimo.specs", "geronimo-jaxws_2.1_spec" },
         { "org.apache.geronimo.specs", "geronimo-saaj_1.3_spec" },
         { "javax.xml.bind",   "jaxb-api" },
         { "com.sun.xml.bind", "jaxb-impl" },

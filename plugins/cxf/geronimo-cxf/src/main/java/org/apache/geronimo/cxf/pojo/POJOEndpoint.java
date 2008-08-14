@@ -21,6 +21,7 @@ package org.apache.geronimo.cxf.pojo;
 import java.net.URL;
 
 import javax.naming.Context;
+import javax.xml.ws.EndpointReference;
 import javax.xml.ws.WebServiceException;
 
 import org.slf4j.Logger;
@@ -35,6 +36,8 @@ import org.apache.geronimo.cxf.GeronimoJaxWsImplementorInfo;
 import org.apache.geronimo.jaxws.JAXWSAnnotationProcessor;
 import org.apache.geronimo.jaxws.JNDIResolver;
 import org.apache.geronimo.jaxws.annotations.AnnotationHolder;
+
+import org.w3c.dom.Element;
 
 public class POJOEndpoint extends CXFEndpoint {
 
@@ -112,4 +115,14 @@ public class POJOEndpoint extends CXFEndpoint {
         // shutdown server
         super.stop();
     }
+
+    public EndpointReference getEndpointReference(Element... referenceParameters) {
+        throw new UnsupportedOperationException();
+    }
+
+    public <T extends EndpointReference> T getEndpointReference(Class<T> clazz,
+                                                                Element... referenceParameters) {
+        throw new UnsupportedOperationException();
+    }
+
 }

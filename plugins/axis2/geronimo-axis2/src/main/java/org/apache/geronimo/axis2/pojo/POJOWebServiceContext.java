@@ -20,8 +20,11 @@ package org.apache.geronimo.axis2.pojo;
 import java.security.Principal;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.xml.ws.EndpointReference;
 import javax.xml.ws.WebServiceContext;
 import javax.xml.ws.handler.MessageContext;
+
+import org.w3c.dom.Element;
 
 /**
  * Implementation of WebServiceContext for POJO WS to ensure that getUserPrincipal()
@@ -63,4 +66,13 @@ public class POJOWebServiceContext implements WebServiceContext {
         context.set(null);
     }
 
+    public EndpointReference getEndpointReference(Element... referenceParameters) {
+        throw new UnsupportedOperationException();
+    }
+    
+    public <T extends EndpointReference> T getEndpointReference(Class<T> clazz,
+                                                                Element... referenceParameters) {
+        throw new UnsupportedOperationException();
+    }
+    
 }

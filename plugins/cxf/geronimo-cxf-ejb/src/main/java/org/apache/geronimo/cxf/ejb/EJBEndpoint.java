@@ -23,6 +23,7 @@ import java.util.List;
 
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
+import javax.xml.ws.EndpointReference;
 import javax.xml.ws.WebServiceContext;
 import javax.xml.ws.WebServiceException;
 
@@ -41,6 +42,8 @@ import org.apache.geronimo.cxf.GeronimoJaxWsImplementorInfo;
 import org.apache.geronimo.jaxws.JAXWSAnnotationProcessor;
 import org.apache.geronimo.jaxws.JNDIResolver;
 import org.apache.openejb.DeploymentInfo;
+
+import org.w3c.dom.Element;
 
 public class EJBEndpoint extends CXFEndpoint {
     
@@ -139,6 +142,15 @@ public class EJBEndpoint extends CXFEndpoint {
 
         // shutdown server
         super.stop();
+    }
+
+    public EndpointReference getEndpointReference(Element... referenceParameters) {
+        throw new UnsupportedOperationException();
+    }
+
+    public <T extends EndpointReference> T getEndpointReference(Class<T> clazz,
+                                                                Element... referenceParameters) {
+        throw new UnsupportedOperationException();
     }
     
 }
