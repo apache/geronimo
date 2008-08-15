@@ -59,6 +59,7 @@ public class AssemblyViewHandler extends BaseImportExportHandler {
         String version = request.getParameter("version");
         String format = request.getParameter("format");
 
+        response.setRenderParameter("clickedConfigId", isEmpty(configId) ? "" : configId);
         response.setRenderParameter("pluginIds", pluginIds);
         response.setRenderParameter("relativeServerPath", isEmpty(relativeServerPath) ? "var/temp/assembly" : relativeServerPath);
         if(!isEmpty(groupId)) response.setRenderParameter("groupId", groupId);
@@ -72,6 +73,7 @@ public class AssemblyViewHandler extends BaseImportExportHandler {
     public void renderView(RenderRequest request, RenderResponse response, MultiPageModel model) throws PortletException, IOException {
         PluginInstaller pluginInstaller = ManagementHelper.getManagementHelper(request).getPluginInstaller();
 
+        String clickedConfigId = request.getParameter("clickedConfigId");
         String[] configIds = request.getParameterValues("pluginIds");
         String relativeServerPath = request.getParameter("relativeServerPath");
         String groupId = request.getParameter("groupId");
@@ -89,6 +91,7 @@ public class AssemblyViewHandler extends BaseImportExportHandler {
             plugins.add(infoBean);
         }
 
+        request.setAttribute("clickedConfigId", clickedConfigId);
         request.setAttribute("plugins", plugins);
         request.setAttribute("relativeServerPath", relativeServerPath);
         request.setAttribute("groupId", groupId);
