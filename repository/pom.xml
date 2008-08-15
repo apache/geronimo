@@ -83,11 +83,6 @@
             <groupId>com.sun.xml.ws</groupId>
             <artifactId>jaxws-rt</artifactId>
         </dependency>
-
-        <dependency>
-            <groupId>com.sun.xml.bind</groupId>
-            <artifactId>jaxb-xjc</artifactId>
-        </dependency>
         <!--end add for wsgen-->
         
         <!-- This is to resolve an intermitent Maven problem with openejb-3.0-beta-1 transitive depend -->

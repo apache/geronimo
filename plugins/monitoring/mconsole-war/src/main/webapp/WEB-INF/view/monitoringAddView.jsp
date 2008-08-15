@@ -130,8 +130,8 @@ function openNewWindow(theURL,winName,features) {
             <td align="left" width="5%"><input type="checkbox" name="graph_ids" value="<%=rs.getString("graph_id")%>"></td>
             <td align="left"><a href="javascript: void(0)" onClick="openNewWindow('/monitoring/monitoringPopUpGraph.jsp?graph_id=<%=rs.getString("graph_id")%>','graph','width=800,height=300','title=<%=rs.getString("name") %>')"><%=rs.getString("name") %></a></td>
             <td align="left"><%=rs.getString("timeframe")%> min.</td>
-            <td align="left"><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showServer" /><portlet:param name="server_id" value="<%=rs.getString("server_id")%>" /></portlet:actionURL>"><%=rs2.getString("name")%></a></td>
-            <td align="center"><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="showEditGraph" /><portlet:param name="graph_id" value="<%=rs.getString("graph_id")%>" /></portlet:actionURL>"><img border=0 src="/monitoring/images/edit-b.png"></a></td>
+            <td align="left"><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showServer" /><portlet:param name="server_id" value='<%=rs.getString("server_id")%>' /></portlet:actionURL>"><%=rs2.getString("name")%></a></td>
+            <td align="center"><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="showEditGraph" /><portlet:param name="graph_id" value='<%=rs.getString("graph_id")%>' /></portlet:actionURL>"><img border=0 src="/monitoring/images/edit-b.png"></a></td>
             </tr>
       <%
 
