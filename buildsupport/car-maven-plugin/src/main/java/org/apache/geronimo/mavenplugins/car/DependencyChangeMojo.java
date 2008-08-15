@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -32,7 +33,6 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.bind.JAXBException;
 
 import org.apache.geronimo.system.plugin.PluginXmlUtil;
-import org.apache.geronimo.system.plugin.model.ArtifactType;
 import org.apache.geronimo.system.plugin.model.DependencyType;
 import org.apache.geronimo.system.plugin.model.PluginArtifactType;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -41,7 +41,7 @@ import org.apache.maven.plugin.MojoFailureException;
 /**
  * Check if the dependencies have changed
  *
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  * @goal verify-no-dependency-change
  * @requiresDependencyResolution runtime
  */
@@ -79,7 +79,7 @@ public class DependencyChangeMojo extends AbstractCarMojo {
     private UseMavenDependencies useMavenDependencies;
 
     public void execute() throws MojoExecutionException, MojoFailureException {
-        boolean useTransitiveDependencies = useMavenDependencies == null? true: useMavenDependencies.isUseTransitiveDependencies();
+        boolean useTransitiveDependencies = useMavenDependencies == null || useMavenDependencies.isUseTransitiveDependencies();
         UseMavenDependencies useMavenDependencies = new UseMavenDependencies(true, false, useTransitiveDependencies);
 
         try {
@@ -98,30 +98,43 @@ public class DependencyChangeMojo extends AbstractCarMojo {
                     }
                     if (!dependencies.isEmpty() || !added.getDependency().isEmpty()) {
                         File removedFile = new File(dependencyFile.getParentFile(), "dependencies.removed.xml");
-                        writeDependencies(dependencies,  removedFile);
+                        PluginArtifactType removed = toPluginArtifactType(dependencies);
+                        writeDependencies(removed,  removedFile);
                         File addedFile = new File(dependencyFile.getParentFile(), "dependencies.added.xml");
                         writeDependencies(added,  addedFile);
                         if (failOnChange) {
-                            throw new MojoFailureException("Dependencies have changed");
+                            StringWriter out = new StringWriter();
+                            out.write("Dependencies have changed:\n");
+                            if (!removed.getDependency().isEmpty()) {
+                                out.write("removed:\n");
+                                PluginXmlUtil.writePluginArtifact(removed, out);
+                            }
+                            if (!added.getDependency().isEmpty()) {
+                                out.write("added:\n");
+                                PluginXmlUtil.writePluginArtifact(added, out);
+                            }
+                            throw new MojoFailureException(out.toString());
                         }
                     }
                 } finally {
                     in.close();
                 }
             } else {
-                writeDependencies(dependencies,  dependencyFile);
+                writeDependencies(toPluginArtifactType(dependencies),  dependencyFile);
             }
+        } catch (MojoFailureException e) {
+            throw e;
         } catch (Exception e) {
             throw new MojoExecutionException("Could not read or write dependency history info", e);
         }
     }
 
-    private void writeDependencies(Collection<Dependency> dependencies, File file) throws IOException, XMLStreamException, JAXBException {
+    private PluginArtifactType toPluginArtifactType(Collection<Dependency> dependencies) throws IOException, XMLStreamException, JAXBException {
         PluginArtifactType pluginArtifactType = new PluginArtifactType();
         for (Dependency dependency: dependencies) {
             pluginArtifactType.getDependency().add(dependency.toDependencyType());
         }
-        writeDependencies(pluginArtifactType, file);
+        return pluginArtifactType;
     }
 
     private void writeDependencies(PluginArtifactType pluginArtifactType, File file) throws IOException, XMLStreamException, JAXBException {
