@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<plugin-artifact xmlns:ns2="http://geronimo.apache.org/xml/ns/attributes-1.2" xmlns="http://geronimo.apache.org/xml/ns/plugins-1.3">
+    <module-id>
+        <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>openjpa</artifactId>
+        <version>2.2-SNAPSHOT</version>
+        <type>car</type>
+    </module-id>
+    <dependency>
+        <groupId>commons-lang</groupId>
+        <artifactId>commons-lang</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>net.sourceforge.serp</groupId>
+        <artifactId>serp</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>commons-collections</groupId>
+        <artifactId>commons-collections</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.openjpa</groupId>
+        <artifactId>openjpa</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.modules</groupId>
+        <artifactId>geronimo-openjpa</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>transaction</artifactId>
+        <type>car</type>
+    </dependency>
+</plugin-artifact>
