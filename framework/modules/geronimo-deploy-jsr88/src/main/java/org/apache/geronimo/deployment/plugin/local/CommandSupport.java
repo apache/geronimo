@@ -293,6 +293,7 @@ public abstract class CommandSupport implements ProgressObject, Runnable {
                     AbstractName name = (AbstractName) it.next();
                     if(name.getName().get("name").equals(id.getModuleID())) {
                         id.setWebURL(kernel.getAttribute(name, "contextPath").toString());
+                        break;
                     }
                 }
             }
