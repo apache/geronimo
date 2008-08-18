@@ -33,7 +33,7 @@
         <attribute name="keyStore">geronimo-default</attribute>
         <attribute name="keyAlias">geronimo</attribute>
         <attribute name="trustStore">geronimo-default</attribute>
-        <attribute name="clientAuth">true</attribute>
+        <attribute name="clientAuth">false</attribute>
         <reference name="KeystoreManager">
             <name>KeystoreManager</name>
         </reference>
