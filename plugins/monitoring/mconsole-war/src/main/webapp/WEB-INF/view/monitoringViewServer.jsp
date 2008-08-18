@@ -309,7 +309,7 @@ document.getElementById(x).style.display='';
                         <%
                         } else if (collecting == 0){
                         %>
-                            <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="enableServerViewQuery" /><portlet:param name="server_id" value="<%=server_id%>" /><portlet:param name="snapshotDuration" value="<%= "" + (snapshotDuration * 1000 * 60) %>" /></portlet:actionURL>">Enable Query</a></li>
+                            <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="enableServerViewQuery" /><portlet:param name="server_id" value="<%=server_id%>" /><portlet:param name="snapshotDuration" value='<%= "" + (snapshotDuration * 1000 * 60) %>' /></portlet:actionURL>">Enable Query</a></li>
                         <%
                         }
                         else if (collecting == -1){

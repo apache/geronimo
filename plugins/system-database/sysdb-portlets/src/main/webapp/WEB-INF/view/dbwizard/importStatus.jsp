@@ -25,7 +25,7 @@
 <p><fmt:message key="dbwizard.importStatus.summary"/></p>
 
 <c:choose>
-  <c:when test="${empty(status.pools)}"><p><i><fmt:message key="dbwizard.importStatus.importFailed"/></i></p></c:when>
+  <c:when test="${empty (status.pools)}"><p><i><fmt:message key="dbwizard.importStatus.importFailed"/></i></p></c:when>
   <c:otherwise>
 <table width="100%">
   <tr>

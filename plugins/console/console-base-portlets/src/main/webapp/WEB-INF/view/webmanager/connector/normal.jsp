@@ -24,12 +24,12 @@
 
 <!-- Show existing connectors -->
 <c:choose>
-  <c:when test="${empty(containers)}">There are no Web Containers defined</c:when>
+  <c:when test="${empty (containers)}">There are no Web Containers defined</c:when>
   <c:otherwise>
     <c:forEach var="container" items="${containers}">
       <c:if test="${fn:length(containers) > 1}"><p><b>Connectors for ${container.name}:</b></p></c:if>
         <c:choose>
-          <c:when test="${empty(container.connectors)}"><p>There are no connectors defined for ${container.name}</p></c:when>
+          <c:when test="${empty (container.connectors)}"><p>There are no connectors defined for ${container.name}</p></c:when>
           <c:otherwise>
 <table width="100%">
           <tr>

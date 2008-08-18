@@ -23,7 +23,7 @@
 <p><fmt:message key="realmwizard.list.title" /></p>
 
 <c:choose>
-  <c:when test="${empty(realms)}"><p><i><fmt:message key="realmwizard.list.noSecurityRealms" /></i></p></c:when>
+  <c:when test="${empty (realms)}"><p><i><fmt:message key="realmwizard.list.noSecurityRealms" /></i></p></c:when>
   <c:otherwise>
 <p><fmt:message key="realmwizard.list.seeExamples" /></p>
 

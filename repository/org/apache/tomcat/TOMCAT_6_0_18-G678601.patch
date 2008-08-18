@@ -1,0 +1,3066 @@
+Index: java/org/apache/catalina/core/DefaultInstanceManager.java
+===================================================================
+--- java/org/apache/catalina/core/DefaultInstanceManager.java	(revision 3176)
++++ java/org/apache/catalina/core/DefaultInstanceManager.java	(working copy)
+@@ -245,64 +245,70 @@
+             return;
+         }
+ 
+-        // Initialize fields annotations
+-        Field[] fields = instance.getClass().getDeclaredFields();
+-        for (Field field : fields) {
+-            if (injections != null && injections.containsKey(field.getName())) {
+-                lookupFieldResource(context, instance, field, injections.get(field.getName()));
+-            } else if (field.isAnnotationPresent(Resource.class)) {
+-                Resource annotation = field.getAnnotation(Resource.class);
+-                lookupFieldResource(context, instance, field, annotation.name());
+-            } else if (field.isAnnotationPresent(EJB.class)) {
+-                EJB annotation = field.getAnnotation(EJB.class);
+-                lookupFieldResource(context, instance, field, annotation.name());
+-            } else if (field.isAnnotationPresent(WebServiceRef.class)) {
+-                WebServiceRef annotation =
++        Class<?> clazz = instance.getClass();
++
++        while (clazz != null) {
++            // Initialize fields annotations
++            Field[] fields = instance.getClass().getDeclaredFields();
++            for (Field field : fields) {
++                if (injections != null && injections.containsKey(field.getName())) {
++                    lookupFieldResource(context, instance, field, injections.get(field.getName()));
++                }
++                if (field.isAnnotationPresent(Resource.class)) {
++                    Resource annotation = field.getAnnotation(Resource.class);
++                    lookupFieldResource(context, instance, field, annotation.name());
++                } else if (field.isAnnotationPresent(EJB.class)) {
++                    EJB annotation = field.getAnnotation(EJB.class);
++                    lookupFieldResource(context, instance, field, annotation.name());
++                } else if (field.isAnnotationPresent(WebServiceRef.class)) {
++                    WebServiceRef annotation =
+                         field.getAnnotation(WebServiceRef.class);
+-                lookupFieldResource(context, instance, field, annotation.name());
+-            } else if (field.isAnnotationPresent(PersistenceContext.class)) {
+-                PersistenceContext annotation =
++                    lookupFieldResource(context, instance, field, annotation.name());
++                } else if (field.isAnnotationPresent(PersistenceContext.class)) {
++                    PersistenceContext annotation =
+                         field.getAnnotation(PersistenceContext.class);
+-                lookupFieldResource(context, instance, field, annotation.name());
+-            } else if (field.isAnnotationPresent(PersistenceUnit.class)) {
+-                PersistenceUnit annotation =
++                    lookupFieldResource(context, instance, field, annotation.name());
++                } else if (field.isAnnotationPresent(PersistenceUnit.class)) {
++                    PersistenceUnit annotation =
+                         field.getAnnotation(PersistenceUnit.class);
+-                lookupFieldResource(context, instance, field, annotation.name());
++                    lookupFieldResource(context, instance, field, annotation.name());
++                }
+             }
+-        }
+ 
+-        // Initialize methods annotations
+-        Method[] methods = instance.getClass().getDeclaredMethods();
+-        for (Method method : methods) {
+-            String methodName = method.getName();
+-            if (injections != null && methodName.startsWith("set") && methodName.length() > 3) {
+-                String fieldName = Character.toLowerCase(methodName.charAt(3)) + methodName.substring(4);
+-                if (injections.containsKey(fieldName)) {
+-                    lookupMethodResource(context, instance, method, injections.get(fieldName));
+-                    break;
++            // Initialize methods annotations
++            Method[] methods = instance.getClass().getDeclaredMethods();
++            for (Method method : methods) {
++                String methodName = method.getName();
++                if (injections != null && methodName.startsWith("set") && methodName.length() > 3) {
++                    String fieldName = Character.toLowerCase(methodName.charAt(3)) + methodName.substring(4);
++                    if (injections.containsKey(fieldName)) {
++                        lookupMethodResource(context, instance, method, injections.get(fieldName));
++                        break;
++                    }
+                 }
+-            }
+-            if (method.isAnnotationPresent(Resource.class)) {
+-                Resource annotation = method.getAnnotation(Resource.class);
+-                lookupMethodResource(context, instance, method, annotation.name());
+-            } else if (method.isAnnotationPresent(EJB.class)) {
+-                EJB annotation = method.getAnnotation(EJB.class);
+-                lookupMethodResource(context, instance, method, annotation.name());
+-            } else if (method.isAnnotationPresent(WebServiceRef.class)) {
+-                WebServiceRef annotation =
++                if (method.isAnnotationPresent(Resource.class)) {
++                    Resource annotation = method.getAnnotation(Resource.class);
++                    lookupMethodResource(context, instance, method, annotation.name());
++                } else if (method.isAnnotationPresent(EJB.class)) {
++                    EJB annotation = method.getAnnotation(EJB.class);
++                    lookupMethodResource(context, instance, method, annotation.name());
++                } else if (method.isAnnotationPresent(WebServiceRef.class)) {
++                    WebServiceRef annotation =
+                         method.getAnnotation(WebServiceRef.class);
+-                lookupMethodResource(context, instance, method, annotation.name());
+-            } else if (method.isAnnotationPresent(PersistenceContext.class)) {
+-                PersistenceContext annotation =
++                    lookupMethodResource(context, instance, method, annotation.name());
++                } else if (method.isAnnotationPresent(PersistenceContext.class)) {
++                    PersistenceContext annotation =
+                         method.getAnnotation(PersistenceContext.class);
+-                lookupMethodResource(context, instance, method, annotation.name());
+-            } else if (method.isAnnotationPresent(PersistenceUnit.class)) {
+-                PersistenceUnit annotation =
++                    lookupMethodResource(context, instance, method, annotation.name());
++                } else if (method.isAnnotationPresent(PersistenceUnit.class)) {
++                    PersistenceUnit annotation =
+                         method.getAnnotation(PersistenceUnit.class);
+-                lookupMethodResource(context, instance, method, annotation.name());
++                    lookupMethodResource(context, instance, method, annotation.name());
++                }
+             }
++
++            clazz = clazz.getSuperclass();
+         }
+-
+     }
+ 
+ 
+Index: TOMCAT_6_0_18-G678601.patch
+===================================================================
+--- TOMCAT_6_0_18-G678601.patch	(revision 3176)
++++ TOMCAT_6_0_18-G678601.patch	(working copy)
+@@ -1,2834 +1,122 @@
+-Index: java/org/apache/InstanceManager.java
++Index: java/org/apache/catalina/core/DefaultInstanceManager.java
+ ===================================================================
+---- java/org/apache/InstanceManager.java	(revision 0)
+-+++ java/org/apache/InstanceManager.java	(revision 0)
+-@@ -0,0 +1,45 @@
+-+/*
+-+ * Licensed to the Apache Software Foundation (ASF) under one
+-+ * or more contributor license agreements.  See the NOTICE file
+-+ * distributed with this work for additional information
+-+ * regarding copyright ownership.  The ASF licenses this file
+-+ * to you under the Apache License, Version 2.0 (the
+-+ * "License"); you may not use this file except in compliance
+-+ * with the License.  You may obtain a copy of the License at
+-+ *
+-+ *  http://www.apache.org/licenses/LICENSE-2.0
+-+ *
+-+ * Unless required by applicable law or agreed to in writing,
+-+ * software distributed under the License is distributed on an
+-+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+-+ * KIND, either express or implied.  See the License for the
+-+ * specific language governing permissions and limitations
+-+ * under the License.
+-+ */
+-+
+-+
+-+package org.apache;
+-+
+-+import java.lang.reflect.InvocationTargetException;
+-+
+-+import javax.naming.NamingException;
+-+
+-+/**
+-+ * @version $Rev:$ $Date:$
+-+ */
+-+public interface InstanceManager {
+-+
+-+    public Object newInstance(String className)
+-+    	throws IllegalAccessException, InvocationTargetException, NamingException, 
+-+    		InstantiationException, ClassNotFoundException;
+-+
+-+    public Object newInstance(String fqcn, ClassLoader classLoader) 
+-+    	throws IllegalAccessException, InvocationTargetException, NamingException, 
+-+    		InstantiationException, ClassNotFoundException;
+-+
+-+    public void newInstance(Object o) 
+-+		throws IllegalAccessException, InvocationTargetException, NamingException;
+-+
+-+    public void destroyInstance(Object o)
+-+    	throws IllegalAccessException, InvocationTargetException;
+-+}
+-
+-Property changes on: java/org/apache/InstanceManager.java
+-___________________________________________________________________
+-Name: svn:eol-style
+-   + native
+-
+-Index: java/org/apache/jasper/JspCompilationContext.java
+-===================================================================
+---- java/org/apache/jasper/JspCompilationContext.java	(revision 3168)
+-+++ java/org/apache/jasper/JspCompilationContext.java	(working copy)
+-@@ -609,12 +609,7 @@
+-         try {
+-             getJspLoader();
+-             
+--            String name;
+--            if (isTagFile()) {
+--                name = tagInfo.getTagClassName();
+--            } else {
+--                name = getServletPackageName() + "." + getServletClassName();
+--            }
+-+            String name = getFQCN();
+-             servletClass = jspLoader.loadClass(name);
+-         } catch (ClassNotFoundException cex) {
+-             throw new JasperException(Localizer.getMessage("jsp.error.unable.load"),
+-@@ -627,6 +622,16 @@
+-         return servletClass;
+-     }
+- 
+-+    public String getFQCN() {
+-+        String name;
+-+        if (isTagFile()) {
+-+            name = tagInfo.getTagClassName();
+-+        } else {
+-+            name = getServletPackageName() + "." + getServletClassName();
+-+        }
+-+        return name;
+-+    }
+-+
+-     // ==================== protected methods ==================== 
+- 
+-     static Object outputDirLock = new Object();
+-Index: java/org/apache/jasper/runtime/TagHandlerPool.java
+-===================================================================
+---- java/org/apache/jasper/runtime/TagHandlerPool.java	(revision 3168)
+-+++ java/org/apache/jasper/runtime/TagHandlerPool.java	(working copy)
+-@@ -21,7 +21,7 @@
+- import javax.servlet.jsp.JspException;
+- import javax.servlet.jsp.tagext.Tag;
+- 
+--import org.apache.AnnotationProcessor;
+-+import org.apache.InstanceManager;
+- import org.apache.jasper.Constants;
+- import org.apache.juli.logging.Log;
+- import org.apache.juli.logging.LogFactory;
+-@@ -42,7 +42,7 @@
+-     
+-     // index of next available tag handler
+-     private int current;
+--    protected AnnotationProcessor annotationProcessor = null;
+-+    protected InstanceManager instanceManager = null;
+- 
+-     public static TagHandlerPool getTagHandlerPool( ServletConfig config) {
+-         TagHandlerPool result=null;
+-@@ -78,8 +78,7 @@
++--- java/org/apache/catalina/core/DefaultInstanceManager.java	(revision 3176)
+++++ java/org/apache/catalina/core/DefaultInstanceManager.java	(working copy)
++@@ -245,64 +245,70 @@
++             return;
+          }
+-         this.handlers = new Tag[maxSize];
+-         this.current = -1;
+--        this.annotationProcessor = 
+--            (AnnotationProcessor) config.getServletContext().getAttribute(AnnotationProcessor.class.getName());
+-+        instanceManager = InstanceManagerFactory.getInstanceManager(config);
+-     }
+  
+-     /**
+-@@ -112,7 +111,7 @@
+-      * @throws JspException if a tag handler cannot be instantiated
+-      */
+-     public Tag get(Class handlerClass) throws JspException {
+--	Tag handler = null;
+-+    	Tag handler;
+-         synchronized( this ) {
+-             if (current >= 0) {
+-                 handler = handlers[current--];
+-@@ -123,9 +122,13 @@
+-         // Out of sync block - there is no need for other threads to
+-         // wait for us to construct a tag for this thread.
+-         try {
+--            Tag instance = (Tag) handlerClass.newInstance();
+--            AnnotationHelper.postConstruct(annotationProcessor, instance);
+--            return instance;
+-+        	if (Constants.USE_INSTANCE_MANAGER_FOR_TAGS) {
+-+        		return (Tag) instanceManager.newInstance(handlerClass.getName(), handlerClass.getClassLoader());
+-+        	} else {
+-+                Tag instance = (Tag) handlerClass.newInstance();
+-+                instanceManager.newInstance(instance);
+-+                return instance;
+-+        	}
+-         } catch (Exception e) {
+-             throw new JspException(e.getMessage(), e);
+-         }
+-@@ -147,13 +150,11 @@
+-         }
+-         // There is no need for other threads to wait for us to release
+-         handler.release();
+--        if (annotationProcessor != null) {
+--            try {
+--                AnnotationHelper.preDestroy(annotationProcessor, handler);
+--            } catch (Exception e) {
+--                log.warn("Error processing preDestroy on tag instance of " 
+--                        + handler.getClass().getName(), e);
+--            }
+-+        try {
+-+            instanceManager.destroyInstance(handler);
+-+        } catch (Exception e) {
+-+            log.warn("Error processing preDestroy on tag instance of "
+-+                    + handler.getClass().getName(), e);
+-         }
+-     }
+- 
+-@@ -164,13 +165,11 @@
+-     public synchronized void release() {
+-         for (int i = current; i >= 0; i--) {
+-             handlers[i].release();
+--            if (annotationProcessor != null) {
+--                try {
+--                    AnnotationHelper.preDestroy(annotationProcessor, handlers[i]);
+--                } catch (Exception e) {
+--                    log.warn("Error processing preDestroy on tag instance of " 
+--                            + handlers[i].getClass().getName(), e);
+--                }
+-+            try {
+-+                instanceManager.destroyInstance(handlers[i]);
+-+            } catch (Exception e) {
+-+                log.warn("Error processing preDestroy on tag instance of "
+-+                        + handlers[i].getClass().getName(), e);
+-             }
+-         }
+-     }
+-Index: java/org/apache/jasper/runtime/AnnotationHelper.java
+-===================================================================
+---- java/org/apache/jasper/runtime/AnnotationHelper.java	(revision 3168)
+-+++ java/org/apache/jasper/runtime/AnnotationHelper.java	(working copy)
+-@@ -1,61 +0,0 @@
+--/*
+-- * Licensed to the Apache Software Foundation (ASF) under one or more
+-- * contributor license agreements.  See the NOTICE file distributed with
+-- * this work for additional information regarding copyright ownership.
+-- * The ASF licenses this file to You under the Apache License, Version 2.0
+-- * (the "License"); you may not use this file except in compliance with
+-- * the License.  You may obtain a copy of the License at
+-- * 
+-- *      http://www.apache.org/licenses/LICENSE-2.0
+-- * 
+-- * Unless required by applicable law or agreed to in writing, software
+-- * distributed under the License is distributed on an "AS IS" BASIS,
+-- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-- * See the License for the specific language governing permissions and
+-- * limitations under the License.
+-- */
+--
+--package org.apache.jasper.runtime;
+--
+--import java.lang.reflect.InvocationTargetException;
+--
+--import javax.naming.NamingException;
+--
+--import org.apache.AnnotationProcessor;
+--
+--
+--/**
+-- * Verify the annotation and Process it.
+-- *
+-- * @author Fabien Carrion
+-- * @author Remy Maucherat
+-- * @version $Revision: 467222 $, $Date: 2006-10-23 23:17:11 -0400 (Mon, 23 Oct 2006) $
+-- */
+--public class AnnotationHelper {
+--
+--    
+--    /**
+--     * Call postConstruct method on the specified instance. Note: In Jasper, this
+--     * calls naming resources injection as well.
+--     */
+--    public static void postConstruct(AnnotationProcessor processor, Object instance)
+--        throws IllegalAccessException, InvocationTargetException, NamingException {
+--        if (processor != null) {
+--            processor.processAnnotations(instance);
+--            processor.postConstruct(instance);
+--        }
+--    }
+--    
+--    
+--    /**
+--     * Call preDestroy method on the specified instance.
+--     */
+--    public static void preDestroy(AnnotationProcessor processor, Object instance)
+--        throws IllegalAccessException, InvocationTargetException {
+--        if (processor != null) {
+--            processor.preDestroy(instance);
+--        }
+--    }
+--    
+--
+--}
+-Index: java/org/apache/jasper/runtime/InstanceManagerFactory.java
+-===================================================================
+---- java/org/apache/jasper/runtime/InstanceManagerFactory.java	(revision 0)
+-+++ java/org/apache/jasper/runtime/InstanceManagerFactory.java	(revision 0)
+-@@ -0,0 +1,44 @@
+-+/*
+-+ * Licensed to the Apache Software Foundation (ASF) under one
+-+ * or more contributor license agreements.  See the NOTICE file
+-+ * distributed with this work for additional information
+-+ * regarding copyright ownership.  The ASF licenses this file
+-+ * to you under the Apache License, Version 2.0 (the
+-+ * "License"); you may not use this file except in compliance
+-+ * with the License.  You may obtain a copy of the License at
+-+ *
+-+ *  http://www.apache.org/licenses/LICENSE-2.0
+-+ *
+-+ * Unless required by applicable law or agreed to in writing,
+-+ * software distributed under the License is distributed on an
+-+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+-+ * KIND, either express or implied.  See the License for the
+-+ * specific language governing permissions and limitations
+-+ * under the License.
+-+ */
++-        // Initialize fields annotations
++-        Field[] fields = instance.getClass().getDeclaredFields();
++-        for (Field field : fields) {
++-            if (injections != null && injections.containsKey(field.getName())) {
++-                lookupFieldResource(context, instance, field, injections.get(field.getName()));
++-            } else if (field.isAnnotationPresent(Resource.class)) {
++-                Resource annotation = field.getAnnotation(Resource.class);
++-                lookupFieldResource(context, instance, field, annotation.name());
++-            } else if (field.isAnnotationPresent(EJB.class)) {
++-                EJB annotation = field.getAnnotation(EJB.class);
++-                lookupFieldResource(context, instance, field, annotation.name());
++-            } else if (field.isAnnotationPresent(WebServiceRef.class)) {
++-                WebServiceRef annotation =
+++        Class<?> clazz = instance.getClass();
+ +
+-+
+-+package org.apache.jasper.runtime;
+-+
+-+import javax.servlet.ServletConfig;
+-+
+-+import org.apache.InstanceManager;
+-+
+-+/**
+-+ * @version $Rev:$ $Date:$
+-+ */
+-+public class InstanceManagerFactory {
+-+
+-+    private InstanceManagerFactory() {
+-+    }
+-+
+-+    public static InstanceManager getInstanceManager(ServletConfig config) {
+-+        InstanceManager instanceManager = 
+-+        	(InstanceManager) config.getServletContext().getAttribute(InstanceManager.class.getName());
+-+        if (instanceManager == null) {
+-+            throw new IllegalStateException("No org.apache.InstanceManager set in ServletContext");
+-+        }
+-+        return instanceManager;
+-+    }
+-+
+-+}
+-
+-Property changes on: java/org/apache/jasper/runtime/InstanceManagerFactory.java
+-___________________________________________________________________
+-Name: svn:eol-style
+-   + native
+-
+-Index: java/org/apache/jasper/servlet/JspServletWrapper.java
+-===================================================================
+---- java/org/apache/jasper/servlet/JspServletWrapper.java	(revision 3168)
+-+++ java/org/apache/jasper/servlet/JspServletWrapper.java	(working copy)
+-@@ -31,7 +31,7 @@
+- import javax.servlet.http.HttpServletResponse;
+- import javax.servlet.jsp.tagext.TagInfo;
+- 
+--import org.apache.AnnotationProcessor;
+-+import org.apache.InstanceManager;
+- import org.apache.jasper.JasperException;
+- import org.apache.jasper.JspCompilationContext;
+- import org.apache.jasper.Options;
+-@@ -39,6 +39,7 @@
+- import org.apache.jasper.compiler.JavacErrorDetail;
+- import org.apache.jasper.compiler.JspRuntimeContext;
+- import org.apache.jasper.compiler.Localizer;
+-+import org.apache.jasper.runtime.InstanceManagerFactory;
+- import org.apache.jasper.runtime.JspSourceDependent;
+- import org.apache.juli.logging.Log;
+- import org.apache.juli.logging.LogFactory;
+-@@ -68,7 +69,6 @@
+- 
+-     private Servlet theServlet;
+-     private String jspUri;
+--    private Class servletClass;
+-     private Class tagHandlerClass;
+-     private JspCompilationContext ctxt;
+-     private long available = 0L;
+-@@ -139,15 +139,10 @@
+-                     destroy();
+-                     
+-                     Servlet servlet = null;
+--                    
+-+
+-                     try {
+--                        servletClass = ctxt.load();
+--                        servlet = (Servlet) servletClass.newInstance();
+--                        AnnotationProcessor annotationProcessor = (AnnotationProcessor) config.getServletContext().getAttribute(AnnotationProcessor.class.getName());
+--                        if (annotationProcessor != null) {
+--                           annotationProcessor.processAnnotations(servlet);
+--                           annotationProcessor.postConstruct(servlet);
+--                        }
+-+                        InstanceManager instanceManager = InstanceManagerFactory.getInstanceManager(config);
+-+                        servlet = (Servlet) instanceManager.newInstance(ctxt.getFQCN(), ctxt.getJspLoader());
+-                     } catch (IllegalAccessException e) {
+-                         throw new JasperException(e);
+-                     } catch (InstantiationException e) {
+-@@ -423,15 +418,13 @@
+-     public void destroy() {
+-         if (theServlet != null) {
+-             theServlet.destroy();
+--            AnnotationProcessor annotationProcessor = (AnnotationProcessor) config.getServletContext().getAttribute(AnnotationProcessor.class.getName());
+--            if (annotationProcessor != null) {
+--                try {
+--                    annotationProcessor.preDestroy(theServlet);
+--                } catch (Exception e) {
+--                    // Log any exception, since it can't be passed along
+--                    log.error(Localizer.getMessage("jsp.error.file.not.found",
+--                           e.getMessage()), e);
+--                }
+-+            InstanceManager instanceManager = InstanceManagerFactory.getInstanceManager(config);
+-+            try {
+-+                instanceManager.destroyInstance(theServlet);
+-+            } catch (Exception e) {
+-+                // Log any exception, since it can't be passed along
+-+                log.error(Localizer.getMessage("jsp.error.file.not.found",
+-+                        e.getMessage()), e);
+-             }
+-         }
+-     }
+-Index: java/org/apache/jasper/Constants.java
+-===================================================================
+---- java/org/apache/jasper/Constants.java	(revision 3168)
+-+++ java/org/apache/jasper/Constants.java	(working copy)
+-@@ -199,4 +199,7 @@
+-      */
+-     public static final String SESSION_PARAMETER_NAME = "jsessionid";
+- 
+-+    public static final boolean USE_INSTANCE_MANAGER_FOR_TAGS =
+-+        Boolean.valueOf(System.getProperty("org.apache.jasper.Constants.USE_INSTANCE_MANAGER_FOR_TAGS", "false")).booleanValue();
+-+
+- }
+-Index: java/org/apache/jasper/compiler/Generator.java
+-===================================================================
+---- java/org/apache/jasper/compiler/Generator.java	(revision 3168)
+-+++ java/org/apache/jasper/compiler/Generator.java	(working copy)
+-@@ -73,8 +73,8 @@
+- 
+-     private static final String VAR_EXPRESSIONFACTORY = 
+-         System.getProperty("org.apache.jasper.compiler.Generator.VAR_EXPRESSIONFACTORY", "_el_expressionfactory");
+--    private static final String VAR_ANNOTATIONPROCESSOR = 
+--        System.getProperty("org.apache.jasper.compiler.Generator.VAR_ANNOTATIONPROCESSOR", "_jsp_annotationprocessor");
+-+    private static final String VAR_INSTANCEMANAGER =
+-+        System.getProperty("org.apache.jasper.compiler.Generator.VAR_INSTANCEMANAGER", "_jsp_instancemanager");
+- 
+-     private ServletWriter out;
+- 
+-@@ -413,14 +413,14 @@
+-         }
+-         out.println(".getServletContext()).getExpressionFactory();");
+- 
+--        out.printin(VAR_ANNOTATIONPROCESSOR);
+--        out.print(" = (org.apache.AnnotationProcessor) ");
+-+        out.printin(VAR_INSTANCEMANAGER);
+-+        out.print(" = org.apache.jasper.runtime.InstanceManagerFactory.getInstanceManager(");
+-         if (ctxt.isTagFile()) {
+-             out.print("config");
+-         } else {
+-             out.print("getServletConfig()");
+-         }
+--        out.println(".getServletContext().getAttribute(org.apache.AnnotationProcessor.class.getName());");
+-+        out.println(");");
+- 
+-         out.popIndent();
+-         out.printil("}");
+-@@ -524,8 +524,8 @@
+-         out.printin("private javax.el.ExpressionFactory ");
+-         out.print(VAR_EXPRESSIONFACTORY);
+-         out.println(";");
+--        out.printin("private org.apache.AnnotationProcessor ");
+--        out.print(VAR_ANNOTATIONPROCESSOR);
+-+        out.printin("private org.apache.InstanceManager ");
+-+        out.print(VAR_INSTANCEMANAGER);
+-         out.println(";");
+-         out.println();
+-     }
+-@@ -2135,11 +2135,11 @@
+- 
+-             String tagHandlerClassName = JspUtil
+-                     .getCanonicalName(tagHandlerClass);
+--            out.printin(tagHandlerClassName);
+--            out.print(" ");
+--            out.print(tagHandlerVar);
+--            out.print(" = ");
+-             if (isPoolingEnabled && !(n.implementsJspIdConsumer())) {
+-+                out.printin(tagHandlerClassName);
+-+                out.print(" ");
+-+                out.print(tagHandlerVar);
+-+                out.print(" = ");
+-                 out.print("(");
+-                 out.print(tagHandlerClassName);
+-                 out.print(") ");
+-@@ -2148,14 +2148,7 @@
+-                 out.print(tagHandlerClassName);
+-                 out.println(".class);");
+-             } else {
+--                out.print("new ");
+--                out.print(tagHandlerClassName);
+--                out.println("();");
+--                out.printin("org.apache.jasper.runtime.AnnotationHelper.postConstruct(");
+--                out.print(VAR_ANNOTATIONPROCESSOR);
+--                out.print(", ");
+--                out.print(tagHandlerVar);
+--                out.println(");");
+-+                writeNewInstance(tagHandlerVar, tagHandlerClassName);
+-             }
+- 
+-             // includes setting the context
+-@@ -2213,8 +2206,7 @@
+-                         out.println("[0]++;");
+-                     }
+-                     out.printin(tagHandlerVar);
+--                    out
+--                            .println(".setBodyContent((javax.servlet.jsp.tagext.BodyContent) out);");
+-+                    out.println(".setBodyContent((javax.servlet.jsp.tagext.BodyContent) out);");
+-                     out.printin(tagHandlerVar);
+-                     out.println(".doInitBody();");
+- 
+-@@ -2240,6 +2232,40 @@
+-             n.setEndJavaLine(out.getJavaLine());
+-         }
+- 
+-+        private void writeNewInstance(String tagHandlerVar, String tagHandlerClassName) {
+-+        	if (Constants.USE_INSTANCE_MANAGER_FOR_TAGS) {
+-+        		out.printin(tagHandlerClassName);
+-+        		out.print(" ");
+-+        		out.print(tagHandlerVar);
+-+        		out.print(" = (");
+-+        		out.print(tagHandlerClassName);
+-+        		out.print(")");
+-+        		out.print(VAR_INSTANCEMANAGER);
+-+        		out.print(".newInstance(\"");
+-+        		out.print(tagHandlerClassName);
+-+        		out.println("\", this.getClass().getClassLoader());");
+-+        	} else {
+-+        		out.printin(tagHandlerClassName);
+-+        		out.print(" ");
+-+        		out.print(tagHandlerVar);
+-+        		out.print(" = (");
+-+        		out.print("new ");
+-+        		out.print(tagHandlerClassName);
+-+        		out.println("());");
+-+        		out.printin(VAR_INSTANCEMANAGER);
+-+        		out.print(".newInstance(");
+-+        		out.print(tagHandlerVar);
+-+        		out.println(");");
+-+        	}
+-+        }
+-+
+-+        private void writeDestroyInstance(String tagHandlerVar) {
+-+            out.printin(VAR_INSTANCEMANAGER);
+-+            out.print(".destroyInstance(");
+-+            out.print(tagHandlerVar);
+-+            out.println(");");
+-+        }
+-+
+-         private void generateCustomEnd(Node.CustomTag n, String tagHandlerVar,
+-                 String tagEvalVar, String tagPushBodyCountVar) {
+- 
+-@@ -2301,11 +2327,7 @@
+-                 } else {
+-                     out.printin(tagHandlerVar);
+-                     out.println(".release();");
+--                    out.printin("org.apache.jasper.runtime.AnnotationHelper.preDestroy(");
+--                    out.print(VAR_ANNOTATIONPROCESSOR);
+--                    out.print(", ");
+--                    out.print(tagHandlerVar);
+--                    out.println(");");
+-+                    writeDestroyInstance(tagHandlerVar);
+-                 }
+-             }
+-             if (isTagFile || isFragment) {
+-@@ -2348,11 +2370,7 @@
+-             } else {
+-                 out.printin(tagHandlerVar);
+-                 out.println(".release();");
+--                out.printin("org.apache.jasper.runtime.AnnotationHelper.preDestroy(");
+--                out.print(VAR_ANNOTATIONPROCESSOR);
+--                out.print(", ");
+--                out.print(tagHandlerVar);
+--                out.println(");");
+-+                writeDestroyInstance(tagHandlerVar);
+-             }
+- 
+-             if (n.implementsTryCatchFinally()) {
+-@@ -2384,21 +2402,8 @@
+- 
+-             String tagHandlerClassName = JspUtil
+-                     .getCanonicalName(tagHandlerClass);
+--            out.printin(tagHandlerClassName);
+--            out.print(" ");
+--            out.print(tagHandlerVar);
+--            out.print(" = ");
+--            out.print("new ");
+--            out.print(tagHandlerClassName);
+--            out.println("();");
+-+            writeNewInstance(tagHandlerVar, tagHandlerClassName);
+- 
+--            // Resource injection
+--            out.printin("org.apache.jasper.runtime.AnnotationHelper.postConstruct(");
+--            out.print(VAR_ANNOTATIONPROCESSOR);
+--            out.print(", ");
+--            out.print(tagHandlerVar);
+--            out.println(");");
+--            
+-             generateSetters(n, tagHandlerVar, handlerInfo, true);
+- 
+-             // JspIdConsumer (after context has been set)
+-@@ -2451,11 +2456,7 @@
+-             syncScriptingVars(n, VariableInfo.AT_END);
+- 
+-             // Resource injection
+--            out.printin("org.apache.jasper.runtime.AnnotationHelper.preDestroy(");
+--            out.print(VAR_ANNOTATIONPROCESSOR);
+--            out.print(", ");
+--            out.print(tagHandlerVar);
+--            out.println(");");
+-+            writeDestroyInstance(tagHandlerVar);
+- 
+-             n.setEndJavaLine(out.getJavaLine());
+-         }
+-Index: java/org/apache/AnnotationProcessor.java
+-===================================================================
+---- java/org/apache/AnnotationProcessor.java	(revision 3168)
+-+++ java/org/apache/AnnotationProcessor.java	(working copy)
+-@@ -1,37 +0,0 @@
+--/*
+-- * Licensed to the Apache Software Foundation (ASF) under one or more
+-- * contributor license agreements.  See the NOTICE file distributed with
+-- * this work for additional information regarding copyright ownership.
+-- * The ASF licenses this file to You under the Apache License, Version 2.0
+-- * (the "License"); you may not use this file except in compliance with
+-- * the License.  You may obtain a copy of the License at
+-- * 
+-- *      http://www.apache.org/licenses/LICENSE-2.0
+-- * 
+-- * Unless required by applicable law or agreed to in writing, software
+-- * distributed under the License is distributed on an "AS IS" BASIS,
+-- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-- * See the License for the specific language governing permissions and
+-- * limitations under the License.
+-- */
+--
+--package org.apache;
+--
+--import java.lang.reflect.InvocationTargetException;
+--
+--import javax.naming.NamingException;
+--
+--/**
+-- * Comment
+-- *
+-- * @author <a href="mailto:bill@jboss.org">Bill Burke</a>
+-- * @version $Revision: 467222 $
+-- */
+--public interface AnnotationProcessor {
+--    public void postConstruct(Object instance)
+--        throws IllegalAccessException, InvocationTargetException;
+--    public void preDestroy(Object instance)
+--        throws IllegalAccessException, InvocationTargetException;
+--    public void processAnnotations(Object instance)
+--        throws IllegalAccessException, InvocationTargetException, NamingException;
+--}
+-Index: java/org/apache/catalina/core/DefaultInstanceManager.java
+-===================================================================
+---- java/org/apache/catalina/core/DefaultInstanceManager.java	(revision 0)
+-+++ java/org/apache/catalina/core/DefaultInstanceManager.java	(revision 0)
+-@@ -0,0 +1,437 @@
+-+/*
+-+ * Licensed to the Apache Software Foundation (ASF) under one or more
+-+ * contributor license agreements.  See the NOTICE file distributed with
+-+ * this work for additional information regarding copyright ownership.
+-+ * The ASF licenses this file to You under the Apache License, Version 2.0
+-+ * (the "License"); you may not use this file except in compliance with
+-+ * the License.  You may obtain a copy of the License at
+-+ * 
+-+ *      http://www.apache.org/licenses/LICENSE-2.0
+-+ * 
+-+ * Unless required by applicable law or agreed to in writing, software
+-+ * distributed under the License is distributed on an "AS IS" BASIS,
+-+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-+ * See the License for the specific language governing permissions and
+-+ * limitations under the License.
+-+ */
+-+
+-+
+-+package org.apache.catalina.core;
+-+
+-+
+-+import java.lang.reflect.Field;
+-+import java.lang.reflect.InvocationTargetException;
+-+import java.lang.reflect.Method;
+-+import java.lang.reflect.Modifier;
+-+import java.util.Map;
+-+import java.util.Properties;
+-+import java.security.AccessController;
+-+import java.security.PrivilegedExceptionAction;
+-+import java.security.PrivilegedActionException;
+-+import java.io.InputStream;
+-+import java.io.IOException;
+-+
+-+import javax.annotation.PostConstruct;
+-+import javax.annotation.PreDestroy;
+-+import javax.annotation.Resource;
+-+import javax.ejb.EJB;
+-+import javax.naming.Context;
+-+import javax.naming.NamingException;
+-+import javax.persistence.PersistenceContext;
+-+import javax.persistence.PersistenceUnit;
+-+import javax.xml.ws.WebServiceRef;
+-+import javax.servlet.Filter;
+-+import javax.servlet.Servlet;
+-+
+-+import org.apache.InstanceManager;
+-+import org.apache.catalina.security.SecurityUtil;
+-+import org.apache.catalina.ContainerServlet;
+-+import org.apache.catalina.core.Constants;
+-+import org.apache.catalina.util.StringManager;
+-+
+-+/**
+-+ * @version $Rev:$ $Date:$
+-+ */
+-+public class DefaultInstanceManager implements InstanceManager {
+-+
+-+    private final Context context;
+-+    private final Map<String, Map<String, String>> injectionMap;
+-+    protected final ClassLoader classLoader;
+-+    protected final ClassLoader containerClassLoader;
+-+    protected boolean privileged;
+-+    protected boolean ignoreAnnotations;
+-+    private Properties restrictedFilters = new Properties();
+-+    private Properties restrictedListeners = new Properties();
+-+    private Properties restrictedServlets = new Properties();
+-+
+-+    public DefaultInstanceManager(Context context, Map<String, Map<String, String>> injectionMap, org.apache.catalina.Context catalinaContext, ClassLoader containerClassLoader) {
+-+        classLoader = catalinaContext.getLoader().getClassLoader();
+-+        privileged = catalinaContext.getPrivileged();
+-+        this.containerClassLoader = containerClassLoader;
+-+        ignoreAnnotations = catalinaContext.getIgnoreAnnotations();
+-+        StringManager sm = StringManager.getManager(Constants.Package);
+-+        try {
+-+            InputStream is =
+-+                this.getClass().getClassLoader().getResourceAsStream
+-+                    ("org/apache/catalina/core/RestrictedServlets.properties");
+-+            if (is != null) {
+-+                restrictedServlets.load(is);
+-+            } else {
+-+                catalinaContext.getLogger().error(sm.getString("defaultInstanceManager.restrictedServletsResource"));
+-+            }
+-+        } catch (IOException e) {
+-+            catalinaContext.getLogger().error(sm.getString("defaultInstanceManager.restrictedServletsResource"), e);
+-+        }
+-+
+-+        try {
+-+            InputStream is =
+-+                    this.getClass().getClassLoader().getResourceAsStream
+-+                            ("org/apache/catalina/core/RestrictedListeners.properties");
+-+            if (is != null) {
+-+                restrictedListeners.load(is);
+-+            } else {
+-+                catalinaContext.getLogger().error(sm.getString("defaultInstanceManager.restrictedListenersResources"));
+-+            }
+-+        } catch (IOException e) {
+-+            catalinaContext.getLogger().error(sm.getString("defaultInstanceManager.restrictedListenersResources"), e);
+-+        }
+-+        try {
+-+            InputStream is =
+-+                    this.getClass().getClassLoader().getResourceAsStream
+-+                            ("org/apache/catalina/core/RestrictedFilters.properties");
+-+            if (is != null) {
+-+                restrictedFilters.load(is);
+-+            } else {
+-+                catalinaContext.getLogger().error(sm.getString("defaultInstanceManager.restrictedFiltersResources"));
+-+            }
+-+        } catch (IOException e) {
+-+            catalinaContext.getLogger().error(sm.getString("defaultInstanceManager.restrictedServletsResources"), e);
+-+        }
+-+        this.context = context;
+-+        this.injectionMap = injectionMap;
+-+    }
+-+
+-+    public Object newInstance(String className) throws IllegalAccessException, InvocationTargetException, NamingException, InstantiationException, ClassNotFoundException {
+-+        Class clazz = loadClassMaybePrivileged(className, classLoader);
+-+        return newInstance(clazz.newInstance(), clazz);
+-+    }
+-+
+-+    public Object newInstance(final String className, final ClassLoader classLoader) throws IllegalAccessException, NamingException, InvocationTargetException, InstantiationException, ClassNotFoundException {
+-+        Class clazz = classLoader.loadClass(className);
+-+        return newInstance(clazz.newInstance(), clazz);
+-+    }
+-+
+-+    public void newInstance(Object o) 
+-+		throws IllegalAccessException, InvocationTargetException, NamingException {
+-+    	newInstance(o, o.getClass());
+-+    }
+-+
+-+    private Object newInstance(Object instance, Class clazz) throws IllegalAccessException, InvocationTargetException, NamingException {
+-+        if (!ignoreAnnotations) {
+-+            Map<String, String> injections = injectionMap.get(clazz.getName());
+-+            processAnnotations(instance, injections);
+-+            postConstruct(instance, clazz);
+-+        }
+-+        return instance;
+-+    }
+-+
+-+    public void destroyInstance(Object instance) throws IllegalAccessException, InvocationTargetException {
+-+        if (!ignoreAnnotations) {
+-+            preDestroy(instance, instance.getClass());
+-+        }
+-+    }
+-+
+-+    /**
+-+     * Call postConstruct method on the specified instance recursively from deepest superclass to actual class.
+-+     *
+-+     * @param instance object to call postconstruct methods on
+-+     * @param clazz    (super) class to examine for postConstruct annotation.
+-+     * @throws IllegalAccessException if postConstruct method is inaccessible.
+-+     * @throws java.lang.reflect.InvocationTargetException
+-+     *                                if call fails
+-+     */
+-+    protected void postConstruct(Object instance, Class clazz)
+-+            throws IllegalAccessException, InvocationTargetException {
+-+        Class superClass = clazz.getSuperclass();
+-+        if (superClass != Object.class) {
+-+            postConstruct(instance, superClass);
+-+        }
+-+
+-+        Method[] methods = clazz.getDeclaredMethods();
+-+        Method postConstruct = null;
+-+        for (Method method : methods) {
+-+            if (method.isAnnotationPresent(PostConstruct.class)) {
+-+                if ((postConstruct != null)
+-+                        || (method.getParameterTypes().length != 0)
+-+                        || (Modifier.isStatic(method.getModifiers()))
+-+                        || (method.getExceptionTypes().length > 0)
+-+                        || (!method.getReturnType().getName().equals("void"))) {
+-+                    throw new IllegalArgumentException("Invalid PostConstruct annotation");
+++        while (clazz != null) {
+++            // Initialize fields annotations
+++            Field[] fields = instance.getClass().getDeclaredFields();
+++            for (Field field : fields) {
+++                if (injections != null && injections.containsKey(field.getName())) {
+++                    lookupFieldResource(context, instance, field, injections.get(field.getName()));
+ +                }
+-+                postConstruct = method;
+-+            }
+-+        }
+-+
+-+        // At the end the postconstruct annotated
+-+        // method is invoked
+-+        if (postConstruct != null) {
+-+            boolean accessibility = postConstruct.isAccessible();
+-+            postConstruct.setAccessible(true);
+-+            postConstruct.invoke(instance);
+-+            postConstruct.setAccessible(accessibility);
+-+        }
+-+
+-+    }
+-+
+-+
+-+    /**
+-+     * Call preDestroy method on the specified instance recursively from deepest superclass to actual class.
+-+     *
+-+     * @param instance object to call preDestroy methods on
+-+     * @param clazz    (super) class to examine for preDestroy annotation.
+-+     * @throws IllegalAccessException if preDestroy method is inaccessible.
+-+     * @throws java.lang.reflect.InvocationTargetException
+-+     *                                if call fails
+-+     */
+-+    protected void preDestroy(Object instance, Class clazz)
+-+            throws IllegalAccessException, InvocationTargetException {
+-+        Class superClass = clazz.getSuperclass();
+-+        if (superClass != Object.class) {
+-+            preDestroy(instance, superClass);
+-+        }
+-+
+-+        Method[] methods = clazz.getDeclaredMethods();
+-+        Method preDestroy = null;
+-+        for (Method method : methods) {
+-+            if (method.isAnnotationPresent(PreDestroy.class)) {
+-+                if ((method.getParameterTypes().length != 0)
+-+                        || (Modifier.isStatic(method.getModifiers()))
+-+                        || (method.getExceptionTypes().length > 0)
+-+                        || (!method.getReturnType().getName().equals("void"))) {
+-+                    throw new IllegalArgumentException("Invalid PreDestroy annotation");
+++                if (field.isAnnotationPresent(Resource.class)) {
+++                    Resource annotation = field.getAnnotation(Resource.class);
+++                    lookupFieldResource(context, instance, field, annotation.name());
+++                } else if (field.isAnnotationPresent(EJB.class)) {
+++                    EJB annotation = field.getAnnotation(EJB.class);
+++                    lookupFieldResource(context, instance, field, annotation.name());
+++                } else if (field.isAnnotationPresent(WebServiceRef.class)) {
+++                    WebServiceRef annotation =
++                         field.getAnnotation(WebServiceRef.class);
++-                lookupFieldResource(context, instance, field, annotation.name());
++-            } else if (field.isAnnotationPresent(PersistenceContext.class)) {
++-                PersistenceContext annotation =
+++                    lookupFieldResource(context, instance, field, annotation.name());
+++                } else if (field.isAnnotationPresent(PersistenceContext.class)) {
+++                    PersistenceContext annotation =
++                         field.getAnnotation(PersistenceContext.class);
++-                lookupFieldResource(context, instance, field, annotation.name());
++-            } else if (field.isAnnotationPresent(PersistenceUnit.class)) {
++-                PersistenceUnit annotation =
+++                    lookupFieldResource(context, instance, field, annotation.name());
+++                } else if (field.isAnnotationPresent(PersistenceUnit.class)) {
+++                    PersistenceUnit annotation =
++                         field.getAnnotation(PersistenceUnit.class);
++-                lookupFieldResource(context, instance, field, annotation.name());
+++                    lookupFieldResource(context, instance, field, annotation.name());
+ +                }
+-+                preDestroy = method;
+-+                break;
+-+            }
+-+        }
+-+
+-+        // At the end the postconstruct annotated
+-+        // method is invoked
+-+        if (preDestroy != null) {
+-+            boolean accessibility = preDestroy.isAccessible();
+-+            preDestroy.setAccessible(true);
+-+            preDestroy.invoke(instance);
+-+            preDestroy.setAccessible(accessibility);
+-+        }
+-+
+-+    }
+-+
+-+
+-+    /**
+-+     * Inject resources in specified instance.
+-+     *
+-+     * @param instance   instance to inject into
+-+     * @param injections map of injections for this class from xml deployment descriptor
+-+     * @throws IllegalAccessException       if injection target is inaccessible
+-+     * @throws javax.naming.NamingException if value cannot be looked up in jndi
+-+     * @throws java.lang.reflect.InvocationTargetException
+-+     *                                      if injection fails
+-+     */
+-+    protected void processAnnotations(Object instance, Map<String, String> injections)
+-+            throws IllegalAccessException, InvocationTargetException, NamingException {
+-+
+-+        if (context == null) {
+-+            // No resource injection
+-+            return;
+-+        }
+-+
+-+        // Initialize fields annotations
+-+        Field[] fields = instance.getClass().getDeclaredFields();
+-+        for (Field field : fields) {
+-+            if (injections != null && injections.containsKey(field.getName())) {
+-+                lookupFieldResource(context, instance, field, injections.get(field.getName()));
+-+            } else if (field.isAnnotationPresent(Resource.class)) {
+-+                Resource annotation = field.getAnnotation(Resource.class);
+-+                lookupFieldResource(context, instance, field, annotation.name());
+-+            } else if (field.isAnnotationPresent(EJB.class)) {
+-+                EJB annotation = field.getAnnotation(EJB.class);
+-+                lookupFieldResource(context, instance, field, annotation.name());
+-+            } else if (field.isAnnotationPresent(WebServiceRef.class)) {
+-+                WebServiceRef annotation =
+-+                        field.getAnnotation(WebServiceRef.class);
+-+                lookupFieldResource(context, instance, field, annotation.name());
+-+            } else if (field.isAnnotationPresent(PersistenceContext.class)) {
+-+                PersistenceContext annotation =
+-+                        field.getAnnotation(PersistenceContext.class);
+-+                lookupFieldResource(context, instance, field, annotation.name());
+-+            } else if (field.isAnnotationPresent(PersistenceUnit.class)) {
+-+                PersistenceUnit annotation =
+-+                        field.getAnnotation(PersistenceUnit.class);
+-+                lookupFieldResource(context, instance, field, annotation.name());
+-+            }
+-+        }
+-+
+-+        // Initialize methods annotations
+-+        Method[] methods = instance.getClass().getDeclaredMethods();
+-+        for (Method method : methods) {
+-+            String methodName = method.getName();
+-+            if (injections != null && methodName.startsWith("set") && methodName.length() > 3) {
+-+                String fieldName = Character.toLowerCase(methodName.charAt(3)) + methodName.substring(4);
+-+                if (injections.containsKey(fieldName)) {
+-+                    lookupMethodResource(context, instance, method, injections.get(fieldName));
+-+                    break;
+-+                }
+-+            }
+-+            if (method.isAnnotationPresent(Resource.class)) {
+-+                Resource annotation = method.getAnnotation(Resource.class);
+-+                lookupMethodResource(context, instance, method, annotation.name());
+-+            } else if (method.isAnnotationPresent(EJB.class)) {
+-+                EJB annotation = method.getAnnotation(EJB.class);
+-+                lookupMethodResource(context, instance, method, annotation.name());
+-+            } else if (method.isAnnotationPresent(WebServiceRef.class)) {
+-+                WebServiceRef annotation =
+-+                        method.getAnnotation(WebServiceRef.class);
+-+                lookupMethodResource(context, instance, method, annotation.name());
+-+            } else if (method.isAnnotationPresent(PersistenceContext.class)) {
+-+                PersistenceContext annotation =
+-+                        method.getAnnotation(PersistenceContext.class);
+-+                lookupMethodResource(context, instance, method, annotation.name());
+-+            } else if (method.isAnnotationPresent(PersistenceUnit.class)) {
+-+                PersistenceUnit annotation =
+-+                        method.getAnnotation(PersistenceUnit.class);
+-+                lookupMethodResource(context, instance, method, annotation.name());
+-+            }
+-+        }
+-+
+-+    }
+-+
+-+
+-+    protected Class loadClassMaybePrivileged(final String className, final ClassLoader classLoader) throws ClassNotFoundException {
+-+        Class clazz;
+-+        if (SecurityUtil.isPackageProtectionEnabled()) {
+-+            try {
+-+                clazz = AccessController.doPrivileged(new PrivilegedExceptionAction<Class>() {
+-+
+-+                    public Class run() throws Exception {
+-+                        return loadClass(className, classLoader);
+-+                    }
+-+                });
+-+            } catch (PrivilegedActionException e) {
+-+                Throwable t = e.getCause();
+-+                if (t instanceof ClassNotFoundException) {
+-+                    throw (ClassNotFoundException) t;
+-+                }
+-+                throw new RuntimeException(t);
+-+            }
+-+        } else {
+-+            clazz = loadClass(className, classLoader);
+-+        }
+-+        checkAccess(clazz);
+-+        return clazz;
+-+    }
+-+
+-+    protected Class loadClass(String className, ClassLoader classLoader) throws ClassNotFoundException {
+-+        if (className.startsWith("org.apache.catalina")) {
+-+            return containerClassLoader.loadClass(className);
+-+        }
+-+        try {
+-+            Class clazz = containerClassLoader.loadClass(className);
+-+            if (ContainerServlet.class.isAssignableFrom(clazz)) {
+-+                return clazz;
+-+            }
+-+        } catch (Throwable t) {
+-+            //ignore
+-+        }
+-+        return classLoader.loadClass(className);
+-+    }
+-+
+-+    private void checkAccess(Class clazz) {
+-+        if (privileged) return;
+-+        if (clazz.isAssignableFrom(Filter.class)) {
+-+            checkAccess(clazz, restrictedFilters);
+-+        } else if (clazz.isAssignableFrom(Servlet.class)) {
+-+            checkAccess(clazz, restrictedServlets);
+-+        } else {
+-+            checkAccess(clazz, restrictedListeners);
+-+        }
+-+    }
+-+
+-+    private void checkAccess(Class clazz, Properties restricted) {
+-+        while (clazz != null) {
+-+            if ("restricted".equals(restricted.getProperty(clazz.getName()))) {
+-+                throw new SecurityException("Restricted class" + clazz);
+-+            }
+-+            clazz = clazz.getSuperclass();
+-+        }
+-+
+-+    }
+-+
+-+    /**
+-+     * Inject resources in specified field.
+-+     *
+-+     * @param context  jndi context to extract value from
+-+     * @param instance object to inject into
+-+     * @param field    field target for injection
+-+     * @param name     jndi name value is bound under
+-+     * @throws IllegalAccessException       if field is inaccessible
+-+     * @throws javax.naming.NamingException if value is not accessible in naming context
+-+     */
+-+    protected static void lookupFieldResource(Context context,
+-+            Object instance, Field field, String name)
+-+            throws NamingException, IllegalAccessException {
+-+
+-+        Object lookedupResource;
+-+        boolean accessibility;
+-+
+-+        if ((name != null) &&
+-+                (name.length() > 0)) {
+-+            lookedupResource = context.lookup(name);
+-+        } else {
+-+            lookedupResource = context.lookup(instance.getClass().getName() + "/" + field.getName());
+-+        }
+-+
+-+        accessibility = field.isAccessible();
+-+        field.setAccessible(true);
+-+        field.set(instance, lookedupResource);
+-+        field.setAccessible(accessibility);
+-+    }
+-+
+-+    /**
+-+     * Inject resources in specified method.
+-+     *
+-+     * @param context  jndi context to extract value from
+-+     * @param instance object to inject into
+-+     * @param method   field target for injection
+-+     * @param name     jndi name value is bound under
+-+     * @throws IllegalAccessException       if method is inaccessible
+-+     * @throws javax.naming.NamingException if value is not accessible in naming context
+-+     * @throws java.lang.reflect.InvocationTargetException
+-+     *                                      if setter call fails
+-+     */
+-+    protected static void lookupMethodResource(Context context,
+-+            Object instance, Method method, String name)
+-+            throws NamingException, IllegalAccessException, InvocationTargetException {
+-+
+-+        if (!method.getName().startsWith("set")
+-+                || method.getParameterTypes().length != 1
+-+                || !method.getReturnType().getName().equals("void")) {
+-+            throw new IllegalArgumentException("Invalid method resource injection annotation");
+-+        }
+-+
+-+        Object lookedupResource;
+-+        boolean accessibility;
+-+
+-+        if ((name != null) &&
+-+                (name.length() > 0)) {
+-+            lookedupResource = context.lookup(name);
+-+        } else {
+-+            lookedupResource =
+-+                    context.lookup(instance.getClass().getName() + "/" + method.getName().substring(3));
+-+        }
+-+
+-+        accessibility = method.isAccessible();
+-+        method.setAccessible(true);
+-+        method.invoke(instance, lookedupResource);
+-+        method.setAccessible(accessibility);
+-+    }
+-+}
+-
+-Property changes on: java/org/apache/catalina/core/DefaultInstanceManager.java
+-___________________________________________________________________
+-Name: svn:eol-style
+-   + native
+-
+-Index: java/org/apache/catalina/core/RestrictedListeners.properties
+-===================================================================
+---- java/org/apache/catalina/core/RestrictedListeners.properties	(revision 0)
+-+++ java/org/apache/catalina/core/RestrictedListeners.properties	(revision 0)
+-@@ -0,0 +1,15 @@
+-+# Licensed to the Apache Software Foundation (ASF) under one or more
+-+# contributor license agreements.  See the NOTICE file distributed with
+-+# this work for additional information regarding copyright ownership.
+-+# The ASF licenses this file to You under the Apache License, Version 2.0
+-+# (the "License"); you may not use this file except in compliance with
+-+# the License.  You may obtain a copy of the License at
+-+#
+-+#     http://www.apache.org/licenses/LICENSE-2.0
+-+#
+-+# Unless required by applicable law or agreed to in writing, software
+-+# distributed under the License is distributed on an "AS IS" BASIS,
+-+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-+# See the License for the specific language governing permissions and
+-+# limitations under the License.
+-+
+-
+-Property changes on: java/org/apache/catalina/core/RestrictedListeners.properties
+-___________________________________________________________________
+-Name: svn:eol-style
+-   + native
+-
+-Index: java/org/apache/catalina/core/ApplicationFilterConfig.java
+-===================================================================
+---- java/org/apache/catalina/core/ApplicationFilterConfig.java	(revision 3168)
+-+++ java/org/apache/catalina/core/ApplicationFilterConfig.java	(working copy)
+-@@ -19,14 +19,12 @@
+- package org.apache.catalina.core;
+- 
+- 
+--import java.io.IOException;
+--import java.io.InputStream;
+- import java.io.Serializable;
+- import java.lang.reflect.InvocationTargetException;
+- import java.util.ArrayList;
+- import java.util.Enumeration;
+-+import java.util.HashMap;
+- import java.util.Map;
+--import java.util.Properties;
+- 
+- import javax.naming.NamingException;
+- import javax.servlet.Filter;
+-@@ -34,7 +32,7 @@
+- import javax.servlet.ServletContext;
+- import javax.servlet.ServletException;
+- 
+--import org.apache.AnnotationProcessor;
+-+import org.apache.InstanceManager;
+- import org.apache.catalina.Context;
+- import org.apache.catalina.Globals;
+- import org.apache.catalina.deploy.FilterDef;
+-@@ -58,7 +56,7 @@
+- 
+-     protected static StringManager sm =
+-         StringManager.getManager(Constants.Package);
+--    
+-+
+-     // ----------------------------------------------------------- Constructors
+- 
+- 
+-@@ -78,8 +76,8 @@
+-      * @exception InstantiationException if an exception occurs while
+-      *  instantiating the filter object
+-      * @exception ServletException if thrown by the filter's init() method
+--     * @throws NamingException 
+--     * @throws InvocationTargetException 
+-+     * @throws NamingException
+-+     * @throws InvocationTargetException
+-      */
+-     public ApplicationFilterConfig(Context context, FilterDef filterDef)
+-         throws ClassCastException, ClassNotFoundException,
+-@@ -88,22 +86,6 @@
+- 
+-         super();
+- 
+--        if (restrictedFilters == null) {
+--            restrictedFilters = new Properties();
+--            try {
+--                InputStream is = 
+--                    this.getClass().getClassLoader().getResourceAsStream
+--                        ("org/apache/catalina/core/RestrictedFilters.properties");
+--                if (is != null) {
+--                    restrictedFilters.load(is);
+--                } else {
+--                    context.getLogger().error(sm.getString("applicationFilterConfig.restrictedFiltersResources"));
+--                }
+--            } catch (IOException e) {
+--                context.getLogger().error(sm.getString("applicationFilterConfig.restrictedServletsResources"), e);
+--            }
+--        }
+--        
+-         this.context = context;
+-         setFilterDef(filterDef);
+- 
+-@@ -130,13 +112,12 @@
+-      */
+-     private FilterDef filterDef = null;
+- 
+--
+-     /**
+--     * Restricted filters (which can only be loaded by a privileged webapp).
+-+     * the InstanceManager used to create and destroy filter instances.
+-      */
+--    protected static Properties restrictedFilters = null;
+-+    private transient InstanceManager instanceManager;
+- 
+--    
+-+
+-     // --------------------------------------------------- FilterConfig Methods
+- 
+- 
+-@@ -223,11 +204,11 @@
+-      * @exception InstantiationException if an exception occurs while
+-      *  instantiating the filter object
+-      * @exception ServletException if thrown by the filter's init() method
+--     * @throws NamingException 
+--     * @throws InvocationTargetException 
+-+     * @throws NamingException
+-+     * @throws InvocationTargetException
+-      */
+-     Filter getFilter() throws ClassCastException, ClassNotFoundException,
+--        IllegalAccessException, InstantiationException, ServletException, 
+-+        IllegalAccessException, InstantiationException, ServletException,
+-         InvocationTargetException, NamingException {
+- 
+-         // Return the existing filter instance, if any
+-@@ -236,32 +217,10 @@
+- 
+-         // Identify the class loader we will be using
+-         String filterClass = filterDef.getFilterClass();
+--        ClassLoader classLoader = null;
+--        if (filterClass.startsWith("org.apache.catalina."))
+--            classLoader = this.getClass().getClassLoader();
+--        else
+--            classLoader = context.getLoader().getClassLoader();
+-+        this.filter = (Filter) getInstanceManager().newInstance(filterClass);
+- 
+--        ClassLoader oldCtxClassLoader =
+--            Thread.currentThread().getContextClassLoader();
+--
+--        // Instantiate a new instance of this filter and return it
+--        Class clazz = classLoader.loadClass(filterClass);
+--        if (!isFilterAllowed(clazz)) {
+--            throw new SecurityException
+--                (sm.getString("applicationFilterConfig.privilegedFilter",
+--                        filterClass));
+--        }
+--        this.filter = (Filter) clazz.newInstance();
+--        if (!context.getIgnoreAnnotations()) {
+--            if (context instanceof StandardContext) {
+--               AnnotationProcessor processor = ((StandardContext)context).getAnnotationProcessor();
+--               processor.processAnnotations(this.filter);
+--               processor.postConstruct(this.filter);
+--            }
+--        }
+-         if (context instanceof StandardContext &&
+--            ((StandardContext) context).getSwallowOutput()) {
+-+                context.getSwallowOutput()) {
+-             try {
+-                 SystemLogHandler.startCapture();
+-                 filter.init(this);
+-@@ -289,31 +248,7 @@
+- 
+-     }
+- 
+--
+-     /**
+--     * Return <code>true</code> if loading this filter is allowed.
+--     */
+--    protected boolean isFilterAllowed(Class filterClass) {
+--
+--        // Privileged webapps may load all servlets without restriction
+--        if (context.getPrivileged()) {
+--            return true;
+--        }
+--
+--        Class clazz = filterClass;
+--        while (clazz != null && !clazz.getName().equals("javax.servlet.Filter")) {
+--            if ("restricted".equals(restrictedFilters.getProperty(clazz.getName()))) {
+--                return (false);
+--            }
+--            clazz = clazz.getSuperclass();
+--        }
+--        
+--        return (true);
+--
+--    }
+--
+--
+--    /**
+-      * Release the Filter instance associated with this FilterConfig,
+-      * if there is one.
+-      */
+-@@ -323,17 +258,17 @@
+-         {
+-             if (Globals.IS_SECURITY_ENABLED) {
+-                 try {
+--                    SecurityUtil.doAsPrivilege("destroy", filter); 
+--                } catch(java.lang.Exception ex){                    
+-+                    SecurityUtil.doAsPrivilege("destroy", filter);
+-+                } catch(java.lang.Exception ex){
+-                     context.getLogger().error("ApplicationFilterConfig.doAsPrivilege", ex);
+-                 }
+-                 SecurityUtil.remove(filter);
+--            } else { 
+-+            } else {
+-                 filter.destroy();
+              }
+-             if (!context.getIgnoreAnnotations()) {
+-                 try {
+--                    ((StandardContext)context).getAnnotationProcessor().preDestroy(this.filter);
+-+                    ((StandardContext) context).getInstanceManager().destroyInstance(this.filter);
+-                 } catch (Exception e) {
+-                     context.getLogger().error("ApplicationFilterConfig.preDestroy", e);
+-                 }
+-@@ -358,8 +293,8 @@
+-      * @exception InstantiationException if an exception occurs while
+-      *  instantiating the filter object
+-      * @exception ServletException if thrown by the filter's init() method
+--     * @throws NamingException 
+--     * @throws InvocationTargetException 
+-+     * @throws NamingException
+-+     * @throws InvocationTargetException
+-      */
+-     void setFilterDef(FilterDef filterDef)
+-         throws ClassCastException, ClassNotFoundException,
+-@@ -373,17 +308,17 @@
+-             if (this.filter != null){
+-                 if( Globals.IS_SECURITY_ENABLED) {
+-                     try{
+--                        SecurityUtil.doAsPrivilege("destroy", filter);  
+--                    } catch(java.lang.Exception ex){    
+-+                        SecurityUtil.doAsPrivilege("destroy", filter);
+-+                    } catch(java.lang.Exception ex){
+-                         context.getLogger().error("ApplicationFilterConfig.doAsPrivilege", ex);
+-                     }
+-                     SecurityUtil.remove(filter);
+--                } else { 
+-+                } else {
+-                     filter.destroy();
+-                 }
+-                 if (!context.getIgnoreAnnotations()) {
+-                     try {
+--                        ((StandardContext)context).getAnnotationProcessor().preDestroy(this.filter);
+-+                        ((StandardContext) context).getInstanceManager().destroyInstance(this.filter);
+-                     } catch (Exception e) {
+-                         context.getLogger().error("ApplicationFilterConfig.preDestroy", e);
+-                     }
+-@@ -403,5 +338,18 @@
+- 
+-     // -------------------------------------------------------- Private Methods
+- 
+-+    private InstanceManager getInstanceManager() {
+-+        if (instanceManager == null) {
+-+            if (context instanceof StandardContext) {
+-+                instanceManager = ((StandardContext)context).getInstanceManager();
+-+            } else {
+-+                instanceManager = new DefaultInstanceManager(null,
+-+                        new HashMap<String, Map<String, String>>(),
+-+                        context,
+-+                        getClass().getClassLoader()); 
+-+            }
+-+        }
+-+        return instanceManager;
+-+    }
+- 
+- }
+-Index: java/org/apache/catalina/core/StandardWrapper.java
+-===================================================================
+---- java/org/apache/catalina/core/StandardWrapper.java	(revision 3168)
+-+++ java/org/apache/catalina/core/StandardWrapper.java	(working copy)
+-@@ -18,27 +18,14 @@
+- 
+- package org.apache.catalina.core;
+- 
+--import java.lang.reflect.Method;
+--import java.io.IOException;
+--import java.io.InputStream;
+- import java.io.PrintStream;
+-+import java.lang.reflect.Method;
+- import java.util.ArrayList;
+- import java.util.Enumeration;
+- import java.util.HashMap;
+- import java.util.HashSet;
+--import java.util.Properties;
+- import java.util.Stack;
+--import java.security.AccessController;
+--import java.security.PrivilegedActionException;
+--import java.security.PrivilegedExceptionAction;
+--import javax.servlet.Servlet;
+--import javax.servlet.ServletConfig;
+--import javax.servlet.ServletContext;
+--import javax.servlet.ServletException;
+--import javax.servlet.ServletRequest;
+--import javax.servlet.ServletResponse;
+--import javax.servlet.SingleThreadModel;
+--import javax.servlet.UnavailableException;
+-+
+- import javax.management.ListenerNotFoundException;
+- import javax.management.MBeanNotificationInfo;
+- import javax.management.Notification;
+-@@ -47,6 +34,14 @@
+- import javax.management.NotificationFilter;
+- import javax.management.NotificationListener;
+- import javax.management.ObjectName;
+-+import javax.servlet.Servlet;
+-+import javax.servlet.ServletConfig;
+-+import javax.servlet.ServletContext;
+-+import javax.servlet.ServletException;
+-+import javax.servlet.ServletRequest;
+-+import javax.servlet.ServletResponse;
+-+import javax.servlet.SingleThreadModel;
+-+import javax.servlet.UnavailableException;
+- 
+- import org.apache.PeriodicEventListener;
+- import org.apache.catalina.Container;
+-@@ -56,8 +51,8 @@
+- import org.apache.catalina.InstanceEvent;
+- import org.apache.catalina.InstanceListener;
+- import org.apache.catalina.LifecycleException;
+--import org.apache.catalina.Loader;
+- import org.apache.catalina.Wrapper;
+-+import org.apache.InstanceManager;
+- import org.apache.catalina.security.SecurityUtil;
+- import org.apache.catalina.util.Enumerator;
+- import org.apache.catalina.util.InstanceSupport;
+-@@ -96,22 +91,6 @@
+-         pipeline.setBasic(swValve);
+-         broadcaster = new NotificationBroadcasterSupport();
+- 
+--        if (restrictedServlets == null) {
+--            restrictedServlets = new Properties();
+--            try {
+--                InputStream is = 
+--                    this.getClass().getClassLoader().getResourceAsStream
+--                        ("org/apache/catalina/core/RestrictedServlets.properties");
+--                if (is != null) {
+--                    restrictedServlets.load(is);
+--                } else {
+--                    log.error(sm.getString("standardWrapper.restrictedServletsResource"));
+--                }
+--            } catch (IOException e) {
+--                log.error(sm.getString("standardWrapper.restrictedServletsResource"), e);
+--            }
+ -        }
+--        
+-     }
+  
+- 
+-@@ -287,12 +266,7 @@
+-                                                          ServletRequest.class,
+-                                                          ServletResponse.class};
+-     
+--    /**
+--     * Restricted servlets (which can only be loaded by a privileged webapp).
+--     */
+--    protected static Properties restrictedServlets = null;
+--    
+--    
+-+
+-     // ------------------------------------------------------------- Properties
+- 
+- 
+-@@ -1043,83 +1017,9 @@
+-                     (sm.getString("standardWrapper.notClass", getName()));
+-             }
+- 
+--            // Acquire an instance of the class loader to be used
+--            Loader loader = getLoader();
+--            if (loader == null) {
+--                unavailable(null);
+--                throw new ServletException
+--                    (sm.getString("standardWrapper.missingLoader", getName()));
+--            }
+--
+--            ClassLoader classLoader = loader.getClassLoader();
+--
+--            // Special case class loader for a container provided servlet
+--            //  
+--            if (isContainerProvidedServlet(actualClass) && 
+--                    ! ((Context)getParent()).getPrivileged() ) {
+--                // If it is a priviledged context - using its own
+--                // class loader will work, since it's a child of the container
+--                // loader
+--                classLoader = this.getClass().getClassLoader();
+--            }
+--
+--            // Load the specified servlet class from the appropriate class loader
+--            Class classClass = null;
+-+            InstanceManager instanceManager = ((StandardContext)getParent()).getInstanceManager();
+-             try {
+--                if (SecurityUtil.isPackageProtectionEnabled()){
+--                    final ClassLoader fclassLoader = classLoader;
+--                    final String factualClass = actualClass;
+--                    try{
+--                        classClass = (Class)AccessController.doPrivileged(
+--                                new PrivilegedExceptionAction(){
+--                                    public Object run() throws Exception{
+--                                        if (fclassLoader != null) {
+--                                            return fclassLoader.loadClass(factualClass);
+--                                        } else {
+--                                            return Class.forName(factualClass);
+--                                        }
+--                                    }
+--                        });
+--                    } catch(PrivilegedActionException pax){
+--                        Exception ex = pax.getException();
+--                        if (ex instanceof ClassNotFoundException){
+--                            throw (ClassNotFoundException)ex;
+--                        } else {
+--                            getServletContext().log( "Error loading "
+--                                + fclassLoader + " " + factualClass, ex );
+--                        }
+--                    }
+--                } else {
+--                    if (classLoader != null) {
+--                        classClass = classLoader.loadClass(actualClass);
+--                    } else {
+--                        classClass = Class.forName(actualClass);
+--                    }
+--                }
+--            } catch (ClassNotFoundException e) {
+--                unavailable(null);
+--                getServletContext().log( "Error loading " + classLoader + " " + actualClass, e );
+--                throw new ServletException
+--                    (sm.getString("standardWrapper.missingClass", actualClass),
+--                     e);
+--            }
+--
+--            if (classClass == null) {
+--                unavailable(null);
+--                throw new ServletException
+--                    (sm.getString("standardWrapper.missingClass", actualClass));
+--            }
+--
+--            // Instantiate and initialize an instance of the servlet class itself
+--            try {
+--                servlet = (Servlet) classClass.newInstance();
+--                // Annotation processing
+--                if (!((Context) getParent()).getIgnoreAnnotations()) {
+--                    if (getParent() instanceof StandardContext) {
+--                       ((StandardContext)getParent()).getAnnotationProcessor().processAnnotations(servlet);
+--                       ((StandardContext)getParent()).getAnnotationProcessor().postConstruct(servlet);
+--                    }
+--                }
+-+                servlet = (Servlet) instanceManager.newInstance(actualClass);
+-             } catch (ClassCastException e) {
+-                 unavailable(null);
+-                 // Restore the context ClassLoader
+-@@ -1127,7 +1027,7 @@
+-                     (sm.getString("standardWrapper.notServlet", actualClass), e);
+-             } catch (Throwable e) {
+-                 unavailable(null);
+--              
+-+
+-                 // Added extra log statement for Bugzilla 36630:
+-                 // http://issues.apache.org/bugzilla/show_bug.cgi?id=36630
+-                 if(log.isDebugEnabled()) {
+-@@ -1139,14 +1039,6 @@
+-                     (sm.getString("standardWrapper.instantiate", actualClass), e);
+-             }
+- 
+--            // Check if loading the servlet in this web application should be
+--            // allowed
+--            if (!isServletAllowed(servlet)) {
+--                throw new SecurityException
+--                    (sm.getString("standardWrapper.privilegedServlet",
+--                                  actualClass));
+--            }
+--
+-             // Special handling for ContainerServlet instances
+-             if ((servlet instanceof ContainerServlet) &&
+-                   (isContainerProvidedServlet(actualClass) ||
+-@@ -1398,7 +1290,7 @@
+- 
+-             // Annotation processing
+-             if (!((Context) getParent()).getIgnoreAnnotations()) {
+--               ((StandardContext)getParent()).getAnnotationProcessor().preDestroy(instance);
+-+               ((StandardContext)getParent()).getInstanceManager().destroyInstance(instance);
+-             }
+- 
+-         } catch (Throwable t) {
+-@@ -1441,7 +1333,7 @@
+-                     }
+-                     // Annotation processing
+-                     if (!((Context) getParent()).getIgnoreAnnotations()) {
+--                       ((StandardContext)getParent()).getAnnotationProcessor().preDestroy(s);
+-+                       ((StandardContext)getParent()).getInstanceManager().destroyInstance(s);
+-                     }
++-        // Initialize methods annotations
++-        Method[] methods = instance.getClass().getDeclaredMethods();
++-        for (Method method : methods) {
++-            String methodName = method.getName();
++-            if (injections != null && methodName.startsWith("set") && methodName.length() > 3) {
++-                String fieldName = Character.toLowerCase(methodName.charAt(3)) + methodName.substring(4);
++-                if (injections.containsKey(fieldName)) {
++-                    lookupMethodResource(context, instance, method, injections.get(fieldName));
++-                    break;
+++            // Initialize methods annotations
+++            Method[] methods = instance.getClass().getDeclaredMethods();
+++            for (Method method : methods) {
+++                String methodName = method.getName();
+++                if (injections != null && methodName.startsWith("set") && methodName.length() > 3) {
+++                    String fieldName = Character.toLowerCase(methodName.charAt(3)) + methodName.substring(4);
+++                    if (injections.containsKey(fieldName)) {
+++                        lookupMethodResource(context, instance, method, injections.get(fieldName));
+++                        break;
+++                    }
+                  }
+-             } catch (Throwable t) {
+-@@ -1619,33 +1511,6 @@
+-     }
+- 
+- 
+--    /**
+--     * Return <code>true</code> if loading this servlet is allowed.
+--     */
+--    protected boolean isServletAllowed(Object servlet) {
+--
+--        // Privileged webapps may load all servlets without restriction
+--        if (((Context) getParent()).getPrivileged()) {
+--            return true;
+--        }
+--        
+--        if (servlet instanceof ContainerServlet) {
+--            return (false);
+--        }
+--
+--        Class clazz = servlet.getClass();
+--        while (clazz != null && !clazz.getName().equals("javax.servlet.http.HttpServlet")) {
+--            if ("restricted".equals(restrictedServlets.getProperty(clazz.getName()))) {
+--                return (false);
+ -            }
+--            clazz = clazz.getSuperclass();
+--        }
+--        
+--        return (true);
+--
+--    }
+--
+--
+-     protected Method[] getAllDeclaredMethods(Class c) {
+- 
+-         if (c.equals(javax.servlet.http.HttpServlet.class)) {
+-Index: java/org/apache/catalina/core/StandardContext.java
+-===================================================================
+---- java/org/apache/catalina/core/StandardContext.java	(revision 3168)
+-+++ java/org/apache/catalina/core/StandardContext.java	(working copy)
+-@@ -31,6 +31,8 @@
+- import java.util.HashMap;
+- import java.util.Hashtable;
+- import java.util.Iterator;
+-+import java.util.List;
+-+import java.util.Map;
+- import java.util.Stack;
+- import java.util.TreeMap;
+- 
+-@@ -59,7 +61,7 @@
+- import javax.servlet.http.HttpSessionAttributeListener;
+- import javax.servlet.http.HttpSessionListener;
+- 
+--import org.apache.AnnotationProcessor;
+-+import org.apache.InstanceManager;
+- import org.apache.catalina.Container;
+- import org.apache.catalina.ContainerListener;
+- import org.apache.catalina.Context;
+-@@ -77,6 +79,8 @@
+- import org.apache.catalina.deploy.ErrorPage;
+- import org.apache.catalina.deploy.FilterDef;
+- import org.apache.catalina.deploy.FilterMap;
+-+import org.apache.catalina.deploy.Injectable;
+-+import org.apache.catalina.deploy.InjectionTarget;
+- import org.apache.catalina.deploy.LoginConfig;
+- import org.apache.catalina.deploy.MessageDestination;
+- import org.apache.catalina.deploy.MessageDestinationRef;
+-@@ -88,7 +92,6 @@
+- import org.apache.catalina.startup.ContextConfig;
+- import org.apache.catalina.startup.TldConfig;
+- import org.apache.catalina.util.CharsetMapper;
+--import org.apache.catalina.util.DefaultAnnotationProcessor;
+- import org.apache.catalina.util.ExtensionValidator;
+- import org.apache.catalina.util.RequestUtil;
+- import org.apache.catalina.util.URLEncoder;
+-@@ -174,9 +177,9 @@
+- 
+- 
+-     /**
+--     * Annotation processor.
+-+     * Lifecycle provider.
+-      */
+--    private AnnotationProcessor annotationProcessor = null;
+-+    private InstanceManager instanceManager = null;
+- 
+- 
+-    /**
+-@@ -679,13 +682,13 @@
+-     // ----------------------------------------------------- Context Properties
+- 
+- 
+--    public AnnotationProcessor getAnnotationProcessor() {
+--       return annotationProcessor;
+-+    public InstanceManager getInstanceManager() {
+-+       return instanceManager;
+-     }
+- 
+- 
+--    public void setAnnotationProcessor(AnnotationProcessor annotationProcessor) {
+--       this.annotationProcessor = annotationProcessor;
+-+    public void setInstanceManager(InstanceManager instanceManager) {
+-+       this.instanceManager = instanceManager;
+-     }
+- 
+-     
+-@@ -3774,7 +3777,6 @@
+-             log.debug("Configuring application event listeners");
+- 
+-         // Instantiate the required listeners
+--        ClassLoader loader = getLoader().getClassLoader();
+-         String listeners[] = findApplicationListeners();
+-         Object results[] = new Object[listeners.length];
+-         boolean ok = true;
+-@@ -3783,13 +3785,7 @@
+-                 getLogger().debug(" Configuring event listener class '" +
+-                     listeners[i] + "'");
+-             try {
+--                Class clazz = loader.loadClass(listeners[i]);
+--                results[i] = clazz.newInstance();
+--                // Annotation processing
+--                if (!getIgnoreAnnotations()) {
+--                    getAnnotationProcessor().processAnnotations(results[i]);
+--                    getAnnotationProcessor().postConstruct(results[i]);
+--                }
+-+                results[i] = instanceManager.newInstance(listeners[i]);
+-             } catch (Throwable t) {
+-                 getLogger().error
+-                     (sm.getString("standardContext.applicationListener",
+-@@ -3889,29 +3885,26 @@
+-                         ok = false;
+-                     }
+-                 }
+--                // Annotation processing
+--                if (!getIgnoreAnnotations()) {
+--                    try {
+--                        getAnnotationProcessor().preDestroy(listeners[j]);
+--                    } catch (Throwable t) {
+--                        getLogger().error
+--                            (sm.getString("standardContext.listenerStop",
+--                                listeners[j].getClass().getName()), t);
+--                        ok = false;
+--                    }
+-+                try {
+-+                    getInstanceManager().destroyInstance(listeners[j]);
+-+                } catch (Throwable t) {
+-+                    getLogger().error
+-+                       (sm.getString("standardContext.listenerStop",
+-+                            listeners[j].getClass().getName()), t);
+-+                    ok = false;
+-                 }
++-            if (method.isAnnotationPresent(Resource.class)) {
++-                Resource annotation = method.getAnnotation(Resource.class);
++-                lookupMethodResource(context, instance, method, annotation.name());
++-            } else if (method.isAnnotationPresent(EJB.class)) {
++-                EJB annotation = method.getAnnotation(EJB.class);
++-                lookupMethodResource(context, instance, method, annotation.name());
++-            } else if (method.isAnnotationPresent(WebServiceRef.class)) {
++-                WebServiceRef annotation =
+++                if (method.isAnnotationPresent(Resource.class)) {
+++                    Resource annotation = method.getAnnotation(Resource.class);
+++                    lookupMethodResource(context, instance, method, annotation.name());
+++                } else if (method.isAnnotationPresent(EJB.class)) {
+++                    EJB annotation = method.getAnnotation(EJB.class);
+++                    lookupMethodResource(context, instance, method, annotation.name());
+++                } else if (method.isAnnotationPresent(WebServiceRef.class)) {
+++                    WebServiceRef annotation =
++                         method.getAnnotation(WebServiceRef.class);
++-                lookupMethodResource(context, instance, method, annotation.name());
++-            } else if (method.isAnnotationPresent(PersistenceContext.class)) {
++-                PersistenceContext annotation =
+++                    lookupMethodResource(context, instance, method, annotation.name());
+++                } else if (method.isAnnotationPresent(PersistenceContext.class)) {
+++                    PersistenceContext annotation =
++                         method.getAnnotation(PersistenceContext.class);
++-                lookupMethodResource(context, instance, method, annotation.name());
++-            } else if (method.isAnnotationPresent(PersistenceUnit.class)) {
++-                PersistenceUnit annotation =
+++                    lookupMethodResource(context, instance, method, annotation.name());
+++                } else if (method.isAnnotationPresent(PersistenceUnit.class)) {
+++                    PersistenceUnit annotation =
++                         method.getAnnotation(PersistenceUnit.class);
++-                lookupMethodResource(context, instance, method, annotation.name());
+++                    lookupMethodResource(context, instance, method, annotation.name());
+++                }
+              }
+-         }
+- 
+-         // Annotation processing
+-         listeners = getApplicationEventListeners();
+--        if (!getIgnoreAnnotations() && listeners != null) {
+-+        if (listeners != null) {
+-             for (int i = 0; i < listeners.length; i++) {
+-                 int j = (listeners.length - 1) - i;
+-                 if (listeners[j] == null)
+-                     continue;
+-                 try {
+--                    getAnnotationProcessor().preDestroy(listeners[j]);
+-+                    getInstanceManager().destroyInstance(listeners[j]);
+-                 } catch (Throwable t) {
+-                     getLogger().error
+-                         (sm.getString("standardContext.listenerStop",
+-@@ -4308,21 +4301,18 @@
+-         // Binding thread
+-         oldCCL = bindThread();
+- 
+--        // Set annotation processing parameter for Jasper (unfortunately, since
+--        // this can be configured in many places and not just in /WEB-INF/web.xml,
+--        // there are not many solutions)
+--        // Initialize annotation processor
+--        if (ok && !getIgnoreAnnotations()) {
+--            if (annotationProcessor == null) {
+-+        if (ok ) {
+-+            if (instanceManager == null) {
+-+                javax.naming.Context context = null;
+-                 if (isUseNaming() && namingContextListener != null) {
+--                    annotationProcessor = 
+--                        new DefaultAnnotationProcessor(namingContextListener.getEnvContext());
+--                } else {
+--                    annotationProcessor = new DefaultAnnotationProcessor(null);
+-+                    context = namingContextListener.getEnvContext();
+-                 }
+-+                Map<String, Map<String, String>> injectionMap = 
+-+                	buildInjectionMap(getIgnoreAnnotations() ? new NamingResources(): getNamingResources());
+-+                instanceManager = new DefaultInstanceManager
+-+                	(context, injectionMap, this, this.getClass().getClassLoader());
+-+                getServletContext().setAttribute(InstanceManager.class.getName(), instanceManager);
+-             }
+--            getServletContext().setAttribute
+--                (AnnotationProcessor.class.getName(), annotationProcessor);
+-         }
+- 
+-         try {
+-@@ -4418,6 +4408,48 @@
+-         //cacheContext();
+-     }
+- 
+-+    private Map<String, Map<String, String>> buildInjectionMap(NamingResources namingResources) {
+-+        Map<String, Map<String, String>> injectionMap = new HashMap<String, Map<String, String>>();
+-+        for (Injectable resource: namingResources.findLocalEjbs()) {
+-+            addInjectionTarget(resource, injectionMap);
+-+        }
+-+        for (Injectable resource: namingResources.findEjbs()) {
+-+            addInjectionTarget(resource, injectionMap);
+-+        }
+-+        for (Injectable resource: namingResources.findEnvironments()) {
+-+            addInjectionTarget(resource, injectionMap);
+-+        }
+-+        for (Injectable resource: namingResources.findMessageDestinationRefs()) {
+-+            addInjectionTarget(resource, injectionMap);
+-+        }
+-+        for (Injectable resource: namingResources.findResourceEnvRefs()) {
+-+            addInjectionTarget(resource, injectionMap);
+-+        }
+-+        for (Injectable resource: namingResources.findResources()) {
+-+            addInjectionTarget(resource, injectionMap);
+-+        }
+-+        for (Injectable resource: namingResources.findServices()) {
+-+            addInjectionTarget(resource, injectionMap);
+-+        }
+-+        return injectionMap;
+-+    }
+ +
+-+    private void addInjectionTarget(Injectable resource, Map<String, Map<String, String>> injectionMap) {
+-+        List<InjectionTarget> injectionTargets = resource.getInjectionTargets();
+-+        if (injectionTargets != null && injectionTargets.size() > 0) {
+-+            String jndiName = resource.getName();
+-+            for (InjectionTarget injectionTarget: injectionTargets) {
+-+                String clazz = injectionTarget.getTargetClass();
+-+                Map<String, String> injections = injectionMap.get(clazz);
+-+                if (injections == null) {
+-+                    injections = new HashMap<String, String>();
+-+                    injectionMap.put(clazz, injections);
+-+                }
+-+                injections.put(injectionTarget.getTargetName(), jndiName);
+-+            }
+-+        }
+-+    }
+-+
+-     /**
+-      * Processes TLDs.
+-      *
+-Index: java/org/apache/catalina/core/LocalStrings.properties
+-===================================================================
+---- java/org/apache/catalina/core/LocalStrings.properties	(revision 3168)
+-+++ java/org/apache/catalina/core/LocalStrings.properties	(working copy)
+-@@ -201,7 +201,6 @@
+- standardWrapper.notContext=Parent container of a Wrapper must be a Context
+- standardWrapper.notFound=Servlet {0} is not available
+- standardWrapper.notServlet=Class {0} is not a Servlet
+--standardWrapper.privilegedServlet=Servlet of class {0} is privileged and cannot be loaded by this web application
+- standardWrapper.releaseFilters=Release filters exception for servlet {0}
+- standardWrapper.serviceException=Servlet.service() for servlet {0} threw exception
+- standardWrapper.statusHeader=HTTP Status {0} - {1}
+-@@ -210,7 +209,9 @@
+- standardWrapper.unloadException=Servlet {0} threw unload() exception
+- standardWrapper.unloading=Cannot allocate servlet {0} because it is being unloaded
+- standardWrapper.waiting=Waiting for {0} instance(s) to be deallocated
+--standardWrapper.restrictedServletsResource=Restricted servlets property file not found
+- 
+--applicationFilterConfig.restrictedFiltersResource=Restricted filters property file not found
+--applicationFilterConfig.privilegedFilter=Filter of class {0} is privileged and cannot be loaded by this web application
+-+defaultInstanceManager.restrictedServletsResource=Restricted servlets property file not found
+-+defaultInstanceManager.privilegedServlet=Servlet of class {0} is privileged and cannot be loaded by this web application
+-+defaultInstanceManager.restrictedFiltersResource=Restricted filters property file not found
+-+defaultInstanceManager.privilegedFilter=Filter of class {0} is privileged and cannot be loaded by this web application
+-+defaultInstanceManager.restrictedListenersResources="Restricted listeners property file not found
+-\ No newline at end of file
+-Index: java/org/apache/catalina/core/mbeans-descriptors.xml
+-===================================================================
+---- java/org/apache/catalina/core/mbeans-descriptors.xml	(revision 3168)
+-+++ java/org/apache/catalina/core/mbeans-descriptors.xml	(working copy)
+-@@ -41,9 +41,9 @@
+-                is="true"
+-                type="boolean"/>
+-       
+--     <attribute name="annotationProcessor"
+--                description="Object that processes things like injection annotations"
+--                type="org.apache.AnnotationProcessor" />
+-+    <attribute name="instanceManager"
+-+                description="Object that creates and destroys servlets, filters, and listeners. Include dependency injection and postConstruct/preDestory handling"
+-+                type="org.apache.catalina.instanceManagement.InstanceManager" />
+- 
+-     <attribute name="antiJARLocking"
+-                description="Take care to not lock jar files"
+-Index: java/org/apache/catalina/servlets/LocalStrings.properties
+-===================================================================
+---- java/org/apache/catalina/servlets/LocalStrings.properties	(revision 3168)
+-+++ java/org/apache/catalina/servlets/LocalStrings.properties	(working copy)
+-@@ -25,7 +25,6 @@
+- invokerServlet.notNamed=Cannot call invoker servlet with a named dispatcher
+- invokerServlet.noWrapper=Container has not called setWrapper() for this servlet
+- webdavservlet.jaxpfailed=JAXP initialization failed
+--webdavservlet.enternalEntityIgnored=The request included a reference to an external entity with PublicID {0} and SystemID {1} which was ignored
+- directory.filename=Filename
+- directory.lastModified=Last Modified
+- directory.parent=Up To {0}
+-Index: java/org/apache/catalina/servlets/WebdavServlet.java
+-===================================================================
+---- java/org/apache/catalina/servlets/WebdavServlet.java	(revision 3168)
+-+++ java/org/apache/catalina/servlets/WebdavServlet.java	(working copy)
+-@@ -20,7 +20,6 @@
+- 
+- 
+- import java.io.IOException;
+--import java.io.StringReader;
+- import java.io.StringWriter;
+- import java.io.Writer;
+- import java.security.MessageDigest;
+-@@ -37,7 +36,6 @@
+- import javax.naming.NamingEnumeration;
+- import javax.naming.NamingException;
+- import javax.naming.directory.DirContext;
+--import javax.servlet.ServletContext;
+- import javax.servlet.ServletException;
+- import javax.servlet.UnavailableException;
+- import javax.servlet.http.HttpServletRequest;
+-@@ -59,7 +57,6 @@
+- import org.w3c.dom.Element;
+- import org.w3c.dom.Node;
+- import org.w3c.dom.NodeList;
+--import org.xml.sax.EntityResolver;
+- import org.xml.sax.InputSource;
+- import org.xml.sax.SAXException;
+- 
+-@@ -290,8 +287,6 @@
+-             documentBuilderFactory.setNamespaceAware(true);
+-             documentBuilderFactory.setExpandEntityReferences(false);
+-             documentBuilder = documentBuilderFactory.newDocumentBuilder();
+--            documentBuilder.setEntityResolver(
+--                    new WebdavResolver(this.getServletContext()));
+-         } catch(ParserConfigurationException e) {
+-             throw new ServletException
+-                 (sm.getString("webdavservlet.jaxpfailed"));
+-@@ -2828,26 +2823,6 @@
+-     }
+- 
+- 
+--    // --------------------------------------------- WebdavResolver Inner Class
+--    /**
+--     * Work around for XML parsers that don't fully respect
+--     * {@link DocumentBuilderFactory#setExpandEntityReferences(false)}. External
+--     * references are filtered out for security reasons. See CVE-2007-5461.
+--     */
+--    private class WebdavResolver implements EntityResolver {
+--        private ServletContext context;
+--        
+--        public WebdavResolver(ServletContext theContext) {
+--            context = theContext;
+--        }
+--     
+--        public InputSource resolveEntity (String publicId, String systemId) {
+--            context.log(sm.getString("webdavservlet.enternalEntityIgnored",
+--                    publicId, systemId));
+--            return new InputSource(
+--                    new StringReader("Ignored external entity"));
+--        }
+--    }
+- };
+- 
+- 
+-@@ -3170,4 +3145,3 @@
+- 
+- };
+- 
+++            clazz = clazz.getSuperclass();
++         }
+ -
+-Index: java/org/apache/catalina/deploy/Injectable.java
+-===================================================================
+---- java/org/apache/catalina/deploy/Injectable.java	(revision 0)
+-+++ java/org/apache/catalina/deploy/Injectable.java	(revision 0)
+-@@ -0,0 +1,29 @@
+-+/*
+-+ * Licensed to the Apache Software Foundation (ASF) under one
+-+ * or more contributor license agreements.  See the NOTICE file
+-+ * distributed with this work for additional information
+-+ * regarding copyright ownership.  The ASF licenses this file
+-+ * to you under the Apache License, Version 2.0 (the
+-+ * "License"); you may not use this file except in compliance
+-+ * with the License.  You may obtain a copy of the License at
+-+ *
+-+ *  http://www.apache.org/licenses/LICENSE-2.0
+-+ *
+-+ * Unless required by applicable law or agreed to in writing,
+-+ * software distributed under the License is distributed on an
+-+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+-+ * KIND, either express or implied.  See the License for the
+-+ * specific language governing permissions and limitations
+-+ * under the License.
+-+ */
+-+
+-+
+-+package org.apache.catalina.deploy;
+-+
+-+import java.util.List;
+-+
+-+public interface Injectable {
+-+	public String getName();
+-+    public void addInjectionTarget(String injectionTargetName, String jndiName);
+-+    public List<InjectionTarget> getInjectionTargets();
+-+}
+-
+-Property changes on: java/org/apache/catalina/deploy/Injectable.java
+-___________________________________________________________________
+-Name: svn:eol-style
+-   + native
+-
+-Index: java/org/apache/catalina/deploy/ContextEnvironment.java
+-===================================================================
+---- java/org/apache/catalina/deploy/ContextEnvironment.java	(revision 3168)
+-+++ java/org/apache/catalina/deploy/ContextEnvironment.java	(working copy)
+-@@ -19,6 +19,8 @@
+- package org.apache.catalina.deploy;
+- 
+- import java.io.Serializable;
+-+import java.util.ArrayList;
+-+import java.util.List;
+- 
+- 
+- /**
+-@@ -29,7 +31,7 @@
+-  * @version $Revision: 467222 $ $Date: 2006-10-23 23:17:11 -0400 (Mon, 23 Oct 2006) $
+-  */
+- 
+--public class ContextEnvironment implements Serializable {
+-+public class ContextEnvironment implements Serializable, Injectable {
+- 
+- 
+-     // ------------------------------------------------------------- Properties
+-@@ -105,6 +107,18 @@
+-         this.value = value;
+      }
+  
+-+
+-+    private List<InjectionTarget> injectionTargets = new ArrayList<InjectionTarget>();
+-+
+-+    public void addInjectionTarget(String injectionTargetName, String jndiName) {
+-+        InjectionTarget target = new InjectionTarget(injectionTargetName, jndiName);
+-+        injectionTargets.add(target);
+-+    }
+-+
+-+    public List<InjectionTarget> getInjectionTargets() {
+-+        return injectionTargets;
+-+    }
+-+
+-     // --------------------------------------------------------- Public Methods
+  
+- 
+-Index: java/org/apache/catalina/deploy/ResourceBase.java
+-===================================================================
+---- java/org/apache/catalina/deploy/ResourceBase.java	(revision 3168)
+-+++ java/org/apache/catalina/deploy/ResourceBase.java	(working copy)
+-@@ -21,6 +21,8 @@
+- import java.io.Serializable;
+- import java.util.Iterator;
+- import java.util.HashMap;
+-+import java.util.List;
+-+import java.util.ArrayList;
+- 
+- 
+- /**
+-@@ -30,7 +32,7 @@
+-  * @version $Revision: 467222 $ $Date: 2006-10-23 23:17:11 -0400 (Mon, 23 Oct 2006) $
+-  */
+- 
+--public class ResourceBase implements Serializable {
+-+public class ResourceBase implements Serializable, Injectable {
+- 
+- 
+-     // ------------------------------------------------------------- Properties
+-@@ -111,8 +113,18 @@
+-     public Iterator listProperties() {
+-         return properties.keySet().iterator();
+-     }
+--    
+--    
+-+
+-+    private List<InjectionTarget> injectionTargets = new ArrayList<InjectionTarget>();
+-+
+-+    public void addInjectionTarget(String injectionTargetName, String jndiName) {
+-+        InjectionTarget target = new InjectionTarget(injectionTargetName, jndiName);
+-+        injectionTargets.add(target);
+-+    }
+-+
+-+    public List<InjectionTarget> getInjectionTargets() {
+-+        return injectionTargets;
+-+    }
+-+
+-     // -------------------------------------------------------- Package Methods
+- 
+- 
+-Index: java/org/apache/catalina/deploy/MessageDestinationRef.java
+-===================================================================
+---- java/org/apache/catalina/deploy/MessageDestinationRef.java	(revision 3168)
+-+++ java/org/apache/catalina/deploy/MessageDestinationRef.java	(working copy)
+-@@ -19,6 +19,8 @@
+- package org.apache.catalina.deploy;
+- 
+- import java.io.Serializable;
+-+import java.util.ArrayList;
+-+import java.util.List;
+- 
+- 
+- /**
+-@@ -31,7 +33,7 @@
+-  * @since Tomcat 5.0
+-  */
+- 
+--public class MessageDestinationRef implements Serializable {
+-+public class MessageDestinationRef implements Serializable, Injectable {
+- 
+- 
+-     // ------------------------------------------------------------- Properties
+-@@ -106,7 +108,17 @@
+-         this.usage = usage;
+-     }
+- 
+-+    private List<InjectionTarget> injectionTargets = new ArrayList<InjectionTarget>();
+- 
+-+    public void addInjectionTarget(String injectionTargetName, String jndiName) {
+-+        InjectionTarget target = new InjectionTarget(injectionTargetName, jndiName);
+-+        injectionTargets.add(target);
+-+    }
+-+
+-+    public List<InjectionTarget> getInjectionTargets() {
+-+        return injectionTargets;
+-+    }
+-+
+-     // --------------------------------------------------------- Public Methods
+- 
+- 
+-Index: java/org/apache/catalina/deploy/InjectionTarget.java
+-===================================================================
+---- java/org/apache/catalina/deploy/InjectionTarget.java	(revision 0)
+-+++ java/org/apache/catalina/deploy/InjectionTarget.java	(revision 0)
+-@@ -0,0 +1,55 @@
+-+/*
+-+ * Licensed to the Apache Software Foundation (ASF) under one
+-+ * or more contributor license agreements.  See the NOTICE file
+-+ * distributed with this work for additional information
+-+ * regarding copyright ownership.  The ASF licenses this file
+-+ * to you under the Apache License, Version 2.0 (the
+-+ * "License"); you may not use this file except in compliance
+-+ * with the License.  You may obtain a copy of the License at
+-+ *
+-+ *  http://www.apache.org/licenses/LICENSE-2.0
+-+ *
+-+ * Unless required by applicable law or agreed to in writing,
+-+ * software distributed under the License is distributed on an
+-+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+-+ * KIND, either express or implied.  See the License for the
+-+ * specific language governing permissions and limitations
+-+ * under the License.
+-+ */
+-+
+-+
+-+package org.apache.catalina.deploy;
+-+
+-+/**
+-+ * @version $Rev:$ $Date:$
+-+ */
+-+public class InjectionTarget {
+-+    private String targetClass;
+-+    private String targetName;
+-+
+-+
+-+    public InjectionTarget() {
+-+    }
+-+
+-+    public InjectionTarget(String targetClass, String targetName) {
+-+        this.targetClass = targetClass;
+-+        this.targetName = targetName;
+-+    }
+-+
+-+    public String getTargetClass() {
+-+        return targetClass;
+-+    }
+-+
+-+    public void setTargetClass(String targetClass) {
+-+        this.targetClass = targetClass;
+-+    }
+-+
+-+    public String getTargetName() {
+-+        return targetName;
+-+    }
+-+
+-+    public void setTargetName(String targetName) {
+-+        this.targetName = targetName;
+-+    }
+-+
+-+}
+-
+-Property changes on: java/org/apache/catalina/deploy/InjectionTarget.java
+-___________________________________________________________________
+-Name: svn:eol-style
+-   + native
+-
+-Index: java/org/apache/catalina/startup/ConnectorCreateRule.java
+-===================================================================
+---- java/org/apache/catalina/startup/ConnectorCreateRule.java	(revision 3168)
+-+++ java/org/apache/catalina/startup/ConnectorCreateRule.java	(working copy)
+-@@ -53,18 +53,14 @@
+-             ex = svc.getExecutor(attributes.getValue("executor"));
+-         }
+-         Connector con = new Connector(attributes.getValue("protocol"));
+--        if ( ex != null )  _setExecutor(con,ex);
+-+        if ( ex != null )  setExecutor(con,ex);
+-         
+-         digester.push(con);
+-     }
+-     
+--    public void _setExecutor(Connector con, Executor ex) throws Exception {
+--        Method m = IntrospectionUtils.findMethod(con.getProtocolHandler().getClass(),"setExecutor",new Class[] {java.util.concurrent.Executor.class});
+--        if (m!=null) {
+--            m.invoke(con.getProtocolHandler(), new Object[] {ex});
+--        }else {
+--            log.warn("Connector ["+con+"] does not support external executors. Method setExecutor(java.util.concurrent.Executor) not found.");
+--        }
+-+    public void setExecutor(Connector con, Executor ex) throws Exception {
+-+        IntrospectionUtils.callMethod1(con.getProtocolHandler(), "setExecutor", 
+-+            ex, java.util.concurrent.Executor.class.getName(), getClass().getClassLoader());
+-     }
+- 
+- 
+-@@ -72,7 +68,7 @@
+-      * Process the end of this element.
+-      */
+-     public void end() throws Exception {
+--        Object top = digester.pop();
+-+        digester.pop();
+-     }
+- 
+- 
+-Index: java/org/apache/catalina/startup/WebRuleSet.java
+-===================================================================
+---- java/org/apache/catalina/startup/WebRuleSet.java	(revision 3168)
+-+++ java/org/apache/catalina/startup/WebRuleSet.java	(working copy)
+-@@ -139,59 +139,8 @@
+-         digester.addRule(prefix + "web-app/distributable",
+-                          new SetDistributableRule());
+- 
+--        digester.addObjectCreate(prefix + "web-app/ejb-local-ref",
+--                                 "org.apache.catalina.deploy.ContextLocalEjb");
+--        digester.addRule(prefix + "web-app/ejb-local-ref",
+--                new SetNextNamingRule("addLocalEjb",
+--                            "org.apache.catalina.deploy.ContextLocalEjb"));
+-+        configureNamingRules(digester);
+- 
+--        digester.addCallMethod(prefix + "web-app/ejb-local-ref/description",
+--                               "setDescription", 0);
+--        digester.addCallMethod(prefix + "web-app/ejb-local-ref/ejb-link",
+--                               "setLink", 0);
+--        digester.addCallMethod(prefix + "web-app/ejb-local-ref/ejb-ref-name",
+--                               "setName", 0);
+--        digester.addCallMethod(prefix + "web-app/ejb-local-ref/ejb-ref-type",
+--                               "setType", 0);
+--        digester.addCallMethod(prefix + "web-app/ejb-local-ref/local",
+--                               "setLocal", 0);
+--        digester.addCallMethod(prefix + "web-app/ejb-local-ref/local-home",
+--                               "setHome", 0);
+--
+--        digester.addObjectCreate(prefix + "web-app/ejb-ref",
+--                                 "org.apache.catalina.deploy.ContextEjb");
+--        digester.addRule(prefix + "web-app/ejb-ref",
+--                new SetNextNamingRule("addEjb",
+--                            "org.apache.catalina.deploy.ContextEjb"));
+--
+--        digester.addCallMethod(prefix + "web-app/ejb-ref/description",
+--                               "setDescription", 0);
+--        digester.addCallMethod(prefix + "web-app/ejb-ref/ejb-link",
+--                               "setLink", 0);
+--        digester.addCallMethod(prefix + "web-app/ejb-ref/ejb-ref-name",
+--                               "setName", 0);
+--        digester.addCallMethod(prefix + "web-app/ejb-ref/ejb-ref-type",
+--                               "setType", 0);
+--        digester.addCallMethod(prefix + "web-app/ejb-ref/home",
+--                               "setHome", 0);
+--        digester.addCallMethod(prefix + "web-app/ejb-ref/remote",
+--                               "setRemote", 0);
+--
+--        digester.addObjectCreate(prefix + "web-app/env-entry",
+--                                 "org.apache.catalina.deploy.ContextEnvironment");
+--        digester.addRule(prefix + "web-app/env-entry",
+--                new SetNextNamingRule("addEnvironment",
+--                            "org.apache.catalina.deploy.ContextEnvironment"));
+--
+--        digester.addCallMethod(prefix + "web-app/env-entry/description",
+--                               "setDescription", 0);
+--        digester.addCallMethod(prefix + "web-app/env-entry/env-entry-name",
+--                               "setName", 0);
+--        digester.addCallMethod(prefix + "web-app/env-entry/env-entry-type",
+--                               "setType", 0);
+--        digester.addCallMethod(prefix + "web-app/env-entry/env-entry-value",
+--                               "setValue", 0);
+--
+-         digester.addObjectCreate(prefix + "web-app/error-page",
+-                                  "org.apache.catalina.deploy.ErrorPage");
+-         digester.addSetNext(prefix + "web-app/error-page",
+-@@ -279,6 +228,160 @@
+-         digester.addCallParam(prefix + "web-app/mime-mapping/extension", 0);
+-         digester.addCallParam(prefix + "web-app/mime-mapping/mime-type", 1);
+- 
+-+
+-+        digester.addObjectCreate(prefix + "web-app/security-constraint",
+-+                                 "org.apache.catalina.deploy.SecurityConstraint");
+-+        digester.addSetNext(prefix + "web-app/security-constraint",
+-+                            "addConstraint",
+-+                            "org.apache.catalina.deploy.SecurityConstraint");
+-+
+-+        digester.addRule(prefix + "web-app/security-constraint/auth-constraint",
+-+                         new SetAuthConstraintRule());
+-+        digester.addCallMethod(prefix + "web-app/security-constraint/auth-constraint/role-name",
+-+                               "addAuthRole", 0);
+-+        digester.addCallMethod(prefix + "web-app/security-constraint/display-name",
+-+                               "setDisplayName", 0);
+-+        digester.addCallMethod(prefix + "web-app/security-constraint/user-data-constraint/transport-guarantee",
+-+                               "setUserConstraint", 0);
+-+
+-+        digester.addObjectCreate(prefix + "web-app/security-constraint/web-resource-collection",
+-+                                 "org.apache.catalina.deploy.SecurityCollection");
+-+        digester.addSetNext(prefix + "web-app/security-constraint/web-resource-collection",
+-+                            "addCollection",
+-+                            "org.apache.catalina.deploy.SecurityCollection");
+-+        digester.addCallMethod(prefix + "web-app/security-constraint/web-resource-collection/http-method",
+-+                               "addMethod", 0);
+-+        digester.addCallMethod(prefix + "web-app/security-constraint/web-resource-collection/url-pattern",
+-+                               "addPattern", 0);
+-+        digester.addCallMethod(prefix + "web-app/security-constraint/web-resource-collection/web-resource-name",
+-+                               "setName", 0);
+-+
+-+        digester.addCallMethod(prefix + "web-app/security-role/role-name",
+-+                               "addSecurityRole", 0);
+-+
+-+        digester.addRule(prefix + "web-app/servlet",
+-+                         new WrapperCreateRule());
+-+        digester.addSetNext(prefix + "web-app/servlet",
+-+                            "addChild",
+-+                            "org.apache.catalina.Container");
+-+
+-+        digester.addCallMethod(prefix + "web-app/servlet/init-param",
+-+                               "addInitParameter", 2);
+-+        digester.addCallParam(prefix + "web-app/servlet/init-param/param-name",
+-+                              0);
+-+        digester.addCallParam(prefix + "web-app/servlet/init-param/param-value",
+-+                              1);
+-+
+-+        digester.addCallMethod(prefix + "web-app/servlet/jsp-file",
+-+                               "setJspFile", 0);
+-+        digester.addCallMethod(prefix + "web-app/servlet/load-on-startup",
+-+                               "setLoadOnStartupString", 0);
+-+        digester.addCallMethod(prefix + "web-app/servlet/run-as/role-name",
+-+                               "setRunAs", 0);
+-+
+-+        digester.addRule(prefix + "web-app/servlet/security-role-ref",
+-+                new SecurityRoleRefCreateRule());
+-+        digester.addCallMethod(
+-+                prefix + "web-app/servlet/security-role-ref/role-link",
+-+                "setLink", 0);
+-+        digester.addCallMethod(
+-+                prefix + "web-app/servlet/security-role-ref/role-name",
+-+                "setName", 0);
+-+
+-+        digester.addCallMethod(prefix + "web-app/servlet/servlet-class",
+-+                              "setServletClass", 0);
+-+        digester.addCallMethod(prefix + "web-app/servlet/servlet-name",
+-+                              "setName", 0);
+-+
+-+        digester.addRule(prefix + "web-app/servlet-mapping",
+-+                               new CallMethodMultiRule("addServletMapping", 2, 0));
+-+        digester.addCallParam(prefix + "web-app/servlet-mapping/servlet-name", 1);
+-+        digester.addRule(prefix + "web-app/servlet-mapping/url-pattern", new CallParamMultiRule(0));
+-+
+-+        digester.addRule(prefix + "web-app/session-config",
+-+                         sessionConfig);
+-+        
+-+        digester.addCallMethod(prefix + "web-app/session-config/session-timeout",
+-+                               "setSessionTimeout", 1,
+-+                               new Class[] { Integer.TYPE });
+-+        digester.addCallParam(prefix + "web-app/session-config/session-timeout", 0);
+-+
+-+        digester.addCallMethod(prefix + "web-app/taglib",
+-+                               "addTaglib", 2);
+-+        digester.addCallParam(prefix + "web-app/taglib/taglib-location", 1);
+-+        digester.addCallParam(prefix + "web-app/taglib/taglib-uri", 0);
+-+
+-+        digester.addCallMethod(prefix + "web-app/welcome-file-list/welcome-file",
+-+                               "addWelcomeFile", 0);
+-+
+-+        digester.addCallMethod(prefix + "web-app/locale-encoding-mapping-list/locale-encoding-mapping",
+-+                              "addLocaleEncodingMappingParameter", 2);
+-+        digester.addCallParam(prefix + "web-app/locale-encoding-mapping-list/locale-encoding-mapping/locale", 0);
+-+        digester.addCallParam(prefix + "web-app/locale-encoding-mapping-list/locale-encoding-mapping/encoding", 1);
+-+
+-+    }
+-+
+-+    protected void configureNamingRules(Digester digester) {
+-+        //ejb-local-ref
+-+        digester.addObjectCreate(prefix + "web-app/ejb-local-ref",
+-+                                 "org.apache.catalina.deploy.ContextLocalEjb");
+-+        digester.addRule(prefix + "web-app/ejb-local-ref",
+-+                new SetNextNamingRule("addLocalEjb",
+-+                            "org.apache.catalina.deploy.ContextLocalEjb"));
+-+
+-+        digester.addCallMethod(prefix + "web-app/ejb-local-ref/description",
+-+                               "setDescription", 0);
+-+        digester.addCallMethod(prefix + "web-app/ejb-local-ref/ejb-link",
+-+                               "setLink", 0);
+-+        digester.addCallMethod(prefix + "web-app/ejb-local-ref/ejb-ref-name",
+-+                               "setName", 0);
+-+        digester.addCallMethod(prefix + "web-app/ejb-local-ref/ejb-ref-type",
+-+                               "setType", 0);
+-+        digester.addCallMethod(prefix + "web-app/ejb-local-ref/local",
+-+                               "setLocal", 0);
+-+        digester.addCallMethod(prefix + "web-app/ejb-local-ref/local-home",
+-+                               "setHome", 0);
+-+        configureInjectionRules(digester, "web-app/ejb-local-ref/");
+-+
+-+        //ejb-ref
+-+        digester.addObjectCreate(prefix + "web-app/ejb-ref",
+-+                                 "org.apache.catalina.deploy.ContextEjb");
+-+        digester.addRule(prefix + "web-app/ejb-ref",
+-+                new SetNextNamingRule("addEjb",
+-+                            "org.apache.catalina.deploy.ContextEjb"));
+-+
+-+        digester.addCallMethod(prefix + "web-app/ejb-ref/description",
+-+                               "setDescription", 0);
+-+        digester.addCallMethod(prefix + "web-app/ejb-ref/ejb-link",
+-+                               "setLink", 0);
+-+        digester.addCallMethod(prefix + "web-app/ejb-ref/ejb-ref-name",
+-+                               "setName", 0);
+-+        digester.addCallMethod(prefix + "web-app/ejb-ref/ejb-ref-type",
+-+                               "setType", 0);
+-+        digester.addCallMethod(prefix + "web-app/ejb-ref/home",
+-+                               "setHome", 0);
+-+        digester.addCallMethod(prefix + "web-app/ejb-ref/remote",
+-+                               "setRemote", 0);
+-+        configureInjectionRules(digester, "web-app/ejb-ref/");
+-+
+-+        //env-entry
+-+        digester.addObjectCreate(prefix + "web-app/env-entry",
+-+                                 "org.apache.catalina.deploy.ContextEnvironment");
+-+        digester.addRule(prefix + "web-app/env-entry",
+-+                new SetNextNamingRule("addEnvironment",
+-+                            "org.apache.catalina.deploy.ContextEnvironment"));
+-+
+-+        digester.addCallMethod(prefix + "web-app/env-entry/description",
+-+                               "setDescription", 0);
+-+        digester.addCallMethod(prefix + "web-app/env-entry/env-entry-name",
+-+                               "setName", 0);
+-+        digester.addCallMethod(prefix + "web-app/env-entry/env-entry-type",
+-+                               "setType", 0);
+-+        digester.addCallMethod(prefix + "web-app/env-entry/env-entry-value",
+-+                               "setValue", 0);
+-+        configureInjectionRules(digester, "web-app/env-entry/");
+-+
+-+        //resource-env-ref
+-         digester.addObjectCreate(prefix + "web-app/resource-env-ref",
+-             "org.apache.catalina.deploy.ContextResourceEnvRef");
+-         digester.addRule(prefix + "web-app/resource-env-ref",
+-@@ -289,7 +392,9 @@
+-                 "setName", 0);
+-         digester.addCallMethod(prefix + "web-app/resource-env-ref/resource-env-ref-type",
+-                 "setType", 0);
+-+        configureInjectionRules(digester, "web-app/ejb-local-ref/");
+- 
+-+        //message-destination
+-         digester.addObjectCreate(prefix + "web-app/message-destination",
+-                                  "org.apache.catalina.deploy.MessageDestination");
+-         digester.addSetNext(prefix + "web-app/message-destination",
+-@@ -307,6 +412,7 @@
+-         digester.addCallMethod(prefix + "web-app/message-destination/message-destination-name",
+-                                "setName", 0);
+- 
+-+        //message-destination-ref
+-         digester.addObjectCreate(prefix + "web-app/message-destination-ref",
+-                                  "org.apache.catalina.deploy.MessageDestinationRef");
+-         digester.addSetNext(prefix + "web-app/message-destination-ref",
+-@@ -324,6 +430,9 @@
+-         digester.addCallMethod(prefix + "web-app/message-destination-ref/message-destination-usage",
+-                                "setUsage", 0);
+- 
+-+        configureInjectionRules(digester, "web-app/message-destination-ref/");
+-+
+-+        //resource-ref
+-         digester.addObjectCreate(prefix + "web-app/resource-ref",
+-                                  "org.apache.catalina.deploy.ContextResource");
+-         digester.addRule(prefix + "web-app/resource-ref",
+-@@ -340,37 +449,9 @@
+-                                "setScope", 0);
+-         digester.addCallMethod(prefix + "web-app/resource-ref/res-type",
+-                                "setType", 0);
+-+        configureInjectionRules(digester, "web-app/resource-ref/");
+- 
+--        digester.addObjectCreate(prefix + "web-app/security-constraint",
+--                                 "org.apache.catalina.deploy.SecurityConstraint");
+--        digester.addSetNext(prefix + "web-app/security-constraint",
+--                            "addConstraint",
+--                            "org.apache.catalina.deploy.SecurityConstraint");
+--
+--        digester.addRule(prefix + "web-app/security-constraint/auth-constraint",
+--                         new SetAuthConstraintRule());
+--        digester.addCallMethod(prefix + "web-app/security-constraint/auth-constraint/role-name",
+--                               "addAuthRole", 0);
+--        digester.addCallMethod(prefix + "web-app/security-constraint/display-name",
+--                               "setDisplayName", 0);
+--        digester.addCallMethod(prefix + "web-app/security-constraint/user-data-constraint/transport-guarantee",
+--                               "setUserConstraint", 0);
+--
+--        digester.addObjectCreate(prefix + "web-app/security-constraint/web-resource-collection",
+--                                 "org.apache.catalina.deploy.SecurityCollection");
+--        digester.addSetNext(prefix + "web-app/security-constraint/web-resource-collection",
+--                            "addCollection",
+--                            "org.apache.catalina.deploy.SecurityCollection");
+--        digester.addCallMethod(prefix + "web-app/security-constraint/web-resource-collection/http-method",
+--                               "addMethod", 0);
+--        digester.addCallMethod(prefix + "web-app/security-constraint/web-resource-collection/url-pattern",
+--                               "addPattern", 0);
+--        digester.addCallMethod(prefix + "web-app/security-constraint/web-resource-collection/web-resource-name",
+--                               "setName", 0);
+--
+--        digester.addCallMethod(prefix + "web-app/security-role/role-name",
+--                               "addSecurityRole", 0);
+--
+-+        //service-ref
+-         digester.addObjectCreate(prefix + "web-app/service-ref",
+-                                  "org.apache.catalina.deploy.ContextService");
+-         digester.addRule(prefix + "web-app/service-ref",
+-@@ -403,7 +484,7 @@
+-         digester.addRule(prefix + "web-app/service-ref/handler",
+-                          new SetNextRule("addHandler",
+-                          "org.apache.catalina.deploy.ContextHandler"));
+--        
+-+
+-         digester.addCallMethod(prefix + "web-app/service-ref/handler/handler-name",
+-                                "setName", 0);
+-         digester.addCallMethod(prefix + "web-app/service-ref/handler/handler-class",
+-@@ -422,69 +503,20 @@
+-                                "addSoapRole", 0);
+-         digester.addCallMethod(prefix + "web-app/service-ref/handler/port-name",
+-                                "addPortName", 0);
+--        
+--        digester.addRule(prefix + "web-app/servlet",
+--                         new WrapperCreateRule());
+--        digester.addSetNext(prefix + "web-app/servlet",
+--                            "addChild",
+--                            "org.apache.catalina.Container");
+-+        configureInjectionRules(digester, "web-app/service-ref/");
+- 
+--        digester.addCallMethod(prefix + "web-app/servlet/init-param",
+--                               "addInitParameter", 2);
+--        digester.addCallParam(prefix + "web-app/servlet/init-param/param-name",
+--                              0);
+--        digester.addCallParam(prefix + "web-app/servlet/init-param/param-value",
+--                              1);
+- 
+--        digester.addCallMethod(prefix + "web-app/servlet/jsp-file",
+--                               "setJspFile", 0);
+--        digester.addCallMethod(prefix + "web-app/servlet/load-on-startup",
+--                               "setLoadOnStartupString", 0);
+--        digester.addCallMethod(prefix + "web-app/servlet/run-as/role-name",
+--                               "setRunAs", 0);
+-+    }
+- 
+--        digester.addRule(prefix + "web-app/servlet/security-role-ref",
+--                new SecurityRoleRefCreateRule());
+--        digester.addCallMethod(
+--                prefix + "web-app/servlet/security-role-ref/role-link",
+--                "setLink", 0);
+--        digester.addCallMethod(
+--                prefix + "web-app/servlet/security-role-ref/role-name",
+--                "setName", 0);
+-+    protected void configureInjectionRules(Digester digester, String base) {
+- 
+--        digester.addCallMethod(prefix + "web-app/servlet/servlet-class",
+--                              "setServletClass", 0);
+--        digester.addCallMethod(prefix + "web-app/servlet/servlet-name",
+--                              "setName", 0);
+-+        digester.addCallMethod(prefix + base + "injection-target", "addInjectionTarget", 2);
+-+        digester.addCallParam(prefix + base + "injection-target/injection-target-class", 0);
+-+        digester.addCallParam(prefix + base + "injection-target/injection-target-name", 1);
+- 
+--        digester.addRule(prefix + "web-app/servlet-mapping",
+--                               new CallMethodMultiRule("addServletMapping", 2, 0));
+--        digester.addCallParam(prefix + "web-app/servlet-mapping/servlet-name", 1);
+--        digester.addRule(prefix + "web-app/servlet-mapping/url-pattern", new CallParamMultiRule(0));
+-+    }
+- 
+--        digester.addRule(prefix + "web-app/session-config",
+--                         sessionConfig);
+--        
+--        digester.addCallMethod(prefix + "web-app/session-config/session-timeout",
+--                               "setSessionTimeout", 1,
+--                               new Class[] { Integer.TYPE });
+--        digester.addCallParam(prefix + "web-app/session-config/session-timeout", 0);
+- 
+--        digester.addCallMethod(prefix + "web-app/taglib",
+--                               "addTaglib", 2);
+--        digester.addCallParam(prefix + "web-app/taglib/taglib-location", 1);
+--        digester.addCallParam(prefix + "web-app/taglib/taglib-uri", 0);
+--
+--        digester.addCallMethod(prefix + "web-app/welcome-file-list/welcome-file",
+--                               "addWelcomeFile", 0);
+--
+--        digester.addCallMethod(prefix + "web-app/locale-encoding-mapping-list/locale-encoding-mapping",
+--                              "addLocaleEncodingMappingParameter", 2);
+--        digester.addCallParam(prefix + "web-app/locale-encoding-mapping-list/locale-encoding-mapping/locale", 0);
+--        digester.addCallParam(prefix + "web-app/locale-encoding-mapping-list/locale-encoding-mapping/encoding", 1);
+--
+--    }
+--
+-     /**
+-      * Reset counter used for validating the web.xml file.
+-      */
+-Index: java/org/apache/catalina/util/DefaultAnnotationProcessor.java
+-===================================================================
+---- java/org/apache/catalina/util/DefaultAnnotationProcessor.java	(revision 3168)
+-+++ java/org/apache/catalina/util/DefaultAnnotationProcessor.java	(working copy)
+-@@ -1,249 +0,0 @@
+--/*
+-- * Licensed to the Apache Software Foundation (ASF) under one or more
+-- * contributor license agreements.  See the NOTICE file distributed with
+-- * this work for additional information regarding copyright ownership.
+-- * The ASF licenses this file to You under the Apache License, Version 2.0
+-- * (the "License"); you may not use this file except in compliance with
+-- * the License.  You may obtain a copy of the License at
+-- * 
+-- *      http://www.apache.org/licenses/LICENSE-2.0
+-- * 
+-- * Unless required by applicable law or agreed to in writing, software
+-- * distributed under the License is distributed on an "AS IS" BASIS,
+-- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-- * See the License for the specific language governing permissions and
+-- * limitations under the License.
+-- */
+--
+--package org.apache.catalina.util;
+--
+--import java.lang.reflect.Field;
+--import java.lang.reflect.InvocationTargetException;
+--import java.lang.reflect.Method;
+--import java.lang.reflect.Modifier;
+--
+--import javax.annotation.PostConstruct;
+--import javax.annotation.PreDestroy;
+--import javax.annotation.Resource;
+--import javax.ejb.EJB;
+--import javax.naming.NamingException;
+--import javax.persistence.PersistenceContext;
+--import javax.persistence.PersistenceUnit;
+--import javax.xml.ws.WebServiceRef;
+--
+--import org.apache.AnnotationProcessor;
+--
+--
+--/**
+-- * Verify the annotation and Process it.
+-- *
+-- * @author Fabien Carrion
+-- * @author Remy Maucherat
+-- * @version $Revision: 676391 $, $Date: 2008-07-13 14:20:40 -0400 (Sun, 13 Jul 2008) $
+-- */
+--public class DefaultAnnotationProcessor implements AnnotationProcessor {
+--    
+--    protected javax.naming.Context context = null;
+--    
+--    public DefaultAnnotationProcessor(javax.naming.Context context) {
+--        this.context = context;
+--    }
+--
+--
+--    /**
+--     * Call postConstruct method on the specified instance.
+--     */
+--    public void postConstruct(Object instance)
+--        throws IllegalAccessException, InvocationTargetException {
+--        
+--        Method[] methods = instance.getClass().getDeclaredMethods();
+--        Method postConstruct = null;
+--        for (int i = 0; i < methods.length; i++) {
+--            if (methods[i].isAnnotationPresent(PostConstruct.class)) {
+--                if ((postConstruct != null) 
+--                        || (methods[i].getParameterTypes().length != 0)
+--                        || (Modifier.isStatic(methods[i].getModifiers())) 
+--                        || (methods[i].getExceptionTypes().length > 0)
+--                        || (!methods[i].getReturnType().getName().equals("void"))) {
+--                    throw new IllegalArgumentException("Invalid PostConstruct annotation");
+--                }
+--                postConstruct = methods[i];
+--            }
+--        }
+--
+--        // At the end the postconstruct annotated 
+--        // method is invoked
+--        if (postConstruct != null) {
+--            boolean accessibility = postConstruct.isAccessible();
+--            postConstruct.setAccessible(true);
+--            postConstruct.invoke(instance);
+--            postConstruct.setAccessible(accessibility);
+--        }
+--        
+--    }
+--    
+--    
+--    /**
+--     * Call preDestroy method on the specified instance.
+--     */
+--    public void preDestroy(Object instance)
+--        throws IllegalAccessException, InvocationTargetException {
+--        
+--        Method[] methods = instance.getClass().getDeclaredMethods();
+--        Method preDestroy = null;
+--        for (int i = 0; i < methods.length; i++) {
+--            if (methods[i].isAnnotationPresent(PreDestroy.class)) {
+--                if ((preDestroy != null) 
+--                        || (methods[i].getParameterTypes().length != 0)
+--                        || (Modifier.isStatic(methods[i].getModifiers())) 
+--                        || (methods[i].getExceptionTypes().length > 0)
+--                        || (!methods[i].getReturnType().getName().equals("void"))) {
+--                    throw new IllegalArgumentException("Invalid PreDestroy annotation");
+--                }
+--                preDestroy = methods[i];
+--            }
+--        }
+--
+--        // At the end the postconstruct annotated 
+--        // method is invoked
+--        if (preDestroy != null) {
+--            boolean accessibility = preDestroy.isAccessible();
+--            preDestroy.setAccessible(true);
+--            preDestroy.invoke(instance);
+--            preDestroy.setAccessible(accessibility);
+--        }
+--        
+--    }
+--    
+--    
+--    /**
+--     * Inject resources in specified instance.
+--     */
+--    public void processAnnotations(Object instance)
+--        throws IllegalAccessException, InvocationTargetException, NamingException {
+--        
+--        if (context == null) {
+--            // No resource injection
+--            return;
+--        }
+--        
+--        Class<?> clazz = instance.getClass();
+--        
+--        while (clazz != null) {
+--            // Initialize fields annotations
+--            Field[] fields = instance.getClass().getDeclaredFields();
+--            for (int i = 0; i < fields.length; i++) {
+--                if (fields[i].isAnnotationPresent(Resource.class)) {
+--                    Resource annotation = (Resource) fields[i].getAnnotation(Resource.class);
+--                    lookupFieldResource(context, instance, fields[i], annotation.name());
+--                }
+--                if (fields[i].isAnnotationPresent(EJB.class)) {
+--                    EJB annotation = (EJB) fields[i].getAnnotation(EJB.class);
+--                    lookupFieldResource(context, instance, fields[i], annotation.name());
+--                }
+--                if (fields[i].isAnnotationPresent(WebServiceRef.class)) {
+--                    WebServiceRef annotation = 
+--                        (WebServiceRef) fields[i].getAnnotation(WebServiceRef.class);
+--                    lookupFieldResource(context, instance, fields[i], annotation.name());
+--                }
+--                if (fields[i].isAnnotationPresent(PersistenceContext.class)) {
+--                    PersistenceContext annotation = 
+--                        (PersistenceContext) fields[i].getAnnotation(PersistenceContext.class);
+--                    lookupFieldResource(context, instance, fields[i], annotation.name());
+--                }
+--                if (fields[i].isAnnotationPresent(PersistenceUnit.class)) {
+--                    PersistenceUnit annotation = 
+--                        (PersistenceUnit) fields[i].getAnnotation(PersistenceUnit.class);
+--                    lookupFieldResource(context, instance, fields[i], annotation.name());
+--                }
+--            }
+--            
+--            // Initialize methods annotations
+--            Method[] methods = instance.getClass().getDeclaredMethods();
+--            for (int i = 0; i < methods.length; i++) {
+--                if (methods[i].isAnnotationPresent(Resource.class)) {
+--                    Resource annotation = (Resource) methods[i].getAnnotation(Resource.class);
+--                    lookupMethodResource(context, instance, methods[i], annotation.name());
+--                }
+--                if (methods[i].isAnnotationPresent(EJB.class)) {
+--                    EJB annotation = (EJB) methods[i].getAnnotation(EJB.class);
+--                    lookupMethodResource(context, instance, methods[i], annotation.name());
+--                }
+--                if (methods[i].isAnnotationPresent(WebServiceRef.class)) {
+--                    WebServiceRef annotation = 
+--                        (WebServiceRef) methods[i].getAnnotation(WebServiceRef.class);
+--                    lookupMethodResource(context, instance, methods[i], annotation.name());
+--                }
+--                if (methods[i].isAnnotationPresent(PersistenceContext.class)) {
+--                    PersistenceContext annotation = 
+--                        (PersistenceContext) methods[i].getAnnotation(PersistenceContext.class);
+--                    lookupMethodResource(context, instance, methods[i], annotation.name());
+--                }
+--                if (methods[i].isAnnotationPresent(PersistenceUnit.class)) {
+--                    PersistenceUnit annotation = 
+--                        (PersistenceUnit) methods[i].getAnnotation(PersistenceUnit.class);
+--                    lookupMethodResource(context, instance, methods[i], annotation.name());
+--                }
+--            }
+--            
+--            clazz = clazz.getSuperclass();
+--        }
+--    }
+--    
+--    
+--    /**
+--     * Inject resources in specified field.
+--     */
+--    protected static void lookupFieldResource(javax.naming.Context context, 
+--            Object instance, Field field, String name)
+--        throws NamingException, IllegalAccessException {
+--    
+--        Object lookedupResource = null;
+--        boolean accessibility = false;
+--        
+--        if ((name != null) &&
+--                (name.length() > 0)) {
+--            lookedupResource = context.lookup(name);
+--        } else {
+--            lookedupResource = context.lookup(instance.getClass().getName() + "/" + field.getName());
+--        }
+--        
+--        accessibility = field.isAccessible();
+--        field.setAccessible(true);
+--        field.set(instance, lookedupResource);
+--        field.setAccessible(accessibility);
+--    }
+--
+--
+--    /**
+--     * Inject resources in specified method.
+--     */
+--    protected static void lookupMethodResource(javax.naming.Context context, 
+--            Object instance, Method method, String name)
+--        throws NamingException, IllegalAccessException, InvocationTargetException {
+--        
+--        if (!method.getName().startsWith("set") 
+--                || method.getParameterTypes().length != 1
+--                || !method.getReturnType().getName().equals("void")) {
+--            throw new IllegalArgumentException("Invalid method resource injection annotation");
+--        }
+--        
+--        Object lookedupResource = null;
+--        boolean accessibility = false;
+--        
+--        if ((name != null) &&
+--                (name.length() > 0)) {
+--            lookedupResource = context.lookup(name);
+--        } else {
+--            lookedupResource = 
+--                context.lookup(instance.getClass().getName() + "/" + method.getName().substring(3));
+--        }
+--        
+--        accessibility = method.isAccessible();
+--        method.setAccessible(true);
+--        method.invoke(instance, lookedupResource);
+--        method.setAccessible(accessibility);
+--    }
+--    
+--
+--}

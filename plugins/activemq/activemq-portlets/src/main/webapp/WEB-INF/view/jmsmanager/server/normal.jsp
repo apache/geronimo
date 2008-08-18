@@ -23,8 +23,8 @@
 <p><fmt:message key="jmsmanager.server.normal.title" />:</p>
 
 <!-- Show existing connectors -->
-<c:if test="${empty(brokers)}"><fmt:message key="jmsmanager.server.normal.noJMSBrokers"/></c:if>
-<c:if test="${!empty(brokers)}">
+<c:if test="${empty (brokers)}"><fmt:message key="jmsmanager.server.normal.noJMSBrokers"/></c:if>
+<c:if test="${! empty (brokers)}">
 <table width="50%">
   <tr><td style="padding: 0 20px"></td></tr>
           <tr>

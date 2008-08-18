@@ -71,11 +71,11 @@ border-width: 1px;">
       </c:otherwise>
   </c:choose>
  <tr>
-  <td class="${backgroundClass}" width="30%" align="center"><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showView" /><portlet:param name="view_id" value="<%=rs.getString("view_id")%>" /></portlet:actionURL>"><%=rs.getString("name")%></a></td>
+  <td class="${backgroundClass}" width="30%" align="center"><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showView" /><portlet:param name="view_id" value='<%=rs.getString("view_id")%>' /></portlet:actionURL>"><%=rs.getString("name")%></a></td>
   <td class="${backgroundClass}" width="10%" align="center"><%=rs.getString("graph_count")%></td>
   <td class="${backgroundClass}" width="15%" align="center"><%=rs.getString("added").substring(0,16)%></td>
   <td class="${backgroundClass}" width="15%" align="center"><%=rs.getString("modified").substring(0,16)%></td>
-  <td class="${backgroundClass}" width="15%" align="center"><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="showEditView" /><portlet:param name="view_id" value="<%=rs.getString("view_id")%>" /></portlet:actionURL>"><img border=0 src="/monitoring/images/edit-b.png">Edit</a></td>
+  <td class="${backgroundClass}" width="15%" align="center"><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="showEditView" /><portlet:param name="view_id" value='<%=rs.getString("view_id")%>' /></portlet:actionURL>"><img border=0 src="/monitoring/images/edit-b.png">Edit</a></td>
  </tr>
  <%
  }

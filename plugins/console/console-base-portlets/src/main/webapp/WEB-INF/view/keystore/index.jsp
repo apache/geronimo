@@ -28,7 +28,7 @@
 <jsp:include page="_header.jsp" />
 
 <c:choose>
-  <c:when test="${empty(keystores)}"><p><i><fmt:message key="keystore.index.noKeystores"/></i></p></c:when>
+  <c:when test="${empty (keystores)}"><p><i><fmt:message key="keystore.index.noKeystores"/></i></p></c:when>
   <c:otherwise>
 <p><fmt:message key="keystore.index.explanation"/></p>
 

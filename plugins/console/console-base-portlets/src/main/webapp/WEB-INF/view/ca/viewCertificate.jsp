@@ -38,7 +38,7 @@ function <portlet:namespace/>validateForm(){
 <jsp:include page="_header.jsp" />
 
 <c:choose>
-  <c:when test="${empty(sNo)}">
+  <c:when test="${empty (sNo)}">
     <!-- No serial number was received to show a certificate -->
     <p>
     <fmt:message key="ca.viewCertificate.enterSerialNumber"/>
