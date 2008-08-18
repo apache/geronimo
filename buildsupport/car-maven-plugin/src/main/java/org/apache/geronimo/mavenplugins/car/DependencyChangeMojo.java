@@ -89,29 +89,29 @@ public class DependencyChangeMojo extends AbstractCarMojo {
                 FileReader in = new FileReader(dependencyFile);
                 try {
                     PluginArtifactType pluginArtifactType = PluginXmlUtil.loadPluginArtifactMetadata(in);
-                    PluginArtifactType added = new PluginArtifactType();
+                    PluginArtifactType removed = new PluginArtifactType();
                     for (DependencyType test: pluginArtifactType.getDependency()) {
                         Dependency testDependency = Dependency.newDependency(test);
                         if (!dependencies.remove(testDependency)) {
-                            added.getDependency().add(test);
+                            removed.getDependency().add(test);
                         }
                     }
-                    if (!dependencies.isEmpty() || !added.getDependency().isEmpty()) {
-                        File removedFile = new File(dependencyFile.getParentFile(), "dependencies.removed.xml");
-                        PluginArtifactType removed = toPluginArtifactType(dependencies);
-                        writeDependencies(removed,  removedFile);
+                    if (!dependencies.isEmpty() || !removed.getDependency().isEmpty()) {
                         File addedFile = new File(dependencyFile.getParentFile(), "dependencies.added.xml");
+                        PluginArtifactType added = toPluginArtifactType(dependencies);
                         writeDependencies(added,  addedFile);
+                        File removedFile = new File(dependencyFile.getParentFile(), "dependencies.removed.xml");
+                        writeDependencies(removed,  removedFile);
                         if (failOnChange) {
                             StringWriter out = new StringWriter();
                             out.write("Dependencies have changed:\n");
-                            if (!removed.getDependency().isEmpty()) {
-                                out.write("removed:\n");
-                                PluginXmlUtil.writePluginArtifact(removed, out);
-                            }
                             if (!added.getDependency().isEmpty()) {
                                 out.write("added:\n");
                                 PluginXmlUtil.writePluginArtifact(added, out);
+                            }
+                            if (!removed.getDependency().isEmpty()) {
+                                out.write("removed:\n");
+                                PluginXmlUtil.writePluginArtifact(removed, out);
                             }
                             throw new MojoFailureException(out.toString());
                         }
