@@ -1,7 +1,7 @@
 Private Build of Tomcat for Geronimo.   
 
 How to build Tomcat 6_0_18 with modifications for Geronimo:
-
+-----------------------------------------------------------
 Checkout tomcat 6.0.18
   svn co  https://svn.apache.org/repos/asf/tomcat/tc6.0.x/tags/TOMCAT_6_0_18  tomcat_6_0_18
   
@@ -17,8 +17,8 @@ Last Changed Rev: 678601
 Last Changed Date: 2008-07-21 20:07:28 -0400 (Mon, 21 Jul 2008)
 
 
-Apply the patch
-
+Apply the Geronimo required patch
+---------------------------------
 cd tomcat_6_0_18
 patch -p0 -u < TOMCAT_6_0_18-G678601.patch
 Answer 'y' to any prompts of "Reversed (or previously applied) patch detected!  Assume -R? [n]"
@@ -36,7 +36,14 @@ Add the following files
   java/org/apache/catalina/deploy/Injectable.java
   java/org/apache/catalina/deploy/InjectionTarget.java
  
+Apply the ELParse patch from Tomcat 6.0.x (6.0.19) to fix Bug45511
+   https://issues.apache.org/bugzilla/show_bug.cgi?id=45511
+------------------------------------------------------------------
+patch -p0 -u < ELParser-6.0.19-r685708.patch
+
+
 Build tomcat
+------------
   cd tomcat_6_0_18
   Per tomcat build instructions install ant-1.6.5 or later and set ANT_HOME as well as add ant/bin to PATH
   You must run as the super user for the first build that downloads more ant & eclipse artifacts
@@ -45,18 +52,24 @@ Build tomcat
   ant - to build tomcat artifacts
   
 Copy to appropriate jars and rename into geronimo/repository
+------------------------------------------------------------
   cd tomcat_6_0_18
   cp output/build/lib/catalina.jar <geronimo-root>/repository/org/apache/tomcat/catalina/6.0.18-G678601/catalina-6.0.18-G678601.jar
   cp output/build/lib/jasper.jar   <geronimo-root>/repository/org/apache/tomcat/jasper/6.0.18-G678601/jasper-6.0.18-G678601.jar
-  
-How the patch was created (tomcat_6_0_18-G678601.patch):
 
+Copy the patched jasper-el jar over (until 6.0.19 is released)
+--------------------------------------------------------------
+  cp output/build/lib/jasper-el.jar   <geronimo-root>/repository/org/apache/tomcat/jasper-el/6.0.18-G678601/jasper-el-6.0.18-G678601.jar
+
+
+How the patch was created (tomcat_6_0_18-G678601.patch):
+--------------------------------------------------------
 Checkout tomcat 6.0.18
   svn co  https://svn.apache.org/repos/asf/tomcat/tc6.0.x/tags/TOMCAT_6_0_18  tomcat_6_0_18
 
-
 Apply patch from prior Tomcat release (6.0.16)
   patch -p0 -u < TOMCAT_6_0_16-G652117.patch
+
 
 Original way to apply the individual patches
   Apply annotations patch 
@@ -67,4 +80,6 @@ Original way to apply the individual patches
 
 Create the patch:
   svn diff > TOMCAT_6_0_18-G678601.patch
+
+Update the README, patch file(s) and patched jars in svn.
 
