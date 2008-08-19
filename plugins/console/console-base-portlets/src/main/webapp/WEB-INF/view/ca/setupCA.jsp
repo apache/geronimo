@@ -120,7 +120,7 @@ function <portlet:namespace/>validateForm(){
             <th align="right"><fmt:message key="ca.common.keyAlgorithm"/>:</th>
             <td>
                 <select name="keyAlgorithm">
-                    <option <c:if test="${keyAlgorithm eq 'RSA' || keyAlgorithm eq '' || empty (keyAlgorithm)}">selected</c:if> >RSA</option>
+                    <option <c:if test="${keyAlgorithm eq 'RSA' || keyAlgorithm eq '' || empty(keyAlgorithm)}">selected</c:if> >RSA</option>
                 </select>
             </td>
         </tr>
@@ -129,7 +129,7 @@ function <portlet:namespace/>validateForm(){
             <td>
                 <select name="keySize">
                     <option <c:if test="${keySize eq '512'}">selected</c:if> >512</option>
-                    <option <c:if test="${keySize eq '1024' || keySize eq '' || empty (keySize)}">selected</c:if> >1024</option>
+                    <option <c:if test="${keySize eq '1024' || keySize eq '' || empty(keySize)}">selected</c:if> >1024</option>
                     <option <c:if test="${keySize eq '2048'}">selected</c:if> >2048</option>
                 </select>
             </td>
@@ -173,7 +173,7 @@ function <portlet:namespace/>validateForm(){
             <td>
                 <select name="algorithm">
                     <option <c:if test="${algorithm eq 'MD2withRSA'}">selected</c:if> >MD2withRSA</option>
-                    <option <c:if test="${algorithm eq 'MD5withRSA' || algorithm eq '' || empty (algorithm)}">selected</c:if> >MD5withRSA</option>
+                    <option <c:if test="${algorithm eq 'MD5withRSA' || algorithm eq '' || empty(algorithm)}">selected</c:if> >MD5withRSA</option>
                     <option <c:if test="${algorithm eq 'SHA1withRSA'}">selected</c:if> >SHA1withRSA</option>
                 </select>
             </td>

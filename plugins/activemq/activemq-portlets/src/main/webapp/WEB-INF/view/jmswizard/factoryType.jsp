@@ -94,7 +94,7 @@
               <c:forEach var="factory" items="${data.connectionFactories}">
                   <li>
                       <c:choose>
-                          <c:when test="${empty (factory.instanceName)}">
+                          <c:when test="${empty(factory.instanceName)}">
                               <i><fmt:message key="jmswizard.common.inProcess"/></i>
                           </c:when>
                           <c:otherwise>
@@ -112,7 +112,7 @@
               <c:forEach var="dest" items="${data.adminObjects}">
                   <li>
                       <c:choose>
-                          <c:when test="${empty (dest.name)}">
+                          <c:when test="${empty(dest.name)}">
                               <i><fmt:message key="jmswizard.common.inProcess"/></i>
                           </c:when>
                           <c:otherwise>

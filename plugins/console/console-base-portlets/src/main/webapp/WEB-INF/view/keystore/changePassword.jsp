@@ -41,7 +41,7 @@ function <portlet:namespace/>validateForm(){
 </script>
 
 <c:choose>
-    <c:when test="${! empty (alias)}">
+    <c:when test="${!empty(alias)}">
         <b><fmt:message key="keystore.changePassword.changePwdForPriKey"/>&nbsp;${alias}</b><br/>
     </c:when>
     <c:otherwise>
@@ -77,7 +77,7 @@ function <portlet:namespace/>validateForm(){
 </form>
 
 <c:choose>
-    <c:when test="${! empty (alias)}">
+    <c:when test="${!empty(alias)}">
         <p><a href="<portlet:actionURL portletMode="view">
                         <portlet:param name="mode" value="certificateDetails-before" />
                         <portlet:param name="id" value="${keystore}" />

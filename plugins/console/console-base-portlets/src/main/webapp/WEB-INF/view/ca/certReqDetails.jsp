@@ -95,7 +95,7 @@ function <portlet:namespace/>validateForm(){
             <td>
                 <select name="algorithm">
                     <option <c:if test="${algorithm eq 'MD2withRSA'}">selected</c:if> >MD2withRSA</option>
-                    <option <c:if test="${algorithm eq 'MD5withRSA' || algorithm eq '' || empty (algorithm)}">selected</c:if> >MD5withRSA</option>
+                    <option <c:if test="${algorithm eq 'MD5withRSA' || algorithm eq '' || empty(algorithm)}">selected</c:if> >MD5withRSA</option>
                     <option <c:if test="${algorithm eq 'SHA1withRSA'}">selected</c:if> >SHA1withRSA</option>
                 </select>
             </td>

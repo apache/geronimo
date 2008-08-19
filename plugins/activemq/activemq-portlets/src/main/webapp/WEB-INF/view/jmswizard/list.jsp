@@ -23,7 +23,7 @@
 <p><fmt:message key="jmswizard.list.title" /></p>
 
 <c:choose>
-  <c:when test="${empty (resources)}"><p><i><fmt:message key="jmswizard.list.noJMSResourceGroups" /></i></p></c:when>
+  <c:when test="${empty(resources)}"><p><i><fmt:message key="jmswizard.list.noJMSResourceGroups" /></i></p></c:when>
   <c:otherwise>
 <!--
 <p>For each resource listed, you can click the <b>usage</b> link to see examples of how

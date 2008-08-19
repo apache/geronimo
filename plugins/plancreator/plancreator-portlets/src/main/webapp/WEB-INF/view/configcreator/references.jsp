@@ -144,7 +144,7 @@ to which they can be linked are shown to the right.</p>
 <input type="hidden" name="mode" value="references-after" />
 
 <!-- ENTRY FIELD: EJB References -->
-<c:if test="${! empty (data.ejbRefs)}">
+<c:if test="${!empty(data.ejbRefs)}">
   <p><b>EJB References:</b></p>
   <table border="0" width="100%">
     <tr>
@@ -179,7 +179,7 @@ to which they can be linked are shown to the right.</p>
 </c:if>
 
 <!-- ENTRY FIELD: EJB Local References -->
-<c:if test="${! empty (data.ejbLocalRefs)}">
+<c:if test="${!empty(data.ejbLocalRefs)}">
   <p><b>EJB Local References:</b></p>
   <table border="0" width="100%">
     <tr>
@@ -214,7 +214,7 @@ to which they can be linked are shown to the right.</p>
 </c:if>
 
 <!-- ENTRY FIELD: JDBC Connection Pool References -->
-<c:if test="${! empty (data.jdbcPoolRefs)}">
+<c:if test="${!empty(data.jdbcPoolRefs)}">
   <p><b>JDBC Pool References:</b></p>
   <table border="0" width="100%">
     <tr>
@@ -249,7 +249,7 @@ to which they can be linked are shown to the right.</p>
 </c:if>
 
 <!-- ENTRY FIELD: JMS Connection Factory References -->
-<c:if test="${! empty (data.jmsConnectionFactoryRefs)}">
+<c:if test="${!empty(data.jmsConnectionFactoryRefs)}">
   <p><b>JMS Connection Factory References:</b></p>
   <table border="0" width="100%">
     <tr>
@@ -284,7 +284,7 @@ to which they can be linked are shown to the right.</p>
 </c:if>
 
 <!-- ENTRY FIELD: JMS Destination References -->
-<c:if test="${(! empty (data.jmsDestinationRefs)) || (! empty (data.messageDestinations))}">
+<c:if test="${!empty(data.jmsDestinationRefs) || !empty(data.messageDestinations)}">
   <p><b>JMS Destination References:</b></p>
   <table border="0" width="100%">
     <tr>
@@ -346,7 +346,7 @@ to which they can be linked are shown to the right.</p>
 </c:if>
 
 <!-- ENTRY FIELD: JavaMail Session References -->
-<c:if test="${! empty (data.javaMailSessionRefs)}">
+<c:if test="${!empty(data.javaMailSessionRefs)}">
   <p><b>JavaMail Session References:</b></p>
   <table border="0" width="100%">
     <tr>
@@ -381,7 +381,7 @@ to which they can be linked are shown to the right.</p>
 </c:if>
 
 <!-- ENTRY FIELD: Web Service References -->
-<c:if test="${! empty (data.webServiceRefs)}">
+<c:if test="${!empty(data.webServiceRefs)}">
   <p><b>Web Service References:</b></p>
   <p>Service references declared in your application are shown below to the left. If the WSDL doesn't contain 
   the port information to contact the service or if that information is ambiguous, then resolve the service-ref

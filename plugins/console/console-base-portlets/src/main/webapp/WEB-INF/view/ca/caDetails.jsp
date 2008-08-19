@@ -25,7 +25,7 @@
 </p>
 <jsp:include page="_header.jsp" />
 
-<c:if test="${empty (caLocked) || !caLocked}">
+<c:if test="${empty(caLocked) || !caLocked}">
   <table border="0">
     <tr>
         <th colspan="2" align="left" class="DarkBackground"><fmt:message key="ca.common.certificateDetails"/>

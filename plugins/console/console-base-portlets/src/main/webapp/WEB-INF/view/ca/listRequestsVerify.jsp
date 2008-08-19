@@ -32,7 +32,7 @@
         <th class="DarkBackground" align="left"><fmt:message key="ca.common.certRequests"/></th>
     </tr>
   <c:choose>
-    <c:when test="${! empty (csrIds)}">
+    <c:when test="${!empty(csrIds)}">
       <c:set var="backgroundClass" value='MediumBackground'/>
       <c:forEach items="${csrIds}" var="csrId">
         <c:choose>
