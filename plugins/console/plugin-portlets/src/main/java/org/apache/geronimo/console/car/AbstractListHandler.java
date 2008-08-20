@@ -35,7 +35,7 @@ import org.apache.geronimo.system.plugin.model.PluginArtifactType;
 import org.apache.geronimo.kernel.repository.Dependency;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public abstract class AbstractListHandler extends BaseImportExportHandler {
     public AbstractListHandler(String mode, String viewName) {
@@ -79,6 +79,14 @@ public abstract class AbstractListHandler extends BaseImportExportHandler {
         }
 
         // sort the plugin list based on the selected table column
+        sortPlugins(plugins, request);
+
+        // save everything in the request
+        request.setAttribute("plugins", plugins);
+    }
+    
+    protected void sortPlugins(List<PluginInfoBean> plugins, RenderRequest request) {
+        // sort the plugin list based on the selected table column
         final String column = request.getParameter("column");
         Collections.sort(plugins, new Comparator<PluginInfoBean>() {
             public int compare(PluginInfoBean o1, PluginInfoBean o2) {
@@ -109,8 +117,5 @@ public abstract class AbstractListHandler extends BaseImportExportHandler {
                 }
             }
         });
-
-        // save everything in the request
-        request.setAttribute("plugins", plugins);
     }
 }

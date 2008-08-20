@@ -18,6 +18,7 @@ package org.apache.geronimo.console.car;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.List;
 
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletException;
@@ -42,6 +43,7 @@ public abstract class BaseImportExportHandler extends MultiPageAbstractHandler {
     protected static final String CONFIG_LIST_SESSION_KEY = "console.plugins.ConfigurationList";
     protected static final String CONFIG_LIST_REPO_SESSION_KEY = "console.plugins.ConfigurationListRepo";
     protected static final String SERVER_CONFIG_LIST_SESSION_KEY = "console.plugins.ServerConfigurationList";
+    protected static final String SERVER_APP_LIST_SESSION_KEY = "console.plugins.ServerApplicationList";
     public static final String DOWNLOAD_RESULTS_SESSION_KEY = "console.plugins.DownloadResults";
     protected static final String INDEX_MODE = "index";
     protected static final String ADD_REPO_MODE = "addRepository";
@@ -88,6 +90,14 @@ public abstract class BaseImportExportHandler extends MultiPageAbstractHandler {
             }
         }
         return data;
+    }
+    
+    protected List<String> getApplicationModuleLists(RenderRequest request) {
+        List<String> applicationLists = (List<String>)request.getPortletSession(true).getAttribute(SERVER_APP_LIST_SESSION_KEY);
+        if (applicationLists == null) {
+            applicationLists = ManagementHelper.getManagementHelper(request).getApplicationModuleLists();
+        }
+        return applicationLists;
     }
 
     protected PluginListType getPluginsFromIds(String[] configIds, PluginListType list) throws PortletException {

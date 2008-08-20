@@ -58,6 +58,7 @@ public class PluginInfoBean implements Serializable {
     protected PluginArtifactType pluginArtifact;
     protected boolean installable = true;
     protected String validationMessage;
+    protected boolean isSystemPlugin = true;
 
     public List<PropertyType> getArtifactAlias() {
         return artifactAlias;
@@ -240,7 +241,7 @@ public class PluginInfoBean implements Serializable {
     }
 
     public boolean isInstallable() {
-        return installable;
+        return this.installable;
     }
 
     public void setInstallable(boolean installable) {
@@ -248,10 +249,18 @@ public class PluginInfoBean implements Serializable {
     }
 
     public String getValidationMessage() {
-        return validationMessage;
+        return this.validationMessage;
     }
 
     public void setValidationMessage(String validationMessage) {
         this.validationMessage = validationMessage;
+    }
+    
+    public boolean getIsSystemPlugin() {
+        return this.isSystemPlugin;
+    }
+    
+    public void setIsSystemPlugin(boolean isSystemPlugin) {
+        this.isSystemPlugin = isSystemPlugin;
     }
 }

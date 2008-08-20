@@ -17,6 +17,10 @@
 package org.apache.geronimo.console.car;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
@@ -26,8 +30,13 @@ import javax.portlet.RenderResponse;
 import javax.portlet.WindowState;
 
 import org.apache.geronimo.console.MultiPageModel;
+import org.apache.geronimo.kernel.repository.Dependency;
 import org.apache.geronimo.system.plugin.PluginInstaller;
+import org.apache.geronimo.system.plugin.PluginInstallerGBean;
+import org.apache.geronimo.system.plugin.model.ArtifactType;
+import org.apache.geronimo.system.plugin.model.PluginArtifactType;
 import org.apache.geronimo.system.plugin.model.PluginListType;
+import org.apache.geronimo.system.plugin.model.PluginType;
 
 /**
  * Handler for the import export list screen.
@@ -70,6 +79,7 @@ public class AssemblyListHandler extends AbstractListHandler {
         if(!loadFromServer(request)) {
             //todo: loading failed -- do something!
         }
+            
         request.setAttribute("column", column);
         request.setAttribute("relativeServerPath", relativeServerPath);
         request.setAttribute("groupId", groupId);
@@ -88,14 +98,56 @@ public class AssemblyListHandler extends AbstractListHandler {
 
         // try to reuse the catalog data if it was already downloaded
         PluginListType data = getServerPluginList(request, pluginInstaller);
-
+        //try to reuse the server application list
+        List<String> appList = getApplicationModuleLists(request);
+        
         if(data == null || data.getPlugin() == null) {
             return false;
         }
 
-        listPlugins(request, pluginInstaller, data, false);
+        listPlugins(request, pluginInstaller, data, appList);
         request.getPortletSession(true).setAttribute(SERVER_CONFIG_LIST_SESSION_KEY, data);
+        request.getPortletSession(true).setAttribute(SERVER_APP_LIST_SESSION_KEY, appList);
         return true;
     }
+    
+    private void listPlugins(RenderRequest request, PluginInstaller pluginInstaller, PluginListType data, List<String> appList) {
+        List<PluginInfoBean> plugins = new ArrayList<PluginInfoBean>();
 
+        for (PluginType metadata: data.getPlugin()) {
+
+            // ignore plugins which have no artifacts defined
+            if (metadata.getPluginArtifact().isEmpty()) {
+                continue;
+            }
+
+            if (metadata.getCategory() == null) {
+                metadata.setCategory("Unspecified");
+            }
+
+            for (PluginArtifactType pluginArtifact : metadata.getPluginArtifact()) {
+                PluginInfoBean plugin = new PluginInfoBean();
+                plugin.setPlugin(metadata);
+                plugin.setPluginArtifact(pluginArtifact);
+                
+                //determine if the plugin is a system plugin or application plugin
+                ArtifactType artifact = pluginArtifact.getModuleId();
+                String configId = artifact.getGroupId() + "/" + artifact.getArtifactId() + "/" 
+                                  + artifact.getVersion() + "/" + artifact.getType();
+                for (String app : appList) {
+                    if (app.equals(configId)) {
+                        plugin.setIsSystemPlugin(false);
+                    }
+                }
+                
+                plugins.add(plugin);
+            }
+        }
+        
+        // sort the plugin list based on the selected table column
+        sortPlugins(plugins, request);
+
+        // save everything in the request
+        request.setAttribute("plugins", plugins);
+    }
 }

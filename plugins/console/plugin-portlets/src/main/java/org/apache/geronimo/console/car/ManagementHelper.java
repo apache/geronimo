@@ -21,7 +21,10 @@
 package org.apache.geronimo.console.car;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.enterprise.deploy.spi.DeploymentManager;
@@ -119,6 +122,30 @@ public class ManagementHelper {
             //            log.error(e.getMessage(), e);
             return null;
         }
+    }
+    
+    public List<String> getApplicationModuleLists() {
+        List<String> apps = new ArrayList<String>();
+        Set<AbstractName> gbeans = this.kernel.listGBeans((AbstractNameQuery) null);
+        for (Iterator<AbstractName> it = gbeans.iterator(); it.hasNext();) {
+            AbstractName name = (AbstractName) it.next();
+            if (isApplicationModule(name)) {
+                apps.add(name.getNameProperty("name"));
+            }
+        }
+       
+        return apps;
+        
+    }
+    
+    private static boolean isApplicationModule(AbstractName abstractName) {
+        String type = abstractName.getNameProperty("j2eeType");
+        String app = abstractName.getNameProperty("J2EEApplication");
+        String name = abstractName.getNameProperty("name");
+        if (type != null && (app == null || app.equals("null"))) {
+            return (type.equals("WebModule") || type.equals("J2EEApplication") || type.equals("EJBModule") || type.equals("AppClientModule") || type.equals("ResourceAdapterModule")) && !name.startsWith("geronimo/system");            
+        }
+        return false;
     }
 
 }
