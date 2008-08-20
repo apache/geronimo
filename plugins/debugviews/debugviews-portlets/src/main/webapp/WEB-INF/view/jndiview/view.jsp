@@ -72,6 +72,7 @@
 
     var lastFound = '';
     var doCheck = false;
+    var caseSensitive = false;
 
     function check(curr,last) {
         var cr = curr.split(".");
@@ -94,8 +95,13 @@
                         doCheck = false;
             }
 
-            if (children[child].title.indexOf(str) != -1 && children[child].widgetId != lastFound && !doCheck)
-                return children[child].widgetId;
+            if (caseSensitive) {
+            	if (children[child].title.indexOf(str) != -1 && children[child].widgetId != lastFound && !doCheck)
+            		return children[child].widgetId;
+            } else {
+                if (children[child].title.toLowerCase().indexOf(str.toLowerCase()) != -1 && children[child].widgetId != lastFound && !doCheck)
+                    return children[child].widgetId;
+            }
 
             if(children[child].children){
                 var ret = findNext(children[child].children, str);
@@ -156,6 +162,14 @@
         doCheck = false;
     }
 
+    function caseSensitiveChange() {
+        if (caseSensitive) {
+            caseSensitive = false;
+        } else {
+        	caseSensitive = true;
+        }
+    }
+
     var lastSearchOn = '';
 
     function search() {
@@ -198,6 +212,7 @@
 <input type="button" value='<fmt:message key="debugviews.common.find"/>' onClick="javascript:search()"/>
 <input type="button" id="findNext" value='<fmt:message key="debugviews.common.findNext"/>' onClick="javascript:searchContinue()" disabled=true />
 <fmt:message key="jndiview.view.searchOnlySelected"/>:<input type="checkbox" id="inSelected" onChange="javascript:textChange()"/>
+<fmt:message key="jndiview.view.caseSensitive"/>:<input type="checkbox" id="caseSensitiveSelected" onChange="javascript:caseSensitiveChange()"/>
 </td></tr>
 </table>
 <br/>
