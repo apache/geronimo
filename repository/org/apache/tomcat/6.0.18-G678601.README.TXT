@@ -36,10 +36,10 @@ Add the following files
   java/org/apache/catalina/deploy/Injectable.java
   java/org/apache/catalina/deploy/InjectionTarget.java
  
-Apply the ELParse patch from Tomcat 6.0.x (6.0.19) to fix Bug45511
+Revert the java/org/apache/el/parser/ELParser* files to the Tomcat 6.0.16 level to fix Bug45511 and 60 TCK failures in the JSP and JSTL buckets.
    https://issues.apache.org/bugzilla/show_bug.cgi?id=45511
 ------------------------------------------------------------------
-patch -p0 -u < ELParser-6.0.19-r685708.patch
+patch -p0 -u < ELParser-6.0.18.patch
 
 
 Build tomcat
@@ -56,10 +56,6 @@ Copy to appropriate jars and rename into geronimo/repository
   cd tomcat_6_0_18
   cp output/build/lib/catalina.jar <geronimo-root>/repository/org/apache/tomcat/catalina/6.0.18-G678601/catalina-6.0.18-G678601.jar
   cp output/build/lib/jasper.jar   <geronimo-root>/repository/org/apache/tomcat/jasper/6.0.18-G678601/jasper-6.0.18-G678601.jar
-
-Copy the patched jasper-el jar over (until 6.0.19 is released)
---------------------------------------------------------------
-  cp output/build/lib/jasper-el.jar   <geronimo-root>/repository/org/apache/tomcat/jasper-el/6.0.18-G678601/jasper-el-6.0.18-G678601.jar
 
 
 How the patch was created (tomcat_6_0_18-G678601.patch):
@@ -80,6 +76,4 @@ Original way to apply the individual patches
 
 Create the patch:
   svn diff > TOMCAT_6_0_18-G678601.patch
-
-Update the README, patch file(s) and patched jars in svn.
 
