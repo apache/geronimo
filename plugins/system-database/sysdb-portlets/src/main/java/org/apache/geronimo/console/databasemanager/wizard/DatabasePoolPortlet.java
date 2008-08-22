@@ -972,7 +972,8 @@ public class DatabasePoolPortlet extends BasePortlet {
                 String artifactId = data.name;
                 if (artifactId.indexOf('/') != -1) {
                     // slash in artifact-id results in invalid configuration-id and leads to deployment errors
-                    artifactId = artifactId.replaceAll("/", "%2F");
+                    // use the after / portion as the artifactId
+                    artifactId = artifactId.substring(artifactId.indexOf('/') + 1);
                 }
                 configId.setArtifactId(artifactId);
                 configId.setVersion("1.0");
