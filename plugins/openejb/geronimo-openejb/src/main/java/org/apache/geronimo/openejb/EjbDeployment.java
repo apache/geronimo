@@ -249,10 +249,6 @@ public class EjbDeployment implements EJB, EjbDeploymentIdAccessor {
         return deploymentInfo.isBeanManagedTransaction();
     }
 
-    public byte getTransactionAttribute(Method method) {
-        return deploymentInfo.getTransactionAttribute(method);
-    }
-
     public String getObjectName() {
         return objectName;
     }

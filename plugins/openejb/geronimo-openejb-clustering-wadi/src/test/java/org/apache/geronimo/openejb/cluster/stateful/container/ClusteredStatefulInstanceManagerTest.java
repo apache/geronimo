@@ -64,7 +64,7 @@ public class ClusteredStatefulInstanceManagerTest extends RMockTestCase {
         JtaEntityManagerRegistry jtaEntityManagerRegistry = new JtaEntityManagerRegistry(txSynchRegistry);
         
         manager = (ClusteredStatefulInstanceManager) intercept(ClusteredStatefulInstanceManager.class,
-            new Object[] { txManager, securityService, jtaEntityManagerRegistry, null, 1, 1, 1 });
+            new Object[] { securityService, jtaEntityManagerRegistry, null, 1, 1, 1 });
         
         deploymentId = "deploymentId";
         deploymentInfo = new CoreDeploymentInfo(new DeploymentContext(deploymentId, null, null),
@@ -98,7 +98,9 @@ public class ClusteredStatefulInstanceManagerTest extends RMockTestCase {
     
     @Override
     protected void tearDown() throws Exception {
-        ThreadContext.exit(threadContext);
+        if (threadContext != null) {
+            ThreadContext.exit(threadContext);
+        }
     }
     
     public void testNewBeanEntryForUnknownDeploymentThrowsISE() throws Exception {

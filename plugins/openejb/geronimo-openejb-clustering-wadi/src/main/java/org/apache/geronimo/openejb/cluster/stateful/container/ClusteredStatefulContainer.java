@@ -60,21 +60,19 @@ public class ClusteredStatefulContainer extends StatefulContainer implements Ses
         int timeOut,
         int poolSize,
         int bulkPassivate) throws OpenEJBException {
-        super(id, transactionManager, securityService, passivator, timeOut, poolSize, bulkPassivate);
+        super(id, securityService, passivator, timeOut, poolSize, bulkPassivate);
         
         deploymentIdToManager = new HashMap<Object, Manager>();
         deploymentIdToNetworkConnectorTracker = new HashMap<Object, NetworkConnectorTracker>();
     }
 
     @Override
-    protected ClusteredStatefulInstanceManager newStatefulInstanceManager(TransactionManager transactionManager,
-        SecurityService securityService,
+    protected ClusteredStatefulInstanceManager newStatefulInstanceManager(SecurityService securityService,
         Class passivator,
         int timeOut,
         int poolSize,
         int bulkPassivate) throws OpenEJBException {
-        return new ClusteredStatefulInstanceManager(transactionManager,
-            securityService,
+        return new ClusteredStatefulInstanceManager(securityService,
             entityManagerRegistry,
             passivator,
             timeOut,

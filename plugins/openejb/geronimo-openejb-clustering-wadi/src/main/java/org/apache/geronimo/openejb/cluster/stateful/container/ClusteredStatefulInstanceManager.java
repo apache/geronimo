@@ -24,8 +24,6 @@ import java.rmi.dgc.VMID;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.transaction.TransactionManager;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.geronimo.clustering.Session;
@@ -34,7 +32,6 @@ import org.apache.geronimo.clustering.SessionListener;
 import org.apache.geronimo.clustering.SessionManager;
 import org.apache.geronimo.openejb.cluster.infra.SessionManagerTracker;
 import org.apache.openejb.OpenEJBException;
-import org.apache.openejb.SystemException;
 import org.apache.openejb.core.CoreDeploymentInfo;
 import org.apache.openejb.core.ThreadContext;
 import org.apache.openejb.core.stateful.BeanEntry;
@@ -52,15 +49,13 @@ public class ClusteredStatefulInstanceManager extends StatefulInstanceManager im
     private final Map<Object, SessionManager> sessionManagersById;
     private final Map<Object, CoreDeploymentInfo> deploymentsById;
 
-    public ClusteredStatefulInstanceManager(TransactionManager transactionManager,
-        SecurityService securityService,
+    public ClusteredStatefulInstanceManager(SecurityService securityService,
         JtaEntityManagerRegistry jtaEntityManagerRegistry,
         Class passivatorClass,
         int timeout,
         int poolSize,
         int bulkPassivate) throws OpenEJBException {
-        super(transactionManager,
-            securityService,
+        super(securityService,
             jtaEntityManagerRegistry,
             passivatorClass,
             timeout,
@@ -192,11 +187,7 @@ public class ClusteredStatefulInstanceManager extends StatefulInstanceManager im
             context.set(SessionOperation.class, SessionOperation.OUTBOUND_MIGRATION);
 
             passivate(context, beanEntry);
-            try {
-                freeInstance(context);
-            } catch (SystemException e) {
-                log.warn("Cannot free bean entry", e);
-            }
+            freeInstance(context);
         }
 
         public void notifySessionDestruction(org.apache.geronimo.clustering.Session session) {
@@ -206,12 +197,8 @@ public class ClusteredStatefulInstanceManager extends StatefulInstanceManager im
                 return;
             }
             context.set(SessionOperation.class, SessionOperation.DESTRUCTION);
-            
-            try {
-                freeInstance(context);
-            } catch (SystemException e) {
-                log.warn("Cannot free bean entry", e);
-            }
+
+            freeInstance(context);
         }
 
         protected ThreadContext newThreadContext(ClusteredBeanEntry beanEntry) {
