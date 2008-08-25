@@ -35,6 +35,7 @@ import org.apache.openejb.Container;
 import org.apache.openejb.InterfaceType;
 import org.apache.openejb.core.CoreDeploymentInfo;
 import org.apache.openejb.core.ivm.EjbObjectProxyHandler;
+import org.apache.openejb.core.transaction.TransactionType;
 
 public class EjbDeployment implements EJB, EjbDeploymentIdAccessor {
     private final String objectName;
@@ -249,6 +250,10 @@ public class EjbDeployment implements EJB, EjbDeploymentIdAccessor {
         return deploymentInfo.isBeanManagedTransaction();
     }
 
+    public TransactionType getTransactionType(Method method) {
+          return deploymentInfo.getTransactionType(method);
+    }
+    
     public String getObjectName() {
         return objectName;
     }

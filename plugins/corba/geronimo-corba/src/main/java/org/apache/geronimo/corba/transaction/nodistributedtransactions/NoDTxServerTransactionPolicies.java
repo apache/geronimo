@@ -16,26 +16,30 @@
  */
 package org.apache.geronimo.corba.transaction.nodistributedtransactions;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.geronimo.corba.transaction.OperationTxPolicy;
-import org.apache.openejb.DeploymentInfo;
+import org.apache.openejb.core.transaction.TransactionType;
 
 /**
  * @version $Rev: 451417 $ $Date: 2006-09-29 13:13:22 -0700 (Fri, 29 Sep 2006) $
  */
 public class NoDTxServerTransactionPolicies {
-    private static final OperationTxPolicy[] policies = new OperationTxPolicy[DeploymentInfo.TX_MAX + 1];
-    static {
-        policies[DeploymentInfo.TX_MANDITORY] = Required.INSTANCE;
-        policies[DeploymentInfo.TX_NEVER] = NotRequired.INSTANCE;
-        policies[DeploymentInfo.TX_NOT_SUPPORTED] = Ignore.INSTANCE;
-        policies[DeploymentInfo.TX_REQUIRED] = NotRequired.INSTANCE;
-        policies[DeploymentInfo.TX_REQUIRES_NEW] = Ignore.INSTANCE;
-        policies[DeploymentInfo.TX_SUPPORTS] = NotRequired.INSTANCE;
+	private static final Map<TransactionType, OperationTxPolicy> policies = new HashMap<TransactionType, OperationTxPolicy>();
+    static {    	
+        policies.put(TransactionType.Mandatory, Required.INSTANCE);        
+        policies.put(TransactionType.Never, NotRequired.INSTANCE);        
+        policies.put(TransactionType.NotSupported, Ignore.INSTANCE);        
+        policies.put(TransactionType.Required, NotRequired.INSTANCE);        
+        policies.put(TransactionType.RequiresNew, Ignore.INSTANCE);        
+        policies.put(TransactionType.Supports, NotRequired.INSTANCE);
     }
 
-    public static OperationTxPolicy getContainerTransactionPolicy(byte transactionAttribute) {
-        return policies[transactionAttribute];
+    public static OperationTxPolicy getContainerTransactionPolicy(TransactionType transactionType) {
+        return policies.get(transactionType);
     }
+    
     public static OperationTxPolicy getBeanTransactionPolicy() {
         return Ignore.INSTANCE;
     }

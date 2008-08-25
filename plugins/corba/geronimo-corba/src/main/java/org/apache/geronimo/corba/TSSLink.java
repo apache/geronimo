@@ -33,6 +33,7 @@ import org.apache.geronimo.corba.transaction.MappedServerTransactionPolicyConfig
 import org.apache.geronimo.corba.transaction.nodistributedtransactions.NoDTxServerTransactionPolicies;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.openejb.EjbDeployment;
+import org.apache.openejb.core.transaction.TransactionType;
 
 import org.omg.CORBA.Policy;
 
@@ -129,8 +130,8 @@ public class TSSLink implements GBeanLifecycle {
             String operation = (String) entry.getValue();
 
             if (!ejb.isBeanManagedTransaction()) {
-                byte transactionAttribute = ejb.getTransactionAttribute(method);
-                OperationTxPolicy operationTxPolicy = NoDTxServerTransactionPolicies.getContainerTransactionPolicy(transactionAttribute);
+            	TransactionType transactionType = ejb.getTransactionType(method);
+                OperationTxPolicy operationTxPolicy = NoDTxServerTransactionPolicies.getContainerTransactionPolicy(transactionType);
                 policies.put(operation, operationTxPolicy);
             } else {
                 OperationTxPolicy operationTxPolicy = NoDTxServerTransactionPolicies.getBeanTransactionPolicy();
