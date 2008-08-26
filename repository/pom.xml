@@ -67,6 +67,11 @@
             <groupId>org.apache.tomcat</groupId>
             <artifactId>jasper</artifactId>
         </dependency>
+        <!-- This is an additional patch until 6.0.19 is released -->
+        <dependency>
+            <groupId>org.apache.tomcat</groupId>
+            <artifactId>jasper-el</artifactId>
+        </dependency>
 
         <!-- add the following for wsgen -->
         <dependency>
