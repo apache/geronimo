@@ -144,9 +144,7 @@ public class AssemblyListHandler extends AbstractListHandler {
                     }
                 }
                 
-                //if the category is Geronimo Plugin Group, set it as plugingroup.
-                //TODO: need a better way to do this.
-                if (metadata.getCategory().equalsIgnoreCase("Geronimo Plugin Group")) {
+                if (metadata.isPluginGroup() != null && metadata.isPluginGroup()) {
                     plugin.setIsPluginGroup(true);
                 }
 
