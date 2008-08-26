@@ -639,7 +639,7 @@
             <dependency>
                 <groupId>org.apache.activemq</groupId>
                 <artifactId>activeio-core</artifactId>
-                <version>3.0.0-incubator</version>
+                <version>3.0.1</version>
             </dependency>
 
             <dependency>
