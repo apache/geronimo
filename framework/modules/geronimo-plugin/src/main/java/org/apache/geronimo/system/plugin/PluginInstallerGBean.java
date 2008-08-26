@@ -327,7 +327,7 @@ public class PluginInstallerGBean implements PluginInstaller
         }
         String targetServerPathName = targetServerPath.getAbsolutePath();
         Kernel kernel = new BasicKernel("assembly");
-
+        
         try {
 //            kernel.boot();
             PluginInstallerGBean installer = new PluginInstallerGBean(
@@ -618,7 +618,9 @@ public class PluginInstallerGBean implements PluginInstaller
                     PluginArtifactType instance = metadata.getPluginArtifact().get(0);
 
                     if (instance.getModuleId() != null) {
-                        metaMap.put(toArtifact(instance.getModuleId()), metadata);
+                        if (metadata.isPluginGroup() !=null && !metadata.isPluginGroup()) {
+                            metaMap.put(toArtifact(instance.getModuleId()), metadata);
+                        }
                     }
                     toInstall.add(metadata);
                 } catch (MissingDependencyException e) {
@@ -834,7 +836,7 @@ public class PluginInstallerGBean implements PluginInstaller
     /**
      * Installs from a pre-downloaded CAR file
      *
-     * @param carFile                     care file to install
+     * @param carFile                     car file to install
      * @param defaultRepository           Default repo to look for plugins in
      * @param restrictToDefaultRepository Whether to follow hints to other plugin repos.
      * @param username                    repo username
@@ -1603,7 +1605,6 @@ public class PluginInstallerGBean implements PluginInstaller
         }
         return pluginList;
     }
-
 
     /**
      * If a plugin includes config.xml content, copy it into the attribute

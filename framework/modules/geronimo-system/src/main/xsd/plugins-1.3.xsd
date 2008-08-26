@@ -129,6 +129,15 @@
                     </xs:documentation>
                 </xs:annotation>
             </xs:element>
+            <xs:element name="pluginGroup" type="xs:boolean" default="false" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                        Influences whether a geronimo plugin is a geronimo plugin group, which is
+                        just a list of other plugins to install. The dependencies listed for this 
+                        plugin will be treated as the list of actual plugins to install.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>             
             <xs:element name="description" type="xs:string">
                 <xs:annotation>
                     <xs:documentation>
