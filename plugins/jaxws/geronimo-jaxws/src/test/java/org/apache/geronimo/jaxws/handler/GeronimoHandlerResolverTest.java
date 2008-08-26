@@ -14,7 +14,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.axis2;
+package org.apache.geronimo.jaxws.handler;
 
 import org.apache.geronimo.testsupport.TestSupport;
 import org.apache.geronimo.xbeans.javaee.HandlerChainsDocument;
@@ -26,7 +26,7 @@ import javax.xml.ws.handler.PortInfo;
 import java.io.InputStream;
 import java.util.List;
 
-public class Axis2HandlerResolverTest extends TestSupport {
+public class GeronimoHandlerResolverTest extends TestSupport {
 
     public void testBasic() throws Exception {
         InputStream in = getClass().getResourceAsStream("/handlers.xml");
@@ -34,8 +34,8 @@ public class Axis2HandlerResolverTest extends TestSupport {
         HandlerChainsType handlerChains = toHandlerChains(in); 
         assertEquals(3, handlerChains.getHandlerChainArray().length);
         
-        Axis2HandlerResolver resolver = 
-            new Axis2HandlerResolver(getClass().getClassLoader(), getClass(), handlerChains, null);
+        GeronimoHandlerResolver resolver = 
+            new GeronimoHandlerResolver(getClass().getClassLoader(), getClass(), handlerChains, null);
         
         List<Handler> handlers = null;
         
@@ -49,8 +49,8 @@ public class Axis2HandlerResolverTest extends TestSupport {
         HandlerChainsType handlerChains = toHandlerChains(in);
         assertEquals(3, handlerChains.getHandlerChainArray().length);
         
-        Axis2HandlerResolver resolver = 
-            new Axis2HandlerResolver(getClass().getClassLoader(), getClass(), handlerChains, null);
+        GeronimoHandlerResolver resolver = 
+            new GeronimoHandlerResolver(getClass().getClassLoader(), getClass(), handlerChains, null);
         
         List<Handler> handlers = null;
         
@@ -78,24 +78,33 @@ public class Axis2HandlerResolverTest extends TestSupport {
         InputStream in = getClass().getResourceAsStream("/handlers_bindings.xml");
         assertTrue(in != null);
         HandlerChainsType handlerChains = toHandlerChains(in); 
-        assertEquals(3, handlerChains.getHandlerChainArray().length);
+        assertEquals(4, handlerChains.getHandlerChainArray().length);
         
-        Axis2HandlerResolver resolver = 
-            new Axis2HandlerResolver(getClass().getClassLoader(), getClass(), handlerChains, null);
+        GeronimoHandlerResolver resolver = 
+            new GeronimoHandlerResolver(getClass().getClassLoader(), getClass(), handlerChains, null);
         
         List<Handler> handlers = null;
         
         handlers = resolver.getHandlerChain(new TestPortInfo(null, null, null)); 
         assertEquals(0, handlers.size());
         
+        handlers = resolver.getHandlerChain(new TestPortInfo("http://foobar", null, null));
+        assertEquals(0, handlers.size());
+
         handlers = resolver.getHandlerChain(new TestPortInfo("##SOAP12_HTTP", null, null)); 
         assertEquals(0, handlers.size());
         
         handlers = resolver.getHandlerChain(new TestPortInfo("##SOAP11_HTTP", null, null)); 
         assertEquals(2, handlers.size());
         
+        handlers = resolver.getHandlerChain(new TestPortInfo("http://schemas.xmlsoap.org/wsdl/soap/http", null, null));
+        assertEquals(2, handlers.size());
+
         handlers = resolver.getHandlerChain(new TestPortInfo("##SOAP11_HTTP_MTOM", null, null)); 
         assertEquals(1, handlers.size());
+        
+        handlers = resolver.getHandlerChain(new TestPortInfo("##XML_HTTP", null, null));
+        assertEquals(2, handlers.size());
     }
     
     public void testPortMatching() throws Exception {
@@ -104,8 +113,8 @@ public class Axis2HandlerResolverTest extends TestSupport {
         HandlerChainsType handlerChains = toHandlerChains(in); 
         assertEquals(3, handlerChains.getHandlerChainArray().length);
         
-        Axis2HandlerResolver resolver = 
-            new Axis2HandlerResolver(getClass().getClassLoader(), getClass(), handlerChains, null);
+        GeronimoHandlerResolver resolver = 
+            new GeronimoHandlerResolver(getClass().getClassLoader(), getClass(), handlerChains, null);
         
         List<Handler> handlers = null;
         
@@ -135,8 +144,8 @@ public class Axis2HandlerResolverTest extends TestSupport {
         HandlerChainsType handlerChains = toHandlerChains(in); 
         assertEquals(3, handlerChains.getHandlerChainArray().length);
         
-        Axis2HandlerResolver resolver = 
-            new Axis2HandlerResolver(getClass().getClassLoader(), getClass(), handlerChains, null);
+        GeronimoHandlerResolver resolver = 
+            new GeronimoHandlerResolver(getClass().getClassLoader(), getClass(), handlerChains, null);
         
         List<Handler> handlers = null;
         

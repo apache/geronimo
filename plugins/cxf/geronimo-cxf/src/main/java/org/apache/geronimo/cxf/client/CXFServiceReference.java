@@ -21,15 +21,12 @@ import java.net.URI;
 import java.util.Map;
 
 import javax.naming.NamingException;
-import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;
 import javax.xml.ws.handler.HandlerResolver;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.cxf.jaxws.context.WebServiceContextImpl;
-import org.apache.cxf.jaxws.javaee.HandlerChainsType;
-import org.apache.geronimo.cxf.CXFHandlerResolver;
 import org.apache.geronimo.cxf.CXFWebServiceContainer;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.jaxws.HandlerChainsUtils;
@@ -37,6 +34,8 @@ import org.apache.geronimo.jaxws.JAXWSAnnotationProcessor;
 import org.apache.geronimo.jaxws.JNDIResolver;
 import org.apache.geronimo.jaxws.client.EndpointInfo;
 import org.apache.geronimo.jaxws.client.JAXWSServiceReference;
+import org.apache.geronimo.jaxws.handler.GeronimoHandlerResolver;
+import org.apache.geronimo.xbeans.javaee.HandlerChainsType;
 
 public class CXFServiceReference extends JAXWSServiceReference {
 
@@ -60,20 +59,20 @@ public class CXFServiceReference extends JAXWSServiceReference {
     }
     
     protected HandlerChainsType getHandlerChains() {
+        HandlerChainsType types = null;
         try {
-            return HandlerChainsUtils.toHandlerChains(this.handlerChainsXML, HandlerChainsType.class);
-        } catch (JAXBException e) {          
-            // this should not happen
+            types = HandlerChainsUtils.getHandlerChains(this.handlerChainsXML);
+        } catch (Exception e) {
             LOG.warn("Failed to deserialize handler chains", e);
-            return null;
         }
+        return types;
     }
 
     protected HandlerResolver getHandlerResolver(Class serviceClass) {
         JAXWSAnnotationProcessor annotationProcessor =
                 new JAXWSAnnotationProcessor(new JNDIResolver(), new WebServiceContextImpl());
-        CXFHandlerResolver handlerResolver =
-                new CXFHandlerResolver(classLoader, serviceClass, getHandlerChains(), annotationProcessor);
+        GeronimoHandlerResolver handlerResolver =
+                new GeronimoHandlerResolver(classLoader, serviceClass, getHandlerChains(), annotationProcessor);
         return handlerResolver;
     }
 }

@@ -14,7 +14,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.axis2;
+package org.apache.geronimo.jaxws.handler;
 
 import javax.xml.ws.handler.Handler;
 import javax.xml.ws.handler.MessageContext;

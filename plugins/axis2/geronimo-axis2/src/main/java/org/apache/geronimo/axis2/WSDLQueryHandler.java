@@ -58,7 +58,6 @@ import javax.xml.transform.stream.StreamResult;
 import org.apache.axis2.description.AxisService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.geronimo.webservices.WebServiceContainer.Request;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;

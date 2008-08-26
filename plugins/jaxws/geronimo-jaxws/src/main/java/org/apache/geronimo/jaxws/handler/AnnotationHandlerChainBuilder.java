@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.geronimo.axis2;
+package org.apache.geronimo.jaxws.handler;
 
 import java.net.URL;
 import java.util.ArrayList;

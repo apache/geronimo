@@ -24,18 +24,16 @@ import java.util.Map;
 import javax.wsdl.Definition;
 import javax.wsdl.Port;
 import javax.wsdl.Service;
-import javax.wsdl.extensions.ExtensibilityElement;
 import javax.wsdl.extensions.schema.SchemaReference;
+import javax.wsdl.extensions.soap.SOAPAddress;
+import javax.wsdl.extensions.soap12.SOAP12Address;
 import javax.xml.namespace.QName;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.cxf.Bus;
 import org.apache.cxf.service.model.EndpointInfo;
-import org.apache.cxf.tools.common.extensions.soap.SoapAddress;
-import org.apache.cxf.tools.util.SOAPBindingUtil;
 import org.apache.cxf.transport.http.WSDLQueryHandler;
-import org.xmlsoap.schemas.wsdl.http.AddressType;
 
 public class GeronimoQueryHandler extends WSDLQueryHandler {
 
@@ -122,15 +120,13 @@ public class GeronimoQueryHandler extends WSDLQueryHandler {
     private void updatePortLocation(Port port, 
                                     String baseUri) {
         List<?> exts = port.getExtensibilityElements();
-        if (exts != null && exts.size() > 0) {
-            ExtensibilityElement el = (ExtensibilityElement) exts.get(0);
-            if (SOAPBindingUtil.isSOAPAddress(el)) {
-                SoapAddress add = SOAPBindingUtil.getSoapAddress(el);
-                add.setLocationURI(baseUri);
-            }
-            if (el instanceof AddressType) {
-                AddressType add = (AddressType) el;
-                add.setLocation(baseUri);
+        if (exts != null) {
+            for (Object extension : exts) {
+                if (extension instanceof SOAP12Address) {
+                    ((SOAP12Address)extension).setLocationURI(baseUri);
+                } else if (extension instanceof SOAPAddress) {
+                    ((SOAPAddress)extension).setLocationURI(baseUri);
+                }
             }
         }
     }

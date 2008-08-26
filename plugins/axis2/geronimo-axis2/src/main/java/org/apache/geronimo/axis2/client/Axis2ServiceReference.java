@@ -26,22 +26,21 @@ import javax.xml.ws.handler.HandlerResolver;
 import org.apache.axis2.jaxws.context.WebServiceContextImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.geronimo.axis2.Axis2HandlerResolver;
 import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.jaxws.HandlerChainsUtils;
 import org.apache.geronimo.jaxws.JAXWSAnnotationProcessor;
 import org.apache.geronimo.jaxws.JNDIResolver;
 import org.apache.geronimo.jaxws.client.EndpointInfo;
 import org.apache.geronimo.jaxws.client.JAXWSServiceReference;
 import org.apache.geronimo.jaxws.client.PortMethodInterceptor;
-import org.apache.geronimo.xbeans.javaee.HandlerChainsDocument;
+import org.apache.geronimo.jaxws.handler.GeronimoHandlerResolver;
 import org.apache.geronimo.xbeans.javaee.HandlerChainsType;
-import org.apache.xmlbeans.XmlException;
 
 /**
  * @version $Rev$ $Date$
  */
-public class Axis2ServiceReference extends JAXWSServiceReference
-{
+public class Axis2ServiceReference extends JAXWSServiceReference {
+
     private static final Logger LOG = LoggerFactory.getLogger(Axis2ServiceReference.class);
 
     public Axis2ServiceReference(String serviceClassName,
@@ -54,23 +53,21 @@ public class Axis2ServiceReference extends JAXWSServiceReference
         super(handlerChainsXML, seiInfoMap, name, serviceQName, wsdlURI, referenceClassName, serviceClassName);
     }
 
-    protected HandlerResolver getHandlerResolver(Class serviceClass) {
+    protected HandlerChainsType getHandlerChains() {
         HandlerChainsType types = null;
         try {
-            if (this.handlerChainsXML != null){
-                try {
-                    types = HandlerChainsDocument.Factory.parse(this.handlerChainsXML).getHandlerChains();
-                } catch (XmlException e){
-                    types = HandlerChainsType.Factory.parse(this.handlerChainsXML);
-                }
-            }
+            types = HandlerChainsUtils.getHandlerChains(this.handlerChainsXML);
         } catch (Exception e) {
             LOG.warn("Failed to deserialize handler chains", e);
         }
+        return types;
+    }
+    
+    protected HandlerResolver getHandlerResolver(Class serviceClass) {
         JAXWSAnnotationProcessor annotationProcessor =
                 new JAXWSAnnotationProcessor(new JNDIResolver(), new WebServiceContextImpl());
-        Axis2HandlerResolver handlerResolver =
-                new Axis2HandlerResolver(classLoader, serviceClass, types, annotationProcessor);
+        GeronimoHandlerResolver handlerResolver =
+                new GeronimoHandlerResolver(classLoader, serviceClass, getHandlerChains(), annotationProcessor);
         return handlerResolver;
     }
     

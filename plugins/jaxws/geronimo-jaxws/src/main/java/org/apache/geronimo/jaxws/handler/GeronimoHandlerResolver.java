@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.geronimo.axis2;
+package org.apache.geronimo.jaxws.handler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,13 +26,14 @@ import javax.xml.ws.handler.HandlerResolver;
 
 import org.apache.geronimo.jaxws.annotations.AnnotationException;
 import org.apache.geronimo.jaxws.annotations.AnnotationProcessor;
+import org.apache.geronimo.jaxws.handler.GeronimoHandlerChainBuilder;
 import org.apache.geronimo.xbeans.javaee.HandlerChainType;
 import org.apache.geronimo.xbeans.javaee.HandlerChainsType;
 
 /**
  * @version $Rev$ $Date$
  */
-public class Axis2HandlerResolver implements HandlerResolver {
+public class GeronimoHandlerResolver implements HandlerResolver {
 
     private HandlerChainsType handlerChains;
 
@@ -42,10 +43,10 @@ public class Axis2HandlerResolver implements HandlerResolver {
 
     private AnnotationProcessor annotationProcessor;
 
-    public Axis2HandlerResolver(ClassLoader classLoader,
-                                Class serviceClass,
-                                HandlerChainsType handlerChains,
-                                AnnotationProcessor annotationProcessor) {
+    public GeronimoHandlerResolver(ClassLoader classLoader,
+                                   Class serviceClass,
+                                   HandlerChainsType handlerChains,
+                                   AnnotationProcessor annotationProcessor) {
         this.classLoader = classLoader;
         this.serviceClass = serviceClass;
         this.handlerChains = handlerChains;

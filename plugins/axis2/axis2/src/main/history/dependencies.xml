@@ -32,11 +32,6 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.schema</groupId>
-        <artifactId>geronimo-schema-jee_5</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
         <groupId>annogen</groupId>
         <artifactId>annogen</artifactId>
         <type>jar</type>

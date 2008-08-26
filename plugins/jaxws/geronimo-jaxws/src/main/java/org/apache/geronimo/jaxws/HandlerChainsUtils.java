@@ -24,6 +24,10 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.transform.stream.StreamSource;
 
+import org.apache.geronimo.xbeans.javaee.HandlerChainsDocument;
+import org.apache.geronimo.xbeans.javaee.HandlerChainsType;
+import org.apache.xmlbeans.XmlException;
+
 public class HandlerChainsUtils {
 
     private HandlerChainsUtils() {
@@ -41,6 +45,18 @@ public class HandlerChainsUtils {
             handlerChains = handlerElement.getValue();
         }
         return handlerChains;
+    }
+    
+    public static HandlerChainsType getHandlerChains(String xml) throws XmlException {        
+        HandlerChainsType types = null;
+        if (xml != null) {
+            try {
+                types = HandlerChainsDocument.Factory.parse(xml).getHandlerChains();
+            } catch (XmlException e){
+                types = HandlerChainsType.Factory.parse(xml);
+            }
+        }
+        return types;
     }
 
 }
