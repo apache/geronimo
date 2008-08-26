@@ -46,8 +46,6 @@ import com.agical.rmock.extension.junit.RMockTestCase;
 public class ClusteredStatefulContainerTest extends RMockTestCase {
 
     private WADISessionManager sessionManager;
-    private TransactionManager txManager;
-    private SecurityService securityService;
     private ClusteredStatefulContainer container;
     private CoreDeploymentInfo deploymentInfo;
     private String deploymentId;
@@ -80,12 +78,12 @@ public class ClusteredStatefulContainerTest extends RMockTestCase {
         modify().multiplicity(expect.from(0));
         tracker = (NetworkConnectorTracker) mock(NetworkConnectorTracker.class);
         modify().returnValue(tracker);
-        
-        txManager = (TransactionManager) mock(TransactionManager.class);
-        securityService = (SecurityService) mock(SecurityService.class);
+
+        TransactionManager txManager = (TransactionManager) mock(TransactionManager.class);
+        SecurityService securityService = (SecurityService) mock(SecurityService.class);
         container = (ClusteredStatefulContainer) intercept(ClusteredStatefulContainer.class, new Object[] {"id",
-            txManager,
-            securityService, 
+                txManager,
+                securityService,
             null,
             1,
             1,

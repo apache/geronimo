@@ -37,6 +37,9 @@ import org.apache.openejb.DeploymentInfo;
 import org.apache.openejb.OpenEJBException;
 import org.apache.openejb.core.CoreDeploymentInfo;
 import org.apache.openejb.core.stateful.StatefulContainer;
+import org.apache.openejb.core.stateful.Instance;
+import org.apache.openejb.core.stateful.Cache;
+import org.apache.openejb.core.stateful.PassivationStrategy;
 import org.apache.openejb.spi.SecurityService;
 import org.codehaus.wadi.core.contextualiser.BasicInvocation;
 import org.codehaus.wadi.core.contextualiser.InvocationContext;
@@ -66,22 +69,15 @@ public class ClusteredStatefulContainer extends StatefulContainer implements Ses
         deploymentIdToNetworkConnectorTracker = new HashMap<Object, NetworkConnectorTracker>();
     }
 
-    @Override
-    protected ClusteredStatefulInstanceManager newStatefulInstanceManager(SecurityService securityService,
-        Class passivator,
-        int timeOut,
-        int poolSize,
-        int bulkPassivate) throws OpenEJBException {
-        return new ClusteredStatefulInstanceManager(securityService,
-            entityManagerRegistry,
-            passivator,
-            timeOut,
-            poolSize,
-            bulkPassivate);
+    protected Cache<Object, Instance> createCache(Class<? extends PassivationStrategy> passivator,
+            int timeOut,
+            int poolSize,
+            int bulkPassivate) throws OpenEJBException {
+        return new WadiCache(new StatefulCacheListener());
     }
 
     public void addSessionManager(Object deploymentId, SessionManager sessionManager) {
-        ((ClusteredStatefulInstanceManager) instanceManager).addSessionManager(deploymentId, sessionManager);
+        ((WadiCache) cache).addSessionManager(deploymentId, sessionManager);
         
         WADISessionManager wadiSessionManager = (WADISessionManager) sessionManager;
         
@@ -104,7 +100,7 @@ public class ClusteredStatefulContainer extends StatefulContainer implements Ses
     }
 
     public void removeSessionManager(Object deploymentId, SessionManager sessionManager) {
-        ((ClusteredStatefulInstanceManager) instanceManager).removeSessionManager(deploymentId, sessionManager);
+        ((WadiCache) cache).removeSessionManager(deploymentId, sessionManager);
         
         synchronized (deploymentIdToManager) {
             deploymentIdToManager.remove(deploymentId);
@@ -181,8 +177,14 @@ public class ClusteredStatefulContainer extends StatefulContainer implements Ses
         return super.removeEJBObject(deploymentInfo, primKey, callInterface, callMethod, args);
     }
 
-    protected Object invoke(CoreDeploymentInfo deploymentInfo, AbstractEJBInvocation invocation)
-            throws OpenEJBException {
+    //
+    // TODO: THIS WILL NOT WORK
+    // OpenEJB invocations can not be redirected to another JavaVM.  OpenEJB relies on several
+    // thread local variables to opperate, the most important of which is ThreadContext which
+    // is used to coordiate transaction boundries.  At the very least to redirect calls to a
+    // remote VM you will need a distributed TransactionManager.
+    //
+    protected Object invoke(CoreDeploymentInfo deploymentInfo, AbstractEJBInvocation invocation) throws OpenEJBException {
         Manager manager;
         synchronized (deploymentIdToManager) {
             manager = deploymentIdToManager.get(deploymentInfo.getDeploymentID());
