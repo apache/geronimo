@@ -120,6 +120,12 @@
             <groupId>org.apache.activemq</groupId>
             <artifactId>activemq-core</artifactId>
         </dependency>
+
+        <!-- See GERONIMO-4269 -->
+        <dependency>
+            <groupId>dwr</groupId>
+            <artifactId>dwr</artifactId>
+        </dependency>
     </dependencies>
 
     <repositories>
