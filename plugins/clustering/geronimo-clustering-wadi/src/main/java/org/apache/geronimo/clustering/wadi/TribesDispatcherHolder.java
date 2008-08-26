@@ -17,10 +17,12 @@
 package org.apache.geronimo.clustering.wadi;
 
 import java.net.URI;
-import java.util.Collections;
+import java.util.HashSet;
+import java.util.Properties;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.apache.catalina.tribes.membership.StaticMember;
 import org.apache.geronimo.clustering.LocalNode;
 import org.apache.geronimo.clustering.Node;
 import org.apache.geronimo.gbean.GBeanLifecycle;
@@ -50,6 +52,10 @@ public class TribesDispatcherHolder implements GBeanLifecycle, DispatcherHolder 
     private final String clusterName;
     private final LocalNode node;
     private final ClassLoader cl;
+    private final boolean disableMCastService;
+    private final int receiverPort;
+    private final Properties mcastServiceProperties;
+    private final WadiStaticMember staticMember;
     private final DispatcherRegistry dispatcherRegistry;
 
     private TribesDispatcher dispatcher;
@@ -58,6 +64,10 @@ public class TribesDispatcherHolder implements GBeanLifecycle, DispatcherHolder 
     public TribesDispatcherHolder(@ParamSpecial(type=SpecialAttributeType.classLoader) ClassLoader cl,
         @ParamAttribute(name=GBEAN_ATTR_END_POINT_URI) URI endPointURI,
         @ParamAttribute(name=GBEAN_ATTR_CLUSTER_NAME) String clusterName,
+        @ParamAttribute(name=GBEAN_ATTR_DISABLE_MCAST) boolean disableMCastService,
+        @ParamAttribute(name=GBEAN_ATTR_RECEIVER_PORT) int receiverPort,
+        @ParamAttribute(name=GBEAN_ATTR_MCAST_PROPERTIES) Properties mcastServiceProperties,
+        @ParamReference(name=GBEAN_REF_STATIC_MEMBER) WadiStaticMember staticMember,
         @ParamReference(name=GBEAN_REF_NODE) LocalNode node) {
         if (null == endPointURI) {
             throw new IllegalArgumentException("endPointURI is required");
@@ -68,8 +78,17 @@ public class TribesDispatcherHolder implements GBeanLifecycle, DispatcherHolder 
         } else if (null == cl) {
             throw new IllegalArgumentException("cl is required");
         }
+        
+        if (receiverPort < 1) {
+            receiverPort = 4000;
+        }
+        
         this.endPointURI = endPointURI;
         this.clusterName = clusterName;
+        this.disableMCastService = disableMCastService;
+        this.staticMember = staticMember;
+        this.receiverPort = receiverPort;
+        this.mcastServiceProperties = mcastServiceProperties;
         this.node = node;
         this.cl = cl;
         
@@ -77,10 +96,32 @@ public class TribesDispatcherHolder implements GBeanLifecycle, DispatcherHolder 
     }
 
     public void doStart() throws Exception {
+        
+        HashSet<StaticMember> staticMemberCollection = new HashSet<StaticMember>();
+        
+        log.debug("Attempting to set static members");
+        if (staticMember != null) {
+           
+            log.debug("Attempting to add static member: {}", ((StaticMember)staticMember.getStaticMember()).getPort());
+            staticMemberCollection.add((StaticMember)staticMember.getStaticMember());
+            WadiStaticMember nextStaticMember = (WadiStaticMember) staticMember.getNextStaticMember();
+            
+            while(nextStaticMember != null) {
+                log.debug("Attempting to add static member: {}", ((StaticMember)staticMember.getStaticMember()).getPort());
+                staticMemberCollection.add((StaticMember)nextStaticMember.getStaticMember());
+                nextStaticMember = (WadiStaticMember) nextStaticMember.getNextStaticMember();
+            }
+        }
+        
+        
+        log.debug("List of static members: {}", staticMemberCollection);
         dispatcher = new TribesDispatcher(clusterName,
             node.getName(),
             new URIEndPoint(endPointURI),
-            Collections.EMPTY_SET);
+            staticMemberCollection,
+            disableMCastService,
+            mcastServiceProperties,
+            receiverPort);
         dispatcher.start();
         
         adminServiceSpace = new AdminServiceSpace(dispatcher,
@@ -134,6 +175,10 @@ public class TribesDispatcherHolder implements GBeanLifecycle, DispatcherHolder 
     
     public static final String GBEAN_ATTR_END_POINT_URI = "endPointURI";
     public static final String GBEAN_ATTR_CLUSTER_NAME = "clusterName";
+    public static final String GBEAN_ATTR_DISABLE_MCAST = "disableMCastService";
+    public static final String GBEAN_ATTR_RECEIVER_PORT = "receiverPort";
+    public static final String GBEAN_ATTR_MCAST_PROPERTIES = "mcastServiceProperties";
+    public static final String GBEAN_REF_STATIC_MEMBER = "staticMember";
     public static final String GBEAN_ATTR_CLUSTER_URI = "clusterUri";
     public static final String GBEAN_REF_NODE = "Node";
 }
