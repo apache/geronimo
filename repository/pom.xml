@@ -110,6 +110,11 @@
             <version>8.0-20060801</version>
         </dependency>
 
+        <!-- See GERONIMO-4262 -->
+        <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>activemq-core</artifactId>
+        </dependency>
     </dependencies>
 
     <repositories>
