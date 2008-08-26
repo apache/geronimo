@@ -1,0 +1,54 @@
+Private Build of ActiveMQ for Geronimo.   
+
+How to build ActiveMQ 4.1.2 with AMQ-1272 security patch:
+---------------------------------------------------------
+Checkout the ActiveMQ 4.1 branch
+  svn co https://svn.apache.org/repos/asf/activemq/tags/activemq-4.1.2 activemq-4.1.2
+  
+svn info for ActiveMQ image:
+Path: .
+URL: https://svn.apache.org/repos/asf/activemq/tags/activemq-4.1.2
+Repository Root: https://svn.apache.org/repos/asf
+Repository UUID: 13f79535-47bb-0310-9956-ffa450edef68
+Revision: 648240
+Node Kind: directory
+Schedule: normal
+Last Changed Author: djencks
+Last Changed Rev: 646984
+Last Changed Date: 2008-04-10 18:03:51 -0400 (Thu, 10 Apr 2008)
+
+
+Apply the security patch
+---------------------------------
+cd activemq-4.1.2
+patch -p0 -u < AMQ1272-stomp-auth-v412.patch
+Answer 'y' to any prompts of "Reversed (or previously applied) patch detected!  Assume -R? [n]"
+
+
+Build ActiveMQ
+--------------
+  cd activemq-4.1.2
+  mvn install
+Notes:
+  - we only need to build the activemq-core directory
+  - I used Sun 1.5.0_13 and Maven 2.0.9 on MacOSX to build the jar
+
+  
+Copy patched activemq-core jar to appropriate filename
+------------------------------------------------------
+  cd activemq-4.1.2
+  cp activemq-core/target/activemq-core-4.1.2.jar <geronimo-root>/repository/org/apache/activemq/activemq-core/4.1.2-G647819/activemq-core-4.1.2-G647819.jar
+
+Optional steps:
+---------------
+  cd <geronimo-root>/repository/org/apache/activemq/activemq-core/4.1.2-G647819
+  md5sum activemq-core-4.1.2-G647819.jar > activemq-core-4.1.2-G647819.jar.md5
+  sha1sum activemq-core-4.1.2-G647819.jar > activemq-core-4.1.2-G647819.jar.sha1
+
+
+How the patch (AMQ1272-stomp-auth-v412.patch) was created:
+----------------------------------------------------------
+The patch was created by back porting the AMQ-1272 patch from Dec. 2007 along withe latest updates of the 3 affected files from the AMQ 5.1.0 release.
+  svn diff > AMQ1272-stomp-auth-v412.patch
+The transport/stomp junit tests were not back ported, due to too many other dependencies in AMQ 5.1.0 that would have been pulled in.
+
