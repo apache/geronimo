@@ -27,14 +27,14 @@
         </jws:handler>
     </jws:handler-chain>
     <jws:handler-chain>
-        <jws:port-name-pattern>jws:Foo*</jws:port-name-pattern>
+        <jws:port-name-pattern xmlns:x1="http://foo">x1:Foo*</jws:port-name-pattern>
         <jws:handler>
             <jws:handler-name>GreeterHandler</jws:handler-name>
             <jws:handler-class>org.apache.geronimo.jaxws.handler.TestHandler</jws:handler-class>
         </jws:handler>
     </jws:handler-chain>
     <jws:handler-chain>
-        <jws:service-name-pattern>jws:Bar</jws:service-name-pattern>
+        <jws:service-name-pattern xmlns:x2="http://foo">x2:Bar</jws:service-name-pattern>
         <jws:handler>
             <jws:handler-name>GreeterHandler</jws:handler-name>
             <jws:handler-class>org.apache.geronimo.jaxws.handler.TestHandler</jws:handler-class>

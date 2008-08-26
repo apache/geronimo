@@ -47,7 +47,7 @@ public class GeronimoHandlerResolverTest extends TestSupport {
         InputStream in = getClass().getResourceAsStream("/handlers_service.xml");
         assertTrue(in != null);
         HandlerChainsType handlerChains = toHandlerChains(in);
-        assertEquals(3, handlerChains.getHandlerChainArray().length);
+        assertEquals(4, handlerChains.getHandlerChainArray().length);
         
         GeronimoHandlerResolver resolver = 
             new GeronimoHandlerResolver(getClass().getClassLoader(), getClass(), handlerChains, null);
@@ -72,6 +72,10 @@ public class GeronimoHandlerResolverTest extends TestSupport {
         QName serviceName4 = new QName("http://foo", "BarFoo");
         handlers = resolver.getHandlerChain(new TestPortInfo(null, null, serviceName4)); 
         assertEquals(0, handlers.size());
+        
+        QName serviceName5 = new QName("https://foo", "Bar");
+        handlers = resolver.getHandlerChain(new TestPortInfo(null, null, serviceName5)); 
+        assertEquals(1, handlers.size());
     }
     
     public void testBindingMatching() throws Exception {
@@ -111,7 +115,7 @@ public class GeronimoHandlerResolverTest extends TestSupport {
         InputStream in = getClass().getResourceAsStream("/handlers_port.xml");
         assertTrue(in != null);
         HandlerChainsType handlerChains = toHandlerChains(in); 
-        assertEquals(3, handlerChains.getHandlerChainArray().length);
+        assertEquals(4, handlerChains.getHandlerChainArray().length);
         
         GeronimoHandlerResolver resolver = 
             new GeronimoHandlerResolver(getClass().getClassLoader(), getClass(), handlerChains, null);
@@ -136,6 +140,10 @@ public class GeronimoHandlerResolverTest extends TestSupport {
         QName portName4 = new QName("http://foo", "BarFoo");
         handlers = resolver.getHandlerChain(new TestPortInfo(null, portName4, null)); 
         assertEquals(0, handlers.size());
+        
+        QName portName5 = new QName("https://foo", "Bar");
+        handlers = resolver.getHandlerChain(new TestPortInfo(null, portName5, null)); 
+        assertEquals(1, handlers.size());
     }
     
     public void testMixedMatching() throws Exception {
@@ -152,7 +160,7 @@ public class GeronimoHandlerResolverTest extends TestSupport {
         handlers = resolver.getHandlerChain(new TestPortInfo(null, null, null)); 
         assertEquals(0, handlers.size());
         
-        QName serviceName1 = new QName("http:/foo", "Bar");
+        QName serviceName1 = new QName("http://foo", "Bar");
         QName portName1 = new QName("http://foo", "FooBar");
         String binding1 = "##XML_HTTP";
         handlers = resolver.getHandlerChain(new TestPortInfo(binding1, portName1, serviceName1)); 

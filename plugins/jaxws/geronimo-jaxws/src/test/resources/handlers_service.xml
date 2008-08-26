@@ -18,23 +18,30 @@
 
 <!-- $Rev: 482336 $ $Date: 2006-12-04 15:12:19 -0500 (Mon, 04 Dec 2006) $ -->
 
-<jws:handler-chains xmlns:jws="http://java.sun.com/xml/ns/javaee">
+<jws:handler-chains xmlns:jws="http://java.sun.com/xml/ns/javaee" xmlns:x2="http://foo">
     <jws:handler-chain>
-        <jws:service-name-pattern>jws:Foo</jws:service-name-pattern>
+        <jws:service-name-pattern xmlns:x1="http://foo">x1:Foo</jws:service-name-pattern>
         <jws:handler>
             <jws:handler-name>GreeterHandler</jws:handler-name>
             <jws:handler-class>org.apache.geronimo.jaxws.handler.TestHandler</jws:handler-class>
         </jws:handler>
     </jws:handler-chain>
     <jws:handler-chain>
-        <jws:service-name-pattern>jws:Foo*</jws:service-name-pattern>
+        <jws:service-name-pattern>x2:Foo*</jws:service-name-pattern>
         <jws:handler>
             <jws:handler-name>GreeterHandler</jws:handler-name>
             <jws:handler-class>org.apache.geronimo.jaxws.handler.TestHandler</jws:handler-class>
         </jws:handler>
     </jws:handler-chain>
     <jws:handler-chain>
-        <jws:service-name-pattern>jws:Bar</jws:service-name-pattern>
+        <jws:service-name-pattern>x2:Bar</jws:service-name-pattern>
+        <jws:handler>
+            <jws:handler-name>GreeterHandler</jws:handler-name>
+            <jws:handler-class>org.apache.geronimo.jaxws.handler.TestHandler</jws:handler-class>
+        </jws:handler>
+    </jws:handler-chain>
+    <jws:handler-chain>
+        <jws:service-name-pattern xmlns:x3="https://foo">x3:Bar</jws:service-name-pattern>
         <jws:handler>
             <jws:handler-name>GreeterHandler</jws:handler-name>
             <jws:handler-class>org.apache.geronimo.jaxws.handler.TestHandler</jws:handler-class>

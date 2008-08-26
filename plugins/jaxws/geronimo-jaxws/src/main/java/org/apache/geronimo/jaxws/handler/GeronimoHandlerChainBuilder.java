@@ -21,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.geronimo.jaxws.JAXWSUtils;
 import org.apache.geronimo.xbeans.javaee.HandlerChainType;
+import org.apache.xmlbeans.XmlCursor;
 
 import javax.xml.namespace.QName;
 import javax.xml.ws.handler.Handler;
@@ -28,15 +29,17 @@ import javax.xml.ws.handler.PortInfo;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @version $Rev$ $Date$
  */
 public class GeronimoHandlerChainBuilder extends AnnotationHandlerChainBuilder {
     private static final Logger log = LoggerFactory.getLogger(GeronimoHandlerChainBuilder.class);
-
+        
     private ClassLoader classLoader = null;
-    private javax.xml.ws.handler.PortInfo portInfo;
+    private PortInfo portInfo;
 
     public GeronimoHandlerChainBuilder(ClassLoader classloader,
                                        PortInfo portInfo) {
@@ -50,25 +53,37 @@ public class GeronimoHandlerChainBuilder extends AnnotationHandlerChainBuilder {
 
     protected List<Handler> buildHandlerChain(HandlerChainType hc,
                                               ClassLoader classLoader) {
-        if (matchServiceName(portInfo, hc.getServiceNamePattern())
-                && matchPortName(portInfo, hc.getPortNamePattern())
-                && matchBinding(portInfo, hc.getProtocolBindings())) {
+        if (matchServiceName(portInfo, hc)
+                && matchPortName(portInfo, hc)
+                && matchBinding(portInfo, hc)) {
             return super.buildHandlerChain(hc, classLoader);
         } else {
             return Collections.emptyList();
         }
     }
 
-    private boolean matchServiceName(PortInfo info, String namePattern) {
-        return match((info == null ? null : info.getServiceName()), namePattern);
+    private boolean matchServiceName(PortInfo info, HandlerChainType hc) {               
+        if (hc.isSetServiceNamePattern()) {
+            QName serviceName = (info == null) ? null : info.getServiceName(); 
+            return match(hc.xgetServiceNamePattern().newCursor(), serviceName, hc.getServiceNamePattern());
+        } else {
+            // handler matches since no service-name-pattern
+            return true;
+        }
     }
 
-    private boolean matchPortName(PortInfo info, String namePattern) {
-        return match((info == null ? null : info.getPortName()), namePattern);
+    private boolean matchPortName(PortInfo info, HandlerChainType hc) {
+        if (hc.isSetPortNamePattern()) {
+            QName portName = (info == null) ? null : info.getPortName();                    
+            return match(hc.xgetPortNamePattern().newCursor(), portName, hc.getPortNamePattern());
+        } else {
+            // handler maches no port-name-pattern
+            return true;
+        }
     }
 
-    private boolean matchBinding(PortInfo info, List bindings) {
-        return match((info == null ? null : info.getBindingID()), bindings);
+    private boolean matchBinding(PortInfo info, HandlerChainType hc) {
+        return match((info == null ? null : info.getBindingID()), hc.getProtocolBindings());
     }
 
     private boolean match(String binding, List bindings) {
@@ -98,11 +113,11 @@ public class GeronimoHandlerChainBuilder extends AnnotationHandlerChainBuilder {
         }
         return sortHandlers(buildHandlerChain(hc, getHandlerClassLoader()));
     }
-
+    
     /*
      * Performs basic localName matching, namespaces are not checked!
      */
-    private boolean match(QName name, String namePattern) {
+    private boolean match(XmlCursor node, QName name, String namePattern) {
         if (name == null) {
             return (namePattern == null || namePattern.equals("*"));
         } else {
@@ -113,21 +128,32 @@ public class GeronimoHandlerChainBuilder extends AnnotationHandlerChainBuilder {
 
                 // get the local name from pattern
                 int pos = namePattern.indexOf(':');
-                localNamePattern = (pos == -1) ? namePattern : namePattern
-                        .substring(pos + 1);
+                if (pos == -1) {
+                    localNamePattern = namePattern;
+                } else {       
+                    localNamePattern = namePattern.substring(pos + 1);
+                    
+                    String prefix = namePattern.substring(0, pos);
+                    String namespace = node.namespaceForPrefix(prefix.trim());
+                    if (namespace == null) {
+                        namespace = prefix;
+                    }
+                    
+                    // check namespace
+                    if (!namespace.equals(name.getNamespaceURI())) {
+                        return false;
+                    }
+                }
+                
+                // check local name
                 localNamePattern = localNamePattern.trim();
-
-                if (localNamePattern.equals("*")) {
-                    // matches anything
-                    return true;
-                } else if (localNamePattern.endsWith("*")) {
-                    // match start
-                    localNamePattern = localNamePattern.substring(0,
-                            localNamePattern.length() - 1);
-                    return name.getLocalPart().startsWith(localNamePattern);
-                } else {
-                    // match exact
-                    return name.getLocalPart().equals(localNamePattern);
+                if (localNamePattern.contains("*")) {
+                    //wildcard pattern matching
+                    Pattern pattern = Pattern.compile(localNamePattern.replace("*", "(\\w|\\.|-|_)*"));
+                    Matcher matcher = pattern.matcher(name.getLocalPart());
+                    return matcher.matches();
+                } else { 
+                    return localNamePattern.equals(name.getLocalPart());
                 }
             }
         }
