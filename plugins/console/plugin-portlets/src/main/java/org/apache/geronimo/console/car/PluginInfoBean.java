@@ -59,6 +59,7 @@ public class PluginInfoBean implements Serializable {
     protected boolean installable = true;
     protected String validationMessage;
     protected boolean isSystemPlugin = true;
+    protected boolean isPluginGroup = false;
 
     public List<PropertyType> getArtifactAlias() {
         return artifactAlias;
@@ -262,5 +263,13 @@ public class PluginInfoBean implements Serializable {
     
     public void setIsSystemPlugin(boolean isSystemPlugin) {
         this.isSystemPlugin = isSystemPlugin;
+    }
+    
+    public boolean getIsPluginGroup() {
+        return this.isPluginGroup;
+    }
+    
+    public void setIsPluginGroup(boolean isPluginGroup) {
+        this.isPluginGroup = isPluginGroup;
     }
 }

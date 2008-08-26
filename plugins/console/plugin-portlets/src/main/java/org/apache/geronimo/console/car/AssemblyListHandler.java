@@ -56,6 +56,7 @@ public class AssemblyListHandler extends AbstractListHandler {
         String artifactId = request.getParameter("artifactId");
         String version = request.getParameter("version");
         String format = request.getParameter("format");
+        String type = request.getParameter("type");
 
         if(!isEmpty(column)) response.setRenderParameter("column", column);
         response.setRenderParameter("relativeServerPath", isEmpty(relativeServerPath) ? "var/temp/assembly" : relativeServerPath);
@@ -63,6 +64,7 @@ public class AssemblyListHandler extends AbstractListHandler {
         if(!isEmpty(artifactId)) response.setRenderParameter("artifactId", artifactId);
         response.setRenderParameter("version", isEmpty(version) ? "1.0" : version);
         if(!isEmpty(format)) response.setRenderParameter("format", format);
+        if(!isEmpty(type)) response.setRenderParameter("type", type);
         
         response.setWindowState(WindowState.MAXIMIZED);
         
@@ -76,6 +78,7 @@ public class AssemblyListHandler extends AbstractListHandler {
         String artifactId = request.getParameter("artifactId");
         String version = request.getParameter("version");
         String format = request.getParameter("format");
+        String type = request.getParameter("type");
         if(!loadFromServer(request)) {
             //todo: loading failed -- do something!
         }
@@ -86,6 +89,7 @@ public class AssemblyListHandler extends AbstractListHandler {
         request.setAttribute("artifactId", artifactId);
         request.setAttribute("version", version);
         request.setAttribute("format", format);
+        request.setAttribute("type", type);
     }
 
     public String actionAfterView(ActionRequest request, ActionResponse response, MultiPageModel model) throws PortletException, IOException {
@@ -140,6 +144,12 @@ public class AssemblyListHandler extends AbstractListHandler {
                     }
                 }
                 
+                //if the category is Geronimo Plugin Group, set it as plugingroup.
+                //TODO: need a better way to do this.
+                if (metadata.getCategory().equalsIgnoreCase("Geronimo Plugin Group")) {
+                    plugin.setIsPluginGroup(true);
+                }
+
                 plugins.add(plugin);
             }
         }

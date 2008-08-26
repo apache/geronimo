@@ -49,7 +49,7 @@
 </c:when>
 <c:otherwise>
 <form name="frmlst" action="<portlet:actionURL/>">
-    <h3>Name the server to be assembled</h3>
+    <h3><fmt:message key="car.list.nameServer" /></h3>
     <input id="mode" type="hidden" name="mode" value="assemblyView-before"/>
     
 <table border="0" cellpadding="3">
@@ -78,7 +78,101 @@
   </td>
 </table>
 
-    
+<c:choose>
+<c:when test="${type eq 'Application Centric'}">   
+
+    <h3><fmt:message key="car.list.applicationPlugin"/></h3>
+<table border="0" cellpadding="3">
+<tr>
+  <th class="DarkBackground">&nbsp;</th>
+  <c:forEach var="column" items="Name,Version,Category">
+  <th class="DarkBackground">${column}</th>
+  </c:forEach>
+</tr>
+<c:forEach var="plugin" items="${plugins}" varStatus="status">
+<c:set var="style" value="${status.index % 2 == 0 ? 'MediumBackground' : 'LightBackground'}"/>
+<c:set var="artifact" value="${plugin.pluginArtifact.moduleId}"/>
+<c:if test="${!plugin.isSystemPlugin}">
+<tr>
+  <td class="${style}">
+    <input type="checkbox" name="plugin" title="${artifact.groupId}/${artifact.artifactId}/${artifact.version}/${artifact.type}" value="${artifact.groupId}/${artifact.artifactId}/${artifact.version}/${artifact.type}"/>
+  </td>
+  <td class="${style}">
+    <a href='<portlet:actionURL>
+    <portlet:param name="configId" value="${artifact.groupId}/${artifact.artifactId}/${artifact.version}/${artifact.type}"/>
+    <portlet:param name="mode" value="assemblyView-before"/>
+    </portlet:actionURL>'>${plugin.name}</a>
+  </td>
+  <td class="${style}">${artifact.version}</td>
+  <td class="${style}">${plugin.category}</td>
+</tr>
+</c:if>    
+</c:forEach>
+</table>
+</c:when>
+
+<c:when test="${type eq 'Function Centric'}"> 
+    <h3><fmt:message key="car.list.PluginGroup"/></h3>
+<table border="0" cellpadding="3">
+<tr>
+  <th class="DarkBackground">&nbsp;</th>
+  <c:forEach var="column" items="Name,Version,Category">
+  <th class="DarkBackground">${column}</th>
+  </c:forEach>
+</tr>
+<c:forEach var="plugin" items="${plugins}" varStatus="status">
+<c:set var="style" value="${status.index % 2 == 0 ? 'MediumBackground' : 'LightBackground'}"/>
+<c:set var="artifact" value="${plugin.pluginArtifact.moduleId}"/>
+<c:if test="${plugin.isPluginGroup}">
+<tr>
+  <td class="${style}">
+    <input type="checkbox" name="plugin" title="${artifact.groupId}/${artifact.artifactId}/${artifact.version}/${artifact.type}" value="${artifact.groupId}/${artifact.artifactId}/${artifact.version}/${artifact.type}"/>
+  </td>
+  <td class="${style}">
+    <a href='<portlet:actionURL>
+    <portlet:param name="configId" value="${artifact.groupId}/${artifact.artifactId}/${artifact.version}/${artifact.type}"/>
+    <portlet:param name="mode" value="assemblyView-before"/>
+    </portlet:actionURL>'>${plugin.name}</a>
+  </td>
+  <td class="${style}">${artifact.version}</td>
+  <td class="${style}">${plugin.category}</td>
+</tr>
+</c:if>    
+</c:forEach>
+</table>
+
+
+    <h3><fmt:message key="car.list.applicationPlugin"/></h3>
+<table border="0" cellpadding="3">
+<tr>
+  <th class="DarkBackground">&nbsp;</th>
+  <c:forEach var="column" items="Name,Version,Category">
+  <th class="DarkBackground">${column}</th>
+  </c:forEach>
+</tr>
+<c:forEach var="plugin" items="${plugins}" varStatus="status">
+<c:set var="style" value="${status.index % 2 == 0 ? 'MediumBackground' : 'LightBackground'}"/>
+<c:set var="artifact" value="${plugin.pluginArtifact.moduleId}"/>
+<c:if test="${!plugin.isSystemPlugin}">
+<tr>
+  <td class="${style}">
+    <input type="checkbox" name="plugin" title="${artifact.groupId}/${artifact.artifactId}/${artifact.version}/${artifact.type}" value="${artifact.groupId}/${artifact.artifactId}/${artifact.version}/${artifact.type}"/>
+  </td>
+  <td class="${style}">
+    <a href='<portlet:actionURL>
+    <portlet:param name="configId" value="${artifact.groupId}/${artifact.artifactId}/${artifact.version}/${artifact.type}"/>
+    <portlet:param name="mode" value="assemblyView-before"/>
+    </portlet:actionURL>'>${plugin.name}</a>
+  </td>
+  <td class="${style}">${artifact.version}</td>
+  <td class="${style}">${plugin.category}</td>
+</tr>
+</c:if>    
+</c:forEach>
+</table>
+</c:when>
+
+<c:otherwise>
 
     <h3><fmt:message key="car.list.applicationPlugin"/></h3>
 <table border="0" cellpadding="3">
@@ -110,8 +204,8 @@
 </tr>
 </c:if>    
 </c:forEach>
-
 </table>
+
 
     <h3><fmt:message key="car.list.systemPlugin"/></h3>
 <table border="0" cellpadding="3">
@@ -144,8 +238,13 @@
 </c:if>
 </c:forEach>
 </table>
+</c:otherwise>
+</c:choose>
+
+
     <input type="submit" value='<fmt:message key="car.common.assemble"/>' onclick="if(!checkAllVal('plugin')){return false;}else return true;"/>
     <input type="submit" value='<fmt:message key="consolebase.common.cancel"/>' onclick="history.go(-1); return false;" />
+
 </form>
 </c:otherwise>
 </c:choose>

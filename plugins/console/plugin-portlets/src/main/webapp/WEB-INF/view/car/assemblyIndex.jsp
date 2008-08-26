@@ -25,6 +25,12 @@
 <h2><fmt:message key="car.index.assembleServerLong"/></h2>
 
 <form name="<portlet:namespace/>AssemblyForm" action="<portlet:actionURL/>" method="POST">
+    <label for="<portlet:namespace/>type"><fmt:message key="car.index.assemblyMode"/></label>
+    <select name="type" id="<portlet:namespace/>type">
+        <option selected>Function Centric</option>
+        <option>Application Centric</option>
+        <option>Expert Users</option>
+    </select>
     <input type="hidden" name="mode" value="listServer-before"/>
     <input type="submit" value='<fmt:message key="car.index.assembleServer"/>'/>
 </form>
