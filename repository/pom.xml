@@ -140,6 +140,12 @@
             <groupId>org.apache.activemq</groupId>
             <artifactId>activemq-core</artifactId>
         </dependency>
+
+        <!-- See GERONIMO-4266 -->
+        <dependency>
+            <groupId>org.directwebremoting</groupId>
+            <artifactId>dwr</artifactId>
+        </dependency>
     </dependencies>
 
     <repositories>
