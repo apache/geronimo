@@ -105,6 +105,13 @@ public class PluginMetadataGeneratorMojo
      * @parameter
      */
     private String category;
+    
+    /**
+     * Whether the geronimo plugin is a geronimo plugin group.
+     *
+     * @parameter
+     */
+    private boolean pluginGroup;
 
     /**
      * Dependencies explicitly listed in the car-maven-plugin configuration
@@ -143,6 +150,7 @@ public class PluginMetadataGeneratorMojo
             metadata.setUrl(project.getOrganization() == null? "unknown": project.getOrganization().getUrl());
             metadata.setDescription(project.getDescription());
             metadata.setCategory(category);
+            metadata.setPluginGroup(pluginGroup);
 
             if (project.getLicenses() != null) {
                 for (Object licenseObj : project.getLicenses()) {
