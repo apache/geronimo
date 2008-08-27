@@ -29,11 +29,11 @@
         <version>2.2-SNAPSHOT</version>
     </parent>
 
-    <artifactId>web-tomcat</artifactId>
-    <name>Geronimo Plugin Group :: Web Tomcat</name>
+    <artifactId>web-jetty</artifactId>
+    <name>Geronimo Plugin Group :: Web Jetty</name>
 
     <description>
-        This plugin group provides the little G Tomcat functionality.
+        This plugin group provides the little G Jetty functionality.
     </description>
 
     <dependencies>
@@ -82,7 +82,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>remote-deploy-tomcat</artifactId>
+            <artifactId>remote-deploy-jetty</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>
@@ -101,7 +101,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>tomcat6-deployer</artifactId>
+            <artifactId>jetty6-deployer</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>

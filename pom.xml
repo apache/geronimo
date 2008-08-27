@@ -2490,6 +2490,7 @@
                 <module>testsupport</module>
                 <module>framework</module>
                 <module>plugins</module>
+                <module>plugingroups</module>
                 <module>assemblies</module>
                 <module>testsuite</module>
             </modules>
@@ -2504,6 +2505,7 @@
                 <module>testsupport</module>
                 <module>framework</module>
                 <module>plugins</module>
+                <module>plugingroups</module>
                 <module>assemblies</module>
             </modules>
         </profile>
@@ -2568,6 +2570,7 @@
             <modules>
                 <module>framework/configs</module>
                 <module>plugins</module>
+                <module>plugingroups</module>
                 <module>assemblies</module>
             </modules>
         </profile>

@@ -35,8 +35,13 @@
     
     <modules>
         <module>web-tomcat</module>
-        <!--<module>web-jetty</module>
-        <module>jms</module>-->
+        <module>web-jetty</module>
+        <module>jms</module>
+        <module>ejb</module>
+        <module>clustering</module>
+        <module>persistence</module>
+        <module>webservices-axis2</module>
+        <module>webservices-cxf</module>
     </modules>
     
 </project>

@@ -29,95 +29,41 @@
         <version>2.2-SNAPSHOT</version>
     </parent>
 
-    <artifactId>web-tomcat</artifactId>
-    <name>Geronimo Plugin Group :: Web Tomcat</name>
+    <artifactId>webservices-cxf</artifactId>
+    <name>Geronimo Plugin Group :: Web Services CXF</name>
 
     <description>
-        This plugin group provides the little G Tomcat functionality.
+        This plugin group provides Web Services CXF functionality.
     </description>
 
     <dependencies>
         <dependency>
-            <groupId>org.apache.geronimo.assemblies</groupId>
-            <artifactId>geronimo-boilerplate</artifactId>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>axis-deployer</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>cxf-deployer</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>cxf-ejb-deployer</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>jaxws-tools</artifactId>
             <version>${version}</version>
             <type>jar</type>
         </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.framework</groupId>
-            <artifactId>upgrade-cli</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.framework</groupId>
-            <artifactId>offline-deployer</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>hot-deployer</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>jsr88-ear-configurer</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>jsr88-rar-configurer</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>jsr88-war-configurer</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>remote-deploy-tomcat</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.framework</groupId>
-            <artifactId>gshell-geronimo</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.framework</groupId>
-            <artifactId>gshell-remote</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>tomcat6-deployer</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>jasper-deployer</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>sharedlib</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
-
 </dependencies>
 
     <build>

@@ -605,6 +605,56 @@
             <version>${version}</version>
             <type>car</type>
         </dependency>
+
+        <!-- adding geronimo plugin groups for the assemblies -->
+        <dependency>
+            <groupId>org.apache.geronimo.plugingroups</groupId>
+            <artifactId>web-jetty</artifactId>
+            <version>${version}</version>
+            <type>jar</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.plugingroups</groupId>
+            <artifactId>jms</artifactId>
+            <version>${version}</version>
+            <type>jar</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.plugingroups</groupId>
+            <artifactId>ejb</artifactId>
+            <version>${version}</version>
+            <type>jar</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.plugingroups</groupId>
+            <artifactId>webservices-axis2</artifactId>
+            <version>${version}</version>
+            <type>jar</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.plugingroups</groupId>
+            <artifactId>webservices-cxf</artifactId>
+            <version>${version}</version>
+            <type>jar</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.plugingroups</groupId>
+            <artifactId>persistence</artifactId>
+            <version>${version}</version>
+            <type>jar</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.plugingroups</groupId>
+            <artifactId>clustering</artifactId>
+            <version>${version}</version>
+            <type>jar</type>
+        </dependency>
     </dependencies>
 
     <build>
