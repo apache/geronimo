@@ -77,6 +77,7 @@ public abstract class CXFWebServiceContainer implements WebServiceContainer {
     }
 
     public void invoke(Request request, Response response) throws Exception {
+        this.endpoint.updateAddress(request.getURI());
         if (request.getMethod() == Request.GET) {
             processGET(request, response);
         } else {

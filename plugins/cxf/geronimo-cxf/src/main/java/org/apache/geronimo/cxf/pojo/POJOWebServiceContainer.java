@@ -35,7 +35,7 @@ public class POJOWebServiceContainer extends CXFWebServiceContainer {
         assert target != null : "null target received";
 
         POJOEndpoint ep = new POJOEndpoint(bus, configurationBaseUrl, (Class)target);
-        ep.publish("http://nopath");
+        ep.publish(null);
         return ep;
     }
 

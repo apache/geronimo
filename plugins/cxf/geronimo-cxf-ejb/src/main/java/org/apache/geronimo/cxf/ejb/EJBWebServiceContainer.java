@@ -33,7 +33,7 @@ public class EJBWebServiceContainer extends CXFWebServiceContainer {
         assert target != null : "null target received";
 
         EJBEndpoint ep = new EJBEndpoint(bus, configurationBaseUrl, (Class)target);
-        ep.publish("http://nopath");
+        ep.publish(null);
         return ep;
     }
 

@@ -57,7 +57,7 @@ public class GeronimoDestination extends AbstractHTTPDestination
     public GeronimoDestination(Bus bus, 
                                ConduitInitiator conduitInitiator, 
                                EndpointInfo endpointInfo) throws IOException {
-        super(bus, conduitInitiator, endpointInfo, true);
+        super(bus, conduitInitiator, endpointInfo, false);
     }
 
     public void setPassSecurityContext(boolean passSecurityContext) {

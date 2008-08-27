@@ -19,14 +19,12 @@
 package org.apache.geronimo.cxf;
 
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Executor;
 
-import javax.xml.transform.Source;
 import javax.xml.ws.Binding;
-import javax.xml.ws.Endpoint;
 import javax.xml.ws.WebServiceException;
 import javax.xml.ws.handler.Handler;
 import javax.xml.ws.http.HTTPBinding;
@@ -48,7 +46,7 @@ import org.apache.geronimo.jaxws.annotations.AnnotationProcessor;
 import org.apache.geronimo.jaxws.handler.GeronimoHandlerResolver;
 import org.apache.geronimo.xbeans.javaee.HandlerChainsType;
 
-public abstract class CXFEndpoint extends Endpoint {
+public abstract class CXFEndpoint {
 
     protected Bus bus;
 
@@ -65,6 +63,8 @@ public abstract class CXFEndpoint extends Endpoint {
     protected PortInfo portInfo;
     
     protected AnnotationProcessor annotationProcessor;
+    
+    private String address; 
 
     public CXFEndpoint(Bus bus, Object implementor) {
         this.bus = bus;
@@ -129,45 +129,16 @@ public abstract class CXFEndpoint extends Endpoint {
         return service.getExecutor();
     }
 
-    @Override
     public Object getImplementor() {
         return implementor;
     }
 
-    @Override
-    public List<Source> getMetadata() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public Map<String, Object> getProperties() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
     public boolean isPublished() {
         return server != null;
     }
 
-    @Override
-    public void publish(Object arg0) {
-        // TODO Auto-generated method stub
-    }
-
-    @Override
     public void publish(String address) {
         doPublish(address);
-    }
-
-    public void setMetadata(List<Source> arg0) {
-        // TODO Auto-generated method stub
-    }
-
-    @Override
-    public void setProperties(Map<String, Object> arg0) {
-        // TODO Auto-generated method stub
     }
 
     private static class GeronimoJaxWsServerFactoryBean extends JaxWsServerFactoryBean {
@@ -177,10 +148,13 @@ public abstract class CXFEndpoint extends Endpoint {
         }
     }
     
-    protected void doPublish(String address) {
+    protected void doPublish(String baseAddress) {      
+        // XXX: assume port 8080 by default since we don't know the actual port at startup
+        String address = (baseAddress == null) ? "http://localhost:8080" : baseAddress;
+        
         JaxWsServerFactoryBean svrFactory = new GeronimoJaxWsServerFactoryBean();
         svrFactory.setBus(bus);
-        svrFactory.setAddress(address);
+        svrFactory.setAddress(address + this.portInfo.getLocation());
         svrFactory.setServiceFactory(serviceFactory);
         svrFactory.setStart(false);
         svrFactory.setServiceBean(implementor);
@@ -199,19 +173,24 @@ public abstract class CXFEndpoint extends Endpoint {
             ((SOAPBinding)getBinding()).setMTOMEnabled(this.portInfo.isMTOMEnabled());
         }
         
-        /**
-        if (endpoint.getEnableSchemaValidation()) {
-            endpoint.ge
-            endpoint.put(Message.SCHEMA_VALIDATION_ENABLED, 
-                         endpoint.getEnableSchemaValidation());
-        }
-        **/
         server.start();
     }
 
     protected void init() { 
     }
           
+    /*
+     * Update service's address on the very first invocation. The address 
+     * assumed at start up might not be valid.
+     */
+    synchronized void updateAddress(URI request) {
+        if (this.address == null) {
+            String requestAddress = request.getScheme() + "://" + request.getHost() + ":" + request.getPort() + request.getPath();
+            getEndpoint().getEndpointInfo().setAddress(requestAddress);
+            this.address = requestAddress;
+        }
+    }
+    
     /*
      * Set appropriate handlers for the port/service/bindings.
      */
@@ -258,7 +237,7 @@ public abstract class CXFEndpoint extends Endpoint {
             }
         }
     }
-    
+        
     public void stop() {        
         // shutdown server
         if (this.server != null) {
