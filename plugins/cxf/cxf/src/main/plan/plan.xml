@@ -20,4 +20,12 @@
 
 <module xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
 
+   <gbean name="CXFSystemProperties"
+          class="org.apache.geronimo.system.properties.SystemProperties">
+         <attribute name="systemProperties">
+           org.apache.cxf.jaxws.checkPublishEndpointPermission=true
+           org.apache.cxf.nofastinfoset=true
+         </attribute>
+    </gbean>
+
 </module>
