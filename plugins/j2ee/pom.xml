@@ -47,9 +47,6 @@
         <module>jsr88-jar-configurer</module>
         <module>jsr88-rar-configurer</module>
         <module>jsr88-war-configurer</module>
-        <module>unavailable-client-deployer</module>
-        <module>unavailable-ejb-deployer</module>
-        <module>unavailable-webservices-deployer</module>
     </modules>
 
 </project>

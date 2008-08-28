@@ -202,27 +202,6 @@
 
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>unavailable-client-deployer</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>unavailable-webservices-deployer</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>unavailable-ejb-deployer</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>hot-deployer</artifactId>
             <version>${version}</version>
             <type>car</type>
