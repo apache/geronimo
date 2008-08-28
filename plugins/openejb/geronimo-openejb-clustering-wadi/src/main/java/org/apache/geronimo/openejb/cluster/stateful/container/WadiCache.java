@@ -44,10 +44,21 @@ public class WadiCache implements Cache<Object, Instance>, SessionManagerTracker
 
     private final ConcurrentMap<Object, WadiInstance> localInstances = new ConcurrentHashMap<Object, WadiInstance>();
 
-    private final CacheListener<Instance> cacheListener;
+    private CacheListener<Instance> listener;
 
-    public WadiCache(CacheListener<Instance> cacheListener) {
-        this.cacheListener = cacheListener;
+    public WadiCache() {
+    }
+
+    public WadiCache(CacheListener<Instance> listener) {
+        this.setListener(listener);
+    }
+
+    public synchronized CacheListener<Instance> getListener() {
+        return listener;
+    }
+
+    public synchronized void setListener(CacheListener<Instance> listener) {
+        this.listener = listener;
     }
 
     public SessionManager getSessionManager(Object deploymentId) {
@@ -232,7 +243,10 @@ public class WadiCache implements Cache<Object, Instance>, SessionManagerTracker
             }
 
             try {
-                cacheListener.afterLoad(instance.instance);
+                CacheListener<Instance> listener = getListener();
+                if (listener != null) {
+                    listener.afterLoad(instance.instance);
+                }
                 localInstances.put(instance.instance.primaryKey, instance);
             } catch (Exception e) {
                 log.warn("Cannot activate migrated bean entry.", e);
@@ -246,7 +260,10 @@ public class WadiCache implements Cache<Object, Instance>, SessionManagerTracker
             }
 
             try {
-                cacheListener.beforeStore(instance.instance);
+                CacheListener<Instance> listener = getListener();
+                if (listener != null) {
+                    listener.beforeStore(instance.instance);
+                }
                 localInstances.remove(instance.instance.primaryKey);
             } catch (Exception e) {
                 log.warn("Cannot passivate EJB for migration.", e);

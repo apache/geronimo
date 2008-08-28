@@ -22,8 +22,6 @@ import java.lang.reflect.Method;
 import java.net.URI;
 import java.util.Collections;
 
-import javax.transaction.TransactionManager;
-
 import org.apache.geronimo.clustering.wadi.WADISessionManager;
 import org.apache.geronimo.openejb.cluster.infra.NetworkConnectorTracker;
 import org.apache.openejb.OpenEJBException;
@@ -79,15 +77,9 @@ public class ClusteredStatefulContainerTest extends RMockTestCase {
         tracker = (NetworkConnectorTracker) mock(NetworkConnectorTracker.class);
         modify().returnValue(tracker);
 
-        TransactionManager txManager = (TransactionManager) mock(TransactionManager.class);
         SecurityService securityService = (SecurityService) mock(SecurityService.class);
         container = (ClusteredStatefulContainer) intercept(ClusteredStatefulContainer.class, new Object[] {"id",
-                txManager,
-                securityService,
-            null,
-            1,
-            1,
-            1});
+                securityService});
         deploymentId = "deploymentId";
         deploymentInfo = new CoreDeploymentInfo(new DeploymentContext(deploymentId, null, null),
             SFSB.class,

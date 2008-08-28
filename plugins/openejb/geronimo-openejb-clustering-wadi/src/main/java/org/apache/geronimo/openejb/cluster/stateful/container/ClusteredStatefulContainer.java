@@ -25,8 +25,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import javax.transaction.TransactionManager;
-
 import org.apache.geronimo.clustering.SessionManager;
 import org.apache.geronimo.clustering.wadi.WADISessionManager;
 import org.apache.geronimo.openejb.cluster.infra.NetworkConnectorTracker;
@@ -37,9 +35,6 @@ import org.apache.openejb.DeploymentInfo;
 import org.apache.openejb.OpenEJBException;
 import org.apache.openejb.core.CoreDeploymentInfo;
 import org.apache.openejb.core.stateful.StatefulContainer;
-import org.apache.openejb.core.stateful.Instance;
-import org.apache.openejb.core.stateful.Cache;
-import org.apache.openejb.core.stateful.PassivationStrategy;
 import org.apache.openejb.spi.SecurityService;
 import org.codehaus.wadi.core.contextualiser.BasicInvocation;
 import org.codehaus.wadi.core.contextualiser.InvocationContext;
@@ -52,28 +47,16 @@ import org.codehaus.wadi.servicespace.ServiceSpace;
  *
  * @version $Rev:$ $Date:$
  */
+// todo Consider replacing this class with an RpcContainerWrapper subclass
 public class ClusteredStatefulContainer extends StatefulContainer implements SessionManagerTracker, ClusteredRPCContainer {
     private final Map<Object, Manager> deploymentIdToManager;
     private final Map<Object, NetworkConnectorTracker> deploymentIdToNetworkConnectorTracker;
-    
-    public ClusteredStatefulContainer(Object id,
-        TransactionManager transactionManager,
-        SecurityService securityService,
-        Class passivator,
-        int timeOut,
-        int poolSize,
-        int bulkPassivate) throws OpenEJBException {
-        super(id, securityService, passivator, timeOut, poolSize, bulkPassivate);
-        
+
+    public ClusteredStatefulContainer(Object id, SecurityService securityService) {
+        super(id, securityService, new WadiCache());
+
         deploymentIdToManager = new HashMap<Object, Manager>();
         deploymentIdToNetworkConnectorTracker = new HashMap<Object, NetworkConnectorTracker>();
-    }
-
-    protected Cache<Object, Instance> createCache(Class<? extends PassivationStrategy> passivator,
-            int timeOut,
-            int poolSize,
-            int bulkPassivate) throws OpenEJBException {
-        return new WadiCache(new StatefulCacheListener());
     }
 
     public void addSessionManager(Object deploymentId, SessionManager sessionManager) {
@@ -126,7 +109,7 @@ public class ClusteredStatefulContainer extends StatefulContainer implements Ses
         } catch (NetworkConnectorTrackerException e) {
             return null;
         }
-        return connectorURIs.toArray(new URI[0]);
+        return connectorURIs.toArray(new URI[connectorURIs.size()]);
     }
 
     @Override
@@ -177,13 +160,6 @@ public class ClusteredStatefulContainer extends StatefulContainer implements Ses
         return super.removeEJBObject(deploymentInfo, primKey, callInterface, callMethod, args);
     }
 
-    //
-    // TODO: THIS WILL NOT WORK
-    // OpenEJB invocations can not be redirected to another JavaVM.  OpenEJB relies on several
-    // thread local variables to opperate, the most important of which is ThreadContext which
-    // is used to coordiate transaction boundries.  At the very least to redirect calls to a
-    // remote VM you will need a distributed TransactionManager.
-    //
     protected Object invoke(CoreDeploymentInfo deploymentInfo, AbstractEJBInvocation invocation) throws OpenEJBException {
         Manager manager;
         synchronized (deploymentIdToManager) {
