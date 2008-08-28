@@ -86,6 +86,7 @@
                             <source-repository>http://repo1.maven.org/maven2/</source-repository>
                             <source-repository>http://people.apache.org/repo/m2-snapshot-repository/</source-repository>
                             <source-repository>http://people.apache.org/repo/m2-incubating-repository/</source-repository>
+                            <artifact-alias key="${groupId}/${artifactId}//car">${groupId}/${artifactId}/${version}/car</artifact-alias>
                             <artifact-alias key="${groupId}/${artifactId}/2.1.2/car">${groupId}/${artifactId}/${version}/car</artifact-alias>
                             <artifact-alias key="${groupId}/${artifactId}/2.1.1/car">${groupId}/${artifactId}/${version}/car</artifact-alias>
                             <artifact-alias key="${groupId}/${artifactId}/2.1/car">${groupId}/${artifactId}/${version}/car</artifact-alias>
