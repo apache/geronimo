@@ -168,14 +168,15 @@
                 <version>1.0.1</version>
             </dependency>
 
-            <!-- NOTA BENE: use the org.apache.geronimo.javamail/geronimo-javamail_1.4_mail uber jar
-            containing both the spec and the providers in order that users can actually use mail
-            without advanced degrees in geronimo classloading.  DO NOT add or replace this with
-            org.apache.geronimo.specs/geronimo-javamail_1.4_spec -->
+            <!-- Use org.apache.geronimo.javamail/geronimo-javamail_1.4_mail
+              uber jar containing both the spec and the providers in order that
+              users can actually use mail without advanced degrees in geronimo
+              classloading.  DO NOT add or replace this with
+              org.apache.geronimo.specs/geronimo-javamail_1.4_spec -->
             <dependency>
                 <groupId>org.apache.geronimo.javamail</groupId>
                 <artifactId>geronimo-javamail_1.4_mail</artifactId>
-                <version>1.5</version>
+                <version>1.6-SNAPSHOT</version>
             </dependency>
 
             <dependency>
