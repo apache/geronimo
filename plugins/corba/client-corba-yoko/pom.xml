@@ -131,6 +131,7 @@
                     <instance>
                         <plugin-artifact>
                             <config-xml-content load="false"/>
+                            <artifact-alias server="client" key="${groupId}/${artifactId}//car">${groupId}/${artifactId}/${version}/car</artifact-alias>
                         </plugin-artifact>
                     </instance>
                 </configuration>

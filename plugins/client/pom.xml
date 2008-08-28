@@ -44,4 +44,20 @@
         <module>geronimo-client-builder</module>
     </modules>
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.geronimo.buildsupport</groupId>
+                <artifactId>car-maven-plugin</artifactId>
+                <configuration>
+                    <commonInstance>
+                        <plugin-artifact>
+                            <artifact-alias server="client" key="${groupId}/${artifactId}//car">${groupId}/${artifactId}/${version}/car</artifact-alias>
+                        </plugin-artifact>
+                    </commonInstance>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>
