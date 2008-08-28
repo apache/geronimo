@@ -115,8 +115,7 @@ public class StartCommand extends CommandSupport {
             }
             addWebURLs(kernel);
             complete("Completed");
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Throwable e) {
             doFail(e);
         }
     }

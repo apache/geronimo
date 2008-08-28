@@ -100,7 +100,7 @@ public class StopCommand extends CommandSupport {
             } else {
                 complete("Completed");
             }
-        } catch (Exception e) {
+        } catch (Throwable e) {
             doFail(e);
         }
     }
