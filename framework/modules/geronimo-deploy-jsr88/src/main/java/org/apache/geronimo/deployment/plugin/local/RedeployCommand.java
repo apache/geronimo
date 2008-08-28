@@ -111,7 +111,7 @@ public class RedeployCommand extends AbstractDeployCommand {
             }
             addWebURLs(kernel);
             complete("Completed");
-        } catch (Exception e) {
+        } catch (Throwable e) {
             doFail(e);
         } finally {
             if (spool) {

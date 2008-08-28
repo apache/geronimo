@@ -86,7 +86,7 @@ public class UndeployCommand extends CommandSupport {
                 updateStatus("Some of the modules to undeploy were not previously deployed.  This is not treated as an error.");
             }
             complete("Completed");
-        } catch (Exception e) {
+        } catch (Throwable e) {
             doFail(e);
         }
     }
