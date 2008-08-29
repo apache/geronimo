@@ -18,14 +18,11 @@
 package org.apache.geronimo.cxf.builder;
 
 import java.io.IOException;
-import java.io.StringWriter;
 import java.net.URI;
 import java.util.Map;
 
 import javax.xml.namespace.QName;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.cxf.client.CXFServiceReference;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -39,9 +36,9 @@ import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.naming.deployment.ServiceRefBuilder;
 import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
 import org.apache.geronimo.xbeans.javaee.PortComponentRefType;
-import org.apache.geronimo.xbeans.javaee.ServiceRefHandlerChainsType;
 import org.apache.geronimo.xbeans.javaee.ServiceRefType;
-import org.apache.xmlbeans.XmlOptions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CXFServiceRefBuilder extends JAXWSServiceRefBuilder {
 
@@ -78,21 +75,7 @@ public class CXFServiceRefBuilder extends JAXWSServiceRefBuilder {
         return new CXFServiceReference(serviceInterface.getName(), serviceReferenceName,  wsdlURI,
                 serviceQName, module.getModuleName(), handlerChainsXML, seiInfoMap);
     }
-    
-    private static String getHandlerChainAsString(ServiceRefHandlerChainsType handlerChains)
-            throws IOException {
-        String xml = null;
-        if (handlerChains != null) {
-            StringWriter w = new StringWriter();
-            XmlOptions options = new XmlOptions();
-            options.setSaveSyntheticDocumentElement(new QName("http://java.sun.com/xml/ns/javaee",
-                                                              "handler-chains"));
-            handlerChains.save(w, options);
-            xml = w.toString();
-        }
-        return xml;
-    }
-    
+        
     public static final GBeanInfo GBEAN_INFO;
 
     static {

@@ -34,6 +34,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.xml.ws.handler.MessageContext;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.message.ExchangeImpl;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.security.SecurityContext;
@@ -43,6 +44,7 @@ import org.apache.cxf.transport.ConduitInitiator;
 import org.apache.cxf.transport.Destination;
 import org.apache.cxf.transport.MessageObserver;
 import org.apache.cxf.transport.http.AbstractHTTPDestination;
+import org.apache.cxf.transport.http.HTTPSession;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
 import org.apache.geronimo.webservices.WebServiceContainer;
 import org.apache.geronimo.webservices.WebServiceContainer.Request;
@@ -111,6 +113,10 @@ public class GeronimoDestination extends AbstractHTTPDestination
         message.put(Message.QUERY_STRING, servletRequest.getQueryString());
         message.put(Message.CONTENT_TYPE, servletRequest.getContentType());
         message.put(Message.ENCODING, getCharacterEncoding(servletRequest.getCharacterEncoding()));
+        
+        ExchangeImpl exchange = new ExchangeImpl();
+        exchange.setInMessage(message);
+        exchange.setSession(new HTTPSession(servletRequest));
         
         messageObserver.onMessage(message);
     }

@@ -120,9 +120,8 @@ public class PortInfo implements Serializable {
         /*
          * Since HandlerChainsType is a type, have to wrap it into some element
          */
-        QName rootElement = new QName("", "root");
         JAXBElement element = 
-            new JAXBElement(rootElement, type, handlerChain);
+            new JAXBElement(HandlerChainsUtils.HANDLER_CHAINS_QNAME, type, handlerChain);
         m.marshal(element, writer);
 
         this.handlersAsXML = writer.toString();

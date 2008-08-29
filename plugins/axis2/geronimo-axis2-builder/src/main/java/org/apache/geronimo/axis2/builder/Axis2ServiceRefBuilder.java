@@ -17,21 +17,12 @@
 
 package org.apache.geronimo.axis2.builder;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.apache.geronimo.jaxws.builder.EndpointInfoBuilder;
-import org.apache.geronimo.jaxws.builder.JAXWSServiceRefBuilder;
-import org.apache.geronimo.jaxws.client.EndpointInfo;
-import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
-import org.apache.geronimo.kernel.GBeanNotFoundException;
-import org.apache.geronimo.kernel.repository.Environment;
-import org.apache.geronimo.xbeans.javaee.PortComponentRefType;
-import org.apache.geronimo.xbeans.javaee.ServiceRefHandlerChainsType;
-import org.apache.geronimo.xbeans.javaee.ServiceRefType;
-import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
-import org.apache.geronimo.j2ee.deployment.EARContext;
-import org.apache.geronimo.j2ee.deployment.Module;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import java.io.IOException;
+import java.net.URI;
+import java.util.Map;
+
+import javax.xml.namespace.QName;
+
 import org.apache.geronimo.axis2.client.Axis2ConfigGBean;
 import org.apache.geronimo.axis2.client.Axis2ServiceReference;
 import org.apache.geronimo.common.DeploymentException;
@@ -39,15 +30,21 @@ import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.j2ee.deployment.EARContext;
+import org.apache.geronimo.j2ee.deployment.Module;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.jaxws.builder.EndpointInfoBuilder;
+import org.apache.geronimo.jaxws.builder.JAXWSServiceRefBuilder;
+import org.apache.geronimo.jaxws.client.EndpointInfo;
+import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
+import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.naming.deployment.ServiceRefBuilder;
-import org.apache.xmlbeans.XmlOptions;
-
-import javax.xml.namespace.QName;
-
-import java.io.IOException;
-import java.io.StringWriter;
-import java.net.URI;
-import java.util.Map;
+import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
+import org.apache.geronimo.xbeans.javaee.PortComponentRefType;
+import org.apache.geronimo.xbeans.javaee.ServiceRefType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Axis2ServiceRefBuilder extends JAXWSServiceRefBuilder {
 
@@ -83,20 +80,6 @@ public class Axis2ServiceRefBuilder extends JAXWSServiceRefBuilder {
         String serviceReferenceName = (serviceReferenceType == null) ? null : serviceReferenceType.getName();
         return new Axis2ServiceReference(serviceInterfaceClass.getName(), serviceReferenceName,  wsdlURI,
                 serviceQName, module.getModuleName(), handlerChainsXML, seiInfoMap);
-    }
-
-    private static String getHandlerChainAsString(ServiceRefHandlerChainsType handlerChains)
-            throws IOException {
-        String xml = null;
-        if (handlerChains != null) {
-            StringWriter w = new StringWriter();
-            XmlOptions options = new XmlOptions();
-            options.setSaveSyntheticDocumentElement(new QName("http://java.sun.com/xml/ns/javaee",
-                                                              "handler-chains"));
-            handlerChains.save(w, options);
-            xml = w.toString();
-        }
-        return xml;
     }
     
     private void registerConfigGBean(Module module) throws DeploymentException {

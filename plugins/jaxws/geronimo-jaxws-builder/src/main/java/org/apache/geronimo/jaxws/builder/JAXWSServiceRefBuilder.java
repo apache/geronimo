@@ -16,6 +16,8 @@
  */
 package org.apache.geronimo.jaxws.builder;
 
+import java.io.IOException;
+import java.io.StringWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
@@ -30,6 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.j2ee.deployment.Module;
+import org.apache.geronimo.jaxws.HandlerChainsUtils;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.naming.deployment.AbstractNamingBuilder;
 import org.apache.geronimo.naming.deployment.ServiceRefBuilder;
@@ -43,6 +46,7 @@ import org.apache.geronimo.xbeans.javaee.ServiceRefType;
 
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlOptions;
 
 public abstract class JAXWSServiceRefBuilder extends AbstractNamingBuilder implements ServiceRefBuilder {
     private static final Logger log = LoggerFactory.getLogger(JAXWSServiceRefBuilder.class);
@@ -187,5 +191,18 @@ public abstract class JAXWSServiceRefBuilder extends AbstractNamingBuilder imple
 
     public QNameSet getPlanQNameSet() {
         return GER_SERVICE_REF_QNAME_SET;
+    }
+    
+    public static String getHandlerChainAsString(ServiceRefHandlerChainsType handlerChains)
+        throws IOException {
+        String xml = null;
+        if (handlerChains != null) {
+            StringWriter w = new StringWriter();
+            XmlOptions options = new XmlOptions();
+            options.setSaveSyntheticDocumentElement(HandlerChainsUtils.HANDLER_CHAINS_QNAME);
+            handlerChains.save(w, options);
+            xml = w.toString();
+        }
+        return xml;
     }
 }

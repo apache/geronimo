@@ -22,6 +22,7 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.namespace.QName;
 import javax.xml.transform.stream.StreamSource;
 
 import org.apache.geronimo.xbeans.javaee.HandlerChainsDocument;
@@ -30,6 +31,9 @@ import org.apache.xmlbeans.XmlException;
 
 public class HandlerChainsUtils {
 
+    public static final QName HANDLER_CHAINS_QNAME = 
+        new QName("http://java.sun.com/xml/ns/javaee", "handler-chains");
+    
     private HandlerChainsUtils() {
     }
 
