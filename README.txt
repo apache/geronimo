@@ -1,5 +1,5 @@
 ======================================================
-Apache Geronimo v2.1.3  (TBD)
+Apache Geronimo v2.1.4  (TBD)
 
 http://geronimo.apache.org/
 ------------------------------------------------------
@@ -9,7 +9,7 @@ ______________________
 Release Notes
 ======================
 
- Please read the RELEASE_NOTES-2.1.3.txt for a complete list of new features 
+ Please read the RELEASE_NOTES-2.1.4.txt for a complete list of new features 
  available in this release. 
  
   
