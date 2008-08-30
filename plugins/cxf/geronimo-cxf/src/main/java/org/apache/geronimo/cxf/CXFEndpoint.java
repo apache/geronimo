@@ -69,7 +69,9 @@ public abstract class CXFEndpoint {
     public CXFEndpoint(Bus bus, Object implementor) {
         this.bus = bus;
         this.implementor = implementor;
-        this.portInfo = (PortInfo) bus.getExtension(PortInfo.class);       
+        this.portInfo = (PortInfo) bus.getExtension(PortInfo.class);   
+        
+        this.bus.setExtension(this, CXFEndpoint.class);
     }
   
     protected URL getWsdlURL(URL configurationBaseUrl, String wsdlFile) {
