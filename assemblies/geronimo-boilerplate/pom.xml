@@ -298,8 +298,15 @@
                         <configuration>
                             <tasks>
                                 <echo>Copying README, and RELEASE_NOTES txt files ${project.basedir}/../.. to underlay - ${project.build.outputDirectory}/contents</echo>
-                                <copy file ="${project.basedir}/../../README.txt" todir="${project.build.outputDirectory}/contents" failonerror="true" overwrite="true" />
-                                <copy file ="${project.basedir}/../../RELEASE_NOTES-2.2.txt" todir="${project.build.outputDirectory}/contents" failonerror="true" overwrite="true" />
+                                <copy todir="${project.build.outputDirectory}/contents" failonerror="true" overwrite="true" >
+                                    <fileset dir="${project.basedir}/../..">
+                                        <include name="README.txt" />
+                                        <include name="RELEASE_NOTES-${pom.version}.txt" />
+                                    </fileset>
+                                    <filterset>
+                                        <filter token="VERSION" value="${pom.version}" />
+                                    </filterset>
+                                </copy>
                             </tasks>
                         </configuration>
                     </execution>

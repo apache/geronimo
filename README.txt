@@ -1,5 +1,5 @@
 ======================================================
-Apache Geronimo v2.2  (date TBD)
+Apache Geronimo v@VERSION@  (date TBD)
 
 http://geronimo.apache.org/
 ------------------------------------------------------
@@ -9,7 +9,7 @@ ______________________
 Release Notes
 ======================
 
- Please read the RELEASE_NOTES-2.2.txt for a complete list of new features 
+ Please read the RELEASE_NOTES-@VERSION@.txt for a complete list of new features 
  available in this release. 
  
   
@@ -23,7 +23,7 @@ Documentation
    -  http://cwiki.apache.org/GMOxDOC22/documentation.html
    OR
    -  http://cwiki.apache.org/GMOxDOC21/documentation.html
-   (Geronimo 2.1 documentation until Geronimo 2.2 documentation is created)
+   (Geronimo 2.1 documentation until Geronimo @VERSION@ documentation is created)
 
 
 ______________________
@@ -145,7 +145,7 @@ GShell
 
    geronimo/start-server --help 
 
- For more information on GShell and GShell commands, see the Geronimo 2.2 documentation.
+ For more information on GShell and GShell commands, see the Geronimo @VERSION@ documentation.
 
 ______________________
 Script

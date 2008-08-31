@@ -1,4 +1,4 @@
-Release Notes -- Apache Geronimo -- Version 2.2
+Release Notes -- Apache Geronimo -- Version @VERSION@
 
 
 Geronimo URLs
@@ -18,7 +18,7 @@ Please see http://cwiki.apache.org/GMOxDOC22/documentation.html for the
 latest documentation on this release.
 OR
 Please see http://cwiki.apache.org/GMOxDOC21/documentation.html for Geronimo 
-2.1 documentation until Geronimo 2.2 documentation is created
+2.1 documentation until Geronimo @VERSION@ documentation is created
 
 
 System Requirements
@@ -28,7 +28,7 @@ You need a platform that supports the Sun JDK 5.0+ (J2SE 1.5.0+) or greater.
 Most testing has been done on Linux, Mac OS X, and Windows.
 
 
-Geronimo 2.2 Enhancements
+Geronimo @VERSION@ Enhancements
 -------------------------
 
 Custom server assemblies
@@ -56,7 +56,7 @@ Monitoring Console Plugin
   servers and graphically display this data to users.
 
 
-Geronimo 2.2 Issues Resolved
+Geronimo @VERSION@ Issues Resolved
 ------------------------------
 ** Bug
 TBD
@@ -71,13 +71,13 @@ TBD
 
 Certification Status
 --------------------
-Apache Geronimo v2.2 has passed 100% of SUN's Java Enterprise Edition 5.0 
+Apache Geronimo v@VERSION@ has passed 100% of SUN's Java Enterprise Edition 5.0 
 Certification Test Suite. See "Distributions" for further details.
 
 
 Distributions
 -------------
-Apache Geronimo v2.2 is available in five distributions so you can pick the 
+Apache Geronimo v@VERSION@ is available in five distributions so you can pick the 
 one that best fits your environment.
 
 The available distributions are as follows:
