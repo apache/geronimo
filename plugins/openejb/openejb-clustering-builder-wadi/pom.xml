@@ -59,25 +59,8 @@
                 <groupId>org.apache.geronimo.buildsupport</groupId>
                 <artifactId>car-maven-plugin</artifactId>
                 <configuration>
-                    <useMavenDependencies>
-                        <value>false</value>
-                    </useMavenDependencies>
                     <category>EJB Container</category>
                     <dependencies>
-                        <dependency>
-                            <groupId>org.apache.geronimo.configs</groupId>
-                            <artifactId>openejb-deployer</artifactId>
-                            <version>${version}</version>
-                            <type>car</type>
-                        </dependency>
-
-                        <dependency>
-                            <groupId>org.apache.geronimo.modules</groupId>
-                            <artifactId>geronimo-openejb-clustering-builder-wadi</artifactId>
-                            <version>${version}</version>
-                            <type>jar</type>
-                        </dependency>
-
                         <dependency>
                             <groupId>org.apache.geronimo.configs</groupId>
                             <artifactId>openejb-clustering-wadi</artifactId>

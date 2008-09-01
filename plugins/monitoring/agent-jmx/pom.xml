@@ -33,34 +33,34 @@
 
     <dependencies>
         <!-- TODO get rid of this -->
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.framework</groupId>-->
+            <!--<artifactId>geronimo-kernel</artifactId>-->
+            <!--<version>${version}</version>-->
+            <!--<scope>provided</scope>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.specs</groupId>-->
+            <!--<artifactId>geronimo-j2ee-management_1.1_spec</artifactId>-->
+            <!--<scope>provided</scope>-->
+        <!--</dependency>-->
         <dependency>
-            <groupId>org.apache.geronimo.framework</groupId>
-            <artifactId>geronimo-kernel</artifactId>
+            <groupId>org.apache.geronimo.plugins.monitoring</groupId>
+            <artifactId>agent-jar</artifactId>
             <version>${version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-j2ee-management_1.1_spec</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-	        <groupId>org.apache.geronimo.plugins.monitoring</groupId>
-	        <artifactId>agent-jar</artifactId>
-	        <version>2.2-SNAPSHOT</version>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.xbean</groupId>
-            <artifactId>xbean-naming</artifactId>
-            <scope>provided</scope>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.xbean</groupId>-->
+            <!--<artifactId>xbean-naming</artifactId>-->
+            <!--<scope>provided</scope>-->
+        <!--</dependency>-->
 
         <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-connector</artifactId>
+            <groupId>org.apache.geronimo.plugins</groupId>
+            <artifactId>agent-ds</artifactId>
             <version>${version}</version>
-            <type>jar</type>
+            <type>car</type>
         </dependency>
     </dependencies>
 </project>

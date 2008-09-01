@@ -36,6 +36,7 @@
         <dependency>
             <groupId>org.apache.openejb</groupId>
             <artifactId>openejb-core</artifactId>
+<!--
             <exclusions>
                 <exclusion>
                     <groupId>org.apache.geronimo.framework</groupId>
@@ -78,6 +79,7 @@
                     <artifactId>openjpa-persistence-jdbc</artifactId>
                 </exclusion>
             </exclusions>
+-->
         </dependency>
 
         <dependency>
@@ -126,24 +128,26 @@
             </exclusions>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-clustering</artifactId>
-            <version>${version}</version>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.configs</groupId>-->
+            <!--<artifactId>clustering</artifactId>-->
+            <!--<version>${version}</version>-->
+            <!--<type>car</type>-->
+        <!--</dependency>-->
         <!-- g-transaction, g-security, g-naming  come transitively from this -->
         <!-- g-j2ee, g-kernel come from this via g-management -->
         <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-connector</artifactId>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>transaction</artifactId>
             <version>${version}</version>
+            <type>car</type>
         </dependency>
         
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-persistence-jpa10</artifactId>
-            <version>${version}</version>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.modules</groupId>-->
+            <!--<artifactId>geronimo-persistence-jpa10</artifactId>-->
+            <!--<version>${version}</version>-->
+        <!--</dependency>-->
     </dependencies>
 
     <build>

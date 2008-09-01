@@ -103,7 +103,7 @@
         </dependency>
         
         <dependency>
-            <groupId>woodstox</groupId>
+            <groupId>org.codehaus.woodstox</groupId>
             <artifactId>wstx-asl</artifactId>
         </dependency>
         
@@ -193,7 +193,7 @@
                             <artifactId>geronimo-stax-api_1.0_spec</artifactId>
                         </element>
                         <element>
-                            <groupId>woodstox</groupId>
+                            <groupId>org.codehaus.woodstox</groupId>
                             <artifactId>wstx-asl</artifactId>
                         </element>
                         <element>
@@ -203,10 +203,6 @@
                     </classpath>
                     <classpathPrefix>../lib</classpathPrefix>
                     <category>Geronimo Core</category>
-                    <useMavenDependencies>
-                        <value>true</value>
-                        <includeVersion>true</includeVersion>
-                    </useMavenDependencies>
                     <config-xml-content load = "false"/>
                 </configuration>
             </plugin>

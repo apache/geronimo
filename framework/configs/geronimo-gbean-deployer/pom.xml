@@ -43,13 +43,7 @@
             <version>${version}</version>
             <type>car</type>
         </dependency>
-        
-        <dependency>
-            <groupId>org.apache.geronimo.framework</groupId>
-            <artifactId>geronimo-common</artifactId>
-            <version>${version}</version>
-        </dependency>
-        
+                
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-deployment</artifactId>
@@ -90,39 +84,7 @@
                     <deployerName>org.apache.geronimo.framework/geronimo-gbean-deployer-bootstrap/${geronimoVersion}/car?j2eeType=Deployer,name=Deployer</deployerName>
 
                     <category>Geronimo Core</category>
-                    <useMavenDependencies>
-                        <value>false</value>
-                    </useMavenDependencies>
                     <dependencies>
-                        <dependency>
-                            <groupId>org.apache.geronimo.framework</groupId>
-                            <artifactId>xmlbeans</artifactId>
-                            <version>${version}</version>
-                            <type>car</type>
-                        </dependency>
-
-                        <dependency>
-                            <groupId>org.apache.geronimo.framework</groupId>
-                            <artifactId>geronimo-common</artifactId>
-                            <version>${version}</version>
-                            <type>jar</type>
-                        </dependency>
-
-                        <!-- needed by the plan -->
-                        <dependency>
-                            <groupId>org.apache.geronimo.framework</groupId>
-                            <artifactId>geronimo-deployment</artifactId>
-                            <version>${version}</version>
-                            <type>jar</type>
-                        </dependency>
-
-                        <dependency>
-                            <groupId>org.apache.geronimo.framework</groupId>
-                            <artifactId>geronimo-service-builder</artifactId>
-                            <version>${version}</version>
-                            <type>jar</type>
-                        </dependency>
-
                         <dependency>
                             <groupId>org.apache.geronimo.framework</groupId>
                             <artifactId>plugin</artifactId>

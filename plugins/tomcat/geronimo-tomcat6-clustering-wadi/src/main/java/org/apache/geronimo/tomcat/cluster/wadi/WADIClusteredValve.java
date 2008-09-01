@@ -33,6 +33,7 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletInputStream;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.ServletContext;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -231,6 +232,104 @@ public class WADIClusteredValve extends AbstractClusteredValve {
         }
 
         public int getLocalPort() {
+            throw new UnsupportedOperationException();
+        }
+
+        /**
+         * Get the servlet context the request-response pair was last dispatched through.
+         *
+         * @return the latest ServletContext on the dispatch chain.
+         * @since 3.0
+         */
+        public ServletContext getServletContext() {
+            throw new UnsupportedOperationException();
+        }
+
+        /**
+         * Gets the associated servlet response.
+         *
+         * @return the ServletResponse associated with this request.
+         * @since 3.0
+         */
+        public ServletResponse getServletResponse() {
+            throw new UnsupportedOperationException();
+        }
+
+        /**
+         * complete a suspended request.
+         *
+         * @throws IllegalStateException
+         * @since 3.0
+         */
+        public void complete() throws IllegalStateException {
+            throw new UnsupportedOperationException();
+        }
+
+        /**
+         * Suspend request processing.  Must be called by a thread that is processing this request.
+         *
+         * @param timeoutMilliseconds new timeout period, in milliseconds
+         * @throws IllegalStateException if called by a thread not processing this request or after error dispatch
+         * @see #complete
+         * @see #resume
+         * @since 3.0
+         */
+        public void suspend(long timeoutMilliseconds) throws IllegalStateException {
+            throw new UnsupportedOperationException();
+        }
+
+        /**
+         * Similar to suspend(timeoutMilliseconds) but with a container supplied timeout period.
+         *
+         * @throws IllegalStateException
+         * @see #complete
+         * @see #resume
+         * @since 3.0
+         */
+        public void suspend() throws IllegalStateException {
+            throw new UnsupportedOperationException();
+        }
+
+        /**
+         * Resume a suspended request
+         *
+         * @throws IllegalStateException if the request is not suspended
+         * @see #suspend
+         * @since 3.0
+         */
+        public void resume() throws IllegalStateException {
+            throw new UnsupportedOperationException();
+        }
+
+        /**
+         * @return if the request is suspended
+         * @since 3.0
+         */
+        public boolean isSuspended() {
+            throw new UnsupportedOperationException();
+        }
+
+        /**
+         * @return if the request is resumed
+         * @since 3.0
+         */
+        public boolean isResumed() {
+            throw new UnsupportedOperationException();
+        }
+
+        /**
+         * @return if the request is timed out
+         * @since 3.0
+         */
+        public boolean isTimeout() {
+            throw new UnsupportedOperationException();
+        }
+
+        /**
+         * @return if the request has never been suspended (or resumed)
+         * @since 3.0
+         */
+        public boolean isInitial() {
             throw new UnsupportedOperationException();
         }
 

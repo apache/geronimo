@@ -51,15 +51,15 @@
             <artifactId>geronimo-jaxrpc_1.1_spec</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-saaj_1.3_spec</artifactId>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.specs</groupId>-->
+            <!--<artifactId>geronimo-saaj_1.3_spec</artifactId>-->
+        <!--</dependency>-->
         
-        <dependency>
-            <groupId>asm</groupId>
-            <artifactId>asm</artifactId>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>asm</groupId>-->
+            <!--<artifactId>asm</artifactId>-->
+        <!--</dependency>-->
 
         <dependency>
             <groupId>wsdl4j</groupId>

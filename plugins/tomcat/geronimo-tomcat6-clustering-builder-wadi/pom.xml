@@ -33,11 +33,18 @@
     <name>Geronimo Plugins, Tomcat :: Clustering Builder for WADI Core</name>
     
     <dependencies>
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>tomcat6-clustering-wadi</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
         <!-- xmlbeans, stax-api comes transitively via g-service-builder from this -->
         <dependency>
             <groupId>${pom.groupId}</groupId>
             <artifactId>geronimo-naming-builder</artifactId>
             <version>${version}</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
@@ -45,12 +52,6 @@
             <artifactId>geronimo-tomcat6-builder</artifactId>
             <version>${version}</version>
             <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>${pom.groupId}</groupId>
-            <artifactId>geronimo-tomcat6-clustering-wadi</artifactId>
-            <version>${version}</version>
         </dependency>
 
         <dependency>

@@ -8,17 +8,27 @@
     </module-id>
     <dependency>
         <groupId>org.apache.cxf</groupId>
-        <artifactId>cxf-rt-ws-addr</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.cxf</groupId>
-        <artifactId>cxf-rt-frontend-simple</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.cxf</groupId>
         <artifactId>cxf-tools-common</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.ws.commons.schema</groupId>
+        <artifactId>XmlSchema</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.cxf</groupId>
+        <artifactId>cxf-rt-core</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.cxf</groupId>
+        <artifactId>cxf-api</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.cxf</groupId>
+        <artifactId>cxf-rt-bindings-soap</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -33,7 +43,17 @@
     </dependency>
     <dependency>
         <groupId>org.apache.cxf</groupId>
-        <artifactId>cxf-api</artifactId>
+        <artifactId>cxf-rt-frontend-simple</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.cxf</groupId>
+        <artifactId>cxf-rt-databinding-jaxb</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.cxf</groupId>
+        <artifactId>cxf-rt-bindings-xml</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -48,32 +68,17 @@
     </dependency>
     <dependency>
         <groupId>org.apache.cxf</groupId>
-        <artifactId>cxf-rt-bindings-xml</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>j2ee-server</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.cxf</groupId>
-        <artifactId>cxf-common-utilities</artifactId>
+        <artifactId>cxf-rt-transports-http</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
         <groupId>org.apache.cxf</groupId>
-        <artifactId>cxf-rt-frontend-jaxws</artifactId>
+        <artifactId>cxf-rt-ws-addr</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
         <groupId>org.apache.neethi</groupId>
         <artifactId>neethi</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.cxf</groupId>
-        <artifactId>cxf-rt-transports-http</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -83,12 +88,7 @@
     </dependency>
     <dependency>
         <groupId>org.apache.cxf</groupId>
-        <artifactId>cxf-rt-core</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.cxf</groupId>
-        <artifactId>cxf-rt-databinding-jaxb</artifactId>
+        <artifactId>cxf-rt-frontend-jaxws</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -97,13 +97,13 @@
         <type>car</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.ws.commons.schema</groupId>
-        <artifactId>XmlSchema</artifactId>
+        <groupId>org.apache.cxf</groupId>
+        <artifactId>cxf-common-utilities</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.cxf</groupId>
-        <artifactId>cxf-rt-bindings-soap</artifactId>
+        <groupId>com.sun.xml.fastinfoset</groupId>
+        <artifactId>FastInfoset</artifactId>
         <type>jar</type>
     </dependency>
 </plugin-artifact>

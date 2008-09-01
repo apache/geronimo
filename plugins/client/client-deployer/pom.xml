@@ -46,14 +46,13 @@
             <artifactId>client</artifactId>
             <version>${version}</version>
             <type>car</type>
-            <scope>runtime</scope>
         </dependency>
+
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>client-transaction</artifactId>
             <version>${version}</version>
             <type>car</type>
-            <scope>runtime</scope>
         </dependency>
 
         <dependency>
@@ -62,11 +61,11 @@
             <version>${version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-connector-builder</artifactId>
-            <version>${version}</version>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.modules</groupId>-->
+            <!--<artifactId>geronimo-connector-builder</artifactId>-->
+            <!--<version>${version}</version>-->
+        <!--</dependency>-->
     </dependencies>
 
     <build>
@@ -82,31 +81,11 @@
                     </deploymentConfigs>
                     -->
                     <category>Geronimo Core</category>
-                    <useMavenDependencies>
-                        <value>false</value>
-                    </useMavenDependencies>
                     <dependencies>
-                        <dependency>
-                            <groupId>org.apache.geronimo.configs</groupId>
-                            <artifactId>j2ee-deployer</artifactId>
-                            <type>car</type>
-                        </dependency>
-                        <dependency>
-                            <groupId>org.apache.geronimo.modules</groupId>
-                            <artifactId>geronimo-connector-builder</artifactId>
-                            <type>jar</type>
-                            <import>classes</import>
-                        </dependency>
                         <dependency>
                             <groupId>org.apache.geronimo.configs</groupId>
                             <artifactId>client</artifactId>
                             <type>car</type>
-                            <import>classes</import>
-                        </dependency>
-                        <dependency>
-                            <groupId>org.apache.geronimo.modules</groupId>
-                            <artifactId>geronimo-client-builder</artifactId>
-                            <type>jar</type>
                             <import>classes</import>
                         </dependency>
                         <dependency>

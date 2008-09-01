@@ -62,10 +62,6 @@
                         <deploymentConfig>${gbeanDeployer}</deploymentConfig>
                     </deploymentConfigs>
                     <category>Security</category>
-                    <useMavenDependencies>
-                        <value>true</value>
-                        <includeVersion>true</includeVersion>
-                    </useMavenDependencies>
                     <instance>
                         <plugin-artifact>
                             <config-xml-content load="false">

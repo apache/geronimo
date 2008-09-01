@@ -647,16 +647,18 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
         return activationSpecInfos;
     }
 
-    private void setUpDynamicGBean(String activationSpecClassName, GBeanInfoBuilder infoBuilder, Set<String> ignore, ClassLoader cl, boolean decapitalize) throws DeploymentException {
+    private void setUpDynamicGBean(String adapterClassName, GBeanInfoBuilder infoBuilder, Set<String> ignore, ClassLoader cl, boolean decapitalize) throws DeploymentException {
         //add all javabean properties that have both getter and setter.  Ignore the "required" flag from the dd.
         Map<String, String> getters = new HashMap<String, String>();
         Set<String> setters = new HashSet<String>();
         Method[] methods;
         try {
-            Class activationSpecClass = cl.loadClass(activationSpecClassName);
+            Class activationSpecClass = cl.loadClass(adapterClassName);
             methods = activationSpecClass.getMethods();
         } catch (ClassNotFoundException e) {
-            throw new DeploymentException("Can not load activation spec class", e);
+            throw new DeploymentException("Can not load adapter class in classloader " + cl, e);
+        } catch (NoClassDefFoundError e) {
+            throw new DeploymentException("Can not load adapter class in classloader " + cl, e);
         }
         for (Method method : methods) {
             String methodName = method.getName();

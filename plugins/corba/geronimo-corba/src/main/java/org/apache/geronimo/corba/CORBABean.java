@@ -22,25 +22,21 @@ import java.net.UnknownHostException;
 
 import javax.ejb.spi.HandleDelegate;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.gbean.InvalidConfigurationException; 
-import org.apache.geronimo.corba.security.ServerPolicy;
-import org.apache.geronimo.corba.security.ServerPolicyFactory;
 import org.apache.geronimo.corba.security.config.ConfigAdapter;
 import org.apache.geronimo.corba.security.config.ssl.SSLConfig;
 import org.apache.geronimo.corba.security.config.tss.TSSConfig;
 import org.apache.geronimo.corba.security.config.tss.TSSSSLTransportConfig;
 import org.apache.geronimo.corba.security.config.tss.TSSTransportMechConfig;
 import org.apache.geronimo.corba.util.Util;
-import org.apache.geronimo.openejb.OpenEjbSystem; 
-import org.omg.CORBA.Any;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.gbean.InvalidConfigurationException;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.Policy;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -68,8 +64,7 @@ public class CORBABean implements GBeanLifecycle, ORBRef, ORBConfiguration {
     private POA rootPOA;
     private NameService nameService;
     private AbstractName abstractName;
-    private OpenEjbSystem ejbSystem; 
-    // ORB-specific policy overrides we need to add to POA policies created by 
+    // ORB-specific policy overrides we need to add to POA policies created by
     // child TSSBeans.  
     private Policy[] policyOverrides = null; 
 
@@ -81,7 +76,6 @@ public class CORBABean implements GBeanLifecycle, ORBRef, ORBConfiguration {
         this.host = null;
         this.abstractName = null;
         this.policyOverrides = null; 
-        this.ejbSystem = null;
     }
 
     /**
@@ -90,20 +84,20 @@ public class CORBABean implements GBeanLifecycle, ORBRef, ORBConfiguration {
      * @param abstractName
      *               The server-created abstract name for this bean instance.
      * @param configAdapter
-     *               The ORB ConfigAdapter used to interface with the
-     *               JVM-configured ORB instance.
+ *               The ORB ConfigAdapter used to interface with the
+ *               JVM-configured ORB instance.
      * @param host   The hostname we publish ourselves under.
      * @param listenerPort
-     *               The initial listener port to use.
+*               The initial listener port to use.
      * @param classLoader
-     *               The ClassLoader used for ORB context class loading.
+*               The ClassLoader used for ORB context class loading.
      * @param nameService
-     *               The initial name service the created ORB will use
-     *               for object resolution.
+*               The initial name service the created ORB will use
+*               for object resolution.
      * @param ssl    The SSL configuration, including the KeystoreManager.
      *
      */
-    public CORBABean(AbstractName abstractName, ConfigAdapter configAdapter, String host, int listenerPort, ClassLoader classLoader, NameService nameService, OpenEjbSystem ejbSystem, SSLConfig ssl) {
+    public CORBABean(AbstractName abstractName, ConfigAdapter configAdapter, String host, int listenerPort, ClassLoader classLoader, NameService nameService, SSLConfig ssl) {
         this.abstractName = abstractName;
         this.classLoader = classLoader;
         this.configAdapter = configAdapter;
@@ -112,7 +106,6 @@ public class CORBABean implements GBeanLifecycle, ORBRef, ORBConfiguration {
         this.host = host;
         this.listenerPort = listenerPort;
         this.policyOverrides = null; 
-        this.ejbSystem = ejbSystem; 
     }
 
     /**
@@ -242,11 +235,6 @@ public class CORBABean implements GBeanLifecycle, ORBRef, ORBConfiguration {
             // TSSBeans are going to need our rootPOA instance, so resolve this now.
             org.omg.CORBA.Object obj = orb.resolve_initial_references("RootPOA");
             rootPOA = POAHelper.narrow(obj);
-            // if we have an OpenEjbSystem reference, inform the ejb subsystem 
-            // there's now an ORB available for the JNDI context. 
-            if (ejbSystem != null) {
-                ejbSystem.setORBContext(orb, getHandleDelegate()); 
-            }
         } catch (NoSuchMethodError e) {
             log.error("Incorrect level of org.omg.CORBA classes found.\nLikely cause is an incorrect java.endorsed.dirs configuration"); 
             throw new InvalidConfigurationException("CORBA usage requires Yoko CORBA spec classes in java.endorsed.dirs classpath", e); 

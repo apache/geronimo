@@ -33,24 +33,31 @@
     <name>Geronimo Plugins, OpenEJB :: Builder</name>
 
     <dependencies>
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-openejb</artifactId>
-            <version>${version}</version>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.modules</groupId>-->
+            <!--<artifactId>geronimo-openejb</artifactId>-->
+            <!--<version>${version}</version>-->
             <!--
                Hack to avoid a build error in the xmlbeans-plugin on some Windows and Linux machines.
                The OpenEJB 3 container is not needed for geronimo. Something about the container
                pom.xml is messing up the xmlbeans plugin. Excluding the pom allows builds to work.
              -->
-            <exclusions>
-              <exclusion>
-                <groupId>org.apache.openejb</groupId>
-                <artifactId>container</artifactId>
-              </exclusion>
-            </exclusions>
-        </dependency>
+            <!--<exclusions>-->
+              <!--<exclusion>-->
+                <!--<groupId>org.apache.openejb</groupId>-->
+                <!--<artifactId>container</artifactId>-->
+              <!--</exclusion>-->
+            <!--</exclusions>-->
+        <!--</dependency>-->
 
         <!-- g-service-builder coming from this via g-naming-builder -->
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>openejb</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-webservices-builder</artifactId>

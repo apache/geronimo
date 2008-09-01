@@ -64,33 +64,33 @@
             <version>${version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.geronimo.components</groupId>
-            <artifactId>geronimo-connector</artifactId>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.components</groupId>-->
+            <!--<artifactId>geronimo-connector</artifactId>-->
+        <!--</dependency>-->
 
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-transaction</artifactId>
-            <version>${version}</version>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.modules</groupId>-->
+            <!--<artifactId>geronimo-transaction</artifactId>-->
+            <!--<version>${version}</version>-->
+        <!--</dependency>-->
 
-        <dependency>
-            <groupId>org.apache.geronimo.components</groupId>
-            <artifactId>geronimo-transaction</artifactId>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.components</groupId>-->
+            <!--<artifactId>geronimo-transaction</artifactId>-->
+        <!--</dependency>-->
 
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-persistence-jpa10</artifactId>
-            <version>${version}</version>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.modules</groupId>-->
+            <!--<artifactId>geronimo-persistence-jpa10</artifactId>-->
+            <!--<version>${version}</version>-->
+        <!--</dependency>-->
 
-        <dependency>
-            <groupId>org.apache.geronimo.framework</groupId>
-            <artifactId>geronimo-transformer</artifactId>
-            <version>${version}</version>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.framework</groupId>-->
+            <!--<artifactId>geronimo-transformer</artifactId>-->
+            <!--<version>${version}</version>-->
+        <!--</dependency>-->
     </dependencies>
 
     <build>
@@ -100,10 +100,6 @@
                 <artifactId>car-maven-plugin</artifactId>
                 <configuration>
                     <category>Geronimo Core</category>
-                    <useMavenDependencies>
-                        <value>true</value>
-                        <includeVersion>true</includeVersion>
-                    </useMavenDependencies>
                     <instance>
                         <plugin-artifact>
                             <config-xml-content load="false"/>

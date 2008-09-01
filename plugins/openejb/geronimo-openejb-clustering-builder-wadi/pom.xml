@@ -32,15 +32,17 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-openejb-builder</artifactId>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>openejb-deployer</artifactId>
             <version>${version}</version>
+            <type>car</type>
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-openejb-clustering-wadi</artifactId>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>openejb-clustering-wadi</artifactId>
             <version>${version}</version>
+            <type>car</type>
         </dependency>
     </dependencies>
 

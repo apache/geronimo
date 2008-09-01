@@ -108,7 +108,7 @@ public class PlanProcessorMojo
      *
      * @parameter
      */
-    private UseMavenDependencies useMavenDependencies;
+    UseMavenDependencies useMavenDependencies = new UseMavenDependencies(true, false, true);
 
     private VelocityContext createContext() {
         VelocityContext context = new VelocityContext();
@@ -267,7 +267,7 @@ public class PlanProcessorMojo
 
     protected LinkedHashSet<org.apache.geronimo.kernel.repository.Dependency> toKernelDependencies(List<Dependency> listedDependencies, UseMavenDependencies useMavenDependencies) throws InvalidDependencyVersionException, ArtifactResolutionException, ProjectBuildingException, MojoExecutionException {
         LinkedHashSet<org.apache.geronimo.kernel.repository.Dependency> kernelDependencies = new LinkedHashSet<org.apache.geronimo.kernel.repository.Dependency>();
-        LinkedHashSet<Dependency> dependencies = toDependencies(listedDependencies, useMavenDependencies);
+        LinkedHashSet<Dependency> dependencies = toDependencies(listedDependencies, useMavenDependencies, true);
         for (Dependency dependency: dependencies) {
             kernelDependencies.add(dependency.toKernelDependency());
         }

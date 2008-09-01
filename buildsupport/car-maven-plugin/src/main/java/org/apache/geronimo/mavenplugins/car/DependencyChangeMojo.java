@@ -59,7 +59,7 @@ public class DependencyChangeMojo extends AbstractCarMojo {
      * Whether to fail on changed dependencies
      * @parameter
      */
-    private boolean failOnChange=true;
+    private boolean warnOnDependencyChange;
 
     /**
      * Location of existing dependency file.
@@ -76,14 +76,13 @@ public class DependencyChangeMojo extends AbstractCarMojo {
      *
      * @parameter
      */
-    private UseMavenDependencies useMavenDependencies;
+    private UseMavenDependencies useMavenDependencies = new UseMavenDependencies(true, false, true);
 
     public void execute() throws MojoExecutionException, MojoFailureException {
-        boolean useTransitiveDependencies = useMavenDependencies == null || useMavenDependencies.isUseTransitiveDependencies();
-        UseMavenDependencies useMavenDependencies = new UseMavenDependencies(true, false, useTransitiveDependencies);
+        UseMavenDependencies useMavenDependencies = new UseMavenDependencies(true, false, this.useMavenDependencies.isUseTransitiveDependencies());
 
         try {
-            Collection<Dependency> dependencies = toDependencies(this.dependencies, useMavenDependencies);
+            Collection<Dependency> dependencies = toDependencies(this.dependencies, useMavenDependencies, false);
             if (dependencyFile.exists()) {
                 //read dependency types, convert to dependenciees, compare.
                 FileReader in = new FileReader(dependencyFile);
@@ -102,7 +101,6 @@ public class DependencyChangeMojo extends AbstractCarMojo {
                         writeDependencies(added,  addedFile);
                         File removedFile = new File(dependencyFile.getParentFile(), "dependencies.removed.xml");
                         writeDependencies(removed,  removedFile);
-                        if (failOnChange) {
                             StringWriter out = new StringWriter();
                             out.write("Dependencies have changed:\n");
                             if (!added.getDependency().isEmpty()) {
@@ -113,8 +111,12 @@ public class DependencyChangeMojo extends AbstractCarMojo {
                                 out.write("removed:\n");
                                 PluginXmlUtil.writePluginArtifact(removed, out);
                             }
-                            throw new MojoFailureException(out.toString());
-                        }
+                            out.write(treeListing);
+                            if (warnOnDependencyChange) {
+                                getLog().warn(out.toString());
+                            } else {
+                                throw new MojoFailureException(out.toString());
+                            }
                     }
                 } finally {
                     in.close();

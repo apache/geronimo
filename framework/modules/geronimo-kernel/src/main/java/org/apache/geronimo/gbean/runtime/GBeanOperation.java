@@ -95,11 +95,17 @@ public final class GBeanOperation {
                     methodInvoker = new FastMethodInvoker(javaMethod);
                 }
             } catch (Exception e) {
-                throw new InvalidConfigurationException("Target does not have specified method (declared in a GBeanInfo operation):" +
-                        " name=" + operationInfo.getName() +
-                        " methodName=" + operationInfo.getMethodName() +
-                        " returnType=" + operationInfo.getReturnType() +
-                        " targetClass=" + gbeanInstance.getType().getName(), e);
+                StringBuilder b = new StringBuilder().append("Target does not have specified method (declared in a GBeanInfo operation): name=")
+                        .append(operationInfo.getName())
+                        .append(" methodName=").append(operationInfo.getMethodName())
+                        .append(" returnType=").append(operationInfo.getReturnType())
+                        .append(" targetClass=").append(gbeanInstance.getType().getName());
+                b.append("\ntargetClassClassLoader=").append(gbeanInstance.getType().getClassLoader());
+                for (Class aType: types) {
+                    b.append("\n  parameter type=").append(aType.getName()).append(" in classloader: ").append(aType.getClassLoader());
+                }
+
+                throw new InvalidConfigurationException(b.toString(), e);
             }
         }
     }

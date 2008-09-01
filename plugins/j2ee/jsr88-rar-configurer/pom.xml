@@ -38,7 +38,6 @@
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>jsr88-cli</artifactId>
             <version>${version}</version>
-            <scope>runtime</scope>
             <type>car</type>
         </dependency>
 
@@ -46,7 +45,6 @@
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>connector-deployer</artifactId>
             <version>${version}</version>
-            <scope>runtime</scope>
             <type>car</type>
         </dependency>
     </dependencies>
@@ -57,10 +55,9 @@
                 <groupId>org.apache.geronimo.buildsupport</groupId>
                 <artifactId>car-maven-plugin</artifactId>
                 <configuration>
-                    <useMavenDependencies>
-                        <value>false</value>
-                    </useMavenDependencies>
+                    <warnOnDependencyChange>true</warnOnDependencyChange>
                     <dependencies>
+                        <!-- should this be the connector-deployer jar??? -->
                         <dependency>
                             <groupId>org.apache.geronimo.configs</groupId>
                             <artifactId>connector-deployer</artifactId>

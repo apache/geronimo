@@ -36,6 +36,30 @@
     <dependencies>
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>tomcat6-deployer</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>connector-deployer</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>jasper-deployer</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>system-database</artifactId>
             <version>${version}</version>
             <type>car</type>
@@ -59,17 +83,14 @@
             <artifactId>geronimo-uddi-server</artifactId>
             <version>${version}</version>
             <type>war</type>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.tranql</groupId>
             <artifactId>tranql-connector-derby-embed-local</artifactId>
             <type>rar</type>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.derby</groupId>
-            <artifactId>derby</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
@@ -77,30 +98,6 @@
             <artifactId>juddi</artifactId>
         </dependency>
         
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>tomcat6-deployer</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>connector-deployer</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>jasper-deployer</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-            <scope>provided</scope>
-        </dependency>
-
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>jasper</artifactId>

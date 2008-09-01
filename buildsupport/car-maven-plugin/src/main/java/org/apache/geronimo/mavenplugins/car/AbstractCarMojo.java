@@ -122,10 +122,7 @@ public abstract class AbstractCarMojo
      */
     private ArtifactCollector artifactCollector;
 
-    /**
-     * The computed dependency tree root node of the Maven project.
-     */
-    private DependencyNode rootNode;
+    protected String treeListing;
 
     //
     // MojoSupport Hooks
@@ -251,6 +248,7 @@ public abstract class AbstractCarMojo
 
         DependencyTreeResolutionListener listener = new DependencyTreeResolutionListener(getLogger());
 
+        DependencyNode rootNode;
         try {
             Map managedVersions = project.getManagedVersionMap();
 
@@ -277,7 +275,7 @@ public abstract class AbstractCarMojo
         Scanner scanner = new Scanner();
         scanner.scan(rootNode, useTransitiveDependencies);
         localDependencies = scanner.localDependencies;
-
+        treeListing = scanner.getLog();
     }
 
     public void setLog(Log log) {
@@ -305,14 +303,14 @@ public abstract class AbstractCarMojo
         return new org.apache.geronimo.kernel.repository.Artifact(groupId, artifactId, version, type);
     }
 
-    protected LinkedHashSet<Dependency> toDependencies(Collection<Dependency> listedDependencies, UseMavenDependencies useMavenDependencies) throws InvalidDependencyVersionException, ArtifactResolutionException, ProjectBuildingException, MojoExecutionException {
+    protected LinkedHashSet<Dependency> toDependencies(Collection<Dependency> listedDependencies, UseMavenDependencies useMavenDependencies, boolean includeImport) throws InvalidDependencyVersionException, ArtifactResolutionException, ProjectBuildingException, MojoExecutionException {
         LinkedHashSet<Dependency> dependencies = new LinkedHashSet<Dependency>();
 
         if (useMavenDependencies == null || !useMavenDependencies.isValue()) {
             dependencies.addAll(listedDependencies);
         } else {
             Map<String, Dependency> explicitDependencyMap = new HashMap<String, Dependency>();
-            for (Dependency dependency : dependencies) {
+            for (Dependency dependency : listedDependencies) {
                 explicitDependencyMap.put(getKey(dependency), dependency);
             }
 
@@ -320,21 +318,21 @@ public abstract class AbstractCarMojo
             getDependencies(project, useMavenDependencies.isUseTransitiveDependencies());
             for (org.apache.maven.artifact.Artifact artifact: localDependencies) {
                 Dependency explicitDependency = explicitDependencyMap.get(getKey(artifact));
-                dependencies.add(toDependency(artifact, useMavenDependencies.isIncludeVersion(), explicitDependency));
+                dependencies.add(toDependency(artifact, useMavenDependencies.isIncludeVersion(), explicitDependency, includeImport));
             }
         }
 
         return dependencies;
     }
 
-    private Dependency toDependency(Artifact artifact, boolean includeVersion, Dependency explicitDependency) {
+    private Dependency toDependency(Artifact artifact, boolean includeVersion, Dependency explicitDependency, boolean includeImport) {
         Dependency dependency = new Dependency();
         dependency.setGroupId(artifact.getGroupId());
         dependency.setArtifactId(artifact.getArtifactId());
         dependency.setVersion(includeVersion ? artifact.getVersion() : null);
         dependency.setType(artifact.getType());
         String importType = ImportType.ALL.getName();
-        if (explicitDependency != null && explicitDependency.getImport() != null) {
+        if (includeImport && explicitDependency != null && explicitDependency.getImport() != null) {
             importType = explicitDependency.getImport();
         }
         dependency.setImport(importType);
@@ -384,38 +382,55 @@ public abstract class AbstractCarMojo
             }
         }
 
-        //all the dependencies, including provided and their dependencies
-        private final Set<Artifact> dependencies = new HashSet<Artifact>();
         //all the dependencies needed for this car, with provided dependencies removed
         private final Set<Artifact> localDependencies = new HashSet<Artifact>();
         //dependencies from ancestor cars, to be removed from localDependencies.
         private final Set<Artifact> carDependencies = new HashSet<Artifact>();
 
+        private final StringBuilder log = new StringBuilder();
+
         public void scan(DependencyNode rootNode, boolean useTransitiveDependencies) {
             for (DependencyNode child : (List<DependencyNode>) rootNode.getChildren()) {
-                scan(child, localDependencies, carDependencies, Accept.ACCEPT, useTransitiveDependencies);
+                scan(child, Accept.ACCEPT, useTransitiveDependencies, false, "");
             }
             if (useTransitiveDependencies) {
                 localDependencies.removeAll(carDependencies);
             }
         }
 
-        private void scan(DependencyNode rootNode, Set<Artifact> localDependencies, Set<Artifact> carDependencies, Accept accept, boolean useTransitiveDependencies) {
+        private void scan(DependencyNode rootNode, Accept parentAccept, boolean useTransitiveDependencies, boolean isFromCar, String indent) {
             Artifact artifact = getArtifact(rootNode);
 
-            accept = accept(artifact, accept);
+            Accept accept = accept(artifact, parentAccept);
             if (accept.isContinue()) {
-                dependencies.add(artifact);
-                if (accept.isLocal()) {
+//                if (accept.isLocal()) {
+                if (isFromCar) {
+                    if (!artifact.getType().equals("car")) {
+                        log.append(indent).append("from car:").append(artifact).append("\n");
+                        carDependencies.add(artifact);
+                    } else {
+                        log.append(indent).append("is car:").append(artifact).append("\n");
+                    }
+                } else {
+                    log.append(indent).append("local:").append(artifact).append("\n");
+                    if (carDependencies.contains(artifact)) {
+                        log.append(indent).append("already in car, returning:").append(artifact).append("\n");
+                        return;
+                    }
                     localDependencies.add(artifact);
                     if (artifact.getType().equals("car") || !useTransitiveDependencies) {
-                        localDependencies = carDependencies;
+                        isFromCar = true;
+//                        localDependencies = carDependencies;
                     }
                 }
                 for (DependencyNode child : (List<DependencyNode>) rootNode.getChildren()) {
-                    scan(child, localDependencies, carDependencies, accept, useTransitiveDependencies);
+                    scan(child, accept, useTransitiveDependencies, isFromCar, indent + "  ");
                 }
             }
+        }
+
+        public String getLog() {
+            return log.toString();
         }
 
         private Artifact getArtifact(DependencyNode rootNode) {
@@ -434,9 +449,9 @@ public abstract class AbstractCarMojo
             if (scope == null || "runtime".equalsIgnoreCase(scope) || "compile".equalsIgnoreCase(scope)) {
                 return previous;
             }
-            if ("provided".equalsIgnoreCase(scope)) {
-                return Accept.PROVIDED;
-            }
+//            if ("provided".equalsIgnoreCase(scope)) {
+//                return Accept.PROVIDED;
+//            }
             return Accept.STOP;
         }
 

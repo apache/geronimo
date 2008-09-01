@@ -206,16 +206,6 @@
         </dependency>
 
         <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-        </dependency>
-        
-        <dependency>
-            <groupId>commons-fileupload</groupId>
-            <artifactId>commons-fileupload</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>org.directwebremoting</groupId>
             <artifactId>dwr</artifactId>
         </dependency>
@@ -226,6 +216,7 @@
             <artifactId>jasper</artifactId>
             <version>${version}</version>
             <type>car</type>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
@@ -256,10 +247,6 @@
                     </module>
                     <category>Databases</category>
                     <osiApproved>true</osiApproved>
-                    <useMavenDependencies>
-                        <value>true</value>
-                        <includeVersion>true</includeVersion>
-                    </useMavenDependencies>
                 </configuration>
             </plugin>
         </plugins>

@@ -128,11 +128,7 @@
                     </classpath>
                     <classpathPrefix>../lib</classpathPrefix>
                     <category>Geronimo Core</category>
-                    <useMavenDependencies>
-                        <value>true</value>
-                        <includeVersion>true</includeVersion>
-                    </useMavenDependencies>
-                    <instance>
+\                    <instance>
                         <plugin-artifact>
                             <config-xml-content load="false"/>
                         </plugin-artifact>

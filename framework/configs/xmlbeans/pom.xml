@@ -69,9 +69,7 @@
                         <deploymentConfig>${gbeanDeployerBootstrap}</deploymentConfig>
                     </deploymentConfigs>
                     <deployerName>org.apache.geronimo.framework/geronimo-gbean-deployer-bootstrap/${geronimoVersion}/car?j2eeType=Deployer,name=Deployer</deployerName>
-                    <useMavenDependencies>
-                        <value>false</value>
-                    </useMavenDependencies>
+
                     <category>Geronimo Core</category>
                     <dependencies>
                         <dependency>

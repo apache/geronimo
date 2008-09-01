@@ -36,6 +36,7 @@ public class PlanProcessorMojoTest extends TestSupport {
 
     protected void setUp() throws Exception {
         processorMojo = new PlanProcessorMojo();
+        processorMojo.useMavenDependencies = new UseMavenDependencies(false, false, false);
         Model model = new Model();
         MavenProject mavenProject = new MavenProject(model);
         mavenProject.setGroupId("dummy-group");

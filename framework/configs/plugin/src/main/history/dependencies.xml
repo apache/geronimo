@@ -37,9 +37,9 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.specs</groupId>
+        <groupId>org.apache.geronimo.plugins.classloaders</groupId>
         <artifactId>geronimo-javaee-deployment_1.1MR3_spec</artifactId>
-        <type>jar</type>
+        <type>car</type>
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.framework</groupId>

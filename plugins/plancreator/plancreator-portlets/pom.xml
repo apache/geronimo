@@ -42,6 +42,14 @@
             <scope>provided</scope>
         </dependency>
             
+        <dependency>
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>j2ee-system</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+            <scope>provided</scope>
+        </dependency>
+
         <!-- for jspc maven plugin -->
         <dependency>
             <groupId>org.apache.pluto</groupId>

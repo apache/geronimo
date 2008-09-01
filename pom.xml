@@ -60,17 +60,17 @@
               as the maven-release-plugin will not update this value.
         -->
         <version>2.2-SNAPSHOT</version>
-        
+
         <!-- This property is required by the car:package mojo -->
         <geronimoVersion>${version}</geronimoVersion>
-        
+
         <geronimoSchemaVersion>1.2</geronimoSchemaVersion>
-        
+
         <!--
         FIXME: STOP using properties for dependency versions unless you absolutly need them,
                ie. you have a hundred dependencies that all use the same version.
         -->
-        
+
         <openejbVersion>3.1-SNAPSHOT</openejbVersion>
         <derbyVersion>10.4.1.3</derbyVersion>
         <tomcatVersion>6.0.18</tomcatVersion>
@@ -100,7 +100,7 @@
         <jetty7Deployer>org.apache.geronimo.configs/jetty7-deployer/${version}/car</jetty7Deployer>
         <jasperDeployer>org.apache.geronimo.configs/jasper-deployer/${version}/car</jasperDeployer>
         <jpaDeployer>org.apache.geronimo.configs/persistence-jpa10-deployer/${version}/car</jpaDeployer>
-        
+
         <!-- Common plan properties -->
         <PlanServerHostname>0.0.0.0</PlanServerHostname>
         <PlanRemoteDeployHostname>127.0.0.1</PlanRemoteDeployHostname>
@@ -137,12 +137,12 @@
                 <artifactId>geronimo-ejb_3.0_spec</artifactId>
                 <version>1.0.1</version>
             </dependency>
-            
+
             <dependency>
-              <groupId>org.apache.openejb</groupId>
-              <artifactId>ejb31-api-experimental</artifactId>
-              <version>${openejbVersion}</version>
-           </dependency>
+                <groupId>org.apache.openejb</groupId>
+                <artifactId>ejb31-api-experimental</artifactId>
+                <version>${openejbVersion}</version>
+            </dependency>
 
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
@@ -312,6 +312,12 @@
                 <groupId>org.apache.geronimo.components</groupId>
                 <artifactId>geronimo-transaction</artifactId>
                 <version>2.1.1</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
@@ -324,6 +330,42 @@
                 <groupId>org.apache.openjpa</groupId>
                 <artifactId>openjpa</artifactId>
                 <version>${openjpaVersion}</version>
+                <!-- already listed as provided in openjpa 1.1.0 -->
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.openjpa</groupId>
+                        <artifactId>openjpa-lib</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.openjpa</groupId>
+                        <artifactId>openjpa-kernel</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.openjpa</groupId>
+                        <artifactId>openjpa-kernel-5</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.openjpa</groupId>
+                        <artifactId>openjpa-jdbc</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.openjpa</groupId>
+                        <artifactId>openjpa-jdbc-5</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.openjpa</groupId>
+                        <artifactId>openjpa-persistence</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.openjpa</groupId>
+                        <artifactId>openjpa-persistence-jdbc</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.openjpa</groupId>
+                        <artifactId>openjpa-xmlstore</artifactId>
+                    </exclusion>
+
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.apache.openjpa</groupId>
@@ -380,9 +422,21 @@
                 <exclusions>
                     <exclusion>
                         <groupId>axis</groupId>
+                        <artifactId>axis-jaxrpc</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>axis</groupId>
                         <artifactId>axis-saaj</artifactId>
                     </exclusion>
-                </exclusions>
+                    <exclusion>
+                        <groupId>axis</groupId>
+                        <artifactId>axis-wsdl4j</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                </exclusions>    
             </dependency>
 
             <dependency>
@@ -395,6 +449,12 @@
                 <groupId>asm</groupId>
                 <artifactId>asm-commons</artifactId>
                 <version>2.2.3</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>asm</groupId>
+                        <artifactId>asm-tree</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
@@ -471,6 +531,14 @@
                     <exclusion>
                         <groupId>cglib</groupId>
                         <artifactId>cglib-full</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>oro</groupId>
+                        <artifactId>oro</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -558,6 +626,12 @@
                 <groupId>org.apache.bcel</groupId>
                 <artifactId>bcel</artifactId>
                 <version>5.2</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>jakarta-regexp</groupId>
+                        <artifactId>jakarta-regexp</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
@@ -600,12 +674,37 @@
                         <artifactId>axis-saaj</artifactId>
                     </exclusion>
                     <exclusion>
+                        <groupId>axis</groupId>
+                        <artifactId>axis-jaxrpc</artifactId>
+                    </exclusion>
+                    <exclusion>
                         <groupId>xmlbeans</groupId>
                         <artifactId>xbean</artifactId>
                     </exclusion>
                     <exclusion>
                         <groupId>org.apache.ws.scout</groupId>
                         <artifactId>jaxr-api</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>stax</groupId>
+                        <artifactId>stax-api</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>xerces</groupId>
+                        <artifactId>xercesImpl</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>geronimo-spec</groupId>
+                        <artifactId>geronimo-spec-activation</artifactId>
+                    </exclusion>
+                    <!-- not sure how scout would work without this if its a dependency ?? -->
+                    <exclusion>
+                        <groupId>jdom</groupId>
+                        <artifactId>jdom</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -658,11 +757,21 @@
                 <artifactId>xpp3</artifactId>
                 <version>1.1.4c</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>org.apache.yoko</groupId>
                 <artifactId>yoko-core</artifactId>
                 <version>1.0</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.yoko</groupId>
+                        <artifactId>yoko-rmi-spec</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.yoko</groupId>
+                        <artifactId>yoko-spec-corba</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
@@ -681,6 +790,12 @@
                 <groupId>org.apache.yoko</groupId>
                 <artifactId>yoko-rmi-impl</artifactId>
                 <version>1.0</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.yoko</groupId>
+                        <artifactId>yoko-rmi-spec</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
@@ -688,30 +803,40 @@
                 <artifactId>junit</artifactId>
                 <version>3.8.2</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>org.testng</groupId>
                 <artifactId>testng</artifactId>
                 <version>5.8</version>
                 <classifier>jdk15</classifier>
             </dependency>
-            
+
             <dependency>
                 <groupId>org.openqa.selenium.client-drivers</groupId>
                 <artifactId>selenium-java-client-driver</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>org.openqa.selenium.server</groupId>
                 <artifactId>selenium-server</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>org.apache.activemq</groupId>
                 <artifactId>activemq-core</artifactId>
                 <version>4.1.2-G647819</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.geronimo.specs</groupId>
+                        <artifactId>geronimo-j2ee-management_1.0_spec</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
@@ -724,6 +849,12 @@
                 <groupId>org.apache.activemq</groupId>
                 <artifactId>activeio-core</artifactId>
                 <version>3.0.1</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
@@ -778,6 +909,12 @@
                 <groupId>commons-digester</groupId>
                 <artifactId>commons-digester</artifactId>
                 <version>1.8</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
@@ -800,6 +937,10 @@
                 <artifactId>commons-cli</artifactId>
                 <version>1.0</version>
                 <exclusions>
+                    <exclusion>
+                        <groupId>commons-lang</groupId>
+                        <artifactId>commons-lang</artifactId>
+                    </exclusion>
                     <exclusion>
                         <groupId>commons-logging</groupId>
                         <artifactId>commons-logging</artifactId>
@@ -828,7 +969,7 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-            
+
             <dependency>
                 <groupId>commons-httpclient</groupId>
                 <artifactId>commons-httpclient</artifactId>
@@ -895,6 +1036,42 @@
                         <groupId>log4j</groupId>
                         <artifactId>log4j</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>hsqldb</groupId>
+                        <artifactId>hsqldb</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.activemq</groupId>
+                        <artifactId>activemq-ra</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.activemq</groupId>
+                        <artifactId>activemq-core</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.openejb</groupId>
+                        <artifactId>commons-dbcp-all</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.geronimo.components</groupId>
+                        <artifactId>geronimo-transaction</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.geronimo.components</groupId>
+                        <artifactId>geronimo-connector</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.objectweb.howl</groupId>
+                        <artifactId>howl</artifactId>
+                    </exclusion>
                 </exclusions>
             </dependency>
 
@@ -940,8 +1117,20 @@
                         <artifactId>javaee-api</artifactId>
                     </exclusion>
                     <exclusion>
+                        <groupId>org.apache.openejb</groupId>
+                        <artifactId>openejb-webservices</artifactId>
+                    </exclusion>
+                    <exclusion>
                         <groupId>log4j</groupId>
                         <artifactId>log4j</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.ws.commons.schema</groupId>
+                        <artifactId>XmlSchema</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>cglib</groupId>
+                        <artifactId>cglib-nodep</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -993,7 +1182,7 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-            
+
             <dependency>
                 <groupId>org.apache.openejb</groupId>
                 <artifactId>openejb-javaagent</artifactId>
@@ -1005,6 +1194,12 @@
                 <artifactId>tranql-connector-ra</artifactId>
                 <version>1.4</version>
                 <type>rar</type>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.tranql</groupId>
+                        <artifactId>tranql-connector</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
@@ -1012,6 +1207,16 @@
                 <artifactId>tranql-connector-derby-embed-xa</artifactId>
                 <version>1.4</version>
                 <type>rar</type>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.tranql</groupId>
+                        <artifactId>tranql-connector-derby-common</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.tranql</groupId>
+                        <artifactId>tranql-connector</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
@@ -1019,6 +1224,16 @@
                 <artifactId>tranql-connector-derby-embed-local</artifactId>
                 <version>1.4</version>
                 <type>rar</type>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.tranql</groupId>
+                        <artifactId>tranql-connector-derby-common</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.tranql</groupId>
+                        <artifactId>tranql-connector</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
@@ -1026,6 +1241,16 @@
                 <artifactId>tranql-connector-derby-client-local</artifactId>
                 <version>1.4</version>
                 <type>rar</type>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.tranql</groupId>
+                        <artifactId>tranql-connector-derby-common</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.tranql</groupId>
+                        <artifactId>tranql-connector</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
@@ -1033,6 +1258,16 @@
                 <artifactId>tranql-connector-derby-client-xa</artifactId>
                 <version>1.4</version>
                 <type>rar</type>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.tranql</groupId>
+                        <artifactId>tranql-connector-derby-common</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.tranql</groupId>
+                        <artifactId>tranql-connector</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
@@ -1040,6 +1275,16 @@
                 <artifactId>tranql-connector-db2-xa</artifactId>
                 <version>1.2</version>
                 <type>rar</type>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.tranql</groupId>
+                        <artifactId>tranql-connector-db2-common</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.tranql</groupId>
+                        <artifactId>tranql-connector</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
@@ -1047,6 +1292,16 @@
                 <artifactId>tranql-connector-mysql-local</artifactId>
                 <version>1.2</version>
                 <type>rar</type>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.tranql</groupId>
+                        <artifactId>tranql-connector-mysql-common</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.tranql</groupId>
+                        <artifactId>tranql-connector</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
@@ -1054,6 +1309,16 @@
                 <artifactId>tranql-connector-mysql-xa</artifactId>
                 <version>1.2</version>
                 <type>rar</type>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.tranql</groupId>
+                        <artifactId>tranql-connector-mysql-common</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.tranql</groupId>
+                        <artifactId>tranql-connector</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
@@ -1061,6 +1326,16 @@
                 <artifactId>tranql-connector-oracle-local</artifactId>
                 <version>1.3</version>
                 <type>rar</type>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.tranql</groupId>
+                        <artifactId>tranql-connector-oracle-common</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.tranql</groupId>
+                        <artifactId>tranql-connector</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
@@ -1068,6 +1343,16 @@
                 <artifactId>tranql-connector-oracle-xa</artifactId>
                 <version>1.3</version>
                 <type>rar</type>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.tranql</groupId>
+                        <artifactId>tranql-connector-oracle-common</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.tranql</groupId>
+                        <artifactId>tranql-connector</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
@@ -1075,6 +1360,16 @@
                 <artifactId>tranql-connector-postgresql-local</artifactId>
                 <version>1.1</version>
                 <type>rar</type>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.tranql</groupId>
+                        <artifactId>tranql-connector-postgresql-common</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.tranql</groupId>
+                        <artifactId>tranql-connector</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
@@ -1082,6 +1377,16 @@
                 <artifactId>tranql-connector-postgresql-xa</artifactId>
                 <version>1.1</version>
                 <type>rar</type>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.tranql</groupId>
+                        <artifactId>tranql-connector-postgresql-common</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.tranql</groupId>
+                        <artifactId>tranql-connector</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
@@ -1114,11 +1419,23 @@
                 <artifactId>juli</artifactId>
                 <version>${tomcatVersion}</version>
             </dependency>
+            <dependency>
+                <!-- used in wadi.  How does this differ from o.a.t.extras:juli, which is a larger jar? -->
+                <groupId>org.apache.tomcat</groupId>
+                <artifactId>juli</artifactId>
+                <version>${tomcatVersion}</version>
+            </dependency>
 
             <dependency>
                 <groupId>org.apache.tomcat.extras</groupId>
                 <artifactId>juli-adapters</artifactId>
                 <version>${tomcatVersion}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.tomcat</groupId>
+                        <artifactId>servlet-api</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
@@ -1131,49 +1448,107 @@
                 <groupId>org.apache.tomcat</groupId>
                 <artifactId>catalina-ha</artifactId>
                 <version>${tomcatVersion}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.tomcat</groupId>
+                        <artifactId>servlet-api</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.tomcat</groupId>
+                        <artifactId>juli</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.tomcat</groupId>
                 <artifactId>tribes</artifactId>
                 <version>${tomcatVersion}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.tomcat</groupId>
+                        <artifactId>juli</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.tomcat</groupId>
                 <artifactId>coyote</artifactId>
                 <version>${tomcatVersion}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.tomcat</groupId>
+                        <artifactId>servlet-api</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.tomcat</groupId>
+                        <artifactId>juli</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
-            <dependency>
-                <groupId>org.apache.tomcat</groupId>
-                <artifactId>juli</artifactId>
-                <version>${tomcatVersion}</version>
-            </dependency>
 
             <!-- WADI support -->
             <dependency>
                 <groupId>org.codehaus.wadi</groupId>
                 <artifactId>wadi-aop</artifactId>
                 <version>${wadiVersion}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <!-- wrong version.... c-m-p picks up this one -->
+                        <groupId>aspectj</groupId>
+                        <artifactId>aspectjrt</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
                 <groupId>org.codehaus.wadi</groupId>
                 <artifactId>wadi-core</artifactId>
                 <version>${wadiVersion}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>commons-httpclient</groupId>
+                        <artifactId>commons-httpclient</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>regexp</groupId>
+                        <artifactId>regexp</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
                 <groupId>org.codehaus.wadi</groupId>
                 <artifactId>wadi-group</artifactId>
                 <version>${wadiVersion}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
                 <groupId>org.codehaus.wadi</groupId>
                 <artifactId>wadi-tribes</artifactId>
                 <version>${wadiVersion}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
@@ -1195,7 +1570,7 @@
             </dependency>
 
             <dependency>
-                <groupId>woodstox</groupId>
+                <groupId>org.codehaus.woodstox</groupId>
                 <artifactId>wstx-asl</artifactId>
                 <version>3.2.1</version>
                 <exclusions>
@@ -1241,6 +1616,10 @@
                         <groupId>javax.activation</groupId>
                         <artifactId>activation</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>javax.xml.soap</groupId>
+                        <artifactId>saaj-api</artifactId>
+                    </exclusion>
                 </exclusions>
             </dependency>
 
@@ -1265,12 +1644,12 @@
                 <groupId>com.envoisolutions.sxc</groupId>
                 <artifactId>sxc-runtime</artifactId>
                 <version>0.7.2</version>
-                <!--<exclusions>-->
-                    <!--<exclusion>-->
-                        <!--<groupId>stax</groupId>-->
-                        <!--<artifactId>stax-api</artifactId>-->
-                    <!--</exclusion>-->
-                <!--</exclusions>-->
+                <exclusions>
+                    <exclusion>
+                        <groupId>stax</groupId>
+                        <artifactId>stax-api</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <!--JSF 1.2 JARs from Apache MyFaces -->
@@ -1278,12 +1657,24 @@
                 <groupId>org.apache.myfaces.core</groupId>
                 <artifactId>myfaces-api</artifactId>
                 <version>1.2.3</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.myfaces.core</groupId>
                 <artifactId>myfaces-impl</artifactId>
                 <version>1.2.3</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <!--Axis2 modules dependencies-->
@@ -1291,6 +1682,32 @@
                 <groupId>org.apache.axis2</groupId>
                 <artifactId>axis2-java2wsdl</artifactId>
                 <version>${axis2Version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>javax.mail</groupId>
+                        <artifactId>mail</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.geronimo.specs</groupId>
+                        <artifactId>geronimo-javamail_1.4_spec</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>xerces</groupId>
+                        <artifactId>xercesImpl</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>commons-io</groupId>
+                        <artifactId>commons-io</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.ant</groupId>
+                        <artifactId>ant</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
@@ -1302,6 +1719,38 @@
                         <groupId>org.apache.woden</groupId>
                         <artifactId>woden</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>javax.mail</groupId>
+                        <artifactId>mail</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>xerces</groupId>
+                        <artifactId>xercesImpl</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>xalan</groupId>
+                        <artifactId>xalan</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>commons-fileupload</groupId>
+                        <artifactId>commons-fileupload</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>commons-io</groupId>
+                        <artifactId>commons-io</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.httpcomponents</groupId>
+                        <artifactId>httpcore-nio</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.httpcomponents</groupId>
+                        <artifactId>httpcore-niossl</artifactId>
+                    </exclusion>
                 </exclusions>
             </dependency>
 
@@ -1309,24 +1758,116 @@
                 <groupId>org.apache.axis2</groupId>
                 <artifactId>axis2-adb</artifactId>
                 <version>${axis2Version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>javax.mail</groupId>
+                        <artifactId>mail</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>xerces</groupId>
+                        <artifactId>xercesImpl</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>xalan</groupId>
+                        <artifactId>xalan</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>commons-io</groupId>
+                        <artifactId>commons-io</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.axis2</groupId>
                 <artifactId>axis2-jaxws</artifactId>
                 <version>${axis2Version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.axis2</groupId>
+                        <artifactId>axis2-jaxws-api</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.axis2</groupId>
+                        <artifactId>axis2-saaj-api</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>javax.mail</groupId>
+                        <artifactId>mail</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>xerces</groupId>
+                        <artifactId>xercesImpl</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>xalan</groupId>
+                        <artifactId>xalan</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>commons-io</groupId>
+                        <artifactId>commons-io</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.axis2</groupId>
                 <artifactId>axis2-metadata</artifactId>
                 <version>${axis2Version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.axis2</groupId>
+                        <artifactId>axis2-jaxws-api</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.axis2</groupId>
+                        <artifactId>axis2-jws-api</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>javax.mail</groupId>
+                        <artifactId>mail</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>xerces</groupId>
+                        <artifactId>xercesImpl</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>xalan</groupId>
+                        <artifactId>xalan</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>commons-io</groupId>
+                        <artifactId>commons-io</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.axis2</groupId>
                 <artifactId>axis2-saaj</artifactId>
                 <version>${axis2Version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.axis2</groupId>
+                        <artifactId>axis2-saaj-api</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>javax.mail</groupId>
+                        <artifactId>mail</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>xerces</groupId>
+                        <artifactId>xercesImpl</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>xalan</groupId>
+                        <artifactId>xalan</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>commons-io</groupId>
+                        <artifactId>commons-io</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
@@ -1344,6 +1885,22 @@
                         <groupId>log4j</groupId>
                         <artifactId>log4j</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>javax.mail</groupId>
+                        <artifactId>mail</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>stax</groupId>
+                        <artifactId>stax-api</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>xml-apis</groupId>
+                        <artifactId>xml-apis</artifactId>
+                    </exclusion>
                 </exclusions>
             </dependency>
 
@@ -1356,6 +1913,18 @@
                         <groupId>log4j</groupId>
                         <artifactId>log4j</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>javax.mail</groupId>
+                        <artifactId>mail</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>stax</groupId>
+                        <artifactId>stax-api</artifactId>
+                    </exclusion>
                 </exclusions>
             </dependency>
 
@@ -1367,6 +1936,18 @@
                     <exclusion>
                         <groupId>log4j</groupId>
                         <artifactId>log4j</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>javax.mail</groupId>
+                        <artifactId>mail</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>stax</groupId>
+                        <artifactId>stax-api</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -1409,6 +1990,28 @@
                 <groupId>jaxen</groupId>
                 <artifactId>jaxen</artifactId>
                 <version>1.1-beta-11</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>xml-apis</groupId>
+                        <artifactId>xml-apis</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>xerces</groupId>
+                        <artifactId>xercesImpl</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>dom4j</groupId>
+                        <artifactId>dom4j</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>jdom</groupId>
+                        <artifactId>jdom</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>xom</groupId>
+                        <artifactId>xom</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
@@ -1423,19 +2026,19 @@
                 <artifactId>gshell-bootstrap</artifactId>
                 <version>1.0-alpha-1</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>org.apache.geronimo.gshell</groupId>
                 <artifactId>gshell-cli</artifactId>
                 <version>1.0-alpha-1</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>org.apache.geronimo.gshell</groupId>
                 <artifactId>gshell-command-api</artifactId>
                 <version>1.0-alpha-1</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>org.apache.geronimo.gshell</groupId>
                 <artifactId>gshell-core</artifactId>
@@ -1495,7 +2098,7 @@
                 <artifactId>ant-launcher</artifactId>
                 <version>1.7.0-G589756</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>org.codehaus.plexus</groupId>
                 <artifactId>plexus-classworlds</artifactId>
@@ -1526,6 +2129,10 @@
                 <version>1.0-alpha-32</version>
                 <exclusions>
                     <exclusion>
+                        <groupId>org.codehaus.plexus</groupId>
+                        <artifactId>plexus-classworlds</artifactId>
+                    </exclusion>
+                    <exclusion>
                         <groupId>junit</groupId>
                         <artifactId>junit</artifactId>
                     </exclusion>
@@ -1537,6 +2144,10 @@
                 <artifactId>plexus-container-default</artifactId>
                 <version>1.0-alpha-32</version>
                 <exclusions>
+                    <exclusion>
+                        <groupId>org.codehaus.plexus</groupId>
+                        <artifactId>plexus-classworlds</artifactId>
+                    </exclusion>
                     <exclusion>
                         <groupId>junit</groupId>
                         <artifactId>junit</artifactId>
@@ -1733,24 +2344,56 @@
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-core</artifactId>
                 <version>${springVersion}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-beans</artifactId>
                 <version>${springVersion}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-context</artifactId>
                 <version>${springVersion}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>aopalliance</groupId>
+                        <artifactId>aopalliance</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-web</artifactId>
                 <version>${springVersion}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>javax.servlet</groupId>
+                        <artifactId>servlet-api</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <!-- CXF Plugin -->
@@ -1766,6 +2409,10 @@
                     <exclusion>
                         <groupId>javax.jws</groupId>
                         <artifactId>jsr181-api</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.cxf</groupId>
+                        <artifactId>cxf-common-schemas</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -1799,6 +2446,10 @@
                         <groupId>javax.jws</groupId>
                         <artifactId>jsr181-api</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>commons-lang</groupId>
+                        <artifactId>commons-lang</artifactId>
+                    </exclusion>
                 </exclusions>
             </dependency>
 
@@ -1818,6 +2469,10 @@
                     <exclusion>
                         <groupId>com.sun.xml.bind</groupId>
                         <artifactId>jaxb-impl</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.geronimo.specs</groupId>
+                        <artifactId>geronimo-javamail_1.4_spec</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -1871,6 +2526,14 @@
                         <groupId>com.sun.xml.bind</groupId>
                         <artifactId>jaxb-impl</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.geronimo.specs</groupId>
+                        <artifactId>geronimo-javamail_1.4_spec</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.sun.xml.bind</groupId>
+                        <artifactId>jaxb-xjc</artifactId>
+                    </exclusion>
                 </exclusions>
             </dependency>
 
@@ -1891,6 +2554,14 @@
                         <groupId>com.sun.xml.bind</groupId>
                         <artifactId>jaxb-impl</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>javax.xml.ws</groupId>
+                        <artifactId>jaxws-api</artifactId>
+                       </exclusion>
+                    <exclusion>
+                        <groupId>javax.xml.soap</groupId>
+                        <artifactId>saaj-api</artifactId>
+                       </exclusion>
                 </exclusions>
             </dependency>
 
@@ -1906,6 +2577,14 @@
                     <exclusion>
                         <groupId>javax.jws</groupId>
                         <artifactId>jsr181-api</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>javax.xml.ws</groupId>
+                        <artifactId>jaxws-api</artifactId>
+                       </exclusion>
+                    <exclusion>
+                        <groupId>javax.xml.soap</groupId>
+                        <artifactId>saaj-api</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -1947,6 +2626,18 @@
                         <groupId>com.sun.xml.bind</groupId>
                         <artifactId>jaxb-impl</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>javax.xml.soap</groupId>
+                        <artifactId>saaj-api</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.sun.xml.bind</groupId>
+                        <artifactId>jaxb-xjc</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>velocity</groupId>
+                        <artifactId>velocity</artifactId>
+                    </exclusion>
                 </exclusions>
             </dependency>
 
@@ -1957,7 +2648,7 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
-    
+
     <build>
         <pluginManagement>
             <plugins>
@@ -2027,7 +2718,7 @@
                             </configuration>
                         </execution>
                     </executions>
-                    
+
                     <!-- Use the Tomcat 6 JSP compiler, but with our custom Jasper version -->
                     <dependencies>
                         <dependency>
@@ -2055,7 +2746,7 @@
                     <artifactId>sql-maven-plugin</artifactId>
                     <version>1.0</version>
                 </plugin>
-                
+
                 <!--
                 FIXME: Should not configure war to assume jsp by default
                 -->
@@ -2072,7 +2763,7 @@
                             <!-- Do not include META-INF/maven to avoid long file problems on windows -->
                             <addMavenDescriptor>false</addMavenDescriptor>
                         </archive>
-                        
+
                         <!--
                         HACK: Include legal files explicity, otherwise they will end up in the wrong path
                               or in another jar file in the war.
@@ -2137,7 +2828,7 @@
                         <failIfNoTests>false</failIfNoTests>
                     </configuration>
                 </plugin>
-                
+
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>shitty-maven-plugin</artifactId>
@@ -2206,6 +2897,12 @@
 
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-reactor-plugin</artifactId>
+                    <version>1.0-20080819.004201-7</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-remote-resources-plugin</artifactId>
                     <version>1.0</version>
                     <executions>
@@ -2221,13 +2918,13 @@
                         </execution>
                     </executions>
                 </plugin>
-                
+
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>ianal-maven-plugin</artifactId>
                     <version>1.0-alpha-1-SNAPSHOT</version>
                 </plugin>
-                
+
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>jaxb2-maven-plugin</artifactId>
@@ -2235,7 +2932,7 @@
                 </plugin>
 
                 <!-- INTERNAL -->
-                
+
                 <plugin>
                     <groupId>org.apache.geronimo.buildsupport</groupId>
                     <artifactId>buildsupport-maven-plugin</artifactId>
@@ -2248,13 +2945,13 @@
                     <version>${version}</version>
                     <extensions>true</extensions>
                 </plugin>
-                
+
                 <plugin>
                     <groupId>org.apache.geronimo.buildsupport</groupId>
                     <artifactId>testsuite-maven-plugin</artifactId>
                     <version>${version}</version>
                 </plugin>
-                
+
                 <plugin>
                     <groupId>org.apache.geronimo.buildsupport</groupId>
                     <artifactId>geronimo-maven-plugin</artifactId>
@@ -2348,7 +3045,7 @@
                                 <requireJavaVersion>
                                     <version>[1.5,1.6)</version>
                                 </requireJavaVersion>
-                                
+
                                 <!-- Require Maven 2.0.9+ -->
                                 <requireMavenVersion>
                                     <version>[2.0.9,)</version>
@@ -2358,7 +3055,7 @@
                     </execution>
                 </executions>
             </plugin>
-            
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -2377,12 +3074,17 @@
                     <linkModules>true</linkModules>
                 </configuration>
             </plugin>
-            
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-reactor-plugin</artifactId>
+            </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-remote-resources-plugin</artifactId>
             </plugin>
-            
+
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>ianal-maven-plugin</artifactId>

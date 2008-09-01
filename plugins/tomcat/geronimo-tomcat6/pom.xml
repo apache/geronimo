@@ -33,29 +33,31 @@
     <name>Geronimo Plugins, Tomcat :: Core</name>
     
     <dependencies>
-        <!-- g-transaction, g-system comes from this -->
         <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-connector</artifactId>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>transaction</artifactId>
             <version>${version}</version>
+            <type>car</type>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.geronimo.framework</groupId>
-            <artifactId>geronimo-naming</artifactId>
-            <version>${version}</version>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.framework</groupId>-->
+            <!--<artifactId>rmi-naming</artifactId>-->
+            <!--<version>${version}</version>-->
+            <!--<type>car</type>-->
+        <!--</dependency>-->
 
         <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-webservices</artifactId>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>webservices-common</artifactId>
+            <type>car</type>
             <version>${version}</version>
         </dependency>
 
         <!-- g-security comes from this -->
         <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-security-builder</artifactId>
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>geronimo-security</artifactId>
             <version>${version}</version>
         </dependency>
 
@@ -87,14 +89,27 @@
             <artifactId>coyote</artifactId>
         </dependency>
         
-        <dependency>
-            <groupId>org.apache.tomcat.extras</groupId>
-            <artifactId>juli</artifactId>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.tomcat.extras</groupId>-->
+            <!--<artifactId>juli</artifactId>-->
+        <!--</dependency>-->
 
         <dependency>
             <groupId>org.apache.tomcat.extras</groupId>
             <artifactId>juli-adapters</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jcl104-over-slf4j</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>j2ee-deployer</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

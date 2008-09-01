@@ -49,11 +49,11 @@ public class ApacheConfigPortlet extends MultiPagePortlet {
             return;
         }
         String mode = renderRequest.getParameter(MODE_KEY);
-        ApacheModel model = (ApacheModel)getModel(renderRequest);
+        ApacheModel model = getModel(renderRequest);
         if(mode == null || mode.equals("")) {
             mode = getDefaultMode();
         }
-        MultiPageAbstractHandler handler = (MultiPageAbstractHandler)helpers.get(mode);
+        MultiPageAbstractHandler handler = helpers.get(mode);
         try {
             if(handler != null) {
                 handler.renderView(renderRequest, renderResponse, model);

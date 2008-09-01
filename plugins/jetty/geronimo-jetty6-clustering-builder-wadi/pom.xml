@@ -34,9 +34,10 @@
     
     <dependencies>
         <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-jetty6-clustering-wadi</artifactId>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>jetty6-clustering-wadi</artifactId>
             <version>${version}</version>
+            <type>car</type>
         </dependency>
 
         <!-- xmlbeans, stax-api comes transitively via g-service-builder from this -->

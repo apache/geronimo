@@ -52,7 +52,7 @@
     </gbean>
 
     <!-- connections require SSL, no client cert, client logs in with password, no identity token -->
-    <gbean name="Server" class="org.apache.geronimo.corba.CORBABeanGBean">
+    <gbean name="Server" class="org.apache.geronimo.corba.CORBAEjbBeanGBean">
         <attribute name="host">${PlanORBSSLHost}</attribute>
         <attribute name="port">${PlanORBSSLPort}</attribute>
         <reference name="ConfigAdapter">
@@ -89,7 +89,7 @@
     </gbean>
 
     <!-- orb with no security whatsoever -->
-    <gbean name="UnprotectedServer" class="org.apache.geronimo.corba.CORBABeanGBean">
+    <gbean name="UnprotectedServer" class="org.apache.geronimo.corba.CORBAEjbBeanGBean">
         <attribute name="host">${PlanORBHost}</attribute>
         <attribute name="port">${PlanORBPort}</attribute>
         <reference name="ConfigAdapter">

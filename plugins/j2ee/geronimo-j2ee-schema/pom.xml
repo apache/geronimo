@@ -36,18 +36,13 @@
         <!-- XmlBeansUtil is needed --> 
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
-            <artifactId>geronimo-service-builder</artifactId>
+            <artifactId>geronimo-deployment</artifactId>
             <version>${version}</version>
         </dependency>
         
         <dependency>
             <groupId>org.apache.xmlbeans</groupId>
             <artifactId>xmlbeans</artifactId>
-        </dependency>
-        
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-stax-api_1.0_spec</artifactId>
         </dependency>
         
         <dependency>

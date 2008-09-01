@@ -46,12 +46,28 @@
             <version>${version}</version>
         </dependency>
 
-        <!-- xbean-reflect, g-management come via g-j2ee from this -->
         <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-webservices</artifactId>
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>jee-specs</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>webservices-common</artifactId>
+            <type>car</type>
             <version>${version}</version>
         </dependency>
+
+        <!-- xbean-reflect, g-management come via g-j2ee from this -->
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.modules</groupId>-->
+            <!--<artifactId>geronimo-webservices</artifactId>-->
+            <!--<version>${version}</version>-->
+            <!--<scope>provided</scope>-->
+        <!--</dependency>-->
          
         <dependency>
             <groupId>org.mortbay.jetty</groupId>

@@ -7,9 +7,9 @@
         <type>car</type>
     </module-id>
     <dependency>
-        <groupId>org.apache.xmlbeans</groupId>
+        <groupId>org.apache.geronimo.framework</groupId>
         <artifactId>xmlbeans</artifactId>
-        <type>jar</type>
+        <type>car</type>
     </dependency>
     <dependency>
         <groupId>org.apache.axis2</groupId>

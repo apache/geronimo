@@ -48,6 +48,12 @@
         </dependency>
 
         <dependency>
+            <!-- for constants -->
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>geronimo-j2ee</artifactId>
+            <version>${version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-naming</artifactId>
             <version>${version}</version>

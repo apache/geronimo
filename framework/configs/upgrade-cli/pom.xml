@@ -56,11 +56,6 @@
         </dependency>
 
         <dependency>
-            <groupId>xpp3</groupId>
-            <artifactId>xpp3</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-upgrade</artifactId>
             <version>${version}</version>
@@ -79,10 +74,7 @@
                 <groupId>org.apache.geronimo.buildsupport</groupId>
                 <artifactId>car-maven-plugin</artifactId>
                 <configuration>
-                    <useMavenDependencies>
-                        <value>true</value>
-                        <includeVersion>true</includeVersion>
-                    </useMavenDependencies>
+
                     <category>Deployment</category>
                     <instance>
                         <plugin-artifact>

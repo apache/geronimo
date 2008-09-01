@@ -20,11 +20,13 @@
 
 package org.apache.geronimo.mavenplugins.car;
 
+import java.util.LinkedHashSet;
+
 import junit.framework.TestCase;
 import org.apache.geronimo.system.plugin.model.DependencyType;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class DependencyTest extends TestCase {
     
@@ -34,6 +36,7 @@ public class DependencyTest extends TestCase {
         assertTrue(d1.equals(d2));
         d1.setStart(true);
         assertTrue(d1.equals(d2));
+        assertTrue(d2.equals(d1));
         d2.setStart(true);
         assertTrue(d1.equals(d2));
         Dependency d3 = newDependency(null);
@@ -43,6 +46,20 @@ public class DependencyTest extends TestCase {
         Dependency d6 = newDependency("1.1");
         assertTrue(d5.equals(d6));
     }
+
+    public void testRemove() throws Exception {
+        Dependency d1 = newDependency(null);
+        Dependency d2 = newDependency(null);
+        d1.setStart(true);
+        LinkedHashSet<Dependency> dependencies = new LinkedHashSet<Dependency>();
+        dependencies.add(d1);
+        dependencies.remove(d2);
+        assertTrue(dependencies.isEmpty());
+        dependencies.add(d2);
+        dependencies.remove(d1);
+        assertTrue(dependencies.isEmpty());
+    }
+    
     public void testStart() throws Exception {
         Dependency d1 = newDependency(null, null);
         Dependency d2 = newDependency(null, null);

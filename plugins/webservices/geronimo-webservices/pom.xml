@@ -60,16 +60,19 @@
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-jaxrpc_1.1_spec</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-servlet_2.5_spec</artifactId>
+            <scope>provided</scope>
         </dependency>
         
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-jaxr_1.0_spec</artifactId>
+            <scope>provided</scope>
         </dependency>
         
         <dependency>
@@ -82,10 +85,10 @@
             <artifactId>wsdl4j</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.ws.scout</groupId>
-            <artifactId>scout</artifactId>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.ws.scout</groupId>-->
+            <!--<artifactId>scout</artifactId>-->
+        <!--</dependency>-->
 
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
@@ -108,6 +111,11 @@
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-activation_1.1_spec</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jcl104-over-slf4j</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

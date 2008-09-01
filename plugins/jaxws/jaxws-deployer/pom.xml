@@ -72,7 +72,7 @@
                             <mainClass>org.apache.geronimo.jaxws.builder.JAXWSToolsCLI</mainClass>
                         </manifest>
                     </archive>
-                    
+                    <warnOnDependencyChange>true</warnOnDependencyChange>
                     <!--
                     NOTE: This list of dependencies is non-transitive.
                     -->

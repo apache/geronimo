@@ -102,7 +102,7 @@
         </dependency>
         
         <dependency>
-            <groupId>woodstox</groupId>
+            <groupId>org.codehaus.woodstox</groupId>
             <artifactId>wstx-asl</artifactId>
         </dependency>
 
@@ -121,6 +121,11 @@
             <artifactId>slf4j-log4j12</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jcl104-over-slf4j</artifactId>
+        </dependency>
+        
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-activation_1.1_spec</artifactId>
@@ -214,7 +219,7 @@
                         </element>
                         <element>
                             <groupId>xpp3</groupId>
-                            <artifactId>xpp3</artifactId>
+                            <artifactId>xpp3_min</artifactId>
                         </element>
                         <element>
                             <groupId>org.apache.xbean</groupId>
@@ -228,10 +233,6 @@
                     <classpathPrefix>../lib</classpathPrefix>
 
                     <category>Geronimo Core</category>
-                    <useMavenDependencies>
-                        <value>true</value>
-                        <includeVersion>true</includeVersion>
-                    </useMavenDependencies>
                     <config-xml-content load = "false"/>
                 </configuration>
             </plugin>

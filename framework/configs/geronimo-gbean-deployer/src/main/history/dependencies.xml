@@ -12,8 +12,8 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>geronimo-common</artifactId>
+        <groupId>xml-resolver</groupId>
+        <artifactId>xml-resolver</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>

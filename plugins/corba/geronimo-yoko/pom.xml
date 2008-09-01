@@ -49,10 +49,27 @@
 
         <!-- g-j2ee, g-core come from this -->
         <!-- g-util comes via g-system -->
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.framework</groupId>-->
+            <!--<artifactId>geronimo-security</artifactId>-->
+            <!--<version>${version}</version>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.framework</groupId>-->
+            <!--<artifactId>geronimo-kernel</artifactId>-->
+            <!--<version>${version}</version>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.framework</groupId>-->
+            <!--<artifactId>geronimo-j2ee</artifactId>-->
+            <!--<version>${version}</version>-->
+        <!--</dependency>-->
         <dependency>
-            <groupId>org.apache.geronimo.framework</groupId>
-            <artifactId>geronimo-security</artifactId>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>openejb</artifactId>
             <version>${version}</version>
+            <type>car</type>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>

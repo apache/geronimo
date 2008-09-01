@@ -26,15 +26,12 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
 import java.util.LinkedHashSet;
 
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.system.plugin.PluginXmlUtil;
 import org.apache.geronimo.system.plugin.model.ArtifactType;
-import org.apache.geronimo.system.plugin.model.DependencyType;
 import org.apache.geronimo.system.plugin.model.LicenseType;
 import org.apache.geronimo.system.plugin.model.PluginArtifactType;
 import org.apache.geronimo.system.plugin.model.PluginType;
@@ -127,7 +124,7 @@ public class PluginMetadataGeneratorMojo
      *
      * @parameter
      */
-    private UseMavenDependencies useMavenDependencies;
+    private UseMavenDependencies useMavenDependencies = new UseMavenDependencies(true, false, true);
 
     /**
      * Shared configuration from parent that we merge since maven is incompetent at it.  This is a plugin-artifactType element without moduleId or dependencies.
@@ -250,7 +247,7 @@ public class PluginMetadataGeneratorMojo
     }
 
     private void addDependencies(PluginArtifactType instance) throws InvalidConfigException, IOException, NoSuchConfigException, InvalidDependencyVersionException, ArtifactResolutionException, ProjectBuildingException, MojoExecutionException {
-        LinkedHashSet<Dependency> resolvedDependencies = toDependencies(dependencies, useMavenDependencies);
+        LinkedHashSet<Dependency> resolvedDependencies = toDependencies(dependencies, useMavenDependencies, false);
         for (Dependency dependency: resolvedDependencies) {
             instance.getDependency().add(dependency.toDependencyType());
         }

@@ -27,6 +27,41 @@
         <type>jar</type>
     </dependency>
     <dependency>
+        <groupId>org.apache.openejb</groupId>
+        <artifactId>openejb-loader</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.openejb</groupId>
+        <artifactId>openejb-ejbd</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.openejb</groupId>
+        <artifactId>openejb-server</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.openejb</groupId>
+        <artifactId>openejb-client</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.openejb</groupId>
+        <artifactId>openejb-javaagent</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.openejb</groupId>
+        <artifactId>openejb-jee</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.openejb</groupId>
+        <artifactId>asm-finder</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>openjpa</artifactId>
         <type>car</type>
@@ -57,9 +92,9 @@
         <type>car</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.xbean</groupId>
+        <groupId>org.apache.geronimo.plugins.classloaders</groupId>
         <artifactId>xbean-finder</artifactId>
-        <type>jar</type>
+        <type>car</type>
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.configs</groupId>

@@ -36,14 +36,21 @@
         <!-- g-kernel, g-security, g-transaction, g-management comes transistively -->
         <!-- from this via g-connector -->
         <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-openejb</artifactId>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>openejb</artifactId>
             <version>${version}</version>
+            <type>car</type>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.apache.yoko</groupId>
             <artifactId>yoko-spec-corba</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>cglib</groupId>
+            <artifactId>cglib-nodep</artifactId>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 

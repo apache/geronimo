@@ -55,7 +55,6 @@
             <artifactId>openejb</artifactId>
             <version>${version}</version>
             <type>car</type>
-            <!--<scope>runtime</scope>-->
         </dependency>
 
         <dependency>
@@ -70,15 +69,6 @@
             <version>${version}</version>
         </dependency>
 
-        <!--dependency>
-            <groupId>org.apache.openejb</groupId>
-            <artifactId>openejb-axis</artifactId>
-        </dependency-->
-
-        <!--dependency>
-            <groupId>org.apache.openejb</groupId>
-            <artifactId>openejb-pkgen-builder</artifactId>
-        </dependency-->
     </dependencies>
 
     <build>
@@ -87,33 +77,8 @@
                 <groupId>org.apache.geronimo.buildsupport</groupId>
                 <artifactId>car-maven-plugin</artifactId>
                 <configuration>
-                    <useMavenDependencies>
-                        <value>false</value>
-                    </useMavenDependencies>
                     <category>EJB Container</category>
                     <dependencies>
-                        <dependency>
-                            <groupId>org.apache.geronimo.configs</groupId>
-                            <artifactId>connector-deployer</artifactId>
-                            <type>car</type>
-                        </dependency>
-                        <dependency>
-                            <groupId>org.apache.geronimo.modules</groupId>
-                            <artifactId>geronimo-webservices-builder</artifactId>
-                            <type>jar</type>
-                            <import>classes</import>
-                        </dependency>
-                        <dependency>
-                            <groupId>org.apache.geronimo.modules</groupId>
-                            <artifactId>geronimo-openejb-builder</artifactId>
-                            <type>jar</type>
-                            <import>classes</import>
-                        </dependency>
-                        <dependency>
-                            <groupId>org.apache.geronimo.configs</groupId>
-                            <artifactId>j2ee-deployer</artifactId>
-                            <type>car</type>
-                        </dependency>
                         <dependency>
                             <groupId>org.apache.geronimo.configs</groupId>
                             <artifactId>openejb</artifactId>

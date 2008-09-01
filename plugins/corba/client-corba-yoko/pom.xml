@@ -68,6 +68,56 @@
         <dependency>
             <groupId>org.apache.openejb</groupId>
             <artifactId>openejb-core</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.activmq</groupId>
+                    <artifactId>activmq-core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.openejb</groupId>
+                    <artifactId>openejb-loader</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.openejb</groupId>
+                    <artifactId>openejb-javaagent</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.openejb</groupId>
+                    <artifactId>asm-finder</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.openejb</groupId>
+                    <artifactId>openejb-jee</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.openjpa</groupId>
+                    <artifactId>openjpa</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>net.sourceforge.serp</groupId>
+                    <artifactId>serp</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>wedl4j</groupId>
+                    <artifactId>wedl4j</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.codehaus.swizzle</groupId>
+                    <artifactId>swizzle-stream</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>commons-collections</groupId>
+                    <artifactId>commons-collections</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>commons-lang</groupId>
+                    <artifactId>commons-lang</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>wsdl4j</groupId>
+                    <artifactId>wsdl4j</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
@@ -124,10 +174,6 @@
                         <deploymentConfig>${openejbcorbaDeployer}</deploymentConfig>
                     </deploymentConfigs>
                     <category>Geronimo Core</category>
-                    <useMavenDependencies>
-                        <value>true</value>
-                        <includeVersion>true</includeVersion>
-                    </useMavenDependencies>
                     <instance>
                         <plugin-artifact>
                             <config-xml-content load="false"/>

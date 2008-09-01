@@ -91,7 +91,7 @@
         </dependency>
         
         <dependency>
-            <groupId>woodstox</groupId>
+            <groupId>org.codehaus.woodstox</groupId>
             <artifactId>wstx-asl</artifactId>
         </dependency>
         
@@ -178,7 +178,7 @@
                         </element>
                         <element>
                             <groupId>xpp3</groupId>
-                            <artifactId>xpp3</artifactId>
+                            <artifactId>xpp3_min</artifactId>
                         </element>
                         <element>
                             <groupId>org.apache.xbean</groupId>
@@ -192,10 +192,6 @@
                     <classpathPrefix>../lib</classpathPrefix>
                     
                     <category>Geronimo Core</category>
-                    <useMavenDependencies>
-                        <value>true</value>
-                        <includeVersion>true</includeVersion>
-                    </useMavenDependencies>
                     <instance>
                         <plugin-artifact>
                             <config-xml-content load="false"/>

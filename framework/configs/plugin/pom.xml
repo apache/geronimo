@@ -70,8 +70,10 @@
         </dependency>
         
         <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
+            <groupId>org.apache.geronimo.plugins.classloaders</groupId>
             <artifactId>geronimo-javaee-deployment_1.1MR3_spec</artifactId>
+            <version>${version}</version>
+            <type>car</type>
         </dependency>
         
         <!-- needed by geronimo-deploy-config -->
@@ -114,10 +116,6 @@
                     </deploymentConfigs>
                     <deployerName>org.apache.geronimo.framework/geronimo-gbean-deployer-bootstrap/${geronimoVersion}/car?j2eeType=Deployer,name=Deployer</deployerName>
                     <category>Geronimo Core</category>
-                    <useMavenDependencies>
-                        <value>true</value>
-                        <includeVersion>true</includeVersion>
-                    </useMavenDependencies>
                     <instance>
                         <plugin-artifact>
                             <config-xml-content>
@@ -126,6 +124,8 @@
                                     <attribute name="userRepositories">~/.m2/repository</attribute>
                                 </gbean>
                             </config-xml-content>
+                            <!--<artifact-alias key="org.apache.geronimo.framework/jsr88-cli//car">org.apache.geronimo.framework/plugin/${version}/car</artifact-alias>-->
+                            <!--<artifact-alias key="org.apache.geronimo.framework/jsr88-cli/${version}/car">org.apache.geronimo.framework/plugin/${version}/car</artifact-alias>-->
                         </plugin-artifact>
                     </instance>
                 </configuration>

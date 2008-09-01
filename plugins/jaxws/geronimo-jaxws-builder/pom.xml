@@ -49,6 +49,11 @@
             <groupId>org.apache.geronimo.gshell</groupId>
             <artifactId>gshell-command-api</artifactId>
         </dependency>
+        
+        <dependency>
+            <groupId>wsdl4j</groupId>
+            <artifactId>wsdl4j</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

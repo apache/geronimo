@@ -76,28 +76,28 @@
             <artifactId>geronimo-webservices</artifactId>
             <version>${version}</version>
         </dependency>
-
+<!--
         <dependency>
             <groupId>org.apache.geronimo.schema</groupId>
             <artifactId>geronimo-schema-jee_5</artifactId>
         </dependency>
-
+-->
         <dependency>
             <groupId>wsdl4j</groupId>
             <artifactId>wsdl4j</artifactId>
         </dependency>
 
         <!-- StAX implementation -->
-        <dependency>
-            <groupId>woodstox</groupId>
-            <artifactId>wstx-asl</artifactId>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.codehaus.woodstox</groupId>-->
+            <!--<artifactId>wstx-asl</artifactId>-->
+        <!--</dependency>-->
 
         <!-- JAXB implementation -->
-        <dependency>
-            <groupId>com.sun.xml.bind</groupId>
-            <artifactId>jaxb-impl</artifactId>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>com.sun.xml.bind</groupId>-->
+            <!--<artifactId>jaxb-impl</artifactId>-->
+        <!--</dependency>-->
 
         <!-- default SAAJ 1.3 implementation -->
         <dependency>
@@ -112,10 +112,6 @@
                 <groupId>org.apache.geronimo.buildsupport</groupId>
                 <artifactId>car-maven-plugin</artifactId>
                 <configuration>
-                    <useMavenDependencies>
-                        <value>true</value>
-                        <includeVersion>true</includeVersion>
-                    </useMavenDependencies>
                     <category>Web Services</category>
                 </configuration>
             </plugin>

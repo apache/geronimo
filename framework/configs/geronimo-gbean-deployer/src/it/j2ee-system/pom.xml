@@ -103,7 +103,7 @@
         </dependency>
         
         <dependency>
-            <groupId>woodstox</groupId>
+            <groupId>org.codehaus.woodstox</groupId>
             <artifactId>wstx-asl</artifactId>
         </dependency>
         
@@ -193,7 +193,7 @@
                             <artifactId>geronimo-stax-api_1.0_spec</artifactId>
                         </element>
                         <element>
-                            <groupId>woodstox</groupId>
+                            <groupId>org.codehaus.woodstox</groupId>
                             <artifactId>wstx-asl</artifactId>
                         </element>
                         <element>
@@ -271,7 +271,7 @@
                             <import>classes</import>
                         </dependency>
                         <dependency>
-                            <groupId>woodstox</groupId>
+                            <groupId>org.codehaus.woodstox</groupId>
                             <artifactId>wstx-asl</artifactId>
                             <version>3.2.1</version>
                             <type>jar</type>

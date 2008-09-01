@@ -40,9 +40,10 @@
         </dependency>
 
         <dependency>
-            <groupId>${pom.groupId}</groupId>
-            <artifactId>geronimo-tomcat6</artifactId>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>tomcat6-no-ha</artifactId>
             <version>${version}</version>
+            <type>car</type>
         </dependency>
     </dependencies>
 

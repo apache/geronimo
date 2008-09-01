@@ -54,9 +54,10 @@
 
         <!-- g-j2ee comes from this via g-openejb -->
         <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-cxf</artifactId>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>cxf</artifactId>
             <version>${version}</version>
+            <type>car</type>
         </dependency>
 
        <dependency>

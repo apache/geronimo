@@ -14,11 +14,7 @@
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
--->
-
-<!-- $Rev$ $Date$ -->
-
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+--><!-- $Rev$ $Date$ --><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
     
@@ -92,7 +88,8 @@
         <module>sharedlib</module>
         <module>welcome</module>
         <module>concurrent</module>
-    </modules>
+    <module>classloaders</module>
+  </modules>
     
     <build>
         <plugins>
@@ -107,12 +104,11 @@
                         <addMavenDescriptor>false</addMavenDescriptor>
                     </archive>
                     <osiApproved>true</osiApproved>
-                    <!--
                     <useMavenDependencies>
                         <value>true</value>
                         <includeVersion>true</includeVersion>
+                        <useTransitiveDependencies>true</useTransitiveDependencies>
                     </useMavenDependencies>
-                    -->
                     <commonInstance>
                         <plugin-artifact>
                             <geronimo-version>${geronimoVersion}</geronimo-version>

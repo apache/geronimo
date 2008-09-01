@@ -89,11 +89,6 @@
                 <groupId>org.apache.geronimo.buildsupport</groupId>
                 <artifactId>car-maven-plugin</artifactId>
                 <configuration>
-                    <useMavenDependencies>
-                        <value>true</value>
-                        <includeVersion>true</includeVersion>
-                        <!--<useTransitiveDependencies>true</useTransitiveDependencies>-->
-                    </useMavenDependencies>
                     <category>Security</category>
                     <instance>
                         <plugin-artifact>

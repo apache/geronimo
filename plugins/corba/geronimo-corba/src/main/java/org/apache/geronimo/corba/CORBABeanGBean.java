@@ -57,9 +57,8 @@ public final class CORBABeanGBean {
         infoBuilder.addReference("ConfigAdapter", ConfigAdapter.class, NameFactory.ORB_CONFIG);
         infoBuilder.addReference("SSLConfig", SSLConfig.class, NameFactory.CORBA_SSL);
         infoBuilder.addReference("NameService", NameService.class, NameFactory.CORBA_NAME_SERVICE);
-        infoBuilder.addReference("OpenEjbSystem", OpenEjbSystem.class);
-        
-        infoBuilder.setConstructor(new String[]{"abstractName", "ConfigAdapter", "host", "port", "classLoader", "NameService", "OpenEjbSystem", "SSLConfig"});
+
+        infoBuilder.setConstructor(new String[]{"abstractName", "ConfigAdapter", "host", "port", "classLoader", "NameService", "SSLConfig"});
 
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }

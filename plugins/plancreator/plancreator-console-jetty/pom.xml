@@ -65,12 +65,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.framework</groupId>
-            <artifactId>geronimo-management</artifactId>
-            <version>${version}</version>
-        </dependency>
-
-        <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>connector-deployer</artifactId>
             <version>${version}</version>
@@ -89,28 +83,6 @@
             <artifactId>openejb-deployer</artifactId>
             <version>${version}</version>
             <type>car</type>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-test-ddbean</artifactId>
-            <version>${version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>commons-fileupload</groupId>
-            <artifactId>commons-fileupload</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.plugins</groupId>
-            <artifactId>console-core</artifactId>
-            <version>${version}</version>
         </dependency>
 
         <!-- for jspc. why is this needed? -->
@@ -149,10 +121,6 @@
                     </module>
                     <category>Development tools</category>
                     <osiApproved>true</osiApproved>
-                    <useMavenDependencies>
-                        <value>true</value>
-                        <includeVersion>true</includeVersion>
-                    </useMavenDependencies>
                 </configuration>
             </plugin>
         </plugins>

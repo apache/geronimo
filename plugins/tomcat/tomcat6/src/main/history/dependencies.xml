@@ -22,23 +22,8 @@
         <type>car</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.tomcat.extras</groupId>
-        <artifactId>juli</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
         <groupId>org.apache.tomcat</groupId>
-        <artifactId>coyote</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.tomcat.extras</groupId>
-        <artifactId>juli-adapters</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.tomcat</groupId>
-        <artifactId>catalina-ha</artifactId>
+        <artifactId>tribes</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -57,13 +42,18 @@
         <type>jar</type>
     </dependency>
     <dependency>
+        <groupId>org.apache.tomcat</groupId>
+        <artifactId>catalina-ha</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>webservices-common</artifactId>
         <type>car</type>
     </dependency>
     <dependency>
         <groupId>org.apache.tomcat</groupId>
-        <artifactId>tribes</artifactId>
+        <artifactId>coyote</artifactId>
         <type>jar</type>
     </dependency>
 </plugin-artifact>

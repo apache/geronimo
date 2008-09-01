@@ -38,7 +38,8 @@
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-gbean-deployer</artifactId>
             <type>car</type>
-            <scope>runtime</scope>
+            <!--<scope>runtime</scope>-->
+            <scope>provided</scope>
             <version>${version}</version>
         </dependency>
 
@@ -85,8 +86,10 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
+            <groupId>org.apache.geronimo.plugins.classloaders</groupId>
             <artifactId>geronimo-javaee-deployment_1.1MR3_spec</artifactId>
+            <version>${version}</version>
+            <type>car</type>
         </dependency>
 
         <dependency>
@@ -113,7 +116,7 @@
             <artifactId>geronimo-stax-api_1.0_spec</artifactId>
         </dependency>
         <dependency>
-            <groupId>woodstox</groupId>
+            <groupId>org.codehaus.woodstox</groupId>
             <artifactId>wstx-asl</artifactId>
         </dependency>
         <dependency>
@@ -129,10 +132,6 @@
                 <groupId>org.apache.geronimo.buildsupport</groupId>
                 <artifactId>car-maven-plugin</artifactId>
                 <configuration>
-                    <useMavenDependencies>
-                        <value>true</value>
-                        <includeVersion>true</includeVersion>
-                    </useMavenDependencies>
                     <category>Deployment</category>
                     <instance>
                         <plugin-artifact>

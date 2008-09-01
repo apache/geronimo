@@ -46,6 +46,14 @@
         </dependency>
         
         <dependency>
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>jee-specs</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
             <!-- TODO remove this WTF??? why isn't this picked up from geronimo-web-2.5-builder? -->
             <groupId>asm</groupId>
             <artifactId>asm</artifactId>

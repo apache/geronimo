@@ -64,7 +64,6 @@
             <artifactId>openejb</artifactId>
             <version>${version}</version>
             <type>car</type>
-            <scope>runtime</scope>
         </dependency>
 
         <dependency>
@@ -101,53 +100,8 @@
                 <groupId>org.apache.geronimo.buildsupport</groupId>
                 <artifactId>car-maven-plugin</artifactId>
                 <configuration>
-                    <useMavenDependencies>
-                        <value>false</value>
-                    </useMavenDependencies>
                     <category>Web Services</category>
                     <dependencies>
-                        <dependency>
-                            <groupId>org.apache.geronimo.framework</groupId>
-                            <artifactId>server-security-config</artifactId>
-                            <version>${version}</version>
-                            <type>car</type>
-                        </dependency>
-                        <dependency>
-                            <groupId>org.apache.geronimo.configs</groupId>
-                            <artifactId>webservices-common</artifactId>
-                            <version>${version}</version>
-                            <type>car</type>
-                        </dependency>
-                        <dependency>
-                            <groupId>org.apache.geronimo.modules</groupId>
-                            <artifactId>geronimo-axis</artifactId>
-                            <version>${version}</version>
-                            <type>jar</type>
-                        </dependency>
-                        <dependency>
-                            <groupId>axis</groupId>
-                            <artifactId>axis</artifactId>
-                            <version>1.4</version>
-                            <type>jar</type>
-                        </dependency>
-                        <dependency>
-                            <groupId>org.apache.openejb</groupId>
-                            <artifactId>openejb-axis</artifactId>
-                            <version>${openejbVersion}</version>
-                            <type>jar</type>
-                        </dependency>
-                        <dependency>
-                            <groupId>commons-discovery</groupId>
-                            <artifactId>commons-discovery</artifactId>
-                            <version>0.4</version>
-                            <type>jar</type>
-                        </dependency>
-                        <dependency>
-                            <groupId>org.apache.ws.scout</groupId>
-                            <artifactId>scout</artifactId>
-                            <version>1.0rc1</version>
-                            <type>jar</type>
-                        </dependency>
                         <dependency>
                             <groupId>org.apache.geronimo.configs</groupId>
                             <artifactId>openejb</artifactId>

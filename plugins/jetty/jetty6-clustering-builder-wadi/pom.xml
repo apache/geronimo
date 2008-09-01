@@ -63,25 +63,8 @@
                 <groupId>org.apache.geronimo.buildsupport</groupId>
                 <artifactId>car-maven-plugin</artifactId>
                 <configuration>
-                    <useMavenDependencies>
-                        <value>false</value>
-                    </useMavenDependencies>
                     <category>Jetty</category>
                     <dependencies>
-                        <dependency>
-                            <groupId>org.apache.geronimo.configs</groupId>
-                            <artifactId>jetty6-deployer</artifactId>
-                            <version>${version}</version>
-                            <type>car</type>
-                        </dependency>
-
-                        <dependency>
-                            <groupId>org.apache.geronimo.modules</groupId>
-                            <artifactId>geronimo-jetty6-clustering-builder-wadi</artifactId>
-                            <version>${version}</version>
-                            <type>jar</type>
-                        </dependency>
-
                         <dependency>
                             <groupId>org.apache.geronimo.configs</groupId>
                             <artifactId>jetty6-clustering-wadi</artifactId>

@@ -47,11 +47,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.openjpa</groupId>
-            <artifactId>openjpa</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-openjpa</artifactId>
             <version>${version}</version>
@@ -94,10 +89,6 @@
                 <artifactId>car-maven-plugin</artifactId>
                 <configuration>
                     <category>Persistence</category>
-                    <useMavenDependencies>
-                        <value>true</value>
-                        <includeVersion>true</includeVersion>
-                    </useMavenDependencies>
                 </configuration>
             </plugin>
         </plugins>

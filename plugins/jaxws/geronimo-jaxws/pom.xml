@@ -38,6 +38,11 @@
             <artifactId>geronimo-naming</artifactId>
             <version>${version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>geronimo-j2ee</artifactId>
+            <version>${version}</version>
+        </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
@@ -49,11 +54,16 @@
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-stax-api_1.0_spec</artifactId>
         </dependency>
-        
+
         <dependency>
-            <groupId>org.apache.xbean</groupId>
-            <artifactId>xbean-finder</artifactId>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-ejb_3.0_spec</artifactId>
         </dependency>
+
+        <!--<dependency>-->
+            <!--<groupId>org.apache.xbean</groupId>-->
+            <!--<artifactId>xbean-finder</artifactId>-->
+        <!--</dependency>-->
 
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
@@ -65,11 +75,11 @@
             <artifactId>geronimo-ws-metadata_2.0_spec</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-webservices</artifactId>
-            <version>${version}</version>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.modules</groupId>-->
+            <!--<artifactId>geronimo-webservices</artifactId>-->
+            <!--<version>${version}</version>-->
+        <!--</dependency>-->
 
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
@@ -82,9 +92,12 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.schema</groupId>
+            <groupId>org.apache.geronimo.plugins.classloaders</groupId>
             <artifactId>geronimo-schema-jee_5</artifactId>
+            <version>${version}</version>
+            <type>car</type>    
         </dependency>
+
     </dependencies>
 
 </project>

@@ -71,10 +71,6 @@
                     <classpathPrefix>../lib</classpathPrefix>
 
                     <category>Geronimo Core</category>
-                    <useMavenDependencies>
-                        <value>true</value>
-                        <includeVersion>true</includeVersion>
-                    </useMavenDependencies>
                 </configuration>
             </plugin>
         </plugins>

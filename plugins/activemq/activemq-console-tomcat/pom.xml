@@ -115,6 +115,12 @@
             <artifactId>geronimo-activemq-ra</artifactId>
             <version>${version}</version>
             <type>rar</type>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.activemq</groupId>
+                    <artifactId>activemq-ra</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
@@ -152,10 +158,6 @@
                     </module>
                     <category>JMS</category>
                     <osiApproved>true</osiApproved>
-                    <useMavenDependencies>
-                        <value>true</value>
-                        <includeVersion>true</includeVersion>
-                    </useMavenDependencies>
                 </configuration>
             </plugin>
         </plugins>

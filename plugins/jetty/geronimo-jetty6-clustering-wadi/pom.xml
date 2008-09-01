@@ -34,15 +34,17 @@
     
     <dependencies>
         <dependency>
-            <groupId>${pom.groupId}</groupId>
-            <artifactId>geronimo-clustering-wadi</artifactId>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>wadi-clustering</artifactId>
             <version>${version}</version>
+            <type>car</type>
         </dependency>
 
         <dependency>
-            <groupId>${pom.groupId}</groupId>
-            <artifactId>geronimo-jetty6</artifactId>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>jetty6</artifactId>
             <version>${version}</version>
+            <type>car</type>
         </dependency>
     </dependencies>
     

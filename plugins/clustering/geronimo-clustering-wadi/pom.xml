@@ -64,6 +64,13 @@
             <groupId>org.codehaus.wadi</groupId>
             <artifactId>wadi-tribes</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jcl104-over-slf4j</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
     </dependencies>
     
 </project>

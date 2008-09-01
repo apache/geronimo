@@ -44,20 +44,17 @@
             <version>${version}</version>
         </dependency>
         
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-ejb_3.0_spec</artifactId>
-        </dependency>
-        
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-ejb_3.0_spec</artifactId>
-        </dependency>
-
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.specs</groupId>-->
+            <!--<artifactId>geronimo-ejb_3.0_spec</artifactId>-->
+            <!--<scope>test</scope>-->
+        <!--</dependency>-->
+<!--        
         <dependency>
             <groupId>org.apache.xbean</groupId>
             <artifactId>xbean-reflect</artifactId>
         </dependency>
+-->
     </dependencies>
     
 </project>

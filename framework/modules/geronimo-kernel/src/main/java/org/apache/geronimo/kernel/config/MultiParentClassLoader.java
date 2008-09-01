@@ -647,7 +647,27 @@ public class MultiParentClassLoader extends URLClassLoader
     }
 
     public String toString() {
-        return "[" + getClass().getName() + " id=" + id + "]";
+        StringBuilder b = new StringBuilder();
+        toBuilder(b, "");
+        return b.toString();
+    }
+
+    private void toBuilder(StringBuilder b, String indent) {
+        b.append(indent).append("[").append(getClass().getName()).append(" id=").append(id).append("]\n");
+        b.append(indent).append("urls:\n");
+        String newIndent = indent + "  ";
+        for (URL url: getURLs()) {
+            b.append(newIndent).append(url).append("\n");
+        }
+        b.append(indent).append("parents:\n");
+
+        for (ClassLoader cl: parents) {
+            if (cl instanceof MultiParentClassLoader) {
+                ((MultiParentClassLoader)cl).toBuilder(b, newIndent);
+            } else {
+                b.append(newIndent).append(cl.toString()).append("\n");
+            }
+        }
     }
 
     public synchronized boolean isDestroyed() {

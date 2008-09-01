@@ -65,11 +65,6 @@
             <version>${version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-webservices-builder</artifactId>
-            <version>${version}</version>
-        </dependency>
     </dependencies>
 
     <build>
@@ -78,36 +73,13 @@
                 <groupId>org.apache.geronimo.buildsupport</groupId>
                 <artifactId>car-maven-plugin</artifactId>
                 <configuration>
-                    <useMavenDependencies>
-                        <value>false</value>
-                    </useMavenDependencies>
                     <category>Web Services</category>
                     <dependencies>
-                        <dependency>
-                            <groupId>org.apache.geronimo.configs</groupId>
-                            <artifactId>openejb-deployer</artifactId>
-                            <type>car</type>
-                        </dependency>
                         <dependency>
                             <groupId>org.apache.geronimo.configs</groupId>
                             <artifactId>axis</artifactId>
                             <type>car</type>
                             <import>classes</import>
-                        </dependency>
-                        <dependency>
-                            <groupId>org.apache.geronimo.modules</groupId>
-                            <artifactId>geronimo-webservices-builder</artifactId>
-                            <type>jar</type>
-                        </dependency>
-                        <dependency>
-                            <groupId>org.apache.geronimo.modules</groupId>
-                            <artifactId>geronimo-axis-builder</artifactId>
-                            <type>jar</type>
-                        </dependency>
-                        <dependency>
-                            <groupId>org.apache.geronimo.configs</groupId>
-                            <artifactId>j2ee-deployer</artifactId>
-                            <type>car</type>
                         </dependency>
                     </dependencies>
                     <instance>

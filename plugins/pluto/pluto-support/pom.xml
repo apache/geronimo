@@ -125,10 +125,6 @@
                         for portlet applications that are shared across the web container.
                     </description>
                     <osiApproved>true</osiApproved>
-                    <useMavenDependencies>
-                        <value>true</value>
-                        <includeVersion>true</includeVersion>
-                    </useMavenDependencies>
                 </configuration>
             </plugin>
         </plugins>

@@ -50,7 +50,6 @@
             <artifactId>j2ee-server</artifactId>
             <version>${version}</version>
             <type>car</type>
-            <scope>runtime</scope>
         </dependency>
 
         <dependency>
@@ -58,7 +57,6 @@
             <artifactId>server-security-config</artifactId>
             <version>${version}</version>
             <type>car</type>
-            <scope>runtime</scope>
         </dependency>
 
         <dependency>
@@ -68,8 +66,10 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.schema</groupId>
+            <groupId>org.apache.geronimo.plugins.classloaders</groupId>
             <artifactId>geronimo-schema-jee_5</artifactId>
+            <version>${version}</version>
+            <type>car</type>
         </dependency>
 
         <dependency>
@@ -77,11 +77,11 @@
             <artifactId>geronimo-schema-j2ee_1.4</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-client</artifactId>
-            <version>${version}</version>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.modules</groupId>-->
+            <!--<artifactId>geronimo-client</artifactId>-->
+            <!--<version>${version}</version>-->
+        <!--</dependency>-->
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
@@ -115,9 +115,10 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.xbean</groupId>
+            <groupId>org.apache.geronimo.plugins.classloaders</groupId>
             <artifactId>xbean-finder</artifactId>
-            <scope>runtime</scope>
+            <version>${version}</version>
+            <type>car</type>
         </dependency>
     </dependencies>
 
@@ -127,32 +128,8 @@
                 <groupId>org.apache.geronimo.buildsupport</groupId>
                 <artifactId>car-maven-plugin</artifactId>
                 <configuration>
-                    <useMavenDependencies>
-                        <value>false</value>
-                    </useMavenDependencies>
                     <category>JavaEE deployment</category>
                     <dependencies>
-                        <dependency>
-                            <groupId>org.apache.geronimo.modules</groupId>
-                            <artifactId>geronimo-j2ee-schema</artifactId>
-                            <version>2.2-SNAPSHOT</version>
-                            <type>jar</type>
-                            <import>classes</import>
-                        </dependency>
-                        <dependency>
-                            <groupId>org.apache.geronimo.schema</groupId>
-                            <artifactId>geronimo-schema-jee_5</artifactId>
-                            <version>1.1</version>
-                            <type>jar</type>
-                            <import>classes</import>
-                        </dependency>
-                        <dependency>
-                            <groupId>org.apache.geronimo.schema</groupId>
-                            <artifactId>geronimo-schema-j2ee_1.4</artifactId>
-                            <version>1.2</version>
-                            <type>jar</type>
-                            <import>classes</import>
-                        </dependency>
                         <dependency>
                             <groupId>org.apache.geronimo.configs</groupId>
                             <artifactId>j2ee-server</artifactId>
@@ -161,65 +138,10 @@
                             <import>classes</import>
                         </dependency>
                         <dependency>
-                            <groupId>org.apache.geronimo.modules</groupId>
-                            <artifactId>geronimo-test-ddbean</artifactId>
-                            <version>2.2-SNAPSHOT</version>
-                            <type>jar</type>
-                            <import>classes</import>
-                        </dependency>
-                        <dependency>
-                            <groupId>org.apache.geronimo.modules</groupId>
-                            <artifactId>geronimo-naming-builder</artifactId>
-                            <version>2.2-SNAPSHOT</version>
-                            <type>jar</type>
-                            <import>classes</import>
-                        </dependency>
-                        <dependency>
-                            <groupId>org.apache.geronimo.modules</groupId>
-                            <artifactId>geronimo-security-builder</artifactId>
-                            <version>2.2-SNAPSHOT</version>
-                            <type>jar</type>
-                            <import>classes</import>
-                        </dependency>
-                        <dependency>
                             <groupId>org.apache.geronimo.framework</groupId>
                             <artifactId>server-security-config</artifactId>
                             <version>2.2-SNAPSHOT</version>
                             <type>car</type>
-                            <import>classes</import>
-                        </dependency>
-                        <dependency>
-                            <groupId>org.apache.geronimo.modules</groupId>
-                            <artifactId>geronimo-j2ee-builder</artifactId>
-                            <version>2.2-SNAPSHOT</version>
-                            <type>jar</type>
-                            <import>classes</import>
-                        </dependency>
-                        <dependency>
-                            <groupId>org.apache.geronimo.framework</groupId>
-                            <artifactId>geronimo-gbean-deployer</artifactId>
-                            <version>2.2-SNAPSHOT</version>
-                            <type>car</type>
-                        </dependency>
-                        <dependency>
-                            <groupId>org.apache.geronimo.modules</groupId>
-                            <artifactId>geronimo-client</artifactId>
-                            <version>2.2-SNAPSHOT</version>
-                            <type>jar</type>
-                            <import>classes</import>
-                        </dependency>
-                        <dependency>
-                            <groupId>org.apache.xbean</groupId>
-                            <artifactId>xbean-finder</artifactId>
-                            <version>3.4.1</version>
-                            <type>jar</type>
-                            <import>classes</import>
-                        </dependency>
-                        <dependency>
-                            <groupId>org.apache.geronimo.modules</groupId>
-                            <artifactId>geronimo-web-2.5-builder</artifactId>
-                            <version>2.2-SNAPSHOT</version>
-                            <type>jar</type>
                             <import>classes</import>
                         </dependency>
                     </dependencies>

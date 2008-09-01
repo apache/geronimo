@@ -64,26 +64,12 @@
                 <groupId>org.apache.geronimo.buildsupport</groupId>
                 <artifactId>car-maven-plugin</artifactId>
                 <configuration>
-                    <useMavenDependencies>
-                        <value>false</value>
-                    </useMavenDependencies>
                     <category>Web Services</category>
                     <dependencies>
                       <dependency>
                         <groupId>org.apache.geronimo.configs</groupId>
-                        <artifactId>jaxws-deployer</artifactId>
-                        <type>car</type>
-                      </dependency>
-                      <dependency>
-                        <groupId>org.apache.geronimo.configs</groupId>
                         <artifactId>cxf</artifactId>
                         <type>car</type>
-                        <import>classes</import>
-                      </dependency>
-                      <dependency>
-                        <groupId>org.apache.geronimo.modules</groupId>
-                        <artifactId>geronimo-cxf-builder</artifactId>
-                        <type>jar</type>
                         <import>classes</import>
                       </dependency>
                     </dependencies>

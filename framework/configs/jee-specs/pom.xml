@@ -38,10 +38,11 @@
         <!-- geronimo-javaee-deployment_1.1MR3_spec is intentionally missing, it must be available earlier in the classpath
         Hopefully we can eliminate this restriction in the future. -->
 
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-activation_1.1_spec</artifactId>
-        </dependency>
+        <!-- activation is needed in root cl to run jaxb -->
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.specs</groupId>-->
+            <!--<artifactId>geronimo-activation_1.1_spec</artifactId>-->
+        <!--</dependency>-->
 
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
@@ -216,9 +217,6 @@
                         <deploymentConfig>${gbeanDeployerBootstrap}</deploymentConfig>
                     </deploymentConfigs>
                     <deployerName>org.apache.geronimo.framework/geronimo-gbean-deployer-bootstrap/${geronimoVersion}/car?j2eeType=Deployer,name=Deployer</deployerName>
-                    <useMavenDependencies>
-                        <value>false</value>
-                    </useMavenDependencies>
 
                     <category>JavaEE</category>
                     <dependencies>
@@ -227,131 +225,6 @@
                             <artifactId>j2ee-system</artifactId>
                             <type>car</type>
                             <import>classes</import>
-                        </dependency>
-                        <dependency>
-                            <groupId>org.apache.geronimo.specs</groupId>
-                            <artifactId>geronimo-activation_1.1_spec</artifactId>
-                            <type>jar</type>
-                        </dependency>
-                        <dependency>
-                            <groupId>org.apache.geronimo.specs</groupId>
-                            <artifactId>geronimo-annotation_1.0_spec</artifactId>
-                            <type>jar</type>
-                        </dependency>
-                        <dependency>
-                            <groupId>org.apache.geronimo.specs</groupId>
-                            <artifactId>geronimo-ejb_3.0_spec</artifactId>
-                            <type>jar</type>
-                        </dependency>
-                        <dependency>
-                          <groupId>org.apache.openejb</groupId>
-                          <artifactId>ejb31-api-experimental</artifactId>
-                          <type>jar</type>
-                       </dependency>
-                        <dependency>
-                            <groupId>org.apache.geronimo.specs</groupId>
-                            <artifactId>geronimo-el_1.0_spec</artifactId>
-                            <type>jar</type>
-                        </dependency>
-                        <dependency>
-                            <groupId>org.apache.geronimo.specs</groupId>
-                            <artifactId>geronimo-interceptor_3.0_spec</artifactId>
-                            <type>jar</type>
-                        </dependency>
-                        <dependency>
-                            <groupId>org.apache.geronimo.specs</groupId>
-                            <artifactId>geronimo-j2ee-connector_1.5_spec</artifactId>
-                            <type>jar</type>
-                        </dependency>
-                        <dependency>
-                            <groupId>org.apache.geronimo.specs</groupId>
-                            <artifactId>geronimo-j2ee-management_1.1_spec</artifactId>
-                            <type>jar</type>
-                        </dependency>
-                        <dependency>
-                            <groupId>org.apache.geronimo.specs</groupId>
-                            <artifactId>geronimo-jacc_1.1_spec</artifactId>
-                            <type>jar</type>
-                        </dependency>
-                        <dependency>
-                            <groupId>org.apache.geronimo.specs</groupId>
-                            <artifactId>geronimo-jaspi_1.0_spec</artifactId>
-                            <type>jar</type>
-                        </dependency>
-                        <dependency>
-                            <groupId>org.apache.geronimo.javamail</groupId>
-                            <artifactId>geronimo-javamail_1.4_mail</artifactId>
-                            <type>jar</type>
-                        </dependency>
-                        <dependency>
-                            <groupId>org.apache.geronimo.specs</groupId>
-                            <artifactId>geronimo-jaxrpc_1.1_spec</artifactId>
-                            <type>jar</type>
-                        </dependency>
-                        <dependency>
-                            <groupId>org.apache.geronimo.specs</groupId>
-                            <artifactId>geronimo-jaxr_1.0_spec</artifactId>
-                            <type>jar</type>
-                        </dependency>
-                        <dependency>
-                            <groupId>org.apache.geronimo.specs</groupId>
-                            <artifactId>geronimo-jms_1.1_spec</artifactId>
-                            <type>jar</type>
-                        </dependency>
-                        <dependency>
-                            <groupId>org.apache.geronimo.specs</groupId>
-                            <artifactId>geronimo-jpa_3.0_spec</artifactId>
-                            <type>jar</type>
-                        </dependency>
-                        <dependency>
-                            <groupId>org.apache.geronimo.specs</groupId>
-                            <artifactId>geronimo-jsp_2.1_spec</artifactId>
-                            <type>jar</type>
-                        </dependency>
-                        <dependency>
-                            <groupId>org.apache.geronimo.specs</groupId>
-                            <artifactId>geronimo-jta_1.1_spec</artifactId>
-                            <type>jar</type>
-                        </dependency>
-                        <dependency>
-                            <groupId>org.apache.geronimo.specs</groupId>
-                            <artifactId>geronimo-servlet_3.0_spec</artifactId>
-                            <type>jar</type>
-                        </dependency>
-                        <dependency>
-                            <groupId>org.apache.geronimo.specs</groupId>
-                            <artifactId>geronimo-ws-metadata_2.0_spec</artifactId>
-                            <type>jar</type>
-                        </dependency>
-                        <dependency>
-                            <groupId>org.apache.geronimo.specs</groupId>
-                            <artifactId>geronimo-jaxws_2.1_spec</artifactId>
-                            <type>jar</type>
-                        </dependency>
-                        <dependency>
-                            <groupId>org.apache.geronimo.specs</groupId>
-                            <artifactId>geronimo-saaj_1.3_spec</artifactId>
-                            <type>jar</type>
-                        </dependency>
-                        <dependency>
-                            <groupId>jstl</groupId>
-                            <artifactId>jstl</artifactId>
-                            <type>jar</type>
-                        </dependency>
-                        <dependency>
-                            <groupId>org.apache.myfaces.core</groupId>
-                            <artifactId>myfaces-api</artifactId>
-                            <type>jar</type>
-                        </dependency>
-                        <dependency>
-                            <groupId>org.apache.geronimo.framework</groupId>
-                            <artifactId>geronimo-jdbc</artifactId>
-                            <type>jar</type>
-                        </dependency>
-                        <dependency>
-                            <groupId>org.apache.geronimo.specs</groupId>
-                            <artifactId>geronimo-concurrent_1.0_spec</artifactId>
-                            <type>jar</type>
                         </dependency>
                     </dependencies>
 

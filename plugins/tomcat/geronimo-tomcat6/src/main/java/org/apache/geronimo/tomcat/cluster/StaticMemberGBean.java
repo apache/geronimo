@@ -18,15 +18,14 @@ package org.apache.geronimo.tomcat.cluster;
 
 import java.util.Map;
 
-import org.apache.catalina.tribes.ChannelInterceptor;
 import org.apache.catalina.tribes.membership.StaticMember;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.tomcat.BaseGBean;
 import org.apache.geronimo.tomcat.ObjectRetriever;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @version $Rev$ $Date$
@@ -34,7 +33,7 @@ import org.apache.geronimo.tomcat.ObjectRetriever;
 public class StaticMemberGBean extends BaseGBean implements
         GBeanLifecycle, ObjectRetriever {
 
-    private static final Log log = LogFactory.getLog(StaticMemberGBean.class);
+    private static final Logger log = LoggerFactory.getLogger(StaticMemberGBean.class);
 
     public static final String J2EE_TYPE = "StaticMember";
 

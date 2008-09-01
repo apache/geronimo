@@ -111,10 +111,6 @@
                         <!--<deploymentConfig>${openejbDeployer}</deploymentConfig>-->
                         <deploymentConfig>${openejbcorbaDeployer}</deploymentConfig>
                     </deploymentConfigs>
-                    <useMavenDependencies>
-                        <value>true</value>
-                        <includeVersion>true</includeVersion>
-                    </useMavenDependencies>
                     <category>EJB</category>
                     <instance>
                         <plugin-artifact>

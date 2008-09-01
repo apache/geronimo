@@ -7,16 +7,6 @@
         <type>car</type>
     </module-id>
     <dependency>
-        <groupId>org.apache.geronimo.schema</groupId>
-        <artifactId>geronimo-schema-jee_5</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>woodstox</groupId>
-        <artifactId>wstx-asl</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
         <groupId>org.apache.geronimo.framework</groupId>
         <artifactId>j2ee-security</artifactId>
         <type>car</type>
@@ -32,8 +22,8 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>com.sun.xml.bind</groupId>
-        <artifactId>jaxb-impl</artifactId>
+        <groupId>org.codehaus.castor</groupId>
+        <artifactId>castor</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -55,5 +45,10 @@
         <groupId>wsdl4j</groupId>
         <artifactId>wsdl4j</artifactId>
         <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.plugins.classloaders</groupId>
+        <artifactId>geronimo-schema-jee_5</artifactId>
+        <type>car</type>
     </dependency>
 </plugin-artifact>

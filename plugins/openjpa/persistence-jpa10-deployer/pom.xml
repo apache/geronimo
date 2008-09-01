@@ -49,17 +49,11 @@
             <version>${version}</version>
         </dependency>
 
-        <!--<dependency>-->
-        <!--<groupId>org.apache.xbean</groupId>-->
-        <!--<artifactId>xbean-finder</artifactId>-->
-        <!--</dependency>-->
-
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>transaction</artifactId>
             <type>car</type>
             <version>${version}</version>
-            <scope>runtime</scope>
         </dependency>
 
         <!--todo get the schema classes in a config -->
@@ -75,9 +69,6 @@
                 <groupId>org.apache.geronimo.buildsupport</groupId>
                 <artifactId>car-maven-plugin</artifactId>
                 <configuration>
-                    <useMavenDependencies>
-                        <value>false</value>
-                    </useMavenDependencies>
                     <category>Persistence</category>
                     <dependencies>
                         <dependency>
@@ -85,17 +76,6 @@
                             <artifactId>transaction</artifactId>
                             <type>car</type>
                             <import>classes</import>
-                        </dependency>
-                        <dependency>
-                            <groupId>org.apache.geronimo.modules</groupId>
-                            <artifactId>geronimo-persistence-jpa10-builder</artifactId>
-                            <type>jar</type>
-                            <import>classes</import>
-                        </dependency>
-                        <dependency>
-                            <groupId>org.apache.geronimo.configs</groupId>
-                            <artifactId>j2ee-deployer</artifactId>
-                            <type>car</type>
                         </dependency>
                     </dependencies>
                     <instance>
