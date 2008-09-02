@@ -3041,9 +3041,9 @@
                         </goals>
                         <configuration>
                             <rules>
-                                <!-- Allow any Java >= 1.5, but not 1.6 or above -->
+                                <!-- Allow any Java >= 1.5 -->
                                 <requireJavaVersion>
-                                    <version>[1.5,1.6)</version>
+                                    <version>[1.5,)</version>
                                 </requireJavaVersion>
 
                                 <!-- Require Maven 2.0.9+ -->
