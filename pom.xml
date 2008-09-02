@@ -188,7 +188,7 @@
             <dependency>
                 <groupId>org.apache.geronimo.javamail</groupId>
                 <artifactId>geronimo-javamail_1.4_mail</artifactId>
-                <version>1.6-SNAPSHOT</version>
+                <version>1.6</version>
             </dependency>
 
             <dependency>
