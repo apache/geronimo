@@ -58,7 +58,7 @@ import org.codehaus.plexus.util.FileUtils;
  * Build a Geronimo Configuration using the local Maven infrastructure.
  *
  * @goal package
- * @requiresDependencyResolution runtime
+ * @requiresDependencyResolution compile
  *
  * @version $Rev$ $Date$
  */
