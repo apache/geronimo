@@ -61,6 +61,8 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
+                <!-- HACK - The 2.0 level doesn't handle the tgz correctly -->
+                <version>2.0-alpha-4</version>
                 <executions>
                     <execution>
                         <id>unpack</id>
