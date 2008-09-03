@@ -1,4 +1,4 @@
-Release Notes -- Apache Geronimo -- Version 2.1.4
+Release Notes -- Apache Geronimo -- Version @VERSION@
 
 
 Geronimo URLs
@@ -58,7 +58,7 @@ Plan Creator
   through a sequence of steps and generates geronimo-web.xml automatically.
 
 
-Geronimo 2.1.4 Issues Resolved
+Geronimo @VERSION@ Issues Resolved
 ------------------------------
 ** Bug
 TBD
@@ -79,7 +79,7 @@ Certification Test Suite. See "Distributions" for further details.
 
 Distributions
 -------------
-Apache Geronimo v2.1.4 is available in five distributions so you can pick the 
+Apache Geronimo v@VERSION@ is available in five distributions so you can pick the 
 one that best fits your environment.
 
 The available distributions are as follows:
