@@ -33,7 +33,7 @@
                        <dep:dependency>
                                <dep:groupId>org.apache.openjpa</dep:groupId>
                                <dep:artifactId>openjpa</dep:artifactId>
-                               <dep:version>1.0.2</dep:version>
+                               <dep:version>1.2.0</dep:version>
                                <dep:type>jar</dep:type>
                        </dep:dependency>
 
