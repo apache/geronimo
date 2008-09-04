@@ -109,6 +109,35 @@
 </c:if>    
 </c:forEach>
 </table>
+
+    <h3><fmt:message key="car.list.requiredPlugin"/></h3>
+<table border="0" cellpadding="3">
+<tr>
+  <th class="DarkBackground">&nbsp;</th>
+  <c:forEach var="column" items="Name,Version,Category">
+  <th class="DarkBackground">${column}</th>
+  </c:forEach>
+</tr>
+<c:forEach var="plugin" items="${plugins}" varStatus="status">
+<c:set var="style" value="${status.index % 2 == 0 ? 'MediumBackground' : 'LightBackground'}"/>
+<c:set var="artifact" value="${plugin.pluginArtifact.moduleId}"/>
+<c:if test="${artifact.artifactId eq 'geronimo-boilerplate'}">
+<tr>
+  <td class="${style}">
+    <input type="checkbox" name="plugin" title="${artifact.groupId}/${artifact.artifactId}/${artifact.version}/${artifact.type}" value="${artifact.groupId}/${artifact.artifactId}/${artifact.version}/${artifact.type}" CHECKED/>
+  </td>
+  <td class="${style}">
+    <a href='<portlet:actionURL>
+    <portlet:param name="configId" value="${artifact.groupId}/${artifact.artifactId}/${artifact.version}/${artifact.type}"/>
+    <portlet:param name="mode" value="assemblyView-before"/>
+    </portlet:actionURL>'>${plugin.name}</a>
+  </td>
+  <td class="${style}">${artifact.version}</td>
+  <td class="${style}">${plugin.category}</td>
+</tr>
+</c:if>    
+</c:forEach>
+</table>
 </c:when>
 
 <c:when test="${type eq 'Function Centric'}"> 
