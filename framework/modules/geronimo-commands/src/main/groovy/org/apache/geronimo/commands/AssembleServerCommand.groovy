@@ -27,7 +27,7 @@ import org.apache.geronimo.gshell.command.annotation.CommandComponent
 import org.apache.geronimo.kernel.repository.Artifact
 
 /**
- * Extract a bunch of plugins into a server.
+ * Extract a bunch of plugins into a custom assembly server.
  *
  * @version $Rev: 580864 $ $Date: 2007-09-30 23:47:39 -0700 (Sun, 30 Sep 2007) $
  */
@@ -37,6 +37,9 @@ class AssembleServerCommand
 {
     @Option (name = '-l', aliases = ['--list'], description = 'refresh plugin list')
     boolean refreshList = false
+    
+    @Option (name = '-m', aliases = ['--mode'], description = 'custom assembly mode')
+    String mode
 
     @Option (name = '-t', aliases = ['--path'], description = 'assembly location')
     String relativeServerPath = "var/temp/assembly"
@@ -57,39 +60,78 @@ class AssembleServerCommand
     List<String> pluginArtifacts
 
     protected Object doExecute() throws Exception {
-        io.out.println('Listing configurations from Geronimo server')
-
-        def connection = connect()
-              
-        if (!artifact) {
-            artifact = prompter.readLine('Server artifact name: ')
-            if (!artifact) {
-                throw new IllegalArgumentException('Server artifact name is required')
-            }
-        }
-        
+    
+        def connection = connect()        
         def command = new CommandListConfigurations()
         def consoleReader = new ConsoleReader(io.inputStream, io.out)
-        def plugins = variables.get('LocalPlugins')
+	    
+        io.out.println('Available custom assembly modes:')
+        io.out.println(' 1:    Function Centric')
+        io.out.println(' 2:    Application Centric')
+        io.out.println(' 3:    Expert Users')
         
-        if (refreshList || !plugins) {
-            plugins = command.getLocalPluginCategories(connection.getDeploymentManager(), consoleReader)
-            variables.parent.set('LocalPlugins', plugins)
+        if (!mode) {
+            mode = prompter.readLine('Please select a custom assembly mode [1,2,3]').trim()
+            if (!mode || (mode.compareTo("1") != 0 && mode.compareTo("2") != 0 && mode.compareTo("3") != 0)) {
+                throw new IllegalArgumentException('Please enter a valid Assembly server mode')
+            } 
         }
-
-        if (pluginArtifacts) {
-            command.assembleServer(connection.getDeploymentManager(), pluginArtifacts, plugins, 'repository', relativeServerPath, consoleReader)
-            connection.getDeploymentManager().archive(relativeServerPath, 'var/temp', new Artifact(group, artifact, (String)version, format));
-        }
-        else {
-            def pluginsToInstall = command.getInstallList(plugins, consoleReader, null)
-            
-            if (pluginsToInstall) {
-                command.assembleServer(connection.getDeploymentManager(), pluginsToInstall, 'repository', relativeServerPath, consoleReader)
-                connection.getDeploymentManager().archive(relativeServerPath, 'var/temp', new Artifact(group, artifact, (String)version, format));
+              
+        if (!group) {
+            group = prompter.readLine('Assembly server group name: ').trim()
+            if (!group) {
+                throw new IllegalArgumentException('Assembly server group name is required')
             }
         }
         
-        io.out.println('list ended')
+        if (!artifact) {
+            artifact = prompter.readLine('Assembly server artifact name: ').trim()
+            if (!artifact) {
+                throw new IllegalArgumentException('Assembly server artifact name is required')
+            }
+        }
+        
+	    def plugins = variables.get('LocalPlugins')
+	        
+	    if (refreshList || !plugins) {
+	        plugins = command.getLocalPluginCategories(connection.getDeploymentManager(), consoleReader)
+	        variables.parent.set('LocalPlugins', plugins)
+	    }
+	    
+	    if (pluginArtifacts) {
+	        command.assembleServer(connection.getDeploymentManager(), pluginArtifacts, plugins, 'repository', relativeServerPath, consoleReader)
+            connection.getDeploymentManager().archive(relativeServerPath, 'var/temp', new Artifact(group, artifact, (String)version, format));
+	    } else {
+	        def pluginsToInstall;
+	          	                
+            if (mode.compareTo("1") == 0) {
+                io.out.println('Listing plugin groups from the local Geronimo server')
+	            def pluginGroups = variables.get('LocalPluginGroups')
+	        
+	            if (refreshList || !pluginGroups) {
+	                pluginGroups = command.getLocalPluginGroups(connection.getDeploymentManager(), consoleReader)
+	                variables.parent.set('LocalPluginGroups', pluginGroups)
+	            }
+	            pluginsToInstall = command.getInstallList(pluginGroups, consoleReader, null)
+	                    
+            } else if (mode.compareTo("2") == 0) {
+                io.out.println('Listing application plugins from the local Geronimo server')
+	            def appPlugins = variables.get('LocalAppPlugins')
+	        
+	            if (refreshList || !appPlugins) {
+	                appPlugins = command.getLocalApplicationPlugins(connection.getDeploymentManager(), consoleReader)
+	                variables.parent.set('LocalAppPlugins', appPlugins)
+	            }
+	            pluginsToInstall = command.getInstallList(appPlugins, consoleReader, null)
+            } else {
+                io.out.println('Listing plugins from the local Geronimo server')
+                pluginsToInstall = command.getInstallList(plugins, consoleReader, null)
+            } 
+	            
+            if (pluginsToInstall) {
+                command.assembleServer(connection.getDeploymentManager(), pluginsToInstall, 'repository', relativeServerPath, consoleReader)
+                connection.getDeploymentManager().archive(relativeServerPath, 'var/temp', new Artifact(group, artifact, (String)version, format));            
+            }
+        }       
     }
 }

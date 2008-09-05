@@ -21,19 +21,29 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import javax.enterprise.deploy.shared.ModuleType;
 import javax.enterprise.deploy.spi.DeploymentManager;
+import javax.enterprise.deploy.spi.exceptions.TargetException;
+import javax.enterprise.deploy.spi.Target;
+import javax.enterprise.deploy.spi.TargetModuleID;
 import javax.security.auth.login.FailedLoginException;
 
 import jline.ConsoleReader;
+
 import org.apache.geronimo.cli.deployer.CommandArgs;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.plugin.GeronimoDeploymentManager;
+import org.apache.geronimo.deployment.plugin.TargetModuleIDImpl;
 import org.apache.geronimo.kernel.config.NoSuchStoreException;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.KernelRegistry;
 import org.apache.geronimo.system.plugin.DownloadResults;
 import org.apache.geronimo.system.plugin.PluginInstallerGBean;
 import org.apache.geronimo.system.plugin.model.PluginArtifactType;
@@ -152,6 +162,39 @@ public class CommandListConfigurations extends AbstractCommand {
         return data;
     }
 
+    public PluginListType getLocalApplicationPlugins(GeronimoDeploymentManager mgr, ConsoleReader consoleReader) throws DeploymentException, IOException {
+        PluginListType data = getLocalPluginCategories(mgr, consoleReader);
+        List<String> appList = getApplicationModuleLists(mgr);
+
+        return getPluginsFromIds(appList, data);
+    }
+    
+    public PluginListType getLocalPluginGroups(GeronimoDeploymentManager mgr, ConsoleReader consoleReader) throws DeploymentException, IOException {
+        PluginListType data = getLocalPluginCategories(mgr, consoleReader);
+        PluginListType appData = new PluginListType();
+
+        for (PluginType metadata: data.getPlugin()) {
+            // ignore plugins which have no artifacts defined
+            if (metadata.getPluginArtifact().isEmpty()) {
+                continue;
+            }
+
+            if (metadata.getCategory() == null) {
+                metadata.setCategory("Unspecified");
+            }
+       
+            //determine if the plugin is a plugin group
+            if (metadata.isPluginGroup() != null && metadata.isPluginGroup()) {
+                appData.getPlugin().add(metadata);
+            }
+        }
+        
+        if (appData == null || appData.getPlugin().size() == 0) {
+            return null;
+        }
+        return appData;
+    }
+    
     private Map<String, Collection<PluginType>> writePluginList(PluginListType data, ConsoleReader consoleReader) throws IOException {
         if (data == null) {
             consoleReader.printNewline();
@@ -270,5 +313,30 @@ public class CommandListConfigurations extends AbstractCommand {
         PluginListType selected = getPluginsFromIds(list, all);
         assembleServer(mgr, selected, repositoryPath, relativeServerPath, consoleReader);
     }
-
+    
+    private List<String> getApplicationModuleLists(GeronimoDeploymentManager mgr) throws DeploymentException {
+        List<String> apps = new ArrayList<String>();
+        
+        TargetModuleID[] modules;
+        
+        try {
+            modules = mgr.getAvailableModules(null, mgr.getTargets());
+        } catch (TargetException e) {
+            throw new DeploymentException("Unable to query available modules", e);
+        } catch (IllegalStateException e) {
+            throw new DeploymentSyntaxException(e.getMessage(), e);
+        }
+        
+        for (int i = 0; i < modules.length; i++) {
+            ModuleType type = ((TargetModuleIDImpl)modules[i]).getType();
+            if (type != null) {
+                if (type.equals(ModuleType.WAR) || type.equals(ModuleType.EAR) || type.equals(ModuleType.EJB) || type.equals(ModuleType.RAR) || type.equals(ModuleType.CAR)) {
+                    apps.add(((TargetModuleIDImpl)modules[i]).getModuleID());
+                }
+            }
+        }
+        
+        return apps;
+        
+    }
 }
