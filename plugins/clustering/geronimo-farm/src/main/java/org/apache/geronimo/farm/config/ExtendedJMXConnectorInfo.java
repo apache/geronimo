@@ -20,8 +20,12 @@
 package org.apache.geronimo.farm.config;
 
 import java.io.Serializable;
+import java.io.IOException;
+
+import javax.management.remote.JMXConnector;
 
 import org.apache.geronimo.jmxremoting.JMXConnectorInfo;
+import org.apache.geronimo.kernel.Kernel;
 
 /**
  *
@@ -39,4 +43,8 @@ public interface ExtendedJMXConnectorInfo extends JMXConnectorInfo, Serializable
     boolean isLocal();
 
     void setLocal(boolean local);
+
+    JMXConnector connect() throws IOException;
+
+    Kernel newKernel(JMXConnector jmxConnector) throws IOException;
 }

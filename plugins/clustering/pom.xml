@@ -40,9 +40,21 @@
         <module>geronimo-clustering</module>
         <module>geronimo-clustering-wadi</module>
         <module>geronimo-farm</module>
+        <module>geronimo-deploy-farm</module>
+        <module>geronimo-plugin-farm</module>
         <module>clustering</module>
         <module>wadi-clustering</module>
         <module>farming</module>
+        <module>plugin-farm</module>
     </modules>
+
+    <profiles>
+        <profile>
+            <id>it</id>
+            <modules>
+                <module>plugin-farm-it</module>
+            </modules>
+        </profile>
+    </profiles>
 
 </project>

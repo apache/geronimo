@@ -27,16 +27,16 @@
         <artifactId>clustering</artifactId>
         <version>2.2-SNAPSHOT</version>
     </parent>
-    
+
     <groupId>org.apache.geronimo.configs</groupId>
-    <artifactId>farming</artifactId>
-    <name>Geronimo Plugins, Clustering :: Farming</name>
+    <artifactId>plugin-farm</artifactId>
+    <name>Geronimo Plugins, Clustering :: Plugin Farm</name>
     <packaging>car</packaging>
 
     <description>
         Basic farming support
     </description>
-    
+
     <dependencies>
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
@@ -44,7 +44,7 @@
             <version>${version}</version>
             <type>car</type>
         </dependency>
-        
+
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>plugin</artifactId>
@@ -54,21 +54,21 @@
 
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>j2ee-server</artifactId>
+            <artifactId>system-database</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.geronimo.framework</groupId>
-            <artifactId>j2ee-security</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
+        <!--<dependency>-->
+        <!--<groupId>org.apache.geronimo.framework</groupId>-->
+        <!--<artifactId>j2ee-security</artifactId>-->
+        <!--<version>${version}</version>-->
+        <!--<type>car</type>-->
+        <!--</dependency>-->
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-deploy-farm</artifactId>
+            <artifactId>geronimo-plugin-farm</artifactId>
             <version>${version}</version>
         </dependency>
     </dependencies>
@@ -80,20 +80,16 @@
                 <artifactId>car-maven-plugin</artifactId>
                 <configuration>
                     <category>Clustering</category>
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.apache.geronimo.framework</groupId>
+                            <artifactId>geronimo-gbean-deployer</artifactId>
+                            <type>car</type>
+                            <import>classes</import>
+                        </dependency>
+                    </dependencies>
                     <instance>
                         <plugin-artifact>
-                            <copy-file relative-to="geronimo" dest-dir="farming">cluster-repository</copy-file>
-                            <copy-file relative-to="geronimo" dest-dir="farming">master-repository</copy-file>
-                            <config-xml-content load="false">
-                                <gbean name="NodeInfo">
-                                    <attribute name="name">#{clusterNodeName}</attribute>
-                                </gbean>
-                                <gbean name="ClusterInfo">
-                                    <attribute name="name">#{clusterName}</attribute>
-                                </gbean>
-                            </config-xml-content>
-                            <config-substitution key="clusterNodeName">NODE</config-substitution>
-                            <config-substitution key="clusterName">CLUSTER_NAME</config-substitution>
                         </plugin-artifact>
                     </instance>
                 </configuration>

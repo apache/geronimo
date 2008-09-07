@@ -70,24 +70,11 @@ public class BasicNodeInfo implements NodeInfo {
         if (connectorInfo.isLocal()) {
             return kernel;
         }
-        
-        String url = "service:jmx:rmi://" + connectorInfo.getHost() + "/jndi/"
-                        + connectorInfo.getProtocol() + "://" + connectorInfo.getHost() + ":"
-                        + connectorInfo.getPort() + "/" + connectorInfo.getUrlPath();
-
-        Map environment = new HashMap();
-        environment.put("jmx.remote.credentials",
-            new String[] {connectorInfo.getUsername(), connectorInfo.getPassword()});
-
-        return newKernel(url, environment);
+        JMXConnector jmxConnector = connectorInfo.connect();
+        return connectorInfo.newKernel(jmxConnector);
+        //TODO close the connection eventually?
     }
 
-    protected Kernel newKernel(String url, Map environment) throws IOException {
-        JMXConnector jmxConnector = JMXConnectorFactory.connect(new JMXServiceURL(url), environment);
-        MBeanServerConnection mbServerConnection = jmxConnector.getMBeanServerConnection();
-        return new KernelDelegate(mbServerConnection);
-    }
-    
     public static final String GBEAN_ATTR_NODE_NAME = "name";
     public static final String GBEAN_ATTR_EXT_JMX_CONN_INFO = "extendedJMXConnectorInfo";
 }

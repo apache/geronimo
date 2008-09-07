@@ -20,10 +20,21 @@
 package org.apache.geronimo.farm.config;
 
 import java.io.Serializable;
+import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Collections;
+
+import javax.management.remote.JMXConnector;
+import javax.management.remote.JMXConnectorFactory;
+import javax.management.remote.JMXServiceURL;
+import javax.management.MBeanServerConnection;
 
 import org.apache.geronimo.deployment.service.DoNotPersist;
 import org.apache.geronimo.deployment.service.EncryptOnPersist;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.system.jmx.KernelDelegate;
 
 /**
  *
@@ -37,7 +48,20 @@ public class BasicExtendedJMXConnectorInfo implements ExtendedJMXConnectorInfo, 
     private int port = -1;
     private String urlPath;
     private boolean local;
-    
+
+    public BasicExtendedJMXConnectorInfo() {
+    }
+
+    public BasicExtendedJMXConnectorInfo(String username, String password, String protocol, String host, int port, String urlPath, boolean local) {
+        this.username = username;
+        this.password = password;
+        this.protocol = protocol;
+        this.host = host;
+        this.port = port;
+        this.urlPath = urlPath;
+        this.local = local;
+    }
+
     public String getHost() {
         return host;
     }
@@ -98,6 +122,27 @@ public class BasicExtendedJMXConnectorInfo implements ExtendedJMXConnectorInfo, 
 
     public void setLocal(boolean local) {
         this.local = local;
+    }
+
+    public JMXConnector connect() throws IOException {
+        String url = getJmxURI();
+
+        Map<String, ?> environment = Collections.singletonMap("jmx.remote.credentials",
+            new String[] {getUsername(), getPassword()});
+
+        return JMXConnectorFactory.connect(new JMXServiceURL(url), environment);
+    }
+
+    public Kernel newKernel(JMXConnector jmxConnector) throws IOException {
+        MBeanServerConnection mbServerConnection = jmxConnector.getMBeanServerConnection();
+        return new KernelDelegate(mbServerConnection);
+    }
+
+    protected String getJmxURI() {
+        return "service:jmx:rmi://" + getHost() + "/jndi/"
+                        + getProtocol() + "://" + getHost() + ":"
+                        + getPort() + "/" + getUrlPath();
+
     }
 
 }

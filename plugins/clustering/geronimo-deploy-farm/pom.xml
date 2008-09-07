@@ -29,10 +29,26 @@
     </parent>
     
     <groupId>org.apache.geronimo.modules</groupId>
-    <artifactId>geronimo-farm</artifactId>
+    <artifactId>geronimo-deploy-farm</artifactId>
     <name>Geronimo Plugins, Clustering :: Farm</name>
     
     <dependencies>
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-farm</artifactId>
+            <version>${version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>geronimo-deploy-jsr88</artifactId>
+            <version>${version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>geronimo-j2ee</artifactId>
+            <version>${version}</version>
+        </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
