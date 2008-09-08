@@ -64,13 +64,13 @@ class AssembleServerCommand
         def connection = connect()        
         def command = new CommandListConfigurations()
         def consoleReader = new ConsoleReader(io.inputStream, io.out)
-	    
-        io.out.println('Available custom assembly modes:')
-        io.out.println(' 1:    Function Centric')
-        io.out.println(' 2:    Application Centric')
-        io.out.println(' 3:    Expert Users')
-        
+            
         if (!mode) {
+            io.out.println('Available custom assembly modes:')
+            io.out.println(' 1:    Function Centric')
+            io.out.println(' 2:    Application Centric')
+            io.out.println(' 3:    Expert Users')
+
             mode = prompter.readLine('Please select a custom assembly mode [1,2,3]').trim()
             if (!mode || (mode.compareTo("1") != 0 && mode.compareTo("2") != 0 && mode.compareTo("3") != 0)) {
                 throw new IllegalArgumentException('Please enter a valid Assembly server mode')
@@ -91,43 +91,43 @@ class AssembleServerCommand
             }
         }
         
-	    def plugins = variables.get('LocalPlugins')
-	        
-	    if (refreshList || !plugins) {
-	        plugins = command.getLocalPluginCategories(connection.getDeploymentManager(), consoleReader)
-	        variables.parent.set('LocalPlugins', plugins)
-	    }
-	    
-	    if (pluginArtifacts) {
-	        command.assembleServer(connection.getDeploymentManager(), pluginArtifacts, plugins, 'repository', relativeServerPath, consoleReader)
+        def plugins = variables.get('LocalPlugins')
+                
+        if (refreshList || !plugins) {
+            plugins = command.getLocalPluginCategories(connection.getDeploymentManager(), consoleReader)
+            variables.parent.set('LocalPlugins', plugins)
+        }
+            
+        if (pluginArtifacts) {
+            command.assembleServer(connection.getDeploymentManager(), pluginArtifacts, plugins, 'repository', relativeServerPath, consoleReader)
             connection.getDeploymentManager().archive(relativeServerPath, 'var/temp', new Artifact(group, artifact, (String)version, format));
-	    } else {
-	        def pluginsToInstall;
-	          	                
+        } else {
+            def pluginsToInstall;
+                                        
             if (mode.compareTo("1") == 0) {
                 io.out.println('Listing plugin groups from the local Geronimo server')
-	            def pluginGroups = variables.get('LocalPluginGroups')
-	        
-	            if (refreshList || !pluginGroups) {
-	                pluginGroups = command.getLocalPluginGroups(connection.getDeploymentManager(), consoleReader)
-	                variables.parent.set('LocalPluginGroups', pluginGroups)
-	            }
-	            pluginsToInstall = command.getInstallList(pluginGroups, consoleReader, null)
-	                    
+                def pluginGroups = variables.get('LocalPluginGroups')
+                
+                if (refreshList || !pluginGroups) {
+                    pluginGroups = command.getLocalPluginGroups(connection.getDeploymentManager(), consoleReader)
+                    variables.parent.set('LocalPluginGroups', pluginGroups)
+                }
+                pluginsToInstall = command.getInstallList(pluginGroups, consoleReader, null)
+                            
             } else if (mode.compareTo("2") == 0) {
                 io.out.println('Listing application plugins from the local Geronimo server')
-	            def appPlugins = variables.get('LocalAppPlugins')
-	        
-	            if (refreshList || !appPlugins) {
-	                appPlugins = command.getLocalApplicationPlugins(connection.getDeploymentManager(), consoleReader)
-	                variables.parent.set('LocalAppPlugins', appPlugins)
-	            }
-	            pluginsToInstall = command.getInstallList(appPlugins, consoleReader, null)
+                def appPlugins = variables.get('LocalAppPlugins')
+                
+                if (refreshList || !appPlugins) {
+                    appPlugins = command.getLocalApplicationPlugins(connection.getDeploymentManager(), consoleReader)
+                    variables.parent.set('LocalAppPlugins', appPlugins)
+                }
+                pluginsToInstall = command.getInstallList(appPlugins, consoleReader, null)
             } else {
                 io.out.println('Listing plugins from the local Geronimo server')
                 pluginsToInstall = command.getInstallList(plugins, consoleReader, null)
             } 
-	            
+                    
             if (pluginsToInstall) {
                 command.assembleServer(connection.getDeploymentManager(), pluginsToInstall, 'repository', relativeServerPath, consoleReader)
                 connection.getDeploymentManager().archive(relativeServerPath, 'var/temp', new Artifact(group, artifact, (String)version, format));            
