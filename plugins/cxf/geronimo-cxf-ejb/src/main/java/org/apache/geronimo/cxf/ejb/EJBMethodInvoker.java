@@ -26,13 +26,14 @@ import java.util.List;
 
 import javax.interceptor.InvocationContext;
 import javax.xml.ws.handler.MessageContext;
+import javax.xml.ws.handler.MessageContext.Scope;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.cxf.Bus;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.jaxws.context.WebServiceContextImpl;
-import org.apache.cxf.jaxws.support.ContextPropertiesMapping;
+import org.apache.cxf.jaxws.context.WrappedMessageContext;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.FaultMode;
 import org.apache.cxf.service.invoker.AbstractInvoker;
@@ -80,7 +81,7 @@ public class EJBMethodInvoker extends AbstractInvoker {
                                 Method method, 
                                 List<Object> params) {           
         
-        MessageContext ctx = ContextPropertiesMapping.createWebServiceContext(exchange);
+        MessageContext ctx = new WrappedMessageContext(exchange.getInMessage(), Scope.APPLICATION);
         WebServiceContextImpl.setMessageContext(ctx);
 
         try {           
@@ -155,8 +156,8 @@ public class EJBMethodInvoker extends AbstractInvoker {
         invContext.setParameters(paramArray);
         Object res = invContext.proceed();
         
-        ContextPropertiesMapping.updateWebServiceContext(exchange, 
-                                                         (MessageContext)invContext.getContextData());
+//        ContextPropertiesMapping.updateWebServiceContext(exchange, 
+//                                                         (MessageContext)invContext.getContextData());
                 
         return res;
     }
