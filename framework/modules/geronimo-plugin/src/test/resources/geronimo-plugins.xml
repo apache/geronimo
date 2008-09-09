@@ -29,7 +29,7 @@
                 <type>car</type>
             </module-id>
             <geronimo-versions>
-                <version>2.1.3-SNAPSHOT</version>
+                <version>2.1.3</version>
             </geronimo-versions>
             <prerequisite>
                 <id>
@@ -45,7 +45,7 @@
                     from another Tomcat Geronimo installation.
                 </description>
             </prerequisite>
-            <dependency>geronimo/j2ee-server/2.1.3-SNAPSHOT/car</dependency>
+            <dependency>geronimo/j2ee-server/2.1.3/car</dependency>
             <dependency>geronimo/geronimo-daytrader-derby-db/2.0-SNAPSHOT/jar</dependency>
         </plugin-artifact>
     </plugin>
@@ -62,7 +62,7 @@
                 <type>car</type>
             </module-id>
             <geronimo-versions>
-                <version>2.1.3-SNAPSHOT</version>
+                <version>2.1.3</version>
             </geronimo-versions>
             <prerequisite>
                 <id>
@@ -81,7 +81,7 @@
             <dependency>
                 <groupId>geronimo</groupId>
                 <artifactId>client</artifactId>
-                <version>2.1.3-SNAPSHOT</version>
+                <version>2.1.3</version>
                 <type>car</type>
             </dependency>
         </plugin-artifact>
