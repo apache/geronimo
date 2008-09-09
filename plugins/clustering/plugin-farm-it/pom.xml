@@ -27,7 +27,7 @@
         <artifactId>clustering</artifactId>
         <version>2.2-SNAPSHOT</version>
     </parent>
-    
+
     <groupId>org.apache.geronimo.configs</groupId>
     <artifactId>plugin-farm-it</artifactId>
     <name>Geronimo Plugins, Clustering :: Plugin Farm Integration Tests</name>
@@ -36,7 +36,7 @@
     <description>
         Basic farming support
     </description>
-    
+
     <dependencies>
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
@@ -151,8 +151,8 @@
                                         <id>default</id>
                                         <options>
                                             <option>-XX:MaxPermSize=128m</option>
-                                            <!--<option>-Xdebug</option>-->
-                                            <!--<option>-Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n</option>-->
+                                            <option>-Xdebug</option>
+                                            <option>-Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n</option>
                                         </options>
                                     </optionSet>
 
@@ -211,6 +211,18 @@
                                     <!--</options>-->
                                     <!--</optionSet>-->
                                 </optionSets>
+                            </configuration>
+                        </execution>
+                        <execution>
+                            <id>install-plugin-farm-member-2</id>
+                            <phase>install</phase>
+                            <goals>
+                                <goal>install-plugin</goal>
+                            </goals>
+                            <configuration>
+                                <defaultGeronimoRepository>~/.m2/repository</defaultGeronimoRepository>
+                                <moduleId>org.apache.geronimo.configs/plugin-farm-member/${version}/car</moduleId>
+                                <port>1119</port>
                             </configuration>
                         </execution>
                         <execution>

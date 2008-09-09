@@ -30,7 +30,7 @@
 
     <groupId>org.apache.geronimo.modules</groupId>
     <artifactId>geronimo-plugin-farm</artifactId>
-    <name>Geronimo Plugins, Clustering :: Farm</name>
+    <name>Geronimo Plugins, Clustering :: Farm using Plugins</name>
 
     <dependencies>
         <dependency>

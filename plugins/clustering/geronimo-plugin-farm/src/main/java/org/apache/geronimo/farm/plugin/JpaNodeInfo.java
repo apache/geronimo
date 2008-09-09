@@ -25,6 +25,7 @@ import java.util.Set;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Transient;
+import javax.persistence.NamedQuery;
 import javax.management.remote.JMXConnector;
 
 import org.apache.geronimo.farm.config.ExtendedJMXConnectorInfo;
@@ -39,7 +40,8 @@ import org.apache.geronimo.system.plugin.PluginInstaller;
 /**
  * @version $Rev:$ $Date:$
  */
-@Entity
+@Entity(name="node")
+@NamedQuery(name = "nodeByName", query = "SELECT a FROM node a WHERE a.name = :name")
 public class JpaNodeInfo implements NodeInfo {
     @Id
     private int id;

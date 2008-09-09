@@ -53,4 +53,29 @@
         </reference>
     </gbean>
 
+    <gbean name="DiscoveryAgent" class="org.apache.geronimo.farm.discovery.MulticastDiscoveryAgent">
+        <attribute name="host">239.255.3.2</attribute>
+        <attribute name="port">6142</attribute>
+        <attribute name="heartRate">500</attribute>
+        <attribute name="maxMissedHeartbeats">10</attribute>
+        <attribute name="loopbackMode">false</attribute>
+        <attribute name="initialReconnectDelay">5000</attribute>
+        <attribute name="maxReconnectDelay">30000</attribute>
+        <attribute name="backOffMultiplier">0</attribute>
+        <attribute name="useExponentialBackOff">false</attribute>
+    </gbean>
+
+    <gbean name="FarmDiscoveryListener" class="org.apache.geronimo.farm.plugin.FarmDiscoveryListener">
+        <attribute name="defaultClusterName">cluster0</attribute>
+        <attribute name="discoveryType">farm</attribute>
+        <attribute name="userName">system</attribute>
+        <attribute name="password">manager</attribute>
+        <reference name="DiscoveryAgent">
+            <name>DiscoveryAgent</name>
+        </reference>
+        <reference name="NodeListener">
+            <name>PluginFarm</name>
+        </reference>
+    </gbean>
+
 </module>

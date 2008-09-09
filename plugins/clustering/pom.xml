@@ -46,6 +46,7 @@
         <module>wadi-clustering</module>
         <module>farming</module>
         <module>plugin-farm</module>
+        <module>plugin-farm-member</module>
     </modules>
 
     <profiles>

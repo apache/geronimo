@@ -32,8 +32,8 @@ import javax.persistence.Query;
 
 import org.apache.geronimo.farm.config.NodeInfo;
 import org.apache.geronimo.gbean.annotation.GBean;
-import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
+import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.persistence.PersistenceUnitGBean;
 import org.apache.geronimo.system.plugin.DownloadResults;
@@ -44,10 +44,10 @@ import org.apache.geronimo.system.plugin.model.PluginListType;
  * //need interface for operations
  * // need gshell commands
  *
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 @GBean
-public class FarmGBean {
+public class FarmGBean implements NodeListener {
     private String defaultRepository;
     private EntityManagerFactory emf;
 
@@ -56,19 +56,22 @@ public class FarmGBean {
         this.emf = emf;
     }
 
-    public FarmGBean(@ParamAttribute(name="defaultPluginRepository") String defaultPluginRepository,
-            @ParamReference(name = "PersistenceUnit", namingType = NameFactory.PERSISTENCE_UNIT)PersistenceUnitGBean persistenceUnitGBean) {
+    public FarmGBean(@ParamAttribute(name = "defaultPluginRepository")String defaultPluginRepository,
+                     @ParamReference(name = "PersistenceUnit", namingType = NameFactory.PERSISTENCE_UNIT)PersistenceUnitGBean persistenceUnitGBean) {
         this.defaultRepository = defaultPluginRepository;
         this.emf = persistenceUnitGBean.getEntityManagerFactory();
     }
 
+
     public Map<String, DownloadResults> addNode(String clusterName, NodeInfo nodeInfo) {
-        JpaContext clusterContext = new JpaContext(emf);
-        JpaClusterInfo cluster = clusterContext.getClusterInfo(clusterName);
-        JpaNodeInfo jpaNodeInfo = new JpaNodeInfo(nodeInfo);
-        cluster.getJpaNodeInfos().add(jpaNodeInfo);
-        //persist node info?
-        clusterContext.close();
+        JpaClusterInfo cluster;
+        JpaNodeInfo jpaNodeInfo;
+        synchronized (this) {
+            JpaContext clusterContext = new JpaContext(emf);
+            cluster = clusterContext.getClusterInfo(clusterName);
+            jpaNodeInfo = clusterContext.getNodeInfo(cluster, nodeInfo);
+            clusterContext.close();
+        }
         Map<String, DownloadResults> installedPluginLists = new HashMap<String, DownloadResults>();
         for (JpaPluginList pluginList : cluster.getPluginLists()) {
             DownloadResults downloadResults = installToNode(pluginList, jpaNodeInfo);
@@ -82,36 +85,49 @@ public class FarmGBean {
     }
 
     public Map<String, DownloadResults> addPluginList(String clusterName, JpaPluginList pluginList) {
-        JpaContext clusterContext = new JpaContext(emf);
-        JpaClusterInfo cluster = clusterContext.getClusterInfo(clusterName);
-        cluster.getPluginLists().add(pluginList);
-        clusterContext.close();
+        JpaClusterInfo cluster;
+        synchronized (this) {
+            JpaContext clusterContext = new JpaContext(emf);
+            cluster = clusterContext.getClusterInfo(clusterName);
+            cluster.getPluginLists().add(pluginList);
+            clusterContext.close();
+        }
         return installToCluster(pluginList, cluster);
     }
 
     public Map<String, DownloadResults> addPluginList(String clusterName, String pluginListName) {
-        JpaContext clusterContext = new JpaContext(emf);
-        JpaClusterInfo cluster = clusterContext.getClusterInfo(clusterName);
-        JpaPluginList pluginList = clusterContext.getPluginList(pluginListName, defaultRepository);
-        cluster.getPluginLists().add(pluginList);
-        clusterContext.close();
+        JpaClusterInfo cluster;
+        JpaPluginList pluginList;
+        synchronized (this) {
+            JpaContext clusterContext = new JpaContext(emf);
+            cluster = clusterContext.getClusterInfo(clusterName);
+            pluginList = clusterContext.getPluginList(pluginListName, defaultRepository);
+            cluster.getPluginLists().add(pluginList);
+            clusterContext.close();
+        }
         return installToCluster(pluginList, cluster);
     }
 
     public Map<String, DownloadResults> addPlugin(String pluginListName, JpaPluginInstance pluginInstance) {
-        JpaContext pluginListContext = new JpaContext(emf);
-        JpaPluginList pluginList = pluginListContext.getPluginList(pluginListName, defaultRepository);
-        pluginList.getPlugins().add(pluginInstance);
-        pluginListContext.close();
+        JpaPluginList pluginList;
+        synchronized (this) {
+            JpaContext pluginListContext = new JpaContext(emf);
+            pluginList = pluginListContext.getPluginList(pluginListName, defaultRepository);
+            pluginList.getPlugins().add(pluginInstance);
+            pluginListContext.close();
+        }
         return installToClusters(pluginList);
     }
 
     public Map<String, DownloadResults> addPluginToCluster(String clusterName, String pluginListName, JpaPluginInstance pluginInstance) {
-        JpaContext clusterContext = new JpaContext(emf);
-        JpaClusterInfo cluster = clusterContext.getClusterInfo(clusterName);
-        JpaPluginList pluginList = getPluginList(cluster, pluginListName);
-        pluginList.getPlugins().add(pluginInstance);
-        clusterContext.close();
+        JpaPluginList pluginList;
+        synchronized (this) {
+            JpaContext clusterContext = new JpaContext(emf);
+            JpaClusterInfo cluster = clusterContext.getClusterInfo(clusterName);
+            pluginList = getPluginList(cluster, pluginListName);
+            pluginList.getPlugins().add(pluginInstance);
+            clusterContext.close();
+        }
         return installToClusters(pluginList);
     }
 
@@ -179,7 +195,22 @@ public class FarmGBean {
                 JpaClusterInfo clusterInfo = new JpaClusterInfo();
                 clusterInfo.setName(clusterName);
                 em.persist(clusterInfo);
+                em.flush();
                 return clusterInfo;
+            }
+        }
+
+        public JpaNodeInfo getNodeInfo(JpaClusterInfo cluster, NodeInfo nodeInfo) {
+            Query query = em.createNamedQuery("nodeByName");
+            query.setParameter("name", nodeInfo.getName());
+            try {
+                return (JpaNodeInfo) query.getSingleResult();
+            } catch (NoResultException e) {
+                JpaNodeInfo jpaNodeInfo = new JpaNodeInfo(nodeInfo);
+                em.persist(jpaNodeInfo);
+                cluster.getJpaNodeInfos().add(jpaNodeInfo);
+                em.flush();
+                return jpaNodeInfo;
             }
         }
 
@@ -193,6 +224,7 @@ public class FarmGBean {
                 pluginList.setName(name);
                 pluginList.setDefaultPluginRepository(defaultRepository);
                 em.persist(pluginList);
+                em.flush();
                 return pluginList;
             }
         }

@@ -27,41 +27,61 @@
         <artifactId>clustering</artifactId>
         <version>2.2-SNAPSHOT</version>
     </parent>
-    
-    <groupId>org.apache.geronimo.modules</groupId>
-    <artifactId>geronimo-deploy-farm</artifactId>
-    <name>Geronimo Plugins, Clustering :: Farm using Deployment</name>
-    
+
+    <groupId>org.apache.geronimo.configs</groupId>
+    <artifactId>plugin-farm-member</artifactId>
+    <name>Geronimo Plugins, Clustering :: Plugin Farm Member</name>
+    <packaging>car</packaging>
+
+    <description>
+        Basic farming support
+    </description>
+
     <dependencies>
+        <dependency>
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>geronimo-gbean-deployer</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>plugin</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-farm</artifactId>
             <version>${version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.framework</groupId>
-            <artifactId>geronimo-deploy-jsr88</artifactId>
-            <version>${version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.framework</groupId>
-            <artifactId>geronimo-j2ee</artifactId>
-            <version>${version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.framework</groupId>
-            <artifactId>geronimo-jmx-remoting</artifactId>
-            <version>${version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.framework</groupId>
-            <artifactId>geronimo-service-builder</artifactId>
-            <version>${version}</version>
-        </dependency>
     </dependencies>
-    
-</project>
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.geronimo.buildsupport</groupId>
+                <artifactId>car-maven-plugin</artifactId>
+                <configuration>
+                    <category>Clustering</category>
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.apache.geronimo.framework</groupId>
+                            <artifactId>geronimo-gbean-deployer</artifactId>
+                            <type>car</type>
+                            <import>classes</import>
+                        </dependency>
+                    </dependencies>
+                    <instance>
+                        <plugin-artifact>
+                        </plugin-artifact>
+                    </instance>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

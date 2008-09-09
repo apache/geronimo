@@ -19,18 +19,17 @@
 
 package org.apache.geronimo.farm.plugin;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.ArrayList;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.ManyToMany;
 import javax.persistence.CascadeType;
+import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.Id;
+import javax.persistence.ManyToMany;
+import javax.persistence.NamedQuery;
+import javax.persistence.OneToMany;
 
 import org.apache.geronimo.farm.config.ClusterInfo;
 import org.apache.geronimo.farm.config.NodeInfo;
@@ -38,21 +37,20 @@ import org.apache.geronimo.farm.config.NodeInfo;
 /**
  * @version $Rev:$ $Date:$
  */
-@Entity(name="cluster")
-@NamedQueries( {
-        @NamedQuery(name = "clusterByName", query = "SELECT a FROM cluster a WHERE a.name = :name")}
-)
+@Entity(name = "cluster")
+@NamedQuery(name = "clusterByName", query = "SELECT a FROM cluster a WHERE a.name = :name")
+
 public class JpaClusterInfo implements ClusterInfo {
 
     @Id
     private String name;
     @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.REMOVE},
-    fetch = FetchType.EAGER)
+            fetch = FetchType.EAGER)
     private List<JpaNodeInfo> nodes = new ArrayList<JpaNodeInfo>();
 
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE},
-    mappedBy = "clusters",
-    fetch = FetchType.EAGER)
+            mappedBy = "clusters",
+            fetch = FetchType.EAGER)
     private List<JpaPluginList> pluginLists = new ArrayList<JpaPluginList>();
 
     public String getName() {
@@ -64,7 +62,7 @@ public class JpaClusterInfo implements ClusterInfo {
     }
 
     public Collection<NodeInfo> getNodeInfos() {
-        return new ArrayList(nodes);
+        return new ArrayList<NodeInfo>(nodes);
     }
 
     public List<JpaPluginList> getPluginLists() {

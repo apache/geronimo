@@ -34,7 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 @GBean
 public class TestGBean {
@@ -52,8 +52,9 @@ public class TestGBean {
         this.emf = persistenceUnitGBean.getEntityManagerFactory();
         this.farmGBean = farmGBean;
         testAddPlugin();
-        testAddNode1();
-        testAddExistingPluginListToNewCluster();
+//        testAddNode1();
+//        testAddExistingPluginListToNewCluster();
+//        Thread.sleep(1000 * 60 * 2);
     }
 
     public void testAddPlugin() throws Exception {

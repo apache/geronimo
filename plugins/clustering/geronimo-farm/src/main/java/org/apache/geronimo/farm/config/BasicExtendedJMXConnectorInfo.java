@@ -35,12 +35,16 @@ import org.apache.geronimo.deployment.service.DoNotPersist;
 import org.apache.geronimo.deployment.service.EncryptOnPersist;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.system.jmx.KernelDelegate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
  * @version $Rev:$ $Date:$
  */
 public class BasicExtendedJMXConnectorInfo implements ExtendedJMXConnectorInfo, Serializable {
+
+    private static Logger log = LoggerFactory.getLogger(BasicExtendedJMXConnectorInfo.class);
     private String username;
     private String password;
     private String protocol;
@@ -63,6 +67,13 @@ public class BasicExtendedJMXConnectorInfo implements ExtendedJMXConnectorInfo, 
     }
 
     public String getHost() {
+        return host;
+    }
+
+    public String getUsableHost() {
+        if ("0.0.0.0".equals(host)) {
+            return "localhost";
+        }
         return host;
     }
 
@@ -126,7 +137,7 @@ public class BasicExtendedJMXConnectorInfo implements ExtendedJMXConnectorInfo, 
 
     public JMXConnector connect() throws IOException {
         String url = getJmxURI();
-
+        log.info("Attempting to connect to " + url + " with username " + getUsername() + " and password " + getPassword());
         Map<String, ?> environment = Collections.singletonMap("jmx.remote.credentials",
             new String[] {getUsername(), getPassword()});
 
@@ -139,8 +150,8 @@ public class BasicExtendedJMXConnectorInfo implements ExtendedJMXConnectorInfo, 
     }
 
     protected String getJmxURI() {
-        return "service:jmx:rmi://" + getHost() + "/jndi/"
-                        + getProtocol() + "://" + getHost() + ":"
+        return "service:jmx:rmi://" + getUsableHost() + "/jndi/"
+                        + getProtocol() + "://" + getUsableHost() + ":"
                         + getPort() + "/" + getUrlPath();
 
     }

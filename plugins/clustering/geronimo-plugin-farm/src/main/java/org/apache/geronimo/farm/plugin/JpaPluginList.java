@@ -20,32 +20,29 @@
 
 package org.apache.geronimo.farm.plugin;
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
-import javax.persistence.CascadeType;
-import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
-import javax.persistence.FetchType;
 
 import org.apache.geronimo.system.plugin.model.PluginListType;
 import org.apache.geronimo.system.plugin.model.PluginType;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
-@Entity(name="pluginlist")
-@NamedQueries( {
-        @NamedQuery(name = "pluginListByName", query = "SELECT a FROM pluginlist a WHERE a.name = :name")}
-)
+@Entity(name = "pluginlist")
+@NamedQuery(name = "pluginListByName", query = "SELECT a FROM pluginlist a WHERE a.name = :name")
 public class JpaPluginList {
     @Id
     private String name;
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE},
-    fetch = FetchType.EAGER)
+            fetch = FetchType.EAGER)
     private List<JpaPluginInstance> plugins = new ArrayList<JpaPluginInstance>();
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private List<JpaClusterInfo> clusters = new ArrayList<JpaClusterInfo>();
@@ -86,7 +83,7 @@ public class JpaPluginList {
     public PluginListType getPluginList() {
         PluginListType pluginList = new PluginListType();
         List<PluginType> plugins = pluginList.getPlugin();
-        for (JpaPluginInstance pluginInstance: this.plugins) {
+        for (JpaPluginInstance pluginInstance : this.plugins) {
             PluginType plugin = pluginInstance.getPlugin();
             plugins.add(plugin);
         }
