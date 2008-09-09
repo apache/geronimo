@@ -57,22 +57,20 @@ public class InstallPluginMojo
     private boolean startModules = false;
 
     /**
-     * Artifact file
-     *
-     * @parameter expression="${project.build.directory}/${project.build.finalName}.car"
-     * @readonly
-     * @required
-     */
-    private File artifactFile;
-
-    /**
      * maven artifact
      *
      * @parameter expression="${project.artifact}"
      * @readonly
      * @required
      */
-    private Artifact artifact;
+    private Artifact projectArtifact;
+
+    /**
+     * maven artifact
+     *
+     * @parameter
+     */
+    private String moduleId;
 
     /**
      * local repository location
@@ -92,11 +90,13 @@ public class InstallPluginMojo
 
     @Override
     public void execute() throws MojoExecutionException {
-        getLog().info("artifactFile: " + artifactFile);
-        getLog().info("artifact: " + artifact);
+        if (moduleId == null) {
+            moduleId = projectArtifact.getGroupId() + "/" + projectArtifact.getArtifactId() + "/" + projectArtifact.getVersion() + "/" + projectArtifact.getType();
+            getLog().info("using project artifact");
+        }
+        getLog().info("moduleId: " + moduleId);
         getLog().info("artifactRepository: " + artifactRepository);
 
-        String moduleId = artifact.getGroupId() + "/" + artifact.getArtifactId() + "/" + artifact.getVersion() + "/" + artifact.getType();
         org.apache.geronimo.kernel.repository.Artifact geronimoArtifact = org.apache.geronimo.kernel.repository.Artifact.create(moduleId);
 
         PluginListType pluginListType = new PluginListType();
