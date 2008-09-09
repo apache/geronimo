@@ -70,13 +70,6 @@ public class BasicExtendedJMXConnectorInfo implements ExtendedJMXConnectorInfo, 
         return host;
     }
 
-    public String getUsableHost() {
-        if ("0.0.0.0".equals(host)) {
-            return "localhost";
-        }
-        return host;
-    }
-
     @DoNotPersist
     public InetSocketAddress getListenAddress() {
         return new InetSocketAddress(host, port);
@@ -150,8 +143,8 @@ public class BasicExtendedJMXConnectorInfo implements ExtendedJMXConnectorInfo, 
     }
 
     protected String getJmxURI() {
-        return "service:jmx:rmi://" + getUsableHost() + "/jndi/"
-                        + getProtocol() + "://" + getUsableHost() + ":"
+        return "service:jmx:rmi://" + getHost() + "/jndi/"
+                        + getProtocol() + "://" + getHost() + ":"
                         + getPort() + "/" + getUrlPath();
 
     }
