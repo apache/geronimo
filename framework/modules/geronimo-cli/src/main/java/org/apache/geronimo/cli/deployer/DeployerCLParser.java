@@ -63,7 +63,7 @@ public class DeployerCLParser extends BaseCLParser implements ConnectionParams {
     private final static String ARGUMENT_OFFLINE_SHORTFORM = "o";
     private final static String ARGUMENT_OFFLINE = "offline";
     
-    private final static String ARGUMENT_SECURE_SHORTFORM = "s";
+    private final static String ARGUMENT_SECURE_SHORTFORM = "secure";
     private final static String ARGUMENT_SECURE = "secure";
 
     private final Collection<CommandMetaData> commandMetaData;
