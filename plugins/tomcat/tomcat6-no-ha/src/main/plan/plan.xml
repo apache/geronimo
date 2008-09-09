@@ -22,7 +22,7 @@
 
     <environment>
         <hidden-classes>
-            <filter>org.apache.tomcat.tribes.</filter>
+            <filter>org.apache.catalina.tribes.</filter>
         </hidden-classes>
     </environment>
 
