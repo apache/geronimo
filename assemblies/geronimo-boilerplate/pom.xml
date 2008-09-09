@@ -278,9 +278,6 @@
                         <configuration>
                             <tasks>
                                 <mkdir dir="${project.build.outputDirectory}/contents/schema"/>
-                                <echo>copy file=../../plugins/openejb/openejb/src/main/resources/openejb-jar-2.2.xsd todir=${project.build.outputDirectory}/contents/schema</echo>
-                                <copy file="../../plugins/openejb/openejb/src/main/resources/openejb-jar-2.2.xsd" todir="${project.build.outputDirectory}/contents/schema" />
-                                <echo>copy fileset dir=${project.build.directory}/schema todir=${project.build.outputDirectory}/contents/schema</echo>
                                 <copy todir="${project.build.outputDirectory}/contents/schema">
                                     <fileset dir="${project.build.directory}/schema">
                                         <include name="**/*.xsd"/>

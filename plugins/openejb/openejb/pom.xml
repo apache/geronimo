@@ -172,6 +172,7 @@
                                 </gbean>
                             </config-xml-content>
                             <config-substitution key="OpenEJBPort">4201</config-substitution>
+                            <copy-file relative-to="geronimo" dest-dir="">schema</copy-file>
                         </plugin-artifact>
                     </instance>
                 </configuration>
