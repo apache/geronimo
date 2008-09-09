@@ -78,7 +78,7 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
     public EjbRefBuilder(Environment defaultEnvironment, String[] eeNamespaces, String host, int port) throws URISyntaxException {
         super(defaultEnvironment);
         if (host != null) {
-            uri = new URI("ejb", null, host, port, null, null, null);
+            uri = new URI("ejbd", null, host, port, null, null, null);
         } else {
             uri = null;
         }
