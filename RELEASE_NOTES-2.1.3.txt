@@ -62,8 +62,10 @@ Geronimo 2.1.3 Issues Resolved
 ------------------------------
 
 ** Bug
+    * [GERONIMO-4291] - Unable to deploy tomcat app with WADI Cluster
     * [GERONIMO-4285] - The simple mode of server command general option --syserr and --secure is same
     * [GERONIMO-4277] - Upgrade to Genesis-1.3.1
+    * [GERONIMO-4276] - openejb-jar-2.2.xsd missing from the schema subdirectory of the main Geronimo installation directory
     * [GERONIMO-4275] - PCEnhancer java.lang.OutOfMemoryError: Java heap space
     * [GERONIMO-4273] - add postgresql-8.2 to the auto driver download list
     * [GERONIMO-4266] - Upgrade to DWR 2.0.5 for XSS security fix
