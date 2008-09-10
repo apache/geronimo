@@ -101,8 +101,8 @@ public interface Kernel {
      */
     Object getGBean(AbstractName name) throws GBeanNotFoundException, InternalKernelException, IllegalStateException;
     Object getGBean(String shortName) throws GBeanNotFoundException, InternalKernelException, IllegalStateException;
-    Object getGBean(Class type) throws GBeanNotFoundException, InternalKernelException, IllegalStateException;
-    Object getGBean(String shortName, Class type) throws GBeanNotFoundException, InternalKernelException, IllegalStateException;
+    <T> T getGBean(Class<T> type) throws GBeanNotFoundException, InternalKernelException, IllegalStateException;
+    <T> T getGBean(String shortName, Class<T> type) throws GBeanNotFoundException, InternalKernelException, IllegalStateException;
 
     /**
      * Start a specific GBean.
@@ -226,14 +226,14 @@ public interface Kernel {
      * @param abstractNameQuery the query to execute
      * @return the AbstractNames of all matching GBeans
      */
-    Set listGBeans(AbstractNameQuery abstractNameQuery);
+    Set<AbstractName> listGBeans(AbstractNameQuery abstractNameQuery);
 
     /**
      * Returns a Set of all GBeans matching the set of object name pattern
      * @param abstractNameQueries the queries to execute
      * @return a List of AbstractNameName of matching GBeans registered with this kernel
      */
-    Set listGBeans(Set abstractNameQueries);
+    Set<AbstractName> listGBeans(Set abstractNameQueries);
 
     /**
      * Gets the value of an attribute on the specified gbean
@@ -360,7 +360,7 @@ public interface Kernel {
      *
      * @deprecated Use AbstractNameQuery version instead
      */
-    Set listGBeans(ObjectName pattern);
+    Set<AbstractName> listGBeans(ObjectName pattern);
     /**
      * @deprecated Use AbstractName version instead
      */

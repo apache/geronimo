@@ -78,7 +78,7 @@ public class BasicProxyManager implements ProxyManager {
         return new ManagedProxyFactory(types, classLoader);
     }
 
-    public Object createProxy(AbstractName target, Class type) {
+    public <T> T createProxy(AbstractName target, Class<T> type) {
         if (target == null) throw new NullPointerException("target is null");
         if (type == null) throw new NullPointerException("type is null");
 
@@ -100,7 +100,7 @@ public class BasicProxyManager implements ProxyManager {
             if (types == null) types = new ArrayList();
             types.add(type);
 
-            return createProxyFactory((Class[]) types.toArray(new Class[types.size()]), classLoader).createProxy(target);
+            return (T) createProxyFactory((Class[]) types.toArray(new Class[types.size()]), classLoader).createProxy(target);
         } catch (GBeanNotFoundException e) {
             throw new IllegalArgumentException("Could not get GBeanInfo for target object: " + target, e);
         }

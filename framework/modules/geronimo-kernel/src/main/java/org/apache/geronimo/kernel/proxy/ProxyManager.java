@@ -41,7 +41,7 @@ public interface ProxyManager {
 
     public Object createProxy(AbstractName target, ClassLoader loader);
 
-    public Object createProxy(AbstractName target, Class type);
+    public <T> T createProxy(AbstractName target, Class<T> type);
 
     /**
      * Cleans up and resources associated with the proxy

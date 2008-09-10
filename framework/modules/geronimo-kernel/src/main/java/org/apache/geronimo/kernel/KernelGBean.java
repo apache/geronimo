@@ -90,11 +90,11 @@ public class KernelGBean implements Kernel{
         return kernel.getGBean(shortName);
     }
 
-    public Object getGBean(Class type) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {
+    public <T> T getGBean(Class<T> type) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {
         return kernel.getGBean(type);
     }
 
-    public Object getGBean(String shortName, Class type) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {
+    public <T> T getGBean(String shortName, Class<T> type) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {
         return kernel.getGBean(shortName, type);
     }
 
@@ -266,11 +266,11 @@ public class KernelGBean implements Kernel{
         return kernel.getGBeanData(shortName, type);
     }
 
-    public Set listGBeans(ObjectName pattern) {
+    public Set<AbstractName> listGBeans(ObjectName pattern) {
         return kernel.listGBeans(pattern);
     }
 
-    public Set listGBeans(Set patterns) {
+    public Set<AbstractName> listGBeans(Set patterns) {
         return kernel.listGBeans(patterns);
     }
 
@@ -386,7 +386,7 @@ public class KernelGBean implements Kernel{
         return kernel.isRunning();
     }
 
-    public Set listGBeans(AbstractNameQuery refInfoQuery) {
+    public Set<AbstractName> listGBeans(AbstractNameQuery refInfoQuery) {
         return kernel.listGBeans(refInfoQuery);
     }
 

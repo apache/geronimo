@@ -276,16 +276,16 @@ public class BasicKernel implements Kernel
         return getGBean(shortName, null);
     }
 
-    public Object getGBean(Class type) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {
+    public <T> T getGBean(Class<T> type) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {
         return getGBean(null, type);
     }
 
-    public Object getGBean(String shortName, Class type) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {
+    public <T> T getGBean(String shortName, Class<T> type) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {
         GBeanInstance gbeanInstance = registry.getGBeanInstance(shortName, type);
         if (gbeanInstance.getState() != State.RUNNING_INDEX) {
             throw new IllegalStateException("GBean is not running: " + gbeanInstance.getAbstractName());
         }
-        return gbeanInstance.getTarget();
+        return (T)gbeanInstance.getTarget();
     }
 
     public Object getGBean(ObjectName name) throws GBeanNotFoundException, InternalKernelException, IllegalStateException  {
@@ -496,56 +496,52 @@ public class BasicKernel implements Kernel
         return gbeanInstance.getStartTime();
     }
 
-    public Set listGBeans(ObjectName pattern) {
-        Set gbeans = registry.listGBeans(pattern);
+    public Set<AbstractName> listGBeans(ObjectName pattern) {
+        Set<GBeanInstance> gbeans = registry.listGBeans(pattern);
 
-        Set result = new HashSet(gbeans.size());
-        for (Iterator i = gbeans.iterator(); i.hasNext();) {
-            GBeanInstance instance = (GBeanInstance) i.next();
-            result.add(instance.getObjectNameObject());
-        }
-        return result;
-    }
-
-    public Set listGBeans(Set patterns) {
-        Set gbeans = new HashSet();
-        for (Iterator iterator = patterns.iterator(); iterator.hasNext();) {
-            Object pattern = iterator.next();
-            if (pattern instanceof ObjectName) {
-                gbeans.addAll(listGBeans((ObjectName)pattern));
-            } else if (pattern instanceof AbstractNameQuery) {
-                gbeans.addAll(listGBeans((AbstractNameQuery)pattern));
-            }
-        }
-        return gbeans;
-    }
-
-    public Set listGBeans(AbstractNameQuery query) {
-        Set gbeans = registry.listGBeans(query);
-        Set result = new HashSet(gbeans.size());
-        for (Iterator i = gbeans.iterator(); i.hasNext();) {
-            GBeanInstance instance = (GBeanInstance) i.next();
+        Set<AbstractName> result = new HashSet<AbstractName>(gbeans.size());
+        for (GBeanInstance instance : gbeans) {
             result.add(instance.getAbstractName());
         }
         return result;
     }
 
-    public Set listGBeansByInterface(String[] interfaces) {
-        Set gbeans = new HashSet();
-        Set all = listGBeans((AbstractNameQuery)null);
-        for (Iterator it = all.iterator(); it.hasNext();) {
-            AbstractName name = (AbstractName) it.next();
+    public Set<AbstractName> listGBeans(Set patterns) {
+        Set<AbstractName> gbeans = new HashSet<AbstractName>();
+        for (Object pattern : patterns) {
+            if (pattern instanceof ObjectName) {
+                gbeans.addAll(listGBeans((ObjectName) pattern));
+            } else if (pattern instanceof AbstractNameQuery) {
+                gbeans.addAll(listGBeans((AbstractNameQuery) pattern));
+            }
+        }
+        return gbeans;
+    }
+
+    public Set<AbstractName> listGBeans(AbstractNameQuery query) {
+        Set<GBeanInstance> gbeans = registry.listGBeans(query);
+        Set<AbstractName> result = new HashSet<AbstractName>(gbeans.size());
+        for (GBeanInstance instance : gbeans) {
+            result.add(instance.getAbstractName());
+        }
+        return result;
+    }
+
+    public Set<AbstractName> listGBeansByInterface(String[] interfaces) {
+        Set<AbstractName> gbeans = new HashSet<AbstractName>();
+        Set<AbstractName> all = listGBeans((AbstractNameQuery)null);
+        for (AbstractName name : all) {
             try {
                 GBeanInfo info = getGBeanInfo(name);
-                Set intfs = info.getInterfaces();
-                for (int i = 0; i < interfaces.length; i++) {
-                    String candidate = interfaces[i];
-                    if(intfs.contains(candidate)) {
+                Set<String> intfs = info.getInterfaces();
+                for (String candidate : interfaces) {
+                    if (intfs.contains(candidate)) {
                         gbeans.add(name);
                         break;
                     }
                 }
-            } catch (GBeanNotFoundException e) {}
+            } catch (GBeanNotFoundException e) {
+            }
         }
         return gbeans;
     }

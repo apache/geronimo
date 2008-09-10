@@ -100,21 +100,17 @@ public class KernelDelegate implements Kernel {
         }
     }
 
-    public Object getGBean(Class type) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {
-        try {
-            return invokeKernel("getGBean", new Object[] {type}, new String[] {Class.class.getName()});
-        } catch (GBeanNotFoundException e) {
-            throw e;
-        } catch (RuntimeException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new InternalKernelException(e);
+    public <T> T getGBean(Class<T> type) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {
+        Set<AbstractName> set = listGBeans(new AbstractNameQuery(type.getName()));
+        for (AbstractName name : set) {
+            return proxyManager.createProxy(name, type);
         }
+        throw new GBeanNotFoundException("No implementation found for type " + type.getName(), null, set);
     }
 
-    public Object getGBean(String shortName, Class type) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {
+    public <T> T getGBean(String shortName, Class<T> type) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {
         try {
-            return invokeKernel("getGBean", new Object[] {shortName, type}, new String[] {String.class.getName(), Class.class.getName()});
+            return (T)invokeKernel("getGBean", new Object[] {shortName, type}, new String[] {String.class.getName(), Class.class.getName()});
         } catch (GBeanNotFoundException e) {
             throw e;
         } catch (RuntimeException e) {
@@ -663,9 +659,9 @@ public class KernelDelegate implements Kernel {
         }
     }
 
-    public Set listGBeans(ObjectName pattern) {
+    public Set<AbstractName> listGBeans(ObjectName pattern) {
         try {
-            return (Set) invokeKernel("listGBeans", new Object[] {pattern}, new String[] {ObjectName.class.getName()});
+            return (Set<AbstractName>) invokeKernel("listGBeans", new Object[] {pattern}, new String[] {ObjectName.class.getName()});
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {
@@ -673,9 +669,9 @@ public class KernelDelegate implements Kernel {
         }
     }
 
-    public Set listGBeans(Set patterns) {
+    public Set<AbstractName> listGBeans(Set patterns) {
         try {
-            return (Set) invokeKernel("listGBeans", new Object[] {patterns}, new String[] {Set.class.getName()});
+            return (Set<AbstractName>) invokeKernel("listGBeans", new Object[] {patterns}, new String[] {Set.class.getName()});
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {
@@ -832,9 +828,9 @@ public class KernelDelegate implements Kernel {
         return ((Boolean) getKernelAttribute("running")).booleanValue();
     }
 
-    public Set listGBeans(AbstractNameQuery query) {
+    public Set<AbstractName> listGBeans(AbstractNameQuery query) {
         try {
-            return (Set) invokeKernel("listGBeans", new Object[] {query}, new String[] {AbstractNameQuery.class.getName()});
+            return (Set<AbstractName>) invokeKernel("listGBeans", new Object[] {query}, new String[] {AbstractNameQuery.class.getName()});
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {
