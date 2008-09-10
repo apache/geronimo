@@ -2587,11 +2587,20 @@
         </profile>
 
         <profile>
-            <id>release</id>
+            <id>staging</id>
 
             <build>
                 <plugins>
-                    
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-release-plugin</artifactId>
+                        <configuration>
+                            <useReleaseProfile>false</useReleaseProfile>
+                            <goals>deploy</goals>
+                            <arguments>-Prelease</arguments>
+                        </configuration>
+                    </plugin>
+
                     <!-- We want to sign the artifact, the POM, and all attached artifacts -->
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
@@ -2619,9 +2628,17 @@
                             <updateReleaseInfo>true</updateReleaseInfo>
                         </configuration>
                     </plugin>
-
                 </plugins>
             </build>
+
+            <modules>
+                <module>repository</module>
+                <module>buildsupport</module>
+                <module>testsupport</module>
+                <module>framework</module>
+                <module>plugins</module>
+                <module>assemblies</module>
+            </modules>
         </profile>
     </profiles>
 
