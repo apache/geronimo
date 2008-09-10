@@ -77,6 +77,20 @@
                     </dependencies>
                     <instance>
                         <plugin-artifact>
+                            <config-xml-content>
+                                <gbean name="DiscoveryPublisher">
+                                    <attribute name="nodeName">${NodeName}</attribute>
+                                    <attribute name="clusterName">${ClusterName}</attribute>
+                                </gbean>
+                                <gbean name="DiscoveryAgent">
+                                    <attribute name="host">${MulticastDiscoveryAddress}</attribute>
+                                    <attribute name="port">${MulticastDiscoveryPort}</attribute>
+                                </gbean>
+                            </config-xml-content>
+                            <config-substitution key="NodeName"></config-substitution>
+                            <config-substitution key="ClusterName">cluster1</config-substitution>
+                            <config-substitution key="MulticastDiscoveryAddress">239.255.3.2</config-substitution>
+                            <config-substitution key="MulticastDiscoveryPort">6142</config-substitution>
                         </plugin-artifact>
                     </instance>
                 </configuration>

@@ -27,7 +27,10 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.apache.geronimo.assemblies</groupId>
     <artifactId>geronimo-plugin-farm-node</artifactId>
+    <name>Geronim Plugin Farm Node Server Assembly</name>
     <packaging>server-assembly</packaging>
+
+    <description>An assembly that extends the framework assembly with the plugin farm node plugin.</description>
 
     <build>
         <pluginManagement>

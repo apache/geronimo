@@ -67,6 +67,14 @@
                     <configuration>
                         <assemblies>
                             <assembly>
+                                <id>node</id>
+                                <groupId>org.apache.geronimo.assemblies</groupId>
+                                <artifactId>geronimo-plugin-farm-node</artifactId>
+                                <version>${geronimoVersion}</version>
+                                <classifier>bin</classifier>
+                                <type>zip</type>
+                            </assembly>
+                            <assembly>
                                 <id>jetty</id>
                                 <groupId>org.apache.geronimo.assemblies</groupId>
                                 <artifactId>geronimo-jetty6-javaee5</artifactId>
@@ -181,7 +189,7 @@
                                 <goal>start-multi-server</goal>
                             </goals>
                             <configuration>
-                                <assemblyId>${it-server}</assemblyId>
+                                <assemblyId>node</assemblyId>
                                 <logOutput>true</logOutput>
                                 <background>true</background>
                                 <verifyTimeout>300</verifyTimeout>
@@ -213,18 +221,18 @@
                                 </optionSets>
                             </configuration>
                         </execution>
-                        <execution>
-                            <id>install-plugin-farm-member-2</id>
-                            <phase>install</phase>
-                            <goals>
-                                <goal>install-plugin</goal>
-                            </goals>
-                            <configuration>
-                                <defaultGeronimoRepository>~/.m2/repository</defaultGeronimoRepository>
-                                <moduleId>org.apache.geronimo.configs/plugin-farm-member/${version}/car</moduleId>
-                                <port>1119</port>
-                            </configuration>
-                        </execution>
+                        <!--<execution>-->
+                            <!--<id>install-plugin-farm-member-2</id>-->
+                            <!--<phase>install</phase>-->
+                            <!--<goals>-->
+                                <!--<goal>install-plugin</goal>-->
+                            <!--</goals>-->
+                            <!--<configuration>-->
+                                <!--<defaultGeronimoRepository>~/.m2/repository</defaultGeronimoRepository>-->
+                                <!--<moduleId>org.apache.geronimo.configs/plugin-farm-member/${version}/car</moduleId>-->
+                                <!--<port>1119</port>-->
+                            <!--</configuration>-->
+                        <!--</execution>-->
                         <execution>
                             <id>install-plugin</id>
                             <phase>install</phase>

@@ -90,6 +90,24 @@
                     </dependencies>
                     <instance>
                         <plugin-artifact>
+                            <config-xml-content>
+                                <gbean name="FarmDiscoveryListener">
+                                    <attribute name="defaultClusterName">${DefaultClusterName}</attribute>
+                                    <attribute name="userName">system</attribute>
+                                    <attribute name="password">manager</attribute>
+                                </gbean>
+                                <gbean name="DiscoveryAgent">
+                                    <attribute name="host">${MulticastDiscoveryAddress}</attribute>
+                                    <attribute name="port">${MulticastDiscoveryPort}</attribute>
+                                </gbean>
+                                <gbean name="PluginFarm">
+                                    <attribute name="defaultPluginRepository">~/.m2/repository</attribute>
+                                </gbean>
+                            </config-xml-content>
+                            <config-substitution key="DefaultPluginRepository">~/.m2/repository</config-substitution>
+                            <config-substitution key="DefaultClusterName">cluster1</config-substitution>
+                            <config-substitution key="MulticastDiscoveryAddress">239.255.3.2</config-substitution>
+                            <config-substitution key="MulticastDiscoveryPort">6142</config-substitution>
                         </plugin-artifact>
                     </instance>
                 </configuration>
