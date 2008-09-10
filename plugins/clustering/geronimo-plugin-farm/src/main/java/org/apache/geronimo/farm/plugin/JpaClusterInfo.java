@@ -45,7 +45,8 @@ public class JpaClusterInfo implements ClusterInfo {
     @Id
     private String name;
     @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.REMOVE},
-            fetch = FetchType.EAGER)
+            fetch = FetchType.EAGER,
+            mappedBy = "cluster")
     private List<JpaNodeInfo> nodes = new ArrayList<JpaNodeInfo>();
 
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE},

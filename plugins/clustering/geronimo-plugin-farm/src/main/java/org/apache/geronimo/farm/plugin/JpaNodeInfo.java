@@ -26,6 +26,11 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Transient;
 import javax.persistence.NamedQuery;
+import javax.persistence.GeneratedValue;
+import javax.persistence.ManyToOne;
+import javax.persistence.FetchType;
+import javax.persistence.CascadeType;
+import javax.persistence.JoinColumn;
 import javax.management.remote.JMXConnector;
 
 import org.apache.geronimo.farm.config.ExtendedJMXConnectorInfo;
@@ -44,7 +49,6 @@ import org.apache.geronimo.system.plugin.PluginInstaller;
 @NamedQuery(name = "nodeByName", query = "SELECT a FROM node a WHERE a.name = :name")
 public class JpaNodeInfo implements NodeInfo {
     @Id
-    private int id;
     private String name;
     private String userName;
     private String password;
@@ -53,6 +57,12 @@ public class JpaNodeInfo implements NodeInfo {
     private int port = -1;
     private String urlPath;
     private boolean local;
+
+    @ManyToOne(fetch= FetchType.EAGER, cascade={CascadeType.PERSIST})
+    @JoinColumn(
+        name="cluster", referencedColumnName="name"
+    )
+    private JpaClusterInfo cluster;
 
     @Transient
     private Kernel kernel;
@@ -74,6 +84,14 @@ public class JpaNodeInfo implements NodeInfo {
         port = connectorInfo.getPort();
         urlPath = connectorInfo.getUrlPath();
         local = connectorInfo.isLocal();
+    }
+
+    public JpaClusterInfo getCluster() {
+        return cluster;
+    }
+
+    public void setCluster(JpaClusterInfo cluster) {
+        this.cluster = cluster;
     }
 
     public String getName() {

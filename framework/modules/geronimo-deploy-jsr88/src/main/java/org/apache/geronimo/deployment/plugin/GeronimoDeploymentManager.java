@@ -29,5 +29,7 @@ import org.apache.geronimo.system.plugin.ServerArchiver;
  * @version $Rev$ $Date$
  */
 public interface GeronimoDeploymentManager extends DeploymentManager, PluginInstaller, ServerArchiver {
+
+    public <T> T getImplementation(Class<T> clazz);
     public URL[] getRepositories();
 }

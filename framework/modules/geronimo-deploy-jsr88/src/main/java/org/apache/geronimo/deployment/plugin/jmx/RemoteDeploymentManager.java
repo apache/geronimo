@@ -56,6 +56,7 @@ import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Dependency;
 import org.apache.geronimo.kernel.repository.MissingDependencyException;
 import org.apache.geronimo.kernel.InvalidGBeanException;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.system.jmx.KernelDelegate;
 import org.apache.geronimo.system.plugin.DownloadPoller;
 import org.apache.geronimo.system.plugin.DownloadResults;
@@ -169,6 +170,16 @@ public class RemoteDeploymentManager extends JMXDeploymentManager implements Ger
         }
     }
 
+     public <T> T getImplementation(Class<T> clazz) {
+         try {
+             return kernel.getGBean(clazz);
+         } catch (GBeanNotFoundException e) {
+             throw new IllegalStateException("No implementation for " + clazz.getName(), e);
+         }
+     }
+
+
+
     public PluginListType listPlugins(URL mavenRepository, String username, String password) throws FailedLoginException, IOException {
         PluginInstaller installer = getPluginInstaller();
         try {
@@ -269,18 +280,10 @@ public class RemoteDeploymentManager extends JMXDeploymentManager implements Ger
     }
 
     private PluginInstaller getPluginInstaller() {
-        Set<AbstractName> set = kernel.listGBeans(new AbstractNameQuery(PluginInstaller.class.getName()));
-        for (AbstractName name : set) {
-            return (PluginInstaller) kernel.getProxyManager().createProxy(name, PluginInstaller.class);
-        }
-        throw new IllegalStateException("No plugin installer found");
+        return getImplementation(PluginInstaller.class);
     }
     private ServerArchiver getServerArchiver() {
-        Set<AbstractName> set = kernel.listGBeans(new AbstractNameQuery(ServerArchiver.class.getName()));
-        for (AbstractName name : set) {
-            return (ServerArchiver) kernel.getProxyManager().createProxy(name, ServerArchiver.class);
-        }
-        throw new IllegalStateException("No plugin installer found");
+        return getImplementation(ServerArchiver.class);
     }
 
     //not likely to be useful remotely

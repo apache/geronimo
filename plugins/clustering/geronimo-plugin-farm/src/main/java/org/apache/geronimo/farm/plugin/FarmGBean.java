@@ -23,6 +23,7 @@ package org.apache.geronimo.farm.plugin;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -47,7 +48,7 @@ import org.apache.geronimo.system.plugin.model.PluginListType;
  * @version $Rev$ $Date$
  */
 @GBean
-public class FarmGBean implements NodeListener {
+public class FarmGBean implements NodeListener, org.apache.geronimo.system.plugin.Farm {
     private String defaultRepository;
     private EntityManagerFactory emf;
 
@@ -81,7 +82,17 @@ public class FarmGBean implements NodeListener {
     }
 
     public void removeNode(String clusterName, String nodeName) {
-        //TODO
+        synchronized (this) {
+            JpaContext clusterContext = new JpaContext(emf);
+            JpaClusterInfo cluster = clusterContext.getClusterInfo(clusterName);
+            for (JpaNodeInfo nodeInfo: cluster.getJpaNodeInfos()) {
+                if (nodeName.equals(nodeInfo.getName())) {
+                    cluster.getJpaNodeInfos().remove(nodeInfo);
+                    break;
+                }
+            }
+            clusterContext.close();
+        }
     }
 
     public Map<String, DownloadResults> addPluginList(String clusterName, JpaPluginList pluginList) {
@@ -108,6 +119,10 @@ public class FarmGBean implements NodeListener {
         return installToCluster(pluginList, cluster);
     }
 
+    public Map<String, DownloadResults> addPlugin(String pluginListName, String artifactURI) {
+        return addPlugin(pluginListName, new JpaPluginInstance(artifactURI));
+    }
+
     public Map<String, DownloadResults> addPlugin(String pluginListName, JpaPluginInstance pluginInstance) {
         JpaPluginList pluginList;
         synchronized (this) {
@@ -117,6 +132,10 @@ public class FarmGBean implements NodeListener {
             pluginListContext.close();
         }
         return installToClusters(pluginList);
+    }
+
+    public Map<String, DownloadResults> addPluginToCluster(String clusterName, String pluginListName, String artifactURI) {
+        return addPluginToCluster(clusterName, pluginListName, new JpaPluginInstance(artifactURI));
     }
 
     public Map<String, DownloadResults> addPluginToCluster(String clusterName, String pluginListName, JpaPluginInstance pluginInstance) {
@@ -203,15 +222,20 @@ public class FarmGBean implements NodeListener {
         public JpaNodeInfo getNodeInfo(JpaClusterInfo cluster, NodeInfo nodeInfo) {
             Query query = em.createNamedQuery("nodeByName");
             query.setParameter("name", nodeInfo.getName());
+            JpaNodeInfo jpaNodeInfo;
             try {
-                return (JpaNodeInfo) query.getSingleResult();
+                jpaNodeInfo = (JpaNodeInfo) query.getSingleResult();
             } catch (NoResultException e) {
-                JpaNodeInfo jpaNodeInfo = new JpaNodeInfo(nodeInfo);
+                 jpaNodeInfo = new JpaNodeInfo(nodeInfo);
                 em.persist(jpaNodeInfo);
-                cluster.getJpaNodeInfos().add(jpaNodeInfo);
-                em.flush();
-                return jpaNodeInfo;
             }
+            if (jpaNodeInfo.getCluster() == null)  {
+                jpaNodeInfo.setCluster(cluster);
+            } else if (!jpaNodeInfo.getCluster().getName().equals(cluster.getName())){
+                throw new IllegalStateException("cannot move node to another cluster");
+            }
+            em.flush();
+            return jpaNodeInfo;
         }
 
         public JpaPluginList getPluginList(String name, String defaultRepository) {

@@ -74,7 +74,7 @@ public class DeploymentFactoryWithKernel extends BaseDeploymentFactory {
             return remoteDeploymentManager;
         }
         try {
-            return (RemoteDeploymentManager) kernel.getGBean(RemoteDeploymentManager.class);
+            return kernel.getGBean(RemoteDeploymentManager.class);
         } catch (Exception e) {
             throw (DeploymentManagerCreationException) new DeploymentManagerCreationException("See nested").initCause(e);
         }

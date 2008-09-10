@@ -71,4 +71,8 @@ public class LocalSourceRepository extends Maven2Repository implements SourceRep
         File location = getLocation(artifact);
         return new LocalOpenResult(artifact, location);
     }
+
+    public String toString() {
+        return getClass().getName() + ":" + rootFile;
+    }
 }

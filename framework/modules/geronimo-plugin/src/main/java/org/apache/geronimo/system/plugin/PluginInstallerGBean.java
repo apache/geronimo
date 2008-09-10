@@ -1042,7 +1042,7 @@ public class PluginInstallerGBean implements PluginInstaller
                 }
             }
             if (result == null) {
-                throw new IllegalArgumentException("Could not find " + configID + " in any repo");
+                throw new IllegalArgumentException("Could not find " + configID + " in any repo: " + repos);
             }
             // Check if the result is already in server's repository
             if (configManager.getArtifactResolver().queryArtifacts(result.getArtifact()).length > 0) {

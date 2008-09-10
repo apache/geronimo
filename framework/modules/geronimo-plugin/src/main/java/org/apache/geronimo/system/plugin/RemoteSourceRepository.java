@@ -397,4 +397,9 @@ public class RemoteSourceRepository implements SourceRepository {
             }
         }
     }
+
+    public String toString() {
+        return getClass().getName() + ":" + base;
+    }
+
 }

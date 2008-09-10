@@ -157,15 +157,7 @@ public class MulticastDiscoveryAgent implements DiscoveryAgent, GBeanLifecycle {
     public void doStart() throws Exception {
             if (started.compareAndSet(false, true)) {
 
-                InetAddress inetAddress = InetAddress.getByName(host);
-
-                this.address = new InetSocketAddress(inetAddress, port);
-
-                multicast = new MulticastSocket(port);
-                multicast.setLoopbackMode(loopbackMode);
-                multicast.setTimeToLive(timeToLive);
-                multicast.joinGroup(inetAddress);
-                multicast.setSoTimeout((int) heartRate);
+                newSocket();
 
                 Thread listenerThread = new Thread(listener);
                 listenerThread.setName("MulticastDiscovery: Listener");
@@ -177,6 +169,18 @@ public class MulticastDiscoveryAgent implements DiscoveryAgent, GBeanLifecycle {
                 Timer timer = new Timer("MulticastDiscovery: Broadcaster", true);
                 timer.scheduleAtFixedRate(broadcaster, 0, heartRate);
             }
+    }
+
+    private void newSocket() throws IOException {
+        InetAddress inetAddress = InetAddress.getByName(host);
+
+        this.address = new InetSocketAddress(inetAddress, port);
+
+        multicast = new MulticastSocket(port);
+        multicast.setLoopbackMode(loopbackMode);
+        multicast.setTimeToLive(timeToLive);
+        multicast.joinGroup(inetAddress);
+        multicast.setSoTimeout((int) heartRate);
     }
 
     /**
@@ -450,10 +454,16 @@ public class MulticastDiscoveryAgent implements DiscoveryAgent, GBeanLifecycle {
                     DatagramPacket packet = new DatagramPacket(data, 0, data.length, address);
 //                    System.out.println("ann = " + uri);
                     multicast.send(packet);
+                    failed = null;
                 } catch (IOException e) {
                     // If a send fails, chances are all subsequent sends will fail
                     // too.. No need to keep reporting the
                     // same error over and over.
+                    try {
+                        newSocket();
+                    } catch (IOException e1) {
+                        //ignore
+                    }
                     if (failed == null) {
                         failed = e;
 

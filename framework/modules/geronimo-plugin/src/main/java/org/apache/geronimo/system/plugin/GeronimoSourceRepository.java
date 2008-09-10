@@ -161,6 +161,10 @@ public class GeronimoSourceRepository implements SourceRepository {
         return null;
     }
 
+    public String toString() {
+        return getClass().getName();
+    }
+
     private static class RepoWrapper implements WritableListableRepository {
 
         private final Repository repo;

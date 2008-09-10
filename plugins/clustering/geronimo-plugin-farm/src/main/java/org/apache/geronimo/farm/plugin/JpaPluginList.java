@@ -27,6 +27,8 @@ import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.NamedQuery;
 
@@ -44,7 +46,12 @@ public class JpaPluginList {
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE},
             fetch = FetchType.EAGER)
     private List<JpaPluginInstance> plugins = new ArrayList<JpaPluginInstance>();
-    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE},
+            fetch = FetchType.EAGER)
+    @JoinTable(name = "pluginlist_cluster",
+            joinColumns = {@JoinColumn(name = "pluginlist_name")},
+            inverseJoinColumns = {@JoinColumn(name = "cluster_name")}
+    )
     private List<JpaClusterInfo> clusters = new ArrayList<JpaClusterInfo>();
     private String defaultPluginRepository;
 

@@ -22,6 +22,7 @@ package org.apache.geronimo.farm.plugin;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.GeneratedValue;
 
 import org.apache.geronimo.system.plugin.model.PluginType;
 import org.apache.geronimo.system.plugin.model.PluginArtifactType;
@@ -29,12 +30,13 @@ import org.apache.geronimo.system.plugin.model.ArtifactType;
 import org.apache.geronimo.kernel.repository.Artifact;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
-@Entity
+@Entity(name="plugin")
 public class JpaPluginInstance {
 
     @Id
+    @GeneratedValue
     private int id;
     private String groupId;
     private String artifactId;
