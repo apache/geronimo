@@ -35,6 +35,10 @@ public class EjbDaemonGBean implements NetworkConnector, GBeanLifecycle {
     private int threads;
     private ServiceManager serviceManager;
 
+    private String multicastHost;
+    private int multicastPort;
+    private boolean enableMulticast;
+
     public EjbDaemonGBean() {
         System.setProperty("openejb.nobanner","true");
         serviceManager = new ServiceManager();
@@ -68,6 +72,30 @@ public class EjbDaemonGBean implements NetworkConnector, GBeanLifecycle {
         this.threads = threads;
     }
 
+    public boolean isEnableMulticast() {
+        return enableMulticast;
+    }
+
+    public void setEnableMulticast(boolean enableMulticast) {
+        this.enableMulticast = enableMulticast;
+    }
+
+    public String getMulticastHost() {
+        return multicastHost;
+    }
+
+    public void setMulticastHost(String multicastHost) {
+        this.multicastHost = multicastHost;
+    }
+
+    public int getMulticastPort() {
+        return multicastPort;
+    }
+
+    public void setMulticastPort(int multicastPort) {
+        this.multicastPort = multicastPort;
+    }
+
     public InetSocketAddress getListenAddress() {
         return new InetSocketAddress(host, port);
     }
@@ -76,6 +104,9 @@ public class EjbDaemonGBean implements NetworkConnector, GBeanLifecycle {
         Properties properties = SystemInstance.get().getProperties();
         properties.setProperty("ejbd.bind", host);
         properties.setProperty("ejbd.port", Integer.toString(port));
+        properties.setProperty("multicast.bind", multicastHost);
+        properties.setProperty("multicast.port", Integer.toString(multicastPort));
+        properties.setProperty("multicast.disabled", Boolean.toString(!enableMulticast));
         if (threads > 0) {
             properties.setProperty("ejbd.threads", Integer.toString(threads));
         }
@@ -98,6 +129,9 @@ public class EjbDaemonGBean implements NetworkConnector, GBeanLifecycle {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic("OpenEJB Daemon", EjbDaemonGBean.class);
         infoBuilder.addAttribute("host", String.class, true);
         infoBuilder.addAttribute("port", int.class, true);
+        infoBuilder.addAttribute("multicastHost", String.class, true);
+        infoBuilder.addAttribute("multicastPort", int.class, true);
+        infoBuilder.addAttribute("enableMulticast", boolean.class, true);
         infoBuilder.addAttribute("threads", int.class, true);
 
         GBEAN_INFO = infoBuilder.getBeanInfo();

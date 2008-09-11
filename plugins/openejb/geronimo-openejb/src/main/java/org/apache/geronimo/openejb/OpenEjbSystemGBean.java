@@ -66,6 +66,8 @@ import org.apache.openejb.config.ConfigurationFactory;
 import org.apache.openejb.config.EjbModule;
 import org.apache.openejb.core.ServerFederation;
 import org.apache.openejb.loader.SystemInstance;
+import org.apache.openejb.resource.XAResourceWrapper;
+import org.apache.openejb.resource.GeronimoTransactionManagerFactory.GeronimoXAResourceWrapper;
 import org.apache.openejb.spi.ApplicationServer;
 import org.apache.openejb.spi.ContainerSystem;
 import org.apache.openejb.spi.SecurityService;
@@ -123,6 +125,7 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
         transactionServiceInfo.id = "Default Transaction Manager";
         transactionServiceInfo.service = "TransactionManager";
         assembler.createTransactionManager(transactionServiceInfo);
+	    SystemInstance.get().setComponent(XAResourceWrapper.class, new GeronimoXAResourceWrapper());
 
         // install security service
         SecurityService securityService = new GeronimoSecurityService();

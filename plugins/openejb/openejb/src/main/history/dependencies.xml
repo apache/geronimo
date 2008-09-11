@@ -7,88 +7,13 @@
         <type>car</type>
     </module-id>
     <dependency>
-        <groupId>org.apache.yoko</groupId>
-        <artifactId>yoko-spec-corba</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>activemq-broker</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>j2ee-server</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
         <groupId>org.apache.openejb</groupId>
-        <artifactId>openejb-core</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.openejb</groupId>
-        <artifactId>openejb-loader</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.openejb</groupId>
-        <artifactId>openejb-ejbd</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.openejb</groupId>
-        <artifactId>openejb-server</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.openejb</groupId>
-        <artifactId>openejb-client</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.openejb</groupId>
-        <artifactId>openejb-javaagent</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.openejb</groupId>
-        <artifactId>openejb-jee</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.openejb</groupId>
-        <artifactId>asm-finder</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>openjpa</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
-        <groupId>org.codehaus.swizzle</groupId>
-        <artifactId>swizzle-stream</artifactId>
+        <artifactId>openejb-multicast</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>transaction</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>geronimo-openejb</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>system-database</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>server-security-config</artifactId>
         <type>car</type>
     </dependency>
     <dependency>
@@ -98,7 +23,87 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>system-database</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.openejb</groupId>
+        <artifactId>openejb-loader</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.openejb</groupId>
+        <artifactId>openejb-javaagent</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.openejb</groupId>
+        <artifactId>asm-finder</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.openejb</groupId>
+        <artifactId>openejb-jee</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.codehaus.swizzle</groupId>
+        <artifactId>swizzle-stream</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.modules</groupId>
+        <artifactId>geronimo-openejb</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.yoko</groupId>
+        <artifactId>yoko-spec-corba</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>webservices-common</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.openejb</groupId>
+        <artifactId>openejb-client</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>activemq-broker</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.openejb</groupId>
+        <artifactId>openejb-server</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>j2ee-server</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.openejb</groupId>
+        <artifactId>openejb-ejbd</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.openejb</groupId>
+        <artifactId>openejb-core</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>openjpa</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.framework</groupId>
+        <artifactId>server-security-config</artifactId>
         <type>car</type>
     </dependency>
 </plugin-artifact>

@@ -68,6 +68,9 @@
         <attribute name="port">${PlanOpenEJBPort}</attribute>
         <attribute name="host">${PlanServerHostname}</attribute>
         <attribute name="threads">20</attribute>
+        <attribute name="multicastPort">${PlanOpenEJBMulticastPort}</attribute>
+        <attribute name="multicastHost">${PlanOpenEJBMulticastHostname}</attribute>
+        <attribute name="enableMulticast">true</attribute>
         <dependency>
             <name>OpenEjbSystem</name>
         </dependency>

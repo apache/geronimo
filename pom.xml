@@ -109,6 +109,8 @@
         <PlanHTTPSPort>8443</PlanHTTPSPort>
         <PlanAJPPort>8019</PlanAJPPort>
         <PlanOpenEJBPort>4201</PlanOpenEJBPort>
+        <PlanOpenEJBMulticastPort>6142</PlanOpenEJBMulticastPort>
+        <PlanOpenEJBMulticastHostname>239.255.3.2</PlanOpenEJBMulticastHostname>
         <PlanNamingPort>1099</PlanNamingPort>
         <PlanActiveMQPort>61616</PlanActiveMQPort>
         <PlanCOSNamingHost>localhost</PlanCOSNamingHost>
@@ -1101,6 +1103,22 @@
             <dependency>
                 <groupId>org.apache.openejb</groupId>
                 <artifactId>openejb-client</artifactId>
+                <version>${openejbVersion}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.openejb</groupId>
+                        <artifactId>javaee-api</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>log4j</groupId>
+                        <artifactId>log4j</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.openejb</groupId>
+                <artifactId>openejb-multicast</artifactId>
                 <version>${openejbVersion}</version>
                 <exclusions>
                     <exclusion>
