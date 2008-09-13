@@ -30,6 +30,7 @@
     </parent>
 
     <artifactId>persistence</artifactId>
+    <packaging>car</packaging>
     <name>Geronimo Plugin Group :: Persistence</name>
 
     <description>

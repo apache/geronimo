@@ -180,7 +180,10 @@ public class ArchiveCarMojo
 
         try {
             // Incldue the generated artifact contents
-            archiver.getArchiver().addDirectory(getArtifactInRepositoryDir());
+            File artifactDirectory = getArtifactInRepositoryDir();
+            if (artifactDirectory.exists()) {
+                archiver.getArchiver().addDirectory(artifactDirectory);
+            }
 
             // Include the optional classes.resources
             if (classesDirectory.isDirectory()) {

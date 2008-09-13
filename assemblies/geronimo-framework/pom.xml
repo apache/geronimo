@@ -38,85 +38,8 @@
     
     <dependencies>
         <dependency>
-            <groupId>org.apache.geronimo.assemblies</groupId>
-            <artifactId>geronimo-boilerplate</artifactId>
-            <version>${version}</version>
-        </dependency>
-        
-        <dependency>
-            <groupId>org.apache.geronimo.framework</groupId>
-            <artifactId>gshell-framework</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
-        
-        <dependency>
-            <groupId>org.apache.geronimo.framework</groupId>
-            <artifactId>gshell-geronimo</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
-        
-        <!--
-        HACK: This should really only be included in the full assemblies, but due
-              to the limited fashion which GShell currently sets up its classloaders
-              (via hard-coded classworlds entries pointing at repository locations)
-              it will add significant complication to the assembly builds to allow
-              the entires to be different for assembly types.
-        -->
-        
-        <dependency>
-            <groupId>org.apache.geronimo.framework</groupId>
-            <artifactId>gshell-remote</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
-        
-        <dependency>
-            <groupId>org.apache.geronimo.framework</groupId>
-            <artifactId>j2ee-system</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
-        
-        <dependency>
-            <groupId>org.apache.geronimo.framework</groupId>
-            <artifactId>client-system</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
-        
-        <dependency>
-            <groupId>org.apache.geronimo.framework</groupId>
-            <artifactId>rmi-naming</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
-        
-        <dependency>
-            <groupId>org.apache.geronimo.framework</groupId>
-            <artifactId>plugin</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.framework</groupId>
-            <artifactId>j2ee-security</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.framework</groupId>
-            <artifactId>server-security-config</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.framework</groupId>
-            <artifactId>shutdown</artifactId>
+            <groupId>org.apache.geronimo.plugingroups</groupId>
+            <artifactId>framework</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>

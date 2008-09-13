@@ -30,6 +30,7 @@
     </parent>
 
     <artifactId>client</artifactId>
+    <packaging>car</packaging>
     <name>Geronimo Plugin Group :: Client</name>
 
     <description>

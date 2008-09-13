@@ -30,6 +30,7 @@
     </parent>
 
     <artifactId>web-jetty</artifactId>
+    <packaging>car</packaging>
     <name>Geronimo Plugin Group :: Web Jetty</name>
 
     <description>

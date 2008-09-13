@@ -30,6 +30,7 @@
     </parent>
 
     <artifactId>web-tomcat</artifactId>
+    <packaging>car</packaging>
     <name>Geronimo Plugin Group :: Web Tomcat</name>
 
     <description>

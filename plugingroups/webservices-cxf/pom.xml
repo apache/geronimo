@@ -30,6 +30,7 @@
     </parent>
 
     <artifactId>webservices-cxf</artifactId>
+    <packaging>car</packaging>
     <name>Geronimo Plugin Group :: Web Services CXF</name>
 
     <description>

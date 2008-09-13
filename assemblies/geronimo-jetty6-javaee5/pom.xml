@@ -609,108 +609,115 @@
         <!-- adding geronimo plugin groups for the assemblies -->
         <dependency>
             <groupId>org.apache.geronimo.plugingroups</groupId>
+            <artifactId>framework</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.plugingroups</groupId>
             <artifactId>web-jetty</artifactId>
             <version>${version}</version>
-            <type>jar</type>
+            <type>car</type>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.plugingroups</groupId>
             <artifactId>jms</artifactId>
             <version>${version}</version>
-            <type>jar</type>
+            <type>car</type>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.plugingroups</groupId>
             <artifactId>ejb</artifactId>
             <version>${version}</version>
-            <type>jar</type>
+            <type>car</type>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.plugingroups</groupId>
             <artifactId>webservices-axis2</artifactId>
             <version>${version}</version>
-            <type>jar</type>
+            <type>car</type>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.plugingroups</groupId>
             <artifactId>webservices-cxf</artifactId>
             <version>${version}</version>
-            <type>jar</type>
+            <type>car</type>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.plugingroups</groupId>
             <artifactId>persistence</artifactId>
             <version>${version}</version>
-            <type>jar</type>
+            <type>car</type>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.plugingroups</groupId>
             <artifactId>clustering</artifactId>
             <version>${version}</version>
-            <type>jar</type>
+            <type>car</type>
         </dependency>
     </dependencies>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <phase>process-resources</phase>
-                        <goals>
-                            <goal>unpack</goal>
-                        </goals>
-                        <configuration>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>org.apache.geronimo.assemblies</groupId>
-                                    <artifactId>geronimo-framework</artifactId>
-                                    <version>${version}</version>
-                                    <type>zip</type>
-                                    <classifier>bin</classifier>
-                                </artifactItem>
-                            </artifactItems>
-                            <outputDirectory>${project.build.directory}</outputDirectory>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
+    <!--<build>-->
+        <!--<plugins>-->
+            <!--<plugin>-->
+                <!--<groupId>org.apache.maven.plugins</groupId>-->
+                <!--<artifactId>maven-dependency-plugin</artifactId>-->
+                <!--<executions>-->
+                    <!--<execution>-->
+                        <!--<phase>process-resources</phase>-->
+                        <!--<goals>-->
+                            <!--<goal>unpack</goal>-->
+                        <!--</goals>-->
+                        <!--<configuration>-->
+                            <!--<artifactItems>-->
+                                <!--<artifactItem>-->
+                                    <!--<groupId>org.apache.geronimo.assemblies</groupId>-->
+                                    <!--<artifactId>geronimo-framework</artifactId>-->
+                                    <!--<version>${version}</version>-->
+                                    <!--<type>zip</type>-->
+                                    <!--<classifier>bin</classifier>-->
+                                <!--</artifactItem>-->
+                            <!--</artifactItems>-->
+                            <!--<outputDirectory>${project.build.directory}</outputDirectory>-->
+                        <!--</configuration>-->
+                    <!--</execution>-->
+                <!--</executions>-->
+            <!--</plugin>-->
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <phase>process-resources</phase>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                        <configuration>
-                            <tasks>
-                                <mkdir dir="${project.build.directory}/assembly"/>
-                                <copy todir="${project.build.directory}/assembly">
-                                    <fileset dir="${project.build.directory}/geronimo-framework-${version}"/>
-                                </copy>
-                                <java classname="org.apache.geronimo.jaxws.builder.GShellCommandRegistration" 
-                                      fork="yes" failonerror="true">
-                                   <classpath refid="maven.runtime.classpath"/>
-                                   <arg value="${project.build.directory}/assembly"/>
-                                   <arg value="gsh-wsgen.properties"/>
-                                </java>
-                            </tasks>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
+            <!--<plugin>-->
+                <!--<groupId>org.apache.maven.plugins</groupId>-->
+                <!--<artifactId>maven-antrun-plugin</artifactId>-->
+                <!--<executions>-->
+                    <!--<execution>-->
+                        <!--<phase>process-resources</phase>-->
+                        <!--<goals>-->
+                            <!--<goal>run</goal>-->
+                        <!--</goals>-->
+                        <!--<configuration>-->
+                            <!--<tasks>-->
+                                <!--<mkdir dir="${project.build.directory}/assembly"/>-->
+                                <!--<copy todir="${project.build.directory}/assembly">-->
+                                    <!--<fileset dir="${project.build.directory}/geronimo-framework-${version}"/>-->
+                                <!--</copy>-->
+                                <!--<java classname="org.apache.geronimo.jaxws.builder.GShellCommandRegistration" -->
+                                      <!--fork="yes" failonerror="true">-->
+                                   <!--<classpath refid="maven.runtime.classpath"/>-->
+                                   <!--<arg value="${project.build.directory}/assembly"/>-->
+                                   <!--<arg value="gsh-wsgen.properties"/>-->
+                                <!--</java>-->
+                            <!--</tasks>-->
+                        <!--</configuration>-->
+                    <!--</execution>-->
+                <!--</executions>-->
+            <!--</plugin>-->
+        <!--</plugins>-->
+    <!--</build>-->
 
 </project>

@@ -30,6 +30,7 @@
     </parent>
 
     <artifactId>webservices-axis2</artifactId>
+    <packaging>car</packaging>
     <name>Geronimo Plugin Group :: Web Services Axis2</name>
 
     <description>

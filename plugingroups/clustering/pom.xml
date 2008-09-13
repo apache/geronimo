@@ -30,6 +30,7 @@
     </parent>
 
     <artifactId>clustering</artifactId>
+    <packaging>car</packaging>
     <name>Geronimo Plugin Group :: WADI Clustering</name>
 
     <description>

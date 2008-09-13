@@ -129,6 +129,11 @@ public class PlanProcessorMojo
     }
 
     public void execute() throws MojoExecutionException, MojoFailureException {
+        File source = new File(sourceDir, planFileName);
+        if (!source.exists()) {
+            getLog().info("No plan found, plugin will have no classloader");
+            return;
+        }
         try {
 //
             // FIXME: Do not need velocity here, we only need to filter,

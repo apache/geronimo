@@ -30,6 +30,7 @@
     </parent>
 
     <artifactId>ejb</artifactId>
+    <packaging>car</packaging>
     <name>Geronimo Plugin Group :: EJB</name>
 
     <description>

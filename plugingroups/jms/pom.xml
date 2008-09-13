@@ -30,6 +30,7 @@
     </parent>
 
     <artifactId>jms</artifactId>
+    <packaging>car</packaging>
     <name>Geronimo Plugin Group :: JMS</name>
 
     <description>
