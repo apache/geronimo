@@ -108,6 +108,29 @@
     <build>
         <plugins>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/resources/schema</outputDirectory>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.apache.geronimo.framework</groupId>
+                                    <artifactId>geronimo-system</artifactId>
+                                    <version>${version}</version>
+                                </artifactItem>
+                            </artifactItems>
+                            <includes>**/*.xsd</includes>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.geronimo.buildsupport</groupId>
                 <artifactId>car-maven-plugin</artifactId>
                 <configuration>
@@ -126,6 +149,7 @@
                             </config-xml-content>
                             <!--<artifact-alias key="org.apache.geronimo.framework/jsr88-cli//car">org.apache.geronimo.framework/plugin/${version}/car</artifact-alias>-->
                             <!--<artifact-alias key="org.apache.geronimo.framework/jsr88-cli/${version}/car">org.apache.geronimo.framework/plugin/${version}/car</artifact-alias>-->
+                            <copy-file dest-dir="schema">schema/xsd/</copy-file>
                         </plugin-artifact>
                     </instance>
                 </configuration>

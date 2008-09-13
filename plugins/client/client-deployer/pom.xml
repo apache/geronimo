@@ -71,6 +71,29 @@
     <build>
         <plugins>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/resources/schema</outputDirectory>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.apache.geronimo.modules</groupId>
+                                    <artifactId>geronimo-client-builder</artifactId>
+                                    <version>${version}</version>
+                                </artifactItem>
+                            </artifactItems>
+                            <includes>**/*.xsd</includes>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.geronimo.buildsupport</groupId>
                 <artifactId>car-maven-plugin</artifactId>
                 <configuration>
@@ -99,6 +122,7 @@
                         <plugin-artifact>
                             <config-xml-content server="default"/>
                             <config-xml-content server="offline"/>
+                            <copy-file dest-dir="schema">schema/schemaorg_apache_xmlbeans/src/</copy-file>
                         </plugin-artifact>
                     </instance>
                 </configuration>

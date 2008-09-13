@@ -125,6 +125,39 @@
     <build>
         <plugins>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/resources/schema</outputDirectory>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.apache.geronimo.modules</groupId>
+                                    <artifactId>geronimo-j2ee-builder</artifactId>
+                                    <version>${version}</version>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.apache.geronimo.modules</groupId>
+                                    <artifactId>geronimo-naming-builder</artifactId>
+                                    <version>${version}</version>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.apache.geronimo.modules</groupId>
+                                    <artifactId>geronimo-security-builder</artifactId>
+                                    <version>${version}</version>
+                                </artifactItem>
+                            </artifactItems>
+                            <includes>**/*.xsd</includes>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.geronimo.buildsupport</groupId>
                 <artifactId>car-maven-plugin</artifactId>
                 <configuration>
@@ -164,6 +197,7 @@
                                     <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee,http://java.sun.com/xml/ns/javaee</attribute>
                                 </gbean>
                             </config-xml-content>
+                            <copy-file dest-dir="schema">schema/schemaorg_apache_xmlbeans/src/</copy-file>
                         </plugin-artifact>
                     </instance>
                 </configuration>
