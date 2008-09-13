@@ -101,7 +101,7 @@
                                     <attribute name="port">${MulticastDiscoveryPort}</attribute>
                                 </gbean>
                                 <gbean name="PluginFarm">
-                                    <attribute name="defaultPluginRepository">~/.m2/repository</attribute>
+                                    <attribute name="defaultPluginRepository">${DefaultPluginRepository}</attribute>
                                 </gbean>
                             </config-xml-content>
                             <config-substitution key="DefaultPluginRepository">~/.m2/repository</config-substitution>
