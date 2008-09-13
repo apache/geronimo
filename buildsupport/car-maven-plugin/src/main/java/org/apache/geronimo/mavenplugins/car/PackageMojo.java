@@ -169,6 +169,10 @@ public class PackageMojo extends AbstractCarMojo {
             FileUtils.forceDelete(targetRepository);
             FileUtils.forceMkdir(targetRepository);
 
+            if (!planFile.exists()) {
+                return;
+            }
+
             // Use the default configs if none specified
             if (deploymentConfigs == null) {
                 if (!bootstrap) {
