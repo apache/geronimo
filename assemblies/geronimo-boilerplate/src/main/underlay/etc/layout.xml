@@ -200,6 +200,11 @@
                     <name>install-plugin</name>
                     <id>geronimo-commands:install-plugin</id>
                 </command>
+
+                <command>
+                    <name>farm</name>
+                    <id>geronimo-commands:farm</id>
+                </command>
             </nodes>
         </group>
 
