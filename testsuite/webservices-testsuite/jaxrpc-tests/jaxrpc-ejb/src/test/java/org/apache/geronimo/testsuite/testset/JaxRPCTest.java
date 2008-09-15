@@ -164,7 +164,7 @@ public class JaxRPCTest extends TestSupport {
         
         InitialContext ctx = new InitialContext(p);
         
-        Object obj = ctx.lookup("/GreeterRemoteHome");
+        Object obj = ctx.lookup("/Greeter");
         
         GreeterHome ejbHome = 
             (GreeterHome)PortableRemoteObject.narrow(obj, GreeterHome.class);

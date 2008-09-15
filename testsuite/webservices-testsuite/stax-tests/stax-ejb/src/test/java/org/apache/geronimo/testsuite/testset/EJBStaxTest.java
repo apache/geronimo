@@ -42,7 +42,7 @@ public class EJBStaxTest extends TestSupport {
         
         InitialContext ctx = new InitialContext(p);
         
-        Object obj = ctx.lookup("/StaxRemoteHome");
+        Object obj = ctx.lookup("/Stax");
         
         StaxHome ejbHome = 
             (StaxHome)PortableRemoteObject.narrow(obj, StaxHome.class);
