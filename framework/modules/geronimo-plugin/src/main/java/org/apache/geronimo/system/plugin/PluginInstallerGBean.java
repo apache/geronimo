@@ -1196,7 +1196,7 @@ public class PluginInstallerGBean implements PluginInstaller
             throw new IllegalStateException("Unable to identify module " + configID + " to copy files from", e);
         }
         if (set.size() == 0) {
-            log.error("Installed configuration into repository but cannot locate file to copy {}", sourceFile);
+            log.error("Installed '{}' configuration into repository but cannot locate file to copy {}", configID, sourceFile);
             return;
         }
         if (set.iterator().next().getPath().endsWith("/")) {
