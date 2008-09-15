@@ -101,9 +101,4 @@
         <artifactId>cxf-common-utilities</artifactId>
         <type>jar</type>
     </dependency>
-    <dependency>
-        <groupId>com.sun.xml.fastinfoset</groupId>
-        <artifactId>FastInfoset</artifactId>
-        <type>jar</type>
-    </dependency>
 </plugin-artifact>
