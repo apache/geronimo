@@ -49,13 +49,14 @@ public class PortMethodInterceptor implements MethodInterceptor {
     public Object intercept(Object target, Method method, Object[] arguments, MethodProxy methodProxy) throws Throwable {
         Object proxy = methodProxy.invokeSuper(target, arguments);       
         
-        if (method.getName().equals("getPort")) {     
+        if (method.getName().equals("getPort")) {  
             // it's a generic getPort() method
-            if (arguments.length == 1) {
-                // getPort(Class) called - use SEI annotation
+            Class<?> paramType = method.getParameterTypes()[0];
+            if (paramType.equals(Class.class)) {
+                // getPort(Class) or getPort(Class, WebServiceFeatures) called - use SEI annotation
                 setProperties((BindingProvider)proxy, JAXWSUtils.getPortType((Class)arguments[0]));
-            } else if (arguments.length == 2) {
-                // getPort(QName, Class) called
+            } else if (paramType.equals(QName.class)) {
+                // getPort(QName, Class) or getPort(QName, Class, WebServiceFeatures) called
                 if (arguments[0] == null) {
                     // port qname not specified - use SEI annotation
                     setProperties((BindingProvider)proxy, JAXWSUtils.getPortType((Class)arguments[1]));
@@ -70,7 +71,11 @@ public class PortMethodInterceptor implements MethodInterceptor {
             setProperties((BindingProvider)proxy, endpoint.name());
         } else if (method.getName().equals("createDispatch")) {
             // it's one of createDispatch() methods
-            setProperties((BindingProvider)proxy, ((QName)arguments[0]).getLocalPart());
+            Class<?> paramType = method.getParameterTypes()[0];
+            if (paramType.equals(QName.class)) {
+                // one of creatDispatch(QName, ....) methods is called
+                setProperties((BindingProvider)proxy, ((QName)arguments[0]).getLocalPart());
+            }
         }
                 
         return proxy;
