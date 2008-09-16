@@ -27,5 +27,7 @@ import java.util.List;
 public interface PluginRepositoryList {
     public List<URL> getRepositories();
     public void refresh();
-    public void addUserRepository(URL repo);
+    public void addUserRepository(URL repo, String userName, String password);
+
+    public SourceRepository getSourceRepository(String repo);
 }

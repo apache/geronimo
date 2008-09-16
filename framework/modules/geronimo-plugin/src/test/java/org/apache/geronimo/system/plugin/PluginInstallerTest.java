@@ -16,39 +16,20 @@
  */
 package org.apache.geronimo.system.plugin;
 
-import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
-import java.util.LinkedHashSet;
 import java.util.concurrent.TimeUnit;
 
 import junit.framework.TestCase;
-import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.kernel.config.Configuration;
-import org.apache.geronimo.kernel.config.ConfigurationData;
-import org.apache.geronimo.kernel.config.ConfigurationManager;
-import org.apache.geronimo.kernel.config.ConfigurationStore;
-import org.apache.geronimo.kernel.config.LifecycleException;
-import org.apache.geronimo.kernel.config.LifecycleMonitor;
-import org.apache.geronimo.kernel.config.LifecycleResults;
-import org.apache.geronimo.kernel.config.NoSuchConfigException;
-import org.apache.geronimo.kernel.config.NoSuchStoreException;
-import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.mock.MockConfigStore;
 import org.apache.geronimo.kernel.mock.MockWritableListableRepository;
 import org.apache.geronimo.kernel.mock.MockConfigurationManager;
-import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.repository.ArtifactResolver;
-import org.apache.geronimo.kernel.repository.Repository;
-import org.apache.geronimo.kernel.repository.Version;
-import org.apache.geronimo.kernel.repository.MissingDependencyException;
 import org.apache.geronimo.system.plugin.model.PluginArtifactType;
 import org.apache.geronimo.system.plugin.model.PluginListType;
 import org.apache.geronimo.system.plugin.model.PluginType;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
+import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.system.threads.ThreadPool;
 
 /**
@@ -67,8 +48,9 @@ public class PluginInstallerTest extends TestCase {
         String url = getClass().getResource("/geronimo-plugins.xml").toString();
         int pos = url.lastIndexOf("/");
         testRepo = url.substring(0, pos);
+        ServerInfo serverInfo = new BasicServerInfo(".");
         installer = new PluginInstallerGBean(new MockConfigurationManager(), new MockWritableListableRepository(), new MockConfigStore(),
-                new BasicServerInfo("."), new ThreadPool() {
+                serverInfo, new ThreadPool() {
             public int getPoolSize() {
                 return 0;
             }
@@ -88,11 +70,12 @@ public class PluginInstallerTest extends TestCase {
             public void execute(String consumerName, Runnable runnable) {
                 new Thread(runnable).start();
             }
-        }, new ArrayList<ServerInstance>());
+        }, new ArrayList<ServerInstance>(),
+                new PluginRepositoryDownloader(Collections.<String>emptyList(), "", null, false, serverInfo, null, null));
     }
 
     public void testParsing() throws Exception {
-        PluginListType list = installer.listPlugins(new URL(testRepo), null, null);
+        PluginListType list = installer.listPlugins(new URL(testRepo));
         assertNotNull(list);
         assertEquals(1, list.getDefaultRepository().size());
         assertEquals(fakeRepo, list.getDefaultRepository().get(0));

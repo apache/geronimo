@@ -40,6 +40,8 @@ import org.apache.geronimo.persistence.PersistenceUnitGBean;
 import org.apache.geronimo.system.plugin.DownloadResults;
 import org.apache.geronimo.system.plugin.PluginInstaller;
 import org.apache.geronimo.system.plugin.model.PluginListType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * //need interface for operations
@@ -49,6 +51,7 @@ import org.apache.geronimo.system.plugin.model.PluginListType;
  */
 @GBean
 public class FarmGBean implements NodeListener, org.apache.geronimo.system.plugin.Farm {
+    private static final Logger log = LoggerFactory.getLogger(FarmGBean.class);
     private String defaultRepository;
     private EntityManagerFactory emf;
 
@@ -65,6 +68,7 @@ public class FarmGBean implements NodeListener, org.apache.geronimo.system.plugi
 
 
     public Map<String, DownloadResults> addNode(String clusterName, NodeInfo nodeInfo) {
+        log.info("Node "  + nodeInfo.getName() + " added to cluster " + clusterName);
         JpaClusterInfo cluster;
         JpaNodeInfo jpaNodeInfo;
         synchronized (this) {
@@ -82,6 +86,7 @@ public class FarmGBean implements NodeListener, org.apache.geronimo.system.plugi
     }
 
     public void removeNode(String clusterName, String nodeName) {
+        log.info("Node "  + nodeName + " renoved from cluster " + clusterName);
         synchronized (this) {
             JpaContext clusterContext = new JpaContext(emf);
             JpaClusterInfo cluster = clusterContext.getClusterInfo(clusterName);

@@ -42,12 +42,8 @@ public interface PluginInstaller {
      *
      * @param mavenRepository The base URL to the maven repository.  This must
      *                        contain the file geronimo-plugins.xml
-     * @param username Optional username, if the maven repo uses HTTP Basic authentication.
-     *                 Set this to null if no authentication is required.
-     * @param password Optional password, if the maven repo uses HTTP Basic authentication.
-     *                 Set this to null if no authentication is required.
      */
-    public PluginListType listPlugins(URL mavenRepository, String username, String password) throws IOException, FailedLoginException;
+    public PluginListType listPlugins(URL mavenRepository) throws IOException, FailedLoginException;
 
     /**
      * Lists the plugins installed in the local Geronimo server, by name and

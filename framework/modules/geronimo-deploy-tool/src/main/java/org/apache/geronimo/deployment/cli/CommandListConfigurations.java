@@ -21,17 +21,14 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
 import javax.enterprise.deploy.shared.ModuleType;
 import javax.enterprise.deploy.spi.DeploymentManager;
 import javax.enterprise.deploy.spi.exceptions.TargetException;
-import javax.enterprise.deploy.spi.Target;
 import javax.enterprise.deploy.spi.TargetModuleID;
 import javax.security.auth.login.FailedLoginException;
 
@@ -42,8 +39,6 @@ import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.plugin.GeronimoDeploymentManager;
 import org.apache.geronimo.deployment.plugin.TargetModuleIDImpl;
 import org.apache.geronimo.kernel.config.NoSuchStoreException;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.KernelRegistry;
 import org.apache.geronimo.system.plugin.DownloadResults;
 import org.apache.geronimo.system.plugin.PluginInstallerGBean;
 import org.apache.geronimo.system.plugin.model.PluginArtifactType;
@@ -137,7 +132,7 @@ public class CommandListConfigurations extends AbstractCommand {
         URL repository;
         try {
             repository = new URL(repo);
-            data = mgr.listPlugins(repository, null, null);
+            data = mgr.listPlugins(repository);
         } catch (IOException e) {
             throw new DeploymentException("Unable to list configurations", e);
         } catch (FailedLoginException e) {

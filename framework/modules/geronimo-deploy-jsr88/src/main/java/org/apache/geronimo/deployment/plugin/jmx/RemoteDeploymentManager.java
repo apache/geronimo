@@ -180,10 +180,10 @@ public class RemoteDeploymentManager extends JMXDeploymentManager implements Ger
 
 
 
-    public PluginListType listPlugins(URL mavenRepository, String username, String password) throws FailedLoginException, IOException {
+    public PluginListType listPlugins(URL mavenRepository) throws FailedLoginException, IOException {
         PluginInstaller installer = getPluginInstaller();
         try {
-            return installer.listPlugins(mavenRepository, username, password);
+            return installer.listPlugins(mavenRepository);
         } finally {
             kernel.getProxyManager().destroyProxy(installer);
         }

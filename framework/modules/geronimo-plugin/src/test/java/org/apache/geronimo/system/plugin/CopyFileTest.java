@@ -93,7 +93,8 @@ public class CopyFileTest extends TestSupport {
             public void execute(String consumerName, Runnable runnable) {
                 new Thread(runnable).start();
             }
-        }, new ArrayList<ServerInstance>());
+        }, new ArrayList<ServerInstance>(),
+                null);
     }
 
     public void testCopyFile() throws Exception {

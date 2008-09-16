@@ -145,7 +145,10 @@ public class AddRepositoryHandler extends BaseImportExportHandler {
                     return false;
                 }
             }
-            lists.get(0).addUserRepository(url);
+            //TODO fish these out of the request?
+            String userName = null;
+            String password = null;
+            lists.get(0).addUserRepository(url, userName, password);
             request.setAttribute("repository", repo);
             return true;
         }

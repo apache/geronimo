@@ -70,7 +70,7 @@ public abstract class BaseImportExportHandler extends MultiPageAbstractHandler {
 
         if (list == null || !repo.equals(listRepo)) {
             try {
-                list = pluginInstaller.listPlugins(new URL(repo), user, pass);
+                list = pluginInstaller.listPlugins(new URL(repo));
             } catch (FailedLoginException e) {
                 throw new PortletException("Invalid login for repository '" + repo + "'", e);
             }

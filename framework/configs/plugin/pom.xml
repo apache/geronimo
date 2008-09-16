@@ -144,12 +144,12 @@
                             <config-xml-content>
                                 <gbean name="DownloadedPluginRepos">
                                     <attribute name="repositoryList">http://geronimo.apache.org/plugins/plugin-repository-list-2.2.txt</attribute>
-                                    <attribute name="userRepositories">~/.m2/repository</attribute>
                                 </gbean>
                             </config-xml-content>
                             <!--<artifact-alias key="org.apache.geronimo.framework/jsr88-cli//car">org.apache.geronimo.framework/plugin/${version}/car</artifact-alias>-->
                             <!--<artifact-alias key="org.apache.geronimo.framework/jsr88-cli/${version}/car">org.apache.geronimo.framework/plugin/${version}/car</artifact-alias>-->
                             <copy-file dest-dir="schema">schema/xsd/</copy-file>
+                            <copy-file dest-dir="var/config" relative-to="server">plugin-repositories.properties</copy-file>
                         </plugin-artifact>
                     </instance>
                 </configuration>

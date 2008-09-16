@@ -247,6 +247,10 @@ public class LocalAttributeManager implements LocalPluginAttributeStore, Persist
         attributeChanged();
     }
 
+    public boolean isModuleInstalled(Artifact artifact) {
+        return serverOverride.getConfiguration(artifact) != null;
+    }
+
     public void addConfigSubstitutions(Properties properties) {
         localConfigSubstitutions.putAll(properties);
         Map<String, Object> configSubstutions = loadAllConfigSubstitutions(localConfigSubstitutions, prefix);

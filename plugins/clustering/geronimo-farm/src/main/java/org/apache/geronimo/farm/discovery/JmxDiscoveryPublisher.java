@@ -31,7 +31,7 @@ import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.kernel.rmi.RMIRegistryService;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 @GBean
 public class JmxDiscoveryPublisher implements GBeanLifecycle {
@@ -49,7 +49,7 @@ public class JmxDiscoveryPublisher implements GBeanLifecycle {
     ) throws URISyntaxException, IOException {
         this.discoveryAgent = discoveryAgent;
         String query = null;
-        if (nodeName != null) {
+        if (nodeName != null && nodeName.length() > 0) {
             query = "node=" + nodeName;
         }
         if (clusterName != null) {

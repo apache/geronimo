@@ -57,8 +57,8 @@ import org.xml.sax.SAXException;
 public class RemoteSourceRepository implements SourceRepository {
 
     private final URI base;
-    private String username = null;
-    private String password = null;
+    private final String username;
+    private final String password;
 
     public RemoteSourceRepository(URI base, String username, String password) {
         if (!base.getPath().endsWith("/")) {
@@ -72,7 +72,7 @@ public class RemoteSourceRepository implements SourceRepository {
     public PluginListType getPluginList() {
         try {
             URL uri = base.resolve("geronimo-plugins.xml").toURL();
-            InputStream in = openStream(null, uri);
+            InputStream in = openStream(uri);
             if (in != null) {
                 try {
                     return PluginXmlUtil.loadPluginList(in);
@@ -86,7 +86,7 @@ public class RemoteSourceRepository implements SourceRepository {
         return null;
     }
 
-    public OpenResult open(Artifact artifact, FileWriteMonitor monitor) throws IOException, FailedLoginException {
+    public OpenResult open(final Artifact artifact, final FileWriteMonitor monitor) throws IOException, FailedLoginException {
 
         // If the artifact version is resolved then look for the artifact in the repo
         if (artifact.isResolved()) {
@@ -162,8 +162,9 @@ public class RemoteSourceRepository implements SourceRepository {
                 });
 
                 for (Version version : available) {
-                    URL location = getURL(new Artifact(artifact.getGroupId(), artifact.getArtifactId(), version, artifact.getType()));
-                    OpenResult result = open(artifact, location);
+                    Artifact versionedArtifact = new Artifact(artifact.getGroupId(), artifact.getArtifactId(), version, artifact.getType());
+                    URL location = getURL(versionedArtifact);
+                    OpenResult result = open(versionedArtifact, location);
                     if (result != null) {
                         return result;
                     }
@@ -174,12 +175,11 @@ public class RemoteSourceRepository implements SourceRepository {
     }
 
     private OpenResult open(Artifact artifact, URL location) throws IOException, FailedLoginException {
-        InputStream in = openStream(artifact, location);
+        InputStream in = openStream(location);
         return (in == null) ? null : new RemoteOpenResult(artifact, in);
     }
 
-    private InputStream openStream(Artifact artifact, URL location) throws IOException, FailedLoginException {
-        int size = 0;
+    private InputStream openStream(URL location) throws IOException, FailedLoginException {
         URLConnection con = location.openConnection();
         if (con instanceof HttpURLConnection) {
             HttpURLConnection http = (HttpURLConnection) con;
@@ -198,15 +198,8 @@ public class RemoteSourceRepository implements SourceRepository {
                 } else if (http.getResponseCode() == 404) {
                     return null; // Not found at this repository
                 }
-                if (http.getContentLength() > 0) {
-                    size = http.getContentLength();
-                }
             } else if (http.getResponseCode() == 404) {
                 return null; // Not found at this repository
-            } else {
-                if (http.getContentLength() > 0) {
-                    size = http.getContentLength();
-                }
             }
             return http.getInputStream();
         }
@@ -220,10 +213,10 @@ public class RemoteSourceRepository implements SourceRepository {
 
         try {
             URL metaURL = base.resolve( "maven-metadata.xml").toURL();
-            in = openStream(null, metaURL);
+            in = openStream(metaURL);
             if (in == null) { // check for local maven metadata
                 metaURL = base.resolve("maven-metadata-local.xml").toURL();
-                in = openStream(null, metaURL);
+                in = openStream(metaURL);
             }
             if (in != null) {
                 DocumentBuilder builder = XmlUtil.newDocumentBuilderFactory().newDocumentBuilder();
@@ -315,6 +308,9 @@ public class RemoteSourceRepository implements SourceRepository {
         private File file;
 
         private RemoteOpenResult(Artifact artifact, InputStream in) {
+            if (!artifact.isResolved()) {
+                throw new IllegalStateException("Artifact is not resolved: " + artifact);
+            }
             this.artifact = artifact;
             this.in = in;
         }

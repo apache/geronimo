@@ -23,6 +23,8 @@ import java.io.File;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.Collections;
+import java.net.URL;
 
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.basic.BasicKernel;
@@ -31,6 +33,8 @@ import org.apache.geronimo.system.configuration.RepositoryConfigurationStore;
 import org.apache.geronimo.system.plugin.DownloadResults;
 import org.apache.geronimo.system.plugin.PluginInstallerGBean;
 import org.apache.geronimo.system.plugin.SourceRepository;
+import org.apache.geronimo.system.plugin.PluginRepositoryList;
+import org.apache.geronimo.system.plugin.PluginRepositoryDownloader;
 import org.apache.geronimo.system.plugin.model.ArtifactType;
 import org.apache.geronimo.system.plugin.model.AttributesType;
 import org.apache.geronimo.system.plugin.model.PluginArtifactType;
@@ -156,8 +160,9 @@ public class InstallModulesMojo extends AbstractCarMojo {
         String targetServerPath = targetServerDirectory.getAbsolutePath();
 
         Kernel kernel = new BasicKernel("Assembly");
+        PluginRepositoryList pluginRepoList = new PluginRepositoryDownloader(Collections.singletonMap(localRepo, (String[]) null), true);
         try {
-            PluginInstallerGBean installer = new PluginInstallerGBean(targetRepositoryPath, targetServerPath, servers, kernel, getClass().getClassLoader());
+            PluginInstallerGBean installer = new PluginInstallerGBean(targetRepositoryPath, targetServerPath, servers, pluginRepoList, kernel, getClass().getClassLoader());
             installer.install(pluginList, sourceRepo, true, null, null, downloadPoller);
             if (overrides != null) {
                 for (Override override: this.overrides) {

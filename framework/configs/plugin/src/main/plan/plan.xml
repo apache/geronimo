@@ -37,6 +37,9 @@
         <reference name="ThreadPool">
             <name>DefaultThreadPool</name>
         </reference>
+        <reference name="PluginRepositoryList">
+            <name>DownloadedPluginRepos</name>
+        </reference>
         <references name="ServerInstances">
             <pattern>
                 <name>DefaultServer</name>
@@ -93,7 +96,10 @@
 
     <gbean name="DownloadedPluginRepos" class="org.apache.geronimo.system.plugin.PluginRepositoryDownloader">
         <attribute name="repositoryList">http://geronimo.apache.org/plugins/plugin-repository-list-2.2.txt</attribute>
-        <attribute name="userRepositories">~/.m2/repository</attribute>
+        <attribute name="userRepositoryList">var/config/plugin-repositories.properties</attribute>
+        <reference name="ServerInfo">
+            <name>ServerInfo</name>
+        </reference>
     </gbean>
 
     <gbean name="Archiver" class="org.apache.geronimo.system.plugin.ArchiverGBean">

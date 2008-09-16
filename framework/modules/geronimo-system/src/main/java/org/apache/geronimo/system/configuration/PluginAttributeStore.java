@@ -39,4 +39,6 @@ public interface PluginAttributeStore extends ManageableAttributeStore {
     public void setModuleGBeans(Artifact moduleName, List<GbeanType> gbeans, boolean load, String condition) throws InvalidGBeanException;
 
     void addConfigSubstitutions(Properties properties);
+
+    boolean isModuleInstalled(Artifact artifact);
 }
