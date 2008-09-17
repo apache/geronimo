@@ -92,6 +92,11 @@
         </dependency>
 
         <dependency>
+            <groupId>wsdl4j</groupId>
+            <artifactId>wsdl4j</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>org.apache.geronimo.plugins.classloaders</groupId>
             <artifactId>geronimo-schema-jee_5</artifactId>
             <version>${version}</version>

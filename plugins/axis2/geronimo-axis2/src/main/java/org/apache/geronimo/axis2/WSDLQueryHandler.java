@@ -22,31 +22,22 @@ package org.apache.geronimo.axis2;
 import java.io.FileNotFoundException;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.wsdl.Definition;
 import javax.wsdl.Import;
-import javax.wsdl.Port;
-import javax.wsdl.Service;
 import javax.wsdl.Types;
 import javax.wsdl.extensions.ExtensibilityElement;
 import javax.wsdl.extensions.schema.Schema;
 import javax.wsdl.extensions.schema.SchemaImport;
 import javax.wsdl.extensions.schema.SchemaReference;
-import javax.wsdl.extensions.soap.SOAPAddress;
-import javax.wsdl.extensions.soap12.SOAP12Address;
 import javax.wsdl.factory.WSDLFactory;
 import javax.wsdl.xml.WSDLReader;
 import javax.wsdl.xml.WSDLWriter;
-import javax.xml.namespace.QName;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
@@ -56,6 +47,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.apache.axis2.description.AxisService;
+import org.apache.geronimo.jaxws.WSDLUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
@@ -107,7 +99,8 @@ public class WSDLQueryHandler
             reader.setFeature("javax.wsdl.verbose", false);
             Definition def = reader.readWSDL(wsdlUri);
             updateDefinition(def, mp, smp, base);
-            updateServices(this.service.getName(), this.service.getEndpointName(), def, base);
+            // remove other services and ports from wsdl
+            WSDLUtils.trimDefinition(def, this.service.getName(), this.service.getEndpointName());
             mp.put("", def);
         }
 
@@ -118,6 +111,11 @@ public class WSDLQueryHandler
 
             if (def == null) {
                 throw new FileNotFoundException("WSDL not found: " + wsdl);
+            }
+            
+            // update service port location on each request
+            if (wsdl.equals("")) {
+                WSDLUtils.updateLocations(def, base);
             }
             
             WSDLFactory factory = WSDLFactory.newInstance();
@@ -255,74 +253,4 @@ public class WSDLQueryHandler
         }
     }
     
-    private void updateServices(String serviceName, String portName, Definition def, String baseUri)
-            throws Exception {
-        boolean updated = false;
-        Map services = def.getServices();
-        if (services != null) {
-            ArrayList<QName> servicesToRemove = new ArrayList<QName>();
-            
-            Iterator serviceIterator = services.entrySet().iterator();
-            while (serviceIterator.hasNext()) {
-                Map.Entry serviceEntry = (Map.Entry) serviceIterator.next();
-                QName currServiceName = (QName) serviceEntry.getKey();
-                if (currServiceName.getLocalPart().equals(serviceName)) {
-                    Service service = (Service) serviceEntry.getValue();
-                    updatePorts(portName, service, baseUri);
-                    updated = true;
-                } else {
-                    servicesToRemove.add(currServiceName);
-                }
-            }
-            
-            for (QName serviceToRemove : servicesToRemove) {
-                def.removeService(serviceToRemove);                
-            }
-        }
-        if (!updated) {
-            LOG.warn("WSDL '" + serviceName + "' service not found.");
-        }
-    }
-
-    private void updatePorts(String portName, Service service, String baseUri) throws Exception {
-        boolean updated = false;
-        Map ports = service.getPorts();
-        if (ports != null) {
-            ArrayList<String> portsToRemove = new ArrayList<String>();
-            
-            Iterator portIterator = ports.entrySet().iterator();
-            while (portIterator.hasNext()) {
-                Map.Entry portEntry = (Map.Entry) portIterator.next();
-                String currPortName = (String) portEntry.getKey();
-                if (currPortName.equals(portName)) {
-                    Port port = (Port) portEntry.getValue();
-                    updatePortLocation(port, baseUri);
-                    updated = true;
-                } else {
-                    portsToRemove.add(currPortName);
-                }
-            }
-            
-            for (String portToRemove : portsToRemove) {
-                service.removePort(portToRemove);               
-            }
-        }
-        if (!updated) {
-            LOG.warn("WSDL '" + portName + "' port not found.");
-        }
-    }
-
-    private void updatePortLocation(Port port, String baseUri) throws URISyntaxException {
-        List<?> exts = port.getExtensibilityElements();
-        if (exts != null && exts.size() > 0) {
-            ExtensibilityElement el = (ExtensibilityElement) exts.get(0);
-            if (el instanceof SOAP12Address) {
-                SOAP12Address add = (SOAP12Address) el;
-                add.setLocationURI(baseUri);
-            } else if (el instanceof SOAPAddress) {
-                SOAPAddress add = (SOAPAddress) el;
-                add.setLocationURI(baseUri);
-            }
-        }
-    }
 }

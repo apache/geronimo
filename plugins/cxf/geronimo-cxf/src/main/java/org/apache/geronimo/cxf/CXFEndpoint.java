@@ -187,12 +187,12 @@ public abstract class CXFEndpoint {
      */
     synchronized void updateAddress(URI request) {
         if (this.address == null) {
-            String requestAddress = request.getScheme() + "://" + request.getHost() + ":" + request.getPort() + request.getPath();
+            String requestAddress = CXFWebServiceContainer.getBaseUri(request);
             getEndpoint().getEndpointInfo().setAddress(requestAddress);
             this.address = requestAddress;
         }
     }
-    
+        
     /*
      * Set appropriate handlers for the port/service/bindings.
      */

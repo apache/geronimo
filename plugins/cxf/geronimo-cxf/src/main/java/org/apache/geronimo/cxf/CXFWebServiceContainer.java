@@ -29,6 +29,7 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.bus.extension.ExtensionManagerBus;
 import org.apache.cxf.service.model.EndpointInfo;
+import org.apache.cxf.tools.common.extensions.soap.SoapAddress;
 import org.apache.cxf.transport.DestinationFactoryManager;
 import org.apache.geronimo.webservices.WebServiceContainer;
 import org.apache.geronimo.webservices.saaj.SAAJUniverse;
@@ -76,6 +77,10 @@ public abstract class CXFWebServiceContainer implements WebServiceContainer {
         destination = (GeronimoDestination) endpoint.getServer().getDestination();
     }
 
+    static String getBaseUri(URI request) {
+        return request.getScheme() + "://" + request.getHost() + ":" + request.getPort() + request.getPath();
+    }
+    
     public void invoke(Request request, Response response) throws Exception {
         this.endpoint.updateAddress(request.getURI());
         if (request.getMethod() == Request.GET) {
@@ -91,6 +96,9 @@ public abstract class CXFWebServiceContainer implements WebServiceContainer {
             GeronimoQueryHandler queryHandler = new GeronimoQueryHandler(this.bus);
             URI requestURI = request.getURI();
             EndpointInfo ei = this.destination.getEndpointInfo();
+            // update service port location on each request
+            SoapAddress address = ei.getExtensor(SoapAddress.class);
+            address.setLocationURI(getBaseUri(requestURI));
             OutputStream out = response.getOutputStream();
             String baseUri = requestURI.toString();
             response.setContentType("text/xml");
