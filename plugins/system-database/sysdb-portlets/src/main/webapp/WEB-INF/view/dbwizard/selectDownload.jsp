@@ -55,9 +55,9 @@
     <table border="0">
     <!-- ENTRY FIELD: DRIVER TYPE -->
       <tr>
-        <th style="min-width: 140px"><div align="right"><fmt:message key="dbwizard.selectDownload.selectDriver"/>:</div></th>
+        <th style="min-width: 140px"><div align="right"><label for="<portlet:namespace/>driverName"><fmt:message key="dbwizard.selectDownload.selectDriver"/></label>:</div></th>
         <td>
-          <select name="driverName">
+          <select name="driverName" id="<portlet:namespace/>driverName">
         <c:forEach var="driver" items="${drivers}">
             <option>${driver.name}</option>
         </c:forEach>

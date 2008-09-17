@@ -93,8 +93,8 @@ function <portlet:namespace/>validate() {
     <table border="0">
     <!-- ENTRY FIELD: URL -->
       <tr>
-        <th style="min-width: 140px"><div align="right"><fmt:message key="dbwizard.common.JDBCConnectURL"/>:</div></th>
-        <td><input name="url" type="text" size="50" value="${pool.url}"></td>
+        <th style="min-width: 140px"><div align="right"><label for="<portlet:namespace/>url"><fmt:message key="dbwizard.common.JDBCConnectURL"/></label>:</div></th>
+        <td><input name="url" id="<portlet:namespace/>url" type="text" size="50" value="${pool.url}"></td>
       </tr>
       <tr>
         <td></td>
@@ -111,9 +111,9 @@ function <portlet:namespace/>validate() {
       </tr>
     <!-- ENTRY FIELD: TRANSACTION TYPE -->
       <tr>
-        <th><div align="right"><fmt:message key="dbwizard.common.transactionType"/>:</div></th>
+        <th><div align="right"><label for="<portlet:namespace/>transactionType"><fmt:message key="dbwizard.common.transactionType"/></label>:</div></th>
         <td>
-          <select name="transactionType">
+          <select name="transactionType" id="<portlet:namespace/>transactionType">
             <option <c:if test="${'LOCAL' == pool.transactionType}">selected</c:if>>LOCAL</option>       
             <option <c:if test="${'XA' == pool.transactionType}">selected</c:if>>XA</option>       
             <option <c:if test="${'NONE' == pool.transactionType}">selected</c:if>>NONE</option>       
@@ -128,38 +128,38 @@ function <portlet:namespace/>validate() {
     <!-- ENTRY FIELD: Min Size -->
       <tr>
         <th><div align="right"><fmt:message key="dbwizard.common.poolMinSize"/>:</div></th>
-        <td><input name="minSize" type="text" size="5" value="${pool.minSize}"></td>
+        <td><input name="minSize" id="<portlet:namespace/>minSize" type="text" size="5" value="${pool.minSize}"></td>
       </tr>
       <tr>
         <td></td>
-        <td><fmt:message key="dbwizard.confirmURL.minimumNoOfCon"/></td>
+        <td><label for="<portlet:namespace/>minSize"><fmt:message key="dbwizard.confirmURL.minimumNoOfCon"/></label></td>
       </tr>
     <!-- ENTRY FIELD: Max Size -->
       <tr>
         <th><div align="right"><fmt:message key="dbwizard.common.poolMaxSize"/>:</div></th>
-        <td><input name="maxSize" type="text" size="5" value="${pool.maxSize}"></td>
+        <td><input name="maxSize" id="<portlet:namespace/>maxSize" type="text" size="5" value="${pool.maxSize}"></td>
       </tr>
       <tr>
         <td></td>
-        <td><fmt:message key="dbwizard.confirmURL.maxNoOfCon"/></td>
+        <td><label for="<portlet:namespace/>maxSize"><fmt:message key="dbwizard.confirmURL.maxNoOfCon"/></label></td>
       </tr>
     <!-- ENTRY FIELD: Blocking Timeout -->
       <tr>
         <th><div align="right"><fmt:message key="dbwizard.common.blockingTimeout"/>:</div></th>
-        <td><input name="blockingTimeout" type="text" size="7" value="${pool.blockingTimeout}"> (in milliseconds)</td>
+        <td><input name="blockingTimeout" id="<portlet:namespace/>blockingTimeout" type="text" size="7" value="${pool.blockingTimeout}"> (in milliseconds)</td>
       </tr>
       <tr>
         <td></td>
-        <td><fmt:message key="dbwizard.confirmURL.blockingTimeoutExp"/></td>
+        <td><label for="<portlet:namespace/>blockingTimeout"><fmt:message key="dbwizard.confirmURL.blockingTimeoutExp"/></label></td>
       </tr>
     <!-- ENTRY FIELD: Idle timeout -->
       <tr>
         <th><div align="right"><fmt:message key="dbwizard.common.idleTimeout"/>:</div></th>
-        <td><input name="idleTimeout" type="text" size="5" value="${pool.idleTimeout}"> (<fmt:message key="dbwizard.common.inMinutes"/>)</td>
+        <td><input name="idleTimeout" id="<portlet:namespace/>idleTimeout" type="text" size="5" value="${pool.idleTimeout}"> (<fmt:message key="dbwizard.common.inMinutes"/>)</td>
       </tr>
       <tr>
         <td></td>
-        <td><fmt:message key="dbwizard.confirmURL.idleTimeoutExp"/></td>
+        <td><label for="<portlet:namespace/>idleTimeout"><fmt:message key="dbwizard.confirmURL.idleTimeoutExp"/></label></td>
       </tr>
     <!-- SUBMIT BUTTON -->
       <tr>

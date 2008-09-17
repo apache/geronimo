@@ -32,8 +32,8 @@
         <td class="DarkBackground" colspan="2"><fmt:message key="dbwizard.common.import"><fmt:param value="${pool.importSource}"/></fmt:message></td>
       </tr>
       <tr>
-        <th align="right" style="min-width: 140px"><fmt:message key="dbwizard.common.configFile"/>:</th>
-        <td><input type="file" name="configFile" /></td>
+        <th align="right" style="min-width: 140px"><label for="<portlet:namespace/>configFile"><fmt:message key="dbwizard.common.configFile"/></label>:</th>
+        <td><input type="file" name="configFile" id="<portlet:namespace/>configFile" /></td>
       </tr>
       <tr>
         <td></td>
@@ -65,16 +65,16 @@
         <td colspan="2"><fmt:message key="dbwizard.importUpload.aboutWebLogic"/></td>
       </tr>
       <tr>
-        <th align="right" style="min-width: 140px"><fmt:message key="dbwizard.importUpload.domainDirectoryPath"/>:</th>
-        <td><input type="text" name="weblogicDomainDir" size="40" /></td>
+        <th align="right" style="min-width: 140px"><label for="<portlet:namespace/>weblogicDomainDir"><fmt:message key="dbwizard.importUpload.domainDirectoryPath"/></label>:</th>
+        <td><input type="text" name="weblogicDomainDir" id="<portlet:namespace/>weblogicDomainDir" size="40" /></td>
       </tr>
       <tr>
         <td></td>
         <td><fmt:message key="dbwizard.importUpload.domainDirectoryPathExp"/> (e.g. C:\bea\user_projects\domains\mydomain).</td>
       </tr>
       <tr>
-        <th align="right"><tt>weblogic81/server/lib</tt> <fmt:message key="dbwizard.importUpload.path"/>:</th>
-        <td><input type="text" name="weblogicLibDir" size="40" /></td>
+        <th align="right"><tt>weblogic81/server/lib</tt> <label for="<portlet:namespace/>weblogicLibDir"><fmt:message key="dbwizard.importUpload.path"/></label>:</th>
+        <td><input type="text" name="weblogicLibDir" id="<portlet:namespace/>weblogicLibDir" size="40" /></td>
       </tr>
       <tr>
         <td></td>

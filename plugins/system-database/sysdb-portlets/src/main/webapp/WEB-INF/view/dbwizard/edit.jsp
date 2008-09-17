@@ -120,7 +120,7 @@ function <portlet:namespace/>validate() {
         <td>
       <c:choose> <%-- Can't change the pool name after deployment because it's wired into all the ObjectNames --%>
         <c:when test="${empty pool.abstractName}">
-          <input name="name" type="text" size="30" value="${pool.name}">
+          <input name="name" type="text" size="30" value="${pool.name}" title='<fmt:message key="dbwizard.edit.poolName"/>'>
           <script language="JavaScript">
             <portlet:namespace/>requiredFields = <portlet:namespace/>requiredFields.concat(new Array("name"));
           </script>
@@ -157,7 +157,7 @@ function <portlet:namespace/>validate() {
         <td>
       <c:choose>
         <c:when test="${empty pool.abstractName}">
-          <input name="driverClass" type="text" size="30" value="${pool.driverClass}">
+          <input name="driverClass" title='<fmt:message key="dbwizard.common.JDBCDriverClass" />' type="text" size="30" value="${pool.driverClass}">
           <script language="JavaScript">
             <portlet:namespace/>requiredFields = <portlet:namespace/>requiredFields.concat(new Array("driverClass"));
           </script>
@@ -180,9 +180,9 @@ function <portlet:namespace/>validate() {
   <c:choose> <%-- Can't set JAR after deployment because we don't know how to dig through dependencies yet --%>
     <c:when test="${empty pool.abstractName}">
       <tr>
-        <th><div align="right"><fmt:message key="dbwizard.common.driverJAR"/>:</div></th>
+        <th><div align="right"><label for="<portlet:namespace/>jars"><fmt:message key="dbwizard.common.driverJAR"/></label>:</div></th>
         <td>
-          <select multiple="true" name="jars" size="10">
+          <select multiple="true" name="jars" id="<portlet:namespace/>jars" size="10">
               <c:forEach var="availableJar" items="${availableJars}">
                   <option value="${availableJar}" <c:forEach var="jar" items="${pool.jars}"><c:if test="${availableJar == jar}">selected</c:if></c:forEach>>
                       ${availableJar}
@@ -209,8 +209,8 @@ function <portlet:namespace/>validate() {
   </c:choose>
     <!-- ENTRY FIELD: URL -->
       <tr>
-        <th><div align="right"><fmt:message key="dbwizard.common.JDBCConnectURL"/>:</div></th>
-        <td><input name="url" type="text" size="50" value="${pool.url}"></td>
+        <th><div align="right"><label for="<portlet:namespace/>url"><fmt:message key="dbwizard.common.JDBCConnectURL"/></label>:</div></th>
+        <td><input name="url" id="<portlet:namespace/>url" type="text" size="50" value="${pool.url}"></td>
       </tr>
       <script language="JavaScript">
         <portlet:namespace/>requiredFields = <portlet:namespace/>requiredFields.concat(new Array("url"));
@@ -221,21 +221,21 @@ function <portlet:namespace/>validate() {
       </tr>
     <!-- ENTRY FIELD: Username -->
       <tr>
-        <th><div align="right"><fmt:message key="dbwizard.common.DBUserName"/>:</div></th>
-        <td><input name="user" type="text" size="20" value="${pool.user}"></td>
+        <th><fmt:message key="dbwizard.common.DBUserName"/>:</div></th>
+        <td><input name="user" id="<portlet:namespace/>user" type="text" size="20" value="${pool.user}"></td>
       </tr>
       <tr>
         <td></td>
-        <td><fmt:message key="dbwizard.common.DBUserNameExp"/></td>
+        <td><div align="right"><label for="<portlet:namespace/>user"><fmt:message key="dbwizard.common.DBUserNameExp"/></label></td>
       </tr>
     <!-- ENTRY FIELD: Password -->
       <tr>
-        <th><div align="right"><fmt:message key="dbwizard.common.DBPassword"/>:</div></th>
-        <td><input name="password" type="password" size="20" value="${pool.password}"></td>
+        <th><div align="right"><label for="<portlet:namespace/>password"><fmt:message key="dbwizard.common.DBPassword"/></label>:</div></th>
+        <td><input name="password" id="<portlet:namespace/>password" type="password" size="20" value="${pool.password}"></td>
       </tr>
       <tr>
-        <th><div align="right"><fmt:message key="dbwizard.common.confirmPassword"/>:</div></th>
-        <td><input name="confirm-password" type="password" size="20" value="${pool.password}"></td>
+        <th><div align="right"><label for="<portlet:namespace/>confirm-password"><fmt:message key="dbwizard.common.confirmPassword"/></label>:</div></th>
+        <td><input name="confirm-password" id="<portlet:namespace/>confirm-password" type="password" size="20" value="${pool.password}"></td>
       </tr>
       <script language="JavaScript">
         <portlet:namespace/>passwordFields = <portlet:namespace/>passwordFields.concat(new Array("password"));
@@ -256,9 +256,9 @@ function <portlet:namespace/>validate() {
   <c:choose> <%-- Can't set JAR after deployment because we don't know how to dig through dependencies yet --%>
     <c:when test="${empty pool.abstractName}">
       <tr>
-        <th><div align="right"><fmt:message key="dbwizard.common.driverJAR"/>:</div></th>
+        <th><div align="right"><label for="<portlet:namespace/>jars"><fmt:message key="dbwizard.common.driverJAR"/></label>:</div></th>
         <td>
-          <select multiple="true" name="jars" size="10">
+          <select multiple="true" name="jars" id="<portlet:namespace/>jars" size="10">
               <c:forEach var="availableJar" items="${availableJars}">
                   <option value="${availableJar}" <c:forEach var="jar" items="${pool.jars}"><c:if test="${availableJar == jar}">selected</c:if></c:forEach>>
                       ${availableJar}
@@ -285,13 +285,13 @@ function <portlet:namespace/>validate() {
   </c:choose>
     <c:forEach var="prop" items="${pool.properties}">
       <tr>
-        <th><div align="right">${pool.propertyNames[prop.key]}:</div></th>
-        <td><input name="${prop.key}" type="<c:choose><c:when test="${fn:containsIgnoreCase(prop.key, 'password')}">password</c:when><c:otherwise>text</c:otherwise></c:choose>" size="20" value="${prop.value}"></td>
+        <th><div align="right"><label for="<portlet:namespace/>${prop.key}">${pool.propertyNames[prop.key]}</label>:</div></th>
+        <td><input name="${prop.key}" id="<portlet:namespace/>${prop.key}" type="<c:choose><c:when test="${fn:containsIgnoreCase(prop.key, 'password')}">password</c:when><c:otherwise>text</c:otherwise></c:choose>" size="20" value="${prop.value}"></td>
       </tr>
     <c:if test="${fn:containsIgnoreCase(prop.key, 'password')}">
       <tr>
-        <th><div align="right"><fmt:message key="dbwizard.common.confirmPassword"/>:</div></th>
-        <td><input name="confirm-${prop.key}" type="password" size="20" value="${prop.value}"></td>
+        <th><div align="right"><label for="<portlet:namespace/>confirm-${prop.key}"><fmt:message key="dbwizard.common.confirmPassword"/></label>:</div></th>
+        <td><input name="confirm-${prop.key}" id="<portlet:namespace/>confirm-${prop.key}" type="password" size="20" value="${prop.value}"></td>
       </tr>
       <script language="JavaScript">
         <portlet:namespace/>passwordFields = <portlet:namespace/>passwordFields.concat(new Array("${prop.key}"));
@@ -322,9 +322,9 @@ function <portlet:namespace/>validate() {
      <c:if test="${pool.transactionType != null}"> 
        <!-- ENTRY FIELD: TRANSACTION TYPE -->
         <tr>
-          <th><div align="right"><fmt:message key="dbwizard.common.transactionType"/>:</div></th>
+          <th><div align="right"><label for="<portlet:namespace/>transactionType"><fmt:message key="dbwizard.common.transactionType"/></label>:</div></th>
           <td>
-            <select name="transactionType">
+            <select name="transactionType" id="<portlet:namespace/>transactionType">
               <option <c:if test="${'LOCAL' == pool.transactionType}">selected</c:if>>LOCAL</option>       
               <option <c:if test="${'XA' == pool.transactionType}">selected</c:if>>XA</option>       
               <option <c:if test="${'NONE' == pool.transactionType}">selected</c:if>>NONE</option>       
@@ -339,38 +339,38 @@ function <portlet:namespace/>validate() {
     <!-- ENTRY FIELD: Min Size -->
       <tr>
         <th><div align="right"><fmt:message key="dbwizard.common.poolMinSize"/>:</div></th>
-        <td><input name="minSize" type="text" size="5" value="${pool.minSize}"></td>
+        <td><input name="minSize" id="<portlet:namespace/>minSize" type="text" size="5" value="${pool.minSize}"></td>
       </tr>
       <tr>
         <td></td>
-        <td><fmt:message key="dbwizard.edit.minimumNoOfCon"/></td>
+        <td><label for="<portlet:namespace/>minSize"><fmt:message key="dbwizard.edit.minimumNoOfCon"/></label></td>
       </tr>
     <!-- ENTRY FIELD: Max Size -->
       <tr>
         <th><div align="right"><fmt:message key="dbwizard.common.poolMaxSize"/>:</div></th>
-        <td><input name="maxSize" type="text" size="5" value="${pool.maxSize}"></td>
+        <td><input name="maxSize" id="<portlet:namespace/>maxSize" type="text" size="5" value="${pool.maxSize}"></td>
       </tr>
       <tr>
         <td></td>
-        <td><fmt:message key="dbwizard.common.maxNoOfCon"/></td>
+        <td><label for="<portlet:namespace/>maxSize"><fmt:message key="dbwizard.common.maxNoOfCon"/></label></td>
       </tr>
     <!-- ENTRY FIELD: Blocking Timeout -->
       <tr>
         <th><div align="right"><fmt:message key="dbwizard.common.blockingTimeout"/>:</div></th>
-        <td><input name="blockingTimeout" type="text" size="7" value="${pool.blockingTimeout}"> (<fmt:message key="dbwizard.common.inMilliseconds"/>)</td>
+        <td><input name="blockingTimeout" id="<portlet:namespace/>blockingTimeout" type="text" size="7" value="${pool.blockingTimeout}"> (<fmt:message key="dbwizard.common.inMilliseconds"/>)</td>
       </tr>
       <tr>
         <td></td>
-        <td><fmt:message key="dbwizard.edit.blockingTimeoutExp"/></td>
+        <td><label for="<portlet:namespace/>blockingTimeout"><fmt:message key="dbwizard.edit.blockingTimeoutExp"/></label></td>
       </tr>
     <!-- ENTRY FIELD: Idle timeout -->
       <tr>
         <th><div align="right"><fmt:message key="dbwizard.common.idleTimeout"/>:</div></th>
-        <td><input name="idleTimeout" type="text" size="5" value="${pool.idleTimeout}"> (<fmt:message key="dbwizard.common.inMinutes"/>)</td>
+        <td><input name="idleTimeout" id="<portlet:namespace/>idleTimeout" type="text" size="5" value="${pool.idleTimeout}"> (<fmt:message key="dbwizard.common.inMinutes"/>)</td>
       </tr>
       <tr>
         <td></td>
-        <td><fmt:message key="dbwizard.edit.idleTimeoutExp"/></td>
+        <td><label for="<portlet:namespace/>idleTimeout"><fmt:message key="dbwizard.edit.idleTimeoutExp"/></label></td>
       </tr>
 
     <!-- SUBMIT BUTTON -->

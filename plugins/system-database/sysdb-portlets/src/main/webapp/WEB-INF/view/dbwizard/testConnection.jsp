@@ -66,8 +66,8 @@
     <!-- STATUS FIELD: Connection Errors -->
     <c:if test="${!(empty connectError)}">
       <tr>
-        <th><div align="right"><fmt:message key="dbwizard.testConnection.testError"/>:</div></th>
-        <td><textarea rows="30" cols="60" readonly>${connectError}</textarea></td>
+        <th><div align="right"><label for="<portlet:namespace/>connectError"><fmt:message key="dbwizard.testConnection.testError"/></label>:</div></th>
+        <td><textarea rows="30" cols="60" id="<portlet:namespace/>connectError" readonly>${connectError}</textarea></td>
       </tr>
     </c:if>
     <!-- SUBMIT BUTTON -->

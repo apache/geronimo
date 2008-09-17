@@ -33,10 +33,10 @@
                 <b><fmt:message key="derbylogmanager.view.filterResults"/>:</b>
                 <input type="hidden" value="search" name="action"/>
                 <br/>
-                <fmt:message key="derbylogmanager.view.Lines"/>&nbsp;<input type="text" name="startPos" value="${startPos}" size="3"/>
-                <fmt:message key="derbylogmanager.view.to"/>&nbsp;<input type="text" name="endPos" value="${endPos}" size="3"/>
-                <fmt:message key="derbylogmanager.view.maxResults"/>&nbsp;<input type="text" name="maxRows" value="${maxRows}" size="3"/>
-                <fmt:message key="derbylogmanager.view.containingText"/>&nbsp;<input type="text" name="searchString" value="${searchString}"/>
+                <label for="<portlet:namespace/>startPos"><fmt:message key="derbylogmanager.view.Lines"/> </label><input type="text" name="startPos" id="<portlet:namespace/>startPos" value="${startPos}" size="3"/>
+                <label for="<portlet:namespace/>endPos"><fmt:message key="derbylogmanager.view.to"/> </label><input type="text" name="endPos" id="<portlet:namespace/>endPos" value="${endPos}" size="3"/>
+                <label for="<portlet:namespace/>maxRows"><fmt:message key="derbylogmanager.view.maxResults"/> </label><input type="text" name="maxRows" id="<portlet:namespace/>maxRows" value="${maxRows}" size="3"/>
+                <label for="<portlet:namespace/>searchString"><fmt:message key="derbylogmanager.view.containingText"/> </label><input type="text" name="searchString" id="<portlet:namespace/>searchString" value="${searchString}"/>
                 <br/>
                 <input type="submit" value="<fmt:message key="derbylogmanager.view.filterLog"/>"/>
             </form>

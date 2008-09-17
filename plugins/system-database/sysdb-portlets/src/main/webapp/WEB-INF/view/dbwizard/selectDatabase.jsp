@@ -64,8 +64,8 @@ function <portlet:namespace/>validateForm(){
     <table border="0">
     <!-- ENTRY FIELD: NAME -->
       <tr>
-        <th style="min-width: 140px"><div align="right"><fmt:message key="dbwizard.selectDatabase.nameOfPool"/>:</div></th>
-        <td><input name="name" type="text" size="30" value="${pool.name}"></td>
+        <th style="min-width: 140px"><div align="right"><label for="<portlet:namespace/>name"><fmt:message key="dbwizard.selectDatabase.nameOfPool"/></label>:</div></th>
+        <td><input name="name" id="<portlet:namespace/>name" type="text" size="30" value="${pool.name}"></td>
       </tr>
       <tr>
         <td></td>
@@ -73,9 +73,9 @@ function <portlet:namespace/>validateForm(){
       </tr>
     <!-- ENTRY FIELD: DB TYPE -->
       <tr>
-        <th><div align="right"><fmt:message key="dbwizard.selectDatabase.databaseType"/>:</div></th>
+        <th><div align="right"><label for="<portlet:namespace/>dbtype"><fmt:message key="dbwizard.selectDatabase.databaseType"/></label>:</div></th>
         <td>
-          <select name="dbtype">
+          <select name="dbtype" id="<portlet:namespace/>dbtype">
         <c:forEach var="db" items="${databases}">
             <option <c:if test="${db.name == pool.dbtype}">selected</c:if>>${db.name}</option>
         </c:forEach>

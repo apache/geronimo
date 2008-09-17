@@ -48,14 +48,14 @@ function <portlet:namespace/>validateForm3(){
 <input type="hidden" name="action" value="" />
 <table width="100%"  border="0">
   <tr>
-    <td><div align="right"><fmt:message key="internaldb.common.createDB"/>:</div></td>
-    <td><input name="createDB" type="text" size="30">&nbsp;
+    <td><div align="right"><label for="<portlet:namespace/>createDB"><fmt:message key="internaldb.common.createDB"/></label>:</div></td>
+    <td><input name="createDB" id="<portlet:namespace/>createDB" type="text" size="30">&nbsp;
       <input type="submit" value='<fmt:message key="internaldb.common.create"/>' onClick="return <portlet:namespace/>validateForm1();"></td>
     </tr>
   <tr>
-    <td><div align="right"><fmt:message key="internaldb.common.deleteDB"/>:</div></td>
+    <td><div align="right"><label for="<portlet:namespace/>deleteDB"><fmt:message key="internaldb.common.deleteDB"/></label>:</div></td>
     <td>
-      <select name="deleteDB">
+      <select name="deleteDB" id="<portlet:namespace/>deleteDB">
       <c:forEach var="db" items="${databases}" varStatus="status">
         <option value="${db}">${db}</option>
       </c:forEach>
@@ -64,9 +64,9 @@ function <portlet:namespace/>validateForm3(){
     </td>
   </tr>
   <tr>
-    <td><div align="right"><fmt:message key="internaldb.common.useDB"/>:</div></td>
+    <td><div align="right"><label for="<portlet:namespace/>useDB"><fmt:message key="internaldb.common.useDB"/></label>:</div></td>
     <td>
-      <select name="useDB">
+      <select name="useDB" id="<portlet:namespace/>useDB">
       <c:forEach var="db" items="${databases}" varStatus="status">
         <option value="${db}">${db}</option>
       </c:forEach>
@@ -75,11 +75,11 @@ function <portlet:namespace/>validateForm3(){
   </tr>
   <tr>
     <td></td>
-    <td><div align="left"><fmt:message key="internaldb.common.SQLCommands"/>:</td>
+    <td><div align="left"><label for="<portlet:namespace/>sqlStmts"><fmt:message key="internaldb.common.SQLCommands"/></label>:</td>
   </tr>
   <tr>
     <td></td>
-    <td><textarea name="sqlStmts" cols="65" rows="15"><c:out value="${sqlStmts}" /></textarea></td>
+    <td><textarea name="sqlStmts" id="<portlet:namespace/>sqlStmts" cols="65" rows="15"><c:out value="${sqlStmts}" /></textarea></td>
   </tr>
 </table>
 

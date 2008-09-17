@@ -62,8 +62,8 @@ function <portlet:namespace/>validateForm(){
     <table border="0">
     <!-- ENTRY FIELD: Driver Class -->
       <tr>
-        <th style="min-width: 140px"><div align="right"><fmt:message key="dbwizard.common.JDBCDriverClass"/>:</div></th>
-        <td><input name="driverClass" type="text" size="30" value="${pool.driverClass}"></td>
+        <th style="min-width: 140px"><div align="right"><label for="<portlet:namespace/>driverClass"><fmt:message key="dbwizard.common.JDBCDriverClass"/></label>:</div></th>
+        <td><input name="driverClass" id="<portlet:namespace/>driverClass" type="text" size="30" value="${pool.driverClass}"></td>
       </tr>
       <tr>
         <td></td>
@@ -74,9 +74,9 @@ function <portlet:namespace/>validateForm(){
       </tr>
     <!-- ENTRY FIELD: Driver JAR -->
       <tr>
-        <th><div align="right"><fmt:message key="dbwizard.common.driverJAR"/>:</div></th>
+        <th><div align="right"><label for="<portlet:namespace/>jars"><fmt:message key="dbwizard.common.driverJAR"/></label>:</div></th>
         <td>
-          <select multiple="true" name="jars" size="10">
+          <select multiple="true" name="jars" id="<portlet:namespace/>jars" size="10">
               <c:forEach var="availableJar" items="${availableJars}">
                   <option value="${availableJar}" <c:forEach var="jar" items="${pool.jars}"><c:if test="${availableJar == jar}">selected</c:if></c:forEach>>
                       ${availableJar}
@@ -95,24 +95,24 @@ function <portlet:namespace/>validateForm(){
     <!-- ENTRY FIELD: Username -->
       <tr>
         <th><div align="right"><fmt:message key="dbwizard.common.DBUserName"/>:</div></th>
-        <td><input name="user" type="text" size="20" value="${pool.user}"></td>
+        <td><input name="user" id="<portlet:namespace/>user" type="text" size="20" value="${pool.user}"></td>
       </tr>
       <tr>
         <td></td>
-        <td><fmt:message key="dbwizard.common.DBUserNameExp"/></td>
+        <td><label for="<portlet:namespace/>user"><fmt:message key="dbwizard.common.DBUserNameExp"/></label></td>
       </tr>
     <!-- ENTRY FIELD: Password -->
       <tr>
         <th><div align="right"><fmt:message key="dbwizard.common.DBPassword"/>:</div></th>
-        <td><input name="password" type="password" size="20" value="${pool.password}"></td>
+        <td><input name="password" id="<portlet:namespace/>password" type="password" size="20" value="${pool.password}"></td>
       </tr>
       <tr>
-        <th><div align="right"><fmt:message key="dbwizard.common.confirmPassword"/>:</div></th>
-        <td><input name="confirm-password" type="password" size="20" value="${pool.password}"></td>
+        <th><div align="right"><label for="<portlet:namespace/>confirm-password"><fmt:message key="dbwizard.common.confirmPassword"/></label>:</div></th>
+        <td><input name="confirm-password" id="<portlet:namespace/>confirm-password" type="password" size="20" value="${pool.password}"></td>
       </tr>
       <tr>
         <td></td>
-        <td><fmt:message key="dbwizard.common.DBPasswordExp"/></td>
+        <td><label for="<portlet:namespace/>password"><fmt:message key="dbwizard.common.DBPasswordExp"/></label></td>
       </tr>
     <!-- ENTRY FIELD: URL Properties -->
       <tr>
@@ -124,8 +124,8 @@ function <portlet:namespace/>validateForm(){
       </tr>
   <c:forEach var="prop" items="${pool.urlProperties}">
       <tr>
-        <th><div align="right">${fn:substringAfter(prop.key,"urlproperty-")}:</div></th>
-        <td><input name="${prop.key}" type="text" size="20" value="${prop.value}"></td>
+        <th><div align="right"><label for="<portlet:namespace/>${prop.key}">${fn:substringAfter(prop.key,"urlproperty-")}:</label></div></th>
+        <td><input name="${prop.key}" id="<portlet:namespace/>${prop.key}" type="text" size="20" value="${prop.value}"></td>
       </tr>
       <tr>
         <td></td>
