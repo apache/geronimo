@@ -68,7 +68,7 @@ class FarmCommand
             }
         } else if (action == "add-plugin-to-cluster") {
             if (params.size == 3) {
-                results = farm.addPluginToCluster()(params[0], params[1], params[2]);
+                results = farm.addPluginToCluster(params[0], params[1], params[2]);
             } else {
                 io.out.println("add-plugin requires 3 parameters, cluster name, plugin list name and the artifact")
                 return;
@@ -80,7 +80,7 @@ class FarmCommand
         io.out.println("Results:")
         for (Map.Entry<String, DownloadResults> entry in results) {
             io.out.println("results for node: " + entry.getKey());
-            CommandInstallCAR.printResults(consoleReader, results, time);
+            CommandInstallCAR.printResults(consoleReader, entry.getValue(), 0);
         }
     }
 }
