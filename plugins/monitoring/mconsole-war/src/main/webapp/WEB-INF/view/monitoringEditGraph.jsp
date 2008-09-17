@@ -479,10 +479,10 @@ function addOption(selectbox, value, text )
       <td></td>
     </tr>
    <tr>
-      <td>Server:</td>
+      <td><label for="<portlet:namespace/>server_id">Server</label>:</td>
       <td>&nbsp;</td>
       <td align="right">
-    <select name="server_id" onChange="updateMbeanList(); updateFormula();">
+    <select name="server_id" id="<portlet:namespace/>server_id" onChange="updateMbeanList(); updateFormula();">
       <option value="">-Select Server-</option>
     </select>    
     <script type='text/javascript'>
@@ -498,40 +498,40 @@ function addOption(selectbox, value, text )
       <td></td>
     </tr>
     <tr>
-      <td>Name:</td>
+      <td><label for="<portlet:namespace/>name">Name</label>:</td>
       <td>&nbsp;</td>
-      <td align="right"><input type="text" name="name" value="<%=name%>"></td>
+      <td align="right"><input type="text" name="name" id="<portlet:namespace/>name" value="<%=name%>"></td>
       <td></td>
     </tr>
     <tr>
-      <td>Description:</td>
+      <td><label for="<portlet:namespace/>description">Description</label>:</td>
       <td>&nbsp;</td>
-      <td align="right"><textarea rows="5" cols="50" name="description"><%=description%></textarea></td>
+      <td align="right"><textarea rows="5" cols="50" name="description" id="<portlet:namespace/>description"><%=description%></textarea></td>
       <td></td>
     </tr>
     <tr>
-      <td>X Axis label:</td>
+      <td><label for="<portlet:namespace/>xlabel">X Axis label</label>:</td>
       <td>&nbsp;</td>
-      <td align="right"><input type="text" name="xlabel" value="<%=xlabel%>"/></td>
+      <td align="right"><input type="text" name="xlabel" id="<portlet:namespace/>xlabel" value="<%=xlabel%>"/></td>
       <td></td>
     </tr>
     <tr>
-      <td>Y Axis label:</td>
+      <td><label for="<portlet:namespace/>ylabel">Y Axis label</label>:</td>
       <td>&nbsp;</td>
-      <td align="right"><input type="text" name="ylabel" value="<%=ylabel%>"/></td>
+      <td align="right"><input type="text" name="ylabel" id="<portlet:namespace/>ylabel" value="<%=ylabel%>"/></td>
       <td></td>
     </tr>
     <tr>
-        <td>Timeframe:</td>
+        <td><label for="<portlet:namespace/>timeframe">Timeframe</label>:</td>
         <td>&nbsp;</td>
-        <td align="right"><input type="text" width="5" size="4" name="timeframe" onKeyUp='noAlpha(this)' onKeyPress='noAlpha(this)' value="<%=timeframe%>"/></td>
+        <td align="right"><input type="text" width="5" size="4" name="timeframe" id="<portlet:namespace/>timeframe" onKeyUp='noAlpha(this)' onKeyPress='noAlpha(this)' value="<%=timeframe%>"/></td>
         <td> minutes</td>
       </tr>
     <tr>
-      <td>Mbean:</td>
+      <td><label for="<portlet:namespace/>mbean">Mbean</label>:</td>
       <td>&nbsp;</td>
       <td align="right">
-    <select name="mbean" onChange="updateDatanameList(); updateFormula();">
+    <select name="mbean" id="<portlet:namespace/>mbean" onChange="updateDatanameList(); updateFormula();">
       <option value="">-Select Server First-</option>
     </select>
     </td>
@@ -541,21 +541,21 @@ function addOption(selectbox, value, text )
       <td>Data series:</td>
       <td>&nbsp;</td>
       <td align="right">
-      <select name="data1operation" onchange="updateFormula();">
+      <select name="data1operation" title="data operation" onchange="updateFormula();">
         <option value="A" <%if (data1operation.equals("A")){  %>selected="selected"<%} %>>As-is</option>
         <option value="D" <%if (data1operation.equals("D")){  %>selected="selected"<%} %>>Change (Delta) in</option>
-      </select>name
-      <select name="dataname1" onchange="updateFormula();">
+      </select><label for="<portlet:namespace/>dataname1">name</label>
+      <select name="dataname1" id="<portlet:namespace/>dataname1" onchange="updateFormula();">
         <option value="">-Select MBean First-</option>
       </select>
       </td>
       <td></td>
     </tr>
     <tr>
-      <td>Math operation:</td>
+      <td><label for="<portlet:namespace/>operation">Math operation</label>:</td>
       <td>&nbsp;</td>
         <td align="right">
-      <select name="operation" onChange="checkOtherMath(); updateFormula();">
+      <select name="operation" id="<portlet:namespace/>operation" onChange="checkOtherMath(); updateFormula();">
         <option value="" <%if (operation.equals("null") || operation.equals("") || operation == null){  %>selected="selected"<%} %>>none</option>
         <option value="+" <%if (operation.equals("+")){  %>selected="selected"<%} %>>+</option>
         <option value="-" <%if (operation.equals("-")){  %>selected="selected"<%} %>>-</option>
@@ -564,17 +564,17 @@ function addOption(selectbox, value, text )
         <option value="other" <%if (!operation.equals("null") && !operation.equals("+") && !operation.equals("-") && !operation.equals("*") && !operation.equals("/") && !operation.equals("") && operation != null){  %>selected="selected"<%} %>>Other</option>
       </select>
       </td>
-      <td><input type="text" <%if (!operation.equals("null") && !operation.equals("+") && !operation.equals("-") && !operation.equals("*") && !operation.equals("/") && !operation.equals("") && operation != null){  %><%} else {%>style="display: none;"<%}%> width="6" size="8" name="othermath" onKeyUp='noAlphaMath(this); updateFormula();' onKeyPress='noAlphaMath(this); updateFormula();' value="<%=operation %>"/></td>
+      <td><input type="text" <%if (!operation.equals("null") && !operation.equals("+") && !operation.equals("-") && !operation.equals("*") && !operation.equals("/") && !operation.equals("") && operation != null){  %><%} else {%>style="display: none;"<%}%> width="6" size="8" name="othermath" title="other operation" onKeyUp='noAlphaMath(this); updateFormula();' onKeyPress='noAlphaMath(this); updateFormula();' value="<%=operation %>"/></td>
     </tr>
     <tr>
       <td>Data series 2:</td>
       <td>&nbsp;</td>
       <td align="right">
-      <select name="data2operation" <%if (operation.equals("null") || operation.equals("") || operation == null){  %>disabled="disabled"<%} %> onchange="updateFormula();">
+      <select name="data2operation" title="data operation" <%if (operation.equals("null") || operation.equals("") || operation == null){  %>disabled="disabled"<%} %> onchange="updateFormula();">
         <option value="A" <%if (data2operation.equals("A")){  %>selected="selected"<%} %>>As-is</option>
         <option value="D" <%if (data2operation.equals("D")){  %>selected="selected"<%} %>>Change (Delta) in</option>
-      </select>
-      <select name="dataname2" <%if (operation.equals("null") || operation.equals("") || operation == null){  %>disabled="disabled"<%} %> onchange=" checkNoData2(); updateFormula();">
+      </select><label for="<portlet:namespace/>dataname2">name</label>
+      <select name="dataname2" id="<portlet:namespace/>dataname2" <%if (operation.equals("null") || operation.equals("") || operation == null){  %>disabled="disabled"<%} %> onchange=" checkNoData2(); updateFormula();">
         <option value="">-Select Operation First-</option>
       </select>
       <script type='text/javascript'>
@@ -588,9 +588,9 @@ function addOption(selectbox, value, text )
         <td></td>
         <td>
             <% if(archive) { %>
-                <input type="checkbox" name="showArchive" checked>Show Archive</input>
+                <input type="checkbox" name="showArchive" id="<portlet:namespace/>showArchive" checked><label for="<portlet:namespace/>showArchive">Show Archive</label></input>
             <% } else { %>
-                <input type="checkbox" name="showArchive">Show Archive</input>
+                <input type="checkbox" name="showArchive" id="<portlet:namespace/>showArchive"><label for="<portlet:namespace/>showArchive">Show Archive</label></input>
             <% } %>
         </td>
         <td></td>

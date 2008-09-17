@@ -431,9 +431,9 @@ if (!message.equals("")) {
 			action="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="saveAddGraph"/></portlet:actionURL>">
 		<table cellpadding="1" cellspacing="1">
 			<tr>
-				<td>Server:</td>
+				<td><label for="<portlet:namespace/>server_id">Server</label>:</td>
 				<td>&nbsp;</td>
-				<td align="right"><select name="server_id"
+				<td align="right"><select name="server_id" id="<portlet:namespace/>server_id"
 					onChange="updateMbeanList(); updateFormula();">
 					<option value="">-Select Server-</option>
 				</select> <script type='text/javascript'>
@@ -448,63 +448,63 @@ if (!message.equals("")) {
 				<td></td>
 			</tr>
 			<tr>
-				<td>Name:</td>
+				<td><label for="<portlet:namespace/>name">Name</label>:</td>
 				<td>&nbsp;</td>
-				<td align="right"><input type="text" name="name" value=""></td>
+				<td align="right"><input type="text" name="name" id="<portlet:namespace/>name" value=""></td>
 				<td></td>
 			</tr>
 			<tr>
-				<td>Description:</td>
+				<td><label for="<portlet:namespace/>description">Description:</label></td>
 				<td>&nbsp;</td>
 				<td align="right"><textarea rows="5" cols="50"
-					name="description"></textarea></td>
+					name="description" id="<portlet:namespace/>description"></textarea></td>
 				<td></td>
 			</tr>
 			<tr>
-				<td>X Axis label:</td>
+				<td><label for="<portlet:namespace/>xlabel">X Axis label</label>:</td>
 				<td>&nbsp;</td>
-				<td align="right"><input type="text" name="xlabel" value="" /></td>
+				<td align="right"><input type="text" name="xlabel" id="<portlet:namespace/>xlabel" value="" /></td>
 				<td></td>
 			</tr>
 			<tr>
-				<td>Y Axis label:</td>
+				<td><label for="<portlet:namespace/>ylabel">Y Axis label</label>:</td>
 				<td>&nbsp;</td>
-				<td align="right"><input type="text" name="ylabel" value="" /></td>
+				<td align="right"><input type="text" name="ylabel" id="<portlet:namespace/>ylabel" value="" /></td>
 				<td></td>
 			</tr>
 			<tr>
-				<td>Timeframe:</td>
+				<td><label for="<portlet:namespace/>timeframe">Timeframe</label>:</td>
 				<td>&nbsp;</td>
-				<td align="right"><input type="text" width="5" size="4"
+				<td align="right"><input type="text" width="5" size="4" id="<portlet:namespace/>timeframe"
 					name="timeframe" onKeyUp='noAlpha(this)' onKeyPress='noAlpha(this)'
 					value="60" /></td>
 				<td>minutes</td>
 			</tr>
 			<tr>
-				<td>Mbean:</td>
+				<td><label for="<portlet:namespace/>mbean">Mbean</label>:</td>
 				<td>&nbsp;</td>
-				<td align="right"><select name="mbean"
+				<td align="right"><select name="mbean" id="<portlet:namespace/>mbean"
 					onChange="updateDatanameList(); updateFormula();">
 					<option value="">-Select Server First-</option>
 				</select></td>
 				<td></td>
 			</tr>
 			<tr>
-				<td>Data series:</td>
+				<td><label for="<portlet:namespace/>dataname1">Data series</label>:</td>
 				<td>&nbsp;</td>
-				<td align="right"><select name="data1operation"
+				<td align="right"><select name="data1operation" title="data operation"
 					onchange="updateFormula();">
 					<option value="A" selected="selected">As-is</option>
 					<option value="D">Change (Delta) in</option>
-				</select> <select name="dataname1" onchange="updateFormula();">
+				</select> <select name="dataname1" id="<portlet:namespace/>dataname1" onchange="updateFormula();">
 					<option value="">-Select MBean First-</option>
 				</select></td>
 				<td></td>
 			</tr>
 			<tr>
-				<td>Math operation:</td>
+				<td><label for="<portlet:namespace/>operation">Math operation</label>:</td>
 				<td>&nbsp;</td>
-				<td align="right"><select name="operation"
+				<td align="right"><select name="operation" id="<portlet:namespace/>operation"
 					onChange="checkOtherMath(); updateFormula();">
 					<option value="" selected="selected">none</option>
 					<option value="+">+</option>
@@ -514,18 +514,18 @@ if (!message.equals("")) {
 					<option value="other">Other</option>
 				</select></td>
 				<td><input type="text" style="display: none;" width="6"
-					size="8" name="othermath"
+					size="8" name="othermath" title="Other match operation"
 					onKeyUp='noAlphaMath(this); updateFormula();'
 					onKeyPress='noAlphaMath(this); updateFormula();' value="" /></td>
 			</tr>
 			<tr>
-				<td>Data series 2:</td>
+				<td><label for="<portlet:namespace/>dataname2">Data series 2</label>:</td>
 				<td>&nbsp;</td>
-				<td align="right"><select name="data2operation"
+				<td align="right"><select name="data2operation" title="data operation"
 					disabled="disabled" onchange="updateFormula();">
 					<option value="A" selected="selected">As-is</option>
 					<option value="D">Change (Delta) in</option>
-				</select> <select name="dataname2" disabled="disabled"
+				</select> <select name="dataname2" id="<portlet:namespace/>dataname2" disabled="disabled"
 					onchange="updateFormula(); checkNoData2();">
 					<option value="">-Select Operation First-</option>
 				</select> <script type='text/javascript'>
@@ -536,8 +536,8 @@ if (!message.equals("")) {
 			<tr>
 				<td></td>
 				<td>&nbsp;</td>
-				<td align="right"><input type="checkbox" name="showArchive">Show
-				Archived</input></td>
+				<td align="right"><input type="checkbox" name="showArchive" id="<portlet:namespace/>showArchive"><label for="<portlet:namespace/>showArchive">Show
+				Archived</label></input></td>
 				<td></td>
 			</tr>
 			<tr>

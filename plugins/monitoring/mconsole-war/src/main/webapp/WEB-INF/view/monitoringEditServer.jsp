@@ -225,27 +225,30 @@ function setPort() {
       <td></td>
     </tr>
     <tr>
-      <td>Name:</td>
+      <td><label for="<portlet:namespace/>name">Name</label>:</td>
       <td>&nbsp;</td>
-      <td align="right"><input type="text" name="name" value=<%= "\"" + name + "\"" %>></td>
+      <td align="right"><input type="text" name="name" id="<portlet:namespace/>name" value=<%= "\"" + name + "\"" %>></td>
       <td></td>
     </tr>
     <tr>
-      <td>IP/Hostname:</td>
+      <td><label for="<portlet:namespace/>ip">IP/Hostname</label>:</td>
       <td>&nbsp;</td>
-      <td align="right"><input type="text" name="ip" value=<%= "\"" + ip + "\"" %>/></td>
+      <td align="right"><input type="text" name="ip" id="<portlet:namespace/>ip" value=<%= "\"" + ip + "\"" %>/></td>
       <td></td>
     </tr>
     <tr>
-      <td>Protocol</td>
+      <td>Protocol</label></td>
       <td>&nbsp;</td>
-      <td align="right"><input type="radio" name="protocol" onchange='setPort()' value="1" <%if (protocol.equals("1")){ %>checked="checked"<%} %>>EJB <input type="radio" name="protocol" onchange='setPort()' value="2" <%if (protocol.equals("2")){ %>checked="checked"<%} %>>JMX</td>
+      <td align="right">
+      		<input type="radio" name="protocol" id="<portlet:namespace/>protocol1" onchange='setPort()' value="1" <%if (protocol.equals("1")){ %>checked="checked"<%} %>><label for="<portlet:namespace/>protocol1">EJB</label> 
+      		<input type="radio" name="protocol" id="<portlet:namespace/>protocol2" onchange='setPort()' value="2" <%if (protocol.equals("2")){ %>checked="checked"<%} %>><label for="<portlet:namespace/>protocol2">JMX</label>
+      </td>
       <td></td>
     </tr>
     <tr>
-      <td>Port:</td>
+      <td><label for="<portlet:namespace/>port">Port</label>:</td>
       <td>&nbsp;</td>
-      <td align="right"><input type="text" name="port" onKeyUp='noAlpha(this)' onKeyPress='noAlpha(this)' value=<%= "\"" + port + "\"" %>/></td>
+      <td align="right"><input type="text" name="port" id="<portlet:namespace/>port" onKeyUp='noAlpha(this)' onKeyPress='noAlpha(this)' value=<%= "\"" + port + "\"" %>/></td>
       <td></td>
     </tr>
     <%
@@ -253,15 +256,15 @@ function setPort() {
     {
     %>
     <tr>
-      <td>Snapshot Duration:</td>
+      <td><label for="<portlet:namespace/>snapshot">Snapshot Duration</label>:</td>
       <td>&nbsp;</td>
-      <td align="right"><input type="text" width="5" size="4" name="snapshot" onKeyUp='noAlpha(this)' onKeyPress='noAlpha(this)' value="<%=snapshot%>"/></td>
+      <td align="right"><input type="text" width="5" size="4" name="snapshot" id="<portlet:namespace/>snapshot" onKeyUp='noAlpha(this)' onKeyPress='noAlpha(this)' value="<%=snapshot%>"/></td>
       <td> minutes</td>
     </tr>
     <tr>
-      <td>Snapshot Retention:</td>
+      <td><label for="<portlet:namespace/>retention">Snapshot Retention</label>:</td>
       <td>&nbsp;</td>
-      <td align="right"><input type="text" width="5" size="4" name="retention" onKeyUp='noAlpha(this)' onKeyPress='noAlpha(this)' value="<%=retention%>"/></td>
+      <td align="right"><input type="text" width="5" size="4" name="retention" id="<portlet:namespace/>retention" onKeyUp='noAlpha(this)' onKeyPress='noAlpha(this)' value="<%=retention%>"/></td>
       <td> days</td>
     </tr>
 
@@ -271,15 +274,15 @@ function setPort() {
     {
     %>
         <tr>
-            <td>Snapshot Duration:</td>
+            <td><label for="<portlet:namespace/>snapshot">Snapshot Duration</label>:</td>
             <td>&nbsp;</td>
-            <td align="right"><input type="text" width="5" size="4" name="snapshot" onKeyUp='noAlpha(this)' onKeyPress='noAlpha(this)' disabled="disabled" value="unknown"/></td>
+            <td align="right"><input type="text" width="5" size="4" name="snapshot" id="<portlet:namespace/>snapshot" onKeyUp='noAlpha(this)' onKeyPress='noAlpha(this)' disabled="disabled" value="unknown"/></td>
         <td> minutes</td>
       </tr>
       <tr>
-          <td>Snapshot Retention:</td>
+          <td><label for="<portlet:namespace/>retention">Snapshot Retention</label>:</td>
           <td>&nbsp;</td>
-          <td align="right"><input type="text" width="5" size="4" name="retention" onKeyUp='noAlpha(this)' onKeyPress='noAlpha(this)' disabled="disabled" value="unknown"/></td>
+          <td align="right"><input type="text" width="5" size="4" name="retention" id="<portlet:namespace/>retention" onKeyUp='noAlpha(this)' onKeyPress='noAlpha(this)' disabled="disabled" value="unknown"/></td>
       <td> days</td>
     </tr>
 
@@ -287,21 +290,21 @@ function setPort() {
     }
     %>
     <tr>
-      <td>Username:</td>
+      <td><label for="<portlet:namespace/>username">Username</label>:</td>
       <td>&nbsp;</td>
-      <td align="right"><input type="text" name="username" value=<%= "\"" + username + "\"" %>/></td>
+      <td align="right"><input type="text" name="username" id="<portlet:namespace/>username" value=<%= "\"" + username + "\"" %>/></td>
       <td></td>
     </tr>
     <tr>
-      <td>Password:</td>
+      <td><label for="<portlet:namespace/>password">Password</label>:</td>
       <td>&nbsp;</td>
-      <td align="right"><input type="password" name="password" value=<%= "\"" + password + "\"" %>/></td>
+      <td align="right"><input type="password" name="password" id="<portlet:namespace/>password" value=<%= "\"" + password + "\"" %>/></td>
       <td></td>
     </tr>
     <tr>
-      <td>Password (verify):</td>
+      <td><label for="<portlet:namespace/>password2">Password (verify)</label>:</td>
       <td>&nbsp;</td>
-      <td align="right"><input type="password" name="password2" value=<%= "\"" + password2 + "\"" %>/></td>
+      <td align="right"><input type="password" name="password2" id="<portlet:namespace/>password2" value=<%= "\"" + password2 + "\"" %>/></td>
       <td></td>
     </tr>
     <tr><td colspan="2"><font size="-2">&nbsp;</font></td></tr>

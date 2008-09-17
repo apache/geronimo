@@ -91,14 +91,14 @@ function openNewWindow(theURL,winName,features) {
   <form onsubmit="return validate();" name="addView" method="POST" action="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="saveAddView"/></portlet:actionURL>">
   <table cellpadding="1" cellspacing="1">
     <tr>
-      <td>Name:</td>
+      <td><label for="<portlet:namespace/>name">Name</label>:</td>
       <td>&nbsp;</td>
-      <td align="right"><input size="50" type="text" name="name" value=""></td>
+      <td align="right"><input size="50" type="text" name="name" id="<portlet:namespace/>name" value=""></td>
     </tr>
     <tr>
-      <td>Description:</td>
+      <td><label for="<portlet:namespace/>description">Description</label>:</td>
       <td>&nbsp;</td>
-      <td align="right"><textarea rows="5" cols="50" name="description"></textarea></td>
+      <td align="right"><textarea rows="5" cols="50" name="description" id="<portlet:namespace/>description"></textarea></td>
     </tr>
     <tr>
       <td>Graphs:</td>
@@ -127,11 +127,11 @@ function openNewWindow(theURL,winName,features) {
               {
       %>     
             <tr>
-            <td align="left" width="5%"><input type="checkbox" name="graph_ids" value='<%=rs.getString("graph_id")%>'></td>
+            <td align="left" width="5%"><input type="checkbox" name="graph_ids" title="<%=rs2.getString("name")%>-<%=rs.getString("name") %>" value='<%=rs.getString("graph_id")%>'></td>
             <td align="left"><a href="javascript: void(0)" onClick="openNewWindow('/monitoring/monitoringPopUpGraph.jsp?graph_id=<%=rs.getString("graph_id")%>','graph','width=800,height=300','title=<%=rs.getString("name") %>')"><%=rs.getString("name") %></a></td>
             <td align="left"><%=rs.getString("timeframe")%> min.</td>
             <td align="left"><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showServer" /><portlet:param name="server_id" value='<%=rs.getString("server_id")%>' /></portlet:actionURL>"><%=rs2.getString("name")%></a></td>
-            <td align="center"><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="showEditGraph" /><portlet:param name="graph_id" value='<%=rs.getString("graph_id")%>' /></portlet:actionURL>"><img border=0 src="/monitoring/images/edit-b.png"></a></td>
+            <td align="center"><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="showEditGraph" /><portlet:param name="graph_id" value='<%=rs.getString("graph_id")%>' /></portlet:actionURL>"><img border=0 src="/monitoring/images/edit-b.png" alt="edit"></a></td>
             </tr>
       <%
 

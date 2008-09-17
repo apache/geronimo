@@ -378,7 +378,7 @@ document.getElementById(x).style.display='';
 			             <tr>
 			                 <td width=95% bgcolor="#FFFFFF" nowrap><%=prettyBean%></td>
 			                 <td align="right" width=5% bgcolor="#f2f2f2" nowrap>
-			                     <a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="stopTrackingMbean" /><portlet:param name="server_id" value="<%=server_id%>" /><portlet:param name="mbean" value="<%=mbeanList.get(i)%>" /></portlet:actionURL>"><img border=0 src="/monitoring/images/close-b.png"></a><br>
+			                     <a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="stopTrackingMbean" /><portlet:param name="server_id" value="<%=server_id%>" /><portlet:param name="mbean" value="<%=mbeanList.get(i)%>" /></portlet:actionURL>"><img border=0 src="/monitoring/images/close-b.png" alt="stop tracking mbean"></a><br>
 			                 </td>
 			             </tr>
 	                 <%
@@ -444,7 +444,7 @@ document.getElementById(x).style.display='';
 	                           <tr>
 	                               <td width=95% bgcolor="#FFFFFF" nowrap><%=prettyBean%></td>
 	                               <td align="right" width=5% bgcolor="#f2f2f2" nowrap>
-	                                   <a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="startTrackingMbean" /><portlet:param name="server_id" value="<%=server_id%>" /><portlet:param name="mbean" value="<%=mbeanList.get(i)%>" /></portlet:actionURL>"><img border=0 src="/monitoring/images/max-b.png"></a><br>
+	                                   <a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="startTrackingMbean" /><portlet:param name="server_id" value="<%=server_id%>" /><portlet:param name="mbean" value="<%=mbeanList.get(i)%>" /></portlet:actionURL>"><img border=0 src="/monitoring/images/max-b.png" alt="start tracking mbean"></a><br>
 	                               </td>     
 	                           </tr>
 	                        <%
