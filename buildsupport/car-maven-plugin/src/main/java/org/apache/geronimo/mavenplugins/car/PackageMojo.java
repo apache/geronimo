@@ -187,6 +187,9 @@ public class PackageMojo extends AbstractCarMojo {
             // If module is set, then resolve the artifact and set moduleFile
             if (module != null) {
                 Artifact artifact = resolveArtifact(module.getGroupId(), module.getArtifactId(), module.getType());
+                if (artifact == null) {
+                    throw new MojoExecutionException("Could not resolve module " + module.getGroupId() + ":" + module.getArtifactId() + ":" + module.getType() + ". Perhaps it is not listed as a dependency");
+                }
                 moduleFile = artifact.getFile();
                 getLog().debug("Using module file: " + moduleFile);
             }
