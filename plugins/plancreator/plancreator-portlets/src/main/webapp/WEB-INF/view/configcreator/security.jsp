@@ -279,10 +279,10 @@ not yet logged in.</p>
   <!-- ENTRY FIELD: Security Realm Name -->
   <tr>
     <th>
-    <div align="right">Security Realm Name:</div>
+    <div align="right"><label for="<portlet:namespace/>securityRealmName">Security Realm Name</label>:</div>
     </th>
     <td>
-      <select name="securityRealmName">
+      <select name="securityRealmName" id="<portlet:namespace/>securityRealmName">
         <c:forEach var="securityRealm" items="${deployedSecurityRealms}">
           <option value="${securityRealm.realmName}">${securityRealm.realmName}</option>
         </c:forEach>
@@ -298,16 +298,16 @@ not yet logged in.</p>
 <div>
   <input type="checkbox" id="<portlet:namespace/>advancedSecuritySettingsCheckbox"
     onClick="<portlet:namespace/>toggleAdvancedSecuritySettings();"/>
-  <b>Advanced Settings</b>
+  <b><label for="<portlet:namespace/>advancedSecuritySettingsCheckbox">Advanced Settings</label></b>
   <div id="<portlet:namespace/>advancedSecuritySettings" style="display:none">
     <input type="hidden" id="<portlet:namespace/>advancedSecuritySettingsFlag"
       name="security.advancedSettings.isPresent" value="false"/>
     <table border="0" class="MediumBackground">
       <!-- Credential Store Ref -->
       <tr>
-        <th><div align="left">Credential Store:</div></th>
+        <th><div align="left"><label for="<portlet:namespace/>security.credentialStoreRef">Credential Store</label>:</div></th>
         <td>
-          <select name="security.credentialStoreRef">
+          <select name="security.credentialStoreRef" id="<portlet:namespace/>security.credentialStoreRef">
             <c:forEach var="credentialStore" items="${deployedCredentialStores}">
               <option value="${credentialStore.patternName}">${credentialStore.displayName}</option>
             </c:forEach>
@@ -324,12 +324,12 @@ not yet logged in.</p>
         <td colspan="2"><div align="left"><b>Default Subject:</b></div></td>
       </tr>
       <tr>
-        <th><div align="right">Realm:</div></th>
-        <td><input name="security.defaultSubject.realm" type="text" size="25"/></td>
+        <th><div align="right"><label for="<portlet:namespace/>security.defaultSubject.realm">Realm</label>:</div></th>
+        <td><input name="security.defaultSubject.realm" id="<portlet:namespace/>security.defaultSubject.realm" type="text" size="25"/></td>
       </tr>
       <tr>
-        <th><div align="right">Id:</div></th>
-        <td><input name="security.defaultSubject.id" type="text" size="25"/></td>
+        <th><div align="right"><label for="<portlet:namespace/>security.defaultSubject.id">Id</label>:</div></th>
+        <td><input name="security.defaultSubject.id" id="<portlet:namespace/>security.defaultSubject.id" type="text" size="25"/></td>
       </tr>
       <tr>
         <th></th>
@@ -341,8 +341,8 @@ not yet logged in.</p>
       <!-- doas-current-caller -->
       <tr>
         <td colspan="2" align="left">
-          <b>doas-current-caller:</b>
-          <input name="security.doasCurrentCaller" type="checkbox" value="true"/>
+          <b><label for="<portlet:namespace/>security.doasCurrentCaller">doas-current-caller</label>:</b>
+          <input name="security.doasCurrentCaller" id="<portlet:namespace/>security.doasCurrentCaller" type="checkbox" value="true"/>
         </td>
       </tr>
       <tr>
@@ -352,8 +352,8 @@ not yet logged in.</p>
       <!-- use-context-handler -->
       <tr>
         <td colspan="2" align="left">
-          <b>use-context-handler:</b>
-          <input name="security.useContextHandler" type="checkbox" value="true"/>
+          <b><label for="<portlet:namespace/>security.useContextHandler">use-context-handler</label>:</b>
+          <input name="security.useContextHandler" id="<portlet:namespace/>security.useContextHandler" type="checkbox" value="true"/>
         </td>
       </tr>
       <tr>
@@ -393,7 +393,7 @@ Distinguished Names.
         <div id="<portlet:namespace/>${roleId}.loginDomainPrincipal.placeHolder"></div>
         <div id="<portlet:namespace/>${roleId}.realmPrincipal.placeHolder"></div>
         <div id="<portlet:namespace/>${roleId}.distinguishedName.placeHolder"></div>
-        <div align="justify">Add: 
+        <div align="justify"><label for="${roleId}.selectList">Add:</label> 
         <select id="${roleId}.selectList" 
           onchange="<portlet:namespace/>handleAddClick('${roleId}', this.value)">
           <option value=""></option>
@@ -408,11 +408,11 @@ Distinguished Names.
             name="${roleId}.principal.lastIndex" value="0">
           <table border="0">
             <tr>
-              <th><div align="right">Name:</div></th>
+              <th><div align="right"><label for="<portlet:namespace/>${roleId}.principal.name">Name</label>:</div></th>
               <td><input type="text" id="<portlet:namespace/>${roleId}.principal.name"/></td>
             </tr>
             <tr>
-              <th><div align="right">Class:</div></th>
+              <th><div align="right"><label for="<portlet:namespace/>${roleId}.principal.class">Class</label>:</div></th>
               <td>
                 <select id="<portlet:namespace/>${roleId}.principal.class">
                   <option value="org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal">Group Principal</option>
@@ -437,11 +437,11 @@ Distinguished Names.
             name="${roleId}.loginDomainPrincipal.lastIndex" value="0">
           <table border="0">
             <tr>
-              <th><div align="right">Name:</div></th>
+              <th><div align="right"><label for="<portlet:namespace/>${roleId}.loginDomainPrincipal.name">Name</label>:</div></th>
               <td><input type="text" id="<portlet:namespace/>${roleId}.loginDomainPrincipal.name"/></td>
             </tr>
             <tr>
-              <th><div align="right">Class:</div></th>
+              <th><div align="right"><label for="<portlet:namespace/>${roleId}.loginDomainPrincipal.class">Class</label>:</div></th>
               <td>
                 <select id="<portlet:namespace/>${roleId}.loginDomainPrincipal.class">
                   <option value="org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal">Group Principal</option>
@@ -450,7 +450,7 @@ Distinguished Names.
               </td>
             </tr>
             <tr>
-              <th><div align="right">Domain Name:</div></th>
+              <th><div align="right"><label for="<portlet:namespace/>${roleId}.loginDomainPrincipal.domainName">Domain Name</label>:</div></th>
               <td><input type="text" id="<portlet:namespace/>${roleId}.loginDomainPrincipal.domainName"/></td>
             </tr>
             <tr>
@@ -470,11 +470,11 @@ Distinguished Names.
             name="${roleId}.realmPrincipal.lastIndex" value="0">
           <table border="0">
             <tr>
-              <th><div align="right">Name:</div></th>
+              <th><div align="right"><label for="<portlet:namespace/>${roleId}.realmPrincipal.name">Name</label>:</div></th>
               <td><input type="text" id="<portlet:namespace/>${roleId}.realmPrincipal.name"/></td>
             </tr>
             <tr>
-              <th><div align="right">Class:</div></th>
+              <th><div align="right"><label for="<portlet:namespace/>${roleId}.realmPrincipal.class">Class</label>:</div></th>
               <td>
                 <select id="<portlet:namespace/>${roleId}.realmPrincipal.class">
                   <option value="org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal">Group Principal</option>
@@ -483,11 +483,11 @@ Distinguished Names.
               </td>
             </tr>
             <tr>
-              <th><div align="right">Domain Name:</div></th>
+              <th><div align="right"><label for="<portlet:namespace/>${roleId}.realmPrincipal.domainName">Domain Name</label>:</div></th>
               <td><input type="text" id="<portlet:namespace/>${roleId}.realmPrincipal.domainName"/></td>
             </tr>
             <tr>
-              <th><div align="right">Realm Name:</div></th>
+              <th><div align="right"><label for="<portlet:namespace/>${roleId}.realmPrincipal.realmName">Realm Name</label>:</div></th>
               <td>
                 <select id="<portlet:namespace/>${roleId}.realmPrincipal.realmName">
                   <c:forEach var="securityRealm" items="${deployedSecurityRealms}">
@@ -513,7 +513,7 @@ Distinguished Names.
             name="${roleId}.distinguishedName.lastIndex" value="0">
           <table border="0">
             <tr>
-              <th><div align="right">Name:</div></th>
+              <th><div align="right"><label for="<portlet:namespace/>${roleId}.distinguishedName.name">Name</label>:</div></th>
               <td><input type="text" id="<portlet:namespace/>${roleId}.distinguishedName.name"/></td>
             </tr>
             <tr>
@@ -532,16 +532,16 @@ Distinguished Names.
         <div id="<portlet:namespace/>${runAsSubjectId}.ui">
           <input type="checkbox" id="<portlet:namespace/>${runAsSubjectId}.checkBox" disabled="disabled" 
             onClick="<portlet:namespace/>toggleRunAsSubject('${runAsSubjectId}');"/>
-          Specify run-as-subject*
+          <label for="<portlet:namespace/>${runAsSubjectId}.checkBox">Specify run-as-subject*</label>
           <div id="<portlet:namespace/>${runAsSubjectId}.subElements" style="display:none">
             <table border="0">
               <tr>
-                <th><div align="right">Realm:</div></th>
-                <td><input name="${runAsSubjectId}.realm" type="text" size="25"/></td>
+                <th><div align="right"><label for="<portlet:namespace/>${runAsSubjectId}.realm">Realm</label>:</div></th>
+                <td><input name="${runAsSubjectId}.realm" id="<portlet:namespace/>${runAsSubjectId}.realm" type="text" size="25"/></td>
               </tr>
               <tr>
-                <th><div align="right">Id:</div></th>
-                <td><input name="${runAsSubjectId}.id" type="text" size="25"/></td>
+                <th><div align="right"><label for="<portlet:namespace/>${runAsSubjectId}.id">Id</label>:</div></th>
+                <td><input name="${runAsSubjectId}.id" id="<portlet:namespace/>${runAsSubjectId}.id" type="text" size="25"/></td>
               </tr>
               <tr>
                 <th></th>

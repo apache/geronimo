@@ -39,8 +39,8 @@
       </tr>
     <!-- STATUS FIELD: Deployment Plan -->
       <tr>
-        <th valign="top" style="min-width: 140px"><div align="right">Deployment Plan:</div></th>
-        <td><textarea rows="30" cols="60" name="deploymentPlan">${data.deploymentPlan}</textarea></td>
+        <th valign="top" style="min-width: 140px"><div align="right"><label for="<portlet:namespace/>deploymentPlan">Deployment Plan</label>:</div></th>
+        <td><textarea rows="30" cols="60" name="deploymentPlan" id="<portlet:namespace/>deploymentPlan">${data.deploymentPlan}</textarea></td>
       </tr>
     <!-- SUBMIT BUTTON -->
       <tr>

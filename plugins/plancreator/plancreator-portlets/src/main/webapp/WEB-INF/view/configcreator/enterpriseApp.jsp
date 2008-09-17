@@ -87,7 +87,7 @@
           </div>
         </tr>
         <tr>
-          <th><div align="right">Group Id:</div></th>
+          <th><div align="right"><label for="groupId">Group Id</label>:</div></th>
           <td>
             <input type="text" id="groupId" name="groupId"
               dojoType="dijit.form.ValidationTextBox" required="false" trim="true"/>
@@ -99,7 +99,7 @@
           </div>
         </tr>
         <tr>
-          <th><div align="right">Artifact Id:</div></th>
+          <th><div align="right"><label for="artifactId">Artifact Id</label>:</div></th>
           <td>
             <input type="text" id="artifactId" name="artifactId"
               dojoType="dijit.form.ValidationTextBox" required="true" trim="true"/>
@@ -110,7 +110,7 @@
           </div>
         </tr>
         <tr>
-          <th><div align="right">Version:</div></th>
+          <th><div align="right"><label for="version">Version</label>:</div></th>
           <td>
             <input type="text" id="version" name="version"
               dojoType="dijit.form.ValidationTextBox" required="false" trim="true"/>
@@ -121,7 +121,7 @@
           </div>
         </tr>
         <tr>
-          <th><div align="right">Type:</div></th>
+          <th><div align="right"><label for="type">Type</label>:</div></th>
           <td>
             <select dojoType="dijit.form.ComboBox" id="type" name="type" 
                 value="" autocomplete="false" hasDownArrow="false">
@@ -150,7 +150,7 @@
           <td></td>
         </tr>
         <tr>
-          <th><div align="right">Hidden Classes:</div></th>
+          <th><div align="right"><label for="hiddenClasses">Hidden Classes</label>:</div></th>
           <td>
             <input type="text" id="hiddenClasses" name="hiddenClasses"
               dojoType="dijit.form.ValidationTextBox" trim="true"/>
@@ -164,7 +164,7 @@
           </div>
         </tr>
         <tr>
-          <th><div align="right">Non Overridable Classes:</div></th>
+          <th><div align="right"><label for="nonOverridableClasses">Non Overridable Classes</label>:</div></th>
           <td>
             <input type="text" id="nonOverridableClasses" name="nonOverridableClasses" 
               dojoType="dijit.form.ValidationTextBox" trim="true"/>
@@ -178,7 +178,7 @@
           </div>
         </tr>
         <tr>
-          <th><div align="right">Inverse Class Loading:</div></th>
+          <th><div align="right"><label for="inverseClassLoading">Inverse Class Loading</label>:</div></th>
           <td>
             <input type="checkBox" name="inverseClassLoading" id="inverseClassLoading" value="true" 
               dojoType="dijit.form.CheckBox" />
@@ -346,7 +346,7 @@
             name="dependencies" value="${commonLib}" type="checkbox"/>
           </td>
           <td valign="middle" align="left">
-            <label for="dependencies">${commonLib}</label>
+            <label for="depChkBox_${vs.index}">${commonLib}</label>
           </td>
         </tr>
       </c:forEach>
@@ -362,26 +362,26 @@
   <input type="hidden" name="prevName" id="depEditPrevName" value="none"/>
   <table cellspacing="15">
     <tr>
-      <td>Groupd Id:</td>
+      <td><label for="txtGroupId">Groupd Id</label>:</td>
       <td>
         <input type="text" dojoType="dijit.form.TextBox" id="txtGroupId" size="20" name="groupId" trim="true"/>
       </td>
     </tr>
     <tr>
-      <td>Artifact Id:</td>
+      <td><label for="txtArtifactId">Artifact Id</label>:</td>
       <td>
         <input type="text" dojoType="dijit.form.TextBox" id="txtArtifactId" size="20" 
           name="artifactId" trim="true" onChange="checkDepEditFields()"/>
       </td>
     </tr>
     <tr>
-      <td>Version:</td>
+      <td><label for="txtVersion">Version</label>:</td>
       <td>
         <input type="text" dojoType="dijit.form.TextBox" id="txtVersion" size="20" name="version" trim="true"/>
       </td>
     </tr>
     <tr>
-      <td>Type:</td>
+      <td><label for="txtType">Type</label>:</td>
       <td>
         <input type="text" dojoType="dijit.form.TextBox" id="txtType" size="20" name="type" trim="true"/>
       </td>

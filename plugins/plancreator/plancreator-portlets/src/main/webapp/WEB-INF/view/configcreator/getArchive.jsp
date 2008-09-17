@@ -30,8 +30,8 @@
   <input type="hidden" name="mode" value="index-after" />
 <table>
   <tr>
-    <th align="right">Archive:</th>
-    <td><input type="file" name="moduleURI" value="" /></td>
+    <th align="right"><label for="<portlet:namespace/>moduleURI">Archive</label>:</th>
+    <td><input type="file" name="moduleURI" id="<portlet:namespace/>moduleURI" value="" /></td>
   </tr>
   <tr></tr>
   <tr>

@@ -164,10 +164,10 @@ to which they can be linked are shown to the right.</p>
       <input type="hidden" name="ejbRef.${status.index}.refName" value="${ejbRef.refName}" />
       <tr>
         <td class="${backgroundClass}">
-          <div align="right">${ejbRef.refName}</div>
+          <div align="right"><label for="<portlet:namespace/>ejbRef.${status.index}.refLink">${ejbRef.refName}</label></div>
         </td>
         <td class="${backgroundClass}">
-          <select name="ejbRef.${status.index}.refLink">
+          <select name="ejbRef.${status.index}.refLink" id="<portlet:namespace/>ejbRef.${status.index}.refLink">
             <c:forEach var="ejb" items="${deployedEjbs}">
               <option value="${ejb.patternName}">${ejb.displayName}</option>
             </c:forEach>
@@ -199,10 +199,10 @@ to which they can be linked are shown to the right.</p>
       <input type="hidden" name="ejbLocalRef.${status.index}.refName" value="${ejbLocalRef.refName}" />
       <tr>
         <td class="${backgroundClass}">
-          <div align="right">${ejbLocalRef.refName}</div>
+          <div align="right"><label for="<portlet:namespace/>ejbLocalRef.${status.index}.refLink">${ejbLocalRef.refName}</label></div>
         </td>
         <td class="${backgroundClass}">
-          <select name="ejbLocalRef.${status.index}.refLink">
+          <select name="ejbLocalRef.${status.index}.refLink" id="<portlet:namespace/>ejbLocalRef.${status.index}.refLink">
             <c:forEach var="ejb" items="${deployedEjbs}">
               <option value="${ejb.patternName}">${ejb.displayName}</option>
             </c:forEach>
@@ -234,10 +234,10 @@ to which they can be linked are shown to the right.</p>
       <input type="hidden" name="jdbcPoolRef.${status.index}.refName" value="${refData.refName}" />
       <tr>
         <td class="${backgroundClass}">
-          <div align="right">${refData.refName}</div>
+          <div align="right"><label for="<portlet:namespace/>jdbcPoolRef.${status.index}.refLink">${refData.refName}</label></div>
         </td>
         <td class="${backgroundClass}">
-          <select name="jdbcPoolRef.${status.index}.refLink">
+          <select name="jdbcPoolRef.${status.index}.refLink" id="<portlet:namespace/>jdbcPoolRef.${status.index}.refLink">
           <c:forEach var="jdbcPool" items="${deployedJdbcConnectionPools}">
             <option value="${jdbcPool.patternName}">${jdbcPool.displayName}</option>
           </c:forEach>
@@ -269,10 +269,10 @@ to which they can be linked are shown to the right.</p>
       <input type="hidden" name="jmsConnectionFactoryRef.${status.index}.refName" value="${refData.refName}" />
       <tr>
         <td class="${backgroundClass}">
-          <div align="right">${refData.refName}</div>
+          <div align="right"><label for="<portlet:namespace/>jmsConnectionFactoryRef.${status.index}.refLink">${refData.refName}</label></div>
         </td>
         <td class="${backgroundClass}">
-          <select name="jmsConnectionFactoryRef.${status.index}.refLink">
+          <select name="jmsConnectionFactoryRef.${status.index}.refLink" id="<portlet:namespace/>jmsConnectionFactoryRef.${status.index}.refLink">
             <c:forEach var="jmsFactory" items="${deployedJmsConnectionFactories}">
               <option value="${jmsFactory.patternName}">${jmsFactory.displayName}</option>
             </c:forEach>
@@ -304,10 +304,10 @@ to which they can be linked are shown to the right.</p>
       <input type="hidden" name="jmsDestinationRef.${status.index}.refName" value="${resourceEnvRef.refName}" />
       <tr>
         <td class="${backgroundClass}">
-          <div align="right">${resourceEnvRef.refName}</div>
+          <div align="right"><label for="<portlet:namespace/>jmsDestinationRef.${status.index}.refLink">${resourceEnvRef.refName}</label></div>
         </td>
         <td class="${backgroundClass}">
-          <select name="jmsDestinationRef.${status.index}.refLink">
+          <select name="jmsDestinationRef.${status.index}.refLink" id="<portlet:namespace/>jmsDestinationRef.${status.index}.refLink">
             <c:forEach var="jmsDestination" items="${deployedJmsDestinations}">
               <option value="${jmsDestination.patternName}" 
                 <c:if test="${fn:startsWith(jmsDestination.displayName, resourceEnvRef.messageDestinationLink)}"> selected="selected"</c:if>
@@ -329,10 +329,10 @@ to which they can be linked are shown to the right.</p>
       <input type="hidden" name="messageDestination.${status.index}.refName" value="${messageDestination.messageDestinationName}" />
       <tr>
         <td class="${backgroundClass}">
-          <div align="right">${messageDestination.messageDestinationName}</div>
+          <div align="right"><label for="<portlet:namespace/>messageDestination.${status.index}.refLink">${messageDestination.messageDestinationName}</label></div>
         </td>
         <td class="${backgroundClass}">
-          <select name="messageDestination.${status.index}.refLink">
+          <select name="messageDestination.${status.index}.refLink" id="<portlet:namespace/>messageDestination.${status.index}.refLink">
             <c:forEach var="jmsDestination" items="${deployedJmsDestinations}">
               <option value="${jmsDestination.patternName}" 
                 <c:if test="${fn:startsWith(jmsDestination.displayName, messageDestination.adminObjectLink)}"> selected="selected"</c:if>
@@ -366,10 +366,10 @@ to which they can be linked are shown to the right.</p>
       <input type="hidden" name="javaMailSessionRef.${status.index}.refName" value="${refData.refName}" />
       <tr>
         <td class="${backgroundClass}">
-          <div align="right">${refData.refName}</div>
+          <div align="right"><label for="<portlet:namespace/>javaMailSessionRef.${status.index}.refLink">${refData.refName}</label></div>
         </td>
         <td class="${backgroundClass}">
-          <select name="javaMailSessionRef.${status.index}.refLink">
+          <select name="javaMailSessionRef.${status.index}.refLink" id="<portlet:namespace/>javaMailSessionRef.${status.index}.refLink">
             <c:forEach var="javaMailSession" items="${deployedJavaMailSessions}">
               <option value="${javaMailSession.patternName}">${javaMailSession.displayName}</option>
             </c:forEach>
@@ -427,27 +427,27 @@ to which they can be linked are shown to the right.</p>
             <div id="<portlet:namespace/>${serviceRefId}.addNewPort" style="display:none">
               <table border="0">
                 <tr>
-                  <th><div align="right">Port Name:</div></th>
+                  <th><div align="right"><label for="<portlet:namespace/>${serviceRefId}.newPort.portName">Port Name</label>:</div></th>
                   <td><input type="text" id="<portlet:namespace/>${serviceRefId}.newPort.portName"/></td>
                 </tr>
                 <tr>
-                  <th><div align="right">Protocol:</div></th>
+                  <th><div align="right"><label for="<portlet:namespace/>${serviceRefId}.newPort.protocol">Protocol</label>:</div></th>
                   <td><input type="text" id="<portlet:namespace/>${serviceRefId}.newPort.protocol"/></td>
                 </tr>
                 <tr>
-                  <th><div align="right">Host:</div></th>
+                  <th><div align="right"><label for="<portlet:namespace/>${serviceRefId}.newPort.host">Host</label>:</div></th>
                   <td><input type="text" id="<portlet:namespace/>${serviceRefId}.newPort.host"/></td>
                 </tr>
                 <tr>
-                  <th><div align="right">Port:</div></th>
+                  <th><div align="right"><label for="<portlet:namespace/>${serviceRefId}.newPort.port">Port</label>:</div></th>
                   <td><input type="text" id="<portlet:namespace/>${serviceRefId}.newPort.port"/></td>
                 </tr>
                 <tr>
-                  <th><div align="right">URI:</div></th>
+                  <th><div align="right"><label for="<portlet:namespace/>${serviceRefId}.newPort.uri">URI</label>:</div></th>
                   <td><input type="text" id="<portlet:namespace/>${serviceRefId}.newPort.uri"/></td>
                 </tr>
                 <tr>
-                  <th><div align="right">Credentials Name:</div></th>
+                  <th><div align="right"><label for="<portlet:namespace/>${serviceRefId}.newPort.credentialsName">Credentials Name</label>:</div></th>
                   <td><input type="text" id="<portlet:namespace/>${serviceRefId}.newPort.credentialsName"/></td>
                 </tr>
                 <tr>

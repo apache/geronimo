@@ -38,8 +38,8 @@
 
   <!-- ENTRY FIELD: Context Root -->
   <tr>
-    <th><div align="right">Web Context Root:</div></th>
-    <td><input name="contextRoot" type="text" size="25" value="${data.webApp.contextRoot}" /></td>
+    <th><div align="right"><label for="<portlet:namespace/>contextRoot">Web Context Root</label>:</div></th>
+    <td><input name="contextRoot" id="<portlet:namespace/>contextRoot" type="text" size="25" value="${data.webApp.contextRoot}" /></td>
   </tr>
   <tr>
     <td></td>
@@ -58,8 +58,8 @@
     groupId/artifactId/version/type. Example: "org.apache.geronimo.plugins/plancreator-tomcat/2.1/car".</td>
   </tr>
   <tr>
-    <th><div align="right">Group Id:</div></th>
-    <td><input name="groupId" type="text" size="25" value="${data.webApp.environment.moduleId.groupId}" /></td>
+    <th><div align="right"><label for="<portlet:namespace/>groupId">Group Id</label>:</div></th>
+    <td><input name="groupId" id="<portlet:namespace/>groupId" type="text" size="25" value="${data.webApp.environment.moduleId.groupId}" /></td>
   </tr>
   <tr>
     <td></td>
@@ -67,24 +67,24 @@
     The important thing is that each artifactID should be unique within the group.</td>
   </tr>
   <tr>
-    <th><div align="right">Artifact Id:</div></th>
-    <td><input name="artifactId" type="text" size="25" value="${data.webApp.environment.moduleId.artifactId}" /></td>
+    <th><div align="right"><label for="<portlet:namespace/>artifactId">Artifact Id</label>:</div></th>
+    <td><input name="artifactId" id="<portlet:namespace/>artifactId" type="text" size="25" value="${data.webApp.environment.moduleId.artifactId}" /></td>
   </tr>
   <tr>
     <td></td>
     <td>A name identifying the specific module within the group.</td>
   </tr>
   <tr>
-    <th><div align="right">Version:</div></th>
-    <td><input name="version" type="text" size="25" value="${data.webApp.environment.moduleId.version}" /></td>
+    <th><div align="right"><label for="<portlet:namespace/>version">Version</label>:</div></th>
+    <td><input name="version" id="<portlet:namespace/>version" type="text" size="25" value="${data.webApp.environment.moduleId.version}" /></td>
   </tr>
   <tr>
     <td></td>
     <td>Version number for the module.</td>
   </tr>
   <tr>
-    <th><div align="right">Type:</div></th>
-    <td><input name="type" type="text" size="25" value="${data.webApp.environment.moduleId.type}" /></td>
+    <th><div align="right"><label for="<portlet:namespace/>type">Type</label>:</div></th>
+    <td><input name="type" id="<portlet:namespace/>type" type="text" size="25" value="${data.webApp.environment.moduleId.type}" /></td>
   </tr>
   <tr>
     <td></td>
@@ -97,8 +97,8 @@
     <th colspan="2">Class Path Settings</th>
   </tr>
   <tr>
-    <th><div align="right">Hidden Classes:</div></th>
-    <td><input name="hiddenClasses" type="text" size="25" value="${data.environmentConfig.hiddenClassesString}" /></td>
+    <th><div align="right"><label for="<portlet:namespace/>hiddenClasses">Hidden Classes</label>:</div></th>
+    <td><input name="hiddenClasses" id="<portlet:namespace/>hiddenClasses" type="text" size="25" value="${data.environmentConfig.hiddenClassesString}" /></td>
   </tr>
   <tr>
     <td></td>
@@ -108,8 +108,8 @@
     Separate multiple package/class names with a semicolon ';'</td>
   </tr>
   <tr>
-    <th><div align="right">Non Overridable Classes:</div></th>
-    <td><input name="nonOverridableClasses" type="text" size="25" value="${data.environmentConfig.nonOverridableClassesString}" /></td>
+    <th><div align="right"><label for="<portlet:namespace/>nonOverridableClasses">Non Overridable Classes</label>:</div></th>
+    <td><input name="nonOverridableClasses" id="<portlet:namespace/>nonOverridableClasses" type="text" size="25" value="${data.environmentConfig.nonOverridableClassesString}" /></td>
   </tr>
   <tr>
     <td></td>
@@ -119,8 +119,8 @@
     Separate multiple package/class names with a semicolon ';'</td>
   </tr>
   <tr>
-    <th><div align="right">Inverse Class Loading:</div></th>
-    <td><input name="inverseClassLoading" type="checkbox" value="true" 
+    <th><div align="right"><label for="<portlet:namespace/>inverseClassLoading">Inverse Class Loading</label>:</div></th>
+    <td><input name="inverseClassLoading" id="<portlet:namespace/>inverseClassLoading" type="checkbox" value="true" 
       <c:if test="${data.environmentConfig.inverseClassLoading}">CHECKED </c:if> /></td>
   </tr>
   <tr>
