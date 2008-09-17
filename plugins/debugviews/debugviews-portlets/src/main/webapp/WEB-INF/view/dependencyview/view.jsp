@@ -220,10 +220,10 @@
 </script>
 <TABLE cellpadding="1" cellspacing="1" border="1">
 <tr><td>
-<b><fmt:message key="dependencyview.view.searchText"/>:</b> <input type="text" id="searchText" onChange="javascript:textChange()"/>
+<b><label for="searchText"><fmt:message key="dependencyview.view.searchText"/></label>:</b> <input type="text" id="searchText" onChange="javascript:textChange()"/>
 <input type="button" value='<fmt:message key="debugviews.common.find"/>' onClick="javascript:search()"/>
 <input type="button" id="findNext" value='<fmt:message key="debugviews.common.findNext"/>' onClick="javascript:searchContinue()" disabled=true />
-<fmt:message key="dependencyview.view.searchOnlySelected"/>:<input type="checkbox" id="inSelected" onChange="javascript:textChange()"/>
+<label for="inSelected"><fmt:message key="dependencyview.view.searchOnlySelected"/></label>:<input type="checkbox" id="inSelected" onChange="javascript:textChange()"/>
 </td></tr>
 </table>
 <br/>

@@ -1050,7 +1050,7 @@ callOnLoad(init);
                     <br>
                     <table>
                         <tr>
-                            <td width="15%">&nbsp;Object&nbsp;Name&nbsp;Pattern:</td>
+                            <td width="15%"><label for="jmxQuery">&nbsp;Object&nbsp;Name&nbsp;Pattern</label>:</td>
                             <td width="70%">
                                 <select dojoType="combobox" id="jmxQuery" searchType="SUBSTRING" style="width: 100%;">
                                     <!-- Domains -->

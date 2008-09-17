@@ -537,18 +537,18 @@ callOnLoad(init);
                 <form NAME="LDAPSearchForm">
                     <table>
                         <tr>
-                            <td nowrap align="right"><fmt:message key="ldapmanager.viewLDAPServer.searchDN" />:</td>
-                            <td><input type="text" name="searchDN" value="" size="45"/></td>
+                            <td nowrap align="right"><label for="<portlet:namespace/>searchDN"><fmt:message key="ldapmanager.viewLDAPServer.searchDN" /></label>:</td>
+                            <td><input type="text" name="searchDN" id="<portlet:namespace/>searchDN" value="" size="45"/></td>
                         </tr>
                         <tr>
-                            <td nowrap align="right"><fmt:message key="ldapmanager.viewLDAPServer.filter" />:</td>
-                            <td><input type="text" name="filter" value="(objectclass=*)" size="45"/></td>
+                            <td nowrap align="right"><label for="<portlet:namespace/>filter"><fmt:message key="ldapmanager.viewLDAPServer.filter" /></label>:</td>
+                            <td><input type="text" name="filter" id="<portlet:namespace/>filter" value="(objectclass=*)" size="45"/></td>
                         </tr>
                         <tr>
                             <td nowrap align="right">&nbsp;<fmt:message key="ldapmanager.viewLDAPServer.searchScope" />:</td>
                             <td>
-                                <INPUT type="radio" name="searchScope" value="onelevel" checked> <fmt:message key="ldapmanager.viewLDAPServer.oneLevel" />
-                                <INPUT type="radio" name="searchScope" value="subtree"> <fmt:message key="ldapmanager.viewLDAPServer.subTreeLevel" />
+                              <INPUT type="radio" name="searchScope" value="onelevel" id="<portlet:namespace/>onelevel" checked> <label for="<portlet:namespace/>onelevel"><fmt:message key="ldapmanager.viewLDAPServer.oneLevel" /></label>
+                                <INPUT type="radio" name="searchScope" value="subtree" id="<portlet:namespace/>subtree"> <label for="<portlet:namespace/>subtree"><fmt:message key="ldapmanager.viewLDAPServer.subTreeLevel" /></label>
                             </td>
                         </tr>
                         <tr>
@@ -579,9 +579,9 @@ callOnLoad(init);
                 <form NAME="LDAPConnectForm">
                     <table>
                         <tr>
-                            <td nowrap align="right"><fmt:message key="ldapmanager.viewLDAPServer.host"/>:</td>
+                            <td nowrap align="right"><label for="<portlet:namespace/>host"><fmt:message key="ldapmanager.viewLDAPServer.host"/></label>:</td>
                             <td>
-                                <input type="text" name="host" value="localhost" size="40"
+                                <input type="text" name="host" id="<portlet:namespace/>host" value="localhost" size="40"
                                     dojoType="ValidationTextbox"
                                     required="true"
                                     trim="true"
@@ -593,9 +593,9 @@ callOnLoad(init);
                             </td>
                         </tr>
                         <tr>
-                            <td nowrap align="right"><fmt:message key="ldapmanager.viewLDAPServer.port"/>:</td>
+                            <td nowrap align="right"><label for="<portlet:namespace/>port"><fmt:message key="ldapmanager.viewLDAPServer.port"/></label>:</td>
                             <td>
-                                <input type="text" name="port" value="1389" size="40"
+                                <input type="text" name="port" id="<portlet:namespace/>port" value="1389" size="40"
                                     dojoType="IntegerTextbox"
                                     required="true"
                                     trim="true"
@@ -610,14 +610,14 @@ callOnLoad(init);
                         <tr>
                             <td nowrap align="right"><fmt:message key="ldapmanager.viewLDAPServer.version"/>:</td>
                             <td>
-                                <INPUT type="radio" name="ldapVersion" value="3" checked> 3
-                                <INPUT type="radio" name="ldapVersion" value="2"> 2
+                                <INPUT type="radio" name="ldapVersion" value="3" title="3" checked> 3
+                                <INPUT type="radio" name="ldapVersion" value="2" title="2"> 2
                             </td>
                         </tr>
                         <tr>
-                            <td nowrap align="right"><fmt:message key="ldapmanager.viewLDAPServer.baseDN" />:</td>
+                            <td nowrap align="right"><label for="<portlet:namespace/>baseDN"><fmt:message key="ldapmanager.viewLDAPServer.baseDN" /></label>:</td>
                             <td>
-                                <input type="text" name="baseDN" value="ou=system" size="40"
+                                <input type="text" name="baseDN" id="<portlet:namespace/>baseDN" value="ou=system" size="40"
                                     dojoType="ValidationTextbox"
                                     required="true"
                                     trim="true"
@@ -625,17 +625,17 @@ callOnLoad(init);
                             </td>
                         </tr>
                         <tr>
-                            <td nowrap align="right"><fmt:message key="ldapmanager.viewLDAPServer.SSL"/>:</td>
-                            <td><input type="checkbox" name="ssl" value="" size="40"></td>
+                            <td nowrap align="right"><label for="<portlet:namespace/>ssl"><fmt:message key="ldapmanager.viewLDAPServer.SSL"/></label>:</td>
+                            <td><input type="checkbox" name="ssl" id="<portlet:namespace/>ssl" value="" size="40"></td>
                         </tr>
                         <tr>
-                            <td nowrap align="right">&nbsp;<fmt:message key="ldapmanager.viewLDAPServer.anonymousBind" />:</td>
-                            <td><input type="checkbox" name="anonBind" value="" size="40" onclick="javascript:anonBindChkboxClicked()"></td>
+                            <td nowrap align="right">&nbsp;<label for="<portlet:namespace/>anonBind"><fmt:message key="ldapmanager.viewLDAPServer.anonymousBind" /></label>:</td>
+                            <td><input type="checkbox" name="anonBind" id="<portlet:namespace/>anonBind" value="" size="40" onclick="javascript:anonBindChkboxClicked()"></td>
                         </tr>
                         <tr>
-                            <td nowrap align="right"><fmt:message key="ldapmanager.viewLDAPServer.userDN" />:</td>
+                            <td nowrap align="right"><label for="<portlet:namespace/>userDN"><fmt:message key="ldapmanager.viewLDAPServer.userDN" /></label>:</td>
                             <td>
-                                <input type="text" name="userDN" value="uid=admin, ou=system" size="40"
+                                <input type="text" name="userDN" id="<portlet:namespace/>userDN" value="uid=admin, ou=system" size="40"
                                     dojoType="ValidationTextbox"
                                     required="true"
                                     trim="true"
@@ -643,8 +643,8 @@ callOnLoad(init);
                             </td>
                         </tr>
                         <tr>
-                            <td nowrap align="right"><fmt:message key="ldapmanager.viewLDAPServer.password"/>:</td>
-                            <td><input type="password" name="password" value="" size="40"></td>
+                            <td nowrap align="right"><label for="<portlet:namespace/>password"><fmt:message key="ldapmanager.viewLDAPServer.password"/></label>:</td>
+                            <td><input type="password" name="password" id="<portlet:namespace/>password" value="" size="40"></td>
                         </tr>
                         <tr>
                             <td align="right" colspan="2">
