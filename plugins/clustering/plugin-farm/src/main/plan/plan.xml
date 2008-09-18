@@ -39,10 +39,10 @@
             openjpa.InverseManager=true
         </attribute>
         <reference name="JtaDataSourceWrapper">
-            <name>SystemDatasource</name>
+            <name>PluginFarmDatasource</name>
         </reference>
         <reference name="NonJtaDataSourceWrapper">
-            <name>NoTxDatasource</name>
+            <name>NoTxPluginFarmDatasource</name>
         </reference>
     </gbean>
 

@@ -54,17 +54,10 @@
 
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>system-database</artifactId>
+            <artifactId>plugin-farm-datasource</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>
-
-        <!--<dependency>-->
-        <!--<groupId>org.apache.geronimo.framework</groupId>-->
-        <!--<artifactId>j2ee-security</artifactId>-->
-        <!--<version>${version}</version>-->
-        <!--<type>car</type>-->
-        <!--</dependency>-->
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>

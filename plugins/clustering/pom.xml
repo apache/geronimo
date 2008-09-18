@@ -44,6 +44,7 @@
         <module>plugin-farm</module>
         <module>plugin-farm-member</module>
     <module>geronimo-plugin-farm-node</module>
+    <module>plugin-farm-datasource</module>
   </modules>
 
     <profiles>
