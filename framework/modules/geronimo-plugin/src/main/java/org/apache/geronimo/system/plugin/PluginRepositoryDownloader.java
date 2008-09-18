@@ -42,6 +42,7 @@ import org.apache.geronimo.gbean.annotation.ParamSpecial;
 import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
+import org.apache.geronimo.crypto.EncryptionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -107,7 +108,13 @@ public class PluginRepositoryDownloader implements PluginRepositoryList {
                     if (rawCreds.length() > 0) {
                         creds = rawCreds.split("=");
                         if (creds.length != 2) {
-                            break;
+                            continue;
+                        }
+                        String password = creds[1];
+                        creds[1] = (String) EncryptionManager.decrypt(password);
+                        if (password.equals(creds[1])) {
+                            //unencrypted password found
+                            modified = true;
                         }
                     }
                     userRepositories.put(url, creds);
@@ -131,7 +138,7 @@ public class PluginRepositoryDownloader implements PluginRepositoryList {
             if (creds == null || creds.length != 2) {
                 properties.setProperty(url, "");
             } else {
-                properties.setProperty(url, creds[0] + "=" + creds[1]);
+                properties.setProperty(url, creds[0] + "=" + EncryptionManager.encrypt(creds[1]));
             }
         }
         try {
