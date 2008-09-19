@@ -362,19 +362,8 @@ public class EndpointInfoBuilder {
         }
 
         public InputSource getBaseInputSource() {
-            InputStream wsdlInputStream;
-            ZipEntry entry = moduleFile.getEntry(wsdlURI.toString());
-            if (entry == null) {
-                throw new RuntimeException(
-                        "WSDL file does not exist in the module " + wsdlURI.toString());
-            }
-            try {
-                wsdlInputStream = moduleFile.getInputStream(entry);
-                streams.add(wsdlInputStream);
-            } catch (Exception e) {
-                throw new RuntimeException(
-                        "Could not open stream to wsdl file", e);
-            }
+            InputStream wsdlInputStream = getModuleFile(wsdlURI);
+            streams.add(wsdlInputStream);
             return new InputSource(wsdlInputStream);
         }
 
@@ -385,20 +374,19 @@ public class EndpointInfoBuilder {
         public InputSource getImportInputSource(String parentLocation,
                                                 String relativeLocation) {
             URI parentURI = URI.create(parentLocation);
-            latestImportURI = parentURI.resolve(relativeLocation);
+            URI relativeURI = URI.create(relativeLocation);
             InputStream importInputStream;
-            ZipEntry entry = moduleFile.getEntry(latestImportURI.toString());
-            if (entry == null) {
-                throw new RuntimeException(
-                        "File does not exist in the module " + latestImportURI.toString());
+            if (relativeURI.isAbsolute()) {
+                latestImportURI = relativeURI;
+                importInputStream = getExternalFile(latestImportURI);
+            } else if (parentURI.isAbsolute()) {
+                latestImportURI = parentURI.resolve(relativeLocation);
+                importInputStream = getExternalFile(latestImportURI);
+            } else {
+                latestImportURI = parentURI.resolve(relativeLocation);
+                importInputStream = getModuleFile(latestImportURI);
             }
-            try {                
-                importInputStream = moduleFile.getInputStream(entry);
-                streams.add(importInputStream);
-            } catch (Exception e) {
-                throw new RuntimeException(
-                        "Could not open stream to import file", e);
-            }
+            streams.add(importInputStream);
             InputSource inputSource = new InputSource(importInputStream);
             inputSource.setSystemId(getLatestImportURI());
             return inputSource;
@@ -408,6 +396,29 @@ public class EndpointInfoBuilder {
             return latestImportURI.toString();
         }
 
+        private InputStream getExternalFile(URI file) {
+            try {
+                return file.toURL().openStream();
+            } catch (Exception e) {
+                throw new RuntimeException(
+                        "Failed to import external file: " + latestImportURI, e);
+            }
+        }
+        
+        private InputStream getModuleFile(URI file) {
+            ZipEntry entry = moduleFile.getEntry(file.toString());
+            if (entry == null) {
+                throw new RuntimeException(
+                    "File does not exist in the module: " + file);
+            }
+            try {                
+                return moduleFile.getInputStream(entry);
+            } catch (Exception e) {
+                throw new RuntimeException(
+                    "Could not open stream to import file", e);
+            }
+        }
+        
         public void close() {
             for (InputStream inputStream : this.streams) {
                 try {
