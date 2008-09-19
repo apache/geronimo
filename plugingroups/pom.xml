@@ -39,7 +39,32 @@
         <module>webservices-axis2</module>
         <module>webservices-cxf</module>
         <module>client</module>
-    <module>framework</module>
+        <module>framework</module>
   </modules>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.geronimo.buildsupport</groupId>
+                <artifactId>car-maven-plugin</artifactId>
+                <!-- Install as extention to allow 'car' packaging to be used. -->
+                <extensions>true</extensions>
+                <configuration>
+                    <archive>
+                        <!-- Do not include META-INF/maven to avoid long file problems on windows -->
+                        <addMavenDescriptor>false</addMavenDescriptor>
+                    </archive>
+                    <useMavenDependencies>
+                        <value>true</value>
+                        <includeVersion>true</includeVersion>
+                        <useTransitiveDependencies>true</useTransitiveDependencies>
+                    </useMavenDependencies>
+                    <osiApproved>true</osiApproved>
+                    <category>Geronimo Plugin Group</category>
+                    <pluginGroup>true</pluginGroup>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
     
 </project>

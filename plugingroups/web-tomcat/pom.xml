@@ -121,30 +121,4 @@
 
 </dependencies>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.geronimo.buildsupport</groupId>
-                <artifactId>car-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>generate-plugin-metadata</id>
-                        <phase>generate-resources</phase>
-                        <goals>
-                            <goal>prepare-metadata</goal>
-                        </goals>
-                        <configuration>
-                            <useMavenDependencies>
-                                <value>true</value>
-                                <includeVersion>true</includeVersion>
-                            </useMavenDependencies>
-                            <category>Geronimo Plugin Group</category>
-                            <pluginGroup>true</pluginGroup>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
-
 </project>
