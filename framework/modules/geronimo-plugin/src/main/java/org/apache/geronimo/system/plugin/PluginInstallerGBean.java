@@ -1809,42 +1809,42 @@ public class PluginInstallerGBean implements PluginInstaller {
         }
 
         public void addRemovedConfigID(Artifact obsolete) {
-            log.info("Removed artifact: " + obsolete);
+            log.debug("Removed artifact: {}", obsolete);
             downloadPoller.addRemovedConfigID(obsolete);
         }
 
         public void addInstalledConfigID(Artifact target) {
-            log.info("Installed artifact:" + target);
+            log.debug("Installed artifact: {}", target);
             downloadPoller.addInstalledConfigID(target);
         }
 
         public void addRestartedConfigID(Artifact target) {
-            log.info("Restarted artifact:" + target);
+            log.debug("Restarted artifact: {}", target);
             downloadPoller.addRestartedConfigID(target);
         }
 
         public void addSkippedConfigID(MissingDependencyException e) {
-            log.info("Skipped artifact due to: ", e);
+            log.debug("Skipped artifact due to: ", e);
             downloadPoller.addSkippedConfigID(e);
         }
 
         public void addDependencyPresent(Artifact dep) {
-            log.info("Artifact already installed:" + dep);
+            log.debug("Artifact already installed: {}", dep);
             downloadPoller.addDependencyPresent(dep);
         }
 
         public void addDependencyInstalled(Artifact dep) {
-            log.info("Installed dependency:" + dep);
+            log.debug("Installed dependency {}", dep);
             downloadPoller.addDependencyInstalled(dep);
         }
 
         public void setCurrentFile(String currentFile) {
-            log.info("Current file:" + currentFile);
+            log.debug("Current file: {}", currentFile);
             downloadPoller.setCurrentFile(currentFile);
         }
 
         public void setCurrentMessage(String currentMessage) {
-            log.info(currentMessage);
+            log.debug(currentMessage);
             downloadPoller.setCurrentMessage(currentMessage);
         }
 
@@ -1857,12 +1857,12 @@ public class PluginInstallerGBean implements PluginInstaller {
         }
 
         public void setFailure(Exception failure) {
-            log.info("Failure: ", failure);
+            log.debug("Failure: {}", failure);
             downloadPoller.setFailure(failure);
         }
 
         public void setFinished() {
-            log.info("Finished");
+            log.debug("Finished");
             downloadPoller.setFinished();
         }
     }

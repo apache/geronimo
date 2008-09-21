@@ -19,20 +19,17 @@
 
 package org.apache.geronimo.farm.config;
 
-import java.io.Serializable;
 import java.io.IOException;
+import java.io.Serializable;
 import java.net.InetSocketAddress;
-import java.util.Map;
-import java.util.HashMap;
 import java.util.Collections;
+import java.util.Map;
 
+import javax.management.MBeanServerConnection;
 import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
-import javax.management.MBeanServerConnection;
 
-import org.apache.geronimo.deployment.service.DoNotPersist;
-import org.apache.geronimo.deployment.service.EncryptOnPersist;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.system.jmx.KernelDelegate;
 import org.slf4j.Logger;
@@ -70,7 +67,6 @@ public class BasicExtendedJMXConnectorInfo implements ExtendedJMXConnectorInfo, 
         return host;
     }
 
-    @DoNotPersist
     public InetSocketAddress getListenAddress() {
         return new InetSocketAddress(host, port);
     }
@@ -103,7 +99,6 @@ public class BasicExtendedJMXConnectorInfo implements ExtendedJMXConnectorInfo, 
         this.urlPath = urlPath;
     }
 
-    @EncryptOnPersist
     public String getPassword() {
         return password;
     }

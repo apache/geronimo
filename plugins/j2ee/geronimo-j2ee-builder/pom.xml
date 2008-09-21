@@ -51,6 +51,11 @@
         </dependency>
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>geronimo-deploy-config</artifactId>
+            <version>${version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>jee-specs</artifactId>
             <version>${version}</version>
             <type>car</type>

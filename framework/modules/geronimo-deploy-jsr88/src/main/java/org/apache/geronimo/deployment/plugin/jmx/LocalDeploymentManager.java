@@ -48,7 +48,12 @@ public class LocalDeploymentManager extends JMXDeploymentManager {
         for (Object configurerName : configurerNames) {
             AbstractName name = (AbstractName) configurerName;
             try {
-                ModuleConfigurer configurer = (ModuleConfigurer) kernel.getGBean(name);
+                Object o = kernel.getGBean(name);
+                if (!(o instanceof ModuleConfigurer)) {
+                    log.error("Gbean classloader: " + o.getClass().getClassLoader());
+                    log.error("ModuleConfigurer classloader: " + ModuleConfigurer.class.getClassLoader());
+                }
+                ModuleConfigurer configurer = (ModuleConfigurer) o;
                 moduleConfigurers.add(configurer);
             } catch (GBeanNotFoundException e) {
                 log.warn("No gbean found for name returned in query : " + name);

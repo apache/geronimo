@@ -57,18 +57,26 @@
         </dependency>
 
         <!-- not sure about this one - provides remote access -->
-        <dependency>
-            <groupId>org.apache.geronimo.framework</groupId>
-            <artifactId>geronimo-deploy-jsr88</artifactId>
-            <version>${version}</version>
-        </dependency>
-        
-        <dependency>
-            <groupId>org.apache.geronimo.framework</groupId>
-            <artifactId>geronimo-deploy-config</artifactId>
-            <version>${version}</version>
-        </dependency>
-        
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.framework</groupId>-->
+            <!--<artifactId>geronimo-deploy-jsr88</artifactId>-->
+            <!--<version>${version}</version>-->
+        <!--</dependency>-->
+        <!---->
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.framework</groupId>-->
+            <!--<artifactId>geronimo-deploy-config</artifactId>-->
+            <!--<version>${version}</version>-->
+        <!--</dependency>-->
+        <!-- needed by geronimo-deploy-config -->
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.framework</groupId>-->
+            <!--<artifactId>xmlbeans</artifactId>-->
+            <!--<version>${version}</version>-->
+            <!--<type>car</type>-->
+        <!--</dependency>-->
+
+
         <dependency>
             <groupId>org.apache.geronimo.plugins.classloaders</groupId>
             <artifactId>geronimo-javaee-deployment_1.1MR3_spec</artifactId>
@@ -76,14 +84,6 @@
             <type>car</type>
         </dependency>
         
-        <!-- needed by geronimo-deploy-config -->
-        <dependency>
-            <groupId>org.apache.geronimo.framework</groupId>
-            <artifactId>xmlbeans</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
-
         <dependency>
             <groupId>org.codehaus.plexus</groupId>
             <artifactId>plexus-archiver</artifactId>

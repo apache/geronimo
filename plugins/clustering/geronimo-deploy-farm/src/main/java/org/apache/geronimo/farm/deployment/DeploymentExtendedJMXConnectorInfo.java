@@ -17,18 +17,29 @@
  * under the License.
  */
 
-package org.apache.geronimo.farm.config;
 
-import org.apache.geronimo.deployment.service.JavaBeanXmlAttributeEditor;
+package org.apache.geronimo.farm.deployment;
+
+import java.net.InetSocketAddress;
+
+import org.apache.geronimo.farm.config.BasicExtendedJMXConnectorInfo;
+import org.apache.geronimo.deployment.service.DoNotPersist;
+import org.apache.geronimo.deployment.service.EncryptOnPersist;
 
 /**
- *
  * @version $Rev:$ $Date:$
  */
-public class BasicExtendedJMXConnectorInfoEditor extends JavaBeanXmlAttributeEditor {
+public class DeploymentExtendedJMXConnectorInfo extends BasicExtendedJMXConnectorInfo {
 
-    public BasicExtendedJMXConnectorInfoEditor() {
-        super(BasicExtendedJMXConnectorInfo.class);
+    @Override
+    @DoNotPersist
+    public InetSocketAddress getListenAddress() {
+        return super.getListenAddress();
     }
 
+    @Override
+    @EncryptOnPersist
+    public String getPassword() {
+        return super.getPassword();
+    }
 }

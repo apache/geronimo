@@ -12,16 +12,16 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>xml-resolver</groupId>
-        <artifactId>xml-resolver</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
         <groupId>org.apache.geronimo.framework</groupId>
         <artifactId>xmlbeans</artifactId>
         <type>car</type>
     </dependency>
     <dependency>
+        <groupId>xml-resolver</groupId>
+        <artifactId>xml-resolver</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency start="true">
         <groupId>org.apache.geronimo.framework</groupId>
         <artifactId>plugin</artifactId>
         <type>car</type>

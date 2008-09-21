@@ -67,11 +67,6 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>geronimo-deploy-config</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
         <groupId>org.codehaus.plexus</groupId>
         <artifactId>plexus-utils</artifactId>
         <type>jar</type>

@@ -82,7 +82,7 @@
     <gbean name="NodeInfo" class="org.apache.geronimo.farm.config.BasicNodeInfo">
           <attribute name="name">${PlanClusterNodeName}</attribute>
           <xml-attribute name="extendedJMXConnectorInfo">
-              <ns:javabean xmlns:ns="http://geronimo.apache.org/xml/ns/deployment/javabean-1.0" class="org.apache.geronimo.farm.config.BasicExtendedJMXConnectorInfo">
+              <ns:javabean xmlns:ns="http://geronimo.apache.org/xml/ns/deployment/javabean-1.0" class="org.apache.geronimo.farm.deployment.DeploymentExtendedJMXConnectorInfo">
                   <ns:property name="username">system</ns:property>
                   <ns:property name="password">manager</ns:property>
                   <ns:property name="protocol">rmi</ns:property>

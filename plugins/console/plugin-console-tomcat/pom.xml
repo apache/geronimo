@@ -62,6 +62,12 @@
             <type>car</type>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>geronimo-deploy-jsr88</artifactId>
+            <version>${version}</version>
+        </dependency>
+
         <!-- to force build order -->
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
