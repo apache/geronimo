@@ -71,23 +71,23 @@
             </includes>
         </dependencySet>
         
-        <dependencySet>
-            <outputDirectory>contents/lib</outputDirectory>
-            <outputFileNameMapping>jsr88-deploymentfactory.jar</outputFileNameMapping>
-            <useStrictFiltering>true</useStrictFiltering>
-            <includes>
-                <include>org.apache.geronimo.framework:jsr88-deploymentfactory</include>
-            </includes>
-        </dependencySet>
+        <!--<dependencySet>-->
+            <!--<outputDirectory>contents/lib</outputDirectory>-->
+            <!--<outputFileNameMapping>jsr88-deploymentfactory.jar</outputFileNameMapping>-->
+            <!--<useStrictFiltering>true</useStrictFiltering>-->
+            <!--<includes>-->
+                <!--<include>org.apache.geronimo.framework:jsr88-deploymentfactory</include>-->
+            <!--</includes>-->
+        <!--</dependencySet>-->
 
-        <dependencySet>
-            <outputDirectory>contents/bin</outputDirectory>
-            <outputFileNameMapping>client.jar</outputFileNameMapping>
-            <useStrictFiltering>true</useStrictFiltering>
-            <includes>
-                <include>org.apache.geronimo.framework:client-system</include>
-            </includes>
-        </dependencySet>
+        <!--<dependencySet>-->
+            <!--<outputDirectory>contents/bin</outputDirectory>-->
+            <!--<outputFileNameMapping>client.jar</outputFileNameMapping>-->
+            <!--<useStrictFiltering>true</useStrictFiltering>-->
+            <!--<includes>-->
+                <!--<include>org.apache.geronimo.framework:client-system</include>-->
+            <!--</includes>-->
+        <!--</dependencySet>-->
 
         <dependencySet>
             <outputDirectory>contents/bin</outputDirectory>

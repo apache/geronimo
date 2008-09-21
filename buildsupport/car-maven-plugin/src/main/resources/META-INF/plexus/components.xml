@@ -22,7 +22,7 @@
 
 <component-set>
     <components>
-        
+
         <!--
         Deprecated, use geronimo-module instead.
         -->
@@ -41,11 +41,11 @@
                             <compile>
                                 org.apache.geronimo.buildsupport:car-maven-plugin:validate-configuration,
                                 org.apache.geronimo.buildsupport:car-maven-plugin:prepare-plan,
-                                org.apache.geronimo.buildsupport:car-maven-plugin:verify-no-dependency-change
+                                org.apache.geronimo.buildsupport:car-maven-plugin:verify-no-dependency-change,
+                                org.apache.geronimo.buildsupport:car-maven-plugin:package,
+                                org.apache.geronimo.buildsupport:car-maven-plugin:prepare-metadata
                             </compile>
                             <package>
-                                org.apache.geronimo.buildsupport:car-maven-plugin:package,
-                                org.apache.geronimo.buildsupport:car-maven-plugin:prepare-metadata,
                                 org.apache.geronimo.buildsupport:car-maven-plugin:archive-car
                             </package>
                             <install>
@@ -60,12 +60,12 @@
                 </lifecycles>
             </configuration>
         </component>
-        
+
         <!--
         FIXME: For some crazy reason, when the following are enabled it causes other packagings
                picked up from tools-maven-plugin to now configure their artifact handlers?!?!!
         -->
-        
+
         <!--
         Custom packaging for geronimo modules.
         -->
@@ -90,7 +90,7 @@
             </configuration>
         </component>
         -->
-        
+
         <!--
         Install geronimo-module artifact files as .car files
         -->
@@ -108,7 +108,7 @@
             </configuration>
         </component>
         -->
-        
+
         <!--
         Custom packaging for server assembly modules.
         -->
@@ -123,6 +123,12 @@
                         <phases>
                             <process-resources>org.apache.maven.plugins:maven-resources-plugin:resources</process-resources>
                             <compile>org.apache.geronimo.buildsupport:car-maven-plugin:install-modules</compile>
+                            <!-- possible way to track assembly content changes
+                            <compile>
+                                org.apache.geronimo.buildsupport:car-maven-plugin:verify-no-dependency-change,
+                                org.apache.geronimo.buildsupport:car-maven-plugin:install-modules
+                            </compile>
+                            -->
                             <package>org.apache.geronimo.buildsupport:car-maven-plugin:archive</package>
                             <install>org.apache.maven.plugins:maven-install-plugin:install</install>
                             <deploy>org.apache.maven.plugins:maven-deploy-plugin:deploy</deploy>

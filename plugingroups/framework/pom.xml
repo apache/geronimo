@@ -79,13 +79,6 @@
 
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
-            <artifactId>client-system</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>rmi-naming</artifactId>
             <version>${version}</version>
             <type>car</type>
@@ -118,6 +111,14 @@
             <version>${version}</version>
             <type>car</type>
         </dependency>
+        <!-- not really part of framework -->
+        <dependency>
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>client-system</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+
     </dependencies>
 
 </project>

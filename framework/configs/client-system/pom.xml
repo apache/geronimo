@@ -109,6 +109,33 @@
     <build>
         <plugins>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>compile</phase>
+                        <id>create-startup-jar</id>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <tasks>
+                                <copy toDir="${project.build.directory}/resources/META-INF">
+                                    <fileset dir="${project.build.directory}/repository" includes="**/META-INF/**"/>
+                                    <flattenmapper/>
+                                </copy>
+                                <mkdir dir="${project.build.directory}/resources/content"/>
+                                <jar destfile="${project.build.directory}/resources/content/client.jar">
+                                    <fileset dir="${project.build.directory}/resources" includes="META-INF/**"/>
+                                    <fileset dir="${project.build.directory}/classes" includes="META-INF/**"/>
+                                </jar>
+                            </tasks>
+                        </configuration>
+                    </execution>
+
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.geronimo.buildsupport</groupId>
                 <artifactId>car-maven-plugin</artifactId>
                 <configuration>
@@ -197,6 +224,7 @@
                             <config-xml-content load="false"/>
                             <artifact-alias server="client" key="org.apache.geronimo.framework/j2ee-system//car">org.apache.geronimo.framework/client-system/${version}/car</artifact-alias>
                             <artifact-alias server="client" key="org.apache.geronimo.framework/j2ee-system/${version}/car">org.apache.geronimo.framework/client-system/${version}/car</artifact-alias>
+                            <copy-file dest-dir="bin/">content/</copy-file>
                         </plugin-artifact>
                     </instance>
 
