@@ -21,9 +21,10 @@
 package org.apache.geronimo.farm.plugin;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -36,6 +37,9 @@ import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
+import org.apache.geronimo.kernel.config.NoSuchConfigException;
+import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.persistence.PersistenceUnitGBean;
 import org.apache.geronimo.system.plugin.DownloadResults;
 import org.apache.geronimo.system.plugin.PluginInstaller;
@@ -139,6 +143,34 @@ public class FarmGBean implements NodeListener, org.apache.geronimo.system.plugi
         return installToClusters(pluginList);
     }
 
+    public Map<String, DownloadResults> removePluginFromPluginList(String pluginListName, String artifactURI) {
+        return removePluginFromPluginList(pluginListName, new JpaPluginInstance(artifactURI));
+    }
+
+    public Map<String, DownloadResults> removePluginFromPluginList(String pluginListName, JpaPluginInstance pluginInstance) {
+        JpaPluginList pluginList;
+        synchronized (this) {
+            JpaContext pluginListContext = new JpaContext(emf);
+            pluginList = pluginListContext.getPluginList(pluginListName, defaultRepository);
+            pluginList.getPlugins().remove(pluginInstance);
+            pluginListContext.close();
+        }
+        return removeFromClusters(pluginList, pluginInstance);
+    }
+
+    public Map<String, DownloadResults> removePluginListFromCluster(String clusterName, String pluginListName) {
+        JpaClusterInfo cluster;
+        JpaPluginList pluginList;
+        synchronized (this) {
+            JpaContext clusterContext = new JpaContext(emf);
+            cluster = clusterContext.getClusterInfo(clusterName);
+            pluginList = clusterContext.getPluginList(pluginListName, defaultRepository);
+            cluster.getPluginLists().remove(pluginList);
+            clusterContext.close();
+        }
+        return removeFromCluster(pluginList.getPlugins(), cluster);
+    }
+
     public Map<String, DownloadResults> addPluginToCluster(String clusterName, String pluginListName, String artifactURI) {
         return addPluginToCluster(clusterName, pluginListName, new JpaPluginInstance(artifactURI));
     }
@@ -183,6 +215,41 @@ public class FarmGBean implements NodeListener, org.apache.geronimo.system.plugi
             downloadResults.setFailure(e);
             return downloadResults;
         }
+    }
+
+    private Map<String, DownloadResults> removeFromClusters(JpaPluginList clusterPluginList, JpaPluginInstance pluginInstance) {
+        List<JpaPluginInstance> pluginList = pluginInstance == null? clusterPluginList.getPlugins(): Collections.singletonList(pluginInstance);
+        Map<String, DownloadResults> results = new HashMap<String, DownloadResults>();
+        for (JpaClusterInfo cluster : clusterPluginList.getClusters()) {
+            results.putAll(removeFromCluster(pluginList, cluster));
+        }
+        return results;
+    }
+
+    private Map<String, DownloadResults> removeFromCluster(List<JpaPluginInstance> pluginList, JpaClusterInfo cluster) {
+        Map<String, DownloadResults> installedNodes = new HashMap<String, DownloadResults>();
+        for (JpaNodeInfo jpaNodeInfo : cluster.getJpaNodeInfos()) {
+            DownloadResults downloadResults = removeFromNode(pluginList, jpaNodeInfo);
+            installedNodes.put(jpaNodeInfo.getName(), downloadResults);
+        }
+        return installedNodes;
+    }
+
+    private DownloadResults removeFromNode(List<JpaPluginInstance> pluginList, JpaNodeInfo jpaNodeInfo) {
+        DownloadResults downloadResults = new DownloadResults();
+        try {
+            ConfigurationManager configurationManager = jpaNodeInfo.getConfigurationManager();
+            for (JpaPluginInstance jpaPluginInstance: pluginList) {
+                Artifact artifact = jpaPluginInstance.toArtifact();
+                configurationManager.uninstallConfiguration(artifact);
+                downloadResults.addRemovedConfigID(artifact);
+            }
+        } catch (IOException e) {
+            downloadResults.setFailure(e);
+        } catch (NoSuchConfigException e) {
+            downloadResults.setFailure(e);
+        }
+        return downloadResults;
     }
 
 

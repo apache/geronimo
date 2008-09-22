@@ -26,7 +26,7 @@ import java.util.Map;
  *
  * This belongs in the clustering/geronimo-plugin-farm module but is here due to current gshell limitations with adding commands in other classloaders.
  *
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public interface Farm {
     Map<String, DownloadResults> addPluginList(String clusterName, String pluginListName);
@@ -34,4 +34,8 @@ public interface Farm {
     Map<String, DownloadResults> addPlugin(String pluginListName, String artifactURI);
 
     Map<String, DownloadResults> addPluginToCluster(String clusterName, String pluginListName, String artifactURI);
+
+    Map<String, DownloadResults> removePluginFromPluginList(String pluginListName, String artifactURI);
+
+    Map<String, DownloadResults> removePluginListFromCluster(String clusterName, String pluginListName);
 }

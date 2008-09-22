@@ -40,6 +40,7 @@ import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelRegistry;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.system.plugin.PluginInstaller;
 
 /**
@@ -70,6 +71,8 @@ public class JpaNodeInfo implements NodeInfo {
     private PluginInstaller pluginInstaller;
     @Transient
     private JMXConnector jmxConnector;
+    @Transient
+    private ConfigurationManager configurationManager;
 
     public JpaNodeInfo() {
     }
@@ -136,8 +139,21 @@ public class JpaNodeInfo implements NodeInfo {
         Kernel kernel = newKernel();
         Set<AbstractName> set = kernel.listGBeans(new AbstractNameQuery(PluginInstaller.class.getName()));
         for (AbstractName name : set) {
-            pluginInstaller = (PluginInstaller) kernel.getProxyManager().createProxy(name, PluginInstaller.class);
+            pluginInstaller = kernel.getProxyManager().createProxy(name, PluginInstaller.class);
             return pluginInstaller;
+        }
+        throw new IllegalStateException("No plugin installer found");
+    }
+
+    public synchronized ConfigurationManager getConfigurationManager() throws IOException {
+        if (configurationManager != null) {
+            return configurationManager;
+        }
+        Kernel kernel = newKernel();
+        Set<AbstractName> set = kernel.listGBeans(new AbstractNameQuery(ConfigurationManager.class.getName()));
+        for (AbstractName name : set) {
+            configurationManager = kernel.getProxyManager().createProxy(name, ConfigurationManager.class);
+            return configurationManager;
         }
         throw new IllegalStateException("No plugin installer found");
     }

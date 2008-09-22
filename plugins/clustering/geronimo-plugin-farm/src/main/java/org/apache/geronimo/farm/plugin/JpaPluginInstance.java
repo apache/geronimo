@@ -109,4 +109,8 @@ public class JpaPluginInstance {
     public String toString() {
         return groupId + "/" + artifactId + "/" + version + "/" + type;
     }
+
+    public Artifact toArtifact() {
+        return new Artifact(groupId, artifactId, version, type);
+    }
 }

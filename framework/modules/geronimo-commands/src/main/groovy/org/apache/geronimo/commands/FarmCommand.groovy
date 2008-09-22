@@ -73,8 +73,22 @@ class FarmCommand
                 io.out.println("add-plugin requires 3 parameters, cluster name, plugin list name and the artifact")
                 return;
             }
+        } else if (action == "remove-plugin") {
+            if (params.size == 2) {
+                results = farm.removePluginFromPluginList(params[0], params[1]);
+            } else {
+                io.out.println("remove-plugin requires 2 parameters, plugin list name and the artifact")
+                return;
+            }
+        } else if (action == "remove-plugin-list") {
+            if (params.size == 2) {
+                results = farm.removePluginListFromCluster(params[0], params[1]);
+            } else {
+                io.out.println("remove-plugin-list requires 2 parameters, cluster name and plugin list name")
+                return;
+            }
         } else {
-            io.out.println("unknown command, expecting add-plugin-list, add-plugin, or add-plugin-to-cluster")
+            io.out.println("unknown command, expecting add-plugin-list, add-plugin, add-plugin-to-cluster, remove-plugin, or remove-plugin-list")
             return;
         }
         io.out.println("Results:")

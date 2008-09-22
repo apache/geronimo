@@ -25,7 +25,7 @@ import java.util.Map;
 import org.apache.geronimo.system.plugin.DownloadResults;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public interface Farm {
     Map<String, DownloadResults> addPluginList(String clusterName, String pluginListName);
@@ -33,4 +33,8 @@ public interface Farm {
     Map<String, DownloadResults> addPlugin(String pluginListName, String artifactURI);
 
     Map<String, DownloadResults> addPluginToCluster(String clusterName, String pluginListName, String artifactURI);
+
+    Map<String, DownloadResults> removePluginFromPluginList(String pluginListName, String artifactURI);
+
+    Map<String, DownloadResults> removePluginListFromCluster(String clusterName, String pluginListName);
 }
