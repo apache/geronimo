@@ -50,6 +50,7 @@
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-test-ddbean</artifactId>
             <version>${version}</version>
+            <scope>test</scope>
         </dependency>
 
         <dependency>

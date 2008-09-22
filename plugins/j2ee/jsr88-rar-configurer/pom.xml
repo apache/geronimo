@@ -34,12 +34,12 @@
     <packaging>car</packaging>
     
     <dependencies>
-        <dependency>
-            <groupId>org.apache.geronimo.framework</groupId>
-            <artifactId>jsr88-cli</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.framework</groupId>-->
+            <!--<artifactId>jsr88-cli</artifactId>-->
+            <!--<version>${version}</version>-->
+            <!--<type>car</type>-->
+        <!--</dependency>-->
 
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
@@ -64,12 +64,12 @@
                             <type>car</type>
                             <import>classes</import>
                         </dependency>
-                        <dependency>
-                            <groupId>org.apache.geronimo.framework</groupId>
-                            <artifactId>jsr88-cli</artifactId>
-                            <type>car</type>
-                            <import>classes</import>
-                        </dependency>
+                        <!--<dependency>-->
+                            <!--<groupId>org.apache.geronimo.framework</groupId>-->
+                            <!--<artifactId>jsr88-cli</artifactId>-->
+                            <!--<type>car</type>-->
+                            <!--<import>classes</import>-->
+                        <!--</dependency>-->
                     </dependencies>
                     <category>Deployment</category>
                     <instance>

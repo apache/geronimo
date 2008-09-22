@@ -41,6 +41,11 @@ public class PluginsTest extends TestSupport {
         selenium.type("newRepository", actualLink);
         selenium.click("//input[@value='Add Repository']");
         waitForPageLoad();
+
+        if (selenium.isTextPresent("Already have an entry for repository " + actualLink)) {
+            selenium.click("link=Cancel");
+            waitForPageLoad();
+        }
         
         selenium.select("repository", "label=" + actualLink);
         selenium.type("username", "system");

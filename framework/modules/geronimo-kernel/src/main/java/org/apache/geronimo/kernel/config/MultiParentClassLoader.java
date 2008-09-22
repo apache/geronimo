@@ -69,6 +69,8 @@ public class MultiParentClassLoader extends URLClassLoader
     private final static int classLoaderSearchMode;
     private final static int ORIGINAL_SEARCH = 1;
     private final static int OPTIMIZED_SEARCH = 2;
+
+    private final static boolean LONG_CLASSLOADER_TO_STRING = false;
      
     static {
     	// Extract the classLoaderSearchMode if specified.  If not, default to "safe".
@@ -648,7 +650,11 @@ public class MultiParentClassLoader extends URLClassLoader
 
     public String toString() {
         StringBuilder b = new StringBuilder();
-        toBuilder(b, "");
+        if (LONG_CLASSLOADER_TO_STRING) {
+            toBuilder(b, "");
+        } else {
+            b.append("[").append(getClass().getName()).append(" id=").append(id).append("]");
+        }
         return b.toString();
     }
 

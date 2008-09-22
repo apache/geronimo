@@ -91,4 +91,9 @@
         <artifactId>tranql-connector-oracle-local</artifactId>
         <type>rar</type>
     </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.modules</groupId>
+        <artifactId>geronimo-test-ddbean</artifactId>
+        <type>jar</type>
+    </dependency>
 </plugin-artifact>

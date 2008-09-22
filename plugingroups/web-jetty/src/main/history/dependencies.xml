@@ -18,6 +18,11 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.framework</groupId>
+        <artifactId>client-system</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.framework</groupId>
         <artifactId>jsr88-deploymentfactory</artifactId>
         <type>car</type>
     </dependency>
@@ -107,14 +112,14 @@
         <type>car</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.yoko</groupId>
-        <artifactId>yoko-rmi-spec</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
         <groupId>org.apache.geronimo.framework</groupId>
         <artifactId>j2ee-system</artifactId>
         <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.yoko</groupId>
+        <artifactId>yoko-rmi-spec</artifactId>
+        <type>jar</type>
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
