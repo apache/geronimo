@@ -18,13 +18,23 @@
  */
 
 
-package org.apache.geronimo.j2ee;
-
-import java.util.Map;
+package org.apache.geronimo.security;
 
 /**
  * @version $Rev:$ $Date:$
  */
-public interface RuntimeCustomizer {
-    void customize(Map<Class, Object> context);
+public interface SecurityNames {
+    static final String CERTIFICATION_AUTHORITY = "CertificationAuthority";
+    static final String CERTIFICATE_STORE = "CertificateStore";
+    static final String CERTIFICATE_REQUEST_STORE = "CertificateRequestStore";
+
+    static final String SECURITY_REALM = "SecurityRealm";
+    static final String LOGIN_MODULE = "LoginModule";
+    static final String LOGIN_MODULE_USE = "LoginModuleUse";
+    static final String JACC_MANAGER = "JACCManager";
+    static final String CONFIGURATION_ENTRY = "ConfigurationEntry";
+
+    static final String KEY_GENERATOR = "KeyGenerator";
+    static final String KEYSTORE_INSTANCE = "Keystore";
+
 }

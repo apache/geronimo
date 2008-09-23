@@ -55,7 +55,7 @@
         </dependency>
         
         <dependency>
-            <groupId>org.apache.geronimo.framework</groupId>
+            <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-j2ee</artifactId>
             <version>${version}</version>
         </dependency>

@@ -35,7 +35,6 @@ import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.management.geronimo.CertificateRequestStore;
 import org.apache.geronimo.management.geronimo.CertificateStore;
@@ -59,6 +58,7 @@ import org.apache.geronimo.crypto.asn1.x509.TBSCertificateStructure;
 import org.apache.geronimo.crypto.asn1.x509.Time;
 import org.apache.geronimo.crypto.asn1.x509.V3TBSCertificateGenerator;
 import org.apache.geronimo.crypto.asn1.x509.X509Name;
+import org.apache.geronimo.security.SecurityNames;
 
 /**
  * A Certification Authority implementation using KeystoreInstance to store CA's private key, 
@@ -97,7 +97,7 @@ public class GeronimoCertificationAuthority implements CertificationAuthority, G
     /**
      * Constructor
      * 
-     * @param instance KeystoreInstance containing CA's private-key and certificate
+     * @param caKeystore KeystoreInstance containing CA's private-key and certificate
      * @param certStore CertificateStore for storing certificates issued by this CA
      * @param certReqStore CeetificateRequestStore for storing certificates requests
      */
@@ -373,11 +373,11 @@ public class GeronimoCertificationAuthority implements CertificationAuthority, G
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(GeronimoCertificationAuthority.class, "CertificationAuthority");
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(GeronimoCertificationAuthority.class, SecurityNames.CERTIFICATION_AUTHORITY);
         infoFactory.addAttribute("kernel", Kernel.class, false);
         infoFactory.addAttribute("abstractName", AbstractName.class, false);
-        infoFactory.addReference("ServerInfo", ServerInfo.class, NameFactory.GERONIMO_SERVICE);
-        infoFactory.addReference("KeystoreInstance", KeystoreInstance.class, NameFactory.KEYSTORE_INSTANCE);
+        infoFactory.addReference("ServerInfo", ServerInfo.class);
+        infoFactory.addReference("KeystoreInstance", KeystoreInstance.class, SecurityNames.KEYSTORE_INSTANCE);
         infoFactory.addReference("CertificateStore", CertificateStore.class, "CertificateStore");
         infoFactory.addReference("CertificateRequestStore", CertificateRequestStore.class, "CertificateRequestStore");
         infoFactory.addInterface(CertificationAuthority.class);

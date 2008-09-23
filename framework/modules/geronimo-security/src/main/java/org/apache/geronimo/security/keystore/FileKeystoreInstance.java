@@ -65,7 +65,6 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.management.geronimo.KeyNotFoundException;
 import org.apache.geronimo.management.geronimo.KeystoreException;
@@ -82,6 +81,7 @@ import org.apache.geronimo.crypto.encoders.Base64;
 import org.apache.geronimo.crypto.jce.PKCS10CertificationRequest;
 import org.apache.geronimo.crypto.jce.X509Principal;
 import org.apache.geronimo.crypto.jce.X509V1CertificateGenerator;
+import org.apache.geronimo.security.SecurityNames;
 
 /**
  * Implementation of KeystoreInstance that accesses a keystore file on the
@@ -143,7 +143,7 @@ public class FileKeystoreInstance implements KeystoreInstance, GBeanLifecycle {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(FileKeystoreInstance.class, NameFactory.KEYSTORE_INSTANCE);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(FileKeystoreInstance.class, SecurityNames.KEYSTORE_INSTANCE);
         infoFactory.addAttribute("keystorePath", URI.class, true, false);
         infoFactory.addAttribute("keystoreName", String.class, true, false);
         infoFactory.addAttribute("keystorePassword", String.class, true, true);
@@ -151,7 +151,7 @@ public class FileKeystoreInstance implements KeystoreInstance, GBeanLifecycle {
         infoFactory.addAttribute("keyPasswords", String.class, true, true);
         infoFactory.addAttribute("kernel", Kernel.class, false);
         infoFactory.addAttribute("abstractName", AbstractName.class, false);
-        infoFactory.addReference("ServerInfo", ServerInfo.class, NameFactory.GERONIMO_SERVICE);
+        infoFactory.addReference("ServerInfo", ServerInfo.class);
         infoFactory.addInterface(KeystoreInstance.class);
         infoFactory.setConstructor(new String[]{"ServerInfo","keystorePath", "keystoreName", "keystorePassword", "keystoreType", "keyPasswords", "kernel", "abstractName"});
 

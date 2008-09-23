@@ -33,9 +33,8 @@
     <name>Geronimo Plugins, JavaMail :: Core</name>
 
     <dependencies>
-        <!-- g-kernel, g-management comes transitively from this -->
         <dependency>
-            <groupId>org.apache.geronimo.framework</groupId>
+            <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-j2ee</artifactId>
             <version>${version}</version>
             <scope>provided</scope>

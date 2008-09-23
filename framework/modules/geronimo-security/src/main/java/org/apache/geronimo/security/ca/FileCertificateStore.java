@@ -34,12 +34,12 @@ import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.management.geronimo.CertificateStore;
 import org.apache.geronimo.management.geronimo.CertificateStoreException;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.crypto.CaUtils;
+import org.apache.geronimo.security.SecurityNames;
 
 /**
  * A certificate store implementation using disk files.
@@ -76,7 +76,7 @@ public class FileCertificateStore implements CertificateStore, GBeanLifecycle {
     
     /**
      * Constructor
-     * @param storeDir directory for the certificate store
+     * @param directoryPath directory for the certificate store
      */
     public FileCertificateStore(ServerInfo serverInfo, URI directoryPath, Kernel kernel, AbstractName abstractName) {
         this.serverInfo = serverInfo;
@@ -333,11 +333,11 @@ public class FileCertificateStore implements CertificateStore, GBeanLifecycle {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(FileCertificateStore.class, "CertificateStore");
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(FileCertificateStore.class, SecurityNames.CERTIFICATE_STORE);
         infoFactory.addAttribute("directoryPath", URI.class, true, false);
         infoFactory.addAttribute("kernel", Kernel.class, false);
         infoFactory.addAttribute("abstractName", AbstractName.class, false);
-        infoFactory.addReference("ServerInfo", ServerInfo.class, NameFactory.GERONIMO_SERVICE);
+        infoFactory.addReference("ServerInfo", ServerInfo.class);
         infoFactory.addInterface(CertificateStore.class);
         infoFactory.setConstructor(new String[]{"ServerInfo", "directoryPath", "kernel", "abstractName"});
 

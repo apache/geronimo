@@ -26,11 +26,11 @@ import javax.security.auth.login.AppConfigurationEntry;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.security.jaas.ConfigurationEntryFactory;
 import org.apache.geronimo.security.jaas.JaasLoginModuleChain;
 import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
+import org.apache.geronimo.security.SecurityNames;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 
@@ -123,7 +123,7 @@ public class GenericSecurityRealm implements SecurityRealm, ConfigurationEntryFa
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(GenericSecurityRealm.class, NameFactory.SECURITY_REALM);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(GenericSecurityRealm.class, SecurityNames.SECURITY_REALM);
 
         infoFactory.addInterface(SecurityRealm.class);
         infoFactory.addInterface(ConfigurationEntryFactory.class);
@@ -134,7 +134,7 @@ public class GenericSecurityRealm implements SecurityRealm, ConfigurationEntryFa
         infoFactory.addAttribute("wrapPrincipals", boolean.class, true);
 
         infoFactory.addReference("LoginModuleConfiguration", JaasLoginModuleUse.class, "LoginModuleUse");
-        infoFactory.addReference("ServerInfo", ServerInfo.class, NameFactory.GERONIMO_SERVICE);
+        infoFactory.addReference("ServerInfo", ServerInfo.class);
 
         infoFactory.setConstructor(new String[]{"realmName",
                                                 "LoginModuleConfiguration",

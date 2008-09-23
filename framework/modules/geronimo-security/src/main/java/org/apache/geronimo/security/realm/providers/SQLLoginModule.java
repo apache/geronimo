@@ -49,7 +49,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelRegistry;
@@ -159,8 +158,8 @@ public class SQLLoginModule implements LoginModule {
             Set<AbstractName> set = kernel.listGBeans(new AbstractNameQuery(JCAManagedConnectionFactory.class.getName()));
             JCAManagedConnectionFactory factory;
             for (AbstractName name : set) {
-                if (name.getName().get(NameFactory.J2EE_APPLICATION).equals(dataSourceAppName) &&
-                        name.getName().get(NameFactory.J2EE_NAME).equals(dataSourceName)) {
+                if (name.getName().get("J2EEApplication").equals(dataSourceAppName) &&
+                        name.getName().get("name").equals(dataSourceName)) {
                     try {
                         factory = (JCAManagedConnectionFactory) kernel.getGBean(name);
                         String type = factory.getConnectionFactoryInterface();

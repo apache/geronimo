@@ -24,7 +24,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.security.jacc.PolicyContextHandlerContainerSubject;
 import org.apache.geronimo.security.jacc.PolicyContextHandlerHttpServletRequest;
 import org.apache.geronimo.security.jacc.PolicyContextHandlerSOAPMessage;
@@ -119,7 +118,7 @@ public class SecurityServiceImpl implements SecurityService {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(SecurityServiceImpl.class);
 
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
-        infoFactory.addReference("ServerInfo", ServerInfo.class, NameFactory.GERONIMO_SERVICE);
+        infoFactory.addReference("ServerInfo", ServerInfo.class);
         infoFactory.addAttribute("policyConfigurationFactory", String.class, true);
         infoFactory.addAttribute("policyProvider", String.class, true);
         infoFactory.addAttribute("keyStore", String.class, true);

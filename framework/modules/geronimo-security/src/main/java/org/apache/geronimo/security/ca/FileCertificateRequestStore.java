@@ -34,10 +34,10 @@ import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.management.geronimo.CertificateRequestStore;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
+import org.apache.geronimo.security.SecurityNames;
 
 /**
  * A certificate request store implementation using disk files.
@@ -190,7 +190,7 @@ public class FileCertificateRequestStore implements CertificateRequestStore, GBe
      * This method stores the given certificate request under the given id.  If a request with the id
      * exists in the store, it will generate a new id and store the request under that id.
      * @param id Id under which the certificate request is to be stored
-     * @param csrText Certificate Request text
+     * @param csr Certificate Request text
      * @return Id under which the certificate request is stored
      */
     public String storeRequest(String id, String csr) {
@@ -295,11 +295,11 @@ public class FileCertificateRequestStore implements CertificateRequestStore, GBe
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(FileCertificateRequestStore.class, "CertificateRequestStore");
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(FileCertificateRequestStore.class, SecurityNames.CERTIFICATE_REQUEST_STORE);
         infoFactory.addAttribute("directoryPath", URI.class, true, false);
         infoFactory.addAttribute("kernel", Kernel.class, false);
         infoFactory.addAttribute("abstractName", AbstractName.class, false);
-        infoFactory.addReference("ServerInfo", ServerInfo.class, NameFactory.GERONIMO_SERVICE);
+        infoFactory.addReference("ServerInfo", ServerInfo.class);
         infoFactory.addInterface(CertificateRequestStore.class);
         infoFactory.setConstructor(new String[]{"ServerInfo", "directoryPath", "kernel", "abstractName"});
 

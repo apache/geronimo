@@ -21,7 +21,7 @@ import java.util.Map;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.security.SecurityNames;
 
 
 /**
@@ -93,7 +93,7 @@ public class LoginModuleGBean implements LoginModuleSettings {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(LoginModuleGBean.class, NameFactory.LOGIN_MODULE);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(LoginModuleGBean.class, SecurityNames.LOGIN_MODULE);
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
         infoFactory.addInterface(LoginModuleSettings.class, new String[] {"options", "loginModuleClass", "loginDomainName", "wrapPrincipals"},
         		                 new String[] {"options", "loginModuleClass", "wrapPrincipals"} );

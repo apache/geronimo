@@ -24,8 +24,8 @@ import javax.security.jacc.PolicyContextException;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.security.jacc.PrincipalRoleMapper;
+import org.apache.geronimo.security.SecurityNames;
 
 /**
  * @version $Rev$ $Date$
@@ -66,7 +66,7 @@ public class ApplicationPrincipalRoleConfigurationManager implements PrincipalRo
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(ApplicationPrincipalRoleConfigurationManager.class, NameFactory.JACC_MANAGER);
+        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(ApplicationPrincipalRoleConfigurationManager.class, SecurityNames.JACC_MANAGER);
         infoBuilder.addAttribute("principalRoleMap", Map.class, true);
         infoBuilder.addInterface(PrincipalRoleMapper.class);
         infoBuilder.setConstructor(new String[] {"principalRoleMap"});

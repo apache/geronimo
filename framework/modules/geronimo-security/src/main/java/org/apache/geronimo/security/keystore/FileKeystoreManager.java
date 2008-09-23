@@ -41,19 +41,19 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
+
+import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.SSLSocketFactory;
-import javax.net.ssl.SSLEngine;
-import javax.net.ssl.SSLContext;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.geronimo.crypto.KeystoreUtil;
+import org.apache.geronimo.crypto.jce.X509Principal;
+import org.apache.geronimo.crypto.jce.X509V1CertificateGenerator;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.EditableConfigurationManager;
@@ -63,10 +63,10 @@ import org.apache.geronimo.management.geronimo.KeystoreException;
 import org.apache.geronimo.management.geronimo.KeystoreInstance;
 import org.apache.geronimo.management.geronimo.KeystoreIsLocked;
 import org.apache.geronimo.management.geronimo.KeystoreManager;
+import org.apache.geronimo.security.SecurityNames;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
-import org.apache.geronimo.crypto.KeystoreUtil;
-import org.apache.geronimo.crypto.jce.X509Principal;
-import org.apache.geronimo.crypto.jce.X509V1CertificateGenerator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * An implementation of KeystoreManager that assumes every file in a specified
@@ -149,7 +149,7 @@ public class FileKeystoreManager implements KeystoreManager, GBeanLifecycle {
         }
         AbstractName aName;
         AbstractName myName = kernel.getAbstractNameFor(this);
-        aName = kernel.getNaming().createSiblingName(myName, name, NameFactory.KEYSTORE_INSTANCE);
+        aName = kernel.getNaming().createSiblingName(myName, name, SecurityNames.KEYSTORE_INSTANCE);
         GBeanData data = new GBeanData(aName, FileKeystoreInstance.getGBeanInfo());
         try {
             String path = configuredDir.toString();
@@ -423,7 +423,7 @@ public class FileKeystoreManager implements KeystoreManager, GBeanLifecycle {
         infoFactory.addAttribute("keystoreDir", URI.class, true);
         infoFactory.addAttribute("kernel", Kernel.class, false);
         infoFactory.addReference("ServerInfo", ServerInfo.class, "GBean");
-        infoFactory.addReference("KeystoreInstances", KeystoreInstance.class, NameFactory.KEYSTORE_INSTANCE);
+        infoFactory.addReference("KeystoreInstances", KeystoreInstance.class, SecurityNames.KEYSTORE_INSTANCE);
         infoFactory.addInterface(KeystoreManager.class);
         infoFactory.setConstructor(new String[]{"keystoreDir", "ServerInfo", "KeystoreInstances", "kernel"});
 

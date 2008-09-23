@@ -27,9 +27,9 @@ import javax.security.auth.login.AppConfigurationEntry;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
+import org.apache.geronimo.security.SecurityNames;
 
 
 /**
@@ -123,9 +123,9 @@ public class JaasLoginModuleUse implements JaasLoginModuleChain {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(JaasLoginModuleUse.class, "LoginModuleUse");
+        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(JaasLoginModuleUse.class, SecurityNames.LOGIN_MODULE_USE);
         infoBuilder.addAttribute("controlFlag", LoginModuleControlFlag.class, true);
-        infoBuilder.addReference("LoginModule", LoginModuleSettings.class, NameFactory.LOGIN_MODULE);
+        infoBuilder.addReference("LoginModule", LoginModuleSettings.class, SecurityNames.LOGIN_MODULE);
         infoBuilder.addReference("Next", JaasLoginModuleUse.class);
 
         infoBuilder.addInterface(JaasLoginModuleChain.class);

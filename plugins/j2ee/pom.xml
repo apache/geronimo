@@ -35,6 +35,7 @@
     </description>
     
     <modules>
+        <module>geronimo-j2ee</module>
         <module>geronimo-j2ee-builder</module>
         <module>j2ee-deployer</module>
         <module>geronimo-j2ee-schema</module>

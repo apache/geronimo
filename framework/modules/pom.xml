@@ -57,7 +57,7 @@
         <module>geronimo-deploy-tool</module>
         <module>geronimo-deployment</module>
         <module>geronimo-interceptor</module>
-        <module>geronimo-j2ee</module>
+        <!--<module>geronimo-j2ee</module>-->
         <module>geronimo-jdbc</module>
         <module>geronimo-jmx-remoting</module>
         <module>geronimo-kernel</module>

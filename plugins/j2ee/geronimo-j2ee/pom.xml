@@ -23,11 +23,12 @@
     <modelVersion>4.0.0</modelVersion>
     
     <parent>
-        <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>modules</artifactId>
+        <groupId>org.apache.geronimo.plugins</groupId>
+        <artifactId>j2ee</artifactId>
         <version>2.2-SNAPSHOT</version>
     </parent>
 
+    <groupId>org.apache.geronimo.modules</groupId>
     <artifactId>geronimo-j2ee</artifactId>
     <name>Geronimo Framework, Modules :: J2EE</name>
     
@@ -44,17 +45,6 @@
             <version>${version}</version>
         </dependency>
         
-        <!--<dependency>-->
-            <!--<groupId>org.apache.geronimo.specs</groupId>-->
-            <!--<artifactId>geronimo-ejb_3.0_spec</artifactId>-->
-            <!--<scope>test</scope>-->
-        <!--</dependency>-->
-<!--        
-        <dependency>
-            <groupId>org.apache.xbean</groupId>
-            <artifactId>xbean-reflect</artifactId>
-        </dependency>
--->
     </dependencies>
     
 </project>

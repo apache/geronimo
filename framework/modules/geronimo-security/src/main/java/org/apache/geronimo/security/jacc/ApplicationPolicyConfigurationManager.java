@@ -32,10 +32,10 @@ import javax.security.jacc.PolicyContextException;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.IdentificationPrincipal;
 import org.apache.geronimo.security.SubjectId;
+import org.apache.geronimo.security.SecurityNames;
 import org.apache.geronimo.security.credentialstore.CredentialStore;
 import org.apache.geronimo.security.deploy.SubjectInfo;
 
@@ -167,13 +167,13 @@ public class ApplicationPolicyConfigurationManager implements GBeanLifecycle, Ru
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(ApplicationPolicyConfigurationManager.class, NameFactory.JACC_MANAGER);
+        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(ApplicationPolicyConfigurationManager.class, SecurityNames.JACC_MANAGER);
         infoBuilder.addAttribute("contextIdToPermissionsMap", Map.class, true);
         infoBuilder.addAttribute("defaultSubjectInfo", SubjectInfo.class, true);
         infoBuilder.addAttribute("roleDesignates", Map.class, true);
         infoBuilder.addAttribute("classLoader", ClassLoader.class, false);
-        infoBuilder.addReference("CredentialStore", CredentialStore.class, NameFactory.GERONIMO_SERVICE);
-        infoBuilder.addReference("PrincipalRoleMapper", PrincipalRoleMapper.class, NameFactory.JACC_MANAGER);
+        infoBuilder.addReference("CredentialStore", CredentialStore.class, GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
+        infoBuilder.addReference("PrincipalRoleMapper", PrincipalRoleMapper.class, SecurityNames.JACC_MANAGER);
         infoBuilder.setConstructor(new String[] {"contextIdToPermissionsMap", "defaultSubjectInfo", "roleDesignates", "classLoader", "CredentialStore", "PrincipalRoleMapper"});
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }

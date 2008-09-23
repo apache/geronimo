@@ -20,7 +20,7 @@ import javax.security.auth.login.AppConfigurationEntry;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.security.SecurityNames;
 
 
 /**
@@ -59,12 +59,12 @@ public class DirectConfigurationEntry implements ConfigurationEntryFactory {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(DirectConfigurationEntry.class, NameFactory.CONFIGURATION_ENTRY);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(DirectConfigurationEntry.class, SecurityNames.CONFIGURATION_ENTRY);
         infoFactory.addInterface(ConfigurationEntryFactory.class);
         infoFactory.addAttribute("applicationConfigName", String.class, true);
         infoFactory.addAttribute("controlFlag", LoginModuleControlFlag.class, true);
 
-        infoFactory.addReference("Module", LoginModuleSettings.class, NameFactory.LOGIN_MODULE);
+        infoFactory.addReference("Module", LoginModuleSettings.class, SecurityNames.LOGIN_MODULE);
 
         infoFactory.setConstructor(new String[]{"applicationConfigName", "controlFlag", "Module"});
         GBEAN_INFO = infoFactory.getBeanInfo();
