@@ -21,12 +21,14 @@ import java.io.File;
 import java.net.URL;
 import java.util.Map;
 import javax.security.auth.login.FailedLoginException;
-import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.repository.Dependency;
-import org.apache.geronimo.kernel.repository.MissingDependencyException;
+
+import org.apache.geronimo.kernel.config.ConfigurationAlreadyExistsException;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.NoSuchStoreException;
 import org.apache.geronimo.kernel.InvalidGBeanException;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.Dependency;
+import org.apache.geronimo.kernel.repository.MissingDependencyException;
 import org.apache.geronimo.system.plugin.model.PluginListType;
 import org.apache.geronimo.system.plugin.model.PluginType;
 import org.apache.geronimo.system.plugin.model.AttributesType;
@@ -181,11 +183,13 @@ public interface PluginInstaller {
      * Ensures that a plugin artifact is installable. Checks the Geronimo version,
      * JVM version, and whether or not the plugin is already installed.
      *
-     * @param plugin plugin artifact to check
+     * @param  plugin plugin artifact to check
+     * @throws org.apache.geronimo.kernel.config.ConfigurationAlreadyExistsException
+     *         if a configuration is already installed
      * @throws org.apache.geronimo.kernel.repository.MissingDependencyException
-     *          if a dependency is not satisfied
+     *         if a dependency is not satisfied
      */
-    public void validatePlugin(PluginType plugin) throws MissingDependencyException;
+    public void validatePlugin(PluginType plugin) throws ConfigurationAlreadyExistsException, MissingDependencyException;
 
     /**
      * Ensures that a plugin's prerequisites are installed
