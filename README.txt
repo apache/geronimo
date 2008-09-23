@@ -45,7 +45,7 @@ Starting Geronimo
 
  1. GShell -- "./bin/gsh geronimo/start-server"
  2. Script -- "./bin/geronimo.sh run"
- 3. Java   -- "java -Djava.endorsed.dirs=%JRE_HOME%/lib/endorsed:lib/endorsed -Djava.ext.dirs=%JRE_HOME%/lib/ext:lib/ext -javaagent:bin/jpa.jar -jar bin/server.jar"
+ 3. Java   -- "java -Djava.endorsed.dirs=$JRE_HOME/lib/endorsed:lib/endorsed -Djava.ext.dirs=$JRE_HOME/lib/ext:lib/ext -javaagent:bin/jpa.jar -jar bin/server.jar"
 
 
 Additional information on command environments can be found below.
