@@ -17,21 +17,19 @@
 package org.apache.geronimo.cxf;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
-import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.security.Principal;
 import java.util.Iterator;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Enumeration;
 import java.util.logging.Logger;
+
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.xml.ws.handler.MessageContext;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.binding.Binding;
@@ -141,28 +139,6 @@ public class GeronimoDestination extends AbstractHTTPDestination
         return encoding;
     }
     
-    protected void copyRequestHeaders(Message message, Map<String, List<String>> headers) {
-        HttpServletRequest servletRequest = (HttpServletRequest)message.get(MessageContext.SERVLET_REQUEST);
-        if (servletRequest != null) {
-            Enumeration names = servletRequest.getHeaderNames();
-            while(names.hasMoreElements()) {
-                String name = (String)names.nextElement();
-                
-                List<String> headerValues = headers.get(name);
-                if (headerValues == null) {
-                    headerValues = new ArrayList<String>();
-                    headers.put(name, headerValues);
-                }
-                
-                Enumeration values = servletRequest.getHeaders(name);
-                while(values.hasMoreElements()) {
-                    String value = (String)values.nextElement();
-                    headerValues.add(value);
-                }
-            }
-        }
-    }
-
     public Logger getLogger() {
         return Logger.getLogger(GeronimoDestination.class.getName());
     }
