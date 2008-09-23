@@ -89,13 +89,10 @@ public class NameFactory {
     public static final String GERONIMO_SERVICE = "GBean"; //copied in GBeanInfoBuilder to avoid dependencies in the wrong direction.
     public static final String CORBA_SERVICE = "CORBABean";
     public static final String CORBA_NAME_SERVICE = "CORBANameService";
-    public static final String JACC_MANAGER = "JACCManager";
     public static final String SYSTEM_LOG = "SystemLog";
     public static final String JAXR_CONNECTION_FACTORY = "JAXRConnectionFactory";
     public static final String CONFIG_BUILDER = "ConfigBuilder";
     public static final String MODULE_BUILDER = "ModuleBuilder";
-    public static final String SECURITY_REALM = "SecurityRealm";
-    public static final String LOGIN_MODULE = "LoginModule";
     public static final String APP_CLIENT = "AppClient";
     public static final String PERSISTENCE_UNIT = "PersistenceUnit";
     public static final String PERSISTENCE_UNIT_MODULE = "PersistenceUnitModule";
@@ -104,7 +101,6 @@ public class NameFactory {
     public static final String CONFIGURATION_STORE = "ConfigurationStore";
     public static final String DEPLOYER = "Deployer"; //duplicated in Deployer
     public static final String REALM_BRIDGE = "RealmBridge";
-    public static final String CONFIGURATION_ENTRY = "ConfigurationEntry";
     public static final String PERSISTENT_CONFIGURATION_LIST = "PersistentConfigurationList"; //duplicated in FileConfigurationList
 //    public static final String URL_PATTERN = "URLPattern";
     public static final String SERVLET_TEMPLATE = "ServletTemplate";
@@ -115,11 +111,17 @@ public class NameFactory {
     public static final String ORB_CONFIG = "ORBConfig";
     public static final String WEB_SERVICE_LINK = "WSLink";
     public static final String CORBA_TSS_LINK = "TSSLink";
-    public static final String KEY_GENERATOR = "KeyGenerator";
-    public static final String KEYSTORE_INSTANCE = "Keystore";
 
     // Added for CertificationAuthority
     public static final String CERTIFICATION_AUTHORITY = "CertificationAuthority";
     public static final String CERTIFICATE_STORE = "CertificateStore";
     public static final String CERTIFICATE_REQUEST_STORE = "CertificateRequestStore";
+
+    public static final String SECURITY_REALM = "SecurityRealm";
+    public static final String LOGIN_MODULE = "LoginModule";
+    public static final String JACC_MANAGER = "JACCManager";
+    public static final String CONFIGURATION_ENTRY = "ConfigurationEntry";
+    public static final String KEY_GENERATOR = "KeyGenerator";
+    public static final String KEYSTORE_INSTANCE = "Keystore";
+
 }
