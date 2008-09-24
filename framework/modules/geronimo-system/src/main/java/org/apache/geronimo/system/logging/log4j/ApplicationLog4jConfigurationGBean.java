@@ -85,11 +85,11 @@ public class ApplicationLog4jConfigurationGBean {
         infoBuilder.setPriority(2);
         infoBuilder.addAttribute("log4jResource", String.class, true);
         infoBuilder.addAttribute("log4jFile", String.class, true);
-        infoBuilder.addAttribute("classloader", ClassLoader.class, false);
+        infoBuilder.addAttribute("classLoader", ClassLoader.class, false);
 
         infoBuilder.addReference("ServerInfo", ServerInfo.class, "GBean");
 
-        infoBuilder.setConstructor(new String[]{"log4jResource", "log4jFile", "ServerInfo", "classloader"});
+        infoBuilder.setConstructor(new String[]{"log4jResource", "log4jFile", "ServerInfo", "classLoader"});
 
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }
