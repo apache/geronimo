@@ -36,13 +36,7 @@
     <packaging>pom</packaging>
     
     <description>
-        Geronimo integration testsuite. This contains 2 profiles, default and child.
-        The default profile is used by the top level suites directly under this. The child profile is used by the test poms under the suites.
-        This pom defines the basic dependencies needed by most suites.
-        The start-selenium, start-server, invoke, and stop-server goals are globally configured here in the pluginManagement sections.
-        They just need to be bound in the suites where needed and appropriate.
-        The test poms under the suites should have this pom as their parent and set their relativePath appropriately
-        The test poms under the suites inherit an empty 'child' profile from here. But any other build executions within the test poms should all be inside a 'child' profile.
+        Geronimo integration testsuite.
     </description>
     
     <dependencyManagement>
