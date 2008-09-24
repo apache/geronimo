@@ -248,7 +248,7 @@ public class GBeanInfoBuilder {
                 } else if (attributeName.equals("abstractName")) {
                     addAttribute("abstractName", AbstractName.class, false);
                 } else if (attributeName.equals("objectName")) {
-                    addAttribute("obectName", String.class, false);
+                    addAttribute("objectName", String.class, false);
                 }
             }
         }
