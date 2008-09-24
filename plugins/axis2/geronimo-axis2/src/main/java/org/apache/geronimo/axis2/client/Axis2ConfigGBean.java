@@ -79,7 +79,7 @@ public class Axis2ConfigGBean implements GBeanLifecycle {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(Axis2ConfigGBean.class, Axis2ConfigGBean.class, NameFactory.GERONIMO_SERVICE);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(Axis2ConfigGBean.class, Axis2ConfigGBean.class, GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
                 
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
         infoFactory.addAttribute("kernel", Kernel.class, false);

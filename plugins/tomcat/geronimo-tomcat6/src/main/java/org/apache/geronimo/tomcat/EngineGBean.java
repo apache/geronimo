@@ -170,7 +170,7 @@ public class EngineGBean extends BaseGBean implements GBeanLifecycle, ObjectRetr
         infoFactory.addAttribute("className", String.class, true);
         infoFactory.addAttribute("initParams", Map.class, true);
         infoFactory.addReference("DefaultHost", HostGBean.class, HostGBean.J2EE_TYPE);
-        infoFactory.addReference("RealmGBean", ObjectRetriever.class, NameFactory.GERONIMO_SERVICE);
+        infoFactory.addReference("RealmGBean", ObjectRetriever.class, GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
         infoFactory.addReference("TomcatValveChain", ValveGBean.class, ValveGBean.J2EE_TYPE);
         infoFactory.addReference("LifecycleListenerChain", LifecycleListenerGBean.class, LifecycleListenerGBean.J2EE_TYPE);
         infoFactory.addReference("CatalinaCluster", CatalinaClusterGBean.class, CatalinaClusterGBean.J2EE_TYPE);

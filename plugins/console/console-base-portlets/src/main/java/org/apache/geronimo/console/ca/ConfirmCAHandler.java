@@ -37,7 +37,7 @@ import org.apache.geronimo.console.MultiPageModel;
 import org.apache.geronimo.console.util.PortletManager;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.security.SecurityNames;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.proxy.GeronimoManagedBean;
 import org.apache.geronimo.kernel.repository.Artifact;
@@ -160,21 +160,21 @@ public class ConfirmCAHandler extends BaseCAHandler {
         Naming naming = PortletManager.getManagementHelper(request).getNaming();
         
         // Add a CertificateStore GBean
-        AbstractName certStoreName = naming.createSiblingName(caKeystoreName, "geronimo-ca-cert-store", NameFactory.CERTIFICATE_STORE);
+        AbstractName certStoreName = naming.createSiblingName(caKeystoreName, "geronimo-ca-cert-store", SecurityNames.CERTIFICATE_STORE);
         GBeanData certStore = new GBeanData(certStoreName, FileCertificateStore.GBEAN_INFO);
         certStore.setAttribute("directoryPath", URI.create(certStorePath));
         certStore.setReferencePattern("ServerInfo", serverInfoName);
         PortletManager.addGBeanToConfiguration(request, configurationId, certStore, true);
         
         // Add a CertificateRequestStore GBean
-        AbstractName certReqStoreName = naming.createSiblingName(caKeystoreName, "geronimo-ca-cert-req-store", NameFactory.CERTIFICATE_REQUEST_STORE);
+        AbstractName certReqStoreName = naming.createSiblingName(caKeystoreName, "geronimo-ca-cert-req-store", SecurityNames.CERTIFICATE_REQUEST_STORE);
         GBeanData certReqStore = new GBeanData(certReqStoreName, FileCertificateRequestStore.GBEAN_INFO);
         certReqStore.setAttribute("directoryPath", URI.create(certReqStorePath));
         certReqStore.setReferencePattern("ServerInfo", serverInfoName);
         PortletManager.addGBeanToConfiguration(request, configurationId, certReqStore, true);
         
         // Add a CertificationAuthority GBean
-        AbstractName caName = naming.createSiblingName(caKeystoreName, "geronimo-ca", NameFactory.CERTIFICATION_AUTHORITY);
+        AbstractName caName = naming.createSiblingName(caKeystoreName, "geronimo-ca", SecurityNames.CERTIFICATION_AUTHORITY);
         GBeanData ca = new GBeanData(caName, GeronimoCertificationAuthority.GBEAN_INFO);
         ca.setReferencePattern("ServerInfo", serverInfoName);
         ca.setReferencePattern("KeystoreInstance", caKeystoreName);

@@ -26,6 +26,7 @@ import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.naming.enc.EnterpriseNamingContext;
 import org.apache.geronimo.security.jacc.RunAsSource;
+import org.apache.geronimo.security.SecurityNames;
 import org.apache.geronimo.transaction.manager.GeronimoTransactionManager;
 import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
 import org.apache.geronimo.kernel.Kernel;
@@ -106,7 +107,7 @@ public class EjbDeploymentGBean extends EjbDeployment implements GBeanLifecycle 
         infoFactory.addAttribute("securityEnabled", boolean.class, true);
         infoFactory.addAttribute("defaultRole", String.class, true);
         infoFactory.addAttribute("runAsRole", String.class, true);
-        infoFactory.addReference("RunAsSource", RunAsSource.class, NameFactory.JACC_MANAGER);
+        infoFactory.addReference("RunAsSource", RunAsSource.class, SecurityNames.JACC_MANAGER);
 
         infoFactory.addAttribute("componentContextMap", Map.class, true);
 

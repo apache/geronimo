@@ -39,7 +39,7 @@ public class SSLConfigGBean {
         infoBuilder.addAttribute("keyStore", String.class, true, true);
         infoBuilder.addAttribute("keyAlias", String.class, true, true);
         infoBuilder.addAttribute("trustStore", String.class, true, true);
-        infoBuilder.addReference("KeystoreManager", KeystoreManager.class, NameFactory.GERONIMO_SERVICE);
+        infoBuilder.addReference("KeystoreManager", KeystoreManager.class, GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
         infoBuilder.setConstructor(new String[]{"KeystoreManager"});
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }

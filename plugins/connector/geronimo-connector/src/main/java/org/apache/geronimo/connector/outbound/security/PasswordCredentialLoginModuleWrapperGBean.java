@@ -21,6 +21,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.security.jaas.LoginModuleGBean;
+import org.apache.geronimo.security.SecurityNames;
 
 /**
  * @version $Rev$ $Date$
@@ -30,7 +31,7 @@ public class PasswordCredentialLoginModuleWrapperGBean {
     private static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(PasswordCredentialLoginModuleWrapper.class, LoginModuleGBean.GBEAN_INFO, NameFactory.LOGIN_MODULE);
+        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(PasswordCredentialLoginModuleWrapper.class, LoginModuleGBean.GBEAN_INFO, SecurityNames.LOGIN_MODULE);
 
         infoBuilder.addReference("ManagedConnectionFactoryWrapper", ManagedConnectionFactoryWrapper.class, NameFactory.JCA_MANAGED_CONNECTION_FACTORY);
         infoBuilder.setConstructor(new String[] {"loginModuleClass", "objectName", "wrapPrincipals", "options", "loginDomainName", "ManagedConnectionFactoryWrapper", "classLoader"});

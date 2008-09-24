@@ -54,7 +54,7 @@ public class HOWLLogGBean extends HOWLLog implements GBeanLifecycle {
         infoFactory.addAttribute("threadsWaitingForceThreshold", Integer.TYPE, true);
 
         infoFactory.addReference("XidFactory", XidFactory.class, NameFactory.XID_FACTORY);
-        infoFactory.addReference("ServerInfo", ServerInfo.class, NameFactory.GERONIMO_SERVICE);
+        infoFactory.addReference("ServerInfo", ServerInfo.class, GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
 
         infoFactory.addInterface(TransactionLog.class);
 

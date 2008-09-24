@@ -44,7 +44,7 @@ public class BasicNetworkConnectorTrackerServiceHolder implements ClusteredServi
 
     static {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic("NetworkConnectorTracker ClusteredServiceHolder",
-            BasicNetworkConnectorTrackerServiceHolder.class, NameFactory.GERONIMO_SERVICE);
+            BasicNetworkConnectorTrackerServiceHolder.class, GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
 
         infoBuilder.setConstructor(new String[0]);
 

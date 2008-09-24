@@ -186,7 +186,7 @@ public class AxisBuilder implements WebServiceBuilder {
         }
 
         AxisWebServiceContainer axisWebServiceContainer = new AxisWebServiceContainer(location, wsdlURI, service, serviceInfo.getWsdlMap(), cl);
-        AbstractName webServiceContainerFactoryName = context.getNaming().createChildName(targetGBean.getAbstractName(), "webServiceContainer", NameFactory.GERONIMO_SERVICE);
+        AbstractName webServiceContainerFactoryName = context.getNaming().createChildName(targetGBean.getAbstractName(), "webServiceContainer", GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
         GBeanData webServiceContainerFactoryGBean = new GBeanData(webServiceContainerFactoryName, SerializableWebServiceContainerFactoryGBean.GBEAN_INFO);
         webServiceContainerFactoryGBean.setAttribute("webServiceContainer", axisWebServiceContainer);
         try {

@@ -36,6 +36,7 @@ import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.j2ee.deployment.NamingBuilderCollection;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.kernel.Jsr77Naming;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.repository.Artifact;
@@ -63,8 +64,8 @@ public class PlanParsingTest extends XmlBeansTestSupport {
     private Naming naming = new Jsr77Naming();
     private Artifact baseId = new Artifact("test", "base", "1", "car");
     private AbstractName baseRootName = naming.createRootName(baseId, "root", NameFactory.SERVICE_MODULE);
-    private AbstractNameQuery jettyContainerObjectName = new AbstractNameQuery(naming.createChildName(baseRootName, "jettyContainer", NameFactory.GERONIMO_SERVICE));
-    private AbstractNameQuery credentialStoreName = new AbstractNameQuery(naming.createChildName(baseRootName, "CredentialStore", NameFactory.GERONIMO_SERVICE));
+    private AbstractNameQuery jettyContainerObjectName = new AbstractNameQuery(naming.createChildName(baseRootName, "jettyContainer", GBeanInfoBuilder.DEFAULT_J2EE_TYPE));
+    private AbstractNameQuery credentialStoreName = new AbstractNameQuery(naming.createChildName(baseRootName, "CredentialStore", GBeanInfoBuilder.DEFAULT_J2EE_TYPE));
     private AbstractName pojoWebServiceTemplate = null;
     private WebServiceBuilder webServiceBuilder = null;
     private Environment defaultEnvironment = new Environment();

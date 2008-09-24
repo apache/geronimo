@@ -86,7 +86,7 @@ public class Axis2ServiceRefBuilder extends JAXWSServiceRefBuilder {
         EARContext context = module.getEarContext();
         AbstractName containerFactoryName = context.getNaming().createChildName(
                 module.getModuleName(), Axis2ConfigGBean.GBEAN_INFO.getName(),
-                NameFactory.GERONIMO_SERVICE);
+                GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
 
         try {
             context.getGBeanInstance(containerFactoryName);

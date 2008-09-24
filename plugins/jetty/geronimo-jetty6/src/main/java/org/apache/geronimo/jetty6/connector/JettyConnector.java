@@ -279,8 +279,8 @@ public abstract class JettyConnector implements GBeanLifecycle, JettyWebConnecto
 
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("Jetty HTTP Connector", JettyConnector.class);
-        infoFactory.addReference(CONNECTOR_CONTAINER_REFERENCE, JettyContainer.class, NameFactory.GERONIMO_SERVICE);
-        infoFactory.addReference("ThreadPool", ThreadPool.class, NameFactory.GERONIMO_SERVICE);
+        infoFactory.addReference(CONNECTOR_CONTAINER_REFERENCE, JettyContainer.class, GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
+        infoFactory.addReference("ThreadPool", ThreadPool.class, GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
         // this is needed because the getters/setters are not added automatically
         infoFactory.addOperation("setStatsOn", new Class[] { boolean.class }, "void");
         // removed 'minThreads' from persistent and manageable String[]

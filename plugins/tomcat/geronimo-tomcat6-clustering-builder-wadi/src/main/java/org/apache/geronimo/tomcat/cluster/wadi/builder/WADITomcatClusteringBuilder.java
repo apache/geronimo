@@ -42,6 +42,7 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Jsr77Naming;
@@ -316,7 +317,7 @@ public class WADITomcatClusteringBuilder implements NamespaceDrivenBuilder {
     protected AbstractName newGBeanName(DeploymentContext moduleContext, String name) {
         return moduleContext.getNaming().createChildName(moduleContext.getModuleName(),
                 name,
-                NameFactory.GERONIMO_SERVICE);
+                GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
     }
 
     protected void addAbstractNameQueries(Set patterns, GerPatternType patternType) {

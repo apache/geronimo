@@ -61,6 +61,7 @@ import org.apache.geronimo.management.geronimo.WebContainer;
 import org.apache.geronimo.management.geronimo.WebModule;
 import org.apache.geronimo.naming.enc.EnterpriseNamingContext;
 import org.apache.geronimo.security.jacc.RunAsSource;
+import org.apache.geronimo.security.SecurityNames;
 import org.apache.geronimo.transaction.GeronimoUserTransaction;
 import org.mortbay.jetty.Handler;
 import org.mortbay.jetty.MimeTypes;
@@ -550,8 +551,8 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
         infoBuilder.addAttribute("tagLibMap", Map.class, true);
         infoBuilder.addAttribute(GBEAN_ATTR_SESSION_TIMEOUT, int.class, true);
         infoBuilder.addReference(GBEAN_REF_SESSION_HANDLER_FACTORY, SessionHandlerFactory.class,
-                NameFactory.GERONIMO_SERVICE);
-        infoBuilder.addReference(GBEAN_REF_PRE_HANDLER_FACTORY, PreHandlerFactory.class, NameFactory.GERONIMO_SERVICE);
+                GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
+        infoBuilder.addReference(GBEAN_REF_PRE_HANDLER_FACTORY, PreHandlerFactory.class, GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
 
         infoBuilder.addAttribute("componentContext", Map.class, true);
         infoBuilder.addAttribute("classLoader", ClassLoader.class, false);
@@ -566,14 +567,14 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
         infoBuilder.addReference("Host", Host.class, "Host");
         infoBuilder.addReference("TransactionManager", TransactionManager.class, NameFactory.JTA_RESOURCE);
         infoBuilder.addReference("TrackedConnectionAssociator", TrackedConnectionAssociator.class, NameFactory.JCA_CONNECTION_TRACKER);
-        infoBuilder.addReference("JettyContainer", JettyContainer.class, NameFactory.GERONIMO_SERVICE);
-        infoBuilder.addReference("ContextCustomizer", RuntimeCustomizer.class, NameFactory.GERONIMO_SERVICE);
+        infoBuilder.addReference("JettyContainer", JettyContainer.class, GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
+        infoBuilder.addReference("ContextCustomizer", RuntimeCustomizer.class, GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
 
         infoBuilder.addInterface(JettyServletRegistration.class);
 
         infoBuilder.addAttribute("policyContextID", String.class, true);
         infoBuilder.addAttribute("securityRealmName", String.class, true);
-        infoBuilder.addReference("RunAsSource", RunAsSource.class, NameFactory.JACC_MANAGER);
+        infoBuilder.addReference("RunAsSource", RunAsSource.class, SecurityNames.JACC_MANAGER);
 
         infoBuilder.addAttribute("holder", Holder.class, true);
 

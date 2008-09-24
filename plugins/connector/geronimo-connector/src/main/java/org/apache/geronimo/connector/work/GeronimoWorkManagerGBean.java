@@ -44,9 +44,9 @@ public class GeronimoWorkManagerGBean extends GeronimoWorkManager implements GBe
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(GeronimoWorkManagerGBean.class, NameFactory.JCA_WORK_MANAGER);
         infoFactory.addInterface(GeronimoWorkManager.class);
 
-        infoFactory.addReference("SyncPool", Executor.class, NameFactory.GERONIMO_SERVICE);
-        infoFactory.addReference("StartPool", Executor.class, NameFactory.GERONIMO_SERVICE);
-        infoFactory.addReference("ScheduledPool", Executor.class, NameFactory.GERONIMO_SERVICE);
+        infoFactory.addReference("SyncPool", Executor.class, GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
+        infoFactory.addReference("StartPool", Executor.class, GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
+        infoFactory.addReference("ScheduledPool", Executor.class, GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
 
         infoFactory.addReference("TransactionManager", XAWork.class, NameFactory.JTA_RESOURCE);
 

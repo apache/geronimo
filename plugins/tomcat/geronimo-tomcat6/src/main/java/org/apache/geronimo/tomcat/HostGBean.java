@@ -164,12 +164,12 @@ public class HostGBean extends BaseGBean implements GBeanLifecycle, ObjectRetrie
         infoFactory.addAttribute("className", String.class, true);
         infoFactory.addAttribute("initParams", Map.class, true);
         infoFactory.addAttribute("aliases", ArrayList.class, true);
-        infoFactory.addReference("RealmGBean", ObjectRetriever.class, NameFactory.GERONIMO_SERVICE);
+        infoFactory.addReference("RealmGBean", ObjectRetriever.class, GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
         infoFactory.addReference("TomcatValveChain", ValveGBean.class, ValveGBean.J2EE_TYPE);
         infoFactory.addReference("LifecycleListenerChain", LifecycleListenerGBean.class, LifecycleListenerGBean.J2EE_TYPE);
         infoFactory.addReference("CatalinaCluster", CatalinaClusterGBean.class, CatalinaClusterGBean.J2EE_TYPE);
         infoFactory.addReference("Manager", ManagerGBean.class, ManagerGBean.J2EE_TYPE);
-        infoFactory.addReference("Engine", EngineGBean.class, NameFactory.GERONIMO_SERVICE);
+        infoFactory.addReference("Engine", EngineGBean.class, GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
         infoFactory.addOperation("getInternalObject");
         infoFactory.setConstructor(new String[] { 
                 "className", 

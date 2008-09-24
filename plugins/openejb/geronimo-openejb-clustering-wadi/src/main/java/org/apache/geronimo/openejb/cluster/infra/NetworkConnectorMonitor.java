@@ -267,11 +267,11 @@ public class NetworkConnectorMonitor implements GBeanLifecycle {
     static {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic("NetworkConnectorMonitor",
             NetworkConnectorMonitor.class,
-            NameFactory.GERONIMO_SERVICE);
+            GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
 
-        infoBuilder.addReference(GBEAN_REF_NETWORK_CONNECTORS, NetworkConnector.class, NameFactory.GERONIMO_SERVICE);
-        infoBuilder.addReference(GBEAN_REF_EJB_DEP_ID_ACCESSOR, EjbDeploymentIdAccessor.class, NameFactory.GERONIMO_SERVICE);
-        infoBuilder.addReference(GBEAN_REF_WADI_SESSION_MANAGER, WADISessionManager.class, NameFactory.GERONIMO_SERVICE);
+        infoBuilder.addReference(GBEAN_REF_NETWORK_CONNECTORS, NetworkConnector.class, GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
+        infoBuilder.addReference(GBEAN_REF_EJB_DEP_ID_ACCESSOR, EjbDeploymentIdAccessor.class, GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
+        infoBuilder.addReference(GBEAN_REF_WADI_SESSION_MANAGER, WADISessionManager.class, GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
 
         infoBuilder.setConstructor(new String[] {GBEAN_REF_NETWORK_CONNECTORS,
             GBEAN_REF_EJB_DEP_ID_ACCESSOR,

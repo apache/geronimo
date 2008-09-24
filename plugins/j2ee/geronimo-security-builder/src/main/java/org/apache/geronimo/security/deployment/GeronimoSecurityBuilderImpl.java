@@ -18,11 +18,11 @@
 package org.apache.geronimo.security.deployment;
 
 import java.security.Principal;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.Collections;
 
 import javax.xml.namespace.QName;
 
@@ -33,16 +33,22 @@ import org.apache.geronimo.deployment.service.SingleGBeanBuilder;
 import org.apache.geronimo.deployment.xbeans.PatternType;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.schema.ElementConverter;
+import org.apache.geronimo.schema.NamespaceElementConverter;
+import org.apache.geronimo.schema.SchemaConversionUtils;
+import org.apache.geronimo.schema.SecurityElementConverter;
+import org.apache.geronimo.security.SecurityNames;
+import org.apache.geronimo.security.credentialstore.CredentialStore;
 import org.apache.geronimo.security.deploy.LoginDomainPrincipalInfo;
 import org.apache.geronimo.security.deploy.PrincipalInfo;
 import org.apache.geronimo.security.deploy.RealmPrincipalInfo;
@@ -53,7 +59,6 @@ import org.apache.geronimo.security.jacc.ApplicationPolicyConfigurationManager;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.geronimo.security.jacc.mappingprovider.ApplicationPrincipalRoleConfigurationManager;
 import org.apache.geronimo.security.util.ConfigurationUtil;
-import org.apache.geronimo.security.credentialstore.CredentialStore;
 import org.apache.geronimo.xbeans.geronimo.security.GerLoginDomainPrincipalType;
 import org.apache.geronimo.xbeans.geronimo.security.GerPrincipalType;
 import org.apache.geronimo.xbeans.geronimo.security.GerRealmPrincipalType;
@@ -62,11 +67,6 @@ import org.apache.geronimo.xbeans.geronimo.security.GerRoleType;
 import org.apache.geronimo.xbeans.geronimo.security.GerSecurityDocument;
 import org.apache.geronimo.xbeans.geronimo.security.GerSecurityType;
 import org.apache.geronimo.xbeans.geronimo.security.GerSubjectInfoType;
-import org.apache.geronimo.schema.ElementConverter;
-import org.apache.geronimo.schema.NamespaceElementConverter;
-import org.apache.geronimo.schema.GBeanElementConverter;
-import org.apache.geronimo.schema.SecurityElementConverter;
-import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
@@ -146,7 +146,7 @@ public class GeronimoSecurityBuilderImpl implements NamespaceDrivenBuilder, GBea
             AbstractNameQuery credentialStoreName;
             if (securityType.isSetCredentialStoreRef()) {
                 PatternType credentialStoreType = securityType.getCredentialStoreRef();
-                credentialStoreName = SingleGBeanBuilder.buildAbstractNameQuery(credentialStoreType, NameFactory.GERONIMO_SERVICE, Collections.singleton(CredentialStore.class.getName()));
+                credentialStoreName = SingleGBeanBuilder.buildAbstractNameQuery(credentialStoreType, GBeanInfoBuilder.DEFAULT_J2EE_TYPE, Collections.singleton(CredentialStore.class.getName()));
             } else {
                 credentialStoreName = this.credentialStoreName;
             }
@@ -313,7 +313,7 @@ public class GeronimoSecurityBuilderImpl implements NamespaceDrivenBuilder, GBea
     }
 
     protected GBeanData configureApplicationPolicyManager(Naming naming, AbstractName moduleName, Map<String, ComponentPermissions> contextIDToPermissionsMap, SecurityConfiguration securityConfiguration, AbstractNameQuery credentialStoreName) {
-        AbstractName jaccBeanName = naming.createChildName(moduleName, NameFactory.JACC_MANAGER, NameFactory.JACC_MANAGER);
+        AbstractName jaccBeanName = naming.createChildName(moduleName, SecurityNames.JACC_MANAGER, SecurityNames.JACC_MANAGER);
         GBeanData jaccBeanData = new GBeanData(jaccBeanName, ApplicationPolicyConfigurationManager.GBEAN_INFO);
         jaccBeanData.setAttribute("contextIdToPermissionsMap", contextIDToPermissionsMap);
         Map<String, SubjectInfo> roleDesignates = securityConfiguration.getRoleDesignates();

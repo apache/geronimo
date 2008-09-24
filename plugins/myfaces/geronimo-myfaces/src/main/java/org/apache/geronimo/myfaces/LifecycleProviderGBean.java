@@ -87,7 +87,7 @@ public class LifecycleProviderGBean implements LifecycleProvider, GBeanLifecycle
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(LifecycleProviderGBean.class, NameFactory.GERONIMO_SERVICE);
+        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(LifecycleProviderGBean.class, GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
         infoBuilder.addAttribute("holder", Holder.class, true);
         infoBuilder.addAttribute("componentContext", Map.class, true);
 

@@ -246,7 +246,7 @@ public class JettyManagerImpl implements WebManager {
     public AbstractName getConnectorConfiguration(ConnectorType connectorType, List<ConnectorAttribute> connectorAttributes, WebContainer container, String uniqueName) {
         GBeanInfo gbeanInfo = CONNECTOR_GBEAN_INFOS.get(connectorType);
         AbstractName containerName = kernel.getAbstractNameFor(container);
-        AbstractName name = kernel.getNaming().createSiblingName(containerName, uniqueName, NameFactory.GERONIMO_SERVICE);
+        AbstractName name = kernel.getNaming().createSiblingName(containerName, uniqueName, GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
         GBeanData gbeanData = new GBeanData(name, gbeanInfo);
         gbeanData.setReferencePattern(JettyConnector.CONNECTOR_CONTAINER_REFERENCE, containerName);
         for (ConnectorAttribute connectorAttribute : connectorAttributes) {

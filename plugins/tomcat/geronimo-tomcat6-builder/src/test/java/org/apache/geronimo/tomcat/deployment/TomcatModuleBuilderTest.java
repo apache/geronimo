@@ -72,6 +72,7 @@ import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.geronimo.security.jacc.mappingprovider.GeronimoPolicy;
 import org.apache.geronimo.security.jacc.mappingprovider.GeronimoPolicyConfigurationFactory;
 import org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal;
+import org.apache.geronimo.security.SecurityNames;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 import org.apache.geronimo.testsupport.TestSupport;
 import org.apache.geronimo.tomcat.EngineGBean;
@@ -145,7 +146,7 @@ public class TomcatModuleBuilderTest extends TestSupport {
 
         AbstractName moduleName = module.getModuleName();
         EARContext earContext = createEARContext(outputPath, defaultEnvironment, repository, configStore, moduleName);
-        AbstractName jaccBeanName = kernel.getNaming().createChildName(moduleName, "foo", NameFactory.JACC_MANAGER);
+        AbstractName jaccBeanName = kernel.getNaming().createChildName(moduleName, "foo", SecurityNames.JACC_MANAGER);
         GBeanData jaccBeanData = new GBeanData(jaccBeanName, ApplicationPolicyConfigurationManager.GBEAN_INFO);
         PermissionCollection excludedPermissions= new Permissions();
         PermissionCollection uncheckedPermissions= new Permissions();

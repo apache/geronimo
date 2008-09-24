@@ -19,8 +19,8 @@ package org.apache.geronimo.console.core.security;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.net.URLConnection;
@@ -34,20 +34,18 @@ import java.util.Hashtable;
 import java.util.Properties;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.geronimo.common.GeronimoSecurityException;
+import org.apache.geronimo.crypto.EncryptionManager;
+import org.apache.geronimo.crypto.encoders.Base64;
+import org.apache.geronimo.crypto.encoders.HexTranslator;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.security.jaas.LoginModuleGBean;
+import org.apache.geronimo.security.SecurityNames;
 import org.apache.geronimo.security.jaas.LoginModuleSettings;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
-import org.apache.geronimo.crypto.encoders.Base64;
-import org.apache.geronimo.crypto.encoders.HexTranslator;
-import org.apache.geronimo.crypto.SimpleEncryption;
-import org.apache.geronimo.crypto.EncryptionManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @version $Rev$ $Date$
@@ -428,8 +426,8 @@ public class PropertiesLoginModuleManager implements GBeanLifecycle {
         infoFactory.addOperation("addToGroup", new Class[]{String.class, String.class});
         infoFactory.addOperation("removeFromGroup", new Class[]{String.class, String.class});
 
-        infoFactory.addReference("ServerInfo", ServerInfo.class, NameFactory.GERONIMO_SERVICE);
-        infoFactory.addReference("LoginModule", LoginModuleSettings.class, NameFactory.LOGIN_MODULE);
+        infoFactory.addReference("ServerInfo", ServerInfo.class, GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
+        infoFactory.addReference("LoginModule", LoginModuleSettings.class, SecurityNames.LOGIN_MODULE);
 
         infoFactory.setConstructor(new String[]{"ServerInfo", "LoginModule"});
 

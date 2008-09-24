@@ -141,7 +141,7 @@ public class HTTPSSelectChannelConnector extends JettyConnector implements Jetty
         infoFactory.addAttribute("trustStore", String.class, true, true);
         infoFactory.addAttribute("clientAuthRequired", boolean.class, true, true);
         infoFactory.addAttribute("clientAuthRequested", boolean.class, true, true);
-        infoFactory.addReference("KeystoreManager", KeystoreManager.class, NameFactory.GERONIMO_SERVICE);
+        infoFactory.addReference("KeystoreManager", KeystoreManager.class, GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
         infoFactory.addInterface(JettySecureConnector.class);
         infoFactory.setConstructor(new String[]{"JettyContainer", "ThreadPool", "KeystoreManager"});
         GBEAN_INFO = infoFactory.getBeanInfo();

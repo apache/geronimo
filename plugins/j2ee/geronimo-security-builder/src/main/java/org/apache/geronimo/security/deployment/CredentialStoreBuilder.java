@@ -20,31 +20,22 @@
 
 package org.apache.geronimo.security.deployment;
 
-import java.util.Map;
 import java.util.HashMap;
-import java.util.Set;
-import java.util.Iterator;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
+import java.util.Map;
 
-import org.apache.geronimo.deployment.service.XmlAttributeBuilder;
-import org.apache.geronimo.deployment.service.XmlReferenceBuilder;
 import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.deployment.service.XmlAttributeBuilder;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.xbeans.geronimo.credentialstore.CredentialStoreDocument;
 import org.apache.geronimo.xbeans.geronimo.credentialstore.CredentialStoreType;
+import org.apache.geronimo.xbeans.geronimo.credentialstore.CredentialType;
 import org.apache.geronimo.xbeans.geronimo.credentialstore.RealmType;
 import org.apache.geronimo.xbeans.geronimo.credentialstore.SubjectType;
-import org.apache.geronimo.xbeans.geronimo.credentialstore.CredentialType;
-import org.apache.geronimo.security.credentialstore.SingleCallbackHandler;
-import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GReferenceInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.kernel.Kernel;
 import org.apache.xmlbeans.XmlObject;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class CredentialStoreBuilder implements XmlAttributeBuilder {
 

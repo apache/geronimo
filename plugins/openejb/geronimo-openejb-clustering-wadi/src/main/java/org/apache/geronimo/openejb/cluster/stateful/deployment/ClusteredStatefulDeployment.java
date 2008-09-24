@@ -194,7 +194,7 @@ public class ClusteredStatefulDeployment extends EjbDeployment implements GBeanL
             EjbDeploymentGBean.GBEAN_INFO,
             NameFactory.STATEFUL_SESSION_BEAN);
         
-        builder.addReference(GBEAN_REF_SESSION_MANAGER, SessionManager.class, NameFactory.GERONIMO_SERVICE);
+        builder.addReference(GBEAN_REF_SESSION_MANAGER, SessionManager.class, GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
         
         builder.setConstructor(new String[] { "objectName",
             "deploymentId",

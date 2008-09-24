@@ -62,6 +62,7 @@ import org.apache.geronimo.management.geronimo.WebContainer;
 import org.apache.geronimo.management.geronimo.WebModule;
 import org.apache.geronimo.naming.enc.EnterpriseNamingContext;
 import org.apache.geronimo.security.jacc.RunAsSource;
+import org.apache.geronimo.security.SecurityNames;
 import org.apache.geronimo.tomcat.cluster.CatalinaClusterGBean;
 import org.apache.geronimo.tomcat.stats.ModuleStats;
 import org.apache.geronimo.tomcat.util.SecurityHolder;
@@ -567,8 +568,8 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         infoBuilder.addReference("TransactionManager", TransactionManager.class, NameFactory.JTA_RESOURCE);
         infoBuilder.addReference("TrackedConnectionAssociator", TrackedConnectionAssociator.class, NameFactory.JCA_CONNECTION_TRACKER);
 
-        infoBuilder.addReference("Container", TomcatContainer.class, NameFactory.GERONIMO_SERVICE);
-        infoBuilder.addReference("RunAsSource", RunAsSource.class, NameFactory.JACC_MANAGER);
+        infoBuilder.addReference("Container", TomcatContainer.class, GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
+        infoBuilder.addReference("RunAsSource", RunAsSource.class, SecurityNames.JACC_MANAGER);
         infoBuilder.addReference("TomcatRealm", ObjectRetriever.class);
         infoBuilder.addReference(GBEAN_REF_CLUSTERED_VALVE_RETRIEVER, ObjectRetriever.class);
         infoBuilder.addReference("TomcatValveChain", ValveGBean.class);
@@ -580,7 +581,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         infoBuilder.addAttribute("disableCookies", boolean.class, true);
         infoBuilder.addAttribute("webServices", Map.class, true);
         infoBuilder.addAttribute("holder", Holder.class, true);
-        infoBuilder.addReference("ContextCustomizer", RuntimeCustomizer.class, NameFactory.GERONIMO_SERVICE);
+        infoBuilder.addReference("ContextCustomizer", RuntimeCustomizer.class, GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
         infoBuilder.addReference("J2EEServer", J2EEServer.class);
         infoBuilder.addReference("J2EEApplication", J2EEApplication.class);
         infoBuilder.addAttribute("kernel", Kernel.class, false);

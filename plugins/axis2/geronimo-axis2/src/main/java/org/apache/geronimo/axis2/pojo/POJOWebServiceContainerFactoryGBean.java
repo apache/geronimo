@@ -107,7 +107,7 @@ public class POJOWebServiceContainerFactoryGBean implements WebServiceContainerF
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(POJOWebServiceContainerFactoryGBean.class, NameFactory.GERONIMO_SERVICE);
+        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(POJOWebServiceContainerFactoryGBean.class, GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
         infoBuilder.addAttribute("portInfo", org.apache.geronimo.jaxws.PortInfo.class, true, true);
         infoBuilder.addAttribute("endpointClassName", String.class, true, true);
         infoBuilder.addAttribute("classLoader", ClassLoader.class, false);

@@ -35,6 +35,7 @@ import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.jetty6.JettyWebAppContext;
 import org.apache.geronimo.jetty6.cluster.ClusteredSessionHandlerFactory;
@@ -157,7 +158,7 @@ public class WADIJettyClusteringBuilder implements NamespaceDrivenBuilder {
             GBeanData webModuleData,
             DeploymentContext moduleContext) throws GBeanAlreadyExistsException {
         AbstractName name = moduleContext.getNaming().createChildName(moduleContext.getModuleName(),
-                "WADISessionManager", NameFactory.GERONIMO_SERVICE);
+                "WADISessionManager", GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
 
         GBeanData beanData = new GBeanData(name, BasicWADISessionManager.class);
 
@@ -253,7 +254,7 @@ public class WADIJettyClusteringBuilder implements NamespaceDrivenBuilder {
     protected AbstractName addPreHandlerFactory(DeploymentContext moduleContext,
             GBeanData webModuleData, AbstractName sessionManagerName) throws GBeanAlreadyExistsException {
         AbstractName name = moduleContext.getNaming().createChildName(moduleContext.getModuleName(),
-                "WADIClusteredPreHandlerFactory", NameFactory.GERONIMO_SERVICE);
+                "WADIClusteredPreHandlerFactory", GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
 
         GBeanData beanData = new GBeanData(name, WADIClusteredPreHandlerFactory.class);
         beanData.setReferencePattern(WADIClusteredPreHandlerFactory.GBEAN_REF_WADI_SESSION_MANAGER, sessionManagerName);
@@ -268,7 +269,7 @@ public class WADIJettyClusteringBuilder implements NamespaceDrivenBuilder {
     protected AbstractName addSessionHandlerFactory(DeploymentContext moduleContext,
             GBeanData webModuleData, AbstractName sessionManagerName) throws GBeanAlreadyExistsException {
         AbstractName name = moduleContext.getNaming().createChildName(moduleContext.getModuleName(),
-                "ClusteredSessionHandlerFactory", NameFactory.GERONIMO_SERVICE);
+                "ClusteredSessionHandlerFactory", GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
 
         GBeanData beanData = new GBeanData(name, ClusteredSessionHandlerFactory.class);
         beanData.setReferencePattern(ClusteredSessionHandlerFactory.GBEAN_REF_SESSION_MANAGER, sessionManagerName);

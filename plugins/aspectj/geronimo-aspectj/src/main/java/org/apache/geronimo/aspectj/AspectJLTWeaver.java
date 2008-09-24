@@ -56,7 +56,7 @@ public class AspectJLTWeaver implements GBeanLifecycle {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(AspectJLTWeaver.class, NameFactory.GERONIMO_SERVICE);
+        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(AspectJLTWeaver.class, GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
         infoBuilder.setPriority(GBeanInfo.PRIORITY_CLASSLOADER);
 
         infoBuilder.setConstructor(new String[0]);

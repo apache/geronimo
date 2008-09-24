@@ -30,6 +30,7 @@ import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 import org.apache.geronimo.j2ee.deployment.NamingBuilderCollection;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.kernel.Jsr77Naming;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.repository.Artifact;
@@ -50,7 +51,7 @@ public class PlanParsingTest extends TestCase {
     private Naming naming = new Jsr77Naming();
     private Artifact baseId = new Artifact("test", "base", "1", "car");
     private AbstractName baseRootName = naming.createRootName(baseId, "root", NameFactory.SERVICE_MODULE);
-    private AbstractNameQuery tomcatContainerObjectName = new AbstractNameQuery(naming.createChildName(baseRootName, "TomcatContainer", NameFactory.GERONIMO_SERVICE));
+    private AbstractNameQuery tomcatContainerObjectName = new AbstractNameQuery(naming.createChildName(baseRootName, "TomcatContainer", GBeanInfoBuilder.DEFAULT_J2EE_TYPE));
     private WebServiceBuilder webServiceBuilder = null;
     private Environment defaultEnvironment = new Environment();
     private TomcatModuleBuilder builder;

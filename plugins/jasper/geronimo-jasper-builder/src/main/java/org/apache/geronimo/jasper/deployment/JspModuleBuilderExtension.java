@@ -155,7 +155,7 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
         //Some users (tomcat?) may have back doors into jasper that make adding this gbean unnecessary.
         GBeanInfo webAppGBeanInfo = webAppData.getGBeanInfo();
         if (webAppGBeanInfo.getReference("ContextCustomizer") != null) {
-            AbstractName jspLifecycleName = moduleContext.getNaming().createChildName(moduleName, "jspLifecycleProvider", NameFactory.GERONIMO_SERVICE);
+            AbstractName jspLifecycleName = moduleContext.getNaming().createChildName(moduleName, "jspLifecycleProvider", GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
             GBeanData gbeanData = new GBeanData(jspLifecycleName, JasperServletContextCustomizer.GBEAN_INFO);
             gbeanData.setAttribute("holder", holder);
 

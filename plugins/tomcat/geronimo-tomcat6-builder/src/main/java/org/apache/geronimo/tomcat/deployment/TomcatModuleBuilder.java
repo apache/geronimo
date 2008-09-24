@@ -354,7 +354,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
             resourceEnvironmentSetter.setResourceEnvironment(rebuilder, webApp.getResourceRefArray(), tomcatWebApp.getResourceRefArray());
 
             if (tomcatWebApp.isSetWebContainer()) {
-                AbstractNameQuery webContainerName = ENCConfigBuilder.getGBeanQuery(NameFactory.GERONIMO_SERVICE, tomcatWebApp.getWebContainer());
+                AbstractNameQuery webContainerName = ENCConfigBuilder.getGBeanQuery(GBeanInfoBuilder.DEFAULT_J2EE_TYPE, tomcatWebApp.getWebContainer());
                 webModuleData.setReferencePattern("Container", webContainerName);
             } else {
                 webModuleData.setReferencePattern("Container", tomcatContainerName);

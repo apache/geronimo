@@ -276,7 +276,7 @@ public abstract class ConnectorGBean extends BaseGBean implements CommonProtocol
         infoFactory.addAttribute("name", String.class, true);
         infoFactory.addAttribute("initParams", Map.class, true);
         infoFactory.addAttribute("protocol", String.class, true);
-        infoFactory.addReference(CONNECTOR_CONTAINER_REFERENCE, TomcatContainer.class, NameFactory.GERONIMO_SERVICE);
+        infoFactory.addReference(CONNECTOR_CONTAINER_REFERENCE, TomcatContainer.class, GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
         infoFactory.addReference("ServerInfo", ServerInfo.class, "GBean");
         infoFactory.addInterface(ObjectRetriever.class);
         infoFactory.addInterface(TomcatWebConnector.class);

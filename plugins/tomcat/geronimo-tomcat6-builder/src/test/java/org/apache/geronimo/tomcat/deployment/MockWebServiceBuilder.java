@@ -25,6 +25,7 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.webservices.SerializableWebServiceContainerFactoryGBean;
@@ -37,7 +38,7 @@ public class MockWebServiceBuilder implements WebServiceBuilder {
     }
 
     public boolean configurePOJO(GBeanData targetGBean, String servletName, Module module, String seiClassName, DeploymentContext context) throws DeploymentException {
-        AbstractName webServiceContainerFactoryName = context.getNaming().createChildName(targetGBean.getAbstractName(), "webServiceContainer", NameFactory.GERONIMO_SERVICE);
+        AbstractName webServiceContainerFactoryName = context.getNaming().createChildName(targetGBean.getAbstractName(), "webServiceContainer", GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
         GBeanData webServiceContainerFactoryGBean = new GBeanData(webServiceContainerFactoryName, SerializableWebServiceContainerFactoryGBean.GBEAN_INFO);
         webServiceContainerFactoryGBean.setAttribute("webServiceContainer", new MockWebServiceContainer());
         try {

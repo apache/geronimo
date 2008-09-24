@@ -44,7 +44,7 @@ public class LifecycleProviderFactoryGBean implements LifecycleProviderFactorySo
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(LifecycleProviderFactoryGBean.class, NameFactory.GERONIMO_SERVICE);
+        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(LifecycleProviderFactoryGBean.class, GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
 
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }

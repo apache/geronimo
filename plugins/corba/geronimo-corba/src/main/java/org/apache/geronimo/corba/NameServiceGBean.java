@@ -35,7 +35,7 @@ public final class NameServiceGBean {
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(NameServiceGBean.class, "CORBA Naming Service", NameService.class, NameFactory.CORBA_NAME_SERVICE);
 
-        infoFactory.addReference("ServerInfo", ServerInfo.class, NameFactory.GERONIMO_SERVICE);
+        infoFactory.addReference("ServerInfo", ServerInfo.class, GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
         infoFactory.addReference("ConfigAdapter", ConfigAdapter.class, NameFactory.ORB_CONFIG);
         infoFactory.addAttribute("host", String.class, true);
         infoFactory.addAttribute("port", int.class, true);

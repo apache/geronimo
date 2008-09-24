@@ -284,7 +284,7 @@ public class J2EEServerImpl implements J2EEServer {
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(J2EEServerImpl.class, NameFactory.J2EE_SERVER);
 
-        infoFactory.addReference("ServerInfo", ServerInfo.class, NameFactory.GERONIMO_SERVICE);
+        infoFactory.addReference("ServerInfo", ServerInfo.class, GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
         infoFactory.addReference("JVMs", JVM.class, NameFactory.JVM);
         infoFactory.addReference("Resources", J2EEResource.class); // several types match this
         infoFactory.addReference("Applications", J2EEApplication.class, NameFactory.J2EE_APPLICATION);

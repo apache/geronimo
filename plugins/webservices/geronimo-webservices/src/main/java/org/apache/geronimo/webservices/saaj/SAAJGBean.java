@@ -54,7 +54,7 @@ public class SAAJGBean implements GBeanLifecycle {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(SAAJGBean.class, SAAJGBean.class, NameFactory.GERONIMO_SERVICE);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(SAAJGBean.class, SAAJGBean.class, GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
                 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

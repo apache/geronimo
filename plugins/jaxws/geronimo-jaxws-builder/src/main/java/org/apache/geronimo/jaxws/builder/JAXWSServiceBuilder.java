@@ -32,6 +32,7 @@ import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.annotation.Holder;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
@@ -150,7 +151,7 @@ public abstract class JAXWSServiceBuilder implements WebServiceBuilder {
         String location = portInfo.getLocation();
         LOG.info("Configuring JAX-WS Web Service: " + servletName + " at " + location);
 
-        AbstractName containerFactoryName = context.getNaming().createChildName(targetGBean.getAbstractName(), getContainerFactoryGBeanInfo().getName(), NameFactory.GERONIMO_SERVICE);
+        AbstractName containerFactoryName = context.getNaming().createChildName(targetGBean.getAbstractName(), getContainerFactoryGBeanInfo().getName(), GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
         GBeanData containerFactoryData = new GBeanData(containerFactoryName, getContainerFactoryGBeanInfo());
         containerFactoryData.setAttribute("portInfo", portInfo);
         containerFactoryData.setAttribute("endpointClassName", servletClassName);

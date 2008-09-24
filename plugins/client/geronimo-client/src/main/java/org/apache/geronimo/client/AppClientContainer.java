@@ -241,8 +241,8 @@ public final class AppClientContainer implements GBeanLifecycle {
         infoFactory.addAttribute("defaultSubject", SubjectInfo.class, true);
         infoFactory.addAttribute("holder", Holder.class, true);
 
-        infoFactory.addReference("JNDIContext", AppClientPlugin.class, NameFactory.GERONIMO_SERVICE);
-        infoFactory.addReference("CredentialStore", CredentialStore.class, NameFactory.GERONIMO_SERVICE);
+        infoFactory.addReference("JNDIContext", AppClientPlugin.class, GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
+        infoFactory.addReference("CredentialStore", CredentialStore.class, GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
 
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
         infoFactory.addAttribute("kernel", Kernel.class, false);

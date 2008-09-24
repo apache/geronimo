@@ -194,7 +194,7 @@ public class ActiveMQManagerGBean implements ActiveMQManager {
      */
     public JMSConnector addConnector(JMSBroker broker, String uniqueName, String protocol, String host, int port) {
         AbstractName brokerAbstractName = kernel.getAbstractNameFor(broker);
-        AbstractName name = kernel.getNaming().createChildName(brokerAbstractName, uniqueName, NameFactory.GERONIMO_SERVICE);
+        AbstractName name = kernel.getNaming().createChildName(brokerAbstractName, uniqueName, GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
         GBeanData connector = new GBeanData(name, TransportConnectorGBeanImpl.GBEAN_INFO);
         //todo: if SSL is supported, need to add more properties or use a different GBean?
         connector.setAttribute("protocol", protocol);

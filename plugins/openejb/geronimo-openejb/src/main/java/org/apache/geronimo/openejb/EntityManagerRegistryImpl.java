@@ -33,7 +33,7 @@ import org.apache.openejb.persistence.JtaEntityManagerRegistry;
 import org.apache.openejb.loader.SystemInstance;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class EntityManagerRegistryImpl implements ExtendedEntityManagerRegistry {
 
@@ -55,7 +55,7 @@ public class EntityManagerRegistryImpl implements ExtendedEntityManagerRegistry 
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(EntityManagerRegistryImpl.class, NameFactory.GERONIMO_SERVICE);
+        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(EntityManagerRegistryImpl.class, GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
         GBEAN_INFO = infoBuilder.getBeanInfo();
 
     }

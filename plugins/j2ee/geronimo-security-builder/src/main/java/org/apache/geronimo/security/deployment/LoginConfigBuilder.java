@@ -41,10 +41,10 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.ReferenceMap;
 import org.apache.geronimo.gbean.ReferencePatterns;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.Naming;
+import org.apache.geronimo.security.SecurityNames;
 import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
 import org.apache.geronimo.security.jaas.LoginModuleControlFlag;
 import org.apache.geronimo.security.jaas.LoginModuleControlFlagEditor;
@@ -186,7 +186,7 @@ public class LoginConfigBuilder implements XmlReferenceBuilder {
                             options.put(key, value);
                         }
                     }
-                    loginModuleName = naming.createChildName(parentName, name, NameFactory.LOGIN_MODULE);
+                    loginModuleName = naming.createChildName(parentName, name, SecurityNames.LOGIN_MODULE);
                     loginModuleReferencePatterns = new ReferencePatterns(loginModuleName);
                     GBeanData loginModuleGBeanData = new GBeanData(loginModuleName, LoginModuleGBean.GBEAN_INFO);
                     loginModuleGBeanData.setAttribute("loginDomainName", name);

@@ -38,7 +38,7 @@ public class SerializableWebServiceContainerFactoryGBean implements WebServiceCo
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(SerializableWebServiceContainerFactoryGBean.class, NameFactory.GERONIMO_SERVICE);
+        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(SerializableWebServiceContainerFactoryGBean.class, GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
         infoBuilder.addAttribute("webServiceContainer", WebServiceContainer.class, true);
         infoBuilder.setConstructor(new String[] {"webServiceContainer"});
         GBEAN_INFO = infoBuilder.getBeanInfo();

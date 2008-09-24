@@ -293,7 +293,7 @@ public class TomcatManagerImpl implements WebManager {
     public AbstractName getConnectorConfiguration(ConnectorType connectorType, List<ConnectorAttribute> connectorAttributes, WebContainer container, String uniqueName) {
         GBeanInfo gbeanInfo = CONNECTOR_GBEAN_INFOS.get(connectorType);
         AbstractName containerName = kernel.getAbstractNameFor(container);
-        AbstractName name = kernel.getNaming().createSiblingName(containerName, uniqueName, NameFactory.GERONIMO_SERVICE);
+        AbstractName name = kernel.getNaming().createSiblingName(containerName, uniqueName, GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
         GBeanData gbeanData = new GBeanData(name, gbeanInfo);
         gbeanData.setAttribute("name", uniqueName);
         gbeanData.setReferencePattern(ConnectorGBean.CONNECTOR_CONTAINER_REFERENCE, containerName);

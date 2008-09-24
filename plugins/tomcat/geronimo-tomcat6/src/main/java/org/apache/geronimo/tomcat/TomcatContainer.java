@@ -455,7 +455,7 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
 
         infoFactory.addAttribute("objectName", String.class, false);
 
-        infoFactory.addReference("EngineGBean", ObjectRetriever.class, NameFactory.GERONIMO_SERVICE);
+        infoFactory.addReference("EngineGBean", ObjectRetriever.class, GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
         infoFactory.addReference("LifecycleListenerChain", LifecycleListenerGBean.class, LifecycleListenerGBean.J2EE_TYPE);
 
         infoFactory.addReference("ServerInfo", ServerInfo.class, "GBean");

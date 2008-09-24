@@ -45,14 +45,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.gbean.WaitingException;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.crypto.asn1.ASN1Set;
 import org.apache.geronimo.crypto.asn1.DEROutputStream;
 import org.apache.geronimo.crypto.asn1.x509.X509Name;
@@ -60,6 +52,13 @@ import org.apache.geronimo.crypto.encoders.Base64;
 import org.apache.geronimo.crypto.jce.PKCS10CertificationRequest;
 import org.apache.geronimo.crypto.jce.X509Principal;
 import org.apache.geronimo.crypto.jce.X509V1CertificateGenerator;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.gbean.WaitingException;
+import org.apache.geronimo.system.serverinfo.ServerInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class KeyStoreGBean implements GBeanLifecycle {
 
@@ -498,7 +497,7 @@ public class KeyStoreGBean implements GBeanLifecycle {
         infoFactory.addAttribute("keyStorePassword", String.class, true);
         infoFactory.addAttribute("keyPassword", String.class, true);
 
-        infoFactory.addReference("serverInfo", ServerInfo.class, NameFactory.GERONIMO_SERVICE);
+        infoFactory.addReference("serverInfo", ServerInfo.class, GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
 
         infoFactory.addOperation("getKeyEntryInfo",
                 new Class[] { String.class });

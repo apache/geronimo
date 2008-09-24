@@ -391,7 +391,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
             }
 
             if (jettyWebApp.isSetWebContainer()) {
-                AbstractNameQuery webContainerName = ENCConfigBuilder.getGBeanQuery(NameFactory.GERONIMO_SERVICE, jettyWebApp.getWebContainer());
+                AbstractNameQuery webContainerName = ENCConfigBuilder.getGBeanQuery(GBeanInfoBuilder.DEFAULT_J2EE_TYPE, jettyWebApp.getWebContainer());
                 webModuleData.setReferencePattern("JettyContainer", webContainerName);
             } else {
                 webModuleData.setReferencePattern("JettyContainer", jettyContainerObjectName);
@@ -538,7 +538,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
     private void configureNoClustering(EARContext moduleContext, GBeanData webModuleData) throws GBeanAlreadyExistsException {
 //        AbstractName name = moduleContext.getNaming().createChildName(moduleContext.getModuleName(),
 //                "DefaultWebApplicationHandlerFactory",
-//                NameFactory.GERONIMO_SERVICE);
+//                GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
 //        GBeanData beanData = new GBeanData(name, DefaultWebApplicationHandlerFactory.GBEAN_INFO);
 //        webModuleData.setReferencePattern(JettyWebAppContext.GBEAN_REF_WEB_APPLICATION_HANDLER_FACTORY, name);
 //        moduleContext.addGBean(beanData);

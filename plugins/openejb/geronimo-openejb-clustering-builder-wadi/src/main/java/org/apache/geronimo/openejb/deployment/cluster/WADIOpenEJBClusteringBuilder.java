@@ -279,7 +279,7 @@ public class WADIOpenEJBClusteringBuilder implements ModuleBuilderExtension {
     protected AbstractName newGBeanName(DeploymentContext moduleContext, String name) {
         return moduleContext.getNaming().createChildName(moduleContext.getModuleName(),
                 name,
-                NameFactory.GERONIMO_SERVICE);
+                GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
     }
 
     protected void addGBean(DeploymentContext moduleContext, GBeanData beanData) throws DeploymentException {
