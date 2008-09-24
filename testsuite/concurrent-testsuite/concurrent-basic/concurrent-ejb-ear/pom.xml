@@ -28,7 +28,6 @@
         <groupId>org.apache.geronimo.testsuite</groupId>
         <artifactId>concurrent-basic</artifactId>
         <version>2.2-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>concurrent-ejb-ear</artifactId>

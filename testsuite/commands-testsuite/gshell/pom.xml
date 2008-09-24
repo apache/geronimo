@@ -23,7 +23,6 @@
         <groupId>org.apache.geronimo.testsuite</groupId>
         <artifactId>commands-testsuite</artifactId>
         <version>2.2-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>gshell</artifactId>
