@@ -16,10 +16,7 @@
  */
 package org.apache.geronimo.openejb;
 
-import java.util.Properties;
-
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.openejb.assembler.classic.ContainerInfo;
 import org.apache.openejb.assembler.classic.StatelessSessionContainerInfo;
@@ -28,73 +25,56 @@ import org.apache.openejb.assembler.classic.BmpEntityContainerInfo;
 import org.apache.openejb.assembler.classic.CmpEntityContainerInfo;
 import org.apache.openejb.assembler.classic.MdbContainerInfo;
 
+import java.util.Properties;
+
 /**
  * @version $Rev$ $Date$
  */
 public class EjbContainer implements GBeanLifecycle {
-    private OpenEjbSystem openEjbSystem;
-    private String id;
-    private Properties properties;
-    private String provider;
-    private String type;
-    private Class<? extends ContainerInfo> infoType;
+    private final OpenEjbSystem openEjbSystem;
+    private final String id;
+    private final Properties properties = new Properties();
+    private final String provider;
+    private final String type;
+    private final Class<? extends ContainerInfo> infoType;
 
-    public OpenEjbSystem getOpenEjbSystem() {
-        return openEjbSystem;
+    public EjbContainer(AbstractName abstractName, Class<? extends ContainerInfo> infoType, OpenEjbSystem openEjbSystem, String provider, String type, Properties properties) {
+        this.id = (String) abstractName.getName().get("name");
+        this.infoType = infoType;
+        this.openEjbSystem = openEjbSystem;
+        this.provider = provider;
+        this.type = type;
+        if (properties != null){
+            this.properties.putAll(properties);
+        }
     }
 
-    public void setOpenEjbSystem(OpenEjbSystem openEjbSystem) {
-        this.openEjbSystem = openEjbSystem;
+    protected Object set(String key, String value) {
+        return properties.setProperty(key, value);
     }
 
     public String getId() {
         return id;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public OpenEjbSystem getOpenEjbSystem() {
+        return openEjbSystem;
     }
 
     public Properties getProperties() {
         return properties;
     }
 
-    public void setProperties(Properties properties) {
-        this.properties = properties;
-    }
-
     public String getProvider() {
         return provider;
-    }
-
-    public void setProvider(String provider) {
-        this.provider = provider;
     }
 
     public String getType() {
         return type;
     }
 
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    public static Class<? extends ContainerInfo> getInfoType(String type) {
-        if ("STATELESS".equalsIgnoreCase(type)) return StatelessSessionContainerInfo.class;
-        if ("STATEFUL".equalsIgnoreCase(type)) return StatefulSessionContainerInfo.class;
-        if ("BMP_ENTITY".equalsIgnoreCase(type)) return BmpEntityContainerInfo.class;
-        if ("CMP_ENTITY".equalsIgnoreCase(type)) return CmpEntityContainerInfo.class;
-        if ("CMP2_ENTITY".equalsIgnoreCase(type)) return CmpEntityContainerInfo.class;
-        if ("MESSAGE".equalsIgnoreCase(type)) return MdbContainerInfo.class;
-        else return ContainerInfo.class;
-    }
-
     public Class<? extends ContainerInfo> getInfoType() {
-        return infoType == null? getInfoType(type): infoType;
-    }
-
-    public void setInfoType(Class<? extends ContainerInfo> infoType) {
-        this.infoType = infoType;
+        return infoType;
     }
 
     public void doStart() throws Exception {
@@ -107,20 +87,14 @@ public class EjbContainer implements GBeanLifecycle {
     public void doFail() {
     }
 
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(EjbContainer.class);
-        infoBuilder.addReference("OpenEjbSystem", OpenEjbSystem.class);
-        infoBuilder.addAttribute("id", String.class, true);
-        infoBuilder.addAttribute("properties", Properties.class, true);
-        infoBuilder.addAttribute("provider", String.class, true);
-        infoBuilder.addAttribute("type", String.class, true);
-        infoBuilder.addAttribute("infoType", Class.class, true);
-        GBEAN_INFO = infoBuilder.getBeanInfo();
+    public static Class<? extends ContainerInfo> getInfoType(String type) {
+        if ("STATELESS".equalsIgnoreCase(type)) return StatelessSessionContainerInfo.class;
+        if ("STATEFUL".equalsIgnoreCase(type)) return StatefulSessionContainerInfo.class;
+        if ("BMP_ENTITY".equalsIgnoreCase(type)) return BmpEntityContainerInfo.class;
+        if ("CMP_ENTITY".equalsIgnoreCase(type)) return CmpEntityContainerInfo.class;
+        if ("CMP2_ENTITY".equalsIgnoreCase(type)) return CmpEntityContainerInfo.class;
+        if ("MESSAGE".equalsIgnoreCase(type)) return MdbContainerInfo.class;
+        else return ContainerInfo.class;
     }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
+    
 }

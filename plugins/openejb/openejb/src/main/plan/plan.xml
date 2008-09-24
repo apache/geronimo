@@ -34,31 +34,35 @@
         </dependency>
     </gbean>
 
-    <gbean name="DefaultStatelessContainer" class="org.apache.geronimo.openejb.EjbContainer">
-        <attribute name="id">Default Stateless Container</attribute>
-        <attribute name="type">STATELESS</attribute>
+    <gbean name="DefaultStatelessContainer" class="org.apache.geronimo.openejb.StatelessContainerGBean">
+        <attribute name="timeout">0</attribute>
+        <attribute name="poolSize">10</attribute>
+        <attribute name="strictPooling">true</attribute>
         <reference name="OpenEjbSystem">
             <name>OpenEjbSystem</name>
         </reference>
     </gbean>
-    <gbean name="DefaultStatefulContainer" class="org.apache.geronimo.openejb.EjbContainer">
-        <attribute name="id">Default Stateful Container</attribute>
-        <attribute name="type">STATEFUL</attribute>
-        <attribute name="properties">PoolSize=1000</attribute>
+    <gbean name="DefaultStatefulContainer" class="org.apache.geronimo.openejb.StatefulContainerGBean">
+        <attribute name="timeout">20</attribute>
+        <attribute name="capacity">1000</attribute>
+        <attribute name="bulkPassivate">100</attribute>
         <reference name="OpenEjbSystem">
             <name>OpenEjbSystem</name>
         </reference>
     </gbean>
-    <gbean name="DefaultBMPContainer" class="org.apache.geronimo.openejb.EjbContainer">
-        <attribute name="id">Default BMP Container</attribute>
-        <attribute name="type">BMP_ENTITY</attribute>
+    <gbean name="DefaultSingletonContainer" class="org.apache.geronimo.openejb.SingletonContainerGBean">
+        <attribute name="accessTimeout">30</attribute>
         <reference name="OpenEjbSystem">
             <name>OpenEjbSystem</name>
         </reference>
     </gbean>
-    <gbean name="DefaultCMPContainer" class="org.apache.geronimo.openejb.EjbContainer">
-        <attribute name="id">Default CMP Container</attribute>
-        <attribute name="type">CMP_ENTITY</attribute>
+    <gbean name="DefaultBMPContainer" class="org.apache.geronimo.openejb.BmpContainerGBean">
+        <attribute name="poolSize">10</attribute>
+        <reference name="OpenEjbSystem">
+            <name>OpenEjbSystem</name>
+        </reference>
+    </gbean>
+    <gbean name="DefaultCMPContainer" class="org.apache.geronimo.openejb.CmpContainerGBean">
         <reference name="OpenEjbSystem">
             <name>OpenEjbSystem</name>
         </reference>

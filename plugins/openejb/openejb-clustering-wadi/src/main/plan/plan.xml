@@ -20,10 +20,8 @@
 
 <module xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
 
-    <gbean name="DefaultClusteredStatefulContainer" class="org.apache.geronimo.openejb.EjbContainer">
-        <attribute name="id">org.apache.geronimo.openejb.cluster:Default Clustered Stateful Container</attribute>
-        <attribute name="type">STATEFUL</attribute>
-        <attribute name="properties">PoolSize=1000</attribute>
+    <gbean name="DefaultClusteredStatefulContainer" class="org.apache.geronimo.openejb.StatefulContainerGBean">
+        <attribute name="provider">org.apache.geronimo.openejb.cluster:Default Clustered Stateful Container</attribute>
         <reference name="OpenEjbSystem">
             <name>OpenEjbSystem</name>
         </reference>
