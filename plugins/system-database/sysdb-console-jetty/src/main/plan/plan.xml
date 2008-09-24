@@ -349,8 +349,8 @@ limitations under the License.
     </gbean>
     <gbean name="Database28" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean">
         <attribute name="name">SQL Server</attribute>
-        <attribute name="URLPrototype">jdbc:microsoft:sqlserver://{Host}:{Port};DatabaseName={Database}</attribute>
-        <attribute name="driverClassName">com.microsoft.jdbc.sqlserver.SQLServerDriver</attribute>
+        <attribute name="URLPrototype">jdbc:sqlserver://{Host}:{Port};DatabaseName={Database}</attribute>
+        <attribute name="driverClassName">com.microsoft.sqlserver.jdbc.SQLServerDriver</attribute>
         <attribute name="defaultPort">1433</attribute>
         <attribute name="specific">false</attribute>
         <attribute name="RARName">org.tranql/tranql-connector-ra//rar</attribute>
