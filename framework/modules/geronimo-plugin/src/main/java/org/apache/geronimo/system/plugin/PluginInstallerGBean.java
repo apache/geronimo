@@ -60,7 +60,6 @@ import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 import org.apache.geronimo.kernel.InvalidGBeanException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.basic.BasicKernel;
-import org.apache.geronimo.kernel.config.ConfigurationAlreadyExistsException;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
@@ -900,12 +899,10 @@ public class PluginInstallerGBean implements PluginInstaller {
      * Ensures that a plugin is installable.
      *
      * @param plugin plugin to check
-     * @throws org.apache.geronimo.kernel.config.ConfigurationAlreadyExistsException
-     *         if a configuration is already installed
      * @throws org.apache.geronimo.kernel.repository.MissingDependencyException
-     *         if a dependency is not satisfied
+     *          if plugin requires a dependency that is not present
      */
-    public void validatePlugin(PluginType plugin) throws ConfigurationAlreadyExistsException, MissingDependencyException {
+    public void validatePlugin(PluginType plugin) throws MissingDependencyException {
         if (plugin.getPluginArtifact().size() != 1) {
             throw new MissingDependencyException("A plugin configuration must include one plugin artifact, not " + plugin.getPluginArtifact().size(), null, (Stack<Artifact>) null);
         }
@@ -924,8 +921,8 @@ public class PluginInstallerGBean implements PluginInstaller {
                 }
                 if (!upgrade) {
                     log.debug("Configuration {} is already installed", artifact);
-                    throw new ConfigurationAlreadyExistsException(
-                            "Configuration " + artifact + " is already installed.");
+//                    throw new MissingDependencyException(
+//                            "Configuration " + artifact + " is already installed.", toArtifact(metadata.getModuleId()), (Stack<Artifact>) null);
                 }
             }
         }

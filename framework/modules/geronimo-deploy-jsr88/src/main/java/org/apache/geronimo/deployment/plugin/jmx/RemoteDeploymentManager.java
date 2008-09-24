@@ -51,7 +51,6 @@ import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.kernel.config.ConfigurationAlreadyExistsException;
 import org.apache.geronimo.kernel.config.NoSuchStoreException;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Dependency;
@@ -190,7 +189,7 @@ public class RemoteDeploymentManager extends JMXDeploymentManager implements Ger
         }
     }
     
-    public void validatePlugin(PluginType plugin) throws ConfigurationAlreadyExistsException, MissingDependencyException {
+    public void validatePlugin(PluginType plugin) throws MissingDependencyException {
         PluginInstaller installer = getPluginInstaller();
         try {
             installer.validatePlugin(plugin);
