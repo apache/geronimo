@@ -2774,7 +2774,7 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>selenium-maven-plugin</artifactId>
-                    <version>1.0-beta-3</version>
+                    <version>1.0-rc-1-SNAPSHOT</version>
                 </plugin>
 
                 <plugin>
