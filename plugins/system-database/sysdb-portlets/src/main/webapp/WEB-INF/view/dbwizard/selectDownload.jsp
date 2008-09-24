@@ -106,5 +106,5 @@
   <li><a href="http://www.pervasive.com/developerzone/access_methods/jdbc.asp">Pervasive</a></li>
   <li><a href="http://www.pointbase.com/products/downloads/">Pointbase</a></li>
   <li><a href="http://www.progress.com/esd/index.ssp">Progress</a></li>
-  <li><a href="http://www.microsoft.com/technet/prodtechnol/sql/2005/downloads/jdbc.mspx">Microsoft SQL Server</a></li>
+  <li><a href="http://msdn.microsoft.com/en-us/data/aa937724.aspx">Microsoft SQL Server</a></li>
 </ul>
