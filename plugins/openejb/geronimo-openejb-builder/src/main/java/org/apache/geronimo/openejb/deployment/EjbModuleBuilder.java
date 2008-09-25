@@ -319,7 +319,7 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle {
                 throw new IllegalStateException("EJB module ID should be fully resolved (not " + environment.getConfigId() + ")");
             }
         } else {
-            idBuilder.resolve(environment, new File(moduleFile.getName()).getName(), "jar");
+            idBuilder.resolve(environment, new File(moduleFile.getName()).getName(), "car");
         }
 
 
@@ -806,7 +806,7 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle {
 
             ejbModuleGBeanData.setReferencePattern("OpenEjbSystem", new AbstractNameQuery(null, Collections.EMPTY_MAP, OpenEjbSystem.class.getName()));
             ejbModuleGBeanData.setAttribute("ejbJarInfo", ejbModule.getEjbJarInfo());
-
+            ejbModuleGBeanData.setAttribute("modulePath", ejbModule.getTargetPath());
             earContext.addGBean(ejbModuleGBeanData);
         } catch (Exception e) {
             throw new DeploymentException("Unable to initialize EJBModule GBean " + ejbModuleGBeanData.getAbstractName(), e);
