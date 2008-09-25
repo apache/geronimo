@@ -37,10 +37,20 @@
 
 # Make sure prerequisite environment variables are set
 if [ -z "$JAVA_HOME" -a -z "$JRE_HOME" ]; then
-  echo "Neither the JAVA_HOME nor the JRE_HOME environment variable is defined"
-  echo "At least one of these environment variable is needed to run this program"
-  exit 1
-fi
+  __JAVA_TEST="which java"
+  if [ -n "__JAVA_TEST" ]; then
+    _RUNJAVA="java"
+  else
+    echo ""
+    echo "ERROR:  Could not find a Java runtime."
+    echo " - Neither the JAVA_HOME nor the JRE_HOME environment variable is defined"
+    echo " - A Java implementation could not be found on the system PATH"
+    echo "At least one of these is required for this program to execute."
+    echo ""
+    exit 1
+  fi
+else
+
 if [ -z "$JAVA_HOME" -a "$1" = "debug" ]; then
   echo "JAVA_HOME should point to a JDK in order to run in debug mode."
   exit 1
@@ -94,4 +104,5 @@ fi
   _RUNJAVA="$JRE_HOME"/bin/java
 if [ "$os400" != "true" ]; then
   _RUNJDB="$JAVA_HOME"/bin/jdb
+fi
 fi
