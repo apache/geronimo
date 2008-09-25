@@ -99,6 +99,11 @@ import org.apache.openejb.assembler.classic.MessageDrivenBeanInfo;
 import org.apache.openejb.assembler.classic.OpenEjbConfiguration;
 import org.apache.openejb.assembler.classic.StatefulBeanInfo;
 import org.apache.openejb.assembler.classic.PersistenceContextReferenceInfo;
+import org.apache.openejb.assembler.classic.StatelessSessionContainerInfo;
+import org.apache.openejb.assembler.classic.StatefulSessionContainerInfo;
+import org.apache.openejb.assembler.classic.SingletonSessionContainerInfo;
+import org.apache.openejb.assembler.classic.BmpEntityContainerInfo;
+import org.apache.openejb.assembler.classic.CmpEntityContainerInfo;
 import org.apache.openejb.util.UniqueDefaultLinkResolver;
 import org.apache.openejb.config.AppModule;
 import org.apache.openejb.config.ConfigurationFactory;
@@ -651,15 +656,16 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle {
     private void addContainerInfos(Configuration configuration, ContainerSystemInfo containerSystem, ConfigurationFactory configurationFactory) throws OpenEJBException {
         LinkedHashSet<GBeanData> containerDatas = configuration.findGBeanDatas(Collections.singleton(new AbstractNameQuery(EjbContainer.class.getName())));
         for (GBeanData containerData : containerDatas) {
-            Class<? extends ContainerInfo> infoClass = (Class<? extends ContainerInfo>) containerData.getAttribute("infoType");
-            if (infoClass == null) {
-                String type = (String) containerData.getAttribute("type");
-                infoClass = EjbContainer.getInfoType(type);
-            }
-            String serviceId = (String) containerData.getAttribute("id");
-            Properties declaredProperties = (Properties) containerData.getAttribute("properties");
-            String providerId = (String) containerData.getAttribute("provider");
-            ContainerInfo containerInfo = configurationFactory.configureService(infoClass, serviceId, declaredProperties, providerId, "Container");
+
+            String id = EjbContainer.getId(containerData.getAbstractName());
+
+            Class<? extends ContainerInfo> infoClass = EjbContainer.getInfoType(containerData.getGBeanInfo().getClassName());
+
+            Properties declaredProperties = new Properties();
+
+            String providerId = null;
+
+            ContainerInfo containerInfo = configurationFactory.configureService(infoClass, id, declaredProperties, providerId, "Container");
             containerSystem.containers.add(containerInfo);
         }
     }
