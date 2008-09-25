@@ -49,9 +49,29 @@
             <plugin>
                 <groupId>org.apache.geronimo.buildsupport</groupId>
                 <artifactId>car-maven-plugin</artifactId>
+                <extensions>true</extensions>
                 <configuration>
+                    <archive>
+                        <!-- Do not include META-INF/maven to avoid long file problems on windows -->
+                        <addMavenDescriptor>false</addMavenDescriptor>
+                    </archive>
+                    <osiApproved>true</osiApproved>
+                    <!--
+                    <useMavenDependencies>
+                        <value>true</value>
+                        <includeVersion>true</includeVersion>
+                    </useMavenDependencies>
+                    -->
                     <commonInstance>
                         <plugin-artifact>
+                            <geronimo-version>${geronimoVersion}</geronimo-version>
+                            <jvm-version>1.5</jvm-version>
+                            <jvm-version>1.6</jvm-version>
+                            <!--<source-repository>http://www.geronimoplugins.com/repository/geronimo-2.1</source-repository>-->
+                            <source-repository>~/.m2/repository/</source-repository>
+                            <source-repository>http://repo1.maven.org/maven2/</source-repository>
+                            <source-repository>http://people.apache.org/repo/m2-snapshot-repository/</source-repository>
+                            <source-repository>http://people.apache.org/repo/m2-incubating-repository/</source-repository>
                             <artifact-alias server="client" key="${groupId}/${artifactId}//car">${groupId}/${artifactId}/${version}/car</artifact-alias>
                             <artifact-alias server="client" key="${groupId}/${artifactId}/2.1.3/car">${groupId}/${artifactId}/${version}/car</artifact-alias>
                             <artifact-alias server="client" key="${groupId}/${artifactId}/2.1.2/car">${groupId}/${artifactId}/${version}/car</artifact-alias>
