@@ -204,16 +204,8 @@ public final class WebServiceRefAnnotationHelper extends AnnotationHelper {
         // -- When annotation is applied on a field:    Name is the field name qualified by the
         //                                              class (or as provided on the annotation)
         //------------------------------------------------------------------------------------------
-        String webServiceRefName = annotation.name();
-        if (webServiceRefName.equals("")) {
-            if (method != null) {
-                StringBuilder stringBuilder = new StringBuilder(method.getName().substring(3));
-                stringBuilder.setCharAt(0, Character.toLowerCase(stringBuilder.charAt(0)));
-                webServiceRefName = method.getDeclaringClass().getName() + "/" + stringBuilder.toString();
-            } else if (field != null) {
-                webServiceRefName = field.getDeclaringClass().getName() + "/" + field.getName();
-            }
-        }
+        String webServiceRefName = getName(annotation.name(), method, field);
+
         log.debug("addWebServiceRef(): webServiceRefName: " + webServiceRefName);
 
         //------------------------------------------------------------------------------------------

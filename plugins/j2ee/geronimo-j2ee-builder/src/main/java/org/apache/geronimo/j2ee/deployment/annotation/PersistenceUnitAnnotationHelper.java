@@ -29,12 +29,9 @@ import javax.persistence.PersistenceUnits;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.xbeans.javaee.DescriptionType;
-import org.apache.geronimo.xbeans.javaee.FullyQualifiedClassType;
 import org.apache.geronimo.xbeans.javaee.InjectionTargetType;
 import org.apache.geronimo.xbeans.javaee.JndiNameType;
 import org.apache.geronimo.xbeans.javaee.PersistenceUnitRefType;
-import org.apache.geronimo.xbeans.javaee.XsdAnyURIType;
 import org.apache.xbean.finder.ClassFinder;
 
 
@@ -204,16 +201,8 @@ public final class PersistenceUnitAnnotationHelper extends AnnotationHelper {
         // -- When annotation is applied on a field:    Name is the field name qualified by the
         //                                              class (or as provided on the annotation)
         //------------------------------------------------------------------------------------------
-        String persistenceUnitRefName = annotation.name();
-        if (persistenceUnitRefName.equals("")) {
-            if (method != null) {
-                StringBuilder stringBuilder = new StringBuilder(method.getName().substring(3));
-                stringBuilder.setCharAt(0, Character.toLowerCase(stringBuilder.charAt(0)));
-                persistenceUnitRefName = method.getDeclaringClass().getName() + "/" + stringBuilder.toString();
-            } else if (field != null) {
-                persistenceUnitRefName = field.getDeclaringClass().getName() + "/" + field.getName();
-            }
-        }
+        String persistenceUnitRefName = getName(annotation.name(), method, field);
+
         log.debug("addPersistenceUnit(): persistenceUnitRefName: " + persistenceUnitRefName);
 
         // If there is already xml for the persistence unit ref, just add injection targets and return.

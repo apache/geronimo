@@ -39,7 +39,6 @@ import org.apache.geronimo.xbeans.javaee.ServiceRefHandlerChainsType;
 import org.apache.geronimo.xbeans.javaee.ServiceRefHandlerType;
 import org.apache.geronimo.xbeans.javaee.ServiceRefType;
 import org.apache.xbean.finder.ClassFinder;
-import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 
 

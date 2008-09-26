@@ -176,17 +176,7 @@ public final class ResourceAnnotationHelper extends AnnotationHelper {
          * @return
          */
         protected static String getResourceName(Resource annotation, Method method, Field field) {
-            String resourceName = annotation.name();
-            if (resourceName.equals("")) {
-                if (method != null) {
-                    StringBuilder stringBuilder = new StringBuilder(method.getName().substring(3));
-                    stringBuilder.setCharAt(0, Character.toLowerCase(stringBuilder.charAt(0)));
-                    resourceName = method.getDeclaringClass().getName() + "/" + stringBuilder.toString();
-                } else if (field != null) {
-                    resourceName = field.getDeclaringClass().getName() + "/" + field.getName();
-                }
-            }
-            return resourceName;
+            return getName(annotation.name(), method, field);
         }
 
         protected static String getResourceType(Resource annotation, Method method, Field field) {

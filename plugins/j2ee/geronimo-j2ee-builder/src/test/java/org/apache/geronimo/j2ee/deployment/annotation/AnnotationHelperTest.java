@@ -102,10 +102,14 @@ public class AnnotationHelperTest extends XmlBeansTestSupport {
 
         List<Field> annotatedFields = classFinder.findAnnotatedFields(EJB.class);
         assertNotNull(annotatedFields);
-        assertEquals(2, annotatedFields.size());
+        assertEquals(6, annotatedFields.size());
         assertTrue(annotatedFields.contains(EJBAnnotationTest.class.getDeclaredField("annotatedField1")));
         assertTrue(annotatedFields.contains(EJBAnnotationTest.class.getDeclaredField("annotatedField2")));
-
+        assertTrue(annotatedFields.contains(EJBAnnotationTest.class.getDeclaredField("annotatedField3")));
+        assertTrue(annotatedFields.contains(EJBAnnotationTest.class.getDeclaredField("annotatedField4")));
+        assertTrue(annotatedFields.contains(EJBAnnotationTest.class.getDeclaredField("annotatedField5")));
+        assertTrue(annotatedFields.contains(EJBAnnotationTest.class.getDeclaredField("annotatedField6")));
+        
         //-------------------------------------------------
         // Ensure annotations are processed correctly
         //-------------------------------------------------

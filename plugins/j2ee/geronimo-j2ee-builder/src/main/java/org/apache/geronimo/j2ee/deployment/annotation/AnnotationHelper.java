@@ -34,6 +34,21 @@ import org.apache.xmlbeans.XmlException;
  * @version $Rev$ $Date$
  */
 public class AnnotationHelper {
+    
+    protected static String getName(String name, Method method, Field field) {
+        String resourceName = name;
+        if (resourceName.equals("")) {
+            if (method != null) {
+                StringBuilder stringBuilder = new StringBuilder(method.getName().substring(3));
+                stringBuilder.setCharAt(0, Character.toLowerCase(stringBuilder.charAt(0)));
+                resourceName = method.getDeclaringClass().getName() + "/" + stringBuilder.toString();
+            } else if (field != null) {
+                resourceName = field.getDeclaringClass().getName() + "/" + field.getName();
+            }
+        }
+        return resourceName;
+    }
+    
     protected static String getInjectionJavaType(Method method, Field field) {
         if (method != null) {
             String injectionJavaType = method.getName().substring(3);
