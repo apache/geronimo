@@ -40,10 +40,10 @@ class FarmCommand
     @Option(name='-f', aliases=['--farm'], description='Farm to perform action on')
     String farmName
 
-    @Option(name='-l', aliases=['--plugin list'], description='Plugin List to perform action on')
+    @Option(name='-l', aliases=['--pluginlist'], description='Plugin List to perform action on')
     String pluginList
 
-    @Option(name='-a', aliases=['--plugin artifact'], description='Plugin Artifact to perform action on')
+    @Option(name='-a', aliases=['--pluginartifact'], description='Plugin Artifact to perform action on')
     String plugin
 
     @Argument(metaVar='ACTION', required=true, index=0, description='Action (add/remove) to perform')
