@@ -89,5 +89,21 @@ public class EJBAnnotationTest {
          mappedName = "mappedName11")
     public void setAnnotatedMethod2(String string) {
     }
+    
+    @EJB(name="myejb1", 
+         beanInterface = javax.ejb.EJBLocalHome.class)
+    Object annotatedField3;
+    
+    @EJB(name="myejb1", 
+         beanInterface = javax.ejb.EJBLocalHome.class)
+    Object annotatedField4;
+    
+    @EJB(name="myejb2", 
+         beanInterface = javax.ejb.EJBHome.class)
+    Object annotatedField5;
+       
+    @EJB(name="myejb2", 
+         beanInterface = javax.ejb.EJBHome.class)
+    Object annotatedField6;
 }
 
