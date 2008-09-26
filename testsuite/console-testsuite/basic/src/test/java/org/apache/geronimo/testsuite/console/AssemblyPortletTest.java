@@ -24,7 +24,7 @@ import org.testng.annotations.Test;
 /**
  * Assembly portlet tests
  *
- * @version $$Rev$$ $$Date$$
+ * @version $Rev$ $Date$
  */
 public class AssemblyPortletTest
     extends BasicConsoleTestSupport

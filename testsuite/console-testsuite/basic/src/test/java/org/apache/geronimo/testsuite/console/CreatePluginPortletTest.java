@@ -24,7 +24,7 @@ import org.testng.annotations.Test;
 /**
  * Create Plugin portlet tests
  *
- * @version $$Rev$$ $$Date$$
+ * @version $Rev$ $Date$
  */
 public class CreatePluginPortletTest
     extends BasicConsoleTestSupport
