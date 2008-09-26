@@ -21,12 +21,14 @@ import java.io.File;
 import java.net.URL;
 import java.util.Map;
 import javax.security.auth.login.FailedLoginException;
-import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.repository.Dependency;
-import org.apache.geronimo.kernel.repository.MissingDependencyException;
+
+import org.apache.geronimo.kernel.config.ConfigurationAlreadyExistsException;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.NoSuchStoreException;
 import org.apache.geronimo.kernel.InvalidGBeanException;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.Dependency;
+import org.apache.geronimo.kernel.repository.MissingDependencyException;
 import org.apache.geronimo.system.plugin.model.PluginListType;
 import org.apache.geronimo.system.plugin.model.PluginType;
 import org.apache.geronimo.system.plugin.model.AttributesType;
@@ -52,7 +54,7 @@ public interface PluginInstaller {
      * @return A Map with key type String (plugin name) and value type Artifact
      *         (config ID of the plugin).
      */
-    public Map getInstalledPlugins();
+    public Map<String, Artifact> getInstalledPlugins();
 
     /**
      * Gets a CofigurationMetadata for a configuration installed in the local
@@ -185,7 +187,7 @@ public interface PluginInstaller {
      * @throws org.apache.geronimo.kernel.repository.MissingDependencyException
      *          if a dependency is not satisfied
      */
-    public void validatePlugin(PluginType plugin) throws MissingDependencyException;
+    public boolean validatePlugin(PluginType plugin) throws MissingDependencyException;
 
     /**
      * Ensures that a plugin's prerequisites are installed

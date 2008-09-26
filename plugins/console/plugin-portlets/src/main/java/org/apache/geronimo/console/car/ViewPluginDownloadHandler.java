@@ -89,7 +89,7 @@ public class ViewPluginDownloadHandler extends BaseImportExportHandler {
             StringBuffer validationNotOk = new StringBuffer();
             PluginType holder = PluginInstallerGBean.copy(plugin.getPlugin(), plugin.getPluginArtifact());
             try {
-                pluginInstaller.validatePlugin(holder);
+                plugin.setInstallable(pluginInstaller.validatePlugin(holder));
             } catch (Exception e) {
                 plugin.setInstallable(false);
                 validationNotOk.append(e.getMessage());

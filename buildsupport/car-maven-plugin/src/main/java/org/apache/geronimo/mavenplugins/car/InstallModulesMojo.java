@@ -162,7 +162,7 @@ public class InstallModulesMojo extends AbstractCarMojo {
         Kernel kernel = new BasicKernel("Assembly");
         PluginRepositoryList pluginRepoList = new PluginRepositoryDownloader(Collections.singletonMap(localRepo, (String[]) null), true);
         try {
-            PluginInstallerGBean installer = new PluginInstallerGBean(targetRepositoryPath, targetServerPath, servers, pluginRepoList, kernel, getClass().getClassLoader());
+            PluginInstallerGBean installer = new PluginInstallerGBean(targetRepositoryPath, targetServerPath, null, servers, pluginRepoList, kernel, getClass().getClassLoader());
             installer.install(pluginList, sourceRepo, true, null, null, downloadPoller);
             if (overrides != null) {
                 for (Override override: this.overrides) {

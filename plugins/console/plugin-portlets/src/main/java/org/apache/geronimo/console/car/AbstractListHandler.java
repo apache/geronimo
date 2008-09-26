@@ -65,7 +65,7 @@ public abstract class AbstractListHandler extends BaseImportExportHandler {
                     // determine if the plugin is installable
                     PluginType holder = PluginInstallerGBean.copy(metadata, artifact);
                     try {
-                        pluginInstaller.validatePlugin(holder);
+                        plugin.setInstallable(pluginInstaller.validatePlugin(holder));
                     } catch (Exception e) {
                         plugin.setInstallable(false);
                     }

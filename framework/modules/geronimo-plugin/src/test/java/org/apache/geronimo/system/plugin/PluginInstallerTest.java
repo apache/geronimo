@@ -41,7 +41,8 @@ public class PluginInstallerTest extends TestCase {
     private String fakeRepo;
     private String testRepo;
     private PluginInstaller installer;
-
+    private String installedPluginsList = "var/config/installedPlugins.properties";
+ 
     protected void setUp() throws Exception {
         super.setUp();
         fakeRepo = "http://nowhere.com/";
@@ -50,7 +51,7 @@ public class PluginInstallerTest extends TestCase {
         testRepo = url.substring(0, pos);
         ServerInfo serverInfo = new BasicServerInfo(".");
         installer = new PluginInstallerGBean(new MockConfigurationManager(), new MockWritableListableRepository(), new MockConfigStore(),
-                serverInfo, new ThreadPool() {
+                installedPluginsList, serverInfo, new ThreadPool() {
             public int getPoolSize() {
                 return 0;
             }

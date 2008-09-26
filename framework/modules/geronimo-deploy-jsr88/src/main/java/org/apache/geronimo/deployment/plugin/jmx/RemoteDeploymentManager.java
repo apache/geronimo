@@ -189,10 +189,10 @@ public class RemoteDeploymentManager extends JMXDeploymentManager implements Ger
         }
     }
     
-    public void validatePlugin(PluginType plugin) throws MissingDependencyException {
+    public boolean validatePlugin(PluginType plugin) throws MissingDependencyException {
         PluginInstaller installer = getPluginInstaller();
         try {
-            installer.validatePlugin(plugin);
+            return installer.validatePlugin(plugin);
         } finally {
             kernel.getProxyManager().destroyProxy(installer);
         }

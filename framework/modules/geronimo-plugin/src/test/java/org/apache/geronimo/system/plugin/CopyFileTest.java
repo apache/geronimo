@@ -47,6 +47,7 @@ public class CopyFileTest extends TestSupport {
     private ConfigurationStore configStore;
     private PluginInstallerGBean installer;
     private Artifact artifact = new Artifact("test", "module", "1.0", "car");
+    private String installedPluginsList = "var/config/installedPlugins.properties";
 
     protected void setUp() throws Exception {
         super.setUp();
@@ -72,7 +73,7 @@ public class CopyFileTest extends TestSupport {
         installer = new PluginInstallerGBean(new MockConfigurationManager(),
                 repo,
                 configStore,
-                serverInfo,
+                installedPluginsList, serverInfo,
                 new ThreadPool() {
             public int getPoolSize() {
                 return 0;
