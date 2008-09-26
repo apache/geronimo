@@ -301,10 +301,10 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
         Environment clientEnvironment = EnvironmentBuilder.buildEnvironment(clientEnvironmentType, defaultClientEnvironment);
         if (standAlone) {
             String name = new File(moduleFile.getName()).getName();
-            idBuilder.resolve(clientEnvironment, name + "_" + name, "jar");
+            idBuilder.resolve(clientEnvironment, name + "_" + name, "car");
         } else {
             Artifact earConfigId = earEnvironment.getConfigId();
-            idBuilder.resolve(clientEnvironment, earConfigId.getArtifactId() + "_" + targetPath, "jar");
+            idBuilder.resolve(clientEnvironment, earConfigId.getArtifactId() + "_" + targetPath, "car");
         }
         EnvironmentType serverEnvironmentType = gerAppClient.getServerEnvironment();
         Environment serverEnvironment = EnvironmentBuilder.buildEnvironment(serverEnvironmentType, defaultServerEnvironment);
@@ -315,7 +315,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                 throw new IllegalStateException("Server environment module ID should be fully resolved (not " + serverEnvironment.getConfigId() + ")");
             }
         } else {
-            idBuilder.resolve(serverEnvironment, new File(moduleFile.getName()).getName(), "jar");
+            idBuilder.resolve(serverEnvironment, new File(moduleFile.getName()).getName(), "car");
         }
 
         if (earName == null) {
