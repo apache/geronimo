@@ -294,7 +294,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
                 throw new IllegalStateException("Connector module ID should be fully resolved (not " + environment.getConfigId() + ")");
             }
         } else {
-            idBuilder.resolve(environment, new File(moduleFile.getName()).getName(), "rar");
+            idBuilder.resolve(environment, new File(moduleFile.getName()).getName(), "car");
         }
 
         AbstractName moduleName;

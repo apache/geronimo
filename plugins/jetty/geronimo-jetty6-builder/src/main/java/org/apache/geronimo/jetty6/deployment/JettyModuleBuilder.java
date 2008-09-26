@@ -265,7 +265,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
         if (warName.lastIndexOf('.') > -1) {
             warName = warName.substring(0, warName.lastIndexOf('.'));
         }
-        idBuilder.resolve(environment, warName, "war");
+        idBuilder.resolve(environment, warName, "car");
 
         AbstractName moduleName;
         if (earName == null) {

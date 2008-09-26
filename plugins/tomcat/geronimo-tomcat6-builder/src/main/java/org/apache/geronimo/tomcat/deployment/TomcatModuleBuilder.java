@@ -234,7 +234,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
                 //really?
             }
         }
-        idBuilder.resolve(environment, warName, "war");
+        idBuilder.resolve(environment, warName, "car");
 
         AbstractName moduleName;
         if (earName == null) {
