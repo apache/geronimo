@@ -22,6 +22,7 @@
 
     <!-- Configuration Installer -->
     <gbean name="PluginInstaller" class="org.apache.geronimo.system.plugin.PluginInstallerGBean">
+        <attribute name="installedPluginsList">var/config/installed-plugins.properties</attribute>
         <reference name="Repository">
             <name>Repository</name>
         </reference>

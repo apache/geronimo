@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.Collections;
 import java.net.URL;
+import java.net.URI;
 
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.basic.BasicKernel;
@@ -108,6 +109,14 @@ public class InstallModulesMojo extends AbstractCarMojo {
     private File explicitResolutionProperties = null;
 
     /**
+     * The location of the target config files.
+     *
+     * @parameter expression="var/config/installed-plugins.properties"
+     * @required
+     */
+    private String installedPluginsList;
+
+    /**
      * The Geronimo repository artifact resolver.
      * <p/>
      * <p/>
@@ -162,7 +171,7 @@ public class InstallModulesMojo extends AbstractCarMojo {
         Kernel kernel = new BasicKernel("Assembly");
         PluginRepositoryList pluginRepoList = new PluginRepositoryDownloader(Collections.singletonMap(localRepo, (String[]) null), true);
         try {
-            PluginInstallerGBean installer = new PluginInstallerGBean(targetRepositoryPath, targetServerPath, null, servers, pluginRepoList, kernel, getClass().getClassLoader());
+            PluginInstallerGBean installer = new PluginInstallerGBean(targetRepositoryPath, targetServerPath, installedPluginsList, servers, pluginRepoList, kernel, getClass().getClassLoader());
             installer.install(pluginList, sourceRepo, true, null, null, downloadPoller);
             if (overrides != null) {
                 for (Override override: this.overrides) {

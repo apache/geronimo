@@ -364,7 +364,7 @@ public class PluginInstallerGBean implements PluginInstaller {
         if (installedPluginsList != null) {
             Properties properties = new Properties();
             for (Artifact artifact : installedArtifacts) {
-                properties.put(artifact.toString(), null);
+                properties.setProperty(artifact.toString(), "");
             }
             try {
                 File historyFile = serverInfo.resolveServer(installedPluginsList);
