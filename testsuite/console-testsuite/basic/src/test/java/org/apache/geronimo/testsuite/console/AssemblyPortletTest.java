@@ -22,23 +22,24 @@ package org.apache.geronimo.testsuite.console;
 import org.testng.annotations.Test;
 
 /**
- * Import/export plugin portlet tests
+ * Assembly portlet tests
  *
- * @version $Rev$ $Date$
+ * @version $$Rev$$ $$Date$$
  */
-public class ImportExportPortletTest
+public class AssemblyPortletTest
     extends BasicConsoleTestSupport
 {
     @Test
-    public void testImportExportLink() throws Exception {
+    public void testAssemblyLink() throws Exception {
         selenium.click("link=Plugins");
         waitForPageLoad();
         assertEquals("Geronimo Console", selenium.getTitle());
-        assertEquals("Install Plugins", 
-                     selenium.getText(getPortletTitleLocation()));
+        assertEquals("Assemble Server", 
+                     selenium.getText(getPortletTitleLocation(3))); 
         // Test help link
         selenium.click(getPortletHelpLocation());
         waitForPageLoad();
-        selenium.isTextPresent("Install geronimo plugins from a local or remote repository");
+        selenium.isTextPresent("Assemble a server from geronimo plugins in the current server.");
     }
 }
+
