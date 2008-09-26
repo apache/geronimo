@@ -23,6 +23,7 @@ import jline.ConsoleReader
 import org.apache.geronimo.deployment.cli.CommandInstallCAR
 import org.apache.geronimo.deployment.plugin.jmx.RemoteDeploymentManager
 import org.apache.geronimo.gshell.clp.Argument
+import org.apache.geronimo.gshell.clp.Option
 import org.apache.geronimo.gshell.command.annotation.CommandComponent
 import org.apache.geronimo.system.plugin.DownloadResults
 import org.apache.geronimo.system.plugin.Farm
@@ -36,11 +37,17 @@ import org.apache.geronimo.system.plugin.Farm
 class FarmCommand
     extends ConnectCommand
 {
-    @Argument
-    String action
+    @Option(name='-f', aliases=['--farm'], description='Farm to perform action on')
+    String farmName
 
-    @Argument (index = 1, multiValued = true)
-    List<String> params
+    @Option(name='-l', aliases=['--plugin list'], description='Plugin List to perform action on')
+    String pluginList
+
+    @Option(name='-a', aliases=['--plugin artifact'], description='Plugin Artifact to perform action on')
+    String plugin
+
+    @Argument(metaVar='ACTION', required=true, index=0, description='Action (add/remove) to perform')
+    String action
 
     protected Object doExecute() throws Exception {
         def connection = connect()
@@ -50,45 +57,33 @@ class FarmCommand
         def plugins = null
 
         def deploymentManager = connection.getDeploymentManager();
-        def Farm farm = ((RemoteDeploymentManager)deploymentManager).getImplementation(Farm.class);
+        def Farm farm = (Farm)((RemoteDeploymentManager)deploymentManager).getImplementation(Farm.class);
         def Map<String, DownloadResults> results;
-        if (action == "add-plugin-list") {
-            if (params.size == 2) {
-                results = farm.addPluginList(params[0], params[1]);
+        if (action == "add") {
+            if (farmName && pluginList && plugin) {
+                results = farm.addPluginToCluster(farmName, pluginList, plugin);
+            } else if (farmName && pluginList) {
+                results = farm.addPluginList(farmName, pluginList);
+            } else if (pluginList && plugin) {
+                results = farm.addPlugin(pluginList, plugin);
             } else {
-                io.out.println("add-plugin-list requires 2 parameters, cluster name and plugin list name")
+                io.out.println("add requires -f farm and -l plugin list, -l plugin list and -a plugin, or all three")
                 return;
             }
-        } else if (action == "add-plugin") {
-            if (params.size == 2) {
-                results = farm.addPlugin(params[0], params[1]);
-            } else {
-                io.out.println("add-plugin requires 2 parameters, plugin list name and the artifact")
+        } else if (action == "remove") {
+            if (farmName && pluginList && plugin) {
+                io.out.println("remove requires -f farm and -l plugin list, or -l plugin list and -a plugin, but not all three")
                 return;
-            }
-        } else if (action == "add-plugin-to-cluster") {
-            if (params.size == 3) {
-                results = farm.addPluginToCluster(params[0], params[1], params[2]);
+            } else if (farmName && pluginList) {
+                results = farm.removePluginListFromCluster(farmName, pluginList);
+            } else if (pluginList && plugin) {
+                results = farm.removePluginFromPluginList(pluginList, plugin);
             } else {
-                io.out.println("add-plugin requires 3 parameters, cluster name, plugin list name and the artifact")
-                return;
-            }
-        } else if (action == "remove-plugin") {
-            if (params.size == 2) {
-                results = farm.removePluginFromPluginList(params[0], params[1]);
-            } else {
-                io.out.println("remove-plugin requires 2 parameters, plugin list name and the artifact")
-                return;
-            }
-        } else if (action == "remove-plugin-list") {
-            if (params.size == 2) {
-                results = farm.removePluginListFromCluster(params[0], params[1]);
-            } else {
-                io.out.println("remove-plugin-list requires 2 parameters, cluster name and plugin list name")
+                io.out.println("remove requires -f farm and -l plugin list, or -l plugin list and -a plugin")
                 return;
             }
         } else {
-            io.out.println("unknown command, expecting add-plugin-list, add-plugin, add-plugin-to-cluster, remove-plugin, or remove-plugin-list")
+            io.out.println("unknown command, expecting add or remove")
             return;
         }
         io.out.println("Results:")
