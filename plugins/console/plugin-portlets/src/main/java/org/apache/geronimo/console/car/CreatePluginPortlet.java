@@ -16,12 +16,17 @@
  */
 package org.apache.geronimo.console.car;
 
-import org.apache.geronimo.console.MultiPagePortlet;
-import org.apache.geronimo.console.MultiPageModel;
+import java.io.IOException;
 
 import javax.portlet.PortletRequest;
+import javax.portlet.PortletRequestDispatcher;
 import javax.portlet.PortletConfig;
 import javax.portlet.PortletException;
+import javax.portlet.RenderRequest;
+import javax.portlet.RenderResponse;
+
+import org.apache.geronimo.console.MultiPagePortlet;
+import org.apache.geronimo.console.MultiPageModel;
 
 /**
  * Portlet for creating a plugin.
@@ -29,11 +34,14 @@ import javax.portlet.PortletException;
  * @version $Rev: 627838 $ $Date: 2008-02-14 13:54:30 -0500 (Thu, 14 Feb 2008) $
  */
 public class CreatePluginPortlet extends MultiPagePortlet {
+    private PortletRequestDispatcher helpView;
+    
     public void init(PortletConfig config) throws PortletException {
         super.init(config);
         addHelper(new CreatePluginIndexHandler(), config);
         addHelper(new ExportConfigHandler(), config);
         addHelper(new ExportHandler(), config);
+        helpView = config.getPortletContext().getRequestDispatcher("/WEB-INF/view/car/createPluginHelp.jsp");
     }
 
     protected String getModelJSPVariableName() {
@@ -43,4 +51,13 @@ public class CreatePluginPortlet extends MultiPagePortlet {
     protected MultiPageModel getModel(PortletRequest request) {
         return null;
     }
+    
+    protected void doHelp(RenderRequest renderRequest,
+            RenderResponse renderResponse) throws PortletException, IOException {
+        helpView.include(renderRequest, renderResponse);
+    }
+    public void destroy() {
+        helpView = null;
+        super.destroy();
+    }    
 }

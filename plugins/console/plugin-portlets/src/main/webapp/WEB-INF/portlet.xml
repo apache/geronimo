@@ -44,7 +44,7 @@ limitations under the License.
 
 
     <portlet>
-        <description>Portlet for CAR Import/Export</description>
+        <description>Install Plugin Portlet</description>
         <portlet-name>ImportExport</portlet-name>
         <display-name>CAR Import/Export Portlet</display-name>
         <portlet-class>org.apache.geronimo.console.car.ImportExportPortlet</portlet-class>
@@ -52,6 +52,7 @@ limitations under the License.
         <supports>
             <mime-type>text/html</mime-type>
             <portlet-mode>VIEW</portlet-mode>
+            <portlet-mode>HELP</portlet-mode>
         </supports>
         <supported-locale>en</supported-locale>
         <portlet-info>
@@ -70,6 +71,7 @@ limitations under the License.
         <supports>
             <mime-type>text/html</mime-type>
             <portlet-mode>VIEW</portlet-mode>
+            <portlet-mode>HELP</portlet-mode>
         </supports>
         <supported-locale>en</supported-locale>
         <portlet-info>
@@ -88,6 +90,7 @@ limitations under the License.
         <supports>
             <mime-type>text/html</mime-type>
             <portlet-mode>VIEW</portlet-mode>
+            <portlet-mode>HELP</portlet-mode>
         </supports>
         <supported-locale>en</supported-locale>
         <portlet-info>

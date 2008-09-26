@@ -16,19 +16,26 @@
  */
 package org.apache.geronimo.console.car;
 
+import java.io.IOException;
+
+import javax.portlet.PortletRequest;
+import javax.portlet.PortletRequestDispatcher;
+import javax.portlet.PortletConfig;
+import javax.portlet.PortletException;
+import javax.portlet.RenderRequest;
+import javax.portlet.RenderResponse;
+
 import org.apache.geronimo.console.MultiPagePortlet;
 import org.apache.geronimo.console.MultiPageModel;
 
-import javax.portlet.PortletRequest;
-import javax.portlet.PortletConfig;
-import javax.portlet.PortletException;
-
 /**
- * Portlet that can import and export CAR files
+ * Portlet for installing geronimo plugins
  *
  * @version $Rev$ $Date$
  */
 public class ImportExportPortlet extends MultiPagePortlet {
+    private PortletRequestDispatcher helpView;
+    
     public void init(PortletConfig config) throws PortletException {
         super.init(config);
         addHelper(new IndexHandler(), config);
@@ -38,6 +45,7 @@ public class ImportExportPortlet extends MultiPagePortlet {
         addHelper(new UpdateListHandler(), config);
         addHelper(new AddRepositoryHandler(), config);
         addHelper(new ViewPluginDownloadHandler(), config);
+        helpView = config.getPortletContext().getRequestDispatcher("/WEB-INF/view/car/installPluginHelp.jsp");
     }
 
     protected String getModelJSPVariableName() {
@@ -47,4 +55,13 @@ public class ImportExportPortlet extends MultiPagePortlet {
     protected MultiPageModel getModel(PortletRequest request) {
         return null;
     }
+    
+    protected void doHelp(RenderRequest renderRequest,
+            RenderResponse renderResponse) throws PortletException, IOException {
+        helpView.include(renderRequest, renderResponse);
+    }
+    public void destroy() {
+        helpView = null;
+        super.destroy();
+    }    
 }
