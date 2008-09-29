@@ -18,8 +18,19 @@
 package org.apache.geronimo.console.internaldb;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Vector;
+
+import org.apache.geronimo.console.util.KernelManagementHelper;
+import org.apache.geronimo.console.util.ManagementHelper;
+import org.apache.geronimo.console.util.PortletManager;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.KernelRegistry;
+import org.apache.geronimo.management.geronimo.ResourceAdapterModule;
 
 public class DBViewerHelper {
 
@@ -27,6 +38,34 @@ public class DBViewerHelper {
 
     private static final int COUNT_COL = 1;
 
+    /**
+     * List the databases having datasources deployed.
+     *
+     * @param derbySysHome
+     * @return
+     */
+    public Collection<String> getDataSourceNames() {
+    	
+    	List<String> databaseNames = new ArrayList<String>();
+
+        Kernel kernel = KernelRegistry.getSingleKernel();
+        ManagementHelper helper = new KernelManagementHelper(kernel);
+        ResourceAdapterModule[] modules = helper.getOutboundRAModules(helper.getDomains()[0].getServerInstances()[0], "javax.sql.DataSource");
+        for (ResourceAdapterModule module : modules) {
+            org.apache.geronimo.management.geronimo.JCAManagedConnectionFactory[] databases = helper.getOutboundFactories(module, "javax.sql.DataSource");
+            for (org.apache.geronimo.management.geronimo.JCAManagedConnectionFactory db : databases) {
+                try {
+                    AbstractName dbName = kernel.getAbstractNameFor(db);
+                    String datasourceName = (String)dbName.getName().get(NameFactory.J2EE_NAME);
+                    databaseNames.add(datasourceName);
+                } catch (Exception ignored) {
+                }
+            }
+        }
+
+        return databaseNames;
+    }
+    
     /**
      * List the databases given the derby home directory.
      *

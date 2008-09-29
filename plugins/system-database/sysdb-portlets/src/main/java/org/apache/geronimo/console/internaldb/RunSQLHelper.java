@@ -132,19 +132,20 @@ public class RunSQLHelper {
         return result;
     }
 
-    public String runSQL(String dbName, String sql) {
+    public String runSQL(String dsName, String sql) {
         String result = SQL_SUCCESS_MSG;
 
         if ((sql == null) || (sql.trim().length() == 0)) {
             result = SQL_EMPTY_MSG;
             return result;
         }
+        
 
         Connection conn = null;
         Statement s = null;
         try {
 
-            conn = DerbyConnectionUtil.getDerbyConnection(dbName);
+            conn = DerbyConnectionUtil.getDataSourceConnection(dsName);
             conn.setAutoCommit(false);
 
             s = conn.createStatement();

@@ -40,15 +40,19 @@ public class DBViewerPortlet extends BasePortlet {
 
     private static final int RDBMS_MSSQL = 2;
 
-    private static final String MAXIMIZEDVIEW_JSP = "/WEB-INF/view/internaldb/dbViewerMaximized.jsp";
-
     private static final String HELPVIEW_JSP = "/WEB-INF/view/internaldb/dbViewerHelp.jsp";
 
     private static final String LISTDATABASES_JSP = "/WEB-INF/view/internaldb/listDatabases.jsp";
 
+    private static final String LISTDATABASES_MAXIMIZEDVIEW_JSP = "/WEB-INF/view/internaldb/listDatabasesMaximized.jsp";
+
     private static final String LISTTABLES_JSP = "/WEB-INF/view/internaldb/listTables.jsp";
 
+    private static final String LISTTABLES_MAXIMIZEDVIEW_JSP = "/WEB-INF/view/internaldb/listTablesMaximized.jsp";
+
     private static final String VIEWTABLECONTENTS_JSP = "/WEB-INF/view/internaldb/viewTableContents.jsp";
+
+    private static final String VIEWTABLECONTENTS_MAXIMIZEDVIEW_JSP = "/WEB-INF/view/internaldb/viewTableContentsMaximized.jsp";
 
     private static final String LISTDB_ACTION = "listDatabases";
 
@@ -58,8 +62,6 @@ public class DBViewerPortlet extends BasePortlet {
 
     private static DBViewerHelper helper = new DBViewerHelper();
 
-    private PortletRequestDispatcher maximizedView;
-
     private PortletRequestDispatcher helpView;
 
     private PortletRequestDispatcher listDatabasesView;
@@ -67,6 +69,12 @@ public class DBViewerPortlet extends BasePortlet {
     private PortletRequestDispatcher listTablesView;
 
     private PortletRequestDispatcher viewTableContentsView;
+
+    private PortletRequestDispatcher listDatabasesMaximizedView;
+
+    private PortletRequestDispatcher listTablesMaximizedView;
+
+    private PortletRequestDispatcher viewTableContentsMaximizedView;
 
     public void processAction(ActionRequest actionRequest,
                               ActionResponse actionResponse) throws PortletException, IOException {
@@ -106,47 +114,56 @@ public class DBViewerPortlet extends BasePortlet {
         String rdbms = renderRequest.getParameter("rdbms");
         int rdbmsParam = (rdbms == null ? RDBMS_DERBY : Integer.parseInt(rdbms));
 
-        if (WindowState.NORMAL.equals(renderRequest.getWindowState())) {
-            if (rdbmsParam == RDBMS_DERBY) {
-                // Check is database & table is valid
-                if (LISTTBLS_ACTION.equals(action)
-                        || VIEWTBLCONTENTS_ACTION.equals(action)) {
-                    if (!helper.isDBValid(DerbyConnectionUtil.getDerbyHome(), db)) {
-                        // DB not valid
-                        log.error("Database is not valid: " + db);
-                        action = "";
-                    }
-                }
-                if (VIEWTBLCONTENTS_ACTION.equals(action)) {
-                    if (!helper.isTblValid(db, tbl)) {
-                        // Table not valid
-                        log.error("Table is not valid: " + tbl);
-                        action = "";
-                    }
+        if (rdbmsParam == RDBMS_DERBY) {
+            // Check is database & table is valid
+            if (LISTTBLS_ACTION.equals(action)
+                    || VIEWTBLCONTENTS_ACTION.equals(action)) {
+                if (!helper.isDBValid(DerbyConnectionUtil.getDerbyHome(), db)) {
+                    // DB not valid
+                    log.error("Database is not valid: " + db);
+                    action = "";
                 }
             }
+            if (VIEWTBLCONTENTS_ACTION.equals(action)) {
+                if (!helper.isTblValid(db, tbl)) {
+                    // Table not valid
+                    log.error("Table is not valid: " + tbl);
+                    action = "";
+                }
+            }
+        }
 
-            renderRequest.setAttribute("rdbms", rdbms);
-            if (LISTTBLS_ACTION.equals(action)) {
-                renderRequest.setAttribute("db", db);
-                renderRequest.setAttribute("viewTables", viewTables);
-                renderRequest.setAttribute("ds", DerbyConnectionUtil
-                        .getDataSource(db));
-                listTablesView.include(renderRequest, renderResponse);
-            } else if (VIEWTBLCONTENTS_ACTION.equals(action)) {
-                renderRequest.setAttribute("db", db);
-                renderRequest.setAttribute("tbl", tbl);
-                renderRequest.setAttribute("viewTables", viewTables);
-                renderRequest.setAttribute("ds", DerbyConnectionUtil
-                        .getDataSource(db));
-                viewTableContentsView.include(renderRequest, renderResponse);
+        renderRequest.setAttribute("rdbms", rdbms);
+        if (LISTTBLS_ACTION.equals(action)) {
+            renderRequest.setAttribute("db", db);
+            renderRequest.setAttribute("viewTables", viewTables);
+            renderRequest.setAttribute("ds", DerbyConnectionUtil
+                    .getDataSourceForDataBaseName(db));
+
+            if (WindowState.NORMAL.equals(renderRequest.getWindowState())) {
+            	listTablesView.include(renderRequest, renderResponse);
             } else {
-                renderRequest.setAttribute("databases", helper
-                        .getDerbyDatabases(DerbyConnectionUtil.getDerbyHome()));
-                listDatabasesView.include(renderRequest, renderResponse);
+            	listTablesMaximizedView.include(renderRequest, renderResponse);
+            }
+        } else if (VIEWTBLCONTENTS_ACTION.equals(action)) {
+            renderRequest.setAttribute("db", db);
+            renderRequest.setAttribute("tbl", tbl);
+            renderRequest.setAttribute("viewTables", viewTables);
+            renderRequest.setAttribute("ds", DerbyConnectionUtil
+                    .getDataSourceForDataBaseName(db));
+            if (WindowState.NORMAL.equals(renderRequest.getWindowState())) {
+            	viewTableContentsView.include(renderRequest, renderResponse);
+            } else {
+            	viewTableContentsMaximizedView.include(renderRequest, renderResponse);
             }
         } else {
-            maximizedView.include(renderRequest, renderResponse);
+            renderRequest.setAttribute("databases", helper
+                    .getDerbyDatabases(DerbyConnectionUtil.getDerbyHome()));
+            if (WindowState.NORMAL.equals(renderRequest.getWindowState())) {
+            	listDatabasesView.include(renderRequest, renderResponse);
+            } else {
+            	listDatabasesMaximizedView.include(renderRequest, renderResponse);
+            }
         }
     }
 
@@ -157,8 +174,6 @@ public class DBViewerPortlet extends BasePortlet {
 
     public void init(PortletConfig portletConfig) throws PortletException {
         super.init(portletConfig);
-        maximizedView = portletConfig.getPortletContext().getRequestDispatcher(
-                MAXIMIZEDVIEW_JSP);
         helpView = portletConfig.getPortletContext().getRequestDispatcher(
                 HELPVIEW_JSP);
         listDatabasesView = portletConfig.getPortletContext()
@@ -167,14 +182,22 @@ public class DBViewerPortlet extends BasePortlet {
                 .getRequestDispatcher(LISTTABLES_JSP);
         viewTableContentsView = portletConfig.getPortletContext()
                 .getRequestDispatcher(VIEWTABLECONTENTS_JSP);
+        listDatabasesMaximizedView = portletConfig.getPortletContext()
+		        .getRequestDispatcher(LISTDATABASES_MAXIMIZEDVIEW_JSP);
+		listTablesMaximizedView = portletConfig.getPortletContext()
+		        .getRequestDispatcher(LISTTABLES_MAXIMIZEDVIEW_JSP);
+		viewTableContentsMaximizedView = portletConfig.getPortletContext()
+		        .getRequestDispatcher(VIEWTABLECONTENTS_MAXIMIZEDVIEW_JSP);
     }
 
     public void destroy() {
-        maximizedView = null;
         helpView = null;
         listDatabasesView = null;
         listTablesView = null;
         viewTableContentsView = null;
+        listDatabasesMaximizedView = null;
+        listTablesMaximizedView = null;
+        viewTableContentsMaximizedView = null;
         super.destroy();
     }
 

@@ -60,6 +60,8 @@ public class RunSQLPortlet extends BasePortlet {
     private PortletRequestDispatcher helpView;
 
     private Collection databases;
+    
+    private Collection<String> dataSourceNames;
 
     private String action;
 
@@ -108,33 +110,36 @@ public class RunSQLPortlet extends BasePortlet {
         }
 
         String singleSelectStmt;
+        databases = dbHelper.getDerbyDatabases(DerbyConnectionUtil.getDerbyHome());
+        dataSourceNames = dbHelper.getDataSourceNames();
+        renderRequest.setAttribute("databases", databases);
+        renderRequest.setAttribute("dataSourceNames", dataSourceNames);
+        renderRequest.setAttribute("sqlStmts", sqlStmts);
+        renderRequest.setAttribute("useDB", useDB);	
+        if (RUNSQL_ACTION.equals(action)) {
+            // check if it's a single Select statement
+            if ((sqlStmts != null) && (sqlStmts.trim().indexOf(';') == -1)
+                    && sqlStmts.trim().toUpperCase().startsWith("SELECT")
+                    && RunSQLHelper.SQL_SUCCESS_MSG.equals(actionResult)) {
+                singleSelectStmt = sqlStmts.trim();
+                // set action result to blank so it won't display
+                actionResult = "";
+            } else {
+                singleSelectStmt = "";
+            }
+            renderRequest
+                    .setAttribute("singleSelectStmt", singleSelectStmt);
+            renderRequest.setAttribute("ds", DerbyConnectionUtil
+                    .getDataSource(useDB));
+        }
+        if ((action != null) && (action.trim().length() > 0)) {
+            renderRequest.setAttribute("actionResult", actionResult);
+            //set action to null so that subsequent renders of portlet
+            // won't display
+            //action result if there is no action to process
+            action = null;
+        }
         if (WindowState.NORMAL.equals(renderRequest.getWindowState())) {
-            databases = dbHelper.getDerbyDatabases(DerbyConnectionUtil.getDerbyHome());
-            renderRequest.setAttribute("databases", databases);
-            if (RUNSQL_ACTION.equals(action)) {
-                // check if it's a single Select statement
-                if ((sqlStmts != null) && (sqlStmts.trim().indexOf(';') == -1)
-                        && sqlStmts.trim().toUpperCase().startsWith("SELECT")
-                        && RunSQLHelper.SQL_SUCCESS_MSG.equals(actionResult)) {
-                    singleSelectStmt = sqlStmts.trim();
-                    // set action result to blank so it won't display
-                    actionResult = "";
-                } else {
-                    singleSelectStmt = "";
-                }
-                renderRequest.setAttribute("useDB", useDB);
-                renderRequest
-                        .setAttribute("singleSelectStmt", singleSelectStmt);
-                renderRequest.setAttribute("ds", DerbyConnectionUtil
-                        .getDataSource(useDB));
-            }
-            if ((action != null) && (action.trim().length() > 0)) {
-                renderRequest.setAttribute("actionResult", actionResult);
-                //set action to null so that subsequent renders of portlet
-                // won't display
-                //action result if there is no action to process
-                action = null;
-            }
             normalView.include(renderRequest, renderResponse);
         } else {
             maximizedView.include(renderRequest, renderResponse);
@@ -155,6 +160,7 @@ public class RunSQLPortlet extends BasePortlet {
         helpView = portletConfig.getPortletContext().getRequestDispatcher(
                 HELPVIEW_JSP);
         databases = dbHelper.getDerbyDatabases(DerbyConnectionUtil.getDerbyHome());
+        dataSourceNames = dbHelper.getDataSourceNames();
     }
 
     public void destroy() {

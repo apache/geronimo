@@ -67,15 +67,15 @@ function <portlet:namespace/>validateForm3(){
     <td><div align="right"><label for="<portlet:namespace/>useDB"><fmt:message key="internaldb.common.useDB"/></label>:</div></td>
     <td>
       <select name="useDB" id="<portlet:namespace/>useDB">
-      <c:forEach var="db" items="${databases}" varStatus="status">
-        <option value="${db}">${db}</option>
+      <c:forEach var="dsName" items="${dataSourceNames}" varStatus="status">
+        <option value="${dsName}"<c:if test="${useDB==dsName}"> selected="selected"</c:if>>${dsName}</option>
       </c:forEach>
       </select>&nbsp;
       <input type="submit" value="Run SQL" onClick="return <portlet:namespace/>validateForm3();"></td>
   </tr>
   <tr>
     <td></td>
-    <td><div align="left"><label for="<portlet:namespace/>sqlStmts"><fmt:message key="internaldb.common.SQLCommands"/></label>:</td>
+    <td><div align="left"><label for="<portlet:namespace/>sqlStmts"><fmt:message key="internaldb.common.SQLCommands"/></label>:</div></td>
   </tr>
   <tr>
     <td></td>
@@ -113,17 +113,6 @@ function <portlet:namespace/>validateForm3(){
 
 <%-- Display query result from single select statement --%>
 <c:if test="${!empty singleSelectStmt}">
-<%-- Datasource --%>
-<c:if test="${ds == null}">
-    <%-- Create the connection manually --%>
-    <sql:setDataSource
-      var="ds"
-      driver="org.apache.derby.jdbc.EmbeddedDriver"
-      url="jdbc:derby:${useDB};create=true"
-      user=""
-      password=""
-    />
-</c:if>
 
 <%-- Select statement --%>
 <sql:transaction dataSource="${ds}">

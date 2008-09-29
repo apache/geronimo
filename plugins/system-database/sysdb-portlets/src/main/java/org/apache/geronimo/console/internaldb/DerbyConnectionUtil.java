@@ -166,7 +166,7 @@ public class DerbyConnectionUtil {
     public static Connection getSystemDBConnection() throws SQLException {
         DataSource ds = null;
         try {
-            ds = getDataSource(SYSTEM_DB);
+            ds = getDataSourceForDataBaseName(SYSTEM_DB);
             return ds.getConnection();
         } catch (Exception e) {
             throw new SQLException(e.getMessage());
@@ -174,12 +174,27 @@ public class DerbyConnectionUtil {
     }
 
     /**
-     * Get the datasource if dbName is == SYSTEM_DB, otherwise returns null.
+     * Get a connaction to a named datasource
+     * 
+     * @param dbName
+     * @return
+     * @throws SQLException 
+     */
+	public static Connection getDataSourceConnection(String dataSourceName) throws SQLException{
+        try {
+        	return getDataSource(dataSourceName).getConnection();
+        } catch (Exception e) {
+            throw new SQLException(e.getMessage());
+        }
+	}
+
+    /**
+     * Get the datasource if dbName is == SYSTEM_DB, otherwise finds the datasource among JCAManagedConnectionFactories, otherwise returns null.
      *
      * @param dbName
      * @return datasource
      */
-    public static DataSource getDataSource(String dbName) {
+    public static DataSource getDataSourceForDataBaseName(String dbName) {
         try {
             if (SYSTEM_DATASOURCE_NAME!=null && SYSTEM_DB.equalsIgnoreCase(dbName)) {
             	return (DataSource) KernelRegistry.getSingleKernel().invoke(
@@ -198,6 +213,44 @@ public class DerbyConnectionUtil {
                 try {
                     Object databaseName = db.getConfigProperty("DatabaseName");
                     if(dbName.equalsIgnoreCase((String) databaseName)) {
+                        AbstractName tempDbName = helper.getNameFor(db);
+                        return (DataSource) KernelRegistry.getSingleKernel().invoke(
+                                tempDbName, "$getResource");
+                    }
+                } catch (Exception ignored) {
+                }
+            }
+        }
+        
+        return null;
+    }
+
+    /**
+     * Get the datasource if dbName is == SYSTEM_DB, otherwise finds the datasource among JCAManagedConnectionFactories, otherwise returns null.
+     *
+     * @param dbName
+     * @return datasource
+     */
+    public static DataSource getDataSource(String dsName) {
+        try {
+            if (SYSTEM_DATASOURCE_NAME!=null && ((String)SYSTEM_DATASOURCE_NAME.getName().get(NameFactory.J2EE_NAME)).equalsIgnoreCase(dsName)) {
+            	return (DataSource) KernelRegistry.getSingleKernel().invoke(
+            			SYSTEM_DATASOURCE_NAME, "$getResource");
+            }
+        } catch (Exception e) {
+        	log.error("Problem getting datasource " + dsName, e);
+        }
+        
+        Kernel kernel = KernelRegistry.getSingleKernel();
+        ManagementHelper helper = new KernelManagementHelper(kernel);
+        ResourceAdapterModule[] modules = helper.getOutboundRAModules(helper.getDomains()[0].getServerInstances()[0], "javax.sql.DataSource");
+        for (ResourceAdapterModule module : modules) {
+            org.apache.geronimo.management.geronimo.JCAManagedConnectionFactory[] databases = helper.getOutboundFactories(module, "javax.sql.DataSource");
+            for (org.apache.geronimo.management.geronimo.JCAManagedConnectionFactory db : databases) {
+                try {
+                    AbstractName dbName = kernel.getAbstractNameFor(db);
+                    String datasourceName = (String)dbName.getName().get(NameFactory.J2EE_NAME);
+                    if(dsName.equalsIgnoreCase(datasourceName)) {
                         AbstractName tempDbName = helper.getNameFor(db);
                         return (DataSource) KernelRegistry.getSingleKernel().invoke(
                                 tempDbName, "$getResource");
