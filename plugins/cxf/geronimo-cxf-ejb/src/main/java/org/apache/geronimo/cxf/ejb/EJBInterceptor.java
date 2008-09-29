@@ -42,6 +42,8 @@ import org.apache.cxf.interceptor.OutgoingChainInterceptor;
 import org.apache.cxf.interceptor.ServiceInvokerInterceptor;
 import org.apache.cxf.jaxws.handler.logical.LogicalHandlerInInterceptor;
 import org.apache.cxf.jaxws.handler.soap.SOAPHandlerInterceptor;
+import org.apache.cxf.jaxws.interceptors.HolderInInterceptor;
+import org.apache.cxf.jaxws.interceptors.WrapperClassInInterceptor;
 import org.apache.cxf.jaxws.support.JaxWsEndpointImpl;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
@@ -128,12 +130,16 @@ public class EJBInterceptor {
                 // TODO: how to handle XML/HTTP binding?
             }
             
-            this.exchange.setOutMessage(null);
+            //this.exchange.setOutMessage(null);
 
             // install default interceptors
             chain.add(new ServiceInvokerInterceptor());
             chain.add(new OutgoingChainInterceptor());
 
+            // install Holder and Wrapper interceptors
+            chain.add(new WrapperClassInInterceptor());
+            chain.add(new HolderInInterceptor());
+            
             // install interceptors for handler processing
             chain.add(new MustUnderstandInterceptor());
             chain.add(new LogicalHandlerInInterceptor(binding));
@@ -179,12 +185,8 @@ public class EJBInterceptor {
             return;
         }
                 
-        XMLStreamReader xmlReader = message.getContent(XMLStreamReader.class);
-        StaxUtils.readDocElements(soapMessage.getSOAPBody(), xmlReader, true);
-        DOMSource bodySource = new DOMSource(soapMessage.getSOAPPart().getEnvelope().getBody());
-        xmlReader = StaxUtils.createXMLStreamReader(bodySource);
-        xmlReader.nextTag();
-        xmlReader.nextTag(); // move past body tag
+        DOMSource bodySource = new DOMSource(soapMessage.getSOAPPart());
+        XMLStreamReader xmlReader = StaxUtils.createXMLStreamReader(bodySource);
         message.setContent(XMLStreamReader.class, xmlReader);
     }
         
