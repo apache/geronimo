@@ -67,15 +67,15 @@ function <portlet:namespace/>validateForm3(){
     <td><div align="right"><fmt:message key="internaldb.common.useDB"/>:</div></td>
     <td>
       <select name="useDB">
-      <c:forEach var="db" items="${databases}" varStatus="status">
-        <option value="${db}">${db}</option>
+      <c:forEach var="dsName" items="${dataSourceNames}" varStatus="status">
+        <option value="${dsName}"<c:if test="${useDB==dsName}"> selected="selected"</c:if>>${dsName}</option>
       </c:forEach>
       </select>&nbsp;
       <input type="submit" value="Run SQL" onClick="return <portlet:namespace/>validateForm3();"></td>
   </tr>
   <tr>
     <td></td>
-    <td><div align="left"><fmt:message key="internaldb.common.SQLCommands"/>:</td>
+    <td><div align="left"><fmt:message key="internaldb.common.SQLCommands"/>:</div></td>
   </tr>
   <tr>
     <td></td>
@@ -113,17 +113,6 @@ function <portlet:namespace/>validateForm3(){
 
 <%-- Display query result from single select statement --%>
 <c:if test="${!empty singleSelectStmt}">
-<%-- Datasource --%>
-<c:if test="${ds == null}">
-    <%-- Create the connection manually --%>
-    <sql:setDataSource
-      var="ds"
-      driver="org.apache.derby.jdbc.EmbeddedDriver"
-      url="jdbc:derby:${useDB};create=true"
-      user=""
-      password=""
-    />
-</c:if>
 
 <%-- Select statement --%>
 <sql:transaction dataSource="${ds}">
