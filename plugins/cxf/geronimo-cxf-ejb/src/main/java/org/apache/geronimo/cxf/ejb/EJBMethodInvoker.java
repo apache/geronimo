@@ -21,34 +21,37 @@ package org.apache.geronimo.cxf.ejb;
 
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Map;
 
 import javax.interceptor.InvocationContext;
-import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.MessageContext.Scope;
-import javax.xml.ws.soap.SOAPFaultException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.cxf.Bus;
-import org.apache.cxf.binding.soap.SoapFault;
 import org.apache.cxf.interceptor.Fault;
+import org.apache.cxf.jaxws.AbstractJAXWSMethodInvoker;
 import org.apache.cxf.jaxws.context.WebServiceContextImpl;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.FaultMode;
 import org.apache.cxf.message.MessageContentsList;
-import org.apache.cxf.service.invoker.AbstractInvoker;
+import org.apache.cxf.service.invoker.Factory;
 import org.apache.openejb.DeploymentInfo;
 import org.apache.openejb.RpcContainer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class EJBMethodInvoker extends AbstractInvoker {
+public class EJBMethodInvoker extends AbstractJAXWSMethodInvoker {
 
     private static final Logger LOG = LoggerFactory.getLogger(EJBMethodInvoker.class);
+    
+    private static final String HANDLER_PROPERTIES = 
+            "HandlerProperties";
     
     private DeploymentInfo deploymentInfo;
     private Bus bus;
     private EJBEndpoint endpoint;
 
     public EJBMethodInvoker(EJBEndpoint endpoint, Bus bus, DeploymentInfo deploymentInfo) {
+        super((Factory)null);
         this.endpoint = endpoint;
         this.bus = bus;
         this.deploymentInfo = deploymentInfo;
@@ -62,32 +65,6 @@ public class EJBMethodInvoker extends AbstractInvoker {
     @Override
     public void releaseServiceObject(Exchange ex, Object obj) {
         // do nothing
-    }
-
-    private SOAPFaultException findSoapFaultException(Throwable ex) {
-        if (ex instanceof SOAPFaultException) {
-            return (SOAPFaultException)ex;
-        }
-        if (ex.getCause() != null) {
-            return findSoapFaultException(ex.getCause());
-        }
-        return null;
-    }
-    
-    @Override
-    protected Fault createFault(Throwable ex, Method m, List<Object> params, boolean checked) {
-        //map the JAX-WS faults
-        SOAPFaultException sfe = findSoapFaultException(ex);
-        if (sfe != null) {
-            SoapFault fault = new SoapFault(sfe.getFault().getFaultString(),
-                                            ex,
-                                            sfe.getFault().getFaultCodeAsQName());
-            fault.setRole(sfe.getFault().getFaultActor());
-            fault.setDetail(sfe.getFault().getDetail());
-            
-            return fault;
-        }
-        return super.createFault(ex, m, params, checked);
     }
     
     @Override
@@ -118,9 +95,13 @@ public class EJBMethodInvoker extends AbstractInvoker {
         invContext.setParameters(paramArray);
         Object res = invContext.proceed();
         
-//        ContextPropertiesMapping.updateWebServiceContext(exchange, 
-//                                                         (MessageContext)invContext.getContextData());
-                
+        EJBMessageContext ctx = (EJBMessageContext)invContext.getContextData();
+        
+        Map<String, Object> handlerProperties = (Map<String, Object>)exchange.get(HANDLER_PROPERTIES);
+        addHandlerProperties(ctx, handlerProperties);
+        
+        updateWebServiceContext(exchange, ctx);
+                      
         return res;
     }
     
@@ -129,9 +110,12 @@ public class EJBMethodInvoker extends AbstractInvoker {
                                 Method method, 
                                 List<Object> params) {           
         
-        MessageContext ctx = new EJBMessageContext(exchange.getInMessage(), Scope.APPLICATION);
+        EJBMessageContext ctx = new EJBMessageContext(exchange.getInMessage(), Scope.APPLICATION);
         WebServiceContextImpl.setMessageContext(ctx);
 
+        Map<String, Object> handlerProperties = removeHandlerProperties(ctx);
+        exchange.put(HANDLER_PROPERTIES, handlerProperties);
+        
         try {           
             EJBInterceptor interceptor = new EJBInterceptor(params, method, this.endpoint, this.bus, exchange);
             Object[] arguments = { ctx, interceptor, ctx };
