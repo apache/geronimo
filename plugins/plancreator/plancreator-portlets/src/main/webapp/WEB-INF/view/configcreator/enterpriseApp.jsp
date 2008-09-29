@@ -248,7 +248,7 @@
                     execute="saveSecurity(arguments[0]);" onsubmit="return false;">
                         <table width="720px" cellspacing="15px">
                             <tr>
-                                <td colspan="2">Realm-name:
+                                <td colspan="2"><label for="${moduleName}.form.txtSecurityRealmName">Realm-name</label>:
                                     <select dojoType="dijit.form.FilteringSelect" name="securityRealmName" id="${moduleName}.form.txtSecurityRealmName" value="">
                                         <c:forEach var="securityRealm" items="${deployedSecurityRealms}"><option value="${securityRealm.realmName}">${securityRealm.realmName}</option></c:forEach>
                                     </select>
@@ -278,7 +278,7 @@
                         <div dojoType="dijit.TitlePane" title="Advanced Settings" open="false" style="margin:0px 10px; padding:0;">
                             <table width="700px" cellspacing="10px">
                                 <tr>
-                                    <td><b>Credential Store:</b></td>
+                                    <td><b><label for="${moduleName}.form.selCredentialStore">Credential Store</label>:</b></td>
                                     <td>
                                         <select name="credentialStoreRef" dojoType="dijit.form.FilteringSelect" id="${moduleName}.form.selCredentialStore" style="width:520px" value="">
                                         <option value=""></option>
@@ -288,22 +288,22 @@
                                 </tr>
                                 <tr><td colspan="2" align="left"><b>Default Subject:</b></td></tr>
                                 <tr>
-                                    <td align="right" width="120px">Realm:</td>
-                                    <td><input name="defaultSubjectRealm" dojotype="dijit.form.TextBox" type="text" size="25"/></td>
+                                    <td align="right" width="120px"><label for="defaultSubjectRealm">Realm</label>:</td>
+                                    <td><input name="defaultSubjectRealm" id="defaultSubjectRealm" dojotype="dijit.form.TextBox" type="text" size="25"/></td>
                                 </tr>
                                 <tr>
-                                    <td align="right">Id:</td>
-                                    <td><input name="defaultSubjectId" dojotype="dijit.form.TextBox" type="text" size="25"/></td>
+                                    <td align="right"><label for="defaultSubjectId">Id</label>:</td>
+                                    <td><input name="defaultSubjectId" id="defaultSubjectId" dojotype="dijit.form.TextBox" type="text" size="25"/></td>
                                 </tr>
                             </table>
                             <table cellspacing="10px">
                                 <tr>
-                                    <td align="right"><input name="doasCurrentCaller" dojotype="dijit.form.CheckBox" type="checkbox" value="true"/></td>                                    
-                                    <td>Do as current caller</td>
+                                    <td align="right"><input name="doasCurrentCaller" id="doasCurrentCaller" dojotype="dijit.form.CheckBox" type="checkbox" value="true"/></td>                                    
+                                    <td><label for="doasCurrentCaller">Do as current caller</label></td>
                                 </tr>
                                 <tr>
-                                    <td align="right"><input name="useContextHandler" dojotype="dijit.form.CheckBox" type="checkbox" value="true"/></td>                                    
-                                    <td>Use context handler</td>
+                                    <td align="right"><input name="useContextHandler" id="useContextHandler" dojotype="dijit.form.CheckBox" type="checkbox" value="true"/></td>                                    
+                                    <td><label for="useContextHandler">Use context handler</label></td>
                                 </tr>
                             </table>
                             <table width="700px">
@@ -397,7 +397,7 @@
     title="Role Mapping" execute="addOrEditRoleMapping(arguments[0])" extractContent="false">
   <table cellspacing="15">
     <tr>
-      <td width="100px">Type:</td>
+      <td width="100px"><label for="selRoleMappingType">Type</label>:</td>
       <td>
         <select dojoType="dijit.form.FilteringSelect" name="type" id="selRoleMappingType" 
         onchange="modifyRoleMappingForm(this.getValue())" style="width:200px">
@@ -409,7 +409,7 @@
       </td>
     </tr>
     <tr>
-      <td>Name:</td>
+      <td><label for="txtRoleMappingName">Name</label>:</td>
       <td>
         <input type="text" dojoType="dijit.form.ValidationTextBox" name="principalName" required="true" style="width:200px"
         id="txtRoleMappingName" trim="true" validator="validatePrincipalName" onBlur="checkRoleMappingFields"
@@ -417,7 +417,7 @@
       </td>
     </tr>
     <tr>
-      <td>Class:</td>
+      <td><label for="selRoleMappingClass">Class</label>:</td>
       <td>
         <select dojoType="dijit.form.FilteringSelect" name="className" id="selRoleMappingClass" style="width:200px"
          onBlur="checkRoleMappingFields">
@@ -427,7 +427,7 @@
       </td>
     </tr>
     <tr style="display:none">
-      <td>Domain Name:</td>
+      <td><label for="txtRoleMappingDomainName">Domain Name</label>:</td>
       <td>
         <input type="text" dojoType="dijit.form.ValidationTextBox" name="domainName" style="width:200px" disabled="true"
         id="txtRoleMappingDomainName" trim="true" required="true" onBlur="checkRoleMappingFields"
@@ -435,7 +435,7 @@
       </td>
     </tr>
     <tr style="display:none">
-      <td>Realm Name:</td>
+      <td><label for="selRoleMappingRealmName">Realm Name</label>:</td>
       <td>
         <select dojoType="dijit.form.FilteringSelect" name="realmName" style="width:200px" id="selRoleMappingRealmName" disabled="true">
             <c:forEach var="securityRealm" items="${deployedSecurityRealms}"><option value="${securityRealm.realmName}">${securityRealm.realmName}</option></c:forEach>
@@ -452,22 +452,22 @@
     title="Run-as-subject" execute="addOrEditRunAsSubject(arguments[0])" extractContent="false">
   <table cellspacing="15">
     <tr id="selRunAsSubjectRoleRow">
-      <td align="right">Role:</td>
+      <td align="right"><label for="selRunAsSubjectRole">Role</label>:</td>
       <td>
         <select dojoType="dijit.form.FilteringSelect" name="name" id="selRunAsSubjectRole" onBlur="checkRunAsSubjectFields">
         </select>
       </td>
     </tr>
     <tr>
-      <td align="right">Realm:</td>
+      <td align="right"><label for="realm">Realm</label>:</td>
       <td>
-        <input type="text" dojoType="dijit.form.ValidationTextBox" name="realm" required="true" style="width:200px" trim="true" onBlur="checkRunAsSubjectFields"/>
+        <input type="text" dojoType="dijit.form.ValidationTextBox" id="realm" name="realm" required="true" style="width:200px" trim="true" onBlur="checkRunAsSubjectFields"/>
       </td>
     </tr>
     <tr>
-      <td align="right">Id:</td>
+      <td align="right"><label for="id">Id</label>:</td>
       <td>
-        <input type="text" dojoType="dijit.form.ValidationTextBox" name="id" required="true" style="width:200px" trim="true" onBlur="checkRunAsSubjectFields"/>
+        <input type="text" dojoType="dijit.form.ValidationTextBox" id="id" name="id" required="true" style="width:200px" trim="true" onBlur="checkRunAsSubjectFields"/>
       </td>
     </tr>
   </table>
