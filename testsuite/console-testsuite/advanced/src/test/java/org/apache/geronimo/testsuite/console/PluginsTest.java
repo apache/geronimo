@@ -29,10 +29,15 @@ public class PluginsTest extends TestSupport {
     public void testListPlugins() throws Exception {
         String link = "http://geronimo-server:8080/plugin/maven-repo/";
         String actualLink = "http://localhost:8080/plugin/maven-repo/";
+        String updatedLink = "http://geronimo.apache.org/plugins/geronimo-";
             
         selenium.click("link=Plugins");
         waitForPageLoad();
         assertTrue(selenium.isTextPresent(link));
+        
+        selenium.click("link=Update Repository List");
+        waitForPageLoad();
+        assertTrue(selenium.isTextPresent(updatedLink));
         
         selenium.click("link=Add Repository");
         waitForPageLoad();
