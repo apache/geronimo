@@ -8,22 +8,12 @@
     </module-id>
     <dependency>
         <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>shutdown</artifactId>
+        <artifactId>gshell-remote</artifactId>
         <type>car</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>online-deployer</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>client-system</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>jsr88-deploymentfactory</artifactId>
+        <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>remote-deploy-tomcat</artifactId>
         <type>car</type>
     </dependency>
     <dependency>
@@ -43,66 +33,6 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>tomcat6-deployer</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>jsr88-ear-configurer</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>upgrade-cli</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.gshell</groupId>
-        <artifactId>gshell-bootstrap</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>xpp3</groupId>
-        <artifactId>xpp3</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.assemblies</groupId>
-        <artifactId>geronimo-boilerplate</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>jasper-deployer</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>transformer-agent</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.yoko</groupId>
-        <artifactId>yoko-spec-corba</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>gshell-remote</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>remote-deploy-tomcat</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
-        <groupId>xpp3</groupId>
-        <artifactId>xpp3_min</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>sharedlib</artifactId>
         <type>car</type>
     </dependency>
@@ -112,14 +42,29 @@
         <type>car</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>j2ee-system</artifactId>
+        <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>tomcat6-deployer</artifactId>
         <type>car</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.yoko</groupId>
-        <artifactId>yoko-rmi-spec</artifactId>
-        <type>jar</type>
+        <groupId>org.apache.geronimo.assemblies</groupId>
+        <artifactId>geronimo-boilerplate</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.framework</groupId>
+        <artifactId>upgrade-cli</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>jsr88-ear-configurer</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>jasper-deployer</artifactId>
+        <type>car</type>
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.configs</groupId>

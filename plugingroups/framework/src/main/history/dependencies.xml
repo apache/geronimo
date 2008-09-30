@@ -18,73 +18,18 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>online-deployer</artifactId>
+        <artifactId>gshell-remote</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.assemblies</groupId>
+        <artifactId>geronimo-boilerplate</artifactId>
         <type>car</type>
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.framework</groupId>
         <artifactId>client-system</artifactId>
         <type>car</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>jsr88-deploymentfactory</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>gshell-geronimo</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.gshell</groupId>
-        <artifactId>gshell-bootstrap</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>xpp3</groupId>
-        <artifactId>xpp3</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>log4j</groupId>
-        <artifactId>log4j</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.assemblies</groupId>
-        <artifactId>geronimo-boilerplate</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>transformer-agent</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.yoko</groupId>
-        <artifactId>yoko-spec-corba</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>gshell-remote</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
-        <groupId>cglib</groupId>
-        <artifactId>cglib-nodep</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>xpp3</groupId>
-        <artifactId>xpp3_min</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.yoko</groupId>
-        <artifactId>yoko-rmi-spec</artifactId>
-        <type>jar</type>
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.framework</groupId>
@@ -109,6 +54,11 @@
     <dependency>
         <groupId>org.apache.geronimo.framework</groupId>
         <artifactId>plugin</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.framework</groupId>
+        <artifactId>gshell-geronimo</artifactId>
         <type>car</type>
     </dependency>
 </plugin-artifact>

@@ -32,6 +32,7 @@
 
     <groupId>org.apache.geronimo.assemblies</groupId>
     <artifactId>geronimo-boilerplate</artifactId>
+    <packaging>car</packaging>
     <name>Geronimo Assemblies :: Boilerplate</name>
 
     <description>
@@ -344,9 +345,6 @@
                             <category>Geronimo Core</category>
                             <instance>
                                 <plugin-artifact>
-                                    <module-id>
-                                        <type>jar</type>
-                                    </module-id>
                                     <copy-file relative-to="geronimo" dest-dir="">contents/</copy-file>
                                 </plugin-artifact>
                             </instance>
