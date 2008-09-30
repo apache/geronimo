@@ -88,6 +88,14 @@ public class PluginRepositoryDownloader implements PluginRepositoryList {
         name = null;
         repositoryList = null;
     }
+    
+    /**
+     * The list of repositories that were downloaded from central.
+     */
+    public void setDownloadRepositories(List<String> downloadRepositories) {
+        this.downloadRepositories = downloadRepositories;
+        if (this.downloadRepositories == null) this.downloadRepositories = new ArrayList<String>();
+    }
 
     private synchronized void loadUserRepositories() {
         userRepositories.clear();
