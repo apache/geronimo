@@ -56,7 +56,7 @@
 
         <dependency>
             <groupId>org.dojotoolkit</groupId>
-            <artifactId>dojo-release</artifactId>
+            <artifactId>dojo-mini</artifactId>
             <type>zip</type>
         </dependency>
 
