@@ -41,10 +41,17 @@
     
     <properties>
         <!--
-        NOTE: The default assembly is jetty, so exclude any tomcat tests by default.
-              Profiles below should toggle this as the assemblyId is changed.
+        NOTE: The default assembly is jetty, so exclude any tomcat tests by
+              default. Profiles below will set this based on the assemblyId.
         -->
         <shittyTestExcludes>**/*tomcat*/pom.xml</shittyTestExcludes>
+
+        <!--
+        NOTE: Override the following on the cmdline to only run specific 
+              testsuite buckets.  To only run console-testsuite/advanced -
+                mvn -DshittyTestIncludes=console-testsuite/advanced/pom.xml
+        -->
+        <shittyTestIncludes>*/*/pom.xml</shittyTestIncludes>
     </properties>
     
     <dependencies>
@@ -243,7 +250,7 @@
                         <fileset>
                             <directory>${project.basedir}</directory>
                             <includes>
-                                <include>*/*/pom.xml</include>
+                                <include>${shittyTestIncludes}</include>
                             </includes>
                             <excludes>
                                 <exclude>${shittyTestExcludes}</exclude>
