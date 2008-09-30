@@ -23,8 +23,8 @@
 
   <enterprise-beans>
     <session>
-      <display-name>CalculatorBeann</display-name>
-      <ejb-name>CalculatorBeann</ejb-name>
+      <display-name>CalculatorBean</display-name>
+      <ejb-name>CalculatorBean</ejb-name>
       <ejb-class>org.apache.geronimo.jaxws.test.CalculatorBean</ejb-class>
       <session-type>Stateless</session-type>
       <transaction-type>Container</transaction-type>
