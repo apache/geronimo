@@ -89,7 +89,7 @@
                                     <attribute name="userName">system</attribute>
                                     <attribute name="password">manager</attribute>
                                 </gbean>
-                                <gbean name="DiscoveryAgent">
+                                <gbean name="MulticastLocation">
                                     <attribute name="host">${MulticastDiscoveryAddress}</attribute>
                                     <attribute name="port">${MulticastDiscoveryPort}</attribute>
                                 </gbean>

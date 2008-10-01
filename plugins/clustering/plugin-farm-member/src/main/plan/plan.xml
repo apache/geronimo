@@ -37,9 +37,12 @@
         </dependency>
     </gbean>
 
-    <gbean name="DiscoveryAgent" class="org.apache.geronimo.farm.discovery.MulticastDiscoveryAgent">
+    <gbean name="MulticastLocation" class="org.apache.geronimo.farm.discovery.MulticastLocation">
         <attribute name="host">239.255.3.2</attribute>
         <attribute name="port">6142</attribute>
+    </gbean>
+
+    <gbean name="DiscoveryAgent" class="org.apache.geronimo.farm.discovery.MulticastDiscoveryAgent">
         <attribute name="heartRate">500</attribute>
         <attribute name="maxMissedHeartbeats">10</attribute>
         <attribute name="loopbackMode">false</attribute>
@@ -47,6 +50,9 @@
         <attribute name="maxReconnectDelay">30000</attribute>
         <attribute name="backOffMultiplier">0</attribute>
         <attribute name="useExponentialBackOff">false</attribute>
+        <reference name="MulticastLocation">
+            <name>MulticastLocation</name>
+        </reference>
     </gbean>
 
 </module>

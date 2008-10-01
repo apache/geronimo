@@ -40,6 +40,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
+import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 
 /**
@@ -83,8 +84,7 @@ public class MulticastDiscoveryAgent implements DiscoveryAgent, GBeanLifecycle {
     private int maxReconnectAttempts = 10; // todo: check this out
     // ---------------------------------
 
-    public MulticastDiscoveryAgent(@ParamAttribute(name="host") String host,
-                                   @ParamAttribute(name="port") int port,
+    public MulticastDiscoveryAgent(@ParamReference(name="MulticastLocation")MulticastLocation location,
                                    @ParamAttribute(name="heartRate") long heartRate,
                                    @ParamAttribute(name="maxMissedHeartbeats") int maxMissedHeartbeats,
                                    @ParamAttribute(name="loopbackMode")  boolean loopbackMode,
@@ -93,8 +93,8 @@ public class MulticastDiscoveryAgent implements DiscoveryAgent, GBeanLifecycle {
                                    @ParamAttribute(name="maxReconnectAttempts") int maxReconnectAttempts,
                                    @ParamAttribute(name="backOffMultiplier") long backOffMultiplier,
                                    @ParamAttribute(name="useExponentialBackOff") boolean useExponentialBackOff) {
-        this.host = host;
-        this.port = port;
+        this.host = location.getHost();
+        this.port = location.getPort();
         this.heartRate = heartRate;
         this.maxMissedHeartbeats = maxMissedHeartbeats;
         this.loopbackMode = loopbackMode;

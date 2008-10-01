@@ -200,10 +200,21 @@
                     <name>install-plugin</name>
                     <id>geronimo-commands:install-plugin</id>
                 </command>
+            </nodes>
+        </group>
+
+        <group>
+            <name>cluster</name>
+
+            <nodes>
+                <command>
+                    <name>deploy</name>
+                    <id>geronimo-commands:cluster</id>
+                </command>
 
                 <command>
-                    <name>farm</name>
-                    <id>geronimo-commands:farm</id>
+                    <name>heartbeat</name>
+                    <id>geronimo-commands:heartbeat</id>
                 </command>
             </nodes>
         </group>

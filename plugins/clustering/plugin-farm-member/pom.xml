@@ -82,7 +82,7 @@
                                     <attribute name="nodeName">${NodeName}</attribute>
                                     <attribute name="clusterName">${ClusterName}</attribute>
                                 </gbean>
-                                <gbean name="DiscoveryAgent">
+                                <gbean name="MulticastLocation">
                                     <attribute name="host">${MulticastDiscoveryAddress}</attribute>
                                     <attribute name="port">${MulticastDiscoveryPort}</attribute>
                                 </gbean>
