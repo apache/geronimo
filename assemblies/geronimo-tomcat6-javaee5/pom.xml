@@ -635,60 +635,31 @@
         </dependency>
     </dependencies>
 
-    <!--<build>-->
-        <!--<plugins>-->
-            <!--<plugin>-->
-                <!--<groupId>org.apache.maven.plugins</groupId>-->
-                <!--<artifactId>maven-dependency-plugin</artifactId>-->
-                <!--<executions>-->
-                    <!--<execution>-->
-                        <!--<phase>process-resources</phase>-->
-                        <!--<goals>-->
-                            <!--<goal>unpack</goal>-->
-                        <!--</goals>-->
-                        <!--<configuration>-->
-                            <!--<artifactItems>-->
-                                <!--<artifactItem>-->
-                                    <!--<groupId>org.apache.geronimo.assemblies</groupId>-->
-                                    <!--<artifactId>geronimo-framework</artifactId>-->
-                                    <!--<version>${version}</version>-->
-                                    <!--<type>zip</type>-->
-                                    <!--<classifier>bin</classifier>-->
-                                <!--</artifactItem>-->
-                            <!--</artifactItems>-->
-                            <!--<outputDirectory>${project.build.directory}</outputDirectory>-->
-                        <!--</configuration>-->
-                    <!--</execution>-->
-                <!--</executions>-->
-            <!--</plugin>-->
-
-            <!--<plugin>-->
-                <!--<groupId>org.apache.maven.plugins</groupId>-->
-                <!--<artifactId>maven-antrun-plugin</artifactId>-->
-                <!--<executions>-->
-                    <!--<execution>-->
-                        <!--<phase>process-resources</phase>-->
-                        <!--<goals>-->
-                            <!--<goal>run</goal>-->
-                        <!--</goals>-->
-                        <!--<configuration>-->
-                            <!--<tasks>-->
-                                <!--<mkdir dir="${project.build.directory}/assembly"/>-->
-                                <!--<copy todir="${project.build.directory}/assembly">-->
-                                    <!--<fileset dir="${project.build.directory}/geronimo-framework-${version}"/>-->
-                                <!--</copy>-->
-                                <!--<java classname="org.apache.geronimo.jaxws.builder.GShellCommandRegistration" -->
-                                      <!--fork="yes" failonerror="true">-->
-                                   <!--<classpath refid="maven.runtime.classpath"/>-->
-                                   <!--<arg value="${project.build.directory}/assembly"/>-->
-                                   <!--<arg value="gsh-wsgen.properties"/>-->
-                                <!--</java>-->
-                            <!--</tasks>-->
-                        <!--</configuration>-->
-                    <!--</execution>-->
-                <!--</executions>-->
-            <!--</plugin>-->
-        <!--</plugins>-->
-    <!--</build>-->
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>process-classes</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <tasks>
+                                <java classname="org.apache.geronimo.jaxws.builder.GShellCommandRegistration" 
+                                      fork="yes" failonerror="true">
+                                   <classpath refid="maven.runtime.classpath"/>
+                                   <arg value="${project.build.directory}/assembly"/>
+                                   <arg value="gsh-wsgen.properties"/>
+                                </java>
+                            </tasks>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>
