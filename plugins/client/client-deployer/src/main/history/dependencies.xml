@@ -6,12 +6,12 @@
         <version>2.2-SNAPSHOT</version>
         <type>car</type>
     </module-id>
-    <!--<dependency>-->
-        <!--<groupId>org.apache.geronimo.modules</groupId>-->
-        <!--<artifactId>geronimo-connector-builder</artifactId>-->
-        <!--<type>jar</type>-->
-    <!--</dependency>-->
     <dependency>
+        <groupId>org.apache.geronimo.modules</groupId>
+        <artifactId>geronimo-connector-builder</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency start="true">
         <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>client-transaction</artifactId>
         <type>car</type>
@@ -21,7 +21,7 @@
         <artifactId>j2ee-deployer</artifactId>
         <type>car</type>
     </dependency>
-    <dependency>
+    <dependency start="true">
         <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>client</artifactId>
         <type>car</type>
