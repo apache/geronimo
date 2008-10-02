@@ -980,18 +980,28 @@ public class PluginInstallerGBean implements PluginInstaller {
         // 1. Check that it's not already installed
         if (metadata.getModuleId() != null) { // that is, it's a real configuration not a plugin list
             Artifact artifact = toArtifact(metadata.getModuleId());
-            if (configManager.isInstalled(artifact)) {
-                boolean upgrade = false;
-                for (ArtifactType obsolete : metadata.getObsoletes()) {
-                    Artifact test = toArtifact(obsolete);
-                    if (test.matches(artifact)) {
-                        upgrade = true;
-                        break;
+            
+            //plugin groups don't get registered with configManager
+            if (plugin.isPluginGroup() != null && plugin.isPluginGroup()) {
+                if (installedArtifacts.contains(artifact)) {
+                    log.debug("Configuration {} is already installed", artifact);
+                    return false;
+                }
+            } else {
+                if (configManager.isInstalled(artifact)) {
+                    boolean upgrade = false;
+                    for (ArtifactType obsolete : metadata.getObsoletes()) {
+                        Artifact test = toArtifact(obsolete);
+                        if (test.matches(artifact)) {
+                            upgrade = true;
+                            break;
+                        }
+                    }
+                    if (!upgrade && installedArtifacts.contains(artifact)) {
+                        log.debug("Configuration {} is already installed", artifact);
+                        return false;
                     }
                 }
-                if (!upgrade && installedArtifacts.contains(artifact)) {
-                    log.debug("Configuration {} is already installed", artifact);
-                    return false;                }
             }
         }
 
@@ -1630,6 +1640,7 @@ public class PluginInstallerGBean implements PluginInstaller {
         PluginType copy = new PluginType();
         copy.setAuthor(metadata.getAuthor());
         copy.setCategory(metadata.getCategory());
+        copy.setPluginGroup(metadata.isPluginGroup() == null ? false : metadata.isPluginGroup());
         copy.setDescription(metadata.getDescription());
         copy.setName(metadata.getName());
         copy.setUrl(metadata.getUrl());
