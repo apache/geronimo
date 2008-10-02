@@ -62,6 +62,17 @@
                     <osiApproved>true</osiApproved>
                     <category>Geronimo Plugin Group</category>
                     <pluginGroup>true</pluginGroup>
+                    <commonInstance>
+                        <plugin-artifact>
+                            <geronimo-version>${geronimoVersion}</geronimo-version>
+                            <jvm-version>1.5</jvm-version>
+                            <jvm-version>1.6</jvm-version>
+                            <source-repository>~/.m2/repository/</source-repository>
+                            <source-repository>http://repo1.maven.org/maven2/</source-repository>
+                            <source-repository>http://people.apache.org/repo/m2-snapshot-repository/</source-repository>
+                            <source-repository>http://people.apache.org/repo/m2-incubating-repository/</source-repository>
+                        </plugin-artifact>
+                    </commonInstance>
                 </configuration>
             </plugin>
         </plugins>
