@@ -43,7 +43,7 @@
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-connector-builder</artifactId>
             <version>${version}</version>
-            <scope>provided</scope>
+            <!--<scope>provided</scope>-->
         </dependency>
 
         <dependency>
