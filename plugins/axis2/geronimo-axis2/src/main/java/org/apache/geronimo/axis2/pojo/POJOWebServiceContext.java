@@ -19,60 +19,61 @@ package org.apache.geronimo.axis2.pojo;
 
 import java.security.Principal;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.xml.ws.EndpointReference;
 import javax.xml.ws.WebServiceContext;
 import javax.xml.ws.handler.MessageContext;
 
+import org.apache.axis2.jaxws.context.WebServiceContextImpl;
 import org.w3c.dom.Element;
 
 /**
- * Implementation of WebServiceContext for POJO WS to ensure that getUserPrincipal()
- * and isUserInRole() are properly handled.
+ * Implementation of WebServiceContext that uses ThreadLocal to associate MessageContext with 
+ * the thread.
  * 
  * @version $Rev$ $Date$
  */
 public class POJOWebServiceContext implements WebServiceContext {
 
-    private static ThreadLocal<MessageContext> context = new ThreadLocal<MessageContext>();
+    private static ThreadLocal<WebServiceContextImpl> context = 
+        new ThreadLocal<WebServiceContextImpl>();
     
     public POJOWebServiceContext() {        
     }
         
     public final MessageContext getMessageContext() {
-        return context.get();
-    }
-
-    private HttpServletRequest getHttpServletRequest() {
-        MessageContext ctx = getMessageContext();
-        return (ctx != null) ? (HttpServletRequest)ctx.get(MessageContext.SERVLET_REQUEST) : null;
+        WebServiceContextImpl wsContext = context.get();
+        return (wsContext == null) ? null : wsContext.getMessageContext();
     }
 
     public final Principal getUserPrincipal() {
-        HttpServletRequest request = getHttpServletRequest();
-        return (request != null) ? request.getUserPrincipal() : null;
+        WebServiceContextImpl wsContext = context.get();
+        return (wsContext == null) ? null : wsContext.getUserPrincipal();
     }
 
     public final boolean isUserInRole(String user) {
-        HttpServletRequest request = getHttpServletRequest();
-        return (request != null) ? request.isUserInRole(user) : false;
+        WebServiceContextImpl wsContext = context.get();
+        return (wsContext == null) ? null : wsContext.isUserInRole(user);
     }
             
+    public final EndpointReference getEndpointReference(Element... referenceParameters) {
+        WebServiceContextImpl wsContext = context.get();
+        return (wsContext == null) ? null : wsContext.getEndpointReference(referenceParameters);
+    }
+    
+    public final <T extends EndpointReference> T getEndpointReference(Class<T> clazz,
+                                                                      Element... referenceParameters) {
+        WebServiceContextImpl wsContext = context.get();
+        return (wsContext == null) ? null : wsContext.getEndpointReference(clazz, referenceParameters);
+    }
+    
     public static void setMessageContext(MessageContext ctx) {
-        context.set(ctx);
+        WebServiceContextImpl wsContext = new WebServiceContextImpl();
+        wsContext.setSoapMessageContext(ctx);
+        context.set(wsContext);
     }
 
     public static void clear() {
         context.set(null);
-    }
-
-    public EndpointReference getEndpointReference(Element... referenceParameters) {
-        throw new UnsupportedOperationException();
-    }
-    
-    public <T extends EndpointReference> T getEndpointReference(Class<T> clazz,
-                                                                Element... referenceParameters) {
-        throw new UnsupportedOperationException();
     }
     
 }

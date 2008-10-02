@@ -25,7 +25,6 @@ import javax.naming.NamingException;
 import javax.xml.ws.WebServiceContext;
 import javax.xml.ws.WebServiceException;
 
-import org.apache.axis2.util.JavaUtils;
 import org.apache.geronimo.axis2.Axis2WebServiceContainer;
 import org.apache.geronimo.axis2.AxisServiceGenerator;
 import org.apache.geronimo.jaxws.JAXWSAnnotationProcessor;

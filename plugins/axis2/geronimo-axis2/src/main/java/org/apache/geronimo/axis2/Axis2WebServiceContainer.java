@@ -433,24 +433,24 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer
     protected void configureHandlers() throws Exception {
         EndpointDescription desc = AxisServiceGenerator.getEndpointDescription(this.service);
         if (desc == null) {
-            this.binding = new BindingImpl("");
-        } else {
-            String xml = this.portInfo.getHandlersAsXML();
-            HandlerChainsType handlerChains = null;
-            if (xml != null) {
-                ByteArrayInputStream in = new ByteArrayInputStream(xml.getBytes("UTF-8"));
-                handlerChains = DescriptionUtils.loadHandlerChains(in);
-                desc.setHandlerChain(handlerChains);
-            }
-            
-            if (LOG.isDebugEnabled()) {
-                logHandlers(desc.getHandlerChain());
-            }
-            
-            this.binding = BindingUtils.createBinding(desc);
-            
-            DescriptionUtils.registerHandlerHeaders(desc.getAxisService(), this.binding.getHandlerChain());            
+            throw new RuntimeException("No EndpointDescription for service");
         }
+        
+        String xml = this.portInfo.getHandlersAsXML();
+        HandlerChainsType handlerChains = null;
+        if (xml != null) {
+            ByteArrayInputStream in = new ByteArrayInputStream(xml.getBytes("UTF-8"));
+            handlerChains = DescriptionUtils.loadHandlerChains(in, null);
+            desc.setHandlerChain(handlerChains);
+        }
+            
+        if (LOG.isDebugEnabled()) {
+            logHandlers(desc.getHandlerChain());
+        }
+            
+        this.binding = BindingUtils.createBinding(desc);
+        
+        DescriptionUtils.registerHandlerHeaders(desc.getAxisService(), this.binding.getHandlerChain());            
     }
 
     private void logHandlers(HandlerChainsType handlerChains) {

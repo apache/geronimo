@@ -27,10 +27,10 @@ import org.apache.axis2.context.OperationContext;
 import org.apache.axis2.description.AxisOperation;
 import org.apache.axis2.description.WSDL2Constants;
 import org.apache.axis2.engine.AxisEngine;
-import org.apache.axis2.jaxws.core.InvocationContext;
 import org.apache.axis2.jaxws.core.InvocationContextFactory;
 import org.apache.axis2.jaxws.core.MessageContext;
 import org.apache.axis2.jaxws.message.util.MessageUtils;
+import org.apache.axis2.jaxws.server.EndpointInvocationContext;
 import org.apache.axis2.jaxws.server.JAXWSMessageReceiver;
 import org.apache.axis2.wsdl.WSDLConstants.WSDL20_2004_Constants;
 import org.apache.axis2.wsdl.WSDLConstants.WSDL20_2006Constants;
@@ -60,7 +60,7 @@ public class EJBInterceptor
         EJBEndpointController controller = new EJBEndpointController(invContext);
                
         Binding binding = (Binding)this.requestMsgCtx.getAxisMessageContext().getProperty(JAXWSMessageReceiver.PARAM_BINDING);
-        InvocationContext ic = InvocationContextFactory.createInvocationContext(binding);
+        EndpointInvocationContext ic = InvocationContextFactory.createEndpointInvocationContext(binding);
         ic.setRequestMessageContext(this.requestMsgCtx);
         
         controller.invoke(ic);
@@ -89,9 +89,7 @@ public class EJBInterceptor
                                     axisResponseMsgCtx);
             } else {
                 //Create the AxisEngine for the reponse and send it.
-                AxisEngine engine =
-                        new AxisEngine(axisResponseMsgCtx.getConfigurationContext());
-                engine.send(axisResponseMsgCtx);
+                AxisEngine.send(axisResponseMsgCtx);
             }
         }    
         

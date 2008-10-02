@@ -46,5 +46,9 @@ public class GeronimoHandlerLifecycleManager implements HandlerLifecycleManager 
 
     public void invokePreDestroy() throws LifecycleException {
     }
+
+    public void destroyHandlerInstance(MessageContext cxt, Handler handler)
+        throws LifecycleException, ResourceInjectionException {
+    }
    
 }

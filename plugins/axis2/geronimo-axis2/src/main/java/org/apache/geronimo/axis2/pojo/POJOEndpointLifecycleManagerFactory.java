@@ -22,7 +22,7 @@ import org.apache.axis2.jaxws.server.endpoint.lifecycle.EndpointLifecycleExcepti
 import org.apache.axis2.jaxws.server.endpoint.lifecycle.EndpointLifecycleManager;
 import org.apache.axis2.jaxws.server.endpoint.lifecycle.factory.EndpointLifecycleManagerFactory;
 
-public class POJOEndpointLifecycleManagerFactory extends EndpointLifecycleManagerFactory {
+public class POJOEndpointLifecycleManagerFactory implements EndpointLifecycleManagerFactory {
 
     private EndpointLifecycleManager lifecycleManager;
 
@@ -30,13 +30,11 @@ public class POJOEndpointLifecycleManagerFactory extends EndpointLifecycleManage
         this.lifecycleManager = new POJOEndpointLifecycleManager();        
     }
 
-    @Override
     public EndpointLifecycleManager createEndpointLifecycleManager(Object endpointInstance)
             throws EndpointLifecycleException {
         throw new UnsupportedOperationException();
     }
 
-    @Override
     public EndpointLifecycleManager createEndpointLifecycleManager() {
         return this.lifecycleManager;
     }

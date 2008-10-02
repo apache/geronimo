@@ -21,6 +21,7 @@ package org.apache.geronimo.axis2.ejb;
 import javax.interceptor.InvocationContext;
 import javax.xml.ws.Provider;
 
+import org.apache.axis2.jaxws.core.MessageContext;
 import org.apache.axis2.jaxws.server.EndpointController;
 import org.apache.axis2.jaxws.server.dispatcher.EndpointDispatcher;
 
@@ -33,7 +34,9 @@ public class EJBEndpointController extends EndpointController {
     }
     
     @Override
-    protected EndpointDispatcher getEndpointDispatcher(Class serviceImplClass, Object serviceInstance)
+    protected EndpointDispatcher getEndpointDispatcher(MessageContext mc, 
+                                                       Class serviceImplClass, 
+                                                       Object serviceInstance) 
         throws Exception {    
         if (Provider.class.isAssignableFrom(serviceImplClass)) {
             return new EJBProviderDispatcher(serviceImplClass, this.invContext);

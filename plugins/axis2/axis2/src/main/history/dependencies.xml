@@ -141,4 +141,9 @@
         <artifactId>axis2-java2wsdl</artifactId>
         <type>jar</type>
     </dependency>
+    <dependency>
+        <groupId>org.apache.axis2</groupId>
+        <artifactId>axis2-transports</artifactId>
+        <type>jar</type>
+    </dependency>
 </plugin-artifact>

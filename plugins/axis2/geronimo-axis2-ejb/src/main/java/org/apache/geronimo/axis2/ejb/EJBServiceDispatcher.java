@@ -22,7 +22,6 @@ import java.lang.reflect.Method;
 
 import javax.interceptor.InvocationContext;
 
-import org.apache.axis2.jaxws.core.MessageContext;
 import org.apache.axis2.jaxws.server.dispatcher.JavaBeanDispatcher;
 
 public class EJBServiceDispatcher extends JavaBeanDispatcher {
@@ -35,10 +34,7 @@ public class EJBServiceDispatcher extends JavaBeanDispatcher {
     }
 
     @Override
-    protected Object invokeService(MessageContext ctx,
-                                   Method method, 
-                                   Object obj,
-                                   Object args[]) throws Exception {
+    protected Object invokeTargetOperation(Method method, Object[] args) throws Throwable {
         this.invContext.setParameters(args);
         return this.invContext.proceed();
     }

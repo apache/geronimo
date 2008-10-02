@@ -76,7 +76,8 @@ public class EJBMessageReceiver implements MessageReceiver
         EJBInterceptor interceptor = new EJBInterceptor(this.container, requestMsgCtx);
 
         SoapMessageContext jaxwsContext = new SoapMessageContext(requestMsgCtx);
-        Object[] arguments = { jaxwsContext, interceptor };
+        EJBAddressingSupport wsaSupport = new EJBAddressingSupport(jaxwsContext);
+        Object[] arguments = { jaxwsContext, interceptor, wsaSupport };
         
         RpcContainer container = (RpcContainer) this.deploymentInfo.getContainer();
 

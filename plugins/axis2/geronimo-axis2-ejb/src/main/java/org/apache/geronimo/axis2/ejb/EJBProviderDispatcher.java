@@ -18,11 +18,11 @@
  */
 package org.apache.geronimo.axis2.ejb;
 
+import java.lang.reflect.Method;
+
 import javax.interceptor.InvocationContext;
-import javax.xml.ws.Provider;
 
 import org.apache.axis2.jaxws.ExceptionFactory;
-import org.apache.axis2.jaxws.core.MessageContext;
 import org.apache.axis2.jaxws.server.dispatcher.ProviderDispatcher;
 
 public class EJBProviderDispatcher extends ProviderDispatcher {
@@ -44,10 +44,8 @@ public class EJBProviderDispatcher extends ProviderDispatcher {
     }
 
     @Override
-    protected Object invokeProvider(MessageContext ctx,
-                                    Provider provider,
-                                    Object input) throws Exception {
-        this.invContext.setParameters(new Object[] {input});
+    protected Object invokeTargetOperation(Method method, Object[] args) throws Throwable {
+        this.invContext.setParameters(args);
         return this.invContext.proceed();
     }
     
