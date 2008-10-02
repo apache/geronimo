@@ -1748,6 +1748,14 @@
                         <groupId>org.apache.ant</groupId>
                         <artifactId>ant</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.axis2</groupId>
+                        <artifactId>axis2-transport-tcp</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.axis2</groupId>
+                        <artifactId>axis2-transport-local</artifactId>
+                    </exclusion>
                 </exclusions>
             </dependency>
 
@@ -1825,14 +1833,6 @@
                 <version>${axis2Version}</version>
                 <exclusions>
                     <exclusion>
-                        <groupId>org.apache.axis2</groupId>
-                        <artifactId>axis2-jaxws-api</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.axis2</groupId>
-                        <artifactId>axis2-saaj-api</artifactId>
-                    </exclusion>
-                    <exclusion>
                         <groupId>javax.mail</groupId>
                         <artifactId>mail</artifactId>
                     </exclusion>
@@ -1856,14 +1856,6 @@
                 <artifactId>axis2-metadata</artifactId>
                 <version>${axis2Version}</version>
                 <exclusions>
-                    <exclusion>
-                        <groupId>org.apache.axis2</groupId>
-                        <artifactId>axis2-jaxws-api</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.axis2</groupId>
-                        <artifactId>axis2-jws-api</artifactId>
-                    </exclusion>
                     <exclusion>
                         <groupId>javax.mail</groupId>
                         <artifactId>mail</artifactId>
@@ -1889,10 +1881,6 @@
                 <version>${axis2Version}</version>
                 <exclusions>
                     <exclusion>
-                        <groupId>org.apache.axis2</groupId>
-                        <artifactId>axis2-saaj-api</artifactId>
-                    </exclusion>
-                    <exclusion>
                         <groupId>javax.mail</groupId>
                         <artifactId>mail</artifactId>
                     </exclusion>
@@ -1917,14 +1905,6 @@
                 <version>${axis2Version}</version>
                 <type>mar</type>
                 <exclusions>
-                    <exclusion>
-                        <groupId>org.apache.axis2</groupId>
-                        <artifactId>axis2-transport-tcp</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.axis2</groupId>
-                        <artifactId>axis2-transport-local</artifactId>
-                    </exclusion>
                     <exclusion>
                         <groupId>javax.mail</groupId>
                         <artifactId>mail</artifactId>
@@ -1964,6 +1944,30 @@
                     <exclusion>
                         <groupId>javax.servlet</groupId>
                         <artifactId>servlet-api</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.axis2</groupId>
+                <artifactId>axis2-transport-tcp</artifactId>
+                <version>${axis2Version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.axis2</groupId>
+                <artifactId>axis2-transport-local</artifactId>
+                <version>${axis2Version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
