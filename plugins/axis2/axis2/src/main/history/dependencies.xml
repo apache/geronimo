@@ -146,4 +146,39 @@
         <artifactId>axis2-transports</artifactId>
         <type>jar</type>
     </dependency>
+    <dependency>
+        <groupId>org.apache.axis2</groupId>
+        <artifactId>addressing</artifactId>
+        <type>mar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.axis2</groupId>
+        <artifactId>axis2-transport-base</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.axis2</groupId>
+        <artifactId>axis2-transport-http</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>commons-fileupload</groupId>
+        <artifactId>commons-fileupload</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>commons-io</groupId>
+        <artifactId>commons-io</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.woden</groupId>
+        <artifactId>woden-api</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.woden</groupId>
+        <artifactId>woden-impl-dom</artifactId>
+        <type>jar</type>
+    </dependency>
 </plugin-artifact>
