@@ -91,7 +91,8 @@ public class ListHandler extends AbstractListHandler {
         }
 
         listPlugins(request, pluginInstaller, data, true);
-        request.getPortletSession(true).setAttribute(CONFIG_LIST_SESSION_KEY, data);
+        // don't cache plugin list - see GERONIMO-4306
+        //request.getPortletSession(true).setAttribute(CONFIG_LIST_SESSION_KEY, data);
         return true;
     }
 
