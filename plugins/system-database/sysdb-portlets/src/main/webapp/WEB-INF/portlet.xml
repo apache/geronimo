@@ -96,6 +96,33 @@ limitations under the License.
             <short-title>Run SQL</short-title>
             <keywords>Run SQL</keywords>
         </portlet-info>
+        <init-param>
+            <name>connectionMode</name>
+            <value>database</value>
+        </init-param>
+    </portlet>
+
+    <portlet>
+        <description>Portlet for running DataSource SQL commands</description>
+        <portlet-name>RunSQLDS</portlet-name>
+        <display-name>DataSource Run SQL Portlet</display-name>
+        <portlet-class>org.apache.geronimo.console.internaldb.RunSQLPortlet</portlet-class>
+        <expiration-cache>-1</expiration-cache>
+        <supports>
+            <mime-type>text/html</mime-type>
+            <portlet-mode>VIEW</portlet-mode>
+            <portlet-mode>HELP</portlet-mode>
+        </supports>
+        <supported-locale>en</supported-locale>
+        <portlet-info>
+            <title>Run SQL</title>
+            <short-title>Run SQL</short-title>
+            <keywords>Run SQL</keywords>
+        </portlet-info>
+        <init-param>
+            <name>connectionMode</name>
+            <value>datasource</value>
+        </init-param>
     </portlet>
 
     <portlet>

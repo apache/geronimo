@@ -21,11 +21,11 @@
 <fmt:setBundle basename="systemdatabase"/>
 <portlet:defineObjects/>
 
-<center><b><fmt:message key="internaldb.listDatabases.title"/></b></center>
-<table width="100%">
+<b><fmt:message key="internaldb.listDatabases.title"/>:</b>
+<table width="100%" style="border-style: solid;border-width: 1px;" summary="DB Viewer - DB List">
   <tr>
-    <td class="DarkBackground" colspan="1" align="center"><fmt:message key="internaldb.common.databases"/></td>
-    <td class="DarkBackground" colspan="2" align="center"><fmt:message key="internaldb.common.viewTables"/></td>
+    <th scope="col" class="DarkBackground" colspan="1" align="center"><fmt:message key="internaldb.common.databases"/></th>
+    <th scope="col" class="DarkBackground" colspan="2" align="center"><fmt:message key="internaldb.common.viewTables"/></th>
   </tr>
   <%-- Check if there are databases to display  --%>
   <c:choose>
