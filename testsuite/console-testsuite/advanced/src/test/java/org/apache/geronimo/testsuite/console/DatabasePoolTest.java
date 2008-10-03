@@ -22,6 +22,9 @@ package org.apache.geronimo.testsuite.console;
 import org.testng.annotations.Test;
 import org.apache.geronimo.testsupport.console.ConsoleTestSupport;
 
+/**
+ * @version $Rev$ $Date$
+ */
 @Test
 public class DatabasePoolTest extends ConsoleTestSupport {
     @Test
@@ -51,6 +54,24 @@ public class DatabasePoolTest extends ConsoleTestSupport {
             logout();
         }
     }
+
+    @Test
+    public void testRunSQLDS() throws Exception {
+        try {
+            login();
+            
+            selenium.click("link=Database Pools");
+            selenium.waitForPageToLoad("30000");
+            selenium.select("useDB", "label=SystemDatasource");
+            selenium.type("sqlStmts", "select * from SYS.SYSDEPENDS;");
+            selenium.click("//input[@value = 'Run SQL']");
+            selenium.waitForPageToLoad("30000");
+            assertTrue(selenium.isTextPresent("SQL command/s successful"));
+        } finally {
+            logout();
+        }
+    }
+
     /*
     // cannot test yet. jetty is having problems rending the page
     

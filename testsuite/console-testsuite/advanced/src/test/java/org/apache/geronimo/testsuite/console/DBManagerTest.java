@@ -22,6 +22,9 @@ package org.apache.geronimo.testsuite.console;
 import org.testng.annotations.Test;
 import org.apache.geronimo.testsupport.console.ConsoleTestSupport;
 
+/**
+ * @version $Rev$ $Date$
+ */
 @Test
 public class DBManagerTest extends ConsoleTestSupport {
     @Test
@@ -35,22 +38,37 @@ public class DBManagerTest extends ConsoleTestSupport {
             selenium.click("//input[@value = 'Create']");
             selenium.waitForPageToLoad("30000");
             assertTrue(selenium.isTextPresent("MyUniqueDB"));
-            selenium.type("sqlStmts", "create table myTable ( id int primary key );");
-            selenium.select("useDB", "label=SystemDatabase");
             selenium.select("useDB", "label=MyUniqueDB");
+            selenium.type("sqlStmts", "create table myTable ( id int primary key );");
             selenium.click("//input[@value = 'Run SQL']");
             selenium.waitForPageToLoad("30000");
             //selenium.click("link=Application");
             selenium.click("//a[contains(@href, 'db=MyUniqueDB')]");
             selenium.waitForPageToLoad("30000");
             assertTrue(selenium.isTextPresent("MYTABLE"));
-            selenium.select("deleteDB", "label=SystemDatabase");
             selenium.select("deleteDB", "label=MyUniqueDB");
             selenium.click("//input[@value = 'Delete']");
             selenium.waitForPageToLoad("30000");
             assertTrue(selenium.getConfirmation().matches("^Are you sure you want to delete this database[\\s\\S]$"));
             selenium.waitForPageToLoad("30000");
             assertTrue(selenium.isTextPresent("Database deleted: MyUniqueDB"));
+        } finally {
+            logout();
+        }
+    }
+    
+    @Test
+    public void testRunSQL() throws Exception {
+        try {
+            login();
+
+            selenium.click("link=DB Manager");
+            selenium.waitForPageToLoad("30000");
+            selenium.select("useDB", "label=SystemDatabase");
+            selenium.type("sqlStmts", "select * from SYS.SYSDEPENDS;");
+            selenium.click("//input[@value = 'Run SQL']");
+            selenium.waitForPageToLoad("30000");
+            assertTrue(selenium.isTextPresent("SQL command/s successful"));
         } finally {
             logout();
         }
