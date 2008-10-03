@@ -47,7 +47,18 @@ public class DatabasePoolTest extends TestSupport {
         waitForPageLoad();
         assertFalse(selenium.isTextPresent("UniquePool"));
     }
-    
+
+    @Test
+    public void testRunSQLDS() throws Exception {
+        selenium.click("link=Database Pools");
+        waitForPageLoad();
+        selenium.select("useDB", "label=SystemDatasource");
+        selenium.type("sqlStmts", "select * from SYS.SYSDEPENDS;");
+        selenium.click("//input[@value = 'Run SQL']");
+        waitForPageLoad();
+        assertTrue(selenium.isTextPresent("SQL command/s successful"));
+    }
+
     /*
     // cannot test yet. jetty is having problems rending the page
     
