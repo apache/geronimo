@@ -55,6 +55,7 @@
             <groupId>org.apache.geronimo.testsuite</groupId>
             <artifactId>wsa-common</artifactId>
             <version>${version}</version>
+            <scope>test</scope>
         </dependency>
 
         <dependency>
@@ -124,7 +125,7 @@
                     <systemProperties>
                         <property>
                             <name>webAppName</name>
-                            <value>wsa-war</value>
+                            <value>wsa-common</value>
                         </property>
                     </systemProperties>
                 </configuration>
@@ -140,6 +141,14 @@
                             <goal>deploy-module</goal>
                         </goals>
                         <configuration>
+                            <modules>
+                                <module>
+                                    <groupId>org.apache.geronimo.testsuite</groupId>
+                                    <artifactId>wsa-common</artifactId>
+                                    <type>war</type>
+                                    <version>${version}</version>
+                                </module>
+                            </modules>
                             <moduleArchive>${project.build.directory}/${artifactId}-${version}.ear</moduleArchive>
                         </configuration>
                     </execution>
@@ -151,6 +160,14 @@
                             <goal>undeploy-module</goal>
                         </goals>
                         <configuration>
+                            <modules>
+                                <module>
+                                    <groupId>org.apache.geronimo.testsuite</groupId>
+                                    <artifactId>wsa-common</artifactId>
+                                    <type>war</type>
+                                    <version>${version}</version>
+                                </module>
+                            </modules>
                             <moduleId>${groupId}/${artifactId}/${version}/ear</moduleId>
                         </configuration>
                     </execution>

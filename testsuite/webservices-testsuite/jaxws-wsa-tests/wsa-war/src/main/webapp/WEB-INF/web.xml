@@ -35,41 +35,5 @@ limitations under the License.
         <servlet-name>CalculatorServlet</servlet-name>
         <url-pattern>/calculator</url-pattern>
     </servlet-mapping>
-    
-    <servlet>
-        <display-name>TestServletWeb</display-name>
-        <servlet-name>TestServletWeb</servlet-name>
-        <servlet-class>org.apache.geronimo.jaxws.wsa.TestServletWeb</servlet-class>
-        <load-on-startup>0</load-on-startup>
-    </servlet>
-
-    <servlet-mapping>
-        <servlet-name>TestServletWeb</servlet-name>
-        <url-pattern>/test-web</url-pattern>
-    </servlet-mapping>
-    
-    <servlet>
-        <display-name>TestServletEJB</display-name>
-        <servlet-name>TestServletEJB</servlet-name>
-        <servlet-class>org.apache.geronimo.jaxws.wsa.TestServletEJB</servlet-class>
-        <load-on-startup>0</load-on-startup>
-    </servlet>
-
-    <servlet-mapping>
-        <servlet-name>TestServletEJB</servlet-name>
-        <url-pattern>/test-ejb</url-pattern>
-    </servlet-mapping>
-    
-    <service-ref>
-       <service-ref-name>services/Calculator</service-ref-name>
-       <service-interface>javax.xml.ws.Service</service-interface>
-       <wsdl-file>WEB-INF/wsdl/calculator.wsdl</wsdl-file>
-   </service-ref>
-   
-   <service-ref>
-       <service-ref-name>services/ejb/Calculator</service-ref-name>
-       <service-interface>javax.xml.ws.Service</service-interface>
-       <wsdl-file>WEB-INF/wsdl/calculator.wsdl</wsdl-file>
-   </service-ref>
-   
+       
 </web-app>

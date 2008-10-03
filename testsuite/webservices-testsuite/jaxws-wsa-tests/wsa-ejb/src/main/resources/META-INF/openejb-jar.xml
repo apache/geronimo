@@ -26,7 +26,7 @@
         <moduleId>
             <groupId>${pom.groupId}</groupId>
             <artifactId>${pom.artifactId}</artifactId>
-            <version>1.0</version>
+            <version>${version}</version>
             <type>jar</type>
         </moduleId>
    </environment>
