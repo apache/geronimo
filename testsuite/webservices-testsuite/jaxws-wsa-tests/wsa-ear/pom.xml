@@ -53,8 +53,9 @@
 
         <dependency>
             <groupId>org.apache.geronimo.testsuite</groupId>
-            <artifactId>wsa-common</artifactId>
+            <artifactId>wsa-test-war</artifactId>
             <version>${version}</version>
+            <type>war</type>
             <scope>test</scope>
         </dependency>
 
@@ -125,7 +126,7 @@
                     <systemProperties>
                         <property>
                             <name>webAppName</name>
-                            <value>wsa-common</value>
+                            <value>wsa-test-war</value>
                         </property>
                     </systemProperties>
                 </configuration>
@@ -144,7 +145,7 @@
                             <modules>
                                 <module>
                                     <groupId>org.apache.geronimo.testsuite</groupId>
-                                    <artifactId>wsa-common</artifactId>
+                                    <artifactId>wsa-test-war</artifactId>
                                     <type>war</type>
                                     <version>${version}</version>
                                 </module>
@@ -163,7 +164,7 @@
                             <modules>
                                 <module>
                                     <groupId>org.apache.geronimo.testsuite</groupId>
-                                    <artifactId>wsa-common</artifactId>
+                                    <artifactId>wsa-test-war</artifactId>
                                     <type>war</type>
                                     <version>${version}</version>
                                 </module>

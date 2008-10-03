@@ -75,7 +75,7 @@
     </dependencies>
 
     <modules>
-        <module>wsa-common</module>
+        <module>wsa-test-war</module>
         <module>wsa-war</module>
         <module>wsa-ejb</module>
         <module>wsa-ear</module>

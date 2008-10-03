@@ -30,7 +30,7 @@
         <version>2.2-SNAPSHOT</version>
     </parent>
 
-    <artifactId>wsa-common</artifactId>
+    <artifactId>wsa-test-war</artifactId>
     <name>Geronimo TestSuite :: WebServices TestSuite :: JAX-WS WS-A WAR Test Client</name>
     <packaging>war</packaging>
 
