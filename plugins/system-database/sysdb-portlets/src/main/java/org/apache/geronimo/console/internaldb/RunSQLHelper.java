@@ -132,7 +132,7 @@ public class RunSQLHelper {
         return result;
     }
 
-    public String runSQL(String dsName, String sql) {
+    public String runSQL(String connName, String sql, Boolean dsConn) {
         String result = SQL_SUCCESS_MSG;
 
         if ((sql == null) || (sql.trim().length() == 0)) {
@@ -144,8 +144,11 @@ public class RunSQLHelper {
         Connection conn = null;
         Statement s = null;
         try {
-
-            conn = DerbyConnectionUtil.getDataSourceConnection(dsName);
+            if (dsConn) {
+                conn = DerbyConnectionUtil.getDataSourceConnection(connName);
+            } else {
+                conn = DerbyConnectionUtil.getDerbyConnection(connName);
+            }
             conn.setAutoCommit(false);
 
             s = conn.createStatement();
@@ -218,6 +221,6 @@ public class RunSQLHelper {
                 "create table derbyTbl1(num int, addr varchar(40));"
                         + "create table derbyTbl2(num int, addr varchar(40));"
                         + "create table derbyTbl3(num int, addr varchar(40));"
-                        + "insert into derb");
+                        + "insert into derb", false);
     }
 }

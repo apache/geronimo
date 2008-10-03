@@ -72,8 +72,8 @@ public class DBViewerHelper {
      * @param derbySysHome
      * @return
      */
-    public Collection getDerbyDatabases(String derbySysHome) {
-        Vector databases = new Vector();
+    public Collection<String> getDerbyDatabases(String derbySysHome) {
+        List<String> databases = new ArrayList<String>();
         File f = new File(derbySysHome);
         // Check if this is a directory
         if (f.isDirectory()) {

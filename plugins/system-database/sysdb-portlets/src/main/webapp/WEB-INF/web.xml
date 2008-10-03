@@ -66,6 +66,16 @@ limitations under the License.
         </init-param>
     </servlet>
 
+    <servlet>
+        <display-name>Pluto Wrapper for DataSource Run SQL Portlet</display-name>
+        <servlet-name>RunSQLDS</servlet-name>
+        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <init-param>
+            <param-name>portlet-name</param-name>
+            <param-value>RunSQLDS</param-value>
+        </init-param>
+    </servlet>
+
    <servlet>
         <display-name>Pluto Wrapper for Derby Log Viewer Portlet</display-name>
         <servlet-name>DerbyLogViewer</servlet-name>
@@ -104,6 +114,11 @@ limitations under the License.
     <servlet-mapping>
         <servlet-name>RunSQL</servlet-name>
         <url-pattern>/PlutoInvoker/RunSQL/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>RunSQLDS</servlet-name>
+        <url-pattern>/PlutoInvoker/RunSQLDS/*</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>

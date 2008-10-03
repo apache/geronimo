@@ -48,6 +48,10 @@ public class RunSQLPortlet extends BasePortlet {
     private static final String BACKUPDB_ACTION = "Backup";
 
     private static final String RESTOREDB_ACTION = "Restore";
+    
+    private static final String DATASOURCE_MODE = "datasource";
+
+    private static final String DATABASE_MODE = "database";
 
     private static RunSQLHelper sqlHelper = new RunSQLHelper();
 
@@ -59,7 +63,7 @@ public class RunSQLPortlet extends BasePortlet {
 
     private PortletRequestDispatcher helpView;
 
-    private Collection databases;
+    private Collection<String> databases;
     
     private Collection<String> dataSourceNames;
 
@@ -78,6 +82,8 @@ public class RunSQLPortlet extends BasePortlet {
     private String sqlStmts;
 
     private String actionResult;
+    
+    private String connectionMode;  // either datasource or database
 
     public void processAction(ActionRequest actionRequest,
             ActionResponse actionResponse) throws PortletException, IOException {
@@ -95,7 +101,7 @@ public class RunSQLPortlet extends BasePortlet {
         } else if (DELETEDB_ACTION.equals(action)) {
             actionResult = sqlHelper.deleteDB(DerbyConnectionUtil.getDerbyHome(), deleteDB);
         } else if (RUNSQL_ACTION.equals(action)) {
-            actionResult = sqlHelper.runSQL(useDB, sqlStmts);
+            actionResult = sqlHelper.runSQL(useDB, sqlStmts, RunSQLPortlet.DATASOURCE_MODE.equals(connectionMode));
         } else if (BACKUPDB_ACTION.equals(action)) {
             actionResult = sqlHelper.backupDB(DerbyConnectionUtil.getDerbyHome(), backupDB);
         } else if (RESTOREDB_ACTION.equals(action)) {
@@ -115,7 +121,8 @@ public class RunSQLPortlet extends BasePortlet {
         renderRequest.setAttribute("databases", databases);
         renderRequest.setAttribute("dataSourceNames", dataSourceNames);
         renderRequest.setAttribute("sqlStmts", sqlStmts);
-        renderRequest.setAttribute("useDB", useDB);	
+        renderRequest.setAttribute("useDB", useDB);
+        renderRequest.setAttribute("connectionMode", connectionMode);
         if (RUNSQL_ACTION.equals(action)) {
             // check if it's a single Select statement
             if ((sqlStmts != null) && (sqlStmts.trim().indexOf(';') == -1)
@@ -148,6 +155,7 @@ public class RunSQLPortlet extends BasePortlet {
 
     protected void doHelp(RenderRequest renderRequest,
             RenderResponse renderResponse) throws PortletException, IOException {
+        renderRequest.setAttribute("connectionMode", connectionMode);
         helpView.include(renderRequest, renderResponse);
     }
 
@@ -161,12 +169,26 @@ public class RunSQLPortlet extends BasePortlet {
                 HELPVIEW_JSP);
         databases = dbHelper.getDerbyDatabases(DerbyConnectionUtil.getDerbyHome());
         dataSourceNames = dbHelper.getDataSourceNames();
+        String mode = portletConfig.getInitParameter("connectionMode");
+        if ((mode != null) && (mode.trim().equalsIgnoreCase(RunSQLPortlet.DATASOURCE_MODE))) {
+            connectionMode = RunSQLPortlet.DATASOURCE_MODE;
+        } else {
+            connectionMode = RunSQLPortlet.DATABASE_MODE;
+        }
     }
 
     public void destroy() {
         normalView = null;
         maximizedView = null;
         helpView = null;
+        if (databases != null) {
+            databases.clear();
+            databases = null;
+        }
+        if (dataSourceNames != null) {
+            dataSourceNames.clear();
+            dataSourceNames = null;
+        }
         super.destroy();
     }
 

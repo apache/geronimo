@@ -47,6 +47,8 @@ function <portlet:namespace/>validateForm3(){
 <form name="<portlet:namespace/>DBForm" action="<portlet:actionURL portletMode='view'/>" method="post">
 <input type="hidden" name="action" value="" />
 <table width="100%"  border="0">
+<c:choose>
+ <c:when test="${connectionMode == 'database'}">
   <tr>
     <td><div align="right"><label for="<portlet:namespace/>createDB"><fmt:message key="internaldb.common.createDB"/></label>:</div></td>
     <td><input name="createDB" id="<portlet:namespace/>createDB" type="text" size="30">&nbsp;
@@ -67,12 +69,26 @@ function <portlet:namespace/>validateForm3(){
     <td><div align="right"><label for="<portlet:namespace/>useDB"><fmt:message key="internaldb.common.useDB"/></label>:</div></td>
     <td>
       <select name="useDB" id="<portlet:namespace/>useDB">
+      <c:forEach var="db" items="${databases}" varStatus="status">
+        <option value="${db}"<c:if test="${useDB==db}"> selected="selected"</c:if>>${db}</option>
+      </c:forEach>
+      </select>&nbsp;
+      <input type="submit" value="Run SQL" onClick="return <portlet:namespace/>validateForm3();"></td>
+  </tr>
+ </c:when>
+ <c:otherwise>
+  <tr>
+    <td><div align="right"><label for="<portlet:namespace/>useDB"><fmt:message key="internaldb.common.useDS"/></label>:</div></td>
+    <td>
+      <select name="useDB" id="<portlet:namespace/>useDB">
       <c:forEach var="dsName" items="${dataSourceNames}" varStatus="status">
         <option value="${dsName}"<c:if test="${useDB==dsName}"> selected="selected"</c:if>>${dsName}</option>
       </c:forEach>
       </select>&nbsp;
       <input type="submit" value="Run SQL" onClick="return <portlet:namespace/>validateForm3();"></td>
   </tr>
+ </c:otherwise>
+</c:choose>
   <tr>
     <td></td>
     <td><div align="left"><label for="<portlet:namespace/>sqlStmts"><fmt:message key="internaldb.common.SQLCommands"/></label>:</div></td>
@@ -113,52 +129,65 @@ function <portlet:namespace/>validateForm3(){
 
 <%-- Display query result from single select statement --%>
 <c:if test="${!empty singleSelectStmt}">
+    <%-- If in Database mode, make sure we have a Derby connection --%>
+    <c:if test="${connectionMode == 'database'}">
+      <c:if test="${ds == null}">
+        <%-- Create the connection manually --%>
+        <sql:setDataSource
+          var="ds"
+          driver="org.apache.derby.jdbc.EmbeddedDriver"
+          url="jdbc:derby:${useDB};create=true"
+          user=""
+          password=""
+        />
+      </c:if>
+	</c:if>
 
-<%-- Select statement --%>
-<sql:transaction dataSource="${ds}">
-  <sql:query var="table">
-    <%= request.getAttribute("singleSelectStmt") %>
-  </sql:query>
-</sql:transaction>
-
-<center><b><fmt:message key="internaldb.common.queryResult"/></b></center>
-<table width="100%">
-  <tr>
-  <%-- Get the column names for the header of the table --%>
-  <c:forEach var="columnName" items="${table.columnNames}">
-    <td class="DarkBackground"><c:out value="${columnName}" /></td>
-  </c:forEach>
-  </tr>
-  
-  <%-- Check if there are table data to display --%>
-  <c:choose>
-    <c:when test="${table.rowCount == 0}">
-      <tr>
-        <td class="LightBackground" colspan="<c:out value='${fn:length(table.columnNames)}' />" align="center">*** <fmt:message key="internaldb.common.empty"/> ***</td>
-      </tr>
-    </c:when>
-    <c:otherwise>
-      <%-- Get the value of each column while iterating over rows --%>
-      <c:forEach var="row" items="${table.rowsByIndex}" varStatus="status">
-        <jsp:useBean type="javax.servlet.jsp.jstl.core.LoopTagStatus" id="status" />
-        <tr>
-        <c:choose>
-          <c:when test="<%= status.getCount() % 2 == 1 %>">
-            <c:forEach var="column" items="${row}">
-              <td class="LightBackground"><c:out value="${column}" /></td>
-            </c:forEach>
-          </c:when>
-            <c:otherwise>
-            <c:forEach var="column" items="${row}">
-              <td class="MediumBackground"><c:out value="${column}" /></td>
-            </c:forEach>
-            </c:otherwise>
-          </c:choose>
-        </tr>
-      </c:forEach>
-    </c:otherwise>
-  </c:choose>
-</table>
+	<%-- Select statement --%>
+	<sql:transaction dataSource="${ds}">
+	  <sql:query var="table">
+	    <%= request.getAttribute("singleSelectStmt") %>
+	  </sql:query>
+	</sql:transaction>
+	
+	<center><b><fmt:message key="internaldb.common.queryResult"/></b></center>
+	<table width="100%">
+	  <tr>
+	  <%-- Get the column names for the header of the table --%>
+	  <c:forEach var="columnName" items="${table.columnNames}">
+	    <td class="DarkBackground"><c:out value="${columnName}" /></td>
+	  </c:forEach>
+	  </tr>
+	  
+	  <%-- Check if there are table data to display --%>
+	  <c:choose>
+	    <c:when test="${table.rowCount == 0}">
+	      <tr>
+	        <td class="LightBackground" colspan="<c:out value='${fn:length(table.columnNames)}' />" align="center">*** <fmt:message key="internaldb.common.empty"/> ***</td>
+	      </tr>
+	    </c:when>
+	    <c:otherwise>
+	      <%-- Get the value of each column while iterating over rows --%>
+	      <c:forEach var="row" items="${table.rowsByIndex}" varStatus="status">
+	        <jsp:useBean type="javax.servlet.jsp.jstl.core.LoopTagStatus" id="status" />
+	        <tr>
+	        <c:choose>
+	          <c:when test="<%= status.getCount() % 2 == 1 %>">
+	            <c:forEach var="column" items="${row}">
+	              <td class="LightBackground"><c:out value="${column}" /></td>
+	            </c:forEach>
+	          </c:when>
+	            <c:otherwise>
+	            <c:forEach var="column" items="${row}">
+	              <td class="MediumBackground"><c:out value="${column}" /></td>
+	            </c:forEach>
+	            </c:otherwise>
+	          </c:choose>
+	        </tr>
+	      </c:forEach>
+	    </c:otherwise>
+	  </c:choose>
+	</table>
 </c:if>
 
 </form>
