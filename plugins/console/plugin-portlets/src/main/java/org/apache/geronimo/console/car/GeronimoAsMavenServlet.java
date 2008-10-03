@@ -110,12 +110,17 @@ public class GeronimoAsMavenServlet extends HttpServlet {
                         buf.append(part);
                     }
                     generateMavenFile(kernel, response.getWriter(), buf.toString(), parts[parts.length-1], reply);
-                } else {
+                } else if (parts.length == 2) {
                     generateMavenFile(kernel, response.getWriter(), parts[0], parts[1], reply);
+                } else {
+                    generateInstruction(path, response);
                 }
             } catch (Exception e) {
                 throw new ServletException("Unable to generate Geronimo configuration list", e);
             }
+        } else if (path.equals("/")) {
+            //give user some basic instructions
+            generateInstruction(path, response);
         } else {
             if(path.startsWith("/")) {
                 path = path.substring(1);
@@ -254,5 +259,14 @@ public class GeronimoAsMavenServlet extends HttpServlet {
         Text node = doc.createTextNode(text);
         child.appendChild(node);
     }
-
+    
+    private void generateInstruction(String path, HttpServletResponse response) throws IOException {
+        response.setContentType("text/html");
+        PrintWriter out = response.getWriter();
+        out.println("Hello, this is the GeronimoAsMavenServlet.   The path - " + path + " you entered is not recognized.   <br/>");
+        out.println("Please enter a valid path, for example: <br/>");
+        out.println("/geronimo-plugins.xml <br/>");
+        out.println("/org/apache/geronimo/maven-metadata.xml <br/>");
+        out.close();
+    }
 }
