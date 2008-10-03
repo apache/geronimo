@@ -63,7 +63,7 @@ public abstract class BaseImportExportHandler extends MultiPageAbstractHandler {
         super(mode, viewName);
     }
 
-    protected PluginListType getRepoPluginList(PortletRequest request, PluginInstaller pluginInstaller, String repo, String user, String pass) throws IOException, PortletException {
+    protected PluginListType getRepoPluginList(PortletRequest request, PluginInstaller pluginInstaller, String repo) throws IOException, PortletException {
         PortletSession session = request.getPortletSession(true);
         PluginListType list = (PluginListType) session.getAttribute(CONFIG_LIST_SESSION_KEY);
         String listRepo = (String) session.getAttribute(CONFIG_LIST_REPO_SESSION_KEY);

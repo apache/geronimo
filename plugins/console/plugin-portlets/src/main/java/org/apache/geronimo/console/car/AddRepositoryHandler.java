@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.geronimo.console.MultiPageModel;
 import org.apache.geronimo.console.util.PortletManager;
+import org.apache.geronimo.crypto.encoders.Base64;
 import org.apache.geronimo.system.plugin.PluginRepositoryList;
 
 import javax.portlet.ActionRequest;
@@ -40,7 +41,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Handler for the import export main screen.
+ * Handler for the add repository screen.
  *
  * @version $Rev$ $Date$
  */
@@ -62,6 +63,7 @@ public class AddRepositoryHandler extends BaseImportExportHandler {
             list.addAll(repo.getRepositories());
         }
         String error = request.getParameter("repoError");
+        
         if(error != null && !error.equals("")) {
             request.setAttribute("repoError", error);
         }
@@ -80,6 +82,9 @@ public class AddRepositoryHandler extends BaseImportExportHandler {
 
 
     private boolean addRepository(String repo, ActionRequest request, ActionResponse response) throws IOException {
+        String userName = request.getParameter("username");
+        String password = request.getParameter("password");
+        
         repo = repo.trim();
         repo = repo.replaceAll(" ", "%20");
         if(!repo.endsWith("/")) {
@@ -112,24 +117,30 @@ public class AddRepositoryHandler extends BaseImportExportHandler {
             URL test = new URL(repo+"geronimo-plugins.xml");
             log.debug("Checking repository "+test);
             URLConnection urlConnection = test.openConnection();
+            
             if(urlConnection instanceof HttpURLConnection) {
                 HttpURLConnection con = (HttpURLConnection) urlConnection;
                 try {
+                    if (!isEmpty(userName)) {
+                        con.setRequestProperty("Authorization",
+                                "Basic " + new String(Base64.encode((userName + ":" + password).getBytes())));
+                    }
                     con.connect();
-                } catch (ConnectException e) {
-                    response.setRenderParameter("repoError", "Unable to connect to "+url+" ("+e.getMessage()+")");
-                    return false;
                 } catch (UnknownHostException e) {
                     response.setRenderParameter("repoError", "Unknown host: " + url.getHost());
+                    return false;
+                } catch (Exception e) {
+                    response.setRenderParameter("repoError", "Unable to connect to " + url + " ("+e.getMessage()+")");
                     return false;
                 }
                 int result = con.getResponseCode();
                 log.debug("Repository check response: "+result);
                 if(result == 404) {
-                    response.setRenderParameter("repoError", "Not a valid repository; no plugin list found at "+test);
+                    response.setRenderParameter("repoError", "Not a valid repository. No plugin list found at " + test);
                     return false;
                 } else if(result == 401) {
-                    log.warn("Unable to validate repository -- it requires authentication.  Assuming you know what you're doing.");
+                    response.setRenderParameter("repoError", "Unable to validate repository -- it requires authentication.  Please provide a valid username or password");
+                    return false;
                 } else if(result != 200) {
                     log.warn("Unexpected response code while validating repository ("+result+" "+con.getResponseMessage()+").  Assuming you know what you're doing.");
                 }
@@ -141,14 +152,12 @@ public class AddRepositoryHandler extends BaseImportExportHandler {
                     in.read();
                     in.close();
                 } catch (IOException e) {
-                    response.setRenderParameter("repoError", "Not a valid repository; no plugin list found at "+test);
+                    response.setRenderParameter("repoError", "Not a valid repository. No plugin list found at "+test);
                     return false;
                 }
             }
-            //TODO fish these out of the request?
-            String userName = null;
-            String password = null;
-            lists.get(0).addUserRepository(url, userName, password);
+            
+            lists.get(0).addUserRepository(url, isEmpty(userName) ?null : userName , password);
             request.setAttribute("repository", repo);
             return true;
         }

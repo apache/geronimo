@@ -72,7 +72,7 @@ public class ViewPluginDownloadHandler extends BaseImportExportHandler {
         String user = request.getParameter("repo-user");
         String pass = request.getParameter("repo-pass");
 
-        PluginListType list = getRepoPluginList(request, pluginInstaller, repo, user, pass);
+        PluginListType list = getRepoPluginList(request, pluginInstaller, repo);
         PluginListType installList = getPluginsFromIds(configIds, list);
         List<PluginInfoBean> plugins = new ArrayList<PluginInfoBean>();
         for (PluginType pluginType: installList.getPlugin()) {
@@ -126,7 +126,7 @@ public class ViewPluginDownloadHandler extends BaseImportExportHandler {
         String pass = request.getParameter("repo-pass");
         String[] configIds = request.getParameterValues("configId");
 
-        PluginListType list = getRepoPluginList(request, pluginInstaller, repo, user, pass);
+        PluginListType list = getRepoPluginList(request, pluginInstaller, repo);
         PluginListType installList = getPluginsFromIds(configIds, list);
 
         Object downloadKey = pluginInstaller.startInstall(installList, repo, false, user, pass);

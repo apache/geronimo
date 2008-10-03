@@ -66,7 +66,7 @@ public class ListHandler extends AbstractListHandler {
         String user = request.getParameter("repo-user");
         String pass = request.getParameter("repo-pass");
         String column = request.getParameter("column");
-        if(!loadFromRepository(request, repository, user, pass)) {
+        if(!loadFromRepository(request, repository)) {
             //todo: loading failed -- do something!
         }
         request.setAttribute("repository", repository);
@@ -79,12 +79,12 @@ public class ListHandler extends AbstractListHandler {
         return getMode()+BEFORE_ACTION;
     }
 
-    private boolean loadFromRepository(RenderRequest request, String repository, String username, String password) throws IOException, PortletException {
+    private boolean loadFromRepository(RenderRequest request, String repository) throws IOException, PortletException {
         
         PluginInstaller pluginInstaller = ManagementHelper.getManagementHelper(request).getPluginInstaller();
 
         // try to reuse the catalog data if it was already downloaded
-        PluginListType data = getRepoPluginList(request, pluginInstaller, repository, username, password);
+        PluginListType data = getRepoPluginList(request, pluginInstaller, repository);
         
         if(data == null || data.getPlugin() == null) {
             return false;

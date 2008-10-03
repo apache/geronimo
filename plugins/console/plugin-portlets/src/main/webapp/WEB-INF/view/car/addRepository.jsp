@@ -46,7 +46,11 @@
 <form name="<portlet:namespace/>PluginForm" action="<portlet:actionURL/>">
     <input type="hidden" name="mode" value="addRepository-after" />
     <b><label for="<portlet:namespace/>newRepository"><fmt:message key="car.common.newRepository" /></label>:</b> <input type="text" name="newRepository" id="<portlet:namespace/>newRepository" size="40" maxlength="200" />
-    <br />
+    <br/>
+    <b><fmt:message key="car.index.optionalAuthentication"/>:</b>
+    <label for="<portlet:namespace/>username"><fmt:message key="consolebase.common.user"/></label>: <input type="text" name="username" id="<portlet:namespace/>username" value="${repouser}" size="12" maxlength="200"/>
+    <label for="<portlet:namespace/>password"><fmt:message key="consolebase.common.password"/></label>: <input type="password" name="password" id="<portlet:namespace/>password" value="${repopass}" size="12" maxlength="200"/>
+    <br/>
     <c:if test="${!empty repoError}">
       <p><font color="red">${repoError}</font></p>
     </c:if>
