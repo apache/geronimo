@@ -50,6 +50,8 @@
         NOTE: Override the following on the cmdline to only run specific 
               testsuite buckets.  To only run console-testsuite/advanced -
                 mvn -DshittyTestIncludes=console-testsuite/advanced/pom.xml
+              or
+                mvn install -Dtests=console-testsuite/advanced
         -->
         <shittyTestIncludes>*/*/pom.xml</shittyTestIncludes>
     </properties>
