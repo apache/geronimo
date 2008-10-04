@@ -117,7 +117,8 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer
         
         Axis2ConfigGBean.registerClientConfigurationFactory();
         
-        configurationContext = ConfigurationContextFactory.createBasicConfigurationContext("META-INF/geronimo-axis2.xml");
+        GeronimoConfigurator configurator = new GeronimoConfigurator("META-INF/geronimo-axis2.xml");
+        configurationContext = ConfigurationContextFactory.createConfigurationContext(configurator);
 
         // check to see if the wsdlLocation property is set in portInfo,
         // if not checking if wsdlLocation exists in annotation
@@ -130,6 +131,7 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer
         }
 
         AxisServiceGenerator serviceGen = createServiceGenerator();
+        serviceGen.setConfigurationContext(configurationContext);
         if (portInfo.getWsdlFile() != null && !portInfo.getWsdlFile().equals("")) {
             // WSDL file has been provided
             service = serviceGen.getServiceFromWSDL(portInfo, endpointClass, configurationBaseUrl);

@@ -39,6 +39,7 @@ import javax.xml.namespace.QName;
 import javax.xml.ws.WebServiceException;
 
 import org.apache.axis2.Constants;
+import org.apache.axis2.context.ConfigurationContext;
 import org.apache.axis2.description.AxisOperation;
 import org.apache.axis2.description.AxisService;
 import org.apache.axis2.description.Parameter;
@@ -72,6 +73,7 @@ public class AxisServiceGenerator
     private static final Logger log = LoggerFactory.getLogger(AxisServiceGenerator.class);
 
     private MessageReceiver messageReceiver;
+    private ConfigurationContext configurationContext;
     
     public AxisServiceGenerator(){
         this.messageReceiver = new JAXWSMessageReceiver();
@@ -81,6 +83,10 @@ public class AxisServiceGenerator
         this.messageReceiver = messageReceiver;
     }
    
+    public void setConfigurationContext(ConfigurationContext configurationContext) {
+        this.configurationContext = configurationContext;
+    }
+    
     public AxisService getServiceFromClass(Class endpointClass) throws Exception {
         ServiceDescription serviceDescription = 
             DescriptionFactory.createServiceDescription(endpointClass);        
@@ -228,7 +234,7 @@ public class AxisServiceGenerator
     }
         
     private EndpointDescription getEndpointDescription(HashMap<String, DescriptionBuilderComposite> dbcMap) {
-        List<ServiceDescription> serviceDescList = DescriptionFactory.createServiceDescriptionFromDBCMap(dbcMap);
+        List<ServiceDescription> serviceDescList = DescriptionFactory.createServiceDescriptionFromDBCMap(dbcMap, this.configurationContext);
         if (serviceDescList == null || serviceDescList.isEmpty()) {
             throw new RuntimeException("No service");
         }
