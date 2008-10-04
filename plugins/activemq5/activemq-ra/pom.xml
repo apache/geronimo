@@ -24,29 +24,29 @@
 
     <parent>
         <groupId>org.apache.geronimo.plugins</groupId>
-        <artifactId>activemq</artifactId>
+        <artifactId>activemq5</artifactId>
         <version>2.2-SNAPSHOT</version>
     </parent>
     
     <groupId>org.apache.geronimo.configs</groupId>
-    <artifactId>activemq-ra</artifactId>
-    <name>Geronimo Plugins, ActiveMQ :: Resource Adapter</name>
+    <artifactId>activemq5-ra</artifactId>
+    <name>Geronimo Plugins, ActiveMQ5 :: Resource Adapter</name>
     <packaging>car</packaging>
 
-    <description>Geronimo ActiveMQ integration: ActiveMQ resource adapter connecting to (embedded) activemq broker.</description>
+    <description>Geronimo ActiveMQ5 integration: ActiveMQ5 resource adapter connecting to (embedded) activemq broker.</description>
     
     <dependencies>
         <!-- parent config -->
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>activemq-broker</artifactId>
+            <artifactId>activemq5-broker</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-activemq-ra</artifactId>
+            <artifactId>geronimo-activemq5-ra</artifactId>
             <version>${version}</version>
             <type>rar</type>
             <scope>test</scope>
@@ -74,7 +74,7 @@
                     </deploymentConfigs>
                     <module>
                         <groupId>org.apache.geronimo.modules</groupId>
-                        <artifactId>geronimo-activemq-ra</artifactId>
+                        <artifactId>geronimo-activemq5-ra</artifactId>
                         <version>${version}</version>
                         <type>rar</type>
                     </module>

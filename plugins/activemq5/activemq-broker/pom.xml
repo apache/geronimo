@@ -24,16 +24,16 @@
 
     <parent>
         <groupId>org.apache.geronimo.plugins</groupId>
-        <artifactId>activemq</artifactId>
+        <artifactId>activemq5</artifactId>
         <version>2.2-SNAPSHOT</version>
     </parent>
     
     <groupId>org.apache.geronimo.configs</groupId>
-    <artifactId>activemq-broker</artifactId>
-    <name>Geronimo Plugins, ActiveMQ :: Broker</name>
+    <artifactId>activemq5-broker</artifactId>
+    <name>Geronimo Plugins, ActiveMQ5 :: Broker</name>
     <packaging>car</packaging>
 
-    <description>Apache ActiveMQ integration into geronimo.  This module starts an activemq broker embedded in geronimo.</description>
+    <description>Apache ActiveMQ 5 integration into geronimo.  This module starts an activemq broker embedded in geronimo.</description>
     
     <dependencies>
         <dependency>
@@ -54,13 +54,13 @@
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-activemq</artifactId>
+            <artifactId>geronimo-activemq5</artifactId>
             <version>${version}</version>
         </dependency>
        
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-activemq-management</artifactId>
+            <artifactId>geronimo-activemq5-management</artifactId>
             <version>${version}</version>
         </dependency>
 

@@ -28,23 +28,63 @@
         <version>2.2-SNAPSHOT</version>
     </parent>
     
-    <artifactId>activemq</artifactId>
-    <name>Geronimo Plugins, ActiveMQ</name>
+    <artifactId>activemq5</artifactId>
+    <name>Geronimo Plugins, ActiveMQ 5</name>
     <packaging>pom</packaging>
     
     <description>
-        ActiveMQ plugin
+        ActiveMQ 5 plugin
     </description>
 
     <modules>
-        <module>activemq-broker</module>
-        <module>geronimo-activemq-ra</module>
-        <module>activemq-ra</module>
-        <module>geronimo-activemq</module>
-        <module>geronimo-activemq-management</module>
-        <module>activemq-portlets</module>
-        <module>activemq-console-jetty</module>
-        <module>activemq-console-tomcat</module>
+        <module>activemq5-broker</module>
+        <module>geronimo-activemq5-ra</module>
+        <module>activemq5-ra</module>
+        <module>geronimo-activemq5</module>
+        <module>geronimo-activemq5-management</module>
+        <module>activemq5-portlets</module>
+        <module>activemq5-console-jetty</module>
+        <module>activemq5-console-tomcat</module>
     </modules>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.apache.activemq</groupId>
+                <artifactId>activemq-core</artifactId>
+                <version>4.1.2-G647819</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.geronimo.specs</groupId>
+                        <artifactId>geronimo-j2ee-management_1.0_spec</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.activemq</groupId>
+                <artifactId>activemq-ra</artifactId>
+                <version>4.1.2</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.activemq</groupId>
+                <artifactId>activeio-core</artifactId>
+                <version>3.0.1</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+
+        </dependencies>
+    </dependencyManagement>
 
 </project>

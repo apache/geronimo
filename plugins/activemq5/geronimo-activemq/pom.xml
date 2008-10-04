@@ -24,18 +24,18 @@
 
     <parent>
         <groupId>org.apache.geronimo.plugins</groupId>
-        <artifactId>activemq</artifactId>
+        <artifactId>activemq5</artifactId>
         <version>2.2-SNAPSHOT</version>
     </parent>
     
     <groupId>org.apache.geronimo.modules</groupId>
-    <artifactId>geronimo-activemq</artifactId>
-    <name>Geronimo Plugins, ActiveMQ :: Core</name>
+    <artifactId>geronimo-activemq5</artifactId>
+    <name>Geronimo Plugins, ActiveMQ5 :: Core</name>
     
     <dependencies>
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-activemq-management</artifactId>
+            <artifactId>geronimo-activemq5-management</artifactId>
             <version>${version}</version>
         </dependency>
  
