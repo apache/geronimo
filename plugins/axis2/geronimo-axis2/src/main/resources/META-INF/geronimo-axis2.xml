@@ -66,6 +66,10 @@
     <!-- Following parameter will set the host name for the epr-->
     <!--<parameter name="hostname" locked="true">myhost.com</parameter>-->
 
+    <threadContextMigrators>
+        <threadContextMigrator listId="JAXWS-ThreadContextMigrator-List" class="org.apache.axis2.jaxws.addressing.migrator.EndpointContextMapMigrator"/>
+    </threadContextMigrators>
+
     <!-- ================================================= -->
     <!-- Message Receivers -->
     <!-- ================================================= -->

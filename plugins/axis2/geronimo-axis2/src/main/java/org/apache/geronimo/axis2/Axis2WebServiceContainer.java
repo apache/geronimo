@@ -20,6 +20,7 @@ package org.apache.geronimo.axis2;
 import java.io.ByteArrayInputStream;
 import java.io.PrintWriter;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
 import java.util.List;
 
@@ -27,6 +28,7 @@ import javax.naming.Context;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.namespace.QName;
 import javax.xml.ws.Binding;
 import javax.xml.ws.WebServiceException;
 import javax.xml.ws.handler.Handler;
@@ -41,11 +43,14 @@ import org.apache.axis2.context.ConfigurationContextFactory;
 import org.apache.axis2.context.MessageContext;
 import org.apache.axis2.context.OperationContext;
 import org.apache.axis2.description.AxisService;
+import org.apache.axis2.description.Parameter;
 import org.apache.axis2.description.TransportInDescription;
 import org.apache.axis2.description.TransportOutDescription;
 import org.apache.axis2.engine.AxisEngine;
 import org.apache.axis2.engine.Handler.InvocationResponse;
-import org.apache.axis2.jaxws.binding.BindingImpl;
+import org.apache.axis2.jaxws.addressing.util.EndpointContextMap;
+import org.apache.axis2.jaxws.addressing.util.EndpointContextMapManager;
+import org.apache.axis2.jaxws.addressing.util.EndpointKey;
 import org.apache.axis2.jaxws.binding.BindingUtils;
 import org.apache.axis2.jaxws.description.EndpointDescription;
 import org.apache.axis2.jaxws.description.impl.DescriptionUtils;
@@ -98,6 +103,7 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer
     protected Binding binding;
     protected JAXWSAnnotationProcessor annotationProcessor;
     protected Context context;
+    protected String address;
 
     public Axis2WebServiceContainer(PortInfo portInfo,
                                     String endpointClassName,
@@ -152,9 +158,25 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer
          * HandlerResolver.
          */        
         FactoryRegistry.setFactory(HandlerLifecycleManagerFactory.class, 
-                                   new GeronimoHandlerLifecycleManagerFactory());                                   
+                                   new GeronimoHandlerLifecycleManagerFactory());     
+        
+        configureAddressing();
+        
+        this.service.addParameter(new Parameter(org.apache.axis2.jaxws.spi.Constants.CACHE_CLASSLOADER, classLoader));
     }  
 
+    static String getBaseUri(URI request) {
+        return request.getScheme() + "://" + request.getHost() + ":" + request.getPort() + request.getPath();
+    }
+    
+    synchronized void updateAddress(Request request) {
+        if (this.address == null) {
+            String requestAddress = getBaseUri(request.getURI());
+            this.service.setEPRs(new String [] {requestAddress});
+            this.address = requestAddress;
+        }
+    }
+    
     protected AxisServiceGenerator createServiceGenerator() {
         return new AxisServiceGenerator();
     }
@@ -180,6 +202,8 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer
             LOG.debug("Target URI: " + request.getURI());
         }
 
+        updateAddress(request);
+        
         MessageContext msgContext = new MessageContext();
         msgContext.setIncomingTransportName(Constants.TRANSPORT_HTTP);
         msgContext.setProperty(MessageContext.REMOTE_ADDR, request.getRemoteAddr());
@@ -429,14 +453,25 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer
         }
     }    
     
+    protected void configureAddressing() throws Exception {
+        EndpointDescription desc = AxisServiceGenerator.getEndpointDescription(this.service);
+        
+        QName serviceName = desc.getServiceQName();
+        QName portName = desc.getPortQName();
+        EndpointKey key = new EndpointKey(serviceName, portName);
+        
+        EndpointContextMapManager.setEndpointContextMap(null);
+        EndpointContextMap map = EndpointContextMapManager.getEndpointContextMap();
+        map.put(key, this.service);
+        
+        configurationContext.setProperty(org.apache.axis2.jaxws.Constants.ENDPOINT_CONTEXT_MAP, map);
+    }
+    
     /*
      * Gets the right handlers for the port/service/bindings and performs injection.
      */
     protected void configureHandlers() throws Exception {
         EndpointDescription desc = AxisServiceGenerator.getEndpointDescription(this.service);
-        if (desc == null) {
-            throw new RuntimeException("No EndpointDescription for service");
-        }
         
         String xml = this.portInfo.getHandlersAsXML();
         HandlerChainsType handlerChains = null;

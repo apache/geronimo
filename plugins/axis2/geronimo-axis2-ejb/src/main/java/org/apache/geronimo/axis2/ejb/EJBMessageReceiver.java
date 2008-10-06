@@ -28,12 +28,16 @@ import org.apache.axis2.description.AxisService;
 import org.apache.axis2.description.Parameter;
 import org.apache.axis2.engine.MessageReceiver;
 import org.apache.axis2.jaxws.ExceptionFactory;
+import org.apache.axis2.jaxws.context.factory.MessageContextFactory;
+import org.apache.axis2.jaxws.context.utils.ContextUtils;
 import org.apache.axis2.jaxws.core.MessageContext;
 import org.apache.axis2.jaxws.description.EndpointDescription;
 import org.apache.axis2.jaxws.description.EndpointInterfaceDescription;
 import org.apache.axis2.jaxws.description.OperationDescription;
 import org.apache.axis2.jaxws.handler.SoapMessageContext;
 import org.apache.axis2.jaxws.i18n.Messages;
+import org.apache.axis2.jaxws.util.Constants;
+import org.apache.axis2.util.ThreadContextMigratorUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.openejb.ApplicationException;
@@ -61,12 +65,17 @@ public class EJBMessageReceiver implements MessageReceiver
         requestMsgCtx.setOperationName(requestMsgCtx.getAxisMessageContext().getAxisOperation().getName());
         requestMsgCtx.setEndpointDescription(getEndpointDescription(requestMsgCtx));
         
+        SoapMessageContext jaxwsContext =
+            MessageContextFactory.createSoapMessageContext(requestMsgCtx);
+        
         Method method = null;
         if (Provider.class.isAssignableFrom(this.serviceImplClass)) {
             method = getProviderMethod();
+            ContextUtils.addWSDLProperties_provider(requestMsgCtx, jaxwsContext);
         } else {
             requestMsgCtx.setOperationDescription(getOperationDescription(requestMsgCtx));
             method = getServiceMethod(requestMsgCtx);
+            ContextUtils.addWSDLProperties(requestMsgCtx, jaxwsContext);
         }
         
         if (LOG.isDebugEnabled()) {
@@ -74,8 +83,6 @@ public class EJBMessageReceiver implements MessageReceiver
         }
         
         EJBInterceptor interceptor = new EJBInterceptor(this.container, requestMsgCtx);
-
-        SoapMessageContext jaxwsContext = new SoapMessageContext(requestMsgCtx);
         EJBAddressingSupport wsaSupport = new EJBAddressingSupport(jaxwsContext);
         Object[] arguments = { jaxwsContext, interceptor, wsaSupport };
         
@@ -85,6 +92,9 @@ public class EJBMessageReceiver implements MessageReceiver
         
         method = getMostSpecificMethod(method, callInterface);
         
+        //This assumes that we are on the ultimate execution thread
+        ThreadContextMigratorUtil.performMigrationToThread(Constants.THREAD_CONTEXT_MIGRATOR_LIST_ID, 
+                                                           axisMsgCtx);        
         try {
             Object res = container.invoke(this.deploymentInfo.getDeploymentID(), callInterface, method, arguments, null);
             // TODO: update response message with new response value?
@@ -96,6 +106,9 @@ public class EJBMessageReceiver implements MessageReceiver
             }
         } catch (Exception e) {
             throw AxisFault.makeFault(e);
+        } finally {
+            ThreadContextMigratorUtil.performThreadCleanup(Constants.THREAD_CONTEXT_MIGRATOR_LIST_ID, 
+                                                           axisMsgCtx);
         }
     }
     

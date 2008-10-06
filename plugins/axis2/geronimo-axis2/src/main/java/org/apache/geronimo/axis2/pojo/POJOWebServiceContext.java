@@ -66,13 +66,11 @@ public class POJOWebServiceContext implements WebServiceContext {
         return (wsContext == null) ? null : wsContext.getEndpointReference(clazz, referenceParameters);
     }
     
-    public static void setMessageContext(MessageContext ctx) {
-        WebServiceContextImpl wsContext = new WebServiceContextImpl();
-        wsContext.setSoapMessageContext(ctx);
-        context.set(wsContext);
+    static void set(WebServiceContextImpl ctx) {
+        context.set(ctx);
     }
 
-    public static void clear() {
+    static void clear() {
         context.set(null);
     }
     

@@ -19,12 +19,13 @@
 package org.apache.geronimo.axis2.pojo;
 
 import org.apache.axis2.context.ServiceContext;
+import org.apache.axis2.jaxws.context.WebServiceContextImpl;
 import org.apache.axis2.jaxws.context.factory.MessageContextFactory;
-import org.apache.axis2.jaxws.context.utils.ContextUtils;
 import org.apache.axis2.jaxws.core.MessageContext;
 import org.apache.axis2.jaxws.handler.SoapMessageContext;
 import org.apache.axis2.jaxws.server.endpoint.lifecycle.EndpointLifecycleException;
 import org.apache.axis2.jaxws.server.endpoint.lifecycle.EndpointLifecycleManager;
+import org.apache.axis2.jaxws.server.endpoint.lifecycle.impl.EndpointLifecycleManagerImpl;
 
 public class POJOEndpointLifecycleManager implements EndpointLifecycleManager {
         
@@ -37,19 +38,20 @@ public class POJOEndpointLifecycleManager implements EndpointLifecycleManager {
         ServiceContext serviceContext = msgContext.getServiceContext();                
         Object instance = serviceContext.getProperty(ServiceContext.SERVICE_OBJECT);
         
+        SoapMessageContext soapMessageContext =
+            MessageContextFactory.createSoapMessageContext(context);
+        WebServiceContextImpl wsContext = new WebServiceContextImpl();
+        wsContext.setSoapMessageContext(soapMessageContext);
+        
         // associate JAX-WS MessageContext with the thread
-        POJOWebServiceContext.setMessageContext(createSOAPMessageContext(context)); 
+        POJOWebServiceContext.set(wsContext);
+        
+        // XXX: JUST A HACK
+        serviceContext.setProperty(EndpointLifecycleManagerImpl.WEBSERVICE_MESSAGE_CONTEXT, wsContext);
         
         return instance;
     }
     
-    private javax.xml.ws.handler.MessageContext createSOAPMessageContext(MessageContext mc) {
-        SoapMessageContext soapMessageContext =
-                (SoapMessageContext)MessageContextFactory.createSoapMessageContext(mc);
-        ContextUtils.addProperties(soapMessageContext, mc);
-        return soapMessageContext;
-    }
-  
     public void invokePostConstruct() throws EndpointLifecycleException { 
     }
 
