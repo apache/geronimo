@@ -30,16 +30,19 @@
     <packaging>pom</packaging>
     
     <modules>
+        <module>client</module>
+        <module>clustering</module>        
+        <module>clustering-jetty</module>
+        <module>clustering-tomcat</module>
+        <module>ejb</module>
+        <module>framework</module>
+        <module>jms</module>
+        <module>jsf</module>
+        <module>persistence</module>
         <module>web-tomcat</module>
         <module>web-jetty</module>
-        <module>jms</module>
-        <module>ejb</module>
-        <module>clustering</module>
-        <module>persistence</module>
         <module>webservices-axis2</module>
         <module>webservices-cxf</module>
-        <module>client</module>
-        <module>framework</module>
   </modules>
 
     <build>
