@@ -36,6 +36,8 @@
         <module>clustering-tomcat</module>
         <module>ejb</module>
         <module>framework</module>
+        <module>javaee5-jetty</module>
+        <module>javaee5-tomcat</module>
         <module>jms</module>
         <module>jsf</module>
         <module>persistence</module>
