@@ -51,6 +51,6 @@
             <version>${version}</version>
             <type>car</type>
         </dependency>
-</dependencies>
+    </dependencies>
 
 </project>

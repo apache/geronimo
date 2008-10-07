@@ -2,13 +2,18 @@
 <plugin-artifact xmlns:ns2="http://geronimo.apache.org/xml/ns/attributes-1.2" xmlns="http://geronimo.apache.org/xml/ns/plugins-1.3">
     <module-id>
         <groupId>org.apache.geronimo.plugingroups</groupId>
-        <artifactId>tomcat-javaee5</artifactId>
+        <artifactId>javaee5-jetty</artifactId>
         <version>2.2-SNAPSHOT</version>
         <type>car</type>
     </module-id>
     <dependency>
         <groupId>org.apache.geronimo.plugingroups</groupId>
         <artifactId>webservices-cxf</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>uddi-jetty6</artifactId>
         <type>car</type>
     </dependency>
     <dependency>
@@ -22,6 +27,11 @@
         <type>car</type>
     </dependency>
     <dependency>
+        <groupId>org.apache.geronimo.plugins</groupId>
+        <artifactId>debugviews-console-jetty</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
         <groupId>org.apache.geronimo.plugingroups</groupId>
         <artifactId>client</artifactId>
         <type>car</type>
@@ -29,11 +39,6 @@
     <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>concurrent-deployer</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.plugins</groupId>
-        <artifactId>debugviews-console-tomcat</artifactId>
         <type>car</type>
     </dependency>
     <dependency>
@@ -58,7 +63,17 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>welcome-jetty</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>javamail</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.plugingroups</groupId>
+        <artifactId>console-jetty</artifactId>
         <type>car</type>
     </dependency>
     <dependency>
