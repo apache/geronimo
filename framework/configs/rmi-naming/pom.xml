@@ -110,6 +110,7 @@
                             <config-xml-content>
                                 <gbean name="RMIRegistry">
                                     <attribute name="port">${NamingPort + PortOffset}</attribute>
+                                    <attribute name="host">${ServerHostname}</attribute>
                                 </gbean>
                                 <gbean name="NamingProperties">
                                     <!-- Check whether this really works if host name is 0.0.0.0 -->
