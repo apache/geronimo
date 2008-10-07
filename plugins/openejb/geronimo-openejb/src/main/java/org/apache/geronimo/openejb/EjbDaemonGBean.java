@@ -36,6 +36,7 @@ public class EjbDaemonGBean implements NetworkConnector, GBeanLifecycle {
     private ServiceManager serviceManager;
 
     private String multicastHost;
+    private String clusterName;
     private int multicastPort;
     private boolean enableMulticast;
 
@@ -46,6 +47,14 @@ public class EjbDaemonGBean implements NetworkConnector, GBeanLifecycle {
 
     public String getProtocol() {
         return "ejbd";
+    }
+
+    public String getClusterName() {
+        return clusterName;
+    }
+
+    public void setClusterName(String clusterName) {
+        this.clusterName = clusterName;
     }
 
     public String getHost() {
@@ -107,6 +116,7 @@ public class EjbDaemonGBean implements NetworkConnector, GBeanLifecycle {
         properties.setProperty("multicast.bind", multicastHost);
         properties.setProperty("multicast.port", Integer.toString(multicastPort));
         properties.setProperty("multicast.disabled", Boolean.toString(!enableMulticast));
+        properties.setProperty("multicast.group", clusterName);
         if (threads > 0) {
             properties.setProperty("ejbd.threads", Integer.toString(threads));
         }
@@ -129,6 +139,7 @@ public class EjbDaemonGBean implements NetworkConnector, GBeanLifecycle {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic("OpenEJB Daemon", EjbDaemonGBean.class);
         infoBuilder.addAttribute("host", String.class, true);
         infoBuilder.addAttribute("port", int.class, true);
+        infoBuilder.addAttribute("clusterName", String.class, true);
         infoBuilder.addAttribute("multicastHost", String.class, true);
         infoBuilder.addAttribute("multicastPort", int.class, true);
         infoBuilder.addAttribute("enableMulticast", boolean.class, true);
