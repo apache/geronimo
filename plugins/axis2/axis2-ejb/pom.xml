@@ -74,6 +74,11 @@
                 <artifactId>car-maven-plugin</artifactId>
                 <configuration>
                     <category>Web Services</category>
+                    <instance>
+                        <plugin-artifact>
+                            <config-xml-content load="false"/>
+                        </plugin-artifact>
+                    </instance>
                 </configuration>
             </plugin>
         </plugins>

@@ -47,6 +47,8 @@ public class JAXWSTools {
         { "com.sun.xml.bind", "jaxb-xjc" },
         { "com.sun.xml.ws",   "jaxws-tools" },
         { "com.sun.xml.ws",   "jaxws-rt" },
+        { "com.sun.xml.stream.buffer",    "streambuffer" },
+        { "org.jvnet.staxex",             "stax-ex" },
         { "org.apache.geronimo.javamail", "geronimo-javamail_1.4_mail"},
         { "org.apache.geronimo.specs",    "geronimo-activation_1.1_spec"},
         { "org.apache.geronimo.specs",    "geronimo-annotation_1.0_spec"},
@@ -59,6 +61,7 @@ public class JAXWSTools {
         { "org.apache.geronimo.specs",    "geronimo-jms_1.1_spec"},
         { "org.apache.geronimo.specs",    "geronimo-jta_1.1_spec"},
         { "org.apache.geronimo.specs",    "geronimo-j2ee-management_1.1_spec"},
+        { "org.codehaus.woodstox",        "wstx-asl" },
     };
     
     private final static Artifact SUN_SAAJ_IMPL_ARTIFACT = new Artifact("com.sun.xml.messaging.saaj","saaj-impl", (Version)null, "jar");

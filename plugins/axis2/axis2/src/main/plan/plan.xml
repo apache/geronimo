@@ -20,4 +20,11 @@
 
 <module xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
 
+    <gbean name="Axis2SystemProperties"
+           class="org.apache.geronimo.system.properties.SystemProperties">
+        <attribute name="systemProperties">
+            javax.xml.ws.spi.Provider=org.apache.axis2.jaxws.spi.Provider
+        </attribute>
+    </gbean>
+
 </module>

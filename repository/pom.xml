@@ -117,18 +117,6 @@
             <artifactId>jasper-el</artifactId>
         </dependency>
 
-        <!-- add the following for wsgen -->
-        <dependency>
-            <groupId>com.sun.xml.ws</groupId>
-            <artifactId>jaxws-tools</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.sun.xml.ws</groupId>
-            <artifactId>jaxws-rt</artifactId>
-        </dependency>
-        <!--end add for wsgen-->
-        
         <!-- This is to resolve an intermitent Maven problem with openejb-3.0-beta-1 transitive depend -->
         <dependency>
             <groupId>org.apache.xbean</groupId>

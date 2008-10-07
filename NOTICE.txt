@@ -97,19 +97,6 @@ with separate copyright notices and license terms. The following notices
 apply to these dependencies.
 
 =========================================================================
-==  ANNOGEN Notice                                                     ==
-=========================================================================
-
-This product includes software developed by the Annogen project 
-(http://annogen.codehaus.org/)
-
-This software consists of voluntary contributions made by many
-individuals on behalf of the Apache Software Foundation and was
-originally based on software copyright (c) 2000-2004 BEA Systems 
-Inc., <http://www.bea.com/>. For more information on the Apache 
-Software Foundation, please see <http://www.apache.org/>.
-
-=========================================================================
 ==  Apache ActiveMQ Notice                                             ==
 =========================================================================
 
@@ -496,15 +483,6 @@ All rights reserved.
 
 
 =========================================================================
-==  jaxen  Notice                                                      ==
-=========================================================================
-
-This product includes software developed by the jaxen project
-(http://jaxen.org/). 
-
- Copyright 2003-2006 The Werken Company. All Rights Reserved.
-
-=========================================================================
 ==  JDBM Notice                                                        ==
 =========================================================================
 
@@ -609,6 +587,12 @@ Implementation project. (https://jaxb.dev.java.net/)
 
 This product includes software developed for Java API for XML Web Services
 project (JAX-WS) (https://jax-ws.dev.java.net/)
+
+This product includes software developed for StAX-Ex Project 
+(https://stax-ex.dev.java.net/)
+
+This product includes software developed for XML Stream Buffer Project
+(https://xmlstreambuffer.dev.java.net/)
 
 This product includes software developed for the Java Server Pages Tag 
 Library project (https://jstl.dev.java.net/)

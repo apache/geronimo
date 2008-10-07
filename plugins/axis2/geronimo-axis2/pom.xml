@@ -124,17 +124,7 @@
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
         </dependency>
-        
-        <dependency>
-            <groupId>jaxen</groupId>
-            <artifactId>jaxen</artifactId>
-        </dependency>
-        
-        <dependency>
-            <groupId>annogen</groupId>
-            <artifactId>annogen</artifactId>
-        </dependency>
-        
+                        
     </dependencies>
 
 </project>
