@@ -85,50 +85,50 @@
   </wsdl:message>
   <wsdl:portType name="Calculator">
     <wsdl:operation name="add">
-      <wsdl:input message="tns:add" >
+      <wsdl:input message="tns:add" name="add">
     </wsdl:input>
-      <wsdl:output message="tns:addResponse" >
+      <wsdl:output message="tns:addResponse" name="addResponse">
     </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="getEPR">
-      <wsdl:input message="tns:getEPR" >
+      <wsdl:input message="tns:getEPR" name="getEPR">
     </wsdl:input>
-      <wsdl:output message="tns:getEPRResponse" >
+      <wsdl:output message="tns:getEPRResponse" name="getEPRResponse">
     </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="multiply">
-      <wsdl:input message="tns:multiply" >
+      <wsdl:input message="tns:multiply" name="multiply">
     </wsdl:input>
-      <wsdl:output message="tns:multiplyResponse" >
-    </wsdl:output> 
+      <wsdl:output message="tns:multiplyResponse" name="multiplyResponse">
+    </wsdl:output>
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="CalculatorServiceSoapBinding" type="tns:Calculator">
     <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http" />
     <wsdl:operation name="add">
       <soap:operation soapAction="" style="document" />
-      <wsdl:input >
+      <wsdl:input name="add">
         <soap:body use="literal" />
       </wsdl:input>
-      <wsdl:output >
+      <wsdl:output name="addResponse">
         <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="getEPR">
       <soap:operation soapAction="" style="document" />
-      <wsdl:input >
+      <wsdl:input name="getEPR">
         <soap:body use="literal" />
       </wsdl:input>
-      <wsdl:output >
+      <wsdl:output name="getEPRResponse">
         <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="multiply">
       <soap:operation soapAction="" style="document" />
-      <wsdl:input >
+      <wsdl:input name="multiply">
         <soap:body use="literal" />
       </wsdl:input>
-      <wsdl:output >
+      <wsdl:output name="multiplyResponse">
         <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
