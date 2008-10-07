@@ -183,7 +183,13 @@ public class RemoteSourceRepository implements SourceRepository {
         URLConnection con = location.openConnection();
         if (con instanceof HttpURLConnection) {
             HttpURLConnection http = (HttpURLConnection) con;
-            http.connect();
+
+            try {
+                http.connect();
+            } catch (IOException e) {
+                throw (IOException) new IOException("Cannot connect to "+location).initCause(e);
+            }
+
             if (http.getResponseCode() == 401) { // need to authenticate
                 if (username == null || username.equals("")) {
                     throw new FailedLoginException("Server returned 401 " + http.getResponseMessage());
