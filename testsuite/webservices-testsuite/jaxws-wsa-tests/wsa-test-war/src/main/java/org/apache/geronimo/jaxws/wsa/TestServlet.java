@@ -228,8 +228,17 @@ public abstract class TestServlet extends HttpServlet {
     public void testPort() throws Exception {
         Calculator calc = null;
         
-        // make a call without AddressingFeature disabled
+        // make a call without AddressingFeature
         calc = service.getPort(Calculator.class);
+        try {
+            calc.add(1, 1);
+            throw new ServletException("Did not throw exception");
+        } catch (SOAPFaultException e) {
+            // that's what we expect
+        }
+
+        // make a call with AddressingFeature disabled
+        calc = service.getPort(Calculator.class, new AddressingFeature(false, false));
         try {
             calc.add(1, 1);
             throw new ServletException("Did not throw exception");
