@@ -25,7 +25,6 @@ import org.apache.axis2.jaxws.core.MessageContext;
 import org.apache.axis2.jaxws.handler.SoapMessageContext;
 import org.apache.axis2.jaxws.server.endpoint.lifecycle.EndpointLifecycleException;
 import org.apache.axis2.jaxws.server.endpoint.lifecycle.EndpointLifecycleManager;
-import org.apache.axis2.jaxws.server.endpoint.lifecycle.impl.EndpointLifecycleManagerImpl;
 
 public class POJOEndpointLifecycleManager implements EndpointLifecycleManager {
         
@@ -45,9 +44,6 @@ public class POJOEndpointLifecycleManager implements EndpointLifecycleManager {
         
         // associate JAX-WS MessageContext with the thread
         POJOWebServiceContext.set(wsContext);
-        
-        // XXX: JUST A HACK
-        serviceContext.setProperty(EndpointLifecycleManagerImpl.WEBSERVICE_MESSAGE_CONTEXT, wsContext);
         
         return instance;
     }

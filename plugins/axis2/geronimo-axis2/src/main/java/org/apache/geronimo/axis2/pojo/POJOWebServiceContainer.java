@@ -30,6 +30,7 @@ import org.apache.axis2.context.ServiceContext;
 import org.apache.axis2.description.AxisService;
 import org.apache.axis2.engine.Handler.InvocationResponse;
 import org.apache.axis2.jaxws.registry.FactoryRegistry;
+import org.apache.axis2.jaxws.server.dispatcher.factory.EndpointDispatcherFactory;
 import org.apache.axis2.jaxws.server.endpoint.lifecycle.factory.EndpointLifecycleManagerFactory;
 import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.axis2.transport.http.HTTPTransportReceiver;
@@ -70,11 +71,16 @@ public class POJOWebServiceContainer extends Axis2WebServiceContainer
         super.init();
         
         /*
-         * This replaces EndpointLifecycleManagerFactory for all web services.
-         * This should be ok as we do our own endpoint instance management and injection.       
+         * This replaces EndpointLifecycleManagerFactory and EndpointDispatcherFactory
+         * for all web services. This is because we do our own endpoint instance management 
+         * and injection. 
+         * This does not affect EJB web services as the EJB container does not use the FactoryRegistry
+         * to lookup the EndpointLifecycleManagerFactory or EndpointDispatcherFactory.
          */
         FactoryRegistry.setFactory(EndpointLifecycleManagerFactory.class, 
                                    new POJOEndpointLifecycleManagerFactory());
+        FactoryRegistry.setFactory(EndpointDispatcherFactory.class, 
+                                   new POJOEndpointDispatcherFactory());
                                       
         String servicePath = trimContext(getServicePath(this.contextRoot));
         this.configurationContext.setServicePath(servicePath);
