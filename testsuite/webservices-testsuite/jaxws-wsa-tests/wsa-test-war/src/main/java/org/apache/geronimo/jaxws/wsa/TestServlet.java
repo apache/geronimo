@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.text.MessageFormat;
+import java.util.UUID;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -57,7 +58,7 @@ public abstract class TestServlet extends HttpServlet {
     private static final String MULTIPLY_REQUEST_ACTION =
         "http://geronimo.apache.org/calculator/Calculator/multiply";
     
-    private static final String REQUEST_ACTION =
+    private static final String ADD_REQUEST_ACTION =
         "http://geronimo.apache.org/calculator/Calculator/add";
         
     public static final String MSG1 = 
@@ -76,12 +77,13 @@ public abstract class TestServlet extends HttpServlet {
         "xmlns:wsa=\"http://www.w3.org/2005/08/addressing\">" +
         "<S:Header>" +
         "<wsa:To>{0}</wsa:To>\n" +
-        "<wsa:Action>{1}</wsa:Action>\n" +
+        "<wsa:MessageID>uuid:{1}</wsa:MessageID>\n" +
+        "<wsa:Action>{2}</wsa:Action>\n" +
         "</S:Header>\n" +
         "<S:Body>\n" +
         "<p:add xmlns:p=\"http://geronimo.apache.org/calculator\">\n" +
-        "  <arg0>{2}</arg0>\n" +
-        "  <arg1>{2}</arg1>\n" +
+        "  <arg0>{3}</arg0>\n" +
+        "  <arg1>{3}</arg1>\n" +
         "</p:add>\n" +
         "</S:Body></S:Envelope>";
     
@@ -94,7 +96,8 @@ public abstract class TestServlet extends HttpServlet {
         "xmlns:wsa=\"http://www.w3.org/2005/08/addressing\">" +
         "<S:Header>\n" +
         "<wsa:To>{0}</wsa:To>\n" +
-        "<wsa:Action>{1}</wsa:Action>\n" +
+        "<wsa:MessageID>uuid:{1}</wsa:MessageID>\n" +
+        "<wsa:Action>{2}</wsa:Action>\n" +
         "<wsa:ReplyTo>\n" +
         "  <wsa:Address>http://www.w3.org/2005/08/addressing/anonymous</wsa:Address>\n" +
         "  <wsa:ReferenceParameters>\n" +
@@ -111,8 +114,8 @@ public abstract class TestServlet extends HttpServlet {
         "</S:Header>\n" +
         "<S:Body>\n" +
         "<p:multiply xmlns:p=\"http://geronimo.apache.org/calculator\">\n" +
-        "  <arg0>{2}</arg0>\n" +
-        "  <arg1>{2}</arg1>\n" +
+        "  <arg0>{3}</arg0>\n" +
+        "  <arg1>{3}</arg1>\n" +
         "</p:multiply>\n" +
         "</S:Body></S:Envelope>";
     
@@ -162,7 +165,7 @@ public abstract class TestServlet extends HttpServlet {
         
         // test request and ReplyTo reference properties using Dispatch API
         dispatch = service.createDispatch(PORT, SOAPMessage.class, Service.Mode.MESSAGE); 
-        request = TestUtils.createMessage(MessageFormat.format(MSG3, address, MULTIPLY_REQUEST_ACTION, 5));
+        request = TestUtils.createMessage(MessageFormat.format(MSG3, address, UUID.randomUUID(), MULTIPLY_REQUEST_ACTION, 5));
         response = dispatch.invoke(request);
         testMultiplyResponse(response, 25, false);
         TestUtils.testReferenceProperties(response, "BarKey1", "FooBarReply");
@@ -196,13 +199,13 @@ public abstract class TestServlet extends HttpServlet {
                 
         // make a call with Addressing support 
         dispatch = service.createDispatch(PORT, SOAPMessage.class, Service.Mode.MESSAGE); 
-        request = TestUtils.createMessage(MessageFormat.format(MSG2, address, REQUEST_ACTION, 5));
+        request = TestUtils.createMessage(MessageFormat.format(MSG2, address, UUID.randomUUID(), ADD_REQUEST_ACTION, 5));
         response = dispatch.invoke(request);
         testAddResponse(response, 10, false);
         
         // make a call with Addressing support and MTOM
         dispatch = service.createDispatch(PORT, SOAPMessage.class, Service.Mode.MESSAGE, new MTOMFeature());
-        request = TestUtils.createMessage(MessageFormat.format(MSG2, address, REQUEST_ACTION, 10));
+        request = TestUtils.createMessage(MessageFormat.format(MSG2, address, UUID.randomUUID(), ADD_REQUEST_ACTION, 10));
         response = dispatch.invoke(request);
         testAddResponse(response, 20, true);
         
@@ -212,7 +215,7 @@ public abstract class TestServlet extends HttpServlet {
         epr = createEPR();
 
         service.createDispatch(epr, SOAPMessage.class, Service.Mode.MESSAGE);
-        request = TestUtils.createMessage(MessageFormat.format(MSG2, address, REQUEST_ACTION, 15));
+        request = TestUtils.createMessage(MessageFormat.format(MSG2, address, UUID.randomUUID(), ADD_REQUEST_ACTION, 15));
         response = dispatch.invoke(request);
         testAddResponse(response, 30, false);
         
@@ -220,7 +223,7 @@ public abstract class TestServlet extends HttpServlet {
         epr = createEPR();
 
         service.createDispatch(epr, SOAPMessage.class, Service.Mode.MESSAGE, new MTOMFeature());
-        request = TestUtils.createMessage(MessageFormat.format(MSG2, address, REQUEST_ACTION, 20));
+        request = TestUtils.createMessage(MessageFormat.format(MSG2, address, UUID.randomUUID(), ADD_REQUEST_ACTION, 20));
         response = dispatch.invoke(request);
         testAddResponse(response, 40, true);
     }
