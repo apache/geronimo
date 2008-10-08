@@ -29,7 +29,7 @@
     </parent>
 
     <artifactId>debugviews-console-tomcat</artifactId>
-    <name>Geronimo Plugins, Debug Views :: Tomcat</name>
+    <name>Geronimo Plugins, Console :: Debug Views (Tomcat)</name>
     <packaging>car</packaging>
 
     <dependencies>
@@ -113,7 +113,7 @@
                         <version>${version}</version>
                         <type>war</type>
                     </module>
-                    <category>Debug</category>
+                    <category>Administration</category>
                     <osiApproved>true</osiApproved>
                     <instance>
                         <plugin-artifact>

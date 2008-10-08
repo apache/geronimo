@@ -29,7 +29,7 @@
     </parent>
 
     <artifactId>debugviews-console-jetty</artifactId>
-    <name>Geronimo Plugins, Debug Views :: Jetty</name>
+    <name>Geronimo Plugins, Console :: Debug Views (Jetty)</name>
     <packaging>car</packaging>
 
     <dependencies>
@@ -119,7 +119,7 @@
                         <version>${version}</version>
                         <type>war</type>
                     </module>
-                    <category>Debug</category>
+                    <category>Administration</category>
                     <osiApproved>true</osiApproved>
                     <instance>
                         <plugin-artifact>

@@ -33,7 +33,7 @@
     <packaging>pom</packaging>
 
     <description>
-        Geronimo Debug Views 
+        Geronimo Administration Console Debug Views that provide debug viewers for JMX, LDAP, ClassLoader, JNDI and Dependency.
     </description>
 
     <modules>
