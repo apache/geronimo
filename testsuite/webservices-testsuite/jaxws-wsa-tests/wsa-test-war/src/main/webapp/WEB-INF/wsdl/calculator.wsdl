@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='UTF-8'?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
     Licensed to the Apache Software Foundation (ASF) under one
     or more contributor license agreements.  See the NOTICE file
@@ -17,47 +17,47 @@
     specific language governing permissions and limitations
     under the License.
 -->
-<wsdl:definitions name="CalculatorService" targetNamespace="http://geronimo.apache.org/calculator" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tns="http://geronimo.apache.org/calculator" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tns="http://geronimo.apache.org/calculator" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" name="CalculatorService" targetNamespace="http://geronimo.apache.org/calculator">
   <wsdl:types>
-<xs:schema attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://geronimo.apache.org/calculator" xmlns:ns1="http://www.w3.org/2005/08/addressing" xmlns:tns="http://geronimo.apache.org/calculator" xmlns:xs="http://www.w3.org/2001/XMLSchema">
-<xs:import namespace="http://www.w3.org/2005/08/addressing" schemaLocation="http://www.w3.org/2006/03/addressing/ws-addr.xsd" />
-<xs:element name="add" type="tns:add" />
-<xs:element name="addResponse" type="tns:addResponse" />
-<xs:element name="getEPR" type="tns:getEPR" />
-<xs:element name="getEPRResponse" type="tns:getEPRResponse" />
-<xs:element name="multiply" type="tns:multiply" />
-<xs:element name="multiplyResponse" type="tns:multiplyResponse" />
-<xs:complexType name="add">
-<xs:sequence>
-<xs:element name="arg0" type="xs:int" />
-<xs:element name="arg1" type="xs:int" />
-</xs:sequence>
-</xs:complexType>
-<xs:complexType name="addResponse">
-<xs:sequence>
-<xs:element name="return" type="xs:int" />
-</xs:sequence>
-</xs:complexType>
-<xs:complexType name="getEPR">
-<xs:sequence />
-</xs:complexType>
-<xs:complexType name="getEPRResponse">
-<xs:sequence>
-<xs:element minOccurs="0" name="return" type="ns1:EndpointReferenceType" />
-</xs:sequence>
-</xs:complexType>
-<xs:complexType name="multiply">
-<xs:sequence>
-<xs:element name="arg0" type="xs:int" />
-<xs:element name="arg1" type="xs:int" />
-</xs:sequence>
-</xs:complexType>
-<xs:complexType name="multiplyResponse">
-<xs:sequence>
-<xs:element name="return" type="xs:int" />
-</xs:sequence>
-</xs:complexType>
-</xs:schema>
+    <xs:schema xmlns:ns1="http://www.w3.org/2005/08/addressing" xmlns:tns="http://geronimo.apache.org/calculator" xmlns:xs="http://www.w3.org/2001/XMLSchema" attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://geronimo.apache.org/calculator">
+      <xs:import namespace="http://www.w3.org/2005/08/addressing" schemaLocation="http://www.w3.org/2006/03/addressing/ws-addr.xsd"/>
+      <xs:element name="add" type="tns:add"/>
+      <xs:element name="addResponse" type="tns:addResponse"/>
+      <xs:element name="getEPR" type="tns:getEPR"/>
+      <xs:element name="getEPRResponse" type="tns:getEPRResponse"/>
+      <xs:element name="multiply" type="tns:multiply"/>
+      <xs:element name="multiplyResponse" type="tns:multiplyResponse"/>
+      <xs:complexType name="add">
+        <xs:sequence>
+          <xs:element name="arg0" type="xs:int"/>
+          <xs:element name="arg1" type="xs:int"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="addResponse">
+        <xs:sequence>
+          <xs:element name="return" type="xs:int"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="getEPR">
+        <xs:sequence/>
+      </xs:complexType>
+      <xs:complexType name="getEPRResponse">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="return" type="ns1:EndpointReferenceType"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="multiply">
+        <xs:sequence>
+          <xs:element name="arg0" type="xs:int"/>
+          <xs:element name="arg1" type="xs:int"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="multiplyResponse">
+        <xs:sequence>
+          <xs:element name="return" type="xs:int"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:schema>
   </wsdl:types>
   <wsdl:message name="multiply">
     <wsdl:part element="tns:multiply" name="parameters">
@@ -104,38 +104,38 @@
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="CalculatorServiceSoapBinding" type="tns:Calculator">
-    <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http" />
+    <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
     <wsdl:operation name="add">
-      <soap:operation soapAction="" style="document" />
+      <soap:operation soapAction="" style="document"/>
       <wsdl:input name="add">
-        <soap:body use="literal" />
+        <soap:body use="literal"/>
       </wsdl:input>
       <wsdl:output name="addResponse">
-        <soap:body use="literal" />
+        <soap:body use="literal"/>
       </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="getEPR">
-      <soap:operation soapAction="" style="document" />
+      <soap:operation soapAction="" style="document"/>
       <wsdl:input name="getEPR">
-        <soap:body use="literal" />
+        <soap:body use="literal"/>
       </wsdl:input>
       <wsdl:output name="getEPRResponse">
-        <soap:body use="literal" />
+        <soap:body use="literal"/>
       </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="multiply">
-      <soap:operation soapAction="" style="document" />
+      <soap:operation soapAction="" style="document"/>
       <wsdl:input name="multiply">
-        <soap:body use="literal" />
+        <soap:body use="literal"/>
       </wsdl:input>
       <wsdl:output name="multiplyResponse">
-        <soap:body use="literal" />
+        <soap:body use="literal"/>
       </wsdl:output>
     </wsdl:operation>
   </wsdl:binding>
   <wsdl:service name="CalculatorService">
     <wsdl:port binding="tns:CalculatorServiceSoapBinding" name="CalculatorPort">
-      <soap:address location="http://localhost:8080/wsa-war/calculator" />
+      <soap:address location="http://localhost:8080/wsa-war/calculator"/>
     </wsdl:port>
   </wsdl:service>
 </wsdl:definitions>
