@@ -32,8 +32,11 @@
 
     <groupId>org.apache.geronimo.plugins</groupId>
     <artifactId>mconsole-ds</artifactId>
-    <name>Geronimo Plugins, Monitoring :: Console DataSource</name>
+    <name>Geronimo Plugins, Console :: Monitoring DataSource</name>
     <packaging>car</packaging>
+    <description>
+        Geronimo Administration Console Monitoring DataSource Plugin provides datasource that is used by the Geronimo Administration Console Monitoring Plugin.
+    </description>
 
     <dependencies>
         <dependency>
@@ -67,7 +70,7 @@
                         <deploymentConfig>${gbeanDeployer}</deploymentConfig>
                         <deploymentConfig>${connectorDeployer}</deploymentConfig>
                     </deploymentConfigs>
-                    <category>Monitoring</category>
+                    <category>Administration Monitoring</category>
                     <module>
                         <groupId>org.tranql</groupId>
                         <artifactId>tranql-connector-derby-embed-local</artifactId>

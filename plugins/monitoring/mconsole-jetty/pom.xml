@@ -32,8 +32,11 @@
 
     <groupId>org.apache.geronimo.plugins</groupId>
     <artifactId>mconsole-jetty</artifactId>
-    <name>Geronimo Plugins, Monitoring :: Console (Jetty)</name>
+    <name>Geronimo Plugins, Console :: Monitoring (Jetty)</name>
     <packaging>car</packaging>
+    <description>
+        Geronimo Administration Console Monitoring Plugin allows users to monitor one or more geronimo instances.
+    </description>
 
     <dependencies>
         <dependency>
@@ -116,7 +119,7 @@
                         <version>${monitoringConsoleVersion}</version>
                         <type>war</type>
                     </module>
-                    <category>Monitoring</category>
+                    <category>Administration Monitoring</category>
                 </configuration>
             </plugin>
         </plugins>
