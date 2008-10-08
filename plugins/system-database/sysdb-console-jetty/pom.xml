@@ -29,8 +29,12 @@
     </parent>
 
     <artifactId>sysdb-console-jetty</artifactId>
-    <name>Geronimo Plugins, System Database :: Console (Jetty)</name>
+    <name>Geronimo Plugins, Console :: System Database (Jetty)</name>
     <packaging>car</packaging>
+    <description>
+        Geronimo Administration Console System Database Portlet Plugin allows users to view information about the internal database and run SQL scripts.
+    </description>
+
 
     <dependencies>
         <dependency>
@@ -245,7 +249,7 @@
                         <version>${version}</version>
                         <type>war</type>
                     </module>
-                    <category>Databases</category>
+                    <category>Administration</category>
                     <osiApproved>true</osiApproved>
                 </configuration>
             </plugin>
