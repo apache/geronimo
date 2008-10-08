@@ -85,6 +85,11 @@ public abstract class WSATest extends TestSupport {
     public void testReferencePropertiesDispatch() throws Exception {
         runTest("testReferencePropertiesDispatch");
     }
+    
+    @Test
+    public void testWSDL() throws Exception {
+        runTest("testWSDL");
+    }
 
     protected void runTest(String testName) throws Exception {
         String warName = System.getProperty("webAppName");

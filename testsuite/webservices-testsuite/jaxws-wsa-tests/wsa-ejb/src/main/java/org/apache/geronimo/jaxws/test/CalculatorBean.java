@@ -24,6 +24,7 @@ import javax.annotation.Resource;
 import javax.ejb.Stateless;
 import javax.jws.HandlerChain;
 import javax.jws.WebService;
+import javax.xml.ws.Action;
 import javax.xml.ws.WebServiceContext;
 import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.soap.Addressing;
@@ -41,6 +42,7 @@ public class CalculatorBean {
     @Resource
     private WebServiceContext context;
 
+    @Action(input="http://geronimo.apache.org/calculator/CalculatorPortType/getmyepr")
     public W3CEndpointReference getEPR() {
         return (W3CEndpointReference)context.getEndpointReference();
     }

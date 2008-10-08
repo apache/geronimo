@@ -21,6 +21,8 @@ package org.apache.geronimo.jaxws.wsa;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.text.MessageFormat;
 import java.util.UUID;
 
@@ -28,6 +30,14 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.wsdl.Binding;
+import javax.wsdl.Definition;
+import javax.wsdl.Input;
+import javax.wsdl.Operation;
+import javax.wsdl.PortType;
+import javax.wsdl.extensions.ExtensibilityElement;
+import javax.wsdl.factory.WSDLFactory;
+import javax.wsdl.xml.WSDLReader;
 import javax.xml.namespace.QName;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.BindingProvider;
@@ -43,23 +53,27 @@ import junit.framework.Assert;
 
 import org.apache.geronimo.calculator.Calculator;
 import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
            
 public abstract class TestServlet extends HttpServlet {
               
+    private static final String NAMESPACE = 
+        "http://geronimo.apache.org/calculator";
+    
     private static final QName PORT = 
-        new QName("http://geronimo.apache.org/calculator", "CalculatorPort");
+        new QName(NAMESPACE, "CalculatorPort");
     
     private static final QName SERVICE = 
-        new QName("http://geronimo.apache.org/calculator", "CalculatorService");
+        new QName(NAMESPACE, "CalculatorService");
         
     private static final String BASE_ACTION = 
         "http://geronimo.apache.org/calculator/Calculator";
     
     private static final String MULTIPLY_REQUEST_ACTION =
-        "http://geronimo.apache.org/calculator/Calculator/multiply";
+        "http://geronimo.apache.org/calculator/Calculator/multiplyRequest";
     
     private static final String ADD_REQUEST_ACTION =
-        "http://geronimo.apache.org/calculator/Calculator/add";
+        "http://geronimo.apache.org/calculator/Calculator/addRequest";
         
     public static final String MSG1 = 
         "<?xml version=\"1.0\"?><S:Envelope " +
@@ -278,6 +292,43 @@ public abstract class TestServlet extends HttpServlet {
         Assert.assertEquals(12, calc.add(6, 6));
     }
     
+    public void testWSDL() throws Exception {
+        URL url = new URL(this.address + "?wsdl");
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setConnectTimeout(30 * 1000);
+        conn.setReadTimeout(30 * 1000);
+        conn.setUseCaches(false);
+
+        QName useAddressing = new QName("http://www.w3.org/2006/05/addressing/wsdl", "UsingAddressing");
+        QName actionAttr = new QName("http://www.w3.org/2006/05/addressing/wsdl", "Action");
+        
+        WSDLReader wsdlReader = WSDLFactory.newInstance().newWSDLReader();
+        try {
+            Definition def = 
+                wsdlReader.readWSDL(null, new InputSource(conn.getInputStream()));
+            
+            // check for right wsa:Action element
+            Assert.assertEquals(1, def.getPortTypes().size());
+            PortType portType = (PortType)def.getPortTypes().values().iterator().next();
+            Assert.assertEquals(3, portType.getOperations().size());
+            Operation operation1 = portType.getOperation("getEPR", null, null);
+            Assert.assertNotNull("operation", operation1);
+            Input input1 = operation1.getInput();
+            Assert.assertNotNull("input", input1);
+            Object action = input1.getExtensionAttribute(actionAttr);
+            Assert.assertNotNull("action", action);
+            Assert.assertEquals("http://geronimo.apache.org/calculator/CalculatorPortType/getmyepr", action.toString());
+            
+            // check for presence wsaw:UsingAddressing element
+            Assert.assertEquals(1, def.getBindings().size());
+            Binding binding = (Binding)def.getBindings().values().iterator().next();
+            Assert.assertEquals(3, binding.getBindingOperations().size());
+            ExtensibilityElement wsa = TestUtils.getExtensibilityElement(binding.getExtensibilityElements(), useAddressing);
+            Assert.assertNotNull("UsingAddressing", wsa);
+        } finally {
+            conn.disconnect();
+        }
+    }    
     
     private void testAddResponse(SOAPMessage message, int sum, boolean mtom) throws Exception {
         TestUtils.testResponse(message, BASE_ACTION + "/addResponse", "addResponse", sum, mtom);

@@ -21,7 +21,9 @@ package org.apache.geronimo.jaxws.wsa;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.Iterator;
+import java.util.List;
 
+import javax.wsdl.extensions.ExtensibilityElement;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -108,5 +110,15 @@ public class TestUtils {
         Assert.assertTrue(attrValue, 
                           "true".equalsIgnoreCase(attrValue) || "1".equalsIgnoreCase(attrValue));
     }
-
+    
+    public static ExtensibilityElement getExtensibilityElement(List elements, QName queryElement) {
+        for (int i = 0; i < elements.size(); i++) {
+            ExtensibilityElement element = (ExtensibilityElement)elements.get(i);
+            if (queryElement.equals(element.getElementType())) {
+                return element;
+            }
+        }
+        return null;
+    }
+    
 }
