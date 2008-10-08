@@ -29,7 +29,7 @@
     </parent>
 
     <artifactId>plancreator-console-jetty</artifactId>
-    <name>Geronimo Plugins, Plan Creator :: Jetty</name>
+    <name>Geronimo Plugins, Console :: Plan Creator (Jetty)</name>
     <packaging>car</packaging>
 
     <dependencies>
@@ -119,7 +119,7 @@
                         <version>${version}</version>
                         <type>war</type>
                     </module>
-                    <category>Development tools</category>
+                    <category>Administration</category>
                     <osiApproved>true</osiApproved>
                 </configuration>
             </plugin>

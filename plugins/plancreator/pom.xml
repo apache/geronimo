@@ -33,7 +33,7 @@
     <packaging>pom</packaging>
 
     <description>
-        Geronimo deployment plan creator
+        Geronimo deployment plan creator to facilitate the creation of Geronimo-specific deployment plans
     </description>
 
     <modules>

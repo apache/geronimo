@@ -29,7 +29,7 @@
     </parent>
 
     <artifactId>plancreator-console-tomcat</artifactId>
-    <name>Geronimo Plugins, Plan Creator :: Tomcat</name>
+    <name>Geronimo Plugins, Console :: Plan Creator (Tomcat)</name>
     <packaging>car</packaging>
 
     <dependencies>
@@ -112,7 +112,7 @@
                         <version>${version}</version>
                         <type>war</type>
                     </module>
-                    <category>Development tools</category>
+                    <category>Administration</category>
                     <description>
                        Plan creator plugin for Tomcat
                     </description>
