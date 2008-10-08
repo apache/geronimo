@@ -932,7 +932,7 @@ public class PluginInstallerGBean implements PluginInstaller {
             // 2. Validate that we can install this
             if (!validatePlugin(data)) {
                 //already installed
-                return;
+                throw new MissingDependencyException("Already installed", toArtifact(data.getPluginArtifact().get(0).getModuleId()), (Stack<Artifact>)null);
             }
 
             verifyPrerequisites(data);
