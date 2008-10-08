@@ -42,11 +42,6 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>com.sun.xml.bind</groupId>
-        <artifactId>jaxb-xjc</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
         <groupId>commons-httpclient</groupId>
         <artifactId>commons-httpclient</artifactId>
         <type>jar</type>
@@ -87,11 +82,6 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>com.sun.xml.ws</groupId>
-        <artifactId>jaxws-tools</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>webservices-common</artifactId>
         <type>car</type>
@@ -99,11 +89,6 @@
     <dependency>
         <groupId>org.apache.axis2</groupId>
         <artifactId>axis2-metadata</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>com.sun.xml.ws</groupId>
-        <artifactId>jaxws-rt</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -174,16 +159,6 @@
     <dependency>
         <groupId>org.apache.woden</groupId>
         <artifactId>woden-impl-dom</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.jvnet.staxex</groupId>
-        <artifactId>stax-ex</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>com.sun.xml.stream.buffer</groupId>
-        <artifactId>streambuffer</artifactId>
         <type>jar</type>
     </dependency>
 </plugin-artifact>

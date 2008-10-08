@@ -1832,6 +1832,10 @@
                         <groupId>jaxen</groupId>
                         <artifactId>jaxen</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>com.sun.xml.bind</groupId>
+                        <artifactId>jaxb-xjc</artifactId>
+                    </exclusion>
                 </exclusions>
             </dependency>
 
@@ -1855,6 +1859,10 @@
                     <exclusion>
                         <groupId>commons-io</groupId>
                         <artifactId>commons-io</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.sun.xml.bind</groupId>
+                        <artifactId>jaxb-xjc</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
