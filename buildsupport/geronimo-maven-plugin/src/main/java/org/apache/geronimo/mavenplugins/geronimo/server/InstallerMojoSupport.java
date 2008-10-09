@@ -123,7 +123,8 @@ public abstract class InstallerMojoSupport
             Enumeration n = zipFile.entries();
             while (n.hasMoreElements()) {
                 ZipEntry entry = (ZipEntry)n.nextElement();
-                if (entry.getName().endsWith("bin/server.jar")) {
+                // look for bin/server.jar under a single directory                     
+                if (entry.getName().endsWith("bin/server.jar") && entry.getName().split("/").length == 3) {
                     File file = new File(installDirectory, entry.getName());
                     dir = file.getParentFile().getParentFile();
                     break;
