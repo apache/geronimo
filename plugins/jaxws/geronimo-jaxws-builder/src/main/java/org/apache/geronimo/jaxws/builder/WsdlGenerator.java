@@ -103,6 +103,7 @@ public class WsdlGenerator {
     
     public WsdlGenerator() {
         this.jaxwsTools = new JAXWSTools();
+        this.jaxwsTools.setOverrideContextClassLoader(true);
     }
     
     public void setSunSAAJ() {

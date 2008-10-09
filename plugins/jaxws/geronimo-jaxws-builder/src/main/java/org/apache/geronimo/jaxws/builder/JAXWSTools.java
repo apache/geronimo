@@ -22,13 +22,13 @@ import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.SortedSet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.apache.geronimo.kernel.classloader.JarFileClassLoader;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ListableRepository;
 import org.apache.geronimo.kernel.repository.Repository;
@@ -70,6 +70,7 @@ public class JAXWSTools {
 
     private Artifact saajImpl;
     private boolean overrideContextClassLoader;
+    private ClassLoader parentClassLoader;
     
     public JAXWSTools() {
     }
@@ -90,6 +91,14 @@ public class JAXWSTools {
         return this.overrideContextClassLoader;
     }
        
+    public void setParentClassLoader(ClassLoader parentClassLoader) {
+        this.parentClassLoader = parentClassLoader;    
+    }
+    
+    public ClassLoader getParentClassLoader() {
+        return this.parentClassLoader;
+    }
+    
     public static URL[] toURL(File[] jars) throws MalformedURLException {
         URL [] urls = new URL[jars.length];
         for (int i = 0; i < jars.length; i++) {
@@ -177,8 +186,9 @@ public class JAXWSTools {
         return invoke("wsimport", jars, os, arguments);
     }
     
-    private boolean invoke(String toolName, URL[] jars, OutputStream os, String[] arguments) throws Exception {        
-        URLClassLoader loader = new URLClassLoader(jars, ClassLoader.getSystemClassLoader());
+    private boolean invoke(String toolName, URL[] jars, OutputStream os, String[] arguments) throws Exception {
+        ClassLoader parent = (this.parentClassLoader == null) ? getClass().getClassLoader() : this.parentClassLoader;
+        JarFileClassLoader loader = new JarFileClassLoader(null, jars, parent);
         if (this.overrideContextClassLoader) {
             ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
             Thread.currentThread().setContextClassLoader(loader);
@@ -186,9 +196,14 @@ public class JAXWSTools {
                 return invoke(toolName, loader, os, arguments);
             } finally {
                 Thread.currentThread().setContextClassLoader(oldClassLoader);
+                loader.destroy();
             }            
         } else {
-            return invoke(toolName, loader, os, arguments);
+            try {
+                return invoke(toolName, loader, os, arguments);
+            } finally {
+                loader.destroy();
+            }
         }
     }
     
