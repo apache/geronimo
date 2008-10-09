@@ -31,7 +31,6 @@
     
     <modules>
         <module>client</module>
-        <module>clustering</module>        
         <module>clustering-jetty</module>
         <module>clustering-tomcat</module>
         <module>console-jetty</module>
