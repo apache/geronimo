@@ -31,6 +31,9 @@
     <artifactId>console-jetty</artifactId>
     <name>Geronimo Plugins, Console :: Jetty</name>
     <packaging>car</packaging>
+    <description>
+        Geronimo Administration Console Plugin provides the base console portlets.
+    </description>
 
     <dependencies>
         <dependency>

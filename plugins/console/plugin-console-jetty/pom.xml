@@ -31,6 +31,9 @@
     <artifactId>plugin-console-jetty</artifactId>
     <name>Geronimo Plugins, Console :: Plugin and Deployment Portlets (Jetty)</name>
     <packaging>car</packaging>
+    <description>
+        Geronimo Administration Console Plugin and Deployment Portlets allow users to install plugins, export existing plugins, build custom server assemblies, and deploy applications on Geronimo.
+    </description>
 
     <dependencies>
         <dependency>

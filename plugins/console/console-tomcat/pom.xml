@@ -31,6 +31,9 @@
     <artifactId>console-tomcat</artifactId>
     <name>Geronimo Plugins, Console :: Tomcat</name>
     <packaging>car</packaging>
+    <description>
+        Geronimo Administration Console Plugin provides the base console portlets.
+    </description>
 
     <dependencies>
         <dependency>
