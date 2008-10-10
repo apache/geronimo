@@ -27,7 +27,7 @@
             <outputDirectory>lib</outputDirectory>
             <useStrictFiltering>true</useStrictFiltering>
             <includes>
-                <include>org.apache.geronimo.modules:geronimo-jaxws-builder</include>
+                <include>org.apache.geronimo.modules:geronimo-jaxws-sun-tools</include>
             </includes>
         </dependencySet>
 
@@ -36,7 +36,7 @@
             <outputFileNameMapping>jaxws-tools.jar</outputFileNameMapping>
             <useStrictFiltering>true</useStrictFiltering>
             <includes>
-                <include>org.apache.geronimo.configs:jaxws-deployer</include>
+                <include>org.apache.geronimo.configs:jaxws-sun-tools</include>
             </includes>
         </dependencySet>
 

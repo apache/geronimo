@@ -22,28 +22,8 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.jvnet.staxex</groupId>
-        <artifactId>stax-ex</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>com.sun.xml.stream.buffer</groupId>
-        <artifactId>streambuffer</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>com.sun.xml.ws</groupId>
-        <artifactId>jaxws-rt</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>com.sun.xml.ws</groupId>
-        <artifactId>jaxws-tools</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>com.sun.xml.bind</groupId>
-        <artifactId>jaxb-xjc</artifactId>
-        <type>jar</type>
+        <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>jaxws-sun-tools</artifactId>
+        <type>car</type>
     </dependency>
 </plugin-artifact>

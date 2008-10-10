@@ -74,13 +74,6 @@
                     <category>Web Services</category>
                     <dependencies>
                         <dependency>
-                            <!-- really? -->
-                            <groupId>org.apache.geronimo.configs</groupId>
-                            <artifactId>cxf-deployer</artifactId>
-                            <type>car</type>
-                            <import>classes</import>
-                        </dependency>
-                        <dependency>
                             <groupId>org.apache.geronimo.configs</groupId>
                             <artifactId>cxf-ejb</artifactId>
                             <type>car</type>

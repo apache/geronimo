@@ -56,30 +56,11 @@
             <version>${version}</version>
         </dependency>
 
-        <!-- Needed for generating wsdl -->
         <dependency>
-            <groupId>com.sun.xml.ws</groupId>
-            <artifactId>jaxws-tools</artifactId>
-        </dependency>
-        
-        <dependency>
-            <groupId>com.sun.xml.ws</groupId>
-            <artifactId>jaxws-rt</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.sun.xml.stream.buffer</groupId>
-            <artifactId>streambuffer</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.jvnet.staxex</groupId>
-            <artifactId>stax-ex</artifactId>
-        </dependency>
-        
-        <dependency>
-            <groupId>com.sun.xml.bind</groupId>
-            <artifactId>jaxb-xjc</artifactId>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>jaxws-sun-tools</artifactId>
+            <type>car</type>
+            <version>${version}</version>
         </dependency>
     </dependencies>
 

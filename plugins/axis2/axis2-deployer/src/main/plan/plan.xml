@@ -32,6 +32,9 @@
                 </dependencies>
             </environment>
         </xml-attribute>
+        <reference name="WsdlGenerator">
+            <name>SunWsdlGenerator</name>
+        </reference>
     </gbean>
 
     <gbean name="Axis2ServiceRefBuilder" class="org.apache.geronimo.axis2.builder.Axis2ServiceRefBuilder">

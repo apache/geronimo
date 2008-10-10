@@ -30,7 +30,7 @@ import org.apache.geronimo.gshell.shell.ShellInfo;
  *  
  * @version $Rev: 595889 $ $Date: 2007-11-16 20:13:06 -0500 (Fri, 16 Nov 2007) $
  */
-@CommandComponent(id="geronimo-jaxws-builder:wsimport", description="Generate JAX-WS artifacts from WSDL")
+@CommandComponent(id="geronimo-jaxws-sun-tools:wsimport", description="Generate JAX-WS artifacts from WSDL")
 public class WsimportCommand extends CommandSupport {
     
     @Requirement

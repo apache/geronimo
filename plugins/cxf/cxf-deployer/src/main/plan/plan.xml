@@ -32,6 +32,9 @@
                 </dependencies>
             </environment>
         </xml-attribute>
+        <reference name="WsdlGenerator">
+            <name>SunWsdlGenerator</name>
+        </reference>
     </gbean>
 
     <gbean name="CXFServiceRefBuilder" class="org.apache.geronimo.cxf.builder.CXFServiceRefBuilder">

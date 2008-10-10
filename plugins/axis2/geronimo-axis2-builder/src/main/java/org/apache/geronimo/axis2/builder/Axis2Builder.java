@@ -42,7 +42,8 @@ import org.apache.geronimo.jaxws.JAXWSUtils;
 import org.apache.geronimo.jaxws.PortInfo;
 import org.apache.geronimo.jaxws.builder.JAXWSServiceBuilder;
 import org.apache.geronimo.jaxws.builder.WARWebServiceFinder;
-import org.apache.geronimo.jaxws.builder.WsdlGenerator;
+import org.apache.geronimo.jaxws.wsdl.WsdlGenerator;
+import org.apache.geronimo.jaxws.wsdl.WsdlGeneratorOptions;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.xbeans.javaee.PortComponentType;
 import org.apache.geronimo.xbeans.javaee.ServiceImplBeanType;
@@ -59,8 +60,12 @@ public class Axis2Builder extends JAXWSServiceBuilder {
 
     private static final Logger log = LoggerFactory.getLogger(Axis2Builder.class);
         
-    public Axis2Builder(Environment defaultEnviroment) {
+    protected WsdlGenerator wsdlGenerator;
+    
+    public Axis2Builder(Environment defaultEnviroment,
+                        WsdlGenerator wsdlGenerator) {
         super(defaultEnviroment);
+        this.wsdlGenerator = wsdlGenerator;
         this.webServiceFinder = new WARWebServiceFinder();
     }
     
@@ -204,22 +209,22 @@ public class Axis2Builder extends JAXWSServiceBuilder {
         
         log.debug("Service " + portInfo.getServiceName() + " does not have WSDL. Generating WSDL...");
 
-        WsdlGenerator generator = new WsdlGenerator();
-        generator.setAxis2SAAJ();
+        WsdlGeneratorOptions options = new WsdlGeneratorOptions();
+        options.setSAAJ(WsdlGeneratorOptions.SAAJ.Axis2);
         
         // set wsdl service
         if (portInfo.getWsdlService() == null) {
-            generator.setWsdlService(JAXWSUtils.getServiceQName(serviceClass));
+            options.setWsdlService(JAXWSUtils.getServiceQName(serviceClass));
         } else {
-            generator.setWsdlService(portInfo.getWsdlService());
+            options.setWsdlService(portInfo.getWsdlService());
         }
         
         // set wsdl port
         if (portInfo.getWsdlPort() != null) {
-            generator.setWsdlPort(portInfo.getWsdlPort());
+            options.setWsdlPort(portInfo.getWsdlPort());
         }
                 
-        String wsdlFile = generator.generateWsdl(module, serviceClass.getName(), module.getEarContext(), portInfo);
+        String wsdlFile = this.wsdlGenerator.generateWsdl(module, serviceClass.getName(), module.getEarContext(), options);
         portInfo.setWsdlFile(wsdlFile);
         
         log.debug("Generated " + wsdlFile + " for service " + portInfo.getServiceName());        
@@ -254,7 +259,8 @@ public class Axis2Builder extends JAXWSServiceBuilder {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(Axis2Builder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addInterface(WebServiceBuilder.class);
         infoBuilder.addAttribute("defaultEnvironment", Environment.class, true, true);
-        infoBuilder.setConstructor(new String[]{"defaultEnvironment"});
+        infoBuilder.addReference("WsdlGenerator", WsdlGenerator.class, GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
+        infoBuilder.setConstructor(new String[]{"defaultEnvironment", "WsdlGenerator"});
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }
 

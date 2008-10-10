@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="ISO-8859-1"?>
 <!--
     Licensed to the Apache Software Foundation (ASF) under one or more
     contributor license agreements.  See the NOTICE file distributed with
@@ -24,27 +24,42 @@
 
     <parent>
         <groupId>org.apache.geronimo.plugins</groupId>
-        <artifactId>plugins</artifactId>
+        <artifactId>jaxws</artifactId>
         <version>2.2-SNAPSHOT</version>
     </parent>
+    
+    <groupId>org.apache.geronimo.modules</groupId>
+    <artifactId>geronimo-jaxws-sun-tools</artifactId>
+    <name>Geronimo Plugins, JAXWS :: Sun JAX-WS Tools</name>
+    
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-jaxws-builder</artifactId>
+            <version>${version}</version>
+        </dependency>
 
-    <artifactId>jaxws</artifactId>
-    <name>Geronimo Plugins, JAXWS</name>
-    <packaging>pom</packaging>
+        <dependency>
+            <groupId>org.apache.geronimo.gshell</groupId>
+            <artifactId>gshell-command-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
 
-    <description>
-        JAXWS plugin
-    </description>
-
-    <modules>
-        <module>geronimo-jaxws</module>
-        <module>geronimo-jaxws-builder</module>
-        <module>geronimo-jaxws-ejb-builder</module>
-        <module>geronimo-jaxws-sun-tools</module>
-        <module>jaxws-deployer</module>
-        <module>jaxws-ejb-deployer</module>
-        <module>jaxws-sun-tools</module>
-        <module>jaxws-tools</module>
-    </modules>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.geronimo.gshell</groupId>
+                <artifactId>gshell-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>descriptor</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

@@ -63,7 +63,7 @@
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>jaxws-tools</artifactId>
             <version>${version}</version>
-            <type>jar</type>
+            <type>car</type>
         </dependency>
     </dependencies>
 

@@ -77,13 +77,6 @@
                     <dependencies>
                         <dependency>
                             <groupId>org.apache.geronimo.configs</groupId>
-                            <artifactId>axis2-deployer</artifactId>
-                            <type>car</type>
-                            <!--TODO really????? this is unlikely.  Please explain -->
-                            <import>classes</import>
-                        </dependency>
-                        <dependency>
-                            <groupId>org.apache.geronimo.configs</groupId>
                             <artifactId>axis2-ejb</artifactId>
                             <type>car</type>
                             <import>classes</import>

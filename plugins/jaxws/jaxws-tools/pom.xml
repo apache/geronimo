@@ -31,21 +31,16 @@
     <groupId>org.apache.geronimo.configs</groupId>
     <artifactId>jaxws-tools</artifactId>
     <name>Geronimo Plugins, JAXWS :: Tools</name>
+    <packaging>car</packaging>
 
     <description>JAX-WS command line tools</description>
     
     <dependencies>
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>jaxws-deployer</artifactId>
+            <artifactId>jaxws-sun-tools</artifactId>
             <version>${version}</version>
             <type>car</type>
-        </dependency>
-        
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-jaxws-builder</artifactId>
-            <version>${version}</version>
         </dependency>
     </dependencies>
     
@@ -78,30 +73,18 @@
             <plugin>
                 <groupId>org.apache.geronimo.buildsupport</groupId>
                 <artifactId>car-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>generate-plugin-metadata</id>
-                        <phase>generate-resources</phase>
-                        <goals>
-                            <goal>prepare-metadata</goal>
-                        </goals>
-                        <configuration>
-                            <useMavenDependencies>
-                                <value>true</value>
-                                <includeVersion>true</includeVersion>
-                            </useMavenDependencies>
-                            <category>Web Services</category>
-                            <instance>
-                                <plugin-artifact>
-                                    <module-id>
-                                        <type>jar</type>
-                                    </module-id>
-                                    <copy-file relative-to="geronimo" dest-dir=""></copy-file>
-                                </plugin-artifact>
-                            </instance>
-                        </configuration>
-                    </execution>
-                </executions>
+                <configuration>
+                    <useMavenDependencies>
+                        <value>true</value>
+                        <includeVersion>true</includeVersion>
+                    </useMavenDependencies>
+                    <category>Web Services</category>
+                    <instance>
+                        <plugin-artifact>
+                            <copy-file relative-to="geronimo" dest-dir=""></copy-file>
+                        </plugin-artifact>
+                    </instance>
+                </configuration>
             </plugin>
 
             <plugin>

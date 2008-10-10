@@ -30,7 +30,7 @@ import org.apache.geronimo.gshell.shell.ShellInfo;
  * 
  * @version $Rev: 595889 $ $Date: 2007-11-16 20:13:06 -0500 (Fri, 16 Nov 2007) $
  */
-@CommandComponent(id="geronimo-jaxws-builder:wsgen", description="Generate JAX-WS artifacts from class")
+@CommandComponent(id="geronimo-jaxws-sun-tools:wsgen", description="Generate JAX-WS artifacts from class")
 public class WsgenCommand extends CommandSupport {
     
     @Requirement

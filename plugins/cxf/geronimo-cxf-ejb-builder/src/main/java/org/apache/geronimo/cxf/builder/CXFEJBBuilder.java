@@ -21,16 +21,17 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.jaxws.builder.EJBWebServiceFinder;
+import org.apache.geronimo.jaxws.wsdl.WsdlGenerator;
 import org.apache.geronimo.kernel.repository.Environment;
 
 public class CXFEJBBuilder extends CXFBuilder {
 
     public CXFEJBBuilder() {
-        super(null);
+        super();
     }
 
-    public CXFEJBBuilder(Environment defaultEnvironment) {
-        super(defaultEnvironment);
+    public CXFEJBBuilder(Environment defaultEnvironment, WsdlGenerator wsdlGenerator) {
+        super(defaultEnvironment, wsdlGenerator);
         this.webServiceFinder = new EJBWebServiceFinder();
     }
   
@@ -40,8 +41,8 @@ public class CXFEJBBuilder extends CXFBuilder {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(CXFEJBBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addInterface(WebServiceBuilder.class);
         infoBuilder.addAttribute("defaultEnvironment", Environment.class, true, true);
-
-        infoBuilder.setConstructor(new String[]{"defaultEnvironment"});
+        infoBuilder.addReference("WsdlGenerator", WsdlGenerator.class, GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
+        infoBuilder.setConstructor(new String[]{"defaultEnvironment", "WsdlGenerator"});
 
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }

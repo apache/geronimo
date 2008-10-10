@@ -62,6 +62,7 @@ public class JAXWSTools {
         { "org.apache.geronimo.specs",    "geronimo-jta_1.1_spec"},
         { "org.apache.geronimo.specs",    "geronimo-j2ee-management_1.1_spec"},
         { "org.codehaus.woodstox",        "wstx-asl" },
+        { "org.apache.geronimo.modules",  "geronimo-webservices" },
     };
     
     private final static Artifact SUN_SAAJ_IMPL_ARTIFACT = new Artifact("com.sun.xml.messaging.saaj","saaj-impl", (Version)null, "jar");
@@ -187,8 +188,7 @@ public class JAXWSTools {
     }
     
     private boolean invoke(String toolName, URL[] jars, OutputStream os, String[] arguments) throws Exception {
-        ClassLoader parent = (this.parentClassLoader == null) ? getClass().getClassLoader() : this.parentClassLoader;
-        JarFileClassLoader loader = new JarFileClassLoader(null, jars, parent);
+        JarFileClassLoader loader = new JarFileClassLoader(null, jars, ClassLoader.getSystemClassLoader());
         if (this.overrideContextClassLoader) {
             ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
             Thread.currentThread().setContextClassLoader(loader);

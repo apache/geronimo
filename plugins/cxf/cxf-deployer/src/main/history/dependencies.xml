@@ -21,4 +21,9 @@
         <artifactId>geronimo-cxf-builder</artifactId>
         <type>jar</type>
     </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>jaxws-sun-tools</artifactId>
+        <type>car</type>
+    </dependency>
 </plugin-artifact>

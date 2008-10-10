@@ -41,6 +41,7 @@ import org.apache.geronimo.deployment.DeploymentConfigurationManager;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.jaxws.PortInfo;
+import org.apache.geronimo.jaxws.wsdl.WsdlGeneratorOptions;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationResolver;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
@@ -50,94 +51,21 @@ public class WsdlGenerator {
 
     private static final Logger LOG = LoggerFactory.getLogger(WsdlGenerator.class);
     
-    private final static String ADD_TO_CLASSPATH_WSGEN_PROPERTY =
-        "org.apache.geronimo.jaxws.wsgen.addToClassPath";
-    
-    private final static String FORK_WSGEN_PROPERTY = 
-        "org.apache.geronimo.jaxws.wsgen.fork";
-    
-    private final static String FORK_TIMEOUT_WSGEN_PROPERTY = 
-        "org.apache.geronimo.jaxws.wsgen.fork.timeout";
-    
-    private final static long FORK_POLL_FREQUENCY = 1000 * 2; // 2 seconds
-    
-    private QName wsdlService;
-    private QName wsdlPort;
-    private boolean forkWsgen = getForkWsgen();
-    private long forkTimeout = getForTimeout();
-    private boolean addToClassPath = getDefaultAddToClassPath();
     private JAXWSTools jaxwsTools;
-        
-    private static boolean getForkWsgen() {
-        String value = System.getProperty(FORK_WSGEN_PROPERTY);
-        if (value != null) {
-            return Boolean.valueOf(value).booleanValue();
-        } else {
-            String osName = System.getProperty("os.name");
-            if (osName == null) {
-                return false;
-            }
-            osName = osName.toLowerCase();
-            // Fork on Windows only
-            return (osName.indexOf("windows") != -1);            
-        }
-    }
+    private WsdlGeneratorOptions options;
     
-    private static long getForTimeout() {
-        String value = System.getProperty(FORK_TIMEOUT_WSGEN_PROPERTY);
-        if (value != null) {
-            return Long.parseLong(value);
-        } else {
-            return 1000 * 60; // 60 seconds
-        }
-    }
-    
-    private static boolean getDefaultAddToClassPath() {
-        String value = System.getProperty(ADD_TO_CLASSPATH_WSGEN_PROPERTY);
-        if (value == null) {
-            return true;
-        } else {
-            return Boolean.parseBoolean(value);
-        }
-    }
-    
-    public WsdlGenerator() {
+    public WsdlGenerator(WsdlGeneratorOptions options) {
+        this.options = options;
         this.jaxwsTools = new JAXWSTools();
         this.jaxwsTools.setOverrideContextClassLoader(true);
+        
+        if (options.getSAAJ() == WsdlGeneratorOptions.SAAJ.SUN) {
+            this.jaxwsTools.setUseSunSAAJ();
+        } else if (options.getSAAJ() == WsdlGeneratorOptions.SAAJ.Axis2) {
+            this.jaxwsTools.setUseAxis2SAAJ();
+        }
     }
-    
-    public void setSunSAAJ() {
-        this.jaxwsTools.setUseSunSAAJ();
-    }
-    
-    public void setAxis2SAAJ() {
-        this.jaxwsTools.setUseAxis2SAAJ();
-    }
-    
-    public void setWsdlService(QName name) {
-        this.wsdlService = name;
-    }
-    
-    public QName getWsdlService() {
-        return this.wsdlService;        
-    }
-    
-    public void setWsdlPort(QName port) {
-        this.wsdlPort = port;
-    }
-    
-    public QName getWsdlPort() {
-        return this.wsdlPort;
-    }
-    
-    public void setAddToClassPath(boolean addToClassPath) {
-        this.addToClassPath = addToClassPath;        
-    }
-    
-    public boolean getAddToClassPath() {
-        return this.addToClassPath;
-    }
-    
+                
     private URL[] getWsgenClasspath(DeploymentContext context) throws Exception {
         DeploymentConfigurationManager cm = (DeploymentConfigurationManager)context.getConfigurationManager();
         Collection<? extends Repository> repositories = cm.getRepositories();
@@ -203,13 +131,13 @@ public class WsdlGenerator {
         arguments.add("-d");
         arguments.add(moduleBaseDir.getAbsolutePath());
         
-        QName serviceName = getWsdlService();
+        QName serviceName = this.options.getWsdlService();
         if (serviceName != null) {
             arguments.add("-servicename");
             arguments.add(serviceName.toString());
         }
 
-        QName portName = getWsdlPort();
+        QName portName = this.options.getWsdlPort();
         if (portName != null) {
             arguments.add("-portname");
             arguments.add(portName.toString());
@@ -236,7 +164,7 @@ public class WsdlGenerator {
     }
     
     private File findWsdlFile(File baseDir, PortInfo portInfo) throws IOException {
-        QName serviceName = getWsdlService();
+        QName serviceName = this.options.getWsdlService();
 
         if (serviceName != null) {
             // check if serviceName.wsdl locates at the baseDir, if so, return its path.
@@ -326,7 +254,7 @@ public class WsdlGenerator {
         try {
             boolean result = false;
             
-            if (this.forkWsgen) {
+            if (this.options.getFork()) {
                 result = forkWsgen(classPath, arguments);
             } else {
                 result = invokeWsgen(urls, arguments);
@@ -338,7 +266,7 @@ public class WsdlGenerator {
                 if (wsdlFile == null) {
                     throw new DeploymentException("Unable to find the service wsdl file");
                 }
-                if (this.addToClassPath) {
+                if (this.options.getAddToClassPath()) {
                     context.getConfiguration().addToClassPath(baseDir.getName());
                 }
                 return getRelativeNameOrURL(moduleBase, wsdlFile);
@@ -393,7 +321,7 @@ public class WsdlGenerator {
         outputThread.start();        
                 
         long sleepTime = 0;        
-        while(sleepTime < this.forkTimeout) {            
+        while(sleepTime < this.options.getForkTimeout()) {            
             try {
                 int errorCode = process.exitValue();
                 if (errorCode == 0) {
@@ -409,13 +337,13 @@ public class WsdlGenerator {
             } catch (IllegalThreadStateException e) {
                 // still running
                 try {
-                    Thread.sleep(FORK_POLL_FREQUENCY);
+                    Thread.sleep(WsdlGeneratorOptions.FORK_POLL_FREQUENCY);
                 } catch (InterruptedException ee) {
                     // interrupted
                     process.destroy();
                     throw new DeploymentException("WSDL generation process was interrupted");
                 }
-                sleepTime += FORK_POLL_FREQUENCY;
+                sleepTime += WsdlGeneratorOptions.FORK_POLL_FREQUENCY;
             }
         }
         

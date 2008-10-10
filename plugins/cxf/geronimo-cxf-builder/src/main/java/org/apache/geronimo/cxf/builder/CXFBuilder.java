@@ -51,7 +51,8 @@ import org.apache.geronimo.jaxws.JAXWSUtils;
 import org.apache.geronimo.jaxws.PortInfo;
 import org.apache.geronimo.jaxws.builder.JAXWSServiceBuilder;
 import org.apache.geronimo.jaxws.builder.WARWebServiceFinder;
-import org.apache.geronimo.jaxws.builder.WsdlGenerator;
+import org.apache.geronimo.jaxws.wsdl.WsdlGenerator;
+import org.apache.geronimo.jaxws.wsdl.WsdlGeneratorOptions;
 import org.apache.geronimo.kernel.repository.Environment;
 
 public class CXFBuilder extends JAXWSServiceBuilder {
@@ -65,12 +66,15 @@ public class CXFBuilder extends JAXWSServiceBuilder {
     private static final String USE_WSGEN_PROPERTY = 
         "org.apache.geronimo.cxf.use.wsgen";
 
+    protected WsdlGenerator wsdlGenerator;
+    
     public CXFBuilder() {
         super(null);
     }
 
-    public CXFBuilder(Environment defaultEnvironment) {
+    public CXFBuilder(Environment defaultEnvironment, WsdlGenerator wsdlGenerator) {
         super(defaultEnvironment);
+        this.wsdlGenerator = wsdlGenerator;
         this.webServiceFinder = new WARWebServiceFinder();
     }
 
@@ -203,25 +207,25 @@ public class CXFBuilder extends JAXWSServiceBuilder {
             return;
         }        
         LOG.debug("Service " + portInfo.getServiceName() + " does not have WSDL. Generating WSDL...");
-
-        WsdlGenerator generator = new WsdlGenerator();
-        generator.setSunSAAJ();
+        
+        WsdlGeneratorOptions options = new WsdlGeneratorOptions();
+        options.setSAAJ(WsdlGeneratorOptions.SAAJ.SUN);
         
         JaxWsImplementorInfo serviceInfo = new JaxWsImplementorInfo(serviceClass);
         
         // set wsdl service
         if (portInfo.getWsdlService() == null) {
-            generator.setWsdlService(serviceInfo.getServiceName());
+            options.setWsdlService(serviceInfo.getServiceName());
         } else {
-            generator.setWsdlService(portInfo.getWsdlService());
+            options.setWsdlService(portInfo.getWsdlService());
         }
         
         // set wsdl port
         if (portInfo.getWsdlPort() != null) {
-            generator.setWsdlPort(portInfo.getWsdlPort());
+            options.setWsdlPort(portInfo.getWsdlPort());
         }
                         
-        String wsdlFile = generator.generateWsdl(module, serviceClass.getName(), module.getEarContext(), portInfo);
+        String wsdlFile = this.wsdlGenerator.generateWsdl(module, serviceClass.getName(), module.getEarContext(), options);
         portInfo.setWsdlFile(wsdlFile);
         
         LOG.debug("Generated " + wsdlFile + " for service " + portInfo.getServiceName()); 
@@ -238,8 +242,8 @@ public class CXFBuilder extends JAXWSServiceBuilder {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(CXFBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addInterface(WebServiceBuilder.class);
         infoBuilder.addAttribute("defaultEnvironment", Environment.class, true, true);
-
-        infoBuilder.setConstructor(new String[]{"defaultEnvironment"});
+        infoBuilder.addReference("WsdlGenerator", WsdlGenerator.class, GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
+        infoBuilder.setConstructor(new String[]{"defaultEnvironment", "WsdlGenerator"});
 
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }

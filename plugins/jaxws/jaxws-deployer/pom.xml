@@ -63,53 +63,6 @@
                 <groupId>org.apache.geronimo.buildsupport</groupId>
                 <artifactId>car-maven-plugin</artifactId>
                 <configuration>
-                    <archive>
-                        <manifestEntries>
-                            <Endorsed-Dirs>lib/endorsed</Endorsed-Dirs>
-                            <Extension-Dirs>lib/ext</Extension-Dirs>
-                        </manifestEntries>
-                        <manifest>
-                            <mainClass>org.apache.geronimo.jaxws.builder.JAXWSToolsCLI</mainClass>
-                        </manifest>
-                    </archive>
-                    <warnOnDependencyChange>true</warnOnDependencyChange>
-                    <!--
-                    NOTE: This list of dependencies is non-transitive.
-                    -->
-                    <classpath>
-                        <element>
-                            <groupId>org.apache.geronimo.framework</groupId>
-                            <artifactId>geronimo-kernel</artifactId>
-                            <version>${version}</version>
-                        </element>
-                        <element>
-                            <groupId>org.apache.geronimo.modules</groupId>
-                            <artifactId>geronimo-jaxws-builder</artifactId>
-                            <version>${version}</version>
-                        </element>
-                        <element>
-                            <groupId>cglib</groupId>
-                            <artifactId>cglib-nodep</artifactId>
-                        </element>
-                        <element>
-                            <groupId>org.slf4j</groupId>
-                            <artifactId>slf4j-api</artifactId>
-                        </element>
-                        <element>
-                            <groupId>org.slf4j</groupId>
-                            <artifactId>slf4j-log4j12</artifactId>
-                        </element>
-                        <element>
-                            <groupId>org.slf4j</groupId>
-                            <artifactId>jcl104-over-slf4j</artifactId>
-                        </element>
-                        <element>
-                            <groupId>log4j</groupId>
-                            <artifactId>log4j</artifactId>
-                        </element>
-                    </classpath>
-                    <classpathPrefix>../lib</classpathPrefix>
-
                     <useMavenDependencies>
                         <value>false</value>
                     </useMavenDependencies>
