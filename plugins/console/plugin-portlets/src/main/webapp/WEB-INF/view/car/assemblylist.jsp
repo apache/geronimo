@@ -121,7 +121,7 @@
 <c:forEach var="plugin" items="${plugins}" varStatus="status">
 <c:set var="style" value="${status.index % 2 == 0 ? 'MediumBackground' : 'LightBackground'}"/>
 <c:set var="artifact" value="${plugin.pluginArtifact.moduleId}"/>
-<c:if test="${artifact.artifactId eq 'geronimo-boilerplate'}">
+<c:if test="${plugin.isPluginGroup && artifact.artifactId eq 'framework'}">
 <tr>
   <td class="${style}">
     <input type="checkbox" name="plugin" title="${artifact.groupId}/${artifact.artifactId}/${artifact.version}/${artifact.type}" value="${artifact.groupId}/${artifact.artifactId}/${artifact.version}/${artifact.type}" CHECKED/>
@@ -155,7 +155,10 @@
 <c:if test="${plugin.isPluginGroup}">
 <tr>
   <td class="${style}">
-    <input type="checkbox" name="plugin" title="${artifact.groupId}/${artifact.artifactId}/${artifact.version}/${artifact.type}" value="${artifact.groupId}/${artifact.artifactId}/${artifact.version}/${artifact.type}"/>
+    <input type="checkbox" name="plugin" 
+           title="${artifact.groupId}/${artifact.artifactId}/${artifact.version}/${artifact.type}" 
+           value="${artifact.groupId}/${artifact.artifactId}/${artifact.version}/${artifact.type}"
+           <c:if test="${artifact.artifactId eq 'framework'}">CHECKED</c:if>/>
   </td>
   <td class="${style}">
     <a href='<portlet:actionURL>
@@ -220,7 +223,9 @@
 <c:if test="${!plugin.isSystemPlugin}">
 <tr>
   <td class="${style}">
-    <input type="checkbox" name="plugin" title="${artifact.groupId}/${artifact.artifactId}/${artifact.version}/${artifact.type}" value="${artifact.groupId}/${artifact.artifactId}/${artifact.version}/${artifact.type}"/>
+    <input type="checkbox" name="plugin" 
+           title="${artifact.groupId}/${artifact.artifactId}/${artifact.version}/${artifact.type}" 
+           value="${artifact.groupId}/${artifact.artifactId}/${artifact.version}/${artifact.type}"/>
   </td>
   <td class="${style}">
     <a href='<portlet:actionURL>
@@ -252,9 +257,12 @@
 <c:set var="artifact" value="${plugin.pluginArtifact.moduleId}"/>
 <c:if test="${plugin.isSystemPlugin}">
 <tr>
-    <td class="${style}">
-        <input type="checkbox" name="plugin" title="${artifact.groupId}/${artifact.artifactId}/${artifact.version}/${artifact.type}" value="${artifact.groupId}/${artifact.artifactId}/${artifact.version}/${artifact.type}"/>
-    </td>
+  <td class="${style}">
+    <input type="checkbox" name="plugin" 
+           title="${artifact.groupId}/${artifact.artifactId}/${artifact.version}/${artifact.type}" 
+           value="${artifact.groupId}/${artifact.artifactId}/${artifact.version}/${artifact.type}"
+           <c:if test="${plugin.isPluginGroup && artifact.artifactId eq 'framework'}">CHECKED</c:if>/>
+  </td>
   <td class="${style}">
     <a href='<portlet:actionURL>
       <portlet:param name="configId" value="${artifact.groupId}/${artifact.artifactId}/${artifact.version}/${artifact.type}"/>

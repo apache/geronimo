@@ -34,7 +34,7 @@
     <td>${artifact.groupId}/${artifact.artifactId}/${artifact.version}/${artifact.type}</td>
   </tr>
   <tr>
-    <th align="right" valign="top"><fmt:message key="car.viewForDownload.group" />:</th>
+    <th align="right" valign="top"><fmt:message key="car.viewForDownload.category" />:</th>
     <td>${plugin.category}</td>
   </tr>
   <tr>
