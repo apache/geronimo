@@ -27,11 +27,6 @@
         <type>car</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.axis2</groupId>
-        <artifactId>axis2-adb</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
         <groupId>org.apache.geronimo.modules</groupId>
         <artifactId>geronimo-axis2</artifactId>
         <type>jar</type>
@@ -110,11 +105,6 @@
         <groupId>org.apache.geronimo.framework</groupId>
         <artifactId>server-security-config</artifactId>
         <type>car</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.axis2</groupId>
-        <artifactId>axis2-java2wsdl</artifactId>
-        <type>jar</type>
     </dependency>
     <dependency>
         <groupId>org.apache.axis2</groupId>
