@@ -97,20 +97,31 @@ public class UpdatePluginListMojo extends AbstractCarMojo {
         PluginArtifactType instance = plugin.getPluginArtifact().get(0);
         Artifact id = PluginInstallerGBean.toArtifact(instance.getModuleId());
         boolean foundKey = false;
-        for (PluginType test : pluginList.getPlugin()) {
+        boolean foundModule = false;
+        for (Iterator<PluginType> pit = pluginList.getPlugin().iterator(); pit.hasNext();) {
+            PluginType test = pit.next();
             for (Iterator<PluginArtifactType> it = test.getPluginArtifact().iterator(); it.hasNext();) {
                 PluginArtifactType testInstance = it.next();
                 Artifact testId = PluginInstallerGBean.toArtifact(testInstance.getModuleId());
                 if (id.equals(testId)) {
                     //if the module id appears anywhere, remove that instance
+                    //however, this would cause plugin without plugin artifact
                     it.remove();
+                    foundModule = true;
                 }
             }
             PluginType testKey = PluginInstallerGBean.toKey(test);
             if (key.equals(testKey)) {
                 foundKey = true;
-                //if the name, group, author, licences, url match, then add this instance to current pluginType
+                //if the name, category, author, description, pluginGroup, licence, url match, then add this instance to current pluginType
                 test.getPluginArtifact().add(instance);
+            }
+            if(!foundKey && foundModule) {
+                //remove the old plugin off pluginList if it exists as we 'll add a new one
+                //otherwise we'll leave plugin without plugin artifact on the plugin catalog.
+                if (test.getPluginArtifact().size() == 0) {
+                    pit.remove();
+                }              
             }
         }
         if (!foundKey) {

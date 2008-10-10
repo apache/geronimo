@@ -1655,6 +1655,8 @@ public class PluginInstallerGBean implements PluginInstaller {
         PluginType copy = new PluginKey();
         copy.setAuthor(metadata.getAuthor());
         copy.setCategory(metadata.getCategory());
+        copy.setPluginGroup(metadata.isPluginGroup() == null ? false : metadata.isPluginGroup());
+        copy.setDescription(metadata.getDescription());
         copy.setName(metadata.getName());
         copy.setUrl(metadata.getUrl());
         copy.getLicense().addAll(metadata.getLicense());
@@ -1672,6 +1674,8 @@ public class PluginInstallerGBean implements PluginInstaller {
 
             if (author != null ? !author.equals(that.author) : that.author != null) return false;
             if (category != null ? !category.equals(that.category) : that.category != null) return false;
+            if (description != null ? !description.equals(that.description) : that.description != null) return false;
+            if (pluginGroup != null ? pluginGroup != that.pluginGroup : that.pluginGroup != null) return false;
             if (name != null ? !name.equals(that.name) : that.name != null) return false;
             if (url != null ? !url.equals(that.url) : that.url != null) return false;
             if ((license == null) != (that.license == null)) return false;
