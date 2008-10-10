@@ -31,7 +31,7 @@
     <name>Geronimo Plugin Group :: Framework</name>
 
     <description>
-        This plugin group provides the framework functionality.
+        This plugin group provides the framework functionality.  It is required to build a working server.
     </description>
 
     <dependencies>
