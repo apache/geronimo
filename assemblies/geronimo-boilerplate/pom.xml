@@ -183,108 +183,11 @@
 
     <build>
         <plugins>
-            <!--<plugin>-->
-                <!--<groupId>org.apache.maven.plugins</groupId>-->
-                <!--<artifactId>maven-dependency-plugin</artifactId>-->
-                <!--<executions>-->
-                    <!--<execution>-->
-                        <!--<phase>generate-resources</phase>-->
-                        <!--<goals>-->
-                            <!--<goal>unpack</goal>-->
-                        <!--</goals>-->
-                        <!--<configuration>-->
-                            <!--<outputDirectory>${project.build.directory}/schema</outputDirectory>-->
-                            <!--<artifactItems>-->
-                                <!--<artifactItem>-->
-                                    <!--<groupId>org.apache.geronimo.framework</groupId>-->
-                                    <!--<artifactId>geronimo-system</artifactId>-->
-                                    <!--<version>${version}</version>-->
-                                <!--</artifactItem>-->
-                                <!--<artifactItem>-->
-                                    <!--<groupId>org.apache.geronimo.framework</groupId>-->
-                                    <!--<artifactId>geronimo-service-builder</artifactId>-->
-                                    <!--<version>${version}</version>-->
-                                <!--</artifactItem>-->
-                                <!--<artifactItem>-->
-                                    <!--<groupId>org.apache.geronimo.modules</groupId>-->
-                                    <!--<artifactId>geronimo-axis-builder</artifactId>-->
-                                    <!--<version>${version}</version>-->
-                                <!--</artifactItem>-->
-                                <!--<artifactItem>-->
-                                    <!--<groupId>org.apache.geronimo.modules</groupId>-->
-                                    <!--<artifactId>geronimo-client-builder</artifactId>-->
-                                    <!--<version>${version}</version>-->
-                                <!--</artifactItem>-->
-                                <!--<artifactItem>-->
-                                    <!--<groupId>org.apache.geronimo.modules</groupId>-->
-                                    <!--<artifactId>geronimo-connector-builder</artifactId>-->
-                                    <!--<version>${version}</version>-->
-                                <!--</artifactItem>-->
-                                <!--<artifactItem>-->
-                                    <!--<groupId>org.apache.geronimo.modules</groupId>-->
-                                    <!--<artifactId>geronimo-j2ee-builder</artifactId>-->
-                                    <!--<version>${version}</version>-->
-                                <!--</artifactItem>-->
-                                <!--<artifactItem>-->
-                                    <!--<groupId>org.apache.geronimo.modules</groupId>-->
-                                    <!--<artifactId>geronimo-naming-builder</artifactId>-->
-                                    <!--<version>${version}</version>-->
-                                <!--</artifactItem>-->
-                                <!--<artifactItem>-->
-                                    <!--<groupId>org.apache.geronimo.modules</groupId>-->
-                                    <!--<artifactId>geronimo-security-builder</artifactId>-->
-                                    <!--<version>${version}</version>-->
-                                <!--</artifactItem>-->
-                                <!--<artifactItem>-->
-                                    <!--<groupId>org.apache.geronimo.modules</groupId>-->
-                                    <!--<artifactId>geronimo-web-2.5-builder</artifactId>-->
-                                    <!--<version>${version}</version>-->
-                                <!--</artifactItem>-->
-                                <!--<artifactItem>-->
-                                    <!--<groupId>org.apache.geronimo.modules</groupId>-->
-                                    <!--<artifactId>geronimo-openejb-builder</artifactId>-->
-                                    <!--<version>${version}</version>-->
-                                <!--</artifactItem>-->
-                                <!--<artifactItem>-->
-                                    <!--<groupId>org.apache.geronimo.modules</groupId>-->
-                                    <!--<artifactId>geronimo-tomcat6-builder</artifactId>-->
-                                    <!--<version>${version}</version>-->
-                                <!--</artifactItem>-->
-                                <!--<artifactItem>-->
-                                    <!--<groupId>org.apache.geronimo.modules</groupId>-->
-                                    <!--<artifactId>geronimo-jetty6-builder</artifactId>-->
-                                    <!--<version>${version}</version>-->
-                                <!--</artifactItem>-->
-                            <!--</artifactItems>-->
-                        <!--</configuration>-->
-                    <!--</execution>-->
-                <!--</executions>-->
-            <!--</plugin>-->
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <executions>
-                    <!--<execution>-->
-                        <!--<id>flatten-schemas</id>-->
-                        <!--<phase>process-resources</phase>-->
-                        <!--<goals>-->
-                            <!--<goal>run</goal>-->
-                        <!--</goals>-->
-                        <!--<configuration>-->
-                            <!--<tasks>-->
-                                <!--<mkdir dir="${project.build.outputDirectory}/contents/schema"/>-->
-                                <!--<copy todir="${project.build.outputDirectory}/contents/schema">-->
-                                    <!--<fileset dir="${project.build.directory}/schema">-->
-                                        <!--<include name="**/*.xsd"/>-->
-                                        <!--<include name="**/*.dtd"/>-->
-                                    <!--</fileset>-->
-                                    <!--<mapper type="flatten"/>-->
-                                <!--</copy>-->
-                            <!--</tasks>-->
-                        <!--</configuration>-->
-                    <!--</execution>-->
-
                     <execution>
                         <phase>process-resources</phase>
                         <id>copy-txt-files</id>
