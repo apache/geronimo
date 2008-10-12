@@ -2701,7 +2701,11 @@
                     <exclusion>
                         <groupId>javax.xml.soap</groupId>
                         <artifactId>saaj-api</artifactId>
-                       </exclusion>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.sun.xml.parsers</groupId>
+                        <artifactId>jaxp-ri</artifactId>
+                    </exclusion>
                 </exclusions>
             </dependency>
 
