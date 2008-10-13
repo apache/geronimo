@@ -101,7 +101,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>jetty6-deployer</artifactId>
+            <artifactId>${jetty}-deployer</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>

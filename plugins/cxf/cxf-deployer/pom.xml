@@ -82,8 +82,8 @@
                     </dependencies>
                     <instance>
                         <plugin-artifact>
-                            <config-xml-content server="default" condition="props['org.apache.geronimo.jaxws.provider'] == 'cxf' or (props['org.apache.geronimo.jaxws.provider'] == null and webcontainerName == 'jetty6')"/>
-                            <config-xml-content server="offline" condition="props['org.apache.geronimo.jaxws.provider'] == 'cxf' or (props['org.apache.geronimo.jaxws.provider'] == null and webcontainerName == 'jetty6')"/>
+                            <config-xml-content server="default" condition="props['org.apache.geronimo.jaxws.provider'] == 'cxf' or (props['org.apache.geronimo.jaxws.provider'] == null and webcontainerName == '${jetty}')"/>
+                            <config-xml-content server="offline" condition="props['org.apache.geronimo.jaxws.provider'] == 'cxf' or (props['org.apache.geronimo.jaxws.provider'] == null and webcontainerName == '${jetty}')"/>
                         </plugin-artifact>
                     </instance>
                 </configuration>

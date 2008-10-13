@@ -35,7 +35,7 @@
     <dependencies>
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>jetty6-deployer</artifactId>
+            <artifactId>${jetty}-deployer</artifactId>
             <version>${version}</version>
             <type>car</type>
             <scope>provided</scope>
@@ -110,7 +110,7 @@
                     <deploymentConfigs>
                         <deploymentConfig>${gbeanDeployer}</deploymentConfig>
                         <deploymentConfig>${j2eeDeployer}</deploymentConfig>
-                        <deploymentConfig>${jetty6Deployer}</deploymentConfig>
+                        <deploymentConfig>${jettyDeployer}</deploymentConfig>
                         <deploymentConfig>${jasperDeployer}</deploymentConfig>
                     </deploymentConfigs>
                     <module>
@@ -123,16 +123,6 @@
                     <osiApproved>true</osiApproved>
                     <instance>
                         <plugin-artifact>
-                            <prerequisite>
-                                <id>
-                                    <groupId>org.apache.geronimo.configs</groupId>
-                                    <artifactId>jetty6</artifactId>
-                                </id>
-                                <resource-type>Web Container</resource-type>
-                                <description>
-                                    This version of the plugin works with the Geronimo/Jetty distribution.
-                                </description>
-                            </prerequisite>
                         </plugin-artifact>
                     </instance>
                 </configuration>

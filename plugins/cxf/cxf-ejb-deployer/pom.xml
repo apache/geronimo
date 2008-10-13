@@ -82,12 +82,12 @@
                     </dependencies>
                     <instance>
                         <plugin-artifact>
-                            <config-xml-content server="default" condition="props['org.apache.geronimo.jaxws.provider'] == 'cxf' or (props['org.apache.geronimo.jaxws.provider'] == null and webcontainerName == 'jetty6')">
+                            <config-xml-content server="default" condition="props['org.apache.geronimo.jaxws.provider'] == 'cxf' or (props['org.apache.geronimo.jaxws.provider'] == null and webcontainerName == '${jetty}')">
                                 <gbean name="CXFModuleBuilderExtension" class="org.apache.geronimo.jaxws.builder.JAXWSEJBModuleBuilderExtension">
                                     <attribute name="listener">?name=#{webcontainer}</attribute>
                                 </gbean>
                             </config-xml-content>
-                            <config-xml-content server="offline" condition="props['org.apache.geronimo.jaxws.provider'] == 'cxf' or (props['org.apache.geronimo.jaxws.provider'] == null and webcontainerName == 'jetty6')">
+                            <config-xml-content server="offline" condition="props['org.apache.geronimo.jaxws.provider'] == 'cxf' or (props['org.apache.geronimo.jaxws.provider'] == null and webcontainerName == '${jetty}')">
                                 <gbean name="CXFModuleBuilderExtension" class="org.apache.geronimo.jaxws.builder.JAXWSEJBModuleBuilderExtension">
                                     <attribute name="listener">?name=#{webcontainer}</attribute>
                                 </gbean>

@@ -59,7 +59,7 @@
 
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>jetty6-deployer</artifactId>
+            <artifactId>${jetty}-deployer</artifactId>
             <version>${version}</version>
             <type>car</type>
             <scope>provided</scope>
@@ -84,7 +84,7 @@
                     <deploymentConfigs>
                         <deploymentConfig>${gbeanDeployer}</deploymentConfig>
                         <deploymentConfig>${j2eeDeployer}</deploymentConfig>
-                        <deploymentConfig>${jetty6Deployer}</deploymentConfig>
+                        <deploymentConfig>${jettyDeployer}</deploymentConfig>
                         <deploymentConfig>${jasperDeployer}</deploymentConfig>
                     </deploymentConfigs>
                     <module>
