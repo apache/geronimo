@@ -246,6 +246,39 @@ public class ContextManager {
 
         return context.id;
     }
+    public static synchronized AccessControlContext registerSubjectShort(Subject subject) {
+        SecurityManager sm = System.getSecurityManager();
+        if (sm != null) sm.checkPermission(SET_CONTEXT);
+
+        if (subject == null) throw new IllegalArgumentException("Subject must not be null");
+        
+        Context test = subjectContexts.get(subject);
+        if (test != null) {
+            return test.context;
+        }
+
+        AccessControlContext acc = (AccessControlContext) Subject.doAsPrivileged(subject, new PrivilegedAction() {
+            public Object run() {
+                return AccessController.getContext();
+            }
+        }, null);
+
+        Context context = new Context();
+        context.subject = subject;
+        context.context = acc;
+        Long id = nextSubjectId++;
+        try {
+            context.id = new SubjectId(id, hash(id));
+        } catch (NoSuchAlgorithmException e) {
+            throw new ProviderException("No such algorithm: " + algorithm + ".  This can be caused by a misconfigured java.ext.dirs, JAVA_HOME or JRE_HOME environment variable");
+        } catch (InvalidKeyException e) {
+            throw new ProviderException("Invalid key: " + key.toString());
+        }
+        subjectIds.put(context.id, subject);
+        subjectContexts.put(subject, context);
+
+        return acc;
+    }
 
     public static synchronized void unregisterSubject(Subject subject) {
         SecurityManager sm = System.getSecurityManager();
