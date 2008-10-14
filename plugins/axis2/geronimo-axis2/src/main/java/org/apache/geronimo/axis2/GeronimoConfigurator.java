@@ -52,6 +52,7 @@ public class GeronimoConfigurator extends DeploymentEngine implements AxisConfig
         engageModules();
     }
 
+    @Override
     public void loadServices() {
     }
 }

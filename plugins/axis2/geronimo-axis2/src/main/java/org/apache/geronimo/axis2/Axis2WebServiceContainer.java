@@ -319,6 +319,13 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer
     }
     
     public void destroy() {
+        if (this.configurationContext != null) {
+            try {
+                this.configurationContext.terminate();
+            } catch (AxisFault e) {
+                LOG.debug(e.getMessage(), e);
+            }
+        }
     }
         
     public static class Axis2TransportInfo implements OutTransportInfo {
