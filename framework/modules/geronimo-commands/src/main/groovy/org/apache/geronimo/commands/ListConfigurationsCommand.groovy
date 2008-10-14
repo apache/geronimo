@@ -30,7 +30,7 @@ import org.apache.geronimo.gshell.command.annotation.CommandComponent
  *
  * @version $Rev: 580864 $ $Date: 2007-09-30 23:47:39 -0700 (Sun, 30 Sep 2007) $
  */
-@CommandComponent (id = 'geronimo-commands:list-plugins', description = 'List plugins installed on a server')
+@CommandComponent (id = 'geronimo-commands:list-plugins', description = 'Install plugins into a geronimo server')
 class ListConfigurationsCommand
     extends ConnectCommand
 {
