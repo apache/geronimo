@@ -58,15 +58,6 @@
             <type>car</type>
         </dependency>
         
-        <!--
-        <dependency>
-            <groupId>org.apache.geronimo.framework</groupId>
-            <artifactId>upgrade-cli</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
-        -->
-
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>rmi-naming</artifactId>
@@ -102,41 +93,19 @@
             <type>car</type>
         </dependency>
         
-        <!--
-        <dependency>
-            <groupId>org.apache.geronimo.framework</groupId>
-            <artifactId>online-deployer</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
-        -->
-
-        <!--
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>offline-deployer</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>
-        -->
 
-        <!--
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>jsr88-cli</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>
-        -->
-
-        <!--
-         <dependency>
-            <groupId>org.apache.geronimo.framework</groupId>
-            <artifactId>jsr88-deploymentfactory</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
-        -->
     </dependencies>
     
     <build>
