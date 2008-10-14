@@ -22,28 +22,13 @@
         <type>car</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>client-system</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>jsr88-cli</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>offline-deployer</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>gshell-geronimo</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
         <groupId>org.apache.geronimo.assemblies</groupId>
         <artifactId>geronimo-boilerplate</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.framework</groupId>
+        <artifactId>client-system</artifactId>
         <type>car</type>
     </dependency>
     <dependency>
@@ -63,12 +48,22 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>plugin</artifactId>
+        <artifactId>jsr88-cli</artifactId>
         <type>car</type>
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.framework</groupId>
         <artifactId>server-security-config</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.framework</groupId>
+        <artifactId>plugin</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.framework</groupId>
+        <artifactId>gshell-geronimo</artifactId>
         <type>car</type>
     </dependency>
 </plugin-artifact>
