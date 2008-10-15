@@ -34,6 +34,10 @@
         <service-interface>javax.xml.ws.Service</service-interface>
         <service-ref-type>javax.xml.ws.Service</service-ref-type>
         <mapped-name>mappedName4</mapped-name>
+        <injection-target>
+             <injection-target-class>org.apache.geronimo.naming.deployment.annotation.ResourceAnnotationTest</injection-target-class>
+             <injection-target-name>annotatedField2</injection-target-name>
+        </injection-target>
     </service-ref>
 
 </web-app>

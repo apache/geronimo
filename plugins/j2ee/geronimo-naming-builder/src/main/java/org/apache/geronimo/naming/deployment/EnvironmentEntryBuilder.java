@@ -93,7 +93,6 @@ public class EnvironmentEntryBuilder extends AbstractNamingBuilder implements GB
         List<EnvEntryType> envEntriesUntyped = convert(specDD.selectChildren(envEntryQNameSet), JEE_CONVERTER, EnvEntryType.class, EnvEntryType.type);
         for (EnvEntryType envEntry: envEntriesUntyped) {
             String name = getStringValue(envEntry.getEnvEntryName());
-            addInjections(name, envEntry.getInjectionTargetArray(), componentContext);
             String type = getStringValue(envEntry.getEnvEntryType());
             String text = getStringValue(envEntry.getEnvEntryValue());
             try {
@@ -125,7 +124,12 @@ public class EnvironmentEntryBuilder extends AbstractNamingBuilder implements GB
                 } else {
                     throw new DeploymentException("unrecognized type: " + type);
                 }
-                getJndiContextMap(componentContext).put(ENV + name, value);
+                // perform resource injection only if there is a value specified
+                // see Java EE 5 spec, section EE.5.4.1.3
+                if (value != null) {
+                    addInjections(name, envEntry.getInjectionTargetArray(), componentContext);
+                    getJndiContextMap(componentContext).put(ENV + name, value);
+                }
             } catch (NumberFormatException e) {
                 throw new DeploymentException("Invalid env-entry value for name: " + name, e);
             }
@@ -197,18 +201,19 @@ public class EnvironmentEntryBuilder extends AbstractNamingBuilder implements GB
                             // env-entry-type
                             EnvEntryTypeValuesType envEntryType = envEntry.addNewEnvEntryType();
                             envEntryType.setStringValue(resourceType);
-                        } else if (method != null || field != null) {
+                        }                         
+                        if (method != null || field != null) {
                             // injectionTarget
                             InjectionTargetType injectionTarget = envEntry.addNewInjectionTarget();
                             configureInjectionTarget(injectionTarget, method, field);
                         }
 
-                        // env-entry-value
+                        // mappedName
                         String mappdedNameAnnotation = annotation.mappedName();
                         if (!mappdedNameAnnotation.equals("")) {
-                            XsdStringType value = envEntry.addNewEnvEntryValue();
-                            value.setStringValue(mappdedNameAnnotation);
-                            envEntry.setMappedName(value);
+                            XsdStringType mappedName = envEntry.addNewMappedName();
+                            mappedName.setStringValue(mappdedNameAnnotation);
+                            envEntry.setMappedName(mappedName);
                         }
 
                         //------------------------------------------------------------------------------

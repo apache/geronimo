@@ -300,6 +300,12 @@ public class SwitchingServiceRefBuilder extends AbstractNamingBuilder {
                             serviceRef.setServiceRefType(serviceRefTypeClass);
                         }
 
+                        // injectionTarget
+                        if (method != null || field != null) {
+                            InjectionTargetType injectionTarget = serviceRef.addNewInjectionTarget();
+                            configureInjectionTarget(injectionTarget, method, field);
+                        }
+                        
                         // mappedName
                         if (!serviceRef.isSetMappedName() && annotation.mappedName().trim().length() > 0) {
                             XsdStringType mappedName = serviceRef.addNewMappedName();
