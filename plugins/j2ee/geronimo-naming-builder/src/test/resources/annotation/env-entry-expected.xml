@@ -27,12 +27,15 @@
         <description>description1</description>
         <env-entry-name>Resource1</env-entry-name>
         <env-entry-type>java.lang.String</env-entry-type>
-        <env-entry-value>mappedName1</env-entry-value>
         <mapped-name>mappedName1</mapped-name>
     </env-entry>
     <env-entry>
         <env-entry-name>org.apache.geronimo.j2ee.deployment.annotation.ResourceAnnotationTest/annotatedMethod2</env-entry-name>
         <env-entry-type>java.lang.String</env-entry-type>
+        <injection-target>
+             <injection-target-class>org.apache.geronimo.naming.deployment.annotation.ResourceAnnotationTest</injection-target-class>
+             <injection-target-name>annotatedMethod2</injection-target-name>
+        </injection-target>
     </env-entry>
 
 </web-app>
