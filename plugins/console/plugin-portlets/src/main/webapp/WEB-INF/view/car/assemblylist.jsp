@@ -22,6 +22,7 @@
 <portlet:defineObjects/>
 
 <script language="javascript" type="text/javascript">
+  var EXPERT_COOKIE = "org.apache.geronimo.assembly.expertmode";
   function checkAllVal(val) {
     val = document.getElementsByName(val);
     if(document.frmlst.artifactId.value == "") {
@@ -36,6 +37,97 @@
     alert("You must choose at least one plugin to install.");
     return false;
   }
+
+    //this function searches the category column and display
+    //rows within the table (identified by tid) that contain the searchterm
+    function filterCategory(searchterm, tid) {
+	    var term = searchterm.value.toLowerCase().split(" ");;
+	    var table = document.getElementById(tid);
+	    var element;
+	    for (var i = 2; i < table.rows.length; i++) {
+            //replace special characters with ""
+	        element = table.rows[i].cells[3].innerHTML.replace(/<>/g,"");
+            table.rows[i].style.display = 'none';
+
+            for (var j = 0; j < term.length; j++) {
+                if (element.toLowerCase().indexOf(term[j]) >= 0) {
+                    //if search term is found, display
+                    table.rows[i].style.display = '';
+                    break;
+                }
+            } 
+        }
+    }
+
+    //this function allows a user to search 2 tables
+    function filterTables(searchterm, t1, t2) {
+        if (document.frmlst.expertMode.checked) {
+            filterCategory(searchterm, t1);
+            filterCategory(searchterm, t2);
+        } else {
+            filterCategory(searchterm, t1);
+            toggleExpertMode();
+        }
+    }
+
+    //this function allows a user to search 3 tables
+    function filterTables(searchterm, t1, t2, t3) {
+        if (document.frmlst.expertMode.checked) {
+            filterCategory(searchterm, t1);
+            filterCategory(searchterm, t2);
+            filterCategory(searchterm, t3);
+        } else {
+            filterCategory(searchterm, t1);
+            filterCategory(searchterm, t2);
+            toggleExpertMode();
+        }
+    }
+
+    //Toggle expert mode on and off with onClick
+    function toggleExpertMode() {
+  	    var table = document.getElementById("sysPlugin");
+        if (document.frmlst.expertMode.checked) {
+            //  Set attribute/parameter to indicated expertMode is checked
+            document.cookie=EXPERT_COOKIE+"=true";
+    	    for (var i = 0; i < table.rows.length; i++) {
+                table.rows[i].style.display = ''; 
+            }
+        }
+        else {
+            //  Set attribute/parameter to indicated expertMode is not checked
+            document.cookie=EXPERT_COOKIE+"=false";
+    	    for (var i = 0; i < table.rows.length; i++) {
+                table.rows[i].style.display = 'none'; 
+            }
+        }
+    }
+
+
+    // get cookie utility routine
+    function getCookie(name) {
+        var result = "";
+        var key = name + "=";
+        if (document.cookie.length > 0) {
+            start = document.cookie.indexOf(key);
+            if (start != -1) { 
+                start += key.length;
+                end = document.cookie.indexOf(";", start);
+                if (end == -1) end = document.cookie.length;
+                result=document.cookie.substring(start, end);
+            }
+        }
+        return result;
+    }
+
+    // initialization routine to set the initial display state for expert mode correctly
+    function init() {
+        if (getCookie(EXPERT_COOKIE) == 'true') {
+            document.frmlst.expertMode.checked = true;
+        } else {
+            document.frmlst.expertMode.checked = false;
+        }
+        toggleExpertMode();
+    }
 </script>
 
 
@@ -49,6 +141,7 @@
 </c:when>
 <c:otherwise>
 <form name="frmlst" action="<portlet:actionURL/>">
+
     <h3><fmt:message key="car.list.nameServer" /></h3>
     <input id="mode" type="hidden" name="mode" value="assemblyView-before"/>
     
@@ -78,40 +171,19 @@
   </td>
 </table>
 
+<h3>Select from plugins in current server:</h3>
+<p><input type="checkbox" name="expertMode" id="<portlet:namespace/>expertMode" onClick="toggleExpertMode();" />&nbsp;
+<label for="<portlet:namespace/>expertMode">Expert User (view all system plugins)</label>
+</p>
+
 <c:choose>
 <c:when test="${type eq 'Application Centric'}">   
+<p>Filter by category: <input name="filterbyca" onkeyup="filterTables(this, 'appPlugin', 'sysPlugin')" type="text"></p>
 
-    <h3><fmt:message key="car.list.applicationPlugin"/></h3>
-<table border="0" cellpadding="3">
+<table id="reqPlugin" border="0" cellpadding="3">
 <tr>
-  <th class="DarkBackground">&nbsp;</th>
-  <c:forEach var="column" items="Name,Version,Category">
-  <th class="DarkBackground">${column}</th>
-  </c:forEach>
+  <td colspan="4"><h4><fmt:message key="car.list.requiredPlugin"/></h4></td>
 </tr>
-<c:forEach var="plugin" items="${plugins}" varStatus="status">
-<c:set var="style" value="${status.index % 2 == 0 ? 'MediumBackground' : 'LightBackground'}"/>
-<c:set var="artifact" value="${plugin.pluginArtifact.moduleId}"/>
-<c:if test="${!plugin.isSystemPlugin}">
-<tr>
-  <td class="${style}">
-    <input type="checkbox" name="plugin" title="${artifact.groupId}/${artifact.artifactId}/${artifact.version}/${artifact.type}" value="${artifact.groupId}/${artifact.artifactId}/${artifact.version}/${artifact.type}"/>
-  </td>
-  <td class="${style}">
-    <a href='<portlet:actionURL>
-    <portlet:param name="configId" value="${artifact.groupId}/${artifact.artifactId}/${artifact.version}/${artifact.type}"/>
-    <portlet:param name="mode" value="assemblyView-before"/>
-    </portlet:actionURL>'>${plugin.name}</a>
-  </td>
-  <td class="${style}">${artifact.version}</td>
-  <td class="${style}">${plugin.category}</td>
-</tr>
-</c:if>    
-</c:forEach>
-</table>
-
-    <h3><fmt:message key="car.list.requiredPlugin"/></h3>
-<table border="0" cellpadding="3">
 <tr>
   <th class="DarkBackground">&nbsp;</th>
   <c:forEach var="column" items="Name,Version,Category">
@@ -138,44 +210,12 @@
 </c:if>    
 </c:forEach>
 </table>
-</c:when>
+<br/>
 
-<c:when test="${type eq 'Function Centric'}"> 
-    <h3><fmt:message key="car.list.PluginGroup"/></h3>
-<table border="0" cellpadding="3">
+<table id="appPlugin" border="0" cellpadding="3">
 <tr>
-  <th class="DarkBackground">&nbsp;</th>
-  <c:forEach var="column" items="Name,Version,Category">
-  <th class="DarkBackground">${column}</th>
-  </c:forEach>
+  <td colspan="4"><h4><fmt:message key="car.list.applicationPlugin"/></h4></td>
 </tr>
-<c:forEach var="plugin" items="${plugins}" varStatus="status">
-<c:set var="style" value="${status.index % 2 == 0 ? 'MediumBackground' : 'LightBackground'}"/>
-<c:set var="artifact" value="${plugin.pluginArtifact.moduleId}"/>
-<c:if test="${plugin.isPluginGroup}">
-<tr>
-  <td class="${style}">
-    <input type="checkbox" name="plugin" 
-           title="${artifact.groupId}/${artifact.artifactId}/${artifact.version}/${artifact.type}" 
-           value="${artifact.groupId}/${artifact.artifactId}/${artifact.version}/${artifact.type}"
-           <c:if test="${artifact.artifactId eq 'framework'}">CHECKED</c:if>/>
-  </td>
-  <td class="${style}">
-    <a href='<portlet:actionURL>
-    <portlet:param name="configId" value="${artifact.groupId}/${artifact.artifactId}/${artifact.version}/${artifact.type}"/>
-    <portlet:param name="mode" value="assemblyView-before"/>
-    </portlet:actionURL>'>${plugin.name}</a>
-  </td>
-  <td class="${style}">${artifact.version}</td>
-  <td class="${style}">${plugin.category}</td>
-</tr>
-</c:if>    
-</c:forEach>
-</table>
-
-
-    <h3><fmt:message key="car.list.applicationPlugin"/></h3>
-<table border="0" cellpadding="3">
 <tr>
   <th class="DarkBackground">&nbsp;</th>
   <c:forEach var="column" items="Name,Version,Category">
@@ -202,25 +242,92 @@
 </c:if>    
 </c:forEach>
 </table>
-</c:when>
+<br/>
 
-<c:otherwise>
-
-    <h3><fmt:message key="car.list.applicationPlugin"/></h3>
-<table border="0" cellpadding="3">
+<table id="sysPlugin" border="0" cellpadding="3">
+<tr>
+  <td colspan="5"><h4><fmt:message key="car.list.systemPlugin"/></h4></td>
+</tr>
 <tr>
   <th class="DarkBackground">&nbsp;</th>
-  <c:forEach var="column" items="ConfigId,Version,Category">
-  <th class="DarkBackground"><a href='<portlet:actionURL>
-	                                   <portlet:param name="column" value="${column}"/>
-	                                   <portlet:param name="mode" value="index-after"/>
-	                                  </portlet:actionURL>'>${column}</a></th>
+  <c:forEach var="column" items="Name,Version,Category,ConfigId">
+  <th class="DarkBackground">${column}</th>
   </c:forEach>
 </tr>
 <c:forEach var="plugin" items="${plugins}" varStatus="status">
 <c:set var="style" value="${status.index % 2 == 0 ? 'MediumBackground' : 'LightBackground'}"/>
 <c:set var="artifact" value="${plugin.pluginArtifact.moduleId}"/>
-<c:if test="${!plugin.isSystemPlugin}">
+<c:if test="${plugin.isSystemPlugin && artifact.artifactId ne 'framework'}">
+<tr>
+  <td class="${style}">
+    <input type="checkbox" name="plugin" 
+           title="${artifact.groupId}/${artifact.artifactId}/${artifact.version}/${artifact.type}" 
+           value="${artifact.groupId}/${artifact.artifactId}/${artifact.version}/${artifact.type}"/>
+  </td>
+  <td class="${style}">
+    <a href='<portlet:actionURL>
+      <portlet:param name="configId" value="${artifact.groupId}/${artifact.artifactId}/${artifact.version}/${artifact.type}"/>
+      <portlet:param name="mode" value="assemblyView-before"/>
+    </portlet:actionURL>'>${plugin.name}</a>
+  </td>
+  <td class="${style}">${artifact.version}</td>
+  <td class="${style}">${plugin.category}</td>
+  <td class="${style}">${artifact.groupId}/${artifact.artifactId}/${artifact.version}/${artifact.type}</td>
+</tr>
+</c:if>
+</c:forEach>
+</table>
+</c:when>
+
+<c:otherwise>
+<p>Filter by category: <input name="filterbyca" onkeyup="filterTables(this, 'groupPlugin', 'appPlugin', 'sysPlugin')" type="text"></p>
+
+<table id="reqPlugin" border="0" cellpadding="3">
+<tr>
+  <td colspan="4"><h4><fmt:message key="car.list.requiredPlugin"/></h4></td>
+</tr>
+<tr>
+  <th class="DarkBackground">&nbsp;</th>
+  <c:forEach var="column" items="Name,Version,Category">
+  <th class="DarkBackground">${column}</th>
+  </c:forEach>
+</tr>
+<c:forEach var="plugin" items="${plugins}" varStatus="status">
+<c:set var="style" value="${status.index % 2 == 0 ? 'MediumBackground' : 'LightBackground'}"/>
+<c:set var="artifact" value="${plugin.pluginArtifact.moduleId}"/>
+<c:if test="${plugin.isPluginGroup && artifact.artifactId eq 'framework'}">
+<tr>
+  <td class="${style}">
+    <input type="checkbox" name="plugin" title="${artifact.groupId}/${artifact.artifactId}/${artifact.version}/${artifact.type}" value="${artifact.groupId}/${artifact.artifactId}/${artifact.version}/${artifact.type}" CHECKED/>
+  </td>
+  <td class="${style}">
+    <a href='<portlet:actionURL>
+    <portlet:param name="configId" value="${artifact.groupId}/${artifact.artifactId}/${artifact.version}/${artifact.type}"/>
+    <portlet:param name="mode" value="assemblyView-before"/>
+    </portlet:actionURL>'>${plugin.name}</a>
+  </td>
+  <td class="${style}">${artifact.version}</td>
+  <td class="${style}">${plugin.category}</td>
+</tr>
+</c:if>    
+</c:forEach>
+</table>
+<br/>
+
+<table id="groupPlugin" border="0" cellpadding="3">
+<tr>
+  <td colspan="4"><h4><fmt:message key="car.list.PluginGroup"/></h4></td>
+</tr>
+<tr>
+  <th class="DarkBackground">&nbsp;</th>
+  <c:forEach var="column" items="Name,Version,Category">
+  <th class="DarkBackground">${column}</th>
+  </c:forEach>
+</tr>
+<c:forEach var="plugin" items="${plugins}" varStatus="status">
+<c:set var="style" value="${status.index % 2 == 0 ? 'MediumBackground' : 'LightBackground'}"/>
+<c:set var="artifact" value="${plugin.pluginArtifact.moduleId}"/>
+<c:if test="${plugin.isPluginGroup && artifact.artifactId ne 'framework'}">
 <tr>
   <td class="${style}">
     <input type="checkbox" name="plugin" 
@@ -231,7 +338,7 @@
     <a href='<portlet:actionURL>
     <portlet:param name="configId" value="${artifact.groupId}/${artifact.artifactId}/${artifact.version}/${artifact.type}"/>
     <portlet:param name="mode" value="assemblyView-before"/>
-    </portlet:actionURL>'>${artifact.groupId}/${artifact.artifactId}/${artifact.version}/${artifact.type}</a>
+    </portlet:actionURL>'>${plugin.name}</a>
   </td>
   <td class="${style}">${artifact.version}</td>
   <td class="${style}">${plugin.category}</td>
@@ -239,38 +346,69 @@
 </c:if>    
 </c:forEach>
 </table>
+<br/>
 
-
-    <h3><fmt:message key="car.list.systemPlugin"/></h3>
-<table border="0" cellpadding="3">
+<table id="appPlugin" border="0" cellpadding="3">
+<tr>
+  <td colspan="4"><h4><fmt:message key="car.list.applicationPlugin"/></h4></td>
+</tr>
 <tr>
   <th class="DarkBackground">&nbsp;</th>
-  <c:forEach var="column" items="ConfigId,Version,Category">
-  <th class="DarkBackground"><a href='<portlet:actionURL>
-	                                   <portlet:param name="column" value="${column}"/>
-	                                   <portlet:param name="mode" value="index-after"/>
-	                                  </portlet:actionURL>'>${column}</a></th>
+  <c:forEach var="column" items="Name,Version,Category">
+  <th class="DarkBackground">${column}</th>
   </c:forEach>
 </tr>
 <c:forEach var="plugin" items="${plugins}" varStatus="status">
 <c:set var="style" value="${status.index % 2 == 0 ? 'MediumBackground' : 'LightBackground'}"/>
 <c:set var="artifact" value="${plugin.pluginArtifact.moduleId}"/>
-<c:if test="${plugin.isSystemPlugin}">
+<c:if test="${!plugin.isSystemPlugin}">
+<tr>
+  <td class="${style}">
+    <input type="checkbox" name="plugin" title="${artifact.groupId}/${artifact.artifactId}/${artifact.version}/${artifact.type}" value="${artifact.groupId}/${artifact.artifactId}/${artifact.version}/${artifact.type}"/>
+  </td>
+  <td class="${style}">
+    <a href='<portlet:actionURL>
+    <portlet:param name="configId" value="${artifact.groupId}/${artifact.artifactId}/${artifact.version}/${artifact.type}"/>
+    <portlet:param name="mode" value="assemblyView-before"/>
+    </portlet:actionURL>'>${plugin.name}</a>
+  </td>
+  <td class="${style}">${artifact.version}</td>
+  <td class="${style}">${plugin.category}</td>
+</tr>
+</c:if>    
+</c:forEach>
+</table>
+<br/>
+
+<table id="sysPlugin" border="0" cellpadding="3">
+<tr>
+  <td colspan="5"><h4><fmt:message key="car.list.systemPlugin"/></h4></td>
+</tr>
+<tr>
+  <th class="DarkBackground">&nbsp;</th>
+  <c:forEach var="column" items="Name,Version,Category,ConfigId">
+  <th class="DarkBackground">${column}</th>
+  </c:forEach>
+</tr>
+<c:forEach var="plugin" items="${plugins}" varStatus="status">
+<c:set var="style" value="${status.index % 2 == 0 ? 'MediumBackground' : 'LightBackground'}"/>
+<c:set var="artifact" value="${plugin.pluginArtifact.moduleId}"/>
+<c:if test="${plugin.isSystemPlugin && !plugin.isPluginGroup}">
 <tr>
   <td class="${style}">
     <input type="checkbox" name="plugin" 
            title="${artifact.groupId}/${artifact.artifactId}/${artifact.version}/${artifact.type}" 
-           value="${artifact.groupId}/${artifact.artifactId}/${artifact.version}/${artifact.type}"
-           <c:if test="${plugin.isPluginGroup && artifact.artifactId eq 'framework'}">CHECKED</c:if>/>
+           value="${artifact.groupId}/${artifact.artifactId}/${artifact.version}/${artifact.type}"/>
   </td>
   <td class="${style}">
     <a href='<portlet:actionURL>
       <portlet:param name="configId" value="${artifact.groupId}/${artifact.artifactId}/${artifact.version}/${artifact.type}"/>
       <portlet:param name="mode" value="assemblyView-before"/>
-    </portlet:actionURL>'>${artifact.groupId}/${artifact.artifactId}/${artifact.version}/${artifact.type}</a>
+    </portlet:actionURL>'>${plugin.name}</a>
   </td>
   <td class="${style}">${artifact.version}</td>
   <td class="${style}">${plugin.category}</td>
+  <td class="${style}">${artifact.groupId}/${artifact.artifactId}/${artifact.version}/${artifact.type}</td>
 </tr>
 </c:if>
 </c:forEach>
@@ -285,3 +423,8 @@
 </form>
 </c:otherwise>
 </c:choose>
+
+<script>
+// Call to set initial expert mode actions correctly
+init();
+</script>

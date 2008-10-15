@@ -29,7 +29,6 @@
     <select name="type" id="<portlet:namespace/>type">
         <option selected>Function Centric</option>
         <option>Application Centric</option>
-        <option>Expert Users</option>
     </select>
     <input type="hidden" name="mode" value="listServer-before"/>
     <input type="submit" value='<fmt:message key="car.index.assembleServer"/>'/>
