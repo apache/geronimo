@@ -78,7 +78,7 @@
       <portlet:param name="repo-pass" value="${repopass}"/>
       <portlet:param name="configId" value="${artifact.groupId}/${artifact.artifactId}/${artifact.version}/${artifact.type}"/>
       <portlet:param name="mode" value="viewForDownload-before"/>
-    </portlet:actionURL>'>${plugin.name}</a>
+    </portlet:actionURL>' title="${plugin.description}">${plugin.name}</a>
   </td>
   <td class="${style}">${artifact.version}</td>
   <td class="${style}">${plugin.category}</td>

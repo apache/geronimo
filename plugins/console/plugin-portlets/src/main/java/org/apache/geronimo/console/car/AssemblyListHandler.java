@@ -119,8 +119,10 @@ public class AssemblyListHandler extends AbstractListHandler {
     }
     
     private void listPlugins(RenderRequest request, PluginInstaller pluginInstaller, PluginListType data, List<String> appList) {
-        List<PluginInfoBean> plugins = new ArrayList<PluginInfoBean>();
-
+        List<PluginInfoBean> sysPlugins = new ArrayList<PluginInfoBean>();
+        List<PluginInfoBean> appPlugins = new ArrayList<PluginInfoBean>();
+        List<PluginInfoBean> groupPlugins = new ArrayList<PluginInfoBean>();
+        
         for (PluginType metadata: data.getPlugin()) {
 
             // ignore plugins which have no artifacts defined
@@ -137,6 +139,10 @@ public class AssemblyListHandler extends AbstractListHandler {
                 plugin.setPlugin(metadata);
                 plugin.setPluginArtifact(pluginArtifact);
                 
+                if (metadata.isPluginGroup() != null && metadata.isPluginGroup()) {
+                    plugin.setIsPluginGroup(true);
+                }
+                
                 //determine if the plugin is a system plugin or application plugin
                 ArtifactType artifact = pluginArtifact.getModuleId();
                 String configId = artifact.getGroupId() + "/" + artifact.getArtifactId() + "/" 
@@ -144,21 +150,28 @@ public class AssemblyListHandler extends AbstractListHandler {
                 for (String app : appList) {
                     if (app.equals(configId)) {
                         plugin.setIsSystemPlugin(false);
-                    }
+                        appPlugins.add(plugin);
+                    } 
                 }
                 
                 if (metadata.isPluginGroup() != null && metadata.isPluginGroup()) {
-                    plugin.setIsPluginGroup(true);
+                    groupPlugins.add(plugin);
                 }
-
-                plugins.add(plugin);
+                
+                if (plugin.getIsSystemPlugin()) {
+                    sysPlugins.add(plugin);
+                }
             }
         }
         
         // sort the plugin list based on the selected table column
-        sortPlugins(plugins, request);
+        sortPlugins(appPlugins, request);
+        sortPlugins(sysPlugins, request);
+        sortPlugins(groupPlugins, request);
 
         // save everything in the request
-        request.setAttribute("plugins", plugins);
+        request.setAttribute("appPlugins", appPlugins);
+        request.setAttribute("sysPlugins", sysPlugins);
+        request.setAttribute("groupPlugins", groupPlugins);
     }
 }
