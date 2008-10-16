@@ -21,9 +21,12 @@ import java.lang.reflect.Constructor;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.resource.spi.ResourceAdapterAssociation;
+
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.DynamicGBean;
 import org.apache.geronimo.gbean.DynamicGBeanDelegate;
+import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.naming.ResourceSource;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.management.geronimo.JCAAdminObject;
@@ -34,10 +37,11 @@ import org.apache.geronimo.management.geronimo.JCAAdminObject;
  *
  * @version $Rev$ $Date$
  */
-public class AdminObjectWrapper implements DynamicGBean, JCAAdminObject, ResourceSource<RuntimeException> {
+public class AdminObjectWrapper implements DynamicGBean, JCAAdminObject, ResourceSource<RuntimeException>, GBeanLifecycle {
 
     private final String adminObjectInterface;
     private final String adminObjectClass;
+    private final ResourceAdapterWrapper resourceAdapterWrapper;
 
     private final DynamicGBeanDelegate delegate;
     private final Object adminObject;
@@ -46,19 +50,6 @@ public class AdminObjectWrapper implements DynamicGBean, JCAAdminObject, Resourc
     private final Kernel kernel;
     private final AbstractName abstractName;
     private final String objectName;
-
-    /**
-     * Default constructor required when a class is used as a GBean Endpoint.
-     */
-    public AdminObjectWrapper() {
-        adminObjectInterface = null;
-        adminObjectClass = null;
-        adminObject = null;
-        delegate = null;
-        kernel = null;
-        abstractName = null;
-        objectName = null;
-    }
 
     /**
      * Normal managed constructor.
@@ -70,12 +61,14 @@ public class AdminObjectWrapper implements DynamicGBean, JCAAdminObject, Resourc
      */
     public AdminObjectWrapper(final String adminObjectInterface,
                               final String adminObjectClass,
+                              final ResourceAdapterWrapper resourceAdapterWrapper,
                               final Kernel kernel,
                               final AbstractName abstractName,
                               final String objectName,
                               final ClassLoader cl) throws IllegalAccessException, InstantiationException, ClassNotFoundException {
         this.adminObjectInterface = adminObjectInterface;
         this.adminObjectClass = adminObjectClass;
+        this.resourceAdapterWrapper = resourceAdapterWrapper;
         this.kernel = kernel;
         this.abstractName = abstractName;
         this.objectName = objectName;
@@ -204,5 +197,33 @@ public class AdminObjectWrapper implements DynamicGBean, JCAAdminObject, Resourc
 
     public boolean isEventProvider() {
         return false;
+    }
+
+    /**
+     * Starts the GBean.  This informs the GBean that it is about to transition to the running state.
+     *
+     * @throws Exception if the target failed to start; this will cause a transition to the failed state
+     */
+    public void doStart() throws Exception {
+        if (adminObject instanceof ResourceAdapterAssociation) {
+            if (resourceAdapterWrapper == null) {
+                throw new IllegalStateException("Admin object expects to be registered with a ResourceAdapter, but there is no ResourceAdapter");
+            }
+            resourceAdapterWrapper.registerResourceAdapterAssociation((ResourceAdapterAssociation) adminObject);
+        }
+    }
+
+    /**
+     * Stops the target.  This informs the GBean that it is about to transition to the stopped state.
+     *
+     * @throws Exception if the target failed to stop; this will cause a transition to the failed state
+     */
+    public void doStop() throws Exception {
+    }
+
+    /**
+     * Fails the GBean.  This informs the GBean that it is about to transition to the failed state.
+     */
+    public void doFail() {
     }
 }

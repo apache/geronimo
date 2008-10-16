@@ -137,6 +137,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
     static {
         NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/j2ee/connector", "http://geronimo.apache.org/xml/ns/j2ee/connector-1.2");
         NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/j2ee/connector-1.1", "http://geronimo.apache.org/xml/ns/j2ee/connector-1.2");
+//        NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/j2ee/connector-1.2", "http://geronimo.apache.org/xml/ns/j2ee/connector-1.3");
     }
 
     private static final Map<String, Class> TYPE_LOOKUP = new HashMap<String, Class>();
@@ -580,8 +581,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
                     throw new DeploymentException("Geronimo plan configures an outbound resource adapter but ra.xml does not describe any");
                 }
                 String transactionSupport = resourceadapter.getOutboundResourceadapter().getTransactionSupport().getStringValue().trim();
-                for (int i = 0; i < geronimoResourceAdapter.getOutboundResourceadapter().getConnectionDefinitionArray().length; i++) {
-                    GerConnectionDefinitionType geronimoConnectionDefinition = geronimoResourceAdapter.getOutboundResourceadapter().getConnectionDefinitionArray(i);
+                for (GerConnectionDefinitionType geronimoConnectionDefinition : geronimoResourceAdapter.getOutboundResourceadapter().getConnectionDefinitionArray()) {
                     assert geronimoConnectionDefinition != null : "Null GeronimoConnectionDefinition";
 
                     String connectionFactoryInterfaceName = geronimoConnectionDefinition.getConnectionfactoryInterface().trim();
@@ -598,13 +598,16 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
                     }
                 }
             }
+            addAdminObjectGBeans(earContext, jcaResourceName, resourceAdapterModuleData, cl, resourceAdapterAbstractName, geronimoResourceAdapter.getAdminobjectArray());
         }
         // admin objects (think message queues and topics)
 
         // add configured admin objects
-        for (int i = 0; i < geronimoConnector.getAdminobjectArray().length; i++) {
-            GerAdminobjectType gerAdminObject = geronimoConnector.getAdminobjectArray()[i];
+        addAdminObjectGBeans(earContext, jcaResourceName, resourceAdapterModuleData, cl, null, geronimoConnector.getAdminobjectArray());
+    }
 
+    private void addAdminObjectGBeans(EARContext earContext, AbstractName jcaResourceName, GBeanData resourceAdapterModuleData, ClassLoader cl, AbstractName resourceAdapterAbstractName, GerAdminobjectType[] adminObjects) throws DeploymentException {
+        for (GerAdminobjectType gerAdminObject : adminObjects) {
             String adminObjectInterface = gerAdminObject.getAdminobjectInterface().trim();
             GBeanData adminObjectGBeanData = locateAdminObjectInfo(resourceAdapterModuleData, adminObjectInterface);
 
@@ -612,12 +615,15 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
                 throw new DeploymentException("No admin object declared for interface: " + adminObjectInterface);
             }
 
-            for (GerAdminobjectInstanceType gerAdminObjectInstance: gerAdminObject.getAdminobjectInstanceArray()) {
+            for (GerAdminobjectInstanceType gerAdminObjectInstance : gerAdminObject.getAdminobjectInstanceArray()) {
                 GBeanData adminObjectInstanceGBeanData = new GBeanData(adminObjectGBeanData);
                 setDynamicGBeanDataAttributes(adminObjectInstanceGBeanData, gerAdminObjectInstance.getConfigPropertySettingArray(), cl);
                 // add it
                 AbstractName adminObjectAbstractName = earContext.getNaming().createChildName(jcaResourceName, gerAdminObjectInstance.getMessageDestinationName().trim(), NameFactory.JCA_ADMIN_OBJECT);
                 adminObjectInstanceGBeanData.setAbstractName(adminObjectAbstractName);
+                if (resourceAdapterAbstractName != null) {
+                    adminObjectInstanceGBeanData.setReferencePattern("ResourceAdapterWrapper", resourceAdapterAbstractName);
+                }
                 try {
                     earContext.addGBean(adminObjectInstanceGBeanData);
                 } catch (GBeanAlreadyExistsException e) {

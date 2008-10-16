@@ -586,6 +586,7 @@
                         administer object defined in ra.xml. For example, if
                         topic is declared in the ra.xml this could provide topic
                         instance information.
+                        An admin object configured here cannot implement ResourceAdapterAssociation.
                     </xs:documentation>
                 </xs:annotation>
             </xs:element>
@@ -678,6 +679,19 @@
                         authentication mechanisms as part of security contract.
                         The application server ignores the security part of the
                         system contracts in this case.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="adminobject" type="ger:adminobjectType"
+                minOccurs="0" maxOccurs="unbounded">
+                <xs:annotation>
+                    <xs:documentation>
+                        The element adminobject maps back to adminobject defined
+                        in ra.xml. It provides specific instance information for
+                        administer object defined in ra.xml. For example, if
+                        topic is declared in the ra.xml this could provide topic
+                        instance information.
+                        An admin object configured here can implement ResourceAdapterAssociation.
                     </xs:documentation>
                 </xs:annotation>
             </xs:element>

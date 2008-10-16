@@ -61,7 +61,6 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
     private DynamicGBeanDelegate delegate;
 
 
-    private boolean registered = false;
     private final Kernel kernel;
     private final AbstractName abstractName;
     private final String objectName;
@@ -154,13 +153,12 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
     }
 
     public void doStart() throws Exception {
-        //register with resource adapter if not yet done
-        if (!registered && (managedConnectionFactory instanceof ResourceAdapterAssociation)) {
+        //register with resource adapter
+        if (managedConnectionFactory instanceof ResourceAdapterAssociation) {
             if (resourceAdapterWrapper == null) {
                 throw new IllegalStateException("Managed connection factory expects to be registered with a ResourceAdapter, but there is no ResourceAdapter");
             }
             resourceAdapterWrapper.registerResourceAdapterAssociation((ResourceAdapterAssociation) managedConnectionFactory);
-            registered = true;
             log.debug("Registered managedConnectionFactory with ResourceAdapter " + resourceAdapterWrapper.toString());
         }
         connectionManagerContainer.doRecovery(managedConnectionFactory);
