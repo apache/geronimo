@@ -25,10 +25,6 @@
   var EXPERT_COOKIE = "org.apache.geronimo.assembly.expertmode";
   function checkAllVal(val) {
     val = document.getElementsByName(val);
-    if(document.frmlst.artifactId.value == "") {
-      alert("You must provide an Artifact Id Name.");
-      return false;
-    }
     for (i = 0; i < val.length; i++) {
       if(val[i].checked == true) {
         return true;
@@ -130,58 +126,21 @@
     }
 </script>
 
-
-<c:choose>
-<c:when test="${fn:length(appPlugins) < 1 || fn:length(sysPlugins) < 1 }">
-  <fmt:message key="car.list.noPlugins" />
-  <p>
-  <form>
-    <input type="submit" value="Cancel" onclick="history.go(-1); return false;" />
-  </form>
-</c:when>
-<c:otherwise>
 <form name="frmlst" action="<portlet:actionURL/>">
 
-    <h3><fmt:message key="car.list.nameServer" /></h3>
     <input id="mode" type="hidden" name="mode" value="assemblyView-before"/>
-    
-<table border="0" cellpadding="3">
-<tr>
-  <td><label for="<portlet:namespace/>groupId"><fmt:message key="car.list.assemblyGroupId"/></label></td>
-  <td><input type="text" name="groupId" id="<portlet:namespace/>groupId" value="${groupId}"/></td>
-</tr>
-<tr>
-  <td><label for="<portlet:namespace/>artifactId"><fmt:message key="car.list.assemblyArtifactId"/></label></td>
-  <td><input type="text" name="artifactId" id="<portlet:namespace/>artifactId" value="${artifactId}"/></td>
-</tr>
-<tr>
-  <td><label for="<portlet:namespace/>version"><fmt:message key="car.list.assemblyVersion"/></label></td>
-  <td><input type="text" name="version" id="<portlet:namespace/>version" value="${version}"/></td>
-</tr>
-<tr>
-  <td><label for="<portlet:namespace/>relativeServerPath"><fmt:message key="car.list.assemblyPath"/></label></td>
-  <td><input type="text" name="relativeServerPath" id="<portlet:namespace/>relativeServerPath" value="${relativeServerPath}"/></td>
-</tr>
-<tr>
-  <td><label for="<portlet:namespace/>format"><fmt:message key="car.list.assemblyFormat"/></label></td>
-  <td><select name="format" id="<portlet:namespace/>format">
-        <option <c:if test="${format ne 'zip'}">selected="true"</c:if>>tar.gz</option>
-        <option <c:if test="${format eq 'zip'}">selected="true"</c:if>>zip</option>
-      </select>
-  </td>
-</table>
 
-<h3>Select from plugins in current server:</h3>
+<h3><fmt:message key="car.list.selectPlugin"/></h3>
 <p><input type="checkbox" name="expertMode" id="<portlet:namespace/>expertMode" onClick="toggleExpertMode();" />&nbsp;
-<label for="<portlet:namespace/>expertMode">Expert User (view all system plugins)</label>
+<label for="<portlet:namespace/>expertMode"><fmt:message key="car.list.expertUser"/></label>
 </p>
 
 <c:choose>
 <c:when test="${type eq 'Application Centric'}">   
-<p>Filter by category: <input name="filterbyca" onkeyup="filterTables(this, 'appPlugin', 'sysPlugin')" type="text"></p>
+<p><fmt:message key="car.list.filterByCategory"/><input name="filterbyca" onkeyup="filterTables(this, 'appPlugin', 'sysPlugin')" type="text"></p>
 </c:when>
 <c:otherwise>
-<p>Filter by category: <input name="filterbyca" onkeyup="filterTables(this, 'groupPlugin', 'appPlugin', 'sysPlugin')" type="text"></p>
+<p><fmt:message key="car.list.filterByCategory"/><input name="filterbyca" onkeyup="filterTables(this, 'groupPlugin', 'appPlugin', 'sysPlugin')" type="text"></p>
 </c:otherwise>
 </c:choose>
 
@@ -358,12 +317,15 @@
 </c:otherwise>
 </c:choose>
 
+    <input type="hidden" name="relativeServerPath" value="${relativeServerPath}"/>
+    <input type="hidden" name="groupId" value="${groupId}"/>
+    <input type="hidden" name="artifactId" value="${artifactId}"/>
+    <input type="hidden" name="version" value="${version}"/>
+    <input type="hidden" name="format" value="${format}"/>
     <input type="submit" value='<fmt:message key="car.common.assemble"/>' onclick="if(!checkAllVal('plugin')){return false;}else return true;"/>
-    <input type="submit" value='<fmt:message key="consolebase.common.cancel"/>' onclick="history.go(-1); return false;" />
+    <input type="submit" value='<fmt:message key="consolebase.common.cancel"/>' onclick="history.go(-2); return false;" />
 
 </form>
-</c:otherwise>
-</c:choose>
 
 <script>
 // Call to set initial expert mode actions correctly

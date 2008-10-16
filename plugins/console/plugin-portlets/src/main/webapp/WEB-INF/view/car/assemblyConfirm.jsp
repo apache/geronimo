@@ -45,6 +45,6 @@
 <p>File Location: ${absoluteDeployedPath}</p>
 <br>
 <form>
-<input type="submit" value='<fmt:message key="consolebase.common.done" />' onclick="history.go(-3); return false;" />
+<input type="submit" value='<fmt:message key="consolebase.common.done" />' onclick="history.go(-4); return false;" />
 </form>
 

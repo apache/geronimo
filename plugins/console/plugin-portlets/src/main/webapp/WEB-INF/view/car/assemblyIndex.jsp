@@ -30,7 +30,7 @@
         <option selected>Function Centric</option>
         <option>Application Centric</option>
     </select>
-    <input type="hidden" name="mode" value="listServer-before"/>
+    <input type="hidden" name="mode" value="assemblyName-before"/>
     <input type="submit" value='<fmt:message key="car.index.assembleServer"/>'/>
 </form>
 

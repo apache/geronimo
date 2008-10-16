@@ -23,9 +23,10 @@ import java.util.List;
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
 import javax.portlet.PortletException;
+import javax.portlet.PortletSession;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
-import javax.portlet.PortletSession;
+import javax.portlet.WindowState;
 
 import org.apache.geronimo.console.MultiPageModel;
 import org.apache.geronimo.kernel.repository.Artifact;
@@ -66,7 +67,8 @@ public class AssemblyViewHandler extends BaseImportExportHandler {
         if(!isEmpty(artifactId)) response.setRenderParameter("artifactId", artifactId);
         response.setRenderParameter("version", isEmpty(version) ? "1.0" : version);
         if(!isEmpty(format)) response.setRenderParameter("format", format);
-
+        
+        response.setWindowState(WindowState.MAXIMIZED);
         return getMode();
     }
 

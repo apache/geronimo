@@ -39,6 +39,7 @@ public class AssemblyPortlet extends MultiPagePortlet {
     public void init(PortletConfig config) throws PortletException {
         super.init(config);
         addHelper(new AssemblyIndexHandler(), config);
+        addHelper(new AssemblyNameHandler(), config);
         addHelper(new AssemblyConfirmHandler(), config);
         addHelper(new AssemblyListHandler(), config);
         addHelper(new AssemblyViewHandler(), config);
