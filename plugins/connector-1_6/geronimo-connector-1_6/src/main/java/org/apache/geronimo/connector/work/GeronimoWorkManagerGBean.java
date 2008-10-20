@@ -18,6 +18,7 @@
 package org.apache.geronimo.connector.work;
 
 import java.util.concurrent.Executor;
+import java.util.Collections;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
@@ -35,7 +36,7 @@ public class GeronimoWorkManagerGBean extends GeronimoWorkManager implements GBe
     }
 
     public GeronimoWorkManagerGBean(Executor sync, Executor start, Executor sched, XAWork xaWork) {
-        super(sync, start, sched, xaWork);
+        super(sync, start, sched, Collections.<InflowContextHandler>singletonList(new TransactionInflowContextHandler(xaWork)));
     }
 
     public static final GBeanInfo GBEAN_INFO;

@@ -86,6 +86,11 @@
         <jetty>jetty6</jetty>
         <!--<jetty>jetty7</jetty>-->
 
+        <connectorSuffix></connectorSuffix>
+        <!--<connectorSuffix>-1_6</connectorSuffix>-->
+        <connectorSpec>geronimo-j2ee-connector_1.5_spec</connectorSpec>
+        <!--<connectorSpec>geronimo-j2ee-connector_1.6_spec</connectorSpec>-->
+
         <!-- Deployers -->
         <gbeanDeployerBootstrap>org.apache.geronimo.framework/geronimo-gbean-deployer-bootstrap/${version}/car</gbeanDeployerBootstrap>
         <gbeanDeployer>org.apache.geronimo.framework/geronimo-gbean-deployer/${version}/car</gbeanDeployer>
@@ -157,6 +162,11 @@
                 <groupId>org.apache.geronimo.specs</groupId>
                 <artifactId>geronimo-j2ee-connector_1.5_spec</artifactId>
                 <version>2.0.0</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.specs</groupId>
+                <artifactId>geronimo-j2ee-connector_1.6_spec</artifactId>
+                <version>1.0-EA-SNAPSHOT</version>
             </dependency>
 
             <dependency>
@@ -295,32 +305,6 @@
                 <groupId>org.apache.geronimo.schema</groupId>
                 <artifactId>geronimo-schema-j2ee_1.4</artifactId>
                 <version>1.2</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.geronimo.components</groupId>
-                <artifactId>geronimo-connector</artifactId>
-                <version>2.1.1</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.geronimo.components</groupId>
-                <artifactId>geronimo-connector</artifactId>
-                <version>2.1.1</version>
-                <classifier>tests</classifier>
-                <scope>test</scope>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.geronimo.components</groupId>
-                <artifactId>geronimo-transaction</artifactId>
-                <version>2.1.1</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>commons-logging</groupId>
-                        <artifactId>commons-logging</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
 
             <dependency>
