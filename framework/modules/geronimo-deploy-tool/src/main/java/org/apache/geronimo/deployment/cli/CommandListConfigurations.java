@@ -41,6 +41,7 @@ import org.apache.geronimo.deployment.plugin.TargetModuleIDImpl;
 import org.apache.geronimo.kernel.config.NoSuchStoreException;
 import org.apache.geronimo.system.plugin.DownloadResults;
 import org.apache.geronimo.system.plugin.PluginInstallerGBean;
+import org.apache.geronimo.system.plugin.SourceRepository;
 import org.apache.geronimo.system.plugin.model.PluginArtifactType;
 import org.apache.geronimo.system.plugin.model.PluginListType;
 import org.apache.geronimo.system.plugin.model.PluginType;
@@ -222,6 +223,8 @@ public class CommandListConfigurations extends AbstractCommand {
 
     public PluginListType getInstallList(PluginListType plugins, ConsoleReader consoleReader, String repo) throws IOException {
         Map<String, Collection<PluginType>> categories = writePluginList(plugins, consoleReader);
+        List<String> defaultRepoLocations = plugins.getDefaultRepository();
+        
         if (categories == null) {
             return null;
         }
@@ -258,8 +261,14 @@ public class CommandListConfigurations extends AbstractCommand {
             PluginType target = available.get(selection - 1);
             list.getPlugin().add(target);
         }
+        
         if (repo != null) {
             list.getDefaultRepository().add(repo);
+        }
+        
+        //let's add the repo's default-repository to the list
+        for (String defaultRepoLocation : defaultRepoLocations) {
+            list.getDefaultRepository().add(defaultRepoLocation);
         }
         return list;
     }
