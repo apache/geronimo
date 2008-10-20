@@ -73,7 +73,7 @@
 </table>
 
     <input type="hidden" name="type" value="${type}"/>
-    <input type="submit" value="Next" onclick="if(!checkArtifactId()){return false;}else return true;"/>
+    <input type="submit" value='<fmt:message key="consolebase.common.next"/>' onclick="if(!checkArtifactId()){return false;}else return true;"/>
     <input type="submit" value='<fmt:message key="consolebase.common.cancel"/>' onclick="history.go(-1); return false;" />
 
 </form>
