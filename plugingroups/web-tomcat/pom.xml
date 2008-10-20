@@ -34,7 +34,7 @@
     <name>Geronimo Plugin Group :: Web Tomcat</name>
 
     <description>
-        This plugin group provides the little G Tomcat functionality.
+        This plugin group provides the little-G Tomcat functionality.
     </description>
 
     <dependencies>
@@ -118,5 +118,17 @@
             <type>car</type>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.geronimo.buildsupport</groupId>
+                <artifactId>car-maven-plugin</artifactId>
+                <configuration>
+                    <category>Geronimo Plugin Group Web Little-G</category>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

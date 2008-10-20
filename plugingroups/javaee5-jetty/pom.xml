@@ -31,10 +31,10 @@
 
     <artifactId>javaee5-jetty</artifactId>
     <packaging>car</packaging>
-    <name>Geronimo Plugin Group :: JavaEE 5 Jetty</name>
+    <name>Geronimo Plugin Group :: Java EE 5 Jetty</name>
 
     <description>
-        This plugin group provides JavaEE 5 Jetty functionality.
+        This plugin group provides Java EE 5 Jetty functionality.
     </description>
 
     <dependencies>
@@ -159,4 +159,16 @@
             <type>car</type>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.geronimo.buildsupport</groupId>
+                <artifactId>car-maven-plugin</artifactId>
+                <configuration>
+                    <category>Geronimo Plugin Group Java EE 5</category>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

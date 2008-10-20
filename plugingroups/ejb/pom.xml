@@ -60,4 +60,16 @@
         </dependency>
     </dependencies>
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.geronimo.buildsupport</groupId>
+                <artifactId>car-maven-plugin</artifactId>
+                <configuration>
+                    <category>Geronimo Plugin Group EJB</category>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>

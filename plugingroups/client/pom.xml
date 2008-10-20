@@ -58,7 +58,18 @@
             <version>${version}</version>
             <type>car</type>
         </dependency>
+    </dependencies>
 
-</dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.geronimo.buildsupport</groupId>
+                <artifactId>car-maven-plugin</artifactId>
+                <configuration>
+                    <category>Geronimo Plugin Group Client</category>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>
