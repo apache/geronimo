@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<!-- $Rev$ $Date$ -->
+
+<module xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
+
+    <gbean name="ConnectionTracker" class="org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinatorGBean">
+        <attribute name="lazyConnect">true</attribute>
+        <reference name="TransactionManager">
+            <name>TransactionManager</name>
+        </reference>
+    </gbean>
+
+    <gbean name="ConnectorThreadPool" class="org.apache.geronimo.pool.ThreadPool">
+        <attribute name="keepAliveTime">30000</attribute>
+        <attribute name="minPoolSize">5</attribute>
+        <attribute name="maxPoolSize">30</attribute>
+        <attribute name="poolName">ConnectorThreadPool</attribute>
+    </gbean>
+
+    <gbean name="DefaultWorkManager" class="org.apache.geronimo.connector.work.GeronimoWorkManagerGBean">
+        <reference name="SyncPool">
+            <name>ConnectorThreadPool</name>
+        </reference>
+        <reference name="StartPool">
+            <name>ConnectorThreadPool</name>
+        </reference>
+        <reference name="ScheduledPool">
+            <name>ConnectorThreadPool</name>
+        </reference>
+        <reference name="TransactionManager">
+            <name>TransactionManager</name>
+        </reference>
+    </gbean>
+
+    <!-- 
+        Maximum log file size is 2 Megs (4K * 512). Buffer size can't be changed once the files
+        have been created. 
+    -->
+    <gbean name="HOWLTransactionLog" class="org.apache.geronimo.transaction.log.HOWLLogGBean">
+        <attribute name="bufferClassName">org.objectweb.howl.log.BlockLogBuffer</attribute>
+        <attribute name="bufferSizeKBytes">4</attribute>
+        <attribute name="maxBlocksPerFile">512</attribute>
+        <attribute name="checksumEnabled">true</attribute>
+        <attribute name="adler32Checksum">true</attribute>
+        <attribute name="flushSleepTimeMilliseconds">50</attribute>
+        <attribute name="logFileDir">var/txlog</attribute>
+        <attribute name="logFileExt">log</attribute>
+        <attribute name="logFileName">howl</attribute>
+        <attribute name="maxBuffers">0</attribute>
+        <attribute name="maxLogFiles">2</attribute>
+        <attribute name="minBuffers">4</attribute>
+        <attribute name="threadsWaitingForceThreshold">-1</attribute>
+        <reference name="XidFactory">
+            <name>XidFactory</name>
+        </reference>
+        <reference name="ServerInfo">
+            <name>ServerInfo</name>
+        </reference>
+    </gbean>
+
+    <gbean name="XidFactory" class="org.apache.geronimo.transaction.manager.XidFactoryImplGBean">
+        <attribute name="tmId">71,84,77,73,68</attribute>
+    </gbean>
+
+    <gbean name="TransactionManager" class="org.apache.geronimo.transaction.manager.GeronimoTransactionManagerGBean">
+        <attribute name="defaultTransactionTimeoutSeconds">600</attribute>
+        <reference name="XidFactory">
+            <name>XidFactory</name>
+        </reference>
+        <reference name="TransactionLog">
+            <name>HOWLTransactionLog</name>
+        </reference>
+    </gbean>
+
+    <gbean name="TransactionManagerBinding" class="org.apache.geronimo.gjndi.binding.GBeanBinding">
+        <attribute name="name">TransactionManager</attribute>
+        <attribute name="abstractNameQuery">?name=TransactionManager#</attribute>
+        <reference name="Context">
+            <name>JavaContext</name>
+        </reference>
+    </gbean>
+    <gbean name="TransactionSynchronizationRegistryBinding" class="org.apache.geronimo.gjndi.binding.GBeanBinding">
+        <attribute name="name">TransactionSynchronizationRegistry</attribute>
+        <attribute name="abstractNameQuery">?name=TransactionManager#</attribute>
+        <reference name="Context">
+            <name>JavaContext</name>
+        </reference>
+    </gbean>
+
+    <gbean name="ResourceBindings" class="org.apache.geronimo.gjndi.binding.ResourceBinding">
+        <attribute name="format">{groupId}/{artifactId}/{j2eeType}/{name}</attribute>
+        <attribute name="nameInNamespace">jca:</attribute>
+        <attribute name="abstractNameQuery">?#org.apache.geronimo.naming.ResourceSource</attribute>
+    </gbean>
+
+</module>
