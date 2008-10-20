@@ -42,7 +42,7 @@ public class CommandDeploy extends CommandDistribute {
         ProgressObject po = super.runCommand(mgr, out, inPlace, tlist, module, plan);
         waitForProgress(out, po);
         if(po.getDeploymentStatus().isFailed()) {
-            throw new DeploymentException("Unable to distribute "+(module == null ? plan.getName() : module.getName())+": "+po.getDeploymentStatus().getMessage());
+            throw new DeploymentException("Unable to deploy "+(module == null ? plan.getName() : module.getName())+": "+po.getDeploymentStatus().getMessage());
         }
         return mgr.start(po.getResultTargetModuleIDs());
     }
