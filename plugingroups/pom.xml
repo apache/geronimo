@@ -33,14 +33,10 @@
         <module>client</module>
         <module>clustering-jetty</module>
         <module>clustering-tomcat</module>
-        <module>console-jetty</module>
-        <module>console-tomcat</module>
         <module>ejb</module>
         <module>framework</module>
         <module>javaee5-jetty</module>
         <module>javaee5-tomcat</module>
-        <module>jms</module>
-        <module>jsf</module>
         <module>persistence</module>
         <module>web-tomcat</module>
         <module>web-jetty</module>

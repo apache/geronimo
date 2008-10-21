@@ -7,8 +7,8 @@
         <type>car</type>
     </module-id>
     <dependency>
-        <groupId>org.apache.geronimo.plugingroups</groupId>
-        <artifactId>console-tomcat</artifactId>
+        <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>ca-helper-tomcat</artifactId>
         <type>car</type>
     </dependency>
     <dependency>
@@ -17,8 +17,23 @@
         <type>car</type>
     </dependency>
     <dependency>
+        <groupId>org.apache.geronimo.plugins</groupId>
+        <artifactId>activemq-console-tomcat</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>activemq-ra</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
         <groupId>org.apache.geronimo.plugingroups</groupId>
         <artifactId>persistence</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.plugingroups</groupId>
+        <artifactId>clustering-tomcat</artifactId>
         <type>car</type>
     </dependency>
     <dependency>
@@ -27,8 +42,8 @@
         <type>car</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.plugingroups</groupId>
-        <artifactId>clustering-tomcat</artifactId>
+        <groupId>org.apache.geronimo.plugins</groupId>
+        <artifactId>plancreator-console-tomcat</artifactId>
         <type>car</type>
     </dependency>
     <dependency>
@@ -47,6 +62,11 @@
         <type>car</type>
     </dependency>
     <dependency>
+        <groupId>org.apache.geronimo.plugins</groupId>
+        <artifactId>debugviews-console-tomcat</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
         <groupId>org.apache.geronimo.framework</groupId>
         <artifactId>jmx-security</artifactId>
         <type>car</type>
@@ -57,8 +77,13 @@
         <type>car</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.plugingroups</groupId>
-        <artifactId>jms</artifactId>
+        <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>myfaces-deployer</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.plugins</groupId>
+        <artifactId>plugin-console-tomcat</artifactId>
         <type>car</type>
     </dependency>
     <dependency>
@@ -67,13 +92,18 @@
         <type>car</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.plugingroups</groupId>
-        <artifactId>webservices-axis2</artifactId>
+        <groupId>org.apache.geronimo.plugins</groupId>
+        <artifactId>sysdb-console-tomcat</artifactId>
         <type>car</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>welcome-tomcat</artifactId>
+        <groupId>org.apache.geronimo.plugins</groupId>
+        <artifactId>mconsole-tomcat</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.plugingroups</groupId>
+        <artifactId>webservices-axis2</artifactId>
         <type>car</type>
     </dependency>
     <dependency>
@@ -82,8 +112,13 @@
         <type>car</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.plugingroups</groupId>
-        <artifactId>jsf</artifactId>
+        <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>welcome-tomcat</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.plugins</groupId>
+        <artifactId>agent</artifactId>
         <type>car</type>
     </dependency>
 </plugin-artifact>
