@@ -30,6 +30,8 @@ import org.apache.catalina.Session;
 import org.apache.geronimo.clustering.SessionListener;
 import org.apache.geronimo.clustering.SessionManager;
 
+import com.agical.rmock.core.Action;
+import com.agical.rmock.core.MethodHandle;
 import com.agical.rmock.core.describe.ExpressionDescriber;
 import com.agical.rmock.core.match.operator.AbstractExpression;
 import com.agical.rmock.extension.junit.RMockTestCase;
@@ -138,16 +140,24 @@ public class ClusteredManagerTest extends RMockTestCase {
         assertFalse(httpSession.isNew());
     }
     
-    public void testInvalidateSessionReleasesUnderlyingSession() throws Exception {
-        org.apache.geronimo.clustering.Session underlyingSession =recordCreateUnderlyingSession();
+    public void testInvalidateSessionReleasesUnderlyingSessionAndRemoveSessionFromManager() throws Exception {
+        final org.apache.geronimo.clustering.Session underlyingSession =recordCreateUnderlyingSession();
         underlyingSession.release();
-        
+        modify().perform(new Action() {
+            public Object invocation(Object[] arg0, MethodHandle arg1) throws Throwable {
+                sessionListener.notifySessionDestruction(underlyingSession);
+                return null;
+            }
+        });
+
         startVerification();
 
         ClusteredManager manager = newManager();
         Session session = manager.createSession(null);
         HttpSession httpSession = session.getSession();
         httpSession.invalidate();
+
+        assertNull(manager.findSession(sessionId));
     }
     
     public void testSessionEndAccessTriggersOnEndAccess() throws Exception {

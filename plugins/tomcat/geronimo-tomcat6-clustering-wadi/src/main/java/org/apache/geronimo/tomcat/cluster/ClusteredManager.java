@@ -74,6 +74,9 @@ public class ClusteredManager extends StandardManager {
 
         public void notifySessionDestruction(org.apache.geronimo.clustering.Session session) {
             ClusteredSession clusteredSession = getClusteredSession(session);
+            if (null == clusteredSession) {
+                return;
+            }
             remove(clusteredSession);
         }
         
