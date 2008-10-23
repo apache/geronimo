@@ -117,13 +117,6 @@
             <artifactId>jasper-el</artifactId>
         </dependency>
 
-        <!-- This is to resolve an intermitent Maven problem with openejb-3.0-beta-1 transitive depend -->
-        <dependency>
-            <groupId>org.apache.xbean</groupId>
-            <artifactId>xbean-naming</artifactId>
-            <version>3.2-r579367</version>
-        </dependency>
-
         <!-- Added for patched build of Pluto 1.1.6-G643117 -->
         <dependency>
             <groupId>org.apache.pluto</groupId>
