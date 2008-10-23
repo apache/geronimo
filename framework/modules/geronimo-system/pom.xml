@@ -69,6 +69,11 @@
             <artifactId>commons-jexl</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+        </dependency>
+
         <!-- plugin management -->
         <dependency>
             <groupId>javax.xml.bind</groupId>
