@@ -81,7 +81,7 @@
         <springVersion>2.0.5</springVersion>
         <plutoVersion>1.1.6-G643117</plutoVersion>
         <openjpaVersion>1.2.0</openjpaVersion>
-        <xbeanVersion>3.4.1</xbeanVersion>
+        <xbeanVersion>3.5-SNAPSHOT</xbeanVersion>
         <wadiVersion>2.1-SNAPSHOT</wadiVersion>
         <jetty>jetty6</jetty>
         <!--<jetty>jetty7</jetty>-->
