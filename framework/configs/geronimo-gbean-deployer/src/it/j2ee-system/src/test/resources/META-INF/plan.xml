@@ -74,7 +74,7 @@ specific services - those should be provided by children.-->
       <dependency>
         <groupId>asm</groupId>
         <artifactId>asm</artifactId>
-        <version>2.2.3</version>
+        <version>3.1</version>
         <type>jar</type>
         <import>classes</import>
       </dependency>
@@ -88,7 +88,7 @@ specific services - those should be provided by children.-->
       <dependency>
         <groupId>asm</groupId>
         <artifactId>asm-commons</artifactId>
-        <version>2.2.3</version>
+        <version>3.1</version>
         <type>jar</type>
         <import>classes</import>
       </dependency>

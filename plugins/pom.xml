@@ -57,7 +57,7 @@
         <module>axis2</module>
         <module>client</module>
         <module>clustering</module>
-        <module>connector</module>
+        <module>connector${connectorSuffix}</module>
         <module>console</module>
         <module>corba</module>
         <module>cxf</module>
