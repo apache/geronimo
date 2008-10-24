@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.List;
 
 import javax.crypto.Mac;
 import javax.crypto.SecretKey;
@@ -75,6 +76,12 @@ public class ContextManager {
         SubjectId id = ContextManager.registerSubject(subject);
         IdentificationPrincipal principal = new IdentificationPrincipal(id);
         subject.getPrincipals().add(principal);
+        return loginContext;
+    }
+    
+    public static LoginContext login(Subject subject, String realm, CallbackHandler callbackHandler) throws LoginException {
+        LoginContext loginContext = new LoginContext(realm, subject, callbackHandler);
+        loginContext.login();
         return loginContext;
     }
 
@@ -159,7 +166,7 @@ public class ContextManager {
 
         assert context != null : "No registered context";
 
-        return context.context;
+        return context.getContext();
     }
 
     public static Principal getCurrentPrincipal(Subject callerSubject) {
@@ -177,7 +184,7 @@ public class ContextManager {
 
         assert context != null : "No registered context";
 
-        return context.principal;
+        return context.getPrincipal();
     }
 
     public static SubjectId getCurrentId() {
@@ -192,7 +199,7 @@ public class ContextManager {
 
         assert context != null : "No registered context";
 
-        return context.id;
+        return context.getId();
     }
 
     public static SubjectId getSubjectId(Subject subject) {
@@ -201,7 +208,7 @@ public class ContextManager {
 
         Context context = subjectContexts.get(subject);
 
-        return (context != null ? context.id : null);
+        return (context != null ? context.getId() : null);
     }
 
     public static Subject getRegisteredSubject(SubjectId id) {
@@ -220,33 +227,35 @@ public class ContextManager {
             }
         }, null);
 
-        Context context = new Context();
-        context.subject = subject;
-        context.context = acc;
         Set<? extends Principal> principals = subject.getPrincipals(GeronimoCallerPrincipal.class);
+        Principal principal = null;
         if (!principals.isEmpty()) {
-            context.principal = principals.iterator().next();
+            principal = principals.iterator().next();
         } else if (!(principals = subject.getPrincipals(PrimaryRealmPrincipal.class)).isEmpty()) {
-            context.principal = principals.iterator().next();
+            principal = principals.iterator().next();
         } else if (!(principals = subject.getPrincipals(RealmPrincipal.class)).isEmpty()) {
-            context.principal = principals.iterator().next();
+            principal = principals.iterator().next();
         } else if (!(principals = subject.getPrincipals()).isEmpty()) {
-            context.principal = principals.iterator().next();
+            principal = principals.iterator().next();
         }
         Long id = nextSubjectId++;
+        SubjectId subjectId;
         try {
-            context.id = new SubjectId(id, hash(id));
+            subjectId = new SubjectId(id, hash(id));
         } catch (NoSuchAlgorithmException e) {
             throw new ProviderException("No such algorithm: " + algorithm + ".  This can be caused by a misconfigured java.ext.dirs, JAVA_HOME or JRE_HOME environment variable");
         } catch (InvalidKeyException e) {
             throw new ProviderException("Invalid key: " + key.toString());
         }
-        subjectIds.put(context.id, subject);
+        List<String> groups = Collections.emptyList();
+        Context context = new Context(subjectId, acc, subject, principal, groups);
+        subjectIds.put(context.getId(), subject);
         subjectContexts.put(subject, context);
 
-        return context.id;
+        return context.getId();
     }
-    public static synchronized AccessControlContext registerSubjectShort(Subject subject) {
+
+    public static synchronized AccessControlContext registerSubjectShort(Subject subject, Principal callerPrincipal, List<String> groups) {
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) sm.checkPermission(SET_CONTEXT);
 
@@ -254,7 +263,7 @@ public class ContextManager {
         
         Context test = subjectContexts.get(subject);
         if (test != null) {
-            return test.context;
+            return test.getContext();
         }
 
         AccessControlContext acc = (AccessControlContext) Subject.doAsPrivileged(subject, new PrivilegedAction() {
@@ -263,18 +272,19 @@ public class ContextManager {
             }
         }, null);
 
-        Context context = new Context();
-        context.subject = subject;
-        context.context = acc;
         Long id = nextSubjectId++;
+        SubjectId subjectId;
         try {
-            context.id = new SubjectId(id, hash(id));
+            subjectId = new SubjectId(id, hash(id));
         } catch (NoSuchAlgorithmException e) {
             throw new ProviderException("No such algorithm: " + algorithm + ".  This can be caused by a misconfigured java.ext.dirs, JAVA_HOME or JRE_HOME environment variable");
         } catch (InvalidKeyException e) {
             throw new ProviderException("Invalid key: " + key.toString());
         }
-        subjectIds.put(context.id, subject);
+        IdentificationPrincipal principal = new IdentificationPrincipal(subjectId);
+        subject.getPrincipals().add(principal);
+        Context context = new Context(subjectId, acc, subject, callerPrincipal, groups);
+        subjectIds.put(context.getId(), subject);
         subjectContexts.put(subject, context);
 
         return acc;
@@ -289,7 +299,7 @@ public class ContextManager {
         Context context = subjectContexts.get(subject);
         if (context == null) return;
 
-        subjectIds.remove(context.id);
+        subjectIds.remove(context.getId());
         subjectContexts.remove(subject);
     }
 
@@ -381,13 +391,6 @@ public class ContextManager {
         mac.update(bytes);
 
         return mac.doFinal();
-    }
-
-    private static class Context {
-        SubjectId id;
-        AccessControlContext context;
-        Subject subject;
-        Principal principal;
     }
 
 }
