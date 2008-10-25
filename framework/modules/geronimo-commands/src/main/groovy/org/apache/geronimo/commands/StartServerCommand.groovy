@@ -77,9 +77,6 @@ class StartServerCommand
     @Option(name='--secure', description='Use secure channel')
     boolean secure = false
 
-    @Option(name='-s', aliases=['--server'], description="Server name (when running mulitple servers from one installation)")
-    String server;
-        
     protected Object doExecute() throws Exception {
         ant = new AntBuilder(log, io)
         
@@ -95,9 +92,6 @@ class StartServerCommand
         properties['java.endorsed.dirs'] = prefixSystemPath('java.endorsed.dirs', new File(geronimoHome, 'lib/endorsed'))
         properties['java.ext.dirs'] = prefixSystemPath('java.ext.dirs', new File(geronimoHome, 'lib/ext'))
 
-        if (server) {
-            properties['org.apache.geronimo.server.name'] = server
-        }
         processScripts()
         
         // Setup default java flags
