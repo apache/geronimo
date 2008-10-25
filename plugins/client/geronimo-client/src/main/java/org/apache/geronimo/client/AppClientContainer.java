@@ -134,11 +134,11 @@ public final class AppClientContainer implements GBeanLifecycle {
                 clientSubject = loginContext.getSubject();
             }
             ContextManager.setCallers(clientSubject, clientSubject);
-            ObjectRecipe objectRecipe = new ObjectRecipe(mainClassName);
+            Class mainClass = classLoader.loadClass(mainClassName);
+            ObjectRecipe objectRecipe = new ObjectRecipe(mainClass);
             objectRecipe.allow(Option.FIELD_INJECTION);
             objectRecipe.allow(Option.PRIVATE_PROPERTIES);
             objectRecipe.allow(Option.STATIC_PROPERTIES);
-            Class mainClass = classLoader.loadClass(mainClassName);
             List<Injection> injections = new ArrayList<Injection>();
             while (mainClass != null && mainClass != Object.class) {
                 List<Injection> perClass = holder.getInjections(mainClass.getName());
@@ -170,7 +170,7 @@ public final class AppClientContainer implements GBeanLifecycle {
                     throw new Exception("Some objects to be injected were not found in jndi: " + problems);
                 }
             }
-            Class clazz = objectRecipe.setStaticProperties(classLoader);
+            Class clazz = objectRecipe.setStaticProperties();
             if (holder.getPostConstruct() != null) {
                 Holder.apply(null, clazz, holder.getPostConstruct());
             }

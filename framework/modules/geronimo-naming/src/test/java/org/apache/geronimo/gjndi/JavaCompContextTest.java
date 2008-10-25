@@ -195,7 +195,7 @@ public class JavaCompContextTest extends TestCase {
         RootContext.setComponentContext(readOnlyContext);
 
         Context javaCompContext = new JavaCompContextGBean();
-        Context globalContext = new ImmutableContext(Collections.singletonMap(javaCompContext.getNameInNamespace(), javaCompContext));
+        Context globalContext = new ImmutableContext(Collections.<String, Object>singletonMap(javaCompContext.getNameInNamespace(), javaCompContext));
         GlobalContextManager.setGlobalContext(globalContext);
 
         initialContext = new InitialContext();
