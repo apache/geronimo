@@ -1318,12 +1318,6 @@
             </dependency>
 
             <dependency>
-                <groupId>jaxen</groupId>
-                <artifactId>jaxen</artifactId>
-                <version>1.1-beta-11</version>
-            </dependency>
-
-            <dependency>
                 <groupId>annogen</groupId>
                 <artifactId>annogen</artifactId>
                 <version>0.1.0</version>
