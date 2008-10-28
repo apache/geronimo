@@ -22,6 +22,7 @@
 
     <!-- Configuration Installer -->
     <gbean name="PluginInstaller" class="org.apache.geronimo.system.plugin.PluginInstallerGBean">
+        <!-- TODO no artifactManager specified-->
         <attribute name="installedPluginsList">var/config/installed-plugins.properties</attribute>
         <reference name="Repository">
             <name>Repository</name>
@@ -107,6 +108,21 @@
         <reference name="ServerInfo">
             <name>ServerInfo</name>
         </reference>
+    </gbean>
+
+    <gbean name="NewServerInstance" class="org.apache.geronimo.system.plugin.NewServerInstanceGBean">
+        <attribute name="defaultPlugins">org.apache.geronimo.plugingroups/framework/${version}/car</attribute>
+        <reference name="PluginInstallerGBean">
+            <name>PluginInstaller</name>
+        </reference>
+        <reference name="ConfigManager">
+            <name>ConfigurationManager</name>
+        </reference>
+        <references name="PersistentConfigurationLists">
+            <pattern>
+                <name>AttributeManager</name>
+            </pattern>
+        </references>
     </gbean>
 
 </module>

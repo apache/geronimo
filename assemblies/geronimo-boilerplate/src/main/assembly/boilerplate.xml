@@ -24,7 +24,7 @@
     <fileSets>
         <fileSet>
             <directory>src/main/underlay</directory>
-            <outputDirectory>contents</outputDirectory>
+            <outputDirectory></outputDirectory>
         </fileSet>
     </fileSets>
     

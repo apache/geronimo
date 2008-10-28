@@ -47,6 +47,7 @@ public class BasicServerInfo implements ServerInfo {
         baseURI = null;
         baseServerURI = null;
     }
+
     public BasicServerInfo(String defaultBaseDirectory) throws Exception {
         this(defaultBaseDirectory, true);
     }
@@ -82,6 +83,14 @@ public class BasicServerInfo implements ServerInfo {
         }
         String tmpDir = resolveServerPath(System.getProperty("java.io.tmpdir"));       
         System.setProperty("java.io.tmpdir", tmpDir);
+    }
+
+    public BasicServerInfo(String baseDirectory, String serverName) {
+        this.baseDirectory = baseDirectory;
+        this.base = new File(baseDirectory);
+        this.baseURI = base.toURI();
+        this.baseServerURI = baseURI.resolve(serverName);
+        this.baseServer = new File(baseServerURI);
     }
 
     /**

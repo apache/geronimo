@@ -249,6 +249,7 @@
                             <instance>
                                 <plugin-artifact>
                                     <copy-file relative-to="geronimo" dest-dir="">contents/</copy-file>
+                                    <copy-file relative-to="server" dest-dir="">instance/</copy-file>
                                 </plugin-artifact>
                             </instance>
                         </configuration>

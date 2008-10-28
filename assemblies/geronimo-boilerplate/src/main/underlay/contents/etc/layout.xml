@@ -200,6 +200,11 @@
                     <name>install-plugin</name>
                     <id>geronimo-commands:install-plugin</id>
                 </command>
+
+                <command>
+                    <name>new-instance</name>
+                    <id>geronimo-commands:new-server-instance</id>
+                </command>
             </nodes>
         </group>
 

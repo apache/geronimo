@@ -45,6 +45,17 @@ public class ServerInstanceData {
     private String configSubstitutionsPrefix = "org.apache.geronimo.config.substitution.";
     private String artifactAliasesFile = "var/config/artifact_aliases.properties";
 
+    public ServerInstanceData() {
+    }
+
+    public ServerInstanceData(ServerInstanceData toCopy) {
+        this.name = toCopy.getName();
+        this.attributeManagerFrom = toCopy.getAttributeManagerFrom();
+        this.configFile = toCopy.getConfigFile();
+        this.configSubstitutionsFile = toCopy.getConfigSubstitutionsFile();
+        this.configSubstitutionsPrefix = toCopy.getConfigSubstitutionsPrefix();
+        this.artifactAliasesFile = toCopy.getArtifactAliasesFile();
+    }
 
     public String getName() {
         return name;

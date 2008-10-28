@@ -164,12 +164,29 @@ public class PluginInstallerGBean implements PluginInstaller {
                                 @ParamReference(name = "PersistentConfigurationLists", namingType = "AttributeStore")Collection<PersistentConfigurationList> persistentConfigurationLists,
                                 @ParamReference(name = "PluginRepositoryList")PluginRepositoryList pluginRepositoryList,
                                 @ParamSpecial(type = SpecialAttributeType.classLoader) final ClassLoader classLoader) throws IOException {
+        this(installedPluginsList, configManager, repository, configStore, serverInstanceDatas, serverInfo, threadPool, artifactManager, persistentConfigurationLists, pluginRepositoryList, classLoader, true);
+    }
+
+    private PluginInstallerGBean(String installedPluginsList,
+                                 ConfigurationManager configManager,
+                                 WritableListableRepository repository,
+                                 ConfigurationStore configStore,
+                                 Collection<? extends ServerInstanceData> serverInstanceDatas,
+                                 ServerInfo serverInfo,
+                                 ThreadPool threadPool,
+                                 ArtifactManager artifactManager,
+                                 Collection<PersistentConfigurationList> persistentConfigurationLists,
+                                 PluginRepositoryList pluginRepositoryList,
+                                 ClassLoader classLoader,
+                                 boolean live) throws IOException {
         this.writeableRepo = repository;
         this.configStore = configStore;
         this.serverInfo = serverInfo;
         this.threadPool = threadPool;
         asyncKeys = Collections.synchronizedMap(new HashMap<Object, DownloadResults>());
         this.serverInstanceDatas = serverInstanceDatas;
+        if (artifactManager == null) artifactManager = new DefaultArtifactManager();
+        setUpServerInstances(serverInstanceDatas, serverInfo, artifactManager, servers, writeableRepo, live);
         this.persistentConfigurationLists = persistentConfigurationLists == null ? Collections.<PersistentConfigurationList>emptyList() : persistentConfigurationLists;
         this.classLoader = classLoader;
         if (configManager == null) {
@@ -177,7 +194,6 @@ public class PluginInstallerGBean implements PluginInstaller {
         }
         this.configManager = configManager;
         localSourceRepository = new GeronimoSourceRepository(configManager.getRepositories(), configManager.getArtifactResolver());
-        setUpServerInstances(serverInstanceDatas, serverInfo, artifactManager, servers, writeableRepo, true);
         this.pluginRepositoryList = pluginRepositoryList;
         this.installedPluginsList = installedPluginsList;
         loadHistory();
@@ -193,6 +209,7 @@ public class PluginInstallerGBean implements PluginInstaller {
      * @param pluginRepositoryList
      * @param kernel               kernel for current server
      * @param classLoader          classLoader @throws IOException if layouts can't be loaded
+     * @deprecated only used by car-maven-plugin
      */
     public PluginInstallerGBean(String targetRepositoryPath,
                                 String targetServerPath,
@@ -220,6 +237,32 @@ public class PluginInstallerGBean implements PluginInstaller {
         this.pluginRepositoryList = pluginRepositoryList;
         this.installedPluginsList = installedPluginsList;
         loadHistory();
+    }
+
+    public PluginInstallerGBean pluginInstallerCopy(String serverName, Kernel kernel) throws Exception {
+        ServerInfo newServerInfo = new BasicServerInfo(serverInfo.getCurrentBaseDirectory(), serverName);
+        final ArtifactManager artifactManager = new DefaultArtifactManager();
+        ConfigurationManager configManager = buildConfigurationManager(artifactManager, writeableRepo, kernel, configStore, classLoader, servers);
+//        ArrayList<ServerInstanceData> serverInstanceDatasCopy = new ArrayList<ServerInstanceData>(serverInstanceDatas.size());
+//        for (ServerInstanceData serverInstance: serverInstanceDatas) {
+//            if (serverInstance instanceof ReferenceServerInstanceData) {
+//                serverInstance = new ServerInstanceData(serverInstance);
+//            }
+//            serverInstanceDatasCopy.add(serverInstance);
+//        }
+        return new PluginInstallerGBean(
+                installedPluginsList,
+                configManager,
+                writeableRepo,
+                configStore,
+                serverInstanceDatas,
+                newServerInfo,
+                threadPool,
+                artifactManager,
+                persistentConfigurationLists,
+                pluginRepositoryList,
+                classLoader,
+                false);
     }
 
     private static void setUpServerInstances(Collection<? extends ServerInstanceData> serverInstanceDatas,
@@ -404,13 +447,27 @@ public class PluginInstallerGBean implements PluginInstaller {
 
         try {
 //            kernel.boot();
+            final ArtifactManager artifactManager = new DefaultArtifactManager();
+
+            FileUtils.forceMkdir(new File(targetServerPathName));
+            ServerInfo serverInfo = new BasicServerInfo(targetServerPathName, false);
+            File targetRepositoryFile = serverInfo.resolve(targetRepositoryPath);
+            FileUtils.forceMkdir(targetRepositoryFile);
+            WritableListableRepository writeableRepo = new Maven2Repository(targetRepositoryFile);
+            ConfigurationStore configStore = new RepositoryConfigurationStore(writeableRepo);
             PluginInstallerGBean installer = new PluginInstallerGBean(
-                    targetRepositoryPath,
-                    targetServerPathName,
                     installedPluginsList,
+                    configManager,
+                    writeableRepo,
+                    configStore,
                     serverInstanceDatas,
-                    pluginRepositoryList, kernel,
-                    classLoader);
+                    serverInfo,
+                    threadPool,
+                    artifactManager,
+                    persistentConfigurationLists,
+                    pluginRepositoryList,
+                    classLoader,
+                    false);
 
             installer.install(pluginList, localSourceRepository, true, null, null, downloadPoller);
         } finally {
@@ -1140,7 +1197,7 @@ public class PluginInstallerGBean implements PluginInstaller {
             if (result == null) {
                 throw new IllegalArgumentException("Could not find " + configID + " in any repo: " + repos);
             }
-            // Check if the result is already in server's repository
+            // Check if the result is already in server's repository (maybe the actual configId is not what was expected?)
             if (configManager.getArtifactResolver().queryArtifacts(result.getArtifact()).length > 0) {
                 String msg = "Not downloading " + configID + ". Query for " + configID + " resulted in " + result.getArtifact()
                         + " which is already available in server's repository.";
@@ -1234,6 +1291,12 @@ public class PluginInstallerGBean implements PluginInstaller {
             // Download the dependencies
             parentStack.push(configID);
             if (instance == null) {
+                PluginType currentPlugin = getPluginMetadata(configID);
+                if (currentPlugin != null) {
+                    instance = currentPlugin.getPluginArtifact().get(0);
+                }
+            }
+            if (instance == null) {
                 //no plugin metadata, guess with something else
                 Dependency[] dependencies = data == null ? getDependencies(writeableRepo, configID) : getDependencies(data);
                 for (Dependency dep : dependencies) {
@@ -1263,12 +1326,6 @@ public class PluginInstallerGBean implements PluginInstaller {
             if (serverInstance.getAttributeStore().isModuleInstalled(configID)) {
                 installedArtifacts.add(configID);
                 return;
-            }
-        }
-        if (instance == null) {
-            PluginType currentPlugin = getPluginMetadata(configID);
-            if (currentPlugin != null) {
-                instance = currentPlugin.getPluginArtifact().get(0);
             }
         }
         if (instance != null) {
