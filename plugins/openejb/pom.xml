@@ -43,6 +43,9 @@
         <module>geronimo-openejb-clustering-builder-wadi</module>
         <module>openejb</module>
         <module>openejb-deployer</module>
+        <module>openejb-portlets</module>  
+        <module>openejb-console-jetty</module>
+        <module>openejb-console-tomcat</module>
         <module>openejb-clustering-wadi</module>
         <module>openejb-clustering-builder-wadi</module>
     </modules>

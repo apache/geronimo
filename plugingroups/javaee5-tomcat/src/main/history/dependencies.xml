@@ -121,4 +121,9 @@
         <artifactId>agent</artifactId>
         <type>car</type>
     </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.plugins</groupId>
+        <artifactId>openejb-console-tomcat</artifactId>
+        <type>car</type>
+    </dependency>
 </plugin-artifact>

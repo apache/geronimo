@@ -72,9 +72,9 @@ public class StatelessContainerGBean extends EjbContainer {
             @ParamAttribute(name = "timeout") int timeout,
             @ParamAttribute(name = "properties") Properties properties) {
         super(abstractName, StatelessSessionContainerInfo.class, openEjbSystem, provider, "STATELESS", properties);
-        set("poolSize", Integer.toString(poolSize));
-        set("strictPooling", Boolean.toString(strictPooling));
-        set("timeout", Integer.toString(timeout));
+        set("PoolSize", Integer.toString(poolSize));
+        set("StrictPooling", Boolean.toString(strictPooling));
+        set("TimeOut", Integer.toString(timeout));
         this.poolSize = poolSize;
         this.strictPooling = strictPooling;
         this.timeout = timeout;

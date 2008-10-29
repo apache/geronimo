@@ -62,4 +62,8 @@ public interface OpenEjbSystem {
     AppInfo configureApplication(AppModule appModule) throws OpenEJBException;
 
     void setORBContext(ORB orb, HandleDelegate handleDelegate);
+    
+    void setProperties(Properties properties);
+    
+    Properties getProperties();
 }

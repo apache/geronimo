@@ -209,6 +209,13 @@
             <version>${version}</version>
             <type>car</type>
         </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.plugins</groupId>
+            <artifactId>openejb-console-jetty</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
         <!-- end admin console related plugins -->
     </dependencies>
 

@@ -59,9 +59,9 @@ public class StatefulContainerGBean extends EjbContainer {
             @ParamAttribute(name = "timeout") long timeout,
             @ParamAttribute(name = "properties") Properties properties) {
         super(abstractName, StatefulSessionContainerInfo.class, openEjbSystem, provider, "STATEFUL", properties);
-        set("bulkPassivate", Integer.toString(bulkPassivate));
-        set("capacity", Integer.toString(capacity));
-        set("timeout", Long.toString(timeout));
+        set("BulkPassivate", Integer.toString(bulkPassivate));
+        set("Capacity", Integer.toString(capacity));
+        set("TimeOut", Long.toString(timeout));
         this.bulkPassivate = bulkPassivate;
         this.capacity = capacity;
         this.timeout = timeout;

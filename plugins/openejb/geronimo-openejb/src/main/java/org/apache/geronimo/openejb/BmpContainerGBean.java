@@ -38,11 +38,11 @@ public class BmpContainerGBean extends EjbContainer {
             @ParamSpecial(type = SpecialAttributeType.abstractName) AbstractName abstractName,
             @ParamReference(name = "OpenEjbSystem") OpenEjbSystem openEjbSystem,
             @ParamAttribute(name = "provider") String provider,
-            @ParamAttribute(name = "accessTimeout") int accessTimeout,
+            @ParamAttribute(name = "poolSize") int poolSize,
             @ParamAttribute(name = "properties") Properties properties) {
         super(abstractName, BmpEntityContainerInfo.class, openEjbSystem, provider, "BMP_ENTITY", properties);
-        set("AccessTimeout", Integer.toString(accessTimeout));
-        this.poolSize = accessTimeout;
+        set("PoolSize", Integer.toString(poolSize));
+        this.poolSize = poolSize;
     }
 
     public int getPoolSize() {

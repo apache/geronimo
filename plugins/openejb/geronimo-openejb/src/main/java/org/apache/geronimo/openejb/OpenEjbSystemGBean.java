@@ -88,14 +88,16 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
     // These are provided by the corba subsystem when it first initializes.  
     // Once we have a set, we ignore any additional notifications. 
     private ORB orb;
-
+    private Properties properties; 
+    
     public OpenEjbSystemGBean(TransactionManager transactionManager) throws Exception {
-        this(transactionManager, null, null, null, OpenEjbSystemGBean.class.getClassLoader());
+        this(transactionManager, null, null, null, OpenEjbSystemGBean.class.getClassLoader(), new Properties());
     }
-    public OpenEjbSystemGBean(TransactionManager transactionManager, Collection<ResourceAdapterWrapper> resourceAdapters, Collection<PersistenceUnitGBean> persistenceUnitGBeans, Kernel kernel, ClassLoader classLoader) throws Exception {
+    public OpenEjbSystemGBean(TransactionManager transactionManager, Collection<ResourceAdapterWrapper> resourceAdapters, Collection<PersistenceUnitGBean> persistenceUnitGBeans, Kernel kernel, ClassLoader classLoader, Properties properties) throws Exception {
         this.kernel = kernel;
         this.classLoader = classLoader;
-
+        this.properties = properties;
+        
         System.setProperty("duct tape","");
         System.setProperty("admin.disabled", "true");
         System.setProperty("openejb.logger.external", "true");
@@ -161,6 +163,14 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
         }
     }
 
+    public Properties getProperties() {
+        return properties;
+    }
+    
+    public void setProperties(Properties properties) {
+        this.properties = properties;
+    }
+    
     @SuppressWarnings({"unchecked"})
     private static <T> T getRawService(Kernel kernel, T proxy) {
         if (kernel == null) return proxy;
@@ -279,6 +289,11 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
                         ContainerInfo containerInfo = configurationFactory.configureService(MdbContainerInfo.class, containerName, null, null, "Container");
                         containerInfo.id = containerName;
                         containerInfo.displayName = containerName;
+                        properties = (properties == null)?new Properties():properties;                        
+                        String instanceLimit = (String)properties.get(containerName + "." + "InstanceLimit");                                                
+                        if(instanceLimit != null){
+                            containerInfo.properties.put("InstanceLimit", instanceLimit);
+                        }
 
                         // set ra specific properties
                         containerInfo.properties.put("MessageListenerInterface",
@@ -286,7 +301,7 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
                         containerInfo.properties.put("ActivationSpecClass",
                                 resourceAdapter.getClass().getClassLoader().loadClass(activationSpecClass));
                         containerInfo.properties.put("ResourceAdapter", resourceAdapter);
-                        containerInfo.properties.put("TxRecovery", true);
+                       // containerInfo.properties.put("TxRecovery", true);
  
                         // create the container
                         assembler.createContainer(containerInfo);
@@ -423,12 +438,14 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
         infoBuilder.addReference("PersistenceUnitGBeans", PersistenceUnitGBean.class);
         infoBuilder.addAttribute("kernel", Kernel.class, false);
         infoBuilder.addAttribute("classLoader", ClassLoader.class, false);
+        infoBuilder.addAttribute("properties", Properties.class, true, true);
         infoBuilder.setConstructor(new String[] {
                 "TransactionManager",
                 "ResourceAdapterWrappers",
                 "PersistenceUnitGBeans",
                 "kernel",
                 "classLoader",
+                "properties"
         });
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }
