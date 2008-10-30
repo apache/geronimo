@@ -37,7 +37,7 @@ public class DatabasePoolTest extends ConsoleTestSupport {
             selenium.select("dbtype", "label=Derby embedded");
             selenium.click("//input[@value='Next']");
             selenium.waitForPageToLoad("30000");
-            selenium.addSelection("jars", "label=org.apache.derby/derby/10.4.1.3/jar");
+            selenium.addSelection("jars", "label=org.apache.derby/derby/10.4.2.0/jar");
             selenium.type("property-DatabaseName", "SystemDatabase");
             selenium.click("//input[@value='Deploy']");
             selenium.waitForPageToLoad("30000");
