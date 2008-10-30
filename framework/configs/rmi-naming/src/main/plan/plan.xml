@@ -22,6 +22,7 @@
 
     <gbean name="RMIRegistry" class="org.apache.geronimo.kernel.rmi.RMIRegistryService">
         <attribute name="port">${PlanNamingPort}</attribute>
+        <attribute name="host">${ServerHostname}</attribute>
     </gbean>
 
     <gbean name="NamingProperties" class="org.apache.geronimo.system.properties.NamingProperties">
