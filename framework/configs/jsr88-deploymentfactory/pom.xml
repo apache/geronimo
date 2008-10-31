@@ -156,7 +156,7 @@
                         </element>
                         <element>
                             <groupId>org.slf4j</groupId>
-                            <artifactId>jcl104-over-slf4j</artifactId>
+                            <artifactId>jcl-over-slf4j</artifactId>
                         </element>
                         <element>
                             <groupId>log4j</groupId>
