@@ -109,4 +109,7 @@ specific services - those should be provided by children.
         </reference>
     </gbean>
 
+    <!-- JUL-to-SLF4j bridge -->
+    <gbean name="JULBridge" class="org.apache.geronimo.system.logging.jul.JULBridgeGBean"/>
+
 </module>

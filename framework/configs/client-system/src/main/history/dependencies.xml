@@ -77,6 +77,11 @@
         <type>jar</type>
     </dependency>
     <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>jul-to-slf4j</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
         <groupId>org.apache.geronimo.framework</groupId>
         <artifactId>geronimo-system</artifactId>
         <type>jar</type>

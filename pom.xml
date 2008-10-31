@@ -623,6 +623,12 @@
             </dependency>
 
             <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>jul-to-slf4j</artifactId>
+                <version>1.5.5</version>
+            </dependency>
+
+            <dependency>
                 <groupId>mockobjects</groupId>
                 <artifactId>mockobjects-jdk1.4-j2ee1.3</artifactId>
                 <version>0.09</version>
