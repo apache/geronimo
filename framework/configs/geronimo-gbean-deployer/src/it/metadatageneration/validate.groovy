@@ -23,7 +23,7 @@
 def loadText = { filename ->
     def file = new File(basedir, "$filename")
     
-    def tmp = File.createTempFile('validate', null)
+    def tmp = File.createTempFile('validate', null, basedir)
     tmp.deleteOnExit()
     
     ant.copy(file: file, tofile: tmp)
