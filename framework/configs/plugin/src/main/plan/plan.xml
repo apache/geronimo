@@ -118,11 +118,10 @@
         <reference name="ConfigManager">
             <name>ConfigurationManager</name>
         </reference>
-        <references name="PersistentConfigurationLists">
-            <pattern>
-                <name>AttributeManager</name>
-            </pattern>
-        </references>
+        <reference name="PersistentConfigurationList">
+            <type>AttributeStore</type>
+            <name>AttributeManager</name>
+        </reference>
     </gbean>
 
 </module>

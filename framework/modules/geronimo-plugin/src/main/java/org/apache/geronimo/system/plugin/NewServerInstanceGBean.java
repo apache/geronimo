@@ -41,7 +41,7 @@ import org.apache.geronimo.system.plugin.model.PluginListType;
 import org.apache.geronimo.system.plugin.model.PluginType;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 @GBean
 public class NewServerInstanceGBean implements NewServerInstance {
@@ -53,7 +53,7 @@ public class NewServerInstanceGBean implements NewServerInstance {
     private final Kernel kernel;
 
     public NewServerInstanceGBean(@ParamAttribute(name = "defaultPlugins")Map<String, String> defaultPlugins,
-                                  @ParamReference(name = "PersistentConfigurationLists")Collection<PersistentConfigurationList> persistentConfigurationLists,
+                                  @ParamReference(name = "PersistentConfigurationList", namingType="PersistentConfigurationList.PERSISTENT_CONFIGURATION_LIST")Collection<PersistentConfigurationList> persistentConfigurationLists,
                                   @ParamReference(name = "PluginInstallerGBean")PluginInstallerGBean pluginInstallerGBean,
                                   @ParamReference(name = "ConfigManager", namingType = "ConfigurationManager")ConfigurationManager configManager,
                                   @ParamSpecial(type = SpecialAttributeType.kernel)Kernel kernel) {
