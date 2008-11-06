@@ -331,22 +331,22 @@ public class DeploymentContext {
                 pathUri = new URI(path);
             } catch (URISyntaxException e) {
                 problems.add(new DeploymentException(printInfo("Invalid manifest classpath entry, path=" + path, moduleBaseUri, classpath, exclusions)));
-                return;
+                continue;
             }
 
             if (!pathUri.getPath().endsWith(".jar")) {
                 problems.add(new DeploymentException(printInfo("Manifest class path entries must end with the .jar extension (J2EE 1.4 Section 8.2): path=" + path, moduleBaseUri, classpath, exclusions)));
-                return;
+                continue;
             }
             if (pathUri.isAbsolute()) {
                 problems.add(new DeploymentException(printInfo("Manifest class path entries must be relative (J2EE 1.4 Section 8.2): path=" + path, moduleBaseUri, classpath, exclusions)));
-                return;
+                continue;
             }
 
             URI targetUri = moduleBaseUri.resolve(pathUri);
             if (targetUri.getPath().endsWith("/")) {
                 problems.add(new DeploymentException(printInfo("target path must not end with a '/' character: path=" + path + ", resolved to targetURI=" + targetUri, moduleBaseUri, classpath, exclusions)));
-                return;
+                continue;
             }
             String targetEntry = targetUri.toString();
             if (exclusions.contains(targetEntry)) {
@@ -365,7 +365,7 @@ public class DeploymentContext {
                 classPathJarFile = factory.newJarFile(targetUri);
             } catch (IOException e) {
                 problems.add(new DeploymentException(printInfo("Manifest class path entries must be a valid jar file (JAVAEE 5 Section 8.2): path=" + path + ", resolved to targetURI=" + targetUri, moduleBaseUri, classpath, exclusions), e));
-                return;
+                continue;
             }
 
             getCompleteManifestClassPath(classPathJarFile, targetUri, resolutionUri, classpath, exclusions, factory, problems);
