@@ -20,89 +20,75 @@ package org.apache.geronimo.activemq;
 import java.net.URI;
 
 import javax.jms.JMSException;
-import javax.resource.ResourceException;
-import javax.sql.DataSource;
 
-import org.apache.activemq.broker.BrokerFactory;
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.broker.jmx.ManagementContext;
-import org.apache.activemq.store.DefaultPersistenceAdapterFactory;
 import org.apache.activemq.transport.TransportDisposedIOException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.activemq.xbean.BrokerFactoryBean;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.naming.ResourceSource;
+import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.ParamAttribute;
+import org.apache.geronimo.gbean.annotation.ParamReference;
+import org.apache.geronimo.gbean.annotation.ParamSpecial;
+import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
+
 import org.apache.geronimo.management.geronimo.JMSManager;
 import org.apache.geronimo.management.geronimo.NetworkConnector;
 import org.apache.geronimo.system.jmx.MBeanServerReference;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.core.io.ClassPathResource;
 
 /**
  * Default implementation of the ActiveMQ Message Server
  *
  * @version $Rev$ $Date$
  */
-public class BrokerServiceGBeanImpl implements GBeanLifecycle, BrokerServiceGBean {
+@GBean (j2eeType="JMSServer") 
+public class BrokerServiceGBeanImpl implements GBeanLifecycle {
 
     private static final Logger log = LoggerFactory.getLogger(BrokerServiceGBeanImpl.class);
 
-    private String brokerName;
-    private String brokerUri;
-    private BrokerService brokerService;
-    private ServerInfo serverInfo;
-    private String dataDirectory;
-    private ResourceSource<ResourceException> dataSource;
-    private ClassLoader classLoader;
-    private String objectName;
+    private final BrokerService brokerService;
+//    private ResourceSource<ResourceException> dataSource;
     private JMSManager manager;
-    private boolean useShutdownHook;
-    private MBeanServerReference mbeanServerReference;
 
-    public BrokerServiceGBeanImpl() {
-    }
-
-    public synchronized BrokerService getBrokerContainer() {
-        return brokerService;
-    }
-    
-    public void setMbeanServerReference(MBeanServerReference mbeanServerReference) {
-        this.mbeanServerReference = mbeanServerReference;
-    }
-
-    public synchronized void doStart() throws Exception {
+    public BrokerServiceGBeanImpl(@ParamAttribute (name="amqBaseDir") URI amqBaseDir, 
+                                  @ParamAttribute (name="amqDataDir") String amqDataDir, 
+                                  @ParamAttribute (name="amqConfigFile") String amqConfigFile, 
+                                  @ParamAttribute (name="useShutdownHook") boolean useShutdownHook, 
+                                  @ParamReference (name="ServerInfo") ServerInfo serverInfo, 
+                                  @ParamReference (name="MBeanServerReference") MBeanServerReference mbeanServerReference, 
+                                  @ParamSpecial (type=SpecialAttributeType.classLoader) ClassLoader classLoader) 
+        throws Exception {
+        
+        
+        URI baseDir = serverInfo.resolveServer(amqBaseDir);
+        URI dataDir = baseDir.resolve(amqDataDir);
+        URI amqConfigUri = baseDir.resolve(amqConfigFile);
+        
         ClassLoader old = Thread.currentThread().getContextClassLoader();
-        Thread.currentThread().setContextClassLoader(getClassLoader());
+        Thread.currentThread().setContextClassLoader(classLoader);
         try {
-            if (brokerService == null) {
-                if (brokerUri != null) {
-                    brokerService = BrokerFactory.createBroker(new URI(brokerUri));
-                    brokerName = brokerService.getBrokerName();
-                }
-                else {
-                    brokerService = new BrokerService();
-                    if (brokerName != null) {
-                        brokerService.setBrokerName(brokerName);
-                    }
-                    else {
-                        brokerName = brokerService.getBrokerName();
-                    }
-                }
-            }
+            BrokerFactoryBean brokerFactory = new BrokerFactoryBean(
+                    new ClassPathResource(amqConfigUri.toString()));
+            brokerFactory.afterPropertiesSet();
+            brokerService = brokerFactory.getBroker();
+//            brokerService = BrokerFactory.createBroker(new URI(brokerUri));
             
             // Do not allow creation of another ConnectorServer
             ManagementContext mgmtctx = new ManagementContext(mbeanServerReference != null ? mbeanServerReference.getMBeanServer() : null);
             mgmtctx.setCreateConnector(false);
             brokerService.setManagementContext(mgmtctx);
 
-            // Do not allow the broker to use a shutown hook, the kernel will stop it
-            brokerService.setUseShutdownHook(isUseShutdownHook());
+            // Do not allow the broker to use a shutdown hook, the kernel will stop it
+            brokerService.setUseShutdownHook(useShutdownHook);
 
             // Setup the persistence adapter to use the right datasource and directory
-            DefaultPersistenceAdapterFactory persistenceFactory = (DefaultPersistenceAdapterFactory) brokerService.getPersistenceFactory();
-            persistenceFactory.setDataDirectoryFile(serverInfo.resolveServer(dataDirectory));
-            persistenceFactory.setDataSource((DataSource) dataSource.$getResource());
+//            DefaultPersistenceAdapterFactory persistenceFactory = (DefaultPersistenceAdapterFactory) brokerService.getPersistenceFactory();
+//            persistenceFactory.setDataDirectoryFile(serverInfo.resolveServer(dataDirectory));
+//            persistenceFactory.setDataSource((DataSource) dataSource.getResource());
 
             brokerService.start();
         }
@@ -111,27 +97,23 @@ public class BrokerServiceGBeanImpl implements GBeanLifecycle, BrokerServiceGBea
         }
     }
 
+    public synchronized BrokerService getBrokerContainer() {
+        return brokerService;
+    }
+
+    public synchronized void doStart() throws Exception {
+      
+    }
+
     public synchronized void doStop() throws Exception {
-        if (brokerService != null) {
-            BrokerService temp = brokerService;
-            brokerService = null;
-            try {
-                temp.stop();
-            } catch (JMSException ignored) {
-                // just a lame exception ActiveMQ likes to throw on shutdown
-                if (!(ignored.getCause() instanceof TransportDisposedIOException)) {
-                    throw ignored;
-                }
-            }
-        }
+        brokerService.stop();
+        brokerService.waitUntilStopped();
     }
 
     public synchronized void doFail() {
-        if (brokerService != null) {
-            BrokerService temp = brokerService;
-            brokerService = null;
             try {
-                temp.stop();
+                brokerService.stop();
+                brokerService.waitUntilStopped();
             } catch (JMSException ignored) {
                 // just a lame exception ActiveMQ likes to throw on shutdown
                 if (!(ignored.getCause() instanceof TransportDisposedIOException)) {
@@ -141,77 +123,14 @@ public class BrokerServiceGBeanImpl implements GBeanLifecycle, BrokerServiceGBea
                 log.warn("Caught while closing due to failure: " + e, e);
             }
         }
-    }
 
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder("ActiveMQ Message Broker", BrokerServiceGBeanImpl.class, "JMSServer");
-        infoBuilder.addReference("serverInfo", ServerInfo.class);
-        infoBuilder.addReference("mbeanServerReference", MBeanServerReference.class);
-        infoBuilder.addAttribute("classLoader", ClassLoader.class, false);
-        infoBuilder.addAttribute("brokerName", String.class, true);
-        infoBuilder.addAttribute("brokerUri", String.class, true);
-        infoBuilder.addAttribute("useShutdownHook", Boolean.TYPE, true);
-        infoBuilder.addAttribute("dataDirectory", String.class, true);
-        infoBuilder.addReference("dataSource", ResourceSource.class);
-        infoBuilder.addAttribute("objectName", String.class, false);
-        infoBuilder.addReference("manager", JMSManager.class);
-        infoBuilder.addInterface(BrokerServiceGBean.class);
-        // infoFactory.setConstructor(new String[]{"brokerName, brokerUri"});
-        GBEAN_INFO = infoBuilder.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
-
-	/**
-	 * @return Returns the brokerName.
-	 */
-	public String getBrokerName() {
-		return brokerName;
-	}
-
-    public String getBrokerUri() {
-        return brokerUri;
-    }
-
-    public void setBrokerName(String brokerName) {
-        this.brokerName = brokerName;
-    }
-
-    public void setBrokerUri(String brokerUri) {
-        this.brokerUri = brokerUri;
-    }
-
-    public ServerInfo getServerInfo() {
-        return serverInfo;
-    }
-
-    public void setServerInfo(ServerInfo serverInfo) {
-        this.serverInfo = serverInfo;
-    }
-
-    public String getDataDirectory() {
-        return dataDirectory;
-    }
-
-    public void setDataDirectory(String dataDir) {
-        this.dataDirectory = dataDir;
-    }
-
-    public ResourceSource<ResourceException> getDataSource() {
-        return dataSource;
-    }
-
-    public void setDataSource(ResourceSource<ResourceException> dataSource) {
-        this.dataSource = dataSource;
-    }
-
-    public String getObjectName() {
-        return objectName;
-    }
+//    public ResourceSource<ResourceException> getDataSource() {
+//        return dataSource;
+//    }
+//
+//    public void setDataSource(ResourceSource<ResourceException> dataSource) {
+//        this.dataSource = dataSource;
+//    }
 
     public boolean isStateManageable() {
         return true;
@@ -241,26 +160,4 @@ public class BrokerServiceGBeanImpl implements GBeanLifecycle, BrokerServiceGBea
         this.manager = manager;
     }
 
-    public void setObjectName(String objectName) {
-        this.objectName = objectName;
-    }
-
-    public ClassLoader getClassLoader() {
-        if( classLoader == null ) {
-            classLoader = this.getClass().getClassLoader();
-        }
-        return classLoader;
-    }
-
-    public void setClassLoader(ClassLoader classLoader) {
-        this.classLoader = classLoader;
-    }
-
-    public boolean isUseShutdownHook() {
-        return useShutdownHook;
-    }
-
-    public void setUseShutdownHook(final boolean useShutdownHook) {
-        this.useShutdownHook = useShutdownHook;
-    }
 }

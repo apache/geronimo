@@ -28,14 +28,14 @@ import org.slf4j.LoggerFactory;
 import org.apache.geronimo.activemq.ActiveMQBroker;
 import org.apache.geronimo.activemq.ActiveMQConnector;
 import org.apache.geronimo.activemq.ActiveMQManager;
-import org.apache.geronimo.activemq.TransportConnectorGBeanImpl;
+//import org.apache.geronimo.activemq.TransportConnectorGBeanImpl;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.ReferencePatterns;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+//import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
@@ -193,29 +193,29 @@ public class ActiveMQManagerGBean implements ActiveMQManager {
      * functional (e.g. SSL settings for a secure connector).
      */
     public JMSConnector addConnector(JMSBroker broker, String uniqueName, String protocol, String host, int port) {
-        AbstractName brokerAbstractName = kernel.getAbstractNameFor(broker);
-        AbstractName name = kernel.getNaming().createChildName(brokerAbstractName, uniqueName, GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
-        GBeanData connector = new GBeanData(name, TransportConnectorGBeanImpl.GBEAN_INFO);
-        //todo: if SSL is supported, need to add more properties or use a different GBean?
-        connector.setAttribute("protocol", protocol);
-        connector.setAttribute("host", host);
-        connector.setAttribute("port", new Integer(port));
-        connector.setReferencePattern("brokerService", brokerAbstractName);
-        EditableConfigurationManager mgr = ConfigurationUtil.getEditableConfigurationManager(kernel);
-        if(mgr != null) {
-            try {
-                mgr.addGBeanToConfiguration(brokerAbstractName.getArtifact(), connector, false);
-                return (JMSConnector) kernel.getProxyManager().createProxy(name, ActiveMQConnector.class.getClassLoader());
-            } catch (InvalidConfigException e) {
-                log.error("Unable to add GBean", e);
-                return null;
-            } finally {
-                ConfigurationUtil.releaseConfigurationManager(kernel, mgr);
-            }
-        } else {
-            log.warn("The ConfigurationManager in the kernel does not allow editing");
+//        AbstractName brokerAbstractName = kernel.getAbstractNameFor(broker);
+//        AbstractName name = kernel.getNaming().createChildName(brokerAbstractName, uniqueName, GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
+//        GBeanData connector = new GBeanData(name, TransportConnectorGBeanImpl.GBEAN_INFO);
+//        //todo: if SSL is supported, need to add more properties or use a different GBean?
+//        connector.setAttribute("protocol", protocol);
+//        connector.setAttribute("host", host);
+//        connector.setAttribute("port", new Integer(port));
+//        connector.setReferencePattern("brokerService", brokerAbstractName);
+//        EditableConfigurationManager mgr = ConfigurationUtil.getEditableConfigurationManager(kernel);
+//        if(mgr != null) {
+//            try {
+//                mgr.addGBeanToConfiguration(brokerAbstractName.getArtifact(), connector, false);
+//                return (JMSConnector) kernel.getProxyManager().createProxy(name, ActiveMQConnector.class.getClassLoader());
+//            } catch (InvalidConfigException e) {
+//                log.error("Unable to add GBean", e);
+//                return null;
+//            } finally {
+//                ConfigurationUtil.releaseConfigurationManager(kernel, mgr);
+//            }
+//        } else {
+//            log.warn("The ConfigurationManager in the kernel does not allow editing");
             return null;
-        }
+//        }
     }
 
     public void removeConnector(AbstractName connectorName) {
