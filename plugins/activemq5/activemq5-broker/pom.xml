@@ -93,6 +93,8 @@
                     <category>JMS</category>
                     <instance>
                         <plugin-artifact>
+                            <copy-file relative-to="server" dest-dir="var/activemq/conf">activemq.xml</copy-file>
+                            <!--
                             <config-xml-content>
                                 <gbean name="ActiveMQ.tcp.default">
                                     <attribute name="host">#{ServerHostname}</attribute>
@@ -105,6 +107,7 @@
                              </config-xml-content>
                             <config-substitution key="ActiveMQPort">61616</config-substitution>
                             <config-substitution key="ActiveMQStompPort">61613</config-substitution>
+                            -->
                         </plugin-artifact>
                     </instance>
                 </configuration>

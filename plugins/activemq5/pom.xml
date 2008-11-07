@@ -47,7 +47,8 @@
         <module>activemq5-console-jetty</module>
         <module>activemq5-console-tomcat</module>
         -->
-    </modules>
+        <module>activemq5-server</module>
+  </modules>
 
     <dependencyManagement>
         <dependencies>

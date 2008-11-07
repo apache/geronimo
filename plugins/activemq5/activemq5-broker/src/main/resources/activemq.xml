@@ -94,7 +94,8 @@
             http://activemq.apache.org/persistence.html 
         -->
         <persistenceAdapter>
-            <amqPersistenceAdapter syncOnWrite="false" directory="${activemq.base}/data" maxFileLength="20 mb"/>
+            <!--<amqPersistenceAdapter syncOnWrite="false" directory="${activemq.base}/data" maxFileLength="20 mb"/>-->
+            <amqPersistenceAdapter syncOnWrite="false" directory="var/activemq/data" maxFileLength="20 mb"/>
         </persistenceAdapter>
 
         <!-- 
@@ -192,7 +193,7 @@
     
     <camelContext id="camel" xmlns="http://activemq.apache.org/camel/schema/spring">
      -->
-     </camelContext>
+     <!--</camelContext>-->
 
         <!-- You can use a <package> element for each root package to search for Java routes 
         <package>org.foo.bar</package>

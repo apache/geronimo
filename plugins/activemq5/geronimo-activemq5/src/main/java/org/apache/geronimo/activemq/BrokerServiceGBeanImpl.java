@@ -17,6 +17,7 @@
 
 package org.apache.geronimo.activemq;
 
+import java.io.File;
 import java.net.URI;
 
 import javax.jms.JMSException;
@@ -31,14 +32,13 @@ import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.gbean.annotation.ParamSpecial;
 import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
-
 import org.apache.geronimo.management.geronimo.JMSManager;
 import org.apache.geronimo.management.geronimo.NetworkConnector;
 import org.apache.geronimo.system.jmx.MBeanServerReference;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.FileSystemResource;
 
 /**
  * Default implementation of the ActiveMQ Message Server
@@ -72,7 +72,7 @@ public class BrokerServiceGBeanImpl implements GBeanLifecycle {
         Thread.currentThread().setContextClassLoader(classLoader);
         try {
             BrokerFactoryBean brokerFactory = new BrokerFactoryBean(
-                    new ClassPathResource(amqConfigUri.toString()));
+                    new FileSystemResource(new File(amqConfigUri)));
             brokerFactory.afterPropertiesSet();
             brokerService = brokerFactory.getBroker();
 //            brokerService = BrokerFactory.createBroker(new URI(brokerUri));

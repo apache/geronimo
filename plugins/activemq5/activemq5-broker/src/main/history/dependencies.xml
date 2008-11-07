@@ -7,6 +7,16 @@
         <type>car</type>
     </module-id>
     <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-context</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>commons-logging</groupId>
+        <artifactId>commons-logging</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
         <groupId>org.apache.activemq</groupId>
         <artifactId>activeio-core</artifactId>
         <type>jar</type>
@@ -22,18 +32,13 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>commons-logging</groupId>
-        <artifactId>commons-logging</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-core</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>javax.servlet</groupId>
-        <artifactId>servlet-api</artifactId>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-beans</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -42,18 +47,13 @@
         <type>car</type>
     </dependency>
     <dependency>
-        <groupId>logkit</groupId>
-        <artifactId>logkit</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>avalon-framework</groupId>
-        <artifactId>avalon-framework</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
         <groupId>org.apache.activemq</groupId>
         <artifactId>activemq-core</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.xbean</groupId>
+        <artifactId>xbean-spring</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
