@@ -314,7 +314,7 @@ if [ "$1" = "debug" ] ; then
 elif [ "$1" = "run" ]; then
   shift
   exec "$_RUNJAVA" $JAVA_OPTS $GERONIMO_OPTS \
-    $JAVA_AGENT_OPTS \
+    "$JAVA_AGENT_OPTS" \
     -Dorg.apache.geronimo.base.dir="$GERONIMO_BASE" \
     -Djava.endorsed.dirs="$ENDORSED_DIRS" \
     -Djava.ext.dirs="$EXT_DIRS" \
@@ -325,7 +325,7 @@ elif [ "$1" = "start" ] ; then
   shift
   touch "$GERONIMO_OUT"
   $START_OS_CMD "$_RUNJAVA" $JAVA_OPTS $GERONIMO_OPTS \
-    $JAVA_AGENT_OPTS \
+    "$JAVA_AGENT_OPTS" \
     -Dorg.apache.geronimo.base.dir="$GERONIMO_BASE" \
     -Djava.endorsed.dirs="$ENDORSED_DIRS" \
     -Djava.ext.dirs="$EXT_DIRS" \
