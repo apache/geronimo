@@ -22,13 +22,12 @@
   http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
   http://activemq.apache.org/camel/schema/spring http://activemq.apache.org/camel/schema/spring/camel-spring.xsd">
 
-    <!-- Allows us to use system properties as variables in this configuration file 
+    <!-- Allows us to use system properties as variables in this configuration file-->
     <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-         <property name="locations">
-            <value>file://${activemq.base}/conf/credentials.properties</value>
-         </property>      
+         <!--<property name="locations">-->
+            <!--<value>file://${activemq.base}/conf/credentials.properties</value>-->
+         <!--</property>      -->
     </bean>
-    -->
 
     <broker xmlns="http://activemq.apache.org/schema/core" brokerName="amq-broker">
 
@@ -94,8 +93,7 @@
             http://activemq.apache.org/persistence.html 
         -->
         <persistenceAdapter>
-            <!--<amqPersistenceAdapter syncOnWrite="false" directory="${activemq.base}/data" maxFileLength="20 mb"/>-->
-            <amqPersistenceAdapter syncOnWrite="false" directory="var/activemq/data" maxFileLength="20 mb"/>
+            <amqPersistenceAdapter syncOnWrite="false" directory="${activemq.data}" maxFileLength="20 mb"/>
         </persistenceAdapter>
 
         <!-- 

@@ -19,6 +19,7 @@ package org.apache.geronimo.activemq;
 
 import java.io.File;
 import java.net.URI;
+import java.util.Properties;
 
 import javax.jms.JMSException;
 
@@ -73,6 +74,8 @@ public class BrokerServiceGBeanImpl implements GBeanLifecycle {
         try {
             BrokerFactoryBean brokerFactory = new BrokerFactoryBean(
                     new FileSystemResource(new File(amqConfigUri)));
+            System.setProperty("activemq.home", new File(baseDir).toString());
+            System.setProperty("activemq.data", new File(dataDir).toString());
             brokerFactory.afterPropertiesSet();
             brokerService = brokerFactory.getBroker();
 //            brokerService = BrokerFactory.createBroker(new URI(brokerUri));
