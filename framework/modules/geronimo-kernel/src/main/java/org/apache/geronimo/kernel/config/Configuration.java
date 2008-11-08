@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -32,13 +33,10 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
-import java.util.HashSet;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
@@ -51,10 +49,14 @@ import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.classloader.JarFileClassLoader;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.ClassLoadingRule;
+import org.apache.geronimo.kernel.repository.ClassLoadingRules;
 import org.apache.geronimo.kernel.repository.Dependency;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.ImportType;
 import org.apache.geronimo.kernel.repository.MissingDependencyException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A Configuration represents a collection of runnable services that can be
@@ -170,6 +172,11 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent
     private final MultiParentClassLoader configurationClassLoader;
 
     /**
+     * The ClassLoader used by children configurations.
+     */
+    private final ClassLoader childrenConfigurationClassLoader;
+
+    /**
      * The relative class path (URI) of this configuation.
      */
     private final LinkedHashSet<String> classPath;
@@ -204,6 +211,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent
         classPath = null;
         configurationResolver = null;
         configurationClassLoader = null;
+        childrenConfigurationClassLoader = null;
         naming = null;
     }
 
@@ -266,6 +274,9 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent
             // Build the configuration class loader
             //
             configurationClassLoader = createConfigurationClasssLoader(parents, environment, classPath);
+            
+            ClassLoadingRules rules = environment.getClassLoadingRules();
+            childrenConfigurationClassLoader = new ChildrenConfigurationClassLoader(configurationClassLoader, rules);
 
             //
             // Get all service parents in depth first order
@@ -333,22 +344,19 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent
             parentClassLoaders = new ClassLoader[classParents.size()];
             for (ListIterator iterator = classParents.listIterator(); iterator.hasNext();) {
                 Configuration configuration = (Configuration) iterator.next();
-                parentClassLoaders[iterator.previousIndex()] = configuration.getConfigurationClassLoader();
+                parentClassLoaders[iterator.previousIndex()] = configuration.childrenConfigurationClassLoader;
             }
         }
 
-        // hidden classes
-        Set<String> hiddenClassesSet = environment.getHiddenClasses();
-        String[] hiddenClasses = hiddenClassesSet.toArray(new String[hiddenClassesSet.size()]);
-
         // we need to propagate the non-overrideable classes from parents
-        LinkedHashSet<String> nonOverridableSet = new LinkedHashSet<String>(environment.getNonOverrideableClasses());
+        ClassLoadingRules classLoadingRules = environment.getClassLoadingRules();
+        ClassLoadingRule nonOverrideableRule = classLoadingRules.getNonOverrideableRule();
         for (Configuration parent : classParents) {
-
             Environment parentEnvironment = parent.getEnvironment();
-            nonOverridableSet.addAll(parentEnvironment.getNonOverrideableClasses());
+            ClassLoadingRules parentClassLoadingRules = parentEnvironment.getClassLoadingRules();
+            ClassLoadingRule parentNonOverrideableRule = parentClassLoadingRules.getNonOverrideableRule();
+            nonOverrideableRule.merge(parentNonOverrideableRule);
         }
-        String[] nonOverridableClasses = nonOverridableSet.toArray(new String[nonOverridableSet.size()]);
 
         if (log.isDebugEnabled()) {
             StringBuffer buf = new StringBuffer("ClassLoader structure for configuration ").append(id).append("\n");
@@ -377,16 +385,12 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent
             return new JarFileClassLoader(environment.getConfigId(),
                     urls,
                     parentClassLoaders,
-                    environment.isInverseClassLoading(),
-                    hiddenClasses,
-                    nonOverridableClasses);
+                    classLoadingRules);
         } else {
             return new MultiParentClassLoader(environment.getConfigId(),
                     urls,
                     parentClassLoaders,
-                    environment.isInverseClassLoading(),
-                    hiddenClasses,
-                    nonOverridableClasses);
+                    classLoadingRules);
         }
     }
 

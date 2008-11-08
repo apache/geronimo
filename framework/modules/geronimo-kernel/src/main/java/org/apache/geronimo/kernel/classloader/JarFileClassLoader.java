@@ -16,25 +16,25 @@
  */
 package org.apache.geronimo.kernel.classloader;
 
-import java.io.IOException;
 import java.io.File;
-import java.net.URL;
+import java.io.IOException;
 import java.net.URI;
+import java.net.URL;
 import java.net.URLClassLoader;
 import java.security.AccessControlContext;
 import java.security.AccessController;
 import java.security.CodeSource;
 import java.security.PrivilegedAction;
-import java.security.PrivilegedExceptionAction;
 import java.security.PrivilegedActionException;
+import java.security.PrivilegedExceptionAction;
 import java.security.cert.Certificate;
-import java.util.Collection;
 import java.util.Enumeration;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
 import org.apache.geronimo.kernel.config.MultiParentClassLoader;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.ClassLoadingRules;
 
 /**
  * The JarFileClassLoader that loads classes and resources from a list of JarFiles.  This method is simmilar to URLClassLoader
@@ -78,8 +78,8 @@ public class JarFileClassLoader extends MultiParentClassLoader {
         addURLs(urls);
     }
 
-    public JarFileClassLoader(Artifact id, URL[] urls, ClassLoader parent, boolean inverseClassLoading, String[] hiddenClasses, String[] nonOverridableClasses) {
-        super(id, EMPTY_URLS, parent, inverseClassLoading, hiddenClasses, nonOverridableClasses);
+    public JarFileClassLoader(Artifact id, URL[] urls, ClassLoader parent, ClassLoadingRules classLoadingRules) {
+        super(id, EMPTY_URLS, parent, classLoadingRules);
         this.acc = AccessController.getContext();
         addURLs(urls);
     }
@@ -96,14 +96,8 @@ public class JarFileClassLoader extends MultiParentClassLoader {
         addURLs(urls);
     }
 
-    public JarFileClassLoader(Artifact id, URL[] urls, ClassLoader[] parents, boolean inverseClassLoading, Collection hiddenClasses, Collection nonOverridableClasses) {
-        super(id, EMPTY_URLS, parents, inverseClassLoading, hiddenClasses, nonOverridableClasses);
-        this.acc = AccessController.getContext();
-        addURLs(urls);
-    }
-
-    public JarFileClassLoader(Artifact id, URL[] urls, ClassLoader[] parents, boolean inverseClassLoading, String[] hiddenClasses, String[] nonOverridableClasses) {
-        super(id, EMPTY_URLS, parents, inverseClassLoading, hiddenClasses, nonOverridableClasses);
+    public JarFileClassLoader(Artifact id, URL[] urls, ClassLoader[] parents, ClassLoadingRules classLoadingRules) {
+        super(id, EMPTY_URLS, parents, classLoadingRules);
         this.acc = AccessController.getContext();
         addURLs(urls);
     }

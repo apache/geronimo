@@ -38,6 +38,8 @@ import org.apache.geronimo.deployment.xbeans.EnvironmentType;
 import org.apache.geronimo.deployment.xbeans.ImportType;
 import org.apache.geronimo.deployment.xbeans.DependencyType;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.ClassLoadingRule;
+import org.apache.geronimo.kernel.repository.ClassLoadingRules;
 import org.apache.geronimo.kernel.repository.Dependency;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.xmlbeans.XmlException;
@@ -63,10 +65,9 @@ public class EnvironmentBuilder extends PropertyEditorSupport implements XmlAttr
                 LinkedHashSet dependencies = toDependencies(dependencyArray);
                 environment.setDependencies(dependencies);
             }
-            environment.setInverseClassLoading(environmentType.isSetInverseClassloading());
             environment.setSuppressDefaultEnvironment(environmentType.isSetSuppressDefaultEnvironment());
-            environment.setHiddenClasses(toFilters(environmentType.getHiddenClasses()));
-            environment.setNonOverrideableClasses(toFilters(environmentType.getNonOverridableClasses()));
+            
+            ClassLoadingRulesUtil.configureRules(environment.getClassLoadingRules(), environmentType);
         }
 
         return environment;
@@ -79,10 +80,11 @@ public class EnvironmentBuilder extends PropertyEditorSupport implements XmlAttr
                 environment.setConfigId(additionalEnvironment.getConfigId());
             }
             environment.addDependencies(additionalEnvironment.getDependencies());
-            environment.setInverseClassLoading(environment.isInverseClassLoading() || additionalEnvironment.isInverseClassLoading());
             environment.setSuppressDefaultEnvironment(environment.isSuppressDefaultEnvironment() || additionalEnvironment.isSuppressDefaultEnvironment());
-            environment.addHiddenClasses(additionalEnvironment.getHiddenClasses());
-            environment.addNonOverrideableClasses(additionalEnvironment.getNonOverrideableClasses());
+            
+            ClassLoadingRules classLoadingRules = environment.getClassLoadingRules();
+            ClassLoadingRules additionalClassLoadingRules = additionalEnvironment.getClassLoadingRules();
+            classLoadingRules.merge(additionalClassLoadingRules);
         }
     }
 
@@ -105,14 +107,25 @@ public class EnvironmentBuilder extends PropertyEditorSupport implements XmlAttr
         DependencyType[] dependencyTypes = (DependencyType[]) dependencies.toArray(new DependencyType[dependencies.size()]);
         DependenciesType dependenciesType = environmentType.addNewDependencies();
         dependenciesType.setDependencyArray(dependencyTypes);
-        if (environment.isInverseClassLoading()) {
+        
+        ClassLoadingRules classLoadingRules = environment.getClassLoadingRules();
+        if (classLoadingRules.isInverseClassLoading()) {
             environmentType.addNewInverseClassloading();
         }
+        
         if (environment.isSuppressDefaultEnvironment()) {
             environmentType.addNewSuppressDefaultEnvironment();
         }
-        environmentType.setHiddenClasses(toFilterType(environment.getHiddenClasses()));
-        environmentType.setNonOverridableClasses(toFilterType(environment.getNonOverrideableClasses()));
+        
+        ClassLoadingRule classLoadingRule = classLoadingRules.getHiddenRule();
+        environmentType.setHiddenClasses(toFilterType(classLoadingRule.getClassPrefixes()));
+        
+        classLoadingRule = classLoadingRules.getNonOverrideableRule();
+        environmentType.setNonOverridableClasses(toFilterType(classLoadingRule.getClassPrefixes()));
+
+        classLoadingRule = classLoadingRules.getPrivateRule();
+        environmentType.setPrivateClasses(toFilterType(classLoadingRule.getClassPrefixes()));
+        
         return environmentType;
     }
 

@@ -27,7 +27,6 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.net.URLStreamHandlerFactory;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashSet;
@@ -36,11 +35,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.geronimo.kernel.classloader.UnionEnumeration;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.ClassLoadingRule;
+import org.apache.geronimo.kernel.repository.ClassLoadingRules;
 import org.apache.geronimo.kernel.util.ClassLoaderRegistry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A MultiParentClassLoader is a simple extension of the URLClassLoader that simply changes the single parent class
@@ -57,11 +58,7 @@ public class MultiParentClassLoader extends URLClassLoader
 
     private final Artifact id;
     private final ClassLoader[] parents;
-    private final boolean inverseClassLoading;
-    private final String[] hiddenClasses;
-    private final String[] nonOverridableClasses;
-    private final String[] hiddenResources;
-    private final String[] nonOverridableResources;
+    private final ClassLoadingRules classLoadingRules;
     private boolean destroyed = false;
 
     // I used this pattern as its temporary and with the static final we get compile time 
@@ -102,12 +99,9 @@ public class MultiParentClassLoader extends URLClassLoader
     public MultiParentClassLoader(Artifact id, URL[] urls) {
         super(urls);
         this.id = id;
+        
         parents = new ClassLoader[]{ClassLoader.getSystemClassLoader()};
-        inverseClassLoading = false;
-        hiddenClasses = new String[0];
-        nonOverridableClasses = new String[0];
-        hiddenResources = new String[0];
-        nonOverridableResources = new String[0];
+        classLoadingRules = new ClassLoadingRules();
         ClassLoaderRegistry.add(this);
     }
 
@@ -123,8 +117,8 @@ public class MultiParentClassLoader extends URLClassLoader
         this(id, urls, new ClassLoader[]{parent});
     }
 
-    public MultiParentClassLoader(Artifact id, URL[] urls, ClassLoader parent, boolean inverseClassLoading, String[] hiddenClasses, String[] nonOverridableClasses) {
-        this(id, urls, new ClassLoader[]{parent}, inverseClassLoading, hiddenClasses, nonOverridableClasses);
+    public MultiParentClassLoader(Artifact id, URL[] urls, ClassLoader parent, ClassLoadingRules classLoadingRules) {
+        this(id, urls, new ClassLoader[]{parent}, classLoadingRules);
     }
 
     /**
@@ -151,32 +145,21 @@ public class MultiParentClassLoader extends URLClassLoader
         super(urls);
         this.id = id;
         this.parents = copyParents(parents);
-        inverseClassLoading = false;
-        hiddenClasses = new String[0];
-        nonOverridableClasses = new String[0];
-        hiddenResources = new String[0];
-        nonOverridableResources = new String[0];
+
+        classLoadingRules = new ClassLoadingRules();
         ClassLoaderRegistry.add(this);
     }
 
-    public MultiParentClassLoader(Artifact id, URL[] urls, ClassLoader[] parents, boolean inverseClassLoading, Collection hiddenClasses, Collection nonOverridableClasses) {
-        this(id, urls, parents, inverseClassLoading, (String[]) hiddenClasses.toArray(new String[hiddenClasses.size()]), (String[]) nonOverridableClasses.toArray(new String[nonOverridableClasses.size()]));
-    }
-
-    public MultiParentClassLoader(Artifact id, URL[] urls, ClassLoader[] parents, boolean inverseClassLoading, String[] hiddenClasses, String[] nonOverridableClasses) {
+    public MultiParentClassLoader(Artifact id, URL[] urls, ClassLoader[] parents, ClassLoadingRules classLoadingRules) {
         super(urls);
         this.id = id;
         this.parents = copyParents(parents);
-        this.inverseClassLoading = inverseClassLoading;
-        this.hiddenClasses = hiddenClasses;
-        this.nonOverridableClasses = nonOverridableClasses;
-        hiddenResources = toResources(hiddenClasses);
-        nonOverridableResources = toResources(nonOverridableClasses);
+        this.classLoadingRules = classLoadingRules;
         ClassLoaderRegistry.add(this);
     }
 
     public MultiParentClassLoader(MultiParentClassLoader source) {
-        this(source.id, source.getURLs(), deepCopyParents(source.parents), source.inverseClassLoading, source.hiddenClasses, source.nonOverridableClasses);
+        this(source.id, source.getURLs(), deepCopyParents(source.parents), source.classLoadingRules);
     }
 
     static ClassLoader copy(ClassLoader source) {
@@ -193,15 +176,6 @@ public class MultiParentClassLoader extends URLClassLoader
         return MultiParentClassLoader.copy(this);
     }
 
-    private String[] toResources(String[] classes) {
-        String[] resources = new String[classes.length];
-        for (int i = 0; i < classes.length; i++) {
-            String className = classes[i];
-            resources[i] = className.replace('.', '/');
-        }
-        return resources;
-    }
-
     /**
      * Creates a named class loader as a child of the specified parents and using the specified URLStreamHandlerFactory
      * for accessing the urls..
@@ -215,11 +189,8 @@ public class MultiParentClassLoader extends URLClassLoader
         super(urls, null, factory);
         this.id = id;
         this.parents = copyParents(parents);
-        inverseClassLoading = false;
-        hiddenClasses = new String[0];
-        nonOverridableClasses = new String[0];
-        hiddenResources = new String[0];
-        nonOverridableResources = new String[0];
+        
+        classLoadingRules = new ClassLoadingRules();
         ClassLoaderRegistry.add(this);
     }
 
@@ -320,7 +291,7 @@ public class MultiParentClassLoader extends URLClassLoader
         //
         // if we are using inverse class loading, check local urls first
         //
-        if (inverseClassLoading && !isDestroyed() && !isNonOverridableClass(name)) {
+        if (classLoadingRules.isInverseClassLoading() && !isDestroyed() && !isNonOverridableClass(name)) {
             try {
                 Class clazz = findClass(name);
                 return resolveClass(clazz, resolve);
@@ -404,7 +375,7 @@ public class MultiParentClassLoader extends URLClassLoader
         //
         // if we are using inverse class loading, check local urls first
         //
-        if (inverseClassLoading && !isDestroyed() && !isNonOverridableClass(name)) {
+        if (classLoadingRules.isInverseClassLoading() && !isDestroyed() && !isNonOverridableClass(name)) {
             try {
                 Class clazz = findClass(name);
                 return resolveClass(clazz, resolve);
@@ -453,7 +424,7 @@ public class MultiParentClassLoader extends URLClassLoader
      * @return
      * @throws ClassNotFoundException
      */
-    protected synchronized Class<?> loadClassInternal(String name, boolean resolve, LinkedList<ClassLoader> visitedClassLoaders) throws ClassNotFoundException, MalformedURLException {
+    protected synchronized Class<?> loadClassInternal(String name, boolean resolve, List<ClassLoader> visitedClassLoaders) throws ClassNotFoundException, MalformedURLException {
         //
         // Check if class is in the loaded classes cache
         //
@@ -500,7 +471,7 @@ public class MultiParentClassLoader extends URLClassLoader
      * @return
      * @throws ClassNotFoundException
      */
-    private synchronized Class<?> checkParents(String name, boolean resolve, LinkedList<ClassLoader> visitedClassLoaders) throws ClassNotFoundException {
+    private synchronized Class<?> checkParents(String name, boolean resolve, List<ClassLoader> visitedClassLoaders) throws ClassNotFoundException {
         for (ClassLoader parent : parents) {
             if (!visitedClassLoaders.contains(parent)) {
                 visitedClassLoaders.add(parent);  // Track that we've been here before
@@ -508,6 +479,9 @@ public class MultiParentClassLoader extends URLClassLoader
         	        if (parent instanceof MultiParentClassLoader) {
         	        	Class clazz = ((MultiParentClassLoader) parent).loadClassInternal(name, resolve, visitedClassLoaders);
         	        	if (clazz != null) return resolveClass(clazz, resolve);
+        	        } else if (parent instanceof ChildrenConfigurationClassLoader) {
+                        Class clazz = ((ChildrenConfigurationClassLoader) parent).loadClass(name, visitedClassLoaders);
+                        if (clazz != null) return resolveClass(clazz, resolve);
         	        } else {
         	        	return parent.loadClass(name);
         	        }
@@ -523,21 +497,13 @@ public class MultiParentClassLoader extends URLClassLoader
     }
 
     private boolean isNonOverridableClass(String name) {
-        for (String nonOverridableClass : nonOverridableClasses) {
-            if (name.startsWith(nonOverridableClass)) {
-                return true;
-            }
-        }
-        return false;
+        ClassLoadingRule nonOverrideableRule = classLoadingRules.getNonOverrideableRule();
+        return nonOverrideableRule.isFilteredClass(name);
     }
 
     private boolean isHiddenClass(String name) {
-        for (String hiddenClass : hiddenClasses) {
-            if (name.startsWith(hiddenClass)) {
-                return true;
-            }
-        }
-        return false;
+        ClassLoadingRule hiddenRule = classLoadingRules.getHiddenRule();
+        return hiddenRule.isFilteredClass(name);
     }
 
     private Class resolveClass(Class clazz, boolean resolve) {
@@ -555,7 +521,7 @@ public class MultiParentClassLoader extends URLClassLoader
         //
         // if we are using inverse class loading, check local urls first
         //
-        if (inverseClassLoading && !isDestroyed() && !isNonOverridableResource(name)) {
+        if (classLoadingRules.isInverseClassLoading() && !isDestroyed() && !isNonOverridableResource(name)) {
             URL url = findResource(name);
             if (url != null) {
                 return url;
@@ -606,7 +572,7 @@ public class MultiParentClassLoader extends URLClassLoader
             return;
         }
         knownClassloaders.add(this);
-        if (inverseClassLoading && !isNonOverridableResource(name)) {
+        if (classLoadingRules.isInverseClassLoading() && !isNonOverridableResource(name)) {
             enumerations.add(internalfindResources(name));
         }
         if (!isHiddenResource(name)) {
@@ -621,7 +587,7 @@ public class MultiParentClassLoader extends URLClassLoader
                 }
             }
         }
-        if (!inverseClassLoading) {
+        if (!classLoadingRules.isInverseClassLoading()) {
             enumerations.add(internalfindResources(name));
         }
     }
@@ -631,21 +597,13 @@ public class MultiParentClassLoader extends URLClassLoader
     }
 
     private boolean isNonOverridableResource(String name) {
-        for (String nonOverridableResource : nonOverridableResources) {
-            if (name.startsWith(nonOverridableResource)) {
-                return true;
-            }
-        }
-        return false;
+        ClassLoadingRule nonOverrideableRule = classLoadingRules.getNonOverrideableRule();
+        return nonOverrideableRule.isFilteredResource(name);
     }
 
     private boolean isHiddenResource(String name) {
-        for (String hiddenResource : hiddenResources) {
-            if (name.startsWith(hiddenResource)) {
-                return true;
-            }
-        }
-        return false;
+        ClassLoadingRule hiddenRule = classLoadingRules.getHiddenRule();
+        return hiddenRule.isFilteredResource(name);
     }
 
     public String toString() {

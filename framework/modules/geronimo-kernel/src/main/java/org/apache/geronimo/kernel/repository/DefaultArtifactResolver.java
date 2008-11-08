@@ -179,7 +179,7 @@ public class DefaultArtifactResolver implements ArtifactResolver {
             }
 
             Environment environment = configuration.getEnvironment();
-            if (environment.isInverseClassLoading()) {
+            if (environment.getClassLoadingRules().isInverseClassLoading()) {
                 // Search dependencies of the configuration before searching the parents
                 Artifact artifact = getArtifactVersion(configuration.getDependencies(), working);
                 if (artifact != null) {

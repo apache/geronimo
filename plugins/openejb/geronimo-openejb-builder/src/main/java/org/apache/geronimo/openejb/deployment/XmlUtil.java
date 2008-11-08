@@ -17,10 +17,26 @@
  */
 package org.apache.geronimo.openejb.deployment;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.List;
+
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.ValidationEvent;
+import javax.xml.namespace.QName;
+
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.ClassLoadingRule;
+import org.apache.geronimo.kernel.repository.ClassLoadingRules;
 import org.apache.geronimo.kernel.repository.Dependency;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.openejb.xbeans.ejbjar.OpenejbEjbJarDocument;
@@ -37,23 +53,10 @@ import org.apache.openejb.jee.oejb2.DependencyType;
 import org.apache.openejb.jee.oejb2.EnvironmentType;
 import org.apache.openejb.jee.oejb2.GeronimoEjbJarType;
 import org.apache.openejb.jee.oejb2.ImportType;
-import org.apache.openejb.jee.oejb2.JaxbOpenejbJar2;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlDocumentProperties;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.ValidationEvent;
-import javax.xml.namespace.QName;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.IOException;
 
 public final class XmlUtil {
     public static final QName OPENEJBJAR_QNAME = OpenejbEjbJarDocument.type.getDocumentElementName();
@@ -159,13 +162,22 @@ public final class XmlUtil {
                     environment.addDependency(dependency);
                 }
             }
-            environment.setInverseClassLoading(environmentType.isInverseClassloading());
+            
             environment.setSuppressDefaultEnvironment(environmentType.isSuppressDefaultEnvironment());
+
+            ClassLoadingRules classLoadingRules = environment.getClassLoadingRules();
+            classLoadingRules.setInverseClassLoading(environmentType.isInverseClassloading());
+            
             if (environmentType.getHiddenClasses() != null) {
-                environment.setHiddenClasses(environmentType.getHiddenClasses().getFilter());
+                ClassLoadingRule hiddenRule = classLoadingRules.getHiddenRule();
+                List<String> filter = environmentType.getHiddenClasses().getFilter();
+                hiddenRule.setClassPrefixes(new HashSet<String>(filter));
             }
+            
             if (environmentType.getNonOverridableClasses() != null) {
-                environment.setNonOverrideableClasses(environmentType.getNonOverridableClasses().getFilter());
+                ClassLoadingRule nonOverrideableRule = classLoadingRules.getNonOverrideableRule();
+                List<String> filter = environmentType.getNonOverridableClasses().getFilter();
+                nonOverrideableRule.setClassPrefixes(new HashSet<String>(filter));
             }
         }
         if (!environment.isSuppressDefaultEnvironment()) {

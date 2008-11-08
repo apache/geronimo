@@ -18,14 +18,12 @@
 package org.apache.geronimo.kernel.repository;
 
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.Set;
-import java.util.List;
-import java.util.Collections;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
 
 /**
  * holds the data from the EnvironmentType xml while it is being resolved, transitively closed, etc.
@@ -36,29 +34,25 @@ public class Environment implements Serializable {
     private static final long serialVersionUID = 7075760873629376317L;
 
     private Artifact configId;
-
     private final LinkedHashSet dependencies = new LinkedHashSet();
-
-    private final Set hiddenClasses = new HashSet();
-    private final Set nonOverrideableClasses = new HashSet();
-
-    private boolean inverseClassLoading;
+    private final ClassLoadingRules classLoadingRules;
     private boolean suppressDefaultEnvironment;
 
     public Environment() {
+        classLoadingRules = new ClassLoadingRules();
     }
 
     public Environment(Artifact configId) {
         this.configId = configId;
+
+        classLoadingRules = new ClassLoadingRules();
     }
 
     public Environment(Environment environment) {
-        this.configId = environment.getConfigId();
-        this.dependencies.addAll(environment.dependencies);
-        this.hiddenClasses.addAll(environment.getHiddenClasses());
-        this.nonOverrideableClasses.addAll(environment.getNonOverrideableClasses());
-        this.inverseClassLoading = environment.isInverseClassLoading();
-        this.suppressDefaultEnvironment = environment.isSuppressDefaultEnvironment();
+        configId = environment.getConfigId();
+        dependencies.addAll(environment.dependencies);
+        suppressDefaultEnvironment = environment.isSuppressDefaultEnvironment();
+        classLoadingRules = environment.classLoadingRules;
     }
 
     public Artifact getConfigId() {
@@ -100,46 +94,8 @@ public class Environment implements Serializable {
         addDependencies(dependencies);
     }
 
-    /**
-     * todo: I should be documented so it's not completely unclear what kind of
-     * elements I hold.
-     */
-    public Set getHiddenClasses() {
-        return hiddenClasses;
-    }
-
-    public void addHiddenClasses(Collection hiddenClasses) {
-        this.hiddenClasses.addAll(hiddenClasses);
-    }
-
-    public void setHiddenClasses(Collection hiddenClasses) {
-        this.hiddenClasses.clear();
-        addHiddenClasses(hiddenClasses);
-    }
-
-    /**
-     * todo: I should be documented so it's not completely unclear what kind of
-     * elements I hold.
-     */
-    public Set getNonOverrideableClasses() {
-        return nonOverrideableClasses;
-    }
-
-    public void addNonOverrideableClasses(Collection nonOverrideableClasses) {
-        this.nonOverrideableClasses.addAll(nonOverrideableClasses);
-    }
-
-    public void setNonOverrideableClasses(Collection nonOverrideableClasses) {
-        this.nonOverrideableClasses.clear();
-        addNonOverrideableClasses(nonOverrideableClasses);
-    }
-
-    public boolean isInverseClassLoading() {
-        return inverseClassLoading;
-    }
-
-    public void setInverseClassLoading(boolean inverseClassLoading) {
-        this.inverseClassLoading = inverseClassLoading;
+    public ClassLoadingRules getClassLoadingRules() {
+        return classLoadingRules;
     }
 
     public boolean isSuppressDefaultEnvironment() {

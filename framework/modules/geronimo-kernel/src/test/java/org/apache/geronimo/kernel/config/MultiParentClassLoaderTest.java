@@ -26,6 +26,7 @@ import java.net.URL;
 import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
 import java.util.jar.JarEntry;
+import java.util.Collections;
 import java.util.Enumeration;
 
 import junit.framework.TestCase;
@@ -35,6 +36,8 @@ import net.sf.cglib.core.NamingPolicy;
 import net.sf.cglib.core.Predicate;
 import net.sf.cglib.core.DefaultGeneratorStrategy;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.ClassLoadingRule;
+import org.apache.geronimo.kernel.repository.ClassLoadingRules;
 
 /**
  * @version $Rev$ $Date$
@@ -141,7 +144,9 @@ public class MultiParentClassLoaderTest extends TestCase {
         Class clazz = cl.loadClass(CLASS_NAME);
         assertSame(parentCl, clazz.getClassLoader());
 
-        cl = new MultiParentClassLoader(NAME, new URL[]{myJar.toURL()}, parentCl, true, new String[0], new String[0]);
+        ClassLoadingRules classLoadingRules = new ClassLoadingRules();
+        classLoadingRules.setInverseClassLoading(true);
+        cl = new MultiParentClassLoader(NAME, new URL[]{myJar.toURL()}, parentCl, classLoadingRules);
         clazz = cl.loadClass(CLASS_NAME);
         assertSame(cl, clazz.getClassLoader());
     }
@@ -154,7 +159,10 @@ public class MultiParentClassLoaderTest extends TestCase {
         Class clazz = cl.loadClass(CLASS_NAME);
         assertSame(parentCl, clazz.getClassLoader());
 
-        cl = new MultiParentClassLoader(NAME, new URL[]{myJar.toURL()}, parentCl, false, new String[] {CLASS_NAME}, new String[0]);
+        ClassLoadingRules classLoadingRules = new ClassLoadingRules();
+        ClassLoadingRule classLoadingRule = classLoadingRules.getHiddenRule();
+        classLoadingRule.addClassPrefixes(Collections.singleton(CLASS_NAME));
+        cl = new MultiParentClassLoader(NAME, new URL[]{myJar.toURL()}, parentCl, classLoadingRules);
         clazz = cl.loadClass(CLASS_NAME);
         assertSame(cl, clazz.getClassLoader());
     }
@@ -167,7 +175,11 @@ public class MultiParentClassLoaderTest extends TestCase {
         Class clazz = cl.loadClass(CLASS_NAME);
         assertSame(parentCl, clazz.getClassLoader());
 
-        cl = new MultiParentClassLoader(NAME, new URL[]{myJar.toURL()}, parentCl, true, new String[0], new String[] {CLASS_NAME});
+        ClassLoadingRules classLoadingRules = new ClassLoadingRules();
+        classLoadingRules.setInverseClassLoading(true);
+        ClassLoadingRule classLoadingRule = classLoadingRules.getNonOverrideableRule();
+        classLoadingRule.addClassPrefixes(Collections.singleton(CLASS_NAME));
+        cl = new MultiParentClassLoader(NAME, new URL[]{myJar.toURL()}, parentCl, classLoadingRules);
         clazz = cl.loadClass(CLASS_NAME);
         assertSame(parentCl, clazz.getClassLoader());
     }

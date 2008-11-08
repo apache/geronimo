@@ -19,11 +19,15 @@ package org.apache.geronimo.jetty6;
 
 import java.io.File;
 import java.net.URL;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.geronimo.testsupport.TestSupport;
 
 import org.apache.geronimo.kernel.config.MultiParentClassLoader;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.ClassLoadingRules;
 
 /**
  * Tests loading various classes (as classes and URL resources) with different
@@ -33,16 +37,34 @@ import org.apache.geronimo.kernel.repository.Artifact;
  * @version $Rev$ $Date$
  */
 public class ClassLoaderTest extends TestSupport {
+    private static final Set<String> HIDDEN;
+    private static final Set<String> NON_OVERRIDABLE;
+
+    static {
+        HIDDEN = new HashSet<String>();
+        HIDDEN.add("org.apache.geronimo");
+        HIDDEN.add("org.mortbay");
+        HIDDEN.add("org.xml");
+        HIDDEN.add("org.w3c");
+        
+        NON_OVERRIDABLE = new HashSet<String>();
+        NON_OVERRIDABLE.add("java.");
+        NON_OVERRIDABLE.add("javax.");
+    }
+    
     Artifact configId = new Artifact("foo", "bar", "1", "car");
     ClassLoader cl;
     URL[] urls;
-    private static final String[] HIDDEN = {"org.apache.geronimo", "org.mortbay", "org.xml", "org.w3c"};
-    private static final String[] NON_OVERRIDABLE = {"java.", "javax."};
+    private ClassLoadingRules classLoadingRules;
 
     public void setUp() throws Exception {
         super.setUp();
         URL url = new File(BASEDIR, "src/test/resources/deployables/cltest/").toURL();
         urls = new URL[]{url};
+
+        classLoadingRules = new ClassLoadingRules();
+        classLoadingRules.getHiddenRule().setClassPrefixes(HIDDEN );
+        classLoadingRules.getNonOverrideableRule().setClassPrefixes(NON_OVERRIDABLE);
     }
 
     //todo: try more restricted prefixed besides javax.*
@@ -52,7 +74,7 @@ public class ClassLoaderTest extends TestSupport {
      * parent ClassLoader.  This should work.
      */
     public void testFalseNonexistantJavaxClass() {
-        cl = new MultiParentClassLoader(configId, urls, getClass().getClassLoader(), false, HIDDEN, NON_OVERRIDABLE);
+        cl = new MultiParentClassLoader(configId, urls, getClass().getClassLoader(), classLoadingRules);
         try {
             cl.loadClass("javax.foo.Foo");
         } catch(ClassNotFoundException e) {
@@ -65,7 +87,8 @@ public class ClassLoaderTest extends TestSupport {
      * parent ClassLoader.  This should work.
      */
     public void testTrueNonexistantJavaxClass() {
-        cl = new MultiParentClassLoader(configId, urls, getClass().getClassLoader(), true, HIDDEN, NON_OVERRIDABLE);
+        classLoadingRules.setInverseClassLoading(true);
+        cl = new MultiParentClassLoader(configId, urls, getClass().getClassLoader(), classLoadingRules);
         try {
             cl.loadClass("javax.foo.Foo");
         } catch(ClassNotFoundException e) {
@@ -79,7 +102,7 @@ public class ClassLoaderTest extends TestSupport {
      * This should always load the parent's copy.
      */
     public void testFalseExistantJavaxClass() {
-        cl = new MultiParentClassLoader(configId, urls, getClass().getClassLoader(), false, HIDDEN, NON_OVERRIDABLE);
+        cl = new MultiParentClassLoader(configId, urls, getClass().getClassLoader(), classLoadingRules);
         try {
             Class cls = cl.loadClass("javax.servlet.Servlet");
             assertTrue("Loaded wrong class first; expected to find parent CL's copy of javax.servlet.Servlet",cls.getDeclaredMethods().length > 0);
@@ -94,7 +117,8 @@ public class ClassLoaderTest extends TestSupport {
      * This should always load the parent's copy.
      */
     public void testTrueExistantJavaxClass() {
-        cl = new MultiParentClassLoader(configId, urls, getClass().getClassLoader(), true, HIDDEN, NON_OVERRIDABLE);
+        classLoadingRules.setInverseClassLoading(true);
+        cl = new MultiParentClassLoader(configId, urls, getClass().getClassLoader(), classLoadingRules);
         try {
             Class cls = cl.loadClass("javax.servlet.Servlet");
             assertTrue("Loaded wrong class first; expected to find parent CL's copy of javax.servlet.Servlet",cls.getDeclaredMethods().length > 0);
@@ -111,7 +135,7 @@ public class ClassLoaderTest extends TestSupport {
      * copy when the contextPriorityClassLoader is set to true.
      */
     public void xtestFalseExistantNonJavaxClass() {
-        cl = new MultiParentClassLoader(configId, urls, getClass().getClassLoader(), false, HIDDEN, NON_OVERRIDABLE);
+        cl = new MultiParentClassLoader(configId, urls, getClass().getClassLoader(), classLoadingRules);
         try {
             Class cls = cl.loadClass("mx4j.MBeanDescription");
             assertTrue("Should not have overriden parent CL definition of class mx4j.MBeanDescription", cls.getDeclaredMethods().length > 0);
@@ -128,7 +152,8 @@ public class ClassLoaderTest extends TestSupport {
      * the contextPriorityClassLoader is set to true (as here).
      */
     public void xtestTrueExistantNonJavaxClass() {
-        cl = new MultiParentClassLoader(configId, urls, getClass().getClassLoader(), true, HIDDEN, NON_OVERRIDABLE);
+        classLoadingRules.setInverseClassLoading(true);
+        cl = new MultiParentClassLoader(configId, urls, getClass().getClassLoader(), classLoadingRules);
         try {
             Class cls = cl.loadClass("mx4j.MBeanDescription");
             assertTrue("Should be able to override a class that is not in java.*, javax.*, etc.", cls.getDeclaredMethods().length == 0);
@@ -142,7 +167,7 @@ public class ClassLoaderTest extends TestSupport {
      * parent ClassLoader.  This should work.
      */
     public void testFalseNonexistantJavaxResource() {
-        cl = new MultiParentClassLoader(configId, urls, getClass().getClassLoader(), false, HIDDEN, NON_OVERRIDABLE);
+        cl = new MultiParentClassLoader(configId, urls, getClass().getClassLoader(), classLoadingRules);
         URL url = cl.getResource("javax/foo/Foo.class");
         if(url == null) {
             fail("Should be able to load a javax.* class that is not defined by my parent CL");
@@ -155,7 +180,8 @@ public class ClassLoaderTest extends TestSupport {
      * parent ClassLoader.  This should work.
      */
     public void testTrueNonexistantJavaxResource() {
-        cl = new MultiParentClassLoader(configId, urls, getClass().getClassLoader(), true, HIDDEN, NON_OVERRIDABLE);
+        classLoadingRules.setInverseClassLoading(true);
+        cl = new MultiParentClassLoader(configId, urls, getClass().getClassLoader(), classLoadingRules);
         URL url = cl.getResource("javax/foo/Foo.class");
         if(url == null) {
             fail("Should be able to load a javax.* class that is not defined by my parent CL");
@@ -169,7 +195,7 @@ public class ClassLoaderTest extends TestSupport {
      * This should always load the parent's copy.
      */
     public void testFalseExistantJavaxResource() {
-        cl = new MultiParentClassLoader(configId, urls, getClass().getClassLoader(), false, HIDDEN, NON_OVERRIDABLE);
+        cl = new MultiParentClassLoader(configId, urls, getClass().getClassLoader(), classLoadingRules);
         URL url = cl.getResource("javax/servlet/Servlet.class");
         if(url == null) {
             fail("Problem with test; expecting to have javax.servlet.* on the ClassPath");
@@ -183,7 +209,8 @@ public class ClassLoaderTest extends TestSupport {
      * This should always load the parent's copy.
      */
     public void testTrueExistantJavaxResource() {
-        cl = new MultiParentClassLoader(configId, urls, getClass().getClassLoader(), true, HIDDEN, NON_OVERRIDABLE);
+        classLoadingRules.setInverseClassLoading(true);
+        cl = new MultiParentClassLoader(configId, urls, getClass().getClassLoader(), classLoadingRules);
         URL url = cl.getResource("javax/servlet/Servlet.class");
         if(url == null) {
             fail("Problem with test; expecting to have javax.servlet.* on the ClassPath");
@@ -199,7 +226,7 @@ public class ClassLoaderTest extends TestSupport {
      * copy when the contextPriorityClassLoader is set to true.
      */
     public void xtestFalseExistantNonJavaxResource() {
-        cl = new MultiParentClassLoader(configId, urls, getClass().getClassLoader(), false, HIDDEN, NON_OVERRIDABLE);
+        cl = new MultiParentClassLoader(configId, urls, getClass().getClassLoader(), classLoadingRules);
         URL url = cl.getResource("mx4j/MBeanDescription.class");
         if(url == null) {
             fail("Problem with test; expecting to have mx4j.* on the ClassPath");
@@ -215,7 +242,9 @@ public class ClassLoaderTest extends TestSupport {
      * the contextPriorityClassLoader is set to true (as here).
      */
     public void testTrueExistantNonJavaxResource() {
-        cl = new MultiParentClassLoader(configId, urls, getClass().getClassLoader(), true, new String[] {}, NON_OVERRIDABLE);
+        classLoadingRules.setInverseClassLoading(true);
+        classLoadingRules.getHiddenRule().setClassPrefixes(Collections.EMPTY_SET);
+        cl = new MultiParentClassLoader(configId, urls, getClass().getClassLoader(), classLoadingRules);
         URL url = cl.getResource("mx4j/MBeanDescription.class");
         if(url == null) {
             fail("Problem with test; expecting to have mx4j.* on the ClassPath");
