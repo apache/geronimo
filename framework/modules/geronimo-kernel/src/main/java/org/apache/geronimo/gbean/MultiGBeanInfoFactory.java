@@ -19,8 +19,6 @@
 
 package org.apache.geronimo.gbean;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.apache.geronimo.gbean.annotation.AnnotationGBeanInfoFactory;
@@ -30,24 +28,24 @@ import org.apache.geronimo.gbean.annotation.AnnotationGBeanInfoFactory;
  *
  * @version $Rev:$ $Date:$
  */
-public class MultiGBeanInfoFactory extends AbstractGBeanInfoFactory implements GBeanInfoFactoryRegistry {
-    private final static CopyOnWriteArrayList<GBeanInfoFactory> factories = new CopyOnWriteArrayList<GBeanInfoFactory>();
+public class MultiGBeanInfoFactory implements GBeanInfoFactory, GBeanInfoFactoryRegistry {
+    private final static CopyOnWriteArrayList<GBeanInfoFactory> FACTORIES = new CopyOnWriteArrayList<GBeanInfoFactory>();
     
     static {
-        factories.add(new BasicGBeanInfoFactory());
-        factories.add(new AnnotationGBeanInfoFactory());
+        FACTORIES.add(new BasicGBeanInfoFactory());
+        FACTORIES.add(new AnnotationGBeanInfoFactory());
     }
 
     public void registerFactory(GBeanInfoFactory factory) {
-        factories.add(0, factory);
+        FACTORIES.add(0, factory);
     }
     
     public void unregisterFactory(GBeanInfoFactory factory) {
-        factories.remove(factory);
+        FACTORIES.remove(factory);
     }
     
     public GBeanInfo getGBeanInfo(Class clazz) throws GBeanInfoFactoryException {
-        for (GBeanInfoFactory factory : factories) {
+        for (GBeanInfoFactory factory : FACTORIES) {
             try {
                 return factory.getGBeanInfo(clazz);
             } catch (GBeanInfoFactoryException e) {
@@ -56,4 +54,14 @@ public class MultiGBeanInfoFactory extends AbstractGBeanInfoFactory implements G
         throw new GBeanInfoFactoryException("Cannot create a GBeanInfo for [" + clazz + "]");
     }
 
+    public GBeanInfo getGBeanInfo(String className, ClassLoader classLoader) throws GBeanInfoFactoryException {
+        for (GBeanInfoFactory factory : FACTORIES) {
+            try {
+                return factory.getGBeanInfo(className, classLoader);
+            } catch (GBeanInfoFactoryException e) {
+            }
+        }
+        throw new GBeanInfoFactoryException("Cannot create a GBeanInfo for [" + className + "]");
+    }
+    
 }

@@ -45,14 +45,6 @@ public class GBeanInfoTest extends TestSupport {
             fail("InvalidConfigurationException expected");
         } catch (InvalidConfigurationException expected) {
         }
-
-        // 3. Test GBean that exist, but doesn't declare a getGBeanInfo()
-        // method
-        try {
-            GBeanInfo.getGBeanInfo(String.class.getName(), this.getClass().getClassLoader());
-            fail("InvalidConfigurationException expected");
-        } catch (InvalidConfigurationException expected) {
-        }
     }
 
     public void testGetName() {

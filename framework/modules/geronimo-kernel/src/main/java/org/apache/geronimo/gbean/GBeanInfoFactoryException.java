@@ -26,6 +26,13 @@ package org.apache.geronimo.gbean;
  */
 public class GBeanInfoFactoryException extends RuntimeException {
 
+    public GBeanInfoFactoryException() {
+    }
+
+    public GBeanInfoFactoryException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
     public GBeanInfoFactoryException(String message) {
         super(message);
     }

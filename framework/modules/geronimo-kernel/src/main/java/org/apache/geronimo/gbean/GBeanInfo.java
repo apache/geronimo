@@ -20,7 +20,6 @@ package org.apache.geronimo.gbean;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -57,48 +56,14 @@ public final class GBeanInfo implements Serializable {
      *          if there is a problem getting the GBeanInfo from the class
      */
     public static GBeanInfo getGBeanInfo(String className, ClassLoader classLoader) throws InvalidConfigurationException {
-        Class clazz;
+        GBeanInfoFactory infoFactory = new MultiGBeanInfoFactory();
         try {
-            clazz = classLoader.loadClass(className);
-        } catch (ClassNotFoundException e) {
-            throw new InvalidConfigurationException("Could not load class " + className, e);
-        } catch (NoClassDefFoundError e) {
-            throw new InvalidConfigurationException("Could not load class " + className, e);
-        }
-        Method method;
-        try {
-            method = clazz.getDeclaredMethod("getGBeanInfo", new Class[]{});
-        } catch (NoSuchMethodException e) {
-            try {
-                // try to get the info from ${className}GBean
-                clazz = classLoader.loadClass(className + "GBean");
-                method = clazz.getDeclaredMethod("getGBeanInfo", new Class[]{});
-            } catch (Exception ignored) {
-                throw new InvalidConfigurationException("Class does not have a getGBeanInfo() method: " + className);
-            }
-        } catch (NoClassDefFoundError e) {
-            String message = e.getMessage();
-            StringBuffer buf = new StringBuffer("Could not load gbean class ").append(className).append(" due to NoClassDefFoundError\n");
-            if (message != null) {
-                message = message.replace('/', '.');
-                buf.append("    problematic class ").append(message);
-                try {
-                    Class hardToLoad = classLoader.loadClass(message);
-                    buf.append(" can be loaded in supplied classloader ").append(classLoader).append("\n");
-                    buf.append("    and is found in ").append(hardToLoad.getClassLoader());
-                } catch (ClassNotFoundException e1) {
-                    buf.append(" cannot be loaded in supplied classloader ").append(classLoader).append("\n");
-                }
-            }
-            throw new InvalidConfigurationException(buf.toString(), e);
-        }
-        try {
-            return (GBeanInfo) method.invoke(null, new Object[]{});
-        } catch (Exception e) {
-            throw new InvalidConfigurationException("Could not get GBeanInfo from class: " + className, e);
+            return infoFactory.getGBeanInfo(className, classLoader);
+        } catch (GBeanInfoFactoryException e) {
+            throw new InvalidConfigurationException("See nested", e);
         }
     }
-
+    
     private final String sourceClass;
     private final String name;
     private final String className;

@@ -19,9 +19,10 @@
 
 package org.apache.geronimo.gbean.annotation;
 
-import org.apache.geronimo.gbean.AbstractGBeanInfoFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GBeanInfoFactoryException;
+import org.apache.geronimo.gbean.InvalidConfigurationException;
 
 
 
@@ -30,7 +31,19 @@ import org.apache.geronimo.gbean.GBeanInfoFactoryException;
  *
  * @version $Rev:$ $Date:$
  */
-public class AnnotationGBeanInfoFactory extends AbstractGBeanInfoFactory {
+public class AnnotationGBeanInfoFactory implements GBeanInfoFactory {
+
+    public GBeanInfo getGBeanInfo(String className, ClassLoader classLoader) throws GBeanInfoFactoryException {
+        Class clazz;
+        try {
+            clazz = classLoader.loadClass(className);
+        } catch (ClassNotFoundException e) {
+            throw new InvalidConfigurationException("Could not load class " + className, e);
+        } catch (NoClassDefFoundError e) {
+            throw new InvalidConfigurationException("Could not load class " + className, e);
+        }
+        return getGBeanInfo(clazz);
+    }
 
     public GBeanInfo getGBeanInfo(Class clazz) throws GBeanInfoFactoryException {
         AnnotationGBeanInfoBuilder infoFactory = new AnnotationGBeanInfoBuilder(clazz);
