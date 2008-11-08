@@ -21,17 +21,17 @@ package org.apache.geronimo.testsupport;
 
 import java.io.File;
 
-import junit.framework.TestCase;
-
 import org.slf4j.Logger;
+
+import com.agical.rmock.extension.junit.RMockTestCase;
 
 /**
  * Provides support for tests.
  *
- * @version $Rev$ $Date$
+ * @version $Rev: 653782 $ $Date: 2008-05-07 00:10:14 +1000 (Wed, 07 May 2008) $
  */
-public abstract class TestSupport
-    extends TestCase
+public abstract class RMockTestSupport
+    extends RMockTestCase
 {
 
     private final TestUtil testUtil;
@@ -56,7 +56,7 @@ public abstract class TestSupport
      *
      * @see #TestSupport()  This is the prefered constructor for sub-classes to use.
      */
-    protected TestSupport(final String name) {
+    protected RMockTestSupport(final String name) {
         super(name);
         
         testUtil = new TestUtil(getClass());
@@ -70,7 +70,7 @@ public abstract class TestSupport
     /**
      * Default constructor.
      */
-    protected TestSupport() {
+    protected RMockTestSupport() {
         super();
 
         testUtil = new TestUtil(getClass());
@@ -79,10 +79,6 @@ public abstract class TestSupport
         log = testUtil.getLog();
 
         log.info("Initialized");
-    }
-    
-    protected File getBaseDir() {
-        return BASEDIR;
     }
     
     /**

@@ -7,6 +7,11 @@
         <type>car</type>
     </module-id>
     <dependency>
+        <groupId>asm</groupId>
+        <artifactId>asm</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
         <groupId>javax.xml.bind</groupId>
         <artifactId>jaxb-api</artifactId>
         <type>jar</type>
@@ -27,11 +32,6 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>com.sun.xml.bind</groupId>
-        <artifactId>jaxb-impl</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
         <groupId>org.apache.geronimo.specs</groupId>
         <artifactId>geronimo-activation_1.1_spec</artifactId>
         <type>jar</type>
@@ -42,53 +42,13 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>com.envoisolutions.sxc</groupId>
-        <artifactId>sxc-runtime</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>geronimo-crypto</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.codehaus.woodstox</groupId>
-        <artifactId>wstx-asl</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
         <groupId>org.apache.geronimo.specs</groupId>
         <artifactId>geronimo-stax-api_1.0_spec</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>geronimo-system</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>geronimo-transformer</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
         <groupId>asm</groupId>
-        <artifactId>asm</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-log4j12</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>jcl-over-slf4j</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>jul-to-slf4j</artifactId>
+        <artifactId>asm-commons</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -97,19 +57,33 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>asm</groupId>
-        <artifactId>asm-commons</artifactId>
-        <type>jar</type>
-    </dependency>
-    <!-- in classpath: now also accessible from repo -->
-    <dependency>
-        <groupId>org.apache.xbean</groupId>
-        <artifactId>xbean-reflect</artifactId>
+        <groupId>com.thoughtworks.xstream</groupId>
+        <artifactId>xstream</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>xpp3</groupId>
-        <artifactId>xpp3_min</artifactId>
+        <groupId>org.apache.geronimo.framework</groupId>
+        <artifactId>geronimo-config-groovy-transformer</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>log4j</groupId>
+        <artifactId>log4j</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-api</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>jcl-over-slf4j</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>com.sun.xml.bind</groupId>
+        <artifactId>jaxb-impl</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -123,24 +97,58 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>geronimo-cli</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>com.thoughtworks.xstream</groupId>
-        <artifactId>xstream</artifactId>
+        <groupId>org.codehaus.woodstox</groupId>
+        <artifactId>wstx-asl</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
         <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-api</artifactId>
+        <artifactId>slf4j-log4j12</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>log4j</groupId>
-        <artifactId>log4j</artifactId>
+        <groupId>xpp3</groupId>
+        <artifactId>xpp3_min</artifactId>
         <type>jar</type>
     </dependency>
-             
+    <dependency>
+        <groupId>org.apache.geronimo.framework</groupId>
+        <artifactId>geronimo-crypto</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>com.envoisolutions.sxc</groupId>
+        <artifactId>sxc-runtime</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.codehaus.groovy</groupId>
+        <artifactId>groovy-all-minimal</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.framework</groupId>
+        <artifactId>geronimo-system</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.xbean</groupId>
+        <artifactId>xbean-reflect</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.framework</groupId>
+        <artifactId>geronimo-transformer</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>jul-to-slf4j</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.framework</groupId>
+        <artifactId>geronimo-cli</artifactId>
+        <type>jar</type>
+    </dependency>
 </plugin-artifact>

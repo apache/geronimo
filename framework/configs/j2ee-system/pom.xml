@@ -43,6 +43,12 @@
 
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>geronimo-config-groovy-transformer</artifactId>
+            <version>${version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-system</artifactId>
             <version>${version}</version>
         </dependency>
@@ -94,6 +100,11 @@
         <dependency>
             <groupId>com.sun.xml.bind</groupId>
             <artifactId>jaxb-impl</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy-all-minimal</artifactId>
         </dependency>
         
         <dependency>
@@ -181,6 +192,15 @@
                             <groupId>org.apache.geronimo.framework</groupId>
                             <artifactId>geronimo-kernel</artifactId>
                             <version>${version}</version>
+                        </element>
+                        <element>
+                            <groupId>org.apache.geronimo.framework</groupId>
+                            <artifactId>geronimo-config-groovy-transformer</artifactId>
+                            <version>${version}</version>
+                        </element>
+                        <element>
+                            <groupId>org.codehaus.groovy</groupId>
+                            <artifactId>groovy-all-minimal</artifactId>
                         </element>
                         <!--
                         NOTE: geronimo-transformer needs to be on the system classpath to avoid a potential deadlock. See GERONIMO-3141.

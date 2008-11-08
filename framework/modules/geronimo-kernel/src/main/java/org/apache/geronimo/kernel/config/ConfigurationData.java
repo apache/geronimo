@@ -98,6 +98,11 @@ public class ConfigurationData implements Serializable {
      * The configuration store from which this configuration was loaded, or null if it was not loaded from a configuration store.
      */
     private transient ConfigurationStore configurationStore;
+    
+    /**
+     * A transformer to transform the GBeans of this configuration. 
+     */
+    private ConfigurationDataTransformer configurationDataTransformer;
 
     public ConfigurationData(Artifact configId, Naming naming, GBeanState gbeanState) {
         this(new Environment(configId), naming, gbeanState);
@@ -169,7 +174,11 @@ public class ConfigurationData implements Serializable {
 
     public List getGBeans(ClassLoader classLoader) throws InvalidConfigException {
         if (classLoader == null) throw new NullPointerException("classLoader is null");
-        return gbeanState.getGBeans(classLoader);
+        List<GBeanData> gbeans = gbeanState.getGBeans(classLoader);
+        if (null == configurationDataTransformer) {
+            return gbeans;
+        }
+        return configurationDataTransformer.transformGBeans(classLoader, this, gbeans);
     }
 
     public void addGBean(GBeanData gbeanData) {
@@ -258,4 +267,13 @@ public class ConfigurationData implements Serializable {
         if (configurationStore == null) throw new NullPointerException("configurationStore is null");
         this.configurationStore = configurationStore;
     }
+    
+    public ConfigurationDataTransformer getConfigurationDataTransformer() {
+        return configurationDataTransformer;
+    }
+
+    public void setConfigurationDataTransformer(ConfigurationDataTransformer configurationDataTransformer) {
+        this.configurationDataTransformer = configurationDataTransformer;
+    }
+
 }

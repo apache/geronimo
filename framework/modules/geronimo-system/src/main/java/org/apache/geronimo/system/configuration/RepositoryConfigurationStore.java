@@ -26,26 +26,31 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.SortedSet;
 import java.util.Set;
+import java.util.SortedSet;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+
 import javax.management.ObjectName;
 
 import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.ParamReference;
+import org.apache.geronimo.gbean.annotation.ParamSpecial;
+import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.ObjectNameUtil;
 import org.apache.geronimo.kernel.config.ConfigurationAlreadyExistsException;
 import org.apache.geronimo.kernel.config.ConfigurationData;
+import org.apache.geronimo.kernel.config.ConfigurationDataTransformer;
 import org.apache.geronimo.kernel.config.ConfigurationInfo;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
-import org.apache.geronimo.kernel.config.InvalidConfigException;
-import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.config.IOUtil;
+import org.apache.geronimo.kernel.config.InvalidConfigException;
+import org.apache.geronimo.kernel.config.NoOConfigurationDataTransformer;
+import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.WritableListableRepository;
 import org.slf4j.Logger;
@@ -57,6 +62,7 @@ import org.slf4j.LoggerFactory;
  *
  * @version $Rev$ $Date$
  */
+@GBean(j2eeType= "ConfigurationStore")
 public class RepositoryConfigurationStore implements ConfigurationStore {
     private static final Logger log = LoggerFactory.getLogger(RepositoryConfigurationStore.class);
     private final Kernel kernel;
@@ -64,16 +70,33 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
     private final AbstractName abstractName;
     protected final WritableListableRepository repository;
     private final InPlaceConfigurationUtil inPlaceConfUtil;
+    private final ConfigurationDataTransformer transformer;
 
     public RepositoryConfigurationStore(WritableListableRepository repository) {
-        this(null, null, null, repository);
+        this(null, null, null, repository, NoOConfigurationDataTransformer.SINGLETON);
     }
 
-    public RepositoryConfigurationStore(Kernel kernel, String objectName, AbstractName abstractName, WritableListableRepository repository) {
+    public RepositoryConfigurationStore(Kernel kernel,
+            String objectName,
+            AbstractName abstractName,
+            WritableListableRepository repository) {
+        this(kernel, objectName, abstractName, repository, NoOConfigurationDataTransformer.SINGLETON);
+    }
+    
+    public RepositoryConfigurationStore(@ParamSpecial(type=SpecialAttributeType.kernel) Kernel kernel,
+            @ParamSpecial(type=SpecialAttributeType.objectName) String objectName,
+            @ParamSpecial(type=SpecialAttributeType.abstractName) AbstractName abstractName,
+            @ParamReference(name=GBEAN_REF_REPOSITORY, namingType=GBEAN_REF_REPOSITORY) WritableListableRepository repository,
+            @ParamReference(name=GBEAN_REF_CONFIG_DATA_TRANSFORMER) ConfigurationDataTransformer transformer) {
         this.kernel = kernel;
         this.objectName = objectName == null ? null : ObjectNameUtil.getObjectName(objectName);
         this.abstractName = abstractName;
         this.repository = repository;
+        if (null == transformer) {
+            this.transformer = NoOConfigurationDataTransformer.SINGLETON;
+        } else {
+            this.transformer = transformer;
+        }
 
         inPlaceConfUtil = new InPlaceConfigurationUtil();
     }
@@ -138,6 +161,8 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
             configurationData.setNaming(kernel.getNaming());
         }
 
+        transformer.transformDependencies(configurationData);
+        
         return configurationData;
     }
 
@@ -394,6 +419,8 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
                 throw ioException;
             }
         }
+        
+        transformer.remove(configId);
     }
 
     public List<ConfigurationInfo> listConfigurations() {
@@ -529,19 +556,7 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
 //        }
 //    }
 //
-    public static final GBeanInfo GBEAN_INFO;
 
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
-
-    static {
-        GBeanInfoBuilder builder = GBeanInfoBuilder.createStatic(RepositoryConfigurationStore.class, "ConfigurationStore");
-        builder.addAttribute("kernel", Kernel.class, false);
-        builder.addAttribute("objectName", String.class, false);
-        builder.addAttribute("abstractName", AbstractName.class, false);
-        builder.addReference("Repository", WritableListableRepository.class, "Repository");
-        builder.setConstructor(new String[]{"kernel", "objectName", "abstractName", "Repository"});
-        GBEAN_INFO = builder.getBeanInfo();
-    }
+    public static final String GBEAN_REF_REPOSITORY = "Repository";
+    public static final String GBEAN_REF_CONFIG_DATA_TRANSFORMER = "ConfigurationDataTransformer";
 }

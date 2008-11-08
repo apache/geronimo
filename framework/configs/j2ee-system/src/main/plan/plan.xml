@@ -46,10 +46,15 @@ specific services - those should be provided by children.
         <attribute name="serverStarted">false</attribute>
     </gbean>
 
+    <gbean name="ConfigurationDataTransformer" class="org.apache.geronimo.kernel.config.transformer.GroovyTransformer" />
+
     <!--Configuration Store service-->
     <gbean name="Local" class="org.apache.geronimo.system.configuration.RepositoryConfigurationStore">
         <reference name="Repository">
             <name>Repository</name>
+        </reference>
+        <reference name="ConfigurationDataTransformer">
+            <name>ConfigurationDataTransformer</name>
         </reference>
     </gbean>
 
