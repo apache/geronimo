@@ -20,17 +20,21 @@
 
 package org.apache.geronimo.mavenplugins.car;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.StringWriter;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import javax.xml.stream.XMLStreamException;
 import javax.xml.bind.JAXBException;
+import javax.xml.stream.XMLStreamException;
 
 import org.apache.geronimo.system.plugin.PluginXmlUtil;
 import org.apache.geronimo.system.plugin.model.DependencyType;
@@ -96,27 +100,7 @@ public class DependencyChangeMojo extends AbstractCarMojo {
                         }
                     }
                     if (!dependencies.isEmpty() || !removed.getDependency().isEmpty()) {
-                        File addedFile = new File(dependencyFile.getParentFile(), "dependencies.added.xml");
-                        PluginArtifactType added = toPluginArtifactType(dependencies);
-                        writeDependencies(added,  addedFile);
-                        File removedFile = new File(dependencyFile.getParentFile(), "dependencies.removed.xml");
-                        writeDependencies(removed,  removedFile);
-                            StringWriter out = new StringWriter();
-                            out.write("Dependencies have changed:\n");
-                            if (!added.getDependency().isEmpty()) {
-                                out.write("added:\n");
-                                PluginXmlUtil.writePluginArtifact(added, out);
-                            }
-                            if (!removed.getDependency().isEmpty()) {
-                                out.write("removed:\n");
-                                PluginXmlUtil.writePluginArtifact(removed, out);
-                            }
-                            out.write(treeListing);
-                            if (warnOnDependencyChange) {
-                                getLog().warn(out.toString());
-                            } else {
-                                throw new MojoFailureException(out.toString());
-                            }
+                        saveDependencyChanges(dependencies, removed);
                     }
                 } finally {
                     in.close();
@@ -129,6 +113,48 @@ public class DependencyChangeMojo extends AbstractCarMojo {
         } catch (Exception e) {
             throw new MojoExecutionException("Could not read or write dependency history info", e);
         }
+    }
+
+    protected void saveDependencyChanges(Collection<Dependency> dependencies, PluginArtifactType removed)
+            throws Exception {
+        File addedFile = new File(dependencyFile.getParentFile(), "dependencies.added.xml");
+        PluginArtifactType added = toPluginArtifactType(dependencies);
+        writeDependencies(added,  addedFile);
+
+        File removedFile = new File(dependencyFile.getParentFile(), "dependencies.removed.xml");
+        writeDependencies(removed,  removedFile);
+        
+        File treeListing = saveTreeListing();
+        
+        StringWriter out = new StringWriter();
+        out.write("Dependencies have changed:\n");
+        if (!added.getDependency().isEmpty()) {
+            out.write("\tAdded dependencies are saved here: " + addedFile.getAbsolutePath() + "\n");
+        }
+        if (!removed.getDependency().isEmpty()) {
+            out.write("\tRemoved dependencies are saved here: " + removedFile.getAbsolutePath() + "\n");
+        }
+        out.write("\tTree listing is saved here: " + treeListing.getAbsolutePath() + "\n");
+        out.write("Delete " + dependencyFile.getAbsolutePath()
+                + " if you are happy with the dependency changes.");
+
+        if (warnOnDependencyChange) {
+            getLog().warn(out.toString());
+        } else {
+            throw new MojoFailureException(out.toString());
+        }
+    }
+
+    protected File saveTreeListing() throws IOException {
+        File treeListFile = new File(dependencyFile.getParentFile(), "treeListing.xml");
+        OutputStream os = new FileOutputStream(treeListFile);
+        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os));
+        try {
+            writer.write(treeListing);
+        } finally {
+            writer.close();
+        }
+        return treeListFile;
     }
 
     private PluginArtifactType toPluginArtifactType(Collection<Dependency> dependencies) throws IOException, XMLStreamException, JAXBException {
