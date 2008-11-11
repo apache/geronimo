@@ -32,6 +32,16 @@
         <type>car</type>
     </dependency>
     <dependency>
+        <groupId>quartz</groupId>
+        <artifactId>quartz</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.modules</groupId>
+        <artifactId>geronimo-j2ee</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
         <groupId>org.apache.openejb</groupId>
         <artifactId>openejb-loader</artifactId>
         <type>jar</type>
@@ -67,11 +77,6 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.xbean</groupId>
-        <artifactId>xbean-naming</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
         <groupId>org.apache.openjpa</groupId>
         <artifactId>openjpa</artifactId>
         <type>jar</type>
@@ -79,11 +84,6 @@
     <dependency>
         <groupId>commons-lang</groupId>
         <artifactId>commons-lang</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>geronimo-j2ee</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -129,6 +129,11 @@
     <dependency>
         <groupId>commons-collections</groupId>
         <artifactId>commons-collections</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.xbean</groupId>
+        <artifactId>xbean-naming</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
