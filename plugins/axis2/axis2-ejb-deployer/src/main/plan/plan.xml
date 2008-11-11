@@ -32,9 +32,14 @@
                 </dependencies>
             </environment>
         </xml-attribute>
-        <reference name="WsdlGenerator">
-            <name>SunWsdlGenerator</name>
-        </reference>
+        <references name="WsdlGenerator">
+            <pattern>
+                <name>SunWsdlGenerator</name>
+            </pattern>
+            <pattern>
+                <name>CXFWsdlGenerator</name>
+            </pattern>
+        </references>
     </gbean>
 
    <gbean name="Axis2ModuleBuilderExtension" class="org.apache.geronimo.jaxws.builder.JAXWSEJBModuleBuilderExtension">

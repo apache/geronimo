@@ -20,6 +20,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -66,15 +67,15 @@ public class CXFBuilder extends JAXWSServiceBuilder {
     private static final String USE_WSGEN_PROPERTY = 
         "org.apache.geronimo.cxf.use.wsgen";
 
-    protected WsdlGenerator wsdlGenerator;
+    protected Collection<WsdlGenerator> wsdlGenerators;
     
     public CXFBuilder() {
         super(null);
     }
 
-    public CXFBuilder(Environment defaultEnvironment, WsdlGenerator wsdlGenerator) {
+    public CXFBuilder(Environment defaultEnvironment, Collection<WsdlGenerator> wsdlGenerators) {
         super(defaultEnvironment);
-        this.wsdlGenerator = wsdlGenerator;
+        this.wsdlGenerators = wsdlGenerators;
         this.webServiceFinder = new WARWebServiceFinder();
     }
 
@@ -200,6 +201,14 @@ public class CXFBuilder extends JAXWSServiceBuilder {
         }
     }
     
+    protected WsdlGenerator getWsdlGenerator() throws DeploymentException {
+        if (this.wsdlGenerators == null || this.wsdlGenerators.isEmpty()) {
+            throw new DeploymentException("Wsdl generator not found");
+        } else {
+            return this.wsdlGenerators.iterator().next();
+        }
+    }
+    
     private void generateWSDL(Class serviceClass, PortInfo portInfo, Module module) 
         throws DeploymentException {
         if (isWsdlSet(portInfo, serviceClass)) {
@@ -207,6 +216,8 @@ public class CXFBuilder extends JAXWSServiceBuilder {
             return;
         }        
         LOG.debug("Service " + portInfo.getServiceName() + " does not have WSDL. Generating WSDL...");
+        
+        WsdlGenerator wsdlGenerator = getWsdlGenerator();
         
         WsdlGeneratorOptions options = new WsdlGeneratorOptions();
         options.setSAAJ(WsdlGeneratorOptions.SAAJ.SUN);
@@ -225,7 +236,7 @@ public class CXFBuilder extends JAXWSServiceBuilder {
             options.setWsdlPort(portInfo.getWsdlPort());
         }
                         
-        String wsdlFile = this.wsdlGenerator.generateWsdl(module, serviceClass.getName(), module.getEarContext(), options);
+        String wsdlFile = wsdlGenerator.generateWsdl(module, serviceClass.getName(), module.getEarContext(), options);
         portInfo.setWsdlFile(wsdlFile);
         
         LOG.debug("Generated " + wsdlFile + " for service " + portInfo.getServiceName()); 

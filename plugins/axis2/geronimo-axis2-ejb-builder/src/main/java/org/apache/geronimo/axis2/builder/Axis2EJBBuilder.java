@@ -17,6 +17,8 @@
 
 package org.apache.geronimo.axis2.builder;
 
+import java.util.Collection;
+
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
@@ -31,8 +33,8 @@ import org.apache.geronimo.kernel.repository.Environment;
 public class Axis2EJBBuilder extends Axis2Builder {
         
     public Axis2EJBBuilder(Environment defaultEnviroment,
-                           WsdlGenerator wsdlGenerator) {
-        super(defaultEnviroment, wsdlGenerator);
+                           Collection<WsdlGenerator> wsdlGenerators) {
+        super(defaultEnviroment, wsdlGenerators);
         this.webServiceFinder = new EJBWebServiceFinder();
     }
     

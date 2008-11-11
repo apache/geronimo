@@ -16,6 +16,8 @@
  */
 package org.apache.geronimo.cxf.builder;
 
+import java.util.Collection;
+
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
@@ -30,8 +32,8 @@ public class CXFEJBBuilder extends CXFBuilder {
         super();
     }
 
-    public CXFEJBBuilder(Environment defaultEnvironment, WsdlGenerator wsdlGenerator) {
-        super(defaultEnvironment, wsdlGenerator);
+    public CXFEJBBuilder(Environment defaultEnvironment, Collection<WsdlGenerator> wsdlGenerators) {
+        super(defaultEnvironment, wsdlGenerators);
         this.webServiceFinder = new EJBWebServiceFinder();
     }
   
