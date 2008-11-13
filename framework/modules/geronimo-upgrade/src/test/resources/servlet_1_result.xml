@@ -32,7 +32,6 @@
     </dep:dependencies>
     <dep:hidden-classes/>
     <dep:non-overridable-classes/>
-    <dep:private-classes/>
   </dep:environment>
   <module>
     <web>servlet_deploy_ejblink_single_web.war</web>
@@ -47,7 +46,6 @@
         <dep:dependencies/>
         <dep:hidden-classes/>
         <dep:non-overridable-classes/>
-        <dep:private-classes/>
       </dep:environment>
       <ejb-ref>
         <ref-name>ejb/StatelessBean_ExternalJAR</ref-name>
@@ -68,7 +66,6 @@
         <dep:dependencies/>
         <dep:hidden-classes/>
         <dep:non-overridable-classes/>
-        <dep:private-classes/>
       </dep:environment>
       <!--YOU MUST INSERT THE ELEMENT <inverse-classloading/> INTO THE ENVIRONMENT ELEMENT FOR THIS MODULE-->
       <ejb-ref>
@@ -90,7 +87,6 @@
           <dep:dependencies/>
           <dep:hidden-classes/>
           <dep:non-overridable-classes/>
-          <dep:private-classes/>
         </dep:environment>
       </web-app>
     </module>
@@ -107,7 +103,6 @@
           <dep:dependencies/>
           <dep:hidden-classes/>
           <dep:non-overridable-classes/>
-          <dep:private-classes/>
         </dep:environment>
         <!--YOU MUST INSERT THE ELEMENT <inverse-classloading/> INTO THE ENVIRONMENT ELEMENT FOR THIS MODULE-->
       </web-app>

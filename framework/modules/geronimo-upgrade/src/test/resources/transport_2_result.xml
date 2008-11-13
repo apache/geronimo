@@ -34,7 +34,6 @@
     </dep:dependencies>
     <dep:hidden-classes/>
     <dep:non-overridable-classes/>
-    <dep:private-classes/>
   </dep:environment>
 </application>
         

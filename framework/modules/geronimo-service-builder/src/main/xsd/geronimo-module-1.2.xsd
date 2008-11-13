@@ -204,21 +204,6 @@
                     </xs:documentation>
                 </xs:annotation>
             </xs:element>
-            <xs:element name="private-classes"
-                type="sys:classFilterType" minOccurs="0">
-                <xs:annotation>
-                    <xs:documentation>
-                        A list of classes which will only be loaded from the
-                        ClassLoader of this module or from parent ClassLoaders.
-                        
-                        This is used to prevent children configurations to see
-                        specific classes from its parents. The same effect can
-                        be achieved by using hidden-classes. However,
-                        private-classes is the preferred approach to hide 
-                        specific classes from all children configurations. 
-                    </xs:documentation>
-                </xs:annotation>
-            </xs:element>
             <xs:element name="inverse-classloading" type="sys:emptyType"
                 minOccurs="0">
                 <xs:annotation>

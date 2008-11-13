@@ -44,7 +44,6 @@
     </dep:dependencies>
     <dep:hidden-classes/>
     <dep:non-overridable-classes/>
-    <dep:private-classes/>
   </dep:environment>
   <module>
     <java>appclient_dep_resref_single_client.jar</java>
@@ -90,7 +89,6 @@
         </dep:dependencies>
         <dep:hidden-classes/>
         <dep:non-overridable-classes/>
-        <dep:private-classes/>
       </dep:client-environment>
       <dep:server-environment xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.2">
         <dep:moduleId>
@@ -102,7 +100,6 @@
         <dep:dependencies/>
         <dep:hidden-classes/>
         <dep:non-overridable-classes/>
-        <dep:private-classes/>
       </dep:server-environment>
       <resource-ref xmlns="http://geronimo.apache.org/xml/ns/naming-1.2">
         <ref-name>url/URL</ref-name>
@@ -129,7 +126,6 @@
             <dep:dependencies/>
             <dep:hidden-classes/>
             <dep:non-overridable-classes/>
-            <dep:private-classes/>
             <dep:suppress-default-environment/>
           </dep:environment>
           <resourceadapter>

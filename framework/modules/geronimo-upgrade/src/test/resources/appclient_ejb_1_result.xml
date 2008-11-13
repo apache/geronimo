@@ -32,7 +32,6 @@
     </dep:dependencies>
     <dep:hidden-classes/>
     <dep:non-overridable-classes/>
-    <dep:private-classes/>
   </dep:environment>
   <module>
     <ejb>appclient_ejb_1_ejb.jar</ejb>
@@ -47,7 +46,6 @@
         <dep:dependencies/>
         <dep:hidden-classes/>
         <dep:non-overridable-classes/>
-        <dep:private-classes/>
       </dep:environment>
       <cmp-connection-factory>
         <resource-link>jdbc/DB1</resource-link>
@@ -92,7 +90,6 @@
         </dep:dependencies>
         <dep:hidden-classes/>
         <dep:non-overridable-classes/>
-        <dep:private-classes/>
       </dep:client-environment>
       <dep:server-environment xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.2">
         <dep:moduleId>
@@ -104,7 +101,6 @@
         <dep:dependencies/>
         <dep:hidden-classes/>
         <dep:non-overridable-classes/>
-        <dep:private-classes/>
       </dep:server-environment>
     </application-client>
   </module>
