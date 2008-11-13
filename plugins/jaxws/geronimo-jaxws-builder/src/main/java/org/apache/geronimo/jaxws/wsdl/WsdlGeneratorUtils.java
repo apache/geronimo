@@ -24,7 +24,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
@@ -33,6 +35,7 @@ import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationResolver;
+import org.apache.geronimo.kernel.config.MultiParentClassLoader;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,34 +44,84 @@ public class WsdlGeneratorUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(WsdlGeneratorUtils.class);
     
-    public static void getModuleClasspath(Module module, DeploymentContext context, StringBuilder classpath) throws Exception {        
-        getModuleClasspath(classpath, module.getEarContext());       
+    public static void getModuleClasspath(Module module, DeploymentContext context, StringBuilder classpath) throws Exception {
+        LinkedHashSet<URL> jars = new LinkedHashSet<URL>();
+        getModuleClasspath(module, context, jars);
+        buildClasspath(jars, classpath);
+    }
+    
+    public static void getModuleClasspath(Module module, DeploymentContext context, LinkedHashSet<URL> classpath) throws Exception {        
+        getModuleClasspath(module.getEarContext(), classpath);       
         if (module.getRootEarContext() != module.getEarContext()) {
-            getModuleClasspath(classpath, module.getRootEarContext());
+            getModuleClasspath(module.getRootEarContext(), classpath);
         }         
     }
 
-    public static void getModuleClasspath(StringBuilder classpath, DeploymentContext deploymentContext) throws Exception {
+    public static void getModuleClasspath(DeploymentContext deploymentContext, LinkedHashSet<URL> classpath) throws Exception {
         Configuration configuration = deploymentContext.getConfiguration();
         getModuleClasspath(configuration, classpath);
     }
     
-    public static void getModuleClasspath(Configuration configuration, StringBuilder classpath) throws Exception {
+    public static void getModuleClasspath(Configuration configuration, LinkedHashSet<URL> classpath) throws Exception {
         ConfigurationResolver resolver = configuration.getConfigurationResolver();
         List<String> moduleClassPath = configuration.getClassPath();
         for (String pattern : moduleClassPath) {
             try {
                 Set<URL> files = resolver.resolve(pattern);
-                for (URL url: files) {
-                    String path = toFileName(url);
-                    classpath.append(path).append(File.pathSeparator);
-                }
+                classpath.addAll(files);
             } catch (MalformedURLException e) {
                 throw new Exception("Could not resolve pattern: " + pattern, e);
             } catch (NoSuchConfigException e) {
                 throw new Exception("Could not resolve pattern: " + pattern, e);
             }
         }
+    }
+    
+    public static Set<URL> getClassLoaderClasspath(ClassLoader loader) {
+        LinkedHashSet<URL> jars = new LinkedHashSet<URL>();
+        getClassLoaderClasspath(loader, jars);
+        return jars;        
+    }
+    
+    public static void getClassLoaderClasspath(ClassLoader loader, LinkedHashSet<URL> classpath) {
+        if (loader == null || loader == ClassLoader.getSystemClassLoader()) {
+            return;
+        } else if (loader instanceof MultiParentClassLoader) {
+            MultiParentClassLoader cl = (MultiParentClassLoader)loader;
+            for (ClassLoader parent : cl.getParents()) {   
+                getClassLoaderClasspath(parent, classpath);
+            }
+            for (URL u : cl.getURLs()) {
+                classpath.add(u);
+            }
+        } else if (loader instanceof URLClassLoader) {
+            URLClassLoader cl = (URLClassLoader)loader;
+            getClassLoaderClasspath(cl.getParent(), classpath);
+            for (URL u : cl.getURLs()) {
+                classpath.add(u);
+            }
+        }
+    }
+    
+    public static String buildClasspath(Set<URL> files) {
+        StringBuilder classpath = new StringBuilder();
+        buildClasspath(files, classpath);
+        return classpath.toString();
+    }
+    
+    public static void buildClasspath(Set<URL> files, StringBuilder classpath) {
+        for (URL url: files) {
+            if ("file".equals(url.getProtocol())) {
+                String path = toFileName(url);
+                classpath.append(path);
+                classpath.append(File.pathSeparator);
+            }
+        }
+    }
+    
+    public static String getClasspath(ClassLoader loader) {
+        Set<URL> jars = getClassLoaderClasspath(loader);
+        return buildClasspath(jars);
     }
     
     public static File toFile(URL url) {
