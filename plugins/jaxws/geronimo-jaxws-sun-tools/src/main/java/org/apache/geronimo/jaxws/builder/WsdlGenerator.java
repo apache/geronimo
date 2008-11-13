@@ -19,33 +19,25 @@ package org.apache.geronimo.jaxws.builder;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileFilter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.URL;
-import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.Random;
-import java.util.Set;
 
 import javax.xml.namespace.QName;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentConfigurationManager;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.jaxws.PortInfo;
 import org.apache.geronimo.jaxws.wsdl.WsdlGeneratorOptions;
-import org.apache.geronimo.kernel.config.Configuration;
-import org.apache.geronimo.kernel.config.ConfigurationResolver;
-import org.apache.geronimo.kernel.config.NoSuchConfigException;
+import org.apache.geronimo.jaxws.wsdl.WsdlGeneratorUtils;
 import org.apache.geronimo.kernel.repository.Repository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class WsdlGenerator {
 
@@ -73,54 +65,6 @@ public class WsdlGenerator {
         return JAXWSTools.toURL(jars);
     }
     
-    private static void getModuleClasspath(Module module, DeploymentContext context, StringBuilder classpath) throws DeploymentException {        
-        getModuleClasspath(classpath, module.getEarContext());       
-        if (module.getRootEarContext() != module.getEarContext()) {
-            getModuleClasspath(classpath, module.getRootEarContext());
-        }         
-    }
-
-    private static void getModuleClasspath(StringBuilder classpath, DeploymentContext deploymentContext) throws DeploymentException {
-        Configuration configuration = deploymentContext.getConfiguration();
-        ConfigurationResolver resolver = configuration.getConfigurationResolver();
-        List<String> moduleClassPath = configuration.getClassPath();
-        for (String pattern : moduleClassPath) {
-            try {
-                Set<URL> files = resolver.resolve(pattern);
-                for (URL url: files) {
-                    String path = toFileName(url);
-                    classpath.append(path).append(File.pathSeparator);
-                }
-            } catch (MalformedURLException e) {
-                throw new DeploymentException("Could not resolve pattern: " + pattern, e);
-            } catch (NoSuchConfigException e) {
-                throw new DeploymentException("Could not resolve pattern: " + pattern, e);
-            }
-        }
-    }
-
-    private static File toFile(URL url) {
-        if (url == null || !url.getProtocol().equals("file")) {
-            return null;
-        } else {
-            String filename = toFileName(url);
-            return new File(filename);
-        }
-    }
-
-    private static String toFileName(URL url) {
-        String filename = url.getFile().replace('/', File.separatorChar);
-        int pos =0;
-        while ((pos = filename.indexOf('%', pos)) >= 0) {
-            if (pos + 2 < filename.length()) {
-                String hexStr = filename.substring(pos + 1, pos + 3);
-                char ch = (char) Integer.parseInt(hexStr, 16);
-                filename = filename.substring(0, pos) + ch + filename.substring(pos + 3);
-            }
-        }
-        return filename;
-    }
-
     private String[] buildArguments(String sei, String classPath, File moduleBaseDir, PortInfo portInfo) {
         List<String> arguments = new ArrayList<String>();
         
@@ -147,72 +91,13 @@ public class WsdlGenerator {
         
         return arguments.toArray(new String[]{});
     }
-    
-    private File getFirstWsdlFile(File baseDir) throws IOException {
-        LOG.debug("Looking for service wsdl file in " + baseDir.getAbsolutePath());
-        File[] files = baseDir.listFiles(new FileFilter() {
-            public boolean accept(File file) {
-                return (file.isFile() && file.getName().endsWith(".wsdl"));
-            }
-        });
-
-        if (files.length == 1) {
-            return files[0];
-        } else {
-            return null;
-        }
-    }
-    
-    private File findWsdlFile(File baseDir, PortInfo portInfo) throws IOException {
-        QName serviceName = this.options.getWsdlService();
-
-        if (serviceName != null) {
-            // check if serviceName.wsdl locates at the baseDir, if so, return its path.
-            String wsdlFileName = serviceName.getLocalPart() + ".wsdl";
-            if (Character.isLowerCase(wsdlFileName.charAt(0))) {
-                wsdlFileName = Character.toUpperCase(wsdlFileName.charAt(0)) + wsdlFileName.substring(1);
-            }
-            File wsdlFile = new File(baseDir, wsdlFileName);
-            if (wsdlFile.exists()) {
-                return wsdlFile;
-            } else {
-                return getFirstWsdlFile(baseDir);
-            }
-        } else {
-            return getFirstWsdlFile(baseDir);
-        }
-    }
-    
-    private static String getRelativeNameOrURL(File baseDir, File file) {
-        String basePath = baseDir.getAbsolutePath();
-        String path = file.getAbsolutePath();
         
-        if (path.startsWith(basePath)) {
-            if (File.separatorChar == path.charAt(basePath.length())) {
-                return path.substring(basePath.length() + 1);
-            } else {
-                return path.substring(basePath.length());
-            }
-        } else {
-            return file.toURI().toString();
-        }
+    private File findWsdlFile(File baseDir, PortInfo portInfo) {
+        QName serviceQName = this.options.getWsdlService();
+        String serviceName = (serviceQName == null) ? null : serviceQName.getLocalPart();
+        return WsdlGeneratorUtils.findWsdlFile(baseDir, serviceName);
     }
-    
-    private static File createTempDirectory(File baseDir) throws IOException {
-        Random rand = new Random();       
-        while(true) {
-            String dirName = String.valueOf(Math.abs(rand.nextInt()));        
-            File dir = new File(baseDir, dirName);
-            if (!dir.exists()) {
-                if (!dir.mkdir()) {
-                    throw new IOException("Failed to create temporary directory: " + dir);
-                } else {
-                    return dir;
-                }
-            }
-        }               
-    }
-    
+           
     public String generateWsdl(Module module, 
                                String serviceClass, 
                                DeploymentContext context, 
@@ -227,7 +112,7 @@ public class WsdlGenerator {
         File baseDir;
         
         try {
-            baseDir = createTempDirectory(moduleBaseDir);
+            baseDir = WsdlGeneratorUtils.createTempDirectory(moduleBaseDir);
         } catch (IOException e) {
             throw new DeploymentException(e);
         }
@@ -243,10 +128,14 @@ public class WsdlGenerator {
         //let's figure out the classpath string for the module and wsgen tools.
         if (urls != null && urls.length > 0) {
             for (URL url : urls) {
-                classPath.append(toFile(url).getAbsolutePath()).append(File.pathSeparator);
+                classPath.append(WsdlGeneratorUtils.toFile(url).getAbsolutePath()).append(File.pathSeparator);
             }
         }
-        getModuleClasspath(module, context, classPath);
+        try {
+            WsdlGeneratorUtils.getModuleClasspath(module, context, classPath);
+        } catch (Exception e) {
+            throw new DeploymentException("WSDL generation failed: unable to determine module classpath", e);
+        }
 
         //create arguments;
         String[] arguments = buildArguments(serviceClass, classPath.toString(), baseDir, portInfo);
@@ -269,7 +158,7 @@ public class WsdlGenerator {
                 if (this.options.getAddToClassPath()) {
                     context.getConfiguration().addToClassPath(baseDir.getName());
                 }
-                return getRelativeNameOrURL(moduleBase, wsdlFile);
+                return WsdlGeneratorUtils.getRelativeNameOrURL(moduleBase, wsdlFile);
             } else {
                 throw new DeploymentException("WSDL generation failed");
             }            
@@ -295,114 +184,17 @@ public class WsdlGenerator {
         return rs;
     }
     
-    private boolean forkWsgen(StringBuilder classPath, String[] arguments) throws Exception {           
-        List<String> cmd = new ArrayList<String>();
-        String javaHome = System.getProperty("java.home");                       
-        String java = javaHome + File.separator + "bin" + File.separator + "java";
-        cmd.add(java);
+    private boolean forkWsgen(StringBuilder classPath, String[] arguments) throws Exception {
+        List<String> cmd = new ArrayList<String>();    
         cmd.add("-classpath");
         cmd.add(classPath.toString());
         cmd.add("com.sun.tools.ws.WsGen");
         cmd.addAll(Arrays.asList(arguments));
         
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Executing wsgen: " + cmd);
-        }
-              
-        ProcessBuilder builder = new ProcessBuilder(cmd);
-        builder.redirectErrorStream(true);
-                
-        Process process = builder.start();
-        return waitFor(process);
-    }
-    
-    private boolean waitFor(Process process) throws DeploymentException {  
-        CaptureOutputThread outputThread = new CaptureOutputThread(process.getInputStream());
-        outputThread.start();        
-                
-        long sleepTime = 0;        
-        while(sleepTime < this.options.getForkTimeout()) {            
-            try {
-                int errorCode = process.exitValue();
-                if (errorCode == 0) {
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("wsgen output: " + outputThread.getOutput());
-                    }
-                    return true;
-                } else {
-                    LOG.error("WSDL generation process failed");
-                    LOG.error(outputThread.getOutput()); 
-                    return false;
-                }
-            } catch (IllegalThreadStateException e) {
-                // still running
-                try {
-                    Thread.sleep(WsdlGeneratorOptions.FORK_POLL_FREQUENCY);
-                } catch (InterruptedException ee) {
-                    // interrupted
-                    process.destroy();
-                    throw new DeploymentException("WSDL generation process was interrupted");
-                }
-                sleepTime += WsdlGeneratorOptions.FORK_POLL_FREQUENCY;
-            }
-        }
-        
-        // timeout;
-        process.destroy();
-        
-        LOG.error("WSDL generation process timed out");
-        LOG.error(outputThread.getOutput());          
-        
-        throw new DeploymentException("WSDL generation process timed out");
-    }
-    
-    private static class CaptureOutputThread extends Thread {
-        
-        private InputStream in;
-        private ByteArrayOutputStream out;
-        
-        public CaptureOutputThread(InputStream in) {
-            this.in = in;
-            this.out = new ByteArrayOutputStream();
-        }
-        
-        public String getOutput() {
-            // make sure the thread is done
-            try {
-                join(10 * 1000);
-                
-                // if it's still not done, interrupt it
-                if (isAlive()) {
-                    interrupt();
-                }
-            } catch (InterruptedException e) {
-                // that's ok
-            }            
-            
-            // get the output
-            byte [] arr = this.out.toByteArray();
-            String output = new String(arr, 0, arr.length);
-            return output;
-        }
-        
-        public void run() {
-            try {
-                copyAll(this.in, this.out);
-            } catch (IOException e) {
-                // ignore
-            } finally {
-                try { this.out.close(); } catch (IOException ee) {}
-                try { this.in.close(); } catch (IOException ee) {}
-            }
-        }
-        
-        private static void copyAll(InputStream in, OutputStream out) throws IOException {
-            byte[] buffer = new byte[4096];
-            int count;
-            while ((count = in.read(buffer)) > 0) {
-                out.write(buffer, 0, count);
-            }
-            out.flush();
+        try {
+            return WsdlGeneratorUtils.execJava(cmd, this.options.getForkTimeout());
+        } catch (Exception e) {
+            throw new DeploymentException("WSDL generation failed", e);
         }
     }
 }
