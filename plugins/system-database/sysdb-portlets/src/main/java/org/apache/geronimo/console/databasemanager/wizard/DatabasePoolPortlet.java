@@ -46,6 +46,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Random;
 import java.util.Set;
 import java.util.SortedSet;
 
@@ -96,6 +97,8 @@ import org.apache.geronimo.deployment.service.jsr88.EnvironmentData;
 import org.apache.geronimo.deployment.tools.loader.ConnectorDeployable;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
+import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.proxy.GeronimoManagedBean;
 import org.apache.geronimo.kernel.repository.Artifact;
@@ -969,15 +972,22 @@ public class DatabasePoolPortlet extends BasePortlet {
                 org.apache.geronimo.deployment.service.jsr88.Artifact configId = new org.apache.geronimo.deployment.service.jsr88.Artifact();
                 environment.setConfigId(configId);
                 configId.setGroupId("console.dbpool");
-                String artifactId = data.name;
-                if (artifactId.indexOf('/') != -1) {
-                    // slash in artifact-id results in invalid configuration-id and leads to deployment errors
-                    // use the after / portion as the artifactId
-                    artifactId = artifactId.substring(artifactId.indexOf('/') + 1);
-                }
-                configId.setArtifactId(artifactId);
                 configId.setVersion("1.0");
                 configId.setType("rar");
+                
+                String artifactId = data.name;
+                // simply replace / with _ if / exists within the artifactId
+                // this is needed because we don't allow / within the artifactId
+                artifactId = artifactId.replace('/', '_');
+
+                // Let's check whether the artifact exists
+                ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(PortletManager.getKernel());
+                if (configurationManager.isInstalled(new Artifact(configId.getGroupId(), artifactId,
+                        configId.getVersion(), configId.getType()))) {
+                    artifactId = artifactId + "_" + new Random(System.currentTimeMillis()).nextInt(99);
+                }
+
+                configId.setArtifactId(artifactId);
 
                 String[] jars = data.getJars();
                 int length = jars[jars.length - 1].length() == 0 ? jars.length - 1 : jars.length;
