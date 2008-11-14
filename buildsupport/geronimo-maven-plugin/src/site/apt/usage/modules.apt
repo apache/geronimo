@@ -177,3 +177,26 @@ Module Goals Usage
  
  Setting this parameter will also generate an xml file in the surefire format for reporting. The file will be generated at
  <<<$\{project.build.directory\}/surefire-reports/<goalName>.xml>>>.
+
+* <install-library> configuration
+
+ Arbitrary libraries can be installed into a running Geronimo server using the <install-library> goal.
+
+ This example shows a library being installed using the <<<libraryFile>>> parameter.
+
++----------+
+<plugin>
+    <groupId>org.apache.geronimo.plugins</groupId>
+    <artifactId>geronimo-maven-plugin</artifactId>
+    <execution>
+        <id>install-library</id>
+        <goals>
+            <goal>install-library</goal>
+        </goals>
+        <configuration>
+            <libraryFile>path/to/library.jar</libraryFile>
+            <groupId>optional-groupId</groupId>
+        </configuration>
+    </execution>
+</plugin>
++----------+
