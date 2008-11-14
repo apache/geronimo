@@ -17,6 +17,8 @@
 package org.apache.geronimo.console.car;
 
 import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
@@ -46,7 +48,12 @@ public class CreatePluginIndexHandler extends BaseImportExportHandler {
 
     public void renderView(RenderRequest request, RenderResponse response, MultiPageModel model) throws PortletException, IOException {
         ConfigurationData[] configs = PortletManager.getConfigurations(request, null, false);
-        request.setAttribute("configurations", configs);        
+        List<ConfigurationData> carModulesList = new LinkedList<ConfigurationData>();
+        for (ConfigurationData configurationData : configs) {
+            if (configurationData.getConfigID().getType().equalsIgnoreCase("car"))
+                carModulesList.add(configurationData);
+        }
+        request.setAttribute("configurations", carModulesList.toArray(new ConfigurationData[carModulesList.size()]));
     }
 
     public String actionAfterView(ActionRequest request, ActionResponse response, MultiPageModel model) throws PortletException, IOException {        
