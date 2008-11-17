@@ -29,6 +29,7 @@ import java.util.SortedSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.geronimo.kernel.classloader.JarFileClassLoader;
+import org.apache.geronimo.kernel.config.Os;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ListableRepository;
 import org.apache.geronimo.kernel.repository.Repository;
@@ -128,7 +129,11 @@ public class JAXWSTools {
         if (this.saajImpl != null) {
             jars.add(getLocation(repositories, this.saajImpl));
         }
-        addToolsJarLocation(jars);
+        // add tools.jar to classpath except on Mac OS. On Mac OS there is classes.jar with the
+        // same contents as tools.jar and is automatically included in the classpath.
+        if (!Os.isFamily(Os.FAMILY_MAC)) {
+            addToolsJarLocation(jars);
+        }
         
         return jars.toArray(new File[jars.size()]);
     }
