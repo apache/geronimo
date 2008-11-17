@@ -87,7 +87,6 @@ public class MRCConnector {
                 Context ic = new InitialContext(props);
                 mrc = (MasterRemoteControlRemote) ic
                         .lookup("ejb/mgmt/MRCRemote");
-                mrc.setUpMEJB(userName, password);
             } catch (Exception e) {
                 throw e;
             }

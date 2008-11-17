@@ -26,29 +26,22 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.TreeMap;
 
 import org.apache.geronimo.monitoring.console.util.DBManager;
+import org.apache.geronimo.monitoring.console.data.Graph;
 
 public class GraphsBuilder {
-    private String ip = new String();
-    private int timeFrame;
-    private int snapCount;
-    private MRCConnector mrc = new MRCConnector();
-    private Connection con;
 
     // constructor
-    public GraphsBuilder(Connection con) {
-        // TODO: Database pull stuff may go here... based on server ID...\
-        this.con = con;
+    public GraphsBuilder() {
     }
 
     public StatsGraph buildOneDB(int graph_id) throws Exception {
-        con = (new DBManager()).getConnection();
-        StatsGraph graph = null;
-        PreparedStatement pStmt = null;
-        ResultSet rsServer = null;
+        Connection con = (new DBManager()).getConnection();
+        StatsGraph statsGraph = null;
+        PreparedStatement pStmt;
+        ResultSet rsServer;
         pStmt = con
                 .prepareStatement("SELECT * from graphs WHERE enabled=1 AND graph_id="
                         + graph_id);
@@ -59,7 +52,7 @@ public class GraphsBuilder {
             String dataName2 = rs.getString("dataname2");
             String graphName1 = rs.getString("dataname1");
             String graphName2 = rs.getString("dataname2");
-            timeFrame = rs.getInt("timeframe");
+            int timeFrame = rs.getInt("timeframe");
             String server_id = rs.getString("server_id");
             String xlabel = rs.getString("xlabel");
             String ylabel = rs.getString("ylabel");
@@ -69,14 +62,26 @@ public class GraphsBuilder {
             String color = rs.getString("color");
             float warninglevel1 = rs.getFloat("warninglevel1");
             String description = rs.getString("description");
-            boolean showArchive = rs.getInt("archive") == 1 ? true : false;
+            boolean showArchive = rs.getInt("archive") == 1;
+
+            Graph graph = new Graph();
+            graph.setId(graph_id);
+            graph.setDescription(description);
+            graph.setXlabel(xlabel);
+            graph.setYlabel(ylabel);
+            graph.setData1operation(data1operation.charAt(0));
+            graph.setOperation(operation);
+            graph.setData2operation(data2operation.charAt(0));
+            graph.setTimeFrame(timeFrame);
+            graph.setColor(color);
+            graph.setWarninglevel1(warninglevel1);
 
             pStmt = con
                     .prepareStatement("SELECT * from servers WHERE enabled=1 AND server_id="
                             + server_id);
             rsServer = pStmt.executeQuery();
             if (rsServer.next()) {
-                ip = rsServer.getString("ip");
+                String ip = rsServer.getString("ip");
                 String username = rsServer.getString("username");
                 String password = rsServer.getString("password");
                 int port = rsServer.getInt("port");
@@ -85,19 +90,16 @@ public class GraphsBuilder {
                 // it opens another
                 // connection to the db to update the SERVERS.last_seen
                 // attribute
-                try {
                     con.close();
-                } catch (Exception e) {
-                    throw e;
-                }
-                mrc = new MRCConnector(ip, username, password, port, protocol);
-                HashMap<String, ArrayList<Object>> DataList = new HashMap<String, ArrayList<Object>>();
+                MRCConnector mrc = new MRCConnector(ip, username, password, port, protocol);
+                HashMap<String, ArrayList<Long>> dataList = new HashMap<String, ArrayList<Long>>();
 
-                DataList.put(graphName1, new ArrayList<Object>());
+                dataList.put(graphName1, new ArrayList<Long>());
                 if ((dataName2 != null) && !dataName2.equals("time")
                         && !dataName2.equals("null") && !dataName2.equals("")) {
-                    DataList.put(graphName2, new ArrayList<Object>());
+                    dataList.put(graphName2, new ArrayList<Long>());
                 }
+                int snapCount;
                 if ((timeFrame / 1440 >= 30))
                     snapCount = 17;
                 else {
@@ -110,11 +112,11 @@ public class GraphsBuilder {
                         snapCount = 12;
                 }
 
-                ArrayList<Object> snapshot_time = new ArrayList<Object>();
+                ArrayList<Long> snapshot_time = new ArrayList<Long>();
 
-                ArrayList<Object> PrettyTime = new ArrayList<Object>();
+                ArrayList<Long> prettyTime = new ArrayList<Long>();
 
-                String prettyTimeFrame = new String();
+                String prettyTimeFrame;
                 DecimalFormat fmt = new DecimalFormat("0.##");
                 if (timeFrame / 60 > 24) {
                     prettyTimeFrame = fmt.format((float) (timeFrame / 1440))
@@ -143,7 +145,7 @@ public class GraphsBuilder {
                 }
                 // Check if snapshotList is empty
                 if (snapshotList1.size() == 0) {
-                    snapshotList1.put(System.currentTimeMillis(), new Long(0));
+                    snapshotList1.put(System.currentTimeMillis(), (long) 0);
                     /*
                      * If there are not enough snapshots available to fill the
                      * requested number, insert some with values of 0 and the
@@ -159,76 +161,70 @@ public class GraphsBuilder {
                         snapshotList1
                                 .put(
                                         (timeFix - (mrc.getSnapshotDuration() * skipCount)),
-                                        new Long(0));
+                                        (long) 0);
                     }
                 }
                 if (snapshotList2.size() == 0) {
-                    snapshotList2.put(System.currentTimeMillis(), new Long(0));
+                    snapshotList2.put(System.currentTimeMillis(), (long) 0);
                     while (snapshotList2.size() < snapCount) {
                         // Temporary, always is first element (oldest)
                         Long timeFix = snapshotList2.firstKey();
                         snapshotList2
                                 .put(
                                         (timeFix - (mrc.getSnapshotDuration() * skipCount)),
-                                        new Long(0));
+                                        (long) 0);
                     }
                 }
 
-                for (Iterator<Long> it = snapshotList1.keySet().iterator(); it
-                        .hasNext();) {
-                    Long current = it.next();
+                for (Long current : snapshotList1.keySet()) {
                     snapshot_time.add(current);
-                    ArrayList<Object> ArrayListTemp = DataList.get(graphName1);
+                    ArrayList<Long> ArrayListTemp = dataList.get(graphName1);
                     ArrayListTemp.add(snapshotList1.get(current));
-                    DataList.put(graphName1, ArrayListTemp);
                     if ((dataName2 != null) && !dataName2.equals("time")
                             && !dataName2.equals("null")
                             && !dataName2.equals("")) {
-                        ArrayList<Object> ArrayListTemp2 = DataList
-                                .get(graphName2);
+                        ArrayList<Long> ArrayListTemp2 = dataList.get(graphName2);
                         ArrayListTemp2.add(snapshotList2.get(current));
-                        DataList.put(graphName2, ArrayListTemp2);
                     }
-                    PrettyTime.add((Long) current / 1000);
+                    prettyTime.add(current / 1000);
                 }
 
                 if (dataName2.equals("time")) {
-                    graph = (new StatsGraph(graph_id, ip + " - " + xlabel
-                            + " - " + prettyTimeFrame, description, xlabel,
-                            ylabel, data1operation.charAt(0), DataList
-                                    .get(graphName1), operation, data2operation
-                                    .charAt(0), PrettyTime, snapshot_time,
-                            (int) (mrc.getSnapshotDuration() / 1000),
-                            timeFrame, color, warninglevel1, warninglevel1));
+                    statsGraph = new StatsGraph(graph,
+                            ip + " - " + xlabel + " - " + prettyTimeFrame,
+                            dataList.get(graphName1),
+                            prettyTime,
+                            snapshot_time,
+                            (int) (mrc.getSnapshotDuration() / 1000)
+                    );
                 } else if (!dataName2.equals("time") && (dataName2 != null)
                         && !dataName2.equals("null") && !dataName2.equals("")) {
-                    graph = (new StatsGraph(graph_id, ip + " - " + xlabel
-                            + " - " + prettyTimeFrame, description, xlabel,
-                            ylabel, data1operation.charAt(0), DataList
-                                    .get(graphName1), operation, data2operation
-                                    .charAt(0), DataList.get(graphName2),
+                    statsGraph = new StatsGraph(graph,
+                            ip + " - " + xlabel + " - " + prettyTimeFrame,
+                            dataList.get(graphName1),
+                            dataList.get(graphName2),
                             snapshot_time,
-                            (int) (mrc.getSnapshotDuration() / 1000),
-                            timeFrame, color, warninglevel1, warninglevel1));
+                            (int) (mrc.getSnapshotDuration() / 1000)
+                    );
                 } else if (dataName2 == null || dataName2.equals("null")
                         || dataName2.equals("")) {
-                    graph = (new StatsGraph(graph_id, ip + " - " + xlabel
-                            + " - " + prettyTimeFrame, description, xlabel,
-                            ylabel, data1operation.charAt(0), DataList
-                                    .get(graphName1), operation, snapshot_time,
-                            (int) (mrc.getSnapshotDuration() / 1000),
-                            timeFrame, color, warninglevel1, warninglevel1));
+                    statsGraph = new StatsGraph(graph,
+                            ip + " - " + xlabel + " - " + prettyTimeFrame,
+                            dataList.get(graphName1),
+                            snapshot_time,
+                            (int) (mrc.getSnapshotDuration() / 1000)
+                    );
                 } else {
                     System.out.println("Using Null call.");
-                    graph = (new StatsGraph());
+                    statsGraph = new StatsGraph();
                 }
             }
         }
 
         // check to see if graph was successfully populated
-        if (graph != null) {
+        if (statsGraph != null) {
             // get the current date
-            Format formatter = null;
+            Format formatter;
             formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             Date date = new Date(System.currentTimeMillis());
             String currentTime = formatter.format(date);
@@ -241,6 +237,6 @@ public class GraphsBuilder {
                     + "' WHERE GRAPH_ID=" + graph_id);
             conn.close();
         }
-        return graph;
+        return statsGraph;
     }
 }

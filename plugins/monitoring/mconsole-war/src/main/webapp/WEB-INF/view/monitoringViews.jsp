@@ -17,13 +17,10 @@
 --%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
-<%@ page import="java.util.ArrayList" %>
 <%@ page import="java.sql.Connection" %>
-<%@ page import="java.sql.DatabaseMetaData" %>
 <%@ page import="java.sql.PreparedStatement" %>
 <%@ page import="java.sql.ResultSet" %>
-<%@ page import="java.sql.SQLException" %>
-<%@ page import="org.apache.geronimo.monitoring.console.util.*" %>
+<%@ page import="org.apache.geronimo.monitoring.console.util.DBManager" %>
 <portlet:defineObjects/>
 <%
     String message = (String) request.getAttribute("message"); 

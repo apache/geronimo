@@ -30,7 +30,6 @@
         <version>2.2-SNAPSHOT</version>
     </parent>
 
-    <groupId>org.apache.geronimo.plugins</groupId>
     <artifactId>agent-ds</artifactId>
     <name>Geronimo Plugins, Monitoring :: Agent DataSource</name>
     <packaging>car</packaging>

@@ -16,23 +16,17 @@
 --%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
-<%@ page import="org.apache.geronimo.monitoring.console.StatsGraph" %>
-<%@ page import="org.apache.geronimo.monitoring.console.GraphsBuilder" %>
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="java.util.Set" %>
 <%@ page import="java.util.HashMap" %>
 <%@ page import="java.util.Iterator" %>
-<%@ page import="java.util.Map" %>
 <%@ page import="java.util.TreeMap" %>
 <%@ page import="java.lang.String" %>
 <%@ page import="java.sql.Connection" %>
-<%@ page import="java.sql.DatabaseMetaData" %>
 <%@ page import="java.sql.PreparedStatement" %>
 <%@ page import="java.sql.ResultSet" %>
-<%@ page import="java.sql.SQLException" %>
-<%@ page import="java.sql.Timestamp" %>
 <%@ page import="javax.management.InstanceNotFoundException" %>
-<%@ page import="org.apache.geronimo.monitoring.console.util.*" %>
+<%@ page import="org.apache.geronimo.monitoring.console.util.DBManager" %>
 <%@ page import="org.apache.geronimo.monitoring.console.MRCConnector" %>
 <portlet:defineObjects/>
 

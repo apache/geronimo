@@ -29,7 +29,8 @@
 <%@ page import="java.sql.PreparedStatement" %>
 <%@ page import="java.sql.ResultSet" %>
 <%@ page import="java.sql.SQLException" %>
-<%@ page import="org.apache.geronimo.monitoring.console.util.*" %>
+<%@ page import="org.apache.geronimo.monitoring.console.util.DBManager" %>
+<%@ page import="org.apache.geronimo.monitoring.console.Constants" %>
 <portlet:defineObjects/>
 
 <%
@@ -42,7 +43,7 @@ if (message == null)
 
 %>
 <!-- <head> -->
-    <script type='text/javascript' src='/dojo/dojo.js'>
+    <script type='text/javascript' src='<%=Constants.DOJO_JS%>'>
     </script>
         <script type = "text/javascript">
 <!--

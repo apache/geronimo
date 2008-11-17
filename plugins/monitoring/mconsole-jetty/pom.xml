@@ -30,7 +30,6 @@
         <version>2.2-SNAPSHOT</version>
     </parent>
 
-    <groupId>org.apache.geronimo.plugins</groupId>
     <artifactId>mconsole-jetty</artifactId>
     <name>Geronimo Plugins, Console :: Monitoring (Jetty)</name>
     <packaging>car</packaging>
@@ -64,7 +63,7 @@
         </dependency>
         
         <dependency>
-            <groupId>org.apache.geronimo.plugins</groupId>
+            <groupId>org.apache.geronimo.plugins.monitoring</groupId>
             <artifactId>mconsole-ds</artifactId>
             <version>${monitoringConsoleVersion}</version>
             <type>car</type>
@@ -87,7 +86,7 @@
 	
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>dojo-legacy-jetty6</artifactId>
+            <artifactId>dojo-jetty6</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>

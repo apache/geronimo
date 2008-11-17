@@ -21,9 +21,9 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
+import java.rmi.RemoteException;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
@@ -35,9 +35,9 @@ import javax.ejb.Stateless;
 import javax.ejb.Timeout;
 import javax.ejb.Timer;
 import javax.ejb.TimerService;
+import javax.ejb.CreateException;
+import javax.ejb.EJB;
 import javax.management.Attribute;
-import javax.management.MBeanServer;
-import javax.management.MBeanServerFactory;
 import javax.management.ObjectName;
 import javax.management.j2ee.Management;
 import javax.management.j2ee.ManagementHome;
@@ -46,18 +46,17 @@ import javax.management.j2ee.statistics.RangeStatistic;
 import javax.management.j2ee.statistics.Statistic;
 import javax.management.j2ee.statistics.Stats;
 import javax.management.j2ee.statistics.TimeStatistic;
-import javax.naming.Context;
-import javax.naming.InitialContext;
+import javax.naming.NamingException;
 import javax.sql.DataSource;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.geronimo.monitoring.snapshot.SnapshotConfigXMLBuilder;
 import org.apache.geronimo.monitoring.snapshot.SnapshotDBHelper;
 import org.apache.geronimo.monitoring.snapshot.SnapshotProcessor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * This is a Stateful Session Bean that will be the bottleneck for the communication
+ * This is a Stateless Session Bean that will be the bottleneck for the communication
  * between the management node and the data in the server node.
  */
 @Stateless(name="ejb/mgmt/MRC")
@@ -67,17 +66,9 @@ import org.apache.geronimo.monitoring.snapshot.SnapshotProcessor;
 public class MasterRemoteControl {
     private static final Logger log = LoggerFactory.getLogger(MasterRemoteControl.class);
     
-    // mbean server to talk to other components
-    private static MBeanServer mbServer = null;
+    @EJB(name = "ejb/mgmt/MEJB")
+    private ManagementHome mejbHome;
     
-    // mangement ejb - use this to do the monitoring
-    private static Management mejb = null;
-    
-    // credentials for snapshot processor
-    private static String username = null;
-    private static String password = null;
-    private static int port = -1;
-
     // inject Data Sources
     @Resource(name="jdbc/ActiveDS") private DataSource activeDS;
     @Resource(name="jdbc/ArchiveDS") private DataSource archiveDS;
@@ -99,30 +90,6 @@ public class MasterRemoteControl {
     }
 
     /**
-     * Retrieves and instance of the MEJB and starts the snapshot process
-     */
-    @RolesAllowed("mejbuser")
-    public void setUpMEJB(String username, String password) {
-        // instantiate the MEJB, which will be our gateway to communicate to MBeans
-        try {
-            Properties p = new Properties();
-            p.setProperty(Context.INITIAL_CONTEXT_FACTORY, "org.apache.openejb.client.LocalInitialContextFactory");
-            InitialContext ctx = new InitialContext(p);
-
-            ManagementHome mejbHome = (ManagementHome)ctx.lookup("ejb/mgmt/MEJB");
-            mejb = mejbHome.create();
-            
-            // save credentials
-            this.username = username;
-            this.password = password;
-            this.port = port;
-
-        } catch(Exception e) {
-            log.error(e.getMessage(), e);
-        }
-    }
-    
-    /**
      * Looks up the JSR-77 statistics associated with this object name.
      * 
      * @param objectName
@@ -130,9 +97,9 @@ public class MasterRemoteControl {
      * @throws Exception
      */
     @RolesAllowed("mejbuser")
-    public static HashMap<String, Long> getStats(String objectName) throws Exception {
+    public HashMap<String, Long> getStats(String objectName) throws Exception {
         HashMap<String, Long> statsMap = new HashMap<String, Long>();
-        Stats stats = (Stats)mejb.getAttribute(new ObjectName(objectName), "stats");
+        Stats stats = (Stats)getMEJB().getAttribute(new ObjectName(objectName), "stats");
         String[] sttsName = stats.getStatisticNames();
         Statistic[] stts = stats.getStatistics();
         for(int i = 0; i < sttsName.length; i++) {
@@ -174,14 +141,14 @@ public class MasterRemoteControl {
     @RolesAllowed("mejbadmin")
     public void setAttribute(String objectName, String attrName, Object attrValue) throws Exception {
         Attribute attr = new Attribute(attrName, attrValue);
-        mejb.setAttribute(new ObjectName(objectName), attr);
+        getMEJB().setAttribute(new ObjectName(objectName), attr);
     }
     
     // This method is called by the EJB container upon Timer expiration.
     @Timeout
-    @PermitAll
+    @RolesAllowed("mejbuser")
     public void handleTimeout(Timer theTimer) {
-        SnapshotProcessor.takeSnapshot(this.username, this.password);
+        SnapshotProcessor.takeSnapshot(this);
         
         // get the duration of theTimer
         long duration = Long.parseLong((String)theTimer.getInfo());
@@ -274,7 +241,7 @@ public class MasterRemoteControl {
      */ 
     @RolesAllowed("mejbuser")
     public ArrayList<HashMap<String, HashMap<String, Object>>> fetchSnapshotData(Integer numberOfSnapshot, Integer everyNthSnapshot) {
-        return (ArrayList<HashMap<String, HashMap<String, Object>>>)snapshotDBHelper.fetchData(numberOfSnapshot, everyNthSnapshot);
+        return snapshotDBHelper.fetchData(numberOfSnapshot, everyNthSnapshot);
     }
     
     /**
@@ -286,7 +253,7 @@ public class MasterRemoteControl {
      */
     @RolesAllowed("mejbuser")
     public HashMap<String, HashMap<String, Long>> fetchMaxSnapshotData(Integer numberOfSnapshot) {
-        return (HashMap<String, HashMap<String, Long>>)snapshotDBHelper.fetchMaxSnapshotData(numberOfSnapshot);
+        return snapshotDBHelper.fetchMaxSnapshotData(numberOfSnapshot);
     }
 
     /**
@@ -298,7 +265,7 @@ public class MasterRemoteControl {
      */
     @RolesAllowed("mejbuser")
     public HashMap<String, HashMap<String, Long>> fetchMinSnapshotData(Integer numberOfSnapshot) {
-        return (HashMap<String, HashMap<String, Long>>)snapshotDBHelper.fetchMinSnapshotData(numberOfSnapshot);
+        return snapshotDBHelper.fetchMinSnapshotData(numberOfSnapshot);
     }
     
     /**
@@ -368,7 +335,7 @@ public class MasterRemoteControl {
     @RolesAllowed("mejbuser")
     public Set<String> getAllMBeanNames() {
         try {
-            Set<ObjectName> names = (Set<ObjectName>)mejb.queryNames(null, null);
+            Set<ObjectName> names = (Set<ObjectName>)getMEJB().queryNames(null, null);
             Set<String> strNames = new HashSet<String>();
             for(Iterator<ObjectName> it = names.iterator(); it.hasNext(); ) {
                 strNames.add(it.next().getCanonicalName());
@@ -422,7 +389,7 @@ public class MasterRemoteControl {
             ArrayList<String> mbeanStatsList = new ArrayList<String>();
             String mbeanName = it.next();
             try {
-                Stats stats = (Stats)mejb.getAttribute(new ObjectName(mbeanName), "stats");
+                Stats stats = (Stats)getMEJB().getAttribute(new ObjectName(mbeanName), "stats");
                 String[] sttsName = stats.getStatisticNames();
                 Statistic[] stts = stats.getStatistics();
                 for(int i = 0; i < sttsName.length; i++) {
@@ -474,7 +441,7 @@ public class MasterRemoteControl {
      */
     @RolesAllowed("mejbadmin")
     public Object invoke(ObjectName name, String operationName, Object[] params, String[] signature) throws Exception {
-        return mejb.invoke(name, operationName, params, signature);
+        return getMEJB().invoke(name, operationName, params, signature);
     }
     
     /**
@@ -498,11 +465,15 @@ public class MasterRemoteControl {
      */
     @RolesAllowed("mejbuser")
     public Set<String> getTrackedMBeans() {
-        ArrayList<String> mbeans = (ArrayList<String>)SnapshotConfigXMLBuilder.getMBeanNames();
+        ArrayList<String> mbeans = SnapshotConfigXMLBuilder.getMBeanNames();
         Set<String> set = new HashSet<String>();
         for(int i = 0; i < mbeans.size(); i++) {
             set.add(mbeans.get(i));
         }
         return set;
+    }
+
+    private Management getMEJB() throws NamingException, RemoteException, CreateException {
+        return mejbHome.create();
     }
 }

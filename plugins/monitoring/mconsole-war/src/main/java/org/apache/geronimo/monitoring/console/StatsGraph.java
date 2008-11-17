@@ -21,62 +21,57 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
+import org.apache.geronimo.monitoring.console.data.Graph;
+
 public class StatsGraph {
+
+    private Graph graph;
+
     private String GraphName;
-    private String DivName;
-    private String Description;
-    private String DivDefine;
-    private String DivImplement;
-    private String XAxisLabel;
-    private String YAxisLabel;
     private int SnapshotDuration;
-    private int TimeFrame;
     private int PointCount;
-    private String HexColor;
     private String GraphJS;
 
-    public StatsGraph(Integer graph_id, String graphName, String description,
-            String xAxisLabel, String yAxisLabel, char data1operation,
-            ArrayList<Object> dataSet1, String operation, char data2operation,
-            ArrayList<Object> dataSet2, ArrayList<Object> snapshotTimes,
-            int snapshotDuration, int timeFrame, String hexColor,
-            float warninglevel1, float warninglevel2) {
+    public StatsGraph(Graph graph,
+                      String graphName,
+                      ArrayList<Long> dataSet1,
+                      ArrayList<Long> dataSet2,
+                      ArrayList<Long> snapshotTimes,
+                      int snapshotDuration
+    ) {
+        this.graph = graph;
 
-        DivName = "graph" + graph_id + "Container";
         GraphName = graphName;
-        Description = description;
-        XAxisLabel = xAxisLabel;
-        YAxisLabel = yAxisLabel;
         SnapshotDuration = snapshotDuration;
-        TimeFrame = timeFrame;
         PointCount = dataSet1.size();
-        HexColor = hexColor;
 
-        DivImplement = "<div id=\"" + DivName
-                + "\" style=\"height: 220px;\"></div><br><div id='" + DivName
-                + "Sub' style='text-align: center;'>" + yAxisLabel + " vs. "
-                + xAxisLabel + "</div>" + "\n";
+        String dataDisplay = displayData(graph.getData1operation(), dataSet1, graph.getOperation(), graph.getData2operation(), dataSet2);
 
-        GraphJS = "var " + "graph" + graph_id
-                + " = new dojox.charting.Chart2D(\"" + DivName + "\");\n"
-                + "graph" + graph_id
+        this.GraphJS = buildJavaScript(dataSet1, snapshotTimes, dataDisplay);
+    }
+
+    private String buildJavaScript(ArrayList<Long> dataSet1, ArrayList<Long> snapshotTimes, String dataDisplay) {
+        String GraphJS = "var " + "graph" + graph.getId()
+                + " = new dojox.charting.Chart2D(\"" + getDivName() + "\");\n"
+                + "graph" + graph.getId()
                 + ".addPlot(\"default\", {type: \"Areas\", tension:3});\n" + "graph"
-                + graph_id + ".setTheme(dojox.charting.themes.PlotKit.blue);\n";
+//                + ".addPlot(\"default\", {type: \"Areas\"});\n" + "graph"
+                + graph.getId() + ".setTheme(dojox.charting.themes.PlotKit.blue);\n";
 
         // Setup the x tick marks on the chart
-        Format formatter = new SimpleDateFormat("HH:mm");
-        if ((timeFrame / 1440) > 7)
+        Format formatter;
+        if ((graph.getTimeFrame() / 1440) > 7)
             formatter = new SimpleDateFormat("M/d");
         else {
-            if ((timeFrame / 60) > 24)
+            if ((graph.getTimeFrame() / 60) > 24)
                 formatter = new SimpleDateFormat("E a");
             else {
                 formatter = new SimpleDateFormat("HH:mm");
             }
         }
-        GraphJS += "graph" + graph_id + ".addAxis(\"x\", {labels: [";
+        GraphJS += "graph" + graph.getId() + ".addAxis(\"x\", {labels: [";
         for (int i = 1; i < dataSet1.size(); i++) {
-            Date date = new Date((Long) snapshotTimes.get(i));
+            Date date = new Date(snapshotTimes.get(i));
             GraphJS += "{value: " + (i) + ", text: '" + formatter.format(date);
             if ((i+1) != dataSet1.size())
                 GraphJS += "' }, \n";
@@ -84,129 +79,97 @@ public class StatsGraph {
             	GraphJS += "' } \n";
         }
         GraphJS += "]});\n";
-        GraphJS += "graph" + graph_id + ".addAxis(\"y\", {vertical: true});\n";
+        GraphJS += "graph" + graph.getId() + ".addAxis(\"y\", {vertical: true});\n";
 
-        GraphJS += "graph" + graph_id + ".addSeries(\"Series" + graph_id
+        GraphJS += "graph" + graph.getId() + ".addSeries(\"Series" + graph.getId()
                 + "\", [";
+        GraphJS = GraphJS + dataDisplay;
+
+        GraphJS = GraphJS + "]);\n";
+
+        GraphJS = GraphJS + "graph" + graph.getId() + ".render();\n";
+        return GraphJS;
+    }
+
+    private String displayData(char data1operation, ArrayList<Long> dataSet1, String operation, char data2operation, ArrayList<Long> dataSet2) {
+        String graphJS = "";
         if (data1operation == 'D' && data2operation == 'D') {
             for (int i = 1; i < dataSet1.size(); i++) {
-                if (((Long) dataSet1.get(i) - (Long) dataSet1.get(i - 1)) < 0)
+                if ((dataSet1.get(i) - dataSet1.get(i - 1)) < 0)
                     dataSet1.set(i - 1, dataSet1.get(i));
-                GraphJS = GraphJS
-                        + ((Long) dataSet1.get(i) - (Long) dataSet1.get(i - 1));
+                graphJS = graphJS
+                        + (dataSet1.get(i) - dataSet1.get(i - 1));
                 // ensure there is not a division by 0
-                GraphJS += appendOperation(operation, (Long) dataSet2.get(i)
-                        - (Long) dataSet2.get(i - 1));
+                graphJS += appendOperation(operation, dataSet2.get(i)
+                        - dataSet2.get(i - 1));
                 if ((i+1) != dataSet1.size())
-                    GraphJS += ",";
+                    graphJS += ",";
             }
         }
         if (data1operation == 'D' && data2operation != 'D') {
             for (int i = 1; i < dataSet1.size(); i++) {
-                GraphJS = GraphJS
-                        + ((Long) dataSet1.get(i) - (Long) dataSet1.get(i - 1));
+                graphJS = graphJS
+                        + (dataSet1.get(i) - dataSet1.get(i - 1));
                 // ensure there is not a division by 0
-                GraphJS += appendOperation(operation, (Long) dataSet2.get(i));
+                graphJS += appendOperation(operation, dataSet2.get(i));
                 if ((i+1) != dataSet1.size())
-                    GraphJS += ",";
+                    graphJS += ",\n";
             }
         }
         if (data1operation != 'D' && data2operation == 'D') {
             for (int i = 1; i < dataSet1.size(); i++) {
-                GraphJS = GraphJS + dataSet1.get(i);
+                graphJS = graphJS + dataSet1.get(i);
                 // ensure there is not a division by 0
-                GraphJS += appendOperation(operation, (Long) dataSet2.get(i)
-                        - (Long) dataSet2.get(i - 1));
+                graphJS += appendOperation(operation, dataSet2.get(i)
+                        - dataSet2.get(i - 1));
                 if ((i+1) != dataSet1.size())
-                    GraphJS += ",";
+                    graphJS += ",\n";
             }
         }
         if (data1operation != 'D' && data2operation != 'D') {
             for (int i = 1; i < dataSet1.size(); i++) {
-                GraphJS = GraphJS + dataSet1.get(i);
+                graphJS = graphJS + dataSet1.get(i);
                 // ensure there is not a division by 0
-                GraphJS += appendOperation(operation, (Long) dataSet2.get(i));
+                graphJS += appendOperation(operation, dataSet2.get(i));
                 if ((i+1) != dataSet1.size())
-                    GraphJS += ",";
+                    graphJS += ",";
             }
         }
-
-        GraphJS = GraphJS + "]);\n";
-
-        GraphJS = GraphJS + "graph" + graph_id + ".render();\n";
-
+        return graphJS;
     }
 
-    public StatsGraph(Integer graph_id, String graphName, String description,
-            String xAxisLabel, String yAxisLabel, char data1operation,
-            ArrayList<Object> dataSet1, String operation,
-            ArrayList<Object> snapshotTimes, int snapshotDuration,
-            int timeFrame, String hexColor, float warninglevel1,
-            float warninglevel2) {
+    public StatsGraph(Graph graph,
+                      String graphName,
+                      ArrayList<Long> dataSet1,
+                      ArrayList<Long> snapshotTimes, int snapshotDuration
+    ) {
 
-        DivName = "graph" + graph_id + "Container";
+        this.graph = graph;
+
         GraphName = graphName;
-        Description = description;
-        XAxisLabel = xAxisLabel;
-        YAxisLabel = yAxisLabel;
         SnapshotDuration = snapshotDuration;
-        TimeFrame = timeFrame;
         PointCount = dataSet1.size();
-        HexColor = hexColor;
+        String dataDisplay = displayData(graph.getData1operation(), dataSet1, graph.getOperation());
 
-        DivImplement = "<div id=\"" + DivName
-                + "\" style=\"height: 220px;\"></div><br><div id='" + DivName
-                + "Sub' style='text-align: center;'>" + yAxisLabel + " vs. "
-                + xAxisLabel + "</div>" + "\n";
+        this.GraphJS = buildJavaScript(dataSet1, snapshotTimes, dataDisplay);
+    }
 
-        GraphJS = "var " + "graph" + graph_id
-                + " = new dojox.charting.Chart2D(\"" + DivName + "\");\n"
-                + "graph" + graph_id
-                + ".addPlot(\"default\", {type: \"Areas\", tension:3});\n" + "graph"
-                + graph_id + ".setTheme(dojox.charting.themes.PlotKit.blue);\n";
-
-        // Setup the x tick marks on the chart
-        Format formatter = new SimpleDateFormat("HH:mm");
-        if ((timeFrame / 1440) > 7)
-            formatter = new SimpleDateFormat("M/d");
-        else {
-            if ((timeFrame / 60) > 24)
-                formatter = new SimpleDateFormat("E a");
-            else {
-                formatter = new SimpleDateFormat("HH:mm");
-            }
-        }
-        GraphJS += "graph" + graph_id + ".addAxis(\"x\", {labels: [";
-        for (int i = 1; i < dataSet1.size(); i++) {
-            Date date = new Date((Long) snapshotTimes.get(i));
-            GraphJS += "{value: " + (i) + ", text: '" + formatter.format(date);
-            if ((i+1) != dataSet1.size())
-                GraphJS += "' }, \n";
-            else
-            	GraphJS += "' } \n";
-        }
-        GraphJS += "]});\n";
-        GraphJS += "graph" + graph_id + ".addAxis(\"y\", {vertical: true});\n";
-
-        GraphJS += "graph" + graph_id + ".addSeries(\"Series" + graph_id
-                + "\", [";
+    private String displayData(char data1operation, ArrayList<Long> dataSet1, String operation) {
+        String graphJS = "";
         if (data1operation == 'D')
             for (int i = 1; i < dataSet1.size(); i++) {
-                GraphJS = GraphJS
-                        + ((Long) dataSet1.get(i) - (Long) dataSet1.get(i - 1)) + operation;
+                graphJS = graphJS
+                        + (dataSet1.get(i) - dataSet1.get(i - 1)) + operation;
                 if ((i+1) != dataSet1.size())
-                    GraphJS += ",\n";
+                    graphJS += ",\n";
             }
         if (data1operation != 'D')
             for (int i = 1; i < dataSet1.size(); i++) {
-                GraphJS = GraphJS + dataSet1.get(i) + operation;
+                graphJS = graphJS + dataSet1.get(i) + operation;
                 if ((i+1) != dataSet1.size())
-                    GraphJS += ",\n";
+                    graphJS += ",\n";
             }
-
-        GraphJS = GraphJS + "]);\n";
-
-        GraphJS = GraphJS + "graph" + graph_id + ".render();\n";
+        return graphJS;
     }
 
     private String appendOperation(String operation, Long number) {
@@ -232,24 +195,23 @@ public class StatsGraph {
         return GraphJS;
     }
 
-    public String getDiv() {
-        return DivDefine;
-    }
-
     public String getDivImplement() {
-        return DivImplement;
+        return "<div id=\"" + getDivName()
+                + "\" style=\"height: 220px;\"></div><br><div id='" + getDivName()
+                + "Sub' style='text-align: center;'>" + graph.getYlabel() + " vs. "
+                + graph.getXlabel() + "</div>" + "\n";
     }
 
     public String getDivName() {
-        return DivName;
+        return "graph" + graph.getId() + "Container";
     }
 
     public String getXAxis() {
-        return XAxisLabel;
+        return graph.getXlabel();
     }
 
     public String getYAxis() {
-        return YAxisLabel;
+        return graph.getYlabel();
     }
 
     public String getName() {
@@ -257,7 +219,7 @@ public class StatsGraph {
     }
 
     public String getDescription() {
-        return Description;
+        return graph.getDescription();
     }
 
     public int getSnapshotDuration() {
@@ -265,7 +227,7 @@ public class StatsGraph {
     }
 
     public int getTimeFrame() {
-        return TimeFrame;
+        return graph.getTimeFrame();
     }
 
     public int getPointCount() {
@@ -273,6 +235,6 @@ public class StatsGraph {
     }
 
     public String getColor() {
-        return HexColor;
+        return graph.getColor();
     }
 }

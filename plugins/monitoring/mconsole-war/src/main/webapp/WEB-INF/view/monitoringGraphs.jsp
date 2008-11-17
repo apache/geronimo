@@ -21,9 +21,7 @@
 <%@ page import="java.sql.Connection" %>
 <%@ page import="java.sql.PreparedStatement" %>
 <%@ page import="java.sql.ResultSet" %>
-<%@ page import="org.apache.geronimo.monitoring.console.util.*" %>
-<%@page import="org.apache.geronimo.monitoring.console.GraphsBuilder"%>
-<%@page import="org.apache.geronimo.monitoring.console.StatsGraph"%>
+<%@ page import="org.apache.geronimo.monitoring.console.util.DBManager" %>
 <portlet:defineObjects/>
 <script language="JavaScript" type="text/javascript">
 <!--

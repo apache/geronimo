@@ -48,7 +48,7 @@
         </dependency>
     
         <dependency>
-            <groupId>org.apache.geronimo.plugins</groupId>
+            <groupId>org.apache.geronimo.plugins.monitoring</groupId>
             <artifactId>agent-ds</artifactId>
             <version>${monitoringConsoleVersion}</version>
             <type>car</type>

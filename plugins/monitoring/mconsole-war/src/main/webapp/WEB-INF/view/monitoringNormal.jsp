@@ -24,7 +24,7 @@
 <%@ page import="java.sql.ResultSet" %>
 <%@ page import="java.sql.SQLException" %>
 <%@ page import="org.apache.geronimo.monitoring.console.MRCConnector" %>
-<%@ page import="org.apache.geronimo.monitoring.console.util.*" %>
+<%@ page import="org.apache.geronimo.monitoring.console.util.DBManager" %>
 <portlet:defineObjects/>
 <script type = "text/javascript">
 <!--

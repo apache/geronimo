@@ -14,26 +14,23 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.monitoring.snapshot;
+package org.apache.geronimo.monitoring.jmx.snapshot;
 
-import java.io.File;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Properties;
 import java.util.Set;
 
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
-import javax.naming.Context;
-import javax.naming.InitialContext;
 
+import org.apache.geronimo.monitoring.MBeanHelper;
+import org.apache.geronimo.monitoring.snapshot.SnapshotConfigXMLBuilder;
+import org.apache.geronimo.monitoring.snapshot.SnapshotDBHelper;
+import org.apache.geronimo.monitoring.jmx.MasterRemoteControlJMX;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.geronimo.monitoring.MBeanHelper;
-import org.apache.geronimo.monitoring.MasterRemoteControlJMX;
-import org.apache.geronimo.monitoring.snapshot.SnapshotConfigXMLBuilder;
 
 /**
  * Thread that is in charge of executing every x milliseconds. Upon each

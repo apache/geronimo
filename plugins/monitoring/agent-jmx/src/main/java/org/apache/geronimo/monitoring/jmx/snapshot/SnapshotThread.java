@@ -14,17 +14,16 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.monitoring.snapshot;
+package org.apache.geronimo.monitoring.jmx.snapshot;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
 
 import javax.management.MBeanServer;
-import javax.management.ObjectName;
 
-import org.apache.geronimo.monitoring.MasterRemoteControlJMX;
+import org.apache.geronimo.monitoring.jmx.MasterRemoteControlJMX;
+import org.apache.geronimo.monitoring.snapshot.SnapshotConfigXMLBuilder;
 
 /**
  * Thread that is in charge of executing every x milliseconds. Upon each

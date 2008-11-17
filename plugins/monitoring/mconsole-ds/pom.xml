@@ -30,7 +30,6 @@
         <version>2.2-SNAPSHOT</version>
     </parent>
 
-    <groupId>org.apache.geronimo.plugins</groupId>
     <artifactId>mconsole-ds</artifactId>
     <name>Geronimo Plugins, Console :: Monitoring DataSource</name>
     <packaging>car</packaging>
@@ -50,6 +49,7 @@
             <groupId>org.tranql</groupId>
             <artifactId>tranql-connector-derby-embed-local</artifactId>
             <type>rar</type>
+            <scope>provided</scope>
         </dependency>
         
         <dependency>
@@ -57,6 +57,7 @@
             <artifactId>connector-deployer</artifactId>
             <version>${version}</version>
             <type>car</type>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 

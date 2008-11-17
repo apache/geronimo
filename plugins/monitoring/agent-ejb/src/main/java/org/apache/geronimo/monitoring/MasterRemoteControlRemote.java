@@ -48,7 +48,6 @@ public interface MasterRemoteControlRemote {
     public boolean addMBeanForSnapshot(String s);
     public boolean removeMBeanForSnapshot(String s);
     public boolean isSnapshotRunning();
-    public void setUpMEJB(String username, String password);
     public Object invoke(ObjectName name, String operationName, Object[] params, String[] signature);
     public TreeMap<Long, Long> getSpecificStatistics(String mbeanName, String statsName, int numberOfSnapshots, int everyNthSnapshot, boolean showArchive);
     public Set<String> getTrackedMBeans();

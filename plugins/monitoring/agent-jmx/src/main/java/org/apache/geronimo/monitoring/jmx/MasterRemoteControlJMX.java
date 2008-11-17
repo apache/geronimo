@@ -14,10 +14,9 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.monitoring;
+package org.apache.geronimo.monitoring.jmx;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -28,37 +27,28 @@ import javax.management.Attribute;
 import javax.management.MBeanServer;
 import javax.management.MBeanServerFactory;
 import javax.management.ObjectName;
-import javax.management.j2ee.Management;
-import javax.management.j2ee.ManagementHome;
-import javax.management.j2ee.statistics.BoundedRangeStatistic;
 import javax.management.j2ee.statistics.RangeStatistic;
 import javax.management.j2ee.statistics.Stats;
 import javax.management.j2ee.statistics.CountStatistic;
 import javax.management.j2ee.statistics.Statistic;
 import javax.management.j2ee.statistics.TimeStatistic;
-import javax.naming.Context;
 import javax.naming.InitialContext;
-import javax.naming.NamingException;
 import javax.sql.DataSource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-import org.apache.geronimo.connector.outbound.ManagedConnectionFactoryWrapper;
-import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 
 import org.apache.geronimo.monitoring.MBeanHelper;
+import org.apache.geronimo.monitoring.MonitorConstants;
 
-import org.apache.xbean.naming.context.WritableContext.NestedWritableContext;
-
-import org.apache.geronimo.monitoring.snapshot.SnapshotThread;
+import org.apache.geronimo.monitoring.jmx.snapshot.SnapshotThread;
 import org.apache.geronimo.monitoring.snapshot.SnapshotConfigXMLBuilder;
 import org.apache.geronimo.monitoring.snapshot.SnapshotDBHelper;
-import org.apache.geronimo.monitoring.snapshot.ObjectFactory;
 
 /**
  * This is the GBean that will be the bottleneck for the communication
@@ -101,8 +91,8 @@ public class MasterRemoteControlJMX implements GBeanLifecycle {
         // Note: do not put this in the constructor...datasources are not injected by then
         try {
             InitialContext ic = new InitialContext();
-            activeDS = (DataSource)ic.lookup("jca:/org.apache.geronimo.plugins/agent-ds/JCAManagedConnectionFactory/jdbc/ActiveDS");
-            archiveDS = (DataSource)ic.lookup("jca:/org.apache.geronimo.plugins/agent-ds/JCAManagedConnectionFactory/jdbc/ArchiveDS");
+            activeDS = (DataSource)ic.lookup("jca:/org.apache.geronimo.plugins.monitoring/agent-ds/JCAManagedConnectionFactory/jdbc/ActiveDS");
+            archiveDS = (DataSource)ic.lookup("jca:/org.apache.geronimo.plugins.monitoring/agent-ds/JCAManagedConnectionFactory/jdbc/ArchiveDS");
         } catch(Exception e) {
             log.error(e.getMessage());
         }
@@ -196,7 +186,7 @@ public class MasterRemoteControlJMX implements GBeanLifecycle {
      * @return ArrayList
      */ 
     public ArrayList<HashMap<String, HashMap<String, Object>>> fetchSnapshotData(Integer numberOfSnapshot, Integer everyNthSnapshot) {
-        return (ArrayList<HashMap<String, HashMap<String, Object>>>)snapshotDBHelper.fetchData(numberOfSnapshot, everyNthSnapshot);
+        return snapshotDBHelper.fetchData(numberOfSnapshot, everyNthSnapshot);
     }
     
     /**
@@ -207,7 +197,7 @@ public class MasterRemoteControlJMX implements GBeanLifecycle {
      * @return HashMap
      */
     public HashMap<String, HashMap<String, Long>> fetchMaxSnapshotData(Integer numberOfSnapshot) {
-        return (HashMap<String, HashMap<String, Long>>)snapshotDBHelper.fetchMaxSnapshotData(numberOfSnapshot);
+        return snapshotDBHelper.fetchMaxSnapshotData(numberOfSnapshot);
     }
 
     /**
@@ -218,7 +208,7 @@ public class MasterRemoteControlJMX implements GBeanLifecycle {
      * @return HashMap
      */
     public HashMap<String, HashMap<String, Long>> fetchMinSnapshotData(Integer numberOfSnapshot) {
-        return (HashMap<String, HashMap<String, Long>>)snapshotDBHelper.fetchMinSnapshotData(numberOfSnapshot);
+        return snapshotDBHelper.fetchMinSnapshotData(numberOfSnapshot);
     }
     
     /**

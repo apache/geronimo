@@ -21,7 +21,8 @@
 <openejb-jar
         xmlns="http://www.openejb.org/xml/ns/openejb-jar-2.1"
         xmlns:sec="http://geronimo.apache.org/xml/ns/security-2.0"
-        xmlns:sys="http://geronimo.apache.org/xml/ns/deployment-2.0">
+        xmlns:sys="http://geronimo.apache.org/xml/ns/deployment-1.2"
+        xmlns:cs="http://geronimo.apache.org/xml/ns/credentialstore-1.0">
 
 
     <enterprise-beans>
@@ -32,6 +33,13 @@
     </enterprise-beans>
 
     <sec:security>
+        <sec:credential-store-ref>
+            <sys:name>monitoring-credential-store</sys:name>
+        </sec:credential-store-ref>
+        <sec:default-subject>
+            <sec:realm>geronimo-admin</sec:realm>
+            <sec:id>monitoring-user</sec:id>
+        </sec:default-subject>
         <sec:role-mappings>
             <sec:role role-name="mejbuser">
                 <sec:principal name="admin"
@@ -46,4 +54,24 @@
             </sec:role>
         </sec:role-mappings>
     </sec:security>
+
+    <sys:gbean name="monitoring-credential-store" class="org.apache.geronimo.security.credentialstore.SimpleCredentialStoreImpl">
+        <sys:xml-attribute name="credentialStore">
+            <cs:credential-store>
+                <cs:realm name="geronimo-admin">
+                    <cs:subject>
+                        <cs:id>monitoring-user</cs:id>
+                        <cs:credential>
+                            <cs:type>org.apache.geronimo.security.credentialstore.NameCallbackHandler</cs:type>
+                            <cs:value>system</cs:value>
+                        </cs:credential>
+                        <cs:credential>
+                            <cs:type>org.apache.geronimo.security.credentialstore.PasswordCallbackHandler</cs:type>
+                            <cs:value>manager</cs:value>
+                        </cs:credential>
+                    </cs:subject>
+                </cs:realm>
+            </cs:credential-store>
+        </sys:xml-attribute>
+    </sys:gbean>
 </openejb-jar>
