@@ -53,7 +53,12 @@ public class TransportConnectorGBeanImpl implements GBeanLifecycle, ActiveMQConn
     public TransportConnectorGBeanImpl(BrokerServiceGBean brokerServiceGBean, String protocol, String host, int port) {
         this.brokerServiceGBean = brokerServiceGBean;
         this.protocol = protocol;
-        this.host = host;
+        //force localhost to 127.0.0.1 to avoid activemq amplify localhost to 0.0.0.0
+        if (host.equalsIgnoreCase("localhost")) {
+            this.host = "127.0.0.1";
+        } else {
+            this.host = host;
+        }
         this.port = port;
     }
 
