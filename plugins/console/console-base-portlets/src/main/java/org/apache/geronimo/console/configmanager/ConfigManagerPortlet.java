@@ -40,7 +40,9 @@ import org.apache.geronimo.console.BasePortlet;
 import org.apache.geronimo.console.util.PortletManager;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.DependencyManager;
+import org.apache.geronimo.kernel.InternalKernelException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelRegistry;
 import org.apache.geronimo.kernel.config.Configuration;
@@ -178,7 +180,7 @@ public class ConfigManagerPortlet extends BasePortlet {
             // todo we have a much more detailed report now
             message(actionResponse, null, "Lifecycle operation failed<br /><br />");
             log.error("Lifecycle operation failed ", e);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             message(actionResponse, null, "Encountered an unhandled exception<br /><br />");
             log.error("Exception", e);
         }
@@ -276,7 +278,7 @@ public class ConfigManagerPortlet extends BasePortlet {
                 }
 
             } else if (shouldListConfig(info.getType())) {
-                ModuleDetails details = new ModuleDetails(info.getConfigID(), info.getType(), info.getState());
+                ModuleDetails details = new ModuleDetails(info.getConfigID(), info.getType(), getConfigurationState(info));
                 try {
                     AbstractName configObjName = Configuration.getConfigurationAbstractName(info.getConfigID());
                     boolean loaded = loadModule(configManager, configObjName);
@@ -324,6 +326,30 @@ public class ConfigManagerPortlet extends BasePortlet {
         } else {
             maximizedView.include(renderRequest, renderResponse);
         }
+    }
+
+    private State getConfigurationState(ConfigurationInfo configurationInfo) {
+        State configurationState = configurationInfo.getState();
+        if (configurationState.isRunning()) {
+            // Check whether the Configuration's sub-gbeans are running
+            try {
+                Configuration configuration = PortletManager.getConfigurationManager().getConfiguration(configurationInfo.getConfigID());
+                Map<AbstractName, GBeanData> abstractNameGBeanDataMap = configuration.getGBeans();
+                // Check one sub-GBean's state, if one gbean fails to start, all will be shutdown
+                Iterator<AbstractName> it = abstractNameGBeanDataMap.keySet().iterator();
+                if (it.hasNext()) {
+                    AbstractName abstractName = it.next();
+                    if (!PortletManager.getKernel().isRunning(abstractName)) {
+                        return State.STOPPED;
+                    }
+                }
+            } catch (InternalKernelException e) {
+                return State.STOPPED;
+            } catch (IllegalStateException e) {
+                return State.STOPPED;
+            }
+        }
+        return configurationState;
     }
 
     private WebModule getWebModule(Configuration config, Configuration child) {
