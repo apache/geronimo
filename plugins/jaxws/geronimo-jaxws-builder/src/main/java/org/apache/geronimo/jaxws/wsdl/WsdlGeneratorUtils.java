@@ -100,6 +100,8 @@ public class WsdlGeneratorUtils {
             for (URL u : cl.getURLs()) {
                 classpath.add(u);
             }
+        } else {
+            getClassLoaderClasspath(loader.getParent(), classpath);
         }
     }
     
