@@ -35,9 +35,9 @@ public class ConnectorTest extends TestCase {
 //
 //    public void testURLManipulation() {
 //        test = new TransportConnectorGBeanImpl(null, "foo", "localhost", 1234);
-//        assertEquals("foo://localhost:1234", test.getUrl());
+//        assertEquals("foo://127.0.0.1:1234", test.getUrl());
 //        assertEquals("foo", test.getProtocol());
-//        assertEquals("localhost", test.getHost());
+//        assertEquals("127.0.0.1", test.getHost());
 //        assertEquals(1234, test.getPort());
 //        test.setHost("0.0.0.0");
 //        assertEquals("foo://0.0.0.0:1234", test.getUrl());
@@ -55,9 +55,9 @@ public class ConnectorTest extends TestCase {
 //        assertEquals("0.0.0.0", test.getHost());
 //        assertEquals(8765, test.getPort());
 //        test = new TransportConnectorGBeanImpl(null, "vm", "localhost", -1);
-//        assertEquals("vm://localhost", test.getUrl());
+//        assertEquals("vm://127.0.0.1", test.getUrl());
 //        assertEquals("vm", test.getProtocol());
-//        assertEquals("localhost", test.getHost());
+//        assertEquals("127.0.0.1", test.getHost());
 //        assertEquals(-1, test.getPort());
 //    }
 }
