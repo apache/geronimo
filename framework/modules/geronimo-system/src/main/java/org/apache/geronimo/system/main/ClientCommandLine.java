@@ -23,6 +23,8 @@ import org.apache.geronimo.cli.client.ClientCLParser;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.kernel.Jsr77Naming;
+import org.apache.geronimo.kernel.config.LifecycleException;
+import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.repository.Artifact;
 
 /**
@@ -63,7 +65,11 @@ public class ClientCommandLine extends CommandLine {
             return startClient(configuration, parser.getApplicationClientArgs());
         } catch (Exception e) {
             ExceptionUtil.trimStackTrace(e);
-            log.error("Client failed with exception: ", e);
+            if (e instanceof LifecycleException && ((LifecycleException)e).getCause() instanceof NoSuchConfigException) {
+                log.error("The client is not found in server: " + ((NoSuchConfigException)((LifecycleException)e).getCause()).getConfigId());
+            } else {
+                log.error("Client failed with exception: ", e);
+            }
             return 2;
         }
     }
