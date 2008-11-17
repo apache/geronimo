@@ -319,7 +319,7 @@ limitations under the License.
         <attribute name="defaultPort">0</attribute>
         <attribute name="specific">true</attribute>
         <attribute name="RARName">org.tranql/tranql-connector-postgresql-local//rar</attribute>
-        <attribute name="dependencyFilterStrings">postgresql/postgresql//jar,postgresql/postgresql-7.3//jar,postgresql/postgresql-7.4//jar,postgresql/postgresql-8.0//jar,postgresql/postgresql-8.1//jar,postgresql/postgresql-8.2//jar</attribute>
+        <attribute name="dependencyFilterStrings">postgresql///jar</attribute>
     </gbean>
     <gbean name="Database25a" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean">
         <attribute name="name">PostgreSQL XA</attribute>
@@ -328,7 +328,7 @@ limitations under the License.
         <attribute name="defaultPort">0</attribute>
         <attribute name="specific">true</attribute>
         <attribute name="RARName">org.tranql/tranql-connector-postgresql-xa//rar</attribute>
-        <attribute name="dependencyFilterStrings">postgresql/postgresql//jar,postgresql/postgresql-7.3//jar,postgresql/postgresql-7.4//jar,postgresql/postgresql-8.0//jar,postgresql/postgresql-8.1//jar,postgresql/postgresql-8.2//jar</attribute>
+        <attribute name="dependencyFilterStrings">postgresql///jar</attribute>
     </gbean>
     <gbean name="Database26" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean">
         <attribute name="name">Progress</attribute>
