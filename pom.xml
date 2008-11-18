@@ -2793,8 +2793,40 @@
 
             <dependency>
                 <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-tools-java2ws</artifactId>
+                <version>${cxfVersion}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.cxf</groupId>
+                        <artifactId>cxf-rt-javascript</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.cxf</groupId>
+                        <artifactId>cxf-rt-databinding-aegis</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>javax.xml.soap</groupId>
+                        <artifactId>saaj-api</artifactId>
+                     </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-ws-addr</artifactId>
                 <version>${cxfVersion}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.velocity</groupId>
+                <artifactId>velocity</artifactId>
+                <version>1.5</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>oro</groupId>
+                        <artifactId>oro</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
         </dependencies>
     </dependencyManagement>

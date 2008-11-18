@@ -65,6 +65,13 @@
             <version>${version}</version>
             <type>car</type>
         </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>cxf-tools</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
     </dependencies>
 
     <build>

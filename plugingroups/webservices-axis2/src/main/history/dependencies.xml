@@ -26,4 +26,9 @@
         <artifactId>axis-deployer</artifactId>
         <type>car</type>
     </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>cxf-tools</artifactId>
+        <type>car</type>
+    </dependency>
 </plugin-artifact>
