@@ -133,6 +133,19 @@ public class ArchiveCarMojo
      * @parameter
      */
     private String classpathPrefix = null;
+    
+    /**
+     * Generate classpath prefix based on the artifactId and groupId. The generated classpath
+     * prefix will be in the following form:
+     * <tt>../repository/&lt;groupId&gt;/&lt;artifactId&gt;/&lt;version&gt;</tt>.
+     * This is the default setting applied to all elements of the <tt>classpath</tt> which
+     * do not provide a prefix or do not set the generateClasspathPrefix parameter.  The 
+     * classpath prefix will only be generated if the <tt>classpathPrefix</tt> parameter is not
+     * set.
+     *
+     * @parameter
+     */
+    private boolean generateClasspathPrefix;
 
     /**
      * Location of resources directory for additional content to include in the car.
@@ -243,7 +256,22 @@ public class ArchiveCarMojo
 
                 String prefix = classpath[i].getClasspathPrefix();
                 if (prefix == null) {
-                    prefix = classpathPrefix;
+                    Boolean generatePrefix = classpath[i].getGenerateClasspathPrefix();
+                    if (generatePrefix == null) {
+                        // generatePrefix is not set - try defaults                        
+                        if (classpathPrefix == null) {
+                            if (generateClasspathPrefix) {
+                                prefix = generatePrefix(artifact);
+                            }
+                        } else {                            
+                            prefix = classpathPrefix;
+                        }
+                    } else if (Boolean.TRUE.equals(generatePrefix)) {
+                        // generatePrefix is explicitly set to true - generate prefix
+                        prefix = generatePrefix(artifact);
+                    } else {
+                        // generatePrefix is explicitly set to false - leave null prefix
+                    }
                 }
 
                 if (prefix != null) {
@@ -269,4 +297,8 @@ public class ArchiveCarMojo
         return buff.toString();
     }
 
+    private static String generatePrefix(Artifact artifact) {
+        return "../repository/" + artifact.getGroupId().replace('.', '/') + "/" + artifact.getArtifactId() + "/" + artifact.getVersion(); 
+    }
+    
 }
