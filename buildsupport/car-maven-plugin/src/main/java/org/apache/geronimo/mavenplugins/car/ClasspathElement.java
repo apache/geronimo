@@ -78,17 +78,6 @@ public class ClasspathElement
      * @parameter
      */
     private String entry;
-    
-    /**
-     * Generate classpath prefix based on the artifactId and groupId. The generated classpath
-     * prefix will be in the following form:
-     * <tt>../repository/&lt;groupId&gt;/&lt;artifactId&gt;/&lt;version&gt;</tt>.
-     * The classpath prefix will only be generated if the <tt>classpathPrefix</tt> parameter 
-     * is not set.
-     *
-     * @parameter
-     */
-    private Boolean generateClasspathPrefix;
 
     /**
      * @return Returns the artifactId.
@@ -172,24 +161,6 @@ public class ClasspathElement
      */
     public void setClasspathPrefix(final String classpathPrefix) {
         this.classpathPrefix = classpathPrefix;
-    }
-
-    /**     
-     * @return Returns null if the classpath prefix parameter was not set.
-     *         Returns true if the classpath prefix should be automatically generated.
-     *         Returns false if the classpath prefix should NOT be automatically generated. 
-     */
-    public Boolean getGenerateClasspathPrefix() {
-        return generateClasspathPrefix;
-    }
-
-    /**
-     * Sets whether classpath prefix should be automatically generated.
-     * 
-     * @param generateClasspathPrefix
-     */
-    public void setGenerateClasspathPrefix(Boolean generateClasspathPrefix) {
-        this.generateClasspathPrefix = generateClasspathPrefix;
     }
 
     public String getEntry() {
