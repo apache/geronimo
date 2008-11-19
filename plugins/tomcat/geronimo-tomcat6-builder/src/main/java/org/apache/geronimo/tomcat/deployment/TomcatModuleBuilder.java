@@ -402,7 +402,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
             if (tomcatWebApp.isSetManager()) {
                 String manager = tomcatWebApp.getManager().trim();
                 AbstractName managerName = earContext.getNaming().createChildName(moduleName, manager, ManagerGBean.J2EE_TYPE);
-                webModuleData.setReferencePattern("Manager", managerName);
+                webModuleData.setReferencePattern(TomcatWebAppContext.GBEAN_REF_MANAGER_RETRIEVER, managerName);
             }
             
             Boolean distributable = webApp.getDistributableArray().length == 1 ? TRUE : FALSE;
