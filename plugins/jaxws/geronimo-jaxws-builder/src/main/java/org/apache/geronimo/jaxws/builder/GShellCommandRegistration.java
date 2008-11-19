@@ -21,32 +21,33 @@ package org.apache.geronimo.jaxws.builder;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.InputStream;
 import java.io.PrintWriter;
-import java.io.StringReader;
 import java.util.Properties;
 
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
+import org.w3c.dom.Text;
 
 public class GShellCommandRegistration {
     
-    private static String INDENT = "    ";
+    private static final String INDENT = "    ";
            
     private static boolean updateClassworlds(File classworldsFile, String classworlsTest, String classworlds) throws Exception {
         boolean updated = checkClassworlds(classworldsFile, classworlsTest);
@@ -102,43 +103,7 @@ public class GShellCommandRegistration {
         reader.close();
         return matches;
     }
-    
-    private static boolean updateLayout(File layoutFile, String layoutTest, String layout) throws Exception {  
-        
-        DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
-        Document layoutDocument = domFactory.newDocumentBuilder().parse(layoutFile);
-        
-        XPathFactory xpathFactory = XPathFactory.newInstance();
-        XPath xPath = xpathFactory.newXPath();
-        
-        Boolean updated = (Boolean)xPath.evaluate(layoutTest, layoutDocument, XPathConstants.BOOLEAN);
-        
-        if (updated.booleanValue()) {
-            return false;
-        }
-                            
-        Document doc = domFactory.newDocumentBuilder().parse(new InputSource(new StringReader(layout)));
             
-        Element layoutElement = layoutDocument.getDocumentElement();
-        NodeList nodes = layoutElement.getElementsByTagName("nodes");
-        Node n = layoutDocument.importNode(doc.getDocumentElement(), true);
-        nodes.item(0).appendChild(n);
-            
-        TransformerFactory tFactory = TransformerFactory.newInstance();
-        Transformer transformer = tFactory.newTransformer();
- 
-        DOMSource source = new DOMSource(layoutDocument);
-        File tmpFile = new File(layoutFile.getAbsolutePath() + ".tmp");
-        FileOutputStream out = new FileOutputStream(tmpFile);
-        StreamResult result = new StreamResult(out);
-        transformer.transform(source, result);                    
-        out.close();
-            
-        switchFile(tmpFile, layoutFile);
-            
-        return true;        
-    }
-        
     private static void switchFile(File tmpFile, File realFile) {
         realFile.delete();
         if (!tmpFile.renameTo(realFile)) {
@@ -157,20 +122,40 @@ public class GShellCommandRegistration {
         InputStream in = loader.getResourceAsStream(propsFile);
         
         if (in == null) {
-            throw new Exception("Failed to load properties file: " + propsFile);
+            in = new FileInputStream(propsFile);
+           // throw new Exception("Failed to load properties file: " + propsFile);
         }
                 
         Properties p = new Properties();
         p.load(in);
                        
         // update layout.xml
-        String layoutXPathTest = p.getProperty("layoutXPathTest");
-        String layoutEntry = p.getProperty("layoutEntry");
+        String layoutCommands = p.getProperty("layout");
         
-        if (layoutXPathTest != null && layoutEntry != null) {
+        if (layoutCommands != null) {
             File layoutFile = new File(baseDir, "etc/layout.xml");
-            if (updateLayout(layoutFile, layoutXPathTest, layoutEntry)) {
-                System.out.println("Registered commands in layout.xml");
+            Layout layout = new Layout(layoutFile);
+            boolean modified = false;
+            String [] commands = layoutCommands.split(",");
+            for (String command : commands) {
+                command = command.trim();
+                if (command.length() == 0) {
+                    continue;
+                }
+                String [] cmd = command.split(" ");
+                String operation = cmd[0];
+                if ("addCommand".equals(operation)) {
+                    String groupName = (cmd.length > 3) ? cmd[3] : null;
+                    if (layout.addCommand(cmd[1], cmd[2], groupName)) {
+                        modified = true;
+                    }
+                } else {
+                    throw new Exception("Unsupported layout command: " + operation);
+                }
+            }
+            if (modified) {
+                System.out.println("Updated layout.xml");
+                layout.save();
             }
         }
         
@@ -183,7 +168,117 @@ public class GShellCommandRegistration {
                 System.out.println("Updated gsh-classworlds.conf");
             }
         }
-               
     }
      
+    private static class Layout {
+        
+        private File layoutFile;
+        private Document layoutDocument;
+        
+        public Layout(File layoutFile) throws Exception {
+            this.layoutFile = layoutFile;
+            DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
+            this.layoutDocument = domFactory.newDocumentBuilder().parse(layoutFile);
+        }
+        
+        public boolean addGroup(String groupName) throws Exception {
+            Element group = getGroup(groupName);
+            if (group == null) {
+                Node nodes = getNodes(this.layoutDocument.getDocumentElement());
+                nodes.appendChild(createGroup(groupName));
+                return true;
+            }
+            return false;
+        }
+        
+        public Element getGroup(String groupName) throws Exception {
+            return getElement(this.layoutDocument, "//layout/nodes/group/name[contains(.,'" + groupName + "')]/..");
+        }
+        
+        public boolean addCommand(String commandName, String commandId, String groupName) throws Exception {
+            if (groupName == null) {
+                Element nodes = getNodes(this.layoutDocument.getDocumentElement());
+                return addCommand(nodes, commandName, commandId);
+            } else {
+                Element group = getGroup(groupName);
+                if (group == null) {
+                    Node nodes = getNodes(this.layoutDocument.getDocumentElement());
+                    group = createGroup(groupName);
+                    nodes.appendChild(group);
+                }
+                Element nodes = getNodes(group);
+                if (nodes == null) {
+                    nodes = this.layoutDocument.createElement("nodes");
+                    group.appendChild(nodes);
+                    nodes.appendChild(createCommand(commandName, commandId));
+                    return true;
+                } else {
+                    return addCommand(nodes, commandName, commandId);
+                }
+            }
+        }
+
+        private boolean addCommand(Element nodes, String commandName, String commandId) throws Exception {
+            Element command = getCommand(nodes, commandName);
+            if (command == null) {
+                nodes.appendChild(createCommand(commandName, commandId));
+                return true;
+            } else {
+                return false;
+            }
+        }
+        
+        private Element createGroup(String groupName) {
+            Element group = layoutDocument.createElement("group");
+            group.appendChild(createElement("name", groupName));
+            return group;
+        }
+        
+        private Element createCommand(String commandName, String commandId) {
+            Element command = layoutDocument.createElement("command");
+            command.appendChild(createElement("name", commandName));
+            command.appendChild(createElement("id", commandId));
+            return command;
+        }
+        
+        private Element createElement(String name, String value) {
+            Element node = layoutDocument.createElement(name);
+            Text text = layoutDocument.createTextNode(value);
+            node.appendChild(text);
+            return node;
+        }
+
+        private Element getNodes(Node root) throws Exception {
+            return getElement(root, "./nodes");            
+        }
+        
+        public Element getCommand(Node root, String name) throws Exception {
+            return getElement(root, "./command/name[contains(.,'" + name + "')]/..");
+        }
+        
+        private Element getElement(Node root, String query) throws XPathExpressionException {
+            XPathFactory xpathFactory = XPathFactory.newInstance();
+            XPath xPath = xpathFactory.newXPath();            
+            Node node = (Node)xPath.evaluate(query, root, XPathConstants.NODE);
+            return (Element)node;  
+        }
+        
+        public void save() throws Exception {
+            TransformerFactory tFactory = TransformerFactory.newInstance();
+            Transformer transformer = tFactory.newTransformer();
+            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+     
+            DOMSource source = new DOMSource(layoutDocument);
+            File tmpFile = new File(this.layoutFile.getAbsolutePath() + ".tmp");
+            FileOutputStream out = new FileOutputStream(tmpFile);
+            StreamResult result = new StreamResult(out);
+            try {
+                transformer.transform(source, result);
+            } finally {
+                out.close();
+            }
+                
+            switchFile(tmpFile, this.layoutFile);
+        }
+    }
 }
