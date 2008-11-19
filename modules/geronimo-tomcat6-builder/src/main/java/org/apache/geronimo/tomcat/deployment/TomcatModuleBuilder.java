@@ -366,7 +366,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
             if (tomcatWebApp.isSetManager()) {
                 String manager = tomcatWebApp.getManager().trim();
                 AbstractName managerName = earContext.getNaming().createChildName(moduleName, manager, ManagerGBean.J2EE_TYPE);
-                webModuleData.setReferencePattern("Manager", managerName);
+                webModuleData.setReferencePattern(TomcatWebAppContext.GBEAN_REF_MANAGER_RETRIEVER, managerName);
             }
 
             //Handle the role permissions and webservices on the servlets.

@@ -16,14 +16,19 @@
  */
 package org.apache.geronimo.tomcat;
 
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.catalina.Manager;
+import org.apache.catalina.Store;
+import org.apache.catalina.session.PersistentManagerBase;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.tomcat.util.IntrospectionUtils;
 
 public class ManagerGBean extends BaseGBean implements GBeanLifecycle, ObjectRetriever{
 
@@ -48,15 +53,18 @@ public class ManagerGBean extends BaseGBean implements GBeanLifecycle, ObjectRet
         super(); // TODO: make it an attribute
         //Validate
         if (className == null){
-            className = "org.apache.catalina.core.StandardHost";
+            className = "org.apache.catalina.session.StandardManager";
         }
         
         //Create the Manager object
         manager = (Manager)Class.forName(className).newInstance();
-        
+
         //Set the parameters
-        setParameters(manager, initParams);
-        
+        if (CLASSNAME_PARAMETERHANDLER_MAP.containsKey(className)) {
+            CLASSNAME_PARAMETERHANDLER_MAP.get(className).handle(manager, initParams);
+        } else {
+            CLASSNAME_PARAMETERHANDLER_MAP.get(DEFAULT_PARAMETER_HANDLER).handle(manager, initParams);
+        }
     }
     
     public void doStart() throws Exception {
@@ -69,11 +77,14 @@ public class ManagerGBean extends BaseGBean implements GBeanLifecycle, ObjectRet
     }
 
     public Object getInternalObject() {
-        // TODO Auto-generated method stub
         return manager;
     }
     
     public static final GBeanInfo GBEAN_INFO;
+
+    public static final Map<String, ParametersHandler> CLASSNAME_PARAMETERHANDLER_MAP = new HashMap<String, ParametersHandler>();
+
+    public static final String DEFAULT_PARAMETER_HANDLER = "default";
 
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("TomcatManager", ManagerGBean.class, J2EE_TYPE);
@@ -84,9 +95,70 @@ public class ManagerGBean extends BaseGBean implements GBeanLifecycle, ObjectRet
                 "className", 
                 "initParams"});
         GBEAN_INFO = infoFactory.getBeanInfo();
+        //Initialize handler map
+        CLASSNAME_PARAMETERHANDLER_MAP.put(DEFAULT_PARAMETER_HANDLER, new DefaultParametersHandler());
+        CLASSNAME_PARAMETERHANDLER_MAP.put("org.apache.catalina.session.PersistentManager", new PersistentManagerBaseParametersHandler());
+        CLASSNAME_PARAMETERHANDLER_MAP.put("org.apache.catalina.session.DistributedManager", new PersistentManagerBaseParametersHandler());
     }
 
     public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
+    }
+
+    public interface ParametersHandler {
+        public void handle(Object managerObject, Map<String, String> nameValueMap) throws Exception;
+    }
+
+    static class DefaultParametersHandler implements ParametersHandler {
+        public void handle(Object managerObject, Map<String, String> nameValueMap) throws Exception {
+            for (Iterator<String> it = nameValueMap.keySet().iterator(); it.hasNext();) {
+                String sCurrentParameterName = it.next();
+                String sCurrentParameterValue = nameValueMap.get(sCurrentParameterName);
+                if (sCurrentParameterValue != null) {
+                    sCurrentParameterValue = sCurrentParameterValue.trim();
+                }
+                IntrospectionUtils.setProperty(managerObject, sCurrentParameterName, sCurrentParameterValue);
+            }
+        }
+    }
+
+    static class PersistentManagerBaseParametersHandler implements ParametersHandler {
+        private static final String STORE_CLASSNAME = "store.className";
+
+        private static final String STORE_PARAMETER_PREFIX = "store.";
+
+        public void handle(Object managerObject, Map<String, String> nameValueMap) throws Exception {
+            //Search the Store implementation
+            if (!nameValueMap.containsKey(STORE_CLASSNAME) || nameValueMap.get(STORE_CLASSNAME) == null) {
+                throw new IllegalArgumentException("store.className should be set to indicate which implementation is used");
+            }
+            Store store = (Store) Class.forName(nameValueMap.get(STORE_CLASSNAME).trim()).newInstance();
+            nameValueMap.remove(STORE_CLASSNAME);
+            //Initialize store object            
+            for (Iterator<String> it = nameValueMap.keySet().iterator(); it.hasNext();) {
+                String sCurrentParameterName = it.next();
+                String sCurrentParameterValue = nameValueMap.get(sCurrentParameterName);
+                if (sCurrentParameterValue != null) {
+                    sCurrentParameterValue = sCurrentParameterValue.trim();
+                }
+                if (sCurrentParameterName.indexOf(STORE_PARAMETER_PREFIX) == 0) {
+                    int iDotIndex = sCurrentParameterName.indexOf('.');
+                    String sStoreParameterName = sCurrentParameterName.substring(iDotIndex + 1);
+                    if (IntrospectionUtils.setProperty(store, sStoreParameterName, sCurrentParameterValue)) {
+                        log.debug("Property [" + sStoreParameterName + "] of the store object is set with [" + sCurrentParameterValue + "]");
+                    } else {
+                        log.warn("Fail to set the property [" + sStoreParameterName + "] of the store object with [" + sCurrentParameterValue + "]");
+                    }
+                } else {
+                    if (IntrospectionUtils.setProperty(managerObject, sCurrentParameterName, sCurrentParameterValue)) {
+                        log.debug("Property [" + sCurrentParameterName + "] of the manager object is set with [" + sCurrentParameterValue + "]");
+                    } else {
+                        log.warn("Fail to set the property [" + sCurrentParameterName + "] of the manager object with [" + sCurrentParameterValue + "]");
+                    }
+                }
+            }
+            //Set Store to Manager
+            ((PersistentManagerBase) managerObject).setStore(store);
+        }
     }
 }
