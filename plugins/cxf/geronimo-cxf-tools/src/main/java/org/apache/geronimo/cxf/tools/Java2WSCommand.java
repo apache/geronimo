@@ -28,8 +28,8 @@ import org.apache.geronimo.gshell.shell.ShellInfo;
 /**
  * GShell command for java2wsdl tool.
  */
-@CommandComponent(id="geronimo-cxf-tools:java2wsdl", description="Generate JAX-WS artifacts from class")
-public class Java2WSDLCommand extends CommandSupport {
+@CommandComponent(id="geronimo-cxf-tools:java2ws", description="Generate JAX-WS artifacts from class")
+public class Java2WSCommand extends CommandSupport {
     
     @Requirement
     ShellInfo shellInfo;
@@ -39,7 +39,7 @@ public class Java2WSDLCommand extends CommandSupport {
         init(context);
         
         String[] arguments = toString(args); 
-        return JAXWSToolsCLI.run(JAXWSToolsCLI.Command.JAVA2WSDL, 
+        return JAXWSToolsCLI.run(JAXWSToolsCLI.Command.JAVA2WS, 
                                  shellInfo.getHomeDir().getAbsolutePath(),
                                  arguments);
     }

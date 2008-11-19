@@ -43,12 +43,12 @@ public class JAXWSToolsCLI {
                
     private static final String CONFIG_ID = "org.apache.geronimo.configs/cxf-tools//car";
     
-    enum Command { JAVA2WSDL, WSDL2JAVA };
+    enum Command { JAVA2WS, WSDL2JAVA };
     
     private static final String USAGE_MSG =
         "Usage: jaxws-tools <toolName> <tool options>\n\n" +
         "where <toolName> is:\n" +
-        "  java2wsdl   - generate portable artifacts from class\n" +
+        "  java2ws     - generate portable artifacts from class\n" +
         "  wsdl2java   - generate portable artifacts from WSDL\n";
            
     public static void main(String[] args) throws Throwable {
@@ -59,7 +59,7 @@ public class JAXWSToolsCLI {
         
         Command cmd = null;
         if (args[0].equalsIgnoreCase("java2wsdl")) {
-            cmd = Command.JAVA2WSDL;
+            cmd = Command.JAVA2WS;
         } else if (args[0].equalsIgnoreCase("wsdl2java")) {
             cmd = Command.WSDL2JAVA;
         } else {
@@ -101,8 +101,8 @@ public class JAXWSToolsCLI {
         System.setProperty("java.class.path", classPath);  
         
         try {
-            if (cmd.equals(Command.JAVA2WSDL)) {
-                invokeJava2WSDL(classLoader, args);
+            if (cmd.equals(Command.JAVA2WS)) {
+                invokeJava2WS(classLoader, args);
             } else if (cmd.equals(Command.WSDL2JAVA)) {
                 invokeWSDL2Java(classLoader, args);
             } else {
@@ -125,7 +125,7 @@ public class JAXWSToolsCLI {
         return true;
     }
      
-    private static void invokeJava2WSDL(ClassLoader classLoader, String [] args) throws Exception {
+    private static void invokeJava2WS(ClassLoader classLoader, String [] args) throws Exception {
         Class clazz = classLoader.loadClass("org.apache.cxf.tools.java2ws.JavaToWS");
         Method method = clazz.getMethod("main", new Class[] {String[].class});
         method.invoke(null, new Object [] {args});  
