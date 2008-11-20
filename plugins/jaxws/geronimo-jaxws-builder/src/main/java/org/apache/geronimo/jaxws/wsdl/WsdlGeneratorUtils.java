@@ -163,35 +163,38 @@ public class WsdlGeneratorUtils {
         }               
     }
     
-    public static File getFirstWsdlFile(File baseDir) {
+    private static File[] getWsdlFiles(File baseDir) {
         File[] files = baseDir.listFiles(new FileFilter() {
             public boolean accept(File file) {
                 return (file.isFile() && file.getName().endsWith(".wsdl"));
             }
         });
-
-        if (files != null && files.length == 1) {
-            return files[0];
-        } else {
-            return null;
-        }
+        return files;
     }
     
     public static File findWsdlFile(File baseDir, String serviceName) {
-        if (serviceName != null) {
-            // check if serviceName.wsdl locates at the baseDir, if so, return its path.
-            String wsdlFileName = serviceName + ".wsdl";
-            if (Character.isLowerCase(wsdlFileName.charAt(0))) {
-                wsdlFileName = Character.toUpperCase(wsdlFileName.charAt(0)) + wsdlFileName.substring(1);
-            }
-            File wsdlFile = new File(baseDir, wsdlFileName);
-            if (wsdlFile.exists()) {
-                return wsdlFile;
-            } else {
-                return getFirstWsdlFile(baseDir);
-            }
+        File[] files = getWsdlFiles(baseDir);
+        if (files == null || files.length == 0) {
+            // no wsdl files found
+            return null;
         } else {
-            return getFirstWsdlFile(baseDir);
+            if (files.length == 1) {
+                // found one wsdl file, must be it
+                return files[0];
+            } else if (serviceName != null) {
+                // found multiple wsdl files, check filenames to match serviceName          
+                String wsdlFileName = serviceName + ".wsdl";
+                for (File file : files) {
+                    if (wsdlFileName.equalsIgnoreCase(file.getName())) {
+                        return file;
+                    }
+                }
+                return null;
+            } else {
+                // found multiple wsdl files and serviceName is not specified 
+                // so we don't know which wsdl file is the right one
+                return null;
+            }
         }
     }
     
