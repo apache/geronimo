@@ -58,7 +58,7 @@ public class JAXWSToolsCLI {
         }
         
         Command cmd = null;
-        if (args[0].equalsIgnoreCase("java2wsdl")) {
+        if (args[0].equalsIgnoreCase("java2ws")) {
             cmd = Command.JAVA2WS;
         } else if (args[0].equalsIgnoreCase("wsdl2java")) {
             cmd = Command.WSDL2JAVA;
@@ -69,13 +69,16 @@ public class JAXWSToolsCLI {
             System.exit(1);
         }
 
-        String geroninoHome = getGeronimoHome();
+        String geronimoHome = getGeronimoHome();
+        
         String[] arguments = getCmdArguments(args); 
-        boolean rs = run(cmd, geroninoHome, arguments);
+        boolean rs = run(cmd, geronimoHome, arguments);
         System.exit( (rs) ? 0 : 1 );
     }
     
-    static boolean run(Command cmd, String geronimoHome, String[] args) throws Exception {         
+    static boolean run(Command cmd, String geronimoHome, String[] args) throws Exception {   
+        resolveTmpDir(geronimoHome);
+        
         String repository = System.getProperty("Xorg.apache.geronimo.repository.boot.path", "repository");
         Maven2Repository bootRepository = new Maven2Repository(new File(geronimoHome, repository));
         Collection<Maven2Repository> repositories = Collections.singleton(bootRepository);
@@ -166,6 +169,21 @@ public class JAXWSToolsCLI {
         
         // cannot determine the directory, return parent directory
         return "..";        
+    }
+    
+    private static void resolveTmpDir(String geronimoHome) throws Exception {
+        String tmpDir = System.getProperty("java.io.tmpdir");
+        File tmpDirFile = new File(tmpDir);
+        if (!tmpDirFile.exists()) {
+            if (tmpDirFile.isAbsolute()) {
+                throw new Exception("The temporary directory set does not exist: " + tmpDir);
+            } 
+            File newTmpDirFile = new File(geronimoHome, tmpDir); 
+            if (!newTmpDirFile.exists()) {
+                throw new Exception("Unable to resolve temporary directory " + tmpDir + " in " + geronimoHome);
+            }
+            System.setProperty("java.io.tmpdir", newTmpDirFile.getAbsolutePath());
+        }      
     }
     
     public static Set<URL> getClassLoaderClasspath(ClassLoader loader) {
