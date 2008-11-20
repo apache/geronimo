@@ -37,6 +37,7 @@ import org.xml.sax.InputSource;
 import javax.servlet.ServletContext;
 
 import org.apache.geronimo.kernel.config.MultiParentClassLoader;
+import org.apache.geronimo.kernel.config.ChildrenConfigurationClassLoader;
 import org.apache.jasper.Constants;
 import org.apache.jasper.JasperException;
 import org.apache.jasper.compiler.TldLocationsCache;
@@ -454,6 +455,12 @@ public class GeronimoTldLocationsCache extends TldLocationsCache {
             for (ClassLoader parent : mutliLoader.getParents()) {
                 scanJars(parent);
             }
+        }
+
+        if (loader instanceof ChildrenConfigurationClassLoader) {
+            ChildrenConfigurationClassLoader childLoader = (ChildrenConfigurationClassLoader) loader;
+            ClassLoader parent = childLoader.getParent();
+            scanJars(parent);
         }
 
         if (loader instanceof URLClassLoader) {
