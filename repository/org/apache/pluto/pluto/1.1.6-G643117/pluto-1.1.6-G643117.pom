@@ -18,7 +18,7 @@
      * The pluto-portal-driver-config.xml in the pluto-portal module (src/main/webapp/WEB-INF),
      * The pluto.container.version.major and pluto.container.version.minor properties (in this file)
     -->
-    <version>1.1.6</version>
+    <version>1.1.6-G643117</version>
     <!-- Due to a bug in maven 2.0, the description must not contain any line breaks or tabs. -->
     <description>Pluto is the Reference Implementation of the Java Portlet Specfication.</description>
     <url>http://portals.apache.org/pluto</url>
@@ -211,9 +211,10 @@
     </licenses>
 
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/portals/pluto/tags/pluto-1.1.6</connection>
-        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/portals/pluto/tags/pluto-1.1.6</developerConnection>
-        <url>http://svn.apache.org/viewcvs.cgi/portals/pluto/tags/pluto-1.1.6</url>
+<!-- these are actually fake -->
+        <connection>scm:svn:http://svn.apache.org/repos/asf/portals/pluto/tags/pluto-1.1.6-G643117</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/portals/pluto/tags/pluto-1.1.6-G643117</developerConnection>
+        <url>http://svn.apache.org/viewcvs.cgi/portals/pluto/tags/pluto-1.1.6-G643117</url>
     </scm>
 
     <organization>
