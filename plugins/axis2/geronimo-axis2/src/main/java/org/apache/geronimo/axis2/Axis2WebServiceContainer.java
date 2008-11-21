@@ -55,6 +55,7 @@ import org.apache.axis2.jaxws.description.xml.handler.HandlerType;
 import org.apache.axis2.jaxws.handler.lifecycle.factory.HandlerLifecycleManagerFactory;
 import org.apache.axis2.jaxws.registry.FactoryRegistry;
 import org.apache.axis2.jaxws.server.JAXWSMessageReceiver;
+import org.apache.axis2.jaxws.server.endpoint.lifecycle.factory.EndpointLifecycleManagerFactory;
 import org.apache.axis2.transport.OutTransportInfo;
 import org.apache.axis2.transport.RequestResponseTransport;
 import org.apache.axis2.transport.http.HTTPConstants;
@@ -98,6 +99,7 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
     protected Binding binding;
     protected JAXWSAnnotationProcessor annotationProcessor;
     protected Context context;
+    protected GeronimoFactoryRegistry factoryRegistry;
 
     public Axis2WebServiceContainer(PortInfo portInfo,
                                     String endpointClassName,
@@ -150,7 +152,10 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
          * HandlerResolver.
          */        
         FactoryRegistry.setFactory(HandlerLifecycleManagerFactory.class, 
-                                   new GeronimoHandlerLifecycleManagerFactory());                                   
+                                   new GeronimoHandlerLifecycleManagerFactory());
+
+        FactoryRegistry.setFactory(EndpointLifecycleManagerFactory.class,
+                                   new GeronimoEndpointLifecycleManagerFactory());  
     }  
 
     protected AxisServiceGenerator createServiceGenerator() {
@@ -162,13 +167,20 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer {
     }
 
     public void invoke(Request request, Response response) throws Exception {
+        // set factory registry
+        GeronimoFactoryRegistry oldRegistry = GeronimoFactoryRegistry.getGeronimoFactoryRegistry();
+        GeronimoFactoryRegistry.setGeronimoFactoryRegistry(this.factoryRegistry);
+        // set saaj universe
         SAAJUniverse universe = new SAAJUniverse();
         universe.set(SAAJUniverse.AXIS2);
         try {
             doService(request, response);
         } finally {
+            // unset saaj universe 
             universe.unset();
-        }        
+            // unset factory registry
+            GeronimoFactoryRegistry.setGeronimoFactoryRegistry(oldRegistry);
+        }
     }
 
     protected void doService(final Request request, final Response response)

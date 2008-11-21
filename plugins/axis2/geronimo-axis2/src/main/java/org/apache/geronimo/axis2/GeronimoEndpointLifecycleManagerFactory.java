@@ -16,29 +16,23 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.geronimo.axis2.pojo;
+package org.apache.geronimo.axis2;
 
 import org.apache.axis2.jaxws.server.endpoint.lifecycle.EndpointLifecycleException;
 import org.apache.axis2.jaxws.server.endpoint.lifecycle.EndpointLifecycleManager;
 import org.apache.axis2.jaxws.server.endpoint.lifecycle.factory.EndpointLifecycleManagerFactory;
 
-public class POJOEndpointLifecycleManagerFactory extends EndpointLifecycleManagerFactory {
-
-    private EndpointLifecycleManager lifecycleManager;
-
-    public POJOEndpointLifecycleManagerFactory() {
-        this.lifecycleManager = new POJOEndpointLifecycleManager();        
-    }
+public class GeronimoEndpointLifecycleManagerFactory extends EndpointLifecycleManagerFactory {
 
     @Override
     public EndpointLifecycleManager createEndpointLifecycleManager(Object endpointInstance)
-            throws EndpointLifecycleException {
+        throws EndpointLifecycleException {
         throw new UnsupportedOperationException();
     }
 
     @Override
     public EndpointLifecycleManager createEndpointLifecycleManager() {
-        return this.lifecycleManager;
+        return GeronimoFactoryRegistry.getGeronimoFactoryRegistry().get(EndpointLifecycleManager.class);
     }
     
 }

@@ -25,9 +25,10 @@ import javax.naming.NamingException;
 import javax.xml.ws.WebServiceContext;
 import javax.xml.ws.WebServiceException;
 
-import org.apache.axis2.util.JavaUtils;
+import org.apache.axis2.jaxws.server.endpoint.lifecycle.EndpointLifecycleManager;
 import org.apache.geronimo.axis2.Axis2WebServiceContainer;
 import org.apache.geronimo.axis2.AxisServiceGenerator;
+import org.apache.geronimo.axis2.GeronimoFactoryRegistry;
 import org.apache.geronimo.jaxws.JAXWSAnnotationProcessor;
 import org.apache.geronimo.jaxws.JNDIResolver;
 import org.apache.geronimo.jaxws.PortInfo;
@@ -77,6 +78,9 @@ public class EJBWebServiceContainer extends Axis2WebServiceContainer {
         } catch (Exception e) {
             throw new WebServiceException("Error configuring handlers", e);
         }
+        
+        this.factoryRegistry = new GeronimoFactoryRegistry();
+        this.factoryRegistry.put(EndpointLifecycleManager.class, new EJBEndpointLifecycleManager());
     }
     
     @Override
