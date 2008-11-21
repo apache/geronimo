@@ -294,10 +294,10 @@ public class ConfigManagerPortlet extends BasePortlet {
                                     }
                                 }
                             }                                            
-                            if (showDependencies) {
-                                addDependencies(details, configObjName);
-                            }
                         }
+                    }
+                    if (showDependencies) {
+                        addDependencies(details, configObjName);
                     }
                     if (loaded) {
                         unloadModule(configManager, configObjName);
