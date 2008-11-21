@@ -31,12 +31,13 @@ import org.apache.axis2.description.AxisService;
 import org.apache.axis2.engine.Handler.InvocationResponse;
 import org.apache.axis2.jaxws.registry.FactoryRegistry;
 import org.apache.axis2.jaxws.server.dispatcher.factory.EndpointDispatcherFactory;
-import org.apache.axis2.jaxws.server.endpoint.lifecycle.factory.EndpointLifecycleManagerFactory;
+import org.apache.axis2.jaxws.server.endpoint.lifecycle.EndpointLifecycleManager;
 import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.axis2.transport.http.HTTPTransportReceiver;
 import org.apache.axis2.transport.http.HTTPTransportUtils;
 import org.apache.axis2.transport.http.util.RESTUtil;
 import org.apache.geronimo.axis2.Axis2WebServiceContainer;
+import org.apache.geronimo.axis2.GeronimoFactoryRegistry;
 import org.apache.geronimo.jaxws.JAXWSAnnotationProcessor;
 import org.apache.geronimo.jaxws.PortInfo;
 import org.apache.geronimo.jaxws.annotations.AnnotationHolder;
@@ -71,14 +72,11 @@ public class POJOWebServiceContainer extends Axis2WebServiceContainer
         super.init();
         
         /*
-         * This replaces EndpointLifecycleManagerFactory and EndpointDispatcherFactory
-         * for all web services. This is because we do our own endpoint instance management 
-         * and injection. 
+         * This replaces EndpointDispatcherFactory for all web services. 
+         * This is because we do our own endpoint instance management and injection. 
          * This does not affect EJB web services as the EJB container does not use the FactoryRegistry
-         * to lookup the EndpointLifecycleManagerFactory or EndpointDispatcherFactory.
+         * to lookup the EndpointDispatcherFactory.
          */
-        FactoryRegistry.setFactory(EndpointLifecycleManagerFactory.class, 
-                                   new POJOEndpointLifecycleManagerFactory());
         FactoryRegistry.setFactory(EndpointDispatcherFactory.class, 
                                    new POJOEndpointDispatcherFactory());
                                       
@@ -109,6 +107,8 @@ public class POJOWebServiceContainer extends Axis2WebServiceContainer
             throw new WebServiceException("Error configuring handlers", e);
         }
         
+        this.factoryRegistry = new GeronimoFactoryRegistry();
+        this.factoryRegistry.put(EndpointLifecycleManager.class, new POJOEndpointLifecycleManager());
     }
     
     @Override
