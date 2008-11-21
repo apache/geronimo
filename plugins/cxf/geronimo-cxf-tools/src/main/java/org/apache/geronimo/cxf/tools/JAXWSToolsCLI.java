@@ -77,8 +77,11 @@ public class JAXWSToolsCLI {
     }
     
     static boolean run(Command cmd, String geronimoHome, String[] args) throws Exception {   
+        // check java.io.tmpdir
         resolveTmpDir(geronimoHome);
-        
+        // disable fastinfoset support
+        System.setProperty("org.apache.cxf.nofastinfoset", "true");
+
         String repository = System.getProperty("Xorg.apache.geronimo.repository.boot.path", "repository");
         Maven2Repository bootRepository = new Maven2Repository(new File(geronimoHome, repository));
         Collection<Maven2Repository> repositories = Collections.singleton(bootRepository);
