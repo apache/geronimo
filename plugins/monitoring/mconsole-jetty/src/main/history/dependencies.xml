@@ -18,6 +18,11 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>openjpa</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>openejb</artifactId>
         <type>car</type>
     </dependency>

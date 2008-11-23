@@ -16,7 +16,6 @@
 --%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
-<%@ page import="java.lang.String" %>
 <%@ page import="org.apache.geronimo.monitoring.console.Constants" %>
 <portlet:defineObjects/>
 
@@ -38,22 +37,21 @@ if(username == null)    username = "";
 if(password == null)    password = "";
 if(password2 == null)   password2 = "";
 if(protocol == null)    protocol = "";
-if(protocol.equals("1"))    
+if(protocol.equals("EJB"))
 {
     if(port == null)        port = "4201";
 }
-else if(protocol.equals("2"))
+else if(protocol.equals("JMX"))
 {
     if(port == null)        port = "1099";
 }
 else
 {
-    protocol = "1";
+    protocol = "EJB";
     if(port == null)        port = "4201";
 }
 
 %>
-<!-- <head> -->
 
     <style type='text/css'>
     </style>
@@ -103,7 +101,7 @@ function setPort() {
  {
  %>
 <div align="left" style="width: 500px">
-<%=message %></b><br>
+<%=message %><br>
 </div>
 <%} %>
 <table>
@@ -134,8 +132,8 @@ function setPort() {
       <td>Protocol</td>
       <td>&nbsp;</td>
       <td align="right">
-      	<input type="radio" name="protocol" id="<portlet:namespace/>protocol1" onchange='setPort()' value="1" <%if (protocol.equals("1")){ %>checked="checked"<%} %>><label for="<portlet:namespace/>protocol1">EJB</label> 
-      	<input type="radio" name="protocol" id="<portlet:namespace/>protocol2" onchange='setPort()' value="2" <%if (protocol.equals("2")){ %>checked="checked"<%} %>><label for="<portlet:namespace/>protocol2">JMX</label></td>
+      	<input type="radio" name="protocol" id="<portlet:namespace/>protocol1" onchange='setPort()' value="EJB" <%if (protocol.equals("EJB")){ %>checked="checked"<%} %>><label for="<portlet:namespace/>protocol1">EJB</label>
+      	<input type="radio" name="protocol" id="<portlet:namespace/>protocol2" onchange='setPort()' value="JMX" <%if (protocol.equals("JMX")){ %>checked="checked"<%} %>><label for="<portlet:namespace/>protocol2">JMX</label></td>
       <td></td>
     </tr>
     <tr>
@@ -174,10 +172,8 @@ function setPort() {
   </table>
   
 
-            </p>
 
-        </td>
-     
+
          <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
 
         <!-- Geronimo Links -->

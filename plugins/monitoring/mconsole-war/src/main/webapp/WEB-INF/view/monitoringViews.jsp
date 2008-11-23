@@ -17,10 +17,8 @@
 --%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
-<%@ page import="java.sql.Connection" %>
-<%@ page import="java.sql.PreparedStatement" %>
-<%@ page import="java.sql.ResultSet" %>
-<%@ page import="org.apache.geronimo.monitoring.console.util.DBManager" %>
+<%@ page import="java.util.List" %>
+<%@ page import="org.apache.geronimo.monitoring.console.data.View" %>
 <portlet:defineObjects/>
 <%
     String message = (String) request.getAttribute("message"); 
@@ -46,14 +44,8 @@ border-width: 1px;">
   <th class="DarkBackground" width="30%" colspan="2">Actions</th>
  </tr>
  <%
- DBManager DBase = new DBManager();
- Connection con = DBase.getConnection();
- 
- PreparedStatement pStmt = con.prepareStatement("SELECT view_id, name, description, graph_count, added, modified FROM views");
- ResultSet rs = pStmt.executeQuery();
- while (rs.next())
- {
-     String view_id = rs.getString("view_id");
+     List<View> views = (List<View>) request.getAttribute("views");
+     for (View view: views) {
  %>
  <c:set var="backgroundClass" value='MediumBackground'/>
   <c:choose>
@@ -65,22 +57,18 @@ border-width: 1px;">
       </c:otherwise>
   </c:choose>
  <tr>
-  <td class="${backgroundClass}" width="30%" align="center"><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showView" /><portlet:param name="view_id" value='<%=rs.getString("view_id")%>' /></portlet:actionURL>"><%=rs.getString("name")%></a></td>
-  <td class="${backgroundClass}" width="10%" align="center"><%=rs.getString("graph_count")%></td>
-  <td class="${backgroundClass}" width="15%" align="center"><%=rs.getString("added").substring(0,16)%></td>
-  <td class="${backgroundClass}" width="15%" align="center"><%=rs.getString("modified").substring(0,16)%></td>
-  <td class="${backgroundClass}" width="15%" align="center"><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="showEditView" /><portlet:param name="view_id" value='<%=rs.getString("view_id")%>' /></portlet:actionURL>"><img border=0 src="/monitoring/images/edit-b.png" alt="Edit">Edit</a></td>
+  <td class="${backgroundClass}" width="30%" align="center"><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showView" /><portlet:param name="view_id" value='<%=view.getIdString()%>' /></portlet:actionURL>"><%=view.getName()%></a></td>
+  <td class="${backgroundClass}" width="10%" align="center"><%=view.getGraphs().size()%></td>
+  <%--<td class="${backgroundClass}" width="15%" align="center"><%=rs.getString("added").substring(0,16)%></td>--%>
+  <%--<td class="${backgroundClass}" width="15%" align="center"><%=rs.getString("modified").substring(0,16)%></td>--%>
+  <td class="${backgroundClass}" width="15%" align="center"><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="showEditView" /><portlet:param name="view_id" value='<%=view.getIdString()%>' /></portlet:actionURL>"><img border=0 src="/monitoring/images/edit-b.png" alt="Edit">Edit</a></td>
  </tr>
  <%
  }
- rs.close();
+// rs.close();
  %>
 </table>
 <div align="right"><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="showAddView" /></portlet:actionURL>"><img border=0 src="/monitoring/images/max-b.png" alt="Create View">Create View</a></div>
-<%
- // close connection
- con.close();
-%>
         </td>
      
          <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>

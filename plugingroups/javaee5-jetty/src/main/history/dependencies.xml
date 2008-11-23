@@ -42,6 +42,11 @@
         <type>car</type>
     </dependency>
     <dependency>
+        <groupId>org.apache.geronimo.plugins.monitoring</groupId>
+        <artifactId>agent</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
         <groupId>org.apache.geronimo.plugins</groupId>
         <artifactId>debugviews-console-jetty</artifactId>
         <type>car</type>
@@ -54,6 +59,11 @@
     <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>concurrent-deployer</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.plugins.monitoring</groupId>
+        <artifactId>mconsole-jetty</artifactId>
         <type>car</type>
     </dependency>
     <dependency>
@@ -107,23 +117,13 @@
         <type>car</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.plugingroups</groupId>
-        <artifactId>ejb</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.plugins</groupId>
-        <artifactId>mconsole-jetty</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.plugins</groupId>
-        <artifactId>agent</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
         <groupId>org.apache.geronimo.plugins</groupId>
         <artifactId>openejb-console-jetty</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.plugingroups</groupId>
+        <artifactId>ejb</artifactId>
         <type>car</type>
     </dependency>
 </plugin-artifact>

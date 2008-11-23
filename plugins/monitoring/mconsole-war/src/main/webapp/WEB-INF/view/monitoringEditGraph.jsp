@@ -16,94 +16,54 @@
 --%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
-<%@ page import="java.util.Set" %>
-<%@ page import="java.util.Iterator" %>
-<%@ page import="java.util.TreeMap" %>
 <%@ page import="java.util.ArrayList" %>
-<%@ page import="java.lang.String" %>
-<%@ page import="java.sql.Connection" %>
-<%@ page import="java.sql.PreparedStatement" %>
-<%@ page import="java.sql.ResultSet" %>
-<%@ page import="org.apache.geronimo.monitoring.console.util.DBManager" %>
+<%@ page import="java.util.Iterator" %>
+<%@ page import="java.util.List" %>
+<%@ page import="java.util.Set" %>
+<%@ page import="java.util.TreeMap" %>
 <%@ page import="org.apache.geronimo.monitoring.console.MRCConnector" %>
+<%@ page import="org.apache.geronimo.monitoring.console.data.Graph" %>
+<%@ page import="org.apache.geronimo.monitoring.console.data.Node" %>
 <portlet:defineObjects/>
 
 <%
 
-String graph_id = (String) request.getAttribute("graph_id");
-String message = (String) request.getAttribute("message");
+    String message = (String) request.getAttribute("message");
+    if (message == null)
+        message = "";
+    Graph graph = (Graph) request.getAttribute("graph");
+    List<Node> nodes = (List<Node>) request.getAttribute("nodes");
 
-DBManager DBase = new DBManager();
-Connection con = DBase.getConnection();
-
-
-if (message == null)
-    message = new String("");
-
-
-PreparedStatement pStmt = con.prepareStatement("SELECT * FROM graphs WHERE graph_id="+graph_id);
-ResultSet rs = pStmt.executeQuery();
-
-if (rs.next())
+if (graph != null)
 {    
-    String server_id = rs.getString("server_id");
-    String name = rs.getString("name");
-    Integer enabled = rs.getInt("enabled");
-    String description = rs.getString("description");
-    Integer timeframe = rs.getInt("timeframe");
-    String mbean = rs.getString("mbean");
-    String data1operation = rs.getString("data1operation");
-    String dataname1 = rs.getString("dataname1");
-    String operation = rs.getString("operation");
-    String data2operation = rs.getString("data2operation");
-    String dataname2 = rs.getString("dataname2");
-    String xlabel = rs.getString("xlabel");
-    String ylabel = rs.getString("ylabel");
-    String warninglevel1 = rs.getString("warninglevel1");
-    String warninglevel2 = rs.getString("warninglevel2");
-    String color = rs.getString("color");
-    String added = rs.getString("added").substring(0,16);
-    String modified = rs.getString("modified").substring(0,16);
-    String last_seen = rs.getString("last_seen").substring(0,16);
-    boolean archive = rs.getInt("archive") == 1 ? true : false;
-    rs.close();
-
-    pStmt = con.prepareStatement("SELECT * FROM servers WHERE enabled=1");
-    rs = pStmt.executeQuery();
-
-    MRCConnector mrc = null;
+    String server_id = graph.getNode().getName();
     Long snapshotDuration = null;
 
     ArrayList<String> serverIds = new ArrayList<String>();
     ArrayList<String> serverNames = new ArrayList<String>();
 %>
 <script type = "text/javascript">
-var serverBeans = new Array();
-var serverPrettyBeans = new Array();
-var serverBeanStatAttributes = new Array();
+var serverBeans = new Object();
+var serverPrettyBeans = new Object();
+var serverBeanStatAttributes = new Object();
 var server_id = "<%=server_id%>";
-var mbean = "<%=mbean%>";
-var dataname1 = "<%=dataname1%>";
-var dataname2 = "<%=dataname2%>";
+var mbean = "<%=graph.getMBeanName()%>";
+var dataname1 = "<%=graph.getDataName1()%>";
+var dataname2 = "<%=graph.getDataName2()%>";
 
 <%
-while (rs.next())
-{
-    TreeMap <String,String> trackedBeansMap = null;
+for (Node node: nodes) {
+    TreeMap <String,String> trackedBeansMap  ;
     try {
-        mrc = new MRCConnector(           rs.getString("ip"), 
-                                                    rs.getString("username"), 
-                                                    rs.getString("password"),
-                                                    rs.getInt("port"),
-                                                    rs.getInt("protocol"));
+        MRCConnector mrc = new MRCConnector(node);
         trackedBeansMap = mrc.getTrackedBeansMap();;
-        serverIds.add(rs.getString("server_id"));
-        serverNames.add(rs.getString("name") +" - "+rs.getString("ip"));
+        serverIds.add(node.getName());
+        serverNames.add(node.getName());
         snapshotDuration = mrc.getSnapshotDuration();
         %>
-        serverBeans[<%=rs.getString("server_id")%>] = new Array();
-        serverPrettyBeans[<%=rs.getString("server_id")%>] = new Array();
-        serverBeanStatAttributes[<%=rs.getString("server_id")%>] = new Array();
+        serverBeans["<%=node.getName()%>"] = new Array();
+        serverPrettyBeans["<%=node.getName()%>"] = new Array();
+        serverBeanStatAttributes["<%=node.getName()%>"] = new Array();
         <%
         int i = 0;
         for (Iterator <String> it = trackedBeansMap.keySet().iterator(); it.hasNext();)
@@ -111,15 +71,15 @@ while (rs.next())
                 String prettyBean = it.next().toString();
                  Set<String> statAttributes = mrc.getStatAttributesOnMBean(trackedBeansMap.get(prettyBean));
             %>
-                serverBeans[<%=rs.getString("server_id")%>][<%=i%>]="<%=trackedBeansMap.get(prettyBean)%>";
-                serverPrettyBeans[<%=rs.getString("server_id")%>][<%=i%>]="<%=prettyBean%>";
-                serverBeanStatAttributes[<%=rs.getString("server_id")%>][<%=i%>] = new Array();
+                serverBeans["<%=node.getName()%>"][<%=i%>]="<%=trackedBeansMap.get(prettyBean)%>";
+                serverPrettyBeans["<%=node.getName()%>"][<%=i%>]="<%=prettyBean%>";
+                serverBeanStatAttributes["<%=node.getName()%>"][<%=i%>] = new Array();
                 <%
                 int j = 0;
                 for (Iterator <String> itt = statAttributes.iterator(); itt.hasNext();)
                 {
                     %>
-                    serverBeanStatAttributes[<%=rs.getString("server_id")%>][<%=i%>][<%=j%>]="<%=itt.next().toString()%>";
+                    serverBeanStatAttributes["<%=node.getName()%>"][<%=i%>][<%=j%>]="<%=itt.next().toString()%>";
                     <%
                     j++;
                 }
@@ -215,7 +175,6 @@ function validate(duration)
         }
         
     }
-    return;
 }
 function noAlpha(obj){
     reg = /[^0-9]/g;
@@ -356,7 +315,6 @@ function addOption(selectbox, value, text )
     }
  }
  function getObject(obj) {
-  var theObj;
   if(document.all) {
     if(typeof obj=="string") {
       return document.all(obj);
@@ -449,30 +407,30 @@ function addOption(selectbox, value, text )
         <td width="90%" align="left" valign="top">
             <p>
             <font face="Verdana" size="+1">
-            Editing: <%=name%>
+            Editing: <%=graph.getGraphName1()%>
             </font>
             </p>         
             <p>
    <form onsubmit="return validate(<%=snapshotDuration/1000/60%>);" name="editGraph" method="POST" action="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="saveEditGraph"/></portlet:actionURL>">
    <table cellpadding="1" cellspacing="1">
-      <tr>
-      <td>Added:</td>
-      <td>&nbsp;</td>
-      <td align="right"><%=added%></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td>Last Modified:</td>
-      <td>&nbsp;</td>
-      <td align="right"><%=modified%></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td>Last Seen:</td>
-      <td>&nbsp;</td>
-      <td align="right"><%=last_seen%></td>
-      <td></td>
-    </tr>
+      <%--<tr>--%>
+      <%--<td>Added:</td>--%>
+      <%--<td>&nbsp;</td>--%>
+      <%--<td align="right"><%=added%></td>--%>
+      <%--<td></td>--%>
+    <%--</tr>--%>
+    <%--<tr>--%>
+      <%--<td>Last Modified:</td>--%>
+      <%--<td>&nbsp;</td>--%>
+      <%--<td align="right"><%=modified%></td>--%>
+      <%--<td></td>--%>
+    <%--</tr>--%>
+    <%--<tr>--%>
+      <%--<td>Last Seen:</td>--%>
+      <%--<td>&nbsp;</td>--%>
+      <%--<td align="right"><%=last_seen%></td>--%>
+      <%--<td></td>--%>
+    <%--</tr>--%>
    <tr>
       <td><label for="<portlet:namespace/>server_id">Server</label>:</td>
       <td>&nbsp;</td>
@@ -495,31 +453,31 @@ function addOption(selectbox, value, text )
     <tr>
       <td><label for="<portlet:namespace/>name">Name</label>:</td>
       <td>&nbsp;</td>
-      <td align="right"><input type="text" name="name" id="<portlet:namespace/>name" value="<%=name%>"></td>
+      <td align="right"><input type="text" name="name" id="<portlet:namespace/>name" value="<%=graph.getGraphName1()%>"></td>
       <td></td>
     </tr>
     <tr>
       <td><label for="<portlet:namespace/>description">Description</label>:</td>
       <td>&nbsp;</td>
-      <td align="right"><textarea rows="5" cols="50" name="description" id="<portlet:namespace/>description"><%=description%></textarea></td>
+      <td align="right"><textarea rows="5" cols="50" name="description" id="<portlet:namespace/>description"><%=graph.getDescription()%></textarea></td>
       <td></td>
     </tr>
     <tr>
       <td><label for="<portlet:namespace/>xlabel">X Axis label</label>:</td>
       <td>&nbsp;</td>
-      <td align="right"><input type="text" name="xlabel" id="<portlet:namespace/>xlabel" value="<%=xlabel%>"/></td>
+      <td align="right"><input type="text" name="xlabel" id="<portlet:namespace/>xlabel" value="<%=graph.getXlabel()%>"/></td>
       <td></td>
     </tr>
     <tr>
       <td><label for="<portlet:namespace/>ylabel">Y Axis label</label>:</td>
       <td>&nbsp;</td>
-      <td align="right"><input type="text" name="ylabel" id="<portlet:namespace/>ylabel" value="<%=ylabel%>"/></td>
+      <td align="right"><input type="text" name="ylabel" id="<portlet:namespace/>ylabel" value="<%=graph.getYlabel()%>"/></td>
       <td></td>
     </tr>
     <tr>
         <td><label for="<portlet:namespace/>timeframe">Timeframe</label>:</td>
         <td>&nbsp;</td>
-        <td align="right"><input type="text" width="5" size="4" name="timeframe" id="<portlet:namespace/>timeframe" onKeyUp='noAlpha(this)' onKeyPress='noAlpha(this)' value="<%=timeframe%>"/></td>
+        <td align="right"><input type="text" width="5" size="4" name="timeframe" id="<portlet:namespace/>timeframe" onKeyUp='noAlpha(this)' onKeyPress='noAlpha(this)' value="<%=graph.getTimeFrame()%>"/></td>
         <td> minutes</td>
       </tr>
     <tr>
@@ -537,8 +495,8 @@ function addOption(selectbox, value, text )
       <td>&nbsp;</td>
       <td align="right">
       <select name="data1operation" title="data operation" onchange="updateFormula();">
-        <option value="A" <%if (data1operation.equals("A")){  %>selected="selected"<%} %>>As-is</option>
-        <option value="D" <%if (data1operation.equals("D")){  %>selected="selected"<%} %>>Change (Delta) in</option>
+        <option value="A" <%if (graph.getData1operation()=='A'){  %>selected="selected"<%} %>>As-is</option>
+        <option value="D" <%if (graph.getData1operation()=='D'){  %>selected="selected"<%} %>>Change (Delta) in</option>
       </select><label for="<portlet:namespace/>dataname1">name</label>
       <select name="dataname1" id="<portlet:namespace/>dataname1" onchange="updateFormula();">
         <option value="">-Select MBean First-</option>
@@ -551,25 +509,25 @@ function addOption(selectbox, value, text )
       <td>&nbsp;</td>
         <td align="right">
       <select name="operation" id="<portlet:namespace/>operation" onChange="checkOtherMath(); updateFormula();">
-        <option value="" <%if (operation.equals("null") || operation.equals("") || operation == null){  %>selected="selected"<%} %>>none</option>
-        <option value="+" <%if (operation.equals("+")){  %>selected="selected"<%} %>>+</option>
-        <option value="-" <%if (operation.equals("-")){  %>selected="selected"<%} %>>-</option>
-        <option value="*" <%if (operation.equals("*")){  %>selected="selected"<%} %>>*</option>
-        <option value="/" <%if (operation.equals("/")){  %>selected="selected"<%} %>>/</option>
-        <option value="other" <%if (!operation.equals("null") && !operation.equals("+") && !operation.equals("-") && !operation.equals("*") && !operation.equals("/") && !operation.equals("") && operation != null){  %>selected="selected"<%} %>>Other</option>
+        <option value="" <%if (graph.getOperation().equals("null") || graph.getOperation().equals("") || graph.getOperation() == null){  %>selected="selected"<%} %>>none</option>
+        <option value="+" <%if (graph.getOperation().equals("+")){  %>selected="selected"<%} %>>+</option>
+        <option value="-" <%if (graph.getOperation().equals("-")){  %>selected="selected"<%} %>>-</option>
+        <option value="*" <%if (graph.getOperation().equals("*")){  %>selected="selected"<%} %>>*</option>
+        <option value="/" <%if (graph.getOperation().equals("/")){  %>selected="selected"<%} %>>/</option>
+        <option value="other" <%if (!graph.getOperation().equals("null") && !graph.getOperation().equals("+") && !graph.getOperation().equals("-") && !graph.getOperation().equals("*") && !graph.getOperation().equals("/") && !graph.getOperation().equals("") && graph.getOperation() != null){  %>selected="selected"<%} %>>Other</option>
       </select>
       </td>
-      <td><input type="text" <%if (!operation.equals("null") && !operation.equals("+") && !operation.equals("-") && !operation.equals("*") && !operation.equals("/") && !operation.equals("") && operation != null){  %><%} else {%>style="display: none;"<%}%> width="6" size="8" name="othermath" title="other operation" onKeyUp='noAlphaMath(this); updateFormula();' onKeyPress='noAlphaMath(this); updateFormula();' value="<%=operation %>"/></td>
+      <td><input type="text" <%if (!graph.getOperation().equals("null") && !graph.getOperation().equals("+") && !graph.getOperation().equals("-") && !graph.getOperation().equals("*") && !graph.getOperation().equals("/") && !graph.getOperation().equals("") && graph.getOperation() != null){  %><%} else {%>style="display: none;"<%}%> width="6" size="8" name="othermath" title="other operation" onKeyUp='noAlphaMath(this); updateFormula();' onKeyPress='noAlphaMath(this); updateFormula();' value="<%=graph.getOperation() %>"/></td>
     </tr>
     <tr>
       <td>Data series 2:</td>
       <td>&nbsp;</td>
       <td align="right">
-      <select name="data2operation" title="data operation" <%if (operation.equals("null") || operation.equals("") || operation == null){  %>disabled="disabled"<%} %> onchange="updateFormula();">
-        <option value="A" <%if (data2operation.equals("A")){  %>selected="selected"<%} %>>As-is</option>
-        <option value="D" <%if (data2operation.equals("D")){  %>selected="selected"<%} %>>Change (Delta) in</option>
+      <select name="data2operation" title="data operation" <%if (graph.getOperation().equals("null") || graph.getOperation().equals("") || graph.getOperation() == null){  %>disabled="disabled"<%} %> onchange="updateFormula();">
+        <option value="A" <%if (graph.getData2operation()=='A'){  %>selected="selected"<%} %>>As-is</option>
+        <option value="D" <%if (graph.getData2operation()=='D'){  %>selected="selected"<%} %>>Change (Delta) in</option>
       </select><label for="<portlet:namespace/>dataname2">name</label>
-      <select name="dataname2" id="<portlet:namespace/>dataname2" <%if (operation.equals("null") || operation.equals("") || operation == null){  %>disabled="disabled"<%} %> onchange=" checkNoData2(); updateFormula();">
+      <select name="dataname2" id="<portlet:namespace/>dataname2" <%if (graph.getOperation().equals("null") || graph.getOperation().equals("") || graph.getOperation() == null){  %>disabled="disabled"<%} %> onchange=" checkNoData2(); updateFormula();">
         <option value="">-Select Operation First-</option>
       </select>
       <script type='text/javascript'>
@@ -582,10 +540,10 @@ function addOption(selectbox, value, text )
         <td></td>
         <td></td>
         <td>
-            <% if(archive) { %>
-                <input type="checkbox" name="showArchive" id="<portlet:namespace/>showArchive" checked><label for="<portlet:namespace/>showArchive">Show Archive</label></input>
+            <% if(graph.isShowArchive()) { %>
+                <input type="checkbox" name="showArchive" id="<portlet:namespace/>showArchive" checked><label for="<portlet:namespace/>showArchive">Show Archive</label>
             <% } else { %>
-                <input type="checkbox" name="showArchive" id="<portlet:namespace/>showArchive"><label for="<portlet:namespace/>showArchive">Show Archive</label></input>
+                <input type="checkbox" name="showArchive" id="<portlet:namespace/>showArchive"><label for="<portlet:namespace/>showArchive">Show Archive</label>
             <% } %>
         </td>
         <td></td>
@@ -599,9 +557,8 @@ function addOption(selectbox, value, text )
       <td></td>
     </tr>
   </table>
-  <input name="graph_id" type="hidden" value="<%=graph_id%>">
+  <input name="graph_id" type="hidden" value="<%=graph.getIdString()%>">
   </form>
-      </p>
       <script type='text/javascript'>
         updateFormula();
         checkNoData2();
@@ -643,7 +600,7 @@ function addOption(selectbox, value, text )
                     <td bgcolor="#FFFFFF" nowrap>
                         &nbsp;<br />
                         <ul>
-                            <li><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="deleteGraph" /><portlet:param name="graph_id" value="<%=graph_id%>" /></portlet:actionURL>">Delete this graph</a></li>
+                            <li><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="deleteGraph" /><portlet:param name="graph_id" value="<%=graph.getIdString()%>" /></portlet:actionURL>">Delete this graph</a></li>
                         </ul>
                         &nbsp;<br />
                     </td>   
@@ -654,10 +611,8 @@ function addOption(selectbox, value, text )
     </tr>
 </table>
 <%
-con.close();
-}
-    else
-    {%>
+} else {
+%>
 <table>
     <tr>
         <!-- Body -->

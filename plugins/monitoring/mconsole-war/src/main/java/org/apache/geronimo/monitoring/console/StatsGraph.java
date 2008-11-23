@@ -18,8 +18,8 @@ package org.apache.geronimo.monitoring.console;
 
 import java.text.Format;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import org.apache.geronimo.monitoring.console.data.Graph;
 
@@ -34,9 +34,9 @@ public class StatsGraph {
 
     public StatsGraph(Graph graph,
                       String graphName,
-                      ArrayList<Long> dataSet1,
-                      ArrayList<Long> dataSet2,
-                      ArrayList<Long> snapshotTimes,
+                      List<Long> dataSet1,
+                      List<Long> dataSet2,
+                      List<Long> snapshotTimes,
                       int snapshotDuration
     ) {
         this.graph = graph;
@@ -50,12 +50,11 @@ public class StatsGraph {
         this.GraphJS = buildJavaScript(dataSet1, snapshotTimes, dataDisplay);
     }
 
-    private String buildJavaScript(ArrayList<Long> dataSet1, ArrayList<Long> snapshotTimes, String dataDisplay) {
+    private String buildJavaScript(List<Long> dataSet1, List<Long> snapshotTimes, String dataDisplay) {
         String GraphJS = "var " + "graph" + graph.getId()
                 + " = new dojox.charting.Chart2D(\"" + getDivName() + "\");\n"
                 + "graph" + graph.getId()
                 + ".addPlot(\"default\", {type: \"Areas\", tension:3});\n" + "graph"
-//                + ".addPlot(\"default\", {type: \"Areas\"});\n" + "graph"
                 + graph.getId() + ".setTheme(dojox.charting.themes.PlotKit.blue);\n";
 
         // Setup the x tick marks on the chart
@@ -91,7 +90,7 @@ public class StatsGraph {
         return GraphJS;
     }
 
-    private String displayData(char data1operation, ArrayList<Long> dataSet1, String operation, char data2operation, ArrayList<Long> dataSet2) {
+    private String displayData(char data1operation, List<Long> dataSet1, String operation, char data2operation, List<Long> dataSet2) {
         String graphJS = "";
         if (data1operation == 'D' && data2operation == 'D') {
             for (int i = 1; i < dataSet1.size(); i++) {
@@ -140,8 +139,8 @@ public class StatsGraph {
 
     public StatsGraph(Graph graph,
                       String graphName,
-                      ArrayList<Long> dataSet1,
-                      ArrayList<Long> snapshotTimes, int snapshotDuration
+                      List<Long> dataSet1,
+                      List<Long> snapshotTimes, int snapshotDuration
     ) {
 
         this.graph = graph;
@@ -154,7 +153,7 @@ public class StatsGraph {
         this.GraphJS = buildJavaScript(dataSet1, snapshotTimes, dataDisplay);
     }
 
-    private String displayData(char data1operation, ArrayList<Long> dataSet1, String operation) {
+    private String displayData(char data1operation, List<Long> dataSet1, String operation) {
         String graphJS = "";
         if (data1operation == 'D')
             for (int i = 1; i < dataSet1.size(); i++) {

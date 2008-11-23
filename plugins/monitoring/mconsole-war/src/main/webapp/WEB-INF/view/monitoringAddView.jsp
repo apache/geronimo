@@ -16,21 +16,10 @@
 --%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
-<%@ page import="org.apache.geronimo.monitoring.console.StatsGraph" %>
-<%@ page import="org.apache.geronimo.monitoring.console.GraphsBuilder" %>
-<%@ page import="java.util.Set" %>
-<%@ page import="java.util.Iterator" %>
-<%@ page import="java.util.HashMap" %>
-<%@ page import="java.util.TreeMap" %>
-<%@ page import="java.util.ArrayList" %>
-<%@ page import="java.lang.String" %>
-<%@ page import="java.sql.Connection" %>
-<%@ page import="java.sql.DatabaseMetaData" %>
-<%@ page import="java.sql.PreparedStatement" %>
-<%@ page import="java.sql.ResultSet" %>
-<%@ page import="java.sql.SQLException" %>
-<%@ page import="org.apache.geronimo.monitoring.console.util.DBManager" %>
+<%@ page import="java.util.List" %>
 <%@ page import="org.apache.geronimo.monitoring.console.Constants" %>
+<%@ page import="org.apache.geronimo.monitoring.console.data.Graph" %>
+<%@ page import="org.apache.geronimo.monitoring.console.data.Node" %>
 <portlet:defineObjects/>
 
 <%
@@ -105,41 +94,32 @@ function openNewWindow(theURL,winName,features) {
       <td>Graphs:</td>
       <td>&nbsp;</td>
       <td align="right">
+          <table cellpadding="1" cellspacing="1">
+          <tr>
+          <th width="5%"></th>
+          <th>Name</th>
+          <th>Timeframe</th>
+          <th width="20%">Server</th>
+          <th>Edit</th>
+          </tr>
       <%
-      DBManager DBase = new DBManager();
-      Connection con = DBase.getConnection();
-      PreparedStatement pStmt = con.prepareStatement("SELECT * FROM graphs");
-      ResultSet rs = pStmt.executeQuery();
-       %>
-            <table cellpadding="1" cellspacing="1">
-            <tr>
-            <th width="5%"></th>
-            <th>Name</th>
-            <th>Timeframe</th>
-            <th width="20%">Server</th>
-            <th>Edit</th>
-            </tr>
-      <%
-          while (rs.next())
-          {
-              pStmt = con.prepareStatement("SELECT name FROM servers WHERE server_id="+rs.getString("server_id"));
-              ResultSet rs2 = pStmt.executeQuery();
-              if (rs2.next())
+          List<Graph> graphs = (List<Graph>) request.getAttribute("graphs");
+          for (Graph graph :graphs) {
+              Node node = graph.getNode();
+              if (node != null)
               {
       %>     
             <tr>
-            <td align="left" width="5%"><input type="checkbox" name="graph_ids" title="<%=rs2.getString("name")%>-<%=rs.getString("name") %>" value='<%=rs.getString("graph_id")%>'></td>
-            <td align="left"><a href="javascript: void(0)" onClick="openNewWindow('/monitoring/monitoringPopUpGraph.jsp?graph_id=<%=rs.getString("graph_id")%>','graph','width=800,height=300','title=<%=rs.getString("name") %>')"><%=rs.getString("name") %></a></td>
-            <td align="left"><%=rs.getString("timeframe")%> min.</td>
-            <td align="left"><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showServer" /><portlet:param name="server_id" value='<%=rs.getString("server_id")%>' /></portlet:actionURL>"><%=rs2.getString("name")%></a></td>
-            <td align="center"><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="showEditGraph" /><portlet:param name="graph_id" value='<%=rs.getString("graph_id")%>' /></portlet:actionURL>"><img border=0 src="/monitoring/images/edit-b.png" alt="edit"></a></td>
+            <td align="left" width="5%"><input type="checkbox" name="graph_ids" title="<%=node.getName()%>-<%=graph.getGraphName1()%>" value='<%=graph.getIdString()%>'></td>
+            <td align="left"><a href="javascript: void(0)" onClick="openNewWindow('/monitoring/popUpGraph?graph_id=<%=graph.getIdString()%>','graph','width=800,height=300','title=<%=graph.getGraphName1()%>')"><%=graph.getGraphName1()%></a></td>
+            <td align="left"><%=graph.getTimeFrame()%> min.</td>
+            <td align="left"><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showServer" /><portlet:param name="server_id" value='<%=node.getName()%>' /></portlet:actionURL>"><%=node.getName()%></a></td>
+            <td align="center"><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="showEditGraph" /><portlet:param name="graph_id" value='<%=graph.getIdString()%>' /></portlet:actionURL>"><img border=0 src="/monitoring/images/edit-b.png" alt="edit"></a></td>
             </tr>
       <%
 
               }
-              rs2.close();
           }
-      rs.close();
       %>
             </table>
 </td>
@@ -152,8 +132,6 @@ function openNewWindow(theURL,winName,features) {
     </tr>
   </table>
   </form>
-
-            </p>
 
         </td>
      

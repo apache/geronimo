@@ -93,6 +93,8 @@
         <txmanagerVersion>2.1.1</txmanagerVersion>
         <!--<txmanagerVersion>2.2-SNAPSHOT</txmanagerVersion>-->
 
+        <monitoringConsoleVersion>2.2-SNAPSHOT</monitoringConsoleVersion>
+
         <!-- Deployers -->
         <gbeanDeployerBootstrap>org.apache.geronimo.framework/geronimo-gbean-deployer-bootstrap/${version}/car</gbeanDeployerBootstrap>
         <gbeanDeployer>org.apache.geronimo.framework/geronimo-gbean-deployer/${version}/car</gbeanDeployer>

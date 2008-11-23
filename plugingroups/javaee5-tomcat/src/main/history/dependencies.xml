@@ -47,6 +47,11 @@
         <type>car</type>
     </dependency>
     <dependency>
+        <groupId>org.apache.geronimo.plugins.monitoring</groupId>
+        <artifactId>agent</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
         <groupId>org.apache.geronimo.plugingroups</groupId>
         <artifactId>web-tomcat</artifactId>
         <type>car</type>
@@ -87,6 +92,11 @@
         <type>car</type>
     </dependency>
     <dependency>
+        <groupId>org.apache.geronimo.plugins</groupId>
+        <artifactId>openejb-console-tomcat</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>javamail</artifactId>
         <type>car</type>
@@ -97,7 +107,7 @@
         <type>car</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.plugins</groupId>
+        <groupId>org.apache.geronimo.plugins.monitoring</groupId>
         <artifactId>mconsole-tomcat</artifactId>
         <type>car</type>
     </dependency>
@@ -114,16 +124,6 @@
     <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>welcome-tomcat</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.plugins</groupId>
-        <artifactId>agent</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.plugins</groupId>
-        <artifactId>openejb-console-tomcat</artifactId>
         <type>car</type>
     </dependency>
 </plugin-artifact>

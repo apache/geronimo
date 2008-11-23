@@ -20,6 +20,17 @@
          xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
 
     <servlet>
+        <servlet-name>popUpGraph</servlet-name>
+        <servlet-class>org.apache.geronimo.monitoring.console.PopUpGraphServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>popUpGraph</servlet-name>
+        <url-pattern>/popUpGraph</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
         <servlet-name>monitoring</servlet-name>
         <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
         <init-param>
@@ -34,11 +45,16 @@
         <url-pattern>/PlutoInvoker/monitoring</url-pattern>
     </servlet-mapping>
     <!-- reference name exposed as a datasource -->
-    <resource-ref>
-        <res-ref-name>MonitoringClientDS</res-ref-name>
-        <res-type>javax.sql.DataSource</res-type>
-        <res-auth>Container</res-auth>
-        <res-sharing-scope>Shareable</res-sharing-scope>
-    </resource-ref>
+    <!--<resource-ref>-->
+        <!--<res-ref-name>MonitoringClientDS</res-ref-name>-->
+        <!--<res-type>javax.sql.DataSource</res-type>-->
+        <!--<res-auth>Container</res-auth>-->
+        <!--<res-sharing-scope>Shareable</res-sharing-scope>-->
+    <!--</resource-ref>-->
+
+    <persistence-context-ref>
+        <persistence-context-ref-name>jpa/monitoring</persistence-context-ref-name>
+        <persistence-unit-name>jpa/monitoring</persistence-unit-name>
+    </persistence-context-ref>
     
 </web-app>

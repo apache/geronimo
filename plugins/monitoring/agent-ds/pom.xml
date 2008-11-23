@@ -67,7 +67,7 @@
         <dependency>
             <groupId>org.apache.geronimo.plugins.monitoring</groupId>
             <artifactId>agent-sql</artifactId>
-            <version>${monitoringConsoleVersion}</version>
+            <version>${pom.version}</version>
         </dependency>
     </dependencies>
 

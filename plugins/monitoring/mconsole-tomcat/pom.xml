@@ -63,9 +63,17 @@
         </dependency>
         
         <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>persistence-jpa10-deployer</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
             <groupId>org.apache.geronimo.plugins.monitoring</groupId>
             <artifactId>mconsole-ds</artifactId>
-            <version>${monitoringConsoleVersion}</version>
+            <version>${pom.version}</version>
             <type>car</type>
         </dependency>
         
@@ -79,7 +87,7 @@
         <dependency>
             <groupId>org.apache.geronimo.plugins.monitoring</groupId>
             <artifactId>mconsole-war</artifactId>
-            <version>${monitoringConsoleVersion}</version>
+            <version>${pom.version}</version>
             <type>war</type>
             <scope>provided</scope>
         </dependency>
@@ -105,6 +113,14 @@
             <version>${version}</version>
             <type>car</type>
         </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>openjpa</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -119,11 +135,12 @@
                         <deploymentConfig>${jasperDeployer}</deploymentConfig>
                         <deploymentConfig>${tomcatDeployer}</deploymentConfig>
                         <deploymentConfig>${connectorDeployer}</deploymentConfig>
+                        <deploymentConfig>${jpaDeployer}</deploymentConfig>
                     </deploymentConfigs>
                     <module>
                         <groupId>org.apache.geronimo.plugins.monitoring</groupId>
                         <artifactId>mconsole-war</artifactId>
-                        <version>${monitoringConsoleVersion}</version>
+                        <version>${pom.version}</version>
                         <type>war</type>
                     </module>
                     <category>Administration Monitoring</category>

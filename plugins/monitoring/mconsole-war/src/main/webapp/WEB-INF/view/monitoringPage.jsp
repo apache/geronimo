@@ -16,62 +16,19 @@
 --%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
-<%@ page import="org.apache.geronimo.monitoring.console.StatsGraph" %>
-<%@ page import="org.apache.geronimo.monitoring.console.GraphsBuilder" %>
-<%@ page import="java.util.ArrayList" %>
-<%@ page import="java.sql.Connection" %>
-<%@ page import="java.sql.PreparedStatement" %>
-<%@ page import="java.sql.ResultSet" %>
-<%@ page import="org.apache.geronimo.monitoring.console.util.DBManager" %>
+<%@ page import="java.util.List" %>
 <%@ page import="org.apache.geronimo.monitoring.console.Constants" %>
+<%@ page import="org.apache.geronimo.monitoring.console.StatsGraph" %>
+<%@ page import="org.apache.geronimo.monitoring.console.data.View" %>
 <portlet:defineObjects/>
 
 <%
-
-String view_id = (String) request.getAttribute("view_id"); 
-
-DBManager DBase = new DBManager();
-Connection con = DBase.getConnection();
-
-PreparedStatement pStmt = con.prepareStatement("SELECT view_id, name, description, graph_count, added, modified FROM views WHERE enabled=1 AND view_id="+view_id);
-ResultSet rs = pStmt.executeQuery();
-GraphsBuilder run = new GraphsBuilder();
 String errors = "";
 
-if (rs.next())
-{
-    String name = rs.getString("name");
-    String description = rs.getString("description");
-    pStmt = con.prepareStatement("SELECT * FROM views_graphs WHERE view_id="+view_id);
-    ResultSet rs2 = pStmt.executeQuery();
-    ArrayList<Integer> ids = new ArrayList<Integer>();
-    while(rs2.next()) {
-        ids.add( new Integer(rs2.getInt("graph_id")) );
-    }
-    
-    rs.close();
-    rs2.close();
+    View view = (View) request.getAttribute("view");
+    List<StatsGraph> statsGraphs = (List<StatsGraph>) request.getAttribute("statsGraphs");
+    if (view != null && statsGraphs != null) {
 
-    try {
-        if(con != null) {
-            con.close();
-        }
-    } catch(Exception e) {
-        
-    }
-    
-    ArrayList <StatsGraph> graphs = new ArrayList<StatsGraph>();
-    for(int i = 0 ; i < ids.size(); i++) {
-        try {
-            StatsGraph graph = run.buildOneDB( ids.get(i).intValue() );
-            if(graph != null) {
-                graphs.add( graph );
-            }
-        } catch (Exception e) {
-            errors = errors + "<li>Graph " + ids.get(i) + " could not be drawn due to server being offline</li>";
-        }
-    }
-    
 %>
 <!-- <head> -->
     <script type='text/javascript' src='<%=Constants.DOJO_JS%>' djConfig='isDebug: false, parseOnLoad: true'>
@@ -92,7 +49,7 @@ dojo.require("dojox.charting.themes.PlotKit.blue");
 dojo.require("dojox.fx.easing");
 
 makeObjects = function(){
-    <% for (StatsGraph graph : graphs)
+    <% for (StatsGraph graph : statsGraphs)
        out.println(graph.getJS());
 
     %>
@@ -114,21 +71,20 @@ timerID = setTimeout("refreshPeriodic()",300000);
         <td width="90%" align="left" valign="top">
             <p>
             <font face="Verdana" size="+1">
-            <%=name%>
+            <%=view.getName()%>
             </font>
             </p>         
-            <p><%=description%></p>
+            <p><%=view.getDescription()%></p>
 
 <% 
 try
 {
-for (StatsGraph graph : graphs) 
+for (StatsGraph graph : statsGraphs)
 {
 %>
 <p>
 <div id="<%=graph.getDivName()%>Head" style="background-color: #f2f2f2; border-top: 1px solid #2581c7; margin: 0px; width: 100%; height: 16px;"><div align="left" style="background-color: #f2f2f2; float:left; text-align:left; width:75%; height: 20px;"><%=graph.getName() %></div><div align=right style="background-color: #f2f2f2; float:left; width:25%; text-align:right;"><a href="#" onClick="hide('<%=graph.getDivName()%>');hide('<%=graph.getDivName()%>Sub');"><img border=0 src="/monitoring/images/min-b.png" alt="hide"></a>&nbsp;<a href="#" onClick="show('<%=graph.getDivName()%>');show('<%=graph.getDivName()%>Sub');"><img border=0 src="/monitoring/images/max-b.png" alt="show"></a></div></div>
 <%=graph.getDivImplement()%>
-</p>
 <%
 }
 }
@@ -183,8 +139,8 @@ if (!errors.equals(""))
                     <td bgcolor="#FFFFFF" nowrap>
                         &nbsp;<br />
                         <ul>
-                        <li><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="showEditView" /><portlet:param name="view_id" value="<%=view_id%>" /></portlet:actionURL>">Modify this view</a></li>
-                        <li><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="disableView" /><portlet:param name="view_id" value="<%=view_id%>" /></portlet:actionURL>">Disable this view</a></li>
+                        <li><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="showEditView" /><portlet:param name="view_id" value="<%=view.getIdString()%>" /></portlet:actionURL>">Modify this view</a></li>
+                        <li><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="disableView" /><portlet:param name="view_id" value="<%=view.getIdString()%>" /></portlet:actionURL>">Disable this view</a></li>
                         <li><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="showAddView" /></portlet:actionURL>">Create a new view</a></li>
                         </ul>
                         &nbsp;<br />
@@ -196,9 +152,8 @@ if (!errors.equals(""))
     </tr>
 </table>
 <%
-}
-    else
-    {%>
+} else {
+%>
 <table>
     <tr>
         <!-- Body -->

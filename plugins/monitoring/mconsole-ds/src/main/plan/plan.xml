@@ -38,6 +38,20 @@
                         </single-pool>
                     </connectionmanager>
                 </connectiondefinition-instance>
+                <connectiondefinition-instance>
+                    <name>NoTxMonitoringClientDS</name>
+                    <config-property-setting name="CreateDatabase">true</config-property-setting>
+                    <config-property-setting name="UserName">app</config-property-setting>
+                    <config-property-setting name="DatabaseName">MonitoringClientDB</config-property-setting>
+                    <connectionmanager>
+                        <no-transaction/>
+                        <single-pool>
+                            <max-size>10</max-size>
+                            <min-size>0</min-size>
+                            <match-one/>
+                        </single-pool>
+                    </connectionmanager>
+                </connectiondefinition-instance>
             </connection-definition>
         </outbound-resourceadapter>
     </resourceadapter>

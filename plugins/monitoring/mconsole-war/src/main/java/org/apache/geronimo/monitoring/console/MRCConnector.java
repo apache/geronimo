@@ -16,8 +16,6 @@
  */
 package org.apache.geronimo.monitoring.console;
 
-import java.sql.Connection;
-import java.sql.Statement;
 import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -35,24 +33,26 @@ import javax.management.ObjectName;
 import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
-
 import javax.naming.Context;
 import javax.naming.InitialContext;
 
-import org.apache.geronimo.monitoring.MasterRemoteControlRemote;
-import org.apache.geronimo.monitoring.console.util.DBManager;
-
 import org.apache.geronimo.crypto.EncryptionManager;
+import org.apache.geronimo.monitoring.MasterRemoteControlRemote;
+import org.apache.geronimo.monitoring.console.data.Node;
 
 public class MRCConnector {
 
     private static String PATH = null;
     private static MBeanServerConnection mbServerConn;
     private MasterRemoteControlRemote mrc = null;
-    private int Protocol = 0;
+    private String protocol = "EJB";
 
     MRCConnector() {
 
+    }
+
+    public MRCConnector(Node node) throws Exception {
+        this(node.getHost(), node.getUserName(), node.getPassword(), node.getPort(), node.getProtocol());
     }
 
     /**
@@ -66,12 +66,12 @@ public class MRCConnector {
      *             If the connection to mrc-server fails
      */
     public MRCConnector(String ip, String userName, String password, int port,
-            int protocol) throws Exception {
+            String protocol) throws Exception {
         // decrypt the password
         password = (String) EncryptionManager.decrypt(password);
-        Protocol = protocol;
+        this.protocol = protocol;
 
-        if (Protocol == 1) {
+        if (isEjbProtocol()) {
 
             try {
                 Properties props = new Properties();
@@ -132,27 +132,31 @@ public class MRCConnector {
         // when the code has reach this point, a connection was successfully
         // established
         // so we need to update the last_seen attribute for the server
-        Format formatter = null;
-        formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        Date date = new Date(System.currentTimeMillis());
-        String currentTime = formatter.format(date);
+//        Format formatter = null;
+//        formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//        Date date = new Date(System.currentTimeMillis());
+//        String currentTime = formatter.format(date);
 
-        Connection conn = DBManager.createConnection();
-        try {
-            Statement stmt = conn.createStatement();
-            stmt.executeUpdate("UPDATE SERVERS SET LAST_SEEN = '" + currentTime
-                    + "' WHERE IP='" + ip + "'");
-        } catch (Exception e) {
-            throw e;
-        } finally {
-            try {
-                if (conn != null) {
-                    conn.close();
-                }
-            } catch (Exception e) {
+//        Connection conn = DBManager.createConnection();
+//        try {
+//            Statement stmt = conn.createStatement();
+//            stmt.executeUpdate("UPDATE SERVERS SET LAST_SEEN = '" + currentTime
+//                    + "' WHERE IP='" + ip + "'");
+//        } catch (Exception e) {
+//            throw e;
+//        } finally {
+//            try {
+//                if (conn != null) {
+//                    conn.close();
+//                }
+//            } catch (Exception e) {
+//
+//            }
+//        }
+    }
 
-            }
-        }
+    private boolean isEjbProtocol() {
+        return "EJB".equals(protocol);
     }
 
     /**
@@ -162,7 +166,7 @@ public class MRCConnector {
      *             If the connection to the MRC-Server fails
      */
     public Long getSnapshotDuration() throws Exception {
-        if (Protocol == 1) {
+        if (isEjbProtocol()) {
 
             return mrc.getSnapshotDuration();
 
@@ -185,7 +189,7 @@ public class MRCConnector {
 
         HashMap<String, ArrayList<String>> DataNameList = new HashMap<String, ArrayList<String>>();
 
-        if (Protocol == 1) {
+        if (isEjbProtocol()) {
 
             try {
                 DataNameList = mrc.getAllSnapshotStatAttributes();
@@ -227,7 +231,7 @@ public class MRCConnector {
     public ArrayList<HashMap<String, HashMap<String, Object>>> getSnapshots(
             int snapCount, int skipCount) throws Exception {
         ArrayList<HashMap<String, HashMap<String, Object>>> snapshotList = null;
-        if (Protocol == 1) {
+        if (isEjbProtocol()) {
 
             snapshotList = mrc.fetchSnapshotData(snapCount, skipCount);
 
@@ -376,7 +380,7 @@ public class MRCConnector {
             String statsName, int snapCount, int skipCount, boolean showArchive)
             throws Exception {
         TreeMap<Long, Long> snapshotList = null;
-        if (Protocol == 1) {
+        if (isEjbProtocol()) {
 
             snapshotList = mrc.getSpecificStatistics(mbeanName, statsName,
                     snapCount, skipCount, showArchive);
@@ -440,7 +444,7 @@ public class MRCConnector {
         int snapCount = 1;
         int skipCount = 1;
         ArrayList<HashMap<String, HashMap<String, Object>>> snapshotList = null;
-        if (Protocol == 1) {
+        if (isEjbProtocol()) {
 
             snapshotList = mrc.fetchSnapshotData(snapCount, skipCount);
 
@@ -464,7 +468,7 @@ public class MRCConnector {
      *             If the connection to the MRC-Server fails
      */
     public boolean stopSnapshotThread() throws Exception {
-        if (Protocol == 1) {
+        if (isEjbProtocol()) {
 
             return mrc.stopSnapshot();
 
@@ -480,7 +484,7 @@ public class MRCConnector {
      *             If the connection to the MRC-Server fails
      */
     public boolean startSnapshotThread(long time) throws Exception {
-        if (Protocol == 1) {
+        if (isEjbProtocol()) {
 
             return mrc.startSnapshot(time);
 
@@ -493,7 +497,7 @@ public class MRCConnector {
 
     public int isSnapshotRunning() {
         Integer running = 0;
-        if (Protocol == 1) {
+        if (isEjbProtocol()) {
 
             try {
                 if (mrc.isSnapshotRunning())
@@ -516,7 +520,7 @@ public class MRCConnector {
 
     @SuppressWarnings("unchecked")
     public Set<String> getAllMbeanNames() throws Exception {
-        if (Protocol == 1) {
+        if (isEjbProtocol()) {
 
             return mrc.getAllMBeanNames();
 
@@ -528,7 +532,7 @@ public class MRCConnector {
 
     @SuppressWarnings("unchecked")
     public Set<String> getStatisticsProviderBeanNames() throws Exception {
-        if (Protocol == 1) {
+        if (isEjbProtocol()) {
 
             return mrc.getStatisticsProviderMBeanNames();
 
@@ -542,7 +546,7 @@ public class MRCConnector {
     @SuppressWarnings("unchecked")
     public HashMap<String, ArrayList<String>> getAllSnapshotStatAttributes()
             throws Exception {
-        if (Protocol == 1) {
+        if (isEjbProtocol()) {
 
             return mrc.getAllSnapshotStatAttributes();
 
@@ -555,7 +559,7 @@ public class MRCConnector {
 
     @SuppressWarnings("unchecked")
     public Set<String> getTrackedBeans() throws Exception {
-        if (Protocol == 1) {
+        if (isEjbProtocol()) {
 
             return mrc.getTrackedMBeans();
 
@@ -718,7 +722,7 @@ public class MRCConnector {
 
     @SuppressWarnings("unchecked")
     public boolean stopTrackingMbean(String MBean) throws Exception {
-        if (Protocol == 1) {
+        if (isEjbProtocol()) {
 
             mrc.removeMBeanForSnapshot(MBean);
 
@@ -734,7 +738,7 @@ public class MRCConnector {
 
     @SuppressWarnings("unchecked")
     public boolean startTrackingMbean(String MBean) throws Exception {
-        if (Protocol == 1) {
+        if (isEjbProtocol()) {
 
             mrc.addMBeanForSnapshot(MBean);
 
@@ -749,7 +753,7 @@ public class MRCConnector {
 
     @SuppressWarnings("unchecked")
     public HashMap<String, Long> getStats(String MBean) throws Exception {
-        if (Protocol == 1) {
+        if (isEjbProtocol()) {
 
             return mrc.getStats(MBean);
 
@@ -761,7 +765,7 @@ public class MRCConnector {
     }
 
     public void setSnapshotDuration(long duration) {
-        if (Protocol == 1) {
+        if (isEjbProtocol()) {
 
             mrc.setSnapshotDuration(new Long(duration));
 
@@ -779,7 +783,7 @@ public class MRCConnector {
     }
 
     public int getSnapshotRetention() {
-        if (Protocol == 1) {
+        if (isEjbProtocol()) {
 
             return Integer.parseInt(mrc.getSnapshotRetention());
 
@@ -796,7 +800,7 @@ public class MRCConnector {
     }
 
     public void setSnapshotRetention(int duration) {
-        if (Protocol == 1) {
+        if (isEjbProtocol()) {
 
             mrc.setSnapshotRetention(duration);
 

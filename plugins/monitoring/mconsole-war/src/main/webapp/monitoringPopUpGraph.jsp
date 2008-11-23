@@ -16,24 +16,16 @@
 --%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
-<%@ page import="java.sql.Connection" %>
-<%@ page import="org.apache.geronimo.monitoring.console.util.DBManager" %>
-<%@page import="org.apache.geronimo.monitoring.console.GraphsBuilder"%>
-<%@page import="org.apache.geronimo.monitoring.console.StatsGraph"%>
 <%@page import="org.apache.geronimo.monitoring.console.Constants"%>
+<%@page import="org.apache.geronimo.monitoring.console.StatsGraph"%>
 <portlet:defineObjects/>
 <html>
 <head>
 <%
-Connection con = (new DBManager()).getConnection();
-GraphsBuilder graphBuilder = new GraphsBuilder();
-String graph_id = request.getParameter("graph_id");
-StatsGraph graph = graphBuilder.buildOneDB(Integer.parseInt(graph_id));
+StatsGraph graph = (StatsGraph) request.getAttribute("statsGraph");
 String graphString = graph.getJS();
 String divImplString = graph.getDivImplement();
 String divNameString = graph.getName();
-String xAxis = graph.getXAxis();
-String yAxis = graph.getYAxis();
 %>
 
 <script type='text/javascript' src='<%=Constants.DOJO_JS%>' djConfig='isDebug: false, parseOnLoad: true'></script>

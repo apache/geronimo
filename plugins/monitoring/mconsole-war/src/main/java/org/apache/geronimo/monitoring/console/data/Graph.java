@@ -20,18 +20,30 @@
 
 package org.apache.geronimo.monitoring.console.data;
 
+import java.util.List;
+import java.util.ArrayList;
+
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
+import javax.persistence.JoinTable;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToMany;
+import javax.persistence.CascadeType;
+import javax.persistence.FetchType;
+import javax.persistence.ManyToOne;
+import javax.persistence.GeneratedValue;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
-@Entity(name="graph")
-@NamedQuery(name="graphById", query="SELECT a FROM graph a WHERE a.id = :id")
+@Entity(name = "graph")
+@NamedQuery(name = "allGraphs", query = "SELECT a FROM graph a")
 public class Graph {
 
     @Id
+    @GeneratedValue
     private int id;
 //    private String name;
 //    private String description;
@@ -56,7 +68,6 @@ public class Graph {
     private String graphName1;
     private String graphName2;
     private int timeFrame;
-    private String server_id;
     private String xlabel;
     private String ylabel;
     private char data1operation = 'A';
@@ -67,31 +78,45 @@ public class Graph {
     private String description;
     private boolean showArchive;
 
+//    private String server_id;
+
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE},
+            fetch = FetchType.EAGER)
+    @JoinTable(name = "view_graph",
+            joinColumns = {@JoinColumn(name = "graph_id")},
+            inverseJoinColumns = {@JoinColumn(name = "view_id")}
+    )
+    private List<View> views = new ArrayList<View>();
+
+    @ManyToOne(fetch= FetchType.EAGER, cascade={CascadeType.PERSIST})
+    @JoinColumn(
+        name="node", referencedColumnName="name"
+    )
+    private Node node;
 
     /**
-                                  + "graph_id    INTEGER PRIMARY KEY NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 0, INCREMENT BY 1),"
-                            + "enabled     SMALLINT NOT NULL DEFAULT 1,"
-                            + "server_id   INTEGER NOT NULL DEFAULT 0,"
-                            + "name        VARCHAR(128) UNIQUE NOT NULL,"
-                            + "description LONG VARCHAR DEFAULT NULL,"
-                            + "timeframe   INTEGER NOT NULL DEFAULT 60,"
-                            + "mbean       VARCHAR(512) NOT NULL,"
-                            + "data1operation  CHAR DEFAULT NULL,"
-                            + "dataname1   VARCHAR(128) NOT NULL,"
-                            + "operation   VARCHAR(128) DEFAULT NULL,"
-                            + "data2operation  CHAR DEFAULT NULL,"
-                            + "dataname2   VARCHAR(128) DEFAULT NULL,"
-                            + "xlabel      VARCHAR(128) DEFAULT NULL,"
-                            + "ylabel      VARCHAR(128) DEFAULT NULL,"
-                            + "warninglevel1   FLOAT DEFAULT NULL,"
-                            + "warninglevel2   FLOAT DEFAULT NULL,"
-                            + "color       VARCHAR(6) NOT NULL DEFAULT '1176c2',"
-                            + "last_js     LONG VARCHAR DEFAULT NULL,"
-                            + "added       TIMESTAMP NOT NULL,"
-                            + "modified    TIMESTAMP NOT NULL,"
-                            + "archive     SMALLINT NOT NULL DEFAULT 0,"
-                            + "last_seen   TIMESTAMP NOT NULL" + ")");
-
+     * + "graph_id    INTEGER PRIMARY KEY NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 0, INCREMENT BY 1),"
+     * + "enabled     SMALLINT NOT NULL DEFAULT 1,"
+     * + "server_id   INTEGER NOT NULL DEFAULT 0,"
+     * + "name        VARCHAR(128) UNIQUE NOT NULL,"
+     * + "description LONG VARCHAR DEFAULT NULL,"
+     * + "timeframe   INTEGER NOT NULL DEFAULT 60,"
+     * + "mbean       VARCHAR(512) NOT NULL,"
+     * + "data1operation  CHAR DEFAULT NULL,"
+     * + "dataname1   VARCHAR(128) NOT NULL,"
+     * + "operation   VARCHAR(128) DEFAULT NULL,"
+     * + "data2operation  CHAR DEFAULT NULL,"
+     * + "dataname2   VARCHAR(128) DEFAULT NULL,"
+     * + "xlabel      VARCHAR(128) DEFAULT NULL,"
+     * + "ylabel      VARCHAR(128) DEFAULT NULL,"
+     * + "warninglevel1   FLOAT DEFAULT NULL,"
+     * + "warninglevel2   FLOAT DEFAULT NULL,"
+     * + "color       VARCHAR(6) NOT NULL DEFAULT '1176c2',"
+     * + "last_js     LONG VARCHAR DEFAULT NULL,"
+     * + "added       TIMESTAMP NOT NULL,"
+     * + "modified    TIMESTAMP NOT NULL,"
+     * + "archive     SMALLINT NOT NULL DEFAULT 0,"
+     * + "last_seen   TIMESTAMP NOT NULL" + ")");
      */
 
     public int getId() {
@@ -150,13 +175,13 @@ public class Graph {
         this.timeFrame = timeFrame;
     }
 
-    public String getServer_id() {
-        return server_id;
-    }
-
-    public void setServer_id(String server_id) {
-        this.server_id = server_id;
-    }
+//    public String getServer_id() {
+//        return server_id;
+//    }
+//
+//    public void setServer_id(String server_id) {
+//        this.server_id = server_id;
+//    }
 
     public String getXlabel() {
         return xlabel;
@@ -228,5 +253,25 @@ public class Graph {
 
     public void setShowArchive(boolean showArchive) {
         this.showArchive = showArchive;
+    }
+
+    public String getIdString() {
+        return "" + id;
+    }
+
+    public List<View> getViews() {
+        return views;
+    }
+
+    public void setViews(List<View> views) {
+        this.views = views;
+    }
+
+    public Node getNode() {
+        return node;
+    }
+
+    public void setNode(Node node) {
+        this.node = node;
     }
 }

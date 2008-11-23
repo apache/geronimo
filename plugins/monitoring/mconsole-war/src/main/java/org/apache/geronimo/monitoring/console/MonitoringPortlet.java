@@ -17,12 +17,15 @@
 package org.apache.geronimo.monitoring.console;
 
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
+import javax.annotation.Resource;
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
 import javax.portlet.GenericPortlet;
@@ -31,14 +34,20 @@ import javax.portlet.PortletException;
 import javax.portlet.PortletRequestDispatcher;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
+import javax.transaction.UserTransaction;
 
-import org.apache.geronimo.monitoring.console.util.DBManager;
 import org.apache.geronimo.crypto.EncryptionManager;
+import org.apache.geronimo.monitoring.console.data.Graph;
+import org.apache.geronimo.monitoring.console.data.Node;
+import org.apache.geronimo.monitoring.console.data.View;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * STATS
  */
 public class MonitoringPortlet extends GenericPortlet {
+    Logger log = LoggerFactory.getLogger(MonitoringPortlet.class);
 
     private static final String NORMALVIEW_JSP = "/WEB-INF/view/monitoringNormal.jsp";
 
@@ -96,9 +105,16 @@ public class MonitoringPortlet extends GenericPortlet {
 
     private PortletRequestDispatcher editNormalView;
 
+    //annotations don't work in portlets yet, see init method for initialization
+    @Resource
+    UserTransaction userTransaction;
+
+    @PersistenceContext
+    EntityManager entityManager;
+
     @Override
     public void processAction(ActionRequest actionRequest,
-            ActionResponse actionResponse) throws PortletException, IOException {
+                              ActionResponse actionResponse) throws PortletException, IOException {
         String action = actionRequest.getParameter("action");
         actionResponse.setRenderParameter("action", action);
         if (action.equals("showView")) {
@@ -175,18 +191,15 @@ public class MonitoringPortlet extends GenericPortlet {
         } else if (action.equals("startThread")
                 || action.equals("enableServerViewQuery")) {
             String server_id = actionRequest.getParameter("server_id");
-            String snapshotDuration = actionRequest
-                    .getParameter("snapshotDuration");
+            String snapshotDuration = actionRequest.getParameter("snapshotDuration");
             String message = startThread(server_id, new Long(snapshotDuration));
             actionResponse.setRenderParameter("message", message);
             actionResponse.setRenderParameter("server_id", server_id);
-            actionResponse.setRenderParameter("snapshotDuration",
-                    snapshotDuration);
+            actionResponse.setRenderParameter("snapshotDuration", snapshotDuration);
         } else if (action.equals("disableServer")
                 || action.equals("disableEditServer")) {
             String server_id = actionRequest.getParameter("server_id");
             actionResponse.setRenderParameter("server_id", server_id);
-            ;
             actionResponse.setRenderParameter("message", alterServerState(
                     server_id, false));
         } else if (action.equals("enableServer")
@@ -195,7 +208,6 @@ public class MonitoringPortlet extends GenericPortlet {
             actionResponse.setRenderParameter("message", alterServerState(
                     server_id, true));
             actionResponse.setRenderParameter("server_id", server_id);
-            ;
         } else if (action.equals("testAddServerConnection")) {
             String name = actionRequest.getParameter("name");
             String ip = actionRequest.getParameter("ip");
@@ -203,8 +215,8 @@ public class MonitoringPortlet extends GenericPortlet {
             String password = actionRequest.getParameter("password");
             String password2 = actionRequest.getParameter("password2");
             Integer port = Integer.parseInt(actionRequest.getParameter("port"));
-            Integer protocol = Integer.parseInt(actionRequest.getParameter("protocol"));
-            String message = testConnection(name, ip, username, password, port, protocol);
+            String protocol = actionRequest.getParameter("protocol");
+            String message = testConnection(ip, username, password, port, protocol);
             actionResponse.setRenderParameter("message", message);
             actionResponse.setRenderParameter("name", name);
             actionResponse.setRenderParameter("username", username);
@@ -212,7 +224,7 @@ public class MonitoringPortlet extends GenericPortlet {
             actionResponse.setRenderParameter("password", password);
             actionResponse.setRenderParameter("password2", password2);
             actionResponse.setRenderParameter("port", "" + port);
-            actionResponse.setRenderParameter("protocol", "" + protocol); 
+            actionResponse.setRenderParameter("protocol", protocol);
         } else if (action.equals("testEditServerConnection")) {
             String name = actionRequest.getParameter("name");
             String ip = actionRequest.getParameter("ip");
@@ -223,14 +235,14 @@ public class MonitoringPortlet extends GenericPortlet {
             String snapshot = actionRequest.getParameter("snapshot");
             String retention = actionRequest.getParameter("retention");
             Integer port = Integer.parseInt(actionRequest.getParameter("port"));
-            Integer protocol = Integer.parseInt(actionRequest.getParameter("protocol"));
-            if(snapshot == null) {
+            String protocol = actionRequest.getParameter("protocol");
+            if (snapshot == null) {
                 snapshot = "";
             }
-            if(retention == null) {
+            if (retention == null) {
                 retention = "";
             }
-            String message = testConnection(name, ip, username, password, port, protocol);
+            String message = testConnection(ip, username, password, port, protocol);
             actionResponse.setRenderParameter("message", message);
             actionResponse.setRenderParameter("name", name);
             actionResponse.setRenderParameter("username", username);
@@ -245,10 +257,10 @@ public class MonitoringPortlet extends GenericPortlet {
         }
     }
 
-    private String testConnection(String name, String ip, String username,
-            String password, int port, int protocol) {
+    private String testConnection(String ip, String username,
+                                  String password, int port, String protocol) {
         try {
-            MRCConnector mrc = new MRCConnector(ip, username, password, port, protocol);
+            new MRCConnector(ip, username, password, port, protocol);
 
             return "<font color=\"green\"><strong><li>Connection was successfully established.</li></strong></font>";
         } catch (Exception e) {
@@ -256,60 +268,22 @@ public class MonitoringPortlet extends GenericPortlet {
         }
     }
 
-    private String alterServerState(String server_id, boolean b) {
-        Connection conn = (new DBManager()).getConnection();
-        String message = "";
-        String name = "";
+    private String alterServerState(String server_id, boolean enable) {
         try {
-            PreparedStatement pStmt = conn
-                    .prepareStatement("SELECT * FROM servers WHERE server_id="
-                            + server_id);
-            ResultSet rs = pStmt.executeQuery();
-            if (rs.next()) {
-                name = rs.getString("name");
+            userTransaction.begin();
+            try {
+                Node node = (Node) entityManager.createNamedQuery("nodeByName").setParameter("name", server_id).getSingleResult();
+                node.setEnabled(enable);
+            } finally {
+                userTransaction.commit();
             }
-            rs.close();
-            conn.close();
-            conn = (new DBManager()).getConnection();
-            Statement stmt = conn.createStatement();
-            if (!b) {
-                stmt
-                        .executeUpdate("UPDATE SERVERS SET ENABLED = 0 WHERE SERVER_ID="
-                                + server_id);
-                stmt
-                        .executeUpdate("UPDATE GRAPHS SET ENABLED = 0 WHERE SERVER_ID="
-                                + server_id);
-                message = "<font color=\"green\"><strong><li>Server " + name
-                        + " was successfully disabled.</li></strong></font>";
-            } else {
-                stmt
-                        .executeUpdate("UPDATE SERVERS SET ENABLED = 1 WHERE SERVER_ID="
-                                + server_id);
-                stmt
-                        .executeUpdate("UPDATE GRAPHS SET ENABLED = 1 WHERE SERVER_ID="
-                                + server_id);
-                message = "<font color=\"green\"><strong><li>Server " + name
-                        + " was successfully enabled.</li></strong></font>";
-            }
-        } catch (SQLException e) {
-            if (!b)
-                message = "<font color=\"red\"><strong><li>[ERROR] Server with server_id = "
-                        + server_id
-                        + " could not be disabled.</li></strong></font>";
-            else
-                message = "<font color=\"red\"><strong><li>[ERROR] Server with server_id = "
-                        + server_id
-                        + " could not be enabled.</li></strong></font>";
-        } finally {
-            if (conn != null) {
-                try {
-                    conn.close();
-                } catch (Exception e) {
-
-                }
-            }
+            return "<font color=\"green\"><strong><li>Server " + server_id
+                    + " was successfully " + (enable? "enabled":"disabled") + ".</li></strong></font>";
+        } catch (Exception e) {
+            return "<font color=\"red\"><strong><li>[ERROR] Server with server_id = "
+                    + server_id
+                    + " could not be " + (enable? "enabled":"disabled") + ".</li></strong></font>";
         }
-        return message;
     }
 
     @Override
@@ -319,21 +293,23 @@ public class MonitoringPortlet extends GenericPortlet {
         if (action == null)
             action = "showNormal";
         if (action.equals("showView")) {
-            String view_id = request.getParameter("view_id");
-            request.setAttribute("view_id", view_id);
+            addViewAttribute(request, true);
             pageView.include(request, response);
         } else if (action.equals("showAllViews")) {
             request.setAttribute("message", "");
             viewViews.include(request, response);
         } else if (action.equals("showAllServers")) {
             request.setAttribute("message", "");
+            addAllNodesAttribute(request);
             viewServers.include(request, response);
         } else if (action.equals("showAllGraphs")) {
             request.setAttribute("message", "");
+            addAllGraphsAttribute(request);
             viewGraphs.include(request, response);
         } else if (action.equals("showServer")) {
             String server_id = request.getParameter("server_id");
             request.setAttribute("server_id", server_id);
+            addNodeAttribute(request);
             viewServer.include(request, response);
         } else if (action.equals("startTrackingMbean")) {
             String server_id = request.getParameter("server_id");
@@ -342,6 +318,7 @@ public class MonitoringPortlet extends GenericPortlet {
             request.setAttribute("mbean", mbean);
             String message = startTrackingMbean(server_id, mbean);
             request.setAttribute("message", message);
+            addNodeAttribute(request);
             viewServer.include(request, response);
         } else if (action.equals("stopTrackingMbean")) {
             String server_id = request.getParameter("server_id");
@@ -350,34 +327,27 @@ public class MonitoringPortlet extends GenericPortlet {
             request.setAttribute("mbean", mbean);
             String message = stopTrackingMbean(server_id, mbean);
             request.setAttribute("message", message);
+            addNodeAttribute(request);
             viewServer.include(request, response);
         } else if (action.equals("stopThread")) {
-            String server_id = request.getParameter("server_id");
-            String message = request.getParameter("message");
-            request.setAttribute("message", message);
-            normalView.include(request, response);
+            normalView(request, response);
         } else if (action.equals("startThread")) {
-            String server_id = request.getParameter("server_id");
-            Long snapshotDuration = java.lang.Long.parseLong(
-                    request.getParameter("snapshotDuration"));
-            String message = request.getParameter("message");
-            request.setAttribute("message", message);
-            normalView.include(request, response);
+            normalView(request, response);
         } else if (action.equals("disableServerViewQuery") || action.equals("enableServerViewQuery")) {
             String server_id = request.getParameter("server_id");
             String message = request.getParameter("message");
             request.setAttribute("message", message);
             request.setAttribute("server_id", server_id);
+            addNodeAttribute(request);
             viewServer.include(request, response);
         } else {
-            request.setAttribute("message", request.getParameter("message"));
-            normalView.include(request, response);
+            normalView(request, response);
         }
     }
 
     @Override
     protected void doHelp(RenderRequest renderRequest,
-            RenderResponse renderResponse) throws PortletException, IOException {
+                          RenderResponse renderResponse) throws PortletException, IOException {
         helpView.include(renderRequest, renderResponse);
     }
 
@@ -390,19 +360,20 @@ public class MonitoringPortlet extends GenericPortlet {
         if (action.equals("showEditView")) {
             String view_id = request.getParameter("view_id");
             request.setAttribute("view_id", view_id);
+            addViewAttribute(request, false);
             editView.include(request, response);
         } else if (action.equals("saveEditView")) {
             String view_id = request.getParameter("view_id");
             request.setAttribute("view_id", view_id);
             String message = request.getParameter("message");
             request.setAttribute("message", message);
+            addViewAttribute(request, false);
             editView.include(request, response);
         } else if (action.equals("showAddView")) {
+            addAllGraphsAttribute(request);
             addView.include(request, response);
         } else if (action.equals("saveAddView")) {
-            String message = request.getParameter("message");
-            request.setAttribute("message", message);
-            normalView.include(request, response);
+            normalView(request, response);
         } else if (action.equals("showAddGraph")) {
             String server_id = request.getParameter("server_id");
             request.setAttribute("server_id", server_id);
@@ -410,57 +381,52 @@ public class MonitoringPortlet extends GenericPortlet {
             request.setAttribute("mbean", mbean);
             String dataname = request.getParameter("dataname");
             request.setAttribute("dataname", dataname);
+            addAllNodesAttribute(request);
             addGraph.include(request, response);
         } else if (action.equals("saveAddGraph")) {
-            String message = request.getParameter("message");
-            request.setAttribute("message", message);
-            normalView.include(request, response);
+            normalView(request, response);
         } else if (action.equals("showEditGraph")) {
             String graph_id = request.getParameter("graph_id");
             request.setAttribute("graph_id", graph_id);
+            addGraphAttribute(request);
+            addAllNodesAttribute(request);
             editGraph.include(request, response);
         } else if (action.equals("saveEditGraph")) {
             String graph_id = request.getParameter("graph_id");
             request.setAttribute("graph_id", graph_id);
             String message = request.getParameter("message");
             request.setAttribute("message", message);
+            addGraphAttribute(request);
+            addAllNodesAttribute(request);
             editGraph.include(request, response);
         } else if (action.equals("deleteGraph")) {
-            String message = request.getParameter("message");
-            request.setAttribute("message", message);
-            normalView.include(request, response);
+            normalView(request, response);
         } else if (action.equals("deleteView")) {
-            String message = request.getParameter("message");
-            request.setAttribute("message", message);
-            normalView.include(request, response);
+            normalView(request, response);
         } else if (action.equals("showEditServer")) {
             String server_id = request.getParameter("server_id");
             request.setAttribute("server_id", server_id);
+            addNodeAttribute(request);
             editServer.include(request, response);
         } else if (action.equals("saveEditServer")) {
             String server_id = request.getParameter("server_id");
             request.setAttribute("server_id", server_id);
             String message = request.getParameter("message");
             request.setAttribute("message", message);
+            addNodeAttribute(request);
             editServer.include(request, response);
         } else if (action.equals("showAddServer")) {
             addServer.include(request, response);
         } else if (action.equals("saveAddServer")) {
-            String message = request.getParameter("message");
-            request.setAttribute("message", message);
-            normalView.include(request, response);
+            normalView(request, response);
         } else if (action.equals("deleteServer")) {
-            String message = request.getParameter("message");
-            request.setAttribute("message", message);
-            normalView.include(request, response);
+            normalView(request, response);
         } else if (action.equals("testAddServerConnection")) {
             request.setAttribute("name", request.getParameter("name"));
             request.setAttribute("ip", request.getParameter("ip"));
             request.setAttribute("username", request.getParameter("username"));
             request.setAttribute("password", request.getParameter("password"));
-            request
-                    .setAttribute("password2", request
-                            .getParameter("password2"));
+            request.setAttribute("password2", request.getParameter("password2"));
             request.setAttribute("message", request.getParameter("message"));
             request.setAttribute("port", request.getParameter("port"));
             addServer.include(request, response);
@@ -470,115 +436,188 @@ public class MonitoringPortlet extends GenericPortlet {
             request.setAttribute("port", request.getParameter("port"));
             request.setAttribute("username", request.getParameter("username"));
             request.setAttribute("password", request.getParameter("password"));
-            request
-                    .setAttribute("password2", request
-                            .getParameter("password2"));
+            request.setAttribute("password2", request.getParameter("password2"));
             request.setAttribute("message", request.getParameter("message"));
-            request
-                    .setAttribute("server_id", request
-                            .getParameter("server_id"));
+            request.setAttribute("server_id", request.getParameter("server_id"));
             request.setAttribute("snapshot", request.getParameter("snapshot"));
-            request
-                    .setAttribute("retention", request
-                            .getParameter("retention"));
+            request.setAttribute("retention", request.getParameter("retention"));
+            addNodeAttribute(request);
             editServer.include(request, response);
         } else if (action.equals("disableEditServer")
                 || action.equals("enableEditServer")) {
             request.setAttribute("message", request.getParameter("message"));
-            request
-                    .setAttribute("server_id", request
-                            .getParameter("server_id"));
+            request.setAttribute("server_id", request.getParameter("server_id"));
+            addNodeAttribute(request);
             editServer.include(request, response);
         } else if (action.equals("disableServer")
                 || action.equals("enableServer")) {
-            request.setAttribute("message", request.getParameter("message"));
-            request
-                    .setAttribute("server_id", request
-                            .getParameter("server_id"));
-            normalView.include(request, response);
+            request.setAttribute("server_id", request.getParameter("server_id"));
+            normalView(request, response);
         } else {
-            normalView.include(request, response);
+            //TODO may need to avoid setting message
+            normalView(request, response);
+        }
+    }
+
+    private void normalView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
+        String message = request.getParameter("message");
+        request.setAttribute("message", message);
+        addAllViewsAttribute(request);
+        addAllNodesAttribute(request);
+        addAllGraphsAttribute(request);
+
+        normalView.include(request, response);
+    }
+
+    private void addViewAttribute(RenderRequest request, boolean includeGraphs) throws PortletException {
+        int viewId = Integer.parseInt(request.getParameter("view_id"));
+        try {
+            userTransaction.begin();
+            try {
+                View view = entityManager.find(View.class, viewId);
+                request.setAttribute("view", view);
+                if (includeGraphs) {
+                    List<Graph> graphs = view.getGraphs();
+                    GraphsBuilder builder = new GraphsBuilder();
+                    List<StatsGraph> statsGraphs = new ArrayList<StatsGraph>();
+                    for (Graph graph: graphs) {
+                        StatsGraph statsGraph = builder.getStatsGraph(graph);
+                        if (statsGraph != null) {
+                            statsGraphs.add(statsGraph);
+                        }
+                    }
+                    request.setAttribute("statsGraphs", statsGraphs);
+                }
+            } finally {
+                userTransaction.commit();
+            }
+        } catch (Exception e) {
+            throw new PortletException(e);
+        }
+    }
+
+    private void addAllViewsAttribute(RenderRequest request) throws PortletException {
+        try {
+            userTransaction.begin();
+            try {
+                List<View> views = entityManager.createNamedQuery("allViews").getResultList();
+                request.setAttribute("views", views);
+            } finally {
+                userTransaction.commit();
+            }
+        } catch (Exception e) {
+            throw new PortletException(e);
+        }
+    }
+
+    private void addGraphAttribute(RenderRequest request) throws PortletException {
+        try {
+            userTransaction.begin();
+            try {
+                String graphIdString = request.getParameter("graph_id");
+                int graphId = Integer.parseInt(graphIdString);
+                Graph graph = entityManager.find(Graph.class, graphId);
+                request.setAttribute("graph", graph);
+            } finally {
+                userTransaction.commit();
+            }
+        } catch (Exception e) {
+            throw new PortletException(e);
+        }
+    }
+
+    private void addAllGraphsAttribute(RenderRequest request) throws PortletException {
+        try {
+            userTransaction.begin();
+            try {
+                List<Graph> graphs = entityManager.createNamedQuery("allGraphs").getResultList();
+                request.setAttribute("graphs", graphs);
+            } finally {
+                userTransaction.commit();
+            }
+        } catch (Exception e) {
+            throw new PortletException(e);
+        }
+    }
+
+    private void addNodeAttribute(RenderRequest request) throws PortletException {
+        request.setAttribute("node", getNodeByName(request.getParameter("server_id")));
+    }
+
+    private Node getNodeByName(String name) throws PortletException {
+        try {
+            userTransaction.begin();
+            try {
+                return entityManager.find(Node.class, name);
+            } finally {
+                userTransaction.commit();
+            }
+        } catch (Exception e) {
+            throw new PortletException(e);
+        }
+    }
+
+    private void addAllNodesAttribute(RenderRequest request) throws PortletException {
+        try {
+            userTransaction.begin();
+            try {
+                List<Node> nodes = entityManager.createNamedQuery("allNodes").getResultList();
+                request.setAttribute("nodes", nodes);
+            } finally {
+                userTransaction.commit();
+            }
+        } catch (Exception e) {
+            throw new PortletException(e);
         }
     }
 
     private void updateView(ActionRequest actionRequest,
-            ActionResponse actionResponse) {
+                            ActionResponse actionResponse) {
         String view_id = actionRequest.getParameter("view_id");
         actionResponse.setRenderParameter("view_id", view_id);
-        DBManager DBase = new DBManager();
-        Connection con = DBase.getConnection();
-        String name = actionRequest.getParameter("name");
-        String description = actionRequest.getParameter("description");
-        String[] graphsArray = actionRequest.getParameterValues("graph_ids");
-        if (graphsArray == null) {
-            graphsArray = new String[0];
-        }
-        try {
-            PreparedStatement pStmt = con
-                    .prepareStatement("UPDATE views SET name='" + name
-                            + "', description='" + description
-                            + "', graph_count=" + graphsArray.length
-                            + ", modified=CURRENT_TIMESTAMP WHERE view_id="
-                            + view_id);
-            pStmt.executeUpdate();
-            pStmt = con
-                    .prepareStatement("DELETE FROM views_graphs WHERE view_id="
-                            + view_id);
-            pStmt.executeUpdate();
-            if (graphsArray != null)
-                for (int i = 0; i < graphsArray.length; i++) {
-                    pStmt = con
-                            .prepareStatement("INSERT INTO views_graphs VALUES("
-                                    + view_id + "," + graphsArray[i] + ")");
-                    pStmt.executeUpdate();
-                }
-            con.close();
-            actionResponse.setRenderParameter("message",
-                    "<font color=\"green\"><strong><li>View " + name
-                            + " has been updated</li></strong></font>");
-            return;
 
+        try {
+            userTransaction.begin();
+            try {
+                View view = entityManager.find(View.class, Integer.parseInt(view_id));
+                view.setName(actionRequest.getParameter("name"));
+                view.setDescription(actionRequest.getParameter("description"));
+            } finally {
+                userTransaction.commit();
+            }
+            actionResponse.setRenderParameter("message",
+                    "<font color=\"green\"><strong><li>View " + actionRequest.getParameter("name")
+                            + " has been updated</li></strong></font>");
         } catch (Exception e) {
             actionResponse.setRenderParameter("message",
                     "<font color=\"red\"><strong><li>Error updating View "
-                            + name + "</li></strong></font>" + e.getMessage());
-            return;
+                            + actionRequest.getParameter("name") + "</li></strong></font>" + e.getMessage());
         }
+
     }
 
     private void addView(ActionRequest actionRequest,
-            ActionResponse actionResponse) {
-        DBManager DBase = new DBManager();
-        Connection con = DBase.getConnection();
+                         ActionResponse actionResponse) {
         String name = actionRequest.getParameter("name");
-        String description = actionRequest.getParameter("description");
-        String[] graphsArray = actionRequest.getParameterValues("graph_ids");
-        if (graphsArray == null) {
-            graphsArray = new String[0];
-        }
         try {
-            PreparedStatement pStmt = con
-                    .prepareStatement("INSERT INTO views (name, description, graph_count, modified, added) VALUES ('"
-                            + name
-                            + "','"
-                            + description
-                            + "',"
-                            + graphsArray.length
-                            + ",CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)");
-            pStmt.executeUpdate();
-            pStmt = con
-                    .prepareStatement("select view_id from views ORDER BY view_id DESC");
-            ResultSet rs = pStmt.executeQuery();
-            if (rs.next()) {
-                Integer view_id = rs.getInt("view_id");
-                for (int i = 0; i < graphsArray.length; i++) {
-                    pStmt = con
-                            .prepareStatement("INSERT INTO views_graphs VALUES("
-                                    + view_id + "," + graphsArray[i] + ")");
-                    pStmt.executeUpdate();
+            userTransaction.begin();
+            try {
+                View view = new View();
+                view.setName(name);
+                view.setDescription(actionRequest.getParameter("description"));
+                String[] graphsArray = actionRequest.getParameterValues("graph_ids");
+                if (graphsArray != null) {
+                    for (String graphIdString: graphsArray) {
+                        int graphId = Integer.parseInt(graphIdString);
+                        Graph graph = entityManager.find(Graph.class, graphId);
+                        view.getGraphs().add(graph);
+                        graph.getViews().add(view);
+                    }
                 }
+                entityManager.persist(view);
+            } finally {
+                userTransaction.commit();
             }
-            con.close();
             actionResponse.setRenderParameter("message",
                     "<font color=\"green\"><strong><li>View " + name
                             + " has been added</li></strong></font>");
@@ -586,94 +625,41 @@ public class MonitoringPortlet extends GenericPortlet {
             actionResponse.setRenderParameter("message",
                     "<font color=\"red\"><strong><li>Error adding View " + name
                             + "</li></strong></font>" + e.getMessage());
-        } finally {
-            try {
-                con.close();
-            } catch (Exception e) {
-
-            }
         }
     }
 
     private void updateServer(ActionRequest actionRequest,
-            ActionResponse actionResponse) {
+                              ActionResponse actionResponse) {
         String server_id = actionRequest.getParameter("server_id");
         actionResponse.setRenderParameter("server_id", server_id);
-        DBManager DBase = new DBManager();
-        Connection con = DBase.getConnection();
-        String name = actionRequest.getParameter("name");
-        String ip = actionRequest.getParameter("ip");
-        String password = actionRequest.getParameter("password");
-        String username = actionRequest.getParameter("username");
-        String snapshot = actionRequest.getParameter("snapshot");
-        String retention = actionRequest.getParameter("retention");
-        Integer port = Integer.parseInt(actionRequest.getParameter("port"));
-        Integer protocol = Integer.parseInt(actionRequest.getParameter("protocol"));
-        // encrypt the password
-        if (password != null && !password.equals("")) {
-            password = EncryptionManager.encrypt(password);
-        }
 
         try {
-            // update the client side db (table = SERVERS)
-            if (password.equals("") || password == null) {
-                PreparedStatement pStmt = con
-                        .prepareStatement("UPDATE servers SET name='"
-                                + name
-                                + "', ip='"
-                                + ip
-                                + "', username='"
-                                + username
-                                + "', modified=CURRENT_TIMESTAMP, last_seen=CURRENT_TIMESTAMP, "
-                                + "port=" + port + ",protocol="+protocol+" WHERE server_id="
-                                + server_id);
-                pStmt.executeUpdate();
-                // when user did not specify the password, just grab it from the
-                // db
-                pStmt = con
-                        .prepareStatement("SELECT password FROM servers WHERE server_id="
-                                + server_id);
-                ResultSet s = pStmt.executeQuery();
-                if (s.next()) {
-                    password = s.getString("password");
-                } else {
-                    actionResponse
-                            .setRenderParameter(
-                                    "message",
-                                    "<font color=\"red\"><strong><li>Error updating server</li></strong></font>"
-                                            + "Password was not found in the database for server_id="
-                                            + server_id);
-                    con.close();
-                    return;
+            userTransaction.begin();
+            try {
+                Node node = entityManager.find(Node.class, server_id);
+                node.setName(actionRequest.getParameter("name"));
+                node.setHost(actionRequest.getParameter("ip"));
+                node.setUserName(actionRequest.getParameter("username"));
+                String password = actionRequest.getParameter("password");
+                if (password != null && !password.equals("")) {
+                    password = EncryptionManager.encrypt(password);
+                    node.setPassword(password);
                 }
-            } else {
-                PreparedStatement pStmt = con
-                        .prepareStatement("UPDATE servers SET name='"
-                                + name
-                                + "', ip='"
-                                + ip
-                                + "', username='"
-                                + username
-                                + "', password='"
-                                + password
-                                + "', modified=CURRENT_TIMESTAMP, last_seen=CURRENT_TIMESTAMP, "
-                                + "port=" + port + ",protocol="+protocol+" WHERE server_id="
-                                + server_id);
-                pStmt.executeUpdate();
+                node.setPort(Integer.parseInt(actionRequest.getParameter("port")));
+                node.setProtocol(actionRequest.getParameter("protocol"));
+                //TODO retention??
+                String snapshot = actionRequest.getParameter("snapshot");
+                String retention = actionRequest.getParameter("retention");
+                if (snapshot != null && retention != null) {
+                    MRCConnector connector = new MRCConnector(node);
+                    connector.setSnapshotDuration(Long.parseLong(snapshot) * 1000 * 60);
+                    connector.setSnapshotRetention(Integer.parseInt(retention));
+                    //close?
+                }
+            } finally {
+                userTransaction.commit();
             }
-            con.close();
-            // update the server side db
-            if (snapshot == null || retention == null) {
-                // do not update if we do not know
-            } else {
-                    (new MRCConnector(ip, username, password, port, protocol))
-                        .setSnapshotDuration(Long.parseLong(snapshot) * 1000 * 60);
-                    (new MRCConnector(ip, username, password, port, protocol))
-                        .setSnapshotRetention(Integer.parseInt(retention));
-            }
-            // set success message
-            actionResponse
-                    .setRenderParameter(
+            actionResponse.setRenderParameter(
                             "message",
                             "<font color=\"green\"><strong><li>Server has been updated</li></strong></font>");
         } catch (Exception e) {
@@ -684,340 +670,197 @@ public class MonitoringPortlet extends GenericPortlet {
     }
 
     private void addServer(ActionRequest actionRequest,
-            ActionResponse actionResponse) {
-        DBManager DBase = new DBManager();
-        Connection con = DBase.getConnection();
-        String name = actionRequest.getParameter("name");
-        String ip = actionRequest.getParameter("ip");
-        int protocol = Integer.parseInt(actionRequest.getParameter("protocol"));
-        int port = Integer.parseInt(actionRequest.getParameter("port"));
-        String password = actionRequest.getParameter("password");
-        String username = actionRequest.getParameter("username");
-        // encrypt the password
-        if (password != null && !password.equals("")) {
-            password = EncryptionManager.encrypt(password);
-        }
+                           ActionResponse actionResponse) {
         try {
-            PreparedStatement pStmt = con
-                    .prepareStatement("INSERT INTO servers (name, ip, username, password, modified, last_seen, added, port, protocol) VALUES ('"
-                            + name
-                            + "','"
-                            + ip
-                            + "','"
-                            + username
-                            + "','"
-                            + password
-                            + "',CURRENT_TIMESTAMP,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP,"
-                            + port
-                            + ","
-                            + protocol + ")");
-            pStmt.executeUpdate();
+            userTransaction.begin();
+            String name = actionRequest.getParameter("name");
+            String host = actionRequest.getParameter("ip");
+            try {
+                Node node = new Node();
+                node.setName(name);
+                node.setHost(host);
+                node.setUserName(actionRequest.getParameter("username"));
+                String password = actionRequest.getParameter("password");
+                if (password != null && !password.equals("")) {
+                    password = EncryptionManager.encrypt(password);
+                    node.setPassword(password);
+                }
+                node.setPort(Integer.parseInt(actionRequest.getParameter("port")));
+                node.setProtocol(actionRequest.getParameter("protocol"));
+                entityManager.persist(node);
+            } finally {
+                userTransaction.commit();
+            }
             actionResponse.setRenderParameter("message",
                     "<font color=\"green\"><strong><li>Server " + name + " at "
-                            + ip + " has been added.</li></strong></font>");
-
+                            + host + " has been added.</li></strong></font>");
         } catch (Exception e) {
             actionResponse.setRenderParameter("message",
                     "<font color=\"red\"><strong><li>Error adding server</li></strong></font>"
                             + e.getMessage());
-        } finally {
-            try {
-                con.close();
-            } catch (Exception e) {
-
-            }
         }
     }
 
     private void deleteServer(ActionRequest actionRequest,
-            ActionResponse actionResponse) {
+                              ActionResponse actionResponse) {
         String server_id = actionRequest.getParameter("server_id");
         actionResponse.setRenderParameter("server_id", server_id);
-        DBManager DBase = new DBManager();
-        Connection con = DBase.getConnection();
 
         try {
-            PreparedStatement pStmt = con
-                    .prepareStatement("DELETE FROM graphs WHERE server_id="
-                            + server_id);
-            pStmt.executeUpdate();
-
-            pStmt = con.prepareStatement("DELETE FROM servers WHERE server_id="
-                    + server_id);
-            pStmt.executeUpdate();
-            con.close();
-            actionResponse
-                    .setRenderParameter(
+            userTransaction.begin();
+            try {
+                Node node = entityManager.find(Node.class, server_id);
+                entityManager.remove(node);
+            } finally {
+                userTransaction.commit();
+            }
+            actionResponse.setRenderParameter(
                             "message",
                             "<font color=\"green\"><strong><li>Server and associated graphs have been deleted</li></strong></font>");
-            return;
-
         } catch (Exception e) {
             actionResponse.setRenderParameter("message",
                     "<font color=\"red\"><strong><li>Error deleting server</li></strong></font>"
                             + e.getMessage());
-            return;
         }
     }
 
     private void deleteView(ActionRequest actionRequest,
-            ActionResponse actionResponse) {
+                            ActionResponse actionResponse) {
         String view_id = actionRequest.getParameter("view_id");
         actionResponse.setRenderParameter("view_id", view_id);
-        DBManager DBase = new DBManager();
-        Connection con = DBase.getConnection();
 
         try {
-            PreparedStatement pStmt = con
-                    .prepareStatement("DELETE FROM views WHERE view_id="
-                            + view_id);
-            pStmt.executeUpdate();
-            pStmt = con
-                    .prepareStatement("DELETE FROM views_graphs WHERE view_id="
-                            + view_id);
-            pStmt.executeUpdate();
-            con.close();
-            actionResponse
-                    .setRenderParameter("message",
+            userTransaction.begin();
+            try {
+                View view = entityManager.find(View.class, Integer.parseInt(view_id));
+                entityManager.remove(view);
+            } finally {
+                userTransaction.commit();
+            }
+            actionResponse.setRenderParameter("message",
                             "<font color=\"green\"><strong><li>View has been deleted</li></strong></font>");
-            return;
-
         } catch (Exception e) {
             actionResponse.setRenderParameter("message",
                     "<font color=\"red\"><strong><li>Error deleting view</li></strong></font>"
                             + e.getMessage());
-            return;
         }
     }
 
     private void addGraph(ActionRequest actionRequest,
-            ActionResponse actionResponse) {
-        DBManager DBase = new DBManager();
-        Connection con = DBase.getConnection();
-        String name = actionRequest.getParameter("name");
-        String description = actionRequest.getParameter("description");
-        String server_id = actionRequest.getParameter("server_id");
-        String xlabel = actionRequest.getParameter("xlabel");
-        String ylabel = actionRequest.getParameter("ylabel");
-        String timeframe = actionRequest.getParameter("timeframe");
-        String mbean = actionRequest.getParameter("mbean");
-        String dataname1 = actionRequest.getParameter("dataname1");
-        String data1operation = actionRequest.getParameter("data1operation");
-        String operation = actionRequest.getParameter("operation");
-        int showArchive = 0;
-        if (actionRequest.getParameter("showArchive") != null
-                && actionRequest.getParameter("showArchive").equals("on")) {
-            showArchive = 1;
-        }
+                          ActionResponse actionResponse) {
+        Graph graph = new Graph();
 
-        if (operation.equals("other")) {
-            operation = actionRequest.getParameter("othermath");
-        }
-        String dataname2 = actionRequest.getParameter("dataname2");
-        String data2operation = actionRequest.getParameter("data2operation");
-        if (data2operation == null)
-            data2operation = "A";
+        updateGraphFromRequest(actionRequest, graph);
         try {
-            PreparedStatement pStmt = con
-                    .prepareStatement("INSERT INTO graphs (server_id, name, description, timeframe, mbean, dataname1, xlabel, ylabel, data1operation, operation, data2operation, dataname2, warninglevel1, warninglevel2, added, modified, last_seen, archive) VALUES ("
-                            + server_id
-                            + ",'"
-                            + name
-                            + "','"
-                            + description
-                            + "',"
-                            + timeframe
-                            + ",'"
-                            + mbean
-                            + "','"
-                            + dataname1
-                            + "','"
-                            + xlabel
-                            + "','"
-                            + ylabel
-                            + "','"
-                            + data1operation
-                            + "','"
-                            + operation
-                            + "','"
-                            + data2operation
-                            + "','"
-                            + dataname2
-                            + "',0,0,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP,"
-                            + showArchive + ")");
-            pStmt.executeUpdate();
-            con.close();
+            userTransaction.begin();
+            try {
+                Node node = entityManager.find(Node.class, actionRequest.getParameter("server_id"));
+                graph.setNode(node);
+                entityManager.persist(graph);
+            } finally {
+                userTransaction.commit();
+            }
             actionResponse.setRenderParameter("message",
-                    "<font color=\"green\"><strong><li>Graph " + name
+                    "<font color=\"green\"><strong><li>Graph " + graph.getGraphName1()
                             + " has been added.</li></strong></font>");
-            return;
 
         } catch (Exception e) {
             actionResponse.setRenderParameter("message",
                     "<font color=\"red\"><strong><li>Error adding graph</li></strong></font>"
                             + e.getMessage());
-            return;
         }
     }
 
+    private void updateGraphFromRequest(ActionRequest actionRequest, Graph graph) {
+        graph.setGraphName1(actionRequest.getParameter("name"));
+        graph.setDescription(actionRequest.getParameter("description"));
+        graph.setXlabel(actionRequest.getParameter("xlabel"));
+        graph.setYlabel(actionRequest.getParameter("ylabel"));
+        graph.setTimeFrame(Integer.parseInt(actionRequest.getParameter("timeframe")));
+        graph.setMBeanName(actionRequest.getParameter("mbean"));
+        graph.setDataName1(actionRequest.getParameter("dataname1"));
+        graph.setData1operation(actionRequest.getParameter("data1operation").charAt(0));
+
+        graph.setOperation(actionRequest.getParameter("operation"));
+        if (graph.getOperation().equals("other")) {
+            graph.setOperation(actionRequest.getParameter("othermath"));
+        }
+
+        graph.setShowArchive(actionRequest.getParameter("showArchive") != null
+                && actionRequest.getParameter("showArchive").equals("on"));
+
+        graph.setDataName2(actionRequest.getParameter("dataname2"));
+        graph.setData2operation(actionRequest.getParameter("data2operation") == null? 'A': actionRequest.getParameter("data2operation").charAt(0));
+    }
+
     private void updateGraph(ActionRequest actionRequest,
-            ActionResponse actionResponse) {
-        DBManager DBase = new DBManager();
-        Connection con = DBase.getConnection();
+                             ActionResponse actionResponse) {
         String graph_id = actionRequest.getParameter("graph_id");
         actionResponse.setRenderParameter("graph_id", graph_id);
-
-        String name = actionRequest.getParameter("name");
-        String description = actionRequest.getParameter("description");
-        String server_id = actionRequest.getParameter("server_id");
-        String xlabel = actionRequest.getParameter("xlabel");
-        String ylabel = actionRequest.getParameter("ylabel");
-        String timeframe = actionRequest.getParameter("timeframe");
-        String mbean = actionRequest.getParameter("mbean");
-        String dataname1 = actionRequest.getParameter("dataname1");
-        String data1operation = actionRequest.getParameter("data1operation");
-        String operation = actionRequest.getParameter("operation");
-        int archive = 0;
-        if (actionRequest.getParameter("showArchive") != null
-                && actionRequest.getParameter("showArchive").equals("on")) {
-            archive = 1;
-        }
-
-        if (operation.equals("other")) {
-            operation = actionRequest.getParameter("othermath");
-        }
-        String dataname2 = actionRequest.getParameter("dataname2");
-        String data2operation = actionRequest.getParameter("data2operation");
-        if (data2operation == null)
-            data2operation = "A";
         try {
-            PreparedStatement pStmt = con
-                    .prepareStatement("UPDATE graphs SET server_id="
-                            + server_id
-                            + ", name='"
-                            + name
-                            + "', description='"
-                            + description
-                            + "', timeframe="
-                            + timeframe
-                            + ", mbean='"
-                            + mbean
-                            + "', dataname1='"
-                            + dataname1
-                            + "', xlabel='"
-                            + xlabel
-                            + "', ylabel='"
-                            + ylabel
-                            + "', data1operation='"
-                            + data1operation
-                            + "', operation='"
-                            + operation
-                            + "', data2operation='"
-                            + data2operation
-                            + "', dataname2='"
-                            + dataname2
-                            + "', warninglevel1=0, warninglevel2=0, modified=CURRENT_TIMESTAMP, archive="
-                            + archive + " WHERE graph_id=" + graph_id);
-            pStmt.executeUpdate();
-            con.close();
-            actionResponse.setRenderParameter("message",
-                    "<font color=\"green\"><strong><li>Graph " + name
-                            + " has been updated.</li></strong></font>");
-            return;
+            userTransaction.begin();
+            try {
+                Graph graph = entityManager.find(Graph.class, Integer.parseInt(graph_id));
+                Node node = entityManager.find(Node.class, actionRequest.getParameter("server_id"));
+                graph.setNode(node);
+                updateGraphFromRequest(actionRequest, graph);
+                actionResponse.setRenderParameter("message",
+                        "<font color=\"green\"><strong><li>Graph " + graph.getGraphName1()
+                                + " has been updated.</li></strong></font>");
+            } finally {
+                userTransaction.commit();
+            }
 
         } catch (Exception e) {
+            log.info("error updating graph", e);
             actionResponse.setRenderParameter("message",
-                    "<font color=\"red\"><strong><li>Error editing graph</li></strong></font>"
+                    "<font color=\"red\"><strong><li>Error updating graph</li></strong></font>"
                             + e.getMessage());
-            return;
         }
     }
 
     private void deleteGraph(ActionRequest actionRequest,
-            ActionResponse actionResponse) {
+                             ActionResponse actionResponse) {
         String graph_id = actionRequest.getParameter("graph_id");
         actionResponse.setRenderParameter("graph_id", graph_id);
-        DBManager DBase = new DBManager();
-        Connection con = DBase.getConnection();
-
         try {
-            // remove the graph
-            PreparedStatement pStmt = con
-                    .prepareStatement("DELETE FROM graphs WHERE graph_id="
-                            + graph_id);
-            pStmt.executeUpdate();
-            // fetch all views associated with this graph
-            pStmt = con
-                    .prepareStatement("SELECT view_id FROM views_graphs WHERE graph_id="
-                            + graph_id);
-            ResultSet view_ids = pStmt.executeQuery();
-            // reduce the graph_count from all views associated with the graph
-            while (view_ids.next()) {
-                pStmt = con
-                        .prepareStatement("UPDATE views SET graph_count=graph_count-1 WHERE view_id="
-                                + view_ids.getString("view_id"));
-                pStmt.executeUpdate();
+            userTransaction.begin();
+            try {
+                Graph graph = entityManager.find(Graph.class, Integer.parseInt(graph_id));
+                entityManager.remove(graph);
+                actionResponse.setRenderParameter("message",
+                        "<font color=\"green\"><strong><li>Graph " + graph.getGraphName1()
+                                + " has been deleted.</li></strong></font>");
+            } finally {
+                userTransaction.commit();
             }
-            // remove the relationship between graphs and views
-            pStmt = con
-                    .prepareStatement("DELETE FROM views_graphs WHERE graph_id="
-                            + graph_id);
-            pStmt.executeUpdate();
-            con.close();
-            actionResponse
-                    .setRenderParameter("message",
-                            "<font color=\"green\"><strong><li>Graph has been deleted</li></strong></font>");
-            return;
 
         } catch (Exception e) {
+            log.info("error deleting graph", e);
             actionResponse.setRenderParameter("message",
                     "<font color=\"red\"><strong><li>Error deleting graph</li></strong></font>"
                             + e.getMessage());
-            return;
         }
     }
 
     private String startTrackingMbean(String server_id, String mbean) {
-        PreparedStatement pStmt = null;
-        ResultSet rs = null;
-        MRCConnector mrc = null;
-        DBManager DBase = new DBManager();
-        Connection con = DBase.getConnection();
-        String server_ip = null;
-        String username = null;
-        String password = null;
-        int protocol = 0;
-        int port = -1;
-        // fetch server information
+        Node node;
         try {
-            pStmt = con
-                    .prepareStatement("SELECT * FROM servers WHERE server_id="
-                            + server_id);
-            rs = pStmt.executeQuery();
-            if (!rs.next()) {
-                return "<font color=\"red\"><strong><li>DATABASE ERROR: Server id "
-                        + server_id
-                        + " not found in database</li></strong></font>";
-            }
-            server_ip = rs.getString("ip");
-            password = rs.getString("password");
-            username = rs.getString("username");
-            port = rs.getInt("port");
-            protocol = rs.getInt("protocol");
-        } catch (SQLException e) {
+            node = getNodeByName(server_id);
+        } catch (PortletException e) {
             return "<font color=\"red\"><strong><li>DATABASE ERROR: "
                     + e.getMessage() + "</li></strong></font>";
         }
-        // attempt to connect to the mrc server
+        MRCConnector mrc;
         try {
-            con.close();
-            mrc = new MRCConnector(server_ip, username, password, port, protocol);
+            mrc = new MRCConnector(node);
         } catch (Exception e) {
             return "<font color=\"red\"><strong><li>MRC ERROR: Unable to connect to server "
-                    + server_ip
+                    + node.getHost()
                     + ": "
                     + e.getMessage()
                     + "</li></strong></font>";
+
         }
 
         // tell the mrc server to start tracking an mbean
@@ -1025,62 +868,39 @@ public class MonitoringPortlet extends GenericPortlet {
             if (mrc.startTrackingMbean(mbean)) {
                 String mbarr[] = mbean.split("name=");
                 return "<font color=\"green\"><strong><li>MBean " + mbarr[1]
-                        + " tracking on server " + rs.getString("name")
+                        + " tracking on server " + node.getName()
                         + "</li></strong></font>";
             } else {
                 String mbarr[] = mbean.split("name=");
                 return "<font color=\"red\"><strong><li>ERROR: MBean "
                         + mbarr[1] + " could <b>NOT</b> be tracked on server "
-                        + rs.getString("name") + "</li></strong></font>";
+                        + node.getName() + "</li></strong></font>";
             }
         } catch (Exception e) {
             return "<font color=\"red\"><strong><li>MRC ERROR: MBean " + mbean
-                    + " could <b>NOT</b> be tracked on server " + server_ip
+                    + " could <b>NOT</b> be tracked on server " + node.getHost()
                     + ": " + e.getMessage() + "</li></strong></font>";
         }
     }
 
     private String stopTrackingMbean(String server_id, String mbean) {
-        PreparedStatement pStmt = null;
-        ResultSet rs = null;
-        MRCConnector mrc = null;
-        DBManager DBase = new DBManager();
-        Connection con = DBase.getConnection();
-        String server_ip = null;
-        String username = null;
-        String password = null;
-        int port = -1;
-        int protocol = 0;
-        // fetch server's information
+        Node node;
         try {
-            pStmt = con
-                    .prepareStatement("SELECT * FROM servers WHERE server_id="
-                            + server_id);
-            rs = pStmt.executeQuery();
-            if (!rs.next()) {
-                return "<font color=\"red\"><strong><li>DATABASE ERROR: Server id "
-                        + server_id
-                        + " not found in database</li></strong></font>";
-            }
-            server_ip = rs.getString("ip");
-            password = rs.getString("password");
-            username = rs.getString("username");
-            port = rs.getInt("port");
-            protocol = rs.getInt("protocol");
-        } catch (SQLException e) {
+            node = getNodeByName(server_id);
+        } catch (PortletException e) {
             return "<font color=\"red\"><strong><li>DATABASE ERROR: "
                     + e.getMessage() + "</li></strong></font>";
         }
-        // attempt to connect to the mrc-server
+        MRCConnector mrc;
         try {
-            con.close();
-                mrc = new MRCConnector(server_ip, username, password, port, protocol);
-       } catch (Exception e) {
+            mrc = new MRCConnector(node);
+        } catch (Exception e) {
             return "<font color=\"red\"><strong><li>MRC ERROR: Unable to connect to server "
-                    + server_ip
+                    + node.getHost()
                     + ": "
                     + e.getMessage()
                     + "</li></strong></font>";
+
         }
         // tell the mrc-server to stop tracking some mbean
         try {
@@ -1088,174 +908,105 @@ public class MonitoringPortlet extends GenericPortlet {
                 String mbarr[] = mbean.split("name=");
                 return "<font color=\"green\"><strong><li>MBean " + mbarr[1]
                         + " removed from tracking on server "
-                        + rs.getString("name") + "</li></strong></font>";
+                        + node.getName() + "</li></strong></font>";
             } else {
                 String mbarr[] = mbean.split("name=");
                 return "<font color=\"red\"><strong><li>ERROR: MBean "
                         + mbarr[1]
                         + " could <b>NOT</b> be removed from tracking on server "
-                        + rs.getString("name") + "</li></strong></font>";
+                        + node.getName() + "</li></strong></font>";
             }
         } catch (Exception e) {
             return "<font color=\"red\"><strong><li>MRC ERROR: MBean " + mbean
                     + " could <b>NOT</b> be removed from tracking on server "
-                    + server_ip + ": " + e.getMessage()
+                    + node.getHost() + ": " + e.getMessage()
                     + "</li></strong></font>";
         }
     }
 
     private String stopThread(String server_id) {
-        PreparedStatement pStmt = null;
-        ResultSet rs = null;
-        MRCConnector mrc = null;
-        DBManager DBase = new DBManager();
-        Connection con = DBase.getConnection();
-        String server_ip = null;
-        String username = null;
-        String password = null;
-        int port = -1;
-        int protocol = 0;
-        // fetch the server's information
+        Node node;
         try {
-            pStmt = con
-                    .prepareStatement("SELECT * FROM servers WHERE server_id="
-                            + server_id);
-            rs = pStmt.executeQuery();
-            if (!rs.next()) {
-                return "<font color=\"red\"><strong><li>DATABASE ERROR: Server id "
+            node = getNodeByName(server_id);
+        } catch (PortletException e) {
+            log.info("error", e);
+            return "<font color=\"red\"><strong><li>DATABASE ERROR: Server id "
                         + server_id
                         + " not found in database</li></strong></font>";
-            }
-            server_ip = rs.getString("ip");
-            password = rs.getString("password");
-            username = rs.getString("username");
-            port = rs.getInt("port");
-            protocol = rs.getInt("protocol");
-        } catch (SQLException e) {
-            return "<font color=\"red\"><strong><li>DATABASE ERROR: "
-                    + e.getMessage() + "</li></strong></font>";
         }
-        // attempt to connect to the mrc-server
         try {
-            con.close();
-            mrc = new MRCConnector(server_ip, username, password, port, protocol);
-        } catch (Exception e) {
-            return "<font color=\"red\"><strong><li>MRC ERROR: Unable to connect to server "
-                    + server_ip
-                    + ": "
-                    + e.getMessage()
-                    + "</li></strong></font>";
-        }
-        // tell the mrc-server to stop taking snapshots
-        try {
+            MRCConnector mrc = new MRCConnector(node);
             if (mrc.stopSnapshotThread()) {
                 return "<font color=\"green\"><strong><li>Snapshot thread stopped on server "
-                        + rs.getString("name") + "</li></strong></font>";
+                        + server_id + "</li></strong></font>";
             } else {
                 return "<font color=\"red\"><strong><li>ERROR: Snapshot thread could <b>NOT</b> be stopped on server "
-                        + rs.getString("name") + "</li></strong></font>";
+                        + server_id + "</li></strong></font>";
             }
-
         } catch (Exception e) {
             return "<font color=\"red\"><strong><li>MRC ERROR: Snapshot thread could <b>NOT</b> be stopped on server "
-                    + server_ip
+                    + server_id
                     + ": "
                     + e.getMessage()
                     + "</li></strong></font>";
+
         }
     }
 
     private String startThread(String server_id, Long snapshotDuration) {
-        PreparedStatement pStmt = null;
-        ResultSet rs = null;
-        MRCConnector mrc = null;
-        DBManager DBase = new DBManager();
-        Connection con = DBase.getConnection();
-        String server_ip = null;
-        String username = null;
-        String password = null;
-        int port = -1;
-        int protocol = 0;
-        // fetch the server's information
+        Node node;
         try {
-            pStmt = con
-                    .prepareStatement("SELECT * FROM servers WHERE server_id="
-                            + server_id);
-            rs = pStmt.executeQuery();
-            if (!rs.next()) {
-                return "<font color=\"red\"><strong><li>DATABASE ERROR: Server id "
+            node = getNodeByName(server_id);
+        } catch (PortletException e) {
+            log.info("error", e);
+            return "<font color=\"red\"><strong><li>DATABASE ERROR: Server id "
                         + server_id
                         + " not found in database</li></strong></font>";
-            }
-            server_ip = rs.getString("ip");
-            password = rs.getString("password");
-            username = rs.getString("username");
-            port = rs.getInt("port");
-            protocol = rs.getInt("protocol");
-        } catch (SQLException e) {
-            return "<font color=\"red\"><strong><li>DATABASE ERROR: "
-                    + e.getMessage() + "</li></strong></font>";
         }
-        // attempt to connect to the mrc-server
         try {
-            con.close();
-            mrc = new MRCConnector(server_ip, username, password, port, protocol);
-        } catch (Exception e) {
-            return "<font color=\"red\"><strong><li>MRC ERROR: Unable to connect to server "
-                    + server_ip
-                    + ": "
-                    + e.getMessage()
-                    + "</li></strong></font>";
-        }
-        // tell the mrc-server to start the collection of statistics
-        try {
-            if (mrc.startSnapshotThread(new Long(snapshotDuration))) {
+            MRCConnector mrc = new MRCConnector(node);
+            if (mrc.startSnapshotThread(snapshotDuration)) {
                 return "<font color=\"green\"><strong><li>Snapshot thread started on server "
-                        + rs.getString("name") + "</li></strong></font>";
+                        + server_id + "</li></strong></font>";
             } else {
                 return "<font color=\"red\"><strong><li>ERROR: Snapshot thread could <b>NOT</b> be started on server "
-                        + rs.getString("name") + "</li></strong></font>";
+                        + server_id + "</li></strong></font>";
             }
         } catch (Exception e) {
             return "<font color=\"red\"><strong><li>MRC ERROR: Snapshot thread could <b>NOT</b> be started on server "
-                    + server_ip
+                    + server_id
                     + ": "
                     + e.getMessage()
                     + "</li></strong></font>";
+
         }
     }
 
     @Override
     public void init(PortletConfig portletConfig) throws PortletException {
         super.init(portletConfig);
-        normalView = portletConfig.getPortletContext().getRequestDispatcher(
-                NORMALVIEW_JSP);
-        viewViews = portletConfig.getPortletContext().getRequestDispatcher(
-                VIEWVIEWS_JSP);
-        viewServers = portletConfig.getPortletContext().getRequestDispatcher(
-                VIEWSERVERS_JSP);
-        viewGraphs = portletConfig.getPortletContext().getRequestDispatcher(
-                VIEWGRAPHS_JSP);
-        pageView = portletConfig.getPortletContext().getRequestDispatcher(
-                PAGEVIEW_JSP);
-        editView = portletConfig.getPortletContext().getRequestDispatcher(
-                EDITVIEW_JSP);
-        addView = portletConfig.getPortletContext().getRequestDispatcher(
-                ADDVIEW_JSP);
-        addGraph = portletConfig.getPortletContext().getRequestDispatcher(
-                ADDGRAPH_JSP);
-        editGraph = portletConfig.getPortletContext().getRequestDispatcher(
-                EDITGRAPH_JSP);
-        viewServer = portletConfig.getPortletContext().getRequestDispatcher(
-                VIEWSERVER_JSP);
-        editServer = portletConfig.getPortletContext().getRequestDispatcher(
-                EDITSERVER_JSP);
-        addServer = portletConfig.getPortletContext().getRequestDispatcher(
-                ADDSERVER_JSP);
-        helpView = portletConfig.getPortletContext().getRequestDispatcher(
-                HELPVIEW_JSP);
-        editNormalView = portletConfig.getPortletContext()
-                .getRequestDispatcher(EDITNORMALVIEW_JSP);
+        normalView = portletConfig.getPortletContext().getRequestDispatcher(NORMALVIEW_JSP);
+        viewViews = portletConfig.getPortletContext().getRequestDispatcher(VIEWVIEWS_JSP);
+        viewServers = portletConfig.getPortletContext().getRequestDispatcher(VIEWSERVERS_JSP);
+        viewGraphs = portletConfig.getPortletContext().getRequestDispatcher(VIEWGRAPHS_JSP);
+        pageView = portletConfig.getPortletContext().getRequestDispatcher(PAGEVIEW_JSP);
+        editView = portletConfig.getPortletContext().getRequestDispatcher(EDITVIEW_JSP);
+        addView = portletConfig.getPortletContext().getRequestDispatcher(ADDVIEW_JSP);
+        addGraph = portletConfig.getPortletContext().getRequestDispatcher(ADDGRAPH_JSP);
+        editGraph = portletConfig.getPortletContext().getRequestDispatcher(EDITGRAPH_JSP);
+        viewServer = portletConfig.getPortletContext().getRequestDispatcher(VIEWSERVER_JSP);
+        editServer = portletConfig.getPortletContext().getRequestDispatcher(EDITSERVER_JSP);
+        addServer = portletConfig.getPortletContext().getRequestDispatcher(ADDSERVER_JSP);
+        helpView = portletConfig.getPortletContext().getRequestDispatcher(HELPVIEW_JSP);
+        editNormalView = portletConfig.getPortletContext().getRequestDispatcher(EDITNORMALVIEW_JSP);
+
+        try {
+            Context ctx = new InitialContext();
+            userTransaction = (UserTransaction) ctx.lookup("java:comp/UserTransaction");
+            entityManager = (EntityManager) ctx.lookup("java:comp/env/jpa/monitoring");
+        } catch (NamingException e) {
+            throw new PortletException(e);
+        }
     }
 
     @Override

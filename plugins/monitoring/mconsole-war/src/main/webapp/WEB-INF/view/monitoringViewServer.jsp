@@ -17,26 +17,18 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
 <%@ page import="java.util.ArrayList" %>
-<%@ page import="java.util.Set" %>
 <%@ page import="java.util.HashMap" %>
 <%@ page import="java.util.Iterator" %>
+<%@ page import="java.util.Set" %>
 <%@ page import="java.util.TreeMap" %>
-<%@ page import="java.lang.String" %>
-<%@ page import="java.sql.Connection" %>
-<%@ page import="java.sql.PreparedStatement" %>
-<%@ page import="java.sql.ResultSet" %>
 <%@ page import="javax.management.InstanceNotFoundException" %>
-<%@ page import="org.apache.geronimo.monitoring.console.util.DBManager" %>
 <%@ page import="org.apache.geronimo.monitoring.console.MRCConnector" %>
+<%@ page import="org.apache.geronimo.monitoring.console.data.Node" %>
 <portlet:defineObjects/>
 
 <%
 
-String server_id = (String) request.getAttribute("server_id"); 
 String message = (String) request.getAttribute("message");
-
-DBManager DBase = new DBManager();
-Connection con = DBase.getConnection();
 
 MRCConnector mrc = null;
 
@@ -47,27 +39,13 @@ Long snapshotDuration = new Long(0);
 if (message == null)
     message = new String("");
 
-DBase = new DBManager();
-con = DBase.getConnection();
-PreparedStatement pStmt = con.prepareStatement("SELECT * FROM servers WHERE enabled=1 AND server_id="+server_id);
-ResultSet rs = pStmt.executeQuery();
-
-if (rs.next()) {
+    Node node = (Node) request.getAttribute("node");
+if (node != null) {
     TreeMap <String,String> availableBeansMap = null;
     TreeMap <String,String> trackedBeansMap = null;
-    String ip = rs.getString("ip");
-    int port = rs.getInt("port");
-    int protocol = rs.getInt("protocol");
-    String username = rs.getString("username");
-    String name = rs.getString("name");
-    String password = rs.getString("password");
-    String last_seen = rs.getString("last_seen").substring(0,16);
-    String added = rs.getString("added").substring(0,16);
-    String modified = rs.getString("modified").substring(0,16);
     long retention = -1;
-    rs.close();
     try {
-        mrc = new MRCConnector(ip, username, password, port, protocol);
+        mrc = new MRCConnector(node);
         availableBeansMap = mrc.getFreeStatisticsProviderBeanNamesMap();
         retention = mrc.getSnapshotRetention();
         trackedBeansMap = mrc.getTrackedBeansMap();
@@ -106,7 +84,7 @@ document.getElementById(x).style.display='';
         <td width="90%" align="left" valign="top">
             <p>
             <font face="Verdana" size="+1">
-            <%=name%>
+            <%=node.getName()%>
             </font>
             </p>        
             <p>
@@ -141,25 +119,25 @@ document.getElementById(x).style.display='';
                     </td>
                 </tr>
                 
-                <tr>
-                    <th align="left">Added:</th>
-                    <td>&nbsp;</td>
-                    <td align="right"><%=added%></td>
-                </tr>
-                <tr>
-                    <th align="left">Modified:</th>
-                    <td>&nbsp;</td>
-                    <td align="right"><%=modified%></td>
-                </tr>
-                <tr>
-                    <th align="left">Last seen:</th>
-                    <td>&nbsp;</td>
-                    <td align="right"><%=last_seen%></td>
-                </tr>
+                <%--<tr>--%>
+                    <%--<th align="left">Added:</th>--%>
+                    <%--<td>&nbsp;</td>--%>
+                    <%--<td align="right"><%=added%></td>--%>
+                <%--</tr>--%>
+                <%--<tr>--%>
+                    <%--<th align="left">Modified:</th>--%>
+                    <%--<td>&nbsp;</td>--%>
+                    <%--<td align="right"><%=modified%></td>--%>
+                <%--</tr>--%>
+                <%--<tr>--%>
+                    <%--<th align="left">Last seen:</th>--%>
+                    <%--<td>&nbsp;</td>--%>
+                    <%--<td align="right"><%=last_seen%></td>--%>
+                <%--</tr>--%>
                 <tr>
                     <th align="left">IP/Hostname:</th>
                     <td>&nbsp;</td>
-                    <td align="right"><%=ip%></td>
+                    <td align="right"><%=node.getHost()%></td>
                 </tr>
                 <tr>
                     <th align="left">Snapshot Duration:</th>
@@ -188,7 +166,6 @@ document.getElementById(x).style.display='';
                                     <%} %>
                 </tr>
             </table>
-            </p>
             <table>
             <thead><font size="+1">Live Statistics</font></thead>
             <%
@@ -223,7 +200,7 @@ document.getElementById(x).style.display='';
                     {
                         String dataName = itt.next().toString();
                 %>
-                        <tr><td><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="showAddGraph" /><portlet:param name="server_id" value="<%=server_id%>" /><portlet:param name="mbean" value="<%=trackedBeansMap.get(prettyBean)%>" /><portlet:param name="dataname" value="<%=dataName%>" /></portlet:actionURL>"><%=dataName%></a></td><td><%=beanStats.get(dataName) %></td></tr>
+                        <tr><td><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="showAddGraph" /><portlet:param name="server_id" value="<%=node.getName()%>" /><portlet:param name="mbean" value="<%=trackedBeansMap.get(prettyBean)%>" /><portlet:param name="dataname" value="<%=dataName%>" /></portlet:actionURL>"><%=dataName%></a></td><td><%=beanStats.get(dataName) %></td></tr>
                 <%
                     }
                 } else {
@@ -293,17 +270,17 @@ document.getElementById(x).style.display='';
                     <td bgcolor="#FFFFFF" nowrap>
                         &nbsp;<br />
                         <ul>
-                        <li><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="showEditServer" /><portlet:param name="server_id" value="<%=server_id%>" /></portlet:actionURL>">Modify this server</a></li>
-                        <li><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="disableServer" /><portlet:param name="server_id" value="<%=server_id%>" /></portlet:actionURL>">Disable this server</a></li>
+                        <li><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="showEditServer" /><portlet:param name="server_id" value="<%=node.getName()%>" /></portlet:actionURL>">Modify this server</a></li>
+                        <li><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="disableServer" /><portlet:param name="server_id" value="<%=node.getName()%>" /></portlet:actionURL>">Disable this server</a></li>
                         <li><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="showAddServer" /></portlet:actionURL>">Add a new server</a></li>
                         <%
                         if(collecting == 1) {
                         %>
-                            <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="disableServerViewQuery" /><portlet:param name="server_id" value="<%=server_id%>" /></portlet:actionURL>">Disable Query</a></li>
+                            <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="disableServerViewQuery" /><portlet:param name="server_id" value="<%=node.getName()%>" /></portlet:actionURL>">Disable Query</a></li>
                         <%
                         } else if (collecting == 0){
                         %>
-                            <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="enableServerViewQuery" /><portlet:param name="server_id" value="<%=server_id%>" /><portlet:param name="snapshotDuration" value='<%= "" + (snapshotDuration * 1000 * 60) %>' /></portlet:actionURL>">Enable Query</a></li>
+                            <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="enableServerViewQuery" /><portlet:param name="server_id" value="<%=node.getName()%>" /><portlet:param name="snapshotDuration" value='<%= "" + (snapshotDuration * 1000 * 60) %>' /></portlet:actionURL>">Enable Query</a></li>
                         <%
                         }
                         else if (collecting == -1){
@@ -372,7 +349,7 @@ document.getElementById(x).style.display='';
 			             <tr>
 			                 <td width=95% bgcolor="#FFFFFF" nowrap><%=prettyBean%></td>
 			                 <td align="right" width=5% bgcolor="#f2f2f2" nowrap>
-			                     <a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="stopTrackingMbean" /><portlet:param name="server_id" value="<%=server_id%>" /><portlet:param name="mbean" value="<%=mbeanList.get(i)%>" /></portlet:actionURL>"><img border=0 src="/monitoring/images/close-b.png" alt="stop tracking mbean"></a><br>
+			                     <a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="stopTrackingMbean" /><portlet:param name="server_id" value="<%=node.getName()%>" /><portlet:param name="mbean" value="<%=mbeanList.get(i)%>" /></portlet:actionURL>"><img border=0 src="/monitoring/images/close-b.png" alt="stop tracking mbean"></a><br>
 			                 </td>
 			             </tr>
 	                 <%
@@ -438,7 +415,7 @@ document.getElementById(x).style.display='';
 	                           <tr>
 	                               <td width=95% bgcolor="#FFFFFF" nowrap><%=prettyBean%></td>
 	                               <td align="right" width=5% bgcolor="#f2f2f2" nowrap>
-	                                   <a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="startTrackingMbean" /><portlet:param name="server_id" value="<%=server_id%>" /><portlet:param name="mbean" value="<%=mbeanList.get(i)%>" /></portlet:actionURL>"><img border=0 src="/monitoring/images/max-b.png" alt="start tracking mbean"></a><br>
+	                                   <a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="startTrackingMbean" /><portlet:param name="server_id" value="<%=node.getName()%>" /><portlet:param name="mbean" value="<%=mbeanList.get(i)%>" /></portlet:actionURL>"><img border=0 src="/monitoring/images/max-b.png" alt="start tracking mbean"></a><br>
 	                               </td>     
 	                           </tr>
 	                        <%
@@ -513,10 +490,8 @@ document.getElementById(x).style.display='';
         </td>  
     </tr>
 </table>
-    <%
-    rs.close();
-    }%>
-
+       <!--rs.close();-->
+   <% }%>
 
 
 

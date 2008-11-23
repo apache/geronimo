@@ -65,7 +65,7 @@
         <dependency>
             <groupId>org.apache.geronimo.plugins.monitoring</groupId>
             <artifactId>agent-ejb</artifactId>
-            <version>${monitoringConsoleVersion}</version>
+            <version>${pom.version}</version>
             <type>jar</type>
         </dependency>
 
