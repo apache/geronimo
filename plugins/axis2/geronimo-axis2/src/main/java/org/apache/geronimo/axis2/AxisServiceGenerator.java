@@ -171,7 +171,7 @@ public class AxisServiceGenerator
                 }
             } else if (o instanceof HTTPBinding) {
                 HTTPBinding sp = (HTTPBinding)o;
-                if (sp.getElementType().getNamespaceURI().equals("http://www.w3.org/2004/08/wsdl/http")) {
+                if (sp.getElementType().getNamespaceURI().equals("http://schemas.xmlsoap.org/wsdl/http/")) {
                     bindingS = javax.xml.ws.http.HTTPBinding.HTTP_BINDING;
                 }               
             }
