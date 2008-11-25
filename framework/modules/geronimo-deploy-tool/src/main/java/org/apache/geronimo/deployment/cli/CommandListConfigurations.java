@@ -221,6 +221,18 @@ public class CommandListConfigurations extends AbstractCommand {
         return categories;
     }
 
+    public PluginListType getInstallList(PluginListType plugins1, PluginListType plugins2, ConsoleReader consoleReader, String repo) throws IOException {
+        PluginListType plugins = new PluginListType();
+        for (PluginType metadata : plugins1.getPlugin()) {
+            plugins.getPlugin().add(metadata);
+        }
+        
+        for (PluginType metadata : plugins2.getPlugin()) {
+            plugins.getPlugin().add(metadata);
+        }        
+        
+        return getInstallList(plugins, consoleReader, repo);
+    }
     public PluginListType getInstallList(PluginListType plugins, ConsoleReader consoleReader, String repo) throws IOException {
         Map<String, Collection<PluginType>> categories = writePluginList(plugins, consoleReader);
         List<String> defaultRepoLocations = plugins.getDefaultRepository();

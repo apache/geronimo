@@ -105,14 +105,20 @@ class AssembleServerCommand
             def pluginsToInstall;
                                         
             if (mode.compareTo("1") == 0) {
-                io.out.println('Listing plugin groups from the local Geronimo server')
+                io.out.println('Listing plugin groups and application plugins from the local Geronimo server')
                 def pluginGroups = variables.get('LocalPluginGroups')
+                def appPlugins = variables.get('LocalAppPlugins')
                 
                 if (refreshList || !pluginGroups) {
                     pluginGroups = command.getLocalPluginGroups(connection.getDeploymentManager(), consoleReader)
                     variables.parent.set('LocalPluginGroups', pluginGroups)
                 }
-                pluginsToInstall = command.getInstallList(pluginGroups, consoleReader, null)
+                
+                if (refreshList || !appPlugins) {
+                    appPlugins = command.getLocalApplicationPlugins(connection.getDeploymentManager(), consoleReader)
+                    variables.parent.set('LocalAppPlugins', appPlugins)
+                }
+                pluginsToInstall = command.getInstallList(pluginGroups, appPlugins, consoleReader, null)
                             
             } else if (mode.compareTo("2") == 0) {
                 io.out.println('Listing application plugins from the local Geronimo server')
