@@ -66,7 +66,7 @@
                 <groupId>org.apache.geronimo.buildsupport</groupId>
                 <artifactId>car-maven-plugin</artifactId>
                 <configuration>
-                    <category>Geronimo Plugin Group Client</category>
+                    <category>Geronimo Plugin Group</category>
                 </configuration>
             </plugin>
         </plugins>

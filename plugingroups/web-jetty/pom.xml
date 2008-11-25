@@ -31,7 +31,7 @@
 
     <artifactId>web-jetty</artifactId>
     <packaging>car</packaging>
-    <name>Geronimo Plugin Group :: Web Jetty</name>
+    <name>Geronimo Plugin Group :: Web Little-G Jetty</name>
 
     <description>
         This plugin group provides the little-G Jetty functionality.
@@ -125,7 +125,7 @@
                 <groupId>org.apache.geronimo.buildsupport</groupId>
                 <artifactId>car-maven-plugin</artifactId>
                 <configuration>
-                    <category>Geronimo Plugin Group Web Little-G</category>
+                    <category>Geronimo Plugin Group</category>
                 </configuration>
             </plugin>
         </plugins>

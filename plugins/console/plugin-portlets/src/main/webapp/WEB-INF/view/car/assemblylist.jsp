@@ -34,19 +34,21 @@
     return false;
   }
 
-    //this function searches the category column and display
+    //this function searches the category & name columns and display
     //rows within the table (identified by tid) that contain the searchterm
-    function filterCategory(searchterm, tid) {
-	    var term = searchterm.value.toLowerCase().split(" ");;
-	    var table = document.getElementById(tid);
-	    var element;
-	    for (var i = 2; i < table.rows.length; i++) {
+    function filterCategoryAndName(searchterm, tid) {
+        var term = searchterm.value.toLowerCase().split(" ");;
+        var table = document.getElementById(tid);
+        var nameElement;
+        var categoryElement;
+        for (var i = 2; i < table.rows.length; i++) {
             //replace special characters with ""
-	        element = table.rows[i].cells[3].innerHTML.replace(/<>/g,"");
+            nameElement = table.rows[i].cells[1].innerHTML.replace(/<>/g,"");           
+            categoryElement = table.rows[i].cells[3].innerHTML.replace(/<>/g,"");
             table.rows[i].style.display = 'none';
 
-            for (var j = 0; j < term.length; j++) {
-                if (element.toLowerCase().indexOf(term[j]) >= 0) {
+            for (var j = 0; j < term.length; j++) {  
+                if (categoryElement.toLowerCase().indexOf(term[j]) >= 0 || nameElement.toLowerCase().indexOf(term[j]) >= 0) {
                     //if search term is found, display
                     table.rows[i].style.display = '';
                     break;
@@ -58,10 +60,10 @@
     //this function allows a user to search 2 tables
     function filterTables(searchterm, t1, t2) {
         if (document.frmlst.expertMode.checked) {
-            filterCategory(searchterm, t1);
-            filterCategory(searchterm, t2);
+        	filterCategoryAndName(searchterm, t1);
+        	filterCategoryAndName(searchterm, t2);
         } else {
-            filterCategory(searchterm, t1);
+        	filterCategoryAndName(searchterm, t1);
             toggleExpertMode();
         }
     }
@@ -69,12 +71,12 @@
     //this function allows a user to search 3 tables
     function filterTables(searchterm, t1, t2, t3) {
         if (document.frmlst.expertMode.checked) {
-            filterCategory(searchterm, t1);
-            filterCategory(searchterm, t2);
-            filterCategory(searchterm, t3);
+        	filterCategoryAndName(searchterm, t1);
+        	filterCategoryAndName(searchterm, t2);
+        	filterCategoryAndName(searchterm, t3);
         } else {
-            filterCategory(searchterm, t1);
-            filterCategory(searchterm, t2);
+        	filterCategoryAndName(searchterm, t1);
+        	filterCategoryAndName(searchterm, t2);
             toggleExpertMode();
         }
     }
@@ -137,10 +139,10 @@
 
 <c:choose>
 <c:when test="${type eq 'Application Centric'}">   
-<p><fmt:message key="car.list.filterByCategory"/><input name="filterbyca" onkeyup="filterTables(this, 'appPlugin', 'sysPlugin')" type="text"></p>
+<p><fmt:message key="car.list.filterByCategoryAndName"/><input name="filterbyca" onkeyup="filterTables(this, 'appPlugin', 'sysPlugin')" type="text"></p>
 </c:when>
 <c:otherwise>
-<p><fmt:message key="car.list.filterByCategory"/><input name="filterbyca" onkeyup="filterTables(this, 'groupPlugin', 'appPlugin', 'sysPlugin')" type="text"></p>
+<p><fmt:message key="car.list.filterByCategoryAndName"/><input name="filterbyca" onkeyup="filterTables(this, 'groupPlugin', 'appPlugin', 'sysPlugin')" type="text"></p>
 </c:otherwise>
 </c:choose>
 

@@ -80,7 +80,7 @@
                 <groupId>org.apache.geronimo.buildsupport</groupId>
                 <artifactId>car-maven-plugin</artifactId>
                 <configuration>
-                    <category>Geronimo Plugin Group Web Services CXF</category>
+                    <category>Geronimo Plugin Group</category>
                 </configuration>
             </plugin>
         </plugins>
