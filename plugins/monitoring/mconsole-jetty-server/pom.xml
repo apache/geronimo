@@ -77,17 +77,47 @@
             <type>car</type>
         </dependency>
 
-
         <!--<dependency>-->
             <!--<groupId>org.apache.geronimo.plugins</groupId>-->
             <!--<artifactId>sysdb-console-jetty</artifactId>-->
             <!--<version>${pom.version}</version>-->
             <!--<type>car</type>-->
         <!--</dependency>-->
-
-
-
     </dependencies>
+
+    <!-- Need to add repo for selenium snapshots until they are removed -->
+    <repositories>
+        <repository>
+            <id>codehaus-snapshots</id>
+            <name>Codehaus Snapshots Repository</name>
+            <url>http://snapshots.repository.codehaus.org</url>
+            <layout>default</layout>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>daily</updatePolicy>
+                <checksumPolicy>ignore</checksumPolicy>
+            </snapshots>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+        </repository>
+    </repositories>
+    <pluginRepositories>
+        <pluginRepository>
+            <id>codehaus-snapshots</id>
+            <name>Codehaus Snapshots Repository</name>
+            <url>http://snapshots.repository.codehaus.org</url>
+            <layout>default</layout>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>daily</updatePolicy>
+                <checksumPolicy>ignore</checksumPolicy>
+            </snapshots>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+        </pluginRepository>
+    </pluginRepositories>
 
     <build>
         <pluginManagement>
