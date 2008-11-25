@@ -148,10 +148,10 @@ public abstract class AbstractManagedExecutorService
         }
     }
         
-    public <T> T invokeAny(Collection<Callable<T>> tasks) 
+    public <T> T invokeAny(/*replace*/Collection<Callable<T>> tasks) 
         throws InterruptedException,
                ExecutionException {
-        return invokeAny(tasks, null);
+        return invokeAny(/*replace*/tasks, null);
     }       
     
     public <T> T invokeAny(Collection<Callable<T>> tasks, 
@@ -166,11 +166,11 @@ public abstract class AbstractManagedExecutorService
         }
     }
   
-    public <T> T invokeAny(Collection<Callable<T>> tasks, long timeout, TimeUnit unit)
+    public <T> T invokeAny(/*replace*/Collection<Callable<T>> tasks, long timeout, TimeUnit unit)
         throws InterruptedException, 
                ExecutionException, 
                TimeoutException {
-        return invokeAny(tasks, timeout, unit, null);
+        return invokeAny(/*replace*/tasks, timeout, unit, null);
     }
     
     public <T> T invokeAny(Collection<Callable<T>> tasks,
@@ -185,9 +185,9 @@ public abstract class AbstractManagedExecutorService
   
     // invokeAll() functions
         
-    public <T> List<Future<T>> invokeAll(Collection<Callable<T>> tasks) 
+    public <T> List<Future<T>> invokeAll(/*replace*/Collection<Callable<T>> tasks) 
         throws InterruptedException {
-        return invokeAll(tasks, null);
+        return invokeAll(/*replace*/tasks, null);
     }
     
     public <T> List<Future<T>> invokeAll(Collection<Callable<T>> tasks,
@@ -226,11 +226,11 @@ public abstract class AbstractManagedExecutorService
         }
     }
 
-    public <T> List<Future<T>> invokeAll(Collection<Callable<T>> tasks, 
+    public <T> List<Future<T>> invokeAll(/*replace*/Collection<Callable<T>> tasks, 
                                          long timeout, 
                                          TimeUnit unit)
         throws InterruptedException {
-        return invokeAll(tasks, timeout, unit, null);
+        return invokeAll(/*replace*/tasks, timeout, unit, null);
     }
     
     public <T> List<Future<T>> invokeAll(Collection<Callable<T>> tasks,

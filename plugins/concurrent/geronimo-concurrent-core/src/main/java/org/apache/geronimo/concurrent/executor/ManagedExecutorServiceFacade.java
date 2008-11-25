@@ -89,25 +89,25 @@ public class ManagedExecutorServiceFacade
         return this.executor.submit(command, result, listener);
     }
 
-    public <T> List<Future<T>> invokeAll(Collection<Callable<T>> tasks) 
+    public <T> List<Future<T>> invokeAll(/*replace*/Collection<Callable<T>> tasks) 
         throws InterruptedException {
         return this.executor.invokeAll(tasks);
     }
 
-    public <T> List<Future<T>> invokeAll(Collection<Callable<T>> tasks, 
+    public <T> List<Future<T>> invokeAll(/*replace*/Collection<Callable<T>> tasks, 
                                          long timeout, 
                                          TimeUnit unit)
         throws InterruptedException {
         return this.executor.invokeAll(tasks, timeout, unit);
     }
 
-    public <T> T invokeAny(Collection<Callable<T>> tasks) 
+    public <T> T invokeAny(/*replace*/Collection<Callable<T>> tasks) 
         throws InterruptedException,
                ExecutionException {
         return this.executor.invokeAny(tasks);
     }
 
-    public <T> T invokeAny(Collection<Callable<T>> tasks, 
+    public <T> T invokeAny(/*replace*/Collection<Callable<T>> tasks, 
                            long timeout, 
                            TimeUnit unit)
         throws InterruptedException, 

@@ -127,7 +127,7 @@ public class ManagedExecutorServiceModuleFacade extends ManagedExecutorServiceFa
         } 
     }
 
-    public <T> List<Future<T>> invokeAll(Collection<Callable<T>> tasks) 
+    public <T> List<Future<T>> invokeAll(/*replace*/Collection<Callable<T>> tasks) 
         throws InterruptedException {
         Object rs = before();
         try {
@@ -137,7 +137,7 @@ public class ManagedExecutorServiceModuleFacade extends ManagedExecutorServiceFa
         } 
     }
 
-    public <T> List<Future<T>> invokeAll(Collection<Callable<T>> tasks, 
+    public <T> List<Future<T>> invokeAll(/*replace*/Collection<Callable<T>> tasks, 
                                          long timeout, 
                                          TimeUnit unit)
         throws InterruptedException {        
@@ -149,7 +149,7 @@ public class ManagedExecutorServiceModuleFacade extends ManagedExecutorServiceFa
         } 
     }
 
-    public <T> T invokeAny(Collection<Callable<T>> tasks) 
+    public <T> T invokeAny(/*replace*/Collection<Callable<T>> tasks) 
         throws InterruptedException,
                ExecutionException {
         Object rs = before();
@@ -160,7 +160,7 @@ public class ManagedExecutorServiceModuleFacade extends ManagedExecutorServiceFa
         } 
     }
 
-    public <T> T invokeAny(Collection<Callable<T>> tasks, 
+    public <T> T invokeAny(/*replace*/Collection<Callable<T>> tasks, 
                            long timeout, 
                            TimeUnit unit)
         throws InterruptedException, 

@@ -34,7 +34,7 @@
     <artifactId>geronimo-concurrent-core</artifactId>
     <name>Geronimo Plugins, Concurrency Utilities :: Core</name>
 
-   <dependencies>
+    <dependencies>
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-concurrent_1.0_spec</artifactId>
@@ -47,6 +47,70 @@
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-jta_1.1_spec</artifactId>
         </dependency>
-   </dependencies>
+    </dependencies>
+
+    <build>
+        <sourceDirectory>${basedir}/target/sources</sourceDirectory>
+
+        <plugins>
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-sources</id>
+                        <phase>process-sources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.sourceDirectory}</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>src/main/java</directory>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>jdk16</id>
+            <activation>
+                <jdk>1.6</jdk>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <phase>process-sources</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <tasks>
+                                        <replace dir="${project.build.sourceDirectory}">
+                                            <replacetoken><![CDATA[/*replace*/Collection<Callable<T>>]]></replacetoken>
+                                            <replacevalue><![CDATA[Collection<? extends Callable<T>>]]></replacevalue>
+                                        </replace>
+                                        <replace dir="${project.build.sourceDirectory}">
+                                            <replacetoken><![CDATA[/*replace*/tasks]]></replacetoken>
+                                            <replacevalue><![CDATA[(Collection<Callable<T>>)tasks]]></replacevalue>
+                                        </replace>
+                                    </tasks>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
    
 </project>
