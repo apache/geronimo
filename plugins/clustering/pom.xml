@@ -32,6 +32,23 @@
         clustering plugin
     </description>
     
+    <repositories>
+        <repository>
+            <id>codehaus-snapshots</id>
+            <name>Codehaus Snapshots Repository</name>
+            <url>http://snapshots.repository.codehaus.org</url>
+            <layout>default</layout>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>daily</updatePolicy>
+                <checksumPolicy>ignore</checksumPolicy>
+            </snapshots>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+        </repository>
+    </repositories>
+
     <modules>
         <module>geronimo-clustering</module>
         <module>geronimo-clustering-wadi</module>
