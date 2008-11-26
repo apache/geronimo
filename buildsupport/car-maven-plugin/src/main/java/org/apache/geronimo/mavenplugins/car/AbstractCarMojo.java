@@ -383,9 +383,9 @@ public abstract class AbstractCarMojo
         }
 
         //all the dependencies needed for this car, with provided dependencies removed
-        private final Set<Artifact> localDependencies = new HashSet<Artifact>();
+        private final Set<Artifact> localDependencies = new LinkedHashSet<Artifact>();
         //dependencies from ancestor cars, to be removed from localDependencies.
-        private final Set<Artifact> carDependencies = new HashSet<Artifact>();
+        private final Set<Artifact> carDependencies = new LinkedHashSet<Artifact>();
 
         private final StringBuilder log = new StringBuilder();
 
