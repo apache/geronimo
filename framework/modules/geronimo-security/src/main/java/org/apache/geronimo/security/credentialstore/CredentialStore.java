@@ -24,7 +24,7 @@ import javax.security.auth.Subject;
 import javax.security.auth.login.LoginException;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public interface CredentialStore {
 

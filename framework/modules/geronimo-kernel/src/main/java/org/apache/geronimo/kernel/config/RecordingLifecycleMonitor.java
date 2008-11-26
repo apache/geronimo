@@ -27,7 +27,7 @@ import java.util.List;
 import org.apache.geronimo.kernel.repository.Artifact;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class RecordingLifecycleMonitor implements LifecycleMonitor{
     private final List<Event> events = new ArrayList<Event>();

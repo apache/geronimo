@@ -27,7 +27,7 @@ import junit.framework.TestCase;
 import org.apache.geronimo.gbean.GBeanInfo;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class FormatTest extends TestCase {
 

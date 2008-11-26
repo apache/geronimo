@@ -25,7 +25,7 @@ import java.io.File;
 /**
  * @goal start-multi-server
  *
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class StartMultiServerMojo extends StartServerMojo{
 

@@ -29,7 +29,7 @@ import org.apache.myfaces.config.annotation.LifecycleProvider;
 import org.apache.myfaces.config.annotation.LifecycleProviderFactory;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class ApplicationIndexedLifecycleProviderFactory extends LifecycleProviderFactory {
 

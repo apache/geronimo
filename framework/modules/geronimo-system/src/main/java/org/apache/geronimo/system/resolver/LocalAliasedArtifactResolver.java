@@ -21,7 +21,7 @@
 package org.apache.geronimo.system.resolver;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public interface LocalAliasedArtifactResolver extends AliasedArtifactResolver {
     String getArtifactAliasesFile();

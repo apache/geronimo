@@ -26,7 +26,7 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.openejb.OpenEjbSystem;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class CORBAEjbBeanGBean {
     public static final GBeanInfo GBEAN_INFO;

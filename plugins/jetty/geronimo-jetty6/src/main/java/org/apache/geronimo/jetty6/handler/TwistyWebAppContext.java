@@ -35,7 +35,7 @@ import org.mortbay.jetty.servlet.SessionHandler;
 import org.mortbay.jetty.webapp.WebAppContext;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class TwistyWebAppContext extends WebAppContext {
 

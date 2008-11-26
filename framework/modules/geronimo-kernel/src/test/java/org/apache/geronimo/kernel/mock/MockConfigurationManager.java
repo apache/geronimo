@@ -44,7 +44,7 @@ import org.apache.geronimo.kernel.repository.MissingDependencyException;
 import org.apache.geronimo.gbean.AbstractName;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class MockConfigurationManager implements ConfigurationManager {
 

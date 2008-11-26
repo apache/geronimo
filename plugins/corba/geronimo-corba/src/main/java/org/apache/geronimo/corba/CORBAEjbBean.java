@@ -26,7 +26,7 @@ import org.apache.geronimo.corba.security.config.ConfigAdapter;
 import org.apache.geronimo.corba.security.config.ssl.SSLConfig;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class CORBAEjbBean extends CORBABean {
 

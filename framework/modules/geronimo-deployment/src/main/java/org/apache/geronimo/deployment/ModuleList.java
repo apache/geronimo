@@ -23,7 +23,7 @@ package org.apache.geronimo.deployment;
 import java.util.HashSet;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class ModuleList extends HashSet<String> {
 }

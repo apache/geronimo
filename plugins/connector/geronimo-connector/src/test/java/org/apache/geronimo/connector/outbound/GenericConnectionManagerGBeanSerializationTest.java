@@ -35,7 +35,7 @@ import org.apache.geronimo.connector.outbound.connectionmanagerconfig.NoTransact
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.SinglePool;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class GenericConnectionManagerGBeanSerializationTest extends TestCase {
 

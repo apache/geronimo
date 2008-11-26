@@ -21,7 +21,7 @@
 package org.apache.geronimo.system.configuration;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public interface LocalPluginAttributeStore extends PluginAttributeStore {
     String getConfigFile();

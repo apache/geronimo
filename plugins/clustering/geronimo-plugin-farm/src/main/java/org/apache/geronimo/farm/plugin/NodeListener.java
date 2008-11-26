@@ -26,7 +26,7 @@ import org.apache.geronimo.system.plugin.DownloadResults;
 import org.apache.geronimo.farm.config.NodeInfo;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public interface NodeListener {
     Map<String, DownloadResults> addNode(String clusterName, NodeInfo nodeInfo);

@@ -25,7 +25,7 @@ import java.util.Stack;
 import junit.framework.TestCase;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class MissingDependencyExceptionTest extends TestCase {
 

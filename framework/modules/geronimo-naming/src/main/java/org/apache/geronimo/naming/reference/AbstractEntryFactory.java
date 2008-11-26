@@ -37,7 +37,7 @@ import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public abstract class AbstractEntryFactory<T, S> implements EntryFactory<T> {
     private static final long serialVersionUID = 7642216668523441421L;

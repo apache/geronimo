@@ -53,7 +53,7 @@ import org.xml.sax.SAXException;
  * Holds a bit of xml configuring an AuthConfigProvider, [Client|Server][AuthConfig|AuthContext|AuthModule]
  * and registers/unregisters it when start/stopped.
  *
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 
 @GBean

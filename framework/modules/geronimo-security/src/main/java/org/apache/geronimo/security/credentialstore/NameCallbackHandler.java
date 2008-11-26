@@ -24,7 +24,7 @@ import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.NameCallback;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class NameCallbackHandler implements SingleCallbackHandler {
 

@@ -21,7 +21,7 @@
 package org.apache.geronimo.naming;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public interface ResourceSource<E extends Throwable> {
 

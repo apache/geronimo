@@ -27,7 +27,7 @@ import org.apache.geronimo.deployment.service.DoNotPersist;
 import org.apache.geronimo.deployment.service.EncryptOnPersist;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class DeploymentExtendedJMXConnectorInfo extends BasicExtendedJMXConnectorInfo {
 

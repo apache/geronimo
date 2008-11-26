@@ -33,7 +33,7 @@ import org.apache.geronimo.system.plugin.model.AttributesType;
 import org.xml.sax.SAXException;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class Override {
 

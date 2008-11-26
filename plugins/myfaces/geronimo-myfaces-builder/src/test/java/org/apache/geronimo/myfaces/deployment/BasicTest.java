@@ -27,7 +27,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.j2ee.deployment.NamingBuilderCollection;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class BasicTest extends TestCase {
     

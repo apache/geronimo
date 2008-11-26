@@ -21,7 +21,7 @@
 package org.apache.geronimo.web25.deployment.security;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 class UncheckedItem {
     final static int NA = 0x00;

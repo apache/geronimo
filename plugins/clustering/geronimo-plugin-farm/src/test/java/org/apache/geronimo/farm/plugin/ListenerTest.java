@@ -35,7 +35,7 @@ import org.apache.geronimo.kernel.rmi.RMIRegistryService;
 import org.apache.geronimo.system.plugin.DownloadResults;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class ListenerTest extends TestCase {
     private DiscoveryAgent agent;

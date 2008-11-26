@@ -21,7 +21,7 @@
 package org.apache.geronimo.jetty6;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public interface ServletNameSource {
     String getServletName();

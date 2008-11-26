@@ -25,7 +25,7 @@ import java.io.Serializable;
 import javax.security.auth.callback.Callback;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public interface SingleCallbackHandler extends Serializable {
     void handle(Callback callback);

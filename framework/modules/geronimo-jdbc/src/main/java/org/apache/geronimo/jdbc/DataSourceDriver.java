@@ -34,7 +34,7 @@ import javax.naming.NamingException;
 import javax.naming.NameNotFoundException;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class DataSourceDriver implements Driver {
 

@@ -21,7 +21,7 @@
 package org.apache.geronimo.security;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public interface SecurityNames {
     static final String CERTIFICATION_AUTHORITY = "CertificationAuthority";

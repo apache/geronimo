@@ -37,7 +37,7 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
  * Hopefully this will only be used for tests where you need to set up a simple credential store
  * but don't want to set up a login configuration
  *
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class DirectConfigurationCredentialStoreImpl implements CredentialStore {
 

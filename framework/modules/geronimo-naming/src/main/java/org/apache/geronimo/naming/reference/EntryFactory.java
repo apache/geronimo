@@ -27,7 +27,7 @@ import javax.naming.NamingException;
 import org.apache.geronimo.kernel.Kernel;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public interface EntryFactory<T> extends Serializable {
 
