@@ -227,7 +227,7 @@
                                 <optionSet>
                                     <id>default</id>
                                     <options>
-                                       <option>-XX:MaxPermSize=128m</option>
+                                       <option>-XX:MaxPermSize=160m</option>
                                     </options>
                                 </optionSet>
                             </optionSets>
