@@ -20,11 +20,14 @@
 package org.apache.geronimo.system.configuration;
 
 import java.beans.PropertyEditorSupport;
+import java.net.URI;
 import java.util.Collection;
 import java.util.Collections;
 
 import junit.framework.TestCase;
 
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.system.configuration.condition.JexlExpressionParser;
 import org.apache.geronimo.system.plugin.model.AttributeType;
 import org.apache.geronimo.system.plugin.model.GbeanType;
@@ -110,6 +113,83 @@ public class GBeanOverrideTest extends TestCase {
         assertEquals(1, copiedGBeanType.getAttributeOrReference().size());
         AttributeType attributeType = (AttributeType) copiedGBeanType.getAttributeOrReference().get(0);
         assertNull(attributeType.getPropertyEditor());
+    }
+    
+    public void testReferences() throws Exception {
+        GBeanOverride override;
+        
+        override = new GBeanOverride(gbeanType, new JexlExpressionParser());        
+        override.setClearReference("foo");
+        override.setReferencePatterns("foo", new ReferencePatterns(new AbstractName(new URI("/foo/bar/car?foo=bar"))));
+        override.writeXml();
+        
+        assertFalse(override.isClearReference("foo"));
+        assertFalse(override.getClearReferences().contains("foo"));        
+        assertTrue(override.getReferencePatterns("foo") != null);
+        assertTrue(override.getReferences().containsKey("foo"));
+        
+        override = new GBeanOverride(gbeanType, new JexlExpressionParser());   
+        override.setReferencePatterns("foo", new ReferencePatterns(new AbstractName(new URI("/foo/bar/car?foo=bar"))));        
+        override.setClearReference("foo");
+        override.writeXml();
+        
+        assertTrue(override.isClearReference("foo"));
+        assertTrue(override.getClearReferences().contains("foo"));        
+        assertFalse(override.getReferencePatterns("foo") != null);
+        assertFalse(override.getReferences().containsKey("foo"));        
+    }
+    
+    public void testAttributes() throws Exception {
+        GBeanOverride override;
+        
+        override = new GBeanOverride(gbeanType, new JexlExpressionParser()); 
+        override.setNullAttribute("foo");
+        override.setClearAttribute("foo");
+        override.setAttribute("foo", "bar");
+        override.writeXml();
+        
+        assertFalse(override.isNullAttribute("foo"));
+        assertFalse(override.getNullAttributes().contains("foo"));    
+        assertFalse(override.isClearAttribute("foo"));
+        assertFalse(override.getClearAttributes().contains("foo"));  
+        assertTrue(override.getAttribute("foo") != null);
+        assertTrue(override.getAttributes().containsKey("foo"));
+            
+        override = new GBeanOverride(gbeanType, new JexlExpressionParser()); 
+        override.setAttribute("foo", "bar");
+        override.setNullAttribute("foo");
+        override.setClearAttribute("foo");
+        override.writeXml();
+        
+        assertFalse(override.isNullAttribute("foo"));
+        assertFalse(override.getNullAttributes().contains("foo"));    
+        assertFalse(override.getAttribute("foo") != null);
+        assertFalse(override.getAttributes().containsKey("foo"));        
+        assertTrue(override.isClearAttribute("foo"));
+        assertTrue(override.getClearAttributes().contains("foo"));  
+        
+        override = new GBeanOverride(gbeanType, new JexlExpressionParser()); 
+        override.setClearAttribute("foo");
+        override.setAttribute("foo", "bar");
+        override.setNullAttribute("foo");
+        override.writeXml();
+            
+        assertFalse(override.getAttribute("foo") != null);
+        assertFalse(override.getAttributes().containsKey("foo"));        
+        assertFalse(override.isClearAttribute("foo"));
+        assertFalse(override.getClearAttributes().contains("foo"));         
+        assertTrue(override.isNullAttribute("foo"));
+        assertTrue(override.getNullAttributes().contains("foo"));
+        
+        override = new GBeanOverride(gbeanType, new JexlExpressionParser()); 
+        override.setAttribute("bar1", "foo");
+        override.setAttribute("bar2", "foo");
+        override.getAttributes().put("foo", null);
+        GbeanType gbean = override.writeXml();
+        assertEquals(3, gbean.getAttributeOrReference().size());
+        AttributeType attribute = (AttributeType)gbean.getAttributeOrReference().get(2);
+        assertEquals("foo", attribute.getName());
+        assertTrue(attribute.isNull());
     }
     
     public interface Service {

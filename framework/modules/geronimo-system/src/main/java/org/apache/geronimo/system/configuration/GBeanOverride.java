@@ -184,7 +184,7 @@ public class GBeanOverride implements Serializable {
                 }
                 
                 if (attr.isNull()) {
-                    getNullAttributes().add(attr.getName());
+                    setNullAttribute(attr.getName());
                 } else {
                     String value;
                     try {
@@ -198,7 +198,7 @@ public class GBeanOverride implements Serializable {
                         setClearAttribute(attr.getName());
                     } else {
                         String truevalue = (String) EncryptionManager.decrypt(value);
-                        getAttributes().put(attr.getName(), truevalue);
+                        setAttribute(attr.getName(), truevalue);
                     }
                 }
             } else if (o instanceof ReferenceType) {
@@ -295,14 +295,21 @@ public class GBeanOverride implements Serializable {
 
     public void setClearAttribute(String attributeName) {
         clearAttributes.add(attributeName);
+        // remove attribute from other maps
+        nullAttributes.remove(attributeName);
+        attributes.remove(attributeName);
     }
 
     public void setNullAttribute(String attributeName) {
         nullAttributes.add(attributeName);
+        // remove attribute from other maps
+        clearAttributes.remove(attributeName);
+        attributes.remove(attributeName);
     }
 
     public void setClearReference(String referenceName) {
         clearReferences.add(referenceName);
+        references.remove(referenceName);
     }
 
     public void setAttribute(String attributeName, Object attributeValue, String attributeType, ClassLoader classLoader) throws InvalidAttributeException {
@@ -312,9 +319,12 @@ public class GBeanOverride implements Serializable {
 
     public void setAttribute(String attributeName, String attributeValue) {
         if (attributeValue == null || attributeValue.length() == 0) {
-            clearAttributes.add(attributeName);
+            setClearAttribute(attributeName);
         } else {
             attributes.put(attributeName, attributeValue);
+            // remove attribute from other maps
+            clearAttributes.remove(attributeName);
+            nullAttributes.remove(attributeName);
         }
     }
     
@@ -328,6 +338,7 @@ public class GBeanOverride implements Serializable {
 
     public void setReferencePatterns(String name, ReferencePatterns patterns) {
         references.put(name, patterns);
+        clearReferences.remove(name);
     }
 
     public boolean applyOverrides(GBeanData data, Artifact configName, AbstractName gbeanName, ClassLoader classLoader) throws InvalidConfigException {
@@ -452,11 +463,12 @@ public class GBeanOverride implements Serializable {
             String name = entry.getKey();
             String value = entry.getValue();
             if (value == null) {
-                setNullAttribute(name);
-            } else {
-                if (isNullAttribute(name)) {
-                    nullAttributes.remove(name);
-                }
+                nullAttributes.add(name);
+                clearAttributes.remove(name);
+            } else {                
+                nullAttributes.remove(name);
+                clearAttributes.remove(name);
+
                 if (name.toLowerCase().indexOf("password") > -1) {
                     value = EncryptionManager.encrypt(value);
                 }
