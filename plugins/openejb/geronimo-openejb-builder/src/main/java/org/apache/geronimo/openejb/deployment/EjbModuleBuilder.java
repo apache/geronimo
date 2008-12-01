@@ -883,6 +883,11 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle {
             // add a dependency from the module to the ra so we can be assured the mdb
             // container exists when this app is started
             ejbModuleGBeanData.addDependency(resourceAdapterAbstractName);
+            for(MessageDrivenBeanInfo mdbInfo:mdbs.values()){
+                if(mdbInfo != null && mdbInfo.containerId == null){
+                    throw new DeploymentException("No Resource Adapter defined for MDB '" + mdbInfo.ejbName + "'");
+                }
+            }
         }
     }
 
