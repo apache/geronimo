@@ -167,7 +167,7 @@ if "%_REQUIRE_JDK%" == "0" echo Using JRE_HOME:        %JRE_HOME%
 set CMD_LINE_ARGS=%*
 set _JARFILE="%GERONIMO_HOME%"\bin\client.jar
 
-%_RUNJAVA% %JAVA_OPTS% %GERONIMO_OPTS% -Djava.endorsed.dirs="%GERONIMO_BASE%\lib\endorsed;%JRE_HOME%\lib\endorsed" -Djava.ext.dirs="%GERONIMO_BASE%\lib\ext;%JRE_HOME%\lib\ext" -Dorg.apache.geronimo.base.dir="%GERONIMO_BASE%" -Djava.io.tmpdir="%GERONIMO_TMPDIR%" -jar %_JARFILE% %CMD_LINE_ARGS%
+%_RUNJAVA% %JAVA_OPTS% %GERONIMO_OPTS% -Djava.endorsed.dirs="%GERONIMO_HOME%\lib\endorsed;%JRE_HOME%\lib\endorsed" -Djava.ext.dirs="%GERONIMO_HOME%\lib\ext;%JRE_HOME%\lib\ext" -Dorg.apache.geronimo.base.dir="%GERONIMO_BASE%" -Djava.io.tmpdir="%GERONIMO_TMPDIR%" -jar %_JARFILE% %CMD_LINE_ARGS%
 goto end
 
 :end
