@@ -311,17 +311,17 @@ goto setArgs
 :doneSetArgs
 
 @REM Setup the Java programming language agent
-set JAVA_AGENT_JAR=%GERONIMO_BASE%\bin\jpa.jar
+set JAVA_AGENT_JAR=%GERONIMO_HOME%\bin\jpa.jar
 set JAVA_AGENT_OPTS=
 if exist "%JAVA_AGENT_JAR%" set JAVA_AGENT_OPTS=-javaagent:"%JAVA_AGENT_JAR%"
 
 @REM Execute Java with the applicable properties
 if not "%JDB%" == "" goto doJDB
-%_EXECJAVA% %JAVA_OPTS% %GERONIMO_OPTS% %JAVA_AGENT_OPTS% -Djava.endorsed.dirs="%GERONIMO_BASE%\lib\endorsed;%JRE_HOME%\lib\endorsed" -Djava.ext.dirs="%GERONIMO_BASE%\lib\ext;%JRE_HOME%\lib\ext" -Dorg.apache.geronimo.base.dir="%GERONIMO_BASE%" -Djava.io.tmpdir="%GERONIMO_TMPDIR%" -jar %_JARFILE% %_LONG_OPT% %CMD_LINE_ARGS%
+%_EXECJAVA% %JAVA_OPTS% %GERONIMO_OPTS% %JAVA_AGENT_OPTS% -Djava.endorsed.dirs="%GERONIMO_HOME%\lib\endorsed;%JRE_HOME%\lib\endorsed" -Djava.ext.dirs="%GERONIMO_HOME%\lib\ext;%JRE_HOME%\lib\ext" -Dorg.apache.geronimo.base.dir="%GERONIMO_BASE%" -Djava.io.tmpdir="%GERONIMO_TMPDIR%" -jar %_JARFILE% %_LONG_OPT% %CMD_LINE_ARGS%
 goto end
 
 :doJDB
-%_EXECJAVA% %JAVA_OPTS% %GERONIMO_OPTS% -sourcepath "%JDB_SRCPATH%" -Djava.endorsed.dirs="%GERONIMO_BASE%\lib\endorsed;%JRE_HOME%\lib\endorsed" -Djava.ext.dirs="%GERONIMO_BASE%\lib\ext;%JRE_HOME%\lib\ext" -Dorg.apache.geronimo.base.dir="%GERONIMO_BASE%" -Djava.io.tmpdir="%GERONIMO_TMPDIR%" -classpath %_JARFILE% %MAINCLASS% %CMD_LINE_ARGS%
+%_EXECJAVA% %JAVA_OPTS% %GERONIMO_OPTS% -sourcepath "%JDB_SRCPATH%" -Djava.endorsed.dirs="%GERONIMO_HOME%\lib\endorsed;%JRE_HOME%\lib\endorsed" -Djava.ext.dirs="%GERONIMO_HOME%\lib\ext;%JRE_HOME%\lib\ext" -Dorg.apache.geronimo.base.dir="%GERONIMO_BASE%" -Djava.io.tmpdir="%GERONIMO_TMPDIR%" -classpath %_JARFILE% %MAINCLASS% %CMD_LINE_ARGS%
 goto end
 
 :end

@@ -235,11 +235,11 @@ if $cygwin; then
   GERONIMO_HOME=`cygpath --absolute --windows "$GERONIMO_HOME"`
   GERONIMO_BASE=`cygpath --absolute --windows "$GERONIMO_BASE"`
   GERONIMO_TMPDIR=`cygpath --windows "$GERONIMO_TMPDIR"`
-  EXT_DIRS="$GERONIMO_BASE/lib/ext;$JRE_HOME/lib/ext"
-  ENDORSED_DIRS="$GERONIMO_BASE/lib/endorsed;$JRE_HOME/lib/endorsed"
+  EXT_DIRS="$GERONIMO_HOME/lib/ext;$JRE_HOME/lib/ext"
+  ENDORSED_DIRS="$GERONIMO_HOME/lib/endorsed;$JRE_HOME/lib/endorsed"
 else
-  EXT_DIRS="$GERONIMO_BASE/lib/ext:$JRE_HOME/lib/ext"
-  ENDORSED_DIRS="$GERONIMO_BASE/lib/endorsed:$JRE_HOME/lib/endorsed"
+  EXT_DIRS="$GERONIMO_HOME/lib/ext:$JRE_HOME/lib/ext"
+  ENDORSED_DIRS="$GERONIMO_HOME/lib/endorsed:$JRE_HOME/lib/endorsed"
 fi
 
 # ----- Execute The Requested Command -----------------------------------------
@@ -284,7 +284,7 @@ if [ "$1" = "jpda" ] ; then
 fi
 
 # Setup the Java programming language agent
-JAVA_AGENT_JAR="\"$GERONIMO_BASE/bin/jpa.jar\""
+JAVA_AGENT_JAR="\"$GERONIMO_HOME/bin/jpa.jar\""
 if [ -f "$JAVA_AGENT_JAR" ]; then
     JAVA_AGENT_OPTS="-javaagent:$JAVA_AGENT_JAR"
 else
