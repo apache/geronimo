@@ -21,7 +21,7 @@ package org.apache.geronimo.commands
 
 import jline.ConsoleReader
 import org.apache.geronimo.deployment.plugin.jmx.RemoteDeploymentManager
-import org.apache.geronimo.gshell.clp.Option
+import org.apache.geronimo.gshell.clp.Argument
 import org.apache.geronimo.gshell.command.annotation.CommandComponent
 import org.apache.geronimo.system.plugin.NewServerInstance
 
@@ -30,11 +30,11 @@ import org.apache.geronimo.system.plugin.NewServerInstance
 *
 * @version $Rev: 580864 $ $Date: 2007-09-30 23:47:39 -0700 (Sun, 30 Sep 2007) $
 */
-@CommandComponent (id = 'geronimo-commands:new-server-instance', description = 'create new server instance in a server')
+@CommandComponent (id = 'geronimo-commands:new-server-instance', description = 'Create new server instance in a server')
 class NewServerInstanceCommand
    extends ConnectCommand
 {
-   @Option(name='-n', aliases=['--server-name'], description='Name of new server instance')
+   @Argument(metaVar='SERVER_NAME', required=true, description='Name of new server instance')
    String serverName
 
    protected Object doExecute() throws Exception {
