@@ -18,6 +18,7 @@
 package org.apache.geronimo.jetty6;
 
 import org.mortbay.jetty.Handler;
+import org.mortbay.jetty.handler.AbstractHandler;
 
 /**
  * @version $Rev: 449059 $ $Date: 2006-09-23 05:23:09 +1000 (Sat, 23 Sep 2006) $

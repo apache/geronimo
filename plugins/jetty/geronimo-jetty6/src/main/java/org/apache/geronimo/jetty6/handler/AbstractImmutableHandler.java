@@ -18,16 +18,20 @@
 
 package org.apache.geronimo.jetty6.handler;
 
+import org.mortbay.component.LifeCycle;
 import org.mortbay.jetty.Handler;
 import org.mortbay.jetty.HandlerContainer;
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.handler.AbstractHandler;
 import org.mortbay.jetty.handler.AbstractHandlerContainer;
+import org.mortbay.util.LazyList;
 
 /**
  * @version $Rev$ $Date$
  */
 public abstract class AbstractImmutableHandler implements Handler /*extends AbstractHandlerContainer*/ {
+    private Object _lock = new Object();
+    protected LifeCycle.Listener[] _listeners;
     protected final Handler next;
 
     protected AbstractImmutableHandler(Handler next) {
@@ -72,6 +76,14 @@ public abstract class AbstractImmutableHandler implements Handler /*extends Abst
         }
     }
 
+    public void removeHandler(Handler handler) {
+        if (next instanceof HandlerContainer) {
+            ((HandlerContainer) next).removeHandler(handler);
+        } else {
+            throw new RuntimeException("geronimo HandlerContainers are immutable");
+        }
+    }
+
     /**
      * this is basically the implementation from HandlerWrapper.
      * @param list partial list of handlers matching byClass (may be null)
@@ -84,12 +96,55 @@ public abstract class AbstractImmutableHandler implements Handler /*extends Abst
         return null;
     }
 
+    /**
+     * this is basically the implementation from AbstractLifeCycle
+     */
     public void start() throws Exception {
-        next.start();
+        synchronized (_lock)
+        {
+            try
+            {
+                if (isStarted() || isStarting())
+                    return;
+                setStarting();
+                doStart();
+                setStarted();
+            }
+            catch (Exception e)
+            {
+                setFailed(e);
+                throw e;
+            }
+            catch (Error e)
+            {
+                setFailed(e);
+                throw e;
+            }
+        }
     }
 
     public void stop() throws Exception {
-        next.stop();
+        synchronized (_lock)
+        {
+            try
+            {
+                if (isStopping() || isStopped())
+                    return;
+                setStopping();
+                doStop();
+                setStopped();
+            }
+            catch (Exception e)
+            {
+                setFailed(e);
+                throw e;
+            }
+            catch (Error e)
+            {
+                setFailed(e);
+                throw e;
+            }
+        }
     }
 
     public boolean isRunning() {
@@ -113,6 +168,70 @@ public abstract class AbstractImmutableHandler implements Handler /*extends Abst
     }
 
     public boolean isFailed() {
-        return false;
+        return next.isFailed();
     }
+
+    public void addLifeCycleListener(LifeCycle.Listener listener) {
+        _listeners = (LifeCycle.Listener[])LazyList.addToArray(_listeners,listener,LifeCycle.Listener.class);
+    }
+
+    public void removeLifeCycleListener(LifeCycle.Listener listener) {
+        LazyList.removeFromArray(_listeners,listener);
+    }
+
+    private void setStarted()
+    {
+        if (_listeners != null)
+        {
+            for (int i = 0; i < _listeners.length; i++)
+            {
+                _listeners[i].lifeCycleStarted(this);
+            }
+        }
+    }
+
+    private void setStarting()
+    {
+        if (_listeners != null)
+        {
+            for (int i = 0; i < _listeners.length; i++)
+            {
+                _listeners[i].lifeCycleStarting(this);
+            }
+        }
+    }
+
+    private void setStopping()
+    {
+        if (_listeners != null)
+        {
+            for (int i = 0; i < _listeners.length; i++)
+            {
+                _listeners[i].lifeCycleStopping(this);
+            }
+        }
+    }
+
+    private void setStopped()
+    {
+        if (_listeners != null)
+        {
+            for (int i = 0; i < _listeners.length; i++)
+            {
+                _listeners[i].lifeCycleStopped(this);
+            }
+        }
+    }
+
+    private void setFailed(Throwable error)
+    {
+        if (_listeners != null)
+        {
+            for (int i = 0; i < _listeners.length; i++)
+            {
+                _listeners[i].lifeCycleFailure(this,error);
+            }
+        }
+    }
+
 }

@@ -25,6 +25,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.geronimo.clustering.ClusteredInvocation;
 import org.apache.geronimo.clustering.ClusteredInvocationException;
 import org.apache.geronimo.jetty6.AbstractPreHandler;
+import org.mortbay.component.LifeCycle;
 import org.mortbay.jetty.HttpException;
 
 /**
@@ -47,6 +48,12 @@ public abstract class AbstractClusteredPreHandler extends AbstractPreHandler {
                 throw (IOException) new IOException().initCause(cause);
             }
         }
+    }
+
+    public void addLifeCycleListener(LifeCycle.Listener listener) {
+    }
+
+    public void removeLifeCycleListener(LifeCycle.Listener listener) {
     }
 
     protected abstract ClusteredInvocation newClusteredInvocation(String target,
