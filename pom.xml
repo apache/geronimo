@@ -72,7 +72,7 @@
         -->
 
         <openejbVersion>3.1.1-SNAPSHOT</openejbVersion>
-        <derbyVersion>10.4.1.3</derbyVersion>
+        <derbyVersion>10.4.2.0</derbyVersion>
         <tomcatVersion>6.0.18</tomcatVersion>
         <tranqlVendorsVersion>1.4</tranqlVendorsVersion>
         <cxfVersion>2.1.3</cxfVersion>
