@@ -38,7 +38,7 @@ public class PortInfo implements Serializable {
 
     private String handlersAsXML;
 
-    private boolean mtomEnabled;
+    private Boolean mtomEnabled;
 
     private String binding;
     
@@ -88,11 +88,11 @@ public class PortInfo implements Serializable {
         serviceName = sn;
     }
 
-    public void setEnableMTOM(boolean mtomEnabled) {
+    public void setEnableMTOM(Boolean mtomEnabled) {
         this.mtomEnabled = mtomEnabled;
     }
 
-    public boolean isMTOMEnabled() {
+    public Boolean isMTOMEnabled() {
         return this.mtomEnabled;
     }
 
