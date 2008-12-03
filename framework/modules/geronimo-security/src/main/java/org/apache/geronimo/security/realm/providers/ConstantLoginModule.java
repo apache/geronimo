@@ -84,7 +84,7 @@ public class ConstantLoginModule implements LoginModule {
             Map sharedState, Map options) {
 
         this.subject = subject;
-        this.handler = handler;
+        this.handler = callbackHandler;
         
         this.userName = (String)options.get(USER_NAME);
         this.groupNames = (String)options.get(GROUP_NAMES);
