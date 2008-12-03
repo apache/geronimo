@@ -44,7 +44,7 @@
     <dependency>
       <groupId>org.apache.tomcat</groupId>
       <artifactId>catalina</artifactId>
-      <version>6.0.18</version>
+      <version>6.0.18-G678601</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
