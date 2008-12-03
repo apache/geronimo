@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tns="http://geronimo.apache.org/echo" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    name="EchoService" targetNamespace="http://geronimo.apache.org/echo">
+    <wsdl:types>
+        <xs:schema xmlns:tns="http://geronimo.apache.org/echo" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xmime="http://www.w3.org/2005/05/xmlmime" attributeFormDefault="unqualified"
+            elementFormDefault="unqualified" targetNamespace="http://geronimo.apache.org/echo">
+            <xs:element name="hello" type="tns:hello"/>
+            <xs:element name="helloResponse" type="tns:helloResponse"/>
+            <xs:element name="echoBytes" type="tns:echoBytes"/>
+            <xs:element name="echoBytesResponse" type="tns:echoBytesResponse"/>
+            <xs:element name="echoImage" type="tns:echoImage"/>
+            <xs:element name="echoImageResponse" type="tns:echoImageResponse"/>
+            <xs:complexType name="hello">
+                <xs:sequence>
+                    <xs:element name="arg0" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="helloResponse">
+                <xs:sequence>
+                    <xs:element name="return" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="echoBytes">
+                <xs:sequence>
+                    <xs:element name="useMTOM" type="xs:boolean"/>
+                    <xs:element name="bytes" type="xs:base64Binary"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="echoBytesResponse">
+                <xs:sequence>
+                    <xs:element name="return" type="xs:base64Binary"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="echoImage">
+                <xs:sequence>
+                    <xs:element name="useMTOM" type="xs:boolean"/>
+                    <xs:element name="imageBytes" type="xs:base64Binary" xmime:expectedContentTypes="image/jpeg"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="echoImageResponse">
+                <xs:sequence>
+                    <xs:element name="return" type="xs:base64Binary" xmime:expectedContentTypes="image/jpeg"/>
+                </xs:sequence>
+            </xs:complexType>
+        </xs:schema>
+    </wsdl:types>
+    <wsdl:message name="hello">
+        <wsdl:part element="tns:hello" name="parameters">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="helloResponse">
+        <wsdl:part element="tns:helloResponse" name="parameters">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="echoBytesResponse">
+        <wsdl:part element="tns:echoBytesResponse" name="parameters">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="echoBytes">
+        <wsdl:part element="tns:echoBytes" name="parameters">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="echoImageResponse">
+        <wsdl:part element="tns:echoImageResponse" name="parameters">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="echoImage">
+        <wsdl:part element="tns:echoImage" name="parameters">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:portType name="Echo">
+        <wsdl:operation name="hello">
+            <wsdl:input message="tns:hello">
+            </wsdl:input>
+            <wsdl:output message="tns:helloResponse">
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="echoBytes">
+            <wsdl:input message="tns:echoBytes">
+            </wsdl:input>
+            <wsdl:output message="tns:echoBytesResponse">
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="echoImage">
+            <wsdl:input message="tns:echoImage">
+            </wsdl:input>
+            <wsdl:output message="tns:echoImageResponse">
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:portType>
+    <wsdl:binding name="EchoServiceSoapBinding" type="tns:Echo">
+        <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+        <wsdl:operation name="hello">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="echoBytes">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="echoImage">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:service name="EchoService">
+        <wsdl:port binding="tns:EchoServiceSoapBinding" name="EchoPort">
+            <soap:address location="http://localhost:8080/mtom-war/echo"/>
+        </wsdl:port>
+    </wsdl:service>
+</wsdl:definitions>
