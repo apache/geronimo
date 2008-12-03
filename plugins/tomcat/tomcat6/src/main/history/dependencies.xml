@@ -12,6 +12,11 @@
         <type>car</type>
     </dependency>
     <dependency>
+        <groupId>org.apache.tomcat</groupId>
+        <artifactId>catalina</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>j2ee-server</artifactId>
         <type>car</type>
