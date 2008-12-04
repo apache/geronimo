@@ -42,7 +42,7 @@ class StartClientCommand extends BaseJavaCommand {
            
     int verbose = 0
     
-    @Option(name='-v', aliases=['--verbose'], description='Enable verbose output; specify multipule times to increase verbosity')
+    @Option(name='-v', aliases=['--verbose'], description='Enable verbose output; specify multiple times to increase verbosity')
     private void increaseVerbosity(boolean flag) {
         if (flag) {
             verbose++
@@ -68,7 +68,7 @@ class StartClientCommand extends BaseJavaCommand {
         log.debug("Geronimo home: $geronimoHome")
         
         // Setup the default properties required to boot the server
-        properties['org.apache.geronimo.base.dir'] = geronimoHome
+        properties['org.apache.geronimo.home.dir'] = geronimoHome
         properties['java.io.tmpdir'] = 'var/temp' // Use relative path
         properties['java.endorsed.dirs'] = prefixSystemPath('java.endorsed.dirs', new File(geronimoHome, 'lib/endorsed'))
         properties['java.ext.dirs'] = prefixSystemPath('java.ext.dirs', new File(geronimoHome, 'lib/ext'))
