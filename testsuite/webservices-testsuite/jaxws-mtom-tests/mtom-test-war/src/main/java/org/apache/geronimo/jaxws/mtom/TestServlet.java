@@ -22,14 +22,21 @@ package org.apache.geronimo.jaxws.mtom;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
+import java.util.Iterator;
 
 import javax.imageio.ImageIO;
+import javax.imageio.IIOImage;
+import javax.imageio.ImageReader;
+import javax.imageio.ImageWriter;
+import javax.imageio.stream.ImageInputStream;
+import javax.imageio.stream.ImageOutputStream;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -113,16 +120,26 @@ public abstract class TestServlet extends HttpServlet {
         else
             echo = service.getPort(Echo.class);
 
-        Image expectedImage = loadImage();
+        BufferedImage expectedImage = loadImage();
         Image echoImage = echo.echoImage(mtomSupport, expectedImage);
         byte[] actualImageBytes = convertImagetoBytes(echoImage);
-        byte[] expectedImageBytes = convertImagetoBytes(expectedImage);
+        byte[] expectedImageBytes = convertImagetoBytes(reserializeImage(expectedImage));
         Assert.assertEquals(expectedImageBytes.length, actualImageBytes.length);
         for (int i=0; i<expectedImageBytes.length; i++) {
             Assert.assertEquals("" + i, expectedImageBytes[i], actualImageBytes[i]);
         }
     }
-
+    
+    private BufferedImage loadImage() throws Exception {
+        URL source = this.getClass().getResource("/image.jpg");
+        return ImageIO.read(source);
+    }
+    
+    private Image reserializeImage(BufferedImage image) throws Exception {
+        byte [] beforeBytes = convertImagetoBytes(image);        
+        return ImageIO.read(new ByteArrayInputStream(beforeBytes));
+    }
+    
     private byte[] loadImageAsBytes() throws Exception {
         ByteArrayOutputStream imageBytes = new ByteArrayOutputStream();
         InputStream in = null;
@@ -142,15 +159,17 @@ public abstract class TestServlet extends HttpServlet {
         }
     }
     
-    private Image loadImage() throws Exception {
-        URL url = this.getClass().getResource("/image.jpg");
-        return ImageIO.read(url);
-    }
-
     private byte[] convertImagetoBytes(Image image) throws Exception {
         ByteArrayOutputStream imageBytes = new ByteArrayOutputStream();
-        ImageIO.write((BufferedImage)image, "jpg", imageBytes);
-        return imageBytes.toByteArray();
+        Iterator iterator = ImageIO.getImageWritersByMIMEType("image/jpeg");
+        ImageWriter imageWriter = (ImageWriter) iterator.next();
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ImageOutputStream ios = ImageIO.createImageOutputStream(baos);
+        imageWriter.setOutput(ios);
+        imageWriter.write(new IIOImage((BufferedImage)image, null, null));
+        ios.flush();
+        imageWriter.dispose();
+        return baos.toByteArray();
     }
 
     protected void updateAddress() {

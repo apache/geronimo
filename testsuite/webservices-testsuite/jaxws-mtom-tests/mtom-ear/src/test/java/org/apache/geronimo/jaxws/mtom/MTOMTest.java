@@ -65,7 +65,6 @@ public abstract class MTOMTest extends TestSupport {
         runTest("testEchoBytesWithoutMTOMSupport");
     }
 
-    /*
     @Test
     public void testEchoImageWithMTOMSupport() throws Exception {
         runTest("testEchoImageWithMTOMSupport");
@@ -75,7 +74,6 @@ public abstract class MTOMTest extends TestSupport {
     public void testEchoImageWithoutMTOMSupport() throws Exception {
         runTest("testEchoImageWithoutMTOMSupport");
     }
-    */
 
     protected void runTest(String testName) throws Exception {
         String warName = System.getProperty("webAppName");
