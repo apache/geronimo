@@ -23,6 +23,7 @@ package org.apache.geronimo.security.credentialstore;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Collections;
 
 import javax.security.auth.Subject;
 
@@ -33,7 +34,10 @@ import org.apache.geronimo.security.jaas.DirectConfigurationEntry;
 import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
 import org.apache.geronimo.security.jaas.LoginModuleGBean;
 import org.apache.geronimo.security.jaas.LoginModuleControlFlag;
+import org.apache.geronimo.security.jaas.ConfigurationEntryFactory;
 import org.apache.geronimo.security.realm.GenericSecurityRealm;
+import org.apache.geronimo.security.realm.providers.PropertiesFileLoginModule;
+import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 /**
  * @version $Rev$ $Date$
@@ -43,76 +47,27 @@ public class SimpleCredentialStoreImplTest extends AbstractTest {
     protected AbstractName clientCE;
     protected AbstractName testCE;
     protected AbstractName testRealm;
+    private GenericSecurityRealm gsr;
 
     public void setUp() throws Exception {
         needServerInfo = true;
-        needLoginConfiguration = true;
+        needLoginConfiguration = false;
         super.setUp();
 
-        GBeanData gbean;
-
-        gbean = buildGBeanData("name", "ClientPropertiesLoginModule", LoginModuleGBean.getGBeanInfo());
-        clientLM = gbean.getAbstractName();
-        gbean.setAttribute("loginModuleClass", "org.apache.geronimo.security.jaas.client.JaasLoginCoordinator");
         Map<String, Object> props = new HashMap<String, Object>();
-        props.put("host", "localhost");
-        props.put("port", "4242");
-        props.put("realm", "properties-realm");
-        gbean.setAttribute("options", props);
-        kernel.loadGBean(gbean, LoginModuleGBean.class.getClassLoader());
-
-        gbean = buildGBeanData("name", "ClientConfigurationEntry", DirectConfigurationEntry.getGBeanInfo());
-        clientCE = gbean.getAbstractName();
-        gbean.setAttribute("applicationConfigName", "properties-client");
-        gbean.setAttribute("controlFlag", LoginModuleControlFlag.REQUIRED);
-        gbean.setReferencePattern("Module", clientLM);
-        kernel.loadGBean(gbean, DirectConfigurationEntry.class.getClassLoader());
-
-        gbean = buildGBeanData("name", "PropertiesLoginModule", LoginModuleGBean.getGBeanInfo());
-        testCE = gbean.getAbstractName();
-        gbean.setAttribute("loginModuleClass", "org.apache.geronimo.security.realm.providers.PropertiesFileLoginModule");
-        props = new HashMap<String, Object>();
         props.put("usersURI", new File(BASEDIR, "src/test/data/data/users.properties").toURI().toString());
         props.put("groupsURI", new File(BASEDIR, "src/test/data/data/groups.properties").toURI().toString());
-        gbean.setAttribute("options", props);
-        gbean.setAttribute("loginDomainName", "TestProperties");
-        gbean.setAttribute("wrapPrincipals", Boolean.TRUE);
-        kernel.loadGBean(gbean, LoginModuleGBean.class.getClassLoader());
+        LoginModuleGBean lm = new LoginModuleGBean(PropertiesFileLoginModule.class.getName(), null, true, props, "TestProperties", getClass().getClassLoader());
 
-        gbean = buildGBeanData("name", "PropertiesLoginModuleUse", JaasLoginModuleUse.getGBeanInfo());
-        AbstractName testUseName = gbean.getAbstractName();
-        gbean.setAttribute("controlFlag", LoginModuleControlFlag.REQUIRED);
-        gbean.setReferencePattern("LoginModule", testCE);
-        kernel.loadGBean(gbean, JaasLoginModuleUse.class.getClassLoader());
+        JaasLoginModuleUse lmu = new JaasLoginModuleUse(lm, null, LoginModuleControlFlag.REQUIRED);
 
-        gbean = buildGBeanData("name", "PropertiesSecurityRealm", GenericSecurityRealm.getGBeanInfo());
-        testRealm = gbean.getAbstractName();
-        gbean.setAttribute("realmName", "properties-realm");
-        gbean.setReferencePattern("LoginModuleConfiguration", testUseName);
-        gbean.setReferencePattern("ServerInfo", serverInfo);
-        kernel.loadGBean(gbean, GenericSecurityRealm.class.getClassLoader());
+        gsr = new GenericSecurityRealm("properties-realm", lmu, false, true, (ServerInfo) kernel.getGBean(serverInfo), getClass().getClassLoader(), kernel);
 
-        kernel.startGBean(loginConfiguration);
-        kernel.startGBean(clientLM);
-        kernel.startGBean(clientCE);
-        kernel.startGBean(testUseName);
-        kernel.startGBean(testCE);
-        kernel.startGBean(testRealm);
     }
 
     public void tearDown() throws Exception {
-        kernel.stopGBean(testRealm);
-        kernel.stopGBean(testCE);
-        kernel.stopGBean(clientCE);
-        kernel.stopGBean(clientLM);
-        kernel.stopGBean(loginConfiguration);
         kernel.stopGBean(serverInfo);
 
-        kernel.unloadGBean(testCE);
-        kernel.unloadGBean(testRealm);
-        kernel.unloadGBean(clientCE);
-        kernel.unloadGBean(clientLM);
-        kernel.unloadGBean(loginConfiguration);
         kernel.unloadGBean(serverInfo);
 
         super.tearDown();
@@ -126,7 +81,7 @@ public class SimpleCredentialStoreImplTest extends AbstractTest {
         entries.put("foo", callbackHanders);
         Map<String, Map<String, Map<String, String>>> credentials = new HashMap<String, Map<String, Map<String, String>>>();
         credentials.put("properties-realm", entries);
-        CredentialStore credentialStore = new SimpleCredentialStoreImpl(credentials, getClass().getClassLoader());
+        CredentialStore credentialStore = new SimpleCredentialStoreImpl(credentials, Collections.<ConfigurationEntryFactory>singleton(gsr), getClass().getClassLoader());
         Subject subject = credentialStore.getSubject("properties-realm", "foo");
         assertNotNull(subject);
     }

@@ -38,7 +38,7 @@ public class LoginGeronimoPasswordCredentialTest extends AbstractLoginModuleTest
 
     protected GBeanData setupTestLoginModule() throws MalformedObjectNameException {
         GBeanData gbean;
-        gbean = buildGBeanData("name", "GeronimoPasswordCredentialLoginModule", LoginModuleGBean.getGBeanInfo());
+        gbean = buildGBeanData("name", "GeronimoPasswordCredentialLoginModule", LoginModuleGBean.class);
         gbean.setAttribute("loginModuleClass", GeronimoPasswordCredentialLoginModule.class.getName());
         Map<String, Object> props = new HashMap<String, Object>();
         gbean.setAttribute("options", props);

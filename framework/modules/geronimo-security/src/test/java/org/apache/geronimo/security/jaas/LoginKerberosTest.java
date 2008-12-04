@@ -44,7 +44,7 @@ public class LoginKerberosTest extends AbstractTest {
     public void setUp() throws Exception {
         super.setUp();
 
-        GBeanData gbean = buildGBeanData("name", "KerberosLoginModule", LoginModuleGBean.getGBeanInfo());
+        GBeanData gbean = buildGBeanData("name", "KerberosLoginModule", LoginModuleGBean.class);
         kerberosLM = gbean.getAbstractName();
         gbean.setAttribute("loginModuleClass", "com.sun.security.auth.module.Krb5LoginModule");
         Properties props = new Properties();
@@ -54,13 +54,13 @@ public class LoginKerberosTest extends AbstractTest {
         gbean.setAttribute("options", props);
         kernel.loadGBean(gbean, LoginModuleGBean.class.getClassLoader());
 
-        gbean = buildGBeanData("name", "KerberosLoginModuleUse", JaasLoginModuleUse.getGBeanInfo());
+        gbean = buildGBeanData("name", "KerberosLoginModuleUse", JaasLoginModuleUse.class);
         AbstractName testUseName = gbean.getAbstractName();
         gbean.setAttribute("controlFlag", LoginModuleControlFlag.REQUIRED);
         gbean.setReferencePattern("LoginModule", kerberosLM);
         kernel.loadGBean(gbean, JaasLoginModuleUse.class.getClassLoader());
 
-        gbean = buildGBeanData("name", "KerberosSecurityRealm", GenericSecurityRealm.getGBeanInfo());
+        gbean = buildGBeanData("name", "KerberosSecurityRealm", GenericSecurityRealm.class);
         kerberosRealm = gbean.getAbstractName();
         gbean.setAttribute("realmName", "TOOLAZYDOGS.COM");
         gbean.setReferencePattern("LoginModuleConfiguration", testUseName);

@@ -37,7 +37,7 @@ public class LoginConfiguredIdentityNamedUsernamePasswordTest extends AbstractLo
 
     protected GBeanData setupTestLoginModule() throws MalformedObjectNameException {
         GBeanData gbean;
-        gbean = buildGBeanData("name", "ConfiguredIdentityNamedUsernamePasswordLoginModule", LoginModuleGBean.getGBeanInfo());
+        gbean = buildGBeanData("name", "ConfiguredIdentityNamedUsernamePasswordLoginModule", LoginModuleGBean.class);
         gbean.setAttribute("loginModuleClass", ConfiguredIdentityNamedUsernamePasswordLoginModule.class.getName());
         Map<String, Object> props = new HashMap<String, Object>();
         props.put(ConfiguredIdentityNamedUsernamePasswordLoginModule.CREDENTIAL_NAME, credname);

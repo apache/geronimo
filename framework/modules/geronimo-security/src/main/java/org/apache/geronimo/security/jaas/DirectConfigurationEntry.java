@@ -56,6 +56,11 @@ public class DirectConfigurationEntry implements ConfigurationEntryFactory {
         return new AppConfigurationEntry[] {new AppConfigurationEntry(module.getLoginModuleClass(), controlFlag.getFlag(), module.getOptions())};
     }
 
+    //TODO configure this
+    public Boolean isPublish() {
+        return true;
+    }
+
     public static final GBeanInfo GBEAN_INFO;
 
     static {

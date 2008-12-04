@@ -70,7 +70,7 @@ public class LoginCertificatePropertiesFileTest extends AbstractLoginModuleTest 
         cert = (X509Certificate) certFac.generateCertificate(new ByteArrayInputStream(certText.getBytes()));
         badCert = (X509Certificate) certFac.generateCertificate(new ByteArrayInputStream(badCertText.getBytes()));
 
-        GBeanData gbean = buildGBeanData("name", "CertificatePropertiesLoginModule", LoginModuleGBean.getGBeanInfo());
+        GBeanData gbean = buildGBeanData("name", "CertificatePropertiesLoginModule", LoginModuleGBean.class);
         testCE = gbean.getAbstractName();
         gbean.setAttribute("loginModuleClass", "org.apache.geronimo.security.realm.providers.CertificatePropertiesFileLoginModule");
         Map<String, Object> props = new HashMap<String, Object>();

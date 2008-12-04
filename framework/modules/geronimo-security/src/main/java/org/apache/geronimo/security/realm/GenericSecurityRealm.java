@@ -26,6 +26,11 @@ import javax.security.auth.login.AppConfigurationEntry;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.ParamAttribute;
+import org.apache.geronimo.gbean.annotation.ParamReference;
+import org.apache.geronimo.gbean.annotation.ParamSpecial;
+import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.security.jaas.ConfigurationEntryFactory;
 import org.apache.geronimo.security.jaas.JaasLoginModuleChain;
@@ -54,6 +59,7 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
  *
  * @version $Rev$ $Date$
  */
+@GBean(j2eeType = SecurityNames.SECURITY_REALM)
 public class GenericSecurityRealm implements SecurityRealm, ConfigurationEntryFactory {
 
     private final String realmName;
@@ -63,16 +69,20 @@ public class GenericSecurityRealm implements SecurityRealm, ConfigurationEntryFa
     private final boolean wrapPrincipals;
     private final JaasLoginModuleUse loginModuleUse;
 
-    public GenericSecurityRealm(String realmName,
-                                JaasLoginModuleUse loginModuleUse,
-                                boolean wrapPrincipals,
-                                ServerInfo serverInfo,
-                                ClassLoader classLoader,
-                                Kernel kernel
+    private final boolean publish;
+
+    public GenericSecurityRealm(@ParamAttribute(name="realmName") String realmName,
+                                @ParamReference(name="LoginModuleConfiguration", namingType = "LoginModuleUse")JaasLoginModuleUse loginModuleUse,
+                                @ParamAttribute(name="wrapPrincipals")boolean wrapPrincipals,
+                                @ParamAttribute(name="publish")Boolean publish,
+                                @ParamReference(name="ServerInfo")ServerInfo serverInfo,
+                                @ParamSpecial(type = SpecialAttributeType.classLoader) ClassLoader classLoader,
+                                @ParamSpecial(type = SpecialAttributeType.kernel)Kernel kernel
     ) throws ClassNotFoundException {
         this.realmName = realmName;
         this.wrapPrincipals = wrapPrincipals;
         this.loginModuleUse = loginModuleUse;
+        this.publish = publish == null || publish;
 
         Set<String> domainNames = new HashSet<String>();
         List<AppConfigurationEntry> loginModuleConfigurations = new ArrayList<AppConfigurationEntry>();
@@ -120,34 +130,8 @@ public class GenericSecurityRealm implements SecurityRealm, ConfigurationEntryFa
         return realmName;
     }
 
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(GenericSecurityRealm.class, SecurityNames.SECURITY_REALM);
-
-        infoFactory.addInterface(SecurityRealm.class);
-        infoFactory.addInterface(ConfigurationEntryFactory.class);
-        infoFactory.addAttribute("realmName", String.class, true);
-        infoFactory.addAttribute("kernel", Kernel.class, false);
-        infoFactory.addAttribute("classLoader", ClassLoader.class, false);
-        infoFactory.addAttribute("deploymentSupport", Properties.class, true);
-        infoFactory.addAttribute("wrapPrincipals", boolean.class, true);
-
-        infoFactory.addReference("LoginModuleConfiguration", JaasLoginModuleUse.class, "LoginModuleUse");
-        infoFactory.addReference("ServerInfo", ServerInfo.class);
-
-        infoFactory.setConstructor(new String[]{"realmName",
-                                                "LoginModuleConfiguration",
-                                                "wrapPrincipals",
-                                                "ServerInfo",
-                                                "classLoader",
-                                                "kernel"});
-
-        GBEAN_INFO = infoFactory.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
+    public Boolean isPublish() {
+        return publish;
     }
 
 }

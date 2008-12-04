@@ -55,7 +55,7 @@ public class TimeoutTest extends AbstractTest {
 
         // Create all the parts
 
-        gbean = buildGBeanData    ("name", "PropertiesLoginModule", LoginModuleGBean.getGBeanInfo());
+        gbean = buildGBeanData    ("name", "PropertiesLoginModule", LoginModuleGBean.class);
         testCE = gbean.getAbstractName();
         gbean.setAttribute("loginModuleClass", "org.apache.geronimo.security.realm.providers.PropertiesFileLoginModule");
         Map<String, Object> props = new HashMap<String, Object>();
@@ -66,13 +66,13 @@ public class TimeoutTest extends AbstractTest {
         gbean.setAttribute("wrapPrincipals", Boolean.TRUE);
         kernel.loadGBean(gbean, LoginModuleGBean.class.getClassLoader());
 
-        gbean = buildGBeanData("name", "PropertiesLoginModuleUse", JaasLoginModuleUse.getGBeanInfo());
+        gbean = buildGBeanData("name", "PropertiesLoginModuleUse", JaasLoginModuleUse.class);
         AbstractName testUseName = gbean.getAbstractName();
         gbean.setAttribute("controlFlag", LoginModuleControlFlag.REQUIRED);
         gbean.setReferencePattern("LoginModule", testCE);
         kernel.loadGBean(gbean, JaasLoginModuleUse.class.getClassLoader());
 
-        gbean = buildGBeanData("name", "PropertiesSecurityRealm", GenericSecurityRealm.getGBeanInfo());
+        gbean = buildGBeanData("name", "PropertiesSecurityRealm", GenericSecurityRealm.class);
         testRealm = gbean.getAbstractName();
         gbean.setAttribute("realmName", "properties-realm");
         gbean.setReferencePattern("LoginModuleConfiguration", testUseName);

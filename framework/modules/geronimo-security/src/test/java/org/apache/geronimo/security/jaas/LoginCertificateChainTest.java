@@ -57,7 +57,7 @@ public class LoginCertificateChainTest extends AbstractLoginModuleTest {
         CertificateFactory certFac = CertificateFactory.getInstance("X.509");
         cert = (X509Certificate) certFac.generateCertificate(new ByteArrayInputStream(certText.getBytes()));
 
-        GBeanData gbean = buildGBeanData("name", "CertificateChainLoginModule", LoginModuleGBean.getGBeanInfo());
+        GBeanData gbean = buildGBeanData("name", "CertificateChainLoginModule", LoginModuleGBean.class);
         testCE = gbean.getAbstractName();
         gbean.setAttribute("loginModuleClass", "org.apache.geronimo.security.realm.providers.CertificateChainLoginModule");
         Map<String, Object> props = new HashMap<String, Object>();

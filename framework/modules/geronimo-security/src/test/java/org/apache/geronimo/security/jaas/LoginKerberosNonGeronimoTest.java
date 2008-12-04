@@ -56,7 +56,7 @@ public class LoginKerberosNonGeronimoTest extends AbstractTest {
 
         GBeanData gbean;
 
-        gbean = buildGBeanData("name", "KerberosLoginModule", LoginModuleGBean.getGBeanInfo());
+        gbean = buildGBeanData("name", "KerberosLoginModule", LoginModuleGBean.class);
         kerberosLM = gbean.getAbstractName();
         gbean.setAttribute("loginModuleClass", "com.sun.security.auth.module.Krb5LoginModule");
         Properties props = new Properties();
@@ -66,7 +66,7 @@ public class LoginKerberosNonGeronimoTest extends AbstractTest {
         gbean.setAttribute("options", props);
         kernel.loadGBean(gbean, LoginModuleGBean.class.getClassLoader());
 
-        gbean = buildGBeanData("name", "kerberosConfigurationEntry", DirectConfigurationEntry.getGBeanInfo());
+        gbean = buildGBeanData("name", "kerberosConfigurationEntry", DirectConfigurationEntry.class);
         kerberosCE = gbean.getAbstractName();
         gbean.setAttribute("applicationConfigName", "kerberos-foobar");
         gbean.setAttribute("controlFlag", LoginModuleControlFlag.REQUIRED);

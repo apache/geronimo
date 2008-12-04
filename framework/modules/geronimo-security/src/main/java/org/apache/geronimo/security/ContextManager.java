@@ -38,6 +38,7 @@ import javax.security.auth.Subject;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
+import javax.security.auth.login.Configuration;
 
 import org.apache.geronimo.security.realm.providers.GeronimoCallerPrincipal;
 
@@ -69,20 +70,51 @@ public class ContextManager {
         registerSubject(EMPTY);
     }
 
-    public static LoginContext login(String realm, CallbackHandler callbackHandler) throws LoginException {
+    /**
+     *
+     * @param realm
+     * @param callbackHandler
+     * @param configuration login Configuration to use, or null for the GeronimoLoginConfiguration gbean instance
+     * @return
+     * @throws LoginException
+     */
+    public static LoginContext login(String realm, CallbackHandler callbackHandler, Configuration configuration) throws LoginException {
         Subject subject = new Subject();
-        LoginContext loginContext = new LoginContext(realm, subject, callbackHandler);
+        LoginContext loginContext = new LoginContext(realm, subject, callbackHandler, configuration);
         loginContext.login();
         SubjectId id = ContextManager.registerSubject(subject);
         IdentificationPrincipal principal = new IdentificationPrincipal(id);
         subject.getPrincipals().add(principal);
         return loginContext;
     }
-    
-    public static LoginContext login(Subject subject, String realm, CallbackHandler callbackHandler) throws LoginException {
-        LoginContext loginContext = new LoginContext(realm, subject, callbackHandler);
+
+    /**
+     * @deprecated use the method with Configuration
+     * @param realm
+     * @param callbackHandler
+     * @return
+     * @throws LoginException
+     */
+    public static LoginContext login(String realm, CallbackHandler callbackHandler) throws LoginException {
+        return login(realm, callbackHandler, null);
+    }
+
+    public static LoginContext login(Subject subject, String realm, CallbackHandler callbackHandler, Configuration configuration) throws LoginException {
+        LoginContext loginContext = new LoginContext(realm, subject, callbackHandler, configuration);
         loginContext.login();
         return loginContext;
+    }
+
+    /**
+     * @deprecated use the method with Configuration
+     * @param subject
+     * @param realm
+     * @param callbackHandler
+     * @return
+     * @throws LoginException
+     */
+    public static LoginContext login(Subject subject, String realm, CallbackHandler callbackHandler) throws LoginException {
+        return login(subject, realm, callbackHandler, null);
     }
 
     public static void logout(LoginContext loginContext) throws LoginException {

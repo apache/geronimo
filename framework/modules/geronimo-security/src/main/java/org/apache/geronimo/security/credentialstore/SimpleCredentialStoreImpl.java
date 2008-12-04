@@ -22,6 +22,7 @@ package org.apache.geronimo.security.credentialstore;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Collection;
 import java.lang.reflect.Constructor;
 
 import javax.security.auth.Subject;
@@ -30,19 +31,37 @@ import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
+import javax.security.auth.login.Configuration;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.ParamAttribute;
+import org.apache.geronimo.gbean.annotation.ParamReference;
+import org.apache.geronimo.gbean.annotation.ParamSpecial;
+import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 import org.apache.geronimo.security.ContextManager;
+import org.apache.geronimo.security.SecurityNames;
+import org.apache.geronimo.security.jaas.ConfigurationEntryFactory;
+import org.apache.geronimo.security.jaas.GeronimoLoginConfiguration;
 
 /**
  * @version $Rev$ $Date$
  */
+@GBean
 public class SimpleCredentialStoreImpl implements CredentialStore {
 
     private final Map<String, Map<String, Map<String, SingleCallbackHandler>>> credentialStore = new HashMap<String, Map<String, Map<String, SingleCallbackHandler>>>();
+    private final Configuration configuration;
 
-    public SimpleCredentialStoreImpl(Map<String, Map<String, Map<String, String>>> credentials, ClassLoader cl) {
+    public SimpleCredentialStoreImpl(@ParamAttribute(name="credentialStore")Map<String, Map<String, Map<String, String>>> credentials,
+                                     @ParamReference(name="Realms", namingType = SecurityNames.SECURITY_REALM)Collection<ConfigurationEntryFactory> realms,
+                                     @ParamSpecial(type = SpecialAttributeType.classLoader)ClassLoader cl) {
+        if (realms != null) {
+            configuration = new GeronimoLoginConfiguration(realms, true);
+        } else {
+            configuration = null;
+        }
         if (credentials != null) {
             for (Map.Entry<String, Map<String, Map<String, String>>> realmData: credentials.entrySet()) {
                 String realmName = realmData.getKey();
@@ -89,7 +108,8 @@ public class SimpleCredentialStoreImpl implements CredentialStore {
                     singleCallbackHandler.handle(callback);
                 }
             }
-        });
+        },
+                configuration);
         return loginContext.getSubject();
     }
 
@@ -116,20 +136,4 @@ public class SimpleCredentialStoreImpl implements CredentialStore {
         return subject;
     }
 
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(SimpleCredentialStoreImpl.class);
-
-        infoBuilder.addAttribute("credentialStore", Map.class, true);
-        infoBuilder.addAttribute("classLoader", ClassLoader.class, false);
-
-        infoBuilder.setConstructor(new String[]{"credentialStore", "classLoader"});
-
-        GBEAN_INFO = infoBuilder.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
 }

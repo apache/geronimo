@@ -48,13 +48,13 @@ public abstract class AbstractLoginModuleTest extends AbstractTest {
         testCE = gbean.getAbstractName();
         kernel.loadGBean(gbean, LoginModuleGBean.class.getClassLoader());
 
-        gbean = buildGBeanData("name", "PropertiesLoginModuleUse", JaasLoginModuleUse.getGBeanInfo());
+        gbean = buildGBeanData("name", "PropertiesLoginModuleUse", JaasLoginModuleUse.class);
         AbstractName testUseName = gbean.getAbstractName();
         gbean.setAttribute("controlFlag", LoginModuleControlFlag.REQUIRED);
         gbean.setReferencePattern("LoginModule", testCE);
         kernel.loadGBean(gbean, JaasLoginModuleUse.class.getClassLoader());
 
-        gbean = buildGBeanData("name", "PropertiesSecurityRealm", GenericSecurityRealm.getGBeanInfo());
+        gbean = buildGBeanData("name", "PropertiesSecurityRealm", GenericSecurityRealm.class);
         testRealm = gbean.getAbstractName();
         gbean.setAttribute("realmName", SIMPLE_REALM);
         gbean.setAttribute("wrapPrincipals", Boolean.TRUE);
@@ -62,7 +62,7 @@ public abstract class AbstractLoginModuleTest extends AbstractTest {
         gbean.setReferencePattern("ServerInfo", serverInfo);
         kernel.loadGBean(gbean, GenericSecurityRealm.class.getClassLoader());
 
-        gbean = buildGBeanData("name", "NeverFailLoginModule", LoginModuleGBean.getGBeanInfo());
+        gbean = buildGBeanData("name", "NeverFailLoginModule", LoginModuleGBean.class);
         neverFailModule = gbean.getAbstractName();
         gbean.setAttribute("loginModuleClass", "org.apache.geronimo.security.jaas.NeverFailLoginModule");
         gbean.setAttribute("options", null);
@@ -71,14 +71,14 @@ public abstract class AbstractLoginModuleTest extends AbstractTest {
         kernel.loadGBean(gbean, LoginModuleGBean.class.getClassLoader());
         kernel.startGBean(neverFailModule);
 
-        gbean = buildGBeanData("name", "PropertiesLoginModuleUse2", JaasLoginModuleUse.getGBeanInfo());
+        gbean = buildGBeanData("name", "PropertiesLoginModuleUse2", JaasLoginModuleUse.class);
         AbstractName propsUseName = gbean.getAbstractName();
         gbean.setAttribute("controlFlag", LoginModuleControlFlag.OPTIONAL);
         gbean.setReferencePattern("LoginModule", testCE);
         kernel.loadGBean(gbean, JaasLoginModuleUse.class.getClassLoader());
         kernel.startGBean(propsUseName);
 
-        gbean = buildGBeanData("name", "NeverFailLoginModuleUse", JaasLoginModuleUse.getGBeanInfo());
+        gbean = buildGBeanData("name", "NeverFailLoginModuleUse", JaasLoginModuleUse.class);
         AbstractName neverFailUseName = gbean.getAbstractName();
         gbean.setAttribute("controlFlag", LoginModuleControlFlag.REQUIRED);
         gbean.setReferencePattern("LoginModule", neverFailModule);
@@ -86,7 +86,7 @@ public abstract class AbstractLoginModuleTest extends AbstractTest {
         kernel.loadGBean(gbean, JaasLoginModuleUse.class.getClassLoader());
         kernel.startGBean(neverFailUseName);
 
-        gbean = buildGBeanData("name", "PropertiesSecurityRealm2", GenericSecurityRealm.getGBeanInfo());
+        gbean = buildGBeanData("name", "PropertiesSecurityRealm2", GenericSecurityRealm.class);
         testRealm2 = gbean.getAbstractName();
         gbean.setAttribute("realmName", COMPLEX_REALM);
         gbean.setAttribute("wrapPrincipals", Boolean.TRUE);

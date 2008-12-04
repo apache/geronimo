@@ -74,7 +74,7 @@ public class LoginSQLTest extends AbstractLoginModuleTest {
 
         conn.close();
 
-        GBeanData gbean = buildGBeanData("name", "SQLLoginModule", LoginModuleGBean.getGBeanInfo());
+        GBeanData gbean = buildGBeanData("name", "SQLLoginModule", LoginModuleGBean.class);
         gbean.setAttribute("loginModuleClass", "org.apache.geronimo.security.realm.providers.SQLLoginModule");
         Map<String, Object> props = new HashMap<String, Object>();
         props.put("jdbcURL", hsqldbURL);

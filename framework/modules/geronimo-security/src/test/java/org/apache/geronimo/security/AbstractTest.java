@@ -35,6 +35,7 @@ import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.MultiGBeanInfoFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.repository.Artifact;
@@ -69,14 +70,14 @@ public abstract class AbstractTest extends TestSupport {
 
         // Create all the parts
         if (needServerInfo) {
-            gbean = buildGBeanData("name", "ServerInfo", BasicServerInfo.GBEAN_INFO);
+            gbean = buildGBeanData("name", "ServerInfo", BasicServerInfo.class);
             serverInfo = gbean.getAbstractName();
             gbean.setAttribute("baseDirectory", BASEDIR.getAbsolutePath());
             kernel.loadGBean(gbean, ServerInfo.class.getClassLoader());
             kernel.startGBean(serverInfo);
         }
         if (needLoginConfiguration) {
-            gbean = buildGBeanData("name", "LoginConfiguration", GeronimoLoginConfiguration.getGBeanInfo());
+            gbean = buildGBeanData("name", "LoginConfiguration", GeronimoLoginConfiguration.class);
             loginConfiguration = gbean.getAbstractName();
             gbean.setReferencePattern("Configurations", new AbstractNameQuery(ConfigurationEntryFactory.class.getName()));
             kernel.loadGBean(gbean, GeronimoLoginConfiguration.class.getClassLoader());
@@ -90,12 +91,13 @@ public abstract class AbstractTest extends TestSupport {
     }
 
 
-    protected GBeanData buildGBeanData(String key, String value, GBeanInfo info) throws MalformedObjectNameException {
-        AbstractName abstractName = buildAbstractName(key, value, info);
+    protected GBeanData buildGBeanData(String key, String value, Class clazz) throws MalformedObjectNameException {
+        AbstractName abstractName = buildAbstractName(key, value);
+        GBeanInfo info = new MultiGBeanInfoFactory().getGBeanInfo(clazz);
         return new GBeanData(abstractName, info);
     }
 
-    private AbstractName buildAbstractName(String key, String value, GBeanInfo info) throws MalformedObjectNameException {
+    private AbstractName buildAbstractName(String key, String value) throws MalformedObjectNameException {
         Map names = new HashMap();
         names.put(key, value);
         return new AbstractName(new Artifact("test", "foo", "1", "car"), names, new ObjectName("test:" + key + "=" + value));

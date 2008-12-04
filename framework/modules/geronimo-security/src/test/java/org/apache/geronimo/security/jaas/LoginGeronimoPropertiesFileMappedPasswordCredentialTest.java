@@ -36,7 +36,7 @@ import org.apache.geronimo.security.realm.providers.GeronimoPropertiesFileMapped
 public class LoginGeronimoPropertiesFileMappedPasswordCredentialTest extends AbstractLoginModuleTest {
     protected GBeanData setupTestLoginModule() throws MalformedObjectNameException {
         GBeanData gbean;
-        gbean = buildGBeanData("name", "GeronimoPropertiesFileMappedPasswordCredentialLoginModule", LoginModuleGBean.getGBeanInfo());
+        gbean = buildGBeanData("name", "GeronimoPropertiesFileMappedPasswordCredentialLoginModule", LoginModuleGBean.class);
         gbean.setAttribute("loginModuleClass", GeronimoPropertiesFileMappedPasswordCredentialLoginModule.class.getName());
         Map<String, Object> props = new HashMap<String, Object>();
         props.put(GeronimoPropertiesFileMappedPasswordCredentialLoginModule.CREDENTIALS_URI, "src/test/data/data/credentials.properties");

@@ -51,11 +51,10 @@ public class NoLoginModuleReuseTest extends TestCase {
         GenericSecurityRealm realm = new GenericSecurityRealm(realmName,
                 loginModuleUse,
                 wrapPrincipals,
-                null,
+                null, null,
                 getClass().getClassLoader(),
                 null);
-        GeronimoLoginConfiguration loginConfig = new GeronimoLoginConfiguration();
-        loginConfig.setConfigurations(Collections.<ConfigurationEntryFactory>singleton(realm));
+        GeronimoLoginConfiguration loginConfig = new GeronimoLoginConfiguration(Collections.<ConfigurationEntryFactory>singleton(realm), false);
         doLogin(loginConfig, realmName);
         doLogin(loginConfig, realmName);
     }

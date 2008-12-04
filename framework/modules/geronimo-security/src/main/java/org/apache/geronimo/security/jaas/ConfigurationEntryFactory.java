@@ -44,4 +44,5 @@ public interface ConfigurationEntryFactory {
      */
     AppConfigurationEntry[] getAppConfigurationEntries();
 
+    Boolean isPublish();
 }

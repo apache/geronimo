@@ -38,7 +38,7 @@ public class LoginPropertiesFileTest extends AbstractLoginModuleTest {
 
     protected GBeanData setupTestLoginModule() throws MalformedObjectNameException {
         GBeanData gbean;
-        gbean = buildGBeanData("name", "PropertiesLoginModule", LoginModuleGBean.getGBeanInfo());
+        gbean = buildGBeanData("name", "PropertiesLoginModule", LoginModuleGBean.class);
         gbean.setAttribute("loginModuleClass", "org.apache.geronimo.security.realm.providers.PropertiesFileLoginModule");
         Map<String, Object> props = new HashMap<String, Object>();
         props.put("usersURI", "src/test/data/data/users.properties");

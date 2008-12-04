@@ -136,10 +136,9 @@ public abstract class AbstractWebModuleTest extends TestSupport {
 
         PrincipalInfo.PrincipalEditor principalEditor = new PrincipalInfo.PrincipalEditor();
         principalEditor.setAsText("metro,org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal");
-        GenericSecurityRealm realm = new GenericSecurityRealm(domainName, loginModuleUse, true, serverInfo, cl, null);
+        GenericSecurityRealm realm = new GenericSecurityRealm(domainName, loginModuleUse, true, true, serverInfo, cl, null);
 
-        loginConfiguration = new GeronimoLoginConfiguration();
-        loginConfiguration.setConfigurations(Collections.<ConfigurationEntryFactory>singleton(realm));
+        loginConfiguration = new GeronimoLoginConfiguration(Collections.<ConfigurationEntryFactory>singleton(realm), true);
         loginConfiguration.doStart();
 
     }

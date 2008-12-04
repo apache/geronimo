@@ -38,7 +38,6 @@ import javax.security.auth.spi.LoginModule;
 public class ClassOptionLoginModule implements LoginModule {
     public static final String CLASS_OPTION = WrappingLoginModule.class.getName() + ".LoginModuleClass";
     public static final List<String> supportedOptions = Collections.unmodifiableList(Arrays.asList(CLASS_OPTION));
-    private Subject subject;
     private LoginModule delegate;
 
 
@@ -46,7 +45,6 @@ public class ClassOptionLoginModule implements LoginModule {
     }
 
     public void initialize(Subject subject, CallbackHandler callbackHandler, Map<String, ?> sharedState, Map<String, ?> options) {
-        this.subject = subject;
         Class lmClass = (Class) options.get(CLASS_OPTION);
         try {
             delegate = (LoginModule) lmClass.newInstance();

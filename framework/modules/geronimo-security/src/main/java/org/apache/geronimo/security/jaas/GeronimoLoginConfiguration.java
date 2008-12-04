@@ -19,21 +19,25 @@ package org.apache.geronimo.security.jaas;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Hashtable;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.security.auth.login.AppConfigurationEntry;
 import javax.security.auth.login.Configuration;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.ReferenceCollection;
 import org.apache.geronimo.gbean.ReferenceCollectionEvent;
 import org.apache.geronimo.gbean.ReferenceCollectionListener;
+import org.apache.geronimo.gbean.annotation.ParamReference;
+import org.apache.geronimo.gbean.annotation.ParamAttribute;
+import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.security.SecurityServiceImpl;
+import org.apache.geronimo.security.SecurityNames;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -45,20 +49,16 @@ import org.apache.geronimo.security.SecurityServiceImpl;
  *
  * @version $Rev$ $Date$
  */
+@GBean
 public class GeronimoLoginConfiguration extends Configuration implements GBeanLifecycle, ReferenceCollectionListener {
     private static final Logger log = LoggerFactory.getLogger(GeronimoLoginConfiguration.class);
-    private static Map<String, AppConfigurationEntry[]> entries = new Hashtable<String, AppConfigurationEntry[]>();
+    private final Map<String, AppConfigurationEntry[]> entries = new ConcurrentHashMap<String, AppConfigurationEntry[]>();
     private Configuration oldConfiguration;
-    private Collection<ConfigurationEntryFactory> configurations = Collections.emptySet();
+    private final Collection<ConfigurationEntryFactory> configurations;
+    private final boolean useAllConfigurations;
 
-    public Collection getConfigurations() {
-        SecurityManager sm = System.getSecurityManager();
-        if (sm != null) sm.checkPermission(SecurityServiceImpl.CONFIGURE);
-
-        return configurations;
-    }
-
-    public void setConfigurations(Collection<ConfigurationEntryFactory> configurations) {
+    public GeronimoLoginConfiguration(@ParamReference(name="Configurations", namingType = SecurityNames.SECURITY_REALM)Collection<ConfigurationEntryFactory> configurations,
+                                      @ParamAttribute(name="useAllConfigurations") boolean useAllConfigurations) {
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) sm.checkPermission(SecurityServiceImpl.CONFIGURE);
 
@@ -68,10 +68,18 @@ public class GeronimoLoginConfiguration extends Configuration implements GBeanLi
         }
 
         this.configurations = configurations;
+        this.useAllConfigurations = useAllConfigurations;
 
         for (ConfigurationEntryFactory configuration : configurations) {
             addConfiguration(configuration);
         }
+    }
+
+    public Collection getConfigurations() {
+        SecurityManager sm = System.getSecurityManager();
+        if (sm != null) sm.checkPermission(SecurityServiceImpl.CONFIGURE);
+
+        return configurations;
     }
 
     public AppConfigurationEntry[] getAppConfigurationEntry(String name) {
@@ -103,9 +111,11 @@ public class GeronimoLoginConfiguration extends Configuration implements GBeanLi
         if (entries.containsKey(factory.getConfigurationName())) {
             throw new java.lang.IllegalArgumentException("ConfigurationEntry already registered");
         }
-        AppConfigurationEntry[] ace = factory.getAppConfigurationEntries();
-        entries.put(factory.getConfigurationName(), ace);
-        log.debug("Added Application Configuration Entry " + factory.getConfigurationName());
+        if (useAllConfigurations || factory.isPublish()) {
+            AppConfigurationEntry[] ace = factory.getAppConfigurationEntries();
+            entries.put(factory.getConfigurationName(), ace);
+            log.debug("Added Application Configuration Entry " + factory.getConfigurationName());
+        }
     }
 
     public void doStart() throws Exception {
@@ -132,19 +142,6 @@ public class GeronimoLoginConfiguration extends Configuration implements GBeanLi
     public void doFail() {
         Configuration.setConfiguration(oldConfiguration);
         log.debug("Uninstalled Geronimo login configuration");
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
-
-    private static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(GeronimoLoginConfiguration.class); //just a gbean
-        infoFactory.addReference("Configurations", ConfigurationEntryFactory.class, null);
-
-        GBEAN_INFO = infoFactory.getBeanInfo();
     }
 
 }

@@ -22,18 +22,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelFactory;
-import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.security.AbstractTest;
 import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.IdentificationPrincipal;
@@ -41,13 +37,12 @@ import org.apache.geronimo.security.RealmPrincipal;
 import org.apache.geronimo.security.realm.GenericSecurityRealm;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
-import org.apache.geronimo.testsupport.TestSupport;
 
 
 /**
  * @version $Rev$ $Date$
  */
-public class ConfigurationEntryTest extends TestSupport {
+public class ConfigurationEntryTest extends AbstractTest {
     
     protected Kernel kernel;
     protected AbstractName serverInfo;
@@ -70,7 +65,6 @@ public class ConfigurationEntryTest extends TestSupport {
         LoginContext context = ContextManager.login("properties-realm", new AbstractTest.UsernamePasswordCallback("alan", "starcraft"));
 
         Subject subject = context.getSubject();
-        Subject clientSubject = subject;
         assertTrue("expected non-null client subject", subject != null);
         Set set = subject.getPrincipals(IdentificationPrincipal.class);
         assertEquals("client subject should have one ID principal", set.size(), 1);
@@ -80,7 +74,7 @@ public class ConfigurationEntryTest extends TestSupport {
 
         assertTrue("expected non-null server subject", subject != null);
         assertTrue("server subject should have one remote principal", subject.getPrincipals(IdentificationPrincipal.class).size() == 1);
-        IdentificationPrincipal remote = (IdentificationPrincipal) subject.getPrincipals(IdentificationPrincipal.class).iterator().next();
+        IdentificationPrincipal remote = subject.getPrincipals(IdentificationPrincipal.class).iterator().next();
         assertTrue("server subject should be associated with remote id", ContextManager.getRegisteredSubject(remote.getId()) != null);
         assertTrue("server subject should have two realm principals (" + subject.getPrincipals(RealmPrincipal.class).size() + ")", subject.getPrincipals(RealmPrincipal.class).size() == 2);
         assertTrue("server subject should have seven principals (" + subject.getPrincipals().size() + ")", subject.getPrincipals().size() == 7);
@@ -124,18 +118,18 @@ public class ConfigurationEntryTest extends TestSupport {
 
         // Create all the parts
 
-        gbean = buildGBeanData("name", "ServerInfo", BasicServerInfo.GBEAN_INFO);
+        gbean = buildGBeanData("name", "ServerInfo", BasicServerInfo.class);
         serverInfo = gbean.getAbstractName();
         gbean.setAttribute("baseDirectory", BASEDIR.getAbsolutePath());
         kernel.loadGBean(gbean, ServerInfo.class.getClassLoader());
         kernel.startGBean(serverInfo);
 
-        gbean = buildGBeanData("new", "LoginConfiguration", GeronimoLoginConfiguration.getGBeanInfo());
+        gbean = buildGBeanData("new", "LoginConfiguration", GeronimoLoginConfiguration.class);
         loginConfiguration = gbean.getAbstractName();
         gbean.setReferencePattern("Configurations", new AbstractNameQuery(ConfigurationEntryFactory.class.getName()));
         kernel.loadGBean(gbean, GeronimoLoginConfiguration.class.getClassLoader());
 
-        gbean = buildGBeanData("name", "PropertiesLoginModule", LoginModuleGBean.getGBeanInfo());
+        gbean = buildGBeanData("name", "PropertiesLoginModule", LoginModuleGBean.class);
         testProperties = gbean.getAbstractName();
         gbean.setAttribute("loginModuleClass", "org.apache.geronimo.security.realm.providers.PropertiesFileLoginModule");
         Map<String, Object> props = new HashMap<String, Object>();
@@ -146,13 +140,13 @@ public class ConfigurationEntryTest extends TestSupport {
         gbean.setAttribute("wrapPrincipals", Boolean.TRUE);
         kernel.loadGBean(gbean, LoginModuleGBean.class.getClassLoader());
 
-        gbean = buildGBeanData("name", "GeronimoPasswordCredentialLoginModule", LoginModuleGBean.getGBeanInfo());
+        gbean = buildGBeanData("name", "GeronimoPasswordCredentialLoginModule", LoginModuleGBean.class);
         testUPCred = gbean.getAbstractName();
         gbean.setAttribute("loginModuleClass", "org.apache.geronimo.security.realm.providers.GeronimoPasswordCredentialLoginModule");
         gbean.setAttribute("options", new HashMap<String, Object>());
         kernel.loadGBean(gbean, LoginModuleGBean.class.getClassLoader());
 
-        gbean = buildGBeanData    ("name", "AuditLoginModule", LoginModuleGBean.getGBeanInfo());
+        gbean = buildGBeanData    ("name", "AuditLoginModule", LoginModuleGBean.class);
         testCE = gbean.getAbstractName();
         gbean.setAttribute("loginModuleClass", "org.apache.geronimo.security.realm.providers.FileAuditLoginModule");
         props = new HashMap<String, Object>();
@@ -160,27 +154,27 @@ public class ConfigurationEntryTest extends TestSupport {
         gbean.setAttribute("options", props);
         kernel.loadGBean(gbean, LoginModuleGBean.class.getClassLoader());
 
-        gbean = buildGBeanData("name", "GeronimoPasswordCredentialLoginModuleUse", JaasLoginModuleUse.getGBeanInfo());
+        gbean = buildGBeanData("name", "GeronimoPasswordCredentialLoginModuleUse", JaasLoginModuleUse.class);
         AbstractName testUseName3 = gbean.getAbstractName();
         gbean.setAttribute("controlFlag", LoginModuleControlFlag.REQUIRED);
         gbean.setReferencePattern("LoginModule", testUPCred);
         kernel.loadGBean(gbean, JaasLoginModuleUse.class.getClassLoader());
 
-        gbean = buildGBeanData("name", "AuditLoginModuleUse", JaasLoginModuleUse.getGBeanInfo());
+        gbean = buildGBeanData("name", "AuditLoginModuleUse", JaasLoginModuleUse.class);
         AbstractName testUseName2 = gbean.getAbstractName();
         gbean.setAttribute("controlFlag", LoginModuleControlFlag.REQUIRED);
         gbean.setReferencePattern("LoginModule", testCE);
         gbean.setReferencePattern("Next", testUseName3);
         kernel.loadGBean(gbean, JaasLoginModuleUse.class.getClassLoader());
 
-        gbean = buildGBeanData("name", "PropertiesLoginModuleUse", JaasLoginModuleUse.getGBeanInfo());
+        gbean = buildGBeanData("name", "PropertiesLoginModuleUse", JaasLoginModuleUse.class);
         AbstractName testUseName1 = gbean.getAbstractName();
         gbean.setAttribute("controlFlag", LoginModuleControlFlag.REQUIRED);
         gbean.setReferencePattern("LoginModule", testProperties);
         gbean.setReferencePattern("Next", testUseName2);
         kernel.loadGBean(gbean, JaasLoginModuleUse.class.getClassLoader());
 
-        gbean = buildGBeanData("name", "PropertiesSecurityRealm", GenericSecurityRealm.getGBeanInfo());
+        gbean = buildGBeanData("name", "PropertiesSecurityRealm", GenericSecurityRealm.class);
         testRealm = gbean.getAbstractName();
         gbean.setAttribute("realmName", "properties-realm");
         gbean.setReferencePattern("LoginModuleConfiguration", testUseName1);
@@ -212,16 +206,5 @@ public class ConfigurationEntryTest extends TestSupport {
 
         kernel.shutdown();
     }
-
-    private GBeanData buildGBeanData(String key, String value, GBeanInfo info) throws MalformedObjectNameException {
-          AbstractName abstractName = buildAbstractName(key, value, info);
-          return new GBeanData(abstractName, info);
-      }
-
-      private AbstractName buildAbstractName(String key, String value, GBeanInfo info) throws MalformedObjectNameException {
-          Map names = new HashMap();
-          names.put(key, value);
-          return new AbstractName(new Artifact("test", "foo", "1", "car"), names, new ObjectName("test:" + key + "=" + value));
-      }
 
 }
