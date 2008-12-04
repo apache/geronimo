@@ -120,8 +120,9 @@ public class RunAsTest
         selenium.open(path);
         waitForPageLoad();
         System.out.println("----------------------------------------------");
-        System.out.println(selenium.getText("xpath=/html/body"));
-        assertEquals(expected, selenium.getText("xpath=/html/body"));
+        String result = selenium.getText("xpath=/html/body");
+        System.out.println(result);
+        assertEquals("expected:\n" + expected + "\n\nresult:\n" + result,expected, result);
     }
 
 }
