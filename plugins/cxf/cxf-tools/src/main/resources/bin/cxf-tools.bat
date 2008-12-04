@@ -19,15 +19,13 @@
 @REM --------------------------------------------------------------------
 
 @REM ---------------------------------------------------------------------------
-@REM Deploy batch file for Geronimo
-@REM
 @REM You should not have to edit this file.  If you wish to have
 @REM environment variables set each time you run this batch file
 @REM refer to the information on the setenv.bat file below.
 @REM
 @REM Invocation Syntax:
 @REM
-@REM   deploy [general options] command [command options]
+@REM   cxf-tools [general options] command [command options]
 @REM
 @REM   For detailed usage information, just run deploy without
 @REM   arguments.
@@ -38,16 +36,12 @@
 @REM                   If not specified, this batch file will attempt to
 @REM                   discover it relative to the location of this file.
 @REM
-@REM   GERONIMO_BASE   (Optional) Base directory for resolving dynamic portions
-@REM                   of a Geronimo installation.  If not present, resolves to
-@REM                   the same directory that GERONIMO_HOME points to.
-@REM
 @REM   GERONIMO_OPTS   (Optional) Java runtime options (in addition to
 @REM                   those set in JAVA_OPTS).
 @REM
 @REM   GERONIMO_TMPDIR (Optional) Directory path location of temporary directory
 @REM                   the JVM should use (java.io.tmpdir).  Defaults to
-@REM                   %GERONIMO_BASE%\var\temp.
+@REM                   var\temp (resolved to server instance directory).
 @REM
 @REM   JAVA_HOME       Points to your Java Development Kit installation.
 @REM                   JAVA_HOME doesn't need to be set if JRE_HOME is set.
@@ -73,7 +67,7 @@
 @REM
 @REM   GERONIMO_ENV_INFO    (Optional) Environment variable that when set to
 @REM                        "on" (the default) outputs the values of
-@REM                        GERONIMO_HOME, GERONIMO_BASE, GERONIMO_TMPDIR,
+@REM                        GERONIMO_HOME, GERONIMO_TMPDIR,
 @REM                        JAVA_HOME and JRE_HOME before the command is
 @REM                        issued. Set to "off" if you do not want this
 @REM                        information displayed.
@@ -145,17 +139,12 @@ set BASEDIR=%GERONIMO_HOME%
 call "%GERONIMO_HOME%\bin\setJavaEnv.bat"
 if not %errorlevel% == 0 goto end
 
-if not "%GERONIMO_BASE%" == "" goto gotBase
-set GERONIMO_BASE=%GERONIMO_HOME%
-:gotBase
-
 if not "%GERONIMO_TMPDIR%" == "" goto gotTmpdir
 set GERONIMO_TMPDIR=var\temp
 :gotTmpdir
 
 @REM ----- Execute The Requested Command ---------------------------------------
 @if "%GERONIMO_ENV_INFO%" == "off" goto skipEnvInfo
-echo Using GERONIMO_BASE:   %GERONIMO_BASE%
 echo Using GERONIMO_HOME:   %GERONIMO_HOME%
 echo Using GERONIMO_TMPDIR: %GERONIMO_TMPDIR%
 if "%_REQUIRE_JDK%" == "1" echo Using JAVA_HOME:       %JAVA_HOME%
@@ -167,7 +156,7 @@ if "%_REQUIRE_JDK%" == "0" echo Using JRE_HOME:        %JRE_HOME%
 set CMD_LINE_ARGS=%*
 set _JARFILE="%GERONIMO_HOME%"\bin\cxf-tools.jar
 
-%_RUNJAVA% %JAVA_OPTS% %GERONIMO_OPTS% -Dorg.apache.geronimo.base.dir="%GERONIMO_BASE%" -Djava.io.tmpdir="%GERONIMO_TMPDIR%" -jar %_JARFILE% %CMD_LINE_ARGS%
+%_RUNJAVA% %JAVA_OPTS% %GERONIMO_OPTS% -Dorg.apache.geronimo.home.dir="%GERONIMO_HOME%" -Djava.io.tmpdir="%GERONIMO_TMPDIR%" -jar %_JARFILE% %CMD_LINE_ARGS%
 goto end
 
 :end

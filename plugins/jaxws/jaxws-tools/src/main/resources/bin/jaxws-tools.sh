@@ -20,15 +20,13 @@
 # --------------------------------------------------------------------
 
 # -----------------------------------------------------------------------------
-# Deploy Script for the Geronimo Server
-#
 # You should not have to edit this file.  If you wish to have environment
 # variables set each time you run this script refer to the information
 # on the setenv.sh script that is called by this script below. 
 #
 # Invocation Syntax:
 #
-#   deploy.sh [general options] command [command options] 
+#   jaxws-tools.sh [general options] command [command options] 
 #
 #   For detailed command usage information, just run deploy.sh without any 
 #   arguments.
@@ -39,15 +37,11 @@
 #                   If not specified, it will default to the parent directory
 #                   of the location of this script.
 #
-#   GERONIMO_BASE   (Optional) Base directory for resolving dynamic portions
-#                   of a Geronimo installation.  If not present, resolves to
-#                   the same directory that GERONIMO_HOME points to.
-#
 #   GERONIMO_OPTS   (Optional) Java runtime options.
 #
 #   GERONIMO_TMPDIR (Optional) Directory path location of temporary directory
-#                   the JVM should use (java.io.tmpdir).
-#                   Defaults to $GERONIMO_BASE/var/temp.
+#                   the JVM should use (java.io.tmpdir). Defaults to var/temp
+#                   (resolved to server instance directory).
 #
 #   JAVA_HOME       Points to your Java Development Kit installation.
 #                   JAVA_HOME doesn't need to be set if JRE_HOME is set.
@@ -64,7 +58,7 @@
 #
 #  GERONIMO_ENV_INFO    (Optional) Environment variable that when set to
 #                       "on" (the default) outputs the 
-#                       values of GERONIMO_HOME, GERONIMO_BASE, 
+#                       values of GERONIMO_HOME, 
 #                       GERONIMO_TMPDIR, JAVA_HOME, JRE_HOME before
 #                       the command is issued. Set to "off" if you
 #                       do want to see this information.
@@ -125,7 +119,6 @@ if $cygwin; then
   [ -n "$JAVA_HOME" ] && JAVA_HOME=`cygpath --unix "$JAVA_HOME"`
   [ -n "$JRE_HOME" ] && JRE_HOME=`cygpath --unix "$JRE_HOME"`
   [ -n "$GERONIMO_HOME" ] && GERONIMO_HOME=`cygpath --unix "$GERONIMO_HOME"`
-  [ -n "$GERONIMO_BASE" ] && GERONIMO_BASE=`cygpath --unix "$GERONIMO_BASE"`
 fi
 
 # For OS400
@@ -161,10 +154,6 @@ else
   fi
 fi
 
-if [ -z "$GERONIMO_BASE" ] ; then
-  GERONIMO_BASE="$GERONIMO_HOME"
-fi
-
 if [ -z "$GERONIMO_TMPDIR" ] ; then
   # Define the java.io.tmpdir to use for Geronimo
   GERONIMO_TMPDIR=var/temp
@@ -175,13 +164,11 @@ if $cygwin; then
   JAVA_HOME=`cygpath --absolute --windows "$JAVA_HOME"`
   JRE_HOME=`cygpath --absolute --windows "$JRE_HOME"`
   GERONIMO_HOME=`cygpath --absolute --windows "$GERONIMO_HOME"`
-  GERONIMO_BASE=`cygpath --absolute --windows "$GERONIMO_BASE"`
   GERONIMO_TMPDIR=`cygpath --absolute --windows "$GERONIMO_TMPDIR"`
 fi
 
 # ----- Execute The Requested Command -----------------------------------------
 if [ "$GERONIMO_ENV_INFO" != "off" ] ; then
-  echo "Using GERONIMO_BASE:   $GERONIMO_BASE"
   echo "Using GERONIMO_HOME:   $GERONIMO_HOME"
   echo "Using GERONIMO_TMPDIR: $GERONIMO_TMPDIR"
   if [ "$1" = "debug" ] ; then
@@ -193,6 +180,6 @@ if [ "$GERONIMO_ENV_INFO" != "off" ] ; then
 fi
 
 exec "$_RUNJAVA" $JAVA_OPTS $GERONIMO_OPTS \
-  -Dorg.apache.geronimo.base.dir="$GERONIMO_BASE" \
+  -Dorg.apache.geronimo.home.dir="$GERONIMO_HOME" \
   -Djava.io.tmpdir="$GERONIMO_TMPDIR" \
   -jar "$GERONIMO_HOME"/bin/jaxws-tools.jar "$@" 

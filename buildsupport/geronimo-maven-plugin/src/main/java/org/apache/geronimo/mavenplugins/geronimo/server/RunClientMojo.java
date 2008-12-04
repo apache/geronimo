@@ -122,7 +122,7 @@ public class RunClientMojo extends ReportingMojoSupport
         }
 
         // Set the properties which we pass to the JVM from the startup script
-        setSystemProperty(java, "org.apache.geronimo.base.dir", geronimoHome);
+        setSystemProperty(java, "org.apache.geronimo.home.dir", geronimoHome);
         setSystemProperty(java, "java.io.tmpdir", "var/temp");
         setSystemProperty(java, "java.endorsed.dirs", prefixSystemPath("java.endorsed.dirs", new File(geronimoHome, "lib/endorsed")));
         setSystemProperty(java, "java.ext.dirs", prefixSystemPath("java.ext.dirs", new File(geronimoHome, "lib/ext")));

@@ -45,24 +45,20 @@
 #                   If not specified, it will default to the parent directory
 #                   of the location of this script.
 #
-#   GERONIMO_BASE   (Optional) Base directory for resolving dynamic portions
-#                   of a Geronimo installation.  If not present, resolves to
-#                   the same directory that GERONIMO_HOME points to.
-#
 #   GERONIMO_OPTS   (Optional) Java runtime options used when the "start",
 #                   "stop", or "run" command is executed.
 #
 #   GERONIMO_OUT    (Optional) File that Geronimo's stdout and stderr streams
 #                   will be redirected to if Geronimo is started in the
 #                   background.
-#                   Defaults to $GERONIMO_BASE/var/log/geronimo.out
+#                   Defaults to $GERONIMO_HOME/var/log/geronimo.out
 #
 #   GERONIMO_PID    (Optional) Path of the file which should contains the pid
 #                   of the Geronimo java process, when start (fork) is used
 #
 #   GERONIMO_TMPDIR (Optional) Directory path location of temporary directory
-#                   the JVM should use (java.io.tmpdir).
-#                   Defaults to $GERONIMO_BASE/var/temp.
+#                   the JVM should use (java.io.tmpdir). Defaults to var/temp 
+#                   (resolved to server instance directory).
 #
 #   JAVA_HOME       Points to your Java Development Kit installation.
 #                   JAVA_HOME doesn't need to be set if JRE_HOME is set
@@ -109,7 +105,7 @@
 #
 #  GERONIMO_ENV_INFO (Optional) Environment variable that when set to "on"
 #                    (the default) outputs the values of the GERONIMO_HOME,
-#                    GERONIMO_BASE, GERONIMO_TMPDIR, JAVA_HOME and
+#                    GERONIMO_TMPDIR, JAVA_HOME and
 #                    JRE_HOME before the command is issued. Set to "off"
 #                    if you do not want this information displayed.
 #
@@ -170,7 +166,6 @@ if $cygwin; then
   [ -n "$JRE_HOME" ] && JRE_HOME=`cygpath --unix "$JRE_HOME"`
   [ -n "$JDB_SRCPATH" ] && JDB_SRCPATH=`cygpath --unix "$JDB_SRCPATH"`
   [ -n "$GERONIMO_HOME" ] && GERONIMO_HOME=`cygpath --unix "$GERONIMO_HOME"`
-  [ -n "$GERONIMO_BASE" ] && GERONIMO_BASE=`cygpath --unix "$GERONIMO_BASE"`
 fi
 
 # For OS400
@@ -206,10 +201,6 @@ else
   fi
 fi
 
-if [ -z "$GERONIMO_BASE" ] ; then
-  GERONIMO_BASE="$GERONIMO_HOME"
-fi
-
 if [ -z "$GERONIMO_TMPDIR" ] ; then
   # Define the java.io.tmpdir to use for Geronimo
   # A relative value will be resolved relative to each instance
@@ -219,7 +210,7 @@ fi
 if [ -z "$GERONIMO_OUT" ] ; then
   # Define the output file we are to redirect both stdout and stderr to
   # when Geronimo is started in the background
-  GERONIMO_OUT="$GERONIMO_BASE"/var/log/geronimo.out
+  GERONIMO_OUT="$GERONIMO_HOME"/var/log/geronimo.out
 fi
 
 if [ -z "$JDB_SRCPATH" ] ; then
@@ -233,7 +224,6 @@ if $cygwin; then
   JRE_HOME=`cygpath --absolute --windows "$JRE_HOME"`
   JDB_SRCPATH=`cygpath --absolute --windows "$JDB_SRCPATH"`
   GERONIMO_HOME=`cygpath --absolute --windows "$GERONIMO_HOME"`
-  GERONIMO_BASE=`cygpath --absolute --windows "$GERONIMO_BASE"`
   GERONIMO_TMPDIR=`cygpath --windows "$GERONIMO_TMPDIR"`
   EXT_DIRS="$GERONIMO_HOME/lib/ext;$JRE_HOME/lib/ext"
   ENDORSED_DIRS="$GERONIMO_HOME/lib/endorsed;$JRE_HOME/lib/endorsed"
@@ -244,7 +234,6 @@ fi
 
 # ----- Execute The Requested Command -----------------------------------------
 if [ "$GERONIMO_ENV_INFO" != "off" ] ; then
-  echo "Using GERONIMO_BASE:   $GERONIMO_BASE"
   echo "Using GERONIMO_HOME:   $GERONIMO_HOME"
   echo "Using GERONIMO_TMPDIR: $GERONIMO_TMPDIR"
   if [ "$1" = "debug" ] ; then
@@ -305,7 +294,7 @@ if [ "$1" = "debug" ] ; then
       -sourcepath "$JDB_SRCPATH" \
       -Djava.endorsed.dirs="$ENDORSED_DIRS" \
       -Djava.ext.dirs="$EXT_DIRS" \
-      -Dorg.apache.geronimo.base.dir="$GERONIMO_BASE" \
+      -Dorg.apache.geronimo.home.dir="$GERONIMO_HOME" \
       -Djava.io.tmpdir="$GERONIMO_TMPDIR" \
       -classpath "$GERONIMO_HOME"/bin/server.jar \
       org.apache.geronimo.cli.daemon.DaemonCLI $LONG_OPT "$@"
@@ -315,7 +304,7 @@ elif [ "$1" = "run" ]; then
   shift
   exec "$_RUNJAVA" $JAVA_OPTS $GERONIMO_OPTS \
     $JAVA_AGENT_OPTS \
-    -Dorg.apache.geronimo.base.dir="$GERONIMO_BASE" \
+    -Dorg.apache.geronimo.home.dir="$GERONIMO_HOME" \
     -Djava.endorsed.dirs="$ENDORSED_DIRS" \
     -Djava.ext.dirs="$EXT_DIRS" \
     -Djava.io.tmpdir="$GERONIMO_TMPDIR" \
@@ -326,7 +315,7 @@ elif [ "$1" = "start" ] ; then
   touch "$GERONIMO_OUT"
   $START_OS_CMD "$_RUNJAVA" $JAVA_OPTS $GERONIMO_OPTS \
     $JAVA_AGENT_OPTS \
-    -Dorg.apache.geronimo.base.dir="$GERONIMO_BASE" \
+    -Dorg.apache.geronimo.home.dir="$GERONIMO_HOME" \
     -Djava.endorsed.dirs="$ENDORSED_DIRS" \
     -Djava.ext.dirs="$EXT_DIRS" \
     -Djava.io.tmpdir="$GERONIMO_TMPDIR" \
@@ -349,7 +338,7 @@ elif [ "$1" = "stop" ] ; then
   fi
 
   "$_RUNJAVA" $JAVA_OPTS $GERONIMO_OPTS \
-    -Dorg.apache.geronimo.base.dir="$GERONIMO_BASE" \
+    -Dorg.apache.geronimo.home.dir="$GERONIMO_HOME" \
     -Djava.endorsed.dirs="$ENDORSED_DIRS" \
     -Djava.ext.dirs="$EXT_DIRS" \
     -Djava.io.tmpdir="$GERONIMO_TMPDIR" \

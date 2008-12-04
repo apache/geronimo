@@ -44,17 +44,13 @@
 @REM                   If not specified, this batch file will attempt to
 @REM                   discover it relative to the location of this file.
 @REM
-@REM   GERONIMO_BASE   (Optional) Base directory for resolving dynamic portions
-@REM                   of a Geronimo installation.  If not present, resolves to
-@REM                   the same directory that GERONIMO_HOME points to.
-@REM
 @REM   GERONIMO_OPTS   (Optional) Java runtime options (in addition to
 @REM                   those set in JAVA_OPTS) used when the "start",
 @REM                   "stop", or "run" command is executed.
 @REM
 @REM   GERONIMO_TMPDIR (Optional) Directory path location of temporary directory
 @REM                   the JVM should use (java.io.tmpdir).  Defaults to
-@REM                   %GERONIMO_BASE%\var\temp.
+@REM                   var\temp (resolved to server instance directory).
 @REM
 @REM   GERONIMO_WIN_START_ARGS  (Optional) additional arguments to the Windows
 @REM                            START command when the "start" command
@@ -109,7 +105,7 @@
 @REM
 @REM   GERONIMO_ENV_INFO    (Optional) Environment variable that when set to
 @REM                        "on" (the default) outputs the values of
-@REM                        GERONIMO_HOME, GERONIMO_BASE, GERONIMO_TMPDIR,
+@REM                        GERONIMO_HOME, GERONIMO_TMPDIR,
 @REM                        JAVA_HOME and JRE_HOME before the command is
 @REM                        issued. Set to "off" if you do not want this
 @REM                        information displayed.
@@ -182,12 +178,6 @@ set BASEDIR=%GERONIMO_HOME%
 call "%GERONIMO_HOME%\bin\setJavaEnv.bat"
 if not %errorlevel% == 0 goto end
 
-if not "%GERONIMO_BASE%" == "" goto gotBase
-@REM GERONIMO_BASE is used by lib and endorsed which are currently shared
-set GERONIMO_BASE=%GERONIMO_HOME%
-
-:gotBase
-
 if not "%GERONIMO_TMPDIR%" == "" goto gotTmpdir
 @REM A relative value will be resolved relative to each instance 
 set GERONIMO_TMPDIR=var\temp
@@ -223,7 +213,6 @@ shift
 
 @REM ----- Execute The Requested Command ---------------------------------------
 @if "%GERONIMO_ENV_INFO%" == "off" goto skipEnvInfo
-echo Using GERONIMO_BASE:   %GERONIMO_BASE%
 echo Using GERONIMO_HOME:   %GERONIMO_HOME%
 echo Using GERONIMO_TMPDIR: %GERONIMO_TMPDIR%
 if "%_REQUIRE_JDK%" == "1" echo Using JAVA_HOME:       %JAVA_HOME%
@@ -317,11 +306,11 @@ if exist "%JAVA_AGENT_JAR%" set JAVA_AGENT_OPTS=-javaagent:"%JAVA_AGENT_JAR%"
 
 @REM Execute Java with the applicable properties
 if not "%JDB%" == "" goto doJDB
-%_EXECJAVA% %JAVA_OPTS% %GERONIMO_OPTS% %JAVA_AGENT_OPTS% -Djava.endorsed.dirs="%GERONIMO_HOME%\lib\endorsed;%JRE_HOME%\lib\endorsed" -Djava.ext.dirs="%GERONIMO_HOME%\lib\ext;%JRE_HOME%\lib\ext" -Dorg.apache.geronimo.base.dir="%GERONIMO_BASE%" -Djava.io.tmpdir="%GERONIMO_TMPDIR%" -jar %_JARFILE% %_LONG_OPT% %CMD_LINE_ARGS%
+%_EXECJAVA% %JAVA_OPTS% %GERONIMO_OPTS% %JAVA_AGENT_OPTS% -Djava.endorsed.dirs="%GERONIMO_HOME%\lib\endorsed;%JRE_HOME%\lib\endorsed" -Djava.ext.dirs="%GERONIMO_HOME%\lib\ext;%JRE_HOME%\lib\ext" -Dorg.apache.geronimo.home.dir="%GERONIMO_HOME%" -Djava.io.tmpdir="%GERONIMO_TMPDIR%" -jar %_JARFILE% %_LONG_OPT% %CMD_LINE_ARGS%
 goto end
 
 :doJDB
-%_EXECJAVA% %JAVA_OPTS% %GERONIMO_OPTS% -sourcepath "%JDB_SRCPATH%" -Djava.endorsed.dirs="%GERONIMO_HOME%\lib\endorsed;%JRE_HOME%\lib\endorsed" -Djava.ext.dirs="%GERONIMO_HOME%\lib\ext;%JRE_HOME%\lib\ext" -Dorg.apache.geronimo.base.dir="%GERONIMO_BASE%" -Djava.io.tmpdir="%GERONIMO_TMPDIR%" -classpath %_JARFILE% %MAINCLASS% %CMD_LINE_ARGS%
+%_EXECJAVA% %JAVA_OPTS% %GERONIMO_OPTS% -sourcepath "%JDB_SRCPATH%" -Djava.endorsed.dirs="%GERONIMO_HOME%\lib\endorsed;%JRE_HOME%\lib\endorsed" -Djava.ext.dirs="%GERONIMO_HOME%\lib\ext;%JRE_HOME%\lib\ext" -Dorg.apache.geronimo.home.dir="%GERONIMO_HOME%" -Djava.io.tmpdir="%GERONIMO_TMPDIR%" -classpath %_JARFILE% %MAINCLASS% %CMD_LINE_ARGS%
 goto end
 
 :end
