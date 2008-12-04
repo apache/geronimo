@@ -22,6 +22,7 @@
         xmlns="http://www.openejb.org/xml/ns/openejb-jar-2.1"
         xmlns:sec="http://geronimo.apache.org/xml/ns/security-2.0"
         xmlns:sys="http://geronimo.apache.org/xml/ns/deployment-1.2"
+        xmlns:nam="http://geronimo.apache.org/xml/ns/naming-1.2"
         xmlns:cs="http://geronimo.apache.org/xml/ns/credentialstore-1.0">
 
 
@@ -37,7 +38,7 @@
             <sys:name>monitoring-credential-store</sys:name>
         </sec:credential-store-ref>
         <sec:default-subject>
-            <sec:realm>geronimo-admin</sec:realm>
+            <sec:realm>monitoring-runas-realm</sec:realm>
             <sec:id>monitoring-user</sec:id>
         </sec:default-subject>
         <sec:role-mappings>
@@ -58,20 +59,43 @@
     <sys:gbean name="monitoring-credential-store" class="org.apache.geronimo.security.credentialstore.SimpleCredentialStoreImpl">
         <sys:xml-attribute name="credentialStore">
             <cs:credential-store>
-                <cs:realm name="geronimo-admin">
+                <cs:realm name="monitoring-runas-realm">
                     <cs:subject>
                         <cs:id>monitoring-user</cs:id>
                         <cs:credential>
                             <cs:type>org.apache.geronimo.security.credentialstore.NameCallbackHandler</cs:type>
-                            <cs:value>system</cs:value>
-                        </cs:credential>
-                        <cs:credential>
-                            <cs:type>org.apache.geronimo.security.credentialstore.PasswordCallbackHandler</cs:type>
-                            <cs:value>manager</cs:value>
+                            <cs:value>admin</cs:value>
                         </cs:credential>
                     </cs:subject>
                 </cs:realm>
             </cs:credential-store>
         </sys:xml-attribute>
+        <sys:reference name="Realms">
+            <sys:name>monitoring-runas-realm</sys:name>
+        </sys:reference>
+        <sys:dependency>
+            <nam:name>monitoring-runas-realm</nam:name>
+        </sys:dependency>
     </sys:gbean>
+
+    <gbean name="monitoring-runas-realm"
+        class="org.apache.geronimo.security.realm.GenericSecurityRealm">
+        <attribute name="realmName">monitoring-runas-realm</attribute>
+        <attribute name="publish">false</attribute>
+        <xml-reference name="LoginModuleConfiguration">
+            <lc:login-config xmlns:lc="http://geronimo.apache.org/xml/ns/loginconfig-1.2">
+                <lc:login-module control-flag="REQUIRED">
+                    <lc:login-domain-name>monitoring-runas-domain</lc:login-domain-name>
+                    <lc:login-module-class>org.apache.geronimo.security.credentialstore.RunAsLoginModule</lc:login-module-class>
+                    <lc:option name="principalClass">org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal</lc:option>
+                    <lc:option name="principalNames">admin</lc:option>
+                </lc:login-module>
+            </lc:login-config>
+        </xml-reference>
+        <!--<reference name="ServerInfo">-->
+            <!--<name>ServerInfo</name>-->
+        <!--</reference>-->
+    </gbean>
+
+    
 </openejb-jar>
