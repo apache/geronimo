@@ -175,28 +175,22 @@ public class EJBMessageReceiver implements MessageReceiver
     }
     
     private Class<?> getProviderType() {
-        Class providerType = null;
-
         Type[] giTypes = this.serviceImplClass.getGenericInterfaces();
         for (Type giType : giTypes) {
-            ParameterizedType paramType = null;
-            try {
-                paramType = (ParameterizedType)giType;
-            } catch (ClassCastException e) {
-                throw ExceptionFactory.makeWebServiceException(
-                        "Provider based SEI Class has to implement javax.xml.ws.Provider as javax.xml.ws.Provider<String>, javax.xml.ws.Provider<SOAPMessage>, javax.xml.ws.Provider<Source> or javax.xml.ws.Provider<JAXBContext>");
-            }
-            Class interfaceName = (Class)paramType.getRawType();
-
-            if (interfaceName == javax.xml.ws.Provider.class) {
-                if (paramType.getActualTypeArguments().length > 1) {
-                    throw ExceptionFactory.makeWebServiceException(
-                            "Provider cannot have more than one Generic Types defined as Per JAX-WS Specification");
+            if (giType instanceof ParameterizedType) {
+                ParameterizedType paramType = (ParameterizedType)giType;            
+                Class interfaceName = (Class)paramType.getRawType();
+                if (interfaceName == javax.xml.ws.Provider.class) {
+                    if (paramType.getActualTypeArguments().length > 1) {
+                        throw ExceptionFactory.makeWebServiceException(
+                            "Provider cannot have more than one Generic Types defined as per JAX-WS Specification");
+                    }
                 }
-                providerType = (Class)paramType.getActualTypeArguments()[0];
+                return (Class)paramType.getActualTypeArguments()[0];                            
             }
         }
-        return providerType;
+        throw ExceptionFactory.makeWebServiceException(
+            "Provider has to implement javax.xml.ws.Provider interface as javax.xml.ws.Provider<DataSource>, javax.xml.ws.Provider<SOAPMessage>, javax.xml.ws.Provider<Source> or javax.xml.ws.Provider<JAXBContext>");
     }
     
 }
