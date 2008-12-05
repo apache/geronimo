@@ -40,6 +40,7 @@ public class ClassLoadingRulesUtilTest extends TestCase {
         environmentType.setInverseClassloading(EmptyType.Factory.newInstance());
         environmentType.setHiddenClasses(newFilter("hidden"));
         environmentType.setNonOverridableClasses(newFilter("nonOverrideable"));
+        environmentType.setPrivateClasses(newFilter("private"));
         
         ClassLoadingRules classLoadingRules = new ClassLoadingRules();
         ClassLoadingRulesUtil.configureRules(classLoadingRules, environmentType);
@@ -47,6 +48,7 @@ public class ClassLoadingRulesUtilTest extends TestCase {
         assertTrue(classLoadingRules.isInverseClassLoading());
         assertPrefix(classLoadingRules.getHiddenRule(), "hidden");
         assertPrefix(classLoadingRules.getNonOverrideableRule(), "nonOverrideable");
+        assertPrefix(classLoadingRules.getPrivateRule(), "private");
     }
 
     private void assertPrefix(ClassLoadingRule classLoadingRule, String filter) {

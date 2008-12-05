@@ -48,6 +48,11 @@ public final class ClassLoadingRulesUtil {
             ClassLoadingRule nonOverrideableRule = classLoadingRules.getNonOverrideableRule();
             nonOverrideableRule.setClassPrefixes(toFilters(environmentType.getNonOverridableClasses()));
         }
+        
+        if (null != environmentType.getPrivateClasses()) {
+            ClassLoadingRule privateRule = classLoadingRules.getPrivateRule();
+            privateRule.setClassPrefixes(toFilters(environmentType.getPrivateClasses()));
+        }
     }
    
     private static Set<String> toFilters(ClassFilterType filterType) {

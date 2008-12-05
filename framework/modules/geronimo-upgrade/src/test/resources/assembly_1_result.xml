@@ -34,6 +34,7 @@
         </dep:dependencies>
         <dep:hidden-classes/>
         <dep:non-overridable-classes/>
+        <dep:private-classes/>
     </dep:environment>
     <module>
         <java>assembly_compat_standalone_jar_compat12_13_client.jar</java>
@@ -55,6 +56,7 @@
                 </dep:dependencies>
                 <dep:hidden-classes/>
                 <dep:non-overridable-classes/>
+                <dep:private-classes/>
             </dep:client-environment>
             <dep:server-environment xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.2">
                 <dep:moduleId>
@@ -66,6 +68,7 @@
                 <dep:dependencies/>
                 <dep:hidden-classes/>
                 <dep:non-overridable-classes/>
+                <dep:private-classes/>
             </dep:server-environment>
             <ejb-ref>
                 <ref-name>ejb/TestBean</ref-name>

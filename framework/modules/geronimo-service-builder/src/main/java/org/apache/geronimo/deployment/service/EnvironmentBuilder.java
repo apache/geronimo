@@ -33,10 +33,10 @@ import org.apache.geronimo.common.propertyeditor.PropertyEditorException;
 import org.apache.geronimo.deployment.xbeans.ArtifactType;
 import org.apache.geronimo.deployment.xbeans.ClassFilterType;
 import org.apache.geronimo.deployment.xbeans.DependenciesType;
-import org.apache.geronimo.deployment.xbeans.DependencyType;
 import org.apache.geronimo.deployment.xbeans.EnvironmentDocument;
 import org.apache.geronimo.deployment.xbeans.EnvironmentType;
 import org.apache.geronimo.deployment.xbeans.ImportType;
+import org.apache.geronimo.deployment.xbeans.DependencyType;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ClassLoadingRule;
 import org.apache.geronimo.kernel.repository.ClassLoadingRules;
@@ -123,6 +123,9 @@ public class EnvironmentBuilder extends PropertyEditorSupport implements XmlAttr
         classLoadingRule = classLoadingRules.getNonOverrideableRule();
         environmentType.setNonOverridableClasses(toFilterType(classLoadingRule.getClassPrefixes()));
 
+        classLoadingRule = classLoadingRules.getPrivateRule();
+        environmentType.setPrivateClasses(toFilterType(classLoadingRule.getClassPrefixes()));
+        
         return environmentType;
     }
 
