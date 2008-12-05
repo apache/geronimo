@@ -48,7 +48,6 @@ import org.apache.axis2.engine.MessageReceiver;
 import org.apache.axis2.jaxws.description.DescriptionFactory;
 import org.apache.axis2.jaxws.description.EndpointDescription;
 import org.apache.axis2.jaxws.description.ServiceDescription;
-import org.apache.axis2.jaxws.description.builder.BindingTypeAnnot;
 import org.apache.axis2.jaxws.description.builder.DescriptionBuilderComposite;
 import org.apache.axis2.jaxws.description.builder.MethodDescriptionComposite;
 import org.apache.axis2.jaxws.description.builder.WebServiceAnnot;
@@ -58,12 +57,12 @@ import org.apache.axis2.jaxws.description.builder.WsdlGenerator;
 import org.apache.axis2.jaxws.description.builder.converter.JavaClassToDBCConverter;
 import org.apache.axis2.jaxws.server.JAXWSMessageReceiver;
 import org.apache.axis2.wsdl.WSDLUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.geronimo.axis2.util.SimpleWSDLLocator;
 import org.apache.geronimo.jaxws.JAXWSUtils;
 import org.apache.geronimo.jaxws.PortInfo;
 import org.apache.ws.commons.schema.utils.NamespaceMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @version $Rev$ $Date$
@@ -151,30 +150,11 @@ public class AxisServiceGenerator
             throw new Exception("Port '" + portQName.getLocalPart() + "' not found in WSDL");
         }
         
-        Binding binding = port.getBinding();
-        List extElements = binding.getExtensibilityElements();
-        Iterator extElementsIterator =extElements.iterator();
-        String  bindingS = javax.xml.ws.soap.SOAPBinding.SOAP11HTTP_BINDING; //this is the default.
-        while (extElementsIterator.hasNext()) {
-            Object o = extElementsIterator.next();
-            if (o instanceof SOAPBinding) {
-                SOAPBinding sp = (SOAPBinding)o;
-                if (sp.getElementType().getNamespaceURI().equals("http://schemas.xmlsoap.org/wsdl/soap/")) {
-                    //todo:  how to we tell if it is MTOM or not.
-                    bindingS = javax.xml.ws.soap.SOAPBinding.SOAP11HTTP_BINDING;
-                } 
-            } else if (o instanceof SOAP12Binding) {
-                SOAP12Binding sp = (SOAP12Binding)o;
-                if (sp.getElementType().getNamespaceURI().equals("http://schemas.xmlsoap.org/wsdl/soap12/")) {
-                   //todo:  how to we tell if it is MTOM or not.
-                    bindingS = javax.xml.ws.soap.SOAPBinding.SOAP12HTTP_BINDING;
-                }
-            } else if (o instanceof HTTPBinding) {
-                HTTPBinding sp = (HTTPBinding)o;
-                if (sp.getElementType().getNamespaceURI().equals("http://schemas.xmlsoap.org/wsdl/http/")) {
-                    bindingS = javax.xml.ws.http.HTTPBinding.HTTP_BINDING;
-                }               
-            }
+        String protocolBinding = null;
+        if (portInfo.getProtocolBinding() != null) {
+            protocolBinding = JAXWSUtils.getBindingURI(portInfo.getProtocolBinding());
+        } else {
+            protocolBinding = getBindingFromWSDL(port);
         }
         
         Class endPointClass = classLoader.loadClass(endpointClassName);
@@ -192,21 +172,19 @@ public class AxisServiceGenerator
             serviceAnnot.setPortName(portQName.getLocalPart());
             serviceAnnot.setServiceName(serviceQName.getLocalPart());
             serviceAnnot.setTargetNamespace(serviceQName.getNamespaceURI());
-            if (dbc.getBindingTypeAnnot() !=null && bindingS != null && !bindingS.equals("")) {
-                BindingTypeAnnot bindingAnnot = dbc.getBindingTypeAnnot();
-                bindingAnnot.setValue(bindingS);
-            }
+            processServiceBinding(dbc, protocolBinding);
         } else if (dbc.getWebServiceProviderAnnot() != null) { 
             WebServiceProviderAnnot serviceProviderAnnot = dbc.getWebServiceProviderAnnot(); 
             serviceProviderAnnot.setPortName(portQName.getLocalPart());
             serviceProviderAnnot.setServiceName(serviceQName.getLocalPart());
             serviceProviderAnnot.setTargetNamespace(serviceQName.getNamespaceURI());
-            if (dbc.getBindingTypeAnnot() !=null && bindingS != null && !bindingS.equals("")) {
-                BindingTypeAnnot bindingAnnot = dbc.getBindingTypeAnnot();
-                bindingAnnot.setValue(bindingS);
-            }
+            processServiceBinding(dbc, protocolBinding);
         }
 
+        if (portInfo.isMTOMEnabled() != null) {
+            dbc.setIsMTOMEnabled(portInfo.isMTOMEnabled().booleanValue());
+        }
+        
         AxisService service = getService(dbcMap);       
         
         service.setName(serviceQName.getLocalPart());
@@ -227,6 +205,54 @@ public class AxisServiceGenerator
         }
 
         return service;
+    }
+
+    private String getBindingFromWSDL(Port port) {        
+        Binding binding = port.getBinding();
+        List extElements = binding.getExtensibilityElements();
+        Iterator extElementsIterator = extElements.iterator();
+        String bindingS = javax.xml.ws.soap.SOAPBinding.SOAP11HTTP_BINDING; //this is the default.
+        while (extElementsIterator.hasNext()) {
+            Object o = extElementsIterator.next();
+            if (o instanceof SOAPBinding) {
+                SOAPBinding sp = (SOAPBinding)o;
+                if (sp.getElementType().getNamespaceURI().equals("http://schemas.xmlsoap.org/wsdl/soap/")) {
+                    bindingS = javax.xml.ws.soap.SOAPBinding.SOAP11HTTP_BINDING;
+                } 
+            } else if (o instanceof SOAP12Binding) {
+                SOAP12Binding sp = (SOAP12Binding)o;
+                if (sp.getElementType().getNamespaceURI().equals("http://schemas.xmlsoap.org/wsdl/soap12/")) {
+                    bindingS = javax.xml.ws.soap.SOAPBinding.SOAP12HTTP_BINDING;
+                }
+            } else if (o instanceof HTTPBinding) {
+                HTTPBinding sp = (HTTPBinding)o;
+                if (sp.getElementType().getNamespaceURI().equals("http://schemas.xmlsoap.org/wsdl/http/")) {
+                    bindingS = javax.xml.ws.http.HTTPBinding.HTTP_BINDING;
+                }               
+            }
+        }
+        return bindingS;
+    }
+
+    private void processServiceBinding(DescriptionBuilderComposite dbc, String bindingFromWSDL) {
+        if (dbc.getBindingTypeAnnot() == null || bindingFromWSDL == null || bindingFromWSDL.length() == 0) {
+            return;
+        }
+        String bindingFromAnnotation = dbc.getBindingTypeAnnot().value();
+        if (bindingFromAnnotation.equals(bindingFromWSDL)) {
+            return;
+        }
+        if (bindingFromWSDL.equals(javax.xml.ws.soap.SOAPBinding.SOAP11HTTP_BINDING)) {
+            if (!bindingFromAnnotation.equals(javax.xml.ws.soap.SOAPBinding.SOAP11HTTP_MTOM_BINDING)) {
+                dbc.getBindingTypeAnnot().setValue(bindingFromWSDL);
+            }
+        } else if (bindingFromWSDL.equals(javax.xml.ws.soap.SOAPBinding.SOAP12HTTP_BINDING)) {
+            if (!bindingFromAnnotation.equals(javax.xml.ws.soap.SOAPBinding.SOAP12HTTP_MTOM_BINDING)) {
+                dbc.getBindingTypeAnnot().setValue(bindingFromWSDL);
+            }
+        } else {
+            dbc.getBindingTypeAnnot().setValue(bindingFromWSDL);
+        }
     }
 
     private AxisService getService(HashMap<String, DescriptionBuilderComposite> dbcMap) {
