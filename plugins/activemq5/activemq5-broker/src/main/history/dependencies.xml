@@ -7,28 +7,33 @@
         <type>car</type>
     </module-id>
     <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-context</artifactId>
+        <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>system-database</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.modules</groupId>
+        <artifactId>geronimo-activemq5</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>commons-logging</groupId>
-        <artifactId>commons-logging</artifactId>
+        <groupId>org.apache.geronimo.modules</groupId>
+        <artifactId>geronimo-activemq5-management</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.specs</groupId>
+        <artifactId>geronimo-jms_1.1_spec</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.activemq</groupId>
+        <artifactId>activemq-core</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
         <groupId>org.apache.activemq</groupId>
         <artifactId>activeio-core</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>backport-util-concurrent</groupId>
-        <artifactId>backport-util-concurrent</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.camel</groupId>
-        <artifactId>camel-core</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -42,13 +47,8 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>system-database</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.activemq</groupId>
-        <artifactId>activemq-core</artifactId>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-context</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -57,18 +57,18 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>geronimo-activemq5</artifactId>
+        <groupId>commons-logging</groupId>
+        <artifactId>commons-logging</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>geronimo-activemq5-management</artifactId>
+        <groupId>org.apache.camel</groupId>
+        <artifactId>camel-core</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.activemq</groupId>
-        <artifactId>activeio-core</artifactId>
-        <type>test-jar</type>
+        <groupId>backport-util-concurrent</groupId>
+        <artifactId>backport-util-concurrent</artifactId>
+        <type>jar</type>
     </dependency>
 </plugin-artifact>

@@ -42,11 +42,9 @@
         <module>activemq5-ra</module>
         <module>geronimo-activemq5</module>
         <module>geronimo-activemq5-management</module>
-        <!-- remove until updated or replaced with new AMQ5 solution
         <module>activemq5-portlets</module>
         <module>activemq5-console-jetty</module>
         <module>activemq5-console-tomcat</module>
-        -->
         <module>activemq5-server</module>
   </modules>
 
@@ -55,7 +53,7 @@
             <dependency>
                 <groupId>org.apache.activemq</groupId>
                 <artifactId>activemq-core</artifactId>
-                <version>5.1.0</version>
+                <version>5.2.0</version>
                 <exclusions>
                     <exclusion>
                         <groupId>commons-logging</groupId>
@@ -71,7 +69,13 @@
             <dependency>
                 <groupId>org.apache.activemq</groupId>
                 <artifactId>activemq-ra</artifactId>
-                <version>5.1.0</version>
+                <version>5.2.0</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.activemq</groupId>
+                <artifactId>activemq-rar</artifactId>
+                <type>rar</type>
+                <version>5.2.0</version>
             </dependency>
 
             <dependency>
