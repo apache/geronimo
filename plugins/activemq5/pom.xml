@@ -42,9 +42,9 @@
         <module>activemq5-ra</module>
         <module>geronimo-activemq5</module>
         <module>geronimo-activemq5-management</module>
-        <module>activemq5-portlets</module>
-        <module>activemq5-console-jetty</module>
-        <module>activemq5-console-tomcat</module>
+        <!--<module>activemq5-portlets</module>-->
+        <!--<module>activemq5-console-jetty</module>-->
+        <!--<module>activemq5-console-tomcat</module>-->
         <module>activemq5-server</module>
   </modules>
 
