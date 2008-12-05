@@ -78,4 +78,25 @@
             <name>jdbc/ArchiveDS</name>
         </reference>
     </gbean>
+
+    <!-- this ought to be in the agent plan but this realm is not always started before the credential-store, even with the dependency -->
+    <gbean name="monitoring-runas-realm"
+        class="org.apache.geronimo.security.realm.GenericSecurityRealm">
+        <attribute name="realmName">monitoring-runas-realm</attribute>
+        <attribute name="publish">false</attribute>
+        <xml-reference name="LoginModuleConfiguration">
+            <lc:login-config xmlns:lc="http://geronimo.apache.org/xml/ns/loginconfig-1.2">
+                <lc:login-module control-flag="REQUIRED">
+                    <lc:login-domain-name>monitoring-runas-domain</lc:login-domain-name>
+                    <lc:login-module-class>org.apache.geronimo.security.credentialstore.RunAsLoginModule</lc:login-module-class>
+                    <lc:option name="principalClass">org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal</lc:option>
+                    <lc:option name="principalNames">admin</lc:option>
+                </lc:login-module>
+            </lc:login-config>
+        </xml-reference>
+        <!--<reference name="ServerInfo">-->
+            <!--<name>ServerInfo</name>-->
+        <!--</reference>-->
+    </gbean>
+
 </connector>

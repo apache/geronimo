@@ -78,24 +78,6 @@
         </sys:dependency>
     </sys:gbean>
 
-    <gbean name="monitoring-runas-realm"
-        class="org.apache.geronimo.security.realm.GenericSecurityRealm">
-        <attribute name="realmName">monitoring-runas-realm</attribute>
-        <attribute name="publish">false</attribute>
-        <xml-reference name="LoginModuleConfiguration">
-            <lc:login-config xmlns:lc="http://geronimo.apache.org/xml/ns/loginconfig-1.2">
-                <lc:login-module control-flag="REQUIRED">
-                    <lc:login-domain-name>monitoring-runas-domain</lc:login-domain-name>
-                    <lc:login-module-class>org.apache.geronimo.security.credentialstore.RunAsLoginModule</lc:login-module-class>
-                    <lc:option name="principalClass">org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal</lc:option>
-                    <lc:option name="principalNames">admin</lc:option>
-                </lc:login-module>
-            </lc:login-config>
-        </xml-reference>
-        <!--<reference name="ServerInfo">-->
-            <!--<name>ServerInfo</name>-->
-        <!--</reference>-->
-    </gbean>
-
-    
+    <!-- the realm is in the agent-ds plan although it should be here.  For some reason it doesn't always start before the credential-store
+    despite the dependency -->
 </openejb-jar>
