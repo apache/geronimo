@@ -59,7 +59,7 @@ public class AttributesXmlUtil {
             GBEAN_CONTEXT = JAXBContext.newInstance(GbeanType.class);
             ATTRIBUTE_CONTEXT = JAXBContext.newInstance(AttributeType.class);
         } catch (JAXBException e) {
-            throw new RuntimeException("Could not create jaxb contexts for plugin types");
+            throw new RuntimeException("Could not create jaxb contexts for plugin types", e);
         }
     }
 
