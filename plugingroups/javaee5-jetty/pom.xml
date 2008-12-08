@@ -141,7 +141,7 @@
 
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>activemq-ra</artifactId>
+            <artifactId>${activemqString}-ra</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>
@@ -177,7 +177,7 @@
 
         <dependency>
             <groupId>org.apache.geronimo.plugins</groupId>
-            <artifactId>activemq-console-jetty</artifactId>
+            <artifactId>${activemqString}-console-jetty</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>

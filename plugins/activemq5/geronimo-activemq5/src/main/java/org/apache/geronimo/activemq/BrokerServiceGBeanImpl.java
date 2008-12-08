@@ -47,10 +47,11 @@ import org.springframework.core.io.FileSystemResource;
  * @version $Rev$ $Date$
  */
 @GBean (j2eeType="JMSServer") 
-public class BrokerServiceGBeanImpl implements GBeanLifecycle {
+public class BrokerServiceGBeanImpl implements BrokerServiceGBean, GBeanLifecycle {
 
     private static final Logger log = LoggerFactory.getLogger(BrokerServiceGBeanImpl.class);
 
+    private final String objectName;
     private final BrokerService brokerService;
 //    private ResourceSource<ResourceException> dataSource;
     private JMSManager manager;
@@ -60,11 +61,12 @@ public class BrokerServiceGBeanImpl implements GBeanLifecycle {
                                   @ParamAttribute (name="amqConfigFile") String amqConfigFile, 
                                   @ParamAttribute (name="useShutdownHook") boolean useShutdownHook, 
                                   @ParamReference (name="ServerInfo") ServerInfo serverInfo, 
-                                  @ParamReference (name="MBeanServerReference") MBeanServerReference mbeanServerReference, 
+                                  @ParamReference (name="MBeanServerReference") MBeanServerReference mbeanServerReference,
+                                  @ParamSpecial (type= SpecialAttributeType.objectName) String objectName,
                                   @ParamSpecial (type=SpecialAttributeType.classLoader) ClassLoader classLoader) 
         throws Exception {
         
-        
+        this.objectName = objectName;
         URI baseDir = serverInfo.resolveServer(amqBaseDir);
         URI dataDir = baseDir.resolve(amqDataDir);
         URI amqConfigUri = baseDir.resolve(amqConfigFile);
@@ -104,6 +106,10 @@ public class BrokerServiceGBeanImpl implements GBeanLifecycle {
         return brokerService;
     }
 
+    public String getBrokerName() {
+        return brokerService.getBrokerName();
+    }
+
     public synchronized void doStart() throws Exception {
       
     }
@@ -134,6 +140,16 @@ public class BrokerServiceGBeanImpl implements GBeanLifecycle {
 //    public void setDataSource(ResourceSource<ResourceException> dataSource) {
 //        this.dataSource = dataSource;
 //    }
+
+    /**
+     * Gets the unique name of this object.  The object name must comply with the ObjectName specification
+     * in the JMX specification and the restrictions in the J2EEManagementInterface.
+     *
+     * @return the unique name of this object within the server
+     */
+    public String getObjectName() {
+        return objectName;
+    }
 
     public boolean isStateManageable() {
         return true;

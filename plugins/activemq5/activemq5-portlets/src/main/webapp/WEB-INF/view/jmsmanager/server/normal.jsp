@@ -29,7 +29,7 @@
 
           <tr>
             <th scope="col" class="DarkBackground"><fmt:message key="jmsmanager.common.name"/></th>
-            <th scope="col" class="DarkBackground" align="center"><fmt:message key="jmsmanager.common.state"/></th>
+            <%--<th scope="col" class="DarkBackground" align="center"><fmt:message key="jmsmanager.common.state"/></th>--%>
 <!--
             <th class="DarkBackground" align="center">Actions</th>
 -->
@@ -46,33 +46,31 @@
           </c:choose>
           <tr>
             <td class="${backgroundClass}">${entry.brokerName}</td>
-            <td class="${backgroundClass}">${entry.broker.stateInstance}</td>
-<!--
-            <td class="${backgroundClass}">
-             <c:choose>
-               <c:when test="${entry.broker.stateInstance.name eq 'running'}">
-               <a href="<portlet:actionURL portletMode="view">
-                 <portlet:param name="mode" value="stop" />
-                 <portlet:param name="objectName" value="${entry.brokerURI}" />
-               </portlet:actionURL>">stop</a>
-               </c:when>
-               <c:otherwise>
-               <a href="<portlet:actionURL portletMode="view">
-                 <portlet:param name="mode" value="start" />
-                 <portlet:param name="objectName" value="${entry.brokerURI}" />
-               </portlet:actionURL>">start</a>
-               </c:otherwise>
-             </c:choose>
-               <a href="<portlet:actionURL portletMode="view">
-                 <portlet:param name="mode" value="edit" />
-                 <portlet:param name="objectName" value="${entry.brokerURI}" />
-               </portlet:actionURL>">edit</a>
-               <a href="<portlet:actionURL portletMode="view">
-                 <portlet:param name="mode" value="delete" />
-                 <portlet:param name="objectName" value="${entry.brokerURI}" />
-               </portlet:actionURL>" onClick="return confirm('Are you sure you want to delete ${entry.brokerName}?');">delete</a>
-             </td>
--->
+            <%--<td class="${backgroundClass}">--%>
+             <%--<c:choose>--%>
+               <%--<c:when test="${entry.broker.stateInstance.name eq 'running'}">--%>
+               <%--<a href="<portlet:actionURL portletMode="view">--%>
+                 <%--<portlet:param name="mode" value="stop" />--%>
+                 <%--<portlet:param name="objectName" value="${entry.brokerURI}" />--%>
+               <%--</portlet:actionURL>">stop</a>--%>
+               <%--</c:when>--%>
+               <%--<c:otherwise>--%>
+               <%--<a href="<portlet:actionURL portletMode="view">--%>
+                 <%--<portlet:param name="mode" value="start" />--%>
+                 <%--<portlet:param name="objectName" value="${entry.brokerURI}" />--%>
+               <%--</portlet:actionURL>">start</a>--%>
+               <%--</c:otherwise>--%>
+             <%--</c:choose>--%>
+               <%--<a href="<portlet:actionURL portletMode="view">--%>
+                 <%--<portlet:param name="mode" value="edit" />--%>
+                 <%--<portlet:param name="objectName" value="${entry.brokerURI}" />--%>
+               <%--</portlet:actionURL>">edit</a>--%>
+               <%--<a href="<portlet:actionURL portletMode="view">--%>
+                 <%--<portlet:param name="mode" value="delete" />--%>
+                 <%--<portlet:param name="objectName" value="${entry.brokerURI}" />--%>
+               <%--</portlet:actionURL>" onClick="return confirm('Are you sure you want to delete ${entry.brokerName}?');">delete</a>--%>
+             <!--</td>-->
+
           </tr>
 </c:forEach>
 </table>

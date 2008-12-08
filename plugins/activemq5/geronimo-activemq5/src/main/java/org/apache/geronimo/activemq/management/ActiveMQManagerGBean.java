@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import org.apache.geronimo.activemq.ActiveMQBroker;
 import org.apache.geronimo.activemq.ActiveMQConnector;
 import org.apache.geronimo.activemq.ActiveMQManager;
+import org.apache.geronimo.activemq.BrokerServiceGBean;
 //import org.apache.geronimo.activemq.TransportConnectorGBeanImpl;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
@@ -35,6 +36,9 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.ReferencePatterns;
+import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.ParamSpecial;
+import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 //import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
@@ -45,6 +49,7 @@ import org.apache.geronimo.kernel.proxy.ProxyManager;
 import org.apache.geronimo.management.geronimo.JMSBroker;
 import org.apache.geronimo.management.geronimo.JMSConnector;
 import org.apache.geronimo.management.geronimo.NetworkConnector;
+import org.apache.activemq.broker.TransportConnector;
 
 /**
  * Implementation of the ActiveMQ management interface.  These are the ActiveMQ
@@ -52,12 +57,14 @@ import org.apache.geronimo.management.geronimo.NetworkConnector;
  *
  * @version $Rev$ $Date$
  */
+@GBean
 public class ActiveMQManagerGBean implements ActiveMQManager {
     private static final Logger log = LoggerFactory.getLogger(ActiveMQManagerGBean.class);
     private Kernel kernel;
     private String objectName;
 
-    public ActiveMQManagerGBean(Kernel kernel, String objectName) {
+    public ActiveMQManagerGBean(@ParamSpecial(type= SpecialAttributeType.kernel) Kernel kernel,
+                                @ParamSpecial(type = SpecialAttributeType.objectName) String objectName) {
         this.kernel = kernel;
         this.objectName = objectName;
     }
@@ -83,108 +90,77 @@ public class ActiveMQManagerGBean implements ActiveMQManager {
     }
 
     public Object[] getContainers() {
-        ProxyManager proxyManager = kernel.getProxyManager();
         AbstractNameQuery query = new AbstractNameQuery(ActiveMQBroker.class.getName());
-        Set names = kernel.listGBeans(query);
+        Set<AbstractName> names = kernel.listGBeans(query);
         ActiveMQBroker[] results = new ActiveMQBroker[names.size()];
         int i=0;
-        for (Iterator it = names.iterator(); it.hasNext(); i++) {
-            AbstractName name = (AbstractName) it.next();
-            results[i] = (ActiveMQBroker) proxyManager.createProxy(name, ActiveMQBroker.class.getClassLoader());
+        for (AbstractName name: names) {
+            try {
+                results[i] = (ActiveMQBroker) kernel.getGBean(name);
+            } catch (GBeanNotFoundException e) {
+                log.info("broker not found", e);
+            }
         }
         return results;
     }
 
     public String[] getSupportedProtocols() {
         // see files in modules/core/src/conf/META-INF/services/org/activemq/transport/server/
-        return new String[]{ "tcp", "stomp", "vm", "peer", "udp", "multicast", "failover"};
+        return new String[]{};// "tcp", "stomp", "vm", "peer", "udp", "multicast", "failover"};
     }
 
     public NetworkConnector[] getConnectors() {
-        ProxyManager proxyManager = kernel.getProxyManager();
-        AbstractNameQuery query = new AbstractNameQuery(ActiveMQConnector.class.getName());
-        Set names = kernel.listGBeans(query);
-        ActiveMQConnector[] results = new ActiveMQConnector[names.size()];
-        int i=0;
-        for (Iterator it = names.iterator(); it.hasNext(); i++) {
-            AbstractName name = (AbstractName) it.next();
-            results[i] = (ActiveMQConnector) proxyManager.createProxy(name, ActiveMQConnector.class.getClassLoader());
+        List<NetworkConnector> connectors = getConnectorsList();
+        return connectors.toArray(new NetworkConnector[] {});
+    }
+
+    private List<NetworkConnector> getConnectorsList() {
+        List<NetworkConnector> connectors = new ArrayList<NetworkConnector>();
+        ActiveMQBroker[] brokers = (ActiveMQBroker[]) getContainers();
+        for (ActiveMQBroker broker: brokers) {
+            connectors.addAll(getConnectorListForContainer((BrokerServiceGBean) broker));
         }
-        return results;
+        return connectors;
     }
 
     public NetworkConnector[] getConnectors(String protocol) {
         if(protocol == null) {
             return getConnectors();
         }
-        List result = new ArrayList();
-        ProxyManager proxyManager = kernel.getProxyManager();
-        AbstractNameQuery query = new AbstractNameQuery(ActiveMQConnector.class.getName());
-        Set names = kernel.listGBeans(query);
-        for (Iterator it = names.iterator(); it.hasNext();) {
-            AbstractName name = (AbstractName) it.next();
-            try {
-                if (kernel.getAttribute(name, "protocol").equals(protocol)) {
-                    result.add(proxyManager.createProxy(name, ActiveMQConnector.class.getClassLoader()));
-                }
-            } catch (Exception e) {
-                log.error("Unable to check the protocol for a connector", e);
-            }
-        }
-        return (ActiveMQConnector[]) result.toArray(new ActiveMQConnector[names.size()]);
+        List<NetworkConnector> connectors = getConnectorsList();
+        filterConnectorsByProtocol(protocol, connectors);
+        return connectors.toArray(new NetworkConnector[] {});
     }
 
-    public NetworkConnector[] getConnectorsForContainer(Object broker) {
-        AbstractName containerName = kernel.getAbstractNameFor(broker);
-        ProxyManager mgr = kernel.getProxyManager();
-        try {
-            List results = new ArrayList();
-            AbstractNameQuery query = new AbstractNameQuery(ActiveMQConnector.class.getName());
-            Set set = kernel.listGBeans(query); // all Jetty connectors
-            for (Iterator it = set.iterator(); it.hasNext();) {
-                AbstractName name = (AbstractName) it.next(); // a single Jetty connector
-                GBeanData data = kernel.getGBeanData(name);
-                ReferencePatterns refs = data.getReferencePatterns("brokerService");
-                if (containerName.equals(refs.getAbstractName())) {
-                    results.add(mgr.createProxy(name, ActiveMQConnector.class.getClassLoader()));
-                }
+    private void filterConnectorsByProtocol(String protocol, List<NetworkConnector> connectors) {
+        for (Iterator<NetworkConnector> connectorIterator = connectors.iterator(); connectorIterator.hasNext();) {
+            if (protocol.equals(connectorIterator.next().getProtocol())) {
+                connectorIterator.remove();
             }
-            return (ActiveMQConnector[]) results.toArray(new ActiveMQConnector[results.size()]);
-        } catch (Exception e) {
-            throw (IllegalArgumentException) new IllegalArgumentException("Unable to look up connectors for ActiveMQ broker '"+containerName).initCause(e);
         }
+    }
+
+    public NetworkConnector[] getConnectorsForContainer(Object genericBroker) {
+
+        return getConnectorListForContainer((BrokerServiceGBean) genericBroker).toArray(new NetworkConnector[] {});
+    }
+
+    private List<NetworkConnector> getConnectorListForContainer(BrokerServiceGBean broker) {
+        List<TransportConnector> transportConnectors = broker.getBrokerContainer().getTransportConnectors();
+        List<NetworkConnector> connectors = new ArrayList<NetworkConnector>();
+        for (TransportConnector transportConnector: transportConnectors) {
+            connectors.add(new ActiveMQTransportConnector(transportConnector));
+        }
+        return connectors;
     }
 
     public NetworkConnector[] getConnectorsForContainer(Object broker, String protocol) {
         if(protocol == null) {
             return getConnectorsForContainer(broker);
         }
-        AbstractName containerName = kernel.getAbstractNameFor(broker);
-        ProxyManager mgr = kernel.getProxyManager();
-        try {
-            List results = new ArrayList();
-            AbstractNameQuery query = new AbstractNameQuery(ActiveMQConnector.class.getName());
-            Set set = kernel.listGBeans(query); // all Jetty connectors
-            for (Iterator it = set.iterator(); it.hasNext();) {
-                AbstractName name = (AbstractName) it.next(); // a single Jetty connector
-                GBeanData data = kernel.getGBeanData(name);
-                ReferencePatterns refs = data.getReferencePatterns("brokerService");
-                if(containerName.equals(refs.getAbstractName())) {
-                    try {
-                        String testProtocol = (String) kernel.getAttribute(name, "protocol");
-                        if(testProtocol != null && testProtocol.equals(protocol)) {
-                            results.add(mgr.createProxy(name, ActiveMQConnector.class.getClassLoader()));
-                        }
-                    } catch (Exception e) {
-                        log.error("Unable to look up protocol for connector '"+name+"'",e);
-                    }
-                    break;
-                }
-            }
-            return (ActiveMQConnector[]) results.toArray(new ActiveMQConnector[results.size()]);
-        } catch (Exception e) {
-            throw (IllegalArgumentException)new IllegalArgumentException("Unable to look up connectors for ActiveMQ broker '"+containerName +"': ").initCause(e);
-        }
+        List<NetworkConnector> connectors = getConnectorListForContainer((BrokerServiceGBean) broker);
+        filterConnectorsByProtocol(protocol, connectors);
+        return connectors.toArray(new NetworkConnector[] {});
     }
 
     /**
@@ -193,76 +169,11 @@ public class ActiveMQManagerGBean implements ActiveMQManager {
      * functional (e.g. SSL settings for a secure connector).
      */
     public JMSConnector addConnector(JMSBroker broker, String uniqueName, String protocol, String host, int port) {
-//        AbstractName brokerAbstractName = kernel.getAbstractNameFor(broker);
-//        AbstractName name = kernel.getNaming().createChildName(brokerAbstractName, uniqueName, GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
-//        GBeanData connector = new GBeanData(name, TransportConnectorGBeanImpl.GBEAN_INFO);
-//        //todo: if SSL is supported, need to add more properties or use a different GBean?
-//        connector.setAttribute("protocol", protocol);
-//        connector.setAttribute("host", host);
-//        connector.setAttribute("port", new Integer(port));
-//        connector.setReferencePattern("brokerService", brokerAbstractName);
-//        EditableConfigurationManager mgr = ConfigurationUtil.getEditableConfigurationManager(kernel);
-//        if(mgr != null) {
-//            try {
-//                mgr.addGBeanToConfiguration(brokerAbstractName.getArtifact(), connector, false);
-//                return (JMSConnector) kernel.getProxyManager().createProxy(name, ActiveMQConnector.class.getClassLoader());
-//            } catch (InvalidConfigException e) {
-//                log.error("Unable to add GBean", e);
-//                return null;
-//            } finally {
-//                ConfigurationUtil.releaseConfigurationManager(kernel, mgr);
-//            }
-//        } else {
-//            log.warn("The ConfigurationManager in the kernel does not allow editing");
-            return null;
-//        }
+        throw new RuntimeException("not implemented");
     }
 
     public void removeConnector(AbstractName connectorName) {
-        try {
-            GBeanInfo info = kernel.getGBeanInfo(connectorName);
-            boolean found = false;
-            Set intfs = info.getInterfaces();
-            for (Iterator it = intfs.iterator(); it.hasNext();) {
-                String intf = (String) it.next();
-                if (intf.equals(ActiveMQConnector.class.getName())) {
-                    found = true;
-                }
-            }
-            if (!found) {
-                throw new GBeanNotFoundException(connectorName);
-            }
-            EditableConfigurationManager mgr = ConfigurationUtil.getEditableConfigurationManager(kernel);
-            if (mgr != null) {
-                try {
-                    mgr.removeGBeanFromConfiguration(connectorName.getArtifact(), connectorName);
-                } catch (InvalidConfigException e) {
-                    log.error("Unable to add GBean", e);
-                } finally {
-                    ConfigurationUtil.releaseConfigurationManager(kernel, mgr);
-                }
-            } else {
-                log.warn("The ConfigurationManager in the kernel does not allow editing");
-            }
-        } catch (GBeanNotFoundException e) {
-            log.warn("No such GBean '" + connectorName + "'"); //todo: what if we want to remove a failed GBean?
-        } catch (Exception e) {
-            log.error("Failed to remove connector", e);
-        }
-    }
+        throw new RuntimeException("not implemented");
+   }
 
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("ActiveMQ Manager", ActiveMQManagerGBean.class);
-        infoFactory.addAttribute("kernel", Kernel.class, false);
-        infoFactory.addAttribute("objectName", String.class, false);
-        infoFactory.addInterface(ActiveMQManager.class);
-        infoFactory.setConstructor(new String[]{"kernel", "objectName"});
-        GBEAN_INFO = infoFactory.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
 }

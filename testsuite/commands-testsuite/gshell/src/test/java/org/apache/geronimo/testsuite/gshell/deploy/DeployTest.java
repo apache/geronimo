@@ -50,7 +50,7 @@ public class DeployTest extends CommandTestSupport {
  
         String output = execute(args);
 
-        if (output.indexOf("org.apache.geronimo.configs/activemq-broker") < 0) {
+        if (output.indexOf("org.apache.geronimo.framework/j2ee-system") < 0) {
             Assert.fail("deploy/list-modules failed : " + output);
         }
     }
@@ -61,11 +61,11 @@ public class DeployTest extends CommandTestSupport {
  
         String output = execute(args);
 
-        if (output.indexOf("org.apache.geronimo.configs/activemq-broker") < 0) {
-            Assert.fail("deploy/list-modules failed : " + output);
+        if (output.indexOf("org.apache.geronimo.framework/j2ee-system") < 0) {
+            Assert.fail("deploy/list-modules --started failed : " + output);
         }
         if (output.indexOf("org.apache.geronimo.configs/client-corba-yoko") > 0) {
-            Assert.fail("deploy/list-modules failed : " + output);
+            Assert.fail("deploy/list-modules --started failed : " + output);
         }
     }
     
@@ -75,26 +75,25 @@ public class DeployTest extends CommandTestSupport {
  
         String output = execute(args);
 
-        if (output.indexOf("org.apache.geronimo.configs/activemq-broker") > 0) {
-            Assert.fail("deploy/list-modules failed : " + output);
+        if (output.indexOf("org.apache.geronimo.framework/j2ee-system") > 0) {
+            Assert.fail("deploy/list-modules --stopped failed : " + output);
         }
         if (output.indexOf("org.apache.geronimo.configs/client-corba-yoko") < 0) {
-            Assert.fail("deploy/list-modules failed : " + output);
+            Assert.fail("deploy/list-modules --stopped failed : " + output);
         }
     }
     
     public void testListAllPlugins() throws Exception {
-        //todo this testcase fails
-        /*
-        String[] args = new String[]{ "-c", "deploy/list-plugins -u system -w manager" };
+        //todo this testcase fails due to needing to select a repo
+	/*
+        String[] args = new String[]{"deploy/list-plugins " + UP};
  
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        execute( command, args, null, baos );
+        String output = execute(args);
 
-        if (baos.toString().indexOf("org.apache.geronimo.configs/activemq-broker") < 0) {
-                Assert.fail("deploy/list-modules failed : " + baos.toString());
+        if (output.indexOf("org.apache.geronimo.framework/j2ee-system") < 0) {
+                Assert.fail("deploy/list-modules failed : " + output);
         }
-        */
+	*/
     }
 
 }

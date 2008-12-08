@@ -28,7 +28,6 @@ import javax.portlet.PortletRequest;
 
 import org.apache.geronimo.activemq.BrokerServiceGBeanImpl;
 import org.apache.geronimo.console.jmsmanager.DestinationStatistics;
-import org.apache.geronimo.console.util.PortletManager;
 import org.apache.geronimo.system.jmx.MBeanServerReference;
 import org.apache.activemq.broker.jmx.BrokerViewMBean;
 import org.apache.activemq.broker.jmx.DestinationViewMBean;
@@ -49,7 +48,7 @@ public class AmqJMSMessageHelper extends JMSMessageHelper {
             String brokerName = getBrokerName();
             ObjectName objName = new ObjectName("org.apache.activemq" + ":BrokerName=" + brokerName + ",Type=" + type + ",Destination=" + physicalQName);
             if ("Queue".equals(type)) {
-                QueueViewMBean proxy = null;
+                QueueViewMBean proxy;
                 if (!server.isRegistered(objName)) {
                     // mbean is not yet registered.Adding the destination to activemq broker.
                     ObjectName brokerObj = new ObjectName("org.apache.activemq" + ":BrokerName=" + brokerName + ",Type=Broker");
@@ -91,7 +90,7 @@ public class AmqJMSMessageHelper extends JMSMessageHelper {
             MBeanServer server = getMBeanServer();
             String brokerName = getBrokerName();
             ObjectName objName = new ObjectName("org.apache.activemq" + ":BrokerName=" + brokerName + ",Type=" + destType + ",Destination=" + physicalName);
-            DestinationViewMBean proxy = null;
+            DestinationViewMBean proxy;
             if ("Queue".equals(destType)) {
                 if (!server.isRegistered(objName)) {
                     // mbean is not yet registered.Adding the destination to activemq broker.
@@ -133,7 +132,7 @@ public class AmqJMSMessageHelper extends JMSMessageHelper {
     }
 
     private MBeanServer getMBeanServer() throws Exception {
-        MBeanServerReference ref = (MBeanServerReference) kernel.getGBean(MBeanServerReference.class);
+        MBeanServerReference ref = kernel.getGBean(MBeanServerReference.class);
         return ref.getMBeanServer();
     }
 
@@ -141,7 +140,7 @@ public class AmqJMSMessageHelper extends JMSMessageHelper {
         // default broker name
         String brokerName = "localhost";
         try {
-            BrokerServiceGBeanImpl ref = (BrokerServiceGBeanImpl) kernel.getGBean(BrokerServiceGBeanImpl.class);
+            BrokerServiceGBeanImpl ref = kernel.getGBean(BrokerServiceGBeanImpl.class);
             brokerName = ref.getBrokerName();
         } catch (Exception e) {
             log.error("Failed to get broker name", e);

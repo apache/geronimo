@@ -44,6 +44,18 @@
             <version>${geronimoVersion}</version>
             <type>car</type>
         </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>activemq5-ra</artifactId>
+            <version>${geronimoVersion}</version>
+            <type>car</type>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.plugins</groupId>
+            <artifactId>activemq5-console-jetty</artifactId>
+            <version>${geronimoVersion}</version>
+            <type>car</type>
+        </dependency>
     </dependencies>
 
     <build>

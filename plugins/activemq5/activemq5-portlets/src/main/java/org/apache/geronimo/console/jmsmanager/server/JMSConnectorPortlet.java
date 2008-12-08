@@ -36,7 +36,9 @@ import org.apache.geronimo.kernel.proxy.GeronimoManagedBean;
 import org.apache.geronimo.management.geronimo.JMSConnector;
 import org.apache.geronimo.management.geronimo.JMSManager;
 import org.apache.geronimo.management.geronimo.JMSBroker;
+import org.apache.geronimo.management.geronimo.NetworkConnector;
 import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.activemq.ActiveMQConnector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -183,14 +185,12 @@ public class JMSConnectorPortlet extends BaseJMSPortlet {
         for (int i = 0; i < brokers.length; i++) {
             JMSBroker broker = brokers[i];
             AbstractName brokerAbstractName = PortletManager.getNameFor(renderRequest, broker);
-            JMSConnector[] connectors = (JMSConnector[]) manager.getConnectorsForContainer(broker);
+            NetworkConnector[] connectors = manager.getConnectorsForContainer(broker);
             for (int j = 0; j < connectors.length; j++) {
-                JMSConnector connector = connectors[j];
-                AbstractName connectorAbstractName = PortletManager.getNameFor(renderRequest,connector);
+                ActiveMQConnector connector = (ActiveMQConnector) connectors[j];
                 String brokerName = brokerAbstractName.getName().get("name").toString();
-                String connectorName = connectorAbstractName.getName().get("name").toString();
                 ConnectorWrapper info = new ConnectorWrapper(brokerName, brokerAbstractName.toString(),
-                		                                     connectorName, connectorAbstractName.toString(),
+                		                                     connector.getPath(),
                 		                                     connector);
                 beans.add(info);
             }
@@ -238,24 +238,18 @@ public class JMSConnectorPortlet extends BaseJMSPortlet {
     public static class ConnectorWrapper {
         private String brokerName;
         private String brokerURI;
-        private String connectorName;
         private String connectorURI;
         private JMSConnector connector;
 
-        public ConnectorWrapper(String brokerName, String brokerURI, String connectorName, String connectorURI, JMSConnector connector) {
+        public ConnectorWrapper(String brokerName, String brokerURI, String connectorURI, JMSConnector connector) {
             this.brokerName = brokerName;
             this.brokerURI = brokerURI;
-            this.connectorName = connectorName;
             this.connectorURI = connectorURI;
             this.connector = connector;
         }
 
         public String getBrokerName() {
             return brokerName;
-        }
-
-        public String getConnectorName() {
-            return connectorName;
         }
 
         public JMSConnector getConnector() {

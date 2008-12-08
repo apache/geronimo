@@ -37,15 +37,15 @@ public class BaseJMSPortlet extends BasePortlet {
     /**
      * Gets a Map relating broker name to JMSBroker instance
      */
-    protected static List getBrokerList(RenderRequest renderRequest, JMSManager manager) throws PortletException {
+    protected static List<BrokerWrapper> getBrokerList(RenderRequest renderRequest, JMSManager manager) throws PortletException {
 
         JMSBroker[] brokers = (JMSBroker[]) manager.getContainers();
-        List beans = new ArrayList();
+        List<BrokerWrapper> beans = new ArrayList<BrokerWrapper>();
         try {
-            for (int i = 0; i < brokers.length; i++) {
-                AbstractName abstractName = PortletManager.getNameFor(renderRequest, brokers[i]);
+            for (JMSBroker broker : brokers) {
+                AbstractName abstractName = PortletManager.getNameFor(renderRequest, broker);
                 String displayName = abstractName.getName().get("name").toString();
-                beans.add(new BrokerWrapper(displayName, abstractName.toString(), brokers[i]));
+                beans.add(new BrokerWrapper(displayName, abstractName.toString(), broker));
             }
         } catch (Exception e) {
             throw new PortletException(e);

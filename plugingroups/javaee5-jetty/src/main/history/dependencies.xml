@@ -7,18 +7,23 @@
         <type>car</type>
     </module-id>
     <dependency>
-        <groupId>org.apache.geronimo.plugins</groupId>
-        <artifactId>plancreator-console-jetty</artifactId>
+        <groupId>org.apache.geronimo.plugingroups</groupId>
+        <artifactId>client</artifactId>
         <type>car</type>
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.plugingroups</groupId>
-        <artifactId>webservices-cxf</artifactId>
+        <artifactId>clustering-jetty</artifactId>
         <type>car</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>activemq-ra</artifactId>
+        <groupId>org.apache.geronimo.plugingroups</groupId>
+        <artifactId>ejb</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.plugingroups</groupId>
+        <artifactId>framework</artifactId>
         <type>car</type>
     </dependency>
     <dependency>
@@ -32,8 +37,53 @@
         <type>car</type>
     </dependency>
     <dependency>
+        <groupId>org.apache.geronimo.plugingroups</groupId>
+        <artifactId>webservices-axis2</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.plugingroups</groupId>
+        <artifactId>webservices-cxf</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>concurrent-deployer</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>javamail</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>uddi-jetty6</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>welcome-jetty</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.framework</groupId>
+        <artifactId>jmx-security</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.plugins</groupId>
+        <artifactId>debugviews-console-jetty</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>activemq5-ra</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>myfaces-deployer</artifactId>
         <type>car</type>
     </dependency>
     <dependency>
@@ -47,43 +97,23 @@
         <type>car</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.plugins</groupId>
-        <artifactId>debugviews-console-jetty</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.plugingroups</groupId>
-        <artifactId>client</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>concurrent-deployer</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
         <groupId>org.apache.geronimo.plugins.monitoring</groupId>
         <artifactId>mconsole-jetty</artifactId>
         <type>car</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>jmx-security</artifactId>
+        <groupId>org.apache.geronimo.plugins</groupId>
+        <artifactId>activemq5-console-jetty</artifactId>
         <type>car</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.plugingroups</groupId>
-        <artifactId>clustering-jetty</artifactId>
+        <groupId>org.apache.geronimo.plugins</groupId>
+        <artifactId>plancreator-console-jetty</artifactId>
         <type>car</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.plugingroups</groupId>
-        <artifactId>framework</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>myfaces-deployer</artifactId>
+        <groupId>org.apache.geronimo.plugins</groupId>
+        <artifactId>plugin-console-jetty</artifactId>
         <type>car</type>
     </dependency>
     <dependency>
@@ -93,37 +123,7 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.plugins</groupId>
-        <artifactId>activemq-console-jetty</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>welcome-jetty</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.plugins</groupId>
-        <artifactId>plugin-console-jetty</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>javamail</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.plugingroups</groupId>
-        <artifactId>webservices-axis2</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.plugins</groupId>
         <artifactId>openejb-console-jetty</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.plugingroups</groupId>
-        <artifactId>ejb</artifactId>
         <type>car</type>
     </dependency>
 </plugin-artifact>

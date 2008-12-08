@@ -20,11 +20,11 @@
 
 <module xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
 
-    <!-- gbean name="ActiveMQManager" class="org.apache.geronimo.activemq.management.ActiveMQManagerGBean"/-->
+    <gbean name="ActiveMQManager" class="org.apache.geronimo.activemq.management.ActiveMQManagerGBean"/>
 
     <gbean name="ActiveMQ" class="org.apache.geronimo.activemq.BrokerServiceGBeanImpl">
         <attribute name="amqBaseDir">var/activemq/</attribute>
-        <attribute name="amqDataDir">data</attribute>     
+        <attribute name="amqDataDir">data</attribute>
         <attribute name="amqConfigFile">conf/activemq.xml</attribute>
         <attribute name="useShutdownHook">false</attribute>
         <!--reference name="dataSource">

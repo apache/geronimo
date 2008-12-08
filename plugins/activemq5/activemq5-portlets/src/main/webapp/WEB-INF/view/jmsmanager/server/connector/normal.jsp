@@ -33,8 +33,8 @@
             <th scope="col" class="DarkBackground" align="center"><fmt:message key="jmsmanager.common.broker" /></th>
             <th scope="col" class="DarkBackground" align="center"><fmt:message key="jmsmanager.common.protocol" /></th>
             <th scope="col" class="DarkBackground" align="center"><fmt:message key="jmsmanager.common.port" /></th>
-            <th scope="col" class="DarkBackground" align="center"><fmt:message key="jmsmanager.common.state"/></th>
-            <th scope="col" class="DarkBackground" align="center"><fmt:message key="jmsmanager.common.actions"/></th>
+            <%--<th scope="col" class="DarkBackground" align="center"><fmt:message key="jmsmanager.common.state"/></th>--%>
+            <%--<th scope="col" class="DarkBackground" align="center"><fmt:message key="jmsmanager.common.actions"/></th>--%>
           </tr>
 <c:set var="backgroundClass" value='MediumBackground'/>
 <c:forEach var="info" items="${connectors}">
@@ -47,39 +47,38 @@
               </c:otherwise>
           </c:choose>
           <tr>
-            <td class="${backgroundClass}">${info.connectorName}</td>
+            <td class="${backgroundClass}">${info.connectorURI}</td>
             <td class="${backgroundClass}">${info.brokerName}</td>
             <td class="${backgroundClass}">${info.connector.protocol}</td>
             <td class="${backgroundClass}">${info.connector.port}</td>
-            <td class="${backgroundClass}">${info.connector.stateInstance}</td>
-            <td class="${backgroundClass}">
-             <c:choose>
-               <c:when test="${info.connector.stateInstance.name eq 'running'}">
-               <a href="<portlet:actionURL portletMode="view">
-                 <portlet:param name="mode" value="stop" />
-                 <portlet:param name="brokerURI" value="${info.brokerURI}" />
-                 <portlet:param name="connectorURI" value="${info.connectorURI}" />
-               </portlet:actionURL>"><fmt:message key="jmsmanager.common.stop"/></a>
-               </c:when>
-               <c:otherwise>
-               <a href="<portlet:actionURL portletMode="view">
-                 <portlet:param name="mode" value="start" />
-                 <portlet:param name="brokerURI" value="${info.brokerURI}" />
-                 <portlet:param name="connectorURI" value="${info.connectorURI}" />
-               </portlet:actionURL>"><fmt:message key="jmsmanager.common.start"/></a>
-               </c:otherwise>
-             </c:choose>
-               <a href="<portlet:actionURL portletMode="view">
-                 <portlet:param name="mode" value="edit" />
-                 <portlet:param name="brokerURI" value="${info.brokerURI}" />
-                 <portlet:param name="connectorURI" value="${info.connectorURI}" />
-               </portlet:actionURL>"><fmt:message key="jmsmanager.common.edit"/></a>
-               <a href="<portlet:actionURL portletMode="view">
-                 <portlet:param name="mode" value="delete" />
-                 <portlet:param name="brokerURI" value="${info.brokerURI}" />
-                 <portlet:param name="connectorURI" value="${info.connectorURI}" />
-               </portlet:actionURL>" onClick="return confirm('<fmt:message key="jmsmanager.server.connector.normal.confirmDelete"><fmt:param value="${info.connectorName}"/></fmt:message>');"><fmt:message key="jmsmanager.common.delete"/></a>
-             </td>
+            <%--<td class="${backgroundClass}">--%>
+             <%--<c:choose>--%>
+               <%--<c:when test="${info.connector.stateInstance.name eq 'running'}">--%>
+               <%--<a href="<portlet:actionURL portletMode="view">--%>
+                 <%--<portlet:param name="mode" value="stop" />--%>
+                 <%--<portlet:param name="brokerURI" value="${info.brokerURI}" />--%>
+                 <%--<portlet:param name="connectorURI" value="${info.connectorURI}" />--%>
+               <%--</portlet:actionURL>"><fmt:message key="jmsmanager.common.stop"/></a>--%>
+               <%--</c:when>--%>
+               <%--<c:otherwise>--%>
+               <%--<a href="<portlet:actionURL portletMode="view">--%>
+                 <%--<portlet:param name="mode" value="start" />--%>
+                 <%--<portlet:param name="brokerURI" value="${info.brokerURI}" />--%>
+                 <%--<portlet:param name="connectorURI" value="${info.connectorURI}" />--%>
+               <%--</portlet:actionURL>"><fmt:message key="jmsmanager.common.start"/></a>--%>
+               <%--</c:otherwise>--%>
+             <%--</c:choose>--%>
+               <%--<a href="<portlet:actionURL portletMode="view">--%>
+                 <%--<portlet:param name="mode" value="edit" />--%>
+                 <%--<portlet:param name="brokerURI" value="${info.brokerURI}" />--%>
+                 <%--<portlet:param name="connectorURI" value="${info.connectorURI}" />--%>
+               <%--</portlet:actionURL>"><fmt:message key="jmsmanager.common.edit"/></a>--%>
+               <%--<a href="<portlet:actionURL portletMode="view">--%>
+                 <%--<portlet:param name="mode" value="delete" />--%>
+                 <%--<portlet:param name="brokerURI" value="${info.brokerURI}" />--%>
+                 <%--<portlet:param name="connectorURI" value="${info.connectorURI}" />--%>
+               <%--</portlet:actionURL>" onClick="return confirm('<fmt:message key="jmsmanager.server.connector.normal.confirmDelete"><fmt:param value="${info.connectorURI}"/></fmt:message>');"><fmt:message key="jmsmanager.common.delete"/></a>--%>
+             <!--</td>-->
           </tr>
 </c:forEach>
 </table>
