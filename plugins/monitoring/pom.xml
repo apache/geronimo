@@ -31,21 +31,6 @@
 
     <description> Geronimo Monitoring and Management </description>
 
-    <modules>
-        <module>agent</module>
-        <module>agent-ds</module>
-        <module>agent-jar</module>
-        <module>agent-ejb</module>
-	<module>agent-jmx</module>
-        <module>agent-car-jmx</module>
-        <module>agent-sql</module>
-        <module>mconsole-ds</module>
-        <module>mconsole-war</module>
-        <module>mconsole-jetty</module>
-        <module>mconsole-jetty-server</module>
-        <module>mconsole-tomcat</module>
-    </modules>
-
     <build>
         <resources>
             <resource>
@@ -74,9 +59,43 @@
 
     <profiles>
         <profile>
-            <id>it</id>
+            <id>default</id>
+
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+
             <modules>
+                <module>agent</module>
+                <module>agent-ds</module>
+                <module>agent-jar</module>
+                <module>agent-ejb</module>
+                <module>agent-jmx</module>
+                <module>agent-car-jmx</module>
+                <module>agent-sql</module>
+                <module>mconsole-ds</module>
+                <module>mconsole-war</module>
+                <module>mconsole-jetty</module>
                 <module>mconsole-jetty-server</module>
+                <module>mconsole-tomcat</module>
+            </modules>
+        </profile>
+
+        <profile>
+            <id>no-it</id>
+
+            <modules>
+                <module>agent</module>
+                <module>agent-ds</module>
+                <module>agent-jar</module>
+                <module>agent-ejb</module>
+                <module>agent-jmx</module>
+                <module>agent-car-jmx</module>
+                <module>agent-sql</module>
+                <module>mconsole-ds</module>
+                <module>mconsole-war</module>
+                <module>mconsole-jetty</module>
+                <module>mconsole-tomcat</module>
             </modules>
         </profile>
     </profiles>
