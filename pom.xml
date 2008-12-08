@@ -76,7 +76,7 @@
         <tomcatVersion>6.0.18</tomcatVersion>
         <tomcatPatchedVersion>6.0.18-G678601</tomcatPatchedVersion>
         <tranqlVendorsVersion>1.4</tranqlVendorsVersion>
-        <cxfVersion>2.1.3</cxfVersion>
+        <cxfVersion>2.1.4-SNAPSHOT</cxfVersion>
         <axis2Version>SNAPSHOT</axis2Version>
         <axiomVersion>SNAPSHOT</axiomVersion>
         <springVersion>2.0.5</springVersion>
