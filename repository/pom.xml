@@ -37,45 +37,6 @@
         permeant Geronimo specific repository solution can be implemented.
     </description>
 
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.apache.activemq</groupId>
-                <artifactId>activemq-core</artifactId>
-                <version>4.1.2-G647819</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>commons-logging</groupId>
-                        <artifactId>commons-logging</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.geronimo.specs</groupId>
-                        <artifactId>geronimo-j2ee-management_1.0_spec</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.activemq</groupId>
-                <artifactId>activemq-ra</artifactId>
-                <version>4.1.2</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.activemq</groupId>
-                <artifactId>activeio-core</artifactId>
-                <version>3.0.1</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>commons-logging</groupId>
-                        <artifactId>commons-logging</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-
-        </dependencies>
-    </dependencyManagement>
     <dependencies>
         <dependency>
             <groupId>juddi</groupId>
@@ -147,12 +108,6 @@
             <groupId>jtidy</groupId>
             <artifactId>jtidy</artifactId>
             <version>8.0-20060801</version>
-        </dependency>
-
-        <!-- See GERONIMO-4262 -->
-        <dependency>
-            <groupId>org.apache.activemq</groupId>
-            <artifactId>activemq-core</artifactId>
         </dependency>
 
         <!-- See GERONIMO-4266 -->
