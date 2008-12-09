@@ -52,6 +52,7 @@
     
     <modules>
         <module>activemq</module>
+        <module>activemq5</module>
         <module>aspectj</module>
         <module>axis</module>
         <module>axis2</module>
