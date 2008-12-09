@@ -89,7 +89,7 @@
 
         <dependency>
             <groupId>xpp3</groupId>
-            <artifactId>xpp3</artifactId>
+            <artifactId>xpp3_min</artifactId>
         </dependency>
 
         <dependency>
