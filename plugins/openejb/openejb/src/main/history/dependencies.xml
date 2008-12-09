@@ -78,7 +78,7 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>activemq-broker</artifactId>
+        <artifactId>${activemqString}-broker</artifactId>
         <type>car</type>
     </dependency>
     <dependency>
