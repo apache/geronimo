@@ -53,7 +53,7 @@
             <dependency>
                 <groupId>org.apache.activemq</groupId>
                 <artifactId>activemq-core</artifactId>
-                <version>${activemqVersion}</version>
+                <version>5.2.0</version>
                 <exclusions>
                     <exclusion>
                         <groupId>commons-logging</groupId>
@@ -69,19 +69,19 @@
             <dependency>
                 <groupId>org.apache.activemq</groupId>
                 <artifactId>activemq-ra</artifactId>
-                <version>${activemqVersion}</version>
+                <version>5.2.0</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.activemq</groupId>
                 <artifactId>activemq-rar</artifactId>
                 <type>rar</type>
-                <version>${activemqVersion}</version>
+                <version>5.2.0</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.activemq</groupId>
                 <artifactId>activeio-core</artifactId>
-                <version>${activeioVersion}</version>
+                <version>3.1.0</version>
                 <exclusions>
                     <exclusion>
                         <groupId>commons-logging</groupId>

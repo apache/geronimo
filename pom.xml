@@ -94,12 +94,7 @@
         <!--<connectorSpec>geronimo-j2ee-connector_1.6_spec</connectorSpec>-->
         <txmanagerVersion>2.1.1</txmanagerVersion>
         <!--<txmanagerVersion>2.2-SNAPSHOT</txmanagerVersion>-->
-
         <monitoringConsoleVersion>2.2-SNAPSHOT</monitoringConsoleVersion>
-
-        <!-- The following are used by the Samples and Daytrader builds -->
-        <activemqVersion>5.2.0</activemqVersion>
-        <activeioVersion>3.1.0</activeioVersion>
 
         <!-- Deployers -->
         <gbeanDeployerBootstrap>org.apache.geronimo.framework/geronimo-gbean-deployer-bootstrap/${version}/car</gbeanDeployerBootstrap>
