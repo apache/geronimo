@@ -96,7 +96,7 @@
         <!--<txmanagerVersion>2.2-SNAPSHOT</txmanagerVersion>-->
 
         <monitoringConsoleVersion>2.2-SNAPSHOT</monitoringConsoleVersion>
-<activemqString>activemq5</activemqString>
+        <activemqString>activemq5</activemqString>
 
         <!-- Deployers -->
         <gbeanDeployerBootstrap>org.apache.geronimo.framework/geronimo-gbean-deployer-bootstrap/${version}/car</gbeanDeployerBootstrap>
