@@ -28,24 +28,24 @@
         <version>2.2-SNAPSHOT</version>
     </parent>
     
-    <artifactId>activemq5</artifactId>
-    <name>Geronimo Plugins, ActiveMQ 5</name>
+    <artifactId>activemq</artifactId>
+    <name>Geronimo Plugins, ActiveMQ v5</name>
     <packaging>pom</packaging>
     
     <description>
-        ActiveMQ 5 plugin
+        ActiveMQ v5 plugin
     </description>
 
     <modules>
-        <module>activemq5-broker</module>
-        <module>geronimo-activemq5-ra</module>
-        <module>activemq5-ra</module>
-        <module>geronimo-activemq5</module>
-        <module>geronimo-activemq5-management</module>
-        <module>activemq5-portlets</module>
-        <module>activemq5-console-jetty</module>
-        <module>activemq5-console-tomcat</module>
-        <module>activemq5-server</module>
+        <module>activemq-broker</module>
+        <module>geronimo-activemq-ra</module>
+        <module>activemq-ra</module>
+        <module>geronimo-activemq</module>
+        <module>geronimo-activemq-management</module>
+        <module>activemq-portlets</module>
+        <module>activemq-console-jetty</module>
+        <module>activemq-console-tomcat</module>
+        <module>activemq-server</module>
   </modules>
 
     <dependencyManagement>
@@ -53,7 +53,7 @@
             <dependency>
                 <groupId>org.apache.activemq</groupId>
                 <artifactId>activemq-core</artifactId>
-                <version>5.2.0</version>
+                <version>${activemqVersion}</version>
                 <exclusions>
                     <exclusion>
                         <groupId>commons-logging</groupId>
@@ -69,19 +69,19 @@
             <dependency>
                 <groupId>org.apache.activemq</groupId>
                 <artifactId>activemq-ra</artifactId>
-                <version>5.2.0</version>
+                <version>${activemqVersion}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.activemq</groupId>
                 <artifactId>activemq-rar</artifactId>
                 <type>rar</type>
-                <version>5.2.0</version>
+                <version>${activemqVersion}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.activemq</groupId>
                 <artifactId>activeio-core</artifactId>
-                <version>3.1.0</version>
+                <version>${activeioVersion}</version>
                 <exclusions>
                     <exclusion>
                         <groupId>commons-logging</groupId>
@@ -89,7 +89,6 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-
 
         </dependencies>
     </dependencyManagement>

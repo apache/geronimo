@@ -32,7 +32,7 @@
             </dep:dependency>
             <dep:dependency>
                 <dep:groupId>org.apache.geronimo.configs</dep:groupId>
-                <dep:artifactId>activemq5-ra</dep:artifactId>
+                <dep:artifactId>activemq-ra</dep:artifactId>
             </dep:dependency>
         </dep:dependencies>
     </dep:environment>

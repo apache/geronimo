@@ -24,12 +24,12 @@
 
     <parent>
         <groupId>org.apache.geronimo.plugins</groupId>
-        <artifactId>activemq5</artifactId>
+        <artifactId>activemq</artifactId>
         <version>2.2-SNAPSHOT</version>
     </parent>
 
-    <artifactId>activemq5-portlets</artifactId>
-    <name>Geronimo Plugins, ActiveMQ5 :: Portlets</name>
+    <artifactId>activemq-portlets</artifactId>
+    <name>Geronimo Plugins, ActiveMQ v5 :: Portlets</name>
     <packaging>war</packaging>
 
     <dependencies>
@@ -105,7 +105,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-activemq5</artifactId>
+            <artifactId>geronimo-activemq</artifactId>
             <version>${version}</version>
             <scope>provided</scope>
         </dependency>

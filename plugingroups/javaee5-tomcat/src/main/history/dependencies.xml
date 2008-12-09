@@ -73,7 +73,7 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>activemq5-ra</artifactId>
+        <artifactId>activemq-ra</artifactId>
         <type>car</type>
     </dependency>
     <dependency>
@@ -98,7 +98,7 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.plugins</groupId>
-        <artifactId>activemq5-console-tomcat</artifactId>
+        <artifactId>activemq-console-tomcat</artifactId>
         <type>car</type>
     </dependency>
     <dependency>

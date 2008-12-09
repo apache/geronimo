@@ -20,16 +20,16 @@
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <parent>
-        <artifactId>activemq5</artifactId>
+        <artifactId>activemq</artifactId>
         <groupId>org.apache.geronimo.plugins</groupId>
         <version>2.2-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.apache.geronimo.plugins</groupId>
-    <artifactId>activemq5-server</artifactId>
+    <artifactId>activemq-server</artifactId>
     <packaging>server-assembly</packaging>
-    <name>Geronimo ActiveMQ Micro-Server</name>
-    <description>Small server for testing activemq5 integration</description>
+    <name>Geronimo ActiveMQ v5 Micro-Server</name>
+    <description>Small server for testing activemq v5 integration</description>
 
     <dependencies>
         <dependency>
@@ -40,19 +40,19 @@
         </dependency>
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>activemq5-broker</artifactId>
+            <artifactId>activemq-broker</artifactId>
             <version>${geronimoVersion}</version>
             <type>car</type>
         </dependency>
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>activemq5-ra</artifactId>
+            <artifactId>activemq-ra</artifactId>
             <version>${geronimoVersion}</version>
             <type>car</type>
         </dependency>
         <dependency>
             <groupId>org.apache.geronimo.plugins</groupId>
-            <artifactId>activemq5-console-jetty</artifactId>
+            <artifactId>activemq-console-jetty</artifactId>
             <version>${geronimoVersion}</version>
             <type>car</type>
         </dependency>
@@ -69,16 +69,16 @@
                     <configuration>
                         <!--<assemblies>-->
                             <!--<assembly>-->
-                                <!--<id>activemq5</id>-->
+                                <!--<id>activemq</id>-->
                                 <!--<groupId>org.apache.geronimo.plugins</groupId>-->
-                                <!--<artifactId>activemq5-server</artifactId>-->
+                                <!--<artifactId>activemq-server</artifactId>-->
                                 <!--<version>${geronimoVersion}</version>-->
                                 <!--<classifier>bin</classifier>-->
                                 <!--<type>zip</type>-->
                             <!--</assembly>-->
                         <!--</assemblies>-->
 
-                        <!--<defaultAssemblyId>activemq5</defaultAssemblyId>-->
+                        <!--<defaultAssemblyId>activemq</defaultAssemblyId>-->
                        <assemblyArchive>${project.build.directory}/${pom.artifactId}-${pom.version}-bin.zip</assemblyArchive>
                         <optionSets>
                             <optionSet>

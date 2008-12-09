@@ -96,7 +96,10 @@
         <!--<txmanagerVersion>2.2-SNAPSHOT</txmanagerVersion>-->
 
         <monitoringConsoleVersion>2.2-SNAPSHOT</monitoringConsoleVersion>
-        <activemqString>activemq5</activemqString>
+
+        <!-- The following are used by the Samples and Daytrader builds -->
+        <activemqVersion>5.2.0</activemqVersion>
+        <activeioVersion>3.1.0</activeioVersion>
 
         <!-- Deployers -->
         <gbeanDeployerBootstrap>org.apache.geronimo.framework/geronimo-gbean-deployer-bootstrap/${version}/car</gbeanDeployerBootstrap>

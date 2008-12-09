@@ -51,7 +51,7 @@
     </dependencies>
     
     <modules>
-        <module>activemq5</module>
+        <module>activemq</module>
         <module>aspectj</module>
         <module>axis</module>
         <module>axis2</module>

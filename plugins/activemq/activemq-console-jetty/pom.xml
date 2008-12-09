@@ -24,18 +24,18 @@
 
     <parent>
         <groupId>org.apache.geronimo.plugins</groupId>
-        <artifactId>activemq5</artifactId>
+        <artifactId>activemq</artifactId>
         <version>2.2-SNAPSHOT</version>
     </parent>
     
-    <artifactId>activemq5-console-jetty</artifactId>
-    <name>Geronimo Plugins, ActiveMQ5 :: Console (Jetty)</name>
+    <artifactId>activemq-console-jetty</artifactId>
+    <name>Geronimo Plugins, ActiveMQ v5 :: Console (Jetty)</name>
     <packaging>car</packaging>
 
     <dependencies>
         <dependency>
             <groupId>org.apache.geronimo.plugins</groupId>
-            <artifactId>activemq5-portlets</artifactId>
+            <artifactId>activemq-portlets</artifactId>
             <version>${version}</version>
             <type>war</type>
             <scope>provided</scope>
@@ -56,7 +56,7 @@
 
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>activemq5-ra</artifactId>
+            <artifactId>activemq-ra</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>
@@ -112,7 +112,7 @@
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-activemq5-ra</artifactId>
+            <artifactId>geronimo-activemq-ra</artifactId>
             <version>${version}</version>
             <type>rar</type>
             <exclusions>
@@ -171,7 +171,7 @@
                     </deploymentConfigs>
                     <module>
                         <groupId>org.apache.geronimo.plugins</groupId>
-                        <artifactId>activemq5-portlets</artifactId>
+                        <artifactId>activemq-portlets</artifactId>
                         <version>${version}</version>
                         <type>war</type>
                     </module>

@@ -24,17 +24,17 @@
 
     <parent>
         <groupId>org.apache.geronimo.plugins</groupId>
-        <artifactId>activemq5</artifactId>
+        <artifactId>activemq</artifactId>
         <version>2.2-SNAPSHOT</version>
     </parent>
     
     <groupId>org.apache.geronimo.modules</groupId>
-    <artifactId>geronimo-activemq5-ra</artifactId>
-    <name>Geronimo Plugins, ActiveMQ5 :: Resource Adapter Core</name>
+    <artifactId>geronimo-activemq-ra</artifactId>
+    <name>Geronimo Plugins, ActiveMQ v5 :: Resource Adapter Core</name>
     <packaging>rar</packaging>
     
     <description>
-        Resource Adapter for using ActiveMQ5 in Geronimo.
+        Resource Adapter for using ActiveMQ v5 in Geronimo.
     </description>
     
     <!--

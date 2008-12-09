@@ -24,13 +24,13 @@
 
     <parent>
         <groupId>org.apache.geronimo.plugins</groupId>
-        <artifactId>activemq5</artifactId>
+        <artifactId>activemq</artifactId>
         <version>2.2-SNAPSHOT</version>
     </parent>
     
     <groupId>org.apache.geronimo.modules</groupId>
-    <artifactId>geronimo-activemq5-management</artifactId>
-    <name>Geronimo Plugins, ActiveMQ5 :: Management Interfaces</name>
+    <artifactId>geronimo-activemq-management</artifactId>
+    <name>Geronimo Plugins, ActiveMQ v5 :: Management Interfaces</name>
     
     <dependencies>
         <dependency>
