@@ -880,7 +880,6 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle {
                 throw new DeploymentException("No Resource Adapter defined for MDB '" + mdbInfo.ejbName + "'");
             }
         }
-
     }
 
     private String getResourceAdapterId(AbstractName resourceAdapterAbstractName) {
