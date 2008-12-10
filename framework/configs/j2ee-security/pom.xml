@@ -67,7 +67,6 @@
         <dependency>
             <groupId>org.apache.geronimo.components</groupId>
             <artifactId>geronimo-jaspi</artifactId>
-            <version>1.0-SNAPSHOT</version>
         </dependency>
 <!--
         <dependency>

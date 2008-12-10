@@ -47,15 +47,4 @@
         <module>concurrent-deployer</module>
     </modules>
 
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.apache.geronimo.components</groupId>
-                <artifactId>geronimo-transaction</artifactId>
-                <version>${txmanagerVersion}</version>
-            </dependency>
-
-        </dependencies>
-    </dependencyManagement>
-
 </project>
