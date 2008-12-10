@@ -32,6 +32,12 @@
         <type>jar</type>
     </dependency>
     <dependency>
+        <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>spring</artifactId>
+        <type>car</type>
+    </dependency>
+    <!--
+    <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-core</artifactId>
         <type>jar</type>
@@ -46,14 +52,10 @@
         <artifactId>spring-context</artifactId>
         <type>jar</type>
     </dependency>
+    -->
     <dependency>
         <groupId>org.apache.xbean</groupId>
         <artifactId>xbean-spring</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>commons-logging</groupId>
-        <artifactId>commons-logging</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>

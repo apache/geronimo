@@ -71,6 +71,8 @@
             <groupId>org.apache.activemq</groupId>
             <artifactId>activeio-core</artifactId>
         </dependency>
+
+        <!-- Use our Spring plugin instead
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
@@ -86,15 +88,23 @@
             <artifactId>spring-context</artifactId>
             <version>2.5.5</version>
         </dependency>
+        -->
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>spring</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+
         <dependency>
             <groupId>org.apache.xbean</groupId>
             <artifactId>xbean-spring</artifactId>
-            <version>3.4.1</version>
+            <!-- <version>3.4.1</version> -->
         </dependency>
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-naming</artifactId>
-            <version>2.2-SNAPSHOT</version>
+            <version>${version}</version>
         </dependency>
     </dependencies>
 
