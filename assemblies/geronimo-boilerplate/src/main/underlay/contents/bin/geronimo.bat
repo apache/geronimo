@@ -248,7 +248,9 @@ echo.
 echo args for stop command:
 echo        --user        Admin user
 echo        --password    Admin password
+echo        --host        Hostname of the server
 echo        --port        RMI port to connect to
+echo        --secure      Enable secure JMX communication
 goto end
 
 :doDebug
