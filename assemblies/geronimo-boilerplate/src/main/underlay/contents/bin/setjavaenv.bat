@@ -86,7 +86,7 @@ goto end
 
 :okJdkFileCheck
 @REM default JRE_HOME to JAVA_HOME if not set.
-if "%JRE_HOME%" == "" set JRE_HOME=%JAVA_HOME%\jre
+if "%JRE_HOME%" == "" if exist "%JAVA_HOME%\bin\javac.exe" (set JRE_HOME=%JAVA_HOME%\jre) else set JRE_HOME=%JAVA_HOME%
 
 @REM Set standard command for invoking Java.
 @REM Note that NT requires a window name argument when using start.
