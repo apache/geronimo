@@ -29,7 +29,7 @@ import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.AfterSuite;
 
 /**
- * ???
+ * Provides support for Selenium test cases.
  *
  * @version $Rev$ $Date$
  */
@@ -42,19 +42,29 @@ public class SeleniumTestSupport
         super.setUp();
         
         if (url == null) {
-            url = "http://localhost:" + SeleniumServer.DEFAULT_PORT;
+            // url = "http://localhost:" + SeleniumServer.DEFAULT_PORT;
+            // post 1.0-beta-1 builds don't define DEFAULT_PORT
+            url = "http://localhost:4444";
         }
         
-        log.info("Creating Selenium client for URL: " + url);
+        String browser = System.getProperty("browser", "*firefox");
         
-        ExtendedSelenium selenium = new ExtendedSelenium(
-            "localhost", SeleniumServer.DEFAULT_PORT, "*firefox", url);
+        log.info("Creating Selenium client for URL: " + url + ", Browser: " + browser);
+        
+        //ExtendedSelenium selenium = new ExtendedSelenium("localhost", SeleniumServer.DEFAULT_PORT, "*firefox", url);
+        ExtendedSelenium selenium = new ExtendedSelenium("localhost", 4444, browser, url);
         
         return selenium;
     }
     
+    protected void ensureSeleniumClientInitialized() {
+        if (selenium == null) {
+            throw new IllegalStateException("Selenium client was not initalized");
+        }
+    }
+    
     @BeforeSuite
-    protected void startSeleniumClient() throws Exception {
+    protected synchronized void startSeleniumClient() throws Exception {
         log.info("Starting Selenium client");
         
         selenium = createSeleniumClient("http://localhost:8080/");
@@ -62,31 +72,18 @@ public class SeleniumTestSupport
     }
     
     @AfterSuite
-    protected void stopSeleniumClient() throws Exception {
+    protected synchronized void stopSeleniumClient() throws Exception {
+        ensureSeleniumClientInitialized();
+        
         log.info("Stopping Selenium client");
         
         selenium.stop();
     }
-
-    /**
-     * junit's per class setup.
-     * 
-    protected void setUp() throws Exception {
-        log.info("Starting Selenium client");
-        
-        selenium = createSeleniumClient("http://localhost:8080/");
-        selenium.start();
-    }
-     */
     
-    /**
-     * junit's per class teardown.
-     * 
-    protected void tearDown() throws Exception {
-        log.info("Stopping Selenium client");
+    protected void waitForPageLoad() throws Exception {
+        ensureSeleniumClientInitialized();
         
-        selenium.stop();
+        selenium.waitForPageToLoad("30000");
     }
-     */
 }
 
