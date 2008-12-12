@@ -24,7 +24,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.geronimo.jetty6.AbstractPreHandler;
 import org.apache.geronimo.jetty6.PreHandler;
-import org.mortbay.component.LifeCycle;
 import org.mortbay.jetty.servlet.SessionHandler;
 
 /**
@@ -65,12 +64,6 @@ public class ClusteredSessionHandler extends SessionHandler {
         public void handle(String target, HttpServletRequest request, HttpServletResponse response, int dispatch)
                 throws IOException, ServletException {
             doHandle(target, request, response, dispatch);
-        }
-
-        public void addLifeCycleListener(LifeCycle.Listener listener) {
-        }
-
-        public void removeLifeCycleListener(LifeCycle.Listener listener) {
         }
     }
 

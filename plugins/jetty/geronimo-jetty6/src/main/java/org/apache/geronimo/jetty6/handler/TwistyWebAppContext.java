@@ -26,7 +26,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.ServletException;
 
-import org.mortbay.component.LifeCycle;
 import org.mortbay.jetty.Handler;
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.handler.ErrorHandler;
@@ -34,8 +33,6 @@ import org.mortbay.jetty.security.SecurityHandler;
 import org.mortbay.jetty.servlet.ServletHandler;
 import org.mortbay.jetty.servlet.SessionHandler;
 import org.mortbay.jetty.webapp.WebAppContext;
-import org.mortbay.util.LazyList;
-
 
 /**
  * @version $Rev$ $Date$
@@ -63,8 +60,6 @@ public class TwistyWebAppContext extends WebAppContext {
     }
 
     private class TwistyHandler implements Handler {
-        private Object _lock = new Object();
-        protected LifeCycle.Listener[] _listeners;
 
         public void handle(String target, HttpServletRequest request, HttpServletResponse response, int dispatch) throws IOException, ServletException {
             TwistyWebAppContext.super.handle(target, request, response, dispatch);
@@ -82,55 +77,12 @@ public class TwistyWebAppContext extends WebAppContext {
             TwistyWebAppContext.super.destroy();
         }
 
-        /*
-         * this is basically the implementation from AbstractLifeCycle
-         */
         public void start() throws Exception {
-            synchronized (_lock)
-            {
-                try
-                {
-                    if (isStarted() || isStarting())
-                        return;
-                    setStarting();
-                    TwistyWebAppContext.super.start();
-                    setStarted();
-                }
-                catch (Exception e)
-                {
-                    setFailed(e);
-                    throw e;
-                }
-                catch (Error e)
-                {
-                    setFailed(e);
-                    throw e;
-                }
-            }
+            TwistyWebAppContext.super.start();
         }
 
         public void stop() throws Exception {
-            synchronized (_lock)
-            {
-                try
-                {
-                    if (isStopping() || isStopped())
-                        return;
-                    setStopping();
-                    TwistyWebAppContext.super.stop();
-                    setStopped();
-                }
-                catch (Exception e)
-                {
-                    setFailed(e);
-                    throw e;
-                }
-                catch (Error e)
-                {
-                    setFailed(e);
-                    throw e;
-                }
-            }
+            TwistyWebAppContext.super.stop();
         }
 
         public boolean isRunning() {
@@ -155,71 +107,6 @@ public class TwistyWebAppContext extends WebAppContext {
 
         public boolean isFailed() {
             return TwistyWebAppContext.super.isFailed();
-        }
-
-        public void addLifeCycleListener(LifeCycle.Listener listener)
-        {
-            _listeners = (LifeCycle.Listener[])LazyList.addToArray(_listeners,listener,LifeCycle.Listener.class);
-        }
-
-        public void removeLifeCycleListener(LifeCycle.Listener listener)
-        {
-            LazyList.removeFromArray(_listeners,listener);
-        }
-
-        private void setStarted()
-        {
-            if (_listeners != null)
-            {
-                for (int i = 0; i < _listeners.length; i++)
-                {
-                    _listeners[i].lifeCycleStarted(this);
-                }
-            }
-        }
-
-        private void setStarting()
-        {
-            if (_listeners != null)
-            {
-                for (int i = 0; i < _listeners.length; i++)
-                {
-                    _listeners[i].lifeCycleStarting(this);
-                }
-            }
-        }
-
-        private void setStopping()
-        {
-            if (_listeners != null)
-            {
-                for (int i = 0; i < _listeners.length; i++)
-                {
-                    _listeners[i].lifeCycleStopping(this);
-                }
-            }
-        }
-
-        private void setStopped()
-        {
-            if (_listeners != null)
-            {
-                for (int i = 0; i < _listeners.length; i++)
-                {
-                    _listeners[i].lifeCycleStopped(this);
-                }
-            }
-        }
-
-        private void setFailed(Throwable error)
-        {
-            if (_listeners != null)
-            {
-                for (int i = 0; i < _listeners.length; i++)
-                {
-                    _listeners[i].lifeCycleFailure(this,error);
-                }
-            }
         }
     }
 }
