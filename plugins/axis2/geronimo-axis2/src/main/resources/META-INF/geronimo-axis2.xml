@@ -116,6 +116,8 @@
         Please uncomment to Receive messages in multipart/form-data format-->
         <!--<messageBuilder contentType="multipart/form-data"-->
                          <!--class="org.apache.axis2.builder.MultipartFormDataBuilder"/>-->
+        <messageBuilder contentType=".*"
+                        class="org.apache.axis2.builder.DataSourceBuilder"/>
     </messageBuilders>
 
     <!-- ================================================= -->

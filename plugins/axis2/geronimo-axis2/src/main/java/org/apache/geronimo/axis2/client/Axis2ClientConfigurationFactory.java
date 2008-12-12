@@ -24,7 +24,7 @@ import org.apache.axis2.context.ConfigurationContext;
 import org.apache.axis2.context.ConfigurationContextFactory;
 import org.apache.axis2.jaxws.ClientConfigurationFactory;
 import org.apache.axis2.jaxws.util.ClassLoaderUtils;
-import org.apache.axis2.jaxws.util.Constants;
+import org.apache.geronimo.axis2.GeronimoConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -96,10 +96,9 @@ public class Axis2ClientConfigurationFactory extends ClientConfigurationFactory
     }
     
     private ConfigurationContext createConfigurationContext() {
-        String repoPath = System.getProperty(Constants.AXIS2_REPO_PATH);
-        String axisConfigPath = System.getProperty(Constants.AXIS2_CONFIG_PATH);
         try {
-            return ConfigurationContextFactory.createConfigurationContextFromFileSystem(repoPath, axisConfigPath);
+            GeronimoConfigurator configurator = new GeronimoConfigurator("META-INF/geronimo-axis2.xml");
+            return ConfigurationContextFactory.createConfigurationContext(configurator);
         } catch (AxisFault e) {
             throw new RuntimeException(e.getMessage(), e);
         }
