@@ -32,10 +32,8 @@ import javax.xml.namespace.QName;
 import javax.xml.soap.SOAPConstants;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.transform.Source;
-import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Dispatch;
 import javax.xml.ws.Service;
-import javax.xml.ws.http.HTTPBinding;
 
 import org.apache.geronimo.jaxws.greeter_provider.common.MessageUtils;
 
@@ -100,16 +98,8 @@ public abstract class TestServlet extends HttpServlet {
         response.setContentType("text/plain");
         response.getWriter().println("Test '" + testName + "' passed");
     }
-
-    
-    /**
-     * TODO With Axis2, it seems that there is an issue about finding the operation for client request.
-     * So we create Service dynamically without WSDL, so that the GenericProviderDispatcher could take effect. 
-     * @throws Exception
-     */
+        
     public void testHTTPDataSource() throws Exception {
-        Service service = Service.create(GREETER_SERVICE);
-        service.addPort(GreeterHTTPDataSourcePort, HTTPBinding.HTTP_BINDING, getHTTPDataSourceAddress());
         Dispatch<DataSource> dispatch = service.createDispatch(GreeterHTTPDataSourcePort, 
                                                                DataSource.class,
                                                                Service.Mode.MESSAGE);

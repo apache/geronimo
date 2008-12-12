@@ -85,9 +85,9 @@
         </wsdl:operation>
     </wsdl:binding>
     <wsdl:service name="GreeterService">
-        <!--wsdl:port binding="tns:GreeterHTTPBinding" name="GreeterHTTPDataSourcePort">
+        <wsdl:port binding="tns:GreeterHTTPBinding" name="GreeterHTTPDataSourcePort">
             <http:address location="http://localhost:8080/provider-war/provider/http/datasource"/>
-        </wsdl:port-->
+        </wsdl:port>
         <wsdl:port binding="tns:GreeterHTTPBinding" name="GreeterHTTPSourceMessageModePort">
             <http:address location="http://localhost:8080/provider-war/provider/http/source/message"/>
         </wsdl:port>

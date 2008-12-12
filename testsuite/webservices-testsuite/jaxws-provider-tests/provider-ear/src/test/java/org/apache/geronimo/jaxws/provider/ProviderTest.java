@@ -54,7 +54,7 @@ public abstract class ProviderTest extends TestSupport {
         in.close();
         return buf.toString();
     }
-/*
+
     @Test
     public void testHTTPDataSource() throws Exception {
         runTest("testHTTPDataSource");
@@ -69,7 +69,7 @@ public abstract class ProviderTest extends TestSupport {
     public void testHTTPSourcePayloadMode() throws Exception {
         runTest("testHTTPSourcePayloadMode");
     }
-*/
+
     @Test
     public void testSOAP11SOAPMessage() throws Exception {
         runTest("testSOAP11SOAPMessage");
@@ -99,7 +99,7 @@ public abstract class ProviderTest extends TestSupport {
     public void testSOAP12SourcePayloadMode() throws Exception {
         runTest("testSOAP12SourcePayloadMode");
     }
-
+    
     protected void runTest(String testName) throws Exception {
         String warName = System.getProperty("webAppName");
         assertNotNull(warName);

@@ -29,13 +29,13 @@
 
  <service-ref>
    <service-ref-name>services/Provider</service-ref-name>
-   <!--port>
+   <port>
       <port-name>GreeterHTTPDataSourcePort</port-name>
       <protocol>http</protocol>
       <host>localhost</host>
       <port>8080</port>
       <uri>/provider-war/provider/http/datasource</uri>
-   </port-->
+   </port>
    <port>
       <port-name>GreeterHTTPSourceMessageModePort</port-name>
       <protocol>http</protocol>
@@ -96,13 +96,13 @@
  
   <service-ref>
    <service-ref-name>services/ejb/Provider</service-ref-name>
-   <!--port>
+   <port>
       <port-name>GreeterHTTPDataSourcePort</port-name>
       <protocol>http</protocol>
       <host>localhost</host>
       <port>8080</port>
       <uri>/GreeterService/GreeterHTTPDataSourceProvider</uri>
-   </port-->
+   </port>
    <port>
       <port-name>GreeterHTTPSourceMessageModePort</port-name>
       <protocol>http</protocol>
