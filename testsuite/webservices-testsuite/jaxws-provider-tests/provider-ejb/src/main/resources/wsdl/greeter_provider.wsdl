@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Licensed to the Apache Software Foundation (ASF) under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The ASF licenses this file to You under the Apache License, Version 2.0
+    (the "License"); you may not use this file except in compliance with
+    the License.  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+
+<wsdl:definitions xmlns:soap11="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl"
+    xmlns:tns="http://geronimo.apache.org/greeter_provider" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/"
+    xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" targetNamespace="http://geronimo.apache.org/greeter_provider" name="Greeter">
+    <wsdl:types>
+        <schema targetNamespace="http://geronimo.apache.org/greeter_provider" xmlns="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+            <element name="sayHi">
+                <complexType>
+                    <sequence>
+                        <element name="requestarg" type="xsd:string"/>
+                    </sequence>
+                </complexType>
+            </element>
+            <element name="sayHiResponse">
+                <complexType>
+                    <sequence>
+                        <element name="responsearg" type="xsd:string"/>
+                    </sequence>
+                </complexType>
+            </element>
+        </schema>
+    </wsdl:types>
+    <wsdl:message name="sayHiRequest">
+        <wsdl:part element="tns:sayHi" name="sayHiRequestPart"/>
+    </wsdl:message>
+    <wsdl:message name="sayHiResponse">
+        <wsdl:part element="tns:sayHiResponse" name="sayHiResponsePart"/>
+    </wsdl:message>
+    <wsdl:portType name="Greeter">
+        <wsdl:operation name="sayHi">
+            <wsdl:input message="tns:sayHiRequest" name="sayHiRequest"/>
+            <wsdl:output message="tns:sayHiResponse" name="sayHiResponse"/>
+        </wsdl:operation>
+    </wsdl:portType>
+    <wsdl:binding name="GreeterSOAP11Binding" type="tns:Greeter">
+        <soap11:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+        <wsdl:operation name="sayHi">
+            <soap11:operation soapAction="" style="document"/>
+            <wsdl:input name="sayHiRequest">
+                <soap11:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="sayHiResponse">
+                <soap11:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:binding name="GreeterSOAP12Binding" type="tns:Greeter">
+        <soap12:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+        <wsdl:operation name="sayHi">
+            <soap12:operation soapAction="" style="document"/>
+            <wsdl:input name="sayHiRequest">
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="sayHiResponse">
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:binding name="GreeterHTTPBinding" type="tns:Greeter">
+        <http:binding verb="POST"/>
+        <wsdl:operation name="sayHi">
+            <http:operation location="sayHi"/>
+            <wsdl:input name="sayHiRequest">
+                <mime:content type="text/xml"/>
+            </wsdl:input>
+            <wsdl:output name="sayHiResponse">
+                <mime:content type="text/xml"/>
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:service name="GreeterService">        
+        <wsdl:port binding="tns:GreeterHTTPBinding" name="GreeterHTTPSourceMessageModePort">
+            <http:address location="http://localhost:8080/jaxws-provider/provider/http/source/message"/>
+        </wsdl:port>
+        <wsdl:port binding="tns:GreeterHTTPBinding" name="GreeterHTTPSourcePayloadModePort">
+            <http:address location="http://localhost:8080/jaxws-provider/provider/http/source/payload"/>
+        </wsdl:port>
+        <wsdl:port binding="tns:GreeterSOAP11Binding" name="GreeterSOAP11SOAPMessagePort">
+            <soap11:address location="http://localhost:8080/jaxws-provider/provider/soap11/soapmessage"/>
+        </wsdl:port>
+        <wsdl:port binding="tns:GreeterSOAP11Binding" name="GreeterSOAP11SourceMessageModePort">
+            <soap11:address location="http://localhost:8080/jaxws-provider/provider/soap11/source/message"/>
+        </wsdl:port>
+        <wsdl:port binding="tns:GreeterSOAP11Binding" name="GreeterSOAP11SourcePayloadModePort">
+            <soap11:address location="http://localhost:8080/jaxws-provider/provider/soap11/source/payload"/>
+        </wsdl:port>
+        <wsdl:port binding="tns:GreeterSOAP12Binding" name="GreeterSOAP12SOAPMessagePort">
+            <soap12:address location="http://localhost:8080/jaxws-provider/provider/soap12/soapmessage"/>
+        </wsdl:port>
+        <wsdl:port binding="tns:GreeterSOAP12Binding" name="GreeterSOAP12SourceMessageModePort">
+            <soap12:address location="http://localhost:8080/jaxws-provider/provider/soap12/source/message"/>
+        </wsdl:port>
+        <wsdl:port binding="tns:GreeterSOAP12Binding" name="GreeterSOAP12SourcePayloadModePort">
+            <soap12:address location="http://localhost:8080/jaxws-provider/provider/soap12/source/payload"/>
+        </wsdl:port>
+    </wsdl:service>
+</wsdl:definitions>
