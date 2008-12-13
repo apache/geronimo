@@ -105,6 +105,18 @@ public class EndpointInfoBuilder {
                 // Generic Service class specified. 
                 // Service API requires a service qname so create a dummy one
                 this.serviceQName = new QName("http://noservice", "noservice");
+                
+                if (serviceRefType != null) {
+                    for (GerPortType gerPort : serviceRefType.getPortArray()) {
+                        String portName = gerPort.getPortName().trim();
+                        URL location = getLocation(gerPort);
+                        String credentialsName = getCredentialsName(gerPort);
+                        boolean mtomEnabled = isMTOMEnabled(portName);
+                        EndpointInfo info = new EndpointInfo(location, credentialsName, mtomEnabled);
+                        this.portInfoMap.put(portName, info);
+                    }
+                }
+                
                 return;
             } else {
                 // Generated Service class specified.
@@ -343,6 +355,31 @@ public class EndpointInfoBuilder {
                 continue;
             }
             if (portType.equals(seiPortType)) {
+                return this.portComponentRefMap.get(sei);
+            }        
+        }
+        return null;
+    }
+    
+    private boolean isMTOMEnabled(String portName) {
+        boolean mtomEnabled = false;
+        PortComponentRefType portRef = getPortComponentRef(portName);
+        if (portRef != null && portRef.isSetEnableMtom()) {
+            mtomEnabled = portRef.getEnableMtom().getBooleanValue();
+        }
+        return mtomEnabled;
+    }
+    
+    private PortComponentRefType getPortComponentRef(String portName) {
+        if (this.portComponentRefMap == null) {
+            return null;
+        }
+        for (Class sei : this.portComponentRefMap.keySet()) {
+            QName seiPortType = JAXWSUtils.getPortType(sei);
+            if (seiPortType == null) {
+                continue;
+            }
+            if (portName.equals(seiPortType.getLocalPart())) {
                 return this.portComponentRefMap.get(sei);
             }        
         }
