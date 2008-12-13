@@ -161,15 +161,4 @@
    </port>
  </service-ref>
 
- <service-ref>
-   <service-ref-name>services/GenericProvider</service-ref-name>
-   <port>
-      <port-name>GreeterHTTPDataSourcePort</port-name>
-      <protocol>http</protocol>
-      <host>localhost</host>
-      <port>8080</port>
-      <uri>/GreeterService/GreeterHTTPDataSourceProvider</uri>
-   </port>
- </service-ref>
-
 </web-app>

@@ -90,10 +90,6 @@ public class TestServletEJB extends TestServlet {
         remoteContext = new InitialContext(remoteProps);
     }
 
-    public String getHTTPDataSourceAddress() {
-        return "http://localhost:8080/GreeterService/GreeterHTTPDataSourceProvider";
-    }
-
     @Override
     public void testHTTPDataSource() throws Exception {
         super.testHTTPDataSource();

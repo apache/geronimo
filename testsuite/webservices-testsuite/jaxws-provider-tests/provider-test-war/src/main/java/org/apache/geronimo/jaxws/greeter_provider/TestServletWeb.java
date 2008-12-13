@@ -33,7 +33,4 @@ public class TestServletWeb extends TestServlet {
         this.service = myService;
     }
 
-    public String getHTTPDataSourceAddress() {
-        return "http://localhost:8080/provider-war/provider/http/datasource";
-    }
 }

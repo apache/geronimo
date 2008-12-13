@@ -107,8 +107,6 @@ public abstract class TestServlet extends HttpServlet {
         AssertUtils.assertResponseHTTPDataSource(responseDataSource);
     }
 
-    public abstract String getHTTPDataSourceAddress();
-
     public void testHTTPSourceMessageMode() throws Exception {
         Dispatch<Source> dispatch = service.createDispatch(GreeterHTTPSourceMessageModePort, Source.class,
                 Service.Mode.MESSAGE);
