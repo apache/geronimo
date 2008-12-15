@@ -115,7 +115,7 @@ public class UnpackedJarFile extends JarFile {
         }
 
         if (file == null) {
-            throw new IOException("Entry not found: name=" + file.getAbsolutePath());
+            throw new IOException("Entry not found: name=" + zipEntry.getName());
         } else if (file.isDirectory()) {
             return new DeploymentUtil.EmptyInputStream();
         }
