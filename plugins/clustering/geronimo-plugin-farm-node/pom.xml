@@ -45,10 +45,6 @@
         </pluginManagement>
         <plugins>
             <plugin>
-                <groupId>org.apache.geronimo.genesis.plugins</groupId>
-                <artifactId>tools-maven-plugin</artifactId>
-            </plugin>
-            <plugin>
                 <groupId>org.apache.geronimo.buildsupport</groupId>
                 <artifactId>car-maven-plugin</artifactId>
                 <configuration>
