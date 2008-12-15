@@ -199,7 +199,7 @@ public class NestedJarFile extends JarFile {
         }
 
         if (baseEntry == null) {
-            throw new IOException("Entry not found: name=" + baseEntry.getName());
+            throw new IOException("Entry not found: name=" + zipEntry.getName());
         } else if (baseEntry.isDirectory()) {
             return new DeploymentUtil.EmptyInputStream();
         }
