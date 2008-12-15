@@ -17,7 +17,9 @@
 package org.apache.geronimo.jmxremoting;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.ServerSocket;
+import java.net.UnknownHostException;
 import java.rmi.server.RMIClientSocketFactory;
 import java.rmi.server.RMIServerSocketFactory;
 import java.util.HashMap;
@@ -141,7 +143,7 @@ public class JMXSecureConnector extends JMXConnector {
         }
         
         SSLServerSocketFactory sssf = keystoreManager.createSSLServerFactory(null, secureProtocol, algorithm, keyStore, keyAlias, trustStore, classLoader);
-        RMIServerSocketFactory rssf = new GeronimoSslRMIServerSocketFactory(sssf, clientAuth);
+        RMIServerSocketFactory rssf = new GeronimoSslRMIServerSocketFactory(sssf, host, clientAuth);
         RMIClientSocketFactory rcsf = new SslRMIClientSocketFactory();
         env.put(RMIConnectorServer.RMI_SERVER_SOCKET_FACTORY_ATTRIBUTE, rssf);
         env.put(RMIConnectorServer.RMI_CLIENT_SOCKET_FACTORY_ATTRIBUTE, rcsf);
@@ -159,14 +161,16 @@ public class JMXSecureConnector extends JMXConnector {
     private static class GeronimoSslRMIServerSocketFactory implements RMIServerSocketFactory {
         private SSLServerSocketFactory sssf;
         private boolean clientAuth;
+        private InetAddress bindAddress;
         
-        public GeronimoSslRMIServerSocketFactory(SSLServerSocketFactory sssf, boolean clientAuth) {
+        public GeronimoSslRMIServerSocketFactory(SSLServerSocketFactory sssf, String bindHost, boolean clientAuth) throws UnknownHostException {
             this.sssf = sssf;
+            this.bindAddress = InetAddress.getByName(bindHost);
             this.clientAuth = clientAuth;
         }
         
         public ServerSocket createServerSocket(int port) throws IOException {
-            SSLServerSocket ss = (SSLServerSocket) sssf.createServerSocket(port);
+            SSLServerSocket ss = (SSLServerSocket) sssf.createServerSocket(port, 0, this.bindAddress);
             ss.setNeedClientAuth(clientAuth);
             return ss;
         }
