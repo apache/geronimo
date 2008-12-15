@@ -18,6 +18,9 @@ package org.apache.geronimo.kernel.rmi;
 
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.rmi.server.RMIClientSocketFactory;
+import java.rmi.server.RMIServerSocketFactory;
+import java.rmi.server.RMISocketFactory;
 import java.rmi.server.UnicastRemoteObject;
 import java.net.InetSocketAddress;
 
@@ -61,7 +64,9 @@ public class RMIRegistryService implements GBeanLifecycle {
 
     public void doStart() throws Exception {
         System.setProperty("java.rmi.server.RMIClassLoaderSpi",RMIClassLoaderSpiImpl.class.getName());
-        registry = LocateRegistry.createRegistry(port);
+        RMIClientSocketFactory socketFactory = RMISocketFactory.getDefaultSocketFactory();
+        RMIServerSocketFactory serverSocketFactory = new GeronimoRMIServerSocketFactory(host);
+        registry = LocateRegistry.createRegistry(port, socketFactory, serverSocketFactory);
         log.debug("Started RMI Registry on port: {}", port);
     }
 

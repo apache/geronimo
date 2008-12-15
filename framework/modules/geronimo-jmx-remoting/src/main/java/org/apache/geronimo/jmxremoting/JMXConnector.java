@@ -18,6 +18,7 @@ package org.apache.geronimo.jmxremoting;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.rmi.server.RMIServerSocketFactory;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,13 +28,15 @@ import javax.management.remote.JMXConnectionNotification;
 import javax.management.remote.JMXConnectorServer;
 import javax.management.remote.JMXConnectorServerFactory;
 import javax.management.remote.JMXServiceURL;
+import javax.management.remote.rmi.RMIConnectorServer;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.kernel.rmi.GeronimoRMIServerSocketFactory;
 import org.apache.geronimo.system.jmx.MBeanServerReference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A connector that supports the server side of JSR 160 JMX Remoting.
@@ -183,6 +186,8 @@ public class JMXConnector implements JMXConnectorInfo, GBeanLifecycle {
         } else {
             log.warn("Starting unauthenticating JMXConnector for " + jmxServiceURL);
         }
+        RMIServerSocketFactory serverSocketFactory = new GeronimoRMIServerSocketFactory(host);
+        env.put(RMIConnectorServer.RMI_SERVER_SOCKET_FACTORY_ATTRIBUTE, serverSocketFactory);
         server = JMXConnectorServerFactory.newJMXConnectorServer(jmxServiceURL, env, mbeanServer);
         NotificationFilterSupport filter = new NotificationFilterSupport();
         filter.enableType(JMXConnectionNotification.OPENED);
