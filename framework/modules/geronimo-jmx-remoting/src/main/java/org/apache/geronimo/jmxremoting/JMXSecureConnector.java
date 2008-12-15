@@ -35,10 +35,10 @@ import javax.management.remote.rmi.RMIConnectorServer;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
-import javax.rmi.ssl.SslRMIClientSocketFactory;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.kernel.rmi.GeronimoSslRMIClientSocketFactory;
 import org.apache.geronimo.management.geronimo.KeystoreManager;
 import org.apache.geronimo.system.jmx.MBeanServerReference;
 
@@ -144,7 +144,7 @@ public class JMXSecureConnector extends JMXConnector {
         
         SSLServerSocketFactory sssf = keystoreManager.createSSLServerFactory(null, secureProtocol, algorithm, keyStore, keyAlias, trustStore, classLoader);
         RMIServerSocketFactory rssf = new GeronimoSslRMIServerSocketFactory(sssf, host, clientAuth);
-        RMIClientSocketFactory rcsf = new SslRMIClientSocketFactory();
+        RMIClientSocketFactory rcsf = new GeronimoSslRMIClientSocketFactory(5 * 60 * 1000);
         env.put(RMIConnectorServer.RMI_SERVER_SOCKET_FACTORY_ATTRIBUTE, rssf);
         env.put(RMIConnectorServer.RMI_CLIENT_SOCKET_FACTORY_ATTRIBUTE, rcsf);
         
