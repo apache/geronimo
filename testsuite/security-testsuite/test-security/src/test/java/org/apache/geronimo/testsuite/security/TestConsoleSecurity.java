@@ -28,6 +28,7 @@ public class TestConsoleSecurity extends SeleniumTestSupport {
     @Test
     public void testLogin() throws Exception {
         selenium.open("/console");
+        waitForPageLoad();
         assertFalse(selenium.isTextPresent("Deploy New"));
         selenium.type("j_username", "system");
         selenium.type("j_password", "manager");
@@ -68,6 +69,7 @@ public class TestConsoleSecurity extends SeleniumTestSupport {
     
     private void testFailure(String username, String password) throws Exception {
         selenium.open("/console");
+        waitForPageLoad();
         if (username != null) {
             selenium.type("j_username", username);
         }
