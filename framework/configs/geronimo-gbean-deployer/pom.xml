@@ -88,7 +88,7 @@
                             <artifactItems>
                                 <artifactItem>
                                     <groupId>org.apache.geronimo.framework</groupId>
-                                    <artifactId>geronimo-system</artifactId>
+                                    <artifactId>geronimo-service-builder</artifactId>
                                     <version>${version}</version>
                                 </artifactItem>
                             </artifactItems>
@@ -125,8 +125,8 @@
                             </config-xml-content>
                             <config-xml-content server="offline"/>
                             <config-substitution key="RemoteDeployHostname">localhost</config-substitution>
+                            <copy-file dest-dir="schema">schema/schemaorg_apache_xmlbeans/src/</copy-file>
                         </plugin-artifact>
-                        <copy-file dest-dir="schema">schema/schemaorg_apache_xmlbeans/src/</copy-file>
                     </instance>
                 </configuration>
             </plugin>
