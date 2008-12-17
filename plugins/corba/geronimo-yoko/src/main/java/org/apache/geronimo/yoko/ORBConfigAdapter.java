@@ -172,7 +172,16 @@ public class ORBConfigAdapter implements GBeanLifecycle, ConfigAdapter {
         try {
             // create a name service using the supplied host and publish under the name "NameService"
             TransientNameService service = new TransientNameService(host, port, "NameService");
-            service.run();
+            // Create an ORB object
+            java.util.Properties props = new Properties();
+            props.putAll(System.getProperties());
+            props.put("org.omg.CORBA.ORBServerId", "1000000" ) ;
+            props.put("org.omg.CORBA.ORBClass", "org.apache.yoko.orb.CORBA.ORB");
+            props.put("org.omg.CORBA.ORBSingletonClass", "org.apache.yoko.orb.CORBA.ORBSingleton");
+            props.put("yoko.orb.oa.endpoint", "iiop --bind " + host  + " --host " + host + " --port " + port );
+            log.debug("Creating ORB endpoint with host=" + host + ", port=" + port);
+            ORB createdOrb = ORB.init((String[])null, props) ;
+            service.initialize(createdOrb);
             // the service instance is returned as an opaque object.
             return service;
         } catch (TransientServiceException e) {
@@ -272,10 +281,10 @@ public class ORBConfigAdapter implements GBeanLifecycle, ConfigAdapter {
         result.put("org.omg.PortableInterceptor.ORBInitializerClass.org.apache.geronimo.yoko.ORBInitializer", "");
         // don't specify the port if we're allowing this to default.
         if (server.getPort() > 0) {
-            result.put("yoko.orb.oa.endpoint", "iiop --host " + server.getHost() + " --port " + server.getPort());
+            result.put("yoko.orb.oa.endpoint", "iiop --bind " + server.getHost() + " --host " + server.getHost() + " --port " + server.getPort());
         }
         else {
-            result.put("yoko.orb.oa.endpoint", "iiop --host " + server.getHost());
+            result.put("yoko.orb.oa.endpoint", "iiop --bind " + server.getHost()+ " --host " + server.getHost());
         }
         
         // this gives us a connection we can use to retrieve the ORB configuration in the 
