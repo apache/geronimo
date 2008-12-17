@@ -34,6 +34,12 @@
 
     <description>Geronimo class transformer registry agent.</description>
 
+    <!--
+        NOTE: TransformerCollection currently assumes that there are
+        no transformer-agent dependencies. If dependencies are
+        added, then TransformerCollection will need to be updated to 
+        avoid potential ClassLoader deadlocks.
+    -->
     <dependencies>
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
