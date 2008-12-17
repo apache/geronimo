@@ -31,5 +31,13 @@
     <artifactId>geronimo-transformer</artifactId>
     <name>Geronimo Framework, Modules :: Transformer</name>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>geronimo-kernel</artifactId>
+            <version>${version}</version>
+        </dependency>
+    </dependencies>
+
 </project>
 

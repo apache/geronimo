@@ -606,6 +606,31 @@ public class MultiParentClassLoader extends URLClassLoader
         return hiddenRule.isFilteredResource(name);
     }
 
+    public static Set<ClassLoader> getAncestors(ClassLoader cl) {
+        Set<ClassLoader> ancestors = new HashSet();
+        getAncestorsInternal(ancestors, cl);
+        return ancestors;
+    }
+
+    /**
+     * Recursive method to calculate all ClassLoader parents of a given ClassLoader.
+     */
+    private static void getAncestorsInternal(Set<ClassLoader> ancestors, ClassLoader childClassLoader) {
+        if (childClassLoader == null) {
+            return;
+        }
+        if (childClassLoader instanceof MultiParentClassLoader) {
+            for (ClassLoader cl: ((MultiParentClassLoader)childClassLoader).parents) {
+                ancestors.add(cl);
+                getAncestorsInternal(ancestors, cl);
+            }
+        } else {
+            ClassLoader cl = childClassLoader.getParent();
+            ancestors.add(cl);
+            getAncestorsInternal(ancestors, cl);
+        }
+    }
+    
     public String toString() {
         StringBuilder b = new StringBuilder();
         if (LONG_CLASSLOADER_TO_STRING) {
