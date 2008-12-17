@@ -28,8 +28,8 @@
 <script type='text/javascript' src='<%= dwrForwarderServlet %>/util.js'></script>
 <style type="text/css">
 
-@import "/dojo/dojo/dojo/resources/dojo.css";
-@import "/dojo/dojo/dijit/themes/soria/soria.css";
+@import "/dojo/dojo/resources/dojo.css";
+@import "/dojo/dijit/themes/soria/soria.css";
 
 table thead td, table thead th { 
     background: #2581C7; /* #94BEFF */
@@ -37,7 +37,7 @@ table thead td, table thead th {
 }
 
 </style>
-<script type="text/javascript" src="/dojo/dojo/dojo/dojo.js" djConfig="parseOnLoad: true"></script>
+<script type="text/javascript" src="/dojo/dojo/dojo.js" djConfig="parseOnLoad: true"></script>
     
 <script>    
 
