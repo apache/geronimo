@@ -17,11 +17,20 @@
 
 package org.apache.geronimo.deployment.cli;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.Serializable;
 import java.io.StringReader;
+import java.util.Properties;
 
 import jline.ConsoleReader;
+
+import org.apache.geronimo.crypto.EncryptionManager;
 import org.apache.geronimo.deployment.plugin.ConfigIDExtractor;
 
 /**
@@ -30,6 +39,10 @@ import org.apache.geronimo.deployment.plugin.ConfigIDExtractor;
  * @version $Rev$ $Date$
  */
 public class DeployUtils extends ConfigIDExtractor {
+    
+    private final static String DEFAULT_URI = "deployer:geronimo:jmx";
+    private final static String DEFAULT_SECURE_URI = "deployer:geronimo:jmxs";
+    
     /**
      * Split up an output line so it indents at beginning and end (to fit in a
      * typical terminal) and doesn't break in the middle of a word.
@@ -133,6 +146,92 @@ public class DeployUtils extends ConfigIDExtractor {
         }
         return buf.toString();
     }
+    
+    public static String getConnectionURI(String host, Integer port, boolean secure) {
+        String uri = (secure) ? DEFAULT_SECURE_URI : DEFAULT_URI;
+        if (host != null || port != null) {
+            uri += "://" + (host == null ? "" : host) + (port == null ? "" : ":" + port);
+        }
+        return uri;
+    }
+    
+    public static SavedAuthentication readSavedCredentials(String uri) throws IOException {
+        SavedAuthentication auth = null;
+        InputStream in;
+        
+        // First check for .geronimo-deployer on class path (e.g. packaged in deployer.jar)
+        in = DeployUtils.class.getResourceAsStream("/.geronimo-deployer");
+        // If not there, check in home directory
+        if (in == null) {
+            File authFile = new File(System.getProperty("user.home"), ".geronimo-deployer");
+            if (authFile.exists() && authFile.canRead()) {
+                try {
+                    in = new BufferedInputStream(new FileInputStream(authFile));
+                } catch (FileNotFoundException e) {
+                    // ignore
+                }
+            }
+        }
+        
+        if (in != null) {
+            try {
+                Properties props = new Properties();
+                props.load(in);
+                String encrypted = props.getProperty("login." + uri);
+                if (encrypted != null) {
+                    if (encrypted.startsWith("{Plain}")) {
+                        int pos = encrypted.indexOf("/");
+                        String user = encrypted.substring(7, pos);
+                        String password = encrypted.substring(pos + 1);
+                        auth = new SavedAuthentication(uri, user, password.toCharArray());
+                    } else {
+                        Object o = EncryptionManager.decrypt(encrypted);
+                        if (o == encrypted) {
+                            throw new IOException("Unknown encryption used in saved login file");
+                        } else {
+                            auth = (SavedAuthentication) o;
+                        }
+                    }
+                }
+            } catch (IOException e) {
+                throw new IOException("Unable to read authentication from saved login file: " + e.getMessage());
+            } finally {
+                try {
+                    in.close();
+                } catch (IOException e) {
+                    // ingore
+                }
+            }
+        }
+        
+        return auth;
+    }
+    
+    public final static class SavedAuthentication implements Serializable {
 
+        private static final long serialVersionUID = -3127576258038677899L;
+        
+        private String uri;
+        private String user;
+        private char[] password;
+
+        public SavedAuthentication(String uri, String user, char[] password) {
+            this.uri = uri;
+            this.user = user;
+            this.password = password;
+        }
+        
+        public String getURI() {
+            return this.uri;
+        }
+        
+        public String getUser() {
+            return this.user;
+        }
+        
+        public char[] getPassword() {
+            return this.password;
+        }
+    }
 
 }

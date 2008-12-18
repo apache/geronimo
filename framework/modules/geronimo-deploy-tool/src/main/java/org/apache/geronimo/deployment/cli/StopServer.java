@@ -29,6 +29,7 @@ import javax.management.remote.JMXServiceURL;
 import javax.management.remote.rmi.RMIConnectorServer;
 import javax.rmi.ssl.SslRMIClientSocketFactory;
 
+import org.apache.geronimo.deployment.cli.DeployUtils.SavedAuthentication;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.kernel.Kernel;
@@ -44,7 +45,7 @@ public class StopServer implements Main {
 
 	public static final String DEFAULT_PORT = "1099"; // 1099 is used by java.rmi.registry.Registry
 
-	String host = "localhost";
+	String host;
 	
 	String port;
 
@@ -79,33 +80,52 @@ public class StopServer implements Main {
             printUsage();
         }
 
-        try {
-            if (port != null) {
-                Integer.parseInt(port);
+        Integer portI = null;        
+        if (port != null) {
+            try {
+                portI = new Integer(port);
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid port number specified.");
+                return 1;
             }
-        } catch (NumberFormatException e) {
-            System.out.println("Invalid port number specified.");
-            return 1;
         }
 
-        try {
-            InputPrompt prompt = new InputPrompt(System.in, System.out);
-            if (user == null) {
-                user = prompt.getInput("Username: ");
+        if (user == null && password == null) {
+            String uri = DeployUtils.getConnectionURI(host, portI, secure);
+            try {
+                SavedAuthentication savedAuthentication = DeployUtils.readSavedCredentials(uri);
+                if (savedAuthentication != null) {
+                    user = savedAuthentication.getUser();
+                    password = new String(savedAuthentication.getPassword());
+                }
+            } catch (IOException e) {
+                System.out.println("Warning: " + e.getMessage());
             }
-            if (password == null) {
-                password = prompt.getPassword("Password: ");
+        }
+
+        if (user == null || password == null) {
+            try {
+                InputPrompt prompt = new InputPrompt(System.in, System.out);
+                if (user == null) {
+                    user = prompt.getInput("Username: ");
+                }
+                if (password == null) {
+                    password = prompt.getPassword("Password: ");
+                }
+            } catch (IOException e) {
+                System.out.println("Unable to prompt for login.");
+                return 1;
             }
-        } catch (IOException e) {
-            System.out.println("Unable to prompt for login.");
-            return 1;
         }
 
         try {
             if (port == null) {
                 port = DEFAULT_PORT;
             }
-            System.out.print("Locating server on port " + port + "... ");
+            if (host == null) {
+                host = "localhost";
+            }
+            System.out.print("Locating server on " + host + ":" + port + "... ");
             Kernel kernel = null;
             try {
                 kernel = getRunningKernel();

@@ -17,16 +17,12 @@
 
 package org.apache.geronimo.deployment.cli;
 
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.Serializable;
 import java.io.Writer;
-import java.util.Properties;
 import java.util.jar.JarFile;
 
 import javax.enterprise.deploy.shared.factories.DeploymentFactoryManager;
@@ -36,11 +32,11 @@ import javax.enterprise.deploy.spi.factories.DeploymentFactory;
 
 import org.apache.geronimo.cli.deployer.ConnectionParams;
 import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.deployment.cli.DeployUtils.SavedAuthentication;
 import org.apache.geronimo.deployment.plugin.factories.AuthenticationFailedException;
 import org.apache.geronimo.deployment.plugin.jmx.JMXDeploymentManager;
 import org.apache.geronimo.deployment.plugin.jmx.LocalDeploymentManager;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.crypto.EncryptionManager;
 
 /**
  * Supports online connections to the server, via JSR-88, valid only
@@ -49,9 +45,6 @@ import org.apache.geronimo.crypto.EncryptionManager;
  * @version $Rev$ $Date$
  */
 public class ServerConnection {
-
-    private final static String DEFAULT_URI = "deployer:geronimo:jmx";
-    private final static String DEFAULT_SECURE_URI = "deployer:geronimo:jmxs";
 
     private final DeploymentFactory geronimoDeploymentFactory;
 
@@ -86,7 +79,7 @@ public class ServerConnection {
             throw new DeploymentSyntaxException("A custom driver requires a custom URI");
         }
         if (host != null || port != null) {
-            uri = getDefaultURI(secure) + "://" + (host == null ? "" : host) + (port == null ? "" : ":" + port);
+            uri = DeployUtils.getConnectionURI(host, port, secure);
         }
         if (offline) {
             startOfflineDeployer(kernel);
@@ -103,10 +96,6 @@ public class ServerConnection {
         OfflineDeployerStarter offlineDeployerStarter = new OfflineDeployerStarter(kernel);
         offlineDeployerStarter.start();
     }
-
-    private static String getDefaultURI(boolean secure) {
-        return (secure) ? DEFAULT_SECURE_URI : DEFAULT_URI;
-    }
     
     public void close() throws DeploymentException {
         if (manager != null) {
@@ -119,7 +108,7 @@ public class ServerConnection {
     }
 
     String getServerURI() {
-        return auth.uri;
+        return (auth == null) ? null : auth.getURI();
     }
 
     private void tryToConnect(String argURI, String driver, String user, String password, boolean secure) throws DeploymentException {
@@ -129,57 +118,18 @@ public class ServerConnection {
         } else {
             mgr.registerDeploymentFactory(geronimoDeploymentFactory);
         }
-        String useURI = argURI == null ? getDefaultURI(secure) : argURI;
+        String useURI = argURI == null ? DeployUtils.getConnectionURI(null, null, secure) : argURI;
 
         if (user == null && password == null) {
-            InputStream in;
-            // First check for .geronimo-deployer on class path (e.g. packaged in deployer.jar)
-            in = ServerConnection.class.getResourceAsStream("/.geronimo-deployer");
-            // If not there, check in home directory
-            if (in == null) {
-                File authFile = new File(System.getProperty("user.home"), ".geronimo-deployer");
-                if (authFile.exists() && authFile.canRead()) {
-                    try {
-                        in = new BufferedInputStream(new FileInputStream(authFile));
-                    } catch (FileNotFoundException e) {
-                        // ignore
-                    }
-                }
-            }
-            if (in != null) {
-                try {
-                    Properties props = new Properties();
-                    props.load(in);
-                    String encrypted = props.getProperty("login." + useURI);
-                    if (encrypted != null) {
-
-                        if (encrypted.startsWith("{Plain}")) {
-                            int pos = encrypted.indexOf("/");
-                            user = encrypted.substring(7, pos);
-                            password = encrypted.substring(pos + 1);
-                        } else {
-                            Object o = EncryptionManager.decrypt(encrypted);
-                            if (o == encrypted) {
-                                System.out.print(DeployUtils.reformat("Unknown encryption used in saved login file", 4, 72));
-                            } else {
-                                SavedAuthentication auth = (SavedAuthentication) o;
-                                if (auth.uri.equals(useURI)) {
-                                    user = auth.user;
-                                    password = new String(auth.password);
-                                }
-                            }
-                        }
-                    }
-                } catch (IOException e) {
-                    System.out.print(DeployUtils.reformat("Unable to read authentication from saved login file: " + e.getMessage(), 4, 72));
-                } finally {
-                    try {
-                        in.close();
-                    } catch (IOException e) {
-                        // ingore
-                    }
-                }
-            }
+            try {
+                SavedAuthentication savedAuthentication = DeployUtils.readSavedCredentials(useURI);
+                if (savedAuthentication != null) {
+                    user = savedAuthentication.getUser();
+                    password = new String(savedAuthentication.getPassword());
+                }  
+            } catch (IOException e) {
+                System.out.println("Warning: " + e.getMessage());
+            }          
         }
 
         if (user == null || password == null) {
@@ -241,15 +191,4 @@ public class ServerConnection {
         return manager.getClass().getName().startsWith("org.apache.geronimo.");
     }
 
-    private final static class SavedAuthentication implements Serializable {
-        private String uri;
-        private String user;
-        private char[] password;
-
-        public SavedAuthentication(String uri, String user, char[] password) {
-            this.uri = uri;
-            this.user = user;
-            this.password = password;
-        }
-    }
 }
