@@ -37,7 +37,8 @@
 </style>  
 
 <script language="JavaScript">
-function <portlet:namespace/>validate() {
+function <portlet:namespace/>validateForm() {
+   var illegalChars= /[\.]{2}|[()<>,;:\\/"']/ ;
    if (! (document.<portlet:namespace/>fileSelect.local.value 
       && document.<portlet:namespace/>fileSelect.group.value 
       && document.<portlet:namespace/>fileSelect.artifact.value 
@@ -46,6 +47,18 @@ function <portlet:namespace/>validate() {
    {
       alert("File, Group, Artifact, Version, and Type are all required fields");
       return false;
+   } else if (document.<portlet:namespace/>fileSelect.group.value.match(illegalChars)) {
+       alert("Group contains invalid characters - must only contain letters, numbers, and underscores");
+       return false;
+   } else if (document.<portlet:namespace/>fileSelect.artifact.value.match(illegalChars)) {
+       alert("Artifact contains invalid characters - must only contain letters, numbers, and underscores");
+       return false;
+   } else if (document.<portlet:namespace/>fileSelect.version.value.match(illegalChars)) {
+       alert("Version contains invalid characters - must only contain letters, numbers, and underscores");
+       return false;
+   } else if (document.<portlet:namespace/>fileSelect.fileType.value.match(illegalChars)) {
+       alert("File type contains invalid characters - must only contain letters, numbers, and underscores");
+       return false;
    }
 }
 
@@ -94,7 +107,7 @@ function <portlet:namespace/>parse(localFile) {
 <table width="100%">
 <tr>
   <td align="center">
-  <form onsubmit="return <portlet:namespace/>validate();" enctype="multipart/form-data" name="<portlet:namespace/>fileSelect" method="POST" action="<portlet:actionURL><portlet:param name="action" value="deploy"/></portlet:actionURL>">
+  <form onsubmit="return <portlet:namespace/>validateForm();" enctype="multipart/form-data" name="<portlet:namespace/>fileSelect" method="POST" action="<portlet:actionURL><portlet:param name="action" value="deploy"/></portlet:actionURL>">
   <table>
     <tr>
       <th colspan="2"><fmt:message key="repository.normal.addArchiveToRepository"/></th>

@@ -27,6 +27,8 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
@@ -50,6 +52,7 @@ import org.xml.sax.SAXException;
 public abstract class AbstractRepository implements WriteableRepository {
     protected final Logger log = LoggerFactory.getLogger(getClass());
     private final static ArtifactTypeHandler DEFAULT_TYPE_HANDLER = new CopyArtifactTypeHandler();
+    private final static Pattern ILLEGAL_CHARS = Pattern.compile("[\\.]{2}|[()<>,;:\\\\/\"\']");
     protected final File rootFile;
     private final Map<String, ArtifactTypeHandler> typeHandlers = new HashMap<String, ArtifactTypeHandler>();
 
@@ -153,6 +156,20 @@ public abstract class AbstractRepository implements WriteableRepository {
     }
 
     public void copyToRepository(File source, Artifact destination, FileWriteMonitor monitor) throws IOException {
+
+        // ensure there are no illegal chars in destination elements
+        Matcher groupMatcher = ILLEGAL_CHARS.matcher(destination.getGroupId());
+        Matcher artifactMatcher = ILLEGAL_CHARS.matcher(destination.getArtifactId());
+        Matcher versionMatcher = ILLEGAL_CHARS.matcher(destination.getVersion().toString());
+        Matcher typeMatcher = ILLEGAL_CHARS.matcher(destination.getType());
+        if (groupMatcher.find() || 
+            artifactMatcher.find() ||
+            versionMatcher.find() ||
+            typeMatcher.find())
+        {
+            throw new IllegalArgumentException("Artifact  "+destination+" contains illegal characters, .. ( ) < > , ; : / \\ \' \" ");
+        }
+
         if(!destination.isResolved()) {
             throw new IllegalArgumentException("Artifact "+destination+" is not fully resolved");
         }
