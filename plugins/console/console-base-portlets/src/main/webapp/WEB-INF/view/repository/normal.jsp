@@ -48,16 +48,16 @@ function <portlet:namespace/>validateForm() {
       alert("File, Group, Artifact, Version, and Type are all required fields");
       return false;
    } else if (document.<portlet:namespace/>fileSelect.group.value.match(illegalChars)) {
-       alert("Group contains invalid characters - must only contain letters, numbers, and underscores");
+       alert("Group contains invalid characters");
        return false;
    } else if (document.<portlet:namespace/>fileSelect.artifact.value.match(illegalChars)) {
-       alert("Artifact contains invalid characters - must only contain letters, numbers, and underscores");
+       alert("Artifact contains invalid characters");
        return false;
    } else if (document.<portlet:namespace/>fileSelect.version.value.match(illegalChars)) {
-       alert("Version contains invalid characters - must only contain letters, numbers, and underscores");
+       alert("Version contains invalid characters");
        return false;
    } else if (document.<portlet:namespace/>fileSelect.fileType.value.match(illegalChars)) {
-       alert("File type contains invalid characters - must only contain letters, numbers, and underscores");
+       alert("File type contains invalid characters");
        return false;
    }
 }
