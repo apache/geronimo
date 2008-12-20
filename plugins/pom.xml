@@ -78,6 +78,7 @@
         <module>remote-deploy</module>
         <module>sharedlib</module>
         <module>welcome</module>
+        <module>procrun</module>
     </modules>
     
     <build>
