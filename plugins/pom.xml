@@ -88,8 +88,9 @@
         <module>sharedlib</module>
         <module>welcome</module>
         <module>concurrent</module>
-    <module>classloaders</module>
-  </modules>
+        <module>classloaders</module>
+        <module>procrun</module>
+    </modules>
     
     <build>
         <plugins>
