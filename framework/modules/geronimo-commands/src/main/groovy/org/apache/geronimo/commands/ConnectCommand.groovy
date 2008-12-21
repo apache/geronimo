@@ -23,6 +23,7 @@ import org.apache.geronimo.gshell.clp.Option
 import org.apache.geronimo.gshell.command.annotation.CommandComponent
 import org.apache.geronimo.gshell.command.CommandSupport
 import org.apache.geronimo.deployment.cli.ServerConnection
+import org.apache.geronimo.deployment.cli.ServerConnection.UsernamePasswordHandler
 import org.apache.geronimo.deployment.plugin.factories.DeploymentFactoryWithKernel
 import org.apache.geronimo.deployment.plugin.jmx.RemoteDeploymentManager
 import org.apache.geronimo.cli.deployer.ConnectionParamsImpl
@@ -68,27 +69,12 @@ class ConnectCommand
         if (!quiet) {
         	io.out.println("Connecting to Geronimo server: ${hostname}:${port}")
         }
-        
-        // If the username/password was not configured via cli, then prompt the user for the values
-        if (username == null || password == null) {
-            if (username == null) {
-                username = prompter.readLine('Username: ')
-            }
-
-            if (password == null) {
-                password = prompter.readPassword('Password: ')
-            }
-
-            //
-            // TODO: Handle null inputs...
-            //
-        }
-        
+                
         def kernel = new BasicKernel('gshell deployer')
         def deploymentManager = new RemoteDeploymentManager(Collections.emptySet())
         def deploymentFactory = new DeploymentFactoryWithKernel(kernel, deploymentManager)
         def connectionParams = new ConnectionParamsImpl(host: hostname, port: port, user: username, password: password, offline: false, secure: secure)
-        def connection = new ServerConnection(connectionParams, io.out, io.inputStream, kernel, deploymentFactory)
+        def connection = new ServerConnection(connectionParams, new GShellUserPasswordHandler(prompter), kernel, deploymentFactory)
 
         // Disconnect previous connection if any
         disconnect()
@@ -129,5 +115,22 @@ class ConnectCommand
         }
         
         variables.parent.unset(SERVER_CONNECTION)
+    }
+}
+
+class GShellUserPasswordHandler implements UsernamePasswordHandler {
+
+    PromptReader prompter
+    
+    public GShellUserPasswordHandler(PromptReader prompter) {
+        this.prompter = prompter
+    }
+    
+    public String getPassword() throws IOException {  
+        return prompter.readPassword('Password: ') 
+    }
+
+    public String getUsername() throws IOException {
+        return prompter.readLine('Username: ')        
     }
 }

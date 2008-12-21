@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.Serializable;
-import java.io.Writer;
 import java.util.jar.JarFile;
 
 import javax.enterprise.deploy.shared.factories.DeploymentFactoryManager;
@@ -49,20 +48,21 @@ public class ServerConnection {
     private final DeploymentFactory geronimoDeploymentFactory;
 
     private DeploymentManager manager;
-    private Writer out;
-    private InputStream in;
+    private UsernamePasswordHandler handler;
     private SavedAuthentication auth;
     private boolean logToSysErr;
     private boolean verboseMessages;
 
     public ServerConnection(ConnectionParams params, PrintWriter out, InputStream in, Kernel kernel, DeploymentFactory geronimoDeploymentFactory) throws DeploymentException {
+        this(params, new DefaultUserPasswordHandler(in, out), kernel, geronimoDeploymentFactory);
+    }
+    
+    public ServerConnection(ConnectionParams params, UsernamePasswordHandler handler, Kernel kernel, DeploymentFactory geronimoDeploymentFactory) throws DeploymentException {
         if (null == kernel) {
             throw new IllegalArgumentException("kernel is required");
         }
         this.geronimoDeploymentFactory = geronimoDeploymentFactory;
-
-        this.out = out;
-        this.in = in;        
+        this.handler = handler;
 
         String uri = params.getURI();
         String driver = params.getDriver();
@@ -134,12 +134,11 @@ public class ServerConnection {
 
         if (user == null || password == null) {
             try {
-                InputPrompt prompt = new InputPrompt(in, out);
                 if (user == null) {
-                    user = prompt.getInput("Username: ");
+                    user = handler.getUsername();
                 }
                 if (password == null) {
-                    password = prompt.getPassword("Password: ");
+                    password = handler.getPassword();
                 }
             } catch (IOException e) {
                 throw new DeploymentException("Unable to prompt for login", e);
@@ -191,4 +190,35 @@ public class ServerConnection {
         return manager.getClass().getName().startsWith("org.apache.geronimo.");
     }
 
+    public static interface UsernamePasswordHandler {
+        String getUsername() throws IOException;
+        String getPassword() throws IOException;
+    }
+    
+    private static class DefaultUserPasswordHandler implements UsernamePasswordHandler {
+
+        private PrintWriter out;
+        private InputStream in;
+        private InputPrompt prompt;
+
+        public DefaultUserPasswordHandler(InputStream in, PrintWriter out) {
+            this.out = out;
+            this.in = in;
+        }
+        
+        private void initPrompt() throws IOException {
+            this.prompt = new InputPrompt(this.in, this.out);
+        }
+        
+        public String getPassword() throws IOException {   
+            initPrompt();
+            return this.prompt.getPassword("Password: ");
+        }
+
+        public String getUsername() throws IOException {
+            initPrompt();
+            return this.prompt.getInput("Username: ");
+        }
+        
+    }
 }

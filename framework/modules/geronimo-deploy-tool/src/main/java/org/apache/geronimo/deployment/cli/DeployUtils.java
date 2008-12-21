@@ -148,10 +148,14 @@ public class DeployUtils extends ConfigIDExtractor {
     }
     
     public static String getConnectionURI(String host, Integer port, boolean secure) {
-        String uri = (secure) ? DEFAULT_SECURE_URI : DEFAULT_URI;
-        if (host != null || port != null) {
-            uri += "://" + (host == null ? "" : host) + (port == null ? "" : ":" + port);
+        if (host == null) {
+            host = "localhost";
         }
+        if (port == null) {
+            port = new Integer(1099);
+        }
+        String uri = (secure) ? DEFAULT_SECURE_URI : DEFAULT_URI;
+        uri += "://" + host + ":" + port;
         return uri;
     }
     
