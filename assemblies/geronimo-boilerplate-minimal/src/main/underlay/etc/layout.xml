@@ -129,6 +129,11 @@
 
             <nodes>
                 <command>
+                    <name>login</name>
+                    <id>geronimo-commands:login</id>
+                </command>
+
+                <command>
                     <name>connect</name>
                     <id>geronimo-commands:connect</id>
                 </command>
