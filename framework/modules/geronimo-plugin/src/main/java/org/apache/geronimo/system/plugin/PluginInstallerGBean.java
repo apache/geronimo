@@ -208,8 +208,8 @@ public class PluginInstallerGBean implements PluginInstaller {
      * @param serverInstanceDatas  set of server layouts
      * @param pluginRepositoryList
      * @param kernel               kernel for current server
-     * @param classLoader          classLoader @throws IOException if layouts can't be loaded
-     * @deprecated only used by car-maven-plugin
+     * @param classLoader          classLoader 
+     * @throws IOException if layouts can't be loaded
      */
     public PluginInstallerGBean(String targetRepositoryPath,
                                 String targetServerPath,
@@ -446,28 +446,14 @@ public class PluginInstallerGBean implements PluginInstaller {
         Kernel kernel = new BasicKernel("assembly");
 
         try {
-//            kernel.boot();
-            final ArtifactManager artifactManager = new DefaultArtifactManager();
-
-            FileUtils.forceMkdir(new File(targetServerPathName));
-            ServerInfo serverInfo = new BasicServerInfo(targetServerPathName, false);
-            File targetRepositoryFile = serverInfo.resolve(targetRepositoryPath);
-            FileUtils.forceMkdir(targetRepositoryFile);
-            WritableListableRepository writeableRepo = new Maven2Repository(targetRepositoryFile);
-            ConfigurationStore configStore = new RepositoryConfigurationStore(writeableRepo);
             PluginInstallerGBean installer = new PluginInstallerGBean(
+                    targetRepositoryPath,
+                    targetServerPathName,
                     installedPluginsList,
-                    configManager,
-                    writeableRepo,
-                    configStore,
                     serverInstanceDatas,
-                    serverInfo,
-                    threadPool,
-                    artifactManager,
-                    persistentConfigurationLists,
-                    pluginRepositoryList,
-                    classLoader,
-                    false);
+                    pluginRepositoryList, 
+                    kernel,
+                    classLoader);
 
             installer.install(pluginList, localSourceRepository, true, null, null, downloadPoller);
         } finally {
