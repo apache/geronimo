@@ -47,13 +47,16 @@
         <module>activemq-console-tomcat</module>
         <module>activemq-server</module>
   </modules>
+    <properties>
+        <activemqVersion>5.3-SNAPSHOT</activemqVersion>
+    </properties>
 
     <dependencyManagement>
         <dependencies>
             <dependency>
                 <groupId>org.apache.activemq</groupId>
                 <artifactId>activemq-core</artifactId>
-                <version>5.2.0</version>
+                <version>${activemqVersion}</version>
                 <exclusions>
                     <exclusion>
                         <groupId>commons-logging</groupId>
@@ -73,13 +76,13 @@
             <dependency>
                 <groupId>org.apache.activemq</groupId>
                 <artifactId>activemq-ra</artifactId>
-                <version>5.2.0</version>
+                <version>${activemqVersion}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.activemq</groupId>
                 <artifactId>activemq-rar</artifactId>
                 <type>rar</type>
-                <version>5.2.0</version>
+                <version>${activemqVersion}</version>
             </dependency>
 
             <dependency>
