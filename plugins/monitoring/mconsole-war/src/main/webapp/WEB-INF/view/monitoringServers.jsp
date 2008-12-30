@@ -16,9 +16,11 @@
 --%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%@ page import="java.util.List" %>
 <%@ page import="org.apache.geronimo.monitoring.console.MRCConnector" %>
 <%@ page import="org.apache.geronimo.monitoring.console.data.Node" %>
+<fmt:setBundle basename="monitor-portlet"/>
 <portlet:defineObjects/>
 <%
     String message = (String) request.getAttribute("message"); 
@@ -35,13 +37,13 @@ if (!message.equals(""))
        <td width="100%" align="left" valign="top">
 <table width="100%" style="border-style: solid;
 border-width: 1px;">
- <thead align="center"><strong>Servers</strong></thead>
+ <thead align="center"><strong><fmt:message key="monitor.common.server"/></strong></thead>
  <tr>
-  <th class="DarkBackground" width="30%">Name</th>
-  <th class="DarkBackground" width="10%">IP/Hostname</th>
-  <th class="DarkBackground" width="15%">Status</th>
-  <th class="DarkBackground" width="15%">Stat. Query</th>
-  <th class="DarkBackground" width="30%" colspan="3">Actions</th>
+  <th class="DarkBackground" width="30%"><fmt:message key="monitor.common.name"/></th>
+  <th class="DarkBackground" width="10%"><fmt:message key="monitor.common.ip"/>/<fmt:message key="monitor.common.hostname"/></th>
+  <th class="DarkBackground" width="15%"><fmt:message key="monitor.server.status"/></th>
+  <th class="DarkBackground" width="15%"><fmt:message key="monitor.server.statQuery"/></th>
+  <th class="DarkBackground" width="30%" colspan="3"><fmt:message key="monitor.common.action"/></th>
  </tr>
  <%
     List<Node> nodes = (List<Node>) request.getAttribute("nodes");
@@ -91,49 +93,49 @@ else{
 }
 if (online) {     // online
 %>
-  <td class="${backgroundClass}" width="15%" align="center" bgcolor="#cccccc">Online</td>
+  <td class="${backgroundClass}" width="15%" align="center" bgcolor="#cccccc"><fmt:message key="monitor.server.online"/></td>
 <%
 } else if(node.isEnabled()){         // offline
 %>
-  <td class="${backgroundClass}" width="15%" align="center"><font color="red"><img border=0 src="/monitoring/images/help-b.png" alt="Offline">Offline</font></td>
+  <td class="${backgroundClass}" width="15%" align="center"><font color="red"><img border=0 src="/monitoring/images/help-b.png" alt="Offline"><fmt:message key="monitor.server.offline"/></font></td>
 <%
 } else {         // Disabled
      %>
-       <td class="${backgroundClass}" width="15%" align="center"><font color="red">Disabled</font></td>
+       <td class="${backgroundClass}" width="15%" align="center"><font color="red"><fmt:message key="monitor.server.disabled"/></font></td>
      <%
      }
 if (collecting == 0) {  // not collecting statistics
 %>
-    <td class="${backgroundClass}" width="15%" align="center"><font color="red">(stopped)</font></td>
+    <td class="${backgroundClass}" width="15%" align="center"><font color="red">(<fmt:message key="monitor.server.stopped"/>)</font></td>
 <%
     if(node.isEnabled()) {   // enable the links
 %>
-        <td class="${backgroundClass}" width="10%" align="center"><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="startThread" /><portlet:param name="server_id" value="<%=node.getName()%>" /><portlet:param name="snapshotDuration" value="<%=java.lang.Long.toString(snapshotDuration)%>" /></portlet:actionURL>"><img border=0 src="/monitoring/images/max-b.png" alt="Enable Query">Enable Query</a></td>
+        <td class="${backgroundClass}" width="10%" align="center"><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="startThread" /><portlet:param name="server_id" value="<%=node.getName()%>" /><portlet:param name="snapshotDuration" value="<%=java.lang.Long.toString(snapshotDuration)%>" /></portlet:actionURL>"><img border=0 src="/monitoring/images/max-b.png" alt="Enable Query"><fmt:message key="monitor.server.enableQuery"/></a></td>
 <%
     } else {        // do not provide links
 %>
-        <td class="${backgroundClass}" width="10%" align="center"><img border=0 src="/monitoring/images/max-b.png" alt="Enable Query">Enable Query</td>
+        <td class="${backgroundClass}" width="10%" align="center"><img border=0 src="/monitoring/images/max-b.png" alt="Enable Query"><fmt:message key="monitor.server.enableQuery"/></td>
 <%
     }
 %>
-  <td class="${backgroundClass}" width="10%" align="center"><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="showEditServer" /><portlet:param name="server_id" value="<%=node.getName()%>" /></portlet:actionURL>"><img border=0 src="/monitoring/images/edit-b.png" alt="Edit">Edit</a></td>
+  <td class="${backgroundClass}" width="10%" align="center"><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="showEditServer" /><portlet:param name="server_id" value="<%=node.getName()%>" /></portlet:actionURL>"><img border=0 src="/monitoring/images/edit-b.png" alt="Edit"><fmt:message key="monitor.common.edit"/></a></td>
 <%
 } 
 else if (collecting == -1) {  // not collecting statistics
     %>
-        <td class="${backgroundClass}" width="15%" align="center"><font color="red">Stopping...</font></td>
+        <td class="${backgroundClass}" width="15%" align="center"><font color="red"><fmt:message key="monitor.server.stopping"/></font></td>
     <%
         if(node.isEnabled()) {   // enable the links
     %>
-            <td class="${backgroundClass}" width="10%" align="center"><img border=0 src="/monitoring/images/close-b.png" alt="Disable Query">Disable Query</td>
+            <td class="${backgroundClass}" width="10%" align="center"><img border=0 src="/monitoring/images/close-b.png" alt="Disable Query"><fmt:message key="monitor.server.disableQuery"/></td>
     <%
         } else {        // do not provide links
     %>
-            <td class="${backgroundClass}" width="10%" align="center"><img border=0 src="/monitoring/images/max-b.png" alt="Enable Query">Enable Query</td>
+            <td class="${backgroundClass}" width="10%" align="center"><img border=0 src="/monitoring/images/max-b.png" alt="Enable Query"><fmt:message key="monitor.server.enableQuery"/></td>
     <%
         }
     %>
-      <td class="${backgroundClass}" width="10%" align="center"><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="showEditServer" /><portlet:param name="server_id" value="<%=node.getName()%>" /></portlet:actionURL>"><img border=0 src="/monitoring/images/edit-b.png" alt="Edit">Edit</a></td>
+      <td class="${backgroundClass}" width="10%" align="center"><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="showEditServer" /><portlet:param name="server_id" value="<%=node.getName()%>" /></portlet:actionURL>"><img border=0 src="/monitoring/images/edit-b.png" alt="Edit"><fmt:message key="monitor.common.edit"/></a></td>
     <%
     }
 else {            // collecting statistics
@@ -141,26 +143,26 @@ else {            // collecting statistics
     {
 %>
   <td class="${backgroundClass}" width="15%" align="center"><%=snapshotDuration/1000/60+" min. (running)"%></td>
-  <td class="${backgroundClass}" width="10%" align="center"><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="stopThread" /><portlet:param name="server_id" value="<%=node.getName()%>" /></portlet:actionURL>"><img border=0 src="/monitoring/images/close-b.png" alt="Disable Query">Disable Query</a></td>
-  <td class="${backgroundClass}" width="10%" align="center"><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="showEditServer" /><portlet:param name="server_id" value="<%=node.getName()%>" /></portlet:actionURL>"><img border=0 src="/monitoring/images/edit-b.png" alt="Edit">Edit</a></td>
+  <td class="${backgroundClass}" width="10%" align="center"><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="stopThread" /><portlet:param name="server_id" value="<%=node.getName()%>" /></portlet:actionURL>"><img border=0 src="/monitoring/images/close-b.png" alt="Disable Query"><fmt:message key="monitor.server.disableQuery"/></a></td>
+  <td class="${backgroundClass}" width="10%" align="center"><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="showEditServer" /><portlet:param name="server_id" value="<%=node.getName()%>" /></portlet:actionURL>"><img border=0 src="/monitoring/images/edit-b.png" alt="Edit"><fmt:message key="monitor.common.edit"/></a></td>
 <%
     }
     else
     {
         %>
-        <td class="${backgroundClass}" width="15%" align="center">Stopped</td>
-        <td class="${backgroundClass}" width="10%" align="center"><img border=0 src="/monitoring/images/close-b.png" alt="Disable Query">Disable Query</td>
-        <td class="${backgroundClass}" width="10%" align="center"><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="showEditServer" /><portlet:param name="server_id" value="<%=node.getName()%>" /></portlet:actionURL>"><img border=0 src="/monitoring/images/edit-b.png" alt="Edit">Edit</a></td>
+        <td class="${backgroundClass}" width="15%" align="center"><fmt:message key="monitor.server.stopped"/></td>
+        <td class="${backgroundClass}" width="10%" align="center"><img border=0 src="/monitoring/images/close-b.png" alt="Disable Query"><fmt:message key="monitor.server.enableQuery"/></td>
+        <td class="${backgroundClass}" width="10%" align="center"><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="showEditServer" /><portlet:param name="server_id" value="<%=node.getName()%>" /></portlet:actionURL>"><img border=0 src="/monitoring/images/edit-b.png" alt="Edit"><fmt:message key="monitor.common.edit"/></a></td>
       <%        
     }
 }
 if(node.isEnabled()) {   // enabled server
 %>
-  <td class="${backgroundClass}" width="10%" align="center"><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="disableServer" /><portlet:param name="server_id" value="<%=node.getName()%>" /></portlet:actionURL>"><img border=0 src="/monitoring/images/close-b.png" alt="Disable">Disable</a></td>
+  <td class="${backgroundClass}" width="10%" align="center"><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="disableServer" /><portlet:param name="server_id" value="<%=node.getName()%>" /></portlet:actionURL>"><img border=0 src="/monitoring/images/close-b.png" alt="Disable"><fmt:message key="monitor.server.disable"/></a></td>
 <%
 } else {        // disabled server
 %>
-  <td class="${backgroundClass}" width="10%" align="center"><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="enableServer" /><portlet:param name="server_id" value="<%=node.getName()%>" /></portlet:actionURL>"><img border=0 src="/monitoring/images/max-b.png" alt="Enable">Enable</a></td>
+  <td class="${backgroundClass}" width="10%" align="center"><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="enableServer" /><portlet:param name="server_id" value="<%=node.getName()%>" /></portlet:actionURL>"><img border=0 src="/monitoring/images/max-b.png" alt="Enable"><fmt:message key="monitor.server.enable"/></a></td>
 <%
 }
 %>
@@ -168,7 +170,7 @@ if(node.isEnabled()) {   // enabled server
  <%}
 %>
 </table>
-<div align="right"><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="showAddServer" /></portlet:actionURL>"><img border=0 src="/monitoring/images/max-b.png" alt="Add Server">Add Server</a></div>
+<div align="right"><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="showAddServer" /></portlet:actionURL>"><img border=0 src="/monitoring/images/max-b.png" alt="Add Server"><fmt:message key="monitor.server.addServer"/></a></div>
         </td>
      
          <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
@@ -179,17 +181,17 @@ if(node.isEnabled()) {   // enabled server
             <table width="100%" style="border-bottom: 1px solid #2581c7;" cellspacing="1" cellpadding="1">
                 <tr>
                     <td class="DarkBackground" align="left" nowrap>
-                        <font face="Verdana" size="+1">Navigation</font>
+                        <font face="Verdana" size="+1"><fmt:message key="monitor.common.nav"/></font>
                     </td>
                 </tr>
                 <tr>
                     <td bgcolor="#FFFFFF" nowrap>
                         &nbsp;<br />
                         <ul>
-                        <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showHome" /></portlet:actionURL>">Home</a></li>
-                        <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showAllViews" /></portlet:actionURL>">Views</a></li>
-                        <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showAllServers" /></portlet:actionURL>">Servers</a></li>
-                        <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showAllGraphs" /></portlet:actionURL>">Graphs</a></li>
+                        <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showHome" /></portlet:actionURL>"><fmt:message key="monitor.common.home"/></a></li>
+                        <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showAllViews" /></portlet:actionURL>"><fmt:message key="monitor.common.view"/></a></li>
+                        <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showAllServers" /></portlet:actionURL>"><fmt:message key="monitor.common.server"/></a></li>
+                        <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showAllGraphs" /></portlet:actionURL>"><fmt:message key="monitor.common.graph"/></a></li>
                         </ul>
                         &nbsp;<br />
                     </td>   

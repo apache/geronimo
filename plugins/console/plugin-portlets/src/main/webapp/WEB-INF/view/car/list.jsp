@@ -89,8 +89,8 @@
 </c:forEach>
 </table>
     <p>
-    <input type="submit" value="Install" onclick="if(!checkAllVal('plugin')){return false;}else return true;"/>
-    <input type="submit" value="Cancel" onclick="history.go(-1); return false;" />
+    <input type="submit" value="<fmt:message key="consolebase.common.install" />" onclick="if(!checkAllVal('plugin')){return false;}else return true;"/>
+    <input type="submit" value="<fmt:message key="consolebase.common.cancel" />" onclick="history.go(-1); return false;" />
 </form>
 </c:otherwise>
 </c:choose>

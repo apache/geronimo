@@ -22,7 +22,7 @@
 <portlet:defineObjects/>
 <table border="0">
     <tr>
-        <td><h1>Server Assembly Successful</h1></td>
+        <td><h1><fmt:message key="car.assemblyConfirm.successful" /></h1></td>
     </tr>
     <c:forEach var="plugin" items="${plugins}">
     <c:set var="artifact" value="${plugin.pluginArtifact.moduleId}"/>

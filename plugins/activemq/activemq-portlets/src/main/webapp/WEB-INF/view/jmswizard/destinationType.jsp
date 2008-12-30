@@ -129,4 +129,4 @@
 
 <p><a href="<portlet:actionURL portletMode="view">
               <portlet:param name="mode" value="list-before" />
-            </portlet:actionURL>">Cancel</a></p>
+            </portlet:actionURL>"><fmt:message key="jmswizard.common.cancel" /></a></p>

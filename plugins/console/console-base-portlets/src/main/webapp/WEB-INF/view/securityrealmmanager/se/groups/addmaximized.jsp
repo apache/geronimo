@@ -70,7 +70,7 @@ function <portlet:namespace/>selectAll(formName, objName){
       		<c:set var="Submit" value="Add"/>
        </c:when>
        <c:otherwise>
-			<b>UPDATE GROUP</b>
+			<b><fmt:message key="securityrealmmanager.se.groups.addmaximized.updateGroup" /></b>
       		<c:set var="GroupName" value="${group}"/>
       		<c:set var="Submit" value="Update"/>
        </c:otherwise>

@@ -128,7 +128,7 @@
 <br>
 <table width="100%">
   <tr>
-    <td class="DarkBackground" width="100%" colspan="2" align="center">Virtual Machine</td>
+    <td class="DarkBackground" width="100%" colspan="2" align="center"><fmt:message key="apache.javaSysNormal.vm"/></td>
   </tr>
   <tr>
     <td class="LightBackground" width="20%" nowrap>java.vm.info</td>
@@ -162,7 +162,7 @@
 <br>
 <table width="100%">
   <tr>
-    <td class="DarkBackground" width="100%" colspan="2" align="center">Operating System</td>
+    <td class="DarkBackground" width="100%" colspan="2" align="center"><fmt:message key="apache.javaSysNormal.os"/></td>
   </tr>
   <tr>
     <td class="LightBackground" width="20%" nowrap>os.arch</td>
@@ -234,7 +234,7 @@
 <br>
 <table width="100%">
   <tr>
-    <td class="DarkBackground" width="100%" colspan="2" align="center">User</td>
+    <td class="DarkBackground" width="100%" colspan="2" align="center"><fmt:message key="apache.javaSysNormal.usr"/></td>
   </tr>
   <tr>
     <td class="LightBackground" width="20%" nowrap>user.country</td>
@@ -268,7 +268,7 @@
 <br>
 <table width="100%">
   <tr>
-    <td class="DarkBackground" width="100%" colspan="2" align="center">Etc</td>
+    <td class="DarkBackground" width="100%" colspan="2" align="center"><fmt:message key="apache.javaSysNormal.etc"/></td>
   </tr>
 <% String background = "LightBackground"; %>
 <%  // Crappy workaround because apparently Jetty's JSTL can't call getters on a Map subclass?!?

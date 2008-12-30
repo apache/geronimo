@@ -167,7 +167,7 @@
 </c:choose>
 
 
-<p><b>Create a new JMS Resource Group:</b></p>
+<p><b><fmt:message key="jmswizard.list.createJMSResourceGroup" /></b></p>
 <ul>
 <c:forEach var="provider" items="${providers}">
 

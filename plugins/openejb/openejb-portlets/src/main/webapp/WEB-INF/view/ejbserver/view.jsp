@@ -17,8 +17,10 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%@ page import="org.apache.geronimo.console.util.PortletManager,
                  javax.portlet.RenderRequest"%>
+<fmt:setBundle basename="openejb-portlet"/>
 <portlet:defineObjects/>
 
 <fmt:setBundle basename="openejb-portlet"/>
@@ -198,8 +200,8 @@ function updateEjbInfoTable(ejbInfos){
             border="0"
             width="100%">
             <thead>                      
-              <th field="Name" dataType="html" width="40%"><B>&nbsp;Name&nbsp;</B></th>
-              <th dataType="html" width="60%"><B>&nbsp;Value&nbsp;</B></th>
+              <th field="Name" dataType="html" width="40%"><B>&nbsp;<fmt:message key="portlet.openejb.view.name" />&nbsp;</B></th>
+              <th dataType="html" width="60%"><B>&nbsp;<fmt:message key="portlet.openejb.view.value" />&nbsp;</B></th>
             </thead>
             <tbody id="ejbInfoTableBody">
             </tbody>

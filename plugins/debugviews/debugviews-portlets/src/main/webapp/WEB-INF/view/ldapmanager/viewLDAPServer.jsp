@@ -474,10 +474,10 @@ callOnLoad(init);
 </script>
 
 <div dojoType="TreeContextMenu" toggle="explode" contextMenuForWindow="false" widgetId="treeContextMenu">
-    <div dojoType="TreeMenuItem" treeActions="refreshNode" widgetId="treeContextMenuRefresh" caption="Refresh" ></div>
-    <div dojoType="TreeMenuItem" treeActions="searchNode" widgetId="treeContextMenuSearch" caption="Search..."></div>
-    <div dojoType="TreeMenuItem" treeActions="viewEntry" widgetId="treeContextMenuViewEntry" caption="View Entry"></div>
-    <div dojoType="TreeMenuItem" treeActions="viewConnectInfo" widgetId="treeContextMenuConnectInfo" caption="Connect Info"></div>
+    <div dojoType="TreeMenuItem" treeActions="refreshNode" widgetId="treeContextMenuRefresh" caption="<fmt:message key="ldapmanager.viewLDAPServer.refresh"/>" ></div>
+    <div dojoType="TreeMenuItem" treeActions="searchNode" widgetId="treeContextMenuSearch" caption="<fmt:message key="ldapmanager.viewLDAPServer.search"/>..."></div>
+    <div dojoType="TreeMenuItem" treeActions="viewEntry" widgetId="treeContextMenuViewEntry" caption="<fmt:message key="ldapmanager.viewLDAPServer.viewEntry"/>"></div>
+    <div dojoType="TreeMenuItem" treeActions="viewConnectInfo" widgetId="treeContextMenuConnectInfo" caption="<fmt:message key="ldapmanager.viewLDAPServer.connInfo"/>"></div>
 </div>
 
 <div dojoType="TreeSelector" widgetId="treeSelector"></div>
@@ -519,7 +519,7 @@ callOnLoad(init);
             sizeShare="60">
             
             <!-- Attributes tab -->
-            <div id="attributesTab" dojoType="ContentPane" title="LDAP Entry Attributes" label="Attributes" style="overflow: auto">
+            <div id="attributesTab" dojoType="ContentPane" title="LDAP Entry Attributes" label="<fmt:message key="ldapmanager.viewLDAPServer.attributes"/>" style="overflow: auto">
                 <br>
                 <table width="100%">
                     <tr>
@@ -574,7 +574,7 @@ callOnLoad(init);
             </div> <!-- Search tab -->
 
             <!-- Connection Info tab -->
-            <div id="connectInfoTab" dojoType="ContentPane" title = "" label="Connect Info" style="overflow: auto">
+            <div id="connectInfoTab" dojoType="ContentPane" title = "" label="<fmt:message key="ldapmanager.viewLDAPServer.connInfo"/>" style="overflow: auto">
                 <br>
                 <form NAME="LDAPConnectForm">
                     <table>

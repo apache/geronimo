@@ -20,6 +20,8 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="consolebase"/>
 <portlet:defineObjects/>
 
 <!-- Show existing connectors -->
@@ -33,12 +35,12 @@
           <c:otherwise>
 <table width="100%">
           <tr>
-            <th class="DarkBackground" align="left">Name</th>
-            <th class="DarkBackground" align="center">Protocol</th>
-            <th class="DarkBackground" align="center">Port</th>
-            <th class="DarkBackground" align="center">State</th>
-            <th class="DarkBackground" align="center">Actions</th>
-            <th class="DarkBackground" align="center">Type</th>
+            <th class="DarkBackground" align="left"><fmt:message key="consolebase.common.name"/></th>
+            <th class="DarkBackground" align="center"><fmt:message key="webmanager.common.protocol"/></th>
+            <th class="DarkBackground" align="center"><fmt:message key="webmanager.common.port"/></th>
+            <th class="DarkBackground" align="center"><fmt:message key="consolebase.common.state"/></th>
+            <th class="DarkBackground" align="center"><fmt:message key="consolebase.common.actions"/></th>
+            <th class="DarkBackground" align="center"><fmt:message key="consolebase.common.type"/></th>
           </tr>
 <c:set var="backgroundClass" value='MediumBackground'/>
 <c:forEach var="info" items="${container.connectors}">
@@ -65,7 +67,7 @@
                  <portlet:param name="containerURI" value="${container.containerURI}" />
                </portlet:actionURL>"
                  <c:if test="${info.port eq serverPort}"> onClick="return confirm('Console application will not be available if ${info.uniqueName} is stopped.  Stop ${info.uniqueName}?');"</c:if>>
-                 stop</a>
+                 <fmt:message key="consolebase.common.stop"/></a>
                <a href="<portlet:actionURL portletMode="view">
                  <portlet:param name="mode" value="restart" />
                  <portlet:param name="connectorURI" value="${info.connectorURI}" />
@@ -73,7 +75,7 @@
                  <portlet:param name="containerURI" value="${container.containerURI}" />
                </portlet:actionURL>"
                  <c:if test="${info.port eq serverPort}"> onClick="return confirm('It is recommeded that you restart ${info.uniqueName} while accessing the Console application on a different port if possible. Console application may not be available temporarily on port ${serverPort}, typically 3 to 5 minutes, if ${info.uniqueName} is restarted. Restart ${info.uniqueName}?');"</c:if>>
-                 restart</a>
+                 <fmt:message key="consolebase.common.restart"/></a>
                </c:when>
                <c:otherwise>
                <a href="<portlet:actionURL portletMode="view">
@@ -81,7 +83,7 @@
                  <portlet:param name="connectorURI" value="${info.connectorURI}" />
                  <portlet:param name="managerURI" value="${container.managerURI}" />
                  <portlet:param name="containerURI" value="${container.containerURI}" />
-               </portlet:actionURL>">start</a>
+               </portlet:actionURL>"><fmt:message key="consolebase.common.start"/></a>
                </c:otherwise>
              </c:choose>
                <a href="<portlet:actionURL portletMode="view">
@@ -89,13 +91,13 @@
                  <portlet:param name="connectorURI" value="${info.connectorURI}" />
                  <portlet:param name="managerURI" value="${container.managerURI}" />
                  <portlet:param name="containerURI" value="${container.containerURI}" />
-               </portlet:actionURL>">edit</a>
+               </portlet:actionURL>"><fmt:message key="consolebase.common.edit"/></a>
                <a href="<portlet:actionURL portletMode="view">
                  <portlet:param name="mode" value="delete" />
                  <portlet:param name="connectorURI" value="${info.connectorURI}" />
                  <portlet:param name="managerURI" value="${container.managerURI}" />
                  <portlet:param name="containerURI" value="${container.containerURI}" />
-               </portlet:actionURL>" onClick="return confirm('Are you sure you want to delete ${info.uniqueName}?');">delete</a>
+               </portlet:actionURL>" onClick="return confirm('Are you sure you want to delete ${info.uniqueName}?');"><fmt:message key="consolebase.common.delete"/></a>
             </td>
             <td class="${backgroundClass}">${info.description}</td>
           </tr>
@@ -106,7 +108,7 @@
 
 <P><HR><P>
 <!-- Links to add new connectors -->
-Add new:
+<fmt:message key="webmanager.connector.normal.addNew"/>:
 <ul>
 <c:forEach var="connectorType" items="${container.connectorTypes}">
 <li><a href="<portlet:actionURL portletMode="view">

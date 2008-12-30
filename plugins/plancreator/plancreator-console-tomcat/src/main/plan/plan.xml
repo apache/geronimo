@@ -33,6 +33,13 @@ limitations under the License.
         </role-mappings>
     </security>
     
+    <!-- i18n support -->
+    <gbean name="ConsoleResourceGBean" class="org.apache.geronimo.console.i18n.ConsoleResourceGBean">
+        <reference name="ConsoleResourceRegistry">
+            <name>ConsoleResourceRegistry</name>
+        </reference>
+    </gbean>
+    
     <!-- Start off a ACEGBean, this is the lifecycle for the portlet -->
     <gbean name="PlanCreator" class="org.apache.geronimo.pluto.AdminConsoleExtensionGBean">
         <attribute name="pageTitle">Applications/Plan Creator</attribute>

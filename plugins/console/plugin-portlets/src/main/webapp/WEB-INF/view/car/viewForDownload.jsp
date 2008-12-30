@@ -54,8 +54,8 @@
         <th align="right" valign="top"><fmt:message key="car.viewForDownload.license" />:</th>
         <td>${license.value}&nbsp;
           <c:choose>
-              <c:when test="${license.osiApproved}">(Open Source)</c:when>
-              <c:otherwise>(Proprietary)</c:otherwise>
+              <c:when test="${license.osiApproved}">(<fmt:message key="car.common.openSource" />)</c:when>
+              <c:otherwise>(<fmt:message key="car.common.proprietary" />)</c:otherwise>
           </c:choose>
         </td>
       </tr>

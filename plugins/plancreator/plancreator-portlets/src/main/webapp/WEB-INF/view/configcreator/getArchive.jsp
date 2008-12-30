@@ -19,23 +19,25 @@
 
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="plancreator-portlet"/>
 <portlet:defineObjects />
 
 <!-- Archive uploaded is not a WAR -->
 <c:if test="${!(empty archiveNotSupported)}">
-  <br />The archive you provided is not a WAR. Please note that only WARs are supported as of now. <br /> <br />
+  <br /><fmt:message key="plancreator.archive.archiveErr"/> <br /> <br />
 </c:if>
 
 <form enctype="multipart/form-data" name="<portlet:namespace/>GetArchiveForm" action="<portlet:actionURL/>" method="POST">
   <input type="hidden" name="mode" value="index-after" />
 <table>
   <tr>
-    <th align="right"><label for="<portlet:namespace/>moduleURI">Archive</label>:</th>
+    <th align="right"><label for="<portlet:namespace/>moduleURI"><fmt:message key="plancreator.archive.archive"/></label>:</th>
     <td><input type="file" name="moduleURI" id="<portlet:namespace/>moduleURI" value="" /></td>
   </tr>
   <tr></tr>
   <tr>
-    <td><input type="submit" value="Configure" value="" /></td>
+    <td><input type="submit" value="<fmt:message key="plancreator.archive.config"/>" /></td>
   </tr>
 </table>
 </form>

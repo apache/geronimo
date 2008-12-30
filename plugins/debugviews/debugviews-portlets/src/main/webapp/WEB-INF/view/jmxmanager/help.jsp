@@ -130,11 +130,11 @@
 <ul>
     <li><fmt:message key="jmxmanager.help.infoTabExp"/>:</li>
     <ul>
-        <li>Abstract Name
-        <li>Object Name
-        <li>Class Name
-        <li>Domain
-        <li>J2EE Type
+        <li><fmt:message key="jmxmanager.help.abstractName"/>
+        <li><fmt:message key="jmxmanager.help.objectName"/>
+        <li><fmt:message key="jmxmanager.help.className"/>
+        <li><fmt:message key="jmxmanager.help.domain"/>
+        <li><fmt:message key="jmxmanager.help.j2eeType"/>
     </ul>
 </ul>
 

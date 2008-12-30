@@ -26,15 +26,15 @@
 
 <table width="100%"  border="0" cellspacing="0" cellpadding="0">
   <tr>
-    <td width="180" align="left" valign="top" class="MediumBackground"><strong>Function Centric</strong></td>
+    <td width="180" align="left" valign="top" class="MediumBackground"><strong><fmt:message key="car.index.assemblyHelp.FuncCentric.title" /></strong></td>
     <td class="LightBackground"><fmt:message key="car.index.assemblyHelp.FuncCentric.desp" /></td>
   </tr>
   <tr>
-    <td width="180" align="left" valign="top" class="MediumBackground"><strong>Application Centric</strong></td>
+    <td width="180" align="left" valign="top" class="MediumBackground"><strong><fmt:message key="car.index.assemblyHelp.AppCentric.title" /></strong></td>
     <td class="LightBackground"><fmt:message key="car.index.assemblyHelp.AppCentric.desp" /></td>
   </tr>
   <tr>
-    <td width="180" align="left" valign="top" class="MediumBackground"><strong>Expert Users</strong></td>
+    <td width="180" align="left" valign="top" class="MediumBackground"><strong><fmt:message key="car.index.assemblyHelp.ExpertUser.title" /></strong></td>
     <td class="LightBackground"><fmt:message key="car.index.assemblyHelp.ExpertUser.desp" /></td>
   </tr>
 </table>

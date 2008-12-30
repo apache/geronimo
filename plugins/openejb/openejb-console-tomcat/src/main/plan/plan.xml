@@ -24,6 +24,13 @@ limitations under the License.
     <!-- required for pluto cross context dispatches -->
     <cross-context />
 
+    <!-- i18n support -->
+    <gbean name="ConsoleResourceGBean" class="org.apache.geronimo.console.i18n.ConsoleResourceGBean">
+        <reference name="ConsoleResourceRegistry">
+            <name>ConsoleResourceRegistry</name>
+        </reference>
+    </gbean>
+
     <security-realm-name>geronimo-admin</security-realm-name>
     <security xmlns="http://geronimo.apache.org/xml/ns/security-1.2">
         <role-mappings>

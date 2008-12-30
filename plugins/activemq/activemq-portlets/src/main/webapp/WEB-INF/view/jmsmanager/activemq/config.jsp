@@ -54,6 +54,6 @@
     <tr><td><strong>Partition Min Size</strong></td><td><input type="text" name="partitionMinSize" value="${connectionManagerInfo.partitionMinSize}" size="75" /></td></tr>
     <tr><td><strong>Blocking Timeout (Milliseconds)</strong></td><td><input type="text" name="blockingTimeoutMilliseconds" value="${connectionManagerInfo.blockingTimeoutMilliseconds}" size="75" /></td></tr>
     <tr><td><strong>Idle Timeout (Minutes)</strong></td><td><input type="text" name="idleTimeoutMinutes" value="${connectionManagerInfo.idleTimeoutMinutes}" size="75" /></td></tr>-->
-    <tr><td colspan="2"><input type="submit" name="btnSave" value='<fmt:message key="jmsmanager.common.save"/>' onClick="doSave();"/><input type="submit" name="btnCancel" value="Cancel" onClick="doCancel();"></td></tr>
+    <tr><td colspan="2"><input type="submit" name="btnSave" value='<fmt:message key="jmsmanager.common.save"/>' onClick="doSave();"/><input type="submit" name="btnCancel" value="<fmt:message key="jmsmanager.common.cancel"/>" onClick="doCancel();"></td></tr>
 </table>
 </form>

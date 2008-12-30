@@ -138,7 +138,7 @@ function <portlet:namespace/>validateForm(){
             </c:otherwise>
         </c:choose>
         <tr>
-            <th class="${backgroundClass}" align="right">Finger prints:</th>
+            <th class="${backgroundClass}" align="right"><fmt:message key="ca.common.fingerPrintst"/>:</th>
             <td class="${backgroundClass}">
   <c:forEach items="${fingerPrints}" var="fp">
                 ${fp.key} = &nbsp; ${fp.value} <br/>
@@ -161,7 +161,7 @@ function <portlet:namespace/>validateForm(){
   <c:when test="${linkToListRequests}">
     <p><a href="<portlet:actionURL portletMode="view">
               <portlet:param name="mode" value="listRequestsIssue-before" />
-            </portlet:actionURL>">Back to Requests to be fulfilled</a></p>
+            </portlet:actionURL>"><fmt:message key="ca.viewCertificate.backToRequest"/></a></p>
   </c:when>
   <c:otherwise>
     <p><a href="<portlet:actionURL portletMode="view">

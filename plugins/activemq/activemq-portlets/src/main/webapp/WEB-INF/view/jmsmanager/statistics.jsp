@@ -21,7 +21,7 @@
 <portlet:defineObjects/>
 
 <br>
-<a href="<portlet:renderURL portletMode="view"><portlet:param name="processAction" value="viewDestinations"/></portlet:renderURL>">Back To Destination List </a>
+<a href="<portlet:renderURL portletMode="view"><portlet:param name="processAction" value="viewDestinations"/></portlet:renderURL>"><fmt:message key="jmsmanager.common.backToDest"/> </a>
 <br><br>
  <table width="100%">
         <tr>

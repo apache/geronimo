@@ -18,7 +18,9 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="portlet" uri="http://java.sun.com/portlet" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%@ page import="org.apache.geronimo.console.jmxmanager.JMXManagerHelper" %>
+<fmt:setBundle basename="debugviews"/>
 <portlet:defineObjects/>
 
     <script type="text/javascript" src="/dojo/0.4/dojo.js"></script>
@@ -794,11 +796,11 @@ callOnLoad(init);
 
 <div dojoType="TreeContextMenu" toggle="explode" contextMenuForWindow="false" widgetId="treeContextMenu">
     <!-- <div dojoType="TreeMenuItem" treeActions="refreshNode" widgetId="treeContextMenuRefresh" caption="Refresh"></div> -->
-    <div dojoType="TreeMenuItem" treeActions="searchNode" widgetId="treeContextMenuSearch" caption="Search..."></div>
-    <div dojoType="TreeMenuItem" treeActions="view" widgetId="treeContextMenuViewAttribs" caption="View Attributes"></div>
-    <div dojoType="TreeMenuItem" treeActions="view" widgetId="treeContextMenuViewOps" caption="View Operations"></div>
-    <div dojoType="TreeMenuItem" treeActions="view" widgetId="treeContextMenuViewInfo" caption="View Info"></div>
-    <div dojoType="TreeMenuItem" treeActions="view" widgetId="treeContextMenuViewStats" caption="View Stats"></div>
+    <div dojoType="TreeMenuItem" treeActions="searchNode" widgetId="treeContextMenuSearch" caption="<fmt:message key="jmxmanager.help.search"/>..."></div>
+    <div dojoType="TreeMenuItem" treeActions="view" widgetId="treeContextMenuViewAttribs" caption="<fmt:message key="jmxmanager.help.viewAttributes"/>"></div>
+    <div dojoType="TreeMenuItem" treeActions="view" widgetId="treeContextMenuViewOps" caption="<fmt:message key="jmxmanager.help.viewOperations"/>"></div>
+    <div dojoType="TreeMenuItem" treeActions="view" widgetId="treeContextMenuViewInfo" caption="<fmt:message key="jmxmanager.help.viewInfo"/>"></div>
+    <div dojoType="TreeMenuItem" treeActions="view" widgetId="treeContextMenuViewStats" caption="<fmt:message key="jmxmanager.help.viewStats"/>"></div>
 </div>
 
 <div dojoType="TreeSelector" widgetId="treeSelector"></div>
@@ -951,7 +953,7 @@ callOnLoad(init);
             sizeShare="60">
             
             <!-- Attributes tab -->
-            <div id="attributesTab" dojoType="ContentPane" title="MBean Attributes" label="Attributes" style="overflow: auto">
+            <div id="attributesTab" dojoType="ContentPane" title="MBean Attributes" label="<fmt:message key="jmxmanager.help.attributes"/>" style="overflow: auto">
                 <br>
                 <table dojoType="SortableTable" 
                     widgetId="attribsTable" 
@@ -965,13 +967,13 @@ callOnLoad(init);
                     width="100%">
                     <thead>
                         <tr>
-                            <th field="Name" dataType="String" width="10%">&nbsp;Name&nbsp;</th>
-                            <th dataType="html" width="20%">&nbsp;Value&nbsp;</th>
-                            <th field="Type" dataType="String" width="10%">&nbsp;Type&nbsp;</th>
-                            <th field="Getter" dataType="String" width="10%">&nbsp;Getter&nbsp;</th>
-                            <th dataType="html" width="10%">&nbsp;Setter&nbsp;</th>
-                            <th field="Manageable" dataType="String" width="10%" align="center">&nbsp;Manageable&nbsp;</th>
-                            <th field="Persistent" dataType="String" width="10%" align="center">&nbsp;Persistent&nbsp;</th>
+                            <th field="Name" dataType="String" width="10%">&nbsp;<fmt:message key="jmxmanager.help.name"/>&nbsp;</th>
+                            <th dataType="html" width="20%">&nbsp;<fmt:message key="jmxmanager.help.value"/>&nbsp;</th>
+                            <th field="Type" dataType="String" width="10%">&nbsp;<fmt:message key="jmxmanager.help.type"/>&nbsp;</th>
+                            <th field="Getter" dataType="String" width="10%">&nbsp;<fmt:message key="jmxmanager.help.getter"/>&nbsp;</th>
+                            <th dataType="html" width="10%">&nbsp;<fmt:message key="jmxmanager.help.server"/>&nbsp;</th>
+                            <th field="Manageable" dataType="String" width="10%" align="center">&nbsp;<fmt:message key="jmxmanager.help.manageable"/>&nbsp;</th>
+                            <th field="Persistent" dataType="String" width="10%" align="center">&nbsp;<fmt:message key="jmxmanager.help.persistent"/>&nbsp;</th>
                             <!--
                             <th field="Readable" dataType="String" width="10%">&nbsp;Readable&nbsp;</th>
                             <th field="Writable" dataType="String" width="10%">&nbsp;Writable&nbsp;</th>
@@ -984,7 +986,7 @@ callOnLoad(init);
             </div> <!-- Attributes tab -->
 
             <!-- Operations tab -->
-            <div id="operationsTab" dojoType="ContentPane" title="MBean Operations" label="Operations" style="overflow: auto">
+            <div id="operationsTab" dojoType="ContentPane" title="MBean Operations" label="<fmt:message key="jmxmanager.help.operations"/>" style="overflow: auto">
                 <br>
                 <table width="100%">
                     <tr>
@@ -992,8 +994,8 @@ callOnLoad(init);
                         <td class="DarkBackground" align="center" width="30%">Name</td>
                         <td class="DarkBackground" align="center" width="70%">Paremeter List</td>
                         -->
-                        <th style="background: #2581C7; color: #FFFFFF; font-weight: bold;" align="center" width="30%">Name</td>
-                        <th style="background: #2581C7; color: #FFFFFF; font-weight: bold;" align="center" width="70%">Paremeter List</td>
+                        <th style="background: #2581C7; color: #FFFFFF; font-weight: bold;" align="center" width="30%"><fmt:message key="jmxmanager.help.name"/></td>
+                        <th style="background: #2581C7; color: #FFFFFF; font-weight: bold;" align="center" width="70%"><fmt:message key="jmxmanager.help.paramList"/></td>
                     </tr>
                     <tbody id="operationsTableBody">
                     </tbody>
@@ -1001,7 +1003,7 @@ callOnLoad(init);
             </div> <!-- Operations tab -->
 
             <!-- Info tab -->
-            <div id="infoTab" dojoType="ContentPane" title="MBean Info" label="Info" style="overflow: auto">
+            <div id="infoTab" dojoType="ContentPane" title="MBean Info" label="<fmt:message key="jmxmanager.help.info"/>" style="overflow: auto">
                 <br>
                 <table width="100%">
                     <tr>
@@ -1009,8 +1011,8 @@ callOnLoad(init);
                         <td class="DarkBackground" align="center" width="30%">Name</td>
                         <td class="DarkBackground" align="center" width="70%">Value</td>
                         -->
-                        <th style="background: #2581C7; color: #FFFFFF; font-weight: bold;" align="center" width="30%">Name</td>
-                        <th style="background: #2581C7; color: #FFFFFF; font-weight: bold;" align="center" width="70%">Value</td>
+                        <th style="background: #2581C7; color: #FFFFFF; font-weight: bold;" align="center" width="30%"><fmt:message key="jmxmanager.help.name"/></td>
+                        <th style="background: #2581C7; color: #FFFFFF; font-weight: bold;" align="center" width="70%"><fmt:message key="jmxmanager.help.value"/></td>
                     </tr>
                     <tbody id="basicInfoTableBody">
                     </tbody>
@@ -1018,7 +1020,7 @@ callOnLoad(init);
             </div> <!-- Info tab -->
 
             <!-- Stats tab -->
-            <div id="statsTab" dojoType="ContentPane" title="MBean Stats" label="Stats" style="overflow: auto">
+            <div id="statsTab" dojoType="ContentPane" title="MBean Stats" label="<fmt:message key="jmxmanager.help.stats"/>" style="overflow: auto">
                 <br>
                 <table dojoType="SortableTable" 
                     widgetId="statsTable" 
@@ -1032,25 +1034,25 @@ callOnLoad(init);
                     width="100%">
                     <thead>
                         <tr>
-                            <th field="Name" dataType="String" width="30%">&nbsp;Name&nbsp;</th>
-                            <th dataType="html" width="70%">&nbsp;Value&nbsp;</th>
+                            <th field="Name" dataType="String" width="30%">&nbsp;<fmt:message key="jmxmanager.help.name"/>&nbsp;</th>
+                            <th dataType="html" width="70%">&nbsp;<fmt:message key="jmxmanager.help.value"/>&nbsp;</th>
                         </tr>
                     </thead>
                     <tbody id="statsTableBody">
                     </tbody>
                 </table>
                 <br>
-                &nbsp;<input type='button' value='Refresh Stats' onclick='refreshStatsBtnClicked()' /> 
+                &nbsp;<input type='button' value='<fmt:message key="jmxmanager.help.refreshStats"/>' onclick='refreshStatsBtnClicked()' /> 
             </div> <!-- Stats tab -->
 
             <!-- Search tab -->
-            <div id="searchTab" dojoType="ContentPane" title="Search" label="Search" style="overflow: auto">
+            <div id="searchTab" dojoType="ContentPane" title="Search" label="<fmt:message key="jmxmanager.help.search"/>" style="overflow: auto">
                 <!-- JMXSearch Form -->
                 <form name="JMXSearchForm" onsubmit="return false;">
                     <br>
                     <table>
                         <tr>
-                            <td width="15%"><label for="jmxQuery">&nbsp;Object&nbsp;Name&nbsp;Pattern</label>:</td>
+                            <td width="15%"><label for="jmxQuery"><fmt:message key="jmxmanager.help.objectNamePattern"/></label>:</td>
                             <td width="70%">
                                 <select dojoType="combobox" id="jmxQuery" searchType="SUBSTRING" style="width: 100%;">
                                     <!-- Domains -->
@@ -1142,7 +1144,7 @@ callOnLoad(init);
                                     <option>*:j2eeType=XmlReferenceBuilder,*</option>
                                 </select>                            
                             </td>
-                            <td width="15%"><input type="button" value="Search" id="jmxSearch" onClick="searchBtnClicked()" style="width: 100%;" /></td>
+                            <td width="15%"><input type="button" value="<fmt:message key="jmxmanager.help.search"/>" id="jmxSearch" onClick="searchBtnClicked()" style="width: 100%;" /></td>
                         </tr>
                     </table>
                 </form> <!-- JMXSearch Form -->

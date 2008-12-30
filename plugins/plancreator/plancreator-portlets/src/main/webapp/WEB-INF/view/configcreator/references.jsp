@@ -20,6 +20,8 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="plancreator-portlet"/>
 <portlet:defineObjects />
 
 <script>
@@ -126,17 +128,13 @@ function <portlet:namespace/>removePort(serviceRefId, trId)
 }
 </script>
 
-<p><b>WAR - References</b> -- Resolve EJB, EJB Local, JDBC Connection Pool, JavaMail Session, JMS Connection Factory, 
- JMS Destination and Web Service References</p>
+<p><fmt:message key="plancreator.reference.title"/></p>
 
-<p>Map the references declared in your Web application to specific items available in the server environment. 
-References declared in your web-app (ex. EJB, EJB Local, JDBC Connection Pool, JavaMail Session, JMS Connection Factory and 
-JMS Destination references) are shown below to the left and the resources (available in the server environment) 
-to which they can be linked are shown to the right.</p>
+<p><fmt:message key="plancreator.reference.desc"/></p>
 
 <!-- References not resolved -->
 <c:if test="${data.referenceNotResolved}">
-  <p>Some of the references are not resolved. Please resolve them and only then press Next button.
+  <p><fmt:message key="plancreator.reference.resolveErr"/>
 </c:if>
 
 <!--   FORM TO COLLECT DATA FOR THIS PAGE   -->
@@ -145,11 +143,11 @@ to which they can be linked are shown to the right.</p>
 
 <!-- ENTRY FIELD: EJB References -->
 <c:if test="${!empty(data.webApp.ejbRefArray)}">
-  <p><b>EJB References:</b></p>
+  <p><b><fmt:message key="plancreator.reference.ejbReference"/>:</b></p>
   <table border="0" width="100%">
     <tr>
-      <th class="DarkBackground" align="center">EJB Ref</th>
-      <th class="DarkBackground" align="center">EJBs Deployed</th>
+      <th class="DarkBackground" align="center"><fmt:message key="plancreator.reference.ejbRef"/></th>
+      <th class="DarkBackground" align="center"><fmt:message key="plancreator.reference.ejbDeployed"/></th>
     </tr>
     <c:set var="backgroundClass" value='MediumBackground'/>
     <c:forEach var="ejbRef" items="${data.webApp.ejbRefArray}" varStatus="status">
@@ -180,11 +178,11 @@ to which they can be linked are shown to the right.</p>
 
 <!-- ENTRY FIELD: EJB Local References -->
 <c:if test="${!empty(data.webApp.ejbLocalRefArray)}">
-  <p><b>EJB Local References:</b></p>
+  <p><b><fmt:message key="plancreator.reference.ejbLocalReference"/>:</b></p>
   <table border="0" width="100%">
     <tr>
-      <th class="DarkBackground" align="center">EJB Local Ref</th>
-      <th class="DarkBackground" align="center">EJBs Deployed</th>
+      <th class="DarkBackground" align="center"><fmt:message key="plancreator.reference.ejbLocalRef"/></th>
+      <th class="DarkBackground" align="center"><fmt:message key="plancreator.reference.ejbDeployed"/></th>
     </tr>
     <c:set var="backgroundClass" value='MediumBackground'/>
     <c:forEach var="ejbLocalRef" items="${data.webApp.ejbLocalRefArray}" varStatus="status">
@@ -215,11 +213,11 @@ to which they can be linked are shown to the right.</p>
 
 <!-- ENTRY FIELD: JDBC Connection Pool References -->
 <c:if test="${!empty(data.jndiRefsConfig.jdbcPoolRefs)}">
-  <p><b>JDBC Pool References:</b></p>
+  <p><b><fmt:message key="plancreator.reference.jdbcReference"/>:</b></p>
   <table border="0" width="100%">
     <tr>
-      <th class="DarkBackground" align="center">JDBC Ref</th>
-      <th class="DarkBackground" align="center">JDBC Pools</th>
+      <th class="DarkBackground" align="center"><fmt:message key="plancreator.reference.jdbcRef"/></th>
+      <th class="DarkBackground" align="center"><fmt:message key="plancreator.reference.jdbc"/></th>
     </tr>
     <c:set var="backgroundClass" value='MediumBackground'/>
     <c:forEach var="refData" items="${data.jndiRefsConfig.jdbcPoolRefs}" varStatus="status">
@@ -250,11 +248,11 @@ to which they can be linked are shown to the right.</p>
 
 <!-- ENTRY FIELD: JMS Connection Factory References -->
 <c:if test="${!empty(data.jndiRefsConfig.jmsConnectionFactoryRefs)}">
-  <p><b>JMS Connection Factory References:</b></p>
+  <p><b><fmt:message key="plancreator.reference.jmsConnReference"/>:</b></p>
   <table border="0" width="100%">
     <tr>
-      <th class="DarkBackground" align="center">JMS Ref</th>
-      <th class="DarkBackground" align="center">JMS Factories</th>
+      <th class="DarkBackground" align="center"><fmt:message key="plancreator.reference.jmsConnRef"/></th>
+      <th class="DarkBackground" align="center"><fmt:message key="plancreator.reference.jmsConn"/></th>
     </tr>
     <c:set var="backgroundClass" value='MediumBackground'/>
     <c:forEach var="refData" items="${data.jndiRefsConfig.jmsConnectionFactoryRefs}" varStatus="status">
@@ -285,11 +283,11 @@ to which they can be linked are shown to the right.</p>
 
 <!-- ENTRY FIELD: JMS Destination References -->
 <c:if test="${!empty(data.webApp.resourceEnvRefArray) || !empty(data.webApp.messageDestinationArray)}">
-  <p><b>JMS Destination References:</b></p>
+  <p><b><fmt:message key="plancreator.reference.jmsReference"/>:</b></p>
   <table border="0" width="100%">
     <tr>
-      <th class="DarkBackground" align="center">JMS Ref</th>
-      <th class="DarkBackground" align="center">JMS Destinations</th>
+      <th class="DarkBackground" align="center"><fmt:message key="plancreator.reference.jmsRef"/></th>
+      <th class="DarkBackground" align="center"><fmt:message key="plancreator.reference.jms"/></th>
     </tr>
     <c:set var="backgroundClass" value='MediumBackground'/>
     <c:forEach var="resourceEnvRef" items="${data.webApp.resourceEnvRefArray}" varStatus="status">
@@ -310,7 +308,7 @@ to which they can be linked are shown to the right.</p>
           <select name="jmsDestinationRef.${status.index}.refLink" id="<portlet:namespace/>jmsDestinationRef.${status.index}.refLink">
             <c:forEach var="jmsDestination" items="${deployedJmsDestinations}">
               <option value="${jmsDestination.patternName}" 
-                <c:if test="${fn:startsWith(jmsDestination.displayName, resourceEnvRef.messageDestinationLink)}"> selected="selected"</c:if>
+                <c:if test="${fn:startsWith(jmsDestination.displayName, resourceEnvRef.messageDestinationLink)}">selected="selected"</c:if>
               >${jmsDestination.displayName}</option>
             </c:forEach>
           </select>
@@ -335,7 +333,7 @@ to which they can be linked are shown to the right.</p>
           <select name="messageDestination.${status.index}.refLink" id="<portlet:namespace/>messageDestination.${status.index}.refLink">
             <c:forEach var="jmsDestination" items="${deployedJmsDestinations}">
               <option value="${jmsDestination.patternName}" 
-                <c:if test="${fn:startsWith(jmsDestination.displayName, messageDestination.adminObjectLink)}"> selected="selected"</c:if>
+                <c:if test="${fn:startsWith(jmsDestination.displayName, messageDestination.adminObjectLink)}">selected="selected"</c:if>
               >${jmsDestination.displayName}</option>
             </c:forEach>
           </select>
@@ -347,11 +345,11 @@ to which they can be linked are shown to the right.</p>
 
 <!-- ENTRY FIELD: JavaMail Session References -->
 <c:if test="${!empty(data.jndiRefsConfig.javaMailSessionRefs)}">
-  <p><b>JavaMail Session References:</b></p>
+  <p><b><fmt:message key="plancreator.reference.javamailReference"/>:</b></p>
   <table border="0" width="100%">
     <tr>
-      <th class="DarkBackground" align="center">Mail Session Ref</th>
-      <th class="DarkBackground" align="center">Mail Sessions Available</th>
+      <th class="DarkBackground" align="center"><fmt:message key="plancreator.reference.javamailRef"/></th>
+      <th class="DarkBackground" align="center"><fmt:message key="plancreator.reference.javamail"/></th>
     </tr>
     <c:set var="backgroundClass" value='MediumBackground'/>
     <c:forEach var="refData" items="${data.jndiRefsConfig.javaMailSessionRefs}" varStatus="status">
@@ -382,18 +380,16 @@ to which they can be linked are shown to the right.</p>
 
 <!-- ENTRY FIELD: Web Service References -->
 <c:if test="${!empty(data.webApp.serviceRefArray)}">
-  <p><b>Web Service References:</b></p>
-  <p>Service references declared in your application are shown below to the left. If the WSDL doesn't contain 
-  the port information to contact the service or if that information is ambiguous, then resolve the service-ref
-  by clicking on "Add Port".</p>
+  <p><b><fmt:message key="plancreator.reference.wsReference"/>:</b></p>
+  <p><fmt:message key="plancreator.reference.wsDesc"/></p>
   <table border="0" width="100%">
     <thead>
     <tr>
-      <th class="DarkBackground" align="center">Service Ref Name</th>
-      <th class="DarkBackground" align="center">Port Name</th>
-      <th class="DarkBackground" align="center">URL</th>
-      <th class="DarkBackground" align="center">Credentials</th>
-      <th class="DarkBackground" align="center">Actions</th>
+      <th class="DarkBackground" align="center"><fmt:message key="plancreator.reference.wsRef"/></th>
+      <th class="DarkBackground" align="center"><fmt:message key="plancreator.common.port"/></th>
+      <th class="DarkBackground" align="center"><fmt:message key="plancreator.common.url"/></th>
+      <th class="DarkBackground" align="center"><fmt:message key="plancreator.security.credenitial"/></th>
+      <th class="DarkBackground" align="center"><fmt:message key="plancreator.common.action"/></th>
     </tr>
     </thead>
     <tfoot></tfoot>
@@ -427,35 +423,35 @@ to which they can be linked are shown to the right.</p>
             <div id="<portlet:namespace/>${serviceRefId}.addNewPort" style="display:none">
               <table border="0">
                 <tr>
-                  <th><div align="right"><label for="<portlet:namespace/>${serviceRefId}.newPort.portName">Port Name</label>:</div></th>
+                  <th><div align="right"><label for="<portlet:namespace/>${serviceRefId}.newPort.portName"><fmt:message key="plancreator.common.portName"/></label>:</div></th>
                   <td><input type="text" id="<portlet:namespace/>${serviceRefId}.newPort.portName"/></td>
                 </tr>
                 <tr>
-                  <th><div align="right"><label for="<portlet:namespace/>${serviceRefId}.newPort.protocol">Protocol</label>:</div></th>
+                  <th><div align="right"><label for="<portlet:namespace/>${serviceRefId}.newPort.protocol"><fmt:message key="plancreator.common.protocol"/></label>:</div></th>
                   <td><input type="text" id="<portlet:namespace/>${serviceRefId}.newPort.protocol"/></td>
                 </tr>
                 <tr>
-                  <th><div align="right"><label for="<portlet:namespace/>${serviceRefId}.newPort.host">Host</label>:</div></th>
+                  <th><div align="right"><label for="<portlet:namespace/>${serviceRefId}.newPort.host"><fmt:message key="plancreator.common.host"/></label>:</div></th>
                   <td><input type="text" id="<portlet:namespace/>${serviceRefId}.newPort.host"/></td>
                 </tr>
                 <tr>
-                  <th><div align="right"><label for="<portlet:namespace/>${serviceRefId}.newPort.port">Port</label>:</div></th>
+                  <th><div align="right"><label for="<portlet:namespace/>${serviceRefId}.newPort.port"><fmt:message key="plancreator.common.port"/></label>:</div></th>
                   <td><input type="text" id="<portlet:namespace/>${serviceRefId}.newPort.port"/></td>
                 </tr>
                 <tr>
-                  <th><div align="right"><label for="<portlet:namespace/>${serviceRefId}.newPort.uri">URI</label>:</div></th>
+                  <th><div align="right"><label for="<portlet:namespace/>${serviceRefId}.newPort.uri"><fmt:message key="plancreator.common.uri"/></label>:</div></th>
                   <td><input type="text" id="<portlet:namespace/>${serviceRefId}.newPort.uri"/></td>
                 </tr>
                 <tr>
-                  <th><div align="right"><label for="<portlet:namespace/>${serviceRefId}.newPort.credentialsName">Credentials Name</label>:</div></th>
+                  <th><div align="right"><label for="<portlet:namespace/>${serviceRefId}.newPort.credentialsName"><fmt:message key="plancreator.security.credenitialName"/></label>:</div></th>
                   <td><input type="text" id="<portlet:namespace/>${serviceRefId}.newPort.credentialsName"/></td>
                 </tr>
                 <tr>
                   <th><div align="right"></div></th>
                   <td>
-                    <input type="button" value="Add" 
+                    <input type="button" value="<fmt:message key="plancreator.common.add"/>" 
                       onclick="<portlet:namespace/>addPort('${serviceRefId}');"/>
-                    <input type="button" value="Cancel" 
+                    <input type="button" value="<fmt:message key="plancreator.common.cancel"/>" 
                       onclick="<portlet:namespace/>hideElement('${serviceRefId}.addNewPort');"/>
                   </td>
                 </tr>
@@ -474,7 +470,7 @@ to which they can be linked are shown to the right.</p>
     <th>
     <div align="right"></div>
     </th>
-    <td><input type="submit" value="Next" /></td>
+    <td><input type="submit" value="<fmt:message key="plancreator.common.next"/>" /></td>
   </tr>
 </table>
 </form>
@@ -482,4 +478,4 @@ to which they can be linked are shown to the right.</p>
 
 <p><a href="<portlet:actionURL portletMode="view">
               <portlet:param name="mode" value="index-before" />
-            </portlet:actionURL>">Cancel</a></p>
+            </portlet:actionURL>"><fmt:message key="plancreator.common.cancel"/></a></p>

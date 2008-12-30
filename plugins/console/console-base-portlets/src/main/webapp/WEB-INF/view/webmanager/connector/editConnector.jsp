@@ -16,8 +16,9 @@
 --%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
-
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%@ taglib prefix="portlet" uri="http://java.sun.com/portlet" %>
+<fmt:setBundle basename="consolebase"/>
 <portlet:defineObjects/>
 <fmt:setBundle basename="consolebase"/>
 <script language="JavaScript">
@@ -94,7 +95,7 @@ function <portlet:namespace/>validateForm(){
         </c:otherwise>
       </c:choose>
   </td>
-  <td>A name that is different than the name for any other web connectors in the server (no spaces in the name please)</td>
+  <td><fmt:message key="webmanager.common.uniqueNameExp"/></td>
 </tr>
 <c:forEach var="connectorAttribute" items="${connectorAttributes}" varStatus="status">
   <c:set var="style" value="${status.index % 2 == 0 ? 'MediumBackground' : 'LightBackground'}"/>
@@ -148,11 +149,11 @@ function <portlet:namespace/>validateForm(){
 </table>
 <P>
 <!-- Submit Button -->
-<input name="submit" type="submit" value="Save" onClick="return <portlet:namespace/>validateForm()">
-<input name="reset" type="reset" value="Reset">
-<input name="submit" type="submit" value="Cancel">
+<input name="submit" type="submit" value="<fmt:message key="consolebase.common.save"/>" onClick="return <portlet:namespace/>validateForm()">
+<input name="reset" type="reset" value="<fmt:message key="consolebase.common.reset"/>">
+<input name="submit" type="submit" value="<fmt:message key="consolebase.common.cancel"/>">
 </form>
 <P>
 <a href='<portlet:actionURL portletMode="view">
            <portlet:param name="mode" value="list" />
-         </portlet:actionURL>'>List connectors</a>
+         </portlet:actionURL>'><fmt:message key="webmanager.common.listConnectors"/></a>

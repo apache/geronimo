@@ -39,7 +39,7 @@ limitations under the License.
         <supported-locale>en</supported-locale>
 
         <portlet-info>
-            <title>Create Geronimo Deployment Plan</title>
+            <title>Create Deployment Plan</title>
             <short-title>Create Deployment Plan</short-title>
             <keywords>Create Deployment Plan</keywords>
         </portlet-info>

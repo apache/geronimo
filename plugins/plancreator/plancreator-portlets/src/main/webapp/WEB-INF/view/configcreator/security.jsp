@@ -19,6 +19,8 @@
 
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="plancreator-portlet"/>
 <portlet:defineObjects />
 
 <script>
@@ -265,11 +267,9 @@ function <portlet:namespace/>removeElement(roleId, type, trId)
 }
 </script>
 
-<p><b>WAR - Security</b> -- Specify Security Realm and Role Mappings</p>
+<p><fmt:message key="plancreator.security.title"/></p>
 
-<p>Map security roles declared in web.xml deployment descriptor to specific users or groups in the security 
-realms configured in Geronimo. You can also specify a default user or group to be used when the end user has 
-not yet logged in.</p>
+<p><fmt:message key="plancreator.security.desc"/></p>
 
 <!--   FORM TO COLLECT DATA FOR THIS PAGE   -->
 <form name="<portlet:namespace/>SecurityForm" action="<portlet:actionURL/>" method="POST">
@@ -279,7 +279,7 @@ not yet logged in.</p>
   <!-- ENTRY FIELD: Security Realm Name -->
   <tr>
     <th>
-    <div align="right"><label for="<portlet:namespace/>securityRealmName">Security Realm Name</label>:</div>
+    <div align="right"><label for="<portlet:namespace/>securityRealmName"><fmt:message key="plancreator.security.securityRealmName"/></label>:</div>
     </th>
     <td>
       <select name="securityRealmName" id="<portlet:namespace/>securityRealmName">
@@ -291,21 +291,21 @@ not yet logged in.</p>
   </tr>
   <tr>
     <td></td>
-    <td>Select the Geronimo security realm that will authenticate user logins.</td>
+    <td><fmt:message key="plancreator.security.securityRealmNameSelection"/></td>
   </tr>
 </table>
 
 <div>
   <input type="checkbox" id="<portlet:namespace/>advancedSecuritySettingsCheckbox"
     onClick="<portlet:namespace/>toggleAdvancedSecuritySettings();"/>
-  <b><label for="<portlet:namespace/>advancedSecuritySettingsCheckbox">Advanced Settings</label></b>
+  <b><label for="<portlet:namespace/>advancedSecuritySettingsCheckbox"><fmt:message key="plancreator.security.advancedSetting"/></label></b>
   <div id="<portlet:namespace/>advancedSecuritySettings" style="display:none">
     <input type="hidden" id="<portlet:namespace/>advancedSecuritySettingsFlag"
       name="security.advancedSettings.isPresent" value="false"/>
     <table border="0" class="MediumBackground">
       <!-- Credential Store Ref -->
       <tr>
-        <th><div align="left"><label for="<portlet:namespace/>security.credentialStoreRef">Credential Store</label>:</div></th>
+        <th><div align="left"><label for="<portlet:namespace/>security.credentialStoreRef"><fmt:message key="plancreator.security.credentialStore"/></label>:</div></th>
         <td>
           <select name="security.credentialStoreRef" id="<portlet:namespace/>security.credentialStoreRef">
             <c:forEach var="credentialStore" items="${deployedCredentialStores}">
@@ -316,49 +316,47 @@ not yet logged in.</p>
       </tr>
       <tr>
         <th></th>
-        <td>Select the Credential Store which has the defaultSubject and runAsSubjects defined.</td>
+        <td><fmt:message key="plancreator.security.credentialStoreSelection"/></td>
       </tr>
 
       <!-- Default Subject -->
       <tr>
-        <td colspan="2"><div align="left"><b>Default Subject:</b></div></td>
+        <td colspan="2"><div align="left"><b><fmt:message key="plancreator.security.subject"/>:</b></div></td>
       </tr>
       <tr>
-        <th><div align="right"><label for="<portlet:namespace/>security.defaultSubject.realm">Realm</label>:</div></th>
+        <th><div align="right"><label for="<portlet:namespace/>security.defaultSubject.realm"><fmt:message key="plancreator.security.realm"/></label>:</div></th>
         <td><input name="security.defaultSubject.realm" id="<portlet:namespace/>security.defaultSubject.realm" type="text" size="25"/></td>
       </tr>
       <tr>
-        <th><div align="right"><label for="<portlet:namespace/>security.defaultSubject.id">Id</label>:</div></th>
+        <th><div align="right"><label for="<portlet:namespace/>security.defaultSubject.id"><fmt:message key="plancreator.common.id"/></label>:</div></th>
         <td><input name="security.defaultSubject.id" id="<portlet:namespace/>security.defaultSubject.id" type="text" size="25"/></td>
       </tr>
       <tr>
         <th></th>
-        <td>The defaultSubject is used whenever an unauthenticated user accesses an unsecured page. Typically, 
-        this is used so that an unsecured page can access a secured resource, a secured EJB for example. 
-        Realm is the realm name of the default subject and Id is the default subject's name within that realm.</td>
+        <td><fmt:message key="plancreator.security.subjectDesc"/></td>
       </tr>
 
       <!-- doas-current-caller -->
       <tr>
         <td colspan="2" align="left">
-          <b><label for="<portlet:namespace/>security.doasCurrentCaller">doas-current-caller</label>:</b>
+          <b><label for="<portlet:namespace/>security.doasCurrentCaller"><fmt:message key="plancreator.security.doAsCurrentCaller"/></label>:</b>
           <input name="security.doasCurrentCaller" id="<portlet:namespace/>security.doasCurrentCaller" type="checkbox" value="true"/>
         </td>
       </tr>
       <tr>
         <th></th>
-        <td>Select this if the work is to be performed as the calling Subject/User instead of as Server.</td>
+        <td><fmt:message key="plancreator.security.doAsCurrentCallerDesc"/></td>
       </tr>
       <!-- use-context-handler -->
       <tr>
         <td colspan="2" align="left">
-          <b><label for="<portlet:namespace/>security.useContextHandler">use-context-handler</label>:</b>
+          <b><label for="<portlet:namespace/>security.useContextHandler"><fmt:message key="plancreator.security.useContextHandler"/></label>:</b>
           <input name="security.useContextHandler" id="<portlet:namespace/>security.useContextHandler" type="checkbox" value="true"/>
         </td>
       </tr>
       <tr>
         <th></th>
-        <td>Select this if the installed JACC policy contexts should use PolicyContextHandlers.</td>
+        <td><fmt:message key="plancreator.security.useContextHandlerDesc"/></td>
       </tr>
     </table>
   </div>
@@ -367,11 +365,9 @@ not yet logged in.</p>
 
 <!-- Security Role Mappings -->
 <p>
-<b>Security Role Mappings:</b>
+<b><fmt:message key="plancreator.security.roleMapping"/>:</b>
 <br><br>
-Security roles declared in web.xml are shown below to the left. Map them to specific principals present 
-in Geronimo's security realms by adding Principals, Login Domain Principals, Realm Principals and/or 
-Distinguished Names.
+<fmt:message key="plancreator.security.roleMappingDesc"/>
 </p>
 <table border="0">
   <c:set var="backgroundClass" value='MediumBackground'/>
@@ -393,14 +389,14 @@ Distinguished Names.
         <div id="<portlet:namespace/>${roleId}.loginDomainPrincipal.placeHolder"></div>
         <div id="<portlet:namespace/>${roleId}.realmPrincipal.placeHolder"></div>
         <div id="<portlet:namespace/>${roleId}.distinguishedName.placeHolder"></div>
-        <div align="justify"><label for="${roleId}.selectList">Add:</label> 
+        <div align="justify"><label for="${roleId}.selectList"><fmt:message key="plancreator.common.add"/>:</label> 
         <select id="${roleId}.selectList" 
           onchange="<portlet:namespace/>handleAddClick('${roleId}', this.value)">
           <option value=""></option>
-          <option value="principal">Principal</option>
-          <option value="loginDomainPrincipal">Login Domain Principal</option>
-          <option value="realmPrincipal">Realm Principal</option>
-          <option value="distinguishedName">Distinguished Name</option>
+          <option value="principal"><fmt:message key="plancreator.security.principal"/></option>
+          <option value="loginDomainPrincipal"><fmt:message key="plancreator.security.loginDomainPrincipal"/></option>
+          <option value="realmPrincipal"><fmt:message key="plancreator.security.realmPrincipal"/></option>
+          <option value="distinguishedName"><fmt:message key="plancreator.security.distinguishedName"/></option>
         </select></div>
 
         <div id="<portlet:namespace/>${roleId}.principal.ui" style="display:none">
@@ -408,23 +404,23 @@ Distinguished Names.
             name="${roleId}.principal.lastIndex" value="0">
           <table border="0">
             <tr>
-              <th><div align="right"><label for="<portlet:namespace/>${roleId}.principal.name">Name</label>:</div></th>
+              <th><div align="right"><label for="<portlet:namespace/>${roleId}.principal.name"><fmt:message key="plancreator.common.name"/></label>:</div></th>
               <td><input type="text" id="<portlet:namespace/>${roleId}.principal.name"/></td>
             </tr>
             <tr>
-              <th><div align="right"><label for="<portlet:namespace/>${roleId}.principal.class">Class</label>:</div></th>
+              <th><div align="right"><label for="<portlet:namespace/>${roleId}.principal.class"><fmt:message key="plancreator.common.class"/></label>:</div></th>
               <td>
                 <select id="<portlet:namespace/>${roleId}.principal.class">
-                  <option value="org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal">Group Principal</option>
-                  <option value="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal">User Principal</option>
+                  <option value="org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal"><fmt:message key="plancreator.security.groupPrincipal"/></option>
+                  <option value="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal"><fmt:message key="plancreator.security.userPrincipal"/></option>
                 </select>
               </td>
             </tr>
             <tr>
               <th><div align="right"></div></th>
               <td>
-                <input type="button" value="Add" onclick="<portlet:namespace/>addElement('${roleId}', 'principal')"/>
-                <input type="button" value="Cancel" 
+                <input type="button" value="<fmt:message key="plancreator.common.add"/>" onclick="<portlet:namespace/>addElement('${roleId}', 'principal')"/>
+                <input type="button" value="<fmt:message key="plancreator.common.cancel"/>" 
                   onclick="<portlet:namespace/>hideElement('${roleId}.principal.ui');
                   document.getElementById('${roleId}.selectList').selectedIndex = 0;"/>
               </td>
@@ -437,27 +433,27 @@ Distinguished Names.
             name="${roleId}.loginDomainPrincipal.lastIndex" value="0">
           <table border="0">
             <tr>
-              <th><div align="right"><label for="<portlet:namespace/>${roleId}.loginDomainPrincipal.name">Name</label>:</div></th>
+              <th><div align="right"><label for="<portlet:namespace/>${roleId}.loginDomainPrincipal.name"><fmt:message key="plancreator.common.name"/></label>:</div></th>
               <td><input type="text" id="<portlet:namespace/>${roleId}.loginDomainPrincipal.name"/></td>
             </tr>
             <tr>
-              <th><div align="right"><label for="<portlet:namespace/>${roleId}.loginDomainPrincipal.class">Class</label>:</div></th>
+              <th><div align="right"><label for="<portlet:namespace/>${roleId}.loginDomainPrincipal.class"><fmt:message key="plancreator.common.class"/></label>:</div></th>
               <td>
                 <select id="<portlet:namespace/>${roleId}.loginDomainPrincipal.class">
-                  <option value="org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal">Group Principal</option>
-                  <option value="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal">User Principal</option>
+                  <option value="org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal"><fmt:message key="plancreator.security.groupPrincipal"/></option>
+                  <option value="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal"><fmt:message key="plancreator.security.userPrincipal"/></option>
                 </select>
               </td>
             </tr>
             <tr>
-              <th><div align="right"><label for="<portlet:namespace/>${roleId}.loginDomainPrincipal.domainName">Domain Name</label>:</div></th>
+              <th><div align="right"><label for="<portlet:namespace/>${roleId}.loginDomainPrincipal.domainName"><fmt:message key="plancreator.security.domainName"/></label>:</div></th>
               <td><input type="text" id="<portlet:namespace/>${roleId}.loginDomainPrincipal.domainName"/></td>
             </tr>
             <tr>
               <th><div align="right"></div></th>
               <td>
-                <input type="button" value="Add" onclick="<portlet:namespace/>addElement('${roleId}', 'loginDomainPrincipal')"/>
-                <input type="button" value="Cancel" 
+                <input type="button" value="<fmt:message key="plancreator.common.add"/>" onclick="<portlet:namespace/>addElement('${roleId}', 'loginDomainPrincipal')"/>
+                <input type="button" value="<fmt:message key="plancreator.common.cancel"/>" 
                   onclick="<portlet:namespace/>hideElement('${roleId}.loginDomainPrincipal.ui');
                   document.getElementById('${roleId}.selectList').selectedIndex = 0;"/>
               </td>
@@ -470,24 +466,24 @@ Distinguished Names.
             name="${roleId}.realmPrincipal.lastIndex" value="0">
           <table border="0">
             <tr>
-              <th><div align="right"><label for="<portlet:namespace/>${roleId}.realmPrincipal.name">Name</label>:</div></th>
+              <th><div align="right"><label for="<portlet:namespace/>${roleId}.realmPrincipal.name"><fmt:message key="plancreator.common.name"/></label>:</div></th>
               <td><input type="text" id="<portlet:namespace/>${roleId}.realmPrincipal.name"/></td>
             </tr>
             <tr>
-              <th><div align="right"><label for="<portlet:namespace/>${roleId}.realmPrincipal.class">Class</label>:</div></th>
+              <th><div align="right"><label for="<portlet:namespace/>${roleId}.realmPrincipal.class"><fmt:message key="plancreator.common.class"/></label>:</div></th>
               <td>
                 <select id="<portlet:namespace/>${roleId}.realmPrincipal.class">
-                  <option value="org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal">Group Principal</option>
-                  <option value="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal">User Principal</option>
+                  <option value="org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal"><fmt:message key="plancreator.security.groupPrincipal"/></option>
+                  <option value="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal"><fmt:message key="plancreator.security.userPrincipal"/></option>
                 </select>
               </td>
             </tr>
             <tr>
-              <th><div align="right"><label for="<portlet:namespace/>${roleId}.realmPrincipal.domainName">Domain Name</label>:</div></th>
+              <th><div align="right"><label for="<portlet:namespace/>${roleId}.realmPrincipal.domainName"><fmt:message key="plancreator.security.domainName"/></label>:</div></th>
               <td><input type="text" id="<portlet:namespace/>${roleId}.realmPrincipal.domainName"/></td>
             </tr>
             <tr>
-              <th><div align="right"><label for="<portlet:namespace/>${roleId}.realmPrincipal.realmName">Realm Name</label>:</div></th>
+              <th><div align="right"><label for="<portlet:namespace/>${roleId}.realmPrincipal.realmName"><fmt:message key="plancreator.security.realmName"/></label>:</div></th>
               <td>
                 <select id="<portlet:namespace/>${roleId}.realmPrincipal.realmName">
                   <c:forEach var="securityRealm" items="${deployedSecurityRealms}">
@@ -499,8 +495,8 @@ Distinguished Names.
             <tr>
               <th><div align="right"></div></th>
               <td>
-                <input type="button" value="Add" onclick="<portlet:namespace/>addElement('${roleId}', 'realmPrincipal')"/>
-                <input type="button" value="Cancel" 
+                <input type="button" value="<fmt:message key="plancreator.common.add"/>" onclick="<portlet:namespace/>addElement('${roleId}', 'realmPrincipal')"/>
+                <input type="button" value="<fmt:message key="plancreator.common.cancel"/>" 
                   onclick="<portlet:namespace/>hideElement('${roleId}.realmPrincipal.ui');
                   document.getElementById('${roleId}.selectList').selectedIndex = 0;"/>
               </td>
@@ -513,14 +509,14 @@ Distinguished Names.
             name="${roleId}.distinguishedName.lastIndex" value="0">
           <table border="0">
             <tr>
-              <th><div align="right"><label for="<portlet:namespace/>${roleId}.distinguishedName.name">Name</label>:</div></th>
+              <th><div align="right"><label for="<portlet:namespace/>${roleId}.distinguishedName.name"><fmt:message key="plancreator.common.name"/>/label>:</div></th>
               <td><input type="text" id="<portlet:namespace/>${roleId}.distinguishedName.name"/></td>
             </tr>
             <tr>
               <th><div align="right"></div></th>
               <td>
-                <input type="button" value="Add" onclick="<portlet:namespace/>addElement('${roleId}', 'distinguishedName')"/>
-                <input type="button" value="Cancel" 
+                <input type="button" value="<fmt:message key="plancreator.common.add"/>" onclick="<portlet:namespace/>addElement('${roleId}', 'distinguishedName')"/>
+                <input type="button" value="<fmt:message key="plancreator.common.cancel"/>" 
                   onclick="<portlet:namespace/>hideElement('${roleId}.distinguishedName.ui');
                   document.getElementById('${roleId}.selectList').selectedIndex = 0;"/>
               </td>
@@ -532,11 +528,11 @@ Distinguished Names.
         <div id="<portlet:namespace/>${runAsSubjectId}.ui">
           <input type="checkbox" id="<portlet:namespace/>${runAsSubjectId}.checkBox" disabled="disabled" 
             onClick="<portlet:namespace/>toggleRunAsSubject('${runAsSubjectId}');"/>
-          <label for="<portlet:namespace/>${runAsSubjectId}.checkBox">Specify run-as-subject*</label>
+          <label for="<portlet:namespace/>${runAsSubjectId}.checkBox"><fmt:message key="plancreator.security.specifyRunAsSubject"/>*</label>
           <div id="<portlet:namespace/>${runAsSubjectId}.subElements" style="display:none">
             <table border="0">
               <tr>
-                <th><div align="right"><label for="<portlet:namespace/>${runAsSubjectId}.realm">Realm</label>:</div></th>
+                <th><div align="right"><label for="<portlet:namespace/>${runAsSubjectId}.realm"><fmt:message key="plancreator.security.realm"/></label>:</div></th>
                 <td><input name="${runAsSubjectId}.realm" id="<portlet:namespace/>${runAsSubjectId}.realm" type="text" size="25"/></td>
               </tr>
               <tr>
@@ -545,8 +541,7 @@ Distinguished Names.
               </tr>
               <tr>
                 <th></th>
-                <td>The run-as-subject is required when the module is to continue as if run by the specified 
-                  subject when constrained to the specified role.</td>
+                <td><fmt:message key="plancreator.security.runAsSubjectDesc"/></td>
               </tr>
             </table>
           </div>
@@ -557,7 +552,7 @@ Distinguished Names.
     </tr>
   </c:forEach>
   <tr>
-  <td colspan="2" align="left">* Click Advanced Settings to enable specifying run-as-subject</td>
+  <td colspan="2" align="left">* <fmt:message key="plancreator.security.advancedSettingDesc"/></td>
   </tr>
 </table>
 <br>
@@ -568,7 +563,7 @@ Distinguished Names.
     <th>
     <div align="right"></div>
     </th>
-    <td><input type="submit" value="Next" /></td>
+    <td><input type="submit" value="<fmt:message key="plancreator.common.next"/>" /></td>
   </tr>
 </table>
 </form>
@@ -576,4 +571,4 @@ Distinguished Names.
 
 <p><a href="<portlet:actionURL portletMode="view">
               <portlet:param name="mode" value="index-before" />
-            </portlet:actionURL>">Cancel</a></p>
+            </portlet:actionURL>"><fmt:message key="plancreator.common.cancel"/></a></p>

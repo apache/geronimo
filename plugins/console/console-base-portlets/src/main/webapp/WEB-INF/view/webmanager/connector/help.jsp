@@ -14,4 +14,6 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 --%>
-The Connector Manager displays connections of all types and provide the capability to modify connections for this web server. 
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="consolebase"/>
+<fmt:message key="webmanager.connector.help.content"/> 
