@@ -21,6 +21,12 @@ limitations under the License.
     <!-- This is where the files are accessed from. (aka - portletContext) -->
     <context-root>/openejb-server</context-root>
 
+    <!-- i18n support -->
+    <gbean name="ConsoleResourceGBean" class="org.apache.geronimo.console.i18n.ConsoleResourceGBean">
+        <reference name="ConsoleResourceRegistry">
+            <name>ConsoleResourceRegistry</name>
+        </reference>
+    </gbean>
 
     <security-realm-name>geronimo-admin</security-realm-name>
     <security xmlns="http://geronimo.apache.org/xml/ns/security-1.2">
