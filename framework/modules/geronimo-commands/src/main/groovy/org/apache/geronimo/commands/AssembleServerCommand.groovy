@@ -121,7 +121,7 @@ class AssembleServerCommand
                 pluginsToInstall = command.getInstallList(pluginGroups, appPlugins, consoleReader, null)
                             
             } else if (mode.compareTo("2") == 0) {
-                io.out.println('Listing application plugins from the local Geronimo server')
+                io.out.println('Listing application plugins and required framework plugin group from the local Geronimo server')
                 def appPlugins = variables.get('LocalAppPlugins')
                 
                 if (refreshList || !appPlugins) {

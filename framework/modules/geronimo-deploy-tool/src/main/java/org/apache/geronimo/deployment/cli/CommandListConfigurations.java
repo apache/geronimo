@@ -162,7 +162,20 @@ public class CommandListConfigurations extends AbstractCommand {
         PluginListType data = getLocalPluginCategories(mgr, consoleReader);
         List<String> appList = getApplicationModuleLists(mgr);
 
-        return getPluginsFromIds(appList, data);
+        PluginListType appPlugin = getPluginsFromIds(appList, data);
+        
+        // let's add framework plugin group manually so that users can choose it
+        for (PluginType metadata : data.getPlugin()) {
+            for (PluginArtifactType testInstance : metadata.getPluginArtifact()) {
+                if (PluginInstallerGBean.toArtifact(testInstance.getModuleId()).toString().indexOf("plugingroups/framework") > 0) {
+                    PluginType plugin = PluginInstallerGBean.copy(metadata, testInstance);
+                    appPlugin.getPlugin().add(plugin);
+                    break;
+                }
+            }
+        }
+        
+        return appPlugin;
     }
     
     public PluginListType getLocalPluginGroups(GeronimoDeploymentManager mgr, ConsoleReader consoleReader) throws DeploymentException, IOException {
