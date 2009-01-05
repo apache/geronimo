@@ -294,6 +294,11 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
 
     private void writeToZip(File dir, ZipOutputStream out, String prefix, byte[] buf) throws IOException {
         File[] all = dir.listFiles();
+        if (all.length == 0) {
+            // it is an empty directory
+            ZipEntry entry = new ZipEntry(prefix);
+            out.putNextEntry(entry); 
+        }
         for (File file : all) {
             if (file.isDirectory()) {
                 writeToZip(file, out, prefix + file.getName() + "/", buf);
