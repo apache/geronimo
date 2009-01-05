@@ -297,6 +297,7 @@ public class MonitoringPortlet extends GenericPortlet {
             pageView.include(request, response);
         } else if (action.equals("showAllViews")) {
             request.setAttribute("message", "");
+            addAllViewsAttribute(request);
             viewViews.include(request, response);
         } else if (action.equals("showAllServers")) {
             request.setAttribute("message", "");
