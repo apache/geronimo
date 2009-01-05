@@ -407,7 +407,7 @@ function updateFormula()
     <td>&nbsp;</td>
     <td align="right"><select name="server_id" id="<portlet:namespace/>server_id"
                               onChange="updateMbeanList(); updateFormula();">
-        <option value="">-<fmt:message key="monitor.graph.select"/>-</option>
+        <option value="">-<fmt:message key="monitor.graph.selectServer"/>-</option>
     </select>
         <script type='text/javascript'>
             <%
@@ -459,7 +459,7 @@ function updateFormula()
     <td>&nbsp;</td>
     <td align="right"><select name="mbean" id="<portlet:namespace/>mbean"
                               onChange="updateDatanameList(); updateFormula();">
-        <option value="">-<fmt:message key="monitor.graph.selectFirst"/>-</option>
+        <option value="">-<fmt:message key="monitor.graph.selectServerFirst"/>-</option>
     </select></td>
     <td></td>
 </tr>

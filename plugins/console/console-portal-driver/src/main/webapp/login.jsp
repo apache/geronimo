@@ -124,7 +124,7 @@
         </tr>
 
         <tr>
-          <td><font size="1"><STRONG><fmt:message key="console.login.welcome"/></STRONG></FONT></td>
+          <td><font size="1"><STRONG>&nbsp;<fmt:message key="console.login.welcome"/></STRONG></FONT></td>
         </TR>
         <tr>
           <TD>

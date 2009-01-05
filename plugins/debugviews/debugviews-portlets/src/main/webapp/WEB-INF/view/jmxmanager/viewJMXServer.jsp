@@ -971,7 +971,7 @@ callOnLoad(init);
                             <th dataType="html" width="20%">&nbsp;<fmt:message key="jmxmanager.help.value"/>&nbsp;</th>
                             <th field="Type" dataType="String" width="10%">&nbsp;<fmt:message key="jmxmanager.help.type"/>&nbsp;</th>
                             <th field="Getter" dataType="String" width="10%">&nbsp;<fmt:message key="jmxmanager.help.getter"/>&nbsp;</th>
-                            <th dataType="html" width="10%">&nbsp;<fmt:message key="jmxmanager.help.server"/>&nbsp;</th>
+                            <th dataType="html" width="10%">&nbsp;<fmt:message key="jmxmanager.help.setter"/>&nbsp;</th>
                             <th field="Manageable" dataType="String" width="10%" align="center">&nbsp;<fmt:message key="jmxmanager.help.manageable"/>&nbsp;</th>
                             <th field="Persistent" dataType="String" width="10%" align="center">&nbsp;<fmt:message key="jmxmanager.help.persistent"/>&nbsp;</th>
                             <!--

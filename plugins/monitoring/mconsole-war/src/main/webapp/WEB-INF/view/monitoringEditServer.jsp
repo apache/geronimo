@@ -177,7 +177,7 @@ function setPort() {
       <td></td>
     </tr>
     <tr>
-      <td><label for="<portlet:namespace/>ip"><fmt:message key="monitor.common.ip"/>/<fmt:message key="monitor.server.hostname"/></label>:</td>
+      <td><label for="<portlet:namespace/>ip"><fmt:message key="monitor.server.ip"/>/<fmt:message key="monitor.server.hostname"/></label>:</td>
       <td>&nbsp;</td>
       <td align="right"><input type="text" name="ip" id="<portlet:namespace/>ip" value=<%= "\"" + node.getHost() + "\"" %>/></td>
       <td></td>

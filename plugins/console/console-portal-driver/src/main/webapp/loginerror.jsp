@@ -117,7 +117,7 @@
         </tr>
 
         <tr>
-          <td><font size="1"><STRONG>Welcome to the Geronimo&#8482; Console</FONT></td>
+          <td><font size="1"><STRONG>&nbsp;<fmt:message key="console.login.welcome"/></STRONG></FONT></td>
         </TR>
         <tr>
           <TD>

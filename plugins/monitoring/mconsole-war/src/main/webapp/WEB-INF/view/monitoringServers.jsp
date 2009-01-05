@@ -40,7 +40,7 @@ border-width: 1px;">
  <thead align="center"><strong><fmt:message key="monitor.common.server"/></strong></thead>
  <tr>
   <th class="DarkBackground" width="30%"><fmt:message key="monitor.common.name"/></th>
-  <th class="DarkBackground" width="10%"><fmt:message key="monitor.common.ip"/>/<fmt:message key="monitor.common.hostname"/></th>
+  <th class="DarkBackground" width="10%"><fmt:message key="monitor.server.ip"/>/<fmt:message key="monitor.server.hostname"/></th>
   <th class="DarkBackground" width="15%"><fmt:message key="monitor.server.status"/></th>
   <th class="DarkBackground" width="15%"><fmt:message key="monitor.server.statQuery"/></th>
   <th class="DarkBackground" width="30%" colspan="3"><fmt:message key="monitor.common.action"/></th>

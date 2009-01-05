@@ -434,7 +434,7 @@ function addOption(selectbox, value, text )
       <%--<td></td>--%>
     <%--</tr>--%>
    <tr>
-      <td><label for="<portlet:namespace/>server_id"><fmt:message key="monitor.common.next"/><fmt:message key="monitor.graph.server"/></label>:</td>
+      <td><label for="<portlet:namespace/>server_id"><fmt:message key="monitor.graph.server"/></label>:</td>
       <td>&nbsp;</td>
       <td align="right">
     <select name="server_id" id="<portlet:namespace/>server_id" onChange="updateMbeanList(); updateFormula();">
@@ -553,7 +553,7 @@ function addOption(selectbox, value, text )
     <tr><td><fmt:message key="monitor.common.graphing"/>: </td><td colspan="2"><strong><span id="formulaData1operation"></span> <span id="formulaDataname1"></span> <span id="formulaOperation"></span> <span id="formulaData2operation"></span> <span id="formulaDataname2"></span></strong></td></tr>
     <tr><td colspan="3"><font size="-2">&nbsp;</font></td></tr>
     <tr>
-      <td colspan="1" align="left"><button type="button" value="Cancel" onclick="javascript:history.go(-1)"><fmt:message key="monitor.graph.cancel"/></button></td>
+      <td colspan="1" align="left"><button type="button" value="Cancel" onclick="javascript:history.go(-1)"><fmt:message key="monitor.common.cancel"/></button></td>
       <td>&nbsp;</td>
       <td colspan="1" align="right"><input type="submit" value="Save" /></td>
       <td></td>
