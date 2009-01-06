@@ -27,7 +27,7 @@
   <c:otherwise>
 <p><fmt:message key="dbwizard.list.hasDatabasePools"/></p>
 
-<table width="100%" style="border-style: solid;border-width: 1px;" summary="Database Pools - List">
+<table width="100%" class="TableLine" summary="Database Pools - List">
   <tr>
     <th scope="col" class="DarkBackground" align="left"><fmt:message key="dbwizard.common.name"/></th>
     <th scope="col" class="DarkBackground" align="center"><fmt:message key="dbwizard.list.deployedAs"/></th>

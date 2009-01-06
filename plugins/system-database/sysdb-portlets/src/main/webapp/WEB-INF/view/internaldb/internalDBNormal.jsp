@@ -49,7 +49,7 @@ Choose DB: &nbsp;
 </c:choose>
 --%>
 <b><fmt:message key="internaldb.common.DB"/>:</b>
-<table width="100%" style="border-style: solid;border-width: 1px;" summary="DB">
+<table width="100%" class="TableLine" summary="DB">
   <tr> 
     <th scope="col" class="DarkBackground" width="20%" align="center"><fmt:message key="internaldb.common.Item"/></th>
     <th scope="col" class="DarkBackground" width="80%" align="center"><fmt:message key="internaldb.common.Value"/></th>
@@ -71,9 +71,10 @@ Choose DB: &nbsp;
     <td class="MediumBackground">${internalDB['DB Minor Version']}</td> 
   </tr> 
 </table>
-<br>
+<br/>
+
 <b><fmt:message key="internaldb.common.driver"/>:</b>
-<table width="100%" style="border-style: solid;border-width: 1px;" summary="Driver">
+<table width="100%" class="TableLine" summary="Driver">
   <tr> 
     <th scope="col" class="DarkBackground" width="20%" align="center"><fmt:message key="internaldb.common.Item"/></th>
     <th scope="col" class="DarkBackground" width="80%" align="center"><fmt:message key="internaldb.common.Value"/></th>
@@ -95,9 +96,10 @@ Choose DB: &nbsp;
     <td class="MediumBackground">${internalDB['Driver Minor Version']}</td> 
   </tr> 
 </table>
-<br>  
+<br/>
+  
 <b>JDBC:</b>
-<table width="100%" style="border-style: solid;border-width: 1px;" summary="JDBC">
+<table width="100%" class="TableLine" summary="JDBC">
   <tr> 
     <th scope="col" class="DarkBackground" width="20%" align="center"><fmt:message key="internaldb.common.Item"/></th>
     <th scope="col" class="DarkBackground" width="80%" align="center"><fmt:message key="internaldb.common.Value"/></th>
@@ -111,9 +113,10 @@ Choose DB: &nbsp;
     <td class="MediumBackground">${internalDB['JDBC Minor Version']}</td> 
   </tr> 
 </table>
-<br>
+<br/>
+
 <b><fmt:message key="internaldb.common.etc"/>:</b>
-<table width="100%" style="border-style: solid;border-width: 1px;" summary="ETC">
+<table width="100%" class="TableLine" summary="ETC">
   <tr> 
     <th scope="col" class="DarkBackground" width="20%" align="center"><fmt:message key="internaldb.common.Item"/></th>
     <th scope="col" class="DarkBackground" width="80%" align="center"><fmt:message key="internaldb.common.Value"/></th>
@@ -131,9 +134,10 @@ Choose DB: &nbsp;
     <td class="LightBackground">${internalDB['Read Only']}</td> 
   </tr> 
 </table>
-<br>
+<br/>
+
 <b><fmt:message key="internaldb.common.functions"/>:</b>
-<table width="100%" style="border-style: solid;border-width: 1px;" summary="Functions">
+<table width="100%" class="TableLine" summary="Functions">
   <tr> 
     <th scope="col" class="DarkBackground" width="20%" align="center"><fmt:message key="internaldb.common.Item"/></th>
     <th scope="col" class="DarkBackground" width="80%" align="center"><fmt:message key="internaldb.common.Value"/></th>
@@ -155,9 +159,10 @@ Choose DB: &nbsp;
     <td class="MediumBackground">${internalDB['Time Date Functions']}</td> 
   </tr> 
 </table>
-<br>  
+<br/>
+  
 <b>SQL:</b>
-<table width="100%" style="border-style: solid;border-width: 1px;" summary="SQL">
+<table width="100%" class="TableLine" summary="SQL">
   <tr> 
     <th scope="col" class="DarkBackground" width="20%" align="center"><fmt:message key="internaldb.common.Item"/></th>
     <th scope="col" class="DarkBackground" width="80%" align="center"><fmt:message key="internaldb.common.Value"/></th>

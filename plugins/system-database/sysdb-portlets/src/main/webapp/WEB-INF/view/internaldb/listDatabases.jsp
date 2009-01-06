@@ -22,7 +22,7 @@
 <portlet:defineObjects/>
 
 <b><fmt:message key="internaldb.listDatabases.title"/>:</b>
-<table width="100%" style="border-style: solid;border-width: 1px;" summary="DB Viewer - DB List">
+<table width="100%" class="TableLine" summary="DB Viewer - DB List">
   <tr>
     <th scope="col" class="DarkBackground" colspan="1" align="center"><fmt:message key="internaldb.common.databases"/></th>
     <th scope="col" class="DarkBackground" colspan="2" align="center"><fmt:message key="internaldb.common.viewTables"/></th>
