@@ -191,7 +191,6 @@
                             <config-substitution key="HTTPPort">8080</config-substitution>
                             <config-substitution key="AJPPort">8009</config-substitution>
                             <config-substitution key="HTTPSPort">8443</config-substitution>
-                            <config-substitution key="ServerHostname">0.0.0.0</config-substitution>
                             <config-substitution key="WebConnectorConTimeout">20000</config-substitution>
                             <config-substitution key="webcontainer">TomcatWebContainer</config-substitution>
                             <config-substitution key="webcontainerName">tomcat6</config-substitution>

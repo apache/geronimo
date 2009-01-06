@@ -122,7 +122,7 @@
                                     <attribute name="maxPoolSize">${MaxThreadPoolSize}</attribute>
                                 </gbean>
                             </config-xml-content>
-                            <config-substitution key="ServerHostname">localhost</config-substitution>
+                            <config-substitution key="ServerHostname">0.0.0.0</config-substitution>
                             <config-substitution key="PortOffset">0</config-substitution>
                             <config-substitution key="NamingPort">1099</config-substitution>
                             <config-substitution key="MinThreadPoolSize">200</config-substitution>
