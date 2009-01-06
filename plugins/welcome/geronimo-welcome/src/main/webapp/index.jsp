@@ -271,7 +271,7 @@ deploy.[bat|sh] deploy MyWebApp-1.0.war</pre>
             <img src="<%=request.getContextPath()%>/images/powered_by_100x30.gif" alt="Powered by Geronimo"/>
             </font><br />
             &nbsp;
-            <font size=-1>Copyright &copy; 1999-2008 Apache Software Foundation</font><br />
+            <font size=-1>Copyright &copy; 2003-2009 Apache Software Foundation</font><br />
             <font size=-1>All Rights Reserved</font> <br />
             &nbsp;</p>
             <p align="right">&nbsp;</p>
