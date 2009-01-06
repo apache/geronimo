@@ -28,17 +28,17 @@ var <portlet:namespace/>requiredFields = new Array("createDB");
 var <portlet:namespace/>requiredFields2 = new Array("sqlStmts");
 
 function <portlet:namespace/>validateForm1(){
-    var action = eval("document.forms[<portlet:namespace/>formName].elements['action']");
+    var action = document.forms[<portlet:namespace/>formName].elements['action'];
     action.value="Create";
     return textElementsNotEmpty(<portlet:namespace/>formName, <portlet:namespace/>requiredFields);
 }
 function <portlet:namespace/>validateForm2(){
-    var action = eval("document.forms[<portlet:namespace/>formName].elements['action']");
+    var action = document.forms[<portlet:namespace/>formName].elements['action'];
     action.value="Delete";
     return confirm('<fmt:message key="internaldb.runSQLNormal.reallyDeleteDatabase"/>')
 }
 function <portlet:namespace/>validateForm3(){
-    var action = eval("document.forms[<portlet:namespace/>formName].elements['action']");
+    var action = document.forms[<portlet:namespace/>formName].elements['action'];
     action.value="Run SQL";
     return textElementsNotEmpty(<portlet:namespace/>formName, <portlet:namespace/>requiredFields2);
 }
