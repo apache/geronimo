@@ -27,10 +27,17 @@ import javax.persistence.NamedQuery;
 import javax.persistence.Column;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 @Entity(name = "node")
-@NamedQuery(name = "allNodes", query = "SELECT a FROM node a")
+
+@NamedQueries(
+  {
+    @NamedQuery(name = "allNodes", query = "SELECT a FROM node a"),
+    @NamedQuery(name = "nodeByName", query = "SELECT n FROM node n WHERE n.name = :name")
+  }
+)
+
 public class Node {
     @Id
     private String name;

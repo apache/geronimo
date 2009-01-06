@@ -39,7 +39,12 @@ import javax.persistence.GeneratedValue;
  * @version $Rev$ $Date$
  */
 @Entity(name = "graph")
-@NamedQuery(name = "allGraphs", query = "SELECT a FROM graph a")
+@NamedQueries(
+ { 
+    @NamedQuery(name = "allGraphs", query = "SELECT a FROM graph a"), 
+    @NamedQuery(name = "graphById", query = "SELECT g FROM graph g WHERE g.id = :id")
+ }
+ )
 public class Graph {
 
     @Id
