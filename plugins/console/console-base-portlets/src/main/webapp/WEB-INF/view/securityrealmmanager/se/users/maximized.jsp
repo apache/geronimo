@@ -45,15 +45,12 @@ function isEmptyString(value){
     return value.length < 1;
 }
 </script>
-<table width="50%" cellspacing="5">
+<p><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="new"/></portlet:actionURL>"><fmt:message key="securityrealmmanager.se.users.maximized.createNewUser"/></a></p>
+<table width="50%" class="TableLine" summary="Console Realm Users">
     ${message}
-	<tr>
-		<td><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="new"/></portlet:actionURL>"><fmt:message key="securityrealmmanager.se.users.maximized.createNewUser"/></a> </td>
-		<td></td>
-	</tr>
     <tr class="DarkBackground">
-        <th><fmt:message key="consolebase.common.userName"/></th>
-        <th><fmt:message key="consolebase.common.actions"/></th>
+        <th scope="col"><fmt:message key="consolebase.common.userName"/></th>
+        <th scope="col"><fmt:message key="consolebase.common.actions"/></th>
     </tr>
     <c:set var="backgroundClass" value='MediumBackground'/>
     <c:forEach var="user" items="${userInfo}">

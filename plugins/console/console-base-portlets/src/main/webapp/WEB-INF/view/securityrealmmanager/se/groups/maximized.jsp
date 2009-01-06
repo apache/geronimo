@@ -19,15 +19,13 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <fmt:setBundle basename="consolebase"/>
 <portlet:defineObjects/>
-<table width="50%" cellspacing="5">
+
+<p><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="new"/></portlet:actionURL>"><fmt:message key="securityrealmmanager.se.groups.maximized.createNewGroup" /></a></p>
+<table width="50%" class="TableLine" summary="Console Realm Groups">
     ${message}
-	<tr>
-        <td><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="new"/></portlet:actionURL>"><fmt:message key="securityrealmmanager.se.groups.maximized.createNewGroup" /></a></td>
-        <td></td>
-	</tr>
     <tr class="DarkBackground">
-        <th><fmt:message key="consolebase.common.groupName"/></th>
-        <th><fmt:message key="consolebase.common.actions"/></th>
+        <th scope="col"><fmt:message key="consolebase.common.groupName"/></th>
+        <th scope="col"><fmt:message key="consolebase.common.actions"/></th>
     </tr>
     <c:set var="backgroundClass" value='MediumBackground'/>
     <c:forEach var="group" items="${groupsInfo}">
@@ -47,7 +45,7 @@
             <a href="<portlet:actionURL><portlet:param name="group" value="${group.key}"/><portlet:param name="action" value="delete"/></portlet:actionURL>" onclick="return confirm('Confirm Delete group ${group.key}?');"><fmt:message key="consolebase.common.delete"/></a>
             </td>
         </tr>
-        </form>
+
     </c:forEach>
 
 </table>

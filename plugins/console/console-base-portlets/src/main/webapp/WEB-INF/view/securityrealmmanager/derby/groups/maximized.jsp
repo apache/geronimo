@@ -20,15 +20,13 @@
 <fmt:setBundle basename="securityrealmmanager"/>
 <fmt:setBundle basename="standard_common" var="standard_common"/>
 <portlet:defineObjects/>
-<table width="100%">
+<p><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="new"/></portlet:actionURL>"><fmt:message key="securityrealmmanager.derby.groups.maximized.createNewGroup" /></a></p>
+<table width="100%" class="TableLine" summary="Console Realm Groups">
     ${message}
-     <tr>
-        <td><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="new"/></portlet:actionURL>"><fmt:message key="securityrealmmanager.derby.groups.maximized.createNewGroup" /></a> </td><td colspan="2">&nbsp;</td>
-    </tr>
-        <tr>
-            <td width="100"><fmt:message key="consolebase.common.groupName"/></td>
-            <td width="150"><fmt:message key="consolebase.common.description"/></td>
-            <td></td>
+        <tr class="DarkBackground">
+            <th scope="col" width="100"><fmt:message key="consolebase.common.groupName"/></th>
+            <th scope="col" width="150"><fmt:message key="consolebase.common.description"/></th>
+            <th scope="col"></th>
         </tr>
     <c:forEach var="group" items="${groups}">
         <tr>

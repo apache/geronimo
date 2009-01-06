@@ -33,13 +33,13 @@
         <c:choose>
           <c:when test="${empty(container.connectors)}"><p>There are no connectors defined for ${container.name}</p></c:when>
           <c:otherwise>
-<table width="100%">
+          <table width="100%" class="TableLine" summary="Network Listeners">
           <tr>
-            <th class="DarkBackground" align="left"><fmt:message key="consolebase.common.name"/></th>
-            <th class="DarkBackground" align="center"><fmt:message key="webmanager.common.protocol"/></th>
-            <th class="DarkBackground" align="center"><fmt:message key="webmanager.common.port"/></th>
-            <th class="DarkBackground" align="center"><fmt:message key="consolebase.common.state"/></th>
-            <th class="DarkBackground" align="center"><fmt:message key="consolebase.common.actions"/></th>
+            <th scope="col" class="DarkBackground" align="left"><fmt:message key="consolebase.common.name"/></th>
+            <th scope="col" class="DarkBackground" align="center"><fmt:message key="webmanager.common.protocol"/></th>
+            <th scope="col" class="DarkBackground" align="center"><fmt:message key="webmanager.common.port"/></th>
+            <th scope="col" class="DarkBackground" align="center"><fmt:message key="consolebase.common.state"/></th>
+            <th scope="col" class="DarkBackground" align="center"><fmt:message key="consolebase.common.actions"/></th>
             <th class="DarkBackground" align="center"><fmt:message key="consolebase.common.type"/></th>
           </tr>
 <c:set var="backgroundClass" value='MediumBackground'/>

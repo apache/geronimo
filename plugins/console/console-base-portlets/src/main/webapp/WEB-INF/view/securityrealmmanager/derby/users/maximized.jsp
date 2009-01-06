@@ -19,22 +19,16 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <fmt:setBundle basename="consolebase"/>
 <portlet:defineObjects/>
-
-<table width="100%" cellspacing="5">
+<p><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="new"/></portlet:actionURL>"><fmt:message key="securityrealmmanager.derby.users.maximized.createNewUser"/></a></p>
+<table width="100%" class="TableLine" summary="Console Realm Users">
     ${message}
-    <tr>
-        <td><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="new"/></portlet:actionURL>"><fmt:message key="securityrealmmanager.derby.users.maximized.createNewUser"/></a> </td>
-        <td >&nbsp;</td>
-    </tr>
-        <tr>
-            <td><fmt:message key="consolebase.common.userName"/></td>
-            <td>&nbsp;</td>
-            
+        <tr class="DarkBackground">
+            <th scope="col"><fmt:message key="consolebase.common.userName"/></th>
+            <th scope="col">&nbsp;</th>
         </tr>
     <c:forEach var="user" items="${users}">
         <tr>
             <td><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="edit"/><portlet:param name="userId" value="${user.key}"/></portlet:actionURL>">${user.key}</a></td>
-            
             <td><a href="<portlet:actionURL><portlet:param name="userId" value="${user.key}"/><portlet:param name="action" value="delete"/></portlet:actionURL>" onclick="return confirm('Confirm Delete?');"><fmt:message key="consolebase.common.delete"/></a></td>
         </tr>
     </c:forEach>

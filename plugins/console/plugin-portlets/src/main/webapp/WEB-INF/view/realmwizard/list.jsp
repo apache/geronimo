@@ -27,11 +27,11 @@
   <c:otherwise>
 <p><fmt:message key="realmwizard.list.seeExamples" /></p>
 
-<table width="100%">
+<table width="100%" class="TableLine" summary="Security Realms - List">
   <tr>
-    <td class="DarkBackground"><fmt:message key="consolebase.common.name"/></td>
-    <td class="DarkBackground" align="center"><fmt:message key="consolebase.common.deployedAs"/></td>
-    <td class="DarkBackground" align="center"><fmt:message key="consolebase.common.actions"/></td>
+    <th scope="col" class="DarkBackground"><fmt:message key="consolebase.common.name"/></th>
+    <th scope="col" class="DarkBackground" align="center"><fmt:message key="consolebase.common.deployedAs"/></th>
+    <th scope="col" class="DarkBackground" align="center"><fmt:message key="consolebase.common.actions"/></th>
   </tr>
 <c:forEach var="realm" items="${realms}">
   <tr>

@@ -20,10 +20,10 @@
 <fmt:setBundle basename="consolebase"/>
 <portlet:defineObjects/>
 <c:if test="${statsOn}">
-<table width="100%">
+<table width="100%" class="TableLine" summary="Statistic">
   <tr>
-    <th width="25%" class="DarkBackground"><STRONG><fmt:message key="webmanager.normal.statistic"/></STRONG></th>
-    <th class="DarkBackground"><strong><fmt:message key="webmanager.normal.count"/></strong></th>
+    <th scope="col" width="25%" class="DarkBackground"><STRONG><fmt:message key="webmanager.normal.statistic"/></STRONG></th>
+    <th scope="col" class="DarkBackground"><strong><fmt:message key="webmanager.normal.count"/></strong></th>
   </tr>
   <tr>
     <td align="right"  class="LightBackground"><strong><fmt:message key="webmanager.normal.totalRequestCount"/></strong></td>
@@ -50,12 +50,13 @@
     <td align="center" class="MediumBackground">${response5xx}</td>
   </tr>
 </table>
-<table width="100%">
+<br/>
+<table width="100%" class="TableLine" summary="Current">
   <tr>
-    <th WIDTH="25%" class="DarkBackground"> &nbsp; </th>
-    <th class="DarkBackground"><strong><fmt:message key="webmanager.normal.current"/></strong></th>
-    <th class="DarkBackground"><strong><fmt:message key="webmanager.normal.low"/></strong></th>
-    <th class="DarkBackground"><strong><fmt:message key="webmanager.normal.high"/></strong></th>
+    <th scope="col" width="25%" class="DarkBackground"> &nbsp; </th>
+    <th scope="col" class="DarkBackground"><strong><fmt:message key="webmanager.normal.current"/></strong></th>
+    <th scope="col" class="DarkBackground"><strong><fmt:message key="webmanager.normal.low"/></strong></th>
+    <th scope="col" class="DarkBackground"><strong><fmt:message key="webmanager.normal.high"/></strong></th>
   </tr>
   <tr>
     <td align="right"  class="LightBackground"><strong><fmt:message key="webmanager.normal.activeRequestCount"/></strong></td>
@@ -64,13 +65,14 @@
     <td align="center" class="LightBackground">${activeRequestCountHigh}</td>
   </tr>
 </table>
-<table width="100%">
+<br/>
+<table width="100%" class="TableLine" summary="Time">
   <tr>
-    <th width="25%" class="DarkBackground"> &nbsp; </th>
-    <th class="DarkBackground"><strong><fmt:message key="webmanager.normal.avgTime"/> </strong></th>
-    <th class="DarkBackground"><strong><fmt:message key="webmanager.normal.minTime"/></strong></th>
-    <th class="DarkBackground"><strong><fmt:message key="webmanager.normal.maxTime"/></strong></th>
-    <th class="DarkBackground"><strong><fmt:message key="webmanager.normal.totalTime"/></strong></th>
+    <th scope="col" width="25%" class="DarkBackground"> &nbsp; </th>
+    <th scope="col" class="DarkBackground"><strong><fmt:message key="webmanager.normal.avgTime"/></strong></th>
+    <th scope="col" class="DarkBackground"><strong><fmt:message key="webmanager.normal.minTime"/></strong></th>
+    <th scope="col" class="DarkBackground"><strong><fmt:message key="webmanager.normal.maxTime"/></strong></th>
+    <th scope="col" class="DarkBackground"><strong><fmt:message key="webmanager.normal.totalTime"/></strong></th>
   </tr>
   <tr>
     <td align="right"  class="LightBackground"><strong><fmt:message key="webmanager.normal.requestDuration"/></strong></td>

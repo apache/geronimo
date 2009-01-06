@@ -22,11 +22,11 @@
 
 <p><fmt:message key="threads.list.title"/></p>
 
-<table width="100%">
+<table width="100%" class="TableLine" summary="Thread Pool Configuration List">
   <tr>
-    <th class="DarkBackground"><fmt:message key="consolebase.common.name"/></th>
-    <th class="DarkBackground" align="center"><fmt:message key="consolebase.common.size"/></th>
-    <th class="DarkBackground" align="center"><fmt:message key="consolebase.common.actions"/></th>
+    <th scope="col" class="DarkBackground"><fmt:message key="consolebase.common.name"/></th>
+    <th scope="col" class="DarkBackground" align="center"><fmt:message key="consolebase.common.size"/></th>
+    <th scope="col" class="DarkBackground" align="center"><fmt:message key="consolebase.common.actions"/></th>
   </tr>
 <c:set var="backgroundClass" value='MediumBackground'/>
 <c:forEach var="pool" items="${pools}">

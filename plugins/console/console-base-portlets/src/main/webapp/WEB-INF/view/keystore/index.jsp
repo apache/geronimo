@@ -32,13 +32,13 @@
   <c:otherwise>
 <p><fmt:message key="keystore.index.explanation"/></p>
 
-<table width="100%">
+<table width="100%" class="TableLine" summary="Keystore Configuration">
   <tr>
-    <td class="DarkBackground"><fmt:message key="keystore.index.keystoreFile"/></td>
-    <td class="DarkBackground" align="center"><fmt:message key="keystore.index.type"/></td>
-    <td class="DarkBackground" align="center"><fmt:message key="keystore.index.contents"/></td>
-    <td class="DarkBackground" align="center"><fmt:message key="keystore.index.editable"/></td>
-    <td class="DarkBackground" align="center"><fmt:message key="keystore.index.available"/></td>
+    <th scope="col" class="DarkBackground"><fmt:message key="keystore.index.keystoreFile"/></th>
+    <th scope="col" class="DarkBackground" align="center"><fmt:message key="keystore.index.type"/></th>
+    <th scope="col" class="DarkBackground" align="center"><fmt:message key="keystore.index.contents"/></th>
+    <th scope="col" class="DarkBackground" align="center"><fmt:message key="keystore.index.editable"/></th>
+    <th scope="col" class="DarkBackground" align="center"><fmt:message key="keystore.index.available"/></th>
   </tr>
 <c:set var="backgroundClass" value='MediumBackground'/>
 <c:forEach var="keystore" items="${keystores}">
