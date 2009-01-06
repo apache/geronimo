@@ -214,7 +214,7 @@ function toggleShowDependenciesMode() {
 
 </script>
 
-
+<br/>
 <form name="checkExpert">
 <input type="checkbox" name="expertMode" id="<portlet:namespace/>expertMode" onClick="toggleExpertMode();" />&nbsp;<label for="<portlet:namespace/>expertMode"><fmt:message key="configmanager.normal.expertMode" /></label>  
 </form>
@@ -222,16 +222,19 @@ function toggleShowDependenciesMode() {
 <form name="showDependenciesForm">
 <input type="checkbox" name="showDependenciesMode" id="<portlet:namespace/>showDependenciesMode" onClick="toggleShowDependenciesMode();" />&nbsp;<label for="<portlet:namespace/>showDependenciesMode"><fmt:message key="configmanager.normal.showDependencyMode" /></label>
 </form>
+<br/>
 
-<table width="100%">
+<table width="100%" class="TableLine" summary="Config Manager">
     <tr class="DarkBackground">
-        <th align="left">&nbsp;<fmt:message key="configmanager.normal.componentName" /></th>
-        <c:if test="${showWebInfo}"><th>URL</th></c:if>
-        <th>&nbsp;<fmt:message key="consolebase.common.state"/></th>
-        <th align="center" colspan="3"> <fmt:message key="consolebase.common.commands"/></th>
+        <th scope="col" align="left">&nbsp;<fmt:message key="configmanager.normal.componentName" /></th>
+        <c:if test="${showWebInfo}">
+          <th scope="col">URL</th>
+        </c:if>
+        <th scope="col">&nbsp;<fmt:message key="consolebase.common.state"/></th>
+        <th scope="col" align="center" colspan="3"><fmt:message key="consolebase.common.commands"/></th>
         <c:if test="${showDependencies}">
-           <th align="left"><fmt:message key="configmanager.normal.parentComponents" /></th>
-           <th align="left"><fmt:message key="configmanager.normal.childComponents" /></th>
+          <th scope="col" align="left"><fmt:message key="configmanager.normal.parentComponents" /></th>
+          <th scope="col" align="left"><fmt:message key="configmanager.normal.childComponents" /></th>
         </c:if>
     </tr>
   <c:set var="backgroundClass" value='MediumBackground'/>

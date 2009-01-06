@@ -24,9 +24,11 @@
 <script type='text/javascript' src='/console/dwr/engine.js'></script>
 <script type='text/javascript' src='/console/dwr/util.js'></script>
 
-<table width="100%">
+<b><fmt:message key="infomanager.svrInfoNormal.server"/>:</b>
+<table width="100%" class="TableLine" summary="Server">
   <tr>
-    <td class="DarkBackground" width="100%" colspan="2" align="center"><fmt:message key="infomanager.svrInfoNormal.server"/></td>
+    <th scope="col" class="DarkBackground" width="20%" align="center"><fmt:message key="consolebase.common.item"/></th>
+    <th scope="col" class="DarkBackground" width="80%" align="center"><fmt:message key="consolebase.common.value"/></th>
   </tr>
   <tr>
     <td class="LightBackground" width="20%" nowrap><fmt:message key="infomanager.svrInfoNormal.version"/></td>
@@ -45,12 +47,14 @@
     <td class="LightBackground"><div id="<portlet:namespace/>UpTime"><fmt:message key="infomanager.svrInfoNormal.notAvailable"/></div></td>
   </tr>
 </table>
-<br>
-<table width="100%">
-  <tr>
-    <td class="DarkBackground" width="100%" colspan="2" align="center"><fmt:message key="infomanager.svrInfoNormal.os"/></td>
-  </tr>
+<br/>
 
+<b><fmt:message key="infomanager.svrInfoNormal.os"/>:</b>
+<table width="100%" class="TableLine" summary="OS">
+  <tr>
+    <th scope="col" class="DarkBackground" width="20%" align="center"><fmt:message key="consolebase.common.item"/></th>
+    <th scope="col" class="DarkBackground" width="80%" align="center"><fmt:message key="consolebase.common.value"/></th>
+  </tr>
   <tr>
     <td class="LightBackground" width="20%" nowrap><fmt:message key="infomanager.svrInfoNormal.os.arch"/></td>
     <td class="LightBackground" width="80%">${svrProps['os.arch']}</td>
@@ -72,10 +76,13 @@
     <td class="LightBackground" width="80%">${svrProps['os.locale']}</td>
   </tr>
 </table>
-<br>
-<table width="100%">
+<br/>
+
+<b><fmt:message key="infomanager.svrInfoNormal.jvm"/>:</b>
+<table width="100%" class="TableLine" summary="JVM">
   <tr>
-    <td class="DarkBackground" width="100%" colspan="2" align="center"><fmt:message key="infomanager.svrInfoNormal.jvm"/></td>
+    <th scope="col" class="DarkBackground" width="20%" align="center"><fmt:message key="consolebase.common.item"/></th>
+    <th scope="col" class="DarkBackground" width="80%" align="center"><fmt:message key="consolebase.common.value"/></th>
   </tr>
   <tr>
     <td class="LightBackground" width="20%" nowrap><fmt:message key="infomanager.svrInfoNormal.javaVersion"/></td>

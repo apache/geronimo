@@ -20,9 +20,11 @@
 <fmt:setBundle basename="consolebase"/>
 <portlet:defineObjects/>
 
-<table width="100%">
+<b>Java:</b>
+<table width="100%" class="TableLine" summary="java">
   <tr>
-    <td class="DarkBackground" width="100%" colspan="2" align="center">Java</td>
+    <th scope="col" class="DarkBackground" width="20%" align="center"><fmt:message key="consolebase.common.item"/></th>
+    <th scope="col" class="DarkBackground" width="80%" align="center"><fmt:message key="consolebase.common.value"/></th>
   </tr>
   <tr>
     <td class="LightBackground" width="20%" nowrap>java.awt.graphicsenv</td>
@@ -125,10 +127,14 @@
     <td class="LightBackground">${javaSysProps['java.version']}</td>
   </tr>
 </table>
-<br>
-<table width="100%">
+<br/>
+
+<b><fmt:message key="consolebase.common.virtualMachine"/>:</b>
+<table width="100%" class="TableLine" summary="Virtual Machine">
   <tr>
-    <td class="DarkBackground" width="100%" colspan="2" align="center"><fmt:message key="apache.javaSysNormal.vm"/></td>
+    <th scope="col" class="DarkBackground" width="20%" align="center"><fmt:mes
+sage key="consolebase.common.item"/></th>
+    <th scope="col" class="DarkBackground" width="80%" align="center"><fmt:message key="consolebase.common.value"/></th>
   </tr>
   <tr>
     <td class="LightBackground" width="20%" nowrap>java.vm.info</td>
@@ -159,10 +165,13 @@
     <td class="LightBackground">${javaSysProps['java.vm.version']}</td>
   </tr>
 </table>
-<br>
-<table width="100%">
+<br/>
+
+<b><fmt:message key="consolebase.common.operatingSystem"/>:</b>
+<table width="100%" class="TableLine" summary="Operating System">
   <tr>
-    <td class="DarkBackground" width="100%" colspan="2" align="center"><fmt:message key="apache.javaSysNormal.os"/></td>
+    <th scope="col" class="DarkBackground" width="20%" align="center"><fmt:message key="consolebase.common.item"/></th>
+    <th scope="col" class="DarkBackground" width="80%" align="center"><fmt:message key="consolebase.common.value"/></th>
   </tr>
   <tr>
     <td class="LightBackground" width="20%" nowrap>os.arch</td>
@@ -177,10 +186,13 @@
     <td class="LightBackground">${javaSysProps['os.version']}</td>
   </tr>
 </table>
-<br>
-<table width="100%">
+<br/>
+
+<b>Sun:</b>
+<table width="100%" class="TableLine" summary="Sun">
   <tr>
-    <td class="DarkBackground" width="100%" colspan="2" align="center">Sun</td>
+    <th scope="col" class="DarkBackground" width="20%" align="center"><fmt:message key="consolebase.common.item"/></th>
+    <th scope="col" class="DarkBackground" width="80%" align="center"><fmt:message key="consolebase.common.value"/></th>
   </tr>
   <tr>
     <td class="LightBackground" width="20%" nowrap>sun.arch.data.model</td>
@@ -188,7 +200,6 @@
   </tr>
   <tr>
     <td class="MediumBackground">sun.boot.class.path</td>
-
     <td class="MediumBackground">
 
         <table>
@@ -231,10 +242,13 @@
     <td class="MediumBackground">${javaSysProps['sun.os.patch.level']}</td>
   </tr>
 </table>
-<br>
-<table width="100%">
+<br/>
+
+<b><fmt:message key="consolebase.common.user"/>:</b>
+<table width="100%" class="TableLine" summary="User">
   <tr>
-    <td class="DarkBackground" width="100%" colspan="2" align="center"><fmt:message key="apache.javaSysNormal.usr"/></td>
+    <th scope="col" class="DarkBackground" width="20%" align="center"><fmt:message key="consolebase.common.item"/></th>
+    <th scope="col" class="DarkBackground" width="80%" align="center"><fmt:message key="consolebase.common.value"/></th>
   </tr>
   <tr>
     <td class="LightBackground" width="20%" nowrap>user.country</td>
@@ -265,10 +279,13 @@
     <td class="LightBackground">${javaSysProps['user.variant']}</td>
   </tr>
 </table>
-<br>
-<table width="100%">
+<br/>
+
+<b><fmt:message key="consolebase.common.etc"/>:</b>
+<table width="100%" class="TableLine" summary="Etc">
   <tr>
-    <td class="DarkBackground" width="100%" colspan="2" align="center"><fmt:message key="apache.javaSysNormal.etc"/></td>
+    <th scope="col" class="DarkBackground" width="20%" align="center"><fmt:message key="consolebase.common.item"/></th>
+    <th scope="col" class="DarkBackground" width="80%" align="center"><fmt:message key="consolebase.common.value"/></th>
   </tr>
 <% String background = "LightBackground"; %>
 <%  // Crappy workaround because apparently Jetty's JSTL can't call getters on a Map subclass?!?
