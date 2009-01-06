@@ -34,7 +34,7 @@
     return false;
   }
 
-    //this function searches the category & name columns and display
+    //this function searches the category and name/descrpition columns and display
     //rows within the table (identified by tid) that contain the searchterm
     function filterCategoryAndName(searchterm, tid) {
         var term = searchterm.value.toLowerCase().split(" ");;
@@ -45,6 +45,12 @@
             //replace special characters with ""
             nameElement = table.rows[i].cells[1].innerHTML.replace(/<>/g,"");           
             categoryElement = table.rows[i].cells[3].innerHTML.replace(/<>/g,"");
+
+            // let's remove the long href within the nameElement by using everything after title
+            var j = nameElement.indexOf("title");
+            if (j > 0) {
+            	nameElement = nameElement.substring(j + 5);
+            }
             table.rows[i].style.display = 'none';
 
             for (var j = 0; j < term.length; j++) {  
