@@ -268,7 +268,7 @@ java -jar bin/deployer.jar deploy MyWebApp.war</pre>
             <img src="<%=request.getContextPath()%>/images/powered_by_100x30.gif"/>
             </font><br />
             &nbsp;
-            <font size=-1>Copyright &copy; 1999-2007 Apache Software Foundation</font><br />
+            <font size=-1>Copyright &copy; 2003-2009 Apache Software Foundation</font><br />
             <font size=-1>All Rights Reserved</font> <br />
             &nbsp;</p>
             <p align="right">&nbsp;</p>
