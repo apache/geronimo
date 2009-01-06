@@ -132,8 +132,7 @@
 <b><fmt:message key="consolebase.common.virtualMachine"/>:</b>
 <table width="100%" class="TableLine" summary="Virtual Machine">
   <tr>
-    <th scope="col" class="DarkBackground" width="20%" align="center"><fmt:mes
-sage key="consolebase.common.item"/></th>
+    <th scope="col" class="DarkBackground" width="20%" align="center"><fmt:message key="consolebase.common.item"/></th>
     <th scope="col" class="DarkBackground" width="80%" align="center"><fmt:message key="consolebase.common.value"/></th>
   </tr>
   <tr>
