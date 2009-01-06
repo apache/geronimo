@@ -41,7 +41,6 @@ import org.apache.geronimo.deployment.plugin.TargetModuleIDImpl;
 import org.apache.geronimo.kernel.config.NoSuchStoreException;
 import org.apache.geronimo.system.plugin.DownloadResults;
 import org.apache.geronimo.system.plugin.PluginInstallerGBean;
-import org.apache.geronimo.system.plugin.SourceRepository;
 import org.apache.geronimo.system.plugin.model.PluginArtifactType;
 import org.apache.geronimo.system.plugin.model.PluginListType;
 import org.apache.geronimo.system.plugin.model.PluginType;
@@ -324,13 +323,10 @@ public class CommandListConfigurations extends AbstractCommand {
                     }
                 }
             }
-            if (plugin == null) {
-                throw new IllegalStateException("No configuration found for '" + configId + "'");
-            }
+            // if plugin value is null here, means the configId is not a geronimo plugin - ignore
         }
         return installList;
     }
-
 
     public void assembleServer(GeronimoDeploymentManager mgr, PluginListType list, String repositoryPath, String relativeServerPath, ConsoleReader consoleReader) throws Exception {
         long start = System.currentTimeMillis();
