@@ -31,6 +31,6 @@ public class DeploymentTest extends TestSupport {
         waitForPageLoad();
         selenium.click("//input[@value='Install']");
         waitForPageLoad();
-        assertTrue(selenium.isTextPresent("Deployment failed:"));
+        assertTrue(selenium.isTextPresent("Deployment Failed"));
     }
 }
