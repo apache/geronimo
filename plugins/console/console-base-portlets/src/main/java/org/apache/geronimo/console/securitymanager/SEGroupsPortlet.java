@@ -123,8 +123,7 @@ public class SEGroupsPortlet extends AbstractSecurityManagerPortlet {
                 try {
                     SERealmGroupHelper.addGroup(group, users);
                 } catch (Exception e) {
-                    actionResponse.setRenderParameter("message",
-                            "ERROR: Error in SEGroupsPortlet while adding group "+group+". Cause:"+e.getMessage());
+                    addErrorMessage(actionRequest, getLocalizedString("errorMsg07", actionRequest), e.getMessage());
                 }
             } else if ("new".equals(action)) {
                 currAction = "new";
@@ -136,9 +135,7 @@ public class SEGroupsPortlet extends AbstractSecurityManagerPortlet {
                 actionResponse.setRenderParameter("group", group);
             }
         } catch (Exception e) {
-            actionResponse.setRenderParameter("message",
-                    "Error encountered in SEGroupsPortlet. Cause: "
-                            + e.getMessage());
+            addErrorMessage(actionRequest, getLocalizedString("errorMsg06", actionRequest), e.getMessage());
         }
     }
 }

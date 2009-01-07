@@ -16,6 +16,7 @@
  */
 package org.apache.geronimo.console.keystores;
 
+import org.apache.geronimo.console.BasePortlet;
 import org.apache.geronimo.console.MultiPageModel;
 
 import javax.portlet.ActionRequest;
@@ -31,12 +32,12 @@ import java.io.IOException;
  * @version $Rev$ $Date$
  */
 public class ViewKeystoreHandler extends BaseKeystoreHandler {
-    public ViewKeystoreHandler() {
-        super(VIEW_KEYSTORE, "/WEB-INF/view/keystore/viewKeystore.jsp");
+    public ViewKeystoreHandler(BasePortlet portlet) {
+        super(VIEW_KEYSTORE, "/WEB-INF/view/keystore/viewKeystore.jsp", portlet);
     }
 
     public String actionBeforeView(ActionRequest request, ActionResponse response, MultiPageModel model) throws PortletException, IOException {
-        String[] params = {ERROR_MSG, INFO_MSG, "id"};
+        String[] params = {"id"};
         for(int i = 0; i < params.length; ++i) {
             String value = request.getParameter(params[i]);
             if(value != null) response.setRenderParameter(params[i], value);
@@ -45,7 +46,7 @@ public class ViewKeystoreHandler extends BaseKeystoreHandler {
     }
 
     public void renderView(RenderRequest request, RenderResponse response, MultiPageModel model) throws PortletException, IOException {
-        String[] params = {ERROR_MSG, INFO_MSG, "id"};
+        String[] params = {"id"};
         for(int i = 0; i < params.length; ++i) {
             String value = request.getParameter(params[i]);
             if(value != null) request.setAttribute(params[i], value);

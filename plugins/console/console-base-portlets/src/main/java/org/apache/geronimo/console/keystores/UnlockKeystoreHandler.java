@@ -16,8 +16,11 @@
  */
 package org.apache.geronimo.console.keystores;
 
+import java.text.MessageFormat;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.apache.geronimo.console.BasePortlet;
 import org.apache.geronimo.console.MultiPageModel;
 
 import javax.portlet.ActionRequest;
@@ -35,8 +38,8 @@ import java.io.IOException;
 public class UnlockKeystoreHandler extends BaseKeystoreHandler {
     private static final Logger log = LoggerFactory.getLogger(UnlockKeystoreHandler.class);
     
-    public UnlockKeystoreHandler() {
-        super(UNLOCK_KEYSTORE_FOR_USAGE, "/WEB-INF/view/keystore/unlockKeystore.jsp");
+    public UnlockKeystoreHandler(BasePortlet portlet) {
+        super(UNLOCK_KEYSTORE_FOR_USAGE, "/WEB-INF/view/keystore/unlockKeystore.jsp", portlet);
     }
 
     public String actionBeforeView(ActionRequest request, ActionResponse response, MultiPageModel model) throws PortletException, IOException {
@@ -48,11 +51,6 @@ public class UnlockKeystoreHandler extends BaseKeystoreHandler {
     }
 
     public void renderView(RenderRequest request, RenderResponse response, MultiPageModel model) throws PortletException, IOException {
-        String[] params = {ERROR_MSG, INFO_MSG};
-        for(int i = 0; i < params.length; ++i) {
-            String value = request.getParameter(params[i]);
-            if(value != null) request.setAttribute(params[i], value);
-        }
         String keystore = request.getParameter("keystore");
         request.setAttribute("keystore", keystore);
         request.setAttribute("mode", "unlockKeystore");
@@ -85,11 +83,11 @@ public class UnlockKeystoreHandler extends BaseKeystoreHandler {
                 return UNLOCK_KEY+BEFORE_ACTION;
             } // otherwise it has no keys
         } catch (Exception e) {
-            response.setRenderParameter(ERROR_MSG, "Unable to unlock keystore '"+keystore+"' for availability. "+e.toString());
+        	portlet.addErrorMessage(request, MessageFormat.format(portlet.getLocalizedString("errorMsg09", request), keystore), e.getMessage());
             log.error("Unable to unlock keystore '"+keystore+"' for availability.", e);
             return getMode()+BEFORE_ACTION;
         }
-        response.setRenderParameter(INFO_MSG, "Successfully unlocked keystore '"+keystore+"' for availability.");
+        portlet.addInfoMessage(request, MessageFormat.format(portlet.getLocalizedString("infoMsg07", request), keystore));
         return LIST_MODE+BEFORE_ACTION;
     }
 }

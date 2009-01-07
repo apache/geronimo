@@ -17,6 +17,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<%@ taglib uri="/WEB-INF/CommonMsg.tld" prefix="CommonMsg"%>
 <fmt:setBundle basename="consolebase"/>
 <portlet:defineObjects/>
 
@@ -156,7 +157,6 @@ function toggleExpertMode() {
     }
 }
 
-
 // work around since IE doesn't support document.getElementsByName
 function getSpanElementsByName(name) {
     var results = new Array();
@@ -214,6 +214,8 @@ function toggleShowDependenciesMode() {
 
 </script>
 
+<CommonMsg:commonMsg/><br>
+
 <br/>
 <form name="checkExpert">
 <input type="checkbox" name="expertMode" id="<portlet:namespace/>expertMode" onClick="toggleExpertMode();" />&nbsp;<label for="<portlet:namespace/>expertMode"><fmt:message key="configmanager.normal.expertMode" /></label>  
@@ -247,7 +249,7 @@ function toggleShowDependenciesMode() {
               <c:set var="backgroundClass" value='MediumBackground'/>
           </c:otherwise>
       </c:choose>
-    <tr>
+      <tr>
         <!-- module id -->
         <c:choose>
             <c:when test="${moduleDetails.componentName != null}">
@@ -330,13 +332,11 @@ function toggleShowDependenciesMode() {
                </c:forEach>
            </td>
         </c:if>
-    </tr>
+      </tr>
   </c:forEach>
 </table>
 
 <br />
-<p>${messageInstalled} ${messageStatus}</p>
-
 
 <script>
 // Call to set initial expert mode actions correctly 

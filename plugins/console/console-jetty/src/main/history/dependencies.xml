@@ -46,4 +46,19 @@
         <artifactId>console-core</artifactId>
         <type>jar</type>
     </dependency>
+    <dependency>
+        <groupId>org.apache.tomcat</groupId>
+        <artifactId>jsp-api</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.tomcat</groupId>
+        <artifactId>el-api</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.tomcat</groupId>
+        <artifactId>servlet-api</artifactId>
+        <type>jar</type>
+    </dependency>
 </plugin-artifact>

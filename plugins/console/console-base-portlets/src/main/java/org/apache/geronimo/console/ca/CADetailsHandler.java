@@ -32,6 +32,7 @@ import javax.portlet.RenderResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.apache.geronimo.console.BasePortlet;
 import org.apache.geronimo.console.MultiPageModel;
 import org.apache.geronimo.management.geronimo.CertificationAuthority;
 import org.apache.geronimo.crypto.CaUtils;
@@ -45,25 +46,15 @@ import org.apache.geronimo.crypto.CertificateUtil;
 public class CADetailsHandler extends BaseCAHandler {
     private static final Logger log = LoggerFactory.getLogger(CADetailsHandler.class);
     
-    public CADetailsHandler() {
-        super(CADETAILS_MODE, "/WEB-INF/view/ca/caDetails.jsp");
+    public CADetailsHandler(BasePortlet portlet) {
+        super(CADETAILS_MODE, "/WEB-INF/view/ca/caDetails.jsp", portlet);
     }
 
     public String actionBeforeView(ActionRequest request, ActionResponse response, MultiPageModel model) throws PortletException, IOException {
-        String[] params = {ERROR_MSG, INFO_MSG};
-        for(int i = 0; i < params.length; ++i) {
-            String value = request.getParameter(params[i]);
-            if(value != null) response.setRenderParameter(params[i], value);
-        }
         return getMode();
     }
 
     public void renderView(RenderRequest request, RenderResponse response, MultiPageModel model) throws PortletException, IOException {
-        String[] params = {ERROR_MSG, INFO_MSG};
-        for(int i = 0; i < params.length; ++i) {
-            String value = request.getParameter(params[i]);
-            if(value != null) request.setAttribute(params[i], value);
-        }
         try {
             CertificationAuthority ca = getCertificationAuthority(request);
             if(ca == null) {
@@ -90,7 +81,7 @@ public class CADetailsHandler extends BaseCAHandler {
             fingerPrints.put("SHA1", CertificateUtil.generateFingerprint(caCert, "SHA1"));
             request.setAttribute("fingerPrints", fingerPrints);
         } catch (Exception e) {
-            request.setAttribute(ERROR_MSG, e.toString());
+            portlet.addErrorMessage(request, portlet.getLocalizedString("errorMsg15", request), e.getMessage());
             log.error("Errors while trying to view CA Details.", e);
         }
     }

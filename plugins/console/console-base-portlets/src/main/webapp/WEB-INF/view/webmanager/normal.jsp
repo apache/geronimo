@@ -17,8 +17,12 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<%@ taglib uri="/WEB-INF/CommonMsg.tld" prefix="CommonMsg"%>
 <fmt:setBundle basename="consolebase"/>
 <portlet:defineObjects/>
+
+<CommonMsg:commonMsg/>
+
 <c:if test="${statsOn}">
 <table width="100%" class="TableLine" summary="Statistic">
   <tr>
@@ -98,7 +102,6 @@
 </table>
 </c:if>
 <c:if test="${!statsOn}">
-  ${statsMessage}
   <c:if test="${statsLazy}">
     <a href="<portlet:actionURL><portlet:param name="stats" value="true"/></portlet:actionURL>"><fmt:message key="consolebase.common.enable"/></a>
   </c:if>

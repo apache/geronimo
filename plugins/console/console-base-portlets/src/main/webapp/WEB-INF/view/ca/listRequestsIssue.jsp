@@ -20,13 +20,13 @@
 <fmt:setBundle basename="consolebase"/>
 <portlet:defineObjects/>
 
+<jsp:include page="_header.jsp" /><br>
+
 <b><fmt:message key="ca.listRequestsIssue.CertRequestsAwaiting"/>
 </b>
 
 <p><fmt:message key="ca.listRequestsIssue.CertRequestsAwaitingExp"/>
 </p>
-
-<jsp:include page="_header.jsp" />
 
 <table border="0">
     <tr>

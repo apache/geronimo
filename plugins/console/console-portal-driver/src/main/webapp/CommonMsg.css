@@ -1,0 +1,24 @@
+.messagePortlet {
+	background-color:#F7F7F7;
+	border:1px solid #88A4D7;
+	font-family:Verdana,Helvetica,sans-serif;
+	font-size:75%;
+}
+.expand-task {
+	color:#000000;
+	margin-bottom:2px;
+	margin-top:2px;
+	text-decoration:none;
+}
+.validation-error {
+	color:#CC0000;
+	font-family:Verdana,Helvetica,sans-serif;
+}
+.validation-info {
+    color:#000000;
+    font-family:Verdana,Helvetica,sans-serif;
+}
+.validation-warn {
+    color:#660000;
+    font-family:Verdana,Helvetica,sans-serif;
+}

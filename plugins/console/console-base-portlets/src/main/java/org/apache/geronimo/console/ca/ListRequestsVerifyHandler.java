@@ -19,6 +19,7 @@ package org.apache.geronimo.console.ca;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.Map;
 import java.util.Properties;
 
@@ -30,6 +31,7 @@ import javax.portlet.RenderResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.apache.geronimo.console.BasePortlet;
 import org.apache.geronimo.console.MultiPageModel;
 import org.apache.geronimo.management.geronimo.CertificateRequestStore;
 import org.apache.geronimo.crypto.CaUtils;
@@ -43,32 +45,21 @@ import org.apache.geronimo.crypto.asn1.x509.X509Name;
 public class ListRequestsVerifyHandler extends BaseCAHandler {
     private static final Logger log = LoggerFactory.getLogger(ListRequestsVerifyHandler.class);
 
-    public ListRequestsVerifyHandler() {
-        super(LIST_REQUESTS_VERIFY_MODE, "/WEB-INF/view/ca/listRequestsVerify.jsp");
+    public ListRequestsVerifyHandler(BasePortlet portlet) {
+        super(LIST_REQUESTS_VERIFY_MODE, "/WEB-INF/view/ca/listRequestsVerify.jsp", portlet);
     }
 
     public String actionBeforeView(ActionRequest request, ActionResponse response, MultiPageModel model) throws PortletException, IOException {
-        String[] params = {ERROR_MSG, INFO_MSG};
-        for(int i = 0; i < params.length; ++i) {
-            String value = request.getParameter(params[i]);
-            if(value != null) response.setRenderParameter(params[i], value);
-        }
         return getMode();
     }
 
     public void renderView(RenderRequest request, RenderResponse response, MultiPageModel model) throws PortletException, IOException {
-        String[] params = {ERROR_MSG, INFO_MSG};
-        for(int i = 0; i < params.length; ++i) {
-            String value = request.getParameter(params[i]);
-            if(value != null) request.setAttribute(params[i], value);
-        }
         CertificateRequestStore csrStore = getCertificateRequestStore(request);
         String[] csrIds = csrStore.getVerificatonDueRequestIds();
         request.setAttribute("csrIds", csrIds);
     }
 
     public String actionAfterView(ActionRequest request, ActionResponse response, MultiPageModel model) throws PortletException, IOException {
-        String errorMsg = null;
         String requestId = request.getParameter("requestId");
         try {
             response.setRenderParameter("requestId", requestId);
@@ -99,10 +90,9 @@ public class ListRequestsVerifyHandler extends BaseCAHandler {
             }
             return CONFIRM_CERT_REQ_MODE+BEFORE_ACTION;
         } catch(Exception e) {
-            errorMsg = e.toString();
+            portlet.addErrorMessage(request, MessageFormat.format(portlet.getLocalizedString("errorMsg18", request), requestId), e.getMessage());
             log.error("Errors while verifying Certificate Request. id="+requestId, e);
         }
-        response.setRenderParameter(ERROR_MSG, errorMsg);
         return getMode()+BEFORE_ACTION;
     }
 }

@@ -16,8 +16,11 @@
  */
 package org.apache.geronimo.console.keystores;
 
+import java.text.MessageFormat;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.apache.geronimo.console.BasePortlet;
 import org.apache.geronimo.console.MultiPageModel;
 import org.apache.geronimo.management.geronimo.KeystoreException;
 
@@ -36,8 +39,8 @@ import java.io.IOException;
 public class EditKeystoreHandler extends BaseKeystoreHandler {
     private static final Logger log = LoggerFactory.getLogger(EditKeystoreHandler.class);
     
-    public EditKeystoreHandler() {
-        super(UNLOCK_KEYSTORE_FOR_EDITING, "/WEB-INF/view/keystore/unlockKeystore.jsp");
+    public EditKeystoreHandler(BasePortlet portlet) {
+        super(UNLOCK_KEYSTORE_FOR_EDITING, "/WEB-INF/view/keystore/unlockKeystore.jsp", portlet);
     }
 
     public String actionBeforeView(ActionRequest request, ActionResponse response, MultiPageModel model) throws PortletException, IOException {
@@ -49,11 +52,6 @@ public class EditKeystoreHandler extends BaseKeystoreHandler {
     }
 
     public void renderView(RenderRequest request, RenderResponse response, MultiPageModel model) throws PortletException, IOException {
-        String[] params = {ERROR_MSG, INFO_MSG};
-        for(int i = 0; i < params.length; ++i) {
-            String value = request.getParameter(params[i]);
-            if(value != null) request.setAttribute(params[i], value);
-        }
         request.setAttribute("keystore", request.getParameter("keystore"));
         request.setAttribute("mode", "unlockEdit");
     }
@@ -72,11 +70,11 @@ public class EditKeystoreHandler extends BaseKeystoreHandler {
         try {
             data.unlockEdit(storePass);
         } catch (KeystoreException e) {
-            response.setRenderParameter(ERROR_MSG, "Unable to unlock keystore "+keystore+" for editing. "+e.toString());
+        	portlet.addErrorMessage(request, MessageFormat.format(portlet.getLocalizedString("errorMsg08", request), keystore), e.getMessage());
             log.error("Unable to unlock keystore "+keystore+" for editing.", e);
             return getMode()+BEFORE_ACTION;
         }
-        response.setRenderParameter(INFO_MSG, "Keystore "+keystore+" successfully unlocked for editing.");
+        portlet.addInfoMessage(request, MessageFormat.format(portlet.getLocalizedString("infoMsg05", request), keystore));
         return LIST_MODE+BEFORE_ACTION;
     }
 }

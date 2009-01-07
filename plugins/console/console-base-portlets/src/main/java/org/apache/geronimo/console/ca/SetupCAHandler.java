@@ -33,6 +33,7 @@ import javax.portlet.RenderResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.apache.geronimo.console.BasePortlet;
 import org.apache.geronimo.console.MultiPageModel;
 
 /**
@@ -43,12 +44,12 @@ import org.apache.geronimo.console.MultiPageModel;
 public class SetupCAHandler extends BaseCAHandler {
     private static final Logger log = LoggerFactory.getLogger(SetupCAHandler.class);
     
-    public SetupCAHandler() {
-        super(SETUPCA_MODE, "/WEB-INF/view/ca/setupCA.jsp");
+    public SetupCAHandler(BasePortlet portlet) {
+        super(SETUPCA_MODE, "/WEB-INF/view/ca/setupCA.jsp", portlet);
     }
 
     public String actionBeforeView(ActionRequest request, ActionResponse response, MultiPageModel model) throws PortletException, IOException {
-        String[] params = {ERROR_MSG, INFO_MSG, "caCN", "caOU", "caO", "caL", "caST", "caC", "alias", "keyAlgorithm", "keySize", "algorithm", "validFrom", "validTo", "sNo", "password"};
+        String[] params = {"caCN", "caOU", "caO", "caL", "caST", "caC", "alias", "keyAlgorithm", "keySize", "algorithm", "validFrom", "validTo", "sNo", "password"};
         for(int i = 0; i < params.length; ++i) {
             String value = request.getParameter(params[i]);
             if(value != null) response.setRenderParameter(params[i], value);
@@ -57,7 +58,7 @@ public class SetupCAHandler extends BaseCAHandler {
     }
 
     public void renderView(RenderRequest request, RenderResponse response, MultiPageModel model) throws PortletException, IOException {
-        String[] params = {ERROR_MSG, INFO_MSG, "caCN", "caOU", "caO", "caL", "caST", "caC", "alias", "keyAlgorithm", "keySize", "algorithm", "validFrom", "validTo", "sNo", "password"};
+        String[] params = {"caCN", "caOU", "caO", "caL", "caST", "caC", "alias", "keyAlgorithm", "keySize", "algorithm", "validFrom", "validTo", "sNo", "password"};
         for(int i = 0; i < params.length; ++i) {
             Object value = request.getParameter(params[i]);
             if(value != null) request.setAttribute(params[i], value);
@@ -65,7 +66,6 @@ public class SetupCAHandler extends BaseCAHandler {
     }
 
     public String actionAfterView(ActionRequest request, ActionResponse response, MultiPageModel model) throws PortletException, IOException {
-        String errorMsg = null;
         try {
             // Validate the Serial Number
             String sNo = request.getParameter("sNo");
@@ -102,10 +102,9 @@ public class SetupCAHandler extends BaseCAHandler {
             // Load page to confirm CA details
             return CONFIRM_CA_MODE+BEFORE_ACTION;
         } catch(Exception e) {
-            errorMsg = e.toString();
-            log.error("Error in user input during CA Setup.", e);
+            portlet.addErrorMessage(request, portlet.getLocalizedString("errorMsg19", request), e.getMessage());
+            log.error("", e);
         }
-        if(errorMsg != null) response.setRenderParameter(ERROR_MSG, errorMsg);
         return getMode()+BEFORE_ACTION;
     }
 

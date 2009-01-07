@@ -28,6 +28,7 @@ import javax.portlet.RenderResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.apache.geronimo.console.BasePortlet;
 import org.apache.geronimo.console.MultiPageModel;
 import org.apache.geronimo.crypto.CaUtils;
 
@@ -39,29 +40,18 @@ import org.apache.geronimo.crypto.CaUtils;
 public class ProcessCSRHandler extends BaseCAHandler {
     private static final Logger log = LoggerFactory.getLogger(ProcessCSRHandler.class);
     
-    public ProcessCSRHandler() {
-        super(PROCESS_CSR_MODE, "/WEB-INF/view/ca/processCSR.jsp");
+    public ProcessCSRHandler(BasePortlet portlet) {
+        super(PROCESS_CSR_MODE, "/WEB-INF/view/ca/processCSR.jsp", portlet);
     }
 
     public String actionBeforeView(ActionRequest request, ActionResponse response, MultiPageModel model) throws PortletException, IOException {
-        String[] params = {ERROR_MSG, INFO_MSG};
-        for(int i = 0; i < params.length; ++i) {
-            String value = request.getParameter(params[i]);
-            if(value != null) response.setRenderParameter(params[i], value);
-        }
         return getMode();
     }
 
     public void renderView(RenderRequest request, RenderResponse response, MultiPageModel model) throws PortletException, IOException {
-        String[] params = {ERROR_MSG, INFO_MSG};
-        for(int i = 0; i < params.length; ++i) {
-            Object value = request.getParameter(params[i]);
-            if(value != null) request.setAttribute(params[i], value);
-        }
     }
 
     public String actionAfterView(ActionRequest request, ActionResponse response, MultiPageModel model) throws PortletException, IOException {
-        String errorMsg = null;
         try {
             // Process the PKCS10 Certificate Request
             String pkcs10certreq = request.getParameter("pkcs10certreq");
@@ -72,10 +62,9 @@ public class ProcessCSRHandler extends BaseCAHandler {
             response.setRenderParameter("publickey", certReqMap.get(CaUtils.CERT_REQ_PUBLICKEY_OBJ).toString());
             return CERT_REQ_DETAILS_MODE+BEFORE_ACTION;
         } catch(Exception e) {
-            errorMsg = e.toString();
+            portlet.addErrorMessage(request, portlet.getLocalizedString("errorMsg20", request), e.getMessage());
             log.error("Errors while processing a CSR.", e);
         }
-        response.setRenderParameter(ERROR_MSG, errorMsg);
         return getMode()+BEFORE_ACTION;
     }
 }

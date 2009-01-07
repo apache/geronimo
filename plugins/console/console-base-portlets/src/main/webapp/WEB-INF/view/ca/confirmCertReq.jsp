@@ -19,11 +19,12 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <fmt:setBundle basename="consolebase"/>
 <portlet:defineObjects/>
+
+<jsp:include page="_header.jsp" /><br>
+
 <b><fmt:message key="ca.confirmCertReq.confirmCertRequest"/></b>
 
 <p><fmt:message key="ca.confirmCertReq.summary"/></p>
-
-<jsp:include page="_header.jsp" />
 
 <form name="<portlet:namespace/>confirmCertReqForm" action="<portlet:actionURL/>">
     <input type="hidden" name="mode" value="confirmCertReq-after"/>

@@ -20,12 +20,12 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <fmt:setBundle basename="consolebase"/>
 <portlet:defineObjects/>
+
+<jsp:include page="_header.jsp" />
+
 <p>
 <fmt:message key="ca.index.title"/>
 </p>
-
-
-<jsp:include page="_header.jsp" />
 
 <c:choose>
   <c:when test="${caNotSetup}">

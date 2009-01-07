@@ -33,9 +33,9 @@ function <portlet:namespace/>validateForm(){
 }
 </script>
 
-<b><fmt:message key="ca.common.title"/></b>
+<jsp:include page="_header.jsp" /><br>
 
-<jsp:include page="_header.jsp" />
+<b><fmt:message key="ca.common.title"/></b>
 
 <c:choose>
   <c:when test="${empty(sNo)}">

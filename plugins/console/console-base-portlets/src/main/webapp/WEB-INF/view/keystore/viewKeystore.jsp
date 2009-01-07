@@ -23,9 +23,10 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <fmt:setBundle basename="consolebase"/>
 <portlet:defineObjects/>
-<p><fmt:message key="keystore.viewKeystore.title"/></p>
 
 <jsp:include page="_header.jsp" />
+
+<p><fmt:message key="keystore.viewKeystore.title"/></p>
 
 <table width="100%">
   <tr>

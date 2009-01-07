@@ -17,6 +17,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<%@ taglib uri="/WEB-INF/CommonMsg.tld" prefix="CommonMsg"%>
 <fmt:setBundle basename="consolebase"/>
 <portlet:defineObjects/>
 
@@ -45,9 +46,12 @@ function isEmptyString(value){
     return value.length < 1;
 }
 </script>
+
+<CommonMsg:commonMsg/>
+
 <p><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="new"/></portlet:actionURL>"><fmt:message key="securityrealmmanager.se.users.maximized.createNewUser"/></a></p>
+
 <table width="50%" class="TableLine" summary="Console Realm Users">
-    ${message}
     <tr class="DarkBackground">
         <th scope="col"><fmt:message key="consolebase.common.userName"/></th>
         <th scope="col"><fmt:message key="consolebase.common.actions"/></th>
@@ -71,5 +75,4 @@ function isEmptyString(value){
             </td>
         </tr>
     </c:forEach>
-    
 </table>

@@ -24,7 +24,7 @@
 <fmt:setBundle basename="consolebase"/>
 <portlet:defineObjects/>
 
-<jsp:include page="_header.jsp" />
+<jsp:include page="_header.jsp" /><br>
 
 <form name="<portlet:namespace/>KeystoreForm" action="<portlet:actionURL/>">
     <input type="hidden" name="keystore" value="${keystore}" />

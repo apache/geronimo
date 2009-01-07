@@ -23,6 +23,7 @@ import javax.portlet.PortletSession;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.apache.geronimo.console.BasePortlet;
 import org.apache.geronimo.console.MultiPageAbstractHandler;
 import org.apache.geronimo.console.MultiPageModel;
 import org.apache.geronimo.console.util.PortletManager;
@@ -63,16 +64,15 @@ public abstract class BaseCAHandler extends MultiPageAbstractHandler {
     // Certificate request store directory
     protected static final String defaultCSRStoreDir = "var/security/ca/requests";
 
-    // Name of the attribute for error message to be displayed in a page
-    protected static final String ERROR_MSG = "errorMsg";
-    // Name of the attribute for information message to be displayed in a page
-    protected static final String INFO_MSG = "infoMsg";
-
     /**
      * Constructor
      */
     protected BaseCAHandler(String mode, String viewName) {
         super(mode, viewName);
+    }
+
+    protected BaseCAHandler(String mode, String viewName, BasePortlet portlet) {
+        super(mode, viewName, portlet);
     }
 
     public final static class CAModel implements MultiPageModel {

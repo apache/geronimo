@@ -34,6 +34,8 @@ limitations under the License.
             <portlet-mode>HELP</portlet-mode>
         </supports>
         <supported-locale>en</supported-locale>
+        <supported-locale>zh</supported-locale>
+        <resource-bundle>portletinfo</resource-bundle>
         <portlet-info>
             <title>Welcome</title>
             <short-title>Welcome</short-title>
@@ -53,6 +55,8 @@ limitations under the License.
             <portlet-mode>HELP</portlet-mode>
         </supports>
         <supported-locale>en</supported-locale>
+        <supported-locale>zh</supported-locale>
+        <resource-bundle>portletinfo</resource-bundle>
         <portlet-info>
             <title>Server Info</title>
             <short-title>ServerInfo</short-title>
@@ -72,6 +76,8 @@ limitations under the License.
             <portlet-mode>HELP</portlet-mode>
         </supports>
         <supported-locale>en</supported-locale>
+        <supported-locale>zh</supported-locale>
+        <resource-bundle>portletinfo</resource-bundle>
         <portlet-info>
             <title>System Property values for the Server JVM</title>
             <short-title>System</short-title>
@@ -91,6 +97,8 @@ limitations under the License.
             <portlet-mode>HELP</portlet-mode>
         </supports>
         <supported-locale>en</supported-locale>
+        <supported-locale>zh</supported-locale>
+        <resource-bundle>portletinfo</resource-bundle>
         <portlet-info>
             <title>Log Manager</title>
             <short-title>Log Manager</short-title>
@@ -110,6 +118,8 @@ limitations under the License.
             <portlet-mode>HELP</portlet-mode>
         </supports>
         <supported-locale>en</supported-locale>
+        <supported-locale>zh</supported-locale>
+        <resource-bundle>portletinfo</resource-bundle>
         <portlet-info>
             <title>Server Log Viewer</title>
             <short-title>Server Log Viewer</short-title>
@@ -129,6 +139,8 @@ limitations under the License.
             <portlet-mode>HELP</portlet-mode>
         </supports>
         <supported-locale>en</supported-locale>
+        <supported-locale>zh</supported-locale>
+        <resource-bundle>portletinfo</resource-bundle>
         <portlet-info>
             <title>Web Access Log Viewer</title>
             <short-title>Web Access Log Viewer</short-title>
@@ -148,6 +160,8 @@ limitations under the License.
             <portlet-mode>HELP</portlet-mode>
         </supports>
         <supported-locale>en</supported-locale>
+        <supported-locale>zh</supported-locale>
+        <resource-bundle>portletinfo</resource-bundle>
         <portlet-info>
             <title>Server Manager</title>
             <short-title>Server Manager</short-title>
@@ -167,6 +181,8 @@ limitations under the License.
             <portlet-mode>HELP</portlet-mode>
         </supports>
         <supported-locale>en</supported-locale>
+        <supported-locale>zh</supported-locale>
+        <resource-bundle>portletinfo</resource-bundle>
         <portlet-info>
             <title>Web Server Manager</title>
             <short-title>Web Servers</short-title>
@@ -186,6 +202,8 @@ limitations under the License.
             <portlet-mode>HELP</portlet-mode>
         </supports>
         <supported-locale>en</supported-locale>
+        <supported-locale>zh</supported-locale>
+        <resource-bundle>portletinfo</resource-bundle>
         <portlet-info>
             <title>Network Listeners</title>
             <short-title>Listeners</short-title>
@@ -205,6 +223,8 @@ limitations under the License.
 <!--            <portlet-mode>HELP</portlet-mode>-->
         </supports>
         <supported-locale>en</supported-locale>
+        <supported-locale>zh</supported-locale>
+        <resource-bundle>portletinfo</resource-bundle>
         <portlet-info>
             <title>Thread Pool Configuration</title>
             <short-title>Thread Pools</short-title>
@@ -224,6 +244,8 @@ limitations under the License.
             <portlet-mode>HELP</portlet-mode>
         </supports>
         <supported-locale>en</supported-locale>
+        <supported-locale>zh</supported-locale>
+        <resource-bundle>portletinfo</resource-bundle>
         <portlet-info>
             <title>Repository Viewer</title>
             <short-title>Repository Viewer</short-title>
@@ -242,6 +264,8 @@ limitations under the License.
             <portlet-mode>VIEW</portlet-mode>
         </supports>
         <supported-locale>en</supported-locale>
+        <supported-locale>zh</supported-locale>
+        <resource-bundle>portletinfo</resource-bundle>
         <portlet-info>
             <title>Apache mod_jk Configuration</title>
             <short-title>Apache mod_jk</short-title>
@@ -260,6 +284,8 @@ limitations under the License.
             <portlet-mode>VIEW</portlet-mode>
         </supports>
         <supported-locale>en</supported-locale>
+        <supported-locale>zh</supported-locale>
+        <resource-bundle>portletinfo</resource-bundle>
         <portlet-info>
             <title>Keystore Configuration</title>
             <short-title>Keystores</short-title>
@@ -278,6 +304,8 @@ limitations under the License.
             <portlet-mode>VIEW</portlet-mode>
         </supports>
         <supported-locale>en</supported-locale>
+        <supported-locale>zh</supported-locale>
+        <resource-bundle>portletinfo</resource-bundle>
         <portlet-info>
             <title>Certification Authority</title>
             <short-title>CA</short-title>
@@ -297,6 +325,8 @@ limitations under the License.
             <portlet-mode>HELP</portlet-mode>
         </supports>
         <supported-locale>en</supported-locale>
+        <supported-locale>zh</supported-locale>
+        <resource-bundle>portletinfo</resource-bundle>
         <portlet-info>
             <title>Installed Applications</title>
             <short-title>Applications</short-title>
@@ -316,6 +346,8 @@ limitations under the License.
 <!--            <portlet-mode>HELP</portlet-mode>-->
         </supports>
         <supported-locale>en</supported-locale>
+        <supported-locale>zh</supported-locale>
+        <resource-bundle>portletinfo</resource-bundle>
         <portlet-info>
             <title>Installed Web Applications</title>
             <short-title>WAR Modules</short-title>
@@ -339,6 +371,8 @@ limitations under the License.
 <!--            <portlet-mode>HELP</portlet-mode>-->
         </supports>
         <supported-locale>en</supported-locale>
+        <supported-locale>zh</supported-locale>
+        <resource-bundle>portletinfo</resource-bundle>
         <portlet-info>
             <title>Installed System Modules</title>
             <short-title>System Modules</short-title>
@@ -362,6 +396,8 @@ limitations under the License.
             <portlet-mode>HELP</portlet-mode>
         </supports>
         <supported-locale>en</supported-locale>
+        <supported-locale>zh</supported-locale>
+        <resource-bundle>portletinfo</resource-bundle>
         <portlet-info>
             <title>Console Realm Users</title>
             <short-title>Users</short-title>
@@ -381,6 +417,8 @@ limitations under the License.
             <portlet-mode>HELP</portlet-mode>
         </supports>
         <supported-locale>en</supported-locale>
+        <supported-locale>zh</supported-locale>
+        <resource-bundle>portletinfo</resource-bundle>
         <portlet-info>
             <title>Console Realm Groups</title>
             <short-title>Groups</short-title>
@@ -400,6 +438,8 @@ limitations under the License.
 <!--            <portlet-mode>HELP</portlet-mode>-->
         </supports>
         <supported-locale>en</supported-locale>
+        <supported-locale>zh</supported-locale>
+        <resource-bundle>portletinfo</resource-bundle>
         <portlet-info>
             <title>Installed Security Realms</title>
             <short-title>Security Realms</short-title>
@@ -419,6 +459,8 @@ limitations under the License.
             <portlet-mode>VIEW</portlet-mode>
         </supports>
         <supported-locale>en</supported-locale>
+        <supported-locale>zh</supported-locale>
+        <resource-bundle>portletinfo</resource-bundle>
         <portlet-info>
             <title>Installed Application EARs</title>
             <short-title>EARModules</short-title>
@@ -441,6 +483,8 @@ limitations under the License.
             <portlet-mode>VIEW</portlet-mode>
         </supports>
         <supported-locale>en</supported-locale>
+        <supported-locale>zh</supported-locale>
+        <resource-bundle>portletinfo</resource-bundle>
         <portlet-info>
             <title>Installed EJB JARs</title>
             <short-title>EJBModules</short-title>
@@ -463,6 +507,8 @@ limitations under the License.
             <portlet-mode>VIEW</portlet-mode>
         </supports>
         <supported-locale>en</supported-locale>
+        <supported-locale>zh</supported-locale>
+        <resource-bundle>portletinfo</resource-bundle>
         <portlet-info>
             <title>Installed J2EE Connectors</title>
             <short-title>RARModules</short-title>
@@ -485,6 +531,8 @@ limitations under the License.
             <portlet-mode>VIEW</portlet-mode>
         </supports>
         <supported-locale>en</supported-locale>
+        <supported-locale>zh</supported-locale>
+        <resource-bundle>portletinfo</resource-bundle>
         <portlet-info>
             <title>Installed Application Clients</title>
             <short-title>ClientModules</short-title>

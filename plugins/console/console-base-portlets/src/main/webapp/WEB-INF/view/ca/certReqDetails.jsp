@@ -39,11 +39,13 @@ function <portlet:namespace/>validateForm(){
     return true;
 }
 </script>
+
+<jsp:include page="_header.jsp" /><br>
+
 <fmt:message key="ca.certReqDetails.title"/>
 <p>
 <fmt:message key="ca.certReqDetails.summary"/>
 </p>
-<jsp:include page="_header.jsp" />
 
 <form name="<portlet:namespace/>certReqDetailsForm" action="<portlet:actionURL/>">
     <input type="hidden" name="mode" value="certReqDetails-after"/>

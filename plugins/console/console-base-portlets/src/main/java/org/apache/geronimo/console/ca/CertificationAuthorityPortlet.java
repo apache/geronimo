@@ -32,18 +32,18 @@ import org.apache.geronimo.console.MultiPagePortlet;
 public class CertificationAuthorityPortlet extends MultiPagePortlet {
     public void init(PortletConfig config) throws PortletException {
         super.init(config);
-        addHelper(new IntroHandler(), config);
-        addHelper(new SetupCAHandler(), config);
-        addHelper(new ConfirmCAHandler(), config);
-        addHelper(new CADetailsHandler(), config);
-        addHelper(new UnlockCAHandler(), config);
-        addHelper(new ProcessCSRHandler(), config);
-        addHelper(new CertReqDetailsHandler(), config);
-        addHelper(new ConfirmClientCertHandler(), config);
-        addHelper(new ViewCertificateHandler(), config);
-        addHelper(new ListRequestsIssueHandler(), config);
-        addHelper(new ListRequestsVerifyHandler(), config);
-        addHelper(new ConfirmCertReqHandler(), config);
+        addHelper(new IntroHandler(this), config);
+        addHelper(new SetupCAHandler(this), config);
+        addHelper(new ConfirmCAHandler(this), config);
+        addHelper(new CADetailsHandler(this), config);
+        addHelper(new UnlockCAHandler(this), config);
+        addHelper(new ProcessCSRHandler(this), config);
+        addHelper(new CertReqDetailsHandler(this), config);
+        addHelper(new ConfirmClientCertHandler(this), config);
+        addHelper(new ViewCertificateHandler(this), config);
+        addHelper(new ListRequestsIssueHandler(this), config);
+        addHelper(new ListRequestsVerifyHandler(this), config);
+        addHelper(new ConfirmCertReqHandler(this), config);
     }
 
     protected String getModelJSPVariableName() {
