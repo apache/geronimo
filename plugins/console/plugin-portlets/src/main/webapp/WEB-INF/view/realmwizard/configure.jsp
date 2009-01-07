@@ -21,6 +21,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<%@ taglib uri="/WEB-INF/CommonMsg.tld" prefix="CommonMsg"%>
 <fmt:setBundle basename="pluginportlets"/>
 <portlet:defineObjects/>
 
@@ -39,9 +40,9 @@ function <portlet:namespace/>validateForm(){
 }
 </script>
 
-<p><fmt:message key="realmwizard.configure.title" /></p>
+<CommonMsg:commonMsg/>
 
-<c:if test="${!(empty LoginModuleError)}"><p><font color="red"><b>Error: ${LoginModuleError}</b></font></p></c:if>
+<p><fmt:message key="realmwizard.configure.title" /></p>
 
 <!--   FORM TO COLLECT DATA FOR THIS PAGE   -->
 <form name="<portlet:namespace/>RealmForm" action="<portlet:actionURL/>">
@@ -100,6 +101,10 @@ function <portlet:namespace/>validateForm(){
                    type="<c:choose><c:when test="${optionMap[option].password}">password</c:when><c:otherwise>text</c:otherwise></c:choose>"
                    size="${optionMap[option].length}" value="${realm.options[option]}"></td>
       </tr>
+      <tr>
+        <td></td>
+        <td>${optionMap[option].description}</td>
+      </tr>
     <c:if test="${optionMap[option].password}">
       <tr>
         <th style="min-width: 140px"><div align="right"><label for="<portlet:namespace/>confirm-option-${option}">Confirm password</label>:</div></th>
@@ -110,10 +115,6 @@ function <portlet:namespace/>validateForm(){
           <portlet:namespace/>passwordFields = <portlet:namespace/>passwordFields.concat(new Array('option-${option}'))
       </script>
     </c:if>
-      <tr>
-        <td></td>
-        <td>${optionMap[option].description}</td>
-      </tr>
       <c:if test="${!optionMap[option].blankAllowed}">
         <script language="JavaScript">
           <portlet:namespace/>requiredFields = <portlet:namespace/>requiredFields.concat(new Array('option-${option}'))

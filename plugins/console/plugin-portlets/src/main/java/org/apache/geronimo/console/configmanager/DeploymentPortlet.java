@@ -154,7 +154,8 @@ public class DeploymentPortlet extends BasePortlet {
                 String abbrStatusMessage;
                 String fullStatusMessage = null;
                 if(progress.getDeploymentStatus().isCompleted()) {
-                    abbrStatusMessage = "The application was successfully "+(isRedeploy ? "re" : "")+"deployed.<br/>";
+                    abbrStatusMessage = getLocalizedString(!isRedeploy ? "infoMsg01" : "infoMsg02", actionRequest);
+                    addInfoMessage(actionRequest, abbrStatusMessage);
                     // start installed app/s
                     if (!isRedeploy && startApp != null && !startApp.equals("")) {
                         progress = mgr.start(progress.getResultTargetModuleIDs());
@@ -162,18 +163,20 @@ public class DeploymentPortlet extends BasePortlet {
                             Thread.sleep(100);
                         }
                         if (progress.getDeploymentStatus().isCompleted()) {
-                            abbrStatusMessage += "The application was successfully started";
+                            abbrStatusMessage = getLocalizedString("infoMsg03", actionRequest);
+                            addInfoMessage(actionRequest, abbrStatusMessage);
                         } else {
-                            abbrStatusMessage += "The application was not successfully started";
+                            abbrStatusMessage = getLocalizedString("errorMsg02", actionRequest);
                             fullStatusMessage = progress.getDeploymentStatus().getMessage();
+                            addErrorMessage(actionRequest, abbrStatusMessage, fullStatusMessage);
                         }
                     }
                 } else {
                     fullStatusMessage = progress.getDeploymentStatus().getMessage();
                     // for the abbreviated status message clip off everything
-                    // after the first line, which in most cases means the gnarly stacktrace 
-                    abbrStatusMessage = "Deployment failed:<br/>"
-                                      + fullStatusMessage.substring(0, fullStatusMessage.indexOf('\n'));
+                    // after the first line, which in most cases means the gnarly stacktrace
+                    abbrStatusMessage = getLocalizedString("errorMsg01", actionRequest);
+                    addErrorMessage(actionRequest, abbrStatusMessage, fullStatusMessage);
                     // try to provide an upgraded version of the plan
                     try {
                         if (planFile != null && planFile.exists()) {
@@ -200,10 +203,6 @@ public class DeploymentPortlet extends BasePortlet {
                         // status message has already been provided in this case
                     }
                 }
-                // have to store the status messages in the portlet session
-                // because the buffer size for render parameters is sometimes not big enough
-                actionRequest.getPortletSession().setAttribute(FULL_STATUS_PARM, fullStatusMessage);
-                actionRequest.getPortletSession().setAttribute(ABBR_STATUS_PARM, abbrStatusMessage);
             } finally {
                 mgr.release();
                 if (fis!=null) fis.close();
@@ -264,8 +263,6 @@ public class DeploymentPortlet extends BasePortlet {
         // session during the processAction phase and then copied into render
         // attributes here so the JSP has easier access to them. This seems
         // to only be an issue on tomcat.
-        copyRenderAttribute(renderRequest, FULL_STATUS_PARM);
-        copyRenderAttribute(renderRequest, ABBR_STATUS_PARM);
         copyRenderAttribute(renderRequest, MIGRATED_PLAN_PARM);
         copyRenderAttribute(renderRequest, ORIGINAL_PLAN_PARM);
         deployView.include(renderRequest, renderResponse);

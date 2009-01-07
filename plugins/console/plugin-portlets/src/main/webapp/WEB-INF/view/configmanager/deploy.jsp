@@ -17,6 +17,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<%@ taglib uri="/WEB-INF/CommonMsg.tld" prefix="CommonMsg"%>
 <fmt:setBundle basename="pluginportlets"/>
 <portlet:defineObjects/>
 
@@ -32,23 +33,7 @@ function <portlet:namespace/>toggleDisplay(id) {
 }
 </script>
 
-<!-- Abbreviated status message -->
-<c:if test="${!(empty abbrStatusMessage)}">
-    <div id="<portlet:namespace/>abbrStatusMessage" style="display:inline">
-     ${abbrStatusMessage}<br/>
-    <c:if test="${!(empty fullStatusMessage)}">
-    <button onclick="<portlet:namespace/>toggleDisplay('fullStatusMessage');<portlet:namespace/>toggleDisplay('abbrStatusMessage');return false;">Show full details</button>
-    </c:if>
-    </div>
-</c:if>
-<!-- Full status message -->
-<c:if test="${!(empty fullStatusMessage)}">
-    <div id="<portlet:namespace/>fullStatusMessage" style="display:none">
-    <pre>
-<c:out escapeXml="true" value="${fullStatusMessage}"/>
-    </pre>
-    </div>
-</c:if>
+<CommonMsg:commonMsg/>
 
 <P/>
 

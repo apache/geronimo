@@ -154,12 +154,12 @@
                    size="20" value="${realm.options['jdbcPassword']}"></td>
       </tr>
       <tr>
+        <td></td>
+        <td><fmt:message key="realmwizard._sql.JDBCPasswordExp" /></td>
+      </tr>
+      <tr>
         <th><div align="right"><label for="<portlet:namespace/>confirm-option-jdbcPassword"><fmt:message key="consolebase.common.confirmPassword"/></label></div></th>
         <td><input name="confirm-option-jdbcPassword" id="<portlet:namespace/>confirm-option-jdbcPassword" type="password"
                    size="20" value="${realm.options['jdbcPassword']}"></td>
-      </tr>
-      <tr>
-        <td></td>
-        <td><fmt:message key="realmwizard._sql.JDBCPasswordExp" /></td>
       </tr>
 

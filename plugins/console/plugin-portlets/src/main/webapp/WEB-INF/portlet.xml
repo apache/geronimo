@@ -22,7 +22,6 @@ limitations under the License.
 
 <portlet-app version="1.0">
 
-
     <portlet>
         <description>Portlet for deploying applications</description>
         <portlet-name>Deployment</portlet-name>
@@ -35,6 +34,8 @@ limitations under the License.
             <portlet-mode>HELP</portlet-mode>
         </supports>
         <supported-locale>en</supported-locale>
+        <supported-locale>zh</supported-locale>
+        <resource-bundle>portletinfo</resource-bundle>
         <portlet-info>
             <title>Install New Applications</title>
             <short-title>Install Application</short-title>
@@ -55,6 +56,8 @@ limitations under the License.
             <portlet-mode>HELP</portlet-mode>
         </supports>
         <supported-locale>en</supported-locale>
+        <supported-locale>zh</supported-locale>
+        <resource-bundle>portletinfo</resource-bundle>
         <portlet-info>
             <title>Install Plugins</title>
             <short-title>Install Plugins</short-title>
@@ -74,6 +77,8 @@ limitations under the License.
             <portlet-mode>HELP</portlet-mode>
         </supports>
         <supported-locale>en</supported-locale>
+        <supported-locale>zh</supported-locale>
+        <resource-bundle>portletinfo</resource-bundle>
         <portlet-info>
             <title>Assemble Server</title>
             <short-title>Assemble Server</short-title>
@@ -93,6 +98,8 @@ limitations under the License.
             <portlet-mode>HELP</portlet-mode>
         </supports>
         <supported-locale>en</supported-locale>
+        <supported-locale>zh</supported-locale>
+        <resource-bundle>portletinfo</resource-bundle>
         <portlet-info>
             <title>Create Plugin</title>
             <short-title>Create Plugin</short-title>
@@ -111,6 +118,8 @@ limitations under the License.
             <portlet-mode>VIEW</portlet-mode>
         </supports>
         <supported-locale>en</supported-locale>
+        <supported-locale>zh</supported-locale>
+        <resource-bundle>portletinfo</resource-bundle>
         <portlet-info>
             <title>Security Realms</title>
             <short-title>Security Realms</short-title>

@@ -200,8 +200,8 @@ public class SecurityRealmPortlet extends BasePortlet {
             if (error == null) {
                 actionResponse.setRenderParameter(MODE_KEY, ADVANCED_MODE);
             } else {
-                actionResponse.setRenderParameter("LoginModuleError", error);
                 actionResponse.setRenderParameter(MODE_KEY, CONFIGURE_MODE);
+                addErrorMessage(actionRequest, error);
             }
         } else if (mode.equals("process-" + ADVANCED_MODE)) {
             String test = actionRequest.getParameter("test");
@@ -590,10 +590,6 @@ public class SecurityRealmPortlet extends BasePortlet {
     }
 
     private void renderConfigure(RenderRequest request, RenderResponse response, RealmData data) throws IOException, PortletException {
-        // Pass errors through
-        if (request.getParameter("LoginModuleError") != null) {
-            request.setAttribute("LoginModuleError", request.getParameter("LoginModuleError"));
-        }
         // Clear out any cached modules
         data.modules = null;
         // Configure option list
