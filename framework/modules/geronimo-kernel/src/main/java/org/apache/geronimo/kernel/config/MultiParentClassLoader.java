@@ -61,6 +61,7 @@ public class MultiParentClassLoader extends URLClassLoader {
     private final String[] hiddenResources;
     private final String[] nonOverridableResources;
     private boolean destroyed = false;
+    private Set<String> knownResources = new HashSet<String>();
 
     // I used this pattern as its temporary and with the static final we get compile time 
     // optimizations.
@@ -543,7 +544,7 @@ public class MultiParentClassLoader extends URLClassLoader {
     }
 
     public URL getResource(String name) {
-        if (isDestroyed()) {
+        if (isDestroyed() || knownResources.contains(name)) {
             return null;
         }
 
@@ -577,7 +578,17 @@ public class MultiParentClassLoader extends URLClassLoader {
         // resource, so we can override now
         if (!isDestroyed()) {
             // parents didn't have the resource; attempt to load it from my urls
-            return findResource(name);
+            URL url = findResource(name);
+            if (url != null) {
+                return url;
+            }
+        }
+
+        // 
+        // Resource not found -- no need to search for it again
+        // 
+        if (!knownResources.contains(name)) {
+            knownResources.add(name);
         }
 
         return null;
