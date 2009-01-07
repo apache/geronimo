@@ -48,6 +48,7 @@ public class EjbWebServiceGBean implements GBeanLifecycle {
                               String realmName,
                               String transportGuarantee,
                               String authMethod,
+                              String[] protectedMethods, 
                               String[] virtualHosts) throws Exception {
 
         this.soapHandler = soapHandler;
@@ -73,7 +74,7 @@ public class EjbWebServiceGBean implements GBeanLifecycle {
         
         AxisWebServiceContainer axisContainer = new AxisWebServiceContainer(location, wsdlURI, service, serviceInfo.getWsdlMap(), classLoader);
         if (soapHandler != null) {
-            soapHandler.addWebService(location.getPath(), virtualHosts, axisContainer, securityRealmName, realmName, transportGuarantee, authMethod, classLoader);
+            soapHandler.addWebService(location.getPath(), virtualHosts, axisContainer, securityRealmName, realmName, transportGuarantee, authMethod, protectedMethods, classLoader);
         }
     }
 
@@ -106,6 +107,7 @@ public class EjbWebServiceGBean implements GBeanLifecycle {
         infoFactory.addAttribute("transportGuarantee", String.class, true);
         infoFactory.addAttribute("authMethod", String.class, true);
         infoFactory.addAttribute("serviceInfo", ServiceInfo.class, true);
+        infoFactory.addAttribute("protectedMethods", String[].class, true);
         infoFactory.addAttribute("virtualHosts", String[].class, true);
         infoFactory.addReference("WebServiceContainer", SoapHandler.class);
 
@@ -119,6 +121,7 @@ public class EjbWebServiceGBean implements GBeanLifecycle {
                 "realmName",
                 "transportGuarantee",
                 "authMethod",
+                "protectedMethods",
                 "virtualHosts"
         });
 

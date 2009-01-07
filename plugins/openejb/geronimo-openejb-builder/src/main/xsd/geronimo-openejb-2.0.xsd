@@ -103,6 +103,7 @@
             <xs:element name="realm-name" type="xs:string" minOccurs="0"/>
             <xs:element name="transport-guarantee" type="openejb:transport-guaranteeType"/>
             <xs:element name="auth-method" type="openejb:auth-methodType"/>
+            <xs:element name="http-method" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
     </xs:complexType>
 

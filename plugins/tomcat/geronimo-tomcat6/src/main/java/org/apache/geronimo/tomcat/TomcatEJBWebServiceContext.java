@@ -16,17 +16,17 @@
  */
 package org.apache.geronimo.tomcat;
 
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -55,13 +55,12 @@ public class TomcatEJBWebServiceContext extends StandardContext{
     private final WebServiceContainer webServiceContainer;
     private final boolean isSecureTransportGuarantee;
     private final ClassLoader classLoader;
+    private final Set<String> secureMethods;
 
-    public TomcatEJBWebServiceContext(String contextPath, WebServiceContainer webServiceContainer, String securityRealmName, String realmName, String transportGuarantee, String authMethod, ClassLoader classLoader) {
-
-        super();
-
+    public TomcatEJBWebServiceContext(String contextPath, WebServiceContainer webServiceContainer, String securityRealmName, String realmName, String transportGuarantee, String authMethod, String[] protectedMethods, ClassLoader classLoader) {
         this.contextPath = contextPath;
         this.webServiceContainer = webServiceContainer;
+        this.secureMethods = initSecureMethods(protectedMethods);
         this.setPath(contextPath);
         this.setDocBase("");
         this.setParentClassLoader(classLoader);
@@ -99,8 +98,22 @@ public class TomcatEJBWebServiceContext extends StandardContext{
 
                 //Setup a default Security Constraint
                 SecurityCollection collection = new SecurityCollection();
-                collection.addMethod("GET");
-                collection.addMethod("POST");
+                if (secureMethods == null) {
+                    // protect all
+                    collection.addMethod("GET");
+                    collection.addMethod("POST");
+                    collection.addMethod("PUT");
+                    collection.addMethod("DELETE");
+                    collection.addMethod("HEAD");
+                    collection.addMethod("OPTIONS");
+                    collection.addMethod("TRACE");
+                    collection.addMethod("CONNECT");
+                } else {
+                    // protect specified
+                    for (String method : secureMethods) {
+                        collection.addMethod(method);
+                    }
+                }
                 collection.addPattern("/*");
                 collection.setName("default");
                 SecurityConstraint sc = new SecurityConstraint();
@@ -141,9 +154,43 @@ public class TomcatEJBWebServiceContext extends StandardContext{
 
     }
     
-    public class EJBWebServiceValve extends ValveBase{
+    private Set<String> initSecureMethods(String[] protectedMethods) {
+        if (protectedMethods == null) {
+            return null;
+        }
+        Set<String> methods = null;
+        for (String method : protectedMethods) {
+            if (method == null) {
+                continue;
+            }
+            method = method.trim();
+            if (method.length() == 0) {
+                continue;
+            }
+            method = method.toUpperCase();
+            
+            if (methods == null) {
+                methods = new HashSet<String>();
+            }
+            methods.add(method);
+        }
+        return methods;
+    }
+    
+    public class EJBWebServiceValve extends ValveBase {
 
         public void invoke(Request req, Response res) throws IOException, ServletException {
+            Thread currentThread = Thread.currentThread();
+            ClassLoader oldClassLoader = currentThread.getContextClassLoader();
+            currentThread.setContextClassLoader(classLoader);
+            try {
+                handle(req, res);                
+            } finally {
+                currentThread.setContextClassLoader(oldClassLoader);
+            }
+        }
+        
+        private void handle(Request req, Response res) throws IOException, ServletException {
             res.setContentType("text/xml");            
             RequestAdapter request = new RequestAdapter(req);
             ResponseAdapter response = new ResponseAdapter(res);
@@ -154,42 +201,39 @@ public class TomcatEJBWebServiceContext extends StandardContext{
             request.setAttribute(WebServiceContainer.SERVLET_CONTEXT, null);
 
             req.finishRequest();
-            if (req.getParameter("wsdl") != null) {
+            
+            if (secureMethods == null || secureMethods.contains(req.getMethod())) {
+                if (isSecureTransportGuarantee && !req.isSecure()) {
+                    res.sendError(403);
+                    return;
+                }
+            }
+            if (isWSDLRequest(req)) {
                 try {
                     webServiceContainer.getWsdl(request, response);
                     //WHO IS RESPONSIBLE FOR CLOSING OUT?
                 } catch (IOException e) {
                     throw e;
                 } catch (Exception e) {
-                    log.error("Failed to get WSDL", e);
                     res.sendError(500,"Could not fetch wsdl!");
                     return;
                 }
             } else {
-                if (isSecureTransportGuarantee) {
-                    if (!req.isSecure()) {
-                        res.sendError(403);
-                        return;
-                    }
-                }
-                Thread currentThread = Thread.currentThread();
-                ClassLoader oldClassLoader = currentThread.getContextClassLoader();
-                currentThread.setContextClassLoader(classLoader);
                 try {
-                    try {
-                        webServiceContainer.invoke(request, response);
-                        req.finishRequest();
-                    } catch (IOException e) {
-                        throw e;
-                    } catch (Exception e) {
-                        res.sendError(500, "Could not process message!");
-                    }
-                } finally {
-                    currentThread.setContextClassLoader(oldClassLoader);
+                    webServiceContainer.invoke(request, response);
+                    req.finishRequest();
+                } catch (IOException e) {
+                    throw e;
+                } catch (Exception e) {
+                    res.sendError(500, "Could not process message!");
                 }
             }
         }
 
+        private boolean isWSDLRequest(Request req) {
+            return ("GET".equals(req.getMethod()) && (req.getParameter("wsdl") != null || req.getParameter("xsd") != null));            
+        }
+        
     }
 
     public static class RequestAdapter implements WebServiceContainer.Request {

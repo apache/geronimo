@@ -50,6 +50,7 @@ public class EJBWebServiceGBean implements GBeanLifecycle {
                               String realmName,
                               String transportGuarantee,
                               String authMethod,
+                              String[] protectedMethods,
                               String[] virtualHosts) throws Exception {        
         if (ejbDeploymentContext == null || soapHandler == null || portInfo == null) {
             return;
@@ -83,6 +84,7 @@ public class EJBWebServiceGBean implements GBeanLifecycle {
                                       realmName, 
                                       transportGuarantee, 
                                       authMethod, 
+                                      protectedMethods, 
                                       classLoader);
         }
         
@@ -116,6 +118,7 @@ public class EJBWebServiceGBean implements GBeanLifecycle {
         infoFactory.addAttribute("realmName", String.class, true);
         infoFactory.addAttribute("transportGuarantee", String.class, true);
         infoFactory.addAttribute("authMethod", String.class, true);
+        infoFactory.addAttribute("protectedMethods", String[].class, true);
         infoFactory.addAttribute("virtualHosts", String[].class, true);
         infoFactory.addReference("WebServiceContainer", SoapHandler.class);
         
@@ -129,6 +132,7 @@ public class EJBWebServiceGBean implements GBeanLifecycle {
                 "realmName",
                 "transportGuarantee",
                 "authMethod",
+                "protectedMethods",
                 "virtualHosts"
         });
 

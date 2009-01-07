@@ -22,7 +22,9 @@ import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -72,11 +74,12 @@ public class JettyEJBWebServiceContext extends ContextHandler {
     private final boolean isConfidentialTransportGuarantee;
     private final boolean isIntegralTransportGuarantee;
     private final ClassLoader classLoader;
+    private final Set<String> secureMethods;
 
-
-    public JettyEJBWebServiceContext(String contextPath, WebServiceContainer webServiceContainer, InternalJAASJettyRealm internalJAASJettyRealm, String realmName, String transportGuarantee, String authMethod, ClassLoader classLoader) {
+    public JettyEJBWebServiceContext(String contextPath, WebServiceContainer webServiceContainer, InternalJAASJettyRealm internalJAASJettyRealm, String realmName, String transportGuarantee, String authMethod, String[] protectedMethods, ClassLoader classLoader) {
         this.contextPath = contextPath;
         this.webServiceContainer = webServiceContainer;
+        this.secureMethods = initSecureMethods(protectedMethods);
         this.setContextPath(contextPath);
         
         if (internalJAASJettyRealm != null) {
@@ -117,6 +120,29 @@ public class JettyEJBWebServiceContext extends ContextHandler {
         this.classLoader = classLoader;
     }
 
+    private Set<String> initSecureMethods(String[] protectedMethods) {
+        if (protectedMethods == null) {
+            return null;
+        }
+        Set<String> methods = null;
+        for (String method : protectedMethods) {
+            if (method == null) {
+                continue;
+            }
+            method = method.trim();
+            if (method.length() == 0) {
+                continue;
+            }
+            method = method.toUpperCase();
+            
+            if (methods == null) {
+                methods = new HashSet<String>();
+            }
+            methods.add(method);
+        }
+        return methods;
+    }
+    
     public String getName() {
         //need a better name
         return contextPath;
@@ -130,6 +156,18 @@ public class JettyEJBWebServiceContext extends ContextHandler {
         if (! target.startsWith(contextPath)) {
             return;
         }
+    
+        Thread currentThread = Thread.currentThread();
+        ClassLoader oldClassLoader = currentThread.getContextClassLoader();
+        currentThread.setContextClassLoader(classLoader);
+        try {
+            handle(req, res);
+        } finally {
+            currentThread.setContextClassLoader(oldClassLoader);
+        }
+    }
+    
+    private void handle(HttpServletRequest req, HttpServletResponse res) throws IOException, ServletException {
         Request jettyRequest = (Request) req;
         Response jettyResponse = (Response) res;
         res.setContentType("text/xml");
@@ -141,7 +179,29 @@ public class JettyEJBWebServiceContext extends ContextHandler {
         // TODO: add support for context
         request.setAttribute(WebServiceContainer.SERVLET_CONTEXT, null);
 
-        if (req.getParameter("wsdl") != null) {
+        if (secureMethods == null || secureMethods.contains(req.getMethod())) {
+            if (isConfidentialTransportGuarantee) {
+                if (!jettyRequest.isSecure()) {
+                    throw new HttpException(403, null);
+                }
+            } else if (isIntegralTransportGuarantee) {
+                if (!jettyRequest.getConnection().isIntegral(jettyRequest)) {
+                    throw new HttpException(403, null);
+                }
+            }
+            if (authenticator != null) {
+                String pathInContext = org.mortbay.util.URIUtil.canonicalPath(req.getContextPath());
+                if (authenticator.authenticate(realm, pathInContext, jettyRequest, jettyResponse) == null) {
+                    throw new HttpException(403, null);
+                }
+            } else {
+                //EJB will figure out correct defaultSubject shortly
+                //TODO consider replacing the GenericEJBContainer.DefaultSubjectInterceptor with this line
+                //setting the defaultSubject.
+                ContextManager.popCallers(null);
+            }
+        }
+        if (isWSDLRequest(req)) {
             try {
                 webServiceContainer.getWsdl(request, response);
                 jettyRequest.setHandled(true);
@@ -150,49 +210,22 @@ public class JettyEJBWebServiceContext extends ContextHandler {
             } catch (Exception e) {
                 throw (HttpException) new HttpException(500, "Could not fetch wsdl!").initCause(e);
             }
-        } else {
-            if (isConfidentialTransportGuarantee) {
-                if (!req.isSecure()) {
-                    throw new HttpException(403, null);
-                }
-            } else if (isIntegralTransportGuarantee) {
-                if (!jettyRequest.getConnection().isIntegral(jettyRequest)) {
-                    throw new HttpException(403, null);
-                }
-            }
-            Thread currentThread = Thread.currentThread();
-            ClassLoader oldClassLoader = currentThread.getContextClassLoader();
-            currentThread.setContextClassLoader(classLoader);
-            //hard to imagine this could be anything but null, but....
-//            Subject oldSubject = ContextManager.getCurrentCaller();
+        } else {            
             try {
-                if (authenticator != null) {
-                    String pathInContext = org.mortbay.util.URIUtil.canonicalPath(req.getContextPath());
-                    if (authenticator.authenticate(realm, pathInContext, jettyRequest, jettyResponse) == null) {
-                        throw new HttpException(403, null);
-                    }
-                } else {
-                    //EJB will figure out correct defaultSubject shortly
-                    //TODO consider replacing the GenericEJBContainer.DefaultSubjectInterceptor with this line
-                    //setting the defaultSubject.
-                    ContextManager.popCallers(null);
-                }
-                try {
-                    webServiceContainer.invoke(request, response);
-                    jettyRequest.setHandled(true);
-                } catch (IOException e) {
-                    throw e;
-                } catch (Exception e) {
-                    throw (HttpException) new HttpException(500, "Could not process message!").initCause(e);
-                }
-            } finally {
-//                ContextManager.setCurrentCaller(oldSubject);
-                currentThread.setContextClassLoader(oldClassLoader);
+                webServiceContainer.invoke(request, response);
+                jettyRequest.setHandled(true);
+            } catch (IOException e) {
+                throw e;
+            } catch (Exception e) {
+                throw (HttpException) new HttpException(500, "Could not process message!").initCause(e);
             }
         }
-
     }
 
+    private boolean isWSDLRequest(HttpServletRequest req) {
+        return ("GET".equals(req.getMethod()) && (req.getParameter("wsdl") != null || req.getParameter("xsd") != null));            
+    }
+        
     public String getContextPath() {
         return contextPath;
     }

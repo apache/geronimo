@@ -46,7 +46,7 @@ public class ContainerTest extends AbstractWebModuleTest {
 
         String contextPath = "/foo/webservice.ws";
         MockWebServiceContainer webServiceInvoker = new MockWebServiceContainer();
-        container.addWebService(contextPath, null, webServiceInvoker, null, null, null, null,cl);
+        container.addWebService(contextPath, null, webServiceInvoker, null, null, null, null, null, cl);
 
         HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:5678" + contextPath).openConnection();
         try {
@@ -71,11 +71,11 @@ public class ContainerTest extends AbstractWebModuleTest {
 
         String contextPath = "/foo/webservice.ws";
         MockWebServiceContainer webServiceInvoker = new MockWebServiceContainer();
-        container.addWebService(contextPath, null, webServiceInvoker, null, null, null, null,cl);
+        container.addWebService(contextPath, null, webServiceInvoker, null, null, null, null, null, cl);
 
         String contextPath2 = "/bar/webservice.ws";
         MockWebServiceContainer webServiceInvoker2 = new MockWebServiceContainer();
-        container.addWebService(contextPath2, null, webServiceInvoker2, null, null, null, null,cl);
+        container.addWebService(contextPath2, null, webServiceInvoker2, null, null, null, null, null, cl);
 
         HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:5678" + contextPath).openConnection();
         try {

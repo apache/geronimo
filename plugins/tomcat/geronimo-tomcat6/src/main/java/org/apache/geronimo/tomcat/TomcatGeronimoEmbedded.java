@@ -60,12 +60,13 @@ public class TomcatGeronimoEmbedded extends Embedded{
            String realmName, 
            String transportGuarantee, 
            String authMethod, 
+           String[] protectedMethods, 
            ClassLoader classLoader) {
 
         if( log.isDebugEnabled() )
             log.debug("Creating EJBWebService context '" + contextPath + "'.");
 
-        TomcatEJBWebServiceContext context = new TomcatEJBWebServiceContext(contextPath, webServiceContainer, securityRealmName, realmName, transportGuarantee, authMethod, classLoader);
+        TomcatEJBWebServiceContext context = new TomcatEJBWebServiceContext(contextPath, webServiceContainer, securityRealmName, realmName, transportGuarantee, authMethod, protectedMethods, classLoader);
 
         ContextConfig config = new ContextConfig();
         config.setCustomAuthenticators(authenticators);

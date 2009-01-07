@@ -152,6 +152,12 @@ public class AxisModuleBuilderExtension implements ModuleBuilderExtension {
                     if (wsSecurity.getRealmName() != null) {
                         ejbWebServiceGBean.setAttribute("realmName", wsSecurity.getRealmName().trim());                    
                     }
+                    List<String> methods = wsSecurity.getHttpMethod();
+                    if (methods != null && !methods.isEmpty()) {
+                        String[] protectedMethods = new String[methods.size()];
+                        protectedMethods = methods.toArray(protectedMethods);                    
+                        ejbWebServiceGBean.setAttribute("protectedMethods", protectedMethods);
+                    }
                 }
             }
             

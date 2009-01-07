@@ -159,6 +159,7 @@
       <xs:element name="realm-name" type="xs:string" minOccurs="0"/>
       <xs:element name="transport-guarantee" type="tns:transportGuaranteeType"/>
       <xs:element name="auth-method" type="tns:authMethodType"/>
+      <xs:element name="http-method" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
     </xs:sequence>
   </xs:complexType>
 
