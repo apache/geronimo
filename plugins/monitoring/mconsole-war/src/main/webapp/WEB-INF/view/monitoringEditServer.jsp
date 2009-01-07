@@ -19,6 +19,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<%@ taglib uri="/WEB-INF/CommonMsg.tld" prefix="CommonMsg"%>
 <%@ page import="java.util.List" %>
 <%@ page import="org.apache.geronimo.monitoring.console.Constants" %>
 <%@ page import="org.apache.geronimo.monitoring.console.MRCConnector" %>
@@ -27,13 +28,9 @@
 <portlet:defineObjects/>
 
 <%
-
-    Node node = (Node) request.getAttribute("node");
-
-String message = (String) request.getAttribute("message");
+Node node = (Node) request.getAttribute("node");
 String snapshot = (String) request.getAttribute("snapshot");
 String retention = (String) request.getAttribute("retention");
-if(message == null)     message = "";
 if(snapshot == null)    snapshot = "";
 if(retention == null)   retention = "";
 if(node.getProtocol() == null || node.getProtocol().equals("EJB"))
@@ -132,14 +129,8 @@ function setPort() {
 </script>
 <!-- </head> -->
         
-            <%
- if (!message.equals(""))
- {
- %>
-<div align="left" style="width: 500px">
-<%=message %><br>
-</div>
-<%} %>
+<CommonMsg:commonMsg/><br>
+
 <table>
     <tr>
         <!-- Body -->

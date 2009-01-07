@@ -19,6 +19,7 @@ package org.apache.geronimo.monitoring.console;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.text.MessageFormat;
 
 import javax.annotation.Resource;
 import javax.naming.Context;
@@ -26,9 +27,9 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.portlet.PortletRequest;
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
-import javax.portlet.GenericPortlet;
 import javax.portlet.PortletConfig;
 import javax.portlet.PortletException;
 import javax.portlet.PortletRequestDispatcher;
@@ -36,6 +37,7 @@ import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import javax.transaction.UserTransaction;
 
+import org.apache.geronimo.console.BasePortlet;
 import org.apache.geronimo.crypto.EncryptionManager;
 import org.apache.geronimo.monitoring.console.data.Graph;
 import org.apache.geronimo.monitoring.console.data.Node;
@@ -46,7 +48,7 @@ import org.slf4j.LoggerFactory;
 /**
  * STATS
  */
-public class MonitoringPortlet extends GenericPortlet {
+public class MonitoringPortlet extends BasePortlet {
     Logger log = LoggerFactory.getLogger(MonitoringPortlet.class);
 
     private static final String NORMALVIEW_JSP = "/WEB-INF/view/monitoringNormal.jsp";
@@ -185,28 +187,24 @@ public class MonitoringPortlet extends GenericPortlet {
         } else if (action.equals("stopThread")
                 || action.equals("disableServerViewQuery")) {
             String server_id = actionRequest.getParameter("server_id");
-            String message = stopThread(server_id);
+            stopThread(server_id, actionRequest);
             actionResponse.setRenderParameter("server_id", server_id);
-            actionResponse.setRenderParameter("message", message);
         } else if (action.equals("startThread")
                 || action.equals("enableServerViewQuery")) {
             String server_id = actionRequest.getParameter("server_id");
             String snapshotDuration = actionRequest.getParameter("snapshotDuration");
-            String message = startThread(server_id, new Long(snapshotDuration));
-            actionResponse.setRenderParameter("message", message);
+            startThread(server_id, new Long(snapshotDuration), actionRequest);
             actionResponse.setRenderParameter("server_id", server_id);
             actionResponse.setRenderParameter("snapshotDuration", snapshotDuration);
         } else if (action.equals("disableServer")
                 || action.equals("disableEditServer")) {
             String server_id = actionRequest.getParameter("server_id");
             actionResponse.setRenderParameter("server_id", server_id);
-            actionResponse.setRenderParameter("message", alterServerState(
-                    server_id, false));
+            alterServerState(server_id, false, actionRequest);
         } else if (action.equals("enableServer")
                 || action.equals("enableEditServer")) {
             String server_id = actionRequest.getParameter("server_id");
-            actionResponse.setRenderParameter("message", alterServerState(
-                    server_id, true));
+            alterServerState(server_id, true, actionRequest);
             actionResponse.setRenderParameter("server_id", server_id);
         } else if (action.equals("testAddServerConnection")) {
             String name = actionRequest.getParameter("name");
@@ -216,8 +214,7 @@ public class MonitoringPortlet extends GenericPortlet {
             String password2 = actionRequest.getParameter("password2");
             Integer port = Integer.parseInt(actionRequest.getParameter("port"));
             String protocol = actionRequest.getParameter("protocol");
-            String message = testConnection(ip, username, password, port, protocol);
-            actionResponse.setRenderParameter("message", message);
+            testConnection(ip, username, password, port, protocol, actionRequest);
             actionResponse.setRenderParameter("name", name);
             actionResponse.setRenderParameter("username", username);
             actionResponse.setRenderParameter("ip", ip);
@@ -242,8 +239,7 @@ public class MonitoringPortlet extends GenericPortlet {
             if (retention == null) {
                 retention = "";
             }
-            String message = testConnection(ip, username, password, port, protocol);
-            actionResponse.setRenderParameter("message", message);
+            testConnection(ip, username, password, port, protocol, actionRequest);
             actionResponse.setRenderParameter("name", name);
             actionResponse.setRenderParameter("username", username);
             actionResponse.setRenderParameter("ip", ip);
@@ -257,18 +253,17 @@ public class MonitoringPortlet extends GenericPortlet {
         }
     }
 
-    private String testConnection(String ip, String username,
-                                  String password, int port, String protocol) {
+    private void testConnection(String ip, String username,
+                                  String password, int port, String protocol, PortletRequest request) {
         try {
             new MRCConnector(ip, username, password, port, protocol);
-
-            return "<font color=\"green\"><strong><li>Connection was successfully established.</li></strong></font>";
+            addInfoMessage(request, getLocalizedString("infoMsg01", request));
         } catch (Exception e) {
-            return "<font color=\"red\"><strong><li>Failed to create a connection to server.</li></strong></font>";
+            addInfoMessage(request, getLocalizedString("errorMsg01", request), e.getMessage());
         }
     }
 
-    private String alterServerState(String server_id, boolean enable) {
+    private void alterServerState(String server_id, boolean enable, PortletRequest request) {
         try {
             userTransaction.begin();
             try {
@@ -277,12 +272,19 @@ public class MonitoringPortlet extends GenericPortlet {
             } finally {
                 userTransaction.commit();
             }
-            return "<font color=\"green\"><strong><li>Server " + server_id
-                    + " was successfully " + (enable? "enabled":"disabled") + ".</li></strong></font>";
+            if (enable) {
+                addInfoMessage(request, MessageFormat.format(getLocalizedString("infoMsg02", request), server_id));
+            }
+            else {
+                addInfoMessage(request, MessageFormat.format(getLocalizedString("infoMsg03", request), server_id));
+            }
         } catch (Exception e) {
-            return "<font color=\"red\"><strong><li>[ERROR] Server with server_id = "
-                    + server_id
-                    + " could not be " + (enable? "enabled":"disabled") + ".</li></strong></font>";
+            if (enable) {
+                addErrorMessage(request, MessageFormat.format(getLocalizedString("errorMsg02", request), server_id), e.getMessage());
+            }
+            else {
+            	addErrorMessage(request, MessageFormat.format(getLocalizedString("errorMsg03", request), server_id), e.getMessage());
+            }
         }
     }
 
@@ -296,15 +298,12 @@ public class MonitoringPortlet extends GenericPortlet {
             addViewAttribute(request, true);
             pageView.include(request, response);
         } else if (action.equals("showAllViews")) {
-            request.setAttribute("message", "");
             addAllViewsAttribute(request);
             viewViews.include(request, response);
         } else if (action.equals("showAllServers")) {
-            request.setAttribute("message", "");
             addAllNodesAttribute(request);
             viewServers.include(request, response);
         } else if (action.equals("showAllGraphs")) {
-            request.setAttribute("message", "");
             addAllGraphsAttribute(request);
             viewGraphs.include(request, response);
         } else if (action.equals("showServer")) {
@@ -317,8 +316,7 @@ public class MonitoringPortlet extends GenericPortlet {
             request.setAttribute("server_id", server_id);
             String mbean = request.getParameter("mbean");
             request.setAttribute("mbean", mbean);
-            String message = startTrackingMbean(server_id, mbean);
-            request.setAttribute("message", message);
+            startTrackingMbean(server_id, mbean, request);
             addNodeAttribute(request);
             viewServer.include(request, response);
         } else if (action.equals("stopTrackingMbean")) {
@@ -326,8 +324,7 @@ public class MonitoringPortlet extends GenericPortlet {
             request.setAttribute("server_id", server_id);
             String mbean = request.getParameter("mbean");
             request.setAttribute("mbean", mbean);
-            String message = stopTrackingMbean(server_id, mbean);
-            request.setAttribute("message", message);
+            stopTrackingMbean(server_id, mbean, request);
             addNodeAttribute(request);
             viewServer.include(request, response);
         } else if (action.equals("stopThread")) {
@@ -336,8 +333,6 @@ public class MonitoringPortlet extends GenericPortlet {
             normalView(request, response);
         } else if (action.equals("disableServerViewQuery") || action.equals("enableServerViewQuery")) {
             String server_id = request.getParameter("server_id");
-            String message = request.getParameter("message");
-            request.setAttribute("message", message);
             request.setAttribute("server_id", server_id);
             addNodeAttribute(request);
             viewServer.include(request, response);
@@ -366,8 +361,6 @@ public class MonitoringPortlet extends GenericPortlet {
         } else if (action.equals("saveEditView")) {
             String view_id = request.getParameter("view_id");
             request.setAttribute("view_id", view_id);
-            String message = request.getParameter("message");
-            request.setAttribute("message", message);
             addViewAttribute(request, false);
             editView.include(request, response);
         } else if (action.equals("showAddView")) {
@@ -395,8 +388,6 @@ public class MonitoringPortlet extends GenericPortlet {
         } else if (action.equals("saveEditGraph")) {
             String graph_id = request.getParameter("graph_id");
             request.setAttribute("graph_id", graph_id);
-            String message = request.getParameter("message");
-            request.setAttribute("message", message);
             addGraphAttribute(request);
             addAllNodesAttribute(request);
             editGraph.include(request, response);
@@ -411,9 +402,7 @@ public class MonitoringPortlet extends GenericPortlet {
             editServer.include(request, response);
         } else if (action.equals("saveEditServer")) {
             String server_id = request.getParameter("server_id");
-            request.setAttribute("server_id", server_id);
-            String message = request.getParameter("message");
-            request.setAttribute("message", message);
+            request.setAttribute("server_id", server_id);;
             addNodeAttribute(request);
             editServer.include(request, response);
         } else if (action.equals("showAddServer")) {
@@ -428,7 +417,6 @@ public class MonitoringPortlet extends GenericPortlet {
             request.setAttribute("username", request.getParameter("username"));
             request.setAttribute("password", request.getParameter("password"));
             request.setAttribute("password2", request.getParameter("password2"));
-            request.setAttribute("message", request.getParameter("message"));
             request.setAttribute("port", request.getParameter("port"));
             addServer.include(request, response);
         } else if (action.equals("testEditServerConnection")) {
@@ -438,7 +426,6 @@ public class MonitoringPortlet extends GenericPortlet {
             request.setAttribute("username", request.getParameter("username"));
             request.setAttribute("password", request.getParameter("password"));
             request.setAttribute("password2", request.getParameter("password2"));
-            request.setAttribute("message", request.getParameter("message"));
             request.setAttribute("server_id", request.getParameter("server_id"));
             request.setAttribute("snapshot", request.getParameter("snapshot"));
             request.setAttribute("retention", request.getParameter("retention"));
@@ -446,7 +433,6 @@ public class MonitoringPortlet extends GenericPortlet {
             editServer.include(request, response);
         } else if (action.equals("disableEditServer")
                 || action.equals("enableEditServer")) {
-            request.setAttribute("message", request.getParameter("message"));
             request.setAttribute("server_id", request.getParameter("server_id"));
             addNodeAttribute(request);
             editServer.include(request, response);
@@ -461,8 +447,6 @@ public class MonitoringPortlet extends GenericPortlet {
     }
 
     private void normalView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
-        String message = request.getParameter("message");
-        request.setAttribute("message", message);
         addAllViewsAttribute(request);
         addAllNodesAttribute(request);
         addAllGraphsAttribute(request);
@@ -586,13 +570,9 @@ public class MonitoringPortlet extends GenericPortlet {
             } finally {
                 userTransaction.commit();
             }
-            actionResponse.setRenderParameter("message",
-                    "<font color=\"green\"><strong><li>View " + actionRequest.getParameter("name")
-                            + " has been updated</li></strong></font>");
+            addInfoMessage(actionRequest, MessageFormat.format(getLocalizedString("infoMsg08", actionRequest), actionRequest.getParameter("name")));
         } catch (Exception e) {
-            actionResponse.setRenderParameter("message",
-                    "<font color=\"red\"><strong><li>Error updating View "
-                            + actionRequest.getParameter("name") + "</li></strong></font>" + e.getMessage());
+        	addErrorMessage(actionRequest, MessageFormat.format(getLocalizedString("errorMsg11", actionRequest), actionRequest.getParameter("name")), e.getMessage());
         }
 
     }
@@ -619,13 +599,9 @@ public class MonitoringPortlet extends GenericPortlet {
             } finally {
                 userTransaction.commit();
             }
-            actionResponse.setRenderParameter("message",
-                    "<font color=\"green\"><strong><li>View " + name
-                            + " has been added</li></strong></font>");
+            addInfoMessage(actionRequest, MessageFormat.format(getLocalizedString("infoMsg09", actionRequest), name));
         } catch (Exception e) {
-            actionResponse.setRenderParameter("message",
-                    "<font color=\"red\"><strong><li>Error adding View " + name
-                            + "</li></strong></font>" + e.getMessage());
+        	addErrorMessage(actionRequest, MessageFormat.format(getLocalizedString("errorMsg12", actionRequest), name), e.getMessage());
         }
     }
 
@@ -660,13 +636,9 @@ public class MonitoringPortlet extends GenericPortlet {
             } finally {
                 userTransaction.commit();
             }
-            actionResponse.setRenderParameter(
-                            "message",
-                            "<font color=\"green\"><strong><li>Server has been updated</li></strong></font>");
+            addInfoMessage(actionRequest, getLocalizedString("infoMsg10", actionRequest));
         } catch (Exception e) {
-            actionResponse.setRenderParameter("message",
-                    "<font color=\"red\"><strong><li>Error updating server</li></strong></font>"
-                            + e.getMessage());
+        	addErrorMessage(actionRequest, getLocalizedString("errorMsg13", actionRequest), e.getMessage());
         }
     }
 
@@ -692,13 +664,9 @@ public class MonitoringPortlet extends GenericPortlet {
             } finally {
                 userTransaction.commit();
             }
-            actionResponse.setRenderParameter("message",
-                    "<font color=\"green\"><strong><li>Server " + name + " at "
-                            + host + " has been added.</li></strong></font>");
+            addInfoMessage(actionRequest, MessageFormat.format(getLocalizedString("infoMsg11", actionRequest), name, host));
         } catch (Exception e) {
-            actionResponse.setRenderParameter("message",
-                    "<font color=\"red\"><strong><li>Error adding server</li></strong></font>"
-                            + e.getMessage());
+        	addErrorMessage(actionRequest, getLocalizedString("errorMsg14", actionRequest), e.getMessage());
         }
     }
 
@@ -715,13 +683,9 @@ public class MonitoringPortlet extends GenericPortlet {
             } finally {
                 userTransaction.commit();
             }
-            actionResponse.setRenderParameter(
-                            "message",
-                            "<font color=\"green\"><strong><li>Server and associated graphs have been deleted</li></strong></font>");
+            addInfoMessage(actionRequest, getLocalizedString("infoMsg12", actionRequest));
         } catch (Exception e) {
-            actionResponse.setRenderParameter("message",
-                    "<font color=\"red\"><strong><li>Error deleting server</li></strong></font>"
-                            + e.getMessage());
+        	addErrorMessage(actionRequest, getLocalizedString("errorMsg15", actionRequest), e.getMessage());
         }
     }
 
@@ -738,12 +702,9 @@ public class MonitoringPortlet extends GenericPortlet {
             } finally {
                 userTransaction.commit();
             }
-            actionResponse.setRenderParameter("message",
-                            "<font color=\"green\"><strong><li>View has been deleted</li></strong></font>");
+            addInfoMessage(actionRequest, getLocalizedString("infoMsg13", actionRequest));
         } catch (Exception e) {
-            actionResponse.setRenderParameter("message",
-                    "<font color=\"red\"><strong><li>Error deleting view</li></strong></font>"
-                            + e.getMessage());
+        	addErrorMessage(actionRequest, getLocalizedString("errorMsg16", actionRequest), e.getMessage());
         }
     }
 
@@ -761,14 +722,9 @@ public class MonitoringPortlet extends GenericPortlet {
             } finally {
                 userTransaction.commit();
             }
-            actionResponse.setRenderParameter("message",
-                    "<font color=\"green\"><strong><li>Graph " + graph.getGraphName1()
-                            + " has been added.</li></strong></font>");
-
+            addInfoMessage(actionRequest, MessageFormat.format(getLocalizedString("infoMsg14", actionRequest), graph.getGraphName1()));
         } catch (Exception e) {
-            actionResponse.setRenderParameter("message",
-                    "<font color=\"red\"><strong><li>Error adding graph</li></strong></font>"
-                            + e.getMessage());
+        	addErrorMessage(actionRequest, getLocalizedString("errorMsg17", actionRequest), e.getMessage());
         }
     }
 
@@ -805,18 +761,14 @@ public class MonitoringPortlet extends GenericPortlet {
                 Node node = entityManager.find(Node.class, actionRequest.getParameter("server_id"));
                 graph.setNode(node);
                 updateGraphFromRequest(actionRequest, graph);
-                actionResponse.setRenderParameter("message",
-                        "<font color=\"green\"><strong><li>Graph " + graph.getGraphName1()
-                                + " has been updated.</li></strong></font>");
+                addInfoMessage(actionRequest, MessageFormat.format(getLocalizedString("infoMsg15", actionRequest), graph.getGraphName1()));
             } finally {
                 userTransaction.commit();
             }
 
         } catch (Exception e) {
             log.info("error updating graph", e);
-            actionResponse.setRenderParameter("message",
-                    "<font color=\"red\"><strong><li>Error updating graph</li></strong></font>"
-                            + e.getMessage());
+            addErrorMessage(actionRequest, getLocalizedString("errorMsg18", actionRequest), e.getMessage());
         }
     }
 
@@ -829,156 +781,116 @@ public class MonitoringPortlet extends GenericPortlet {
             try {
                 Graph graph = entityManager.find(Graph.class, Integer.parseInt(graph_id));
                 entityManager.remove(graph);
-                actionResponse.setRenderParameter("message",
-                        "<font color=\"green\"><strong><li>Graph " + graph.getGraphName1()
-                                + " has been deleted.</li></strong></font>");
+                addInfoMessage(actionRequest, MessageFormat.format(getLocalizedString("infoMsg16", actionRequest), graph.getGraphName1()));
             } finally {
                 userTransaction.commit();
             }
 
         } catch (Exception e) {
             log.info("error deleting graph", e);
-            actionResponse.setRenderParameter("message",
-                    "<font color=\"red\"><strong><li>Error deleting graph</li></strong></font>"
-                            + e.getMessage());
+            addErrorMessage(actionRequest, getLocalizedString("errorMsg19", actionRequest), e.getMessage());
         }
     }
 
-    private String startTrackingMbean(String server_id, String mbean) {
+    private void startTrackingMbean(String server_id, String mbean, PortletRequest request) {
         Node node;
         try {
             node = getNodeByName(server_id);
         } catch (PortletException e) {
-            return "<font color=\"red\"><strong><li>DATABASE ERROR: "
-                    + e.getMessage() + "</li></strong></font>";
+            addInfoMessage(request, getLocalizedString("errorMsg04", request), e.getMessage());
+            return;
         }
         MRCConnector mrc;
         try {
             mrc = new MRCConnector(node);
         } catch (Exception e) {
-            return "<font color=\"red\"><strong><li>MRC ERROR: Unable to connect to server "
-                    + node.getHost()
-                    + ": "
-                    + e.getMessage()
-                    + "</li></strong></font>";
-
+            addErrorMessage(request, MessageFormat.format(getLocalizedString("errorMsg05", request), node.getHost()), e.getMessage());
+            return;
         }
 
         // tell the mrc server to start tracking an mbean
         try {
             if (mrc.startTrackingMbean(mbean)) {
                 String mbarr[] = mbean.split("name=");
-                return "<font color=\"green\"><strong><li>MBean " + mbarr[1]
-                        + " tracking on server " + node.getName()
-                        + "</li></strong></font>";
+                addInfoMessage(request, MessageFormat.format(getLocalizedString("infoMsg04", request), mbarr[1], node.getHost()));
             } else {
                 String mbarr[] = mbean.split("name=");
-                return "<font color=\"red\"><strong><li>ERROR: MBean "
-                        + mbarr[1] + " could <b>NOT</b> be tracked on server "
-                        + node.getName() + "</li></strong></font>";
+                addErrorMessage(request, MessageFormat.format(getLocalizedString("errorMsg06", request), mbarr[1], node.getHost()));
             }
         } catch (Exception e) {
-            return "<font color=\"red\"><strong><li>MRC ERROR: MBean " + mbean
-                    + " could <b>NOT</b> be tracked on server " + node.getHost()
-                    + ": " + e.getMessage() + "</li></strong></font>";
+            addErrorMessage(request, MessageFormat.format(getLocalizedString("errorMsg06", request), mbean, node.getHost()), e.getMessage());
         }
     }
 
-    private String stopTrackingMbean(String server_id, String mbean) {
+    private void stopTrackingMbean(String server_id, String mbean, PortletRequest request) {
         Node node;
         try {
             node = getNodeByName(server_id);
         } catch (PortletException e) {
-            return "<font color=\"red\"><strong><li>DATABASE ERROR: "
-                    + e.getMessage() + "</li></strong></font>";
+            addInfoMessage(request, getLocalizedString("errorMsg04", request), e.getMessage());
+            return;
         }
         MRCConnector mrc;
         try {
             mrc = new MRCConnector(node);
         } catch (Exception e) {
-            return "<font color=\"red\"><strong><li>MRC ERROR: Unable to connect to server "
-                    + node.getHost()
-                    + ": "
-                    + e.getMessage()
-                    + "</li></strong></font>";
+            addErrorMessage(request, MessageFormat.format(getLocalizedString("errorMsg05", request), node.getHost()), e.getMessage());
+            return;
 
         }
         // tell the mrc-server to stop tracking some mbean
         try {
             if (mrc.stopTrackingMbean(mbean)) {
                 String mbarr[] = mbean.split("name=");
-                return "<font color=\"green\"><strong><li>MBean " + mbarr[1]
-                        + " removed from tracking on server "
-                        + node.getName() + "</li></strong></font>";
+                addInfoMessage(request, MessageFormat.format(getLocalizedString("infoMsg05", request), mbarr[1], node.getHost()));
             } else {
                 String mbarr[] = mbean.split("name=");
-                return "<font color=\"red\"><strong><li>ERROR: MBean "
-                        + mbarr[1]
-                        + " could <b>NOT</b> be removed from tracking on server "
-                        + node.getName() + "</li></strong></font>";
+                addErrorMessage(request, MessageFormat.format(getLocalizedString("errorMsg06", request), mbarr[1], node.getHost()));
             }
         } catch (Exception e) {
-            return "<font color=\"red\"><strong><li>MRC ERROR: MBean " + mbean
-                    + " could <b>NOT</b> be removed from tracking on server "
-                    + node.getHost() + ": " + e.getMessage()
-                    + "</li></strong></font>";
+            addErrorMessage(request, MessageFormat.format(getLocalizedString("errorMsg06", request), mbean, node.getHost()), e.getMessage());
         }
     }
 
-    private String stopThread(String server_id) {
+    private void stopThread(String server_id, PortletRequest request) {
         Node node;
         try {
             node = getNodeByName(server_id);
         } catch (PortletException e) {
             log.info("error", e);
-            return "<font color=\"red\"><strong><li>DATABASE ERROR: Server id "
-                        + server_id
-                        + " not found in database</li></strong></font>";
+            addErrorMessage(request, MessageFormat.format(getLocalizedString("errorMsg08", request), server_id), e.getMessage());
+            return;
         }
         try {
             MRCConnector mrc = new MRCConnector(node);
             if (mrc.stopSnapshotThread()) {
-                return "<font color=\"green\"><strong><li>Snapshot thread stopped on server "
-                        + server_id + "</li></strong></font>";
+                addInfoMessage(request, MessageFormat.format(getLocalizedString("infoMsg06", request), server_id));
             } else {
-                return "<font color=\"red\"><strong><li>ERROR: Snapshot thread could <b>NOT</b> be stopped on server "
-                        + server_id + "</li></strong></font>";
+            	addErrorMessage(request, MessageFormat.format(getLocalizedString("errorMsg09", request), server_id));
             }
         } catch (Exception e) {
-            return "<font color=\"red\"><strong><li>MRC ERROR: Snapshot thread could <b>NOT</b> be stopped on server "
-                    + server_id
-                    + ": "
-                    + e.getMessage()
-                    + "</li></strong></font>";
-
+        	addErrorMessage(request, MessageFormat.format(getLocalizedString("errorMsg09", request), server_id), e.getMessage());
         }
     }
 
-    private String startThread(String server_id, Long snapshotDuration) {
+    private void startThread(String server_id, Long snapshotDuration, PortletRequest request) {
         Node node;
         try {
             node = getNodeByName(server_id);
         } catch (PortletException e) {
             log.info("error", e);
-            return "<font color=\"red\"><strong><li>DATABASE ERROR: Server id "
-                        + server_id
-                        + " not found in database</li></strong></font>";
+            addErrorMessage(request, MessageFormat.format(getLocalizedString("errorMsg08", request), server_id), e.getMessage());
+            return;
         }
         try {
             MRCConnector mrc = new MRCConnector(node);
             if (mrc.startSnapshotThread(snapshotDuration)) {
-                return "<font color=\"green\"><strong><li>Snapshot thread started on server "
-                        + server_id + "</li></strong></font>";
+                addInfoMessage(request, MessageFormat.format(getLocalizedString("infoMsg07", request), server_id));
             } else {
-                return "<font color=\"red\"><strong><li>ERROR: Snapshot thread could <b>NOT</b> be started on server "
-                        + server_id + "</li></strong></font>";
+            	addErrorMessage(request, MessageFormat.format(getLocalizedString("errorMsg10", request), server_id));
             }
         } catch (Exception e) {
-            return "<font color=\"red\"><strong><li>MRC ERROR: Snapshot thread could <b>NOT</b> be started on server "
-                    + server_id
-                    + ": "
-                    + e.getMessage()
-                    + "</li></strong></font>";
+        	addErrorMessage(request, MessageFormat.format(getLocalizedString("errorMsg10", request), server_id), e.getMessage());
 
         }
     }

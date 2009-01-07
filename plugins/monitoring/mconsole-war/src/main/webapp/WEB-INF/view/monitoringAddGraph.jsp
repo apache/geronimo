@@ -17,6 +17,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<%@ taglib uri="/WEB-INF/CommonMsg.tld" prefix="CommonMsg"%>
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.Map" %>
@@ -28,9 +29,6 @@
 <portlet:defineObjects/>
 
 <%
-    String message = (String) request.getAttribute("message");
-    if (message == null)
-        message = "";
     String mbean = (String) request.getAttribute("mbean");
     if (mbean == null)
         mbean = "";
@@ -382,14 +380,9 @@ function updateFormula()
 //-->
 </script>
 <!-- </head> -->
-<%
-    if (!message.equals("")) {
-%>
-<div align="left" style="width: 500px"><%=message%><br>
-</div>
-<%
-    }
-%>
+
+<CommonMsg:commonMsg/><br>
+
 <table>
 <tr>
 <!-- Body -->

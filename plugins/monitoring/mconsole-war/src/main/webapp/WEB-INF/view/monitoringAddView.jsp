@@ -17,6 +17,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<%@ taglib uri="/WEB-INF/CommonMsg.tld" prefix="CommonMsg"%>
 <%@ page import="java.util.List" %>
 <%@ page import="org.apache.geronimo.monitoring.console.Constants" %>
 <%@ page import="org.apache.geronimo.monitoring.console.data.Graph" %>
@@ -24,15 +25,6 @@
 <fmt:setBundle basename="monitor-portlet"/>
 <portlet:defineObjects/>
 
-<%
-
-String message = (String) request.getAttribute("message");
-
-
-if (message == null)
-    message = new String("");
-
-%>
 <!-- <head> -->
     <script type='text/javascript' src='<%=Constants.DOJO_JS%>'>
     </script>
@@ -62,14 +54,8 @@ function openNewWindow(theURL,winName,features) {
 </script>
 <!-- </head> -->
         
-            <%
- if (!message.equals(""))
- {
- %>
-<div align="left" style="width: 650px">
-<%=message %><br>
-</div>
-<%} %>
+<CommonMsg:commonMsg/><br>
+
 <table>
     <tr>
         <!-- Body -->

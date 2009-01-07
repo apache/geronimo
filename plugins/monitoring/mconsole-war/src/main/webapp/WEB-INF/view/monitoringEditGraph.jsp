@@ -17,6 +17,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<%@ taglib uri="/WEB-INF/CommonMsg.tld" prefix="CommonMsg"%>
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="java.util.Iterator" %>
 <%@ page import="java.util.List" %>
@@ -29,10 +30,6 @@
 <portlet:defineObjects/>
 
 <%
-
-    String message = (String) request.getAttribute("message");
-    if (message == null)
-        message = "";
     Graph graph = (Graph) request.getAttribute("graph");
     List<Node> nodes = (List<Node>) request.getAttribute("nodes");
 
@@ -395,14 +392,8 @@ function addOption(selectbox, value, text )
 </script>
 <!-- </head> -->
         
-            <%
- if (!message.equals(""))
- {
- %>
-<div align="left" style="width: 500px">
-<%=message %><br>
-</div>
-<%} %>
+<CommonMsg:commonMsg/><br>
+
 <table>
     <tr>
         <!-- Body -->

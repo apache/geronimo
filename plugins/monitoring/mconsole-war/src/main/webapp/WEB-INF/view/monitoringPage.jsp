@@ -17,6 +17,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<%@ taglib uri="/WEB-INF/CommonMsg.tld" prefix="CommonMsg"%>
 <%@ page import="java.util.List" %>
 <%@ page import="org.apache.geronimo.monitoring.console.Constants" %>
 <%@ page import="org.apache.geronimo.monitoring.console.StatsGraph" %>
@@ -25,8 +26,6 @@
 <portlet:defineObjects/>
 
 <%
-String errors = "";
-
     View view = (View) request.getAttribute("view");
     List<StatsGraph> statsGraphs = (List<StatsGraph>) request.getAttribute("statsGraphs");
     if (view != null && statsGraphs != null) {
@@ -67,6 +66,8 @@ timerID = setTimeout("refreshPeriodic()",300000);
     </script>
 <!-- </head> -->
 
+<CommonMsg:commonMsg/><br>
+
 <table>
     <tr>
         <!-- Body -->
@@ -93,14 +94,6 @@ for (StatsGraph graph : statsGraphs)
 catch (Exception e)
 {
     
-}
-if (!errors.equals(""))
-{
-    %>
-    <ul>
-    <font color="red"><%=errors%></font>
-    </ul>
-    <%
 }
 %>
 

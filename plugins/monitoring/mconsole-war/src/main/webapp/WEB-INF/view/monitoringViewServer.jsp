@@ -17,6 +17,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<%@ taglib uri="/WEB-INF/CommonMsg.tld" prefix="CommonMsg"%>
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="java.util.HashMap" %>
 <%@ page import="java.util.Iterator" %>
@@ -28,18 +29,26 @@
 <fmt:setBundle basename="monitor-portlet"/>
 <portlet:defineObjects/>
 
-<%
+<!-- <head> -->
+        <script type = "text/javascript">
+<!--
+function hide(x) {
+document.getElementById(x).style.display='none';
+}
+function show(x) {
+document.getElementById(x).style.display='';
+}
+//-->
+</script>
+<!-- </head> -->
 
-String message = (String) request.getAttribute("message");
+<%
 
 MRCConnector mrc = null;
 
 boolean isOnline = true;
 Integer collecting = 0;
 Long snapshotDuration = new Long(0);
-
-if (message == null)
-    message = new String("");
 
     Node node = (Node) request.getAttribute("node");
 if (node != null) {
@@ -56,30 +65,12 @@ if (node != null) {
     } catch (Exception e) {
         isOnline = false;
         collecting = 0;
-        message = message + "<br><font color='red'><strong><li>Server is offline</li></strong></font>";
     }
     
 %>
-<!-- <head> -->
-        <script type = "text/javascript">
-<!--
-function hide(x) {
-document.getElementById(x).style.display='none';
-}
-function show(x) {
-document.getElementById(x).style.display='';
-}
-//-->
-</script>
-<!-- </head> -->
-            <%
- if (!message.equals(""))
- {
- %>
-<div align="left" style="width: 500px">
-<%=message %><br>
-</div>
-<%} %>
+
+<CommonMsg:commonMsg/><br>
+
 <table>
     <tr>
         <!-- Body -->
