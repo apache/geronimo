@@ -152,7 +152,7 @@ public class GBeanInstanceState {
         State originalState;
         synchronized (this) {
             originalState = getStateInstance();
-            if (originalState == State.STOPPED) {
+            if (originalState == State.STOPPED || originalState == State.FAILED) {
                 return;
             }
 
