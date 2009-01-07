@@ -78,6 +78,7 @@
         <module>jaxws-war</module>
         <module>jaxws-client</module>
         <module>jaxws-ejb</module>
+        <module>jaxws-ejb-sec</module>
         <module>jaxws-rest-war</module>
         <module>jaxws-partial</module>
     </modules>
