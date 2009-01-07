@@ -26,6 +26,7 @@ import javax.portlet.RenderResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.apache.geronimo.console.BasePortlet;
 import org.apache.geronimo.console.MultiPageModel;
 import org.apache.geronimo.console.configcreator.configData.WARConfigData;
 
@@ -37,8 +38,8 @@ import org.apache.geronimo.console.configcreator.configData.WARConfigData;
 public class ReferencesHandler extends AbstractHandler {
     private static final Logger log = LoggerFactory.getLogger(ReferencesHandler.class);
 
-    public ReferencesHandler() {
-        super(REFERENCES_MODE, "/WEB-INF/view/configcreator/references.jsp");
+    public ReferencesHandler(BasePortlet portlet) {
+        super(REFERENCES_MODE, "/WEB-INF/view/configcreator/references.jsp", portlet);
     }
 
     public String actionBeforeView(ActionRequest request, ActionResponse response, MultiPageModel model)
@@ -62,6 +63,7 @@ public class ReferencesHandler extends AbstractHandler {
         WARConfigData data = getWARSessionData(request);
         data.readReferencesData(request);
         if (data.isReferenceNotResolved()) {
+            portlet.addErrorMessage(request, portlet.getLocalizedString("errorMsg03", request));
             return getMode() + "-before";
         }
         if (data.getSecurity() != null) {

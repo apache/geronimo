@@ -42,7 +42,7 @@ public class JMSResourcePortlet extends MultiPagePortlet {
         addHelper(new ReviewHandler(), config);
         addHelper(new ViewMessageHandler(), config);
         addHelper(new MessageDetailsHandler(), config);
-        addHelper(new SendMessageHandler(), config);
+        addHelper(new SendMessageHandler(this), config);
     }
 
     protected String getModelJSPVariableName() {

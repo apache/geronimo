@@ -20,13 +20,11 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<%@ taglib uri="/WEB-INF/CommonMsg.tld" prefix="CommonMsg" %>
 <fmt:setBundle basename="plancreator-portlet"/>
 <portlet:defineObjects />
 
-<!-- Archive uploaded is not a WAR -->
-<c:if test="${!(empty archiveNotSupported)}">
-  <br /><fmt:message key="plancreator.archive.archiveErr"/> <br /> <br />
-</c:if>
+<CommonMsg:commonMsg/><br>
 
 <form enctype="multipart/form-data" name="<portlet:namespace/>GetArchiveForm" action="<portlet:actionURL/>" method="POST">
   <input type="hidden" name="mode" value="index-after" />

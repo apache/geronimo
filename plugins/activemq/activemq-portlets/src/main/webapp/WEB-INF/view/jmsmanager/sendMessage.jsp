@@ -17,18 +17,13 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%> 
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<%@ taglib uri="/WEB-INF/CommonMsg.tld" prefix="CommonMsg"%>  
 <fmt:setBundle basename="activemq"/> 
 <portlet:defineObjects/>
 
-<c:choose>
-	<c:when test="${status == 'error'}">
-		<p><fmt:message key="jmsmanager.sendmessage.error" /></p>
-	</c:when>
-	<c:when test="${status == 'success'}">
-		<p><fmt:message key="jmsmanager.sendmessage.success" /></p>
-	</c:when>
-</c:choose>
+<CommonMsg:commonMsg/><br>
+
 <!-- <p><fmt:message key="jmsmanager.sendmessage.title" /></p> -->
 
 <!--   FORM TO COLLECT DATA FOR THIS PAGE   -->

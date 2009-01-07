@@ -30,6 +30,7 @@ import javax.portlet.RenderResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.apache.geronimo.console.BasePortlet;
 import org.apache.geronimo.console.MultiPageModel;
 import org.apache.geronimo.console.configcreator.configData.WARConfigData;
 
@@ -41,8 +42,8 @@ import org.apache.geronimo.console.configcreator.configData.WARConfigData;
 public class DeployStatusHandler extends AbstractHandler {
     private static final Logger log = LoggerFactory.getLogger(DeployStatusHandler.class);
 
-    public DeployStatusHandler() {
-        super(DEPLOY_STATUS_MODE, "/WEB-INF/view/configcreator/deployStatus.jsp");
+    public DeployStatusHandler(BasePortlet portlet) {
+        super(DEPLOY_STATUS_MODE, "/WEB-INF/view/configcreator/deployStatus.jsp", portlet);
     }
 
     public String actionBeforeView(ActionRequest request, ActionResponse response, MultiPageModel model)
@@ -63,8 +64,12 @@ public class DeployStatusHandler extends AbstractHandler {
             out.close();
 
             String[] status = JSR88_Util.deploy(request, moduleFile, planFile);
-            request.setAttribute(DEPLOY_ABBR_STATUS_PARAMETER, status[0]);
-            request.setAttribute(DEPLOY_FULL_STATUS_PARAMETER, status[1]);
+            if (null != status[1] && 0 != status[1].length()) {
+                portlet.addErrorMessage(request, portlet.getLocalizedString(status[0], request), status[1]);
+            }
+            else {
+                portlet.addInfoMessage(request, portlet.getLocalizedString(status[0], request));
+            }
         } catch (URISyntaxException e) {
             log.error(e.getMessage(), e);
         }

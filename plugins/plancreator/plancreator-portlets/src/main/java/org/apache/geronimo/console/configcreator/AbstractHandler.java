@@ -22,6 +22,7 @@ import javax.portlet.PortletSession;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.apache.geronimo.console.BasePortlet;
 import org.apache.geronimo.console.MultiPageAbstractHandler;
 import org.apache.geronimo.console.MultiPageModel;
 import org.apache.geronimo.console.configcreator.configData.EARConfigData;
@@ -88,16 +89,12 @@ public abstract class AbstractHandler extends MultiPageAbstractHandler {
 
     protected final static String SELECTED_LIBS_PARAMETER = "selectedLibs";
 
-    protected final static String DEPLOY_ABBR_STATUS_PARAMETER = "abbrStatusMessage";
-
-    protected final static String DEPLOY_FULL_STATUS_PARAMETER = "fullStatusMessage";
-
-    protected final static String ARCHIVE_NOT_SUPPORTED_PARAMETER = "archiveNotSupported";
-
-    protected final static String REFERENCE_NOT_RESOLVED_PARAMETER = "referenceNotResolved";
-
     public AbstractHandler(String mode, String viewName) {
         super(mode, viewName);
+    }
+    
+    public AbstractHandler(String mode, String viewName, BasePortlet portlet) {
+        super(mode, viewName, portlet);
     }
 
     public static class TempConfigModel implements MultiPageModel {

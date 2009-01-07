@@ -38,6 +38,8 @@ limitations under the License.
         </supports>
 
         <supported-locale>en</supported-locale>
+        <supported-locale>zh</supported-locale>
+        <resource-bundle>portletinfo</resource-bundle>
 
         <portlet-info>
             <title>EJB Server</title>

@@ -34,6 +34,8 @@ limitations under the License.
             <portlet-mode>HELP</portlet-mode>
         </supports>
         <supported-locale>en</supported-locale>
+        <supported-locale>zh</supported-locale>
+        <resource-bundle>portletinfo</resource-bundle>
         <portlet-info>
             <title>JMS Server Manager</title>
             <short-title>JMS Servers</short-title>
@@ -53,6 +55,8 @@ limitations under the License.
             <portlet-mode>HELP</portlet-mode>
         </supports>
         <supported-locale>en</supported-locale>
+        <supported-locale>zh</supported-locale>
+        <resource-bundle>portletinfo</resource-bundle>
         <portlet-info>
             <title>JMS Network Listeners</title>
             <short-title>JMS Listeners</short-title>
@@ -71,6 +75,8 @@ limitations under the License.
             <portlet-mode>VIEW</portlet-mode>
         </supports>
         <supported-locale>en</supported-locale>
+        <supported-locale>zh</supported-locale>
+        <resource-bundle>portletinfo</resource-bundle>
         <portlet-info>
             <title>JMS Resources</title>
             <short-title>JMS Resources</short-title>

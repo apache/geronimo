@@ -34,6 +34,8 @@ limitations under the License.
             <portlet-mode>HELP</portlet-mode>
         </supports>
         <supported-locale>en</supported-locale>
+        <supported-locale>zh</supported-locale>
+        <resource-bundle>portletinfo</resource-bundle>
         <portlet-info>
             <title>DB Info</title>
             <short-title>DB Info</short-title>
@@ -53,6 +55,8 @@ limitations under the License.
             <portlet-mode>HELP</portlet-mode>
         </supports>
         <supported-locale>en</supported-locale>
+        <supported-locale>zh</supported-locale>
+        <resource-bundle>portletinfo</resource-bundle>
         <portlet-info>
             <title>DB Viewer</title>
             <short-title>DB Viewer</short-title>
@@ -72,6 +76,8 @@ limitations under the License.
             <portlet-mode>HELP</portlet-mode>
         </supports>
         <supported-locale>en</supported-locale>
+        <supported-locale>zh</supported-locale>
+        <resource-bundle>portletinfo</resource-bundle>
         <portlet-info>
             <title>Derby Log Viewer</title>
             <short-title>Derby Log Viewer</short-title>
@@ -91,6 +97,8 @@ limitations under the License.
             <portlet-mode>HELP</portlet-mode>
         </supports>
         <supported-locale>en</supported-locale>
+        <supported-locale>zh</supported-locale>
+        <resource-bundle>portletinfo</resource-bundle>
         <portlet-info>
             <title>Run SQL</title>
             <short-title>Run SQL</short-title>
@@ -114,6 +122,8 @@ limitations under the License.
             <portlet-mode>HELP</portlet-mode>
         </supports>
         <supported-locale>en</supported-locale>
+        <supported-locale>zh</supported-locale>
+        <resource-bundle>portletinfo</resource-bundle>
         <portlet-info>
             <title>Run SQL</title>
             <short-title>Run SQL</short-title>
@@ -136,6 +146,8 @@ limitations under the License.
             <portlet-mode>VIEW</portlet-mode>
         </supports>
         <supported-locale>en</supported-locale>
+        <supported-locale>zh</supported-locale>
+        <resource-bundle>portletinfo</resource-bundle>
         <portlet-info>
             <title>Database Pools</title>
             <short-title>Database Pools</short-title>

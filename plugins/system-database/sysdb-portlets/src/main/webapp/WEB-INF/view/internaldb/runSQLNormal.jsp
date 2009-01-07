@@ -19,6 +19,7 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="portlet" uri="http://java.sun.com/portlet" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<%@ taglib uri="/WEB-INF/CommonMsg.tld" prefix="CommonMsg" %>
 <fmt:setBundle basename="systemdatabase"/>
 <portlet:defineObjects/>
 
@@ -43,6 +44,8 @@ function <portlet:namespace/>validateForm3(){
     return textElementsNotEmpty(<portlet:namespace/>formName, <portlet:namespace/>requiredFields2);
 }
 </script>
+
+<CommonMsg:commonMsg/><br>
 
 <form name="<portlet:namespace/>DBForm" action="<portlet:actionURL portletMode='view'/>" method="post">
 <input type="hidden" name="action" value="" />
@@ -98,14 +101,6 @@ function <portlet:namespace/>validateForm3(){
     <td><textarea name="sqlStmts" id="<portlet:namespace/>sqlStmts" cols="65" rows="15"><c:out value="${sqlStmts}" /></textarea></td>
   </tr>
 </table>
-
-<%-- Display action result --%>
-<c:if test="${!empty actionResult}">
-  <fmt:message key="internaldb.common.result"/>:
-  <hr>
-  <c:out value="${actionResult}" />
-  <hr>
-</c:if>
 
 <table width="100%"  border="0">
   <tr>
