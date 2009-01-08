@@ -107,7 +107,7 @@ function <portlet:namespace/>validateForm(){
       </tr>
     <c:if test="${optionMap[option].password}">
       <tr>
-        <th style="min-width: 140px"><div align="right"><label for="<portlet:namespace/>confirm-option-${option}">Confirm password</label>:</div></th>
+        <th style="min-width: 140px"><div align="right"><label for="<portlet:namespace/>confirm-option-${option}"><fmt:message key="consolebase.common.confirmPassword"/></label>:</div></th>
         <td><input name="confirm-option-${option}" id="<portlet:namespace/>confirm-option-${option}" type="password"
                    size="${optionMap[option].length}" value="${realm.options[option]}"></td>
       </tr>

@@ -214,7 +214,7 @@ function toggleShowDependenciesMode() {
 
 </script>
 
-<CommonMsg:commonMsg/><br>
+<CommonMsg:commonMsg/>
 
 <br/>
 <form name="checkExpert">
@@ -335,8 +335,6 @@ function toggleShowDependenciesMode() {
       </tr>
   </c:forEach>
 </table>
-
-<br />
 
 <script>
 // Call to set initial expert mode actions correctly 

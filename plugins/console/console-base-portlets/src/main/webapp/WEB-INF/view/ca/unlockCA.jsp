@@ -41,7 +41,7 @@ function <portlet:namespace/>validateForm(){
     <input type="hidden" name="mode" value="unlockCA-after" />
     <b><label for="<portlet:namespace/>password"><fmt:message key="ca.unlockCA.enterCAPrivateKeyPassword"/></label>:</b>
     <input type="password" name="password" id="<portlet:namespace/>password" size="20" maxlength="200" />
-    <br />
+    <br /><br />
 
     <input type="submit" value='<fmt:message key="ca.common.unlockCertAuthority"/>' onClick="return <portlet:namespace/>validateForm();"/>
     <input type="reset" name="reset" value='<fmt:message key="consolebase.common.reset"/>'>

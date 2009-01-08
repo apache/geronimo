@@ -166,7 +166,7 @@ function openNewWindow(theURL,winName,features) {
             <table width="100%" style="border-bottom: 1px solid #2581c7;" cellspacing="1" cellpadding="1">
                 <tr>
                     <td class="DarkBackground" align="left" nowrap>
-                        <font face="Verdana" size="+1"><fmt:message key="monitor.common.next"/><fmt:message key="monitor.common.action"/></font>
+                        <font face="Verdana" size="+1"><fmt:message key="monitor.common.action"/></font>
                     </td>
                 </tr>
                 <tr>

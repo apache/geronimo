@@ -20,7 +20,7 @@
 <fmt:setBundle basename="consolebase"/>
 <portlet:defineObjects/>
 
-<p><fmt:message key="threads.monitor.title"><fmt:param value="${poolName}"/></fmt:message>:</p>
+<p><fmt:message key="threads.monitor.title"><fmt:param value="${poolName}"/></fmt:message></p>
 
 <table>
   <tr>

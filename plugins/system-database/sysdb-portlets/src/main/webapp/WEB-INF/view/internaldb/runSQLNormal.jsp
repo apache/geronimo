@@ -88,7 +88,7 @@ function <portlet:namespace/>validateForm3(){
         <option value="${dsName}"<c:if test="${useDB==dsName}"> selected="selected"</c:if>>${dsName}</option>
       </c:forEach>
       </select>&nbsp;
-      <input type="submit" value="Run SQL" onClick="return <portlet:namespace/>validateForm3();"></td>
+      <input type="submit" value="<fmt:message key="internaldb.runSQLNormal.runSQL"/>" onClick="return <portlet:namespace/>validateForm3();"></td>
   </tr>
  </c:otherwise>
 </c:choose>

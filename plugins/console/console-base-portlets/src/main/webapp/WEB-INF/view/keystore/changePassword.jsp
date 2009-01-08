@@ -82,12 +82,12 @@ function <portlet:namespace/>validateForm(){
                         <portlet:param name="mode" value="certificateDetails-before" />
                         <portlet:param name="id" value="${keystore}" />
                         <portlet:param name="alias" value="${alias}" />
-                    </portlet:actionURL>">Cancel</a></p>
+                    </portlet:actionURL>"><fmt:message key="consolebase.common.cancel"/></a></p>
     </c:when>
     <c:otherwise>
         <p><a href="<portlet:actionURL portletMode="view">
                         <portlet:param name="mode" value="viewKeystore-before" />
                         <portlet:param name="id" value="${keystore}" />
-                    </portlet:actionURL>">Cancel</a></p>
+                    </portlet:actionURL>"><fmt:message key="consolebase.common.cancel"/></a></p>
     </c:otherwise>
 </c:choose>

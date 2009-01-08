@@ -138,7 +138,7 @@ function <portlet:namespace/>validateForm(){
             </c:otherwise>
         </c:choose>
         <tr>
-            <th class="${backgroundClass}" align="right"><fmt:message key="ca.common.fingerPrintst"/>:</th>
+            <th class="${backgroundClass}" align="right"><fmt:message key="ca.common.fingerPrints"/>:</th>
             <td class="${backgroundClass}">
   <c:forEach items="${fingerPrints}" var="fp">
                 ${fp.key} = &nbsp; ${fp.value} <br/>

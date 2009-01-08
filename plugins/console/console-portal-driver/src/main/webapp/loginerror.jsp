@@ -56,11 +56,11 @@
     <tr>
       <td width="30%" >&nbsp;</td>
       <td class="Body" align="CENTER" valign="top">
-        <table align="center" cellspacing="0" cellpadding="0" width="550" border="0" valign="top" style="background-color:#F7F7F7; border:1px solid #88A4D7; font-family:Verdana,Helvetica,sans-serif; font-size:100%;">
+        <table align="center" cellspacing="0" cellpadding="0" width="550" border="0" valign="top" style="background-color:#F7F7F7; border:1px solid #88A4D7;">
           <tbody>
             <tr valign="top">
               <td style="width: 20px;"><img height="16" align="baseline" width="16" title="Error" alt="Error" src="/console/images/msg_error.gif"/></td>
-              <td><span style="color:#CC0000; font-family:Verdana,Helvetica,sans-serif;"><fmt:message key="console.login_error.invalid"/></span></td>
+              <td><span style="color:#CC0000; font-family:Verdana,Helvetica,sans-serif; font-size:120%;"><fmt:message key="console.login_error.invalid"/></span></td>
             </tr>
           </tbody>
         </table>

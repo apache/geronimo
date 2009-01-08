@@ -37,7 +37,7 @@
 </ul>
 </p>
 <h3><fmt:message key="portlet.openejb.help.containerinfo"/></h3>
-<p><fmt:message key="portlet.openejb.help.containerinfodesc"/>:
+<p><fmt:message key="portlet.openejb.help.containerinfodesc"/>
 <ul>
   <li><b><fmt:message key="portlet.openejb.help.statelesscontainer"/></b>
     <ul>

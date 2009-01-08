@@ -21,7 +21,7 @@
 <fmt:setBundle basename="consolebase"/>
 <portlet:defineObjects/>
 
-<CommonMsg:commonMsg/>
+<CommonMsg:commonMsg/><br>
 
 <c:if test="${statsOn}">
 <table width="100%" class="TableLine" summary="Statistic">

@@ -56,7 +56,7 @@
 <portlet:param name="mode" value="changePassword-before" />
 <portlet:param name="keystore" value="${id}" />
 <portlet:param name="alias" value="${alias}" /></portlet:actionURL>">
-Change key password</a></td>
+<fmt:message key="keystore.certificateDetails.changeKeyPwd"/></a></td>
 </c:if>
 
 <td>

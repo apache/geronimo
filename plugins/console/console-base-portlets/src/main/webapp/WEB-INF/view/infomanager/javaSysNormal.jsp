@@ -129,7 +129,7 @@
 </table>
 <br/>
 
-<b><fmt:message key="consolebase.common.virtualMachine"/>:</b>
+<b><fmt:message key="infomanager.javaSysNormal.virtualMachine"/>:</b>
 <table width="100%" class="TableLine" summary="Virtual Machine">
   <tr>
     <th scope="col" class="DarkBackground" width="20%" align="center"><fmt:message key="consolebase.common.item"/></th>
@@ -166,7 +166,7 @@
 </table>
 <br/>
 
-<b><fmt:message key="consolebase.common.operatingSystem"/>:</b>
+<b><fmt:message key="infomanager.javaSysNormal.operatingSystem"/>:</b>
 <table width="100%" class="TableLine" summary="Operating System">
   <tr>
     <th scope="col" class="DarkBackground" width="20%" align="center"><fmt:message key="consolebase.common.item"/></th>
@@ -243,7 +243,7 @@
 </table>
 <br/>
 
-<b><fmt:message key="consolebase.common.user"/>:</b>
+<b><fmt:message key="infomanager.javaSysNormal.user"/>:</b>
 <table width="100%" class="TableLine" summary="User">
   <tr>
     <th scope="col" class="DarkBackground" width="20%" align="center"><fmt:message key="consolebase.common.item"/></th>
@@ -280,7 +280,7 @@
 </table>
 <br/>
 
-<b><fmt:message key="consolebase.common.etc"/>:</b>
+<b><fmt:message key="infomanager.javaSysNormal.etc"/>:</b>
 <table width="100%" class="TableLine" summary="Etc">
   <tr>
     <th scope="col" class="DarkBackground" width="20%" align="center"><fmt:message key="consolebase.common.item"/></th>

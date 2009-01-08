@@ -178,7 +178,7 @@ function <portlet:namespace/>validateForm(){
                     </tr>
                     <tr>
                         <td colspan="4" align="left">
-                            <input type="submit" value="Filter Log"/>
+                            <input type="submit" value="<fmt:message key="webaccesslogmanager.common.filterLog"/>"/>
                         </td>
                     </tr>
                 </table>

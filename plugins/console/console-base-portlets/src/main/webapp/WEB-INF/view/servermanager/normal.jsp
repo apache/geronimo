@@ -23,9 +23,9 @@
 
 <table width="100%" border="0" cellspacing="0" cellpadding="0">    
   <tr>
-    <td width="15%" >&nbsp;</td>
+    <td width="25%" >&nbsp;</td>
     <td><CommonMsg:commonMsg/></td>
-    <td width="15%" >&nbsp;</td>
+    <td width="25%" >&nbsp;</td>
   </tr>
 </table>
 <%--   Removed until a better mechanism for rebooting the server is created
@@ -42,5 +42,4 @@
 onClick="return confirm('<fmt:message key="servermanager.normal.areYouSure"/>');" /></td></tr>
 </form>
 </table>
-<br />
 <br />

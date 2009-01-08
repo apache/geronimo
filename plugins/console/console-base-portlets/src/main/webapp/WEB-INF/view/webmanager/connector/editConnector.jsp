@@ -67,20 +67,20 @@ function <portlet:namespace/>validateForm(){
 <!-- Current Task -->
 <c:choose>
   <c:when test="${mode eq 'add'}">
-    Add a new ${connectorType}
+    <fmt:message key="webmanager.connector.editConnector.addNew"/> ${connectorType}
   </c:when>
   <c:otherwise>
-    Edit connector ${uniqueName}
+    <fmt:message key="webmanager.connector.editConnector.editConnector"/> ${uniqueName}
   </c:otherwise>
 </c:choose>
 <p>
-(<strong>*</strong> denotes a required attribute)
+<fmt:message key="webmanager.connector.editConnector.requiredAttribute"/>
 <table border="0" cellpadding="3">
 <tr>
-  <th class="DarkBackground">Attribute</th>
-  <th class="DarkBackground">Type</th>
-  <th class="DarkBackground">Value</th>
-  <th class="DarkBackground">Description</th>
+  <th class="DarkBackground"><fmt:message key="webmanager.connector.editConnector.attribute"/></th>
+  <th class="DarkBackground"><fmt:message key="webmanager.connector.editConnector.type"/></th>
+  <th class="DarkBackground"><fmt:message key="webmanager.connector.editConnector.value"/></th>
+  <th class="DarkBackground"><fmt:message key="webmanager.connector.editConnector.desc"/></th>
 </tr>
 <tr>
   <td class="LightBackground"><strong>*<fmt:message key="webmanager.common.uniqueName"/></strong></td>
@@ -132,7 +132,7 @@ function <portlet:namespace/>validateForm(){
         </c:when>
         <c:when test="${connectorAttribute.attributeClass.simpleName eq 'Boolean'}">
 		    <td class="${style}"><input name="${connectorAttribute.attributeName}" id="<portlet:namespace/>${connectorAttribute.attributeName}" type="checkbox" 
-		    <c:if test="${connectorAttribute.value}"><label for="<portlet:namespace/>${connectorAttribute.attributeName}">checked</label></c:if>></td>
+		    <c:if test="${connectorAttribute.value}">checked</c:if> /></td>
         </c:when>
         <c:when test="${fn:containsIgnoreCase(connectorAttribute.attributeName, 'pass')}">
 		    <td class="${style}"><input name="${connectorAttribute.attributeName}" id="<portlet:namespace/>${connectorAttribute.attributeName}" type="password" size="30"

@@ -34,6 +34,7 @@
     <br />
 
     <c:if test="${mode eq 'unlockKeystore' && !empty keys}">
+        <br />
         <b><label for="<portlet:namespace/>keyAlias"><fmt:message key="keystore.common.unlockPrivateKey"/></label>:</b>
         <select name="keyAlias" id="<portlet:namespace/>keyAlias">
             <c:forEach var="alias" items="${keys}">
@@ -45,6 +46,7 @@
         <br />
     </c:if>
 
+    <br />
     <input type="submit" value='<fmt:message key="keystore.common.unlockKeystore"/>'/>
 </form>
 

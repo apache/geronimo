@@ -546,7 +546,7 @@ function addOption(selectbox, value, text )
     <tr>
       <td colspan="1" align="left"><button type="button" value="Cancel" onclick="javascript:history.go(-1)"><fmt:message key="monitor.common.cancel"/></button></td>
       <td>&nbsp;</td>
-      <td colspan="1" align="right"><input type="submit" value="Save" /></td>
+      <td colspan="1" align="right"><input type="submit" value="<fmt:message key="monitor.common.save"/>" /></td>
       <td></td>
     </tr>
   </table>

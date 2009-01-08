@@ -19,7 +19,6 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <fmt:setBundle basename="consolebase"/>
 <portlet:defineObjects/>
-<br />
 <%--   Removed until a better mechanism for rebooting the server is created
 <p>This portlet allows a warm reboot of the server or a shutdown of it.</p>
 <p>A warm reboot will shutdown all applications and services and reboot the Geronimo kernel within the same process. The Geronimo Console session will be disconnected. Reconnect after the server is back up.</p>
