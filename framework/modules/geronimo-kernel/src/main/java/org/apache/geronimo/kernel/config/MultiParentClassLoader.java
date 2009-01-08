@@ -60,7 +60,7 @@ public class MultiParentClassLoader extends URLClassLoader
     private final ClassLoader[] parents;
     private final ClassLoadingRules classLoadingRules;
     private boolean destroyed = false;
-    private Set<String> knownResources = new HashSet<String>();
+    private Set<String> resourcesNotFound = new HashSet<String>();
 
     // I used this pattern as its temporary and with the static final we get compile time 
     // optimizations.
@@ -515,7 +515,7 @@ public class MultiParentClassLoader extends URLClassLoader
     }
 
     public URL getResource(String name) {
-        if (isDestroyed() || knownResources.contains(name)) {
+        if (isDestroyed() || resourcesNotFound.contains(name)) {
             return null;
         }
 
@@ -558,8 +558,8 @@ public class MultiParentClassLoader extends URLClassLoader
         // 
         // Resource not found -- no need to search for it again
         // 
-        if (!knownResources.contains(name)) {
-            knownResources.add(name);
+        if (!resourcesNotFound.contains(name)) {
+            resourcesNotFound.add(name);
         }
 
         return null;
