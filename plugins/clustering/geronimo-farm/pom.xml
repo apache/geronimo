@@ -39,6 +39,12 @@
             <artifactId>geronimo-jmx-remoting</artifactId>
             <version>${version}</version>
         </dependency>
+        
+        <dependency>
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>geronimo-service-builder</artifactId>
+            <version>${version}</version>
+        </dependency>
 
     </dependencies>
     
