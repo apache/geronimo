@@ -96,6 +96,12 @@
             <groupId>org.apache.tomcat.extras</groupId>
             <artifactId>juli-adapters</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>

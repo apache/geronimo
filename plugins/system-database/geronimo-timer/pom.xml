@@ -58,6 +58,12 @@
             <version>${version}</version>
             <type>car</type>
         </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <scope>test</scope>
+        </dependency>    
     </dependencies>
     
 </project>

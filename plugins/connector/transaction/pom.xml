@@ -95,6 +95,16 @@
             <groupId>org.objectweb.howl</groupId>
             <artifactId>howl</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
