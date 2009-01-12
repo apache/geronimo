@@ -28,6 +28,7 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
@@ -316,13 +317,7 @@ public class Deployer implements GBeanLifecycle {
             ConfigurationStore store,
             DeploymentContext context) throws DeploymentException, IOException, Throwable {
         List<ConfigurationData> configurations = new ArrayList<ConfigurationData>();
-        configurations.add(context.getConfigurationData());
-        configurations.addAll(context.getAdditionalDeployment());
-
-        if (configurations.isEmpty()) {
-            throw new DeploymentException("Deployer did not create any configurations");
-        }
-
+        
         boolean configsCleanupRequired = false;
 
         // Set TCCL to the classloader for the configuration being deployed
@@ -334,6 +329,25 @@ public class Deployer implements GBeanLifecycle {
         ClassLoader oldCl = thread.getContextClassLoader();
         thread.setContextClassLoader( context.getConfiguration().getConfigurationClassLoader());
         try {
+            try {
+                configurations.add(context.getConfigurationData());
+            } catch (DeploymentException e) {
+                Configuration configuration = context.getConfiguration(); 
+                if (configuration != null) {
+                    ConfigurationData dumbConfigurationData = new ConfigurationData(null, null, null, null,
+                            configuration.getEnvironment(), context.getBaseDir(), null, context.getNaming());
+                    configurations.add(dumbConfigurationData);
+                }
+                configurations.addAll(context.getAdditionalDeployment());
+                throw e;
+            }
+            
+            configurations.addAll(context.getAdditionalDeployment());
+
+            if (configurations.isEmpty()) {
+                throw new DeploymentException("Deployer did not create any configurations");
+            }
+
             if (targetFile != null) {
                 if (configurations.size() > 1) {
                     throw new DeploymentException("Deployer created more than one configuration");
