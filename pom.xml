@@ -96,7 +96,7 @@
         <!--<connectorSuffix>-1_6</connectorSuffix>-->
         <connectorSpec>geronimo-j2ee-connector_1.5_spec</connectorSpec>
         <!--<connectorSpec>geronimo-j2ee-connector_1.6_spec</connectorSpec>-->
-        <txmanagerVersion>2.1.1</txmanagerVersion>
+        <txmanagerVersion>2.1.2-SNAPSHOT</txmanagerVersion>
         <!--<txmanagerVersion>2.2-SNAPSHOT</txmanagerVersion>-->
         <monitoringConsoleVersion>2.2-SNAPSHOT</monitoringConsoleVersion>
 
