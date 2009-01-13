@@ -19,10 +19,7 @@ limitations under the License.
 <%@ taglib uri="http://java.sun.com/jstl/core" prefix="c" %>
 <%@ taglib uri="http://portals.apache.org/pluto" prefix="pluto" %>
 <%@ taglib uri="http://java.sun.com/jstl/fmt_rt" prefix="fmt"%>
-<%
-    String localeName = pageContext.getRequest().getLocale().getLanguage();
-%> 
-<fmt:setLocale value="<%=localeName%>"/>
+<fmt:setLocale value="<%=request.getLocale().getLanguage()%>"/>
 <fmt:setBundle basename="org.apache.geronimo.console.i18n.ConsoleResource"/>
 
 <%@ page import="java.util.ArrayList,java.util.HashMap,org.apache.pluto.driver.services.portal.PageConfig" %>

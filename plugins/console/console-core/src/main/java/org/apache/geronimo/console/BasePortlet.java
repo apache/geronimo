@@ -53,6 +53,7 @@ public class BasePortlet extends GenericPortlet {
     protected final static String WEB_SERVER_TOMCAT = "tomcat";
     protected final static String WEB_SERVER_GENERIC = "generic";
     private static final String COMMON_MESSAGES = "commonMessages";
+    private static final String FMT_LOCALE = "javax.servlet.jsp.jstl.fmt.locale.request";
 
     protected final static String getWebServerType(Class cls) {
         Class[] intfs = cls.getInterfaces();
@@ -139,6 +140,8 @@ public class BasePortlet extends GenericPortlet {
         }
         request.getPortletSession().removeAttribute(COMMON_MESSAGES);
 
+        request.setAttribute(FMT_LOCALE, request.getLocale());
+        
         super.render(request, response);
     }
 

@@ -20,6 +20,7 @@
 <%-- $Rev$ $Date$ --%>
 
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setLocale value="<%=request.getLocale().getLanguage()%>"/>
 <fmt:setBundle basename="portaldriver"/>
 
 <html>
