@@ -18,7 +18,6 @@
 package org.apache.geronimo.console.ca;
 
 import java.io.IOException;
-import java.text.MessageFormat;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
@@ -62,10 +61,10 @@ public class ConfirmCertReqHandler extends BaseCAHandler {
         String reject = request.getParameter("reject");
         if(approve != null) {
             getCertificateRequestStore(request).setRequestVerified(requestId);
-            portlet.addInfoMessage(request, MessageFormat.format(portlet.getLocalizedString("infoMsg16", request), requestId));
+            portlet.addInfoMessage(request, portlet.getLocalizedString(request, "infoMsg16", requestId));
         } else if(reject != null) {
             getCertificateRequestStore(request).deleteRequest(requestId);
-            portlet.addInfoMessage(request, MessageFormat.format(portlet.getLocalizedString("infoMsg17", request), requestId));
+            portlet.addInfoMessage(request, portlet.getLocalizedString(request, "infoMsg17", requestId));
         }
         return LIST_REQUESTS_VERIFY_MODE+BEFORE_ACTION;
     }

@@ -20,7 +20,6 @@ package org.apache.geronimo.console.internaldb;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.text.MessageFormat;
 import java.io.File;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -53,10 +52,10 @@ public class RunSQLHelper {
         try {
             conn = DerbyConnectionUtil.getDerbyConnection(dbName,
                     DerbyConnectionUtil.CREATE_DB_PROP);
-            portlet.addInfoMessage(request, MessageFormat.format(portlet.getLocalizedString("infoMsg01", request), dbName));
+            portlet.addInfoMessage(request, portlet.getLocalizedString(request, "infoMsg01", dbName));
             return true;
         } catch (Throwable e) {
-            portlet.addErrorMessage(request, portlet.getLocalizedString("errorMsg01", request), e.getMessage());
+            portlet.addErrorMessage(request, portlet.getLocalizedString(request, "errorMsg01"), e.getMessage());
             return false;
         } finally {
             // close DB connection
@@ -65,7 +64,7 @@ public class RunSQLHelper {
                     conn.close();
                 }
             } catch (SQLException e) {
-                portlet.addErrorMessage(request, portlet.getLocalizedString("errorMsg02", request), e.getMessage());
+                portlet.addErrorMessage(request, portlet.getLocalizedString(request, "errorMsg02"), e.getMessage());
             }
         }        
     }
@@ -81,7 +80,7 @@ public class RunSQLHelper {
     public boolean deleteDB(String derbyHome, String dbName, PortletRequest request) {
         // shutdown database before deleting it
         if (!shutdownDB(dbName)) {
-            portlet.addErrorMessage(request, portlet.getLocalizedString("errorMsg03", request));
+            portlet.addErrorMessage(request, portlet.getLocalizedString(request, "errorMsg03"));
             return false;
         }
 
@@ -91,7 +90,7 @@ public class RunSQLHelper {
                     + PARENT_FOLDER + File.separatorChar + DERBY_BACKUP_FOLDER);
             if (!derbyBackupFolder.exists()) {
                 if (!derbyBackupFolder.mkdirs()) {
-                    portlet.addErrorMessage(request, portlet.getLocalizedString("errorMsg04", request));
+                    portlet.addErrorMessage(request, portlet.getLocalizedString(request, "errorMsg04"));
                     return false;
                 }
             }
@@ -111,23 +110,23 @@ public class RunSQLHelper {
                     if (newDBFolder.mkdirs()) {
                         if (!oldDBFolder.renameTo(new File(newDBFolder,
                                 oldDBFolder.getName()))) {
-                            portlet.addErrorMessage(request, portlet.getLocalizedString("errorMsg05", request));
+                            portlet.addErrorMessage(request, portlet.getLocalizedString(request, "errorMsg05"));
                             return false;
                         }
                     }
                 }
             }
-            portlet.addInfoMessage(request, MessageFormat.format(portlet.getLocalizedString("infoMsg02", request), dbName));
+            portlet.addInfoMessage(request, portlet.getLocalizedString(request, "infoMsg02", dbName));
             return true;
         } catch (Exception e) {
-            portlet.addErrorMessage(request, portlet.getLocalizedString("errorMsg06", request), e.getMessage());
+            portlet.addErrorMessage(request, portlet.getLocalizedString(request, "errorMsg06"), e.getMessage());
             return false;
         }
     }
 
     public boolean runSQL(String connName, String sql, Boolean dsConn, PortletRequest request) {
         if ((sql == null) || (sql.trim().length() == 0)) {
-            portlet.addErrorMessage(request, portlet.getLocalizedString("errorMsg07", request));
+            portlet.addErrorMessage(request, portlet.getLocalizedString(request, "errorMsg07"));
             return false;
         }
         
@@ -151,10 +150,10 @@ public class RunSQLHelper {
                 }
             }
             conn.commit();
-            portlet.addInfoMessage(request, portlet.getLocalizedString("infoMsg03", request));
+            portlet.addInfoMessage(request, portlet.getLocalizedString(request, "infoMsg03"));
             return true;
         } catch (Throwable e) {
-            portlet.addErrorMessage(request, portlet.getLocalizedString("errorMsg08", request), e.getMessage());
+            portlet.addErrorMessage(request, portlet.getLocalizedString(request, "errorMsg08"), e.getMessage());
             return false;
         } finally {
             // close DB connection
@@ -166,7 +165,7 @@ public class RunSQLHelper {
                     conn.close();
                 }
             } catch (SQLException e) {
-                portlet.addErrorMessage(request, portlet.getLocalizedString("errorMsg02", request), e.getMessage());
+                portlet.addErrorMessage(request, portlet.getLocalizedString(request, "errorMsg02"), e.getMessage());
             }
         }
     }

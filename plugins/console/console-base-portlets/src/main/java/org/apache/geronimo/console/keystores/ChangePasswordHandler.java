@@ -16,8 +16,6 @@
  */
 package org.apache.geronimo.console.keystores;
 
-import java.text.MessageFormat;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.geronimo.console.BasePortlet;
@@ -80,24 +78,24 @@ public class ChangePasswordHandler extends BaseKeystoreHandler {
                 // Keystore password is to be changed.
                 data.changeKeystorePassword(password.toCharArray(), newPassword.toCharArray());
                 response.setRenderParameter("id", keystore);
-                portlet.addInfoMessage(request, MessageFormat.format(portlet.getLocalizedString("infoMsg10", request), keystore));
+                portlet.addInfoMessage(request, portlet.getLocalizedString(request, "infoMsg10", keystore));
                 return VIEW_KEYSTORE+BEFORE_ACTION;
             } else {
                 // Private key password is to be changed.
                 data.changeKeyPassword(alias, password.toCharArray(), newPassword.toCharArray());
                 response.setRenderParameter("id", keystore);
                 response.setRenderParameter("alias", alias);
-                portlet.addInfoMessage(request, MessageFormat.format(portlet.getLocalizedString("infoMsg11", request), alias));
+                portlet.addInfoMessage(request, portlet.getLocalizedString(request, "infoMsg11", alias));
                 return CERTIFICATE_DETAILS;
             }
         } catch (Exception e) {
         	String message = "";
         	if(alias == null || alias.equals("")) {
                 message = "Unable to change password for keystore " + keystore + ".";
-                portlet.addErrorMessage(request, MessageFormat.format(portlet.getLocalizedString("errorMsg11", request), keystore), e.getMessage());
+                portlet.addErrorMessage(request, portlet.getLocalizedString(request, "errorMsg11", keystore), e.getMessage());
         	} else {
                 message = "Unable to change password for private key " + alias + ".";
-                portlet.addErrorMessage(request, MessageFormat.format(portlet.getLocalizedString("errorMsg12", request), alias), e.getMessage());
+                portlet.addErrorMessage(request, portlet.getLocalizedString(request, "errorMsg12", alias), e.getMessage());
         	}
             log.error(message, e);
             return getMode()+BEFORE_ACTION;

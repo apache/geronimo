@@ -64,7 +64,7 @@ public class CertReqDetailsHandler extends BaseCAHandler {
                 response.setRenderParameter("sNo", sNo);
             } catch (Exception e) {
                 log.error("Unable to get next serial number from CA.", e);
-                portlet.addErrorMessage(request, portlet.getLocalizedString("errorMsg21", request), e.getMessage());
+                portlet.addErrorMessage(request, portlet.getLocalizedString(request, "errorMsg21"), e.getMessage());
             }
         }
         return getMode();
@@ -115,7 +115,7 @@ public class CertReqDetailsHandler extends BaseCAHandler {
             // Go to client certificate confirmation page
             return CONFIRM_CLIENT_CERT_MODE+BEFORE_ACTION;
         } catch(Exception e) {
-            portlet.addErrorMessage(request, portlet.getLocalizedString("errorMsg22", request), e.getMessage());
+            portlet.addErrorMessage(request, portlet.getLocalizedString(request, "errorMsg22"), e.getMessage());
             log.error("Errors in user input while processing a CSR.", e);
         }
         return getMode()+BEFORE_ACTION;

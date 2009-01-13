@@ -74,7 +74,7 @@ public class ServerManagerPortlet extends BasePortlet {
             kernel.shutdown();
             System.exit(0);
         } else {
-            addWarningMessage(request, getLocalizedString("warnMsg07", request));
+            addWarningMessage(request, getLocalizedString(request, "warnMsg07"));
             normalView.include(request, response);
         }
     }

@@ -63,7 +63,7 @@ public class ReferencesHandler extends AbstractHandler {
         WARConfigData data = getWARSessionData(request);
         data.readReferencesData(request);
         if (data.isReferenceNotResolved()) {
-            portlet.addErrorMessage(request, portlet.getLocalizedString("errorMsg03", request));
+            portlet.addErrorMessage(request, portlet.getLocalizedString(request, "errorMsg03"));
             return getMode() + "-before";
         }
         if (data.getSecurity() != null) {

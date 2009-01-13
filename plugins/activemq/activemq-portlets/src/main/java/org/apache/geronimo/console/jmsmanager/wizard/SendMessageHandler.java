@@ -132,9 +132,9 @@ public class SendMessageHandler extends AbstractHandler {
             JMSMessageHelper helper = JMSMessageHelperFactory.getMessageHelper(request, adapterObjectName);
             try {
                 helper.sendMessage(request, messageInfo);
-                portlet.addInfoMessage(request, portlet.getLocalizedString("infoMsg01", request));
+                portlet.addInfoMessage(request, portlet.getLocalizedString(request, "infoMsg01"));
             } catch (Exception e) {
-                portlet.addErrorMessage(request, portlet.getLocalizedString("errorMsg01", request), e.getMessage());
+                portlet.addErrorMessage(request, portlet.getLocalizedString(request, "errorMsg01"), e.getMessage());
                 log.error("Error encountered while sending message.", e);
                 // throw new PortletException(e);
             }

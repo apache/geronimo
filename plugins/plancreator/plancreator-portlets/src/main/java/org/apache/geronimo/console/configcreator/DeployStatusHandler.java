@@ -65,10 +65,10 @@ public class DeployStatusHandler extends AbstractHandler {
 
             String[] status = JSR88_Util.deploy(request, moduleFile, planFile);
             if (null != status[1] && 0 != status[1].length()) {
-                portlet.addErrorMessage(request, portlet.getLocalizedString(status[0], request), status[1]);
+                portlet.addErrorMessage(request, portlet.getLocalizedString(request, status[0]), status[1]);
             }
             else {
-                portlet.addInfoMessage(request, portlet.getLocalizedString(status[0], request));
+                portlet.addInfoMessage(request, portlet.getLocalizedString(request, status[0]));
             }
         } catch (URISyntaxException e) {
             log.error(e.getMessage(), e);

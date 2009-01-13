@@ -19,7 +19,6 @@ package org.apache.geronimo.console.ca;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.text.MessageFormat;
 import java.util.Map;
 import java.util.Properties;
 
@@ -90,7 +89,7 @@ public class ListRequestsIssueHandler extends BaseCAHandler {
             }
             return CERT_REQ_DETAILS_MODE+BEFORE_ACTION;
         } catch(Exception e) {
-            portlet.addErrorMessage(request, MessageFormat.format(portlet.getLocalizedString("errorMsg17", request), requestId), e.getMessage());
+            portlet.addErrorMessage(request, portlet.getLocalizedString(request, "errorMsg17", requestId), e.getMessage());
             log.error("Errors while processing a Certificate Request. id="+requestId, e);
         }
         return getMode()+BEFORE_ACTION;

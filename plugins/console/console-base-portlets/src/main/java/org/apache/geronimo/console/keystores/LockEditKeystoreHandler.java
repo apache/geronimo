@@ -16,8 +16,6 @@
  */
 package org.apache.geronimo.console.keystores;
 
-import java.text.MessageFormat;
-
 import org.apache.geronimo.console.BasePortlet;
 import org.apache.geronimo.console.MultiPageModel;
 
@@ -42,7 +40,7 @@ public class LockEditKeystoreHandler extends BaseKeystoreHandler {
         String keystore = request.getParameter("keystore");
         KeystoreData data = ((KeystoreData) request.getPortletSession(true).getAttribute(KEYSTORE_DATA_PREFIX + keystore));
         data.lockEdit();
-        portlet.addInfoMessage(request, MessageFormat.format(portlet.getLocalizedString("infoMsg06", request), keystore));
+        portlet.addInfoMessage(request, portlet.getLocalizedString(request, "infoMsg06", keystore));
         return LIST_MODE+BEFORE_ACTION;
     }
 

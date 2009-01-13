@@ -84,7 +84,7 @@ public class GetArchiveHandler extends AbstractHandler {
                 return EJB_MODE + "-before";
             }
         }
-        portlet.addErrorMessage(request, portlet.getLocalizedString("errorMsg01", request));
+        portlet.addErrorMessage(request, portlet.getLocalizedString(request, "errorMsg01"));
         return getMode();
     }
 

@@ -62,7 +62,7 @@ public class ProcessCSRHandler extends BaseCAHandler {
             response.setRenderParameter("publickey", certReqMap.get(CaUtils.CERT_REQ_PUBLICKEY_OBJ).toString());
             return CERT_REQ_DETAILS_MODE+BEFORE_ACTION;
         } catch(Exception e) {
-            portlet.addErrorMessage(request, portlet.getLocalizedString("errorMsg20", request), e.getMessage());
+            portlet.addErrorMessage(request, portlet.getLocalizedString(request, "errorMsg20"), e.getMessage());
             log.error("Errors while processing a CSR.", e);
         }
         return getMode()+BEFORE_ACTION;

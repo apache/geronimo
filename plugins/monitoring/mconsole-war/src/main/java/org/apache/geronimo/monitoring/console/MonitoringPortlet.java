@@ -19,7 +19,6 @@ package org.apache.geronimo.monitoring.console;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.text.MessageFormat;
 
 import javax.annotation.Resource;
 import javax.naming.Context;
@@ -257,9 +256,9 @@ public class MonitoringPortlet extends BasePortlet {
                                   String password, int port, String protocol, PortletRequest request) {
         try {
             new MRCConnector(ip, username, password, port, protocol);
-            addInfoMessage(request, getLocalizedString("infoMsg01", request));
+            addInfoMessage(request, getLocalizedString(request, "infoMsg01"));
         } catch (Exception e) {
-            addInfoMessage(request, getLocalizedString("errorMsg01", request), e.getMessage());
+            addInfoMessage(request, getLocalizedString(request, "errorMsg01"), e.getMessage());
         }
     }
 
@@ -273,17 +272,17 @@ public class MonitoringPortlet extends BasePortlet {
                 userTransaction.commit();
             }
             if (enable) {
-                addInfoMessage(request, MessageFormat.format(getLocalizedString("infoMsg02", request), server_id));
+                addInfoMessage(request, getLocalizedString(request, "infoMsg02", server_id));
             }
             else {
-                addInfoMessage(request, MessageFormat.format(getLocalizedString("infoMsg03", request), server_id));
+                addInfoMessage(request, getLocalizedString(request, "infoMsg03", server_id));
             }
         } catch (Exception e) {
             if (enable) {
-                addErrorMessage(request, MessageFormat.format(getLocalizedString("errorMsg02", request), server_id), e.getMessage());
+                addErrorMessage(request, getLocalizedString(request, "errorMsg02", server_id), e.getMessage());
             }
             else {
-            	addErrorMessage(request, MessageFormat.format(getLocalizedString("errorMsg03", request), server_id), e.getMessage());
+            	addErrorMessage(request, getLocalizedString(request, "errorMsg03", server_id), e.getMessage());
             }
         }
     }
@@ -570,9 +569,9 @@ public class MonitoringPortlet extends BasePortlet {
             } finally {
                 userTransaction.commit();
             }
-            addInfoMessage(actionRequest, MessageFormat.format(getLocalizedString("infoMsg08", actionRequest), actionRequest.getParameter("name")));
+            addInfoMessage(actionRequest, getLocalizedString(actionRequest, "infoMsg08", actionRequest.getParameter("name")));
         } catch (Exception e) {
-        	addErrorMessage(actionRequest, MessageFormat.format(getLocalizedString("errorMsg11", actionRequest), actionRequest.getParameter("name")), e.getMessage());
+        	addErrorMessage(actionRequest, getLocalizedString(actionRequest, "errorMsg11", actionRequest.getParameter("name")), e.getMessage());
         }
 
     }
@@ -599,9 +598,9 @@ public class MonitoringPortlet extends BasePortlet {
             } finally {
                 userTransaction.commit();
             }
-            addInfoMessage(actionRequest, MessageFormat.format(getLocalizedString("infoMsg09", actionRequest), name));
+            addInfoMessage(actionRequest, getLocalizedString(actionRequest, "infoMsg09", name));
         } catch (Exception e) {
-        	addErrorMessage(actionRequest, MessageFormat.format(getLocalizedString("errorMsg12", actionRequest), name), e.getMessage());
+        	addErrorMessage(actionRequest, getLocalizedString(actionRequest, "errorMsg12", name), e.getMessage());
         }
     }
 
@@ -636,9 +635,9 @@ public class MonitoringPortlet extends BasePortlet {
             } finally {
                 userTransaction.commit();
             }
-            addInfoMessage(actionRequest, getLocalizedString("infoMsg10", actionRequest));
+            addInfoMessage(actionRequest, getLocalizedString(actionRequest, "infoMsg10"));
         } catch (Exception e) {
-        	addErrorMessage(actionRequest, getLocalizedString("errorMsg13", actionRequest), e.getMessage());
+        	addErrorMessage(actionRequest, getLocalizedString(actionRequest, "errorMsg13"), e.getMessage());
         }
     }
 
@@ -664,9 +663,9 @@ public class MonitoringPortlet extends BasePortlet {
             } finally {
                 userTransaction.commit();
             }
-            addInfoMessage(actionRequest, MessageFormat.format(getLocalizedString("infoMsg11", actionRequest), name, host));
+            addInfoMessage(actionRequest, getLocalizedString(actionRequest, "infoMsg11", name, host));
         } catch (Exception e) {
-        	addErrorMessage(actionRequest, getLocalizedString("errorMsg14", actionRequest), e.getMessage());
+        	addErrorMessage(actionRequest, getLocalizedString(actionRequest, "errorMsg14"), e.getMessage());
         }
     }
 
@@ -683,9 +682,9 @@ public class MonitoringPortlet extends BasePortlet {
             } finally {
                 userTransaction.commit();
             }
-            addInfoMessage(actionRequest, getLocalizedString("infoMsg12", actionRequest));
+            addInfoMessage(actionRequest, getLocalizedString(actionRequest, "infoMsg12"));
         } catch (Exception e) {
-        	addErrorMessage(actionRequest, getLocalizedString("errorMsg15", actionRequest), e.getMessage());
+        	addErrorMessage(actionRequest, getLocalizedString(actionRequest, "errorMsg15"), e.getMessage());
         }
     }
 
@@ -702,9 +701,9 @@ public class MonitoringPortlet extends BasePortlet {
             } finally {
                 userTransaction.commit();
             }
-            addInfoMessage(actionRequest, getLocalizedString("infoMsg13", actionRequest));
+            addInfoMessage(actionRequest, getLocalizedString(actionRequest, "infoMsg13"));
         } catch (Exception e) {
-        	addErrorMessage(actionRequest, getLocalizedString("errorMsg16", actionRequest), e.getMessage());
+        	addErrorMessage(actionRequest, getLocalizedString(actionRequest, "errorMsg16"), e.getMessage());
         }
     }
 
@@ -722,9 +721,9 @@ public class MonitoringPortlet extends BasePortlet {
             } finally {
                 userTransaction.commit();
             }
-            addInfoMessage(actionRequest, MessageFormat.format(getLocalizedString("infoMsg14", actionRequest), graph.getGraphName1()));
+            addInfoMessage(actionRequest, getLocalizedString(actionRequest, "infoMsg14", graph.getGraphName1()));
         } catch (Exception e) {
-        	addErrorMessage(actionRequest, getLocalizedString("errorMsg17", actionRequest), e.getMessage());
+        	addErrorMessage(actionRequest, getLocalizedString(actionRequest, "errorMsg17"), e.getMessage());
         }
     }
 
@@ -761,14 +760,14 @@ public class MonitoringPortlet extends BasePortlet {
                 Node node = entityManager.find(Node.class, actionRequest.getParameter("server_id"));
                 graph.setNode(node);
                 updateGraphFromRequest(actionRequest, graph);
-                addInfoMessage(actionRequest, MessageFormat.format(getLocalizedString("infoMsg15", actionRequest), graph.getGraphName1()));
+                addInfoMessage(actionRequest, getLocalizedString(actionRequest, "infoMsg15", graph.getGraphName1()));
             } finally {
                 userTransaction.commit();
             }
 
         } catch (Exception e) {
             log.info("error updating graph", e);
-            addErrorMessage(actionRequest, getLocalizedString("errorMsg18", actionRequest), e.getMessage());
+            addErrorMessage(actionRequest, getLocalizedString(actionRequest, "errorMsg18"), e.getMessage());
         }
     }
 
@@ -781,14 +780,14 @@ public class MonitoringPortlet extends BasePortlet {
             try {
                 Graph graph = entityManager.find(Graph.class, Integer.parseInt(graph_id));
                 entityManager.remove(graph);
-                addInfoMessage(actionRequest, MessageFormat.format(getLocalizedString("infoMsg16", actionRequest), graph.getGraphName1()));
+                addInfoMessage(actionRequest, getLocalizedString(actionRequest, "infoMsg16", graph.getGraphName1()));
             } finally {
                 userTransaction.commit();
             }
 
         } catch (Exception e) {
             log.info("error deleting graph", e);
-            addErrorMessage(actionRequest, getLocalizedString("errorMsg19", actionRequest), e.getMessage());
+            addErrorMessage(actionRequest, getLocalizedString(actionRequest, "errorMsg19"), e.getMessage());
         }
     }
 
@@ -797,14 +796,14 @@ public class MonitoringPortlet extends BasePortlet {
         try {
             node = getNodeByName(server_id);
         } catch (PortletException e) {
-            addInfoMessage(request, getLocalizedString("errorMsg04", request), e.getMessage());
+            addInfoMessage(request, getLocalizedString(request, "errorMsg04"), e.getMessage());
             return;
         }
         MRCConnector mrc;
         try {
             mrc = new MRCConnector(node);
         } catch (Exception e) {
-            addErrorMessage(request, MessageFormat.format(getLocalizedString("errorMsg05", request), node.getHost()), e.getMessage());
+            addErrorMessage(request, getLocalizedString(request, "errorMsg05", node.getHost()), e.getMessage());
             return;
         }
 
@@ -812,13 +811,13 @@ public class MonitoringPortlet extends BasePortlet {
         try {
             if (mrc.startTrackingMbean(mbean)) {
                 String mbarr[] = mbean.split("name=");
-                addInfoMessage(request, MessageFormat.format(getLocalizedString("infoMsg04", request), mbarr[1], node.getHost()));
+                addInfoMessage(request, getLocalizedString(request, "infoMsg04", mbarr[1], node.getHost()));
             } else {
                 String mbarr[] = mbean.split("name=");
-                addErrorMessage(request, MessageFormat.format(getLocalizedString("errorMsg06", request), mbarr[1], node.getHost()));
+                addErrorMessage(request, getLocalizedString(request, "errorMsg06", mbarr[1], node.getHost()));
             }
         } catch (Exception e) {
-            addErrorMessage(request, MessageFormat.format(getLocalizedString("errorMsg06", request), mbean, node.getHost()), e.getMessage());
+            addErrorMessage(request, getLocalizedString(request, "errorMsg06", mbean, node.getHost()), e.getMessage());
         }
     }
 
@@ -827,14 +826,14 @@ public class MonitoringPortlet extends BasePortlet {
         try {
             node = getNodeByName(server_id);
         } catch (PortletException e) {
-            addInfoMessage(request, getLocalizedString("errorMsg04", request), e.getMessage());
+            addInfoMessage(request, getLocalizedString(request, "errorMsg04"), e.getMessage());
             return;
         }
         MRCConnector mrc;
         try {
             mrc = new MRCConnector(node);
         } catch (Exception e) {
-            addErrorMessage(request, MessageFormat.format(getLocalizedString("errorMsg05", request), node.getHost()), e.getMessage());
+            addErrorMessage(request, getLocalizedString(request, "errorMsg05", node.getHost()), e.getMessage());
             return;
 
         }
@@ -842,13 +841,13 @@ public class MonitoringPortlet extends BasePortlet {
         try {
             if (mrc.stopTrackingMbean(mbean)) {
                 String mbarr[] = mbean.split("name=");
-                addInfoMessage(request, MessageFormat.format(getLocalizedString("infoMsg05", request), mbarr[1], node.getHost()));
+                addInfoMessage(request, getLocalizedString(request, "infoMsg05", mbarr[1], node.getHost()));
             } else {
                 String mbarr[] = mbean.split("name=");
-                addErrorMessage(request, MessageFormat.format(getLocalizedString("errorMsg06", request), mbarr[1], node.getHost()));
+                addErrorMessage(request, getLocalizedString(request, "errorMsg06", mbarr[1], node.getHost()));
             }
         } catch (Exception e) {
-            addErrorMessage(request, MessageFormat.format(getLocalizedString("errorMsg06", request), mbean, node.getHost()), e.getMessage());
+            addErrorMessage(request, getLocalizedString(request, "errorMsg06", mbean, node.getHost()), e.getMessage());
         }
     }
 
@@ -858,18 +857,18 @@ public class MonitoringPortlet extends BasePortlet {
             node = getNodeByName(server_id);
         } catch (PortletException e) {
             log.info("error", e);
-            addErrorMessage(request, MessageFormat.format(getLocalizedString("errorMsg08", request), server_id), e.getMessage());
+            addErrorMessage(request, getLocalizedString(request, "errorMsg08", server_id), e.getMessage());
             return;
         }
         try {
             MRCConnector mrc = new MRCConnector(node);
             if (mrc.stopSnapshotThread()) {
-                addInfoMessage(request, MessageFormat.format(getLocalizedString("infoMsg06", request), server_id));
+                addInfoMessage(request, getLocalizedString(request, "infoMsg06", server_id));
             } else {
-            	addErrorMessage(request, MessageFormat.format(getLocalizedString("errorMsg09", request), server_id));
+            	addErrorMessage(request, getLocalizedString(request, "errorMsg09", server_id));
             }
         } catch (Exception e) {
-        	addErrorMessage(request, MessageFormat.format(getLocalizedString("errorMsg09", request), server_id), e.getMessage());
+        	addErrorMessage(request, getLocalizedString(request, "errorMsg09", server_id), e.getMessage());
         }
     }
 
@@ -879,18 +878,18 @@ public class MonitoringPortlet extends BasePortlet {
             node = getNodeByName(server_id);
         } catch (PortletException e) {
             log.info("error", e);
-            addErrorMessage(request, MessageFormat.format(getLocalizedString("errorMsg08", request), server_id), e.getMessage());
+            addErrorMessage(request, getLocalizedString(request, "errorMsg08", server_id), e.getMessage());
             return;
         }
         try {
             MRCConnector mrc = new MRCConnector(node);
             if (mrc.startSnapshotThread(snapshotDuration)) {
-                addInfoMessage(request, MessageFormat.format(getLocalizedString("infoMsg07", request), server_id));
+                addInfoMessage(request, getLocalizedString(request, "infoMsg07", server_id));
             } else {
-            	addErrorMessage(request, MessageFormat.format(getLocalizedString("errorMsg10", request), server_id));
+            	addErrorMessage(request, getLocalizedString(request, "errorMsg10", server_id));
             }
         } catch (Exception e) {
-        	addErrorMessage(request, MessageFormat.format(getLocalizedString("errorMsg10", request), server_id), e.getMessage());
+        	addErrorMessage(request, getLocalizedString(request, "errorMsg10", server_id), e.getMessage());
 
         }
     }

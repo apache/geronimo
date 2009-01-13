@@ -144,7 +144,7 @@ public class SEUsersPortlet extends AbstractSecurityManagerPortlet {
                     }
                     SERealmUserHelper.deleteUser(user);
                 } catch (Exception e) {
-                    addErrorMessage(actionRequest, getLocalizedString("errorMsg04", actionRequest), e.getMessage());
+                    addErrorMessage(actionRequest, getLocalizedString(actionRequest, "errorMsg04"), e.getMessage());
                 }
             } else if ("update".equals(action)) {
                 if(password != null && !password.equals("")) {
@@ -161,7 +161,7 @@ public class SEUsersPortlet extends AbstractSecurityManagerPortlet {
                         SERealmGroupHelper.updateGroup(group, groupUsers);
                     }
                 } catch (Exception e) {
-                    addErrorMessage(actionRequest, getLocalizedString("errorMsg05", actionRequest), e.getMessage());
+                    addErrorMessage(actionRequest, getLocalizedString(actionRequest, "errorMsg05"), e.getMessage());
                 }
             } else if ("new".equals(action)) {
                 currAction = "new";
@@ -173,7 +173,7 @@ public class SEUsersPortlet extends AbstractSecurityManagerPortlet {
                 actionResponse.setRenderParameter("user", user);
             }
         } catch (Exception e) {
-            addErrorMessage(actionRequest, getLocalizedString("errorMsg06", actionRequest), e.getMessage());
+            addErrorMessage(actionRequest, getLocalizedString(actionRequest, "errorMsg06"), e.getMessage());
         }
     }
 

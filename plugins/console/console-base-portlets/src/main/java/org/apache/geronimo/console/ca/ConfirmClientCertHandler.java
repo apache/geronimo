@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.security.PublicKey;
 import java.text.DateFormat;
-import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
@@ -84,7 +83,7 @@ public class ConfirmClientCertHandler extends BaseCAHandler {
                 // This may happen if the user clicks on "Issue Certificate" button a second time
                 log.warn("Second request to issue certificate with serial number'"+sNo+"'.  A certificate has already been issued.");
                 response.setRenderParameter("sNo", sNo.toString());
-                portlet.addWarningMessage(request, MessageFormat.format(portlet.getLocalizedString("warnMsg06", request), sNo));
+                portlet.addWarningMessage(request, portlet.getLocalizedString(request, "warnMsg06", sNo));
                 return VIEW_CERT_MODE;
             }
 
@@ -154,12 +153,12 @@ public class ConfirmClientCertHandler extends BaseCAHandler {
 
             // Set the serial number and forward to view certificate page
             response.setRenderParameter("sNo", sNo.toString());
-            portlet.addInfoMessage(request, MessageFormat.format(portlet.getLocalizedString("infoMsg18", request), sNo));
+            portlet.addInfoMessage(request, portlet.getLocalizedString(request, "infoMsg18", sNo));
             log.info("Certificate with serial number '"+sNo+"' issued to "+subject);
             return VIEW_CERT_MODE;
         } catch(Exception e) {
             // An error occurred.  Go back to previous screen to let the user correct the errors.
-            portlet.addErrorMessage(request, portlet.getLocalizedString("errorMsg23", request), e.getMessage());
+            portlet.addErrorMessage(request, portlet.getLocalizedString(request, "errorMsg23"), e.getMessage());
             log.error("Errors in issuing certificate.", e);
         }
         return CERT_REQ_DETAILS_MODE+BEFORE_ACTION;

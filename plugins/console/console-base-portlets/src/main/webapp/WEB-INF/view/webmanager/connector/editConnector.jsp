@@ -20,7 +20,6 @@
 <%@ taglib prefix="portlet" uri="http://java.sun.com/portlet" %>
 <fmt:setBundle basename="consolebase"/>
 <portlet:defineObjects/>
-<fmt:setBundle basename="consolebase"/>
 <script language="JavaScript">
 // validate the form submission
 function <portlet:namespace/>validateForm(){

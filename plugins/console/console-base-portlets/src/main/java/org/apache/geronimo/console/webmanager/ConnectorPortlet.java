@@ -387,6 +387,9 @@ public class ConnectorPortlet extends BasePortlet {
                 all.add(result);
             }
         }
+        if (0 == all.size()) {
+            addWarningMessage(renderRequest, "warnMsg08");
+        }
         renderRequest.setAttribute("containers", all);
         renderRequest.setAttribute("serverPort", new Integer(renderRequest.getServerPort()));
 

@@ -16,8 +16,6 @@
  */
 package org.apache.geronimo.console.keystores;
 
-import java.text.MessageFormat;
-
 import org.apache.geronimo.console.BasePortlet;
 import org.apache.geronimo.console.MultiPageModel;
 import org.apache.geronimo.management.geronimo.KeystoreException;
@@ -44,7 +42,7 @@ public class LockKeystoreHandler extends BaseKeystoreHandler {
         KeystoreData data = ((KeystoreData) request.getPortletSession(true).getAttribute(KEYSTORE_DATA_PREFIX + keystore));
         try {
             data.lockUse();
-            portlet.addInfoMessage(request, MessageFormat.format(portlet.getLocalizedString("infoMsg08", request), keystore));
+            portlet.addInfoMessage(request, portlet.getLocalizedString(request, "infoMsg08", keystore));
         } catch (KeystoreException e) {
             throw new PortletException(e);
         }

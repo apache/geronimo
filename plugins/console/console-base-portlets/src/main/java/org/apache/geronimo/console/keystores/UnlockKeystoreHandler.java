@@ -16,8 +16,6 @@
  */
 package org.apache.geronimo.console.keystores;
 
-import java.text.MessageFormat;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.geronimo.console.BasePortlet;
@@ -83,11 +81,11 @@ public class UnlockKeystoreHandler extends BaseKeystoreHandler {
                 return UNLOCK_KEY+BEFORE_ACTION;
             } // otherwise it has no keys
         } catch (Exception e) {
-        	portlet.addErrorMessage(request, MessageFormat.format(portlet.getLocalizedString("errorMsg09", request), keystore), e.getMessage());
+        	portlet.addErrorMessage(request, portlet.getLocalizedString(request, "errorMsg09", keystore), e.getMessage());
             log.error("Unable to unlock keystore '"+keystore+"' for availability.", e);
             return getMode()+BEFORE_ACTION;
         }
-        portlet.addInfoMessage(request, MessageFormat.format(portlet.getLocalizedString("infoMsg07", request), keystore));
+        portlet.addInfoMessage(request, portlet.getLocalizedString(request, "infoMsg07", keystore));
         return LIST_MODE+BEFORE_ACTION;
     }
 }

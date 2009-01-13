@@ -63,12 +63,12 @@ public class UnlockCAHandler extends BaseCAHandler {
             ca.unlock(password.toCharArray());
 
             // Return to CA's index page
-            portlet.addInfoMessage(request, portlet.getLocalizedString("infoMsg14", request));
+            portlet.addInfoMessage(request, portlet.getLocalizedString(request, "infoMsg14"));
             log.info("CA has been unlocked successfully!");
             return INDEX_MODE+BEFORE_ACTION;
         } catch(Exception e) {
             // An error occurred.  Set the error message and load the page again.
-            portlet.addErrorMessage(request, portlet.getLocalizedString("errorMsg14", request), e.getMessage());
+            portlet.addErrorMessage(request, portlet.getLocalizedString(request, "errorMsg14"), e.getMessage());
             log.error("Errors in unlocking CA.", e);
         }
         return getMode()+BEFORE_ACTION;

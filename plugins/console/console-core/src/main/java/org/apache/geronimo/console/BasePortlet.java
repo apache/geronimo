@@ -22,6 +22,8 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.text.MessageFormat;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.GenericPortlet;
@@ -152,9 +154,10 @@ public class BasePortlet extends GenericPortlet {
         addCommonMessage(CommonMessage.Type.Info, request, messages);
     }
 
-    public final String getLocalizedString(String key, PortletRequest request) {
+    public final String getLocalizedString(PortletRequest request, String key, Object... vars) {
         String value = getResourceBundle(request.getLocale()).getString(key);
-        return null == value ? key : value;
+        if (null == value || 0 == value.length()) return key;     
+        return MessageFormat.format(value, vars);
     }
 
     private void addCommonMessage(CommonMessage.Type type, PortletRequest request, String[] messages) {

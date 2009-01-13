@@ -151,7 +151,7 @@ public class ConfigManagerPortlet extends BasePortlet {
                 }
                 if(!configurationManager.isRunning(configId)) {
                     org.apache.geronimo.kernel.config.LifecycleResults lcresult = configurationManager.startConfiguration(configId);
-                    addInfoMessage(actionRequest, getLocalizedString("infoMsg01", actionRequest) + printResults(lcresult.getStarted()));
+                    addInfoMessage(actionRequest, getLocalizedString(actionRequest, "infoMsg01") + printResults(lcresult.getStarted()));
                 }
             } else if (STOP_ACTION.equals(action)) {
                 if(configurationManager.isRunning(configId)) {
@@ -159,28 +159,28 @@ public class ConfigManagerPortlet extends BasePortlet {
                 }
                 if(configurationManager.isLoaded(configId)) {
                     LifecycleResults lcresult = configurationManager.unloadConfiguration(configId);
-                    addInfoMessage(actionRequest, getLocalizedString("infoMsg02", actionRequest) + printResults(lcresult.getStarted()));
+                    addInfoMessage(actionRequest, getLocalizedString(actionRequest, "infoMsg02") + printResults(lcresult.getStarted()));
                 }
             } else if (UNINSTALL_ACTION.equals(action)) {
                 configurationManager.uninstallConfiguration(configId);
-                addInfoMessage(actionRequest, getLocalizedString("infoMsg04", actionRequest) + "<br />" + configId);
+                addInfoMessage(actionRequest, getLocalizedString(actionRequest, "infoMsg04") + "<br />" + configId);
             } else if (RESTART_ACTION.equals(action)) {
                 LifecycleResults lcresult = configurationManager.reloadConfiguration(configId);
-                addInfoMessage(actionRequest, getLocalizedString("infoMsg03", actionRequest) + printResults(lcresult.getStarted()));
+                addInfoMessage(actionRequest, getLocalizedString(actionRequest, "infoMsg03") + printResults(lcresult.getStarted()));
             } else {
-                addWarningMessage(actionRequest, getLocalizedString("warnMsg01", actionRequest) + action + "<br />");
+                addWarningMessage(actionRequest, getLocalizedString(actionRequest, "warnMsg01") + action + "<br />");
                 throw new PortletException("Invalid value for changeState: " + action);
             }
         } catch (NoSuchConfigException e) {
             // ignore this for now
-            addErrorMessage(actionRequest, getLocalizedString("errorMsg01", actionRequest));
+            addErrorMessage(actionRequest, getLocalizedString(actionRequest, "errorMsg01"));
             logger.error("Configuration not found", e);
         } catch (LifecycleException e) {
             // todo we have a much more detailed report now
-            addErrorMessage(actionRequest, getLocalizedString("errorMsg02", actionRequest));
+            addErrorMessage(actionRequest, getLocalizedString(actionRequest, "errorMsg02"));
             logger.error("Lifecycle operation failed ", e);
         } catch (Throwable e) {
-            addErrorMessage(actionRequest, getLocalizedString("errorMsg03", actionRequest));
+            addErrorMessage(actionRequest, getLocalizedString(actionRequest, "errorMsg03"));
             logger.error("Exception", e);
         }
     }
@@ -307,7 +307,7 @@ public class ConfigManagerPortlet extends BasePortlet {
         renderRequest.setAttribute("showWebInfo", Boolean.valueOf(showWebInfo()));
         renderRequest.setAttribute("showDependencies", Boolean.valueOf(showDependencies));
         if (moduleDetails.size() == 0) {
-            addWarningMessage(renderRequest, getLocalizedString("warnMsg02", renderRequest));
+            addWarningMessage(renderRequest, getLocalizedString(renderRequest, "warnMsg02"));
         }
         if (WindowState.NORMAL.equals(renderRequest.getWindowState())) {
             normalView.include(renderRequest, renderResponse);

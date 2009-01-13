@@ -22,7 +22,6 @@ import java.math.BigInteger;
 import java.security.PublicKey;
 import java.security.cert.Certificate;
 import java.security.interfaces.RSAPublicKey;
-import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -91,7 +90,7 @@ public class ViewCertificateHandler extends BaseCAHandler {
             if("true".equalsIgnoreCase(request.getParameter("linkToListRequests")))
                 request.setAttribute("linkToListRequests", Boolean.TRUE);
         } catch (Exception e) {
-            portlet.addErrorMessage(request, MessageFormat.format(portlet.getLocalizedString("errorMsg16", request), sNo), e.getMessage());
+            portlet.addErrorMessage(request, portlet.getLocalizedString(request, "errorMsg16", sNo), e.getMessage());
             log.error("Errors trying to view certificate with serial number '"+sNo+"'", e);
         }
     }
