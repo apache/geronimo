@@ -27,7 +27,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.cxf.Bus;
 import org.apache.cxf.catalog.OASISCatalogManager;
-import org.apache.xml.resolver.Catalog;
 
 public class CXFCatalogUtils {
     
@@ -57,7 +56,7 @@ public class CXFCatalogUtils {
         try {
             catalog.loadCatalog(catalogURL);
             LOG.debug("Loaded " + catalogURL + " catalog.");
-            bus.setExtension(catalog.getCatalog(), Catalog.class);
+            bus.setExtension(catalog, OASISCatalogManager.class);
         } catch (IOException e) {
             LOG.warn("Failed to load catalog file: " + catalogURL, e);
         }        
