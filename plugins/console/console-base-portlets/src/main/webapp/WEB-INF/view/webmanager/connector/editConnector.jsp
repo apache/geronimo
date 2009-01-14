@@ -142,7 +142,7 @@ function <portlet:namespace/>validateForm(){
     	     value="<c:out escapeXml="true" value="${connectorAttribute.stringValue}"/>"></td>
         </c:otherwise>
     </c:choose>
-    <td class="${style}">${connectorAttribute.description}</td>
+    <td class="${style}"><fmt:message key="${connectorAttribute.description}"/></td>
   </tr>
 </c:forEach>
 </table>

@@ -96,14 +96,14 @@ function <portlet:namespace/>validateForm(){
     </script>
     <c:forEach var="option" items="${realm.optionNames}">
       <tr>
-        <th style="min-width: 140px"><div align="right"><label for="<portlet:namespace/>option-${option}">${optionMap[option].displayName}</label>:</div></th>
+        <th style="min-width: 140px"><div align="right"><label for="<portlet:namespace/>option-${option}"><fmt:message key="${optionMap[option].displayName}"/></label>:</div></th>
         <td><input name="option-${option}" id="<portlet:namespace/>option-${option}"
                    type="<c:choose><c:when test="${optionMap[option].password}">password</c:when><c:otherwise>text</c:otherwise></c:choose>"
                    size="${optionMap[option].length}" value="${realm.options[option]}"></td>
       </tr>
       <tr>
         <td></td>
-        <td>${optionMap[option].description}</td>
+        <td><fmt:message key="${optionMap[option].description}"/></td>
       </tr>
     <c:if test="${optionMap[option].password}">
       <tr>

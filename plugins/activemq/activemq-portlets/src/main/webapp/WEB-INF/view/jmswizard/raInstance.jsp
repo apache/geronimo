@@ -78,7 +78,7 @@
       </tr>
       <tr>
         <td></td>
-        <td><c:out value="${prop.description}" /></td>
+        <td><fmt:message key="jmswizard.raInstance.${prop.name}"/></td>
       </tr>
   </c:forEach>
     <!-- SUBMIT BUTTON -->
