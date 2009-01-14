@@ -109,25 +109,25 @@ public class ClusteredSessionManager extends AbstractSessionManager {
 
         public void notifyOutboundSessionMigration(org.apache.geronimo.clustering.Session session) {
             ClusteredSession clusteredSession = getClusteredSession(session);
+            if (null == clusteredSession) {
+                throw new AssertionError("Session [" + session + "] is undefined");
+            }
             removeSession(clusteredSession, false);
         }
 
         public void notifySessionDestruction(org.apache.geronimo.clustering.Session session) {
             ClusteredSession clusteredSession = getClusteredSession(session);
+            if (null == clusteredSession) {
+                return;
+            }
             removeSession(clusteredSession, true);
         }
         
-        private ClusteredSession getClusteredSession(org.apache.geronimo.clustering.Session session) throws AssertionError {
-            ClusteredSession clusteredSession;
+        private ClusteredSession getClusteredSession(org.apache.geronimo.clustering.Session session) {
             synchronized (idToSession) {
-                clusteredSession = idToSession.remove(session.getSessionId());
+                return idToSession.remove(session.getSessionId());
             }
-            if (null == clusteredSession) {
-                throw new AssertionError("Session [" + session + "] is undefined");
-            }
-            return clusteredSession;
         }
-        
         
     }
 
