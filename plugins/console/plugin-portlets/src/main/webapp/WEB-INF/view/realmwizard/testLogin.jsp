@@ -36,7 +36,7 @@ function <portlet:namespace/>validateForm(){
 <p><fmt:message key="realmwizard.testLogin.summary" /></p>
 
 <!--   FORM TO COLLECT DATA FOR THIS PAGE   -->
-<form name="<portlet:namespace/>RealmForm" action="<portlet:actionURL/>">
+<form name="<portlet:namespace/>RealmForm" action="<portlet:actionURL/>" method="POST">
     <input type="hidden" name="mode" value="process-test" />
     <input type="hidden" name="name" value="${realm.name}" />
     <input type="hidden" name="realmType" value="${realm.realmType}" />

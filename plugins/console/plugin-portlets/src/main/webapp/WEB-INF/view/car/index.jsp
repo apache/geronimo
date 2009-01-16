@@ -24,7 +24,7 @@
 <portlet:defineObjects/>
 <fmt:message key="car.index.summary"/>
 
-<form name="<portlet:namespace/>PluginForm" action="<portlet:actionURL/>">
+<form name="<portlet:namespace/>PluginForm" action="<portlet:actionURL/>" method="POST">
     <input type="hidden" name="mode" value="index-after"/>
     <b><label for="<portlet:namespace/>repository"><fmt:message key="car.common.repository"/></label>:</b> <%-- todo: entry field for user-specified list --%>
     <select name="repository" id="<portlet:namespace/>repository">
