@@ -40,7 +40,7 @@ just as if you're browsing and installing third-party plugins.
  If you want to point to a remote Geronimo server, enter a URL such as
 <tt>http://geronimo-server:8080/console-standard/maven-repo/</tt></p>
 
-<form name="<portlet:namespace/>PluginForm" action="<portlet:actionURL/>">
+<form name="<portlet:namespace/>PluginForm" action="<portlet:actionURL/>" method="POST">
     <input type="hidden" name="mode" value="addRepository-after" />
     <b>New Repository:</b> <input type="text" name="newRepository" size="40" maxlength="200" />
     <br />

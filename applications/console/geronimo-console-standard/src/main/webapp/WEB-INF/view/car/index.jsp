@@ -48,7 +48,7 @@ just as if you're browsing and installing third-party plugins.
 <tt>http://geronimo-server:8080/console-standard/maven-repo/</tt> and the enter
 the administrator username and password in the optional authentication fields.</p>
 
-<form name="<portlet:namespace/>PluginForm" action="<portlet:actionURL/>">
+<form name="<portlet:namespace/>PluginForm" action="<portlet:actionURL/>" method="POST">
     <input type="hidden" name="mode" value="index-after" />
     <b>Repository:</b> <%-- todo: entry field for user-specified list --%>
     <select name="repository">

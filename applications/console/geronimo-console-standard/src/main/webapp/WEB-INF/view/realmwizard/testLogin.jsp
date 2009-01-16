@@ -37,7 +37,7 @@ menat to be an indication of whether the settings for the main login module are 
 does not invoke advanced features such as auditing or lockout.</p>
 
 <!--   FORM TO COLLECT DATA FOR THIS PAGE   -->
-<form name="<portlet:namespace/>RealmForm" action="<portlet:actionURL/>">
+<form name="<portlet:namespace/>RealmForm" action="<portlet:actionURL/>" method="POST">
     <input type="hidden" name="mode" value="process-test" />
     <input type="hidden" name="name" value="${realm.name}" />
     <input type="hidden" name="realmType" value="${realm.realmType}" />
