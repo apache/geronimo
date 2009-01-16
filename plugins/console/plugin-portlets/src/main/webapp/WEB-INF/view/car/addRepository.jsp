@@ -43,7 +43,7 @@
 <fmt:message key="car.addRepository.downloadRunningCongfig" />
 </p>
 
-<form name="<portlet:namespace/>PluginForm" action="<portlet:actionURL/>">
+<form name="<portlet:namespace/>PluginForm" action="<portlet:actionURL/>" method="POST">
     <input type="hidden" name="mode" value="addRepository-after" />
     <b><fmt:message key="car.common.newRepository" />:</b> <input type="text" name="newRepository" size="40" maxlength="200" />
     <br />
