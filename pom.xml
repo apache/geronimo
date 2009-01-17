@@ -872,15 +872,15 @@
             </dependency>
 
             <dependency>
-                <groupId>org.openqa.selenium.client-drivers</groupId>
+                <groupId>org.seleniumhq.selenium.client-drivers</groupId>
                 <artifactId>selenium-java-client-driver</artifactId>
-                <version>1.0-beta-1</version>
+                <version>1.0-beta-2</version>
             </dependency>
 
             <dependency>
-                <groupId>org.openqa.selenium.server</groupId>
+                <groupId>org.seleniumhq.selenium.server</groupId>
                 <artifactId>selenium-server</artifactId>
-                <version>1.0-beta-1</version>
+                <version>1.0-beta-2</version>
             </dependency>
 
             <dependency>
@@ -2950,7 +2950,7 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>selenium-maven-plugin</artifactId>
-                    <version>1.0-rc-1-SNAPSHOT</version>
+                    <version>1.0-rc-1</version>
                 </plugin>
 
                 <plugin>
