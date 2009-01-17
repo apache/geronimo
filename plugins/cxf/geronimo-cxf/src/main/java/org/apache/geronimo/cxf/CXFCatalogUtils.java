@@ -18,15 +18,13 @@
  */
 package org.apache.geronimo.cxf;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.cxf.Bus;
 import org.apache.cxf.catalog.OASISCatalogManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CXFCatalogUtils {
     
@@ -34,24 +32,8 @@ public class CXFCatalogUtils {
         
     private CXFCatalogUtils() {        
     }
-    
-    public static void loadOASISCatalog(Bus bus, URL baseURL, String catalogName) {
-        URL catalogURL = null;
-        try {
-            catalogURL = new URL(baseURL, catalogName);
-            LOG.debug("Checking for " + catalogURL + " catalog.");            
-            catalogURL.openStream().close();
-            loadOASISCatalog(bus, catalogURL);            
-        } catch (MalformedURLException e) {
-            LOG.warn("Error constructing catalog URL: " + baseURL + " " + catalogName);
-        } catch (FileNotFoundException e) {
-            LOG.debug("Catalog " + catalogURL + " is not present in the module");
-        } catch (IOException e) {
-            LOG.warn("Failed to load catalog file: " + catalogURL, e);
-        }
-    }
-    
-    private static void loadOASISCatalog(Bus bus, URL catalogURL) {
+        
+    public static void loadOASISCatalog(Bus bus, URL catalogURL) {
         OASISCatalogManager catalog = new OASISCatalogManager();
         try {
             catalog.loadCatalog(catalogURL);

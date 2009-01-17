@@ -33,6 +33,7 @@ import org.apache.geronimo.cxf.CXFWebServiceContainer;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.jaxws.JAXWSUtils;
 import org.apache.geronimo.jaxws.JNDIResolver;
 import org.apache.geronimo.jaxws.PortInfo;
 import org.apache.geronimo.jaxws.ServerJNDIResolver;
@@ -96,9 +97,12 @@ public class POJOWebServiceContainerFactoryGBean implements WebServiceContainerF
         this.bus.setExtension(context, Context.class);
         this.bus.setExtension(holder, AnnotationHolder.class);
         
-        CXFCatalogUtils.loadOASISCatalog(this.bus, 
-                                         this.configurationBaseUrl, 
-                                         "WEB-INF/jax-ws-catalog.xml");
+        URL catalog = JAXWSUtils.getOASISCatalogURL(this.configurationBaseUrl, 
+                                                    classLoader, 
+                                                    JAXWSUtils.DEFAULT_CATALOG_WEB);
+        if (catalog != null) {
+            CXFCatalogUtils.loadOASISCatalog(this.bus, catalog);
+        }
     }
     
     public WebServiceContainer getWebServiceContainer() {

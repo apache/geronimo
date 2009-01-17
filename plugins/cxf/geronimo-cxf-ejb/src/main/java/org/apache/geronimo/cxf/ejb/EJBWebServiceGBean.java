@@ -27,6 +27,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.jaxws.JAXWSUtils;
 import org.apache.geronimo.jaxws.JNDIResolver;
 import org.apache.geronimo.jaxws.PortInfo;
 import org.apache.geronimo.jaxws.ServerJNDIResolver;
@@ -69,13 +70,17 @@ public class EJBWebServiceGBean implements GBeanLifecycle {
         bus.setExtension(portInfo, PortInfo.class);  
         bus.setExtension(ejbDeploymentContext.getDeploymentInfo(), DeploymentInfo.class);
         
-        CXFCatalogUtils.loadOASISCatalog(bus, 
-                                         configurationBaseUrl, 
-                                         "META-INF/jax-ws-catalog.xml");
+        ClassLoader classLoader = ejbDeploymentContext.getClassLoader();
+        
+        URL catalog = JAXWSUtils.getOASISCatalogURL(configurationBaseUrl, 
+                                                    classLoader, 
+                                                    JAXWSUtils.DEFAULT_CATALOG_EJB);
+        if (catalog != null) {
+            CXFCatalogUtils.loadOASISCatalog(bus, catalog);
+        }
         
         this.container = new EJBWebServiceContainer(bus, configurationBaseUrl, beanClass);
         
-        ClassLoader classLoader = ejbDeploymentContext.getClassLoader();
         if (soapHandler != null) {
             soapHandler.addWebService(this.location, 
                                       virtualHosts, 

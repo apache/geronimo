@@ -16,7 +16,11 @@
  */
 package org.apache.geronimo.jaxws;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.lang.reflect.Modifier;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
@@ -26,7 +30,15 @@ import javax.xml.namespace.QName;
 import javax.xml.ws.BindingType;
 import javax.xml.ws.WebServiceProvider;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class JAXWSUtils {
+    
+    public static final String DEFAULT_CATALOG_WEB = "WEB-INF/jax-ws-catalog.xml";
+    public static final String DEFAULT_CATALOG_EJB = "META-INF/jax-ws-catalog.xml";
+
+    private static final Logger LOG = LoggerFactory.getLogger(JAXWSUtils.class);
     
     private static final Map<String, String> BINDING_MAP = 
         new HashMap<String, String>();
@@ -289,6 +301,29 @@ public class JAXWSUtils {
         } else {
             return bindingType.value();
         }
+    }
+    
+    public static URL getOASISCatalogURL(URL configurationBaseUrl, ClassLoader classLoader, String catalogName) {
+        if (catalogName == null) {
+            return null;
+        }
+        URL catalogURL = classLoader.getResource(catalogName);
+        LOG.debug("Checking for {} catalog in classloader", catalogURL);  
+        if (catalogURL == null) {
+            try {
+                URL tmpCatalogURL = new URL(configurationBaseUrl, catalogName);
+                LOG.debug("Checking for {} catalog in module directory", catalogURL);            
+                tmpCatalogURL.openStream().close();
+                catalogURL = tmpCatalogURL;
+            } catch (MalformedURLException e) {
+                LOG.warn("Error constructing catalog URL {} {}", configurationBaseUrl, catalogName);
+            } catch (FileNotFoundException e) {
+                LOG.debug("Catalog {} is not present in the module", catalogName);
+            } catch (IOException e) {
+                LOG.warn("Failed to open catalog file: " + catalogURL, e);
+            }
+        }
+        return catalogURL;
     }
     
 }

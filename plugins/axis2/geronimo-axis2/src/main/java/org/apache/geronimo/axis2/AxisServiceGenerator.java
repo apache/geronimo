@@ -17,8 +17,6 @@
 
 package org.apache.geronimo.axis2;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
@@ -29,12 +27,9 @@ import javax.wsdl.Binding;
 import javax.wsdl.Definition;
 import javax.wsdl.Port;
 import javax.wsdl.Service;
-import javax.wsdl.WSDLException;
 import javax.wsdl.extensions.http.HTTPBinding;
 import javax.wsdl.extensions.soap.SOAPBinding;
 import javax.wsdl.extensions.soap12.SOAP12Binding;
-import javax.wsdl.factory.WSDLFactory;
-import javax.wsdl.xml.WSDLReader;
 import javax.xml.namespace.QName;
 import javax.xml.ws.WebServiceException;
 
@@ -45,6 +40,7 @@ import org.apache.axis2.description.AxisService;
 import org.apache.axis2.description.Parameter;
 import org.apache.axis2.description.java2wsdl.Java2WSDLConstants;
 import org.apache.axis2.engine.MessageReceiver;
+import org.apache.axis2.jaxws.catalog.impl.OASISCatalogManager;
 import org.apache.axis2.jaxws.description.DescriptionFactory;
 import org.apache.axis2.jaxws.description.EndpointDescription;
 import org.apache.axis2.jaxws.description.ServiceDescription;
@@ -56,8 +52,8 @@ import org.apache.axis2.jaxws.description.builder.WsdlComposite;
 import org.apache.axis2.jaxws.description.builder.WsdlGenerator;
 import org.apache.axis2.jaxws.description.builder.converter.JavaClassToDBCConverter;
 import org.apache.axis2.jaxws.server.JAXWSMessageReceiver;
+import org.apache.axis2.jaxws.util.WSDL4JWrapper;
 import org.apache.axis2.wsdl.WSDLUtil;
-import org.apache.geronimo.axis2.util.SimpleWSDLLocator;
 import org.apache.geronimo.jaxws.JAXWSUtils;
 import org.apache.geronimo.jaxws.PortInfo;
 import org.apache.ws.commons.schema.utils.NamespaceMap;
@@ -73,6 +69,7 @@ public class AxisServiceGenerator
 
     private MessageReceiver messageReceiver;
     private ConfigurationContext configurationContext;
+    private String catalogName;
     
     public AxisServiceGenerator(){
         this.messageReceiver = new JAXWSMessageReceiver();
@@ -84,6 +81,10 @@ public class AxisServiceGenerator
    
     public void setConfigurationContext(ConfigurationContext configurationContext) {
         this.configurationContext = configurationContext;
+    }
+    
+    public void setCatalogName(String catalogName) {
+        this.catalogName = catalogName;
     }
     
     public AxisService getServiceFromClass(Class endpointClass) throws Exception {
@@ -138,7 +139,14 @@ public class AxisServiceGenerator
             portQName = JAXWSUtils.getPortQName(endpointClass);
         }
                 
-        Definition wsdlDefinition = readWSDL(wsdlFile, configurationBaseUrl, classLoader);
+        OASISCatalogManager catalogManager = new OASISCatalogManager();
+        URL catalogURL = JAXWSUtils.getOASISCatalogURL(configurationBaseUrl, classLoader, this.catalogName);
+        if (catalogURL != null) {
+            catalogManager.setCatalogFiles(catalogURL.toString());
+        }
+        URL wsdlURL = getWsdlURL(wsdlFile, configurationBaseUrl, classLoader);
+        WSDL4JWrapper wsdlWrapper = new WSDL4JWrapper(wsdlURL, this.configurationContext, catalogManager);
+        Definition wsdlDefinition = wsdlWrapper.getDefinition(); 
         
         Service wsdlService = wsdlDefinition.getService(serviceQName);
         if (wsdlService == null) {
@@ -166,6 +174,7 @@ public class AxisServiceGenerator
         dbc.setWsdlDefinition(wsdlDefinition);
         dbc.setClassName(endpointClassName);
         dbc.setCustomWsdlGenerator(new WSDLGeneratorImpl(wsdlDefinition));
+        dbc.setCatalogManager(catalogManager);
         
         if (dbc.getWebServiceAnnot() != null) { //information specified in .wsdl should overwrite annotation.
             WebServiceAnnot serviceAnnot = dbc.getWebServiceAnnot();
@@ -290,30 +299,7 @@ public class AxisServiceGenerator
             return composite;
         }
     }
-    
-    protected Definition readWSDL(String wsdlLocation, 
-                                  URL configurationBaseUrl, 
-                                  ClassLoader classLoader)
-        throws IOException, WSDLException {
-        Definition wsdlDefinition = null;
-        URL wsdlURL = getWsdlURL(wsdlLocation, configurationBaseUrl, classLoader);
-        InputStream wsdlStream = null;
-        try {
-            wsdlStream = wsdlURL.openStream();
-            WSDLFactory factory = WSDLFactory.newInstance();
-            WSDLReader reader = factory.newWSDLReader();
-            reader.setFeature("javax.wsdl.importDocuments", true);
-            reader.setFeature("javax.wsdl.verbose", false);
-            SimpleWSDLLocator wsdlLocator = new SimpleWSDLLocator(wsdlURL.toString());
-            wsdlDefinition = reader.readWSDL(wsdlLocator);
-        } finally {
-            if (wsdlStream != null) {
-                wsdlStream.close();
-            }
-        }
-        return wsdlDefinition;
-    }
-    
+        
     public static URL getWsdlURL(String wsdlFile, URL configurationBaseUrl, ClassLoader classLoader) {
         URL wsdlURL = null;
         if (wsdlFile != null) {
@@ -336,7 +322,7 @@ public class AxisServiceGenerator
         }
         return wsdlURL;
     }
-    
+        
     public static EndpointDescription getEndpointDescription(AxisService service) {
         Parameter param = service.getParameter(EndpointDescription.AXIS_SERVICE_PARAMETER);
         return (param == null) ? null : (EndpointDescription) param.getValue();
