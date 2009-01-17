@@ -305,6 +305,21 @@
         </plugins>
     </reporting>
 
+    <pluginRepositories>
+        <pluginRepository>
+            <id>codehaus</id>
+            <name>Codehaus Release Repository</name>
+            <url>http://repository.codehaus.org</url>
+            <layout>default</layout>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </pluginRepository>
+    </pluginRepositories>
+    
     <profiles>
         <profile>
             <id>testsuite-with-jetty</id>

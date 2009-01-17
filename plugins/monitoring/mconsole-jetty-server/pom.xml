@@ -85,40 +85,21 @@
         <!--</dependency>-->
     </dependencies>
 
-    <!-- Need to add repo for selenium snapshots until they are removed -->
-    <repositories>
-        <repository>
-            <id>codehaus-snapshots</id>
-            <name>Codehaus Snapshots Repository</name>
-            <url>http://snapshots.repository.codehaus.org</url>
-            <layout>default</layout>
-            <snapshots>
-                <enabled>true</enabled>
-                <updatePolicy>daily</updatePolicy>
-                <checksumPolicy>ignore</checksumPolicy>
-            </snapshots>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-        </repository>
-    </repositories>
     <pluginRepositories>
         <pluginRepository>
-            <id>codehaus-snapshots</id>
-            <name>Codehaus Snapshots Repository</name>
-            <url>http://snapshots.repository.codehaus.org</url>
+            <id>codehaus</id>
+            <name>Codehaus Release Repository</name>
+            <url>http://repository.codehaus.org</url>
             <layout>default</layout>
             <snapshots>
-                <enabled>true</enabled>
-                <updatePolicy>daily</updatePolicy>
-                <checksumPolicy>ignore</checksumPolicy>
+                <enabled>false</enabled>
             </snapshots>
             <releases>
-                <enabled>false</enabled>
+                <enabled>true</enabled>
             </releases>
         </pluginRepository>
     </pluginRepositories>
-
+    
     <build>
         <pluginManagement>
             <plugins>
