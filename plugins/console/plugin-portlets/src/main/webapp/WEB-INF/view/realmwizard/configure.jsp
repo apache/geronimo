@@ -44,7 +44,7 @@ function <portlet:namespace/>validateForm(){
 <c:if test="${!(empty LoginModuleError)}"><p><font color="red"><b>Error: ${LoginModuleError}</b></font></p></c:if>
 
 <!--   FORM TO COLLECT DATA FOR THIS PAGE   -->
-<form name="<portlet:namespace/>RealmForm" action="<portlet:actionURL/>">
+<form name="<portlet:namespace/>RealmForm" action="<portlet:actionURL/>" method="POST">
     <input type="hidden" name="mode" value="process-configure" />
     <input type="hidden" name="name" value="${realm.name}" />
     <input type="hidden" name="realmType" value="${realm.realmType}" />

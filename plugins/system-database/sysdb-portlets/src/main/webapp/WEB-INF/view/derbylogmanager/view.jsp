@@ -29,7 +29,7 @@
     </tr>
     <tr>
         <td class="Smaller" valign="middle">
-            <form action="<portlet:actionURL/>" name="<portlet:namespace/>searchForm" >
+            <form action="<portlet:actionURL/>" name="<portlet:namespace/>searchForm" method="POST">
                 <b><fmt:message key="derbylogmanager.view.filterResults"/>:</b>
                 <input type="hidden" value="search" name="action"/>
                 <br/>
