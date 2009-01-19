@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.geronimo.axis2.util;
+package org.apache.geronimo.jaxws.wsdl;
 
 import java.io.File;
 import java.io.IOException;

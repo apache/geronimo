@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.geronimo.axis2.util;
+package org.apache.geronimo.jaxws.wsdl;
 
 import java.io.IOException;
 

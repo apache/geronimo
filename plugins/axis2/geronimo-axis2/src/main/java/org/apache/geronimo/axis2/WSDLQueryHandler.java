@@ -48,8 +48,9 @@ import javax.xml.transform.stream.StreamResult;
 import org.apache.axis2.description.AxisService;
 import org.apache.axis2.jaxws.catalog.JAXWSCatalogManager;
 import org.apache.axis2.jaxws.description.EndpointDescription;
-import org.apache.geronimo.axis2.util.CatalogWSDLLocator;
+
 import org.apache.geronimo.jaxws.WSDLUtils;
+import org.apache.geronimo.jaxws.wsdl.CatalogWSDLLocator;
 import org.apache.xml.resolver.Catalog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

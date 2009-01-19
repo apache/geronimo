@@ -97,6 +97,11 @@
         </dependency>
 
         <dependency>
+            <groupId>xml-resolver</groupId>
+            <artifactId>xml-resolver</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>org.apache.geronimo.plugins.classloaders</groupId>
             <artifactId>geronimo-schema-jee_5</artifactId>
             <version>${version}</version>

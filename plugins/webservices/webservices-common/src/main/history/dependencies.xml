@@ -47,6 +47,11 @@
         <type>jar</type>
     </dependency>
     <dependency>
+        <groupId>xml-resolver</groupId>
+        <artifactId>xml-resolver</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
         <groupId>org.apache.geronimo.plugins.classloaders</groupId>
         <artifactId>geronimo-schema-jee_5</artifactId>
         <type>car</type>
