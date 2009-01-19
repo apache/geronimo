@@ -60,6 +60,14 @@
             <groupId>org.apache.activemq</groupId>
             <artifactId>activeio-core</artifactId>
         </dependency>
+
+        <!-- Use our Spring plugin to enable using activemq.xml -->
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>spring</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
     </dependencies>
     
 </project>
