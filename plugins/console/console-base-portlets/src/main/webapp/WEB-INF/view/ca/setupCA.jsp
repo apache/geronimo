@@ -62,7 +62,7 @@ function <portlet:namespace/>validateForm(){
 <fmt:message key="ca.setupCA.summary"/>
 </p>
 
-<form name="<portlet:namespace/>CADetailsForm" action="<portlet:actionURL/>">
+<form name="<portlet:namespace/>CADetailsForm" action="<portlet:actionURL/>" method="POST">
     <input type="hidden" name="mode" value="setupCA-after"/>
     <table border="0">
         <tr>

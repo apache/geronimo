@@ -534,7 +534,7 @@ callOnLoad(init);
             <!-- Search tab -->
             <div id="searchTab" dojoType="ContentPane" title = "" label='<fmt:message key="ldapmanager.viewLDAPServer.search" />' style="overflow: auto">
                 <br>
-                <form NAME="LDAPSearchForm">
+                <form NAME="LDAPSearchForm" method="POST">
                     <table>
                         <tr>
                             <td nowrap align="right"><label for="<portlet:namespace/>searchDN"><fmt:message key="ldapmanager.viewLDAPServer.searchDN" /></label>:</td>
@@ -576,7 +576,7 @@ callOnLoad(init);
             <!-- Connection Info tab -->
             <div id="connectInfoTab" dojoType="ContentPane" title = "" label="<fmt:message key="ldapmanager.viewLDAPServer.connInfo"/>" style="overflow: auto">
                 <br>
-                <form NAME="LDAPConnectForm">
+                <form NAME="LDAPConnectForm" method="POST">
                     <table>
                         <tr>
                             <td nowrap align="right"><label for="<portlet:namespace/>host"><fmt:message key="ldapmanager.viewLDAPServer.host"/></label>:</td>

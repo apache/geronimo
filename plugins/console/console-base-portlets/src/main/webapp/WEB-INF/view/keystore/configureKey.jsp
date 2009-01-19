@@ -45,7 +45,7 @@ function <portlet:namespace/>validateForm(){
 
 <p><fmt:message key="keystore.configureKey.title"/></p>
 
-<form name="<portlet:namespace/>KeystoreForm" action="<portlet:actionURL/>">
+<form name="<portlet:namespace/>KeystoreForm" action="<portlet:actionURL/>" method="POST">
     <input type="hidden" name="keystore" value="${keystore}" />
     <input type="hidden" name="mode" value="configureKey-after" />
     <table border="0">

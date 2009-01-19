@@ -51,7 +51,7 @@
 <br />
 <br />
 <br />
-<form name="<portlet:namespace/>WebLogicImportForm" action="<portlet:actionURL/>">
+<form name="<portlet:namespace/>WebLogicImportForm" action="<portlet:actionURL/>" method="POST">
     <input type="hidden" name="mode" value="weblogicImport" />
     <input type="hidden" name="importSource" value="${pool.importSource}" />
     <input type="hidden" name="from" value="${from}" />
