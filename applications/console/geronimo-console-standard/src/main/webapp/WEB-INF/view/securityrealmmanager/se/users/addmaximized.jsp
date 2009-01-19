@@ -36,7 +36,7 @@ function <portlet:namespace/>passwordMatch(){
 }
 </script>
 <c:set var="add" value="${userID == null}"/>
-<form name="adduser" action="<portlet:actionURL portletMode="view"/>" >
+<form name="adduser" action="<portlet:actionURL portletMode="view"/>" method="POST">
     <table cellspacing="5">
     <tr>
         <td colspan="2" align="left">

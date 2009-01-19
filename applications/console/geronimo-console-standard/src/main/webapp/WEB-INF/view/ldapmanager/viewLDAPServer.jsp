@@ -510,7 +510,7 @@ callOnLoad(init);
             <!-- Search tab -->
             <div id="searchTab" dojoType="ContentPane" title = "" label="Search" style="overflow: auto">
                 <br>
-                <form NAME="LDAPSearchForm">
+                <form NAME="LDAPSearchForm" method="POST">
                     <table>
                         <tr>
                             <td nowrap align="right">Search DN:</td>
@@ -552,7 +552,7 @@ callOnLoad(init);
             <!-- Connection Info tab -->
             <div id="connectInfoTab" dojoType="ContentPane" title = "" label="Connect Info" style="overflow: auto">
                 <br>
-                <form NAME="LDAPConnectForm">
+                <form NAME="LDAPConnectForm" method="POST">
                     <table>
                         <tr>
                             <td nowrap align="right">Host:</td>

@@ -37,7 +37,7 @@ function <portlet:namespace/>validateForm(){
 }
 </script>
 
-<form name="<portlet:namespace/>KeystoreForm" action="<portlet:actionURL/>">
+<form name="<portlet:namespace/>KeystoreForm" action="<portlet:actionURL/>" method="POST">
     <input type="hidden" name="mode" value="createKeystore-after" />
     <table border="0">
         <tr>

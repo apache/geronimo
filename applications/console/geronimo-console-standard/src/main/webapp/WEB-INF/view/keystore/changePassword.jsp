@@ -47,7 +47,7 @@ function <portlet:namespace/>validateForm(){
     </c:otherwise>
 </c:choose>
 
-<form name="<portlet:namespace/>ChangePasswordForm" action="<portlet:actionURL/>">
+<form name="<portlet:namespace/>ChangePasswordForm" action="<portlet:actionURL/>" method="POST">
     <input type="hidden" name="keystore" value="${keystore}" />
     <input type="hidden" name="alias" value="${alias}" />
     <input type="hidden" name="mode" value="${mode}" />

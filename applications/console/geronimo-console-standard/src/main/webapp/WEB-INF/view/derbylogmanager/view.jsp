@@ -26,7 +26,7 @@
 </tr>
 <tr>
     <td class="Smaller" valign="middle">
-    <form action="<portlet:renderURL/>" name="<portlet:namespace/>searchForm" >
+    <form action="<portlet:renderURL/>" name="<portlet:namespace/>searchForm" method="POST">
     <b>Filter results:</b>
     <input type="hidden" value="search" name="action"/>
     Lines <input type="text" name="startPos" value="${startPos}" size="3"/>

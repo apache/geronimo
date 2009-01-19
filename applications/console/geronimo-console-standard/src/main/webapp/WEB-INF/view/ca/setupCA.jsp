@@ -61,7 +61,7 @@ generating the CA's keypair and self-signed certificate.</p>
 
 <jsp:include page="_header.jsp"/>
 
-<form name="<portlet:namespace/>CADetailsForm" action="<portlet:actionURL/>">
+<form name="<portlet:namespace/>CADetailsForm" action="<portlet:actionURL/>" method="POST">
     <input type="hidden" name="mode" value="setupCA-after"/>
     <table border="0">
         <tr>
