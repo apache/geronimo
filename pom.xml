@@ -82,7 +82,6 @@
         <axis2Version>SNAPSHOT</axis2Version>
         <axis2TransportVersion>SNAPSHOT</axis2TransportVersion>
         <axiomVersion>1.2.8</axiomVersion>
-        <!-- <springVersion>2.0.5</springVersion> -->
         <springVersion>2.5.6</springVersion>
         <plutoVersion>1.1.6-G643117</plutoVersion>
         <openjpaVersion>1.2.0</openjpaVersion>
