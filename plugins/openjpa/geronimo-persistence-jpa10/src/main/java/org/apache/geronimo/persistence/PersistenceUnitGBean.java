@@ -92,8 +92,10 @@ public class PersistenceUnitGBean implements GBeanLifecycle {
         List<URL> jarFileUrls = NO_URLS;
         if (!excludeUnlistedClassesValue) {
             jarFileUrls = new ArrayList<URL>();
+            //Per the EJB3.0 Persistence Specification section 6.2, the jar-file should be related to the Persistence Unit Root, which is the jar or directory where the persistence.xml is found             
+            URI persistenceUnitBaseURI = configurationBaseURI.resolve(persistenceUnitRoot);
             for (String urlString: jarFileUrlsUntyped) {
-                URL url = configurationBaseURI.resolve(urlString).normalize().toURL();
+                URL url = persistenceUnitBaseURI.resolve(urlString).normalize().toURL();
                 jarFileUrls.add(url);
             }
         }
