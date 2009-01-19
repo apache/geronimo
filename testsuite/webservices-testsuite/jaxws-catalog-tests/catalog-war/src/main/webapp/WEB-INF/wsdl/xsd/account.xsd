@@ -18,6 +18,10 @@
     under the License.
 -->
 <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://geronimo.apache.org/account" targetNamespace="http://geronimo.apache.org/account">
+
+    <xsd:import namespace="http://apache.org/greeter_control/types"
+                schemaLocation="greeter.xsd"/>
+
     <xsd:element name="Account">
         <xsd:complexType>
             <xsd:sequence>

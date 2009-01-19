@@ -63,7 +63,7 @@ public class WSDLQueryHandler {
     
     private Map<String, Definition> wsdlMap;
     private Map<String, SchemaReference> schemaMap;
-    private Map<String, String> keyMap;
+    private Map<String, String> importMap;
     private int wsdlCounter;
     private int schemaCounter;
     private AxisService service;
@@ -142,17 +142,19 @@ public class WSDLQueryHandler {
     }
 
     private synchronized void init(String wsdlUri, String base) throws WSDLException {
-        if (keyMap == null) {
+        if (importMap == null) {
             wsdlMap = new HashMap<String, Definition>();
             schemaMap = new HashMap<String, SchemaReference>();
-            keyMap = new HashMap<String, String>();
+            importMap = new HashMap<String, String>();
+            
+            Map docMap = new HashMap<String, String>();
             
             WSDLFactory factory = WSDLFactory.newInstance();
             WSDLReader reader = factory.newWSDLReader();
             reader.setFeature("javax.wsdl.importDocuments", true);
             reader.setFeature("javax.wsdl.verbose", false);            
             Definition def = reader.readWSDL(new CatalogWSDLLocator(wsdlUri, this.catalog));
-            updateDefinition("", def, base);
+            updateDefinition("", def, docMap, base);
             // remove other services and ports from wsdl
             WSDLUtils.trimDefinition(def, this.service.getName(), this.service.getEndpointName());
             
@@ -160,28 +162,28 @@ public class WSDLQueryHandler {
         }
     }
 
-    private void updateWSDLImports(Element rootElement, String base, String parentKey) {
+    private void updateWSDLImports(Element rootElement, String base, String parentDocKey) {
         NodeList nl = rootElement.getElementsByTagNameNS("http://schemas.xmlsoap.org/wsdl/", "import");        
         for (int x = 0; x < nl.getLength(); x++) {
             Element el = (Element) nl.item(x);
             String location = el.getAttribute("location");
-            String id = parentKey + "/" + location;
-            String key = keyMap.get(id);
-            if (key != null) {
-                el.setAttribute("location", base + "?wsdl=" + key);
+            String importId = parentDocKey + "/" + location;
+            String docKey = importMap.get(importId);
+            if (docKey != null) {
+                el.setAttribute("location", base + "?wsdl=" + docKey);
             }
         }
     }
 
-    private void updateSchemaImports(Element rootElement, String base, String parentKey) {
+    private void updateSchemaImports(Element rootElement, String base, String parentDocKey) {
         NodeList nl = rootElement.getElementsByTagNameNS("http://www.w3.org/2001/XMLSchema", "import");
         for (int x = 0; x < nl.getLength(); x++) {
             Element el = (Element) nl.item(x);
             String location = el.getAttribute("schemaLocation");
-            String id = parentKey + "/" + location;
-            String key = keyMap.get(id);
-            if (key != null) {
-                el.setAttribute("schemaLocation", base + "?xsd=" + key);
+            String importId = parentDocKey + "/" + location;
+            String docKey = importMap.get(importId);
+            if (docKey != null) {
+                el.setAttribute("schemaLocation", base + "?xsd=" + docKey);
             }
         }
         
@@ -189,29 +191,33 @@ public class WSDLQueryHandler {
         for (int x = 0; x < nl.getLength(); x++) {
             Element el = (Element) nl.item(x);
             String location = el.getAttribute("schemaLocation");
-            String id = parentKey + "/" + location;
-            String key = keyMap.get(id);
-            if (key != null) {
-                el.setAttribute("schemaLocation", base + "?xsd=" + key);
+            String importId = parentDocKey + "/" + location;
+            String docKey = importMap.get(importId);
+            if (docKey != null) {
+                el.setAttribute("schemaLocation", base + "?xsd=" + docKey);
             }
         }
     }
        
-    protected void updateDefinition(String parentKey,
+    protected void updateDefinition(String parentDocKey,
                                     Definition def,
+                                    Map<String, String> docMap, 
                                     String base) {
         Collection<List> imports = def.getImports().values();
         for (List lst : imports) {
             List<Import> impLst = lst;
             for (Import imp : impLst) {
+                String docURI = imp.getDefinition().getDocumentBaseURI();
                 String location = imp.getLocationURI();                
-                String id = parentKey + "/" + location;                   
-                if (!keyMap.containsKey(id)) {
-                    String key = getUniqueWSDLId();
-                    wsdlMap.put(key, imp.getDefinition());
-                    keyMap.put(id, key);
-                    updateDefinition(key, imp.getDefinition(), base);
+                String importId = parentDocKey + "/" + location;
+                String docKey = docMap.get(docURI);                
+                if (docKey == null) {
+                    docKey = getUniqueWSDLId();
+                    docMap.put(docURI, docKey);
+                    wsdlMap.put(docKey, imp.getDefinition());
+                    updateDefinition(docKey, imp.getDefinition(), docMap, base);
                 }
+                importMap.put(importId, docKey);
             }
         }      
                
@@ -220,40 +226,47 @@ public class WSDLQueryHandler {
             for (ExtensibilityElement el : (List<ExtensibilityElement>)types.getExtensibilityElements()) {
                 if (el instanceof Schema) {
                     Schema schema = (Schema)el;
-                    updateSchemaImports(parentKey, schema, base);
+                    updateSchemaImports(parentDocKey, schema, docMap, base);
                 }
             }
         }
     }
     
-    protected void updateSchemaImports(String parentKey, 
+    protected void updateSchemaImports(String parentDocKey, 
                                        Schema schema,
+                                       Map<String, String> docMap, 
                                        String base) {
         Collection<List> imports = schema.getImports().values();
         for (List list : imports) {
             List<SchemaImport> impList = list;
-            for (SchemaImport imp : impList) {
-                String location = imp.getSchemaLocationURI();                                
-                String id = parentKey + "/" + location;
-                if (!keyMap.containsKey(id)) {
-                    String key = getUniqueSchemaId();
-                    schemaMap.put(key, imp);
-                    keyMap.put(id, key);
-                    updateSchemaImports(key, imp.getReferencedSchema(), base);
-                }                    
+            for (SchemaImport s : impList) {
+                String docURI = s.getReferencedSchema().getDocumentBaseURI();
+                String location = s.getSchemaLocationURI(); 
+                String importId = parentDocKey + "/" + location;                                
+                String docKey = docMap.get(docURI);                
+                if (docKey == null) {
+                    docKey = getUniqueSchemaId();
+                    docMap.put(docURI, docKey);
+                    schemaMap.put(docKey, s);
+                    updateSchemaImports(docKey, s.getReferencedSchema(), docMap, base);
+                }                
+                importMap.put(importId, docKey);
             }
         }
         
         List<SchemaReference> includes = schema.getIncludes();
-        for (SchemaReference included : includes) {
-            String location = included.getSchemaLocationURI();
-            String id = parentKey + "/" + location;
-            if (!keyMap.containsKey(id)) {
-                String key = getUniqueSchemaId();
-                schemaMap.put(key, included);
-                keyMap.put(id, key);
-                updateSchemaImports(key, included.getReferencedSchema(), base);
-            }
+        for (SchemaReference s : includes) {
+            String docURI = s.getReferencedSchema().getDocumentBaseURI();
+            String location = s.getSchemaLocationURI(); 
+            String importId = parentDocKey + "/" + location;                                
+            String docKey = docMap.get(docURI);                
+            if (docKey == null) {
+                docKey = getUniqueSchemaId();
+                docMap.put(docURI, docKey);
+                schemaMap.put(docKey, s);
+                updateSchemaImports(docKey, s.getReferencedSchema(), docMap, base);
+            }                
+            importMap.put(importId, docKey);
         }
     }
     
