@@ -18,40 +18,22 @@
  */
 package org.apache.geronimo.jaxws.test;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import javax.annotation.Resource;
 import javax.ejb.Stateless;
-import javax.jws.WebService;
-import javax.xml.ws.WebServiceContext;
+import javax.xml.namespace.QName;
+import javax.xml.ws.Service;
+import javax.xml.ws.WebServiceRef;
 
-@WebService(serviceName = "GreeterService",
-            portName = "GreeterPort",
-            name = "Greeter", 
-            targetNamespace = "http://apache.org/greeter_control",
-	        wsdlLocation = "META-INF/wsdl/greeter_service.wsdl")
-@Stateless(name="GreeterBean")
-public class GreeterBean { 
-
-    @Resource
-    private WebServiceContext context;
-
-    public String greetMe(String me) {
-        return "Hello " + me;
-    }
-            
-    public String sayHi() {
-        return "Hi!";
+@Stateless(name="GreeterClient")
+public class GreeterEjbClient implements GreeterRemote { 
+       
+    /*
+    @WebServiceRef(name="services/Greeter", 
+                   wsdlLocation="META-INF/wsdl/greeter_service.wsdl")
+    */
+    private Service service = Service.create(new QName("DISALBED"));
+        
+    public String test() {
+        return (service != null) ? "OK" : "FAILED";
     }
         
-    @PostConstruct
-    private void myInit() {
-        System.out.println(this + " PostConstruct");
-    }
-
-    @PreDestroy()
-    private void myDestroy() {
-        System.out.println(this + " PreDestroy");
-    }
-    
 }

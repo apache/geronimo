@@ -43,7 +43,7 @@ import org.xml.sax.InputSource;
 
 public abstract class CatalogTest extends TestSupport {
 
-    private String baseURL = "http://localhost:8080";
+    protected String baseURL = "http://localhost:8080";
     
     abstract String getTestServletContext();
            

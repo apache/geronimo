@@ -18,10 +18,35 @@
  */
 package org.apache.geronimo.jaxws.catalog;
 
+import java.util.Properties;
+
+import javax.naming.InitialContext;
+
+import org.apache.geronimo.jaxws.test.GreeterRemote;
+
+import org.testng.annotations.Test;
+
 public class EJBCatalogTest extends CatalogTest {
 
     protected String getTestServletContext() {
         return "/catalog-ejb";
     }
        
+    @Test
+    public void testClient() throws Exception {
+        Properties p = new Properties();
+        
+        p.put("java.naming.factory.initial", 
+              "org.apache.openejb.client.RemoteInitialContextFactory");
+        p.put("java.naming.provider.url", 
+              "127.0.0.1:4201");   
+        
+        InitialContext ctx = new InitialContext(p);
+        
+        GreeterRemote greeter = (GreeterRemote)ctx.lookup("/GreeterClientRemote");
+        
+        String response = greeter.test();
+        
+        assertEquals("OK", response);
+    }
 }

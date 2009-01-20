@@ -50,6 +50,13 @@
             <version>${version}</version>
             <type>ejb</type>
         </dependency>
+        
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-openejb</artifactId>
+            <version>${version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>

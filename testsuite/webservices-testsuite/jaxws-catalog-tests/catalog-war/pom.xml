@@ -34,4 +34,11 @@
     <name>Geronimo TestSuite :: WebServices TestSuite :: JAX-WS Catalog WAR</name>
     <packaging>war</packaging>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-servlet_2.5_spec</artifactId>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
 </project>

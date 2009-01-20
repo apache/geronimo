@@ -35,6 +35,17 @@
         <session>
             <ejb-name>GreeterBean</ejb-name>
             <web-service-address>/${pom.artifactId}/greeter</web-service-address>
+
+            <service-ref>
+                <service-ref-name>services/Greeter</service-ref-name>
+                <port>
+                    <port-name>GreeterPort</port-name>
+                    <protocol>http</protocol>
+                    <host>localhost</host>
+                    <port>8080</port>
+                    <uri>/${pom.artifactId}/greeter</uri>
+                </port>
+            </service-ref>
         </session>
     </enterprise-beans>
 

@@ -35,5 +35,17 @@
         <servlet-name>GreeterServlet</servlet-name>
         <url-pattern>/greeter</url-pattern>
     </servlet-mapping>
+    
+    <servlet>
+        <display-name>GreeterClientServlet</display-name>
+        <servlet-name>GreeterClientServlet</servlet-name>
+        <servlet-class>org.apache.geronimo.jaxws.test.GreeterWebClient</servlet-class>
+        <load-on-startup>0</load-on-startup>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>GreeterClientServlet</servlet-name>
+        <url-pattern>/greeter-client</url-pattern>
+    </servlet-mapping>
        
 </web-app>

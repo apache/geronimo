@@ -19,16 +19,16 @@
 <!-- $Rev$ $Date$ -->
 
 <ejb-jar version="3.0" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/ejb-jar_3_0.xsd">
-  <display-name>JJAX-WS Catalog Test</display-name>
+    <display-name>JAX-WS Catalog Test</display-name>
 
-  <enterprise-beans>
-    <session>
-      <display-name>GreeterBean</display-name>
-      <ejb-name>GreeterBean</ejb-name>
-      <ejb-class>org.apache.geronimo.jaxws.test.GreeterBean</ejb-class>
-      <session-type>Stateless</session-type>
-      <transaction-type>Container</transaction-type>
-    </session>
-  </enterprise-beans>
+    <enterprise-beans>
+        <session>
+            <display-name>GreeterBean</display-name>
+            <ejb-name>GreeterBean</ejb-name>
+            <ejb-class>org.apache.geronimo.jaxws.test.GreeterBean</ejb-class>
+            <session-type>Stateless</session-type>
+            <transaction-type>Container</transaction-type>
+        </session>
+    </enterprise-beans>
 
 </ejb-jar>
