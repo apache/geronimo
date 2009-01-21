@@ -16,19 +16,16 @@
  */
 package org.apache.geronimo.jaxws.builder;
 
+import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.jar.JarFile;
-import java.util.zip.ZipEntry;
 
 import javax.wsdl.Binding;
 import javax.wsdl.Definition;
@@ -44,21 +41,28 @@ import javax.wsdl.xml.WSDLReader;
 import javax.xml.namespace.QName;
 import javax.xml.ws.WebServiceClient;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.jaxws.JAXWSUtils;
 import org.apache.geronimo.jaxws.client.EndpointInfo;
+import org.apache.geronimo.jaxws.wsdl.CatalogJarWSDLLocator;
+import org.apache.geronimo.jaxws.wsdl.CatalogWSDLLocator;
 import org.apache.geronimo.xbeans.geronimo.naming.GerPortType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
 import org.apache.geronimo.xbeans.javaee.PortComponentRefType;
-import org.xml.sax.InputSource;
+import org.apache.xml.resolver.Catalog;
+import org.apache.xml.resolver.CatalogManager;
+import org.apache.xml.resolver.tools.CatalogResolver;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class EndpointInfoBuilder {
 
     private static final Logger LOG = LoggerFactory.getLogger(EndpointInfoBuilder.class);
 
-    private JarFile moduleFile;
+    private Module module;
+    
+    private ClassLoader classLoader;
 
     private URI wsdlURI;
 
@@ -75,13 +79,15 @@ public class EndpointInfoBuilder {
     public EndpointInfoBuilder(Class serviceClass,
                                GerServiceRefType serviceRefType,
                                Map<Class, PortComponentRefType> portComponentRefMap,
-                               JarFile moduleFile,
+                               Module module,
+                               ClassLoader classLoader, 
                                URI wsdlURI,
                                QName serviceQName) {
         this.serviceClass = serviceClass;
         this.serviceRefType = serviceRefType;
         this.portComponentRefMap = portComponentRefMap;
-        this.moduleFile = moduleFile;
+        this.module = module;
+        this.classLoader = classLoader;
         this.wsdlURI = wsdlURI;
         this.serviceQName = serviceQName;
     }
@@ -136,15 +142,15 @@ public class EndpointInfoBuilder {
             }
         }
         
-        JarWSDLLocator wsdlLocator = null;
-        URL wsdlURL = null;
-        try {
-            wsdlURL = new URL(this.wsdlURI.toString());
-        } catch (MalformedURLException e1) {
-            // not a URL, assume it's a local reference
-            wsdlLocator = new JarWSDLLocator(this.wsdlURI);
+        Catalog catalog = loadCatalog();
+        
+        WSDLLocator wsdlLocator = null;
+        if (isURL(this.wsdlURI.toString())) {
+            wsdlLocator = new CatalogWSDLLocator(this.wsdlURI.toString(), catalog);
+        } else {
+            wsdlLocator = new CatalogJarWSDLLocator(this.module.getModuleFile(), this.wsdlURI, catalog);
         }
-
+        
         Definition definition;
         WSDLFactory wsdlFactory;
         try {
@@ -156,13 +162,7 @@ public class EndpointInfoBuilder {
         wsdlReader.setFeature("javax.wsdl.importDocuments", true);
         wsdlReader.setFeature("javax.wsdl.verbose", false);
         try {
-            if (wsdlURL != null) {
-                definition = wsdlReader.readWSDL(wsdlURL.toString());
-            } else if (wsdlLocator != null) {
-                definition = wsdlReader.readWSDL(wsdlLocator);
-            } else {
-                throw new DeploymentException("unknown");
-            }
+            definition = wsdlReader.readWSDL(wsdlLocator);
         } catch (WSDLException e) {
             throw new DeploymentException("Failed to read wsdl document", e);
         } catch (RuntimeException e) {
@@ -386,85 +386,53 @@ public class EndpointInfoBuilder {
         return null;
     }
     
-    private class JarWSDLLocator implements WSDLLocator {
-
-        private final List<InputStream> streams = new ArrayList<InputStream>();
-
-        private final URI wsdlURI;
-
-        private URI latestImportURI;
-
-        public JarWSDLLocator(URI wsdlURI) {
-            this.wsdlURI = wsdlURI;
-        }
-
-        public InputSource getBaseInputSource() {
-            InputStream wsdlInputStream = getModuleFile(wsdlURI);
-            streams.add(wsdlInputStream);
-            return new InputSource(wsdlInputStream);
-        }
-
-        public String getBaseURI() {
-            return wsdlURI.toString();
-        }
-
-        public InputSource getImportInputSource(String parentLocation,
-                                                String relativeLocation) {
-            URI parentURI = URI.create(parentLocation);
-            URI relativeURI = URI.create(relativeLocation);
-            InputStream importInputStream;
-            if (relativeURI.isAbsolute()) {
-                latestImportURI = relativeURI;
-                importInputStream = getExternalFile(latestImportURI);
-            } else if (parentURI.isAbsolute()) {
-                latestImportURI = parentURI.resolve(relativeLocation);
-                importInputStream = getExternalFile(latestImportURI);
-            } else {
-                latestImportURI = parentURI.resolve(relativeLocation);
-                importInputStream = getModuleFile(latestImportURI);
-            }
-            streams.add(importInputStream);
-            InputSource inputSource = new InputSource(importInputStream);
-            inputSource.setSystemId(getLatestImportURI());
-            return inputSource;
-        }
-
-        public String getLatestImportURI() {
-            return latestImportURI.toString();
-        }
-
-        private InputStream getExternalFile(URI file) {
-            try {
-                return file.toURL().openStream();
-            } catch (Exception e) {
-                throw new RuntimeException(
-                        "Failed to import external file: " + latestImportURI, e);
-            }
-        }
-        
-        private InputStream getModuleFile(URI file) {
-            ZipEntry entry = moduleFile.getEntry(file.toString());
-            if (entry == null) {
-                throw new RuntimeException(
-                    "File does not exist in the module: " + file);
-            }
-            try {                
-                return moduleFile.getInputStream(entry);
-            } catch (Exception e) {
-                throw new RuntimeException(
-                    "Could not open stream to import file", e);
-            }
-        }
-        
-        public void close() {
-            for (InputStream inputStream : this.streams) {
-                try {
-                    inputStream.close();
-                } catch (IOException e) {
-                    // ignore
-                }
-            }
-            streams.clear();
+    private boolean isURL(String name) {
+        try {
+            new URL(name);
+            return true;
+        } catch (MalformedURLException e1) {
+            return false;
         }
     }
+    
+    private Catalog loadCatalog() {        
+        URL catalogURI = null;
+        try {
+            catalogURI = getCatalog(JAXWSUtils.DEFAULT_CATALOG_WEB);
+            if (catalogURI == null) {
+                catalogURI = getCatalog(JAXWSUtils.DEFAULT_CATALOG_EJB);
+            }
+        } catch (IOException e) {
+            LOG.warn("Failed to open OASIS catalog", e);
+        }
+        
+        CatalogManager catalogManager = new CatalogManager();
+        catalogManager.setUseStaticCatalog(false);
+        catalogManager.setIgnoreMissingProperties(true);
+        CatalogResolver catalogResolver = new CatalogResolver(catalogManager);
+        Catalog catalog = catalogResolver.getCatalog();
+        
+        if (catalogURI != null) {
+            LOG.debug("Found OASIS catalog {} ", catalogURI);
+            try {
+                catalog.parseCatalog(catalogURI);
+            } catch (Exception e) {
+                LOG.warn("Failed to read OASIS catalog", e);
+            }
+        }
+        
+        return catalog;
+    }
+        
+    private URL getCatalog(String name) throws IOException {
+        URL catalogURL = this.classLoader.getResource(name);
+        if (catalogURL == null) {
+            File f = this.module.getEarContext().getTargetFile(URI.create(name));
+            if (f.exists()) {
+                catalogURL = f.toURL();
+            }
+        }
+        return catalogURL;
+    }
+       
 }

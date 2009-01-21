@@ -18,12 +18,17 @@
 package org.apache.geronimo.axis2.client;
 
 import java.net.URI;
+import java.net.URL;
 import java.util.Map;
 
+import javax.naming.NamingException;
 import javax.xml.namespace.QName;
 import javax.xml.ws.handler.HandlerResolver;
 
+import org.apache.axis2.jaxws.catalog.impl.OASISCatalogManager;
 import org.apache.axis2.jaxws.context.WebServiceContextImpl;
+import org.apache.axis2.jaxws.description.builder.DescriptionBuilderComposite;
+import org.apache.axis2.jaxws.spi.ServiceDelegate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.geronimo.gbean.AbstractName;
@@ -51,6 +56,26 @@ public class Axis2ServiceReference extends JAXWSServiceReference {
                                  String handlerChainsXML,
                                  Map<Object, EndpointInfo> seiInfoMap) {
         super(handlerChainsXML, seiInfoMap, name, serviceQName, wsdlURI, referenceClassName, serviceClassName);
+    }
+    
+    @Override
+    public Object getContent() throws NamingException {
+        DescriptionBuilderComposite composite = null;
+        
+        URL catalogURL = getCatalog();
+        if (catalogURL != null) {
+            composite = new DescriptionBuilderComposite();
+            OASISCatalogManager catalogManager = new OASISCatalogManager();
+            catalogManager.setCatalogFiles(catalogURL.toString());
+            composite.setCatalogManager(catalogManager);
+        }
+        
+        ServiceDelegate.setServiceMetadata(composite);
+        try {
+            return super.getContent();
+        } finally {
+            ServiceDelegate.setServiceMetadata(null);
+        }
     }
 
     protected HandlerChainsType getHandlerChains() {

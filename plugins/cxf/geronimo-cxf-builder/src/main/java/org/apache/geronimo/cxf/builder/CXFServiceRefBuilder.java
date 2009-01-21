@@ -54,7 +54,7 @@ public class CXFServiceRefBuilder extends JAXWSServiceRefBuilder {
                                 QName serviceQName, URI wsdlURI, Class serviceReference, 
                                 Map<Class, PortComponentRefType> portComponentRefMap) throws DeploymentException {
         EndpointInfoBuilder builder = new EndpointInfoBuilder(serviceInterface,
-                gerServiceRef, portComponentRefMap, module.getModuleFile(),
+                gerServiceRef, portComponentRefMap, module, cl, 
                 wsdlURI, serviceQName);
         builder.build();
 

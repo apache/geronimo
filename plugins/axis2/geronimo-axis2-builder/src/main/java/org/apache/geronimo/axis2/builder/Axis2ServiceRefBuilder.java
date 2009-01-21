@@ -61,7 +61,7 @@ public class Axis2ServiceRefBuilder extends JAXWSServiceRefBuilder {
                                 Map<Class, PortComponentRefType> portComponentRefMap) throws DeploymentException {
         registerConfigGBean(module);
         EndpointInfoBuilder builder = new EndpointInfoBuilder(serviceInterfaceClass,
-                gerServiceRef, portComponentRefMap, module.getModuleFile(),
+                gerServiceRef, portComponentRefMap, module, cl, 
                 wsdlURI, serviceQName);
         builder.build();
 

@@ -70,14 +70,14 @@
                     <dependencies>
                         <dependency>
                             <groupId>org.apache.geronimo.configs</groupId>
-                            <artifactId>j2ee-deployer</artifactId>
-                            <type>car</type>
-                        </dependency>
-                        <dependency>
-                            <groupId>org.apache.geronimo.configs</groupId>
                             <artifactId>webservices-common</artifactId>
                             <type>car</type>
                             <import>classes</import>
+                        </dependency>
+                        <dependency>
+                            <groupId>org.apache.geronimo.configs</groupId>
+                            <artifactId>j2ee-deployer</artifactId>
+                            <type>car</type>
                         </dependency>
                         <dependency>
                             <groupId>org.apache.geronimo.modules</groupId>

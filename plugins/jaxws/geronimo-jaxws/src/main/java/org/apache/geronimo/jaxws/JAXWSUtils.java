@@ -307,12 +307,12 @@ public class JAXWSUtils {
         if (catalogName == null) {
             return null;
         }
+        LOG.debug("Checking for {} catalog in classloader", catalogName);
         URL catalogURL = classLoader.getResource(catalogName);
-        LOG.debug("Checking for {} catalog in classloader", catalogURL);  
-        if (catalogURL == null) {
+        if (catalogURL == null && configurationBaseUrl != null) {
             try {
+                LOG.debug("Checking for {} catalog in module directory", catalogName);  
                 URL tmpCatalogURL = new URL(configurationBaseUrl, catalogName);
-                LOG.debug("Checking for {} catalog in module directory", catalogURL);            
                 tmpCatalogURL.openStream().close();
                 catalogURL = tmpCatalogURL;
             } catch (MalformedURLException e) {

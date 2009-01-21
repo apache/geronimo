@@ -20,6 +20,7 @@ package org.apache.geronimo.jaxws.client;
 import org.apache.geronimo.naming.reference.SimpleReference;
 import org.apache.geronimo.naming.reference.ClassLoaderAwareReference;
 import org.apache.geronimo.naming.reference.KernelAwareReference;
+import org.apache.geronimo.jaxws.JAXWSUtils;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.gbean.AbstractName;
 import org.slf4j.Logger;
@@ -62,6 +63,8 @@ public abstract class JAXWSServiceReference extends SimpleReference implements C
     protected Class enhancedServiceClass;
     protected Callback[] methodInterceptors;
     protected FastConstructor serviceConstructor;
+    
+    protected transient URL moduleBaseUrl;
 
     public JAXWSServiceReference(String handlerChainsXML, Map<Object, EndpointInfo> seiInfoMap, AbstractName name, QName serviceQName, URI wsdlURI, String referenceClassName, String serviceClassName) {
         this.handlerChainsXML = handlerChainsXML;
@@ -79,8 +82,17 @@ public abstract class JAXWSServiceReference extends SimpleReference implements C
 
     public void setKernel(Kernel kernel) {
         this.kernel = kernel;
+        init();
     }
 
+    private void init() {
+        try {
+            this.moduleBaseUrl = (URL) this.kernel.getAttribute(this.moduleName, "configurationBaseUrl");
+        } catch (Exception e) {
+            // ignore
+        }
+    }
+    
     private Class loadClass(String name) throws NamingException {
         try {
             return this.classLoader.loadClass(name);
@@ -96,24 +108,41 @@ public abstract class JAXWSServiceReference extends SimpleReference implements C
         if (this.wsdlURI == null) {
             return null;
         }
+        
+        URL wsdlURL = null;
         try {
-            return new URL(this.wsdlURI.toString());
+            wsdlURL = new URL(this.wsdlURI.toString());
         } catch (MalformedURLException e1) {
             // not a URL, assume it's a local reference
-            try {
-                URL moduleBaseUrl = (URL) this.kernel.getAttribute(
-                        this.moduleName, "configurationBaseUrl");
-                return new URL(moduleBaseUrl.toString() + this.wsdlURI.toString());
-            } catch (Exception e) {
-                URL wsdlURL = this.classLoader.getResource(this.wsdlURI.toString());
+            
+            if (this.moduleBaseUrl != null) {
+                try {
+                    wsdlURL = new URL(this.moduleBaseUrl.toString() + this.wsdlURI.toString());
+                } catch (Exception e) {
+                    // ignore
+                }
+            }
+            
+            if (wsdlURL == null) {
+                wsdlURL = this.classLoader.getResource(this.wsdlURI.toString());
                 if (wsdlURL == null) {
-                    LOG.warn("Error obtaining WSDL: " + this.wsdlURI, e);
+                    LOG.warn("Failed to obtain WSDL: " + this.wsdlURI);
                 }
                 return wsdlURL;
             }
         }
+        
+        return wsdlURL;
     }
 
+    protected URL getCatalog() {
+        URL catalogURL = JAXWSUtils.getOASISCatalogURL(this.moduleBaseUrl, this.classLoader, JAXWSUtils.DEFAULT_CATALOG_WEB);
+        if (catalogURL == null) {
+            catalogURL = JAXWSUtils.getOASISCatalogURL(this.moduleBaseUrl, this.classLoader, JAXWSUtils.DEFAULT_CATALOG_EJB);
+        }
+        return catalogURL;
+    }
+    
     private Class getReferenceClass() throws NamingException {
         return (this.referenceClassName != null) ? loadClass(this.referenceClassName) : null;
     }
