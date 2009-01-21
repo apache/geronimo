@@ -25,22 +25,17 @@
 <c:choose>
   <c:when test="${empty(resources)}"><p><i><fmt:message key="jmswizard.list.noJMSResourceGroups" /></i></p></c:when>
   <c:otherwise>
-<!--
-<p>For each resource listed, you can click the <b>usage</b> link to see examples of how
-  to use the connection factories and destinations from your application.</p>
--->
-
     <c:forEach var="resource" items="${resources}">
       <b><c:out value="${resource.name}"/> (<c:out value="${resource.configurationName}"/>):</b>
       <table width="100%" class="TableLine" summary="JMS Resources">
-        <tr>
-          <th scope="col" class="DarkBackground"><fmt:message key="jmswizard.common.type"/></th>
-          <th scope="col" class="DarkBackground"><fmt:message key="jmswizard.common.name"/></th>
-          <th scope="col" class="DarkBackground" align="center"><fmt:message key="jmswizard.common.deployedAs"/></th>
-          <th scope="col" class="DarkBackground" align="center"><fmt:message key="jmswizard.common.state"/></th>
-          <th scope="col" class="DarkBackground" align="center"><fmt:message key="jmswizard.common.consumerCount"/></th>
-          <th scope="col" class="DarkBackground" align="center"><fmt:message key="jmswizard.common.queueSize"/></th>
-          <th scope="col" class="DarkBackground" align="center"><fmt:message key="jmswizard.common.actions"/></th>
+        <tr class="DarkBackground">
+          <th scope="col"><fmt:message key="jmswizard.common.type"/></th>
+          <th scope="col"><fmt:message key="jmswizard.common.name"/></th>
+          <th scope="col" align="center"><fmt:message key="jmswizard.common.deployedAs"/></th>
+          <th scope="col" align="center"><fmt:message key="jmswizard.common.state"/></th>
+          <th scope="col" align="center"><fmt:message key="jmswizard.common.consumerCount"/></th>
+          <th scope="col" align="center"><fmt:message key="jmswizard.common.queueSize"/></th>
+          <th scope="col" align="center"><fmt:message key="jmswizard.common.actions"/></th>
         </tr>
         <c:set var="backgroundClass" value='MediumBackground'/>
         <c:forEach var="factory" items="${resource.connectionFactories}">
@@ -52,10 +47,10 @@
                     <c:set var="backgroundClass" value='MediumBackground'/>
                 </c:otherwise>
             </c:choose>
-            <tr>
-              <td class="${backgroundClass}"><fmt:message key="jmswizard.common.connFactory" /> </td>
-              <td class="${backgroundClass}">${factory.name}</td>
-              <td class="${backgroundClass}">
+            <tr class="${backgroundClass}">
+              <td><fmt:message key="jmswizard.common.connFactory" /> </td>
+              <td>${factory.name}</td>
+              <td>
                 <c:choose>
                   <c:when test="${empty resource.parentName}">
                     <fmt:message key="jmswizard.list.serverWide" /> 
@@ -65,8 +60,10 @@
                   </c:otherwise>
                 </c:choose>
               </td>
-              <td class="${backgroundClass}">${factory.stateName}</td>
-              <td class="${backgroundClass}">
+              <td>${factory.stateName}</td>
+              <td>&nbsp;</td>
+              <td>&nbsp;</td>
+              <td>&nbsp;
                 <%--
                 <a href="<portlet:actionURL portletMode="view">
                   <portlet:param name="mode" value="editExisting" />
@@ -93,10 +90,10 @@
                     <c:set var="backgroundClass" value='MediumBackground'/>
                 </c:otherwise>
             </c:choose>
-            <tr>
-              <td class="${backgroundClass}">${admin.type}</td>
-              <td class="${backgroundClass}">${admin.name}</td>
-              <td class="${backgroundClass}">
+            <tr class="${backgroundClass}">
+              <td>${admin.type}</td>
+              <td>${admin.name}</td>
+              <td>
                 <c:choose>
                   <c:when test="${empty resource.parentName}">
                     <fmt:message key="jmswizard.list.serverWide" /> 
@@ -106,59 +103,73 @@
                   </c:otherwise>
                 </c:choose>
               </td>
-              <td class="${backgroundClass}">${admin.stateName}</td>
-              <td class="${backgroundClass}">
-              <c:if test="${admin.destinationStat != null}">
-              	${admin.destinationStat.consumerCount}
-              </c:if>
-              </td>
-              <td class="${backgroundClass}">
-              <c:if test="${admin.destinationStat != null}">
-              	${admin.destinationStat.queueSize}
-              </c:if>
-              </td>
-              <td class="${backgroundClass}">
-              <c:if test="${ admin.type == 'Queue'}">
-                 <a href="<portlet:actionURL portletMode="view">
-	                  <portlet:param name="mode" value="viewMessages-before" />
-	                  <portlet:param name="adminObjName" value="${admin.name}" />
-	                  <portlet:param name="physicalName" value="${admin.physicalName}" />
-	                  <portlet:param name="adminObjType" value="${admin.type}" />
-	                  <portlet:param name="adapterObjectName" value="${resource.adapterObjectName}" />
-	                </portlet:actionURL>"><fmt:message key="jmswizard.common.Browse" /></a>
-	         </c:if>
-             <a href="<portlet:actionURL portletMode="view">
-                  <portlet:param name="mode" value="sendmessage-before" />
-                  <portlet:param name="adminObjName" value="${admin.name}" />
-                  <portlet:param name="physicalName" value="${admin.physicalName}" />
-                  <portlet:param name="adminObjType" value="${admin.type}" />
-                  <portlet:param name="adapterObjectName" value="${resource.adapterObjectName}" />
-                </portlet:actionURL>"><fmt:message key="jmswizard.common.Send" /></a>
-              <c:if test="${ admin.type == 'Queue'}">
-                <a href="<portlet:actionURL portletMode="view">
-                  <portlet:param name="mode" value="list-before" />
-                  <portlet:param name="purge" value="purge" />
-                  <portlet:param name="adminObjName" value="${admin.name}" />
-                  <portlet:param name="physicalName" value="${admin.physicalName}" />
-                  <portlet:param name="adminObjType" value="${admin.type}" />
-                  <portlet:param name="adapterObjectName" value="${resource.adapterObjectName}" />
-                </portlet:actionURL>" onclick="return confirm('Confirm message purge?');"><fmt:message key="jmswizard.common.Purge"/></a>
-              </c:if>
-                <%--
-                <a href="<portlet:actionURL portletMode="view">
-                  <portlet:param name="mode" value="editExisting" />
-                  <portlet:param name="adapterObjectName" value="${pool.adapterObjectName}" />
-                  <portlet:param name="objectName" value="${pool.factoryObjectName}" />
-                </portlet:actionURL>">edit</a>
-                <a href="<portlet:actionURL portletMode="view">
-                  <portlet:param name="mode" value="usage" />
-                  <portlet:param name="name" value="${pool.name}" />
-                  <portlet:param name="objectName" value="${pool.factoryObjectName}" />
-                </portlet:actionURL>">usage</a>
-                Test
-                Statistics
-                --%>
-              </td>
+              <td>${admin.stateName}</td>
+              <c:choose>
+                  <c:when test="${admin.stateName == 'running'}">
+                      <td>
+                          <c:if test="${admin.destinationStat != null}">
+                          	${admin.destinationStat.consumerCount}
+                          </c:if>
+                      </td>
+                      <td>
+                          <c:if test="${admin.destinationStat != null}">
+                          	${admin.destinationStat.queueSize}
+                          </c:if>
+                      </td>
+                      <td>
+                      <c:if test="${ admin.type == 'Queue' && !empty(resource.connectionFactories)}">
+                         <a href="<portlet:actionURL portletMode="view">
+        	                  <portlet:param name="mode" value="viewMessages-before" />
+        	                  <portlet:param name="adminObjName" value="${admin.name}" />
+        	                  <portlet:param name="physicalName" value="${admin.physicalName}" />
+        	                  <portlet:param name="adminObjType" value="${admin.type}" />
+        	                  <portlet:param name="adapterObjectName" value="${resource.adapterObjectName}" />
+            	                  <portlet:param name="brokerName" value="${resource.brokerName}" />
+        	                </portlet:actionURL>"><fmt:message key="jmswizard.common.Browse" /></a>
+        	         </c:if>
+                     <c:if test="${!empty(resource.connectionFactories)}">
+                     <a href="<portlet:actionURL portletMode="view">
+                          <portlet:param name="mode" value="sendmessage-before" />
+                          <portlet:param name="adminObjName" value="${admin.name}" />
+                          <portlet:param name="physicalName" value="${admin.physicalName}" />
+                          <portlet:param name="adminObjType" value="${admin.type}" />
+                          <portlet:param name="adapterObjectName" value="${resource.adapterObjectName}" />
+                              <portlet:param name="brokerName" value="${resource.brokerName}" />  
+                        </portlet:actionURL>"><fmt:message key="jmswizard.common.Send" /></a>
+                      </c:if>
+                      <c:if test="${ admin.type == 'Queue' && !empty(resource.connectionFactories)}">
+                        <a href="<portlet:actionURL portletMode="view">
+                          <portlet:param name="mode" value="list-before" />
+                          <portlet:param name="purge" value="purge" />
+                          <portlet:param name="adminObjName" value="${admin.name}" />
+                          <portlet:param name="physicalName" value="${admin.physicalName}" />
+                          <portlet:param name="adminObjType" value="${admin.type}" />
+                          <portlet:param name="adapterObjectName" value="${resource.adapterObjectName}" />
+                              <portlet:param name="brokerName" value="${resource.brokerName}" />   
+                        </portlet:actionURL>" onclick="return confirm('Confirm message purge?');"><fmt:message key="jmswizard.common.Purge"/></a>
+                      </c:if>
+                        <%--
+                        <a href="<portlet:actionURL portletMode="view">
+                          <portlet:param name="mode" value="editExisting" />
+                          <portlet:param name="adapterObjectName" value="${pool.adapterObjectName}" />
+                          <portlet:param name="objectName" value="${pool.factoryObjectName}" />
+                        </portlet:actionURL>">edit</a>
+                        <a href="<portlet:actionURL portletMode="view">
+                          <portlet:param name="mode" value="usage" />
+                          <portlet:param name="name" value="${pool.name}" />
+                          <portlet:param name="objectName" value="${pool.factoryObjectName}" />
+                        </portlet:actionURL>">usage</a>
+                        Test
+                        Statistics
+                        --%>
+                      </td>
+                </c:when>
+            <c:otherwise>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+            </c:otherwise>
+            </c:choose>    
             </tr>
         </c:forEach>
       </table><br/>

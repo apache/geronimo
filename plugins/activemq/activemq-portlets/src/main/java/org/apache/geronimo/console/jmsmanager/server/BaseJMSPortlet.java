@@ -16,17 +16,28 @@
  */
 package org.apache.geronimo.console.jmsmanager.server;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.List;
+
+import javax.portlet.PortletException;
+import javax.portlet.PortletRequest;
+
+import org.apache.geronimo.activemq.ActiveMQBroker;
+import org.apache.geronimo.activemq.ActiveMQManager;
 import org.apache.geronimo.console.BasePortlet;
 import org.apache.geronimo.console.util.PortletManager;
 import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.management.State;
+import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.management.geronimo.JMSBroker;
 import org.apache.geronimo.management.geronimo.JMSManager;
-
-import javax.portlet.PortletException;
-import javax.portlet.RenderRequest;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Common methods for JMS portlets
@@ -34,34 +45,66 @@ import java.util.List;
  * @version $Rev$ $Date$
  */
 public class BaseJMSPortlet extends BasePortlet {
-    /**
-     * Gets a Map relating broker name to JMSBroker instance
-     */
-    protected static List<BrokerWrapper> getBrokerList(RenderRequest renderRequest, JMSManager manager) throws PortletException {
 
-        JMSBroker[] brokers = (JMSBroker[]) manager.getContainers();
+    protected List<BrokerWrapper> getBrokerList(PortletRequest renderRequest, JMSManager manager) throws PortletException {
         List<BrokerWrapper> beans = new ArrayList<BrokerWrapper>();
+        //For we need list all the brokers including running and stop on the page,
+        //While querying in the kernel, we could not get the full list.
+        //Currently, all the brokers are in the activemq-broker configuration, we will list all the gbeans in it.
+        //But we still could not load those GBeans which are marked with load="false"
+        Artifact activeMQBrokersConfig = PortletManager.getNameFor(renderRequest, manager).getArtifact();
+        Configuration configuration = PortletManager.getConfigurationManager().getConfiguration(activeMQBrokersConfig);
+        AbstractNameQuery query = new AbstractNameQuery(ActiveMQBroker.class.getName());
+        LinkedHashSet<GBeanData> brokerNameSet = configuration.findGBeanDatas(Collections.singleton(query));
+        Kernel kernel = PortletManager.getKernel();
         try {
-            for (JMSBroker broker : brokers) {
-                AbstractName abstractName = PortletManager.getNameFor(renderRequest, broker);
-                String displayName = abstractName.getName().get("name").toString();
-                beans.add(new BrokerWrapper(displayName, abstractName.toString(), broker));
+            for (GBeanData gBeanData : brokerNameSet) {
+                AbstractName abstractName = gBeanData.getAbstractName();
+                String brokerName = abstractName.getNameProperty("name");
+                if (kernel.isRunning(abstractName)) {
+                    beans.add(new BrokerWrapper(brokerName, abstractName.toString(), (JMSBroker) kernel.getGBean(abstractName), State.RUNNING));
+                } else {
+                    beans.add(new BrokerWrapper(brokerName, abstractName.toString(), null, State.STOPPED));
+                }
             }
         } catch (Exception e) {
             throw new PortletException(e);
         }
         return beans;
     }
-    
+
+    protected BrokerWrapper getBrokerWrapper(PortletRequest portletRequest, AbstractName brokerAbstractName) throws PortletException {
+        JMSBroker jmsBroker = PortletManager.getJMSBroker(portletRequest, brokerAbstractName);
+        if (jmsBroker == null)
+            return null;
+        String displayName = brokerAbstractName.getName().get("name").toString();
+        Kernel kernel = PortletManager.getKernel();
+        try {
+            return new BrokerWrapper(displayName, brokerAbstractName.toString(), jmsBroker, State.fromInt(kernel.getGBeanState(brokerAbstractName)));
+        } catch (GBeanNotFoundException e) {
+            throw new PortletException(e);
+        }
+    }
+
+    protected JMSManager getActiveMQManager(PortletRequest portletRequest) {
+        for (JMSManager jmsManager : PortletManager.getCurrentServer(portletRequest).getJMSManagers()) {
+            if (jmsManager instanceof ActiveMQManager)
+                return jmsManager;
+        }
+        return null;
+    }
+
     public static class BrokerWrapper {
         private String brokerName;
         private String brokerURI;
         private JMSBroker broker;
+        private State state;
 
-        public BrokerWrapper(String brokerName, String brokerURI, JMSBroker broker) {
+        public BrokerWrapper(String brokerName, String brokerURI, JMSBroker broker, State state) {
             this.brokerName = brokerName;
             this.brokerURI = brokerURI;
             this.broker = broker;
+            this.state = state;
         }
 
         public String getBrokerName() {
@@ -74,6 +117,10 @@ public class BaseJMSPortlet extends BasePortlet {
 
         public String getBrokerURI() {
             return brokerURI;
+        }
+        
+        public State getState() {
+            return state;
         }
     }
 }

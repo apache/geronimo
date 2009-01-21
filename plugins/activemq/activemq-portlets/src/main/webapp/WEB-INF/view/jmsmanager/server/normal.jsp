@@ -17,67 +17,70 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<%@ taglib uri="/WEB-INF/CommonMsg.tld" prefix="CommonMsg"%>
 <fmt:setBundle basename="activemq"/>
 <portlet:defineObjects/>
 
 <p><fmt:message key="jmsmanager.server.normal.title" />:</p>
-
-<!-- Show existing connectors -->
-<c:if test="${empty(brokers)}"><fmt:message key="jmsmanager.server.normal.noJMSBrokers"/></c:if>
-<c:if test="${!empty(brokers)}">
-<table width="50%" class="TableLine" summary="JMS Server Manager - Brokers">
-
-          <tr>
+<CommonMsg:commonMsg/><br>
+<c:choose>
+    <c:when test="${empty(brokers)}">
+           <fmt:message key="jmsmanager.server.normal.noJMSBrokers"/>
+    </c:when>
+    <c:otherwise>
+    <table width="50%" class="TableLine" summary="JMS Server Manager - Brokers">
+        <tr>
             <th scope="col" class="DarkBackground"><fmt:message key="jmsmanager.common.name"/></th>
-            <%--<th scope="col" class="DarkBackground" align="center"><fmt:message key="jmsmanager.common.state"/></th>--%>
-<!--
-            <th class="DarkBackground" align="center">Actions</th>
--->
+            <th scope="col" class="DarkBackground" align="center"><fmt:message key="jmsmanager.common.state"/></th>
+            <th class="DarkBackground" align="center"><fmt:message key="jmsmanager.common.actions"/></th>
           </tr>
-<c:set var="backgroundClass" value='MediumBackground'/>
-<c:forEach var="entry" items="${brokers}">
+          <c:forEach var="entry" items="${brokers}" varStatus="status">
           <c:choose>
-              <c:when test="${backgroundClass == 'MediumBackground'}" >
+              <c:when test="${status.count%2==0}">
                   <c:set var="backgroundClass" value='LightBackground'/>
               </c:when>
               <c:otherwise>
                   <c:set var="backgroundClass" value='MediumBackground'/>
               </c:otherwise>
           </c:choose>
-          <tr>
-            <td class="${backgroundClass}">${entry.brokerName}</td>
-            <%--<td class="${backgroundClass}">--%>
-             <%--<c:choose>--%>
-               <%--<c:when test="${entry.broker.stateInstance.name eq 'running'}">--%>
-               <%--<a href="<portlet:actionURL portletMode="view">--%>
-                 <%--<portlet:param name="mode" value="stop" />--%>
-                 <%--<portlet:param name="objectName" value="${entry.brokerURI}" />--%>
-               <%--</portlet:actionURL>">stop</a>--%>
-               <%--</c:when>--%>
-               <%--<c:otherwise>--%>
-               <%--<a href="<portlet:actionURL portletMode="view">--%>
-                 <%--<portlet:param name="mode" value="start" />--%>
-                 <%--<portlet:param name="objectName" value="${entry.brokerURI}" />--%>
-               <%--</portlet:actionURL>">start</a>--%>
-               <%--</c:otherwise>--%>
-             <%--</c:choose>--%>
-               <%--<a href="<portlet:actionURL portletMode="view">--%>
-                 <%--<portlet:param name="mode" value="edit" />--%>
-                 <%--<portlet:param name="objectName" value="${entry.brokerURI}" />--%>
-               <%--</portlet:actionURL>">edit</a>--%>
-               <%--<a href="<portlet:actionURL portletMode="view">--%>
-                 <%--<portlet:param name="mode" value="delete" />--%>
-                 <%--<portlet:param name="objectName" value="${entry.brokerURI}" />--%>
-               <%--</portlet:actionURL>" onClick="return confirm('Are you sure you want to delete ${entry.brokerName}?');">delete</a>--%>
-             <!--</td>-->
-
+          <tr class="${backgroundClass}">
+            <td>${entry.brokerName}</td>
+            <td>${entry.state.name}</td>
+            <td>
+             <c:choose>
+               <c:when test="${entry.state.name eq 'running'}">
+               <a href="<portlet:actionURL portletMode="view">
+                 <portlet:param name="mode" value="stop" />
+                 <portlet:param name="brokerURI" value="${entry.brokerURI}" />
+                 <portlet:param name="brokerName" value="${entry.brokerName}" />   
+               </portlet:actionURL>"><fmt:message key="jmsmanager.common.stop"/></a>
+               </c:when>
+               <c:otherwise>
+               <a href="<portlet:actionURL portletMode="view">
+                 <portlet:param name="mode" value="start" />
+                 <portlet:param name="brokerURI" value="${entry.brokerURI}" />
+                 <portlet:param name="brokerName" value="${entry.brokerName}" />   
+               </portlet:actionURL>"><fmt:message key="jmsmanager.common.start"/></a>
+               </c:otherwise>
+             </c:choose>
+               <a href="<portlet:renderURL portletMode="view">
+                 <portlet:param name="mode" value="update" />
+                 <portlet:param name="brokerURI" value="${entry.brokerURI}" />
+                 <portlet:param name="brokerName" value="${entry.brokerName}" />   
+               </portlet:renderURL>"><fmt:message key="jmsmanager.common.edit"/></a>
+               <a href="<portlet:actionURL portletMode="view">
+                 <portlet:param name="mode" value="delete" />
+                 <portlet:param name="brokerURI" value="${entry.brokerURI}" />
+                 <portlet:param name="brokerName" value="${entry.brokerName}" />   
+               </portlet:actionURL>" onClick="return confirm('Are you sure you want to delete ${entry.brokerName}?');"><fmt:message key="jmsmanager.common.delete"/></a>
+             </td>
           </tr>
 </c:forEach>
 </table>
-</c:if>
-<!--
+</c:otherwise>
+</c:choose>
+
 <br />
-<a href="<portlet:actionURL portletMode="view">
-           <portlet:param name="mode" value="new" />
-         </portlet:actionURL>"><fmt:message key="jmsmanager.server.normal.addJMSBroker"/></a>
--->
+<a href="<portlet:renderURL portletMode="view">
+           <portlet:param name="mode" value="create" />
+         </portlet:renderURL>"><fmt:message key="jmsmanager.server.normal.addJMSBroker"/></a>

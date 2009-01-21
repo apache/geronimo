@@ -20,19 +20,21 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import javax.jms.Destination;
 import javax.management.MBeanServer;
 import javax.management.MBeanServerInvocationHandler;
 import javax.management.ObjectInstance;
 import javax.management.ObjectName;
 import javax.portlet.PortletRequest;
+import javax.portlet.RenderRequest;
 
-import org.apache.geronimo.activemq.BrokerServiceGBeanImpl;
-import org.apache.geronimo.console.jmsmanager.DestinationStatistics;
-import org.apache.geronimo.system.jmx.MBeanServerReference;
 import org.apache.activemq.broker.jmx.BrokerViewMBean;
 import org.apache.activemq.broker.jmx.DestinationViewMBean;
 import org.apache.activemq.broker.jmx.QueueViewMBean;
 import org.apache.activemq.broker.jmx.TopicViewMBean;
+import org.apache.geronimo.console.jmsmanager.DestinationStatistics;
+import org.apache.geronimo.console.jmsmanager.JMSMessageInfo;
+import org.apache.geronimo.system.jmx.MBeanServerReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,10 +44,9 @@ import org.slf4j.LoggerFactory;
 public class AmqJMSMessageHelper extends JMSMessageHelper {
     private static final Logger log = LoggerFactory.getLogger(AmqJMSMessageHelper.class);
 
-    public void purge(PortletRequest renderRequest, String type, String physicalQName) {
+    public void purge(PortletRequest renderRequest, String brokerName, String type, String physicalQName) {
         try {
             MBeanServer server = getMBeanServer();
-            String brokerName = getBrokerName();
             ObjectName objName = new ObjectName("org.apache.activemq" + ":BrokerName=" + brokerName + ",Type=" + type + ",Destination=" + physicalQName);
             if ("Queue".equals(type)) {
                 QueueViewMBean proxy;
@@ -71,7 +72,8 @@ public class AmqJMSMessageHelper extends JMSMessageHelper {
         }
     }
 
-    protected List getMessagesFromTopic(String type, String physicalQName) throws Exception {
+    protected List<JMSMessageInfo> getMessagesFromTopic(RenderRequest request, Destination destination,
+            String adapterObjectName, String adminObjName, String physicalName) throws Exception {
         /*
          * MBeanServer server = getMBeanServer(); ObjectName objName = new
          * ObjectName("org.apache.activemq"+":BrokerName=localhost,Type="+type+",Destination="+physicalQName);
@@ -84,11 +86,11 @@ public class AmqJMSMessageHelper extends JMSMessageHelper {
          */
         return null;
     }
-    public  DestinationStatistics getDestinationStatistics(String destType,String physicalName){
+    
+    public DestinationStatistics getDestinationStatistics(String brokerName, String destType, String physicalName) {
         DestinationStatistics stat = new DestinationStatistics();
         try {
             MBeanServer server = getMBeanServer();
-            String brokerName = getBrokerName();
             ObjectName objName = new ObjectName("org.apache.activemq" + ":BrokerName=" + brokerName + ",Type=" + destType + ",Destination=" + physicalName);
             DestinationViewMBean proxy;
             if ("Queue".equals(destType)) {
@@ -134,17 +136,5 @@ public class AmqJMSMessageHelper extends JMSMessageHelper {
     private MBeanServer getMBeanServer() throws Exception {
         MBeanServerReference ref = kernel.getGBean(MBeanServerReference.class);
         return ref.getMBeanServer();
-    }
-
-    private String getBrokerName() {
-        // default broker name
-        String brokerName = "localhost";
-        try {
-            BrokerServiceGBeanImpl ref = kernel.getGBean(BrokerServiceGBeanImpl.class);
-            brokerName = ref.getBrokerName();
-        } catch (Exception e) {
-            log.error("Failed to get broker name", e);
-        }
-        return brokerName;
-    }
+    }    
 }

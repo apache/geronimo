@@ -19,7 +19,6 @@ package org.apache.geronimo.activemq;
 
 import java.io.File;
 import java.net.URI;
-import java.util.Properties;
 
 import javax.jms.JMSException;
 
@@ -56,7 +55,8 @@ public class BrokerServiceGBeanImpl implements BrokerServiceGBean, GBeanLifecycl
 //    private ResourceSource<ResourceException> dataSource;
     private JMSManager manager;
 
-    public BrokerServiceGBeanImpl(@ParamAttribute (name="amqBaseDir") URI amqBaseDir, 
+    public BrokerServiceGBeanImpl(@ParamAttribute (name="brokerName") String brokerName,
+                                  @ParamAttribute (name="amqBaseDir") URI amqBaseDir, 
                                   @ParamAttribute (name="amqDataDir") String amqDataDir, 
                                   @ParamAttribute (name="amqConfigFile") String amqConfigFile, 
                                   @ParamAttribute (name="useShutdownHook") boolean useShutdownHook, 
@@ -76,9 +76,14 @@ public class BrokerServiceGBeanImpl implements BrokerServiceGBean, GBeanLifecycl
         try {
             BrokerFactoryBean brokerFactory = new BrokerFactoryBean(
                     new FileSystemResource(new File(amqConfigUri)));
-            System.setProperty("activemq.home", new File(baseDir).toString());
-            System.setProperty("activemq.data", new File(dataDir).toString());
-            brokerFactory.afterPropertiesSet();
+            //TODO There should be a better way to avoid the concurrent broker creations
+            synchronized (BrokerServiceGBeanImpl.class) {
+                System.setProperty("activemq.brokerName", brokerName);
+                System.setProperty("activemq.home", new File(baseDir).toString());
+                System.setProperty("activemq.data", new File(dataDir).toString());
+                System.setProperty("activemq.geronimo.home.url", new File(serverInfo.getBaseDirectory()).toURI().toURL().toString());
+                brokerFactory.afterPropertiesSet();                
+            }
             brokerService = brokerFactory.getBroker();
 //            brokerService = BrokerFactory.createBroker(new URI(brokerUri));
             
@@ -93,8 +98,7 @@ public class BrokerServiceGBeanImpl implements BrokerServiceGBean, GBeanLifecycl
             // Setup the persistence adapter to use the right datasource and directory
 //            DefaultPersistenceAdapterFactory persistenceFactory = (DefaultPersistenceAdapterFactory) brokerService.getPersistenceFactory();
 //            persistenceFactory.setDataDirectoryFile(serverInfo.resolveServer(dataDirectory));
-//            persistenceFactory.setDataSource((DataSource) dataSource.getResource());
-
+//            persistenceFactory.setDataSource((DataSource) dataSource.getResource());            
             brokerService.start();
         }
         finally {

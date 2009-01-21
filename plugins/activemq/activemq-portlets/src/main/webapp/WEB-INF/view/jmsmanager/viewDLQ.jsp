@@ -40,7 +40,7 @@
         <td class="DarkBackground" align="center"><b><fmt:message key="jmsmanager.common.correlationID" /></b></td>
     </tr>
     <c:choose>
-        <c:when test="${fn:length(messages) > 0}"> 
+        <c:when test="${!empty(dlqcontents)}"> 
         <% 
         String[] styles = {"LightBackground","MediumBackground"};
         List messages = (List)request.getAttribute("dlqcontents");

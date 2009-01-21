@@ -77,6 +77,14 @@
             <type>car</type>
         </dependency>
 
+        <!-- Hack, due to new AMQ 5.3 + Spring integration -->
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>activemq-ra</artifactId>
+            <version>${pom.version}</version>
+            <type>car</type>
+        </dependency>
+
         <!--<dependency>-->
             <!--<groupId>org.apache.geronimo.plugins</groupId>-->
             <!--<artifactId>sysdb-console-jetty</artifactId>-->

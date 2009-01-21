@@ -22,34 +22,27 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import org.apache.activemq.broker.TransportConnector;
 import org.apache.geronimo.activemq.ActiveMQBroker;
-import org.apache.geronimo.activemq.ActiveMQConnector;
 import org.apache.geronimo.activemq.ActiveMQManager;
 import org.apache.geronimo.activemq.BrokerServiceGBean;
-//import org.apache.geronimo.activemq.TransportConnectorGBeanImpl;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamSpecial;
 import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
-//import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.KernelException;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.EditableConfigurationManager;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
-import org.apache.geronimo.kernel.proxy.ProxyManager;
 import org.apache.geronimo.management.geronimo.JMSBroker;
 import org.apache.geronimo.management.geronimo.JMSConnector;
 import org.apache.geronimo.management.geronimo.NetworkConnector;
-import org.apache.activemq.broker.TransportConnector;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Implementation of the ActiveMQ management interface.  These are the ActiveMQ
@@ -88,25 +81,31 @@ public class ActiveMQManagerGBean implements ActiveMQManager {
     public boolean isStatisticsProvider() {
         return false;
     }
-
+    
+    /*
+     * Only running JMS brokers are returned. 
+     */
     public Object[] getContainers() {
         AbstractNameQuery query = new AbstractNameQuery(ActiveMQBroker.class.getName());
         Set<AbstractName> names = kernel.listGBeans(query);
-        ActiveMQBroker[] results = new ActiveMQBroker[names.size()];
-        int i=0;
-        for (AbstractName name: names) {
+        List<ActiveMQBroker> results = new ArrayList<ActiveMQBroker>(names.size());
+        for (AbstractName name : names) {
             try {
-                results[i] = (ActiveMQBroker) kernel.getGBean(name);
+                if (kernel.isRunning(name)) {
+                    results.add((ActiveMQBroker)kernel.getGBean(name));
+                }
             } catch (GBeanNotFoundException e) {
                 log.info("broker not found", e);
             }
         }
-        return results;
+        return results.toArray(new ActiveMQBroker[]{});
     }
 
     public String[] getSupportedProtocols() {
         // see files in modules/core/src/conf/META-INF/services/org/activemq/transport/server/
-        return new String[]{};// "tcp", "stomp", "vm", "peer", "udp", "multicast", "failover"};
+        //TODO No sure how to list the files in the classpath, temporary hard coded the supported protocols in the code
+        return new String[] { "tcp", "stomp", "vm", "peer", "udp", "multicast", "failover", "stomp+ssl", "nio", "mock",
+                "fanout", "discovery" };
     }
 
     public NetworkConnector[] getConnectors() {
@@ -134,7 +133,7 @@ public class ActiveMQManagerGBean implements ActiveMQManager {
 
     private void filterConnectorsByProtocol(String protocol, List<NetworkConnector> connectors) {
         for (Iterator<NetworkConnector> connectorIterator = connectors.iterator(); connectorIterator.hasNext();) {
-            if (protocol.equals(connectorIterator.next().getProtocol())) {
+            if (!protocol.equals(connectorIterator.next().getProtocol())) {
                 connectorIterator.remove();
             }
         }
@@ -175,5 +174,45 @@ public class ActiveMQManagerGBean implements ActiveMQManager {
     public void removeConnector(AbstractName connectorName) {
         throw new RuntimeException("not implemented");
    }
+    
+    public JMSBroker addBroker(String brokerName, GBeanData brokerGBeanData) throws KernelException,
+            InvalidConfigException {
+        EditableConfigurationManager mgr = ConfigurationUtil.getEditableConfigurationManager(kernel);
+        if (mgr != null) {
+            AbstractName brokerAbstractName = null;
+            try {
+                mgr.addGBeanToConfiguration(kernel.getAbstractNameFor(this).getArtifact(), brokerGBeanData, false);
+                brokerAbstractName = brokerGBeanData.getAbstractName();
+                return (JMSBroker) kernel.getProxyManager().createProxy(brokerAbstractName,
+                        ActiveMQBroker.class.getClassLoader());
+            } catch (InvalidConfigException e) {
+                log.error("Unable to add ActiveMQ broker [" + brokerName + "]", e);
+                throw e;
+            } finally {
+                ConfigurationUtil.releaseConfigurationManager(kernel, mgr);
+            }
+        } else {
+            log.warn("The ConfigurationManager in the kernel does not allow editing");
+            return null;
+        }
+    }
 
+    public void removeBroker(AbstractName brokerAbstractName) throws KernelException, InvalidConfigException {
+        EditableConfigurationManager mgr = ConfigurationUtil.getEditableConfigurationManager(kernel);
+        if (mgr != null) {
+            try {
+                mgr.removeGBeanFromConfiguration(brokerAbstractName.getArtifact(), brokerAbstractName);
+            } catch (InvalidConfigException e) {
+                log.error("Unable to remove ActiveMQ broker [" + brokerAbstractName + "]", e);
+                throw e;
+            } catch (GBeanNotFoundException e) {
+                log.error("Fail to get ActiveMQ broker from kernel [" + brokerAbstractName + "]");
+                throw e;
+            } finally {
+                ConfigurationUtil.releaseConfigurationManager(kernel, mgr);
+            }
+        } else {
+            log.warn("The ConfigurationManager in the kernel does not allow editing");
+        }
+    } 
 }

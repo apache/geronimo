@@ -17,6 +17,7 @@
 package org.apache.geronimo.console.jmsmanager.helper;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 
@@ -40,14 +41,10 @@ import javax.management.ObjectName;
 import javax.portlet.PortletRequest;
 import javax.portlet.RenderRequest;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.apache.geronimo.console.core.jms.TopicBrowserGBean;
 import org.apache.geronimo.console.jmsmanager.DestinationStatistics;
 import org.apache.geronimo.console.jmsmanager.JMSMessageInfo;
 import org.apache.geronimo.console.util.PortletManager;
 import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelRegistry;
@@ -55,6 +52,8 @@ import org.apache.geronimo.kernel.proxy.GeronimoManagedBean;
 import org.apache.geronimo.management.geronimo.JCAAdminObject;
 import org.apache.geronimo.management.geronimo.JCAManagedConnectionFactory;
 import org.apache.geronimo.management.geronimo.ResourceAdapterModule;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @version $Rev$ $Date$
@@ -63,6 +62,10 @@ public abstract class JMSMessageHelper {
     protected static final Kernel kernel = KernelRegistry.getSingleKernel();
     private static final Logger log = LoggerFactory.getLogger(JMSMessageHelper.class);
 
+    public static final String QUEUE_TYPE = "Queue";
+    
+    public static final String TOPIC_TYPE = "Topic";
+    
     public void sendMessage(RenderRequest request, JMSMessageInfo messageInfo) throws Exception {
         Destination dest = getDestination(request, messageInfo.getAdapterObjectName(), messageInfo.getPhysicalName());
         if (dest == null) {
@@ -140,75 +143,16 @@ public abstract class JMSMessageHelper {
         }
     }
 
-    public List getMessagesList(RenderRequest request, String adapterObjectName, String adminObjName,
+    public List<JMSMessageInfo> getMessagesList(RenderRequest request, String adapterObjectName, String adminObjName,
             String physicalName, String type) throws Exception {
-        List ret = new ArrayList();
-        Destination dest = getDestination(request, adapterObjectName, physicalName);
-        if (dest == null)
-            return ret;
-
+        Destination destination = getDestination(request, adapterObjectName, physicalName);
+        if (destination == null)
+            return Collections.emptyList();
         if ("Queue".equals(type)) {
-            Queue queue = (Queue) dest;
-            QueueConnectionFactory qConFactory = null;
-            QueueConnection qConnection = null;
-            QueueSession qSession = null;
-            QueueBrowser qBrowser = null;
-            try {
-                qConFactory = (QueueConnectionFactory) getJCAManagedConnectionFactory(request, adapterObjectName, type)
-                        .getConnectionFactory();
-                if (qConFactory == null)
-                    return ret;
-                qConnection = qConFactory.createQueueConnection();
-                qSession = qConnection.createQueueSession(false, QueueSession.AUTO_ACKNOWLEDGE);
-                qBrowser = qSession.createBrowser(queue);
-                qConnection.start();
-                for (Enumeration e = qBrowser.getEnumeration(); e.hasMoreElements();) {
-                    Message message = (Message)e.nextElement();
-                    JMSMessageInfo messageInfo = new JMSMessageInfo();
-                    messageInfo.setPriority(message.getJMSPriority());
-                    messageInfo.setMessageId(message.getJMSMessageID());
-                    messageInfo.setDestination(message.getJMSDestination().toString());
-                    messageInfo.setTimeStamp(message.getJMSTimestamp());
-                    messageInfo.setExpiration(message.getJMSExpiration());
-                    messageInfo.setJmsType(message.getJMSType());
-                    messageInfo.setReplyTo(message.getJMSReplyTo()==null?"":message.getJMSReplyTo().toString());
-                    messageInfo.setCorrelationId(message.getJMSCorrelationID());
-                    if (message instanceof TextMessage) {
-                        messageInfo.setMessage(((TextMessage) message).getText());
-                    } else {
-                        messageInfo.setMessage("Only Text Messages will be displayed..");
-                    }
-                    ret.add(messageInfo);
-                }
-                qConnection.stop();
-            } catch (Exception e) {
-                log.error(e.getMessage(), e);
-            } finally {
-                try {
-                    if (qBrowser != null) {
-                        qBrowser.close();
-                    }
-                } catch (JMSException ignore) {
-                }
-                try {
-                    if (qSession != null) {
-                        qSession.close();
-                    }
-                } catch (JMSException ignore) {
-                }
-                try {
-                    if (qConnection != null) {
-                        qConnection.close();
-                    }
-                } catch (JMSException ignore) {
-                }
-            }
-
+            return getMessageFromQueue(request, destination, adapterObjectName, adminObjName, physicalName);
         } else {
-            ret = getMessagesFromTopic(type, physicalName);
-
+            return getMessagesFromTopic(request, destination, adapterObjectName, adminObjName, physicalName);
         }
-        return ret;
     }
 
     private JCAManagedConnectionFactory getJCAManagedConnectionFactory(RenderRequest renderRequest, String objectName,
@@ -221,18 +165,18 @@ public abstract class JMSMessageHelper {
             String objectNameTemp = module.getObjectName();
             if (objectName != null && objectName.equals(objectNameTemp)) {
                 JCAManagedConnectionFactory[] factories = null;
-                if ("Queue".equals(type)) {
+                if (QUEUE_TYPE.equals(type)) {
                     factories = PortletManager.getOutboundFactoriesForRA(renderRequest, module,
                             new String[] { "javax.jms.QueueConnectionFactory" });
-                } else if ("Topic".equals(type)) {
+                } else if (TOPIC_TYPE.equals(type)) {
                     factories = PortletManager.getOutboundFactoriesForRA(renderRequest, module,
                             new String[] { "javax.jms.TopicConnectionFactory" });
                 }
-                if (factories == null ) {
+                if (factories == null || factories.length == 0) {
                     factories = PortletManager.getOutboundFactoriesForRA(renderRequest, module,
                             new String[] { "javax.jms.ConnectionFactory" });
                 }
-                if (factories != null ) {
+                if (factories != null && factories.length != 0) {
                     return factories[0];
                 }
 
@@ -280,10 +224,73 @@ public abstract class JMSMessageHelper {
         return dest;
     }
 
-    protected abstract List getMessagesFromTopic(String type, String physicalQName) throws Exception;
+    protected abstract List<JMSMessageInfo> getMessagesFromTopic(RenderRequest request, Destination destination,
+            String adapterObjectName, String adminObjName, String physicalName) throws Exception;
 
-    public abstract void purge(PortletRequest renderRequest, String type, String physicalQName);
+    protected List<JMSMessageInfo> getMessageFromQueue(RenderRequest request, Destination destination,
+            String adapterObjectName, String adminObjName, String physicalName) throws Exception {
+        List<JMSMessageInfo> ret = new ArrayList<JMSMessageInfo>();
+        Queue queue = (Queue) destination;
+        QueueConnectionFactory qConFactory = null;
+        QueueConnection qConnection = null;
+        QueueSession qSession = null;
+        QueueBrowser qBrowser = null;
+        try {
+            qConFactory = (QueueConnectionFactory) getJCAManagedConnectionFactory(request, adapterObjectName, QUEUE_TYPE)
+                    .getConnectionFactory();
+            if (qConFactory == null)
+                return ret;
+            qConnection = qConFactory.createQueueConnection();
+            qSession = qConnection.createQueueSession(false, QueueSession.AUTO_ACKNOWLEDGE);
+            qBrowser = qSession.createBrowser(queue);
+            qConnection.start();
+            for (Enumeration e = qBrowser.getEnumeration(); e.hasMoreElements();) {
+                Message message = (Message)e.nextElement();
+                JMSMessageInfo messageInfo = new JMSMessageInfo();
+                messageInfo.setPriority(message.getJMSPriority());
+                messageInfo.setMessageId(message.getJMSMessageID());
+                messageInfo.setDestination(message.getJMSDestination().toString());
+                messageInfo.setTimeStamp(message.getJMSTimestamp());
+                messageInfo.setExpiration(message.getJMSExpiration());
+                messageInfo.setJmsType(message.getJMSType());
+                messageInfo.setReplyTo(message.getJMSReplyTo()==null?"":message.getJMSReplyTo().toString());
+                messageInfo.setCorrelationId(message.getJMSCorrelationID());
+                if (message instanceof TextMessage) {
+                    messageInfo.setMessage(((TextMessage) message).getText());
+                } else {
+                    messageInfo.setMessage("Only Text Messages will be displayed..");
+                }
+                ret.add(messageInfo);
+            }
+            qConnection.stop();
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        } finally {
+            try {
+                if (qBrowser != null) {
+                    qBrowser.close();
+                }
+            } catch (JMSException ignore) {
+            }
+            try {
+                if (qSession != null) {
+                    qSession.close();
+                }
+            } catch (JMSException ignore) {
+            }
+            try {
+                if (qConnection != null) {
+                    qConnection.close();
+                }
+            } catch (JMSException ignore) {
+            }
+        }
+        return ret;
+    }
     
-    public abstract DestinationStatistics getDestinationStatistics(String destType,String physicalName);
+    public abstract void purge(PortletRequest request, String adapterObjectName, String adminObjName,
+            String physicalName) throws Exception;
+    
+    public abstract DestinationStatistics getDestinationStatistics(String brokerName, String destType,String physicalName);
 
 }

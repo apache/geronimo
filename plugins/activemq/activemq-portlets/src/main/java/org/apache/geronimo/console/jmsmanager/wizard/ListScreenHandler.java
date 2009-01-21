@@ -18,9 +18,14 @@ package org.apache.geronimo.console.jmsmanager.wizard;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.net.InetAddress;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.portlet.ActionRequest;
@@ -30,17 +35,25 @@ import javax.portlet.PortletRequest;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 
+import org.apache.geronimo.activemq.BrokerServiceGBean;
+import org.apache.geronimo.activemq.management.ActiveMQManagerGBean;
 import org.apache.geronimo.console.MultiPageModel;
 import org.apache.geronimo.console.jmsmanager.DestinationStatistics;
 import org.apache.geronimo.console.jmsmanager.helper.JMSMessageHelper;
 import org.apache.geronimo.console.jmsmanager.helper.JMSMessageHelperFactory;
 import org.apache.geronimo.console.util.PortletManager;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.proxy.GeronimoManagedBean;
 import org.apache.geronimo.management.geronimo.JCAAdminObject;
 import org.apache.geronimo.management.geronimo.JCAManagedConnectionFactory;
 import org.apache.geronimo.management.geronimo.JCAResource;
+import org.apache.geronimo.management.geronimo.JMSBroker;
+import org.apache.geronimo.management.geronimo.JMSManager;
+import org.apache.geronimo.management.geronimo.NetworkConnector;
 import org.apache.geronimo.management.geronimo.ResourceAdapter;
 import org.apache.geronimo.management.geronimo.ResourceAdapterModule;
 import org.slf4j.Logger;
@@ -64,9 +77,11 @@ public class ListScreenHandler extends AbstractHandler {
             String physicalName = request.getParameter(PHYSICAL_NAME);
             String adminObjType = request.getParameter(ADMIN_OBJ_TYPE);
             String adapterObjectName = request.getParameter(RA_ADAPTER_OBJ_NAME);
+            String brokerName = request.getParameter(BROKER_NAME);
             response.setRenderParameter(ADMIN_OBJ_TYPE, adminObjType);
             response.setRenderParameter(PHYSICAL_NAME, physicalName);
             response.setRenderParameter(RA_ADAPTER_OBJ_NAME, adapterObjectName);
+            response.setRenderParameter(BROKER_NAME, brokerName);
             response.setRenderParameter(PURGE, purgeStr);
         }
         return getMode();
@@ -95,20 +110,25 @@ public class ListScreenHandler extends AbstractHandler {
             String physicalName = renderRequest.getParameter(PHYSICAL_NAME);
             String adminObjType = renderRequest.getParameter(ADMIN_OBJ_TYPE);
             String adapterObjectName = renderRequest.getParameter(RA_ADAPTER_OBJ_NAME);
+            String brokerName = renderRequest.getParameter(BROKER_NAME);
             JMSMessageHelper helper = JMSMessageHelperFactory.getMessageHelper(renderRequest, adapterObjectName);
-            helper.purge(renderRequest, adminObjType, physicalName);
-        }
-
+            try {
+                helper.purge(renderRequest, brokerName, adminObjType, physicalName);
+            } catch (Exception e) {
+                log.error("Fail to purge the messages in [" + brokerName + "." + physicalName + "]", e);
+                throw new PortletException("Fail to purge the messages in [" + brokerName + "." + physicalName + "]",e);
+            }
+        }                
+        
         // Prepare a list of JMS configurations
-        List resources = new ArrayList();
+        List<JMSResourceSummary> resources = new ArrayList<JMSResourceSummary>();
 
         // Get the list of connection factories
         ResourceAdapterModule[] modules = PortletManager.getOutboundRAModules(renderRequest, new String[]{
                 "javax.jms.ConnectionFactory", "javax.jms.QueueConnectionFactory", "javax.jms.TopicConnectionFactory",});
         try {
             for (int i = 0; i < modules.length; i++) {
-                ResourceAdapterModule module = modules[i];
-
+                ResourceAdapterModule module = modules[i];                 
                 JMSResourceSummary target = null;
                 for (int j = 0; j < resources.size(); j++) {
                     JMSResourceSummary data = (JMSResourceSummary) resources.get(j);
@@ -116,12 +136,12 @@ public class ListScreenHandler extends AbstractHandler {
                         target = data;
                         break;
                     }
-                }
+                }                
                 if (target == null) {
                     ResourceAdapter[] adapters = PortletManager.getResourceAdapters(renderRequest, module);
-                    String name = null;
-                    if (adapters.length == 1 && adapters[0].getJCAResources().length == 1) {
-                        JCAResource[] resource = PortletManager.getJCAResources(renderRequest, adapters[0]);
+                    String name = null;                    
+                    if (adapters.length == 1 && adapters[0].getJCAResources().length == 1) {                        
+                        JCAResource[] resource = PortletManager.getJCAResources(renderRequest, adapters[0]);                        
                         if (resource.length == 1 && resource[0].getResourceAdapterInstances().length == 1) {
                             name = ObjectName.getInstance(resource[0].getResourceAdapterInstanceNames()[0]).getKeyProperty(NameFactory.J2EE_NAME);
                         }
@@ -129,8 +149,9 @@ public class ListScreenHandler extends AbstractHandler {
                     if (name == null) {
                         name = ObjectName.getInstance(module.getObjectName()).getKeyProperty(NameFactory.J2EE_NAME);
                     }
+                    String sServerUrl = adapters.length > 0 ? getServerUrl(renderRequest,module) : "";                                        
                     target = new JMSResourceSummary(PortletManager.getConfigurationFor(renderRequest, PortletManager.getNameFor(renderRequest, module)).toString(),
-                            module.getObjectName(), name, ((GeronimoManagedBean) module).getState());
+                            module.getObjectName(), name, ((GeronimoManagedBean) module).getState(), getBrokerName(renderRequest,sServerUrl));
                     resources.add(target);
                 }
 
@@ -159,7 +180,7 @@ public class ListScreenHandler extends AbstractHandler {
                 }
                 if (target == null) {
                     ResourceAdapter[] adapters = PortletManager.getResourceAdapters(renderRequest, module);
-                    String name = null;
+                    String name = null;                    
                     if (adapters.length == 1 && adapters[0].getJCAResources().length == 1) {
                         JCAResource[] resource = PortletManager.getJCAResources(renderRequest, adapters[0]);
                         if (resource.length == 1 && resource[0].getResourceAdapterInstances().length == 1) {
@@ -169,8 +190,9 @@ public class ListScreenHandler extends AbstractHandler {
                     if (name == null) {
                         name = ObjectName.getInstance(module.getObjectName()).getKeyProperty(NameFactory.J2EE_NAME);
                     }
+                    String sServerUrl = adapters.length > 0 ? getServerUrl(renderRequest,module) : "";
                     target = new JMSResourceSummary(PortletManager.getConfigurationFor(renderRequest, PortletManager.getNameFor(renderRequest, module)).toString(),
-                            module.getObjectName(), name, ((GeronimoManagedBean) module).getState());
+                            module.getObjectName(), name, ((GeronimoManagedBean) module).getState(), getBrokerName(renderRequest,sServerUrl));
                     resources.add(target);
                 }
 
@@ -188,7 +210,7 @@ public class ListScreenHandler extends AbstractHandler {
                     }
                     String destType = admins[j].getAdminObjectInterface().indexOf("Queue") > -1 ? "Queue" : "Topic";
                     String vendorName = module.getVendorName();
-                    DestinationStatistics destinationStat = JMSMessageHelperFactory.getJMSMessageHelper(vendorName).getDestinationStatistics(destType, physicalName);
+                    DestinationStatistics destinationStat = JMSMessageHelperFactory.getJMSMessageHelper(vendorName).getDestinationStatistics(target.getBrokerName(), destType, physicalName);
                     target.getAdminObjects().add(
                             new AdminObjectSummary(bean.getObjectName(), queueName, physicalName,destType , bean
                                     .getState(),destinationStat));
@@ -203,22 +225,73 @@ public class ListScreenHandler extends AbstractHandler {
         // Get the list of JMS providers
         renderRequest.setAttribute("providers", JMSProviderData.getAllProviders());
     }
-
-
-    public static class JMSResourceSummary implements Serializable, Comparable {
+    
+    private String getServerUrl(PortletRequest portletRequest, ResourceAdapterModule resourceAdapterModule) {
+        try {
+            Kernel kernel = PortletManager.getKernel();
+            AbstractName moduleAbstractName = PortletManager.getNameFor(portletRequest, resourceAdapterModule);
+            if (kernel.isRunning(moduleAbstractName)) {
+                GBeanData resourceAdapterGBeanData = (GBeanData) kernel.getAttribute(moduleAbstractName,
+                        "resourceAdapterGBeanData");
+                return (String) resourceAdapterGBeanData.getAttribute("ServerUrl");
+            }
+            return "";
+        } catch (Exception e) {
+            return "";
+        }
+    }
+    
+    private String getBrokerName(PortletRequest portletRequest, String serverURL) throws PortletException {
+        try {
+            GeronimoManagedBean[] geronimoManagedBeans = PortletManager.getManagedBeans(portletRequest,
+                    ActiveMQManagerGBean.class);
+            if (geronimoManagedBeans == null || geronimoManagedBeans.length == 0)
+                throw new PortletException("Could not find the ActiveMQ Manager");
+            if (geronimoManagedBeans.length > 1)
+                log.warn("More than one ActiveMQ Manager exist in kernel");            
+            JMSManager activeMQManager = (JMSManager) geronimoManagedBeans[0];            
+            JMSBroker findJMSBroker = null;
+            URI uri = new URI(serverURL);
+            //TODO 127.0.0.1 and localhost, shall we need to support the mapping between ip and host name ?
+            String sHostName = uri.getHost();
+            if (sHostName.equals("127.0.0.1") || sHostName.equals("localhost"))
+                try {
+                    sHostName = InetAddress.getLocalHost().getHostName();
+                } catch (UnknownHostException e) {
+                    log.warn("Fail to get the local machine name", e);
+                }            
+            for (JMSBroker jmsBroker : (JMSBroker[]) activeMQManager.getContainers()) {
+                NetworkConnector[] connectors = activeMQManager.getConnectorsForContainer(jmsBroker, uri.getScheme());
+                for (NetworkConnector connector : connectors) {                    
+                    if (connector.getHost().equals(sHostName) && connector.getPort() == uri.getPort())
+                        findJMSBroker = jmsBroker;
+                }
+                if (findJMSBroker != null)
+                    return ((BrokerServiceGBean) findJMSBroker).getBrokerName();
+            }
+            return null;
+        } catch (URISyntaxException e) {
+            log.error("Unrecognized server URL [" + serverURL + "]", e);
+            throw new PortletException("Unrecognized server URL [" + serverURL + "]", e);
+        }
+    }
+    
+    public static class JMSResourceSummary implements Serializable, Comparable<JMSResourceSummary> {
         private static final long serialVersionUID = -2788803234448047035L;
         private final String configurationName;
         private final String adapterObjectName;
         private final String name;
         private final String parentName;
         private final int state;
-        private final List connectionFactories = new ArrayList();
-        private final List adminObjects = new ArrayList();
+        private final String brokerName;
+        private final List<ConnectionFactorySummary> connectionFactories = new ArrayList<ConnectionFactorySummary>();
+        private final List<AdminObjectSummary> adminObjects = new ArrayList<AdminObjectSummary>();
 
-        public JMSResourceSummary(String configurationName, String adapterObjectName, String name, int state) {
+        public JMSResourceSummary(String configurationName, String adapterObjectName, String name, int state, String brokerName) {
             this.configurationName = configurationName;
             this.adapterObjectName = adapterObjectName;
             this.state = state;
+            this.brokerName = brokerName;
             try {
                 ObjectName objectName = ObjectName.getInstance(adapterObjectName);
                 String parent = objectName.getKeyProperty(NameFactory.J2EE_APPLICATION);
@@ -252,32 +325,35 @@ public class ListScreenHandler extends AbstractHandler {
             return state;
         }
 
-        public List getConnectionFactories() {
+        public List<ConnectionFactorySummary> getConnectionFactories() {
             return connectionFactories;
         }
 
-        public List getAdminObjects() {
+        public List<AdminObjectSummary> getAdminObjects() {
             return adminObjects;
         }
 
         public String getStateName() {
             return State.toString(state);
         }
-
-        public int compareTo(Object o) {
-            final JMSResourceSummary pool = (JMSResourceSummary) o;
-            int names = name.toLowerCase().compareTo(pool.name.toLowerCase());
+        
+        public String getBrokerName() {
+            return brokerName;
+        }
+        
+        public int compareTo(JMSResourceSummary o) {            
+            int names = name.toLowerCase().compareTo(o.name.toLowerCase());
             if (parentName == null) {
-                if (pool.parentName == null) {
+                if (o.parentName == null) {
                     return names;
                 } else {
                     return -1;
                 }
             } else {
-                if (pool.parentName == null) {
+                if (o.parentName == null) {
                     return 1;
                 } else {
-                    int test = parentName.compareTo(pool.parentName);
+                    int test = parentName.compareTo(o.parentName);
                     if (test != 0) {
                         return test;
                     } else {
@@ -288,7 +364,7 @@ public class ListScreenHandler extends AbstractHandler {
         }
     }
 
-    public static class ConnectionFactorySummary implements Serializable, Comparable {
+    public static class ConnectionFactorySummary implements Serializable, Comparable<ConnectionFactorySummary> {
         private static final long serialVersionUID = 5777507920880039759L;
         private final String factoryObjectName;
         private final String name;
@@ -316,14 +392,13 @@ public class ListScreenHandler extends AbstractHandler {
             return State.toString(state);
         }
 
-        public int compareTo(Object o) {
-            final ConnectionFactorySummary pool = (ConnectionFactorySummary) o;
-            return name.compareTo(pool.name);
+        public int compareTo(ConnectionFactorySummary o) {            
+            return name.compareTo(o.name);
         }
     }
 
 
-    public static class AdminObjectSummary implements Serializable, Comparable {
+    public static class AdminObjectSummary implements Serializable, Comparable<AdminObjectSummary> {
         private static final long serialVersionUID = 3941332145785485903L;
         private final String adminObjectName;
         private final String name;
@@ -368,10 +443,9 @@ public class ListScreenHandler extends AbstractHandler {
             return State.toString(state);
         }
 
-        public int compareTo(Object o) {
-            final AdminObjectSummary pool = (AdminObjectSummary) o;
-            int result = name.compareTo(pool.name);
-            return result == 0 ? type.compareTo(pool.type) : result;
+        public int compareTo(AdminObjectSummary o) {           
+            int result = name.compareTo(o.name);
+            return result == 0 ? type.compareTo(o.type) : result;
         }
     }
 }

@@ -25,7 +25,7 @@
 <!-- Show existing connectors -->
 <c:if test="${empty(connectors)}"><fmt:message key="jmsmanager.server.connector.normal.noJMSNetworkConnectors" /></c:if>
 <c:if test="${!empty(connectors)}">
-<table width="100%" class="TableLine" summary="JMS Network Listeners - Connectors">
+<table width="50%" class="TableLine" summary="JMS Network Listeners - Connectors">
 
 
           <tr>
@@ -36,8 +36,8 @@
             <%--<th scope="col" class="DarkBackground" align="center"><fmt:message key="jmsmanager.common.state"/></th>--%>
             <%--<th scope="col" class="DarkBackground" align="center"><fmt:message key="jmsmanager.common.actions"/></th>--%>
           </tr>
-<c:set var="backgroundClass" value='MediumBackground'/>
-<c:forEach var="info" items="${connectors}">
+          <c:set var="backgroundClass" value='MediumBackground'/>
+          <c:forEach var="info" items="${connectors}">
           <c:choose>
               <c:when test="${backgroundClass == 'MediumBackground'}" >
                   <c:set var="backgroundClass" value='LightBackground'/>
@@ -46,11 +46,11 @@
                   <c:set var="backgroundClass" value='MediumBackground'/>
               </c:otherwise>
           </c:choose>
-          <tr>
-            <td class="${backgroundClass}">${info.connectorURI}</td>
-            <td class="${backgroundClass}">${info.brokerName}</td>
-            <td class="${backgroundClass}">${info.connector.protocol}</td>
-            <td class="${backgroundClass}">${info.connector.port}</td>
+          <tr class="${backgroundClass}">
+            <td>${info.connectorURI}</td>
+            <td>${info.brokerName}</td>
+            <td>${info.connector.protocol}</td>
+            <td>${info.connector.port}</td>
             <%--<td class="${backgroundClass}">--%>
              <%--<c:choose>--%>
                <%--<c:when test="${info.connector.stateInstance.name eq 'running'}">--%>
@@ -85,6 +85,7 @@
 </c:if>
 
 <!-- Links to add new connectors -->
+<!--
 <c:forEach var="info" items="${brokers}">
 <p><fmt:message key="jmsmanager.server.connector.normal.addConnectorTo"><fmt:param value="${info.brokerName}"/></fmt:message>:</p>
 <ul>
@@ -98,3 +99,4 @@
          </fmt:message></a></li>
 </c:forEach>
 </c:forEach>
+-->

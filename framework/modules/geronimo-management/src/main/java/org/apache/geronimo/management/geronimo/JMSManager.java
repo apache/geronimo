@@ -17,6 +17,9 @@
 package org.apache.geronimo.management.geronimo;
 
 import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.kernel.KernelException;
+import org.apache.geronimo.kernel.config.InvalidConfigException;
 
 /**
  * Main entry point for managing a particular JMS implementation.  The manager
@@ -44,4 +47,8 @@ public interface JMSManager extends NetworkManager {
      *         started.
      */
     public JMSConnector addConnector(JMSBroker broker, String uniqueName, String protocol, String host, int port);
+    
+    public JMSBroker addBroker(String brokerName, GBeanData gBeanData) throws KernelException, InvalidConfigException;
+    
+    public void removeBroker(AbstractName brokerName) throws KernelException, InvalidConfigException;
 }
