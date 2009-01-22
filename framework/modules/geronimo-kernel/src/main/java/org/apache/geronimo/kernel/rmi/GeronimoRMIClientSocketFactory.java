@@ -37,7 +37,7 @@ public class GeronimoRMIClientSocketFactory implements RMIClientSocketFactory, S
         this.readTimeout = readTimeout;
     }
     
-    public Socket createSocket(String _host, int port) throws IOException {
+    public Socket createSocket(String host, int port) throws IOException {
         Socket socket = new Socket();
         socket.bind(null);
         socket.connect(new InetSocketAddress(host, port), (this.connectionTimeout > 0) ? this.connectionTimeout : 0);        
