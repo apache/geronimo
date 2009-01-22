@@ -169,6 +169,18 @@
                 <enabled>true</enabled>
             </releases>
         </repository>
+        <!-- included following for jaxws depends -->
+        <repository>
+            <id>java.net</id>
+            <url>http://download.java.net/maven/1/</url>
+            <layout>legacy</layout>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
     </repositories>
 
     <build>

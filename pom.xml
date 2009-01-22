@@ -2349,10 +2349,8 @@
 
     <repositories>
         <!--
-        NOTE: The default repositories are picked up by Genesis, but need to
-              specify where Genesis lives to pick it up  any additional repositories.
-        -->
-
+        NOTE: The default repositories are picked up by Genesis.
+              We only need to include apache-snapshots for Genesis SNAPSHOTs.
         <repository>
             <id>apache-snapshots</id>
             <name>Apache Snapshots Repository</name>
@@ -2367,19 +2365,7 @@
                 <enabled>false</enabled>
             </releases>
         </repository>
-
-        <repository>
-            <id>java.net</id>
-            <url>http://download.java.net/maven/1/</url>
-            <layout>legacy</layout>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </repository>
-
+        -->
     </repositories>
 
     <url>http://geronimo.apache.org/maven/${siteId}/${version}</url>
