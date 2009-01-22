@@ -30,11 +30,9 @@ import javax.xml.ws.WebServiceRef;
 
 public class GreeterWebClient extends HttpServlet {
 
-    /*
     @WebServiceRef(name="services/Greeter", 
                    wsdlLocation="WEB-INF/wsdl/greeter_service.wsdl")
-    */
-    private Service service = Service.create(new QName("DISALBED"));
+    private Service service;
     
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {

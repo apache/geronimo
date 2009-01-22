@@ -18,6 +18,7 @@
 package org.apache.geronimo.cxf.client;
 
 import java.net.URI;
+import java.net.URL;
 import java.util.Map;
 
 import javax.naming.NamingException;
@@ -29,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.jaxws.context.WebServiceContextImpl;
+import org.apache.geronimo.cxf.CXFCatalogUtils;
 import org.apache.geronimo.cxf.CXFWebServiceContainer;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.jaxws.HandlerChainsUtils;
@@ -53,12 +55,25 @@ public class CXFServiceReference extends JAXWSServiceReference {
         super(handlerChainsXML, seiInfoMap, name, serviceQName, wsdlURI, referenceClassName, serviceClassName);        
     }
        
+    @Override   
     public Object getContent() throws NamingException {
         Bus bus = CXFWebServiceContainer.getDefaultBus();
+        
+        URL catalogURL = getCatalog();
+        if (catalogURL != null) {
+            bus = BusFactory.newInstance().createBus();
+            CXFCatalogUtils.loadOASISCatalog(bus, catalogURL);
+            SAAJInterceptor.registerInterceptors(bus);
+        } else {
+            SAAJInterceptor.registerInterceptors(); 
+        }
+        
         BusFactory.setThreadDefaultBus(bus);
-        Object reference = super.getContent();   
-        SAAJInterceptor.registerInterceptors();        
-        return reference;
+        try {
+            return super.getContent();
+        } finally {
+            BusFactory.setThreadDefaultBus(null);
+        }
     }
     
     protected HandlerChainsType getHandlerChains() {

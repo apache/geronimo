@@ -36,13 +36,16 @@ public abstract class SAAJInterceptor extends AbstractPhaseInterceptor<Message> 
     
     public static synchronized void registerInterceptors() {
         if (!interceptorsRegistered) {
-            Bus bus = BusFactory.getDefaultBus();
-            SAAJUniverse universe = new SAAJUniverse();
-            bus.getOutInterceptors().add(new SAAJOutInterceptor(universe));
-            bus.getInInterceptors().add(new SAAJInInterceptor(universe));
-            bus.getInInterceptors().add(new SAAJInFaultInterceptor(universe));
+            registerInterceptors(BusFactory.getDefaultBus());
             interceptorsRegistered = true;
         }
+    }
+    
+    public static void registerInterceptors(Bus bus) {
+        SAAJUniverse universe = new SAAJUniverse();
+        bus.getOutInterceptors().add(new SAAJOutInterceptor(universe));
+        bus.getInInterceptors().add(new SAAJInInterceptor(universe));
+        bus.getInInterceptors().add(new SAAJInFaultInterceptor(universe));
     }
     
 }

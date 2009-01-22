@@ -26,11 +26,9 @@ import javax.xml.ws.WebServiceRef;
 @Stateless(name="GreeterClient")
 public class GreeterEjbClient implements GreeterRemote { 
        
-    /*
     @WebServiceRef(name="services/Greeter", 
                    wsdlLocation="META-INF/wsdl/greeter_service.wsdl")
-    */
-    private Service service = Service.create(new QName("DISALBED"));
+    private Service service;
         
     public String test() {
         return (service != null) ? "OK" : "FAILED";
