@@ -31,10 +31,8 @@ public class GeronimoRMIClientSocketFactory implements RMIClientSocketFactory, S
     
     private int connectionTimeout = -1;
     private int readTimeout = -1;
-    private String host=null; 
 
-    public GeronimoRMIClientSocketFactory(String _host,int connectionTimeout, int readTimeout) {
-        this.host=_host;
+    public GeronimoRMIClientSocketFactory(int connectionTimeout, int readTimeout) {
         this.connectionTimeout = connectionTimeout;
         this.readTimeout = readTimeout;
     }
@@ -42,9 +40,6 @@ public class GeronimoRMIClientSocketFactory implements RMIClientSocketFactory, S
     public Socket createSocket(String _host, int port) throws IOException {
         Socket socket = new Socket();
         socket.bind(null);
-        if(host==null){
-            host=_host;
-        }
         socket.connect(new InetSocketAddress(host, port), (this.connectionTimeout > 0) ? this.connectionTimeout : 0);        
         if (this.readTimeout >= 0) {
             socket.setSoTimeout(this.readTimeout);

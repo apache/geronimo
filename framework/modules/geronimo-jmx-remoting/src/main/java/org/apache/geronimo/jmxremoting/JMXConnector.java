@@ -188,7 +188,7 @@ public class JMXConnector implements JMXConnectorInfo, GBeanLifecycle {
         } else {
             log.warn("Starting unauthenticating JMXConnector for " + jmxServiceURL);
         }  
-        RMIClientSocketFactory socketFactory = new GeronimoRMIClientSocketFactory(host, 2 * 60 * 1000,  5 * 60 * 1000);
+        RMIClientSocketFactory socketFactory = new GeronimoRMIClientSocketFactory(2 * 60 * 1000,  5 * 60 * 1000);
         env.put(RMIConnectorServer.RMI_CLIENT_SOCKET_FACTORY_ATTRIBUTE, socketFactory);
         RMIServerSocketFactory serverSocketFactory = new GeronimoRMIServerSocketFactory(host);
         env.put(RMIConnectorServer.RMI_SERVER_SOCKET_FACTORY_ATTRIBUTE, serverSocketFactory);
