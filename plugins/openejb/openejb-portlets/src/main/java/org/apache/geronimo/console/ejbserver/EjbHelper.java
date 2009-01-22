@@ -94,7 +94,6 @@ public class EjbHelper {
     private static final String CD_KEY="portlet.openejb.view.containerdescription";
     private static final String DN_KEY="portlet.openejb.view.displayname";
     
-    
     private ContainerSystem containerSystem;
     private OpenEjbConfiguration configuration;
     private Kernel kernel;    
@@ -173,9 +172,24 @@ public class EjbHelper {
         }
         return deployments;
     }
+    
+    @RemoteMethod
+    public String getCurrentContainerProperty(String containerId, String propertyKey){
+        ContainerSystemInfo systemInfo = configuration.containerSystem;
+        List<ContainerInfo> containerInfos = systemInfo.containers;        
+        
+        for (ContainerInfo containerInfo : containerInfos) {
+        	containerId = replaceEscapes(containerId);
+            if (containerInfo.id.equals(containerId)) {
+            	return containerInfo.properties.getProperty(propertyKey);
+            }
+        }
+        return null;
+    }
 
     @RemoteMethod
     public List<EjbInformation> getContainerInfo(String containerId) {
+    	containerId = replaceEscapes(containerId); 
         Container container = containerSystem.getContainer(containerId);
         if (container == null)
             return null;
@@ -266,9 +280,9 @@ public class EjbHelper {
             String propertyValue) {
         propertyKey = propertyKey.trim();
         propertyValue = propertyValue.trim();
-        if (containerId.indexOf("%20") != -1) {
-            containerId = containerId.replaceAll("%20", "\\ ");
-        }
+        
+        containerId = replaceEscapes(containerId);
+        
         List<String> numericProperties = new ArrayList<String>();
         numericProperties.add(POOLSIZE);
         numericProperties.add(BULKPASSIVATE);
@@ -525,6 +539,13 @@ public class EjbHelper {
             data = null;
         }
         return data;
+    }
+    
+    private String replaceEscapes(String escaped){
+    	if (escaped.indexOf("%20") != -1) {
+    	    return escaped.replaceAll("%20"," ");
+    	} 
+    	return escaped;
     }
 
 }

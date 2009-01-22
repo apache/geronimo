@@ -55,6 +55,7 @@ table thead td, table thead th {
     var doCheck = false;
     var serverStore=null;
     var data = '';
+    var containerPropertyValue = ''; 
 
     EjbHelper.getEjbInformation({callback:createStore,async:false});
         
@@ -140,24 +141,28 @@ function updateEjbInfoTable(ejbInfos){
 
       
   }
+
+   function getCurrentValue(value){
+       containerPropertyValue = value; 
+   }
   
    function updateValues(containerId,  propertyKey, originalValue){       
        var propertyValue = document.getElementById(propertyKey).value;       
        var para = propertyKey+"para";
-       if(originalValue != propertyValue){
+       EjbHelper.getCurrentContainerProperty(containerId,  propertyKey, {callback:getCurrentValue,async:false}); 
+       if(containerPropertyValue != propertyValue ){
            EjbHelper.setContainerProperty(containerId,  propertyKey,  propertyValue, updateResult);
            document.getElementById(para).style.color="red";
+       } else {
+           EjbHelper.setContainerProperty(containerId,  propertyKey,  propertyValue,{async:false} );
+           document.getElementById(para).style.color=document.body.style.color;
        }
    }
    
    function updateResult(status){
 	     alert(status.message);
    }
-   
-   function getIcon(item) {    
-	   
-   }
-   
+     
    document.body.className="soria";
    
   </script>
