@@ -132,7 +132,12 @@
         <reference name="ScheduledPool">
             <name>DefaultThreadPool</name>
         </reference>
-        <reference name="TransactionManager">
+        <reference name="InflowContextHandler">
+        </reference>
+    </gbean>
+
+    <gbean name="TransactionInflowContextHandler" class="org.apache.geronimo.connector.work.TransactionInflowContextHandlerGBean">
+        <reference name="XAWork">
             <name>TransactionManager</name>
         </reference>
     </gbean>

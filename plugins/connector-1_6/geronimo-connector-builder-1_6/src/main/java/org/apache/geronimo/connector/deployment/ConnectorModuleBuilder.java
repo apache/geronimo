@@ -80,6 +80,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.InvalidConfigurationException;
 import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.gbean.MultiGBeanInfoFactory;
 import org.apache.geronimo.j2ee.deployment.ActivationSpecInfoLocator;
 import org.apache.geronimo.j2ee.deployment.ConnectorModule;
 import org.apache.geronimo.j2ee.deployment.EARContext;
@@ -456,7 +457,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
         ResourceadapterType resourceadapter = connector.getResourceadapter();
         // Create the resource adapter gbean
         if (resourceadapter.isSetResourceadapterClass()) {
-            GBeanInfoBuilder resourceAdapterInfoBuilder = new GBeanInfoBuilder(ResourceAdapterWrapperGBean.class, ResourceAdapterWrapperGBean.GBEAN_INFO);
+            GBeanInfoBuilder resourceAdapterInfoBuilder = new GBeanInfoBuilder(ResourceAdapterWrapperGBean.class, new MultiGBeanInfoFactory().getGBeanInfo(ResourceAdapterWrapperGBean.class));
             String resourceAdapterClassName = resourceadapter.getResourceadapterClass().getStringValue().trim();
             GBeanData resourceAdapterGBeanData = setUpDynamicGBeanWithProperties(resourceAdapterClassName, resourceAdapterInfoBuilder, resourceadapter.getConfigPropertyArray(), cl, Collections.<String>emptySet());
 

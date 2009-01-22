@@ -19,16 +19,17 @@ package org.apache.geronimo.connector;
 
 import java.util.Map;
 
-import javax.resource.spi.ResourceAdapter;
-import javax.resource.spi.ResourceAdapterAssociation;
 import javax.resource.spi.XATerminator;
 import javax.resource.spi.work.WorkManager;
 
 import org.apache.geronimo.gbean.DynamicGBean;
 import org.apache.geronimo.gbean.DynamicGBeanDelegate;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.ParamAttribute;
+import org.apache.geronimo.gbean.annotation.ParamReference;
+import org.apache.geronimo.gbean.annotation.ParamSpecial;
+import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.management.geronimo.JCAResourceAdapter;
 import org.apache.geronimo.transaction.manager.RecoverableTransactionManager;
@@ -37,6 +38,8 @@ import org.apache.geronimo.transaction.manager.RecoverableTransactionManager;
  * 
  * @version $Revision$
  */
+
+@GBean(j2eeType = NameFactory.JCA_RESOURCE_ADAPTER)
 public class ResourceAdapterWrapperGBean extends ResourceAdapterWrapper implements GBeanLifecycle, DynamicGBean, JCAResourceAdapter {
 
     private final DynamicGBeanDelegate delegate;
@@ -47,7 +50,14 @@ public class ResourceAdapterWrapperGBean extends ResourceAdapterWrapper implemen
         objectName = null;
     }
 
-    public ResourceAdapterWrapperGBean(String resourceAdapterClass, Map<String, String> messageListenerToActivationSpecMap, WorkManager workManager, XATerminator xaTerminator, RecoverableTransactionManager transactionManager, ClassLoader cl, String objectName) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+    public ResourceAdapterWrapperGBean(
+            @ParamAttribute(name="resourceAdapterClass") String resourceAdapterClass,
+            @ParamAttribute(name="messageListenerToActivationSpecMap") Map<String, String> messageListenerToActivationSpecMap,
+            @ParamReference(name="WorkManager", namingType = NameFactory.JCA_WORK_MANAGER)WorkManager workManager,
+            @ParamReference(name="XATerminator", namingType = NameFactory.JCA_WORK_MANAGER)XATerminator xaTerminator,
+            @ParamReference(name="TransactionManager", namingType = NameFactory.JTA_RESOURCE)RecoverableTransactionManager transactionManager,
+            @ParamSpecial(type= SpecialAttributeType.classLoader )ClassLoader cl,
+            @ParamSpecial(type= SpecialAttributeType.objectName )String objectName) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
         super(objectName, resourceAdapterClass, messageListenerToActivationSpecMap, new GeronimoBootstrapContext (workManager, xaTerminator), transactionManager, cl);
         delegate = new DynamicGBeanDelegate();
         delegate.addAll(resourceAdapter);
@@ -81,33 +91,6 @@ public class ResourceAdapterWrapperGBean extends ResourceAdapterWrapper implemen
 
     public boolean isEventProvider() {
         return false;
-    }
-
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(ResourceAdapterWrapperGBean.class, NameFactory.JCA_RESOURCE_ADAPTER);
-        infoBuilder.addAttribute("resourceAdapterClass", String.class, true);
-        infoBuilder.addAttribute("classLoader", ClassLoader.class, false);
-        infoBuilder.addAttribute("objectName", String.class, false);
-        infoBuilder.addAttribute("messageListenerToActivationSpecMap", Map.class, true);
-
-        infoBuilder.addReference("WorkManager", WorkManager.class, NameFactory.JCA_WORK_MANAGER);
-        infoBuilder.addReference("XATerminator", XATerminator.class, NameFactory.JCA_WORK_MANAGER);
-        infoBuilder.addReference("TransactionManager", RecoverableTransactionManager.class, NameFactory.JTA_RESOURCE);
-
-        infoBuilder.addOperation("registerResourceAdapterAssociation", new Class[]{ResourceAdapterAssociation.class});
-
-        infoBuilder.addInterface(ResourceAdapter.class);
-        infoBuilder.addInterface(JCAResourceAdapter.class);
-
-        infoBuilder.setConstructor(new String[]{"resourceAdapterClass", "messageListenerToActivationSpecMap", "WorkManager", "XATerminator", "TransactionManager", "classLoader", "objectName"});
-
-        GBEAN_INFO = infoBuilder.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
     }
 
 }

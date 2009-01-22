@@ -39,11 +39,16 @@
         <reference name="ScheduledPool">
             <name>DefaultThreadPool</name>
         </reference>
-        <reference name="TransactionManager">
-            <name>TransactionManager</name>
+        <reference name="InflowContextHandler">
         </reference>
     </gbean>
 
+    <gbean name="TransactionInflowContextHandler" class="org.apache.geronimo.connector.work.TransactionInflowContextHandlerGBean">
+        <reference name="XAWork">
+            <name>TransactionManager</name>
+        </reference>
+    </gbean>
+ 
     <gbean name="XidFactory" class="org.apache.geronimo.transaction.manager.XidFactoryImplGBean">
         <attribute name="tmId">71,84,77,73,68</attribute>
     </gbean>

@@ -20,6 +20,8 @@
 
 package org.apache.geronimo.connector.work;
 
+import java.util.Stack;
+
 import javax.resource.spi.work.WorkCompletedException;
 import javax.resource.spi.work.SecurityInflowContext;
 import javax.security.auth.Subject;
@@ -28,39 +30,72 @@ import javax.security.auth.login.LoginException;
 import org.apache.geronimo.security.credentialstore.CredentialStore;
 import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.Callers;
+import org.apache.geronimo.gbean.annotation.ParamAttribute;
+import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.ParamReference;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
+@GBean
 public class SecurityInflowContextHandler implements InflowContextHandler<SecurityInflowContext> {
 
     private final String realm;
+    private final Subject defaultSubject;
     private final Subject serviceSubject;
 
-    private final ThreadLocal<Callers> callers = new ThreadLocal<Callers>();
+    private final ThreadLocal<Stack<Callers>> callers = new ThreadLocal<Stack<Callers>>() {
+        @Override
+        protected Stack<Callers> initialValue() {
+            return new Stack<Callers>();
+        }
+    };
 
-    public SecurityInflowContextHandler(String realm, String serviceSubjectRealm, String serviceSubjectId, CredentialStore credentialStore) throws LoginException {
-        serviceSubject = credentialStore.getSubject(serviceSubjectRealm, serviceSubjectId);
+    public SecurityInflowContextHandler(@ParamAttribute(name="realm") String realm,
+                                        @ParamAttribute(name="defaultSubjectRealm")String defaultSubjectRealm,
+                                        @ParamAttribute(name="defaultSubjectId")String defaultSubjectId,
+                                        @ParamReference(name="DefaultCredentialStore") CredentialStore defaultCredentialStore,
+                                        @ParamAttribute(name="serviceSubjectRealm")String serviceSubjectRealm,
+                                        @ParamAttribute(name="serviceSubjectId")String serviceSubjectId,
+                                        @ParamReference(name="ServiceCredentialStore")CredentialStore serviceCredentialStore) throws LoginException {
+        if (defaultCredentialStore != null && defaultSubjectRealm != null && defaultSubjectId != null) {
+            defaultSubject = defaultCredentialStore.getSubject(defaultSubjectRealm, defaultSubjectId);
+        } else {
+            defaultSubject = ContextManager.EMPTY;
+        }
+        if (serviceCredentialStore != null && serviceSubjectRealm != null && serviceSubjectId != null) {
+            serviceSubject = serviceCredentialStore.getSubject(serviceSubjectRealm, serviceSubjectId);
+        } else {
+            serviceSubject = null;
+        }
         this.realm = realm;
     }
 
     public void before(SecurityInflowContext securityInflowContext) throws WorkCompletedException {
-        Subject clientSubject = new Subject();
-        ConnectorCallbackHandler callbackHandler = new ConnectorCallbackHandler(realm);
-        securityInflowContext.setupSecurityContext(callbackHandler, clientSubject, serviceSubject);
-        ContextManager.registerSubjectShort(clientSubject, callbackHandler.getCallerPrincipal(), callbackHandler.getGroups());
-        callers.set(ContextManager.getCallers());
+        Subject clientSubject;
+        if (securityInflowContext == null) {
+            clientSubject = defaultSubject;
+        } else {
+            clientSubject = new Subject();
+            ConnectorCallbackHandler callbackHandler = new ConnectorCallbackHandler(realm);
+            securityInflowContext.setupSecurityContext(callbackHandler, clientSubject, serviceSubject);
+            ContextManager.registerSubjectShort(clientSubject, callbackHandler.getCallerPrincipal(), callbackHandler.getGroups());
+        }
+        callers.get().push(ContextManager.getCallers());
         ContextManager.setCallers(clientSubject, clientSubject);
     }
 
     public void after(SecurityInflowContext securityInflowContext) throws WorkCompletedException {
         Subject clientSubject = ContextManager.getCurrentCaller();
-        ContextManager.popCallers(callers.get());
-        callers.remove();
+        ContextManager.popCallers(callers.get().pop());
         ContextManager.unregisterSubject(clientSubject);
     }
 
     public Class<SecurityInflowContext> getHandledClass() {
         return SecurityInflowContext.class;
+    }
+
+    public boolean required() {
+        return true;
     }
 }

@@ -118,7 +118,12 @@
         <attribute name="syncMaximumPoolSize">10</attribute>
         <attribute name="startMaximumPoolSize">10</attribute>
         <attribute name="scheduledMaximumPoolSize">10</attribute>
-        <reference name="TransactionManager">
+        <reference name="InflowContextHandler">
+        </reference>
+    </gbean>
+
+    <gbean name="TransactionInflowContextHandler" class="org.apache.geronimo.connector.work.TransactionInflowContextHandlerGBean">
+        <reference name="XAWork">
             <name>TransactionManager</name>
         </reference>
     </gbean>

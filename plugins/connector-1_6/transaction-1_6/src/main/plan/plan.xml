@@ -44,9 +44,28 @@
         <reference name="ScheduledPool">
             <name>ConnectorThreadPool</name>
         </reference>
-        <reference name="TransactionManager">
+        <reference name="InflowContextHandler">
+        </reference>
+    </gbean>
+
+    <gbean name="TransactionInflowContextHandler" class="org.apache.geronimo.connector.work.TransactionInflowContextHandlerGBean">
+        <reference name="XAWork">
             <name>TransactionManager</name>
         </reference>
+    </gbean>
+
+    <gbean name="SecurityInflowContextHandler" class="org.apache.geronimo.connector.work.SecurityInflowContextHandler">
+        <attribute name="realm">geronimo-admin</attribute>
+        <!--<attribute name="defaultSubjectRealm">geronimo-admin</attribute>-->
+        <!--<attribute name="defaultSubjectId">foo</attribute>-->
+        <!--<reference name="DefaultCredentialStore">-->
+            <!--<name>DefaultCredentialStore</name>-->
+        <!--</reference>-->
+        <!--<attribute name="serverSubjectRealm">geronimo-admin</attribute>-->
+        <!--<attribute name="serverSubjectId">foo</attribute>-->
+        <!--<reference name="ServerCredentialStore">-->
+            <!--<name>ServerCredentialStore</name>-->
+        <!--</reference>-->
     </gbean>
 
     <!-- 
