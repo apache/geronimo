@@ -79,6 +79,7 @@
         </entity>
     </enterprise-beans>
     <assembly-descriptor>
+        <!--
         <method-permission>
             <unchecked/>
             <method>
@@ -107,6 +108,7 @@
                 <method-name>*</method-name>
             </method>
         </method-permission>
+        -->
         <container-transaction>
             <description>Transaction attributes for 'SimpleStatelessSession' methods</description>
             <method>
