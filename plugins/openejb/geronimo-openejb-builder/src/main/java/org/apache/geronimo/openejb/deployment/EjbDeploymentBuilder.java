@@ -62,6 +62,8 @@ import org.apache.openejb.jee.RemoteBean;
 import org.apache.openejb.jee.SecurityIdentity;
 import org.apache.openejb.jee.SessionBean;
 import org.apache.openejb.jee.SessionType;
+import org.apache.openejb.jee.AssemblyDescriptor;
+import org.apache.openejb.jee.MethodPermission;
 import org.apache.openejb.jee.oejb3.EjbDeployment;
 import org.apache.xbean.finder.ClassFinder;
 import org.apache.xmlbeans.XmlObject;
@@ -168,6 +170,10 @@ public class EjbDeploymentBuilder {
     }
 
     public ComponentPermissions buildComponentPermissions() throws DeploymentException {
+        List<MethodPermission> methodPermissions = ejbModule.getEjbJar().getAssemblyDescriptor().getMethodPermission();
+        if (earContext.getSecurityConfiguration() == null && methodPermissions.size() > 0) {
+            throw new DeploymentException("Ejb app has method permissions but no security configuration supplied in geronimo plan");
+        }
         ComponentPermissions componentPermissions = new ComponentPermissions(new Permissions(), new Permissions(), new HashMap<String, PermissionCollection>());
         for (EnterpriseBean enterpriseBean : ejbModule.getEjbJar().getEnterpriseBeans()) {
             addSecurityData(enterpriseBean, componentPermissions);
