@@ -250,9 +250,9 @@ public class MonitoringPortlet extends GenericPortlet {
         try {
             MRCConnector mrc = new MRCConnector(ip, username, password, port, protocol);
 
-            return "<font color=\"green\"><strong><li>Connection was successfully established.</li></strong></font>";
+            return "Connection was successfully established.";
         } catch (Exception e) {
-            return "<font color=\"red\"><strong><li>Failed to create a connection to server.</li></strong></font>";
+            return "Failed to create a connection to server.";
         }
     }
 
@@ -279,8 +279,8 @@ public class MonitoringPortlet extends GenericPortlet {
                 stmt
                         .executeUpdate("UPDATE GRAPHS SET ENABLED = 0 WHERE SERVER_ID="
                                 + server_id);
-                message = "<font color=\"green\"><strong><li>Server " + name
-                        + " was successfully disabled.</li></strong></font>";
+                message = "Server " + name
+                        + " was successfully disabled.";
             } else {
                 stmt
                         .executeUpdate("UPDATE SERVERS SET ENABLED = 1 WHERE SERVER_ID="
@@ -288,18 +288,18 @@ public class MonitoringPortlet extends GenericPortlet {
                 stmt
                         .executeUpdate("UPDATE GRAPHS SET ENABLED = 1 WHERE SERVER_ID="
                                 + server_id);
-                message = "<font color=\"green\"><strong><li>Server " + name
-                        + " was successfully enabled.</li></strong></font>";
+                message = "Server " + name
+                        + " was successfully enabled.";
             }
         } catch (SQLException e) {
             if (!b)
-                message = "<font color=\"red\"><strong><li>[ERROR] Server with server_id = "
+                message = "[ERROR] Server with server_id = "
                         + server_id
-                        + " could not be disabled.</li></strong></font>";
+                        + " could not be disabled.";
             else
-                message = "<font color=\"red\"><strong><li>[ERROR] Server with server_id = "
+                message = "[ERROR] Server with server_id = "
                         + server_id
-                        + " could not be enabled.</li></strong></font>";
+                        + " could not be enabled.";
         } finally {
             if (conn != null) {
                 try {
@@ -534,14 +534,14 @@ public class MonitoringPortlet extends GenericPortlet {
                 }
             con.close();
             actionResponse.setRenderParameter("message",
-                    "<font color=\"green\"><strong><li>View " + name
-                            + " has been updated</li></strong></font>");
+                    "View " + name
+                            + " has been updated");
             return;
 
         } catch (Exception e) {
             actionResponse.setRenderParameter("message",
-                    "<font color=\"red\"><strong><li>Error updating View "
-                            + name + "</li></strong></font>" + e.getMessage());
+                    "Error updating View "
+                            + name + " " + e.getMessage());
             return;
         }
     }
@@ -580,12 +580,12 @@ public class MonitoringPortlet extends GenericPortlet {
             }
             con.close();
             actionResponse.setRenderParameter("message",
-                    "<font color=\"green\"><strong><li>View " + name
-                            + " has been added</li></strong></font>");
+                    "View " + name
+                            + " has been added");
         } catch (Exception e) {
             actionResponse.setRenderParameter("message",
-                    "<font color=\"red\"><strong><li>Error adding View " + name
-                            + "</li></strong></font>" + e.getMessage());
+                    "Error adding View " + name
+                            + " " + e.getMessage());
         } finally {
             try {
                 con.close();
@@ -640,7 +640,7 @@ public class MonitoringPortlet extends GenericPortlet {
                     actionResponse
                             .setRenderParameter(
                                     "message",
-                                    "<font color=\"red\"><strong><li>Error updating server</li></strong></font>"
+                                    "Error updating server "
                                             + "Password was not found in the database for server_id="
                                             + server_id);
                     con.close();
@@ -675,10 +675,10 @@ public class MonitoringPortlet extends GenericPortlet {
             actionResponse
                     .setRenderParameter(
                             "message",
-                            "<font color=\"green\"><strong><li>Server has been updated</li></strong></font>");
+                            "Server has been updated");
         } catch (Exception e) {
             actionResponse.setRenderParameter("message",
-                    "<font color=\"red\"><strong><li>Error updating server</li></strong></font>"
+                    "Error updating server "
                             + e.getMessage());
         }
     }
@@ -713,12 +713,12 @@ public class MonitoringPortlet extends GenericPortlet {
                             + protocol + ")");
             pStmt.executeUpdate();
             actionResponse.setRenderParameter("message",
-                    "<font color=\"green\"><strong><li>Server " + name + " at "
-                            + ip + " has been added.</li></strong></font>");
+                    "Server " + name + " at "
+                            + ip + " has been added.");
 
         } catch (Exception e) {
             actionResponse.setRenderParameter("message",
-                    "<font color=\"red\"><strong><li>Error adding server</li></strong></font>"
+                    "Error adding server "
                             + e.getMessage());
         } finally {
             try {
@@ -749,12 +749,12 @@ public class MonitoringPortlet extends GenericPortlet {
             actionResponse
                     .setRenderParameter(
                             "message",
-                            "<font color=\"green\"><strong><li>Server and associated graphs have been deleted</li></strong></font>");
+                            "Server and associated graphs have been deleted");
             return;
 
         } catch (Exception e) {
             actionResponse.setRenderParameter("message",
-                    "<font color=\"red\"><strong><li>Error deleting server</li></strong></font>"
+                    "Error deleting server "
                             + e.getMessage());
             return;
         }
@@ -779,12 +779,12 @@ public class MonitoringPortlet extends GenericPortlet {
             con.close();
             actionResponse
                     .setRenderParameter("message",
-                            "<font color=\"green\"><strong><li>View has been deleted</li></strong></font>");
+                            "View has been deleted");
             return;
 
         } catch (Exception e) {
             actionResponse.setRenderParameter("message",
-                    "<font color=\"red\"><strong><li>Error deleting view</li></strong></font>"
+                    "Error deleting view "
                             + e.getMessage());
             return;
         }
@@ -848,13 +848,13 @@ public class MonitoringPortlet extends GenericPortlet {
             pStmt.executeUpdate();
             con.close();
             actionResponse.setRenderParameter("message",
-                    "<font color=\"green\"><strong><li>Graph " + name
-                            + " has been added.</li></strong></font>");
+                    "Graph " + name
+                            + " has been added.");
             return;
 
         } catch (Exception e) {
             actionResponse.setRenderParameter("message",
-                    "<font color=\"red\"><strong><li>Error adding graph</li></strong></font>"
+                    "Error adding graph "
                             + e.getMessage());
             return;
         }
@@ -921,13 +921,13 @@ public class MonitoringPortlet extends GenericPortlet {
             pStmt.executeUpdate();
             con.close();
             actionResponse.setRenderParameter("message",
-                    "<font color=\"green\"><strong><li>Graph " + name
-                            + " has been updated.</li></strong></font>");
+                    "Graph " + name
+                            + " has been updated.");
             return;
 
         } catch (Exception e) {
             actionResponse.setRenderParameter("message",
-                    "<font color=\"red\"><strong><li>Error editing graph</li></strong></font>"
+                    "Error editing graph "
                             + e.getMessage());
             return;
         }
@@ -966,12 +966,12 @@ public class MonitoringPortlet extends GenericPortlet {
             con.close();
             actionResponse
                     .setRenderParameter("message",
-                            "<font color=\"green\"><strong><li>Graph has been deleted</li></strong></font>");
+                            "Graph has been deleted");
             return;
 
         } catch (Exception e) {
             actionResponse.setRenderParameter("message",
-                    "<font color=\"red\"><strong><li>Error deleting graph</li></strong></font>"
+                    "Error deleting graph "
                             + e.getMessage());
             return;
         }
@@ -995,9 +995,9 @@ public class MonitoringPortlet extends GenericPortlet {
                             + server_id);
             rs = pStmt.executeQuery();
             if (!rs.next()) {
-                return "<font color=\"red\"><strong><li>DATABASE ERROR: Server id "
+                return "DATABASE ERROR: Server id "
                         + server_id
-                        + " not found in database</li></strong></font>";
+                        + " not found in database";
             }
             server_ip = rs.getString("ip");
             password = rs.getString("password");
@@ -1005,38 +1005,36 @@ public class MonitoringPortlet extends GenericPortlet {
             port = rs.getInt("port");
             protocol = rs.getInt("protocol");
         } catch (SQLException e) {
-            return "<font color=\"red\"><strong><li>DATABASE ERROR: "
-                    + e.getMessage() + "</li></strong></font>";
+            return "DATABASE ERROR: "
+                    + e.getMessage();
         }
         // attempt to connect to the mrc server
         try {
             con.close();
             mrc = new MRCConnector(server_ip, username, password, port, protocol);
         } catch (Exception e) {
-            return "<font color=\"red\"><strong><li>MRC ERROR: Unable to connect to server "
+            return "MRC ERROR: Unable to connect to server "
                     + server_ip
                     + ": "
-                    + e.getMessage()
-                    + "</li></strong></font>";
+                    + e.getMessage();
         }
 
         // tell the mrc server to start tracking an mbean
         try {
             if (mrc.startTrackingMbean(mbean)) {
                 String mbarr[] = mbean.split("name=");
-                return "<font color=\"green\"><strong><li>MBean " + mbarr[1]
-                        + " tracking on server " + rs.getString("name")
-                        + "</li></strong></font>";
+                return "MBean " + mbarr[1]
+                        + " tracking on server " + rs.getString("name");
             } else {
                 String mbarr[] = mbean.split("name=");
-                return "<font color=\"red\"><strong><li>ERROR: MBean "
-                        + mbarr[1] + " could <b>NOT</b> be tracked on server "
-                        + rs.getString("name") + "</li></strong></font>";
+                return "ERROR: MBean "
+                        + mbarr[1] + " could NOT be tracked on server "
+                        + rs.getString("name");
             }
         } catch (Exception e) {
-            return "<font color=\"red\"><strong><li>MRC ERROR: MBean " + mbean
-                    + " could <b>NOT</b> be tracked on server " + server_ip
-                    + ": " + e.getMessage() + "</li></strong></font>";
+            return "MRC ERROR: MBean " + mbean
+                    + " could NOT be tracked on server " + server_ip
+                    + ": " + e.getMessage();
         }
     }
 
@@ -1058,9 +1056,9 @@ public class MonitoringPortlet extends GenericPortlet {
                             + server_id);
             rs = pStmt.executeQuery();
             if (!rs.next()) {
-                return "<font color=\"red\"><strong><li>DATABASE ERROR: Server id "
+                return "DATABASE ERROR: Server id "
                         + server_id
-                        + " not found in database</li></strong></font>";
+                        + " not found in database";
             }
             server_ip = rs.getString("ip");
             password = rs.getString("password");
@@ -1068,39 +1066,37 @@ public class MonitoringPortlet extends GenericPortlet {
             port = rs.getInt("port");
             protocol = rs.getInt("protocol");
         } catch (SQLException e) {
-            return "<font color=\"red\"><strong><li>DATABASE ERROR: "
-                    + e.getMessage() + "</li></strong></font>";
+            return "DATABASE ERROR: "
+                    + e.getMessage();
         }
         // attempt to connect to the mrc-server
         try {
             con.close();
                 mrc = new MRCConnector(server_ip, username, password, port, protocol);
        } catch (Exception e) {
-            return "<font color=\"red\"><strong><li>MRC ERROR: Unable to connect to server "
+            return "MRC ERROR: Unable to connect to server "
                     + server_ip
                     + ": "
-                    + e.getMessage()
-                    + "</li></strong></font>";
+                    + e.getMessage();
         }
         // tell the mrc-server to stop tracking some mbean
         try {
             if (mrc.stopTrackingMbean(mbean)) {
                 String mbarr[] = mbean.split("name=");
-                return "<font color=\"green\"><strong><li>MBean " + mbarr[1]
+                return "MBean " + mbarr[1]
                         + " removed from tracking on server "
-                        + rs.getString("name") + "</li></strong></font>";
+                        + rs.getString("name");
             } else {
                 String mbarr[] = mbean.split("name=");
-                return "<font color=\"red\"><strong><li>ERROR: MBean "
+                return "ERROR: MBean "
                         + mbarr[1]
-                        + " could <b>NOT</b> be removed from tracking on server "
-                        + rs.getString("name") + "</li></strong></font>";
+                        + " could NOT be removed from tracking on server "
+                        + rs.getString("name");
             }
         } catch (Exception e) {
-            return "<font color=\"red\"><strong><li>MRC ERROR: MBean " + mbean
-                    + " could <b>NOT</b> be removed from tracking on server "
-                    + server_ip + ": " + e.getMessage()
-                    + "</li></strong></font>";
+            return "MRC ERROR: MBean " + mbean
+                    + " could NOT be removed from tracking on server "
+                    + server_ip + ": " + e.getMessage();
         }
     }
 
@@ -1122,9 +1118,9 @@ public class MonitoringPortlet extends GenericPortlet {
                             + server_id);
             rs = pStmt.executeQuery();
             if (!rs.next()) {
-                return "<font color=\"red\"><strong><li>DATABASE ERROR: Server id "
+                return "DATABASE ERROR: Server id "
                         + server_id
-                        + " not found in database</li></strong></font>";
+                        + " not found in database";
             }
             server_ip = rs.getString("ip");
             password = rs.getString("password");
@@ -1132,36 +1128,34 @@ public class MonitoringPortlet extends GenericPortlet {
             port = rs.getInt("port");
             protocol = rs.getInt("protocol");
         } catch (SQLException e) {
-            return "<font color=\"red\"><strong><li>DATABASE ERROR: "
-                    + e.getMessage() + "</li></strong></font>";
+            return "DATABASE ERROR: "
+                    + e.getMessage();
         }
         // attempt to connect to the mrc-server
         try {
             con.close();
             mrc = new MRCConnector(server_ip, username, password, port, protocol);
         } catch (Exception e) {
-            return "<font color=\"red\"><strong><li>MRC ERROR: Unable to connect to server "
+            return "MRC ERROR: Unable to connect to server "
                     + server_ip
                     + ": "
-                    + e.getMessage()
-                    + "</li></strong></font>";
+                    + e.getMessage();
         }
         // tell the mrc-server to stop taking snapshots
         try {
             if (mrc.stopSnapshotThread()) {
-                return "<font color=\"green\"><strong><li>Snapshot thread stopped on server "
-                        + rs.getString("name") + "</li></strong></font>";
+                return "Snapshot thread stopped on server "
+                        + rs.getString("name");
             } else {
-                return "<font color=\"red\"><strong><li>ERROR: Snapshot thread could <b>NOT</b> be stopped on server "
-                        + rs.getString("name") + "</li></strong></font>";
+                return "ERROR: Snapshot thread could NOT be stopped on server "
+                        + rs.getString("name");
             }
 
         } catch (Exception e) {
-            return "<font color=\"red\"><strong><li>MRC ERROR: Snapshot thread could <b>NOT</b> be stopped on server "
+            return "MRC ERROR: Snapshot thread could NOT be stopped on server "
                     + server_ip
                     + ": "
-                    + e.getMessage()
-                    + "</li></strong></font>";
+                    + e.getMessage();
         }
     }
 
@@ -1183,9 +1177,9 @@ public class MonitoringPortlet extends GenericPortlet {
                             + server_id);
             rs = pStmt.executeQuery();
             if (!rs.next()) {
-                return "<font color=\"red\"><strong><li>DATABASE ERROR: Server id "
+                return "DATABASE ERROR: Server id "
                         + server_id
-                        + " not found in database</li></strong></font>";
+                        + " not found in database";
             }
             server_ip = rs.getString("ip");
             password = rs.getString("password");
@@ -1193,35 +1187,33 @@ public class MonitoringPortlet extends GenericPortlet {
             port = rs.getInt("port");
             protocol = rs.getInt("protocol");
         } catch (SQLException e) {
-            return "<font color=\"red\"><strong><li>DATABASE ERROR: "
-                    + e.getMessage() + "</li></strong></font>";
+            return "DATABASE ERROR: "
+                    + e.getMessage();
         }
         // attempt to connect to the mrc-server
         try {
             con.close();
             mrc = new MRCConnector(server_ip, username, password, port, protocol);
         } catch (Exception e) {
-            return "<font color=\"red\"><strong><li>MRC ERROR: Unable to connect to server "
+            return "MRC ERROR: Unable to connect to server "
                     + server_ip
                     + ": "
-                    + e.getMessage()
-                    + "</li></strong></font>";
+                    + e.getMessage();
         }
         // tell the mrc-server to start the collection of statistics
         try {
             if (mrc.startSnapshotThread(new Long(snapshotDuration))) {
-                return "<font color=\"green\"><strong><li>Snapshot thread started on server "
-                        + rs.getString("name") + "</li></strong></font>";
+                return "Snapshot thread started on server "
+                        + rs.getString("name");
             } else {
-                return "<font color=\"red\"><strong><li>ERROR: Snapshot thread could <b>NOT</b> be started on server "
-                        + rs.getString("name") + "</li></strong></font>";
+                return "ERROR: Snapshot thread could NOT be started on server "
+                        + rs.getString("name");
             }
         } catch (Exception e) {
-            return "<font color=\"red\"><strong><li>MRC ERROR: Snapshot thread could <b>NOT</b> be started on server "
+            return "MRC ERROR: Snapshot thread could NOT be started on server "
                     + server_ip
                     + ": "
-                    + e.getMessage()
-                    + "</li></strong></font>";
+                    + e.getMessage();
         }
     }
 
