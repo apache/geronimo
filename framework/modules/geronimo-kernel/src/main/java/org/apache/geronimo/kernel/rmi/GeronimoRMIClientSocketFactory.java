@@ -46,5 +46,35 @@ public class GeronimoRMIClientSocketFactory implements RMIClientSocketFactory, S
         }
         return socket;
     }
-    
+
+    @Override
+    public int hashCode() {
+        int prime = 31;
+        int result = 1;
+        result = prime * result + connectionTimeout;
+        result = prime * result + readTimeout;
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        GeronimoRMIClientSocketFactory other = (GeronimoRMIClientSocketFactory) obj;
+        if (connectionTimeout != other.connectionTimeout) {
+            return false;
+        }
+        if (readTimeout != other.readTimeout) {
+            return false;
+        }
+        return true;
+    }
+
 }
