@@ -23,17 +23,16 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.LinkedHashSet;
-import java.util.HashMap;
-import java.util.Collection;
 
-import org.apache.geronimo.kernel.repository.*;
+import org.apache.geronimo.kernel.repository.ImportType;
 import org.apache.geronimo.system.plugin.model.ArtifactType;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.factory.ArtifactFactory;
@@ -42,6 +41,7 @@ import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.resolver.ArtifactCollector;
 import org.apache.maven.artifact.resolver.ArtifactResolutionException;
 import org.apache.maven.artifact.resolver.ArtifactResolutionResult;
+import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.Mojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -52,7 +52,12 @@ import org.apache.maven.project.ProjectBuildingException;
 import org.apache.maven.project.artifact.InvalidDependencyVersionException;
 import org.apache.maven.shared.dependency.tree.DependencyNode;
 import org.apache.maven.shared.dependency.tree.DependencyTreeResolutionListener;
+import org.apache.maven.shared.filtering.MavenFileFilter;
+import org.apache.maven.shared.filtering.MavenFilteringException;
+import org.apache.maven.shared.filtering.MavenResourcesFiltering;
 import org.codehaus.plexus.logging.AbstractLogEnabled;
+import org.codehaus.plexus.util.ReaderFactory;
+import org.codehaus.plexus.util.StringUtils;
 
 /**
  * Support for <em>packaging</em> Mojos.
@@ -123,6 +128,43 @@ public abstract class AbstractCarMojo
     private ArtifactCollector artifactCollector;
 
     protected String treeListing;
+
+    //filtering support
+    /**
+     * The character encoding scheme to be applied when filtering resources.
+     *
+     * @parameter expression="${encoding}" default-value="${project.build.sourceEncoding}"
+     */
+    protected String encoding;
+
+    /**
+     * @component role="org.apache.maven.shared.filtering.MavenResourcesFiltering" role-hint="default"
+     * @required
+     */
+    protected MavenResourcesFiltering mavenResourcesFiltering;
+
+    /**
+     * @parameter expression="${session}"
+     * @readonly
+     * @required
+     */
+    protected MavenSession session;
+
+    /**
+     * Expression preceded with the String won't be interpolated
+     * \${foo} will be replaced with ${foo}
+     *
+     * @parameter expression="${maven.resources.escapeString}"
+     * @since 2.3
+     */
+    protected String escapeString = "\\";
+
+    /**
+     * @plexus.requirement role-hint="default"
+     * @component
+     * @required
+     */
+    protected MavenFileFilter mavenFileFilter;
 
     //
     // MojoSupport Hooks
@@ -316,7 +358,7 @@ public abstract class AbstractCarMojo
 
 
             getDependencies(project, useMavenDependencies.isUseTransitiveDependencies());
-            for (org.apache.maven.artifact.Artifact artifact: localDependencies) {
+            for (org.apache.maven.artifact.Artifact artifact : localDependencies) {
                 Dependency explicitDependency = explicitDependencyMap.get(getKey(artifact));
                 dependencies.add(toDependency(artifact, useMavenDependencies.isIncludeVersion(), explicitDependency, includeImport));
             }
@@ -345,6 +387,7 @@ public abstract class AbstractCarMojo
     private String getKey(Dependency dependency) {
         return dependency.getGroupId() + "/" + dependency.getArtifactId() + "/" + dependency.getType();
     }
+
     private String getKey(Artifact dependency) {
         return dependency.getGroupId() + "/" + dependency.getArtifactId() + "/" + dependency.getType();
     }
@@ -516,6 +559,25 @@ public abstract class AbstractCarMojo
         if (!type.equals(artifact.getType())) return false;
 
         return true;
+    }
+
+
+    protected void filter(File sourceFile, File targetFile)
+            throws MojoExecutionException {
+        try {
+
+            if (StringUtils.isEmpty(encoding)) {
+                getLog().warn(
+                        "File encoding has not been set, using platform encoding " + ReaderFactory.FILE_ENCODING
+                                + ", i.e. build is platform dependent!");
+            }
+            targetFile.getParentFile().mkdirs();
+            List filters = mavenFileFilter.getDefaultFilterWrappers(project, null, true, session, null);
+            mavenFileFilter.copyFile(sourceFile, targetFile, true, filters, encoding, true);
+        }
+        catch (MavenFilteringException e) {
+            throw new MojoExecutionException(e.getMessage(), e);
+        }
     }
 
 }

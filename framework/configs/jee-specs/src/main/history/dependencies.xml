@@ -33,7 +33,7 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.specs</groupId>
-        <artifactId>geronimo-j2ee-connector_1.5_spec</artifactId>
+        <artifactId>${connectorSpec}</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -88,7 +88,7 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.specs</groupId>
-        <artifactId>geronimo-servlet_2.5_spec</artifactId>
+        <artifactId>${servletSpec}</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>

@@ -74,6 +74,14 @@ public class DependencyChangeMojo extends AbstractCarMojo {
     private File dependencyFile;
 
     /**
+     * Location of filtered dependency file.
+     *
+     * @parameter expression="${basedir}/target/history/dependencies.xml"
+     * @required
+     */
+    private File filteredDependencyFile;
+
+    /**
      * Configuration of use of maven dependencies.  If missing or if value element is false, use the explicit list in the car-maven-plugin configuration.
      * If present and true, use the maven dependencies in the current pom file of scope null, runtime, or compile.  In addition, the version of the maven
      * dependency can be included or not depending on the includeVersion element.
@@ -88,8 +96,10 @@ public class DependencyChangeMojo extends AbstractCarMojo {
         try {
             Collection<Dependency> dependencies = toDependencies(this.dependencies, useMavenDependencies, false);
             if (dependencyFile.exists()) {
+                //filter dependencies file
+                filter(dependencyFile, filteredDependencyFile);
                 //read dependency types, convert to dependenciees, compare.
-                FileReader in = new FileReader(dependencyFile);
+                FileReader in = new FileReader(filteredDependencyFile);
                 try {
                     PluginArtifactType pluginArtifactType = PluginXmlUtil.loadPluginArtifactMetadata(in);
                     PluginArtifactType removed = new PluginArtifactType();

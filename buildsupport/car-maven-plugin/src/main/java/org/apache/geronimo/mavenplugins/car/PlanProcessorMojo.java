@@ -20,11 +20,9 @@
 package org.apache.geronimo.mavenplugins.car;
 
 import java.io.File;
-import java.io.StringWriter;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Properties;
 
 import javax.xml.namespace.QName;
 
@@ -38,10 +36,6 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.ProjectBuildingException;
 import org.apache.maven.project.artifact.InvalidDependencyVersionException;
-import org.apache.velocity.Template;
-import org.apache.velocity.VelocityContext;
-import org.apache.velocity.app.Velocity;
-import org.apache.velocity.app.VelocityEngine;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
@@ -65,10 +59,10 @@ public class PlanProcessorMojo
     /**
      * Location of unproccesed plan, normally missing moduleId and dependencies.
      *
-     * @parameter expression="${basedir}/src/main/plan"
+     * @parameter expression="${basedir}/src/main/plan/plan.xml"
      * @required
      */
-    protected File sourceDir = null;
+    protected File sourceFile = null;
 
     /**
      * Directory to put the processed plan in.
@@ -77,14 +71,6 @@ public class PlanProcessorMojo
      * @required
      */
     protected File targetDir = null;
-
-    /**
-     * Name of the unprocessed source and processed target plan file.
-     *
-     * @parameter default-value="plan.xml"
-     * @required
-     */
-    protected String planFileName = null;
 
     /**
      * XXX
@@ -110,58 +96,24 @@ public class PlanProcessorMojo
      */
     UseMavenDependencies useMavenDependencies = new UseMavenDependencies(true, false, true);
 
-    private VelocityContext createContext() {
-        VelocityContext context = new VelocityContext();
+    /**
+     * we copy the plan here for filtering, then add env stuff.
+     *
+     * @parameter expression="${project.build.directory}/fliteredplan/plan.xml"
+     * @required
+     */
+    protected File filteredPlanFile;
 
-        // Load properties, It inherits them all!
-        Properties props = project.getProperties();
-        for (Object o : props.keySet()) {
-            String key = (String) o;
-            String value = props.getProperty(key);
-
-            getLog().debug("Setting " + key + "=" + value);
-            context.put(key, value);
-        }
-
-        context.put("pom", project);
-
-        return context;
-    }
 
     public void execute() throws MojoExecutionException, MojoFailureException {
-        File source = new File(sourceDir, planFileName);
-        if (!source.exists()) {
+        if (!sourceFile.exists()) {
             getLog().info("No plan found, plugin will have no classloader");
             return;
         }
         try {
-//
-            // FIXME: Do not need velocity here, we only need to filter,
-            //        could use resources plugin to do this for us, or
-            //        implement what resources plugin does here
-            //
-            //        Also velocity does not handle property expansion of expressions like
-            //        ${foo.bar} to the value of the "foo.bar" property :-(
-            //
-            //        Might be better of just hand rolling something...
-            //
+            filter(sourceFile, filteredPlanFile);
 
-            VelocityContext context = createContext();
-
-            VelocityEngine velocity = new VelocityEngine();
-            velocity.setProperty(Velocity.FILE_RESOURCE_LOADER_PATH, sourceDir.getAbsolutePath());
-
-            // Don't spit out any logs
-            velocity.setProperty(Velocity.RUNTIME_LOG_LOGSYSTEM_CLASS, "org.apache.velocity.runtime.log.NullLogSystem");
-            velocity.init();
-
-            Template template = velocity.getTemplate(planFileName);
-            StringWriter writer = new StringWriter();
-            template.merge(context, writer);
-
-            String plan = writer.toString();
-
-            XmlObject doc = XmlObject.Factory.parse(plan);
+            XmlObject doc = XmlObject.Factory.parse(filteredPlanFile);
             XmlCursor xmlCursor = doc.newCursor();
             LinkedHashSet<org.apache.geronimo.kernel.repository.Dependency> dependencies = toKernelDependencies(this.dependencies, useMavenDependencies);
             Artifact configId = new Artifact(project.getGroupId(), project.getArtifactId(), project.getVersion(), "car");

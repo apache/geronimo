@@ -8,7 +8,7 @@
     </module-id>
     <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>jetty6-clustering-builder-wadi</artifactId>
+        <artifactId>${jetty}-clustering-builder-wadi</artifactId>
         <type>car</type>
     </dependency>
     <dependency>

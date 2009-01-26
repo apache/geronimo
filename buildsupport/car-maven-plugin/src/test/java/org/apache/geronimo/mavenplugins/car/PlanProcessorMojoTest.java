@@ -26,15 +26,24 @@ import java.io.InputStream;
 import org.apache.geronimo.testsupport.TestSupport;
 import org.apache.maven.model.Model;
 import org.apache.maven.project.MavenProject;
+import org.apache.maven.shared.filtering.MavenResourcesFiltering;
+import org.apache.maven.shared.filtering.DefaultMavenResourcesFiltering;
+import org.apache.maven.shared.filtering.DefaultMavenFileFilter;
+import org.apache.maven.shared.filtering.MavenFileFilter;
+import org.apache.maven.execution.MavenSession;
+import org.codehaus.plexus.PlexusTestCase;
 
 /**
  * @version $Rev$ $Date$
  */
-public class PlanProcessorMojoTest extends TestSupport {
+public class PlanProcessorMojoTest extends PlexusTestCase {
 
     private PlanProcessorMojo processorMojo;
+    private File sourceDir;
+    private File filteredPlanDir;
 
     protected void setUp() throws Exception {
+        super.setUp();
         processorMojo = new PlanProcessorMojo();
         processorMojo.useMavenDependencies = new UseMavenDependencies(false, false, false);
         Model model = new Model();
@@ -43,13 +52,17 @@ public class PlanProcessorMojoTest extends TestSupport {
         mavenProject.setArtifactId("dummy-artifact-id");
         mavenProject.setVersion("dummy-version");
         processorMojo.project = mavenProject;
-        processorMojo.sourceDir = new File(BASEDIR, "src/test/resources");
-        processorMojo.targetDir = new File(BASEDIR, "target/PlanProcessorMojoTest");
+        File basedir = getBaseDir();
+        sourceDir = new File(basedir, "src/test/resources");
+        processorMojo.targetDir = new File(basedir, "target/PlanProcessorMojoTest");
+        filteredPlanDir = new File(processorMojo.targetDir, "filteredPlan");
+        processorMojo.mavenFileFilter = (MavenFileFilter) lookup( MavenFileFilter.class.getName(), "default" );
     }
     
     public void testEmptyPlanProcessing() throws Exception {
         String planName = "empty-plan.xml";
-        processorMojo.planFileName = planName;
+        processorMojo.sourceFile = new File(sourceDir, planName);
+        processorMojo.filteredPlanFile = new File(filteredPlanDir, planName);
         processorMojo.targetFile = new File(processorMojo.targetDir, "actual-" + planName);
         
         processorMojo.execute();
@@ -59,7 +72,8 @@ public class PlanProcessorMojoTest extends TestSupport {
 
     public void testNoEnvironmentPlanProcessing() throws Exception {
         String planName = "no-env-plan.xml";
-        processorMojo.planFileName = planName;
+        processorMojo.sourceFile = new File(sourceDir, planName);
+        processorMojo.filteredPlanFile = new File(filteredPlanDir, planName);
         processorMojo.targetFile = new File(processorMojo.targetDir, "actual-" + planName);
         
         processorMojo.execute();
@@ -68,7 +82,7 @@ public class PlanProcessorMojoTest extends TestSupport {
     }
 
     private void assertResultingPlan(String planName) throws Exception {
-        InputStream expectedIn = new FileInputStream(new File(processorMojo.sourceDir, "expected-" + planName));
+        InputStream expectedIn = new FileInputStream(new File(sourceDir, "expected-" + planName));
         InputStream actualIn = new FileInputStream(new File(processorMojo.targetDir, "actual-" + planName));
         
         int read;
@@ -80,5 +94,29 @@ public class PlanProcessorMojoTest extends TestSupport {
             assertEquals(read, actualRead);
         }
     }
-    
+
+    protected final File getBaseDir() {
+        File dir;
+
+        // If ${basedir} is set, then honor it
+        String tmp = System.getProperty("basedir");
+        if (tmp != null) {
+            dir = new File(tmp);
+        }
+        else {
+            // Find the directory which this class (or really the sub-class of TestSupport) is defined in.
+            String path = getClass().getProtectionDomain().getCodeSource().getLocation().getFile();
+
+            // We expect the file to be in target/test-classes, so go up 2 dirs
+            dir = new File(path).getParentFile().getParentFile();
+
+            // Set ${basedir} which is needed by logging to initialize
+            System.setProperty("basedir", dir.getPath());
+        }
+
+        // System.err.println("Base Directory: " + dir);
+
+        return dir;
+    }
+
 }

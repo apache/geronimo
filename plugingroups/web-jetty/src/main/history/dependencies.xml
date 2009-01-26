@@ -13,7 +13,7 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>jetty6-deployer</artifactId>
+        <artifactId>${jetty}-deployer</artifactId>
         <type>car</type>
     </dependency>
     <dependency>
