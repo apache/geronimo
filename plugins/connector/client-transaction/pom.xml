@@ -80,11 +80,11 @@
             <!--<artifactId>geronimo-transaction</artifactId>-->
         <!--</dependency>-->
 
-        <!--<dependency>-->
-            <!--<groupId>org.apache.geronimo.modules</groupId>-->
-            <!--<artifactId>geronimo-persistence-jpa10</artifactId>-->
-            <!--<version>${version}</version>-->
-        <!--</dependency>-->
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-persistence-jpa10</artifactId>
+            <version>${version}</version>
+        </dependency>
 
         <!--<dependency>-->
             <!--<groupId>org.apache.geronimo.framework</groupId>-->
