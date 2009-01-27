@@ -70,7 +70,7 @@ public abstract class AbstractHandler extends MultiPageAbstractHandler {
 
     protected final static String UPLOADED_WAR_URI_PARAMETER = "uploadedWarUri";
 
-    protected final static String DEPLOYMENT_PLAN_PARAMETER = "deploymentPlan";
+    protected final static String DEPLOYMENT_PLAN_PARAMETER = "deploymentPlanXml";
 
     protected final static String CONTEXT_ROOT_PARAMETER = "contextRoot";
 

@@ -40,7 +40,7 @@
     <!-- STATUS FIELD: Deployment Plan -->
       <tr>
         <th valign="top" style="min-width: 140px"><div align="right">Deployment Plan:</div></th>
-        <td><textarea rows="30" cols="60" name="deploymentPlan">${data.deploymentPlan}</textarea></td>
+        <td><textarea rows="30" cols="60" name="deploymentPlanXml">${data.deploymentPlan}</textarea></td>
       </tr>
     <!-- SUBMIT BUTTON -->
       <tr>
