@@ -27,7 +27,7 @@ number is stored in a text file and the number is incremented each time a CSR is
 
 <jsp:include page="_header.jsp" />
 
-<form name="<portlet:namespace/>confirmCAForm" action="<portlet:actionURL/>">
+<form name="<portlet:namespace/>confirmCAForm" action="<portlet:actionURL/>" method="POST">
     <input type="hidden" name="mode" value="confirmCA-after" />
     <table border="0">
         <tr>

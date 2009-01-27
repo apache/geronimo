@@ -24,7 +24,7 @@
 
 <jsp:include page="_header.jsp" />
 
-<form name="<portlet:namespace/>KeystoreForm" action="<portlet:actionURL/>">
+<form name="<portlet:namespace/>KeystoreForm" action="<portlet:actionURL/>" method="POST">
     <input type="hidden" name="keystore" value="${keystore}" />
     <input type="hidden" name="mode" value="${mode}-after" />
     <b>Enter keystore password:</b>

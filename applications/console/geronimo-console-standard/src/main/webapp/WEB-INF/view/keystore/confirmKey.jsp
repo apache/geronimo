@@ -21,7 +21,7 @@
 
 <p>Please confirm that this is the correct information for the key I'm about to generate:</p>
 
-<form name="<portlet:namespace/>KeystoreForm" action="<portlet:actionURL/>">
+<form name="<portlet:namespace/>KeystoreForm" action="<portlet:actionURL/>" method="POST">
     <input type="hidden" name="mode" value="confirmKey-after" />
     <input type="hidden" name="keystore" value="${keystore}" />
     <input type="hidden" name="alias" value="${alias}" />
