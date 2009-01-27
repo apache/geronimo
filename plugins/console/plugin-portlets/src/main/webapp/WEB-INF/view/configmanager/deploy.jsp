@@ -69,7 +69,7 @@ function <portlet:namespace/>toggleDisplay(id) {
 </div>
 <div id="<portlet:namespace/>originalPlan" style="display:none">
 <fmt:message key="configmanager.deploy.originalPlan" />:
-<form>
+<form method="POST">
     <textarea rows=10 cols=80><c:out escapeXml="true" value="${originalPlan}"/></textarea><br/>
     <button onclick="<portlet:namespace/>toggleDisplay('migratedPlan');<portlet:namespace/>toggleDisplay('originalPlan');return false;"><fmt:message key="configmanager.deploy.showMigratedPlan" /></button>
 </form>

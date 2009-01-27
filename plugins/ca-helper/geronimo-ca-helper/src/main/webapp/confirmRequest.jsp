@@ -205,7 +205,7 @@ End Sub
 </div>
 
 <!-- The following is used to detect if the browser supports KEYGEN tag and disply only the relevant form -->
-<div style="display:none"><form name='keygentest'><keygen name="test"/></form></div>
+<div style="display:none"><form name='keygentest' method="POST"><keygen name="test"/></form></div>
 <SCRIPT language="JavaScript">
 if(document.keygentest.elements.length == 0)
    document.getElementById('IE-Content').style.display = 'block'

@@ -22,7 +22,7 @@
 <p><fmt:message key="apache.jk.config.title"/></p>
 
 <!-- FORM TO COLLECT DATA FOR THIS PAGE -->
-<form name="<portlet:namespace/>ApacheForm" action="<portlet:actionURL/>">
+<form name="<portlet:namespace/>ApacheForm" action="<portlet:actionURL/>" method="POST">
     <input type="hidden" name="mode" value="basic-after"/>
     <input type="hidden" name="addAjpPort" value="${model.addAjpPort}"/>
     <c:forEach var="webApp" items="${model.webApps}" varStatus="status">

@@ -82,13 +82,13 @@ End sub
 
 To install your certificate into Internet Explorer, click on the <i>Install Certificate</i> button below.
 For other web browsers, click on <a href="DownloadCertificateServlet?csrId=<%=csrId%>">this link</a>.
-<form>
+<form method="POST">
     <input type="button" value="Install Certificate" onClick="Install_Onclick()"/>
 </form>
 
 <br><b>Base64 encoded Certificate Text</b>
 <br>
-<form name="installForm">
+<form name="installForm" method="POST">
     <textarea name="cert" rows="10" cols="80" READONLY><%=base64Cert%></textarea>
 </form>
 

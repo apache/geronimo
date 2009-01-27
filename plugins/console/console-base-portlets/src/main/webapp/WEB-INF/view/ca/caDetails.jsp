@@ -122,7 +122,7 @@
         <th colspan="2" align="left"><fmt:message key="ca.common.base64EncodedCertText"/></th>
     </tr>
     <tr>
-        <td colspan="2"><form><textarea rows="15" cols="80" READONLY>${certText}</textarea></form></td>
+        <td colspan="2"><form method="POST"><textarea rows="15" cols="80" READONLY>${certText}</textarea></form></td>
     </tr>
   </table>
 </c:if>

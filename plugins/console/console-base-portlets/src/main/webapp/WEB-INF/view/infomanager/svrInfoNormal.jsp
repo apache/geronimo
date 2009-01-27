@@ -130,7 +130,7 @@ function <portlet:namespace/>updateValues(serverStats) {
 }
 function <portlet:namespace/>onError() {
     <portlet:namespace/>stopped=true;
-    DWRUtil.setValue("<portlet:namespace/>ErrorArea", '<form name="<portlet:namespace/>Refresh" action="<portlet:actionURL/>"><input type="submit" value="Refresh"/></form>');
+    DWRUtil.setValue("<portlet:namespace/>ErrorArea", '<form name="<portlet:namespace/>Refresh" action="<portlet:actionURL/>" method="POST"><input type="submit" value="Refresh"/></form>');
 }
 <portlet:namespace/>callServer();
 </script>

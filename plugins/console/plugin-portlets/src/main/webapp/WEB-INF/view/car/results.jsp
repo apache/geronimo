@@ -41,7 +41,7 @@
   </ul>
 </c:if>
 
-<form name="<portlet:namespace/>PluginForm" action="<portlet:actionURL/>">
+<form name="<portlet:namespace/>PluginForm" action="<portlet:actionURL/>" method="POST">
     <input type="hidden" name="mode" value="index-before" />
     <input type="hidden" name="repository" value="${repository}" />
     <input type="hidden" name="repo-user" value="${repouser}" />

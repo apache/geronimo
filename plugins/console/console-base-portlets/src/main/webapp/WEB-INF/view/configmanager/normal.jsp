@@ -215,11 +215,11 @@ function toggleShowDependenciesMode() {
 </script>
 
 
-<form name="checkExpert">
+<form name="checkExpert" method="POST">
 <input type="checkbox" name="expertMode" onClick="toggleExpertMode();" />&nbsp;Expert User (enable all actions on Geronimo Provided Components)  
 </form>
 
-<form name="showDependenciesForm">
+<form name="showDependenciesForm" method="POST">
 <input type="checkbox" name="showDependenciesMode" onClick="toggleShowDependenciesMode();" />&nbsp;Show parent and child components
 </form>
 

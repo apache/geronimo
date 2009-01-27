@@ -43,12 +43,12 @@
 <c:when test="${fn:length(plugins) < 1}">
   <fmt:message key="car.list.noPlugins" />
   <p>
-  <form>
+  <form method="POST">
     <input type="submit" value="Cancel" onclick="history.go(-1); return false;" />
   </form>
 </c:when>
 <c:otherwise>
-<form name="frmlst" action="<portlet:actionURL/>">
+<form name="frmlst" action="<portlet:actionURL/>" method="POST">
     <h3>Name the server to be assembled</h3>
     <input id="mode" type="hidden" name="mode" value="assemblyView-before"/>
     

@@ -68,13 +68,13 @@ End sub
 
 To install CA's certificate into Internet Explorer, click on the <i>Install CA's Certificate</i> button below.
 For other web browsers, click on <a href="DownloadCertificateServlet?type=ca">this link</a>.
-<form>
+<form method="POST">
     <input type="button" value="Install CA's Certificate" onClick="Install_Onclick()"/>
 </form>
 
 <br><b>Base64 encoded Certificate Text</b>
 <br>
-<form name="installForm">
+<form name="installForm" method="POST">
     <textarea name="cacert" rows="10" cols="80" READONLY><%=base64Cert%></textarea>
 </form>
 

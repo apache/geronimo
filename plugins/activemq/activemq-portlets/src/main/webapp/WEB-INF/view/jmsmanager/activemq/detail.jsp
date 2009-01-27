@@ -19,7 +19,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <fmt:setBundle basename="activemq"/>
 <portlet:defineObjects/>
-<form name="datasource_form" action="<portlet:actionURL portletMode="view"/>">
+<form name="datasource_form" action="<portlet:actionURL portletMode="view"/>" method="POST">
 <br>
 <strong><fmt:message key="jmsmanager.activemq.common.connName" />:</strong>&nbsp;${attributeMap.name}
 <br><br>

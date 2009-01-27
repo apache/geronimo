@@ -39,7 +39,7 @@ function <portlet:namespace/>validateForm(){
 
 <jsp:include page="_header.jsp" />
 
-<form name="<portlet:namespace/>ProcessCSRForm" action="<portlet:actionURL/>">
+<form name="<portlet:namespace/>ProcessCSRForm" action="<portlet:actionURL/>" method="POST">
     <input type="hidden" name="mode" value="processCSR-after" />
     <table border="0">
         <tr>

@@ -34,7 +34,7 @@ function <portlet:namespace/>validateForm(){
 <p><fmt:message key="realmwizard.selectType.title" /></p>
 
 <!--   FORM TO COLLECT DATA FOR THIS PAGE   -->
-<form name="<portlet:namespace/>RealmForm" action="<portlet:actionURL/>">
+<form name="<portlet:namespace/>RealmForm" action="<portlet:actionURL/>" method="POST">
     <input type="hidden" name="mode" value="process-type" />
     <input type="hidden" name="jar" value="${realm.jar}" />
   <c:forEach var="option" items="${realm.options}">

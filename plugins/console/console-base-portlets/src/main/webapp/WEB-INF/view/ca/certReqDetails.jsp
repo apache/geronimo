@@ -45,7 +45,7 @@ function <portlet:namespace/>validateForm(){
 </p>
 <jsp:include page="_header.jsp" />
 
-<form name="<portlet:namespace/>certReqDetailsForm" action="<portlet:actionURL/>">
+<form name="<portlet:namespace/>certReqDetailsForm" action="<portlet:actionURL/>" method="POST">
     <input type="hidden" name="mode" value="certReqDetails-after"/>
     <input type="hidden" name="pkcs10certreq" value="${pkcs10certreq}"/>
     <input type="hidden" name="requestId" value="${requestId}"/>
