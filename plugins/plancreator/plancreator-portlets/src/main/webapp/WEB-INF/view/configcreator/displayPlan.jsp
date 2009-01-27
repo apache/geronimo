@@ -41,7 +41,7 @@
     <!-- STATUS FIELD: Deployment Plan -->
       <tr>
         <th valign="top" style="min-width: 140px"><div align="right"><label for="<portlet:namespace/>deploymentPlan"><fmt:message key="plancreator.deploy.plan"/></label>:</div></th>
-        <td><textarea rows="30" cols="60" name="deploymentPlan" id="<portlet:namespace/>deploymentPlan">${data.deploymentPlan}</textarea></td>
+        <td><textarea rows="30" cols="60" name="deploymentPlanXml" id="<portlet:namespace/>deploymentPlan">${data.deploymentPlan}</textarea></td>
       </tr>
     <!-- SUBMIT BUTTON -->
       <tr>
