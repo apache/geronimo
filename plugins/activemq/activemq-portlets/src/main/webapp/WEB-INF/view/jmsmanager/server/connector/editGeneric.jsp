@@ -35,7 +35,7 @@ function <portlet:namespace/>validateForm(){
 }
 </script>
 
-<form name="<portlet:namespace/>JmsConnectorForm" action="<portlet:actionURL/>">
+<form name="<portlet:namespace/>JmsConnectorForm" action="<portlet:actionURL/>" method="POST">
 <input type="hidden" name="mode" value="${mode}">
 <input type="hidden" name="protocol" value="${protocol}">
 <c:choose>

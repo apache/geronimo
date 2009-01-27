@@ -76,7 +76,7 @@ function <portlet:namespace/>validateForm(){
     </tr>
     <tr>
         <td class="Smaller" valign="middle">
-            <form action="<portlet:actionURL/>" name="<portlet:namespace/>searchForm" onsubmit="return <portlet:namespace/>validateForm();">
+            <form action="<portlet:actionURL/>" name="<portlet:namespace/>searchForm" onsubmit="return <portlet:namespace/>validateForm();" method="POST">
                 <b><fmt:message key="logmanager.common.filterCriteria"/>:</b>
                 <input type="hidden" value="search" name="action"/>
                 <br/>

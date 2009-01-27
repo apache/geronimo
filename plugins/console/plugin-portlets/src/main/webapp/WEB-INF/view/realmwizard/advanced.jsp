@@ -53,7 +53,7 @@ function <portlet:namespace/>validateForm(){
 <c:if test="${!(empty AdvancedError)}"><p><font color="red"><b>Error: ${AdvancedError}</b></font></p></c:if>
 
 <!--   FORM TO COLLECT DATA FOR THIS PAGE   -->
-<form name="<portlet:namespace/>RealmForm" action="<portlet:actionURL/>" onSubmit="return <portlet:namespace/>validateForm()">
+<form name="<portlet:namespace/>RealmForm" action="<portlet:actionURL/>" onSubmit="return <portlet:namespace/>validateForm()" method="POST">
     <input type="hidden" name="mode" value="process-advanced" />
     <input type="hidden" name="test" value="true" />
     <input type="hidden" name="name" value="${realm.name}" />

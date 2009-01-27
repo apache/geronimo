@@ -1048,7 +1048,7 @@ callOnLoad(init);
             <!-- Search tab -->
             <div id="searchTab" dojoType="ContentPane" title="Search" label="<fmt:message key="jmxmanager.help.search"/>" style="overflow: auto">
                 <!-- JMXSearch Form -->
-                <form name="JMXSearchForm" onsubmit="return false;">
+                <form name="JMXSearchForm" onsubmit="return false;" method="POST">
                     <br>
                     <table>
                         <tr>

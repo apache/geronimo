@@ -53,7 +53,7 @@ function <portlet:namespace/>selectAll(formName, objName){
 }
 </script>
 <c:set var="add" value="${group == null}"/>
-<form name="<portlet:namespace/>addgroup" action="<portlet:actionURL portletMode="view"/>">
+<form name="<portlet:namespace/>addgroup" action="<portlet:actionURL portletMode="view"/>" method="POST">
 
     <table cellspacing="5">
     <tr>

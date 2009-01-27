@@ -41,7 +41,7 @@
 <c:when test="${fn:length(plugins) < 1}">
   <fmt:message key="car.list.noPlugins" />
   <p>
-  <form>
+  <form method="POST">
     <input type="submit" value="Cancel" onclick="history.go(-1); return false;" />
   </form>
 </c:when>

@@ -38,7 +38,7 @@
 //-->
 </script>
 
-<form name="<portlet:namespace/>" action="<portlet:actionURL/>" onSubmit="return doCheck();">
+<form name="<portlet:namespace/>" action="<portlet:actionURL/>" onSubmit="return doCheck();" method="POST">
 <input type="hidden" name="mode" value="addACF">
 <table width="100%%"  border="0">
   <tr>

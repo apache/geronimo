@@ -27,7 +27,7 @@
 <fmt:message key="ca.confirmClientCert.summary"/>
 </p>
 
-<form name="<portlet:namespace/>confirmClientCertForm" action="<portlet:actionURL/>">
+<form name="<portlet:namespace/>confirmClientCertForm" action="<portlet:actionURL/>" method="POST">
     <input type="hidden" name="mode" value="confirmClientCert-after"/>
     <input type="hidden" name="pkcs10certreq" value="${pkcs10certreq}"/>
     <input type="hidden" name="requestId" value="${requestId}"/>

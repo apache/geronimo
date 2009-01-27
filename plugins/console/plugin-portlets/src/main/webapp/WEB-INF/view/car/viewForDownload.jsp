@@ -20,7 +20,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <fmt:setBundle basename="pluginportlets"/>
 <portlet:defineObjects/>
-<form name="<portlet:namespace/>PluginForm" action="<portlet:actionURL/>">
+<form name="<portlet:namespace/>PluginForm" action="<portlet:actionURL/>" method="POST">
 <table border="0">
 <c:forEach var="plugin" items="${plugins}">
 <c:set var="artifact" value="${plugin.pluginArtifact.moduleId}"/>

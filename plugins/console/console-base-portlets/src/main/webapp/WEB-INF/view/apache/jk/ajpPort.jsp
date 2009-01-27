@@ -22,7 +22,7 @@
 <p><fmt:message key="apache.jk.ajpPort.title"/></p>
 
 <!-- FORM TO COLLECT DATA FOR THIS PAGE -->
-<form name="<portlet:namespace/>ApacheForm" action="<portlet:actionURL/>">
+<form name="<portlet:namespace/>ApacheForm" action="<portlet:actionURL/>" method="POST">
     <input type="hidden" name="mode" value="ajp-after"/>
     <input type="hidden" name="os" value="${model.os}"/>
     <input type="hidden" name="workersPath" value="${model.workersPath}"/>

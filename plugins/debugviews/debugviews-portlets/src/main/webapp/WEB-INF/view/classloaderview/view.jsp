@@ -317,7 +317,7 @@
     }
 </script>
 
-<form name="clform" onSubmit="return getAction()">
+<form name="clform" onSubmit="return getAction()" method="POST">
 <input type="hidden" name="snNode" value=""/>
 <input type="hidden" name="inverse" value="${inverse}"/>
 <TABLE cellpadding="1" cellspacing="1" border="1">

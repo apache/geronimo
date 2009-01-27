@@ -26,7 +26,7 @@
 <p><fmt:message key="realmwizard.showPlan.title" /></p>
 
 <!--   FORM TO COLLECT DATA FOR THIS PAGE   -->
-<form name="<portlet:namespace/>RealmForm" action="<portlet:actionURL/>">
+<form name="<portlet:namespace/>RealmForm" action="<portlet:actionURL/>" method="POST">
     <input type="hidden" name="mode" value="save" />
     <input type="hidden" name="jar" value="${realm.jar}" />
     <input type="hidden" name="name" value="${realm.name}" />

@@ -34,7 +34,7 @@
 //-->
 </script>
     
-<form name="datasource_form">
+<form name="datasource_form" method="POST">
 <input type="hidden" name="name" value="${ds.objectName}" />
 <input type="hidden" name="mode" value="detail" />
 

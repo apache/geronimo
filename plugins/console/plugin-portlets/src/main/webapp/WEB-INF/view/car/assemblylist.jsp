@@ -134,7 +134,7 @@
     }
 </script>
 
-<form name="frmlst" action="<portlet:actionURL/>">
+<form name="frmlst" action="<portlet:actionURL/>" method="POST">
 
     <input id="mode" type="hidden" name="mode" value="assemblyView-before"/>
 

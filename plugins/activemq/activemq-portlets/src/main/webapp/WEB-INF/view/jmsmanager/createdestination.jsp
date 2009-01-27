@@ -39,7 +39,7 @@
 
        <br>
 
-        <form name="<portlet:namespace/>createDestinationForm" action="<portlet:actionURL portletMode="view"/>" >
+        <form name="<portlet:namespace/>createDestinationForm" action="<portlet:actionURL portletMode="view"/>" method="POST">
         <input type=hidden name="processaction" value="createDestination"  >
        <table>
 

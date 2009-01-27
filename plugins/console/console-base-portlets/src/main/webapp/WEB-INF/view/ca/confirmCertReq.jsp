@@ -26,7 +26,7 @@
 
 <p><fmt:message key="ca.confirmCertReq.summary"/></p>
 
-<form name="<portlet:namespace/>confirmCertReqForm" action="<portlet:actionURL/>">
+<form name="<portlet:namespace/>confirmCertReqForm" action="<portlet:actionURL/>" method="POST">
     <input type="hidden" name="mode" value="confirmCertReq-after"/>
     <input type="hidden" name="requestId" value="${requestId}"/>
     <table border="0">

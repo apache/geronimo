@@ -43,7 +43,7 @@ function <portlet:namespace/>validateForm(){
     <p>
     <fmt:message key="ca.viewCertificate.enterSerialNumber"/>
     </p>
-    <form name="<portlet:namespace/>sNoForm" action="<portlet:actionURL/>">
+    <form name="<portlet:namespace/>sNoForm" action="<portlet:actionURL/>" method="POST">
       <input type="hidden" name="mode" value="viewCert-before" />
       <table border="0">
         <tr>
