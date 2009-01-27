@@ -37,7 +37,7 @@ function <portlet:namespace/>validateForm(){
 
 <p><fmt:message key="ca.unlockCA.summary"/></p>
 
-<form name="<portlet:namespace/>UnlockCAForm" action="<portlet:actionURL/>">
+<form name="<portlet:namespace/>UnlockCAForm" action="<portlet:actionURL/>" method="POST">
     <input type="hidden" name="mode" value="unlockCA-after" />
     <b><label for="<portlet:namespace/>password"><fmt:message key="ca.unlockCA.enterCAPrivateKeyPassword"/></label>:</b>
     <input type="password" name="password" id="<portlet:namespace/>password" size="20" maxlength="200" />

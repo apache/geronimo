@@ -27,7 +27,7 @@
 <fmt:message key="ca.confirmCA.summary"/>
 </p>
 
-<form name="<portlet:namespace/>confirmCAForm" action="<portlet:actionURL/>">
+<form name="<portlet:namespace/>confirmCAForm" action="<portlet:actionURL/>" method="POST">
     <input type="hidden" name="mode" value="confirmCA-after" />
     <table border="0">
         <tr>
