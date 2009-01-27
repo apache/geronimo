@@ -23,7 +23,7 @@
 
 <p><fmt:message key="keystore.confirmKey.title"/></p>
 
-<form name="<portlet:namespace/>KeystoreForm" action="<portlet:actionURL/>">
+<form name="<portlet:namespace/>KeystoreForm" action="<portlet:actionURL/>" method="POST">
     <input type="hidden" name="mode" value="confirmKey-after" />
     <input type="hidden" name="keystore" value="${keystore}" />
     <input type="hidden" name="alias" value="${alias}" />

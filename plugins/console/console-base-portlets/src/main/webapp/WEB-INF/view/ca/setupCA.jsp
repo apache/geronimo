@@ -44,8 +44,8 @@ function <portlet:namespace/>validateForm(){
         alert('validFrom date must be before validTo date');
         return false;
     }
-    // Check if password and confirm password match
-    if(document.forms[<portlet:namespace/>formName].password.value != document.forms[<portlet:namespace/>formName].confirm.value) {
+    // Check if password and confirmPassword match
+    if(document.forms[<portlet:namespace/>formName].password.value != document.forms[<portlet:namespace/>formName].confirmPassword.value) {
         alert('password and confirm password do not match.');
         document.forms[<portlet:namespace/>formName].password.focus();
         return false;
@@ -143,7 +143,7 @@ function <portlet:namespace/>validateForm(){
         <tr>
             <th align="right"><fmt:message key="consolebase.common.confirmPassword"/>:</th>
             <td>
-                <input type="password" name="confirm" size="20" maxlength="200"/>
+                <input type="password" name="confirmPassword" size="20" maxlength="200"/>
             </td>
         </tr>
         <tr><td>&nbsp</td></tr>

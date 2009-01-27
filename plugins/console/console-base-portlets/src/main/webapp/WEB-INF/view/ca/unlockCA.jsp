@@ -38,7 +38,7 @@ function <portlet:namespace/>validateForm(){
 
 <jsp:include page="_header.jsp" />
 
-<form name="<portlet:namespace/>UnlockCAForm" action="<portlet:actionURL/>">
+<form name="<portlet:namespace/>UnlockCAForm" action="<portlet:actionURL/>" method="POST">
     <input type="hidden" name="mode" value="unlockCA-after" />
     <b><fmt:message key="ca.unlockCA.enterCAPrivateKeyPassword"/>:</b>
     <input type="password" name="password" size="20" maxlength="200" />
