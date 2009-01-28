@@ -209,8 +209,9 @@ public class MonitoringPortlet extends GenericPortlet {
             actionResponse.setRenderParameter("name", name);
             actionResponse.setRenderParameter("username", username);
             actionResponse.setRenderParameter("ip", ip);
-            actionResponse.setRenderParameter("password", password);
-            actionResponse.setRenderParameter("password2", password2);
+            //  Don't return the password in the output
+//            actionResponse.setRenderParameter("password", password);
+//            actionResponse.setRenderParameter("password2", password2);
             actionResponse.setRenderParameter("port", "" + port);
             actionResponse.setRenderParameter("protocol", "" + protocol); 
         } else if (action.equals("testEditServerConnection")) {
@@ -235,8 +236,9 @@ public class MonitoringPortlet extends GenericPortlet {
             actionResponse.setRenderParameter("name", name);
             actionResponse.setRenderParameter("username", username);
             actionResponse.setRenderParameter("ip", ip);
-            actionResponse.setRenderParameter("password", password);
-            actionResponse.setRenderParameter("password2", password2);
+            //  Don't return the password in the output
+//            actionResponse.setRenderParameter("password", password);
+//            actionResponse.setRenderParameter("password2", password2);
             actionResponse.setRenderParameter("snapshot", snapshot);
             actionResponse.setRenderParameter("server_id", server_id);
             actionResponse.setRenderParameter("retention", retention);
