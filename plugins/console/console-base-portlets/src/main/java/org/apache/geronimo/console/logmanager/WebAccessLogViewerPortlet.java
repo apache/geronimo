@@ -77,10 +77,13 @@ public class WebAccessLogViewerPortlet extends BasePortlet {
         
         //todo: new
         Map products = new LinkedHashMap();
-        String chosen = renderRequest.getParameter("selectedContainer");
-        if(chosen != null) { // Carry on to render the results with the right selection
-            renderRequest.setAttribute("selectedContainer", chosen);
-        }
+        String chosenContainer = null;;
+//      Temporarily disable container selection.  
+//      We don't current enable this in the portlet anyway and at the moment it is just unnecessary data traveling back and forth.
+//      chosenContainer = renderRequest.getParameter("selectedContainer");
+//      if(chosenContainer != null) { // Carry on to render the results with the right selection
+//          renderRequest.setAttribute("selectedContainer", chosenContainer);
+//      }
         WebAccessLog chosenLog = null;
         if(managers != null) {
             for (int i = 0; i < managers.length; i++) {
@@ -98,7 +101,7 @@ public class WebAccessLogViewerPortlet extends BasePortlet {
                             products.put(manager.getProductName()+" ("+containerName.getName().get(NameFactory.J2EE_NAME)+")", combined);
                         }
                         if(chosenLog == null) { // will pick the correct match, or the first if no selection is specified
-                            if(chosen == null || chosen.equals(combined)) {
+                            if(chosenContainer == null || chosenContainer.equals(combined)) {
                                 chosenLog = PortletManager.getWebAccessLog(renderRequest, managerName, containerName);
                             }
                         }
@@ -110,10 +113,13 @@ public class WebAccessLogViewerPortlet extends BasePortlet {
         } else {
             log.error("No web managers found!");
         }
-        renderRequest.setAttribute("webContainers", products);
+//      Temporarily disable container and log parameters.  
+//      We don't current enable this in the portlet anyway and at the moment it is just unnecessary data traveling back and forth.
+//      renderRequest.setAttribute("webContainers", products);
         final String[] logNames = chosenLog.getLogNames();
-        renderRequest.setAttribute("webLogs", logNames);
-        String logToSearch = renderRequest.getParameter("selectedLog");
+//      renderRequest.setAttribute("webLogs", logNames);
+        String logToSearch = null;
+//      String logToSearch = renderRequest.getParameter("selectedLog");
         if(logToSearch == null) {
             logToSearch = logNames[0];
         } else { //what if the log options for Jetty were showing, but the user picked Tomcat to search?  todo: fix this with some AJAX to repopulate the form when container is changed
