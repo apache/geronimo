@@ -1,6 +1,7 @@
 <%@ page language="java" 
          contentType="text/html; charset=UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setLocale value="<%=request.getLocale()%>"/>
 <fmt:setBundle basename="portaldriver"/> 
 <%--
    Licensed to the Apache Software Foundation (ASF) under one or more

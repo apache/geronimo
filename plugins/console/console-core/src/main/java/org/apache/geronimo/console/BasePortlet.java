@@ -16,10 +16,14 @@
  */
 package org.apache.geronimo.console;
 
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import javax.portlet.GenericPortlet;
 import javax.portlet.PortletRequest;
+import javax.portlet.PortletException;
+import javax.portlet.RenderRequest;
+import javax.portlet.RenderResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -36,6 +40,7 @@ public class BasePortlet extends GenericPortlet {
     protected final static String WEB_SERVER_JETTY = "jetty";
     protected final static String WEB_SERVER_TOMCAT = "tomcat";
     protected final static String WEB_SERVER_GENERIC = "generic";
+    private static final String FMT_LOCALE = "javax.servlet.jsp.jstl.fmt.locale.request";
 
     protected final static String getWebServerType(Class cls) {
         Class[] intfs = cls.getInterfaces();
@@ -111,5 +116,12 @@ public class BasePortlet extends GenericPortlet {
             }
         }
         throw new IllegalArgumentException("No such method found ("+operation+" on "+target.getClass().getName()+")");
+    }
+
+    @Override
+    public void render(RenderRequest request, RenderResponse response) throws PortletException, IOException {
+        request.setAttribute(FMT_LOCALE, request.getLocale());
+        
+        super.render(request, response);
     }
 }
