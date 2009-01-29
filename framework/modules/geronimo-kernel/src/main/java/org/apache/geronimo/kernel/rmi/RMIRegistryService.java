@@ -63,6 +63,9 @@ public class RMIRegistryService implements GBeanLifecycle {
 
     public void doStart() throws Exception {
         System.setProperty("java.rmi.server.RMIClassLoaderSpi",RMIClassLoaderSpiImpl.class.getName());
+        if (System.getProperty("java.rmi.server.hostname") == null && host != null && !host.equals("0.0.0.0")) {
+            System.setProperty("java.rmi.server.hostname", host);
+        }
         RMIClientSocketFactory socketFactory = RMISocketFactory.getDefaultSocketFactory();
         RMIServerSocketFactory serverSocketFactory = new GeronimoRMIServerSocketFactory(host);
         registry = LocateRegistry.createRegistry(port, socketFactory, serverSocketFactory);
