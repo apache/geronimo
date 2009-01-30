@@ -107,7 +107,8 @@ function <portlet:namespace/>parse(localFile) {
 <table width="100%">
 <tr>
   <td align="center">
-  <form onsubmit="return <portlet:namespace/>validateForm();" enctype="multipart/form-data" name="<portlet:namespace/>fileSelect" method="POST" action="<portlet:actionURL><portlet:param name="action" value="deploy"/></portlet:actionURL>">
+  <form onsubmit="return <portlet:namespace/>validateForm();" enctype="multipart/form-data" name="<portlet:namespace/>fileSelect" method="POST" action="<portlet:actionURL/>">
+  <input type="hidden" value="deploy" name="action"/>
   <table>
     <tr>
       <th colspan="2"><fmt:message key="repository.normal.addArchiveToRepository"/></th>
