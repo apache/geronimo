@@ -62,7 +62,8 @@ function <portlet:namespace/>toggleDisplay(id) {
 <br/><hr/><br/>
 </c:if>
 
-<form enctype="multipart/form-data" method="POST" action="<portlet:actionURL><portlet:param name="action" value="deploy"/></portlet:actionURL>">
+<form enctype="multipart/form-data" method="POST" action="<portlet:actionURL/>">
+<input type="hidden" value="deploy" name="action"/>
 <table>
   <tr><th align="right"><label for="<portlet:namespace/>module"><fmt:message key="configmanager.common.archive" /></label>: </th><td><input type="file" name="module" id="<portlet:namespace/>module" /></td></tr>
   <tr><th align="right"><label for="<portlet:namespace/>plan"><fmt:message key="configmanager.common.plan" /></label>: </th><td><input type="file" name="plan" id="<portlet:namespace/>plan" /></td></tr>
