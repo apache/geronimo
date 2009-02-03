@@ -24,6 +24,8 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 
+import javax.ejb.TimedObject;
+import javax.ejb.Timer;
 import javax.security.jacc.EJBMethodPermission;
 import javax.security.jacc.EJBRoleRefPermission;
 
@@ -31,9 +33,13 @@ import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.openejb.jee.AssemblyDescriptor;
 import org.apache.openejb.jee.ExcludeList;
+import org.apache.openejb.jee.MessageDrivenBean;
 import org.apache.openejb.jee.Method;
 import org.apache.openejb.jee.MethodPermission;
+import org.apache.openejb.jee.NamedMethod;
+import org.apache.openejb.jee.RemoteBean;
 import org.apache.openejb.jee.SecurityRoleRef;
+import org.apache.openejb.jee.SessionBean;
 
 public class SecurityBuilder {
     /**
@@ -42,22 +48,22 @@ public class SecurityBuilder {
      * is also filled with permissions that need to be used to fill the JACC
      * policy configuration.
      *
-     * @param defaultRole default role for otherwise unassigned permissions
-     * @param notAssigned the set of all possible permissions.  These will be
-     * culled so that all that are left are those that have
-     * not been assigned roles.
-     * @param assemblyDescriptor the assembly descriptor
-     * @param ejbName the name of the EJB
-     * @param securityRoleRefs the EJB's role references
+     * @param defaultRole          default role for otherwise unassigned permissions
+     * @param notAssigned          the set of all possible permissions.  These will be
+     *                             culled so that all that are left are those that have
+     *                             not been assigned roles.
+     * @param assemblyDescriptor   the assembly descriptor
+     * @param ejbName              the name of the EJB
+     * @param securityRoleRefs     the EJB's role references
      * @param componentPermissions the holder for the ejb's permissions
      * @throws DeploymentException if any constraints are violated
      */
     public void addComponentPermissions(String defaultRole,
-            PermissionCollection notAssigned,
-            AssemblyDescriptor assemblyDescriptor,
-            String ejbName,
-            List<SecurityRoleRef> securityRoleRefs,
-            ComponentPermissions componentPermissions) throws DeploymentException {
+                                        PermissionCollection notAssigned,
+                                        AssemblyDescriptor assemblyDescriptor,
+                                        String ejbName,
+                                        List<SecurityRoleRef> securityRoleRefs,
+                                        ComponentPermissions componentPermissions) throws DeploymentException {
 
         PermissionCollection uncheckedPermissions = componentPermissions.getUncheckedPermissions();
         PermissionCollection excludedPermissions = componentPermissions.getExcludedPermissions();
@@ -85,7 +91,7 @@ public class SecurityBuilder {
                         methodName = null;
                     }
                     // method interface
-                    String methodIntf = method.getMethodIntf() == null? null: method.getMethodIntf().toString();
+                    String methodIntf = method.getMethodIntf() == null ? null : method.getMethodIntf().toString();
 
                     // method parameters
                     String[] methodParams;
@@ -130,7 +136,7 @@ public class SecurityBuilder {
                     // method name
                     String methodName = method.getMethodName();
                     // method interface
-                    String methodIntf = method.getMethodIntf() == null? null: method.getMethodIntf().toString();
+                    String methodIntf = method.getMethodIntf() == null ? null : method.getMethodIntf().toString();
 
                     // method parameters
                     String[] methodParams;
@@ -154,7 +160,7 @@ public class SecurityBuilder {
              */
             for (SecurityRoleRef securityRoleRef : securityRoleRefs) {
 
-                String roleLink = securityRoleRef.getRoleLink() == null? securityRoleRef.getRoleName(): securityRoleRef.getRoleLink();
+                String roleLink = securityRoleRef.getRoleLink() == null ? securityRoleRef.getRoleName() : securityRoleRef.getRoleLink();
 
                 PermissionCollection roleLinks = rolePermissions.get(roleLink);
                 if (roleLinks == null) {
@@ -204,18 +210,19 @@ public class SecurityBuilder {
      * of the <code>EJBHome</code> and <code>EJBObject</code> interfaces and/or
      * <code>EJBLocalHome</code> and <code>EJBLocalObject</code> interfaces).
      *
-     * @param permissions the permission set to be extended
-     * @param ejbName the name of the EJB
+     * @param permissions     the permission set to be extended
+     * @param ejbName         the name of the EJB
      * @param methodInterface the EJB method interface
-     * @param interfaceClass the class name of the interface to be used to generate the permissions
-     * @param classLoader the class loader to be used in obtaining the interface class
-     * @throws org.apache.geronimo.common.DeploymentException in case a class could not be found
+     * @param interfaceClass  the class name of the interface to be used to generate the permissions
+     * @param classLoader     the class loader to be used in obtaining the interface class
+     * @throws org.apache.geronimo.common.DeploymentException
+     *          in case a class could not be found
      */
     public void addToPermissions(PermissionCollection permissions,
-            String ejbName,
-            String methodInterface,
-            String interfaceClass,
-            ClassLoader classLoader) throws DeploymentException {
+                                 String ejbName,
+                                 String methodInterface,
+                                 String interfaceClass,
+                                 ClassLoader classLoader) throws DeploymentException {
 
         if (interfaceClass == null) {
             return;
@@ -237,7 +244,7 @@ public class SecurityBuilder {
      * <code>permission</code>.
      *
      * @param toBeChecked the permissions that are to be checked and possibly culled
-     * @param permission the permission that is to be used for culling
+     * @param permission  the permission that is to be used for culling
      * @return the culled set of permissions that are not implied by <code>permission</code>
      */
     private Permissions cullPermissions(PermissionCollection toBeChecked, Permission permission) {
@@ -252,4 +259,26 @@ public class SecurityBuilder {
 
         return result;
     }
+
+    public void addEjbTimeout(RemoteBean remoteBean, EjbModule ejbModule, PermissionCollection permissions) throws DeploymentException {
+        NamedMethod timeout = null;
+        if (remoteBean instanceof SessionBean) {
+            timeout = ((SessionBean) remoteBean).getTimeoutMethod();
+        } else if (remoteBean instanceof MessageDrivenBean) {
+            timeout = ((MessageDrivenBean) remoteBean).getTimeoutMethod();
+        }
+        if (timeout != null) {
+            permissions.add(new EJBMethodPermission(remoteBean.getEjbName(), timeout.getMethodName(), null, new String[]{Timer.class.getName()}));
+        } else {
+            try {
+                Class ejbClass = ejbModule.getClassLoader().loadClass(remoteBean.getEjbClass());
+                if (TimedObject.class.isAssignableFrom(ejbClass)) {
+                    permissions.add(new EJBMethodPermission(remoteBean.getEjbName(), "ejbTimeout", null, new String[]{Timer.class.getName()}));
+                }
+            } catch (ClassNotFoundException e) {
+                throw new DeploymentException("Could not figure out timer method", e);
+            }
+        }
+    }
+
 }

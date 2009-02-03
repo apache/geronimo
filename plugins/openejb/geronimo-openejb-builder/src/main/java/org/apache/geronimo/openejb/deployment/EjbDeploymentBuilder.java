@@ -58,12 +58,11 @@ import org.apache.openejb.DeploymentInfo;
 import org.apache.openejb.jee.EnterpriseBean;
 import org.apache.openejb.jee.EntityBean;
 import org.apache.openejb.jee.MessageDrivenBean;
+import org.apache.openejb.jee.MethodPermission;
 import org.apache.openejb.jee.RemoteBean;
 import org.apache.openejb.jee.SecurityIdentity;
 import org.apache.openejb.jee.SessionBean;
 import org.apache.openejb.jee.SessionType;
-import org.apache.openejb.jee.AssemblyDescriptor;
-import org.apache.openejb.jee.MethodPermission;
 import org.apache.openejb.jee.oejb3.EjbDeployment;
 import org.apache.xbean.finder.ClassFinder;
 import org.apache.xmlbeans.XmlObject;
@@ -189,30 +188,30 @@ public class EjbDeploymentBuilder {
                 RemoteBean remoteBean = (RemoteBean) enterpriseBean;
 
                 SecurityBuilder securityBuilder = new SecurityBuilder();
-                PermissionCollection permissions = new Permissions();
+                PermissionCollection allPermissions = new Permissions();
 
-                securityBuilder.addToPermissions(permissions,
+                securityBuilder.addToPermissions(allPermissions,
                         remoteBean.getEjbName(),
                         EjbInterface.HOME.getJaccInterfaceName(),
                         remoteBean.getHome(),
                         ejbModule.getClassLoader());
-                securityBuilder.addToPermissions(permissions,
+                securityBuilder.addToPermissions(allPermissions,
                         remoteBean.getEjbName(),
                         EjbInterface.REMOTE.getJaccInterfaceName(),
                         remoteBean.getRemote(),
                         ejbModule.getClassLoader());
-                securityBuilder.addToPermissions(permissions,
+                securityBuilder.addToPermissions(allPermissions,
                         remoteBean.getEjbName(),
                         EjbInterface.LOCAL.getJaccInterfaceName(),
                         remoteBean.getLocal(),
                         ejbModule.getClassLoader());
-                securityBuilder.addToPermissions(permissions,
+                securityBuilder.addToPermissions(allPermissions,
                         remoteBean.getEjbName(),
                         EjbInterface.LOCAL_HOME.getJaccInterfaceName(),
                         remoteBean.getLocalHome(),
                         ejbModule.getClassLoader());
                 if (remoteBean instanceof SessionBean) {
-                    securityBuilder.addToPermissions(permissions,
+                    securityBuilder.addToPermissions(allPermissions,
                             remoteBean.getEjbName(),
                             EjbInterface.SERVICE_ENDPOINT.getJaccInterfaceName(),
                             ((SessionBean) remoteBean).getServiceEndpoint(),
@@ -220,7 +219,7 @@ public class EjbDeploymentBuilder {
                 }
                 if (remoteBean.getBusinessRemote() != null && !remoteBean.getBusinessRemote().isEmpty()) {
                     for (String businessRemote : remoteBean.getBusinessRemote()) {
-                        securityBuilder.addToPermissions(permissions,
+                        securityBuilder.addToPermissions(allPermissions,
                                 remoteBean.getEjbName(),
                                 EjbInterface.REMOTE.getJaccInterfaceName(),
                                 businessRemote,
@@ -234,7 +233,7 @@ public class EjbDeploymentBuilder {
                 }
                 if (remoteBean.getBusinessLocal() != null && !remoteBean.getBusinessLocal().isEmpty()) {
                     for (String businessLocal : remoteBean.getBusinessLocal()) {
-                        securityBuilder.addToPermissions(permissions,
+                        securityBuilder.addToPermissions(allPermissions,
                                 remoteBean.getEjbName(),
                                 EjbInterface.LOCAL.getJaccInterfaceName(),
                                 businessLocal,
@@ -247,9 +246,11 @@ public class EjbDeploymentBuilder {
                             ejbModule.getClassLoader());
                 }
 
+                securityBuilder.addEjbTimeout(remoteBean, ejbModule, allPermissions);
+
                 String defaultRole = securityConfiguration.getDefaultRole();
                 securityBuilder.addComponentPermissions(defaultRole,
-                        permissions,
+                        allPermissions,
                         ejbModule.getEjbJar().getAssemblyDescriptor(),
                         enterpriseBean.getEjbName(),
                         remoteBean.getSecurityRoleRef(),
@@ -269,6 +270,7 @@ public class EjbDeploymentBuilder {
             gbean.setReferencePattern("RunAsSource", earContext.getJaccManagerName());
         }
     }
+
 
     public void buildEnc() throws DeploymentException {
         //
