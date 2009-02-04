@@ -170,7 +170,7 @@ public final class AppClientContainer implements GBeanLifecycle {
                     throw new Exception("Some objects to be injected were not found in jndi: " + problems);
                 }
             }
-            Class clazz = objectRecipe.setStaticProperties(classLoader);
+            Class clazz = objectRecipe.setStaticProperties();
             if (holder.getPostConstruct() != null) {
                 Holder.apply(null, clazz, holder.getPostConstruct());
             }

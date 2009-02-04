@@ -61,7 +61,8 @@
         <!--
         Having a single well named property makes automatic updating for the weekly build much easier.
         -->
-        <openejbVersion>3.0-beta-1</openejbVersion>
+        <openejbVersion>3.0.1-SNAPSHOT</openejbVersion>
+        <xbeanVersion>3.4.1</xbeanVersion>
 
         <!--
         HACK: Used by uddi-db to execute the sql plugin with the Derby driver.
@@ -282,19 +283,19 @@
             <dependency>
                 <groupId>org.apache.xbean</groupId>
                 <artifactId>xbean-finder</artifactId>
-                <version>3.2</version>
+                <version>${xbeanVersion}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.xbean</groupId>
                 <artifactId>xbean-naming</artifactId>
-                <version>3.2</version>
+                <version>${xbeanVersion}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.xbean</groupId>
                 <artifactId>xbean-reflect</artifactId>
-                <version>3.2</version>
+                <version>${xbeanVersion}</version>
             </dependency>
 
             <dependency>

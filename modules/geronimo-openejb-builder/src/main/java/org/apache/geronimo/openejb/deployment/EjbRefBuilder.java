@@ -53,7 +53,9 @@ import org.apache.openejb.OpenEJBException;
 import org.apache.openejb.assembler.classic.EjbJarInfo;
 import org.apache.openejb.assembler.classic.JndiEncBuilder;
 import org.apache.openejb.assembler.classic.JndiEncInfo;
+import org.apache.openejb.assembler.classic.AppInfo;
 import org.apache.openejb.config.JndiEncInfoBuilder;
+import org.apache.openejb.config.AppModule;
 import org.apache.openejb.core.ivm.naming.IntraVmJndiReference;
 import org.apache.openejb.jee.EjbLocalRef;
 import org.apache.openejb.jee.EjbRef;
@@ -140,14 +142,19 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
             if (earData != null) {
                 ejbJars = earData.getEjbJars();
             }
-            JndiEncInfoBuilder jndiEncInfoBuilder = new JndiEncInfoBuilder(ejbJars);
+
+            AppInfo appInfo = new AppInfo();
+            appInfo.ejbJars.addAll(ejbJars);
+
+            JndiEncInfoBuilder jndiEncInfoBuilder = new JndiEncInfoBuilder(appInfo);
             JndiEncInfo jndiEncInfo;
             if (module.isStandAlone()) {
                 jndiEncInfo = jndiEncInfoBuilder.build(consumer, "GeronimoEnc", null);
             } else {
                 jndiEncInfo = jndiEncInfoBuilder.build(consumer, "GeronimoEnc", module.getTargetPath());
             }
-            JndiEncBuilder jndiEncBuilder = new JndiEncBuilder(jndiEncInfo, module.getName());
+            JndiEncBuilder jndiEncBuilder = new JndiEncBuilder(jndiEncInfo, null, module.getName(), getClass().getClassLoader());
+
             map = jndiEncBuilder.buildMap();
         } catch (OpenEJBException e) {
             throw new DeploymentException(e);
