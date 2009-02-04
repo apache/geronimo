@@ -21,7 +21,7 @@
 <module xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
 
     <gbean name="OpenEJBClusteringBuilder" class="org.apache.geronimo.openejb.deployment.cluster.WADIOpenEJBClusteringBuilder">
-        <attribute name="defaultClusteredStatefulContainerId">org.apache.geronimo.openejb.cluster:Default Clustered Stateful Container</attribute>
+        <attribute name="defaultClusteredStatefulContainerId">DefaultClusteredStatefulContainer</attribute>
         <attribute name="defaultSweepInterval">10</attribute>
         <attribute name="defaultSessionTimeout">3600</attribute>
         <attribute name="defaultNumPartitions">24</attribute>
