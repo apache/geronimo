@@ -61,12 +61,11 @@ import org.apache.openejb.DeploymentInfo;
 import org.apache.openejb.jee.EnterpriseBean;
 import org.apache.openejb.jee.EntityBean;
 import org.apache.openejb.jee.MessageDrivenBean;
+import org.apache.openejb.jee.MethodPermission;
 import org.apache.openejb.jee.RemoteBean;
 import org.apache.openejb.jee.SecurityIdentity;
 import org.apache.openejb.jee.SessionBean;
 import org.apache.openejb.jee.SessionType;
-import org.apache.openejb.jee.AssemblyDescriptor;
-import org.apache.openejb.jee.MethodPermission;
 import org.apache.openejb.jee.oejb3.EjbDeployment;
 import org.apache.xbean.finder.ClassFinder;
 import org.apache.xmlbeans.XmlObject;
@@ -252,6 +251,8 @@ public class EjbDeploymentBuilder {
                             DeploymentInfo.BusinessLocalHome.class.getName(),
                             ejbModule.getClassLoader());
                 }
+
+                securityBuilder.addEjbTimeout(remoteBean, ejbModule, allPermissions);
 
                 String defaultRole = securityConfiguration.getDefaultRole();
                 securityBuilder.addComponentPermissions(defaultRole,

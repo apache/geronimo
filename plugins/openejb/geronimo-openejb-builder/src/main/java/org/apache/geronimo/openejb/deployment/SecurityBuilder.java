@@ -20,15 +20,17 @@ package org.apache.geronimo.openejb.deployment;
 import java.security.Permission;
 import java.security.PermissionCollection;
 import java.security.Permissions;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Collection;
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.Set;
-import java.util.HashSet;
-import java.util.Collections;
 
+import javax.ejb.TimedObject;
+import javax.ejb.Timer;
 import javax.security.jacc.EJBMethodPermission;
 import javax.security.jacc.EJBRoleRefPermission;
 
@@ -36,9 +38,13 @@ import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.openejb.jee.AssemblyDescriptor;
 import org.apache.openejb.jee.ExcludeList;
+import org.apache.openejb.jee.MessageDrivenBean;
 import org.apache.openejb.jee.Method;
 import org.apache.openejb.jee.MethodPermission;
+import org.apache.openejb.jee.NamedMethod;
+import org.apache.openejb.jee.RemoteBean;
 import org.apache.openejb.jee.SecurityRoleRef;
+import org.apache.openejb.jee.SessionBean;
 
 public class SecurityBuilder {
     /**
@@ -272,4 +278,26 @@ public class SecurityBuilder {
 
         return result;
     }
+
+    public void addEjbTimeout(RemoteBean remoteBean, EjbModule ejbModule, Collection<Permission> permissions) throws DeploymentException {
+        NamedMethod timeout = null;
+        if (remoteBean instanceof SessionBean) {
+            timeout = ((SessionBean) remoteBean).getTimeoutMethod();
+        } else if (remoteBean instanceof MessageDrivenBean) {
+            timeout = ((MessageDrivenBean) remoteBean).getTimeoutMethod();
+        }
+        if (timeout != null) {
+            permissions.add(new EJBMethodPermission(remoteBean.getEjbName(), timeout.getMethodName(), null, new String[]{Timer.class.getName()}));
+        } else {
+            try {
+                Class ejbClass = ejbModule.getClassLoader().loadClass(remoteBean.getEjbClass());
+                if (TimedObject.class.isAssignableFrom(ejbClass)) {
+                    permissions.add(new EJBMethodPermission(remoteBean.getEjbName(), "ejbTimeout", null, new String[]{Timer.class.getName()}));
+                }
+            } catch (ClassNotFoundException e) {
+                throw new DeploymentException("Could not figure out timer method", e);
+            }
+        }
+    }
+    
 }
