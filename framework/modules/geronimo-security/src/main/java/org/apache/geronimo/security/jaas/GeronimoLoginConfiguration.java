@@ -109,7 +109,7 @@ public class GeronimoLoginConfiguration extends Configuration implements GBeanLi
 
     private void addConfiguration(ConfigurationEntryFactory factory) {
         if (entries.containsKey(factory.getConfigurationName())) {
-            throw new java.lang.IllegalArgumentException("ConfigurationEntry already registered");
+            throw new java.lang.IllegalArgumentException("ConfigurationEntry named: " + factory.getConfigurationName() + " already registered");
         }
         if (useAllConfigurations || factory.isPublish()) {
             AppConfigurationEntry[] ace = factory.getAppConfigurationEntries();
