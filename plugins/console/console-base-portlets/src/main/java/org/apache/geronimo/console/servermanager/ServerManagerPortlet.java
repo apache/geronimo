@@ -61,22 +61,16 @@ public class ServerManagerPortlet extends BasePortlet {
                 }
             }.start();
         } else if(actionRequest.getParameter("shutdown") != null) {
-            actionResponse.setRenderParameter("shutdown", actionRequest.getParameter("shutdown"));
+            log.info("Shutting down by user request: " + actionRequest.getUserPrincipal().getName());
+            kernel.shutdown();
+            System.exit(0);
         }
     }
 
     protected void doView(RenderRequest request, RenderResponse response)
             throws PortletException, IOException {
-        if (request.getParameter("shutdown") != null) {
-            log.info("Shutting down by user request: " + request.getUserPrincipal().getName());
-            shutdownView.include(request, response);
-            response.flushBuffer();
-            kernel.shutdown();
-            System.exit(0);
-        } else {
-            addWarningMessage(request, getLocalizedString(request, "warnMsg07"));
-            normalView.include(request, response);
-        }
+        addWarningMessage(request, getLocalizedString(request, "warnMsg07"));
+        normalView.include(request, response);
     }
 
     protected void doHelp(RenderRequest renderRequest,
