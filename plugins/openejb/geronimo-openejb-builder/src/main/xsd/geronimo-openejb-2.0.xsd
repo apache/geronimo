@@ -63,7 +63,7 @@
             <xs:element name="web-service-binding" type="openejb:web-service-bindingType" minOccurs="0" maxOccurs="unbounded"/>
 
             <!-- Security -->
-            <xs:element ref="app:security" minOccurs="0"/>
+            <xs:element ref="app:security" minOccurs="0" maxOccurs="unbounded"/>
 
             <!-- GBeans -->
             <xs:choice minOccurs="0" maxOccurs="unbounded">

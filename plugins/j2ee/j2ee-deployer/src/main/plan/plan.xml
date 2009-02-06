@@ -31,12 +31,14 @@
         <reference name="WebConfigBuilder">
             <name>WebBuilder</name>
         </reference>
-        <reference name="SecurityBuilders">
-            <name>SecurityBuilder</name>
-        </reference>
-        <reference name="ServiceBuilders">
-            <name>GBeanBuilder</name>
-        </reference>
+        <references name="ServiceBuilders">
+            <pattern>
+                <name>GBeanBuilder</name>
+            </pattern>
+            <pattern>
+                <name>SecurityBuilder</name>
+            </pattern>
+        </references>
         <references name="PersistenceUnitBuilders">
             <pattern>
                 <name>PersistenceUnitBuilder</name>
@@ -103,9 +105,7 @@
 
     <gbean name="CredentialStoreBuilder" class="org.apache.geronimo.security.deployment.CredentialStoreBuilder"/>
 
-    <gbean name="NamingBuilders" class="org.apache.geronimo.j2ee.deployment.NamingBuilderCollectionGBean">
-        <attribute name="baseElementQNameNamespaceURI">http://geronimo.apache.org/xml/ns/naming-${geronimoSchemaVersion}</attribute>
-        <attribute name="baseElementQNameLocalPart">abstract-naming-entry</attribute>
+    <gbean name="NamingBuilders" class="org.apache.geronimo.j2ee.deployment.NamingBuilderCollection">
         <references name="NamingBuilders">
             <pattern>
                 <name>GBeanRefBuilder</name>

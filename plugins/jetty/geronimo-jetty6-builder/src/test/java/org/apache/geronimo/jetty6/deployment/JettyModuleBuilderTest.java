@@ -28,12 +28,14 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import org.apache.geronimo.testsupport.TestSupport;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinatorGBean;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
+import org.apache.geronimo.deployment.NamespaceDrivenBuilder;
 import org.apache.geronimo.deployment.service.GBeanBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.util.UnpackedJarFile;
@@ -282,9 +284,8 @@ public class JettyModuleBuilderTest extends TestSupport {
                 pojoWebServiceTemplate,
                 Collections.singleton(webServiceBuilder),
                 null,
-                Collections.singleton(new GeronimoSecurityBuilderImpl(null)),
-                Collections.singleton(new GBeanBuilder(null, null)),
-                new NamingBuilderCollection(null, null),
+                Arrays.asList(new GBeanBuilder(null, null), new GeronimoSecurityBuilderImpl(null, null, null)),
+                new NamingBuilderCollection(null),
                 moduleBuilderExtensions,
                 new MockResourceEnvironmentSetter(),
                 kernel);

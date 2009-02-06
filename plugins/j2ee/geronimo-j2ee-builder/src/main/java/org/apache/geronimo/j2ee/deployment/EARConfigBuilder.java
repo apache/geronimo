@@ -33,26 +33,23 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
-import java.util.jar.Attributes;
 import java.util.zip.ZipEntry;
 
 import javax.xml.namespace.QName;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.deployment.ClassPathList;
 import org.apache.geronimo.deployment.ConfigurationBuilder;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
+import org.apache.geronimo.deployment.ModuleList;
 import org.apache.geronimo.deployment.NamespaceDrivenBuilder;
 import org.apache.geronimo.deployment.NamespaceDrivenBuilderCollection;
-import org.apache.geronimo.deployment.ClassPathList;
-import org.apache.geronimo.deployment.ModuleList;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
-import org.apache.geronimo.deployment.service.GBeanBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.util.NestedJarFile;
 import org.apache.geronimo.deployment.xbeans.ArtifactType;
@@ -64,9 +61,9 @@ import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.gbean.SingleElementCollection;
-import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.ApplicationInfo;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.management.impl.J2EEApplicationImpl;
@@ -83,8 +80,8 @@ import org.apache.geronimo.kernel.config.SimpleConfigurationManager;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.kernel.repository.Environment;
-import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.repository.MissingDependencyException;
+import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.management.J2EEResource;
 import org.apache.geronimo.management.J2EEServer;
 import org.apache.geronimo.schema.SchemaConversionUtils;
@@ -92,13 +89,14 @@ import org.apache.geronimo.xbeans.geronimo.j2ee.GerApplicationDocument;
 import org.apache.geronimo.xbeans.geronimo.j2ee.GerApplicationType;
 import org.apache.geronimo.xbeans.geronimo.j2ee.GerExtModuleType;
 import org.apache.geronimo.xbeans.geronimo.j2ee.GerModuleType;
-import org.apache.geronimo.xbeans.geronimo.j2ee.GerSecurityDocument;
 import org.apache.geronimo.xbeans.javaee.ApplicationDocument;
 import org.apache.geronimo.xbeans.javaee.ApplicationType;
 import org.apache.geronimo.xbeans.javaee.ModuleType;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @version $Rev$ $Date$
@@ -123,7 +121,6 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
     private final SingleElementCollection connectorConfigBuilder;
     private final SingleElementCollection appClientConfigBuilder;
     private final SingleElementCollection resourceReferenceBuilder;
-    private final NamespaceDrivenBuilderCollection securityBuilders;
     private final NamespaceDrivenBuilderCollection serviceBuilders;
     private final Collection<ModuleBuilderExtension> persistenceUnitBuilders;
 
@@ -145,7 +142,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
     public static ThreadLocal<ApplicationInfo> appInfo = new ThreadLocal<ApplicationInfo>() {
         @Override
         protected ApplicationInfo initialValue() {
-            return (ApplicationInfo) null;
+            return null;
         }
     };
 
@@ -155,13 +152,12 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                             AbstractNameQuery corbaGBeanAbstractName,
                             AbstractNameQuery serverName,
                             Collection<? extends Repository> repositories,
-                            Collection ejbConfigBuilder,
-                            Collection webConfigBuilder,
-                            Collection connectorConfigBuilder,
-                            Collection resourceReferenceBuilder,
-                            Collection appClientConfigBuilder,
-                            Collection securityBuilders,
-                            Collection serviceBuilders,
+                            Collection<ModuleBuilder> ejbConfigBuilder,
+                            Collection<ModuleBuilder> webConfigBuilder,
+                            Collection<ModuleBuilder> connectorConfigBuilder,
+                            Collection<ModuleBuilder> resourceReferenceBuilder,
+                            Collection<ModuleBuilder> appClientConfigBuilder,
+                            Collection<NamespaceDrivenBuilder> serviceBuilders,
                             Collection<ModuleBuilderExtension> persistenceUnitBuilders,
                             Collection<? extends ArtifactResolver> artifactResolvers,
                             Kernel kernel) {
@@ -172,12 +168,11 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                 serverName,
                 ConfigurationUtil.getConfigurationManager(kernel),
                 repositories,
-                new SingleElementCollection(ejbConfigBuilder),
-                new SingleElementCollection(webConfigBuilder),
-                new SingleElementCollection(connectorConfigBuilder),
-                new SingleElementCollection(resourceReferenceBuilder),
-                new SingleElementCollection(appClientConfigBuilder),
-                securityBuilders,
+                new SingleElementCollection<ModuleBuilder>(ejbConfigBuilder),
+                new SingleElementCollection<ModuleBuilder>(webConfigBuilder),
+                new SingleElementCollection<ModuleBuilder>(connectorConfigBuilder),
+                new SingleElementCollection<ModuleBuilder>(resourceReferenceBuilder),
+                new SingleElementCollection<ModuleBuilder>(appClientConfigBuilder),
                 serviceBuilders,
                 persistenceUnitBuilders,
                 kernel.getNaming(), artifactResolvers);
@@ -194,7 +189,6 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                             ModuleBuilder connectorConfigBuilder,
                             ActivationSpecInfoLocator activationSpecInfoLocator,
                             ModuleBuilder appClientConfigBuilder,
-                            NamespaceDrivenBuilder securityBuilder,
                             NamespaceDrivenBuilder serviceBuilder,
                             ModuleBuilderExtension persistenceUnitBuilder,
                             Naming naming,
@@ -206,14 +200,13 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                 serverName,
                 null,
                 repositories,
-                new SingleElementCollection(ejbConfigBuilder),
-                new SingleElementCollection(webConfigBuilder),
-                new SingleElementCollection(connectorConfigBuilder),
-                new SingleElementCollection(activationSpecInfoLocator),
-                new SingleElementCollection(appClientConfigBuilder),
-                securityBuilder == null ? Collections.EMPTY_SET : Collections.singleton(securityBuilder),
-                serviceBuilder == null ? Collections.EMPTY_SET : Collections.singleton(serviceBuilder),
-                persistenceUnitBuilder == null ? Collections.EMPTY_SET : Collections.singleton(persistenceUnitBuilder),
+                new SingleElementCollection<ModuleBuilder>(ejbConfigBuilder),
+                new SingleElementCollection<ModuleBuilder>(webConfigBuilder),
+                new SingleElementCollection<ModuleBuilder>(connectorConfigBuilder),
+                new SingleElementCollection<ActivationSpecInfoLocator>(activationSpecInfoLocator),
+                new SingleElementCollection<ModuleBuilder>(appClientConfigBuilder),
+                serviceBuilder == null ? Collections.<NamespaceDrivenBuilder>emptySet() : Collections.singleton(serviceBuilder),
+                persistenceUnitBuilder == null ? Collections.<ModuleBuilderExtension>emptySet() : Collections.singleton(persistenceUnitBuilder),
                 naming,
                 artifactResolvers);
     }
@@ -230,8 +223,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                              SingleElementCollection connectorConfigBuilder,
                              SingleElementCollection resourceReferenceBuilder,
                              SingleElementCollection appClientConfigBuilder,
-                             Collection securityBuilders,
-                             Collection serviceBuilders,
+                             Collection<NamespaceDrivenBuilder> serviceBuilders,
                              Collection<ModuleBuilderExtension> persistenceUnitBuilders,
                              Naming naming,
                              Collection<? extends ArtifactResolver> artifactResolvers) {
@@ -244,8 +236,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
         this.webConfigBuilder = webConfigBuilder;
         this.connectorConfigBuilder = connectorConfigBuilder;
         this.appClientConfigBuilder = appClientConfigBuilder;
-        this.securityBuilders = new NamespaceDrivenBuilderCollection(securityBuilders, GerSecurityDocument.type.getDocumentElementName());
-        this.serviceBuilders = new NamespaceDrivenBuilderCollection(serviceBuilders, GBeanBuilder.SERVICE_QNAME);
+        this.serviceBuilders = new NamespaceDrivenBuilderCollection(serviceBuilders);
         this.persistenceUnitBuilders = persistenceUnitBuilders;
         
         this.transactionManagerObjectName = transactionManagerAbstractName;
@@ -590,7 +581,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
             ClassLoader cl = earContext.getClassLoader();
             for (Object module3 : modules) {
                 Module module = (Module) module3;
-                if (createPlanMode.get().booleanValue()) {
+                if (createPlanMode.get()) {
                     try {
                         getBuilder(module).initContext(earContext, module, cl);
                     } catch (Exception e) {
@@ -604,7 +595,6 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
 
             // add gbeans declared in the geronimo-application.xml
             if (geronimoApplication != null) {
-                securityBuilders.build(geronimoApplication, earContext, earContext);
                 serviceBuilders.build(geronimoApplication, earContext, earContext);
             }
             
@@ -651,7 +641,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
             // each module can now add it's GBeans
             for (Object module1 : modules) {
                 Module module = (Module) module1;
-                if (createPlanMode.get().booleanValue()) {
+                if (createPlanMode.get()) {
                     try {
                         getBuilder(module).addGBeans(earContext, module, cl, repositories);
                     } catch (DeploymentException e) {
@@ -663,7 +653,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                 }
             }
 
-            if (createPlanMode.get().booleanValue()) {
+            if (createPlanMode.get()) {
                 EARConfigBuilder.appInfo.set(applicationInfo);
                 throw new DeploymentException();
             }
@@ -1129,7 +1119,6 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
         infoBuilder.addReference("ConnectorConfigBuilder", ModuleBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addReference("ActivationSpecInfoLocator", ActivationSpecInfoLocator.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addReference("AppClientConfigBuilder", ModuleBuilder.class, NameFactory.MODULE_BUILDER);
-        infoBuilder.addReference("SecurityBuilders", NamespaceDrivenBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addReference("ServiceBuilders", NamespaceDrivenBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addReference("PersistenceUnitBuilders", ModuleBuilderExtension.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addReference("ArtifactResolvers", ArtifactResolver.class, "ArtifactResolver");
@@ -1148,7 +1137,6 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                 "ConnectorConfigBuilder",
                 "ActivationSpecInfoLocator",
                 "AppClientConfigBuilder",
-                "SecurityBuilders",
                 "ServiceBuilders",
                 "PersistenceUnitBuilders",
                 "ArtifactResolvers",

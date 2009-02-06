@@ -110,7 +110,7 @@ public class LoginConfigBuilderTest extends TestCase {
     }
 
     private void doTest(String text) throws XmlException, DeploymentException {
-        GeronimoSecurityBuilderImpl secBuilder = new GeronimoSecurityBuilderImpl(null);
+        GeronimoSecurityBuilderImpl secBuilder = new GeronimoSecurityBuilderImpl(null, null, null);
         secBuilder.doStart();
         LoginConfigBuilder builder = new LoginConfigBuilder(new Jsr77Naming(), null);
         XmlObject xmlObject = XmlBeansUtil.parse(text);

@@ -246,7 +246,7 @@
                         </xs:documentation>
                     </xs:annotation>
                 </xs:element>
-                <xs:element ref="app:security" minOccurs="0">
+                <xs:element ref="app:security" minOccurs="0" maxOccurs="unbounded">
                     <xs:annotation>
                         <xs:documentation>
                             Reference to security element defined in imported

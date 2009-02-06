@@ -32,9 +32,6 @@ import javax.security.jacc.PolicyContextException;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.security.ContextManager;
-import org.apache.geronimo.security.IdentificationPrincipal;
-import org.apache.geronimo.security.SubjectId;
 import org.apache.geronimo.security.SecurityNames;
 import org.apache.geronimo.security.credentialstore.CredentialStore;
 import org.apache.geronimo.security.deploy.SubjectInfo;
@@ -45,14 +42,9 @@ import org.apache.geronimo.security.deploy.SubjectInfo;
 public class ApplicationPolicyConfigurationManager implements GBeanLifecycle, RunAsSource {
 
     private final Map<String, PolicyConfiguration> contextIdToPolicyConfigurationMap = new HashMap<String, PolicyConfiguration>();
-    private final Map<String, Subject> roleDesignates = new HashMap<String, Subject>();
-    private final Subject defaultSubject;
     private final PrincipalRoleMapper principalRoleMapper;
 
-    public ApplicationPolicyConfigurationManager(Map<String, ComponentPermissions> contextIdToPermissionsMap, SubjectInfo defaultSubjectInfo, Map<String, SubjectInfo> roleDesignates, ClassLoader cl, CredentialStore credentialStore, PrincipalRoleMapper principalRoleMapper) throws PolicyContextException, ClassNotFoundException, LoginException {
-        if (credentialStore == null && (!roleDesignates.isEmpty() || defaultSubjectInfo != null)) {
-            throw new NullPointerException("No CredentialStore supplied to resolve default and run-as subjects");
-        }
+    public ApplicationPolicyConfigurationManager(Map<String, ComponentPermissions> contextIdToPermissionsMap, PrincipalRoleMapper principalRoleMapper, ClassLoader cl) throws PolicyContextException, ClassNotFoundException, LoginException {
         this.principalRoleMapper = principalRoleMapper;
         Thread currentThread = Thread.currentThread();
         ClassLoader oldClassLoader = currentThread.getContextClassLoader();
@@ -105,37 +97,14 @@ public class ApplicationPolicyConfigurationManager implements GBeanLifecycle, Ru
         Policy policy = Policy.getPolicy();
         policy.refresh();
 
-        if (defaultSubjectInfo == null) {
-            defaultSubject = ContextManager.EMPTY;
-        } else {
-            defaultSubject = credentialStore.getSubject(defaultSubjectInfo.getRealm(), defaultSubjectInfo.getId());
-            registerSubject(defaultSubject);
-        }
-
-        for (Map.Entry<String, SubjectInfo> entry : roleDesignates.entrySet()) {
-            String role = entry.getKey();
-            SubjectInfo subjectInfo = entry.getValue();
-            if (subjectInfo == null || credentialStore == null) {
-                throw new NullPointerException("No subjectInfo for role " + role);
-            }
-            Subject roleDesignate = credentialStore.getSubject(subjectInfo.getRealm(), subjectInfo.getId());
-            registerSubject(roleDesignate);
-            this.roleDesignates.put(role, roleDesignate);
-        }
-    }
-
-    private void registerSubject(Subject subject) {
-        ContextManager.registerSubject(subject);
-        SubjectId id = ContextManager.getSubjectId(subject);
-        subject.getPrincipals().add(new IdentificationPrincipal(id));
     }
 
     public Subject getDefaultSubject() {
-        return defaultSubject;
+        return principalRoleMapper.getDefaultSubject();
     }
 
     public Subject getSubjectForRole(String role) {
-        return roleDesignates.get(role);
+        return principalRoleMapper.getSubjectForRole(role);
     }
 
     public void doStart() throws Exception {
@@ -143,14 +112,6 @@ public class ApplicationPolicyConfigurationManager implements GBeanLifecycle, Ru
     }
 
     public void doStop() throws Exception {
-        for (Map.Entry<String, Subject> entry : roleDesignates.entrySet()) {
-            Subject roleDesignate = entry.getValue();
-            ContextManager.unregisterSubject(roleDesignate);
-        }
-        if (defaultSubject != ContextManager.EMPTY) {
-            ContextManager.unregisterSubject(defaultSubject);
-        }
-
         if (principalRoleMapper != null) {
             principalRoleMapper.uninstall(contextIdToPolicyConfigurationMap.keySet());
         }
@@ -169,16 +130,14 @@ public class ApplicationPolicyConfigurationManager implements GBeanLifecycle, Ru
     static {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(ApplicationPolicyConfigurationManager.class, SecurityNames.JACC_MANAGER);
         infoBuilder.addAttribute("contextIdToPermissionsMap", Map.class, true);
-        infoBuilder.addAttribute("defaultSubjectInfo", SubjectInfo.class, true);
-        infoBuilder.addAttribute("roleDesignates", Map.class, true);
         infoBuilder.addAttribute("classLoader", ClassLoader.class, false);
-        infoBuilder.addReference("CredentialStore", CredentialStore.class, GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
         infoBuilder.addReference("PrincipalRoleMapper", PrincipalRoleMapper.class, SecurityNames.JACC_MANAGER);
-        infoBuilder.setConstructor(new String[] {"contextIdToPermissionsMap", "defaultSubjectInfo", "roleDesignates", "classLoader", "CredentialStore", "PrincipalRoleMapper"});
+        infoBuilder.setConstructor(new String[] {"contextIdToPermissionsMap", "PrincipalRoleMapper", "classLoader"});
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }
 
     public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
     }
+
 }

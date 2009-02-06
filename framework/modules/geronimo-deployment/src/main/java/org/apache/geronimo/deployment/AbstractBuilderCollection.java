@@ -19,8 +19,6 @@ package org.apache.geronimo.deployment;
 import java.util.Collection;
 import java.util.Collections;
 
-import javax.xml.namespace.QName;
-
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.gbean.ReferenceCollection;
 import org.apache.geronimo.gbean.ReferenceCollectionEvent;
@@ -30,15 +28,13 @@ import org.apache.xmlbeans.QNameSet;
 /**
  * @version $Rev$ $Date$
  */
-public abstract class AbstractBuilderCollection<T> {
+public abstract class AbstractBuilderCollection<T extends AbstractNamespaceBuilder> {
     protected final Collection<T> builders;
-    protected final QName basePlanElementName;
     protected QNameSet specQNames = QNameSet.EMPTY;
     protected QNameSet planQNames = QNameSet.EMPTY;
 
-    protected AbstractBuilderCollection(Collection<T> builders, final QName basePlanElementName) {
-        this.builders = builders == null ? Collections.EMPTY_SET : builders;
-        this.basePlanElementName = basePlanElementName;
+    protected AbstractBuilderCollection(Collection<T> builders) {
+        this.builders = builders == null ? Collections.<T>emptySet() : builders;
         if (builders instanceof ReferenceCollection) {
             ((ReferenceCollection) builders).addReferenceCollectionListener(new ReferenceCollectionListener() {
 
@@ -48,11 +44,11 @@ public abstract class AbstractBuilderCollection<T> {
 
                 public void memberRemoved(ReferenceCollectionEvent event) {
                     T builder = (T) event.getMember();
-                    QNameSet builderSpecQNames = ((AbstractNamespaceBuilder) builder).getSpecQNameSet();
+                    QNameSet builderSpecQNames = builder.getSpecQNameSet();
                     specQNames = specQNames.intersect(builderSpecQNames.inverse());
-                    QNameSet builderPlanQNames = ((AbstractNamespaceBuilder) builder).getPlanQNameSet();
+                    QNameSet builderPlanQNames = builder.getPlanQNameSet();
                     planQNames = planQNames.intersect(builderPlanQNames.inverse());
-                    XmlBeansUtil.unregisterSubstitutionGroupElements(basePlanElementName, builderPlanQNames);
+                    XmlBeansUtil.unregisterSubstitutionGroupElements(builder.getBaseQName(), builderPlanQNames);
                 }
             });
         }
@@ -63,8 +59,8 @@ public abstract class AbstractBuilderCollection<T> {
 
 
     protected void addBuilder(T builder) {
-        QNameSet builderSpecQNames = ((AbstractNamespaceBuilder) builder).getSpecQNameSet();
-        QNameSet builderPlanQNames = ((AbstractNamespaceBuilder) builder).getPlanQNameSet();
+        QNameSet builderSpecQNames = builder.getSpecQNameSet();
+        QNameSet builderPlanQNames = builder.getPlanQNameSet();
         if (builderSpecQNames == null) {
             throw new IllegalStateException("Builder " + builder + " is missing spec qnames");
         }
@@ -82,7 +78,7 @@ public abstract class AbstractBuilderCollection<T> {
 
         }
         //really?
-        XmlBeansUtil.registerSubstitutionGroupElements(basePlanElementName, builderPlanQNames);
+        XmlBeansUtil.registerSubstitutionGroupElements(builder.getBaseQName(), builderPlanQNames);
     }
 
     public QNameSet getSpecQNameSet() {

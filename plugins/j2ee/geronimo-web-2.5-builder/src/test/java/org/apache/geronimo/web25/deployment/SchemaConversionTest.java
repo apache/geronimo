@@ -128,7 +128,7 @@ public class SchemaConversionTest extends XmlBeansTestSupport {
     private static class WebModuleBuilder extends AbstractWebModuleBuilder {
 
         protected WebModuleBuilder(Kernel kernel) {
-            super(kernel, null, null, null, null, Collections.EMPTY_SET, null);
+            super(kernel, null, null, null, Collections.EMPTY_SET, null);
         }
 
         protected Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, boolean standAlone, String contextRoot, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {

@@ -46,7 +46,7 @@ public class NamingBuilderCollectionTest extends TestCase {
         builders.add(p2);
                 
         QName plan = new QName("http://foo", "bar");
-        NamingBuilderCollection col = new NamingBuilderCollection(builders, plan);
+        NamingBuilderCollection col = new NamingBuilderCollection(builders);
         List expectedCallList;
         
         // test buildEnvironment
@@ -115,6 +115,10 @@ public class NamingBuilderCollectionTest extends TestCase {
 
         public QNameSet getSpecQNameSet() {
             return QNameSet.EMPTY;
+        }
+
+        public QName getBaseQName() {
+            return null;
         }
         
     }

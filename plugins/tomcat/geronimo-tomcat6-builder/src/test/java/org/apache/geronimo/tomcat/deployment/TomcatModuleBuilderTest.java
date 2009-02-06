@@ -18,9 +18,9 @@ package org.apache.geronimo.tomcat.deployment;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 import java.security.PermissionCollection;
 import java.security.Permissions;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -32,17 +32,19 @@ import org.apache.commons.io.FileUtils;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinatorGBean;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
+import org.apache.geronimo.deployment.NamespaceDrivenBuilder;
 import org.apache.geronimo.deployment.service.GBeanBuilder;
 import org.apache.geronimo.deployment.util.UnpackedJarFile;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.NamingBuilderCollection;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.management.impl.J2EEServerImpl;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Jsr77Naming;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelFactory;
@@ -64,6 +66,7 @@ import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.ImportType;
 import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.geronimo.security.SecurityNames;
 import org.apache.geronimo.security.SecurityServiceImpl;
 import org.apache.geronimo.security.credentialstore.DirectConfigurationCredentialStoreImpl;
 import org.apache.geronimo.security.deployment.GeronimoSecurityBuilderImpl;
@@ -72,7 +75,6 @@ import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.geronimo.security.jacc.mappingprovider.GeronimoPolicy;
 import org.apache.geronimo.security.jacc.mappingprovider.GeronimoPolicyConfigurationFactory;
 import org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal;
-import org.apache.geronimo.security.SecurityNames;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 import org.apache.geronimo.testsupport.TestSupport;
 import org.apache.geronimo.tomcat.EngineGBean;
@@ -99,6 +101,8 @@ public class TomcatModuleBuilderTest extends TestSupport {
     private Environment defaultEnvironment = new Environment();
     private ConfigurationManager configurationManager;
     private ConfigurationStore configStore;
+    private AbstractName baseRootName = naming.createRootName(baseId, "root", NameFactory.SERVICE_MODULE);
+    private AbstractNameQuery credentialStoreName = new AbstractNameQuery(naming.createChildName(baseRootName, "CredentialStore", GBeanInfoBuilder.DEFAULT_J2EE_TYPE));
 
     public void testDeployWar4() throws Exception {
         verifyStartable("war4");
@@ -138,7 +142,7 @@ public class TomcatModuleBuilderTest extends TestSupport {
         outputPath.mkdirs();
         File path = new File(BASEDIR, "src/test/resources/deployables/" + warName);
         //File dest = new File(BASEDIR, "target/test-resources/deployables/" + warName + "/war");
-        File dest = new File(BASEDIR, "target/test-resources/deployables/" + warName );
+        File dest = new File(BASEDIR, "target/test-resources/deployables/" + warName);
         recursiveCopy(path, dest);
         UnpackedJarFile jarFile = new UnpackedJarFile(path);
         Module module = builder.createModule(null, jarFile, kernel.getNaming(), new ModuleIDBuilder());
@@ -148,8 +152,8 @@ public class TomcatModuleBuilderTest extends TestSupport {
         EARContext earContext = createEARContext(outputPath, defaultEnvironment, repository, configStore, moduleName);
         AbstractName jaccBeanName = kernel.getNaming().createChildName(moduleName, "foo", SecurityNames.JACC_MANAGER);
         GBeanData jaccBeanData = new GBeanData(jaccBeanName, ApplicationPolicyConfigurationManager.GBEAN_INFO);
-        PermissionCollection excludedPermissions= new Permissions();
-        PermissionCollection uncheckedPermissions= new Permissions();
+        PermissionCollection excludedPermissions = new Permissions();
+        PermissionCollection uncheckedPermissions = new Permissions();
         ComponentPermissions componentPermissions = new ComponentPermissions(excludedPermissions, uncheckedPermissions, new HashMap());
         Map contextIDToPermissionsMap = new HashMap();
         contextIDToPermissionsMap.put("test_J2EEApplication=null_J2EEServer=bar_j2eeType=WebModule_name=geronimo/test/1.0/war", componentPermissions);
@@ -157,7 +161,7 @@ public class TomcatModuleBuilderTest extends TestSupport {
 //        jaccBeanData.setAttribute("principalRoleMap", new HashMap());
         jaccBeanData.setAttribute("roleDesignates", new HashMap());
         earContext.addGBean(jaccBeanData);
-        earContext.setJaccManagerName(jaccBeanName);
+        earContext.getGeneralData().put(TomcatModuleBuilder.ROLE_MAPPER_DATA_NAME, jaccBeanName);
         module.setEarContext(earContext);
         module.setRootEarContext(earContext);
         builder.initContext(earContext, module, cl);
@@ -174,7 +178,7 @@ public class TomcatModuleBuilderTest extends TestSupport {
         return new WebModuleInfo(moduleName, configuration);
     }
 
-    private void undeployWar(Configuration configuration) throws Exception{
+    private void undeployWar(Configuration configuration) throws Exception {
         configurationManager.stopConfiguration(configuration.getId());
         configurationManager.unloadConfiguration(configuration.getId());
     }
@@ -213,14 +217,14 @@ public class TomcatModuleBuilderTest extends TestSupport {
     }
 
     public void recursiveCopy(File src, File dest) throws IOException {
-        Collection files = FileUtils.listFiles(src,null,true);
+        Collection files = FileUtils.listFiles(src, null, true);
         Iterator iterator = files.iterator();
-        while(iterator.hasNext()){
+        while (iterator.hasNext()) {
             File file = (File) iterator.next();
-            if (file.getAbsolutePath().indexOf(".svn") < 0){
+            if (file.getAbsolutePath().indexOf(".svn") < 0) {
                 String pathToFile = file.getPath();
                 String relativePath = pathToFile.substring(src.getPath().length(), pathToFile.length() - (file.getName().length()));
-                FileUtils.copyFileToDirectory(file,new File(dest.getPath() + relativePath));
+                FileUtils.copyFileToDirectory(file, new File(dest.getPath() + relativePath));
             }
         }
     }
@@ -326,19 +330,17 @@ public class TomcatModuleBuilderTest extends TestSupport {
 
         defaultEnvironment.addDependency(baseId, ImportType.ALL);
         defaultEnvironment.setConfigId(webModuleArtifact);
+        GeronimoSecurityBuilderImpl securityBuilder = new GeronimoSecurityBuilderImpl(credentialStoreName, null, null);
         builder = new TomcatModuleBuilder(defaultEnvironment,
-            new AbstractNameQuery(containerName),
-            Collections.singleton(webServiceBuilder),
-            Collections.singleton(new GeronimoSecurityBuilderImpl(new AbstractNameQuery(URI
-                    .create("?name=CredentialStore")))),
-            Collections.singleton(new GBeanBuilder(null, null)),
-            new NamingBuilderCollection(null, null),
-            Collections.EMPTY_LIST,
-            null,
-            new MockResourceEnvironmentSetter(),
-            null);
+                new AbstractNameQuery(containerName),
+                Collections.singleton(webServiceBuilder),
+                Arrays.asList(new GBeanBuilder(null, null), securityBuilder),
+                new NamingBuilderCollection(null),
+                Collections.EMPTY_LIST,
+                null,
+                new MockResourceEnvironmentSetter(),
+                null);
         builder.doStart();
-        GeronimoSecurityBuilderImpl securityBuilder = new GeronimoSecurityBuilderImpl(null);
         securityBuilder.doStart();
     }
 
@@ -352,7 +354,7 @@ public class TomcatModuleBuilderTest extends TestSupport {
         AbstractName moduleName;
         Configuration configuration;
 
-        public WebModuleInfo (AbstractName moduleName, Configuration configuration){
+        public WebModuleInfo(AbstractName moduleName, Configuration configuration) {
             this.moduleName = moduleName;
             this.configuration = configuration;
         }

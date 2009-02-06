@@ -75,6 +75,10 @@ public class UnavailableRefBuilder implements NamingBuilder {
         return QNameSet.EMPTY;
     }
 
+    public QName getBaseQName() {
+        return AbstractNamingBuilder.BASE_NAMING_QNAME;
+    }
+
     public static final GBeanInfo GBEAN_INFO;
 
     static {

@@ -29,11 +29,11 @@ import java.util.Map;
 import java.util.Set;
 
 import junit.framework.TestCase;
-
 import org.apache.geronimo.clustering.wadi.BasicWADISessionManager;
 import org.apache.geronimo.clustering.wadi.WADISessionManagerConfigInfo;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
+import org.apache.geronimo.deployment.NamespaceDrivenBuilder;
 import org.apache.geronimo.deployment.NamespaceDrivenBuilderCollection;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.gbean.AbstractName;
@@ -49,7 +49,6 @@ import org.apache.geronimo.tomcat.TomcatWebAppContext;
 import org.apache.geronimo.tomcat.cluster.ClusteredManagerRetriever;
 import org.apache.geronimo.tomcat.cluster.wadi.WADIClusteredValveRetriever;
 import org.apache.geronimo.web.deployment.GenericToSpecificPlanConverter;
-import org.apache.geronimo.xbeans.geronimo.j2ee.GerClusteringDocument;
 import org.apache.geronimo.xbeans.geronimo.web.tomcat.TomcatWebAppDocument;
 import org.apache.geronimo.xbeans.geronimo.web.tomcat.TomcatWebAppType;
 import org.apache.geronimo.xbeans.geronimo.web.tomcat.config.GerTomcatDocument;
@@ -92,8 +91,7 @@ public class WADITomcatClusteringBuilderTest extends TestCase {
                 artifactToRemove,
                 defaultEnvironment);
         
-        new NamespaceDrivenBuilderCollection(Collections.singleton(builder),
-                GerClusteringDocument.type.getDocumentElementName());
+        new NamespaceDrivenBuilderCollection(Collections.<NamespaceDrivenBuilder>singleton(builder));
     }
     
     public void testBuiltEnvironmentDoesNotContainArtifactToRemove() throws Exception {

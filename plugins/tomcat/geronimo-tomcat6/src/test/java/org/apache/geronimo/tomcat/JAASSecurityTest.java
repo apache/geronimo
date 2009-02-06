@@ -165,8 +165,8 @@ public class JAASSecurityTest extends AbstractWebModuleTest {
                 new HashMap(),
                 componentPermissions,
                 realm,
-                securityHolder,
-                credentialStore);
+                securityHolder
+        );
     }
 
     protected void stopWebApp() throws Exception {
@@ -175,7 +175,7 @@ public class JAASSecurityTest extends AbstractWebModuleTest {
     protected void setUp() throws Exception {
         super.setUp();
         super.init("org.apache.geronimo.tomcat.realm.TomcatJAASRealm");
-        setUpSecurity();
+        setUpSecurityService();
     }
 
     protected void tearDown() throws Exception {

@@ -25,6 +25,7 @@ import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -34,14 +35,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.Collections;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
 import javax.xml.namespace.QName;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.common.propertyeditor.PropertyEditors;
 import org.apache.geronimo.connector.ActivationSpecWrapperGBean;
@@ -67,7 +65,6 @@ import org.apache.geronimo.deployment.ModuleIDBuilder;
 import org.apache.geronimo.deployment.NamespaceDrivenBuilder;
 import org.apache.geronimo.deployment.NamespaceDrivenBuilderCollection;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
-import org.apache.geronimo.deployment.service.GBeanBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.xbeans.EnvironmentType;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
@@ -78,8 +75,8 @@ import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.InvalidConfigurationException;
 import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.gbean.InvalidConfigurationException;
 import org.apache.geronimo.gbean.MultiGBeanInfoFactory;
 import org.apache.geronimo.j2ee.deployment.ActivationSpecInfoLocator;
 import org.apache.geronimo.j2ee.deployment.ConnectorModule;
@@ -124,6 +121,8 @@ import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlDocumentProperties;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @version $Rev:385659 $ $Date$
@@ -180,7 +179,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
             boolean defaultXATransactionCaching,
             boolean defaultXAThreadCaching,
             String defaultWorkManagerName,
-            Collection serviceBuilders) {
+            Collection<NamespaceDrivenBuilder> serviceBuilders) {
         this.defaultEnvironment = defaultEnvironment;
 
         this.defaultMaxSize = defaultMaxSize;
@@ -190,7 +189,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
         this.defaultXATransactionCaching = defaultXATransactionCaching;
         this.defaultXAThreadCaching = defaultXAThreadCaching;
         this.defaultWorkManagerName = defaultWorkManagerName;
-        this.serviceBuilders = new NamespaceDrivenBuilderCollection(serviceBuilders, GBeanBuilder.SERVICE_QNAME);
+        this.serviceBuilders = new NamespaceDrivenBuilderCollection(serviceBuilders);
     }
 
     public void doStart() throws Exception {

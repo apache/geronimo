@@ -122,6 +122,8 @@ import org.mortbay.jetty.security.FormAuthenticator;
 public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBeanLifecycle {
     private static final Logger log = LoggerFactory.getLogger(JettyModuleBuilder.class);
     
+    private static final String ROLE_MAPPER_DATA_NAME = "roleMapperDataName";
+
     private static final Map<String, String> NAMESPACE_UPDATES = new HashMap<String, String>();
     static {
         NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/web", "http://geronimo.apache.org/xml/ns/j2ee/web-2.0.1");
@@ -167,13 +169,12 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
                               Object pojoWebServiceTemplate,
                               Collection<WebServiceBuilder> webServiceBuilder,
                               Collection clusteringBuilders,
-                              Collection securityBuilders,
                               Collection serviceBuilders,
                               NamingBuilder namingBuilders,
                               Collection<ModuleBuilderExtension> moduleBuilderExtensions,
                               ResourceEnvironmentSetter resourceEnvironmentSetter,
                               Kernel kernel) throws GBeanNotFoundException {
-        super(kernel, securityBuilders, serviceBuilders, namingBuilders, resourceEnvironmentSetter, webServiceBuilder, moduleBuilderExtensions);
+        super(kernel, serviceBuilders, namingBuilders, resourceEnvironmentSetter, webServiceBuilder, moduleBuilderExtensions);
         this.defaultEnvironment = defaultEnvironment;
         this.defaultSessionTimeoutSeconds = (defaultSessionTimeoutSeconds == null) ? 30 * 60 : defaultSessionTimeoutSeconds;
         this.jettyContainerObjectName = jettyContainerName;
@@ -182,7 +183,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
         this.defaultFilters = defaultFilters;
         this.defaultFilterMappings = defaultFilterMappings;
         this.pojoWebServiceTemplate = getGBeanData(kernel, pojoWebServiceTemplate);
-        this.clusteringBuilders = new NamespaceDrivenBuilderCollection(clusteringBuilders, GerClusteringDocument.type.getDocumentElementName());
+        this.clusteringBuilders = new NamespaceDrivenBuilderCollection(clusteringBuilders);
 
         this.defaultWelcomeFiles = defaultWelcomeFiles == null ? new ArrayList<String>() : defaultWelcomeFiles;
         this.defaultLocaleEncodingMappings = defaultLocaleEncodingMappings == null ? new HashMap<String, String>() : defaultLocaleEncodingMappings;
@@ -551,7 +552,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
         }
         String securityRealmName = jettyWebApp.getSecurityRealmName().trim();
         webModuleData.setAttribute("securityRealmName", securityRealmName);
-        webModuleData.setReferencePattern("RunAsSource", earContext.getJaccManagerName());
+        webModuleData.setReferencePattern("RunAsSource", (AbstractNameQuery)earContext.getGeneralData().get(ROLE_MAPPER_DATA_NAME));
 
         /**
          * TODO - go back to commented version when possible.
@@ -1044,7 +1045,6 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
         infoBuilder.addReference("PojoWebServiceTemplate", Object.class, NameFactory.SERVLET_WEB_SERVICE_TEMPLATE);
         infoBuilder.addReference("WebServiceBuilder", WebServiceBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addReference("ClusteringBuilders", NamespaceDrivenBuilder.class, NameFactory.MODULE_BUILDER);
-        infoBuilder.addReference("SecurityBuilders", NamespaceDrivenBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addReference("ServiceBuilders", NamespaceDrivenBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addReference("NamingBuilders", NamingBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addReference("ModuleBuilderExtensions", ModuleBuilderExtension.class, NameFactory.MODULE_BUILDER);
@@ -1066,7 +1066,6 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
                 "PojoWebServiceTemplate",
                 "WebServiceBuilder",
                 "ClusteringBuilders",
-                "SecurityBuilders",
                 "ServiceBuilders",
                 "NamingBuilders",
                 "ModuleBuilderExtensions",

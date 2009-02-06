@@ -29,22 +29,20 @@ import org.apache.xmlbeans.XmlObject;
 /**
  * @version $Rev$ $Date$
  */
-public class NamespaceDrivenBuilderCollection extends AbstractBuilderCollection {
+public class NamespaceDrivenBuilderCollection extends AbstractBuilderCollection<NamespaceDrivenBuilder> {
 
-    public NamespaceDrivenBuilderCollection(Collection builders, final QName basePlanElementName) {
-        super(builders, basePlanElementName);
+    public NamespaceDrivenBuilderCollection(Collection<NamespaceDrivenBuilder> builders) {
+        super(builders);
     }
 
     public void buildEnvironment(XmlObject container, Environment environment) throws DeploymentException {
-        for (Iterator iterator = builders.iterator(); iterator.hasNext();) {
-            NamespaceDrivenBuilder builder = (NamespaceDrivenBuilder) iterator.next();
+        for (NamespaceDrivenBuilder builder : builders) {
             builder.buildEnvironment(container, environment);
         }
     }
 
     public void build(XmlObject container, DeploymentContext applicationContext, DeploymentContext moduleContext) throws DeploymentException {
-        for (Iterator iterator = builders.iterator(); iterator.hasNext();) {
-            NamespaceDrivenBuilder builder = (NamespaceDrivenBuilder) iterator.next();
+        for (NamespaceDrivenBuilder builder : builders) {
             builder.build(container, applicationContext, moduleContext);
         }
     }

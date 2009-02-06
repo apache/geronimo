@@ -45,6 +45,7 @@ import org.apache.geronimo.kernel.repository.ImportType;
 import org.apache.geronimo.schema.NamespaceElementConverter;
 import org.apache.geronimo.xbeans.geronimo.naming.GerAbstractNamingEntryDocument;
 import org.apache.geronimo.xbeans.geronimo.naming.GerPatternType;
+import org.apache.geronimo.xbeans.geronimo.naming.GerAbstractNamingEntryType;
 import org.apache.geronimo.xbeans.javaee.InjectionTargetType;
 import org.apache.geronimo.xbeans.javaee.XsdStringType;
 import org.apache.xmlbeans.QNameSet;
@@ -57,6 +58,7 @@ import org.apache.xmlbeans.XmlObject;
  * @version $Rev$ $Date$
  */
 public abstract class AbstractNamingBuilder implements NamingBuilder {
+    protected static final QName BASE_NAMING_QNAME = GerAbstractNamingEntryType.type.getDocumentElementName();
     protected static final String J2EE_NAMESPACE = "http://java.sun.com/xml/ns/j2ee";
     protected static final String JEE_NAMESPACE = "http://java.sun.com/xml/ns/javaee";
     protected static final NamespaceElementConverter J2EE_CONVERTER = new NamespaceElementConverter(J2EE_NAMESPACE);
@@ -285,6 +287,10 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
         return new Artifact[] {earConfiguration.getId(),localConfiguration.getId()};
     }
 
+
+    public QName getBaseQName() {
+        return BASE_NAMING_QNAME;
+    }
 }
 
 

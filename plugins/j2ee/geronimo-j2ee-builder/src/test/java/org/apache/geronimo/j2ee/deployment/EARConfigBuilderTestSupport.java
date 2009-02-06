@@ -143,7 +143,6 @@ public abstract class EARConfigBuilderTestSupport
                     connectorConfigBuilder,
                     activationSpecInfoLocator,
                     appClientConfigBuilder,
-                    securityBuilder,
                     serviceBuilder,
                     persistenceUnitBuilder,
                     naming, artifactResolvers);
@@ -173,7 +172,6 @@ public abstract class EARConfigBuilderTestSupport
                 connectorConfigBuilder,
                 activationSpecInfoLocator,
                 appClientConfigBuilder,
-                securityBuilder,
                 serviceBuilder,
                 persistenceUnitBuilder,
                 naming, artifactResolvers);
@@ -209,7 +207,6 @@ public abstract class EARConfigBuilderTestSupport
                 connectorConfigBuilder,
                 activationSpecInfoLocator,
                 appClientConfigBuilder,
-                securityBuilder,
                 serviceBuilder,
                 persistenceUnitBuilder,
                 naming, artifactResolvers);
@@ -245,7 +242,6 @@ public abstract class EARConfigBuilderTestSupport
                 connectorConfigBuilder,
                 activationSpecInfoLocator,
                 appClientConfigBuilder,
-                securityBuilder,
                 serviceBuilder,
                 persistenceUnitBuilder,
                 naming, artifactResolvers);
@@ -281,7 +277,6 @@ public abstract class EARConfigBuilderTestSupport
                 connectorConfigBuilder,
                 activationSpecInfoLocator,
                 appClientConfigBuilder,
-                securityBuilder,
                 serviceBuilder,
                 persistenceUnitBuilder,
                 naming, artifactResolvers);
@@ -317,7 +312,6 @@ public abstract class EARConfigBuilderTestSupport
                 connectorConfigBuilder,
                 activationSpecInfoLocator,
                 appClientConfigBuilder,
-                securityBuilder,
                 serviceBuilder,
                 persistenceUnitBuilder,
                 naming, artifactResolvers);
@@ -354,7 +348,6 @@ public abstract class EARConfigBuilderTestSupport
                 connectorConfigBuilder,
                 activationSpecInfoLocator,
                 appClientConfigBuilder,
-                securityBuilder,
                 serviceBuilder,
                 persistenceUnitBuilder,
                 naming, artifactResolvers);
@@ -390,7 +383,6 @@ public abstract class EARConfigBuilderTestSupport
                 null,
                 activationSpecInfoLocator,
                 appClientConfigBuilder,
-                securityBuilder,
                 serviceBuilder,
                 persistenceUnitBuilder,
                 naming, artifactResolvers);

@@ -58,7 +58,7 @@ public class ContainerTest extends AbstractWebModuleTest {
 
     public void testSecureWebServiceHandler() throws Exception {
 
-        setUpSecurity();
+        setUpSecurityService();
 
         String contextPath = "/foo/webservice.ws";
         MockWebServiceContainer webServiceInvoker = new MockWebServiceContainer();

@@ -41,8 +41,8 @@ public class EARContext extends DeploymentContext {
     private final AbstractNameQuery corbaGBeanObjectName;
 
     private final Map contextIDToPermissionsMap = new HashMap();
-    private AbstractName jaccManagerName;
     private Object securityConfiguration;
+    private boolean hasSecurity;
 
     private final Map  messageDestinations;
 
@@ -129,14 +129,6 @@ public class EARContext extends DeploymentContext {
         }
     }
 
-    public void setJaccManagerName(AbstractName jaccManagerName) {
-        this.jaccManagerName = jaccManagerName;
-    }
-
-    public AbstractName getJaccManagerName() {
-        return jaccManagerName;
-    }
-
     public void setSecurityConfiguration(Object securityConfiguration) throws DeploymentException {
         if (this.securityConfiguration != null) {
             throw new DeploymentException("Only one security configuration allowed per application");
@@ -158,5 +150,13 @@ public class EARContext extends DeploymentContext {
 
     public Map<Object,Object> getGeneralData() {
         return generalData;
+    }
+
+    public boolean isHasSecurity() {
+        return hasSecurity;
+    }
+
+    public void setHasSecurity(boolean hasSecurity) {
+        this.hasSecurity = hasSecurity;
     }
 }

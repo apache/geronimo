@@ -87,11 +87,11 @@ public class ServiceConfigBuilder implements ConfigurationBuilder, GBeanLifecycl
         this(defaultEnvironment, repositories, Collections.EMPTY_LIST, naming, null);
     }
 
-    public ServiceConfigBuilder(Environment defaultEnvironment, Collection repositories, Collection serviceBuilders, Kernel kernel) {
+    public ServiceConfigBuilder(Environment defaultEnvironment, Collection repositories, Collection<NamespaceDrivenBuilder> serviceBuilders, Kernel kernel) {
         this(defaultEnvironment, repositories, serviceBuilders, kernel.getNaming(), ConfigurationUtil.getConfigurationManager(kernel));
     }
 
-    public ServiceConfigBuilder(Environment defaultEnvironment, Collection repositories, Collection serviceBuilders, Naming naming) {
+    public ServiceConfigBuilder(Environment defaultEnvironment, Collection repositories, Collection<NamespaceDrivenBuilder> serviceBuilders, Naming naming) {
         this(defaultEnvironment, repositories, serviceBuilders, naming, null);
     }
 
@@ -107,7 +107,7 @@ public class ServiceConfigBuilder implements ConfigurationBuilder, GBeanLifecycl
         doStop();
     }
 
-    private ServiceConfigBuilder(Environment defaultEnvironment, Collection repositories, Collection serviceBuilders, Naming naming, ConfigurationManager configurationManager) {
+    private ServiceConfigBuilder(Environment defaultEnvironment, Collection repositories, Collection<NamespaceDrivenBuilder> serviceBuilders, Naming naming, ConfigurationManager configurationManager) {
         this.naming = naming;
         this.configurationManager = configurationManager;
 
@@ -115,7 +115,7 @@ public class ServiceConfigBuilder implements ConfigurationBuilder, GBeanLifecycl
         this.defaultEnvironment = defaultEnvironment;
 
         this.repositories = repositories;
-        this.serviceBuilders = new NamespaceDrivenBuilderCollection(serviceBuilders, GBeanBuilder.SERVICE_QNAME);
+        this.serviceBuilders = new NamespaceDrivenBuilderCollection(serviceBuilders);
     }
 
     public Object getDeploymentPlan(File planFile, JarFile jarFile, ModuleIDBuilder idBuilder) throws DeploymentException {

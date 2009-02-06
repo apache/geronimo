@@ -57,6 +57,7 @@ import org.apache.geronimo.tomcat.cluster.ClusteredManagerRetriever;
 import org.apache.geronimo.tomcat.cluster.wadi.WADIClusteredValveRetriever;
 import org.apache.geronimo.xbeans.geronimo.GerTomcatClusteringWadiDocument;
 import org.apache.geronimo.xbeans.geronimo.GerTomcatClusteringWadiType;
+import org.apache.geronimo.xbeans.geronimo.j2ee.GerClusteringDocument;
 import org.apache.geronimo.xbeans.geronimo.naming.GerPatternType;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlObject;
@@ -67,6 +68,7 @@ import org.apache.xmlbeans.XmlObject;
  */
 @GBean(name="WADITomcatClusteringBuilder", j2eeType=NameFactory.MODULE_BUILDER)
 public class WADITomcatClusteringBuilder implements NamespaceDrivenBuilder {
+    private static final QName BASE_CLUSTERING_QNAME = GerClusteringDocument.type.getDocumentElementName();
     private static final QName CLUSTERING_WADI_QNAME = GerTomcatClusteringWadiDocument.type.getDocumentElementName();
     private static final QNameSet CLUSTERING_WADI_QNAME_SET = QNameSet.singleton(CLUSTERING_WADI_QNAME);
 
@@ -173,6 +175,10 @@ public class WADITomcatClusteringBuilder implements NamespaceDrivenBuilder {
 
     public QNameSet getPlanQNameSet() {
         return CLUSTERING_WADI_QNAME_SET;
+    }
+
+    public QName getBaseQName() {
+        return BASE_CLUSTERING_QNAME;
     }
 
     protected GerTomcatClusteringWadiType getWadiClusterConfig(XmlObject container) throws DeploymentException {

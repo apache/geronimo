@@ -42,13 +42,18 @@
             <pattern>
                 <name>OpenEJBClusteringBuilder</name>
             </pattern>
+            <pattern>
+                <name>SecurityBuilder</name>
+            </pattern>
         </references>
-        <reference name="SecurityBuilders">
-            <name>SecurityBuilder</name>
-        </reference>
-        <reference name="ServiceBuilders">
-            <name>GBeanBuilder</name>
-        </reference>
+        <references name="ServiceBuilders">
+            <pattern>
+                <name>GBeanBuilder</name>
+            </pattern>
+            <pattern>
+                <name>SecurityBuilder</name>
+            </pattern>
+        </references>
         <reference name="NamingBuilders">
             <name>NamingBuilders</name>
         </reference>

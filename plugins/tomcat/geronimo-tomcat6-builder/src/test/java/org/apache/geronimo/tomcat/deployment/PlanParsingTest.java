@@ -18,29 +18,31 @@ package org.apache.geronimo.tomcat.deployment;
 
 import java.io.File;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.Collections;
 
 import junit.framework.TestCase;
+import org.apache.geronimo.deployment.NamespaceDrivenBuilder;
+import org.apache.geronimo.deployment.service.GBeanBuilder;
 import org.apache.geronimo.deployment.xbeans.ArtifactType;
 import org.apache.geronimo.deployment.xbeans.EnvironmentType;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
-import org.apache.geronimo.deployment.service.GBeanBuilder;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
-import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
-import org.apache.geronimo.j2ee.deployment.NamingBuilderCollection;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.j2ee.deployment.NamingBuilderCollection;
+import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Jsr77Naming;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.security.deployment.GeronimoSecurityBuilderImpl;
 import org.apache.geronimo.web.deployment.GenericToSpecificPlanConverter;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceRefType;
 import org.apache.geronimo.xbeans.geronimo.web.GerWebAppDocument;
 import org.apache.geronimo.xbeans.geronimo.web.GerWebAppType;
 import org.apache.geronimo.xbeans.geronimo.web.tomcat.TomcatWebAppType;
-import org.apache.geronimo.security.deployment.GeronimoSecurityBuilderImpl;
 import org.apache.xmlbeans.XmlObject;
 
 /**
@@ -58,17 +60,16 @@ public class PlanParsingTest extends TestCase {
 
     protected void setUp() throws Exception {
         builder = new TomcatModuleBuilder(defaultEnvironment,
-            tomcatContainerObjectName,
-            Collections.singleton(webServiceBuilder),
-            Collections.singleton(new GeronimoSecurityBuilderImpl(null)),
-            Collections.singleton(new GBeanBuilder(null, null)),
-            new NamingBuilderCollection(null, null),
-            Collections.EMPTY_LIST,
-            null,
-            new MockResourceEnvironmentSetter(),
-            null);
+                tomcatContainerObjectName,
+                Collections.singleton(webServiceBuilder),
+                Arrays.asList(new GBeanBuilder(null, null), new GeronimoSecurityBuilderImpl(null, null, null)),
+                new NamingBuilderCollection(null),
+                Collections.EMPTY_LIST,
+                null,
+                new MockResourceEnvironmentSetter(),
+                null);
         builder.doStart();
-        GeronimoSecurityBuilderImpl securityBuilder = new GeronimoSecurityBuilderImpl(null);
+        GeronimoSecurityBuilderImpl securityBuilder = new GeronimoSecurityBuilderImpl(null, null, null);
         securityBuilder.doStart();
     }
 
@@ -82,13 +83,13 @@ public class PlanParsingTest extends TestCase {
 
         XmlObject webPlan = new GenericToSpecificPlanConverter(
                 "http://geronimo.apache.org/xml/ns/web/tomcat/config-1.0",
-                "http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-2.0.1", 
+                "http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-2.0.1",
                 "tomcat").convertToSpecificPlan(rawPlan);
-        
+
         XmlObject p = webPlan.changeType(TomcatWebAppType.type);
         XmlBeansUtil.validateDD(p);
     }
-    
+
     public void testResourceRef() throws Exception {
         URL resourceURL = classLoader.getResource("plans/plan1.xml");
         File resourcePlan = new File(resourceURL.getFile());

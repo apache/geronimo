@@ -160,25 +160,22 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle {
     private final Environment defaultEnvironment;
     private final String defaultCmpJTADataSource;
     private final String defaultCmpNonJTADataSource;
-    private final NamespaceDrivenBuilderCollection securityBuilders;
     private final NamespaceDrivenBuilderCollection serviceBuilders;
     private final NamingBuilder namingBuilder;
     private final ResourceEnvironmentSetter resourceEnvironmentSetter;
     private final Collection<ModuleBuilderExtension> moduleBuilderExtensions;
 
     public EjbModuleBuilder(Environment defaultEnvironment,
-        String defaultCmpJTADataSource,
-        String defaultCmpNonJTADataSource,
-        Collection<ModuleBuilderExtension> moduleBuilderExtensions,
-        Collection securityBuilders,
-        Collection serviceBuilders,
-        NamingBuilder namingBuilders,
-        ResourceEnvironmentSetter resourceEnvironmentSetter) {
+                            String defaultCmpJTADataSource,
+                            String defaultCmpNonJTADataSource,
+                            Collection<ModuleBuilderExtension> moduleBuilderExtensions,
+                            Collection<NamespaceDrivenBuilder> serviceBuilders,
+                            NamingBuilder namingBuilders,
+                            ResourceEnvironmentSetter resourceEnvironmentSetter) {
         this.defaultEnvironment = defaultEnvironment;
         this.defaultCmpJTADataSource = defaultCmpJTADataSource;
         this.defaultCmpNonJTADataSource = defaultCmpNonJTADataSource;
-        this.securityBuilders = new NamespaceDrivenBuilderCollection(securityBuilders, GerSecurityDocument.type.getDocumentElementName());
-        this.serviceBuilders = new NamespaceDrivenBuilderCollection(serviceBuilders, GBeanBuilder.SERVICE_QNAME);
+        this.serviceBuilders = new NamespaceDrivenBuilderCollection(serviceBuilders);
         this.namingBuilder = namingBuilders;
         this.resourceEnvironmentSetter = resourceEnvironmentSetter;
 
@@ -537,9 +534,6 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle {
         ejbModule.setEjbBuilder(ejbDeploymentBuilder);
         ejbDeploymentBuilder.initContext();
 
-        // Build the security configuration.
-        securityBuilders.build(geronimoOpenejb, earContext, ejbModule.isStandAlone() ? ejbModule.getEarContext() : null);
-
         // Add extra gbean declared in the geronimo-openejb.xml file
         serviceBuilders.build(geronimoOpenejb, earContext, ejbModule.getEarContext());
 
@@ -789,8 +783,7 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle {
                 StatefulBeanInfo statefulBeanInfo = (StatefulBeanInfo) beanInfo;
                 for (PersistenceContextReferenceInfo refInfo : statefulBeanInfo.jndiEnc.persistenceContextRefs) {
                     if (refInfo.extended) {
-                        String id = linkResolver.resolveLink(refInfo.persistenceUnitName, ejbJarInfo.moduleId);
-                        refInfo.unitId = id;
+                        refInfo.unitId = linkResolver.resolveLink(refInfo.persistenceUnitName, ejbJarInfo.moduleId);
                     }
                 }
             }
@@ -974,7 +967,6 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle {
         infoBuilder.addAttribute("defaultCmpJTADataSource", String.class, true);
         infoBuilder.addAttribute("defaultCmpNonJTADataSource", String.class, true);
         infoBuilder.addReference("ModuleBuilderExtensions", ModuleBuilderExtension.class, NameFactory.MODULE_BUILDER);
-        infoBuilder.addReference("SecurityBuilders", NamespaceDrivenBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addReference("ServiceBuilders", NamespaceDrivenBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addReference("NamingBuilders", NamingBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addReference("ResourceEnvironmentSetter", ResourceEnvironmentSetter.class, NameFactory.MODULE_BUILDER);
@@ -984,7 +976,6 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle {
                 "defaultCmpJTADataSource",
                 "defaultCmpNonJTADataSource",
                 "ModuleBuilderExtensions",
-                "SecurityBuilders",
                 "ServiceBuilders",
                 "NamingBuilders",
                 "ResourceEnvironmentSetter"});

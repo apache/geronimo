@@ -19,29 +19,31 @@ package org.apache.geronimo.tomcat;
 import java.io.File;
 import java.net.URI;
 import java.net.URL;
+import java.security.Principal;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import javax.transaction.TransactionManager;
 
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
 import org.apache.geronimo.connector.outbound.connectiontracking.GeronimoTransactionListener;
 import org.apache.geronimo.security.SecurityServiceImpl;
-import org.apache.geronimo.security.credentialstore.CredentialStore;
 import org.apache.geronimo.security.deploy.PrincipalInfo;
+import org.apache.geronimo.security.deploy.SubjectInfo;
 import org.apache.geronimo.security.jaas.ConfigurationEntryFactory;
 import org.apache.geronimo.security.jaas.GeronimoLoginConfiguration;
 import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
 import org.apache.geronimo.security.jaas.LoginModuleControlFlag;
 import org.apache.geronimo.security.jaas.LoginModuleGBean;
 import org.apache.geronimo.security.jacc.ApplicationPolicyConfigurationManager;
-import org.apache.geronimo.security.jacc.mappingprovider.ApplicationPrincipalRoleConfigurationManager;
-import org.apache.geronimo.security.jacc.mappingprovider.GeronimoPolicyConfigurationFactory;
-import org.apache.geronimo.security.jacc.mappingprovider.GeronimoPolicy;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.geronimo.security.jacc.PrincipalRoleMapper;
 import org.apache.geronimo.security.jacc.RunAsSource;
+import org.apache.geronimo.security.jacc.mappingprovider.ApplicationPrincipalRoleConfigurationManager;
+import org.apache.geronimo.security.jacc.mappingprovider.GeronimoPolicy;
+import org.apache.geronimo.security.jacc.mappingprovider.GeronimoPolicyConfigurationFactory;
 import org.apache.geronimo.security.realm.GenericSecurityRealm;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
@@ -103,12 +105,8 @@ public abstract class AbstractWebModuleTest extends TestSupport {
         return app;
     }
 
-    protected TomcatWebAppContext setUpSecureAppContext(Map roleDesignates, Map principalRoleMap, ComponentPermissions componentPermissions, RealmGBean realm, SecurityHolder securityHolder, CredentialStore credentialStore) throws Exception {
-        PrincipalRoleMapper roleMapper = new ApplicationPrincipalRoleConfigurationManager(principalRoleMap);
-        Map contextIDToPermissionsMap = new HashMap();
-        contextIDToPermissionsMap.put(POLICY_CONTEXT_ID, componentPermissions);
-        ApplicationPolicyConfigurationManager jacc = new ApplicationPolicyConfigurationManager(contextIDToPermissionsMap, null, roleDesignates, cl, credentialStore, roleMapper);
-        jacc.doStart();
+    protected TomcatWebAppContext setUpSecureAppContext(Map roleDesignates, Map principalRoleMap, ComponentPermissions componentPermissions, RealmGBean realm, SecurityHolder securityHolder) throws Exception {
+        ApplicationPolicyConfigurationManager jacc = setUpJACC(roleDesignates, principalRoleMap, componentPermissions, POLICY_CONTEXT_ID);
 
         URL configurationBaseURL = new File(BASEDIR, "src/test/resources/deployables/war3/WEB-INF/web.xml").toURL();
         return setUpInsecureAppContext(new File(BASEDIR, "src/test/resources/deployables/war3/").toURI(),
@@ -119,9 +117,18 @@ public abstract class AbstractWebModuleTest extends TestSupport {
                 null);
     }
 
-    protected void setUpSecurity() throws Exception {
-        String domainName = "demo-properties-realm";
+    private ApplicationPolicyConfigurationManager setUpJACC(Map<String, SubjectInfo> roleDesignates, Map<Principal, Set<String>> principalRoleMap, ComponentPermissions componentPermissions, String policyContextId) throws Exception {
+        setUpSecurityService();
+        PrincipalRoleMapper roleMapper = new ApplicationPrincipalRoleConfigurationManager(principalRoleMap, null, roleDesignates, null);
+        Map<String, ComponentPermissions> contextIDToPermissionsMap = new HashMap<String, ComponentPermissions>();
+        contextIDToPermissionsMap.put(policyContextId, componentPermissions);
+        ApplicationPolicyConfigurationManager jacc = new ApplicationPolicyConfigurationManager(contextIDToPermissionsMap, roleMapper, cl);
+        jacc.doStart();
+        return jacc;
+    }
 
+    protected void setUpSecurityService() throws Exception {
+        String domainName = "demo-properties-realm";
         ServerInfo serverInfo = new BasicServerInfo(".");
 
         new SecurityServiceImpl(cl, serverInfo, GeronimoPolicyConfigurationFactory.class.getName(), GeronimoPolicy.class.getName(), null, null, null, null);
@@ -136,12 +143,13 @@ public abstract class AbstractWebModuleTest extends TestSupport {
 
         PrincipalInfo.PrincipalEditor principalEditor = new PrincipalInfo.PrincipalEditor();
         principalEditor.setAsText("metro,org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal");
-        GenericSecurityRealm realm = new GenericSecurityRealm(domainName, loginModuleUse, true, true, serverInfo, cl, null);
+        GenericSecurityRealm realm = new GenericSecurityRealm(domainName, loginModuleUse, true, null, serverInfo,  cl, null);
 
         loginConfiguration = new GeronimoLoginConfiguration(Collections.<ConfigurationEntryFactory>singleton(realm), true);
         loginConfiguration.doStart();
 
     }
+
 
     protected void tearDownSecurity() throws Exception {
         loginConfiguration.doStop();

@@ -74,6 +74,8 @@ import org.apache.xmlbeans.XmlObject;
  * Handles building ejb deployment gbeans.
  */
 public class EjbDeploymentBuilder {
+    private static final String ROLE_MAPPER_DATA_NAME = "roleMapperDataName";
+
     private final EARContext earContext;
     private final EjbModule ejbModule;
     private final NamingBuilder namingBuilder;
@@ -176,6 +178,9 @@ public class EjbDeploymentBuilder {
 
     public ComponentPermissions buildComponentPermissions() throws DeploymentException {
         List<MethodPermission> methodPermissions = ejbModule.getEjbJar().getAssemblyDescriptor().getMethodPermission();
+        if (!methodPermissions.isEmpty()) {
+            earContext.setHasSecurity(true);
+        }
         if (earContext.getSecurityConfiguration() == null && methodPermissions.size() > 0) {
             throw new DeploymentException("Ejb app has method permissions but no security configuration supplied in geronimo plan");
         }
@@ -273,7 +278,7 @@ public class EjbDeploymentBuilder {
             }
 
             gbean.setAttribute("securityEnabled", true);
-            gbean.setReferencePattern("RunAsSource", earContext.getJaccManagerName());
+            gbean.setReferencePattern("RunAsSource", (AbstractNameQuery)earContext.getGeneralData().get(ROLE_MAPPER_DATA_NAME));
         }
     }
 

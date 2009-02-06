@@ -21,21 +21,22 @@
 
 <xsd:schema
         xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-        xmlns:j2ee="http://java.sun.com/xml/ns/j2ee"
-        xmlns:geronimo="http://geronimo.apache.org/xml/ns/security-2.0"
-        targetNamespace="http://geronimo.apache.org/xml/ns/security-2.0"
+        xmlns:geronimo="http://geronimo.apache.org/xml/ns/soter-1.0"
+        targetNamespace="http://geronimo.apache.org/xml/ns/soter-1.0"
         xmlns:app="http://geronimo.apache.org/xml/ns/j2ee/application-2.0"
         xmlns:sys="http://geronimo.apache.org/xml/ns/deployment-1.2"
+        xmlns:soter="http://soter.org/xml/ns/rbac-xml"
         elementFormDefault="qualified"
         attributeFormDefault="unqualified"
         version="2.0">
 
     <xsd:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="http://www.w3.org/2001/xml.xsd"/>
     <xsd:import namespace="http://geronimo.apache.org/xml/ns/j2ee/application-2.0" schemaLocation="geronimo-application-2.0.xsd"/>
-    <xsd:import namespace="http://geronimo.apache.org/xml/ns/deployment-1.2" schemaLocation="geronimo-module-1.2.xsd"/>
+    <xsd:import namespace="http://geronimo.apache.org/xml/ns/deployment-1.2"  schemaLocation="geronimo-module-1.2.xsd"/>
+    <xsd:import namespace="http://soter.org/xml/ns/rbac-xml"  schemaLocation="rbac-xml.xsd"/>
 
     <xsd:element name="security" type="geronimo:securityType" substitutionGroup="app:security"/>
-    <xsd:element name="security-ref" type="geronimo:security-refType" substitutionGroup="app:security"/>
+    <!--<xsd:element name="security" type="geronimo:securityType"/>-->
     <xsd:element name="credential-store" type="sys:patternType"/>
     <xsd:element name="default-subject" type="geronimo:subject-infoType"/>
 
@@ -50,20 +51,15 @@
         </xsd:annotation>
         <xsd:complexContent>
             <xsd:extension base="app:abstract-securityType">
+
                 <xsd:sequence>
                     <xsd:element name="description" type="geronimo:descriptionType" minOccurs="0"
                                  maxOccurs="unbounded"/>
                     <xsd:element name="credential-store-ref" type="sys:patternType" minOccurs="0"/>
                     <xsd:element name="default-subject" type="geronimo:subject-infoType" minOccurs="0"/>
                     <xsd:element name="role-mappings" type="geronimo:role-mappingsType" minOccurs="0"/>
+                    <xsd:element name="rbac" type="soter:rbacType" minOccurs="0"/>
                 </xsd:sequence>
-                <xsd:attribute name="name" type="xsd:string">
-                    <xsd:annotation>
-                        <xsd:documentation>
-                            Name of standalone security configurations. Optional for security elements in ee apps.
-                        </xsd:documentation>
-                    </xsd:annotation>
-                </xsd:attribute>
                 <xsd:attribute name="doas-current-caller" type="xsd:boolean" default="false">
                     <xsd:annotation>
                         <xsd:documentation>
@@ -95,22 +91,6 @@
         </xsd:complexContent>
     </xsd:complexType>
 
-    <xsd:complexType name="security-refType">
-        <xsd:annotation>
-            <xsd:documentation>
-                Reference to security element in a parent module.
-            </xsd:documentation>
-        </xsd:annotation>
-        <xsd:complexContent>
-            <xsd:extension base="app:abstract-securityType">
-                <xsd:choice>
-                    <xsd:element name="name" type="xsd:string"/>
-                    <xsd:element name="ref" type="sys:patternType"/>
-                </xsd:choice>
-             </xsd:extension>
-        </xsd:complexContent>
-    </xsd:complexType>
-
     <xsd:complexType name="descriptionType">
         <xsd:simpleContent>
             <xsd:extension base="xsd:string">
@@ -120,11 +100,11 @@
     </xsd:complexType>
 
     <!--<xsd:complexType name="named-username-password-credentialType">-->
-    <!--<xsd:sequence>-->
-    <!--<xsd:element name="name" type="xsd:string"/>-->
-    <!--<xsd:element name="username" type="xsd:string"/>-->
-    <!--<xsd:element name="password" type="xsd:string"/>-->
-    <!--</xsd:sequence>-->
+        <!--<xsd:sequence>-->
+            <!--<xsd:element name="name" type="xsd:string"/>-->
+            <!--<xsd:element name="username" type="xsd:string"/>-->
+            <!--<xsd:element name="password" type="xsd:string"/>-->
+        <!--</xsd:sequence>-->
     <!--</xsd:complexType>-->
 
     <xsd:complexType name="role-mappingsType">
@@ -137,45 +117,8 @@
         <xsd:sequence>
             <xsd:element name="description" type="geronimo:descriptionType" minOccurs="0" maxOccurs="unbounded"/>
             <xsd:element name="run-as-subject" type="geronimo:subject-infoType" minOccurs="0"/>
-            <xsd:element name="realm-principal" type="geronimo:realmPrincipalType" minOccurs="0" maxOccurs="unbounded"/>
-            <xsd:element name="login-domain-principal" type="geronimo:loginDomainPrincipalType" minOccurs="0"
-                         maxOccurs="unbounded"/>
-            <xsd:element name="principal" type="geronimo:principalType" minOccurs="0" maxOccurs="unbounded"/>
-            <xsd:element name="distinguished-name" type="geronimo:distinguishedNameType" minOccurs="0"
-                         maxOccurs="unbounded"/>
         </xsd:sequence>
         <xsd:attribute name="role-name" type="xsd:string" use="required"/>
-    </xsd:complexType>
-
-    <xsd:complexType name="realmPrincipalType">
-        <xsd:complexContent>
-            <xsd:extension base="geronimo:loginDomainPrincipalType">
-                <xsd:attribute name="realm-name" type="xsd:string" use="required"/>
-            </xsd:extension>
-        </xsd:complexContent>
-    </xsd:complexType>
-
-    <xsd:complexType name="loginDomainPrincipalType">
-        <xsd:complexContent>
-            <xsd:extension base="geronimo:principalType">
-                <xsd:attribute name="domain-name" type="xsd:string" use="required"/>
-            </xsd:extension>
-        </xsd:complexContent>
-    </xsd:complexType>
-
-    <xsd:complexType name="principalType">
-        <xsd:sequence>
-            <xsd:element name="description" type="geronimo:descriptionType" minOccurs="0" maxOccurs="unbounded"/>
-        </xsd:sequence>
-        <xsd:attribute name="class" type="xsd:string" use="required"/>
-        <xsd:attribute name="name" type="xsd:string" use="required"/>
-    </xsd:complexType>
-
-    <xsd:complexType name="distinguishedNameType">
-        <xsd:sequence>
-            <xsd:element name="description" type="geronimo:descriptionType" minOccurs="0" maxOccurs="unbounded"/>
-        </xsd:sequence>
-        <xsd:attribute name="name" type="xsd:string" use="required"/>
     </xsd:complexType>
 
     <xsd:complexType name="subject-infoType">
@@ -187,18 +130,18 @@
     </xsd:complexType>
 
     <!--<xsd:complexType name="credential-storeType">-->
-    <!--<xsd:sequence>-->
-    <!--<xsd:element name="pattern" type="sys:patternType">-->
-    <!--<xsd:annotation>-->
-    <!--<xsd:documentation>-->
-    <!--The pattern element defines a components of the-->
-    <!--abstract name of GBean referred. It (optionally) includes-->
-    <!--the groupId, artifactId, version,-->
-    <!--module, type, and name of the GBean module.-->
-    <!--</xsd:documentation>-->
-    <!--</xsd:annotation>-->
-    <!--</xsd:element>-->
-    <!--</xsd:sequence>-->
+        <!--<xsd:sequence>-->
+            <!--<xsd:element name="pattern" type="sys:patternType">-->
+                <!--<xsd:annotation>-->
+                    <!--<xsd:documentation>-->
+                        <!--The pattern element defines a components of the-->
+                        <!--abstract name of GBean referred. It (optionally) includes-->
+                        <!--the groupId, artifactId, version,-->
+                        <!--module, type, and name of the GBean module.-->
+                    <!--</xsd:documentation>-->
+                <!--</xsd:annotation>-->
+            <!--</xsd:element>-->
+        <!--</xsd:sequence>-->
     <!--</xsd:complexType>-->
 
 </xsd:schema>

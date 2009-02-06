@@ -106,6 +106,7 @@ import org.apache.xmlbeans.XmlOptions;
 public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBeanLifecycle {
 
     private static final Logger log = LoggerFactory.getLogger(TomcatModuleBuilder.class);
+    static final String ROLE_MAPPER_DATA_NAME = "roleMapperDataName";
 
     private static final String TOMCAT_NAMESPACE = TomcatWebAppDocument.type.getDocumentElementName().getNamespaceURI();
     private static final String IS_JAVAEE = "IS_JAVAEE";
@@ -129,16 +130,15 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
     public TomcatModuleBuilder(Environment defaultEnvironment,
             AbstractNameQuery tomcatContainerName,
             Collection<WebServiceBuilder> webServiceBuilder,
-            Collection securityBuilders,
-            Collection serviceBuilders,
+            Collection<NamespaceDrivenBuilder> serviceBuilders,
             NamingBuilder namingBuilders,
             Collection<NamespaceDrivenBuilder> clusteringBuilders,
             Collection<ModuleBuilderExtension> moduleBuilderExtensions,
             ResourceEnvironmentSetter resourceEnvironmentSetter,
             Kernel kernel) {
-        super(kernel, securityBuilders, serviceBuilders, namingBuilders, resourceEnvironmentSetter, webServiceBuilder, moduleBuilderExtensions);
+        super(kernel, serviceBuilders, namingBuilders, resourceEnvironmentSetter, webServiceBuilder, moduleBuilderExtensions);
         this.defaultEnvironment = defaultEnvironment;
-        this.clusteringBuilders = new NamespaceDrivenBuilderCollection(clusteringBuilders, GerClusteringDocument.type.getDocumentElementName());
+        this.clusteringBuilders = new NamespaceDrivenBuilderCollection(clusteringBuilders);
         this.tomcatContainerName = tomcatContainerName;
     }
 
@@ -469,7 +469,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
                 SecurityHolder securityHolder = new SecurityHolder();
                 securityHolder.setSecurityRealm(tomcatWebApp.getSecurityRealmName().trim());
 
-                webModuleData.setReferencePattern("RunAsSource", earContext.getJaccManagerName());
+                webModuleData.setReferencePattern("RunAsSource", (AbstractNameQuery)earContext.getGeneralData().get(ROLE_MAPPER_DATA_NAME));
 
                 /**
                  * TODO - go back to commented version when possible.
@@ -582,7 +582,6 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
         infoBuilder.addAttribute("defaultEnvironment", Environment.class, true, true);
         infoBuilder.addAttribute("tomcatContainerName", AbstractNameQuery.class, true, true);
         infoBuilder.addReference("WebServiceBuilder", WebServiceBuilder.class, NameFactory.MODULE_BUILDER);
-        infoBuilder.addReference("SecurityBuilders", NamespaceDrivenBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addReference("ServiceBuilders", NamespaceDrivenBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addReference("NamingBuilders", NamingBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addReference(GBEAN_REF_CLUSTERING_BUILDERS, NamespaceDrivenBuilder.class, NameFactory.MODULE_BUILDER);
@@ -595,7 +594,6 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
                 "defaultEnvironment",
                 "tomcatContainerName",
                 "WebServiceBuilder",
-                "SecurityBuilders",
                 "ServiceBuilders",
                 "NamingBuilders",
                 GBEAN_REF_CLUSTERING_BUILDERS,

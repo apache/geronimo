@@ -190,6 +190,10 @@ public class GBeanBuilder implements NamespaceDrivenBuilder {
         return GBEAN_QNAME_SET;
     }
 
+    public QName getBaseQName() {
+        return SERVICE_QNAME;
+    }
+
     public static final GBeanInfo GBEAN_INFO;
 
     static {

@@ -29,15 +29,20 @@ import javax.xml.namespace.QName;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.AbstractBuilderCollection;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.ParamAttribute;
+import org.apache.geronimo.gbean.annotation.ParamReference;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.xmlbeans.XmlObject;
 
 /**
  * @version $Rev$ $Date$
  */
+@GBean(j2eeType = NameFactory.MODULE_BUILDER)
 public class NamingBuilderCollection extends AbstractBuilderCollection<NamingBuilder> implements NamingBuilder {
 
-    public NamingBuilderCollection(Collection<NamingBuilder> builders, final QName basePlanElementName) {
-        super(builders, basePlanElementName);
+    public NamingBuilderCollection(@ParamReference(name = "NamingBuilders", namingType = NameFactory.MODULE_BUILDER)Collection<NamingBuilder> builders) {
+        super(builders);
     }
 
     public void buildEnvironment(XmlObject specDD, XmlObject plan, Environment environment) throws DeploymentException {
@@ -80,6 +85,10 @@ public class NamingBuilderCollection extends AbstractBuilderCollection<NamingBui
     
     public int getPriority() {
         return NORMAL_PRIORITY;
+    }
+
+    public QName getBaseQName() {
+        throw new IllegalStateException("Don't call this");
     }
 
 }

@@ -25,20 +25,18 @@ import java.net.URL;
 import java.security.PermissionCollection;
 import java.security.Permissions;
 import java.security.Principal;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+
 import javax.security.jacc.WebResourcePermission;
 import javax.security.jacc.WebUserDataPermission;
 
-import org.apache.geronimo.security.deploy.PrincipalInfo;
-import org.apache.geronimo.security.deploy.Role;
-import org.apache.geronimo.security.deploy.Security;
 import org.apache.geronimo.security.deploy.SubjectInfo;
-import org.apache.geronimo.security.deployment.GeronimoSecurityBuilderImpl;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
+import org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal;
 
 
 /**
@@ -54,24 +52,13 @@ public class SecurityTest extends AbstractWebModuleTest {
      * @throws Exception thrown if an error in the test occurs
      */
     public void testExplicitMapping() throws Exception {
-        Security securityConfig = new Security();
-        securityConfig.setUseContextHandler(false);
 
         String securityRealmName = "demo-properties-realm";
         String defaultPrincipalId = "izumi";
         SubjectInfo defaultSubjectInfo = new SubjectInfo(securityRealmName, defaultPrincipalId);
-        securityConfig.setDefaultSubjectInfo(defaultSubjectInfo);
 
-        Role role = new Role();
-        role.setRoleName("content-administrator");
-        PrincipalInfo principalInfo = new PrincipalInfo("org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal", "it");
-        role.getPrincipals().add(principalInfo);
-
-        securityConfig.getRoleMappings().put(role.getRoleName(), role);
-
-        Map<String, SubjectInfo> roleDesignates = new HashMap<String, SubjectInfo>();
-        Map<String, Set<Principal>> principalRoleMap = new HashMap<String, Set<Principal>>();
-        buildPrincipalRoleMap(securityConfig, roleDesignates, principalRoleMap);
+        Map<String, SubjectInfo> roleDesignates = Collections.emptyMap();
+        Map<Principal, Set<String>> principalRoleMap = Collections.singletonMap((Principal)new GeronimoGroupPrincipal("it"), Collections.singleton("content-administrator"));
 
         PermissionCollection uncheckedPermissions = new Permissions();
         uncheckedPermissions.add(new WebUserDataPermission("/protected/*", ""));
@@ -79,6 +66,8 @@ public class SecurityTest extends AbstractWebModuleTest {
         PermissionCollection excludedPermissions = new Permissions();
         uncheckedPermissions.add(new WebResourcePermission("/auth/logon.html", ""));
         uncheckedPermissions.add(new WebUserDataPermission("/auth/logon.html", ""));
+//        uncheckedPermissions.add(new WebResourcePermission("/auth/j_security_check", ""));
+        uncheckedPermissions.add(new WebUserDataPermission("/auth/j_security_check", ""));
 
         Map<String, PermissionCollection> rolePermissions = new HashMap<String, PermissionCollection>();
         PermissionCollection permissions = new Permissions();
@@ -159,7 +148,7 @@ public class SecurityTest extends AbstractWebModuleTest {
         stopWebApp();
     }
 
-    protected void startWebApp(Map roleDesignates, Map principalRoleMap, ComponentPermissions componentPermissions, SubjectInfo defaultSubjectInfo, PermissionCollection checked, Set securityRoles) throws Exception {
+    protected void startWebApp(Map<String, SubjectInfo> roleDesignates, Map<Principal, Set<String>> principalRoleMap, ComponentPermissions componentPermissions, SubjectInfo defaultSubjectInfo, PermissionCollection checked, Set securityRoles) throws Exception {
         JettyWebAppContext app = setUpSecureAppContext(securityRealmName, roleDesignates, principalRoleMap, componentPermissions, defaultSubjectInfo, checked, securityRoles);
         setUpStaticContentServlet(app);
 //        start(appName, app);
@@ -171,37 +160,11 @@ public class SecurityTest extends AbstractWebModuleTest {
 
     protected void setUp() throws Exception {
         super.setUp();
-        setUpSecurity();
+//        setUpSecurity();
     }
 
     protected void tearDown() throws Exception {
         tearDownSecurity();
         super.tearDown();
-    }
-
-    //copied from SecurityBuilder
-    public void buildPrincipalRoleMap(Security security, Map roleDesignates, Map principalRoleMap) {
-        Map roleToPrincipalMap = new HashMap();
-        GeronimoSecurityBuilderImpl.buildRolePrincipalMap(security, roleToPrincipalMap, getClass().getClassLoader());
-        invertMap(roleToPrincipalMap, principalRoleMap);
-    }
-
-    private static Map invertMap(Map roleToPrincipalMap, Map principalRoleMapping) {
-        for (Iterator roles = roleToPrincipalMap.entrySet().iterator(); roles.hasNext();) {
-            Map.Entry entry = (Map.Entry) roles.next();
-            String role = (String) entry.getKey();
-            Set principals = (Set) entry.getValue();
-            for (Iterator iter = principals.iterator(); iter.hasNext();) {
-                java.security.Principal principal = (java.security.Principal) iter.next();
-
-                HashSet roleSet = (HashSet) principalRoleMapping.get(principal);
-                if (roleSet == null) {
-                    roleSet = new HashSet();
-                    principalRoleMapping.put(principal, roleSet);
-                }
-                roleSet.add(role);
-            }
-        }
-        return principalRoleMapping;
     }
 }

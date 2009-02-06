@@ -33,7 +33,7 @@ public class BasicTest extends TestCase {
     
     public void testMyFacesModuleBuilderExtension() throws Exception {
         GBeanInfo gBeanInfo = MyFacesModuleBuilderExtension.getGBeanInfo();
-        MyFacesModuleBuilderExtension instance = new MyFacesModuleBuilderExtension(null, null, new NamingBuilderCollection(Collections.EMPTY_SET, null));
+        MyFacesModuleBuilderExtension instance = new MyFacesModuleBuilderExtension(null, null, new NamingBuilderCollection(Collections.EMPTY_SET));
     }
 
 }

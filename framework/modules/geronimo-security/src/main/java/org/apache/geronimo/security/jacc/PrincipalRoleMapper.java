@@ -21,7 +21,7 @@ import java.util.Set;
 
 /**
  */
-public interface PrincipalRoleMapper {
+public interface PrincipalRoleMapper extends RunAsSource {
     void install(Set<String> contextIds) throws PolicyContextException;
 
     void uninstall(Set<String> contextIds) throws PolicyContextException;

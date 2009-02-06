@@ -79,12 +79,12 @@ wsdl=text/xml
         <reference name="PojoWebServiceTemplate">
             <name>POJOTemplate</name>
         </reference>
-        <reference name="SecurityBuilders">
-            <name>SecurityBuilder</name>
-        </reference>
         <references name="ServiceBuilders">
             <pattern>
                 <name>GBeanBuilder</name>
+            </pattern>
+            <pattern>
+                <name>SecurityBuilder</name>
             </pattern>
         </references>
         <references name="WebServiceBuilder">
@@ -116,6 +116,9 @@ wsdl=text/xml
             </pattern>
             <pattern>
                 <name>JspModuleBuilderExtension</name>
+            </pattern>
+            <pattern>
+                <name>SecurityBuilder</name>
             </pattern>
         </references>
         <reference name="ResourceEnvironmentSetter">

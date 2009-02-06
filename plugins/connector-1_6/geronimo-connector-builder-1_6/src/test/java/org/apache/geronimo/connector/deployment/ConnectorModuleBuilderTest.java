@@ -35,6 +35,7 @@ import javax.sql.DataSource;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
+import org.apache.geronimo.deployment.NamespaceDrivenBuilder;
 import org.apache.geronimo.deployment.service.GBeanBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.AbstractName;
@@ -127,9 +128,8 @@ public class ConnectorModuleBuilderTest extends TestSupport {
                     Collections.singleton(repository),
                     null,
                     null,
-                    new ConnectorModuleBuilder(defaultEnvironment, defaultMaxSize, defaultMinSize, defaultBlockingTimeoutMilliseconds, defaultidleTimeoutMinutes, defaultXATransactionCaching, defaultXAThreadCaching, defaultWorkManagerName, Collections.singleton(serviceBuilder)),
+                    new ConnectorModuleBuilder(defaultEnvironment, defaultMaxSize, defaultMinSize, defaultBlockingTimeoutMilliseconds, defaultidleTimeoutMinutes, defaultXATransactionCaching, defaultXAThreadCaching, defaultWorkManagerName, Collections.<NamespaceDrivenBuilder>singleton(serviceBuilder)),
                     activationSpecInfoLocator,
-                    null,
                     null,
                     serviceBuilder,
                     null,
@@ -310,7 +310,7 @@ public class ConnectorModuleBuilderTest extends TestSupport {
         String resourceAdapterName = "testRA";
 
         try {
-            ConnectorModuleBuilder moduleBuilder = new ConnectorModuleBuilder(defaultEnvironment, defaultMaxSize, defaultMinSize, defaultBlockingTimeoutMilliseconds, defaultidleTimeoutMinutes, defaultXATransactionCaching, defaultXAThreadCaching, defaultWorkManagerName, Collections.singleton(new GBeanBuilder(null, null)));
+            ConnectorModuleBuilder moduleBuilder = new ConnectorModuleBuilder(defaultEnvironment, defaultMaxSize, defaultMinSize, defaultBlockingTimeoutMilliseconds, defaultidleTimeoutMinutes, defaultXATransactionCaching, defaultXAThreadCaching, defaultWorkManagerName, Collections.<NamespaceDrivenBuilder>singleton(new GBeanBuilder(null, null)));
             File rarFile = action.getRARFile();
 
             ClassLoader oldCl = Thread.currentThread().getContextClassLoader();

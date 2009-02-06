@@ -22,6 +22,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.jar.JarFile;
 
@@ -31,6 +32,7 @@ import org.apache.geronimo.deployment.util.UnpackedJarFile;
 import org.apache.geronimo.deployment.xbeans.ArtifactType;
 import org.apache.geronimo.deployment.xbeans.EnvironmentType;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
+import org.apache.geronimo.deployment.NamespaceDrivenBuilder;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.j2ee.deployment.NamingBuilderCollection;
@@ -74,7 +76,7 @@ public class PlanParsingTest extends XmlBeansTestSupport {
 
     protected void setUp() throws Exception {
         super.setUp();
-        GeronimoSecurityBuilderImpl securityBuilder = new GeronimoSecurityBuilderImpl(null);
+        GeronimoSecurityBuilderImpl securityBuilder = new GeronimoSecurityBuilderImpl(null, null, null);
         securityBuilder.doStart();
         builder = new JettyModuleBuilder(defaultEnvironment,
                 new Integer(1800),
@@ -88,9 +90,8 @@ public class PlanParsingTest extends XmlBeansTestSupport {
                 pojoWebServiceTemplate,
                 Collections.singleton(webServiceBuilder),
                 null,
-                Collections.singleton(new GeronimoSecurityBuilderImpl(null)),
-                Collections.singleton(new GBeanBuilder(null, null)),
-                new NamingBuilderCollection(null, null),
+                Arrays.asList(new GBeanBuilder(null, null), new GeronimoSecurityBuilderImpl(null, null, null)),
+                       new NamingBuilderCollection(null),
                 null,
                 new MockResourceEnvironmentSetter(),
                 null);

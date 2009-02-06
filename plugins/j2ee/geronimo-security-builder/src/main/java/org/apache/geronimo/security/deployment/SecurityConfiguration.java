@@ -25,40 +25,16 @@ import org.apache.geronimo.security.deploy.SubjectInfo;
  */
 public class SecurityConfiguration {
 
-    private final Map principalRoleMap;
-    private final Map<String, SubjectInfo> roleDesignates;
-    private final SubjectInfo defaultSubjectInfo;
+    public static SecurityConfiguration DEFAULT_SECURITY_CONFIGURATION = new SecurityConfiguration(null, false, false);
+
     private final String defaultRole;
     private final boolean doAsCurrentCaller;
     private final boolean isUseContextHandler;
 
-    public SecurityConfiguration(Map principalRoleMap, Map<String, SubjectInfo> roleDesignates, SubjectInfo defaultSubjectInfo, String defaultRole, boolean doAsCurrentCaller, boolean useContextHandler) {
-        this.principalRoleMap = principalRoleMap;
-        this.roleDesignates = roleDesignates;
-        this.defaultSubjectInfo = defaultSubjectInfo;
+    public SecurityConfiguration(String defaultRole, boolean doAsCurrentCaller, boolean useContextHandler) {
         this.defaultRole = defaultRole;
         this.doAsCurrentCaller = doAsCurrentCaller;
         isUseContextHandler = useContextHandler;
-    }
-
-    public Map getPrincipalRoleMap() {
-        return principalRoleMap;
-    }
-
-    public Map<String, SubjectInfo> getRoleDesignates() {
-        return roleDesignates;
-    }
-
-    public SubjectInfo getDefaultSubjectInfo() {
-        return defaultSubjectInfo;
-    }
-
-    public String getDefaultSubjectRealm() {
-        return defaultSubjectInfo == null? null: defaultSubjectInfo.getRealm();
-    }
-
-    public String getDefaultSubjectId() {
-        return defaultSubjectInfo == null? null: defaultSubjectInfo.getId();
     }
 
     public String getDefaultRole() {
@@ -71,5 +47,9 @@ public class SecurityConfiguration {
 
     public boolean isUseContextHandler() {
         return isUseContextHandler;
+    }
+
+    public boolean isDefault() {
+        return this == DEFAULT_SECURITY_CONFIGURATION;
     }
 }

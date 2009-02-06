@@ -50,6 +50,7 @@ import org.apache.geronimo.schema.NamespaceElementConverter;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.xbeans.geronimo.GerClusteringWadiDocument;
 import org.apache.geronimo.xbeans.geronimo.GerClusteringWadiType;
+import org.apache.geronimo.xbeans.geronimo.j2ee.GerClusteringDocument;
 import org.apache.geronimo.xbeans.geronimo.naming.GerPatternType;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlObject;
@@ -60,6 +61,7 @@ import org.apache.xmlbeans.XmlObject;
  */
 @GBean(name="WADIJettyClusteringBuilder", j2eeType=NameFactory.MODULE_BUILDER)
 public class WADIJettyClusteringBuilder implements NamespaceDrivenBuilder {
+    private static final QName BASE_CLUSTERING_QNAME = GerClusteringDocument.type.getDocumentElementName();
     private static final QName CLUSTERING_WADI_QNAME = GerClusteringWadiDocument.type.getDocumentElementName();
     private static final QNameSet CLUSTERING_WADI_QNAME_SET = QNameSet.singleton(CLUSTERING_WADI_QNAME);
 
@@ -143,6 +145,10 @@ public class WADIJettyClusteringBuilder implements NamespaceDrivenBuilder {
         return CLUSTERING_WADI_QNAME_SET;
     }
 
+    public QName getBaseQName() {
+        return BASE_CLUSTERING_QNAME;
+    }
+
     protected GerClusteringWadiType getWadiClusterConfig(XmlObject container) throws DeploymentException {
         XmlObject[] items = container.selectChildren(CLUSTERING_WADI_QNAME_SET);
         if (items.length > 1) {
@@ -189,7 +195,7 @@ public class WADIJettyClusteringBuilder implements NamespaceDrivenBuilder {
         WADISessionManagerConfigInfo configInfo = new WADISessionManagerConfigInfo(serviceSpaceName,
                 sweepInterval,
                 numPartitions,
-                sessionTimeout.intValue(),
+                sessionTimeout,
                 disableReplication,
                 deltaReplication);
         beanData.setAttribute(BasicWADISessionManager.GBEAN_ATTR_WADI_CONFIG_INFO, configInfo);
@@ -232,7 +238,7 @@ public class WADIJettyClusteringBuilder implements NamespaceDrivenBuilder {
     }
 
     protected void setCluster(GerClusteringWadiType clustering, GBeanData beanData) {
-        Set patterns = new HashSet();
+        Set<AbstractNameQuery> patterns = new HashSet<AbstractNameQuery>();
         if (clustering.isSetCluster()) {
             addAbstractNameQueries(patterns, clustering.getCluster().getPatternArray());
         } else {
@@ -242,7 +248,7 @@ public class WADIJettyClusteringBuilder implements NamespaceDrivenBuilder {
     }
 
     protected void setBackingStrategyFactory(GerClusteringWadiType clustering, GBeanData beanData) {
-        Set patterns = new HashSet();
+        Set<AbstractNameQuery> patterns = new HashSet<AbstractNameQuery>();
         if (clustering.isSetBackingStrategyFactory()) {
             addAbstractNameQueries(patterns, clustering.getBackingStrategyFactory().getPatternArray());
         } else {
@@ -281,9 +287,9 @@ public class WADIJettyClusteringBuilder implements NamespaceDrivenBuilder {
         return name;
     }
 
-    protected void addAbstractNameQueries(Set patterns, GerPatternType[] patternTypes) {
-        for (int i = 0; i < patternTypes.length; i++) {
-            AbstractNameQuery query = ENCConfigBuilder.buildAbstractNameQuery(patternTypes[i], null, null, null);
+    protected void addAbstractNameQueries(Set<AbstractNameQuery> patterns, GerPatternType[] patternTypes) {
+        for (GerPatternType patternType : patternTypes) {
+            AbstractNameQuery query = ENCConfigBuilder.buildAbstractNameQuery(patternType, null, null, null);
             patterns.add(query);
         }
     }

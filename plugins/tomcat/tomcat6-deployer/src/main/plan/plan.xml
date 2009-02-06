@@ -22,12 +22,12 @@
 
     <gbean name="TomcatWebBuilder" class="org.apache.geronimo.tomcat.deployment.TomcatModuleBuilder">
         <attribute name="tomcatContainerName">?name=TomcatWebContainer</attribute>
-        <reference name="SecurityBuilders">
-            <name>SecurityBuilder</name>
-        </reference>
         <references name="ServiceBuilders">
             <pattern>
                 <name>GBeanBuilder</name>
+            </pattern>
+            <pattern>
+                <name>SecurityBuilder</name>
             </pattern>
         </references>
         <references name="WebServiceBuilder">
@@ -59,6 +59,9 @@
             </pattern>
             <pattern>
                 <name>JspModuleBuilderExtension</name>
+            </pattern>
+            <pattern>
+                <name>SecurityBuilder</name>
             </pattern>
         </references>
         <reference name="ResourceEnvironmentSetter">

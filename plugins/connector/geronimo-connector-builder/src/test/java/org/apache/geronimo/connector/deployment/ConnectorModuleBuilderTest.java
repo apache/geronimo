@@ -130,7 +130,6 @@ public class ConnectorModuleBuilderTest extends TestSupport {
                     new ConnectorModuleBuilder(defaultEnvironment, defaultMaxSize, defaultMinSize, defaultBlockingTimeoutMilliseconds, defaultidleTimeoutMinutes, defaultXATransactionCaching, defaultXAThreadCaching, defaultWorkManagerName, Collections.singleton(serviceBuilder)),
                     activationSpecInfoLocator,
                     null,
-                    null,
                     serviceBuilder,
                     null,
                     kernel.getNaming(),

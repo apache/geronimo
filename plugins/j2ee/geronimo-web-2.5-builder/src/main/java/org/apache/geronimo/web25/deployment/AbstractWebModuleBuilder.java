@@ -22,38 +22,28 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.security.Permission;
-import java.security.PermissionCollection;
-import java.security.Permissions;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.LinkedHashSet;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
-import javax.security.jacc.WebResourcePermission;
-import javax.security.jacc.WebRoleRefPermission;
-import javax.security.jacc.WebUserDataPermission;
 import javax.xml.namespace.QName;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.deployment.ModuleIDBuilder;
-import org.apache.geronimo.deployment.NamespaceDrivenBuilderCollection;
 import org.apache.geronimo.deployment.ClassPathList;
+import org.apache.geronimo.deployment.ModuleIDBuilder;
 import org.apache.geronimo.deployment.ModuleList;
+import org.apache.geronimo.deployment.NamespaceDrivenBuilder;
+import org.apache.geronimo.deployment.NamespaceDrivenBuilderCollection;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
-import org.apache.geronimo.deployment.xbeans.ServiceDocument;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
@@ -79,18 +69,13 @@ import org.apache.geronimo.kernel.repository.ImportType;
 import org.apache.geronimo.naming.deployment.ResourceEnvironmentSetter;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
-import org.apache.geronimo.web25.deployment.security.HTTPMethods;
-import org.apache.geronimo.web25.deployment.security.URLPattern;
 import org.apache.geronimo.web25.deployment.security.SpecSecurityBuilder;
 import org.apache.geronimo.xbeans.geronimo.j2ee.GerSecurityDocument;
 import org.apache.geronimo.xbeans.javaee.FilterMappingType;
 import org.apache.geronimo.xbeans.javaee.FilterType;
 import org.apache.geronimo.xbeans.javaee.FullyQualifiedClassType;
 import org.apache.geronimo.xbeans.javaee.ListenerType;
-import org.apache.geronimo.xbeans.javaee.RoleNameType;
 import org.apache.geronimo.xbeans.javaee.SecurityConstraintType;
-import org.apache.geronimo.xbeans.javaee.SecurityRoleRefType;
-import org.apache.geronimo.xbeans.javaee.SecurityRoleType;
 import org.apache.geronimo.xbeans.javaee.ServletMappingType;
 import org.apache.geronimo.xbeans.javaee.ServletType;
 import org.apache.geronimo.xbeans.javaee.UrlPatternType;
@@ -102,6 +87,8 @@ import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlDocumentProperties;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @version $Rev$ $Date$
@@ -119,7 +106,6 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
     protected static final AbstractNameQuery STATEFUL_SESSION_BEAN_PATTERN;
     protected static final AbstractNameQuery ENTITY_BEAN_PATTERN;
     protected final Kernel kernel;
-    protected final NamespaceDrivenBuilderCollection securityBuilders;
     protected final NamespaceDrivenBuilderCollection serviceBuilders;
     protected final ResourceEnvironmentSetter resourceEnvironmentSetter;
     protected final Collection<WebServiceBuilder> webServiceBuilder;
@@ -128,7 +114,6 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
     protected final Collection<ModuleBuilderExtension> moduleBuilderExtensions;
 
     private static final QName SECURITY_QNAME = GerSecurityDocument.type.getDocumentElementName();
-    private static final QName SERVICE_QNAME = ServiceDocument.type.getDocumentElementName();
 
     /**
      * Manifest classpath entries in a war configuration must be resolved relative to the war configuration, not the
@@ -137,10 +122,9 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
      */
     private static final URI RELATIVE_MODULE_BASE_URI = URI.create("../");
 
-    protected AbstractWebModuleBuilder(Kernel kernel, Collection securityBuilders, Collection serviceBuilders, NamingBuilder namingBuilders, ResourceEnvironmentSetter resourceEnvironmentSetter, Collection<WebServiceBuilder> webServiceBuilder, Collection<ModuleBuilderExtension> moduleBuilderExtensions) {
+    protected AbstractWebModuleBuilder(Kernel kernel, Collection<NamespaceDrivenBuilder> serviceBuilders, NamingBuilder namingBuilders, ResourceEnvironmentSetter resourceEnvironmentSetter, Collection<WebServiceBuilder> webServiceBuilder, Collection<ModuleBuilderExtension> moduleBuilderExtensions) {
         this.kernel = kernel;
-        this.securityBuilders = new NamespaceDrivenBuilderCollection(securityBuilders, SECURITY_QNAME);
-        this.serviceBuilders = new NamespaceDrivenBuilderCollection(serviceBuilders, SERVICE_QNAME);
+        this.serviceBuilders = new NamespaceDrivenBuilderCollection(serviceBuilders);
         this.namingBuilders = namingBuilders;
         this.resourceEnvironmentSetter = resourceEnvironmentSetter;
         this.webServiceBuilder = webServiceBuilder;
@@ -345,10 +329,13 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
 
 
         WebAppType webApp = (WebAppType) module.getSpecDD();
-        if ((webApp.getSecurityConstraintArray().length > 0 || webApp.getSecurityRoleArray().length > 0) &&
-                !hasSecurityRealmName) {
-            throw new DeploymentException("web.xml for web app " + module.getName() + " includes security elements but Geronimo deployment plan is not provided or does not contain <security-realm-name> element necessary to configure security accordingly.");
+        if ((webApp.getSecurityConstraintArray().length > 0 || webApp.getSecurityRoleArray().length > 0)) {
+            if (!hasSecurityRealmName) {
+                throw new DeploymentException("web.xml for web app " + module.getName() + " includes security elements but Geronimo deployment plan is not provided or does not contain <security-realm-name> element necessary to configure security accordingly.");
+            }
+            earContext.setHasSecurity(true);
         }
+        //TODO think about how to provide a default security realm name
         XmlObject[] securityElements = XmlBeansUtil.selectSubstitutionGroupElements(SECURITY_QNAME, gerWebApp);
         if (securityElements.length > 0 && !hasSecurityRealmName) {
             throw new DeploymentException("You have supplied a security configuration for web app " + module.getName() + " but no security-realm-name to allow login");
@@ -364,7 +351,6 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
             WebServiceBuilder serviceBuilder = (WebServiceBuilder) aWebServiceBuilder;
             serviceBuilder.findWebServices(module, false, servletNameToPathMap, module.getEnvironment(), sharedContext);
         }
-        securityBuilders.build(gerWebApp, earContext, module.getEarContext());
         serviceBuilders.build(gerWebApp, earContext, module.getEarContext());
     }
 

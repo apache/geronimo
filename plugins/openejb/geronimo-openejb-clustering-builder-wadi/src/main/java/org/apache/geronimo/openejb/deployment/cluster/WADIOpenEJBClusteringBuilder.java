@@ -78,6 +78,7 @@ import org.apache.xmlbeans.XmlObject;
  * @version $Rev:$ $Date:$
  */
 public class WADIOpenEJBClusteringBuilder implements ModuleBuilderExtension {
+    private static final QName BASE_CLUSTERING_QNAME = GerClusteringDocument.type.getDocumentElementName();
     private static final QName CLUSTERING_WADI_QNAME = GerOpenejbClusteringWadiDocument.type.getDocumentElementName();
     private static final QNameSet CLUSTERING_WADI_QNAME_SET = QNameSet.singleton(CLUSTERING_WADI_QNAME);
     
@@ -133,7 +134,7 @@ public class WADIOpenEJBClusteringBuilder implements ModuleBuilderExtension {
         
         beanNameBuilder = new BasicEjbDeploymentGBeanNameBuilder();
         
-        new NamespaceDrivenBuilderCollection(Collections.singleton(new NamespaceDrivenBuilder() {
+        new NamespaceDrivenBuilderCollection(Collections.<NamespaceDrivenBuilder>singleton(new NamespaceDrivenBuilder() {
             public void build(XmlObject container, DeploymentContext applicationContext, DeploymentContext moduleContext)
                     throws DeploymentException {
             }
@@ -148,7 +149,12 @@ public class WADIOpenEJBClusteringBuilder implements ModuleBuilderExtension {
             public QNameSet getSpecQNameSet() {
                 return QNameSet.EMPTY;
             }
-        }), GerClusteringDocument.type.getDocumentElementName());
+
+            public QName getBaseQName() {
+                return BASE_CLUSTERING_QNAME;
+            }
+
+         }));
     }
     
     public void addGBeans(EARContext earContext, Module module, ClassLoader cl, Collection repository)
@@ -322,7 +328,7 @@ public class WADIOpenEJBClusteringBuilder implements ModuleBuilderExtension {
         boolean disableReplication = isDisableReplication(clustering);
         boolean deltaReplication = isDeltaReplication(clustering);
         
-        String ejbModuleName = (String) ejbModule.getName();
+        String ejbModuleName = ejbModule.getName();
         URI serviceSpaceName;
         try {
             serviceSpaceName = new URI(ejbModuleName);
@@ -334,7 +340,7 @@ public class WADIOpenEJBClusteringBuilder implements ModuleBuilderExtension {
         WADISessionManagerConfigInfo configInfo = new WADISessionManagerConfigInfo(serviceSpaceName,
                 sweepInterval,
                 numPartitions,
-                sessionTimeout.intValue(),
+                sessionTimeout,
                 disableReplication,
                 deltaReplication);
         beanData.setAttribute(BasicWADISessionManager.GBEAN_ATTR_WADI_CONFIG_INFO, configInfo);

@@ -37,13 +37,13 @@
         </tomcat>
     </container-config>
 
-    <security-realm-name>test</security-realm-name>
-    <security>
-        <default-subject>
-            <realm>foo</realm>
-            <id>metro</id>
-        </default-subject>
-    </security>
+    <!--<security-realm-name>test</security-realm-name>-->
+    <!--<security>-->
+        <!--<default-subject>-->
+            <!--<realm>foo</realm>-->
+            <!--<id>metro</id>-->
+        <!--</default-subject>-->
+    <!--</security>-->
 
     <gbean name="TomcatRealm" class="org.apache.geronimo.tomcat.RealmGBean">
         <attribute name="className">org.apache.geronimo.tomcat.realm.TomcatGeronimoRealm</attribute>

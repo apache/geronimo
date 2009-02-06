@@ -189,7 +189,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
         this.defaultXATransactionCaching = defaultXATransactionCaching;
         this.defaultXAThreadCaching = defaultXAThreadCaching;
         this.defaultWorkManagerName = defaultWorkManagerName;
-        this.serviceBuilders = new NamespaceDrivenBuilderCollection(serviceBuilders, GBeanBuilder.SERVICE_QNAME);
+        this.serviceBuilders = new NamespaceDrivenBuilderCollection(serviceBuilders);
     }
 
     public void doStart() throws Exception {

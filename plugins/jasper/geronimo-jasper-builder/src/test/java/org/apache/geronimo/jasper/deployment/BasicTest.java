@@ -33,7 +33,7 @@ public class BasicTest extends TestCase {
     
     public void testMyFacesModuleBuilderExtension() throws Exception {
         GBeanInfo gBeanInfo = JspModuleBuilderExtension.getGBeanInfo();
-        JspModuleBuilderExtension instance = new JspModuleBuilderExtension(null, new NamingBuilderCollection(Collections.EMPTY_SET, null));
+        JspModuleBuilderExtension instance = new JspModuleBuilderExtension(null, new NamingBuilderCollection(Collections.EMPTY_SET));
     }
 
 }

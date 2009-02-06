@@ -25,29 +25,26 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
-import java.util.LinkedHashSet;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.geronimo.client.AppClientContainer;
 import org.apache.geronimo.client.StaticJndiContextPlugin;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.ClassPathList;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
+import org.apache.geronimo.deployment.ModuleList;
 import org.apache.geronimo.deployment.NamespaceDrivenBuilder;
 import org.apache.geronimo.deployment.NamespaceDrivenBuilderCollection;
-import org.apache.geronimo.deployment.ModuleList;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
-import org.apache.geronimo.deployment.service.GBeanBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.util.NestedJarFile;
 import org.apache.geronimo.deployment.xbeans.EnvironmentType;
@@ -58,8 +55,9 @@ import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.SingleElementCollection;
 import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.gbean.SingleElementCollection;
+import org.apache.geronimo.j2ee.ApplicationInfo;
 import org.apache.geronimo.j2ee.deployment.AppClientModule;
 import org.apache.geronimo.j2ee.deployment.ConnectorModule;
 import org.apache.geronimo.j2ee.deployment.CorbaGBeanNameSource;
@@ -72,7 +70,6 @@ import org.apache.geronimo.j2ee.deployment.NamingBuilderCollection;
 import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedApplicationClient;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.management.impl.J2EEAppClientModuleImpl;
-import org.apache.geronimo.j2ee.ApplicationInfo;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.Configuration;
@@ -80,17 +77,15 @@ import org.apache.geronimo.kernel.config.ConfigurationAlreadyExistsException;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.repository.Environment;
-import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.repository.ArtifactResolver;
+import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.MissingDependencyException;
+import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.security.deploy.SubjectInfo;
-import org.apache.geronimo.security.deployment.SecurityConfiguration;
 import org.apache.geronimo.xbeans.geronimo.client.GerApplicationClientDocument;
 import org.apache.geronimo.xbeans.geronimo.client.GerApplicationClientType;
 import org.apache.geronimo.xbeans.geronimo.client.GerResourceType;
-import org.apache.geronimo.xbeans.geronimo.naming.GerAbstractNamingEntryDocument;
 import org.apache.geronimo.xbeans.geronimo.security.GerSubjectInfoType;
 import org.apache.geronimo.xbeans.javaee.ApplicationClientDocument;
 import org.apache.geronimo.xbeans.javaee.ApplicationClientType;
@@ -99,6 +94,8 @@ import org.apache.xbean.finder.ClassFinder;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -201,8 +198,8 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
         this.credentialStoreName = credentialStoreName;
         this.repositories = repositories;
         this.connectorModuleBuilder = connectorModuleBuilder;
-        this.serviceBuilder = new NamespaceDrivenBuilderCollection(serviceBuilder, GBeanBuilder.SERVICE_QNAME);
-        this.namingBuilders = new NamingBuilderCollection(namingBuilders, GerAbstractNamingEntryDocument.type.getDocumentElementName());
+        this.serviceBuilder = new NamespaceDrivenBuilderCollection(serviceBuilder);
+        this.namingBuilders = new NamingBuilderCollection(namingBuilders);
         this.moduleBuilderExtensions = moduleBuilderExtensions;
         this.clientArtifactResolver = clientArtifactResolver;
     }
@@ -739,14 +736,15 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                         appClientContainerGBeanData.setAttribute("defaultSubject", subjectInfo);
                         appClientContainerGBeanData.setReferencePattern("CredentialStore", credentialStoreName);
                     } else if (earContext.getSecurityConfiguration() != null) {
+                        log.warn("Configuration of app client default subject from ear security configuration no longer supported.");
                         //beware a linkage error if we cast this to SubjectInfo
-                        String realm = ((SecurityConfiguration) earContext.getSecurityConfiguration()).getDefaultSubjectRealm();
-                        String id = ((SecurityConfiguration) earContext.getSecurityConfiguration()).getDefaultSubjectId();
-                        if (realm != null) {
-                            SubjectInfo subjectInfo = new SubjectInfo(realm, id);
-                            appClientContainerGBeanData.setAttribute("defaultSubject", subjectInfo);
-                            appClientContainerGBeanData.setReferencePattern("CredentialStore", credentialStoreName);
-                        }
+//                        String realm = ((SecurityConfiguration) earContext.getSecurityConfiguration()).getDefaultSubjectRealm();
+//                        String id = ((SecurityConfiguration) earContext.getSecurityConfiguration()).getDefaultSubjectId();
+//                        if (realm != null) {
+//                            SubjectInfo subjectInfo = new SubjectInfo(realm, id);
+//                            appClientContainerGBeanData.setAttribute("defaultSubject", subjectInfo);
+//                            appClientContainerGBeanData.setReferencePattern("CredentialStore", credentialStoreName);
+//                        }
                     }
                     appClientContainerGBeanData.setReferencePattern("JNDIContext", jndiContextName);
                     appClientContainerGBeanData.setAttribute("holder", holder);

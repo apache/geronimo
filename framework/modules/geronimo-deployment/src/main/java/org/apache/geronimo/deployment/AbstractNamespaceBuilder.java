@@ -16,6 +16,8 @@
  */
 package org.apache.geronimo.deployment;
 
+import javax.xml.namespace.QName;
+
 import org.apache.xmlbeans.QNameSet;
 
 /**
@@ -25,4 +27,6 @@ public interface AbstractNamespaceBuilder {
     QNameSet getSpecQNameSet();
 
     QNameSet getPlanQNameSet();
+
+    QName getBaseQName();
 }
