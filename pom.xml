@@ -3178,7 +3178,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-reactor-plugin</artifactId>
-                    <version>1.0-20080819.004201-7</version>
+                    <version>1.0</version>
                 </plugin>
 
                 <plugin>
