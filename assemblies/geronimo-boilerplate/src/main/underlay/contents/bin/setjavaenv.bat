@@ -61,7 +61,7 @@ if not "%JRE_HOME%" == "" set jdkOrJreHomeSet=1
 if "%jdkOrJreHomeSet%" == "1" goto gotJdkOrJreHome
 echo Neither the JAVA_HOME nor the JRE_HOME environment variable is defined
 echo At least one of these environment variable is needed to run this program
-set ERRORLEVEL=1
+cmd /c exit /b 1
 goto end
 
 @REM If we get this far we have either JAVA_HOME or JRE_HOME set
@@ -81,7 +81,7 @@ if %jdkNotFound% == 0 goto okJdkFileCheck
 echo The JAVA_HOME environment variable is not defined correctly
 echo This environment variable is needed to run this program
 echo NB: JAVA_HOME should point to a JDK not a JRE
-set ERRORLEVEL=1
+cmd /c exit /b 1
 goto end
 
 :okJdkFileCheck

@@ -126,8 +126,8 @@
 @REM
 @REM Exit Codes:
 @REM
-@REM  0 - Success
-@REM  1 - Error
+@REM  0        - Success
+@REM  Non-zero - Error
 @REM ---------------------------------------------------------------------------
 
 @if "%GERONIMO_BATCH_ECHO%" == "on"  echo on
@@ -135,12 +135,11 @@
 
 if "%OS%" == "Windows_NT" goto okOsCheck
 echo Cannot process Geronimo command - you are running an unsupported operating system.
-set ERRORLEVEL=1
+cmd /c exit /b 1
 goto end
 
 :okOsCheck
 @setlocal enableextensions
-@set ERRORLEVEL=0
 
 if not "%GERONIMO_HOME%" == "" goto resolveHome
 @REM %~dp0 is expanded pathname of the current script
@@ -157,7 +156,7 @@ cd /d %CURRENT_DIR%
 if exist "%GERONIMO_HOME%\bin\geronimo.bat" goto okHome
 echo The GERONIMO_HOME environment variable is not defined correctly
 echo This environment variable is needed to run this program
-set ERRORLEVEL=1
+cmd /c exit /b 1
 goto end
 :okHome
 
@@ -171,7 +170,7 @@ if not %errorlevel% == 0 goto end
 if exist "%GERONIMO_HOME%\bin\setjavaenv.bat" goto okSetJavaEnv
 echo Cannot find %GERONIMO_HOME%\bin\setjavaenv.bat
 echo This file is needed to run this program
-set ERRORLEVEL=1
+cmd /c exit /b 1
 goto end
 :okSetJavaEnv
 set BASEDIR=%GERONIMO_HOME%
