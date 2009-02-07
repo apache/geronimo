@@ -7,38 +7,18 @@
         <type>car</type>
     </module-id>
     <dependency>
-        <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>server-security-config</artifactId>
-        <type>car</type>
+        <groupId>org.apache.cxf</groupId>
+        <artifactId>cxf-tools-common</artifactId>
+        <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>webservices-common</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>transaction</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>spring</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>geronimo-cxf</artifactId>
+        <groupId>org.apache.ws.commons.schema</groupId>
+        <artifactId>XmlSchema</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
         <groupId>org.apache.cxf</groupId>
-        <artifactId>cxf-rt-frontend-jaxws</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.cxf</groupId>
-        <artifactId>cxf-rt-transports-http</artifactId>
+        <artifactId>cxf-rt-core</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -48,27 +28,17 @@
     </dependency>
     <dependency>
         <groupId>org.apache.cxf</groupId>
-        <artifactId>cxf-common-utilities</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.ws.commons.schema</groupId>
-        <artifactId>XmlSchema</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.neethi</groupId>
-        <artifactId>neethi</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.cxf</groupId>
         <artifactId>cxf-rt-bindings-soap</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
+        <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>transaction</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
         <groupId>org.apache.cxf</groupId>
-        <artifactId>cxf-tools-common</artifactId>
+        <artifactId>cxf-rt-frontend-simple</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -82,23 +52,48 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.cxf</groupId>
-        <artifactId>cxf-rt-core</artifactId>
-        <type>jar</type>
+        <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>webservices-common</artifactId>
+        <type>car</type>
     </dependency>
     <dependency>
-        <groupId>jdom</groupId>
-        <artifactId>jdom</artifactId>
-        <type>jar</type>
+        <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>spring</artifactId>
+        <type>car</type>
     </dependency>
     <dependency>
         <groupId>org.apache.cxf</groupId>
-        <artifactId>cxf-rt-frontend-simple</artifactId>
+        <artifactId>cxf-rt-transports-http</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
         <groupId>org.apache.cxf</groupId>
         <artifactId>cxf-rt-ws-addr</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.neethi</groupId>
+        <artifactId>neethi</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.modules</groupId>
+        <artifactId>geronimo-cxf</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.cxf</groupId>
+        <artifactId>cxf-rt-frontend-jaxws</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.framework</groupId>
+        <artifactId>server-security-config</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.cxf</groupId>
+        <artifactId>cxf-common-utilities</artifactId>
         <type>jar</type>
     </dependency>
 </plugin-artifact>
