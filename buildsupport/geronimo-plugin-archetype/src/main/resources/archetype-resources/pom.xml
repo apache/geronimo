@@ -21,7 +21,7 @@
         <cxfDeployer>org.apache.geronimo.configs/cxf-deployer/${geronimoVersion}/car</cxfDeployer>
         <axis2Deployer>org.apache.geronimo.configs/axis2-deployer/${geronimoVersion}/car</axis2Deployer>
         <tomcatDeployer>org.apache.geronimo.configs/tomcat6-deployer/${geronimoVersion}/car</tomcatDeployer>
-        <jetty6Deployer>org.apache.geronimo.configs/jetty7-deployer/${geronimoVersion}/car</jetty7Deployer>
+        <jetty6Deployer>org.apache.geronimo.configs/jetty6-deployer/${geronimoVersion}/car</jetty6Deployer>
         <jasperDeployer>org.apache.geronimo.configs/jasper-deployer/${geronimoVersion}/car</jasperDeployer>
         <jpaDeployer>org.apache.geronimo.configs/persistence-jpa10-deployer/${geronimoVersion}/car</jpaDeployer>
     </properties>
@@ -61,7 +61,7 @@
                         <!-- gbean deployer is default.  For jee apps include all deployers your app needs, see properties -->
                         <!--<deploymentConfig>${gbeanDeployer}</deploymentConfig>-->
                         <!--<deploymentConfig>${j2eeDeployer}</deploymentConfig>-->
-                        <!--<deploymentConfig>${jetty7Deployer}</deploymentConfig>-->
+                        <!--<deploymentConfig>${jetty6Deployer}</deploymentConfig>-->
                         <!--<deploymentConfig>${jasperDeployer}</deploymentConfig>-->
                         <!--<deploymentConfig>${jpaDeployer}</deploymentConfig>-->
                     </deploymentConfigs>

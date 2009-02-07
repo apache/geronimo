@@ -27,7 +27,7 @@
         <artifactId>j2ee</artifactId>
         <version>2.2-SNAPSHOT</version>
     </parent>
-
+    
     <groupId>org.apache.geronimo.modules</groupId>
     <artifactId>geronimo-security-builder</artifactId>
     <name>Geronimo Plugins, J2EE :: Security Builder</name>
@@ -53,77 +53,16 @@
             <classifier>tests</classifier>
             <scope>test</scope>
         </dependency>
-<!--
-        <dependency>
-            <groupId>org.soter.rbac</groupId>
-            <artifactId>rbac-xml-model</artifactId>
-            <version>1.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>org.soter.rbac</groupId>
-            <artifactId>rbac-jacc</artifactId>
-            <version>1.0-SNAPSHOT</version>
-        </dependency>
--->
-    </dependencies>
 
+    </dependencies>
+    
     <build>
         <plugins>
-
-<!--
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>jaxb2-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>xjc</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <packageName>org.geronimo.security.rbac.model</packageName>
-                    <schemaFiles>geronimo-soter-1.0.xsd</schemaFiles>
-                    <extension>true</extension>
-                </configuration>
-            </plugin>
--->
-            <!--         experiment with 2.1 episodes for multi-schema compilations. -->
-<!--
-            <plugin>
-                <groupId>org.jvnet.jaxb2.maven2</groupId>
-                <artifactId>maven-jaxb2-plugin</artifactId>
-                <version>0.5</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <schemaDirectory>src/main/xsd</schemaDirectory>
-                    <packageName>org.geronimo.security.rbac.model</packageName>
-                    <schemaFiles>geronimo-soter-1.0.xsd</schemaFiles>
-                    <extension>true</extension>
-                    -->
-<!--<arguments>-episode rbac.episode</arguments>-->
-<!--
-                    <episodes>
-                        <episode>
-                            <groupId>org.soter.rbac</groupId>
-                            <artifactId>rbac-xml-model</artifactId>
-                        </episode>
-                    </episodes>
-                </configuration>
-            </plugin>
--->
-
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>xmlbeans-maven-plugin</artifactId>
             </plugin>
-
+            
             <!--
             HACK: Copy XmlBeans generated schemas.
             -->

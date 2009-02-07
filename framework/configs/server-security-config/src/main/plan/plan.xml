@@ -50,14 +50,6 @@
          </reference>
      </gbean>
 
-    <!--<gbean name="SystemRbac" class="org.apache.geronimo.security.jacc.rbac.RbacConfiguration">-->
-        <!--<attribute name="principalClass">org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal</attribute>-->
-        <!--<attribute name="configuration">var/security/rbac-base.xml</attribute>-->
-        <!--<reference name="ServerInfo">-->
-            <!--<name>ServerInfo</name>-->
-        <!--</reference>-->
-    <!--</gbean>-->
-
     <gbean name="geronimo-default" class="org.apache.geronimo.security.keystore.FileKeystoreInstance">
         <attribute name="keystoreName">geronimo-default</attribute>
         <attribute name="keystorePath">var/security/keystores/geronimo-default</attribute>
