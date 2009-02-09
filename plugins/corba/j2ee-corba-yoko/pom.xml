@@ -121,22 +121,19 @@
                             <config-xml-content>
                                 <gbean name="NameServer">
                                     <attribute name="port">#{COSNamingPort + PortOffset}</attribute>
-                                    <attribute name="host">#{COSNamingHost}</attribute>
+                                    <attribute name="host">#{ServerHostname}</attribute>
                                 </gbean>
                                 <gbean name="Server">
                                     <attribute name="port">#{ORBSSLPort + PortOffset}</attribute>
-                                    <attribute name="host">#{ORBSSLHost}</attribute>
+                                    <attribute name="host">#{ServerHostname}</attribute>
                                 </gbean>
                                 <gbean name="UnprotectedServer">
                                     <attribute name="port">#{ORBPort + PortOffset}</attribute>
-                                    <attribute name="host">#{ORBHost}</attribute>
+                                    <attribute name="host">#{ServerHostname}</attribute>
                                 </gbean>
                              </config-xml-content>
-                            <config-substitution key="COSNamingHost">localhost</config-substitution>
                             <config-substitution key="COSNamingPort">1050</config-substitution>
-                            <config-substitution key="ORBSSLHost">localhost</config-substitution>
                             <config-substitution key="ORBSSLPort">2001</config-substitution>
-                            <config-substitution key="ORBHost">localhost</config-substitution>
                             <config-substitution key="ORBPort">6882</config-substitution>
                         </plugin-artifact>
                     </instance>
