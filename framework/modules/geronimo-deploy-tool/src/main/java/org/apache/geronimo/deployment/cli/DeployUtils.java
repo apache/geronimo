@@ -95,13 +95,21 @@ public class DeployUtils extends ConfigIDExtractor {
         return buf.toString();
     }
 
+    private final static int DEFAULT_TERM_WIDTH = 256;
+
     public static void println(String line, int indent, ConsoleReader consoleReader) throws IOException {
         int endCol = consoleReader.getTermwidth();
         int start = consoleReader.getCursorBuffer().cursor;
+
+        // some terminals will give a terminal width of zero (e.g. emacs shell). 
+        // in that case, default to a reasonable term width value.
+        if (endCol == 0) {
+            endCol = DEFAULT_TERM_WIDTH;
+        }
+
         if (endCol - indent < 10) {
             throw new IllegalArgumentException("This is ridiculous!");
         }
-//        StringBuffer buf = new StringBuffer((int)(source.length()*1.1));
         String prefix = indent == 0 ? "" : buildIndent(indent);
         int pos;
         while (line.length() > 0) {
