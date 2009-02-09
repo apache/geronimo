@@ -1,8 +1,8 @@
 Private Build of ActiveMQ for Geronimo.   
 
-How to build ActiveMQ 4.1.2 with AMQ-1272 security patch:
----------------------------------------------------------
-Checkout the ActiveMQ 4.1 branch
+How to build ActiveMQ 4.1.2-G20090207:
+--------------------------------------
+Checkout the ActiveMQ 4.1.2 tag
   svn co https://svn.apache.org/repos/asf/activemq/tags/activemq-4.1.2 activemq-4.1.2
   
 svn info for ActiveMQ image:
@@ -18,10 +18,12 @@ Last Changed Rev: 646984
 Last Changed Date: 2008-04-10 18:03:51 -0400 (Thu, 10 Apr 2008)
 
 
-Apply the security patch
+Apply the patches
 ---------------------------------
 cd activemq-4.1.2
 patch -p0 -u < AMQ1272-stomp-auth-v412.patch
+patch -p0 -u < AMQ-2094.patch
+patch -p0 -u < build.patch
 Answer 'y' to any prompts of "Reversed (or previously applied) patch detected!  Assume -R? [n]"
 
 
@@ -37,13 +39,13 @@ Notes:
 Copy patched activemq-core jar to appropriate filename
 ------------------------------------------------------
   cd activemq-4.1.2
-  cp activemq-core/target/activemq-core-4.1.2.jar <geronimo-root>/repository/org/apache/activemq/activemq-core/4.1.2-G647819/activemq-core-4.1.2-G647819.jar
+  cp activemq-core/target/activemq-core-4.1.2.jar <geronimo-root>/repository/org/apache/activemq/activemq-core/4.1.2-G20090207/activemq-core-4.1.2-G20090207.jar
 
 Optional steps:
 ---------------
-  cd <geronimo-root>/repository/org/apache/activemq/activemq-core/4.1.2-G647819
-  md5sum activemq-core-4.1.2-G647819.jar > activemq-core-4.1.2-G647819.jar.md5
-  sha1sum activemq-core-4.1.2-G647819.jar > activemq-core-4.1.2-G647819.jar.sha1
+  cd <geronimo-root>/repository/org/apache/activemq/activemq-core/4.1.2-G20090207
+  md5sum activemq-core-4.1.2-G20090207.jar > activemq-core-4.1.2-G20090207.jar.md5
+  sha1sum activemq-core-4.1.2-G20090207.jar > activemq-core-4.1.2-G20090207.jar.sha1
 
 
 How the patch (AMQ1272-stomp-auth-v412.patch) was created:

@@ -1,0 +1,36 @@
+Index: pom.xml
+===================================================================
+--- pom.xml	(revision 742003)
++++ pom.xml	(working copy)
+@@ -877,8 +877,8 @@
+         <groupId>org.apache.maven.plugins</groupId>
+         <artifactId>maven-compiler-plugin</artifactId>
+         <configuration>
+-          <source>1.4</source>
+-          <target>1.4</target>
++          <source>1.5</source>
++          <target>1.5</target>
+         </configuration>
+       </plugin>
+       <plugin>
+@@ -1170,7 +1170,7 @@
+     <xmlbeans-version>2.0.0-beta1</xmlbeans-version>
+     <xmlpull-version>1.1.3.4d_b4_min</xmlpull-version>
+     <xstream-version>1.1.2</xstream-version>
+-    <xbean-version>3.0</xbean-version>
++    <xbean-version>3.0.1</xbean-version>
+     <dist-repo-url>scpexe://minotaur.apache.org/www/people.apache.org/repo/m2-ibiblio-rsync-repository</dist-repo-url>
+     <!--<m1-dist-repo-url>scpexe://minotaur.apache.org/www/people.apache.org/repo/m1-snapshot-repository</m1-dist-repo-url>-->
+     <site-repo-url>scpexe://people.apache.org/www/activemq.apache.org/maven/</site-repo-url>
+Index: activemq-core/pom.xml
+===================================================================
+--- activemq-core/pom.xml	(revision 742003)
++++ activemq-core/pom.xml	(working copy)
+@@ -260,6 +260,7 @@
+             <exclude>**/TopicClusterTest.*</exclude>
+             <exclude>**/MultiBrokersMultiClientsTest.*</exclude>
+             <exclude>**/TwoMulticastDiscoveryBrokerTopicSendReceiveTest.*</exclude>
++            <exclude>**/ReconnectTest.*</exclude>
+           </excludes>
+         </configuration>
+       </plugin>
