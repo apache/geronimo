@@ -18,6 +18,7 @@
 --%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%@ page import="org.apache.geronimo.monitoring.console.StatsGraph" %>
 <%@ page import="org.apache.geronimo.monitoring.console.GraphsBuilder" %>
 <%@ page import="java.util.Set" %>
@@ -33,7 +34,7 @@
 <%@ page import="org.apache.geronimo.monitoring.console.util.*" %>
 <%@ page import="org.apache.geronimo.monitoring.console.MRCConnector" %>
 <%@ page import="org.apache.geronimo.crypto.EncryptionManager" %>
-
+<fmt:setBundle basename="monitor-portlet"/>
 <portlet:defineObjects/>
 
 <%
@@ -200,50 +201,50 @@ function setPort() {
         <td width="90%" align="left" valign="top">
             <p>
             <font face="Verdana" size="+1">
-            Editing: <%=name%> (<%=ip%>)
+            <fmt:message key="monitor.common.edit"/>: <%=name%> (<%=ip%>)
             </font>
             </p>         
             <p>
   <form name="editServer" method="POST" action="<portlet:actionURL/>">
   <table cellpadding="1" cellspacing="1">
     <tr>
-      <td>Added:</td>
+      <td><fmt:message key="monitor.common.added"/>:</td>
       <td>&nbsp;</td>
       <td align="right"><%=added.substring(0,16)%></td>
       <td></td>
     </tr>
     <tr>
-      <td>Last Modified:</td>
+      <td><fmt:message key="monitor.common.modified"/>:</td>
       <td>&nbsp;</td>
       <td align="right"><%=modified.substring(0,16)%></td>
       <td></td>
     </tr>
     <tr>
-      <td>Last Seen:</td>
+      <td><fmt:message key="monitor.common.seen"/>:</td>
       <td>&nbsp;</td>
       <td align="right"><%=last_seen.substring(0,16)%></td>
       <td></td>
     </tr>
     <tr>
-      <td>Name:</td>
+      <td><fmt:message key="monitor.common.name"/>:</td>
       <td>&nbsp;</td>
       <td align="right"><input type="text" name="name" value=<%= "\"" + name + "\"" %>></td>
       <td></td>
     </tr>
     <tr>
-      <td>IP/Hostname:</td>
+      <td><fmt:message key="monitor.server.ip"/>/<fmt:message key="monitor.server.hostname"/>:</td>
       <td>&nbsp;</td>
       <td align="right"><input type="text" name="ip" value=<%= "\"" + ip + "\"" %>/></td>
       <td></td>
     </tr>
     <tr>
-      <td>Protocol</td>
+      <td><fmt:message key="monitor.server.protocol"/></td>
       <td>&nbsp;</td>
       <td align="right"><input type="radio" name="protocol" onchange='setPort()' value="1" <%if (protocol.equals("1")){ %>checked="checked"<%} %>>EJB <input type="radio" name="protocol" onchange='setPort()' value="2" <%if (protocol.equals("2")){ %>checked="checked"<%} %>>JMX</td>
       <td></td>
     </tr>
     <tr>
-      <td>Port:</td>
+      <td><fmt:message key="monitor.server.port"/>:</td>
       <td>&nbsp;</td>
       <td align="right"><input type="text" name="port" onKeyUp='noAlpha(this)' onKeyPress='noAlpha(this)' value=<%= "\"" + port + "\"" %>/></td>
       <td></td>
@@ -253,16 +254,16 @@ function setPort() {
     {
     %>
     <tr>
-      <td>Snapshot Duration:</td>
+      <td><fmt:message key="monitor.server.snapshotDuration"/>:</td>
       <td>&nbsp;</td>
       <td align="right"><input type="text" width="5" size="4" name="snapshot" onKeyUp='noAlpha(this)' onKeyPress='noAlpha(this)' value="<%=snapshot%>"/></td>
-      <td> minutes</td>
+      <td> <fmt:message key="monitor.common.minute"/></td>
     </tr>
     <tr>
-      <td>Snapshot Retention:</td>
+      <td><fmt:message key="monitor.server.snapshotRetention"/>:</td>
       <td>&nbsp;</td>
       <td align="right"><input type="text" width="5" size="4" name="retention" onKeyUp='noAlpha(this)' onKeyPress='noAlpha(this)' value="<%=retention%>"/></td>
-      <td> days</td>
+      <td> <fmt:message key="monitor.common.day"/></td>
     </tr>
 
     <%
@@ -271,35 +272,35 @@ function setPort() {
     {
     %>
         <tr>
-            <td>Snapshot Duration:</td>
+            <td><fmt:message key="monitor.server.snapshotDuration"/>:</td>
             <td>&nbsp;</td>
             <td align="right"><input type="text" width="5" size="4" name="snapshot" onKeyUp='noAlpha(this)' onKeyPress='noAlpha(this)' disabled="disabled" value="unknown"/></td>
-        <td> minutes</td>
+        <td> <fmt:message key="monitor.common.minute"/></td>
       </tr>
       <tr>
-          <td>Snapshot Retention:</td>
+          <td><fmt:message key="monitor.server.snapshotRetention"/>:</td>
           <td>&nbsp;</td>
           <td align="right"><input type="text" width="5" size="4" name="retention" onKeyUp='noAlpha(this)' onKeyPress='noAlpha(this)' disabled="disabled" value="unknown"/></td>
-      <td> days</td>
+      <td> <fmt:message key="monitor.common.day"/></td>
     </tr>
 
     <%
     }
     %>
     <tr>
-      <td>Username:</td>
+      <td><fmt:message key="monitor.server.username"/>:</td>
       <td>&nbsp;</td>
       <td align="right"><input type="text" name="username" value=<%= "\"" + username + "\"" %>/></td>
       <td></td>
     </tr>
     <tr>
-      <td>Password:</td>
+      <td><fmt:message key="monitor.server.pwd"/>:</td>
       <td>&nbsp;</td>
       <td align="right"><input type="password" name="password" value=<%= "\"" + password + "\"" %>/></td>
       <td></td>
     </tr>
     <tr>
-      <td>Password (verify):</td>
+      <td><fmt:message key="monitor.server.pwd2"/>:</td>
       <td>&nbsp;</td>
       <td align="right"><input type="password" name="password2" value=<%= "\"" + password2 + "\"" %>/></td>
       <td></td>
@@ -309,9 +310,9 @@ function setPort() {
       <input type="hidden" name="mode" value="" />
       <input type="hidden" name="action" value="" />
       <input type="hidden" name="server_id" value=<%= "\"" + server_id + "\"" %> />
-      <td colspan="1" align="left"><button type="button" value="Cancel" onclick="javascript:history.go(-1)">Cancel</button></td>
+      <td colspan="1" align="left"><button type="button" value='<fmt:message key="monitor.common.cancel"/>' onclick="javascript:history.go(-1)"><fmt:message key="monitor.common.cancel"/></button></td>
       <td>&nbsp;</td>
-      <td colspan="1" align="right"><input type="button" value="Save" onclick="document.editServer.action.value='saveEditServer'; document.editServer.mode.value='edit'; if(validate()) document.editServer.submit();" /></td>
+      <td colspan="1" align="right"><input type="button" value='<fmt:message key="monitor.common.save"/>' onclick="document.editServer.action.value='saveEditServer'; document.editServer.mode.value='edit'; if(validate()) document.editServer.submit();" /></td>
       <td></td>
     </tr>
   </table>
@@ -327,17 +328,17 @@ function setPort() {
             <table width="100%" style="border-bottom: 1px solid #2581c7;" cellspacing="1" cellpadding="1">
                 <tr>
                     <td class="DarkBackground" align="left" nowrap>
-                        <font face="Verdana" size="+1">Navigation</font>
+                        <font face="Verdana" size="+1"><fmt:message key="monitor.common.nav"/></font>
                     </td>
                 </tr>
                 <tr>
                     <td bgcolor="#FFFFFF" nowrap>
                         &nbsp;<br />
                         <ul>
-                        <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showHome" /></portlet:actionURL>">Home</a></li>
-                        <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showAllViews" /></portlet:actionURL>">Views</a></li>
-                        <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showAllServers" /></portlet:actionURL>">Servers</a></li>
-                        <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showAllGraphs" /></portlet:actionURL>">Graphs</a></li>
+                        <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showHome" /></portlet:actionURL>"><fmt:message key="monitor.common.home"/></a></li>
+                        <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showAllViews" /></portlet:actionURL>"><fmt:message key="monitor.common.view"/></a></li>
+                        <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showAllServers" /></portlet:actionURL>"><fmt:message key="monitor.common.server"/></a></li>
+                        <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showAllGraphs" /></portlet:actionURL>"><fmt:message key="monitor.common.graph"/></a></li>
                         </ul>
                         &nbsp;<br />
                     </td>   
@@ -348,27 +349,27 @@ function setPort() {
             <table width="100%" style="border-bottom: 1px solid #2581c7;" cellspacing="1" cellpadding="1">
                 <tr>
                     <td class="DarkBackground" align="left" nowrap>
-                        <font face="Verdana" size="+1">Actions</font>
+                        <font face="Verdana" size="+1"><fmt:message key="monitor.common.action"/></font>
                     </td>
                 </tr>
                 <tr>
                     <td bgcolor="#FFFFFF" nowrap>
                         &nbsp;<br />
                         <ul>
-                        <li><a onclick="document.editServer.action.value='testEditServerConnection'; document.editServer.mode.value='edit'; if(validateTest()) document.editServer.submit();" href="#">Test these settings</a></li>
+                        <li><a onclick="document.editServer.action.value='testEditServerConnection'; document.editServer.mode.value='edit'; if(validateTest()) document.editServer.submit();" href="#"><fmt:message key="monitor.server.testSetting"/></a></li>
                         <% 
                         if(enabled) {
                         %>
-                            <li><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="disableEditServer" /><portlet:param name="server_id" value="<%=server_id%>" /></portlet:actionURL>">Disable this server</a></li>
+                            <li><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="disableEditServer" /><portlet:param name="server_id" value="<%=server_id%>" /></portlet:actionURL>"><fmt:message key="monitor.server.disableServer"/></a></li>
                         <%
                         } else {
                         %>
-                            <li><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="enableEditServer" /><portlet:param name="server_id" value="<%=server_id%>" /></portlet:actionURL>">Enable this server</a></li>
+                            <li><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="enableEditServer" /><portlet:param name="server_id" value="<%=server_id%>" /></portlet:actionURL>"><fmt:message key="monitor.server.enableServer"/></a></li>
                         <%
                         }
                         %>
-                        <li><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="deleteServer" /><portlet:param name="server_id" value="<%=server_id%>" /></portlet:actionURL>">Delete this server</a></li>
-                        <li><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="showAddServer" /></portlet:actionURL>">Add a new server</a></li>
+                        <li><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="deleteServer" /><portlet:param name="server_id" value="<%=server_id%>" /></portlet:actionURL>"><fmt:message key="monitor.server.deleteServer"/></a></li>
+                        <li><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="showAddServer" /></portlet:actionURL>"><fmt:message key="monitor.server.addServer"/></a></li>
                         </ul>
                         &nbsp;<br />
                     </td>   
@@ -388,10 +389,10 @@ con.close();
     <tr>
         <!-- Body -->
         <td width="90%" align="left" valign="top">
-            <a HREF="javascript:history.go(-1)"><< Back</a>
+            <a HREF="javascript:history.go(-1)"><< <fmt:message key="monitor.common.back"/></a>
             <p>
             <font face="Verdana" size="+1">
-            Server does not exist
+            <fmt:message key="monitor.server.notExist"/>
             </font>
             </p>         
 
@@ -404,17 +405,17 @@ con.close();
             <table width="100%" style="border-bottom: 1px solid #2581c7;" cellspacing="1" cellpadding="1">
                 <tr>
                     <td class="DarkBackground" align="left" nowrap>
-                        <font face="Verdana" size="+1">Navigation</font>
+                        <font face="Verdana" size="+1"><fmt:message key="monitor.common.nav"/></font>
                     </td>
                 </tr>
                 <tr>
                     <td bgcolor="#FFFFFF" nowrap>
                         &nbsp;<br />
                         <ul>
-                        <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showHome" /></portlet:actionURL>">Home</a></li>
-                        <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showAllViews" /></portlet:actionURL>">Views</a></li>
-                        <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showAllServers" /></portlet:actionURL>">Servers</a></li>
-                        <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showAllGraphs" /></portlet:actionURL>">Graphs</a></li>
+                        <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showHome" /></portlet:actionURL>"><fmt:message key="monitor.common.home"/></a></li>
+                        <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showAllViews" /></portlet:actionURL>"><fmt:message key="monitor.common.view"/></a></li>
+                        <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showAllServers" /></portlet:actionURL>"><fmt:message key="monitor.common.server"/></a></li>
+                        <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showAllGraphs" /></portlet:actionURL>"><fmt:message key="monitor.common.graph"/></a></li>
                         </ul>
                         &nbsp;<br />
                     </td>   
@@ -425,14 +426,14 @@ con.close();
             <table width="100%" style="border-bottom: 1px solid #2581c7;" cellspacing="1" cellpadding="1">
                 <tr>
                     <td class="DarkBackground" align="left" nowrap>
-                        <font face="Verdana" size="+1">Actions</font>
+                        <font face="Verdana" size="+1"><fmt:message key="monitor.common.action"/></font>
                     </td>
                 </tr>
                 <tr>
                     <td bgcolor="#FFFFFF" nowrap>
                         &nbsp;<br />
                         <ul>
-                        <li><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="showAddServer" /></portlet:actionURL>">Add a new server</a></li>
+                        <li><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="showAddServer" /></portlet:actionURL>"><fmt:message key="monitor.server.addServer"/></a></li>
                         </ul>
                         &nbsp;<br />
                     </td>   

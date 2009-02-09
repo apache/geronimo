@@ -16,6 +16,7 @@
 --%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%@ page import="org.apache.geronimo.monitoring.console.StatsGraph" %>
 <%@ page import="org.apache.geronimo.monitoring.console.GraphsBuilder" %>
 <%@ page import="java.util.ArrayList" %>
@@ -34,6 +35,7 @@
 <%@ page import="javax.management.InstanceNotFoundException" %>
 <%@ page import="org.apache.geronimo.monitoring.console.util.*" %>
 <%@ page import="org.apache.geronimo.monitoring.console.MRCConnector" %>
+<fmt:setBundle basename="monitor-portlet"/>
 <portlet:defineObjects/>
 
 <%
@@ -118,85 +120,85 @@ document.getElementById(x).style.display='';
             <p>
             <table cellpadding="1" cellspacing="1">
                 <tr>
-                    <th align="left">Status:</th>
+                    <th align="left"><fmt:message key="monitor.server.status"/>:</th>
                     <td>&nbsp;</td>
                     <td align="right">
                                 <%if (isOnline)
                 {%>
-                    <font color="green"><strong>Online</strong></font>
+                    <font color="green"><strong><fmt:message key="monitor.server.online"/></strong></font>
                    <%}
                                 else
                                 {%>
-                                <font color="red"><strong>Offline</strong></font>
+                                <font color="red"><strong><fmt:message key="monitor.server.offline"/></strong></font>
                                 <%} %> 
                     </td>
                 </tr>
                 
                                 <tr>
-                    <th align="left">Snapshot Thread:</th>
+                    <th align="left"><fmt:message key="monitor.server.snapshotThread"/>:</th>
                     <td>&nbsp;</td>
                     <td align="right">
                                 <%if (isOnline && collecting == 1)
                 {%>
-                    Running
+                    <fmt:message key="monitor.server.run"/>
                    <%}
                                 else
                                 {%>
-                                <font color="red"><strong>Stopped</strong></font>
+                                <font color="red"><strong><fmt:message key="monitor.server.stopped"/></strong></font>
                                 <%} %> 
                     </td>
                 </tr>
                 
                 <tr>
-                    <th align="left">Added:</th>
+                    <th align="left"><fmt:message key="monitor.common.added"/>:</th>
                     <td>&nbsp;</td>
                     <td align="right"><%=added%></td>
                 </tr>
                 <tr>
-                    <th align="left">Modified:</th>
+                    <th align="left"><fmt:message key="monitor.common.modified"/>:</th>
                     <td>&nbsp;</td>
                     <td align="right"><%=modified%></td>
                 </tr>
                 <tr>
-                    <th align="left">Last seen:</th>
+                    <th align="left"><fmt:message key="monitor.common.seen"/>:</th>
                     <td>&nbsp;</td>
                     <td align="right"><%=last_seen%></td>
                 </tr>
                 <tr>
-                    <th align="left">IP/Hostname:</th>
+                    <th align="left"><fmt:message key="monitor.server.ip"/>/<fmt:message key="monitor.server.hostname"/>:</th>
                     <td>&nbsp;</td>
                     <td align="right"><%=ip%></td>
                 </tr>
                 <tr>
-                    <th align="left">Snapshot Duration:</th>
+                    <th align="left"><fmt:message key="monitor.server.snapshotDuration"/>:</th>
                     <td>&nbsp;</td>
                           <%if (isOnline)
                 {%>
-                    <td align="right"><%=snapshotDuration%> minutes</td>
+                    <td align="right"><%=snapshotDuration%> <fmt:message key="monitor.common.minute"/></td>
                      <%}
                                 else
                                 {
                                     %>
-                                    <td align="right">Unknown</td>
+                                    <td align="right"><fmt:message key="monitor.common.unknown"/></td>
                                     <%} %>
                 </tr>
                 <tr>
-                    <th>Snapshot Retention:</th>
+                    <th><fmt:message key="monitor.server.snapshotRetention"/>:</th>
                     <td>&nbsp;</td>
                           <%if (isOnline)
                 {%>
-                    <td align="right"><%=retention%> days</td>
+                    <td align="right"><%=retention%> <fmt:message key="monitor.common.day"/></td>
                      <%}
                                 else
                                 {
                                     %>
-                                    <td align="right">Unknown</td>
+                                    <td align="right"><fmt:message key="monitor.common.unknown"/></td>
                                     <%} %>
                 </tr>
             </table>
             </p>
             <table>
-            <thead><font size="+1">Live Statistics</font></thead>
+            <thead><font size="+1"><fmt:message key="monitor.server.liveStat"/></font></thead>
             <%
             if (isOnline)
             {
@@ -234,7 +236,7 @@ document.getElementById(x).style.display='';
                     }
                 } else {
                 %>
-                    <tr><td>The statistics bean is not available now.</td></tr>
+                    <tr><td><fmt:message key="monitor.server.statNA"/></td></tr>
                 <%
                 }
                 %>                
@@ -257,7 +259,7 @@ document.getElementById(x).style.display='';
             {
                 %>
                 </table>
-                <font color="red">SERVER IS OFFLINE</font>
+                <font color="red"><fmt:message key="monitor.server.serverOffline"/></font>
                 <%
             }
 %>
@@ -271,17 +273,17 @@ document.getElementById(x).style.display='';
             <table width="100%" style="border-bottom: 1px solid #2581c7;" cellspacing="1" cellpadding="1">
                 <tr>
                     <td class="DarkBackground" align="left" nowrap>
-                        <font face="Verdana" size="+1">Navigation</font>
+                        <font face="Verdana" size="+1"><fmt:message key="monitor.common.nav"/></font>
                     </td>
                 </tr>
                 <tr>
                     <td bgcolor="#FFFFFF" nowrap>
                         &nbsp;<br />
                         <ul>
-                        <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showHome" /></portlet:actionURL>">Home</a></li>
-                        <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showAllViews" /></portlet:actionURL>">Views</a></li>
-                        <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showAllServers" /></portlet:actionURL>">Servers</a></li>
-                        <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showAllGraphs" /></portlet:actionURL>">Graphs</a></li>
+                        <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showHome" /></portlet:actionURL>"><fmt:message key="monitor.common.home"/></a></li>
+                        <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showAllViews" /></portlet:actionURL>"><fmt:message key="monitor.common.view"/></a></li>
+                        <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showAllServers" /></portlet:actionURL>"><fmt:message key="monitor.common.server"/></a></li>
+                        <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showAllGraphs" /></portlet:actionURL>"><fmt:message key="monitor.common.graph"/></a></li>
                         </ul>
                         &nbsp;<br />
                     </td>   
@@ -292,29 +294,29 @@ document.getElementById(x).style.display='';
             <table width="100%" style="border-bottom: 1px solid #2581c7;" cellspacing="1" cellpadding="1">
                 <tr>
                     <td class="DarkBackground" align="left" nowrap>
-                        <font face="Verdana" size="+1">Actions</font>
+                        <font face="Verdana" size="+1"><fmt:message key="monitor.common.action"/></font>
                     </td>
                 </tr>
                 <tr>
                     <td bgcolor="#FFFFFF" nowrap>
                         &nbsp;<br />
                         <ul>
-                        <li><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="showEditServer" /><portlet:param name="server_id" value="<%=server_id%>" /></portlet:actionURL>">Modify this server</a></li>
-                        <li><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="disableServer" /><portlet:param name="server_id" value="<%=server_id%>" /></portlet:actionURL>">Disable this server</a></li>
-                        <li><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="showAddServer" /></portlet:actionURL>">Add a new server</a></li>
+                        <li><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="showEditServer" /><portlet:param name="server_id" value="<%=server_id%>" /></portlet:actionURL>"><fmt:message key="monitor.server.modifyServer"/></a></li>
+                        <li><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="disableServer" /><portlet:param name="server_id" value="<%=server_id%>" /></portlet:actionURL>"><fmt:message key="monitor.server.disableServer"/></a></li>
+                        <li><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="showAddServer" /></portlet:actionURL>"><fmt:message key="monitor.server.addServer"/></a></li>
                         <%
                         if(collecting == 1) {
                         %>
-                            <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="disableServerViewQuery" /><portlet:param name="server_id" value="<%=server_id%>" /></portlet:actionURL>">Disable Query</a></li>
+                            <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="disableServerViewQuery" /><portlet:param name="server_id" value="<%=server_id%>" /></portlet:actionURL>"><fmt:message key="monitor.server.disableQuery"/></a></li>
                         <%
                         } else if (collecting == 0){
                         %>
-                            <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="enableServerViewQuery" /><portlet:param name="server_id" value="<%=server_id%>" /><portlet:param name="snapshotDuration" value='<%= "" + (snapshotDuration * 1000 * 60) %>' /></portlet:actionURL>">Enable Query</a></li>
+                            <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="enableServerViewQuery" /><portlet:param name="server_id" value="<%=server_id%>" /><portlet:param name="snapshotDuration" value='<%= "" + (snapshotDuration * 1000 * 60) %>' /></portlet:actionURL>"><fmt:message key="monitor.server.enableQuery"/></a></li>
                         <%
                         }
                         else if (collecting == -1){
                             %>
-                                <li>Stopping Thread...</li>
+                                <li><fmt:message key="monitor.server.stoppingThread"/></li>
                             <%
                             }
                         %>
@@ -328,7 +330,7 @@ document.getElementById(x).style.display='';
             <table style="border-bottom: 1px solid #2581c7;" width="100%" cellspacing="1" cellpadding="1">
                 <tr>
                     <td colspan="2" class="DarkBackground" align="left" nowrap>
-                        <font face="Verdana" size="+1">Statistics Collected</font>
+                        <font face="Verdana" size="+1"><fmt:message key="monitor.server.statCollected"/></font>
                     </td>
                 </tr>
 
@@ -394,7 +396,7 @@ document.getElementById(x).style.display='';
             <table style="border-bottom: 1px solid #2581c7;" width="100%" cellspacing="1" cellpadding="1">
                 <tr>
                     <td colspan="2" class="DarkBackground" align="left" nowrap>
-                        <font face="Verdana" size="+1">Statistics Available</font>
+                        <font face="Verdana" size="+1"><fmt:message key="monitor.server.statAvailable"/></font>
                     </td>
                 </tr>
 
@@ -465,10 +467,10 @@ document.getElementById(x).style.display='';
     <tr>
         <!-- Body -->
         <td width="90%" align="left" valign="top">
-            <a HREF="javascript:history.go(-1)"><< Back</a>
+            <a HREF="javascript:history.go(-1)"><< <fmt:message key="monitor.common.back"/></a>
             <p>
             <font face="Verdana" size="+1">
-            Server does not exist or is disabled
+            <fmt:message key="monitor.server.notExistOrDisabled"/>
             </font>
             </p>         
 
@@ -481,17 +483,17 @@ document.getElementById(x).style.display='';
             <table width="100%" style="border-bottom: 1px solid #2581c7;" cellspacing="1" cellpadding="1">
                 <tr>
                     <td class="DarkBackground" align="left" nowrap>
-                        <font face="Verdana" size="+1">Navigation</font>
+                        <font face="Verdana" size="+1"><fmt:message key="monitor.common.nav"/></font>
                     </td>
                 </tr>
                 <tr>
                     <td bgcolor="#FFFFFF" nowrap>
                         &nbsp;<br />
                         <ul>
-                        <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showHome" /></portlet:actionURL>">Home</a></li>
-                        <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showAllViews" /></portlet:actionURL>">Views</a></li>
-                        <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showAllServers" /></portlet:actionURL>">Servers</a></li>
-                        <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showAllGraphs" /></portlet:actionURL>">Graphs</a></li>
+                        <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showHome" /></portlet:actionURL>"><fmt:message key="monitor.common.home"/></a></li>
+                        <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showAllViews" /></portlet:actionURL>"><fmt:message key="monitor.common.view"/></a></li>
+                        <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showAllServers" /></portlet:actionURL>"><fmt:message key="monitor.common.server"/></a></li>
+                        <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showAllGraphs" /></portlet:actionURL>"><fmt:message key="monitor.common.graph"/></a></li>
                         </ul>
                         &nbsp;<br />
                     </td>   
@@ -502,14 +504,14 @@ document.getElementById(x).style.display='';
             <table width="100%" style="border-bottom: 1px solid #2581c7;" cellspacing="1" cellpadding="1">
                 <tr>
                     <td class="DarkBackground" align="left" nowrap>
-                        <font face="Verdana" size="+1">Actions</font>
+                        <font face="Verdana" size="+1"><fmt:message key="monitor.common.action"/></font>
                     </td>
                 </tr>
                 <tr>
                     <td bgcolor="#FFFFFF" nowrap>
                         &nbsp;<br />
                         <ul>
-                        <li><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="showAddServer" /></portlet:actionURL>">Add a new server</a></li>
+                        <li><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="showAddServer" /></portlet:actionURL>"><fmt:message key="monitor.server.addServer"/></a></li>
                         </ul>
                         &nbsp;<br />
                     </td>   

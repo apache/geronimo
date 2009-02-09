@@ -14,9 +14,10 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 --%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="monitor-portlet"/>
 <p><font face="Verdana" size="+1">
-<center><b>This is the edit page for the Monitoring Portlet</b></center>
+<center><b><fmt:message key="monitor.edit.desc"/></b></center>
 </font></p>
-<P>Edit stuff...</P>
-<P>To return to the main Monitoring panel select the "view" link
-from the header of this portlet.</P>
++<P><fmt:message key="monitor.edit.stuff"/></P>
++<P><fmt:message key="monitor.common.ret"/></P>

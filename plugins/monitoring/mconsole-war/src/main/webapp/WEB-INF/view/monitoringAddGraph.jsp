@@ -16,6 +16,7 @@
 --%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%@ page import="org.apache.geronimo.monitoring.console.StatsGraph"%>
 <%@ page import="org.apache.geronimo.monitoring.console.GraphsBuilder"%>
 <%@ page import="java.util.Set"%>
@@ -31,6 +32,7 @@
 <%@ page import="java.sql.SQLException"%>
 <%@ page import="org.apache.geronimo.monitoring.console.util.*"%>
 <%@ page import="org.apache.geronimo.monitoring.console.MRCConnector"%>
+<fmt:setBundle basename="monitor-portlet"/>
 <portlet:defineObjects />
 
 <%
@@ -424,18 +426,18 @@ if (!message.equals("")) {
 	<tr>
 		<!-- Body -->
 		<td width="90%" align="left" valign="top">
-		<p><font face="Verdana" size="+1"> Add a Graph </font></p>
+		<p><font face="Verdana" size="+1"> <fmt:message key="monitor.graph.addGraph"/> </font></p>
 		<p>
 		<form onsubmit="return validate(<%=snapshotDuration/1000/60%>);"
 			name="addGraph" method="POST"
 			action="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="saveAddGraph"/></portlet:actionURL>">
 		<table cellpadding="1" cellspacing="1">
 			<tr>
-				<td>Server:</td>
+				<td><fmt:message key="monitor.graph.server"/>:</td>
 				<td>&nbsp;</td>
 				<td align="right"><select name="server_id"
 					onChange="updateMbeanList(); updateFormula();">
-					<option value="">-Select Server-</option>
+					<option value="">-<fmt:message key="monitor.graph.selectServer"/>-</option>
 				</select> <script type='text/javascript'>
     <% 
     for (int i = 1; i < serverIds.size()+1; i++)
@@ -448,70 +450,70 @@ if (!message.equals("")) {
 				<td></td>
 			</tr>
 			<tr>
-				<td>Name:</td>
+				<td><fmt:message key="monitor.common.name"/>:</td>
 				<td>&nbsp;</td>
 				<td align="right"><input type="text" name="name" value=""></td>
 				<td></td>
 			</tr>
 			<tr>
-				<td>Description:</td>
+				<td><fmt:message key="monitor.common.desc"/>:</td>
 				<td>&nbsp;</td>
 				<td align="right"><textarea rows="5" cols="50"
 					name="description"></textarea></td>
 				<td></td>
 			</tr>
 			<tr>
-				<td>X Axis label:</td>
+				<td><fmt:message key="monitor.graph.x"/>:</td>
 				<td>&nbsp;</td>
 				<td align="right"><input type="text" name="xlabel" value="" /></td>
 				<td></td>
 			</tr>
 			<tr>
-				<td>Y Axis label:</td>
+				<td><fmt:message key="monitor.graph.y"/>:</td>
 				<td>&nbsp;</td>
 				<td align="right"><input type="text" name="ylabel" value="" /></td>
 				<td></td>
 			</tr>
 			<tr>
-				<td>Timeframe:</td>
+				<td><fmt:message key="monitor.graph.time"/>:</td>
 				<td>&nbsp;</td>
 				<td align="right"><input type="text" width="5" size="4"
 					name="timeframe" onKeyUp='noAlpha(this)' onKeyPress='noAlpha(this)'
 					value="60" /></td>
-				<td>minutes</td>
+				<td><fmt:message key="monitor.common.minute"/></td>
 			</tr>
 			<tr>
-				<td>Mbean:</td>
+				<td><fmt:message key="monitor.graph.mbean"/>:</td>
 				<td>&nbsp;</td>
 				<td align="right"><select name="mbean"
 					onChange="updateDatanameList(); updateFormula();">
-					<option value="">-Select Server First-</option>
+					<option value="">-<fmt:message key="monitor.graph.selectServerFirst"/>-</option>
 				</select></td>
 				<td></td>
 			</tr>
 			<tr>
-				<td>Data series:</td>
+				<td><fmt:message key="monitor.graph.data"/>:</td>
 				<td>&nbsp;</td>
 				<td align="right"><select name="data1operation"
 					onchange="updateFormula();">
-					<option value="A" selected="selected">As-is</option>
-					<option value="D">Change (Delta) in</option>
+					<option value="A" selected="selected"><fmt:message key="monitor.graph.asis"/></option>
+					<option value="D"><fmt:message key="monitor.graph.change"/></option>
 				</select> <select name="dataname1" onchange="updateFormula();">
-					<option value="">-Select MBean First-</option>
+					<option value="">-<fmt:message key="monitor.graph.selectMbeanFirst"/>-</option>
 				</select></td>
 				<td></td>
 			</tr>
 			<tr>
-				<td>Math operation:</td>
+				<td><fmt:message key="monitor.graph.math"/>:</td>
 				<td>&nbsp;</td>
 				<td align="right"><select name="operation"
 					onChange="checkOtherMath(); updateFormula();">
-					<option value="" selected="selected">none</option>
+					<option value="" selected="selected"><fmt:message key="monitor.common.none"/></option>
 					<option value="+">+</option>
 					<option value="-">-</option>
 					<option value="*">*</option>
 					<option value="/">/</option>
-					<option value="other">Other</option>
+					<option value="other"><fmt:message key="monitor.common.other"/></option>
 				</select></td>
 				<td><input type="text" style="display: none;" width="6"
 					size="8" name="othermath"
@@ -519,15 +521,15 @@ if (!message.equals("")) {
 					onKeyPress='noAlphaMath(this); updateFormula();' value="" /></td>
 			</tr>
 			<tr>
-				<td>Data series 2:</td>
+				<td><fmt:message key="monitor.graph.data"/> 2:</td>
 				<td>&nbsp;</td>
 				<td align="right"><select name="data2operation"
 					disabled="disabled" onchange="updateFormula();">
-					<option value="A" selected="selected">As-is</option>
-					<option value="D">Change (Delta) in</option>
+					<option value="A" selected="selected"><fmt:message key="monitor.graph.asis"/></option>
+					<option value="D"><fmt:message key="monitor.graph.change"/></option>
 				</select> <select name="dataname2" disabled="disabled"
 					onchange="updateFormula(); checkNoData2();">
-					<option value="">-Select Operation First-</option>
+					<option value="">-<fmt:message key="monitor.graph.selectOpFirst"/>-</option>
 				</select> <script type='text/javascript'>
         updateMbeanList();
       </script></td>
@@ -536,12 +538,11 @@ if (!message.equals("")) {
 			<tr>
 				<td></td>
 				<td>&nbsp;</td>
-				<td align="right"><input type="checkbox" name="showArchive">Show
-				Archived</input></td>
+				<td align="right"><input type="checkbox" name="showArchive"><fmt:message key="monitor.graph.showArchive"/></td>
 				<td></td>
 			</tr>
 			<tr>
-				<td>Graphing:</td>
+				<td><fmt:message key="monitor.common.graphing"/>:</td>
 				<td colspan="2"><strong><span
 					id="formulaData1operation"></span> <span id="formulaDataname1"></span>
 				<span id="formulaOperation"></span> <span id="formulaData2operation"></span>
@@ -552,11 +553,11 @@ if (!message.equals("")) {
 			</tr>
 			<tr>
 				<td colspan="1" align="left">
-				<button type="button" value="Cancel"
-					onclick="javascript:history.go(-1)">Cancel</button>
+				<button type="button" value='<fmt:message key="monitor.common.cancel"/>'
+					onclick="javascript:history.go(-1)"><fmt:message key="monitor.common.cancel"/></button>
 				</td>
 				<td>&nbsp;</td>
-				<td colspan="1" align="right"><input type="submit" value="Add" /></td>
+				<td colspan="1" align="right"><input type="submit" value='<fmt:message key="monitor.common.add"/>' /></td>
 				<td></td>
 			</tr>
 		</table>
@@ -576,19 +577,19 @@ if (!message.equals("")) {
 			cellspacing="1" cellpadding="1">
 			<tr>
 				<td class="DarkBackground" align="left" nowrap><font
-					face="Verdana" size="+1">Navigation</font></td>
+					face="Verdana" size="+1"><fmt:message key="monitor.common.nav"/></font></td>
 			</tr>
 			<tr>
 				<td bgcolor="#FFFFFF" nowrap>&nbsp;<br />
 				<ul>
 					<li><a
-						href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showHome" /></portlet:actionURL>">Home</a></li>
+						href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showHome" /></portlet:actionURL>"><fmt:message key="monitor.common.home"/></a></li>
 					<li><a
-						href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showAllViews" /></portlet:actionURL>">Views</a></li>
+						href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showAllViews" /></portlet:actionURL>"><fmt:message key="monitor.common.view"/></a></li>
 					<li><a
-						href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showAllServers" /></portlet:actionURL>">Servers</a></li>
+						href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showAllServers" /></portlet:actionURL>"><fmt:message key="monitor.common.server"/></a></li>
 					<li><a
-						href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showAllGraphs" /></portlet:actionURL>">Graphs</a></li>
+						href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showAllGraphs" /></portlet:actionURL>"><fmt:message key="monitor.common.graph"/></a></li>
 				</ul>
 				&nbsp;<br />
 				</td>

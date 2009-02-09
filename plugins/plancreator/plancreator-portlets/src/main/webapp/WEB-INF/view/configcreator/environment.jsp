@@ -19,11 +19,13 @@
 
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="plancreator-portlet"/>
 <portlet:defineObjects />
 
-<p><b>WAR - Environment</b> -- Configure Web Application Identity and Class Path</p>
+<p><fmt:message key="plancreator.env.title"/></p>
 
-<p>Defaults in this page should suffice for typical scenarios.</p>
+<p><fmt:message key="plancreator.env.desc"/></p>
 
 <!--   FORM TO COLLECT DATA FOR THIS PAGE   -->
 <form name="<portlet:namespace/>EnvironmentForm" action="<portlet:actionURL/>" method="POST">
@@ -33,109 +35,94 @@
   <!-- SUBMIT BUTTON -->
   <tr>
     <td></td>
-    <td><input type="submit" value="Next" /></td>
+    <td><input type="submit" value='<fmt:message key="plancreator.common.next"/>' /></td>
   </tr>
 
   <!-- ENTRY FIELD: Context Root -->
   <tr>
-    <th><div align="right">Web Context Root:</div></th>
+    <th><div align="right"><fmt:message key="plancreator.env.context"/>:</div></th>
     <td><input name="contextRoot" type="text" size="25" value="${data.contextRoot}" /></td>
   </tr>
   <tr>
     <td></td>
-    <td>This is the first part of the URL used to access the Web application by the client.
-    For example, if the context-root is entered as "HelloWorld", then a typical URL to the application would 
-    start with "http://host:port/HelloWorld/".</td>
+    <td><fmt:message key="plancreator.env.contextDesc"/></td>
   </tr>
 
   <!-- ENTRY FIELD: Module Id -->
   <tr>
-    <th colspan="2">Web Application Identity</th>
+    <th colspan="2"><fmt:message key="plancreator.env.id"/></th>
   </tr>
   <tr>
     <td></td>
-    <td>Every module in Geronimo is uniquely identified by it's ModuleID which consists of four components: 
-    groupId/artifactId/version/type. Example: "org.apache.geronimo.plugins/plancreator-tomcat/2.1/car".</td>
+    <td><fmt:message key="plancreator.env.idDesc"/></td>
   </tr>
   <tr>
-    <th><div align="right">Group Id:</div></th>
+    <th><div align="right"><fmt:message key="plancreator.env.groupId"/>:</div></th>
     <td><input name="groupId" type="text" size="25" value="${data.groupId}" /></td>
   </tr>
   <tr>
     <td></td>
-    <td>A name identifying a group of related modules. This may be a project name, a company name, etc. 
-    The important thing is that each artifactID should be unique within the group.</td>
+    <td><fmt:message key="plancreator.env.groupIdDesc"/></td>
   </tr>
   <tr>
-    <th><div align="right">Artifact Id:</div></th>
+    <th><div align="right"><fmt:message key="plancreator.env.artifactId"/>:</div></th>
     <td><input name="artifactId" type="text" size="25" value="${data.artifactId}" /></td>
   </tr>
   <tr>
     <td></td>
-    <td>A name identifying the specific module within the group.</td>
+    <td><fmt:message key="plancreator.env.artifactIdDesc"/></td>
   </tr>
   <tr>
-    <th><div align="right">Version:</div></th>
+    <th><div align="right"><fmt:message key="plancreator.env.version"/>:</div></th>
     <td><input name="version" type="text" size="25" value="${data.version}" /></td>
   </tr>
   <tr>
     <td></td>
-    <td>Version number for the module.</td>
+    <td><fmt:message key="plancreator.env.versionDesc"/></td>
   </tr>
   <tr>
-    <th><div align="right">Type:</div></th>
+    <th><div align="right"><fmt:message key="plancreator.env.type"/>:</div></th>
     <td><input name="type" type="text" size="25" value="${data.type}" /></td>
   </tr>
   <tr>
     <td></td>
-    <td>A module's type is normally either CAR (for a system module) or the file extension for an application 
-    module (ear,war,jar,etc).</td>
+    <td><fmt:message key="plancreator.env.typeDesc"/></td>
   </tr>
 
   <!-- ENTRY FIELD: Hidden Classes, Non Overridable Classes and Inverse Class Loading -->
   <tr>
-    <th colspan="2">Class Path Settings</th>
+    <th colspan="2"><fmt:message key="plancreator.env.classpathSetting"/></th>
   </tr>
   <tr>
-    <th><div align="right">Hidden Classes:</div></th>
+    <th><div align="right"><fmt:message key="plancreator.env.hiddenClasses"/>:</div></th>
     <td><input name="hiddenClasses" type="text" size="25" value="${data.hiddenClasses}" /></td>
   </tr>
   <tr>
     <td></td>
-    <td>List packages or classes that may be in a parent class loader, but should not be exposed from there to 
-    the Web application. This is typically used when the Web application wants to use a different version of a 
-    library than that of it's parent configuration (or Geronimo itself) uses.
-    Separate multiple package/class names with a semicolon ';'</td>
+    <td><fmt:message key="plancreator.env.hiddenClassesDesc"/></td>
   </tr>
   <tr>
-    <th><div align="right">Non Overridable Classes:</div></th>
+    <th><div align="right"><fmt:message key="plancreator.env.nonOverridableClass"/>:</div></th>
     <td><input name="nonOverridableClasses" type="text" size="25" value="${data.nonOverridableClasses}" /></td>
   </tr>
   <tr>
     <td></td>
-    <td>List packages or classes that the Web application should always load from a parent class loader, and 
-    never load from WEB-INF/lib or WEB-INF/classes. This might be used to force a Web application to share the 
-    same instance of a common library with other Web applications, even if they each include it in their own WAR. 
-    Separate multiple package/class names with a semicolon ';'</td>
+    <td><fmt:message key="plancreator.env.nonOverridableClassDesc"/></td>
   </tr>
   <tr>
-    <th><div align="right">Inverse Class Loading:</div></th>
+    <th><div align="right"><fmt:message key="plancreator.env.inverseClassLoading"/>:</div></th>
     <td><input name="inverseClassLoading" type="checkbox" value="true" 
-      <c:if test="${data.inverseClassLoading}">CHECKED </c:if> /></td>
+      <c:if test="${data.inverseClassLoading}"><fmt:message key="plancreator.env.checked"/> </c:if> /></td>
   </tr>
   <tr>
     <td></td>
-    <td>Normally (if this element is not checked), the module's class loader will work normally - classes will be 
-    loaded from the parent class loader if available before checking the current class loader. If this element is 
-    checked, that behavior is reversed and the current class loader will always be checked first before looking 
-    in the parent class loader. This is often enabled to give the JARs in WEB-INF/lib precedence over anything 
-    that might be in a parent class loader. </td>
+    <td><fmt:message key="plancreator.env.inverseClassLoadingDesc"/></td>
   </tr>
 
   <!-- SUBMIT BUTTON -->
   <tr>
     <td></td>
-    <td><input type="submit" value="Next" /></td>
+    <td><input type="submit" value='<fmt:message key="plancreator.common.next"/>' /></td>
   </tr>
 </table>
 
@@ -144,4 +131,4 @@
 
 <p><a href="<portlet:actionURL portletMode="view">
               <portlet:param name="mode" value="index-before" />
-            </portlet:actionURL>">Cancel</a></p>
+            </portlet:actionURL>"><fmt:message key="plancreator.common.cancel"/></a></p>

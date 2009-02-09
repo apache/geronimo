@@ -30,6 +30,14 @@
             <!--<name>MonitoringClientDS</name>-->
         <!--</pattern>-->
     <!--</resource-ref>-->
+
+    <!-- i18n support -->
+    <gbean name="ConsoleResourceGBean" class="org.apache.geronimo.console.i18n.ConsoleResourceGBean">
+        <reference name="ConsoleResourceRegistry">
+            <name>ConsoleResourceRegistry</name>
+        </reference>
+    </gbean> 
+
     <gbean name="MonitoringPortlet" class="org.apache.geronimo.pluto.AdminConsoleExtensionGBean">
         <attribute name="pageTitle">Server/Monitoring</attribute>
         <attribute name="portletContext">/monitoring</attribute>

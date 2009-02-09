@@ -19,12 +19,13 @@
 
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="plancreator-portlet"/>
 <portlet:defineObjects />
 
-<p><b>Created Plan</b> -- Copy/Edit Deployment Plan</p>
+<p><fmt:message key="plancreator.deploy.title"/></p>
 
-<p>The generated Geronimo Deployment Plan is shown below in an edit box. If you would like to make any changes 
-(default should be enough in most scenarios), do it now and then press "Deploy WAR" to deploy the Web application.</p>
+<p><fmt:message key="plancreator.deploy.desc"/></p>
 
 <!--   FORM TO COLLECT DATA FOR THIS PAGE   -->
 <form name="<portlet:namespace/>DisplayPlan" action="<portlet:actionURL/>" method="POST">
@@ -34,19 +35,19 @@
       <tr>
         <td></td>
         <td>
-            <input type="submit" value="Deploy WAR" />
+            <input type="submit" value='<fmt:message key="plancreator.deploy.deploy"/>' />
         </td>
       </tr>
     <!-- STATUS FIELD: Deployment Plan -->
       <tr>
-        <th valign="top" style="min-width: 140px"><div align="right">Deployment Plan:</div></th>
+        <th valign="top" style="min-width: 140px"><div align="right"><fmt:message key="plancreator.deploy.plan"/>:</div></th>
         <td><textarea rows="30" cols="60" name="deploymentPlanXml">${data.deploymentPlan}</textarea></td>
       </tr>
     <!-- SUBMIT BUTTON -->
       <tr>
         <td></td>
         <td>
-            <input type="submit" value="Deploy WAR" />
+            <input type="submit" value='<fmt:message key="plancreator.deploy.deploy"/>' />
         </td>
       </tr>
     </table>
@@ -55,4 +56,4 @@
 
 <p><a href="<portlet:actionURL portletMode="view">
               <portlet:param name="mode" value="index-before" />
-            </portlet:actionURL>">Cancel</a></p>
+            </portlet:actionURL>"><fmt:message key="plancreator.common.cancel"/></a></p>

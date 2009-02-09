@@ -17,6 +17,7 @@
 --%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="java.sql.Connection" %>
 <%@ page import="java.sql.DatabaseMetaData" %>
@@ -24,6 +25,7 @@
 <%@ page import="java.sql.ResultSet" %>
 <%@ page import="java.sql.SQLException" %>
 <%@ page import="org.apache.geronimo.monitoring.console.util.*" %>
+<fmt:setBundle basename="monitor-portlet"/>
 <portlet:defineObjects/>
 <%
     String message = (String) request.getAttribute("message"); 
@@ -40,13 +42,13 @@ if (!message.equals(""))
        <td width="100%" align="left" valign="top">
 <table width="100%" style="border-style: solid;
 border-width: 1px;">
- <thead align="center"><strong>Views</strong></thead>
+ <thead align="center"><strong><fmt:message key="monitor.common.view"/></strong></thead>
  <tr>
-  <th class="DarkBackground" width="30%">Name</th>
-  <th class="DarkBackground" width="10%">Elements</th>
-  <th class="DarkBackground" width="10%">Created</th>
-  <th class="DarkBackground" width="10%">Modified</th>
-  <th class="DarkBackground" width="30%" colspan="2">Actions</th>
+  <th class="DarkBackground" width="30%"><fmt:message key="monitor.common.name"/></th>
+  <th class="DarkBackground" width="10%"><fmt:message key="monitor.view.element"/></th>
+  <th class="DarkBackground" width="10%"><fmt:message key="monitor.view.created"/></th>
+  <th class="DarkBackground" width="10%"><fmt:message key="monitor.view.modified"/></th>
+  <th class="DarkBackground" width="30%" colspan="2"><fmt:message key="monitor.common.action"/></th>
  </tr>
  <%
  DBManager DBase = new DBManager();
@@ -72,14 +74,14 @@ border-width: 1px;">
   <td class="${backgroundClass}" width="10%" align="center"><%=rs.getString("graph_count")%></td>
   <td class="${backgroundClass}" width="15%" align="center"><%=rs.getString("added").substring(0,16)%></td>
   <td class="${backgroundClass}" width="15%" align="center"><%=rs.getString("modified").substring(0,16)%></td>
-  <td class="${backgroundClass}" width="15%" align="center"><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="showEditView" /><portlet:param name="view_id" value='<%=rs.getString("view_id")%>' /></portlet:actionURL>"><img border=0 src="/monitoring/images/edit-b.png">Edit</a></td>
+  <td class="${backgroundClass}" width="15%" align="center"><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="showEditView" /><portlet:param name="view_id" value='<%=rs.getString("view_id")%>' /></portlet:actionURL>"><img border=0 src="/monitoring/images/edit-b.png"><fmt:message key="monitor.common.edit"/></a></td>
  </tr>
  <%
  }
  rs.close();
  %>
 </table>
-<div align="right"><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="showAddView" /></portlet:actionURL>"><img border=0 src="/monitoring/images/max-b.png">Create View</a></div>
+<div align="right"><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="showAddView" /></portlet:actionURL>"><img border=0 src="/monitoring/images/max-b.png"><fmt:message key="monitor.view.create"/></a></div>
 <%
  // close connection
  con.close();
@@ -94,17 +96,17 @@ border-width: 1px;">
             <table width="100%" style="border-bottom: 1px solid #2581c7;" cellspacing="1" cellpadding="1">
                 <tr>
                     <td class="DarkBackground" align="left" nowrap>
-                        <font face="Verdana" size="+1">Navigation</font>
+                        <font face="Verdana" size="+1"><fmt:message key="monitor.common.nav"/></font>
                     </td>
                 </tr>
                 <tr>
                     <td bgcolor="#FFFFFF" nowrap>
                         &nbsp;<br />
                         <ul>
-                        <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showHome" /></portlet:actionURL>">Home</a></li>
-                        <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showAllViews" /></portlet:actionURL>">Views</a></li>
-                        <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showAllServers" /></portlet:actionURL>">Servers</a></li>
-                        <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showAllGraphs" /></portlet:actionURL>">Graphs</a></li>
+                        <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showHome" /></portlet:actionURL>"><fmt:message key="monitor.common.home"/></a></li>
+                        <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showAllViews" /></portlet:actionURL>"><fmt:message key="monitor.common.view"/></a></li>
+                        <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showAllServers" /></portlet:actionURL>"><fmt:message key="monitor.common.server"/></a></li>
+                        <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showAllGraphs" /></portlet:actionURL>"><fmt:message key="monitor.common.graph"/></a></li>
                         </ul>
                         &nbsp;<br />
                     </td>   

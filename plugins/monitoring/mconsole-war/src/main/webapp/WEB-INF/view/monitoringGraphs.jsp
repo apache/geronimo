@@ -17,6 +17,7 @@
 --%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="java.sql.Connection" %>
 <%@ page import="java.sql.PreparedStatement" %>
@@ -24,6 +25,7 @@
 <%@ page import="org.apache.geronimo.monitoring.console.util.*" %>
 <%@page import="org.apache.geronimo.monitoring.console.GraphsBuilder"%>
 <%@page import="org.apache.geronimo.monitoring.console.StatsGraph"%>
+<fmt:setBundle basename="monitor-portlet"/>
 <portlet:defineObjects/>
 <script language="JavaScript" type="text/javascript">
 <!--
@@ -44,13 +46,13 @@ function openNewWindow(theURL,winName,features) {
        <td width="100%" align="left" valign="top">
 <table width="100%" style="border-style: solid;
 border-width: 1px;">
- <thead align="center"><strong>Graphs</strong></thead>
+ <thead align="center"><strong><fmt:message key="monitor.common.graph"/></strong></thead>
  <tr>
-  <th class="DarkBackground" width="30%">Name</th>
-  <th class="DarkBackground" width="20%">Server</th>
-  <th class="DarkBackground" width="15%">Timeframe</th>
-  <th class="DarkBackground" width="20%">Data Series</th>
-  <th class="DarkBackground" width="15%">Actions</th>
+  <th class="DarkBackground" width="30%"><fmt:message key="monitor.common.name"/></th>
+  <th class="DarkBackground" width="20%"><fmt:message key="monitor.graph.server"/></th>
+  <th class="DarkBackground" width="15%"><fmt:message key="monitor.graph.time"/></th>
+  <th class="DarkBackground" width="20%"><fmt:message key="monitor.graph.data"/></th>
+  <th class="DarkBackground" width="15%"><fmt:message key="monitor.common.action"/></th>
  </tr>
  <% 
  DBManager DBase = new DBManager();
@@ -126,7 +128,7 @@ border-width: 1px;">
   	<td class="${backgroundClass}" width="20%" align="center"><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showServer" /><portlet:param name="server_id" value="<%=server_id%>" /></portlet:actionURL>"><%=server_name%></a></td>
   	<td class="${backgroundClass}" width="15%" align="center"><%=timeframe%></td>
   	<td class="${backgroundClass}" width="20%" align="center"><%=dataname1%><%if (operation != null && !operation.equals("null")){%><%=operation%><%}%><%if (dataname2 != null && !dataname2.equals("null")){%><%=dataname2%><%}%></td>
-  	<td class="${backgroundClass}" width="15%" align="center"><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="showEditGraph" /><portlet:param name="graph_id" value="<%=graph_id%>" /></portlet:actionURL>"><img border=0 src="/monitoring/images/edit-b.png">Edit</a></td>
+  	<td class="${backgroundClass}" width="15%" align="center"><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="showEditGraph" /><portlet:param name="graph_id" value="<%=graph_id%>" /></portlet:actionURL>"><img border=0 src="/monitoring/images/edit-b.png"><fmt:message key="monitor.common.edit"/></a></td>
 <%} 
 else
 {
@@ -136,14 +138,14 @@ else
   	<td class="${backgroundClass}" width="15%" align="center"><%=timeframe%></td>
   	<td class="${backgroundClass}" width="20%" align="center"><%=dataname1%><%if (operation != null && !operation.equals("null")){%><%=operation%><%}%><%if (dataname2 != null && !dataname2.equals("null")){%><%=dataname2%><%}%></td>
   	<td class="${backgroundClass}" width="15%" align="center"><img
-					border=0 src="/monitoring/images/edit-b.png">Edit</td>
+					border=0 src="/monitoring/images/edit-b.png"><fmt:message key="monitor.common.edit"/></td>
 	<%
 }%>
  </tr>
  <%}
 %>
 </table>
-<div align="right"><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="showAddGraph" /></portlet:actionURL>"><img border=0 src="/monitoring/images/max-b.png">Add Graph</a></div>
+<div align="right"><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="showAddGraph" /></portlet:actionURL>"><img border=0 src="/monitoring/images/max-b.png"><fmt:message key="monitor.graph.addGraph"/></a></div>
 <%
  // close connection
  con.close();
@@ -158,17 +160,17 @@ else
             <table width="100%" style="border-bottom: 1px solid #2581c7;" cellspacing="1" cellpadding="1">
                 <tr>
                     <td class="DarkBackground" align="left" nowrap>
-                        <font face="Verdana" size="+1">Navigation</font>
+                        <font face="Verdana" size="+1"><fmt:message key="monitor.common.nav"/></font>
                     </td>
                 </tr>
                 <tr>
                     <td bgcolor="#FFFFFF" nowrap>
                         &nbsp;<br />
                         <ul>
-                        <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showHome" /></portlet:actionURL>">Home</a></li>
-                        <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showAllViews" /></portlet:actionURL>">Views</a></li>
-                        <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showAllServers" /></portlet:actionURL>">Servers</a></li>
-                        <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showAllGraphs" /></portlet:actionURL>">Graphs</a></li>
+                        <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showHome" /></portlet:actionURL>"><fmt:message key="monitor.common.home"/></a></li>
+                        <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showAllViews" /></portlet:actionURL>"><fmt:message key="monitor.common.view"/></a></li>
+                        <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showAllServers" /></portlet:actionURL>"><fmt:message key="monitor.common.server"/></a></li>
+                        <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showAllGraphs" /></portlet:actionURL>"><fmt:message key="monitor.common.graph"/></a></li>
                         </ul>
                         &nbsp;<br />
                     </td>   

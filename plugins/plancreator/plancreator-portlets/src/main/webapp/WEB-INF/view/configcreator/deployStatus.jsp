@@ -19,6 +19,8 @@
 
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setBundle basename="plancreator-portlet"/>
 <portlet:defineObjects />
 
 <script>
@@ -38,7 +40,7 @@ function <portlet:namespace/>toggleDisplay(id) {
     <div id="<portlet:namespace/>abbrStatusMessage" style="display:inline">
      ${abbrStatusMessage}<br/>
     <c:if test="${!(empty fullStatusMessage)}">
-    <button onclick="<portlet:namespace/>toggleDisplay('fullStatusMessage');<portlet:namespace/>toggleDisplay('abbrStatusMessage');return false;">Show full details</button>
+    <button onclick="<portlet:namespace/>toggleDisplay('fullStatusMessage');<portlet:namespace/>toggleDisplay('abbrStatusMessage');return false;"><fmt:message key="plancreator.status.detail"/></button>
     </c:if>
     </div>
 </c:if>
@@ -52,9 +54,9 @@ function <portlet:namespace/>toggleDisplay(id) {
 </c:if>
 
 <c:if test="${empty fullStatusMessage}">
-<p><a href="/${data.contextRoot}">Launch Web App</a></p>
+<p><a href="/${data.contextRoot}"><fmt:message key="plancreator.status.launch"/></a></p>
 </c:if>
 
 <p><a href="<portlet:actionURL portletMode="view">
               <portlet:param name="mode" value="index-before" />
-            </portlet:actionURL>">Finish</a></p>
+            </portlet:actionURL>"><fmt:message key="plancreator.common.finish"/></a></p>

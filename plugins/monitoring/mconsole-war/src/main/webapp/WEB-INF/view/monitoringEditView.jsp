@@ -16,6 +16,7 @@
 --%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%@ page import="org.apache.geronimo.monitoring.console.StatsGraph" %>
 <%@ page import="org.apache.geronimo.monitoring.console.GraphsBuilder" %>
 <%@ page import="java.util.Set" %>
@@ -30,6 +31,7 @@
 <%@ page import="java.sql.ResultSet" %>
 <%@ page import="java.sql.SQLException" %>
 <%@ page import="org.apache.geronimo.monitoring.console.util.*" %>
+<fmt:setBundle basename="monitor-portlet"/>
 <portlet:defineObjects/>
 
 <%
@@ -102,34 +104,34 @@ function openNewWindow(theURL,winName,features) {
         <td width="100%" align="left" valign="top">
             <p>
             <font face="Verdana" size="+1">
-            Editing: <%=name%>
+            <fmt:message key="monitor.common.editing"/>: <%=name%>
             </font>
             </p>         
             <p>
   <form onsubmit="return validate();" name="editView" method="POST" action="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="saveEditView"/><portlet:param name="view_id" value="<%=view_id%>"/></portlet:actionURL>">
   <table cellpadding="1" cellspacing="1">
     <tr>
-      <td>Added:</td>
+      <td><fmt:message key="monitor.common.added"/>:</td>
       <td>&nbsp;</td>
       <td align="right"><%=added%></td>
     </tr>
     <tr>
-      <td>Last Modified:</td>
+      <td><fmt:message key="monitor.common.modified"/>:</td>
       <td>&nbsp;</td>
       <td align="right"><%=modified%></td>
     </tr>
     <tr>
-      <td>Name:</td>
+      <td><fmt:message key="monitor.common.name"/>:</td>
       <td>&nbsp;</td>
       <td align="right"><input size="50" type="text" name="name" value="<%=name%>"></td>
     </tr>
     <tr>
-      <td>Description:</td>
+      <td><fmt:message key="monitor.common.desc"/>:</td>
       <td>&nbsp;</td>
       <td align="right"><textarea rows="5" cols="50" name="description"><%=description%></textarea></td>
     </tr>
     <tr>
-      <td valign="top">Graphs:</td>
+      <td valign="top"><fmt:message key="monitor.common.graph"/>:</td>
       <td>&nbsp;</td>
       <td align="right">
       <%
@@ -148,10 +150,10 @@ function openNewWindow(theURL,winName,features) {
             <table cellpadding="1" cellspacing="1">
             <tr>
             <th width="5%"></th>
-            <th>Name</th>
-            <th>Timeframe</th>
-            <th width="20%">Server</th>
-            <th>Edit</th>
+            <th><fmt:message key="monitor.common.name"/></th>
+            <th><fmt:message key="monitor.graph.time"/></th>
+            <th width="20%"><fmt:message key="monitor.graph.server"/></th>
+            <th><fmt:message key="monitor.common.edit"/></th>
             </tr>
       <%
           while (rs.next())
@@ -164,7 +166,7 @@ function openNewWindow(theURL,winName,features) {
             <tr>
             <td align="left" width="5%"><input type="checkbox" name="graph_ids" value="<%=rs.getString("graph_id")%>" <%if (graphsList.contains(rs.getInt("graph_id"))){%> checked<%}%>></td>
             <td align="left"><a href="javascript: void(0)" onClick="openNewWindow('/monitoring/monitoringPopUpGraph.jsp?graph_id=<%=rs.getString("graph_id")%>','graph','width=800,height=300','title=<%=rs.getString("name") %>')"><%=rs.getString("name")%></a></td>
-            <td align="left"><%=rs.getString("timeframe")%> min.</td>
+            <td align="left"><%=rs.getString("timeframe")%> <fmt:message key="monitor.common.min"/></td>
             <td align="left"><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showServer" /><portlet:param name="server_id" value='<%=rs.getString("server_id")%>' /></portlet:actionURL>"><%=rs2.getString("name")%></a></td>
             <td align="center"><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="showEditGraph" /><portlet:param name="graph_id" value='<%=rs.getString("graph_id")%>' /></portlet:actionURL>"><img border=0 src="/monitoring/images/edit-b.png"></a></td>
             </tr>
@@ -180,9 +182,9 @@ function openNewWindow(theURL,winName,features) {
     </tr>
     <tr><td colspan="2"><font size="-2">&nbsp;</font></td></tr>
     <tr>
-      <td colspan="1" align="left"><button type="button" value="Cancel" onclick="javascript:history.go(-1)">Cancel</button></td>
+      <td colspan="1" align="left"><button type="button" value='<fmt:message key="monitor.common.cancel"/>' onclick="javascript:history.go(-1)"><fmt:message key="monitor.common.cancel"/></button></td>
       <td>&nbsp;</td>
-      <td colspan="1" align="right"><input type="submit" value="Save" /></td>
+      <td colspan="1" align="right"><input type="submit" value='<fmt:message key="monitor.common.save"/>' /></td>
     </tr>
   </table>
   </form>
@@ -198,17 +200,17 @@ function openNewWindow(theURL,winName,features) {
             <table width="100%" style="border-bottom: 1px solid #2581c7;" cellspacing="1" cellpadding="1">
                 <tr>
                     <td class="DarkBackground" align="left" nowrap>
-                        <font face="Verdana" size="+1">Navigation</font>
+                        <font face="Verdana" size="+1"><fmt:message key="monitor.common.nav"/></font>
                     </td>
                 </tr>
                 <tr>
                     <td bgcolor="#FFFFFF" nowrap>
                         &nbsp;<br />
                         <ul>
-                        <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showHome" /></portlet:actionURL>">Home</a></li>
-                        <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showAllViews" /></portlet:actionURL>">Views</a></li>
-                        <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showAllServers" /></portlet:actionURL>">Servers</a></li>
-                        <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showAllGraphs" /></portlet:actionURL>">Graphs</a></li>
+                        <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showHome" /></portlet:actionURL>"><fmt:message key="monitor.common.home"/></a></li>
+                        <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showAllViews" /></portlet:actionURL>"><fmt:message key="monitor.common.view"/></a></li>
+                        <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showAllServers" /></portlet:actionURL>"><fmt:message key="monitor.common.server"/></a></li>
+                        <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showAllGraphs" /></portlet:actionURL>"><fmt:message key="monitor.common.graph"/></a></li>
                         </ul>
                         &nbsp;<br />
                     </td>   
@@ -219,17 +221,17 @@ function openNewWindow(theURL,winName,features) {
             <table width="100%" style="border-bottom: 1px solid #2581c7;" cellspacing="1" cellpadding="1">
                 <tr>
                     <td class="DarkBackground" align="left" nowrap>
-                        <font face="Verdana" size="+1">Actions</font>
+                        <font face="Verdana" size="+1"><fmt:message key="monitor.common.action"/></font>
                     </td>
                 </tr>
                 <tr>
                     <td bgcolor="#FFFFFF" nowrap>
                         &nbsp;<br />
                         <ul>
-                        <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showView" /><portlet:param name="view_id" value="<%=view_id%>" /></portlet:actionURL>">Show this view</a></li>
-                        <li><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="showAddGraph" /></portlet:actionURL>">Create a new graph</a></li>
-                        <li><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="deleteView" /><portlet:param name="view_id" value="<%=view_id%>" /></portlet:actionURL>">Delete this view</a></li>
-                        <li><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="showAddView" /></portlet:actionURL>">Add a new view</a></li>
+                        <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showView" /><portlet:param name="view_id" value="<%=view_id%>" /></portlet:actionURL>"><fmt:message key="monitor.view.show"/></a></li>
+                        <li><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="showAddGraph" /></portlet:actionURL>"><fmt:message key="monitor.graph.createGraph"/></a></li>
+                        <li><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="deleteView" /><portlet:param name="view_id" value="<%=view_id%>" /></portlet:actionURL>"><fmt:message key="monitor.view.delete"/></a></li>
+                        <li><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="showAddView" /></portlet:actionURL>"><fmt:message key="monitor.view.add"/></a></li>
                         </ul>
                         &nbsp;<br />
                     </td>   
@@ -248,10 +250,10 @@ con.close();
     <tr>
         <!-- Body -->
         <td width="90%" align="left" valign="top">
-            <a HREF="javascript:history.go(-1)"><< Back</a>
+            <a HREF="javascript:history.go(-1)"><< <fmt:message key="monitor.common.back"/></a>
             <p>
             <font face="Verdana" size="+1">
-            View does not exist
+            <fmt:message key="monitor.view.notExist"/>
             </font>
             </p>         
 
@@ -264,17 +266,17 @@ con.close();
             <table width="100%" style="border-bottom: 1px solid #2581c7;" cellspacing="1" cellpadding="1">
                 <tr>
                     <td class="DarkBackground" align="left" nowrap>
-                        <font face="Verdana" size="+1">Navigation</font>
+                        <font face="Verdana" size="+1"><fmt:message key="monitor.common.nav"/></font>
                     </td>
                 </tr>
                 <tr>
                     <td bgcolor="#FFFFFF" nowrap>
                         &nbsp;<br />
                         <ul>
-                        <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showHome" /></portlet:actionURL>">Home</a></li>
-                        <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showAllViews" /></portlet:actionURL>">Views</a></li>
-                        <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showAllServers" /></portlet:actionURL>">Servers</a></li>
-                        <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showAllGraphs" /></portlet:actionURL>">Graphs</a></li>
+                        <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showHome" /></portlet:actionURL>"><fmt:message key="monitor.common.home"/></a></li>
+                        <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showAllViews" /></portlet:actionURL>"><fmt:message key="monitor.common.view"/></a></li>
+                        <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showAllServers" /></portlet:actionURL>"><fmt:message key="monitor.common.server"/></a></li>
+                        <li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showAllGraphs" /></portlet:actionURL>"><fmt:message key="monitor.common.graph"/></a></li>
                         </ul>
                         &nbsp;<br />
                     </td>   
@@ -285,14 +287,14 @@ con.close();
             <table width="100%" style="border-bottom: 1px solid #2581c7;" cellspacing="1" cellpadding="1">
                 <tr>
                     <td class="DarkBackground" align="left" nowrap>
-                        <font face="Verdana" size="+1">Actions</font>
+                        <font face="Verdana" size="+1"><fmt:message key="monitor.common.action"/></font>
                     </td>
                 </tr>
                 <tr>
                     <td bgcolor="#FFFFFF" nowrap>
                         &nbsp;<br />
                         <ul>
-                        <li><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="showAddView" /></portlet:actionURL>">Add a new view</a></li>
+                        <li><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="showAddView" /></portlet:actionURL>"><fmt:message key="monitor.view.add"/></a></li>
                         </ul>
                         &nbsp;<br />
                     </td>   
