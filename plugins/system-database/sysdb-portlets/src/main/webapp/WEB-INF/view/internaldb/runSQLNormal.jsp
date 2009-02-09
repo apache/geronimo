@@ -73,7 +73,7 @@ function <portlet:namespace/>validateForm3(){
         <option value="${db}"<c:if test="${useDB==db}"> selected="selected"</c:if>>${db}</option>
       </c:forEach>
       </select>&nbsp;
-      <input type="submit" value="Run SQL" onClick="return <portlet:namespace/>validateForm3();"></td>
+      <input type="submit" value='<fmt:message key="internaldb.common.runSQL"/>' onClick="return <portlet:namespace/>validateForm3();"></td>
   </tr>
  </c:when>
  <c:otherwise>
@@ -85,7 +85,7 @@ function <portlet:namespace/>validateForm3(){
         <option value="${dsName}"<c:if test="${useDB==dsName}"> selected="selected"</c:if>>${dsName}</option>
       </c:forEach>
       </select>&nbsp;
-      <input type="submit" value="Run SQL" onClick="return <portlet:namespace/>validateForm3();"></td>
+      <input type="submit" value='<fmt:message key="internaldb.common.runSQL"/>' onClick="return <portlet:namespace/>validateForm3();"></td>
   </tr>
  </c:otherwise>
 </c:choose>

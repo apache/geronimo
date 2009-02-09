@@ -89,7 +89,7 @@
       <c:if test="${statsLazy}">
         <a href="<portlet:actionURL><portlet:param name="stats" value="false"/></portlet:actionURL>"><fmt:message key="webmanager.help.disable"/></a>&nbsp; 
       </c:if>
-      <a href="<portlet:renderURL/>">refresh</a>&nbsp; 
+      <a href="<portlet:renderURL/>"><fmt:message key="consolebase.common.refresh"/></a>&nbsp;        
       <a href="<portlet:actionURL><portlet:param name="resetStats" value="true"/></portlet:actionURL>"><fmt:message key="consolebase.common.reset"/></a> 
     </td>
   </tr>

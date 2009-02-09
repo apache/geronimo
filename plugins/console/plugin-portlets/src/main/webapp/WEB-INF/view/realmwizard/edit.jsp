@@ -128,10 +128,10 @@
         <th><div align="right"><fmt:message key="realmwizard.common.controlFlag" />:</div></th>
         <td>
           <select name="module-control-${status.index}">
-            <option value="OPTIONAL"<c:if test="${module.controlFlag eq 'OPTIONAL'}"> selected</c:if>>Optional</option>
-            <option value="REQUIRED"<c:if test="${module.controlFlag eq 'REQUIRED'}"> selected</c:if>>Required</option>
-            <option value="REQUISITE"<c:if test="${module.controlFlag eq 'REQUISITE'}"> selected</c:if>>Requisite</option>
-            <option value="SUFFICIENT"<c:if test="${module.controlFlag eq 'SUFFICIENT'}"> selected</c:if>>Sufficient</option>
+            <option value="OPTIONAL"<c:if test="${module.controlFlag eq 'OPTIONAL'}"> selected</c:if>><fmt:message key="realmwizard.common.controlFlag.optional" /></option>
+            <option value="REQUIRED"<c:if test="${module.controlFlag eq 'REQUIRED'}"> selected</c:if>><fmt:message key="realmwizard.common.controlFlag.required" /></option>
+            <option value="REQUISITE"<c:if test="${module.controlFlag eq 'REQUISITE'}"> selected</c:if>><fmt:message key="realmwizard.common.controlFlag.requisite" /></option>
+            <option value="SUFFICIENT"<c:if test="${module.controlFlag eq 'SUFFICIENT'}"> selected</c:if>><fmt:message key="realmwizard.common.controlFlag.sufficient" /></option>
           </select>
         </td>
       </tr>
@@ -144,8 +144,8 @@
         <th><div align="right"><fmt:message key="realmwizard.common.supportAdvancedMapping" />:</div></th>
         <td>
           <select name="module-wrap-${status.index}">
-            <option value="true"<c:if test="${module.wrapPrincipals}"> selected</c:if>>Yes</option>
-            <option value="false"<c:if test="${!module.wrapPrincipals}"> selected</c:if>>No</option>
+            <option value="true"<c:if test="${module.wrapPrincipals}"> selected</c:if>><fmt:message key="realmwizard.common.supportAdvancedMapping.yes" /></option>
+            <option value="false"<c:if test="${!module.wrapPrincipals}"> selected</c:if>><fmt:message key="realmwizard.common.supportAdvancedMapping.no" /></option>
           </select>
         </td>
       </tr>

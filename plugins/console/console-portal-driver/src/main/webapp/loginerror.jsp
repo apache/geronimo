@@ -117,14 +117,14 @@
         </tr>
 
         <tr>
-          <td><font size="1"><STRONG>Welcome to the Geronimo&#8482; Console</FONT></td>
+          <td><font size="1"><STRONG><fmt:message key="console.login.welcome"/></FONT></td>
         </TR>
         <tr>
           <TD>
           <table width="100%"  border="0" cellspacing="1" cellpadding="5">
             <tr>
               <td width="5">&nbsp;</td>
-              <td> <strong>GERONIMO&#8482;</strong> is a Java-certified, production-grade platform designed to allow developers to rapidly deploy and manage their applications. The result is an integrated, highly functional application platform that leverages the latest innovations from the open source community and simplifies application deployment and maintenance. </td>
+              <td><fmt:message key="console.login.introduction"/></td>
               <td width="5">&nbsp;</td>
             </tr>
 
@@ -136,18 +136,7 @@
 
             <tr>
               <td>&nbsp;</td>
-              <td> <strong>Geronimo&#8482;</strong> has integrated the following components:<BR/>
-                &nbsp;&nbsp;&#149;&nbsp; Application server (Apache Geronimo)<br/>
-                &nbsp;&nbsp;&#149;&nbsp; Web server and servlet engine (Tomcat)<br/>
-                &nbsp;&nbsp;&#149;&nbsp; Web server and servlet engine (Jetty)<br/>
-                &nbsp;&nbsp;&#149;&nbsp; JSP compiler (Jasper)<br/>
-                &nbsp;&nbsp;&#149;&nbsp; JAX-RPC Web Services engine (Apache Axis)<br/>
-                &nbsp;&nbsp;&#149;&nbsp; JAX-WS Web Services engine (Apache Axis2)<br/>
-                &nbsp;&nbsp;&#149;&nbsp; JAX-WS Web Services engine (Apache CXF)<br/>
-                &nbsp;&nbsp;&#149;&nbsp; Relational database (Apache Derby)<br/>
-                &nbsp;&nbsp;&#149;&nbsp; Messaging (ActiveMQ)<br/>
-                &nbsp;&nbsp;&#149;&nbsp; User management services<br/>
-                &nbsp;&nbsp;&#149;&nbsp; Centralized administration console<br/>
+              <td><fmt:message key="console.login.components"/></td>
               <td>&nbsp;</td>
             </tr>
           </table>

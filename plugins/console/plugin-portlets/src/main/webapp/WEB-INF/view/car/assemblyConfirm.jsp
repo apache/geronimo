@@ -22,7 +22,7 @@
 <portlet:defineObjects/>
 <table border="0">
     <tr>
-        <td><h1>Server Assembly Successful</h1></td>
+        <td><h1><fmt:message key="car.assemblyConfirm.successful" /></h1></td>
     </tr>
     <c:forEach var="plugin" items="${plugins}">
     <c:set var="artifact" value="${plugin.pluginArtifact.moduleId}"/>
@@ -42,7 +42,7 @@
     </c:forEach>
 </table>
 <br>
-<p>File Location: ${absoluteDeployedPath}</p>
+<p><fmt:message key="car.assemblyConfirm.fileLocation" />: ${absoluteDeployedPath}</p>
 <br>
 <form method=POST">
 <input type="submit" value='<fmt:message key="consolebase.common.done" />' onclick="history.go(-3); return false;" />

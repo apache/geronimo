@@ -42,7 +42,7 @@
   <fmt:message key="car.list.noPlugins" />
   <p>
   <form method="POST">
-    <input type="submit" value="Cancel" onclick="history.go(-1); return false;" />
+    <input type="submit" value='<fmt:message key="consolebase.common.cancel" />' onclick="history.go(-1); return false;" />
   </form>
 </c:when>
 <c:otherwise>
@@ -61,7 +61,7 @@
 	                                   <portlet:param name="repo-pass" value="${repopass}"/>
 	                                   <portlet:param name="column" value="${column}"/>
 	                                   <portlet:param name="mode" value="index-after"/>
-	                                  </portlet:actionURL>'>${column}</a></th>
+	                                  </portlet:actionURL>'><fmt:message key="car.common.list${column}" /></a></th>
   </c:forEach>
 </tr>
 <c:forEach var="plugin" items="${plugins}" varStatus="status">
@@ -89,8 +89,8 @@
 </c:forEach>
 </table>
     <p>
-    <input type="submit" value="Install" onclick="if(!checkAllVal('plugin')){return false;}else return true;"/>
-    <input type="submit" value="Cancel" onclick="history.go(-1); return false;" />
+    <input type="submit" value='<fmt:message key="consolebase.common.install" />' onclick="if(!checkAllVal('plugin')){return false;}else return true;"/>
+    <input type="submit" value='<fmt:message key="consolebase.common.cancel" />' onclick="history.go(-1); return false;" />
 </form>
 </c:otherwise>
 </c:choose>

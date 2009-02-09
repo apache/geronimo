@@ -145,4 +145,5 @@ protected void doGet(HttpServletRequest request, HttpServletResponse response) {
 
 <p><a href="<portlet:actionURL portletMode="view">
               <portlet:param name="mode" value="list" />
-            </portlet:actionURL>">Return to list</a></p>
+            </portlet:actionURL>"><fmt:message key="dbwizard.common.returnToList" /></a></p>
+            

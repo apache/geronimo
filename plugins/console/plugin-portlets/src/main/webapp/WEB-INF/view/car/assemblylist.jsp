@@ -44,12 +44,12 @@
   <fmt:message key="car.list.noPlugins" />
   <p>
   <form method="POST">
-    <input type="submit" value="Cancel" onclick="history.go(-1); return false;" />
+    <input type="submit" value='<fmt:message key="consolebase.common.cancel"/>' onclick="history.go(-1); return false;" />
   </form>
 </c:when>
 <c:otherwise>
 <form name="frmlst" action="<portlet:actionURL/>" method="POST">
-    <h3>Name the server to be assembled</h3>
+    <h3><fmt:message key="car.list.assemblyServerName"/></h3>
     <input id="mode" type="hidden" name="mode" value="assemblyView-before"/>
     
 <table border="0" cellpadding="3">
@@ -87,7 +87,7 @@
   <th class="DarkBackground"><a href='<portlet:actionURL>
 	                                   <portlet:param name="column" value="${column}"/>
 	                                   <portlet:param name="mode" value="index-after"/>
-	                                  </portlet:actionURL>'>${column}</a></th>
+	                                  </portlet:actionURL>'><fmt:message key="car.common.list${column}" /></a></th>
   </c:forEach>
 </tr>
 <c:forEach var="plugin" items="${plugins}" varStatus="status">

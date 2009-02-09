@@ -38,10 +38,10 @@
 
            <ul>
                <li><b><a href="mailto:user-subscribe@geronimo.apache.org">user@geronimo.apache.org</a></b>
-                   (<a href="http://geronimo.apache.org/redirects/userMailingList.html">archives</a>)
+                   (<a href="http://geronimo.apache.org/redirects/userMailingList.html"><fmt:message key="welcome.welcomeNormal.archive"/></a>)
                    <fmt:message key="welcome.welcomeNormal.forUsers"/></li>
                <li><b><a href="mailto:dev-subscribe@geronimo.apache.org">dev@geronimo.apache.org</a></b>
-                   (<a href="http://geronimo.apache.org/redirects/developerMailingList.html">archives</a>)
+                   (<a href="http://geronimo.apache.org/redirects/developerMailingList.html"><fmt:message key="welcome.welcomeNormal.archive"/></a>)
                    <fmt:message key="welcome.welcomeNormal.forDevelopers"/></li>
            </ul>
 

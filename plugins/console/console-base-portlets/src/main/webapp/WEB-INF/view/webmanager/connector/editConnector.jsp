@@ -16,8 +16,9 @@
 --%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
-
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%@ taglib prefix="portlet" uri="http://java.sun.com/portlet" %>
+<fmt:setBundle basename="consolebase"/>
 <portlet:defineObjects/>
 
 <script language="JavaScript">
@@ -66,20 +67,20 @@ function <portlet:namespace/>validateForm(){
 <!-- Current Task -->
 <c:choose>
   <c:when test="${mode eq 'add'}">
-    Add a new ${connectorType}
+    <fmt:message key="webmanager.connector.editConnector.addNew"/>&nbsp;${connectorType}
   </c:when>
   <c:otherwise>
-    Edit connector ${uniqueName}
+    <fmt:message key="webmanager.connector.editConnector.editConnector"/>&nbsp;${uniqueName}
   </c:otherwise>
 </c:choose>
 <p>
-(<strong>*</strong> denotes a required attribute)
+<fmt:message key="webmanager.connector.editConnector.requiredAttribute"/>
 <table border="0" cellpadding="3">
 <tr>
-  <th class="DarkBackground">Attribute</th>
-  <th class="DarkBackground">Type</th>
-  <th class="DarkBackground">Value</th>
-  <th class="DarkBackground">Description</th>
+  <th class="DarkBackground"><fmt:message key="webmanager.connector.editConnector.attribute"/></th>
+  <th class="DarkBackground"><fmt:message key="webmanager.connector.editConnector.type"/></th>
+  <th class="DarkBackground"><fmt:message key="webmanager.connector.editConnector.value"/></th>
+  <th class="DarkBackground"><fmt:message key="webmanager.connector.editConnector.desc"/></th>
 </tr>
 <tr>
   <td class="LightBackground"><strong>*uniqueName</strong></td>
@@ -94,7 +95,7 @@ function <portlet:namespace/>validateForm(){
         </c:otherwise>
       </c:choose>
   </td>
-  <td>A name that is different than the name for any other web connectors in the server (no spaces in the name please)</td>
+  <td><fmt:message key="webmanager.common.uniqueNameExp"/></td>
 </tr>
 <c:forEach var="connectorAttribute" items="${connectorAttributes}" varStatus="status">
   <c:set var="style" value="${status.index % 2 == 0 ? 'MediumBackground' : 'LightBackground'}"/>
@@ -142,17 +143,17 @@ function <portlet:namespace/>validateForm(){
     	     value="<c:out escapeXml="true" value="${connectorAttribute.stringValue}"/>"></td>
         </c:otherwise>
     </c:choose>
-    <td class="${style}">${connectorAttribute.description}</td>
+     <td class="${style}"><fmt:message key="${connectorAttribute.description}"/></td>
   </tr>
 </c:forEach>
 </table>
 <P>
 <!-- Submit Button -->
-<input name="submit" type="submit" value="Save" onClick="return <portlet:namespace/>validateForm()">
-<input name="reset" type="reset" value="Reset">
-<input name="submit" type="submit" value="Cancel">
+<input name="submit" type="submit" value="<fmt:message key="consolebase.common.save"/>" onClick="return <portlet:namespace/>validateForm()">
+<input name="reset" type="reset" value="<fmt:message key="consolebase.common.reset"/>">
+<input name="submit" type="submit" value="<fmt:message key="consolebase.common.cancel"/>">
 </form>
 <P>
 <a href='<portlet:actionURL portletMode="view">
            <portlet:param name="mode" value="list" />
-         </portlet:actionURL>'>List connectors</a>
+         </portlet:actionURL>'><fmt:message key="webmanager.common.listConnectors"/></a>

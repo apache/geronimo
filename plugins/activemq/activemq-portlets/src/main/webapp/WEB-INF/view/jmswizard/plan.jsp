@@ -69,7 +69,7 @@
         <td></td>
         <td>
             <input type="hidden" name="nextAction" value="deploy" />
-            <input type="button" value="Edit Configuration" onclick="document.<portlet:namespace/>JMSForm.nextAction.value='review';document.<portlet:namespace/>JMSForm.submit();return false;" />
+            <input type="button" value='<fmt:message key="jmswizard.plan.edit" />' onclick="document.<portlet:namespace/>JMSForm.nextAction.value='review';document.<portlet:namespace/>JMSForm.submit();return false;" />
             <input type="submit" value='<fmt:message key="jmswizard.plan.deployJMSResource" />' />
         </td>
       </tr>

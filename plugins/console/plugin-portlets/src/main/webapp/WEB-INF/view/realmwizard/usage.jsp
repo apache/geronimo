@@ -28,9 +28,7 @@
 
 <p><b>WEB-INF/web.xml</b></p>
 
-<p>The <tt>web.xml</tt> should have</p>
 <fmt:message key="realmwizard.usage.webXmlShouldHave" />
-
 
 <pre>
 &lt;web-app xmlns="http://java.sun.com/xml/ns/j2ee"

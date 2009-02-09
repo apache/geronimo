@@ -95,7 +95,7 @@ function <portlet:namespace/>validateForm(){
     </script>
     <c:forEach var="option" items="${realm.optionNames}">
       <tr>
-        <th style="min-width: 140px"><div align="right">${optionMap[option].displayName}:</div></th>
+        <th style="min-width: 140px"><div align="right"><fmt:message key="${optionMap[option].displayName}"/>:</div></th>
         <td><input name="option-${option}"
                    type="<c:choose><c:when test="${optionMap[option].password}">password</c:when><c:otherwise>text</c:otherwise></c:choose>"
                    size="${optionMap[option].length}" value="${realm.options[option]}"></td>
@@ -112,7 +112,7 @@ function <portlet:namespace/>validateForm(){
     </c:if>
       <tr>
         <td></td>
-        <td>${optionMap[option].description}</td>
+        <td><fmt:message key="${optionMap[option].description}"/></td>
       </tr>
       <c:if test="${!optionMap[option].blankAllowed}">
         <script language="JavaScript">
