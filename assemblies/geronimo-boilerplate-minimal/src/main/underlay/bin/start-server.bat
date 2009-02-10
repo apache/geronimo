@@ -45,12 +45,11 @@
 
 if "%OS%"=="Windows_NT" goto okOsCheck
 echo Cannot process command - you are running an unsupported operating system.
-set ERRORLEVEL=1
+cmd /c exit /b 1
 goto end
 
 :okOsCheck
 @setlocal enableextensions
-@set ERRORLEVEL=0
 
 set DIRNAME=%~dp0
 if "%DIRNAME%" == "" set DIRNAME=.\
@@ -61,7 +60,7 @@ set EXECUTABLE=%DIRNAME%\gsh.bat
 @REM Check that target executable exists
 if exist "%EXECUTABLE%" goto okExec
 echo ERROR - Cannot find required script %EXECUTABLE%
-set ERRORLEVEL=1
+cmd /c exit /b 1
 goto end
 
 :okExec
@@ -80,3 +79,4 @@ call "%EXECUTABLE%" -c "geronimo/start-server %CMD_LINE_ARGS%"
 @REM pause the batch file if GERONIMO_BATCH_PAUSE is set to 'on'
 if "%GERONIMO_BATCH_PAUSE%" == "on" pause
 @endlocal
+cmd /c exit /b %errorlevel%

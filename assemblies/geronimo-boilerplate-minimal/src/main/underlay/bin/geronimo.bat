@@ -126,8 +126,8 @@
 @REM
 @REM Exit Codes:
 @REM
-@REM  0 - Success
-@REM  1 - Error
+@REM  0        - Success
+@REM  Non-zero - Error
 @REM ---------------------------------------------------------------------------
 
 @if "%GERONIMO_BATCH_ECHO%" == "on"  echo on
@@ -135,12 +135,11 @@
 
 if "%OS%" == "Windows_NT" goto okOsCheck
 echo Cannot process Geronimo command - you are running an unsupported operating system.
-set ERRORLEVEL=1
+cmd /c exit /b 1
 goto end
 
 :okOsCheck
 @setlocal enableextensions
-@set ERRORLEVEL=0
 
 if not "%GERONIMO_HOME%" == "" goto resolveHome
 @REM %~dp0 is expanded pathname of the current script
@@ -157,7 +156,7 @@ cd /d %CURRENT_DIR%
 if exist "%GERONIMO_HOME%\bin\geronimo.bat" goto okHome
 echo The GERONIMO_HOME environment variable is not defined correctly
 echo This environment variable is needed to run this program
-set ERRORLEVEL=1
+cmd /c exit /b 1
 goto end
 :okHome
 
@@ -171,7 +170,7 @@ if not %errorlevel% == 0 goto end
 if exist "%GERONIMO_HOME%\bin\setjavaenv.bat" goto okSetJavaEnv
 echo Cannot find %GERONIMO_HOME%\bin\setjavaenv.bat
 echo This file is needed to run this program
-set ERRORLEVEL=1
+cmd /c exit /b 1
 goto end
 :okSetJavaEnv
 set BASEDIR=%GERONIMO_HOME%
@@ -251,6 +250,7 @@ echo        --password    Admin password
 echo        --host        Hostname of the server
 echo        --port        RMI port to connect to
 echo        --secure      Enable secure JMX communication
+cmd /c exit /b 1
 goto end
 
 :doDebug
@@ -306,6 +306,9 @@ set JAVA_AGENT_JAR=%GERONIMO_HOME%\bin\jpa.jar
 set JAVA_AGENT_OPTS=
 if exist "%JAVA_AGENT_JAR%" set JAVA_AGENT_OPTS=-javaagent:"%JAVA_AGENT_JAR%"
 
+@REM Must reset ERRORLEVEL
+cmd /c exit /b 0
+
 @REM Execute Java with the applicable properties
 if not "%JDB%" == "" goto doJDB
 %_EXECJAVA% %JAVA_OPTS% %GERONIMO_OPTS% %JAVA_AGENT_OPTS% -Djava.endorsed.dirs="%GERONIMO_HOME%\lib\endorsed;%JRE_HOME%\lib\endorsed" -Djava.ext.dirs="%GERONIMO_HOME%\lib\ext;%JRE_HOME%\lib\ext" -Dorg.apache.geronimo.home.dir="%GERONIMO_HOME%" -Djava.io.tmpdir="%GERONIMO_TMPDIR%" -jar %_JARFILE% %_LONG_OPT% %CMD_LINE_ARGS%
@@ -319,3 +322,4 @@ goto end
 @REM pause the batch file if GERONIMO_BATCH_PAUSE is set to 'on'
 if "%GERONIMO_BATCH_PAUSE%" == "on" pause
 @endlocal
+cmd /c exit /b %errorlevel%

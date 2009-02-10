@@ -46,12 +46,11 @@
 
 if "%OS%" == "Windows_NT" goto okOsCheck
 echo Cannot process Geronimo command - you are running an unsupported operating system.
-set ERRORLEVEL=1
+cmd /c exit /b 1
 goto end
 
 :okOsCheck
 @setlocal enableextensions
-@set ERRORLEVEL=0
 
 if not "%GERONIMO_HOME%" == "" goto resolveHome
 @REM %~dp0 is expanded pathname of the current script
@@ -68,7 +67,7 @@ cd /d %CURRENT_DIR%
 if exist "%GERONIMO_HOME%\bin\geronimo.bat" goto okHome
 echo The GERONIMO_HOME environment variable is not defined correctly
 echo This environment variable is needed to run this program
-set ERRORLEVEL=1
+cmd /c exit /b 1
 goto end
 :okHome
 
@@ -78,7 +77,7 @@ set EXECUTABLE=%GERONIMO_HOME%\bin\geronimo.bat
 if exist "%EXECUTABLE%" goto okExec
 echo Cannot find %EXECUTABLE%
 echo This file is needed to run this program
-set ERRORLEVEL=1
+cmd /c exit /b 1
 goto end
 :okExec
 
@@ -97,3 +96,4 @@ call "%EXECUTABLE%" start %CMD_LINE_ARGS%
 @REM pause the batch file if GERONIMO_BATCH_PAUSE is set to 'on'
 if "%GERONIMO_BATCH_PAUSE%" == "on" pause
 @endlocal
+cmd /c exit /b %errorlevel%

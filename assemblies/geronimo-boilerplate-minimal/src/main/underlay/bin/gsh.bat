@@ -26,12 +26,11 @@
 
 if "%OS%" == "Windows_NT" goto okOsCheck
 echo Cannot process command - you are running an unsupported operating system.
-set ERRORLEVEL=1
+cmd /c exit /b 1
 goto end
 
 :okOsCheck
 @setlocal enableextensions
-@set ERRORLEVEL=0
 
 set DIRNAME=%~dp0
 if "%DIRNAME%" == "" set DIRNAME=.\
@@ -45,7 +44,7 @@ if not %errorlevel% == 0 goto end
 @REM Get standard Java environment variables
 if exist "%DIRNAME%\setjavaenv.bat" goto okSetJavaEnv
 echo ERROR - Cannot find %DIRNAME%\setjavaenv.bat
-set ERRORLEVEL=1
+cmd /c exit /b 1
 goto end
 :okSetJavaEnv
 set BASEDIR=%DIRNAME%
@@ -83,3 +82,4 @@ rem Start the JVM
 @REM pause the batch file if GERONIMO_BATCH_PAUSE is set to 'on'
 if "%GERONIMO_BATCH_PAUSE%" == "on" pause
 @endlocal
+cmd /c exit /b %errorlevel%
