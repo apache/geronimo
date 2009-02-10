@@ -227,3 +227,4 @@ echo The service "%SERVICE_NAME%" has been installed.
 @REM pause the batch file if GERONIMO_BATCH_PAUSE is set to 'on'
 if "%GERONIMO_BATCH_PAUSE%" == "on" pause
 @endlocal
+cmd /c exit /b %errorlevel%
