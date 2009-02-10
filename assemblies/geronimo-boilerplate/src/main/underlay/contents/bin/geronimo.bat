@@ -250,6 +250,7 @@ echo        --password    Admin password
 echo        --host        Hostname of the server
 echo        --port        RMI port to connect to
 echo        --secure      Enable secure JMX communication
+cmd /c exit /b 1
 goto end
 
 :doDebug

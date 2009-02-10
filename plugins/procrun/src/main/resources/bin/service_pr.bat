@@ -164,6 +164,7 @@ echo   --user      Admin user, default to "system"
 echo   --password  Admin password, default to "manager"
 echo   --port      RMI port to connect to, default to 1099
 echo   --secure    Optional flag for enabling secure JMX communication
+cmd /c exit /b 1
 goto end
 
 :doRemove
@@ -223,15 +224,6 @@ goto end
 echo The service "%SERVICE_NAME%" has been installed.
 
 :end
-@REM Clear the environment variables. They are not needed any more.
-set PR_DISPLAYNAME=
-set PR_DESCRIPTION=
-set PR_INSTALL=
-set PR_LOGPATH=
-set PR_LOGLEVEL=
-set PR_LOGPREFIX=
-set PR_STDOUTPUT=
-set PR_STDERROR=
 @REM pause the batch file if GERONIMO_BATCH_PAUSE is set to 'on'
 if "%GERONIMO_BATCH_PAUSE%" == "on" pause
 @endlocal
