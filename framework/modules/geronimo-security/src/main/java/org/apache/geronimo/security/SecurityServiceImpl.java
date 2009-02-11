@@ -59,21 +59,6 @@ public class SecurityServiceImpl implements SecurityService {
         ConfigurationUtil.registerPolicyContextHandler(new PolicyContextHandlerSOAPMessage(), true);
         ConfigurationUtil.registerPolicyContextHandler(new PolicyContextHandlerHttpServletRequest(), true);
 
-        //Initialize PolicyConfigurationFactory before registering the GeronimoPolicy to the security system.
-        //So in the process of initializing PolicyConfigurationFactory, default Policy Object is still in effect
-        //In this way, we could avoid the infinite loop between the policy checking and loading PolicyConfigurationFactory
-        policyConfigurationFactory = sysOverRide(policyConfigurationFactory, POLICY_CONFIG_FACTORY);
-        if (policyConfigurationFactory != null) {
-            Thread currentThread = Thread.currentThread();
-            ClassLoader oldClassLoader = currentThread.getContextClassLoader();
-            currentThread.setContextClassLoader(classLoader);
-            try {
-                PolicyConfigurationFactory.getPolicyConfigurationFactory();
-            } finally {
-                currentThread.setContextClassLoader(oldClassLoader);
-            }
-        }
-
         if (!POLICY_INSTALLED) {
             policyProvider = sysOverRide(policyProvider, POLICY_PROVIDER);
 
@@ -86,6 +71,17 @@ public class SecurityServiceImpl implements SecurityService {
             POLICY_INSTALLED = true;
         }
 
+        policyConfigurationFactory = sysOverRide(policyConfigurationFactory, POLICY_CONFIG_FACTORY);
+        if (policyConfigurationFactory != null) {
+            Thread currentThread = Thread.currentThread();
+            ClassLoader oldClassLoader = currentThread.getContextClassLoader();
+            currentThread.setContextClassLoader(classLoader);
+            try {
+                PolicyConfigurationFactory.getPolicyConfigurationFactory();
+            } finally {
+                currentThread.setContextClassLoader(oldClassLoader);
+            }
+        }
         if (keyStore != null) sysOverRide(serverInfo.resolveServerPath(keyStore), KEYSTORE);
         if (keyStorePassword != null) sysOverRide(keyStorePassword, KEYSTORE_PASSWORD);
 
