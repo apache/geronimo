@@ -241,7 +241,11 @@ public class WSDLQueryHandler {
         for (List list : imports) {
             List<SchemaImport> impList = list;
             for (SchemaImport s : impList) {
-                String docURI = s.getReferencedSchema().getDocumentBaseURI();
+                Schema importedSchema = s.getReferencedSchema();
+                if (importedSchema == null) {
+                    continue;
+                }
+                String docURI = importedSchema.getDocumentBaseURI();
                 String location = s.getSchemaLocationURI(); 
                 String importId = parentDocKey + "/" + location;                                
                 String docKey = docMap.get(docURI);                
@@ -249,7 +253,7 @@ public class WSDLQueryHandler {
                     docKey = getUniqueSchemaId();
                     docMap.put(docURI, docKey);
                     schemaMap.put(docKey, s);
-                    updateSchemaImports(docKey, s.getReferencedSchema(), docMap, base);
+                    updateSchemaImports(docKey, importedSchema, docMap, base);
                 }                
                 importMap.put(importId, docKey);
             }
@@ -257,7 +261,11 @@ public class WSDLQueryHandler {
         
         List<SchemaReference> includes = schema.getIncludes();
         for (SchemaReference s : includes) {
-            String docURI = s.getReferencedSchema().getDocumentBaseURI();
+            Schema includedSchema = s.getReferencedSchema();
+            if (includedSchema == null) {
+                continue;
+            }
+            String docURI = includedSchema.getDocumentBaseURI();
             String location = s.getSchemaLocationURI(); 
             String importId = parentDocKey + "/" + location;                                
             String docKey = docMap.get(docURI);                
@@ -265,7 +273,7 @@ public class WSDLQueryHandler {
                 docKey = getUniqueSchemaId();
                 docMap.put(docURI, docKey);
                 schemaMap.put(docKey, s);
-                updateSchemaImports(docKey, s.getReferencedSchema(), docMap, base);
+                updateSchemaImports(docKey, includedSchema, docMap, base);
             }                
             importMap.put(importId, docKey);
         }

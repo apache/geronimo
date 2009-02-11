@@ -144,7 +144,11 @@ public abstract class CatalogTest extends TestSupport {
         for (List list : imports) {
             List<SchemaImport> impList = list;
             for (SchemaImport imp : impList) {
-                boolean rs = checkForElement(imp.getReferencedSchema());
+                Schema importedSchema = imp.getReferencedSchema();
+                if (importedSchema == null) {
+                    continue;
+                }
+                boolean rs = checkForElement(importedSchema);
                 if (rs) {
                     return true;
                 }

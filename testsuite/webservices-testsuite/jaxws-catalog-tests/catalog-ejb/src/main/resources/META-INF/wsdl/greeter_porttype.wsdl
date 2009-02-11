@@ -31,6 +31,8 @@
 
             <import namespace="http://apache.org/greeter_control/types" 
                     schemaLocation="http://foo3/greeter.xsd" />
+
+            <import namespace="http://schemas.ggf.org/jsdl/2005/11/jsdl"/>
             
         </schema>
    </wsdl:types>
