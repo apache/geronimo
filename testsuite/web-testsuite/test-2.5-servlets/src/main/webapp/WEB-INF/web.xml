@@ -34,6 +34,12 @@
 		<servlet-name>SampleServlet2</servlet-name>
 		<servlet-class>com.test.servlet.SampleServlet2</servlet-class>
 	</servlet>
+	<servlet>
+		<description></description>
+		<display-name>AddressServlet</display-name>
+		<servlet-name>AddressServlet</servlet-name>
+		<servlet-class>com.test.servlet.AddressServlet</servlet-class>
+	</servlet>
 	<servlet-mapping>
 		<servlet-name>SampleServlet</servlet-name>
 		<url-pattern>/SampleServlet</url-pattern>
@@ -44,6 +50,11 @@
 		<url-pattern>/SampleServlet2</url-pattern>
 		<url-pattern>/SampleServlet2/*</url-pattern>
 	</servlet-mapping>
+    <servlet-mapping>
+            <servlet-name>AddressServlet</servlet-name>
+            <url-pattern>/AddressServlet</url-pattern>
+            <url-pattern>/AddressServlet/*</url-pattern>
+    </servlet-mapping>
 	<filter-mapping>
 	   <filter-name>Sample Filter</filter-name>
            <url-pattern>/*</url-pattern>
