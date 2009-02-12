@@ -74,7 +74,6 @@ public class DeploymentContext {
     private final File baseDir;
     private final File inPlaceConfigurationDir;
     private final ResourceContext resourceContext;
-    private final byte[] buffer = new byte[4096];
     private final Map<String, ConfigurationData> childConfigurationDatas = new LinkedHashMap<String, ConfigurationData>();
     private final ConfigurationManager configurationManager;
     private final Configuration configuration;
@@ -89,17 +88,17 @@ public class DeploymentContext {
     private final static int MFCP_STRICT = 2;
 
     static {
-    	// Extract the LenientMFCP value if specified.  If not, default to strict..
-    	String mode = System.getProperty("Xorg.apache.geronimo.deployment.LenientMFCP");
-    	int mfcpMode = MFCP_STRICT;    // Default to strict
-    	String mfcpModeMessage = "Strict Manifest Classpath";
-    	if (mode != null) { 
-    	    if (mode.equals("true")) {
+        // Extract the LenientMFCP value if specified.  If not, default to strict..
+        String mode = System.getProperty("Xorg.apache.geronimo.deployment.LenientMFCP");
+        int mfcpMode = MFCP_STRICT;    // Default to strict
+        String mfcpModeMessage = "Strict Manifest Classpath";
+        if (mode != null) { 
+            if (mode.equals("true")) {
                 mfcpMode = MFCP_LENIENT;
                 mfcpModeMessage = "Lenient Manifest Classpath";
             } 
         }
-    	
+        
         manifestClassLoaderMode = mfcpMode;
         manifestClassLoaderMessage = mfcpModeMessage;
         LoggerFactory.getLogger(DeploymentContext.class).info(
@@ -291,6 +290,10 @@ public class DeploymentContext {
         JarFile newJarFile(URI relativeURI) throws IOException;
 
         String getManifestClassPath(JarFile jarFile) throws IOException;
+
+        boolean isDirectory(URI relativeURI) throws IOException;
+
+        File[] listFiles(URI relativeURI) throws IOException;
     }
 
     private class DefaultJarFileFactory implements JarFileFactory {
@@ -310,6 +313,21 @@ public class DeploymentContext {
                 return null;
             }
             return manifest.getMainAttributes().getValue(Attributes.Name.CLASS_PATH);
+        }
+
+        public boolean isDirectory(URI relativeURI) {
+            File targetFile = getTargetFile(relativeURI);
+            return targetFile.isDirectory();
+        }
+
+        public File[] listFiles(URI relativeURI) throws IOException {
+            File targetFile = getTargetFile(relativeURI);
+            if (targetFile.isDirectory()) {
+                File[] files = targetFile.listFiles();
+                return (files == null) ? new File[0] : files;
+            } else {
+                throw new IOException(targetFile + " is not a directory");
+            }
         }
     }
 
@@ -365,67 +383,90 @@ public class DeploymentContext {
                 problems.add(new DeploymentException(printInfo("Invalid manifest classpath entry, path= " + path, moduleBaseUri, classpath, exclusions)));
                 continue;
             }
-
-            if (!pathUri.getPath().endsWith(".jar")) {
-                if (manifestClassLoaderMode == MFCP_STRICT) {
-                    problems.add(new DeploymentException(printInfo("Manifest class path entries must end with the .jar extension (J2EE 1.4 Section 8.2): path= " + path, moduleBaseUri, classpath, exclusions)));
-                }
-                else {
-                    LoggerFactory.getLogger(DeploymentContext.class).info(
-                             "The "+manifestClassLoaderMessage+" processing mode is in effect.\n"+
-                             "Therefore, a manifest classpath entry which does not end with .jar, " + pathUri + " is being permitted and ignored.");
-                }
-                continue;
-            }
+            
             if (pathUri.isAbsolute()) {
                 problems.add(new DeploymentException(printInfo("Manifest class path entries must be relative (J2EE 1.4 Section 8.2): path= " + path, moduleBaseUri, classpath, exclusions)));
                 continue;
             }
 
             URI targetUri = moduleBaseUri.resolve(pathUri);
-            if (targetUri.getPath().endsWith("/")) {
-                if (manifestClassLoaderMode == MFCP_STRICT) {
-                    problems.add(new DeploymentException(printInfo("target path must not end with a '/' character: path= " + path + ", resolved to targetURI= " + targetUri, moduleBaseUri, classpath, exclusions)));
-                }
-                else {
-                    LoggerFactory.getLogger(DeploymentContext.class).info(
-                             "The "+manifestClassLoaderMessage+" processing mode is in effect.\n"+
-                             "Therefore, a manifest classpath entry " + targetUri + " which does not end with a '/' character is being ignored.");
-                }
-                continue;
-            }
 
-            String targetEntry = targetUri.toString();
-            if (exclusions.contains(targetEntry)) {
-                continue;
-            }
-            URI resolvedUri = resolutionUri.resolve(targetUri);
-            String classpathEntry = resolvedUri.toString();
-            //don't get caught in circular references
-            if (classpath.contains(classpathEntry)) {
-                continue;
-            }
-            classpath.add(classpathEntry);
-
-            JarFile classPathJarFile;
             try {
-                classPathJarFile = factory.newJarFile(targetUri);
+                if (factory.isDirectory(targetUri)) {
+                    if (!targetUri.getPath().endsWith("/")) {
+                        targetUri = URI.create(targetUri.getPath() + "/");
+                    }                 
+                    for (File file : factory.listFiles(targetUri)) {
+                        if (file.isDirectory()) {
+                            log.debug("Sub directory [" + file.getAbsolutePath() + "] in the manifest entry directory is ignored");
+                            continue;
+                        }
+                        if (!file.getName().endsWith(".jar")) {
+                            log.debug("Only jar files are added to classpath, file [" + file.getAbsolutePath() + "] is ignored");
+                            continue;
+                        }
+                        addToClassPath(moduleBaseUri, resolutionUri, targetUri.resolve(file.getName()), classpath, exclusions, factory, problems);
+                    }
+                } else {
+                    if (!pathUri.getPath().endsWith(".jar")) {
+                        if (manifestClassLoaderMode == MFCP_STRICT) {
+                            problems.add(new DeploymentException(printInfo(
+                                    "Manifest class path entries must end with the .jar extension (J2EE 1.4 Section 8.2): path= "
+                                    + path, moduleBaseUri, classpath, exclusions)));
+                        } else {
+                            log.info("The " + manifestClassLoaderMessage + " processing mode is in effect.\n"
+                                    + "Therefore, a manifest classpath entry which does not end with .jar, "
+                                    + pathUri + " is being permitted and ignored.");
+                        }
+                        continue;
+                    }
+                    addToClassPath(moduleBaseUri, resolutionUri, targetUri, classpath, exclusions, factory, problems);
+                }
             } catch (IOException e) {
                 if (manifestClassLoaderMode == MFCP_STRICT) {
-                    problems.add(new DeploymentException(printInfo("Manifest class path entries must be a valid jar file (JAVAEE 5 Section 8.2): path= " + path + ", resolved to targetURI= " + targetUri, moduleBaseUri, classpath, exclusions), e));
+                    problems.add(new DeploymentException(
+                            "An IOException resulting from manifest classpath : targetUri= " + targetUri, e));
+                } else {
+                    log.info("The " + manifestClassLoaderMessage + " processing mode is in effect.\n"
+                            + "Therefore, an IOException resulting from manifest classpath " + targetUri
+                            + " is being ignored.");
                 }
-                else {
-                    LoggerFactory.getLogger(DeploymentContext.class).info(
-                             "The "+manifestClassLoaderMessage+" processing mode is in effect.\n"+
-                             "Therefore, an IOException resulting from manifest classpath " + targetUri + " is being ignored.");
-                }
-                continue;
             }
-
-            getCompleteManifestClassPath(classPathJarFile, targetUri, resolutionUri, classpath, exclusions, factory, problems);
         }
     }
 
+    private void addToClassPath(URI moduleBaseUri, URI resolutionUri, URI targetUri, ClassPathList classpath, ModuleList exclusions, JarFileFactory factory, List<DeploymentException> problems) throws DeploymentException {
+        String targetEntry = targetUri.toString();
+        if (exclusions.contains(targetEntry)) {
+            return;
+        }
+        URI resolvedUri = resolutionUri.resolve(targetUri);
+        String classpathEntry = resolvedUri.toString();
+        //don't get caught in circular references
+        if (classpath.contains(classpathEntry)) {
+            return;
+        }
+        classpath.add(classpathEntry);
+        JarFile classPathJarFile;
+        try {
+            classPathJarFile = factory.newJarFile(targetUri);
+        } catch (IOException e) {
+            if (manifestClassLoaderMode == MFCP_STRICT) {
+                problems.add(new DeploymentException(
+                                printInfo(
+                                        "Manifest class path entries must be a valid jar file, or if it is a directory, all the files with jar suffix in it must be a valid jar file (JAVAEE 5 Section 8.2):  resolved to targetURI= "
+                                        + targetUri, moduleBaseUri, classpath, exclusions), e));
+            } else {
+                log.info("The " + manifestClassLoaderMessage + " processing mode is in effect.\n"
+                        + "Therefore, an IOException resulting from manifest classpath " + targetUri
+                        + " is being ignored.");
+            }
+            return;
+        }
+        
+        getCompleteManifestClassPath(classPathJarFile, targetUri, resolutionUri, classpath, exclusions, factory, problems);
+    }
+    
     private String printInfo(String message, URI moduleBaseUri, ClassPathList classpath, ModuleList exclusions) {
         StringBuffer buf = new StringBuffer(message).append("\n");
         buf.append("    looking at: ").append(moduleBaseUri);
@@ -481,52 +522,73 @@ public class DeploymentContext {
                 continue;
             }
 
-            if (!pathUri.getPath().endsWith(".jar")) {
-                if (manifestClassLoaderMode == MFCP_STRICT) {
-                    problems.add(new DeploymentException("Manifest class path entries must end with the .jar extension (J2EE 1.4 Section 8.2): path= " + path + ", module= " + moduleBaseUri));
-                }
-                else {
-                    LoggerFactory.getLogger(DeploymentContext.class).info(
-                             "The "+manifestClassLoaderMessage+" processing mode is in effect.\n"+
-                             "Therefore, a manifest classpath entry which does not end with .jar, " + pathUri + " is being permitted and ignored.");
-                }
-                continue;
-            }
-
             if (pathUri.isAbsolute()) {
                 problems.add(new DeploymentException("Manifest class path entries must be relative (J2EE 1.4 Section 8.2): path= " + path + ", module= " + moduleBaseUri));
                 continue;
             }
 
             URI targetUri = moduleBaseUri.resolve(pathUri);
-            if (targetUri.getPath().endsWith("/")) {
-                if (manifestClassLoaderMode == MFCP_STRICT) {
-                    problems.add(new DeploymentException("target path must not end with a '/' character: path= " + path + ", resolved to targetURI= " + targetUri));
-                }
-                else {
-                    LoggerFactory.getLogger(DeploymentContext.class).info(
-                             "The "+manifestClassLoaderMessage+" processing mode is in effect.\n"+
-                             "Therefore, a manifest classpath entry " + targetUri + " which does not end with a '/' character is being ignored.");
-                }
-                continue;
-            }
-
+            
             try {
-                configuration.addToClassPath(targetUri.toString());
+                if (factory.isDirectory(targetUri)) {
+                    if (!targetUri.getPath().endsWith("/")) {
+                        targetUri = URI.create(targetUri.getPath() + "/");
+                    }
+                    for (File file : factory.listFiles(targetUri)) {
+                        if (file.isDirectory()) {
+                            log.debug("Sub directory [" + file.getAbsolutePath() + "] in the manifest entry directory is ignored");
+                            continue;
+                        }
+                        if (!file.getName().endsWith(".jar")) {
+                            log.debug("Only jar files are added to classpath, file [" + file.getAbsolutePath() + "] is ignored");
+                            continue;
+                        }
+                        addToClassPath(targetUri.resolve(file.getName()), problems);
+                    }
+                } else {
+                    if (!pathUri.getPath().endsWith(".jar")) {
+                        if (manifestClassLoaderMode == MFCP_STRICT) {
+                            problems.add(new DeploymentException(
+                                    "Manifest class path entries must end with the .jar extension (J2EE 1.4 Section 8.2): path= "
+                                    + path + ", module= " + moduleBaseUri));
+                        } else {
+                            log.info("The " + manifestClassLoaderMessage + " processing mode is in effect.\n"
+                                    + "Therefore, a manifest classpath entry which does not end with .jar, "
+                                    + pathUri + " is being permitted and ignored.");
+                        }
+                        continue;
+                    }
+                    addToClassPath(targetUri, problems);
+                }
             } catch (IOException e) {
                 if (manifestClassLoaderMode == MFCP_STRICT) {
-                    problems.add(new DeploymentException("Failure to add targetURI to configuration classpath: " + targetUri, e));
+                    problems.add(new DeploymentException(
+                            "An IOException resulting from manifest classpath : targetUri= " + targetUri, e));
+                } else {
+                    log.info("The " + manifestClassLoaderMessage + " processing mode is in effect.\n"
+                            + "Therefore, an IOException resulting from manifest classpath " + targetUri
+                            + " is being ignored.");
                 }
-                else {
-                    LoggerFactory.getLogger(DeploymentContext.class).info(
-                             "The "+manifestClassLoaderMessage+" processing mode is in effect.\n"+
-                             "Therefore, an IOException resulting from manifest classpath " + targetUri + " is being ignored.");
-                }
-                continue;
             }
         }
     }
 
+    private void addToClassPath(URI targetUri, List<DeploymentException> problems) throws DeploymentException {
+        try {
+            configuration.addToClassPath(targetUri.getPath());           
+        } catch (IOException e) {
+            if (manifestClassLoaderMode == MFCP_STRICT) {
+                problems.add(new DeploymentException(
+                            "Failure to add targetURI to configuration classpath: " + targetUri.getPath(), e));
+            } else {
+                log.info("The " + manifestClassLoaderMessage + " processing mode is in effect.\n"
+                        + "Therefore, an IOException resulting from manifest classpath " + targetUri.getPath()
+                        + " is being ignored.");
+            }
+            return;
+        }
+    }
+    
     public void addClass(URI targetPath, String fqcn, byte[] bytes) throws IOException, URISyntaxException {
         if (!targetPath.getPath().endsWith("/"))
             throw new IllegalStateException("target path must end with a '/' character: " + targetPath);
@@ -560,6 +622,7 @@ public class DeploymentContext {
         OutputStream out = null;
         try {
             out = new FileOutputStream(targetFile);
+            byte[] buffer = new byte[4096];
             int count;
             while ((count = source.read(buffer)) > 0) {
                 out.write(buffer, 0, count);
