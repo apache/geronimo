@@ -31,6 +31,29 @@
 
     <description> Geronimo Monitoring and Management </description>
 
+    <modules>
+        <module>agent</module>
+        <module>agent-ds</module>
+        <module>agent-jar</module>
+        <module>agent-ejb</module>
+        <module>agent-jmx</module>
+        <module>agent-car-jmx</module>
+        <module>agent-sql</module>
+        <module>mconsole-ds</module>
+        <module>mconsole-war</module>
+        <module>mconsole-jetty</module>
+        <module>mconsole-tomcat</module>
+    </modules>
+
+    <profiles>
+        <profile>
+            <id>with-it</id>
+            <modules>
+                <module>mconsole-jetty-server</module>
+            </modules>
+        </profile>
+    </profiles>
+
     <build>
         <resources>
             <resource>
@@ -56,48 +79,5 @@
             </plugins>
         </pluginManagement>
     </build>
-
-    <profiles>
-        <profile>
-            <id>default</id>
-
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-
-            <modules>
-                <module>agent</module>
-                <module>agent-ds</module>
-                <module>agent-jar</module>
-                <module>agent-ejb</module>
-                <module>agent-jmx</module>
-                <module>agent-car-jmx</module>
-                <module>agent-sql</module>
-                <module>mconsole-ds</module>
-                <module>mconsole-war</module>
-                <module>mconsole-jetty</module>
-                <module>mconsole-jetty-server</module>
-                <module>mconsole-tomcat</module>
-            </modules>
-        </profile>
-
-        <profile>
-            <id>no-it</id>
-
-            <modules>
-                <module>agent</module>
-                <module>agent-ds</module>
-                <module>agent-jar</module>
-                <module>agent-ejb</module>
-                <module>agent-jmx</module>
-                <module>agent-car-jmx</module>
-                <module>agent-sql</module>
-                <module>mconsole-ds</module>
-                <module>mconsole-war</module>
-                <module>mconsole-jetty</module>
-                <module>mconsole-tomcat</module>
-            </modules>
-        </profile>
-    </profiles>
 
 </project>

@@ -70,14 +70,12 @@
         <module>jasper</module>
         <module>javamail</module>
         <module>jaxws</module>
-        <module>jetty</module>
         <module>myfaces</module>
         <module>openejb</module>
         <module>openjpa</module>
         <module>plancreator</module>
         <module>pluto</module>
         <module>system-database</module>
-        <module>tomcat</module>
         <module>webservices</module>
         <module>spring</module>
         <module>ca-helper</module>
@@ -91,6 +89,24 @@
         <module>classloaders</module>
         <module>procrun</module>
     </modules>
+
+    <profiles>
+        <profile>
+            <id>default</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <modules>
+                <module>jetty</module>
+                <module>tomcat</module>
+            </modules>
+        </profile>
+
+        <profile>
+            <id>ee6</id>
+            <!-- put jetty7 etc here -->
+        </profile>
+    </profiles>
     
     <build>
         <plugins>

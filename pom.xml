@@ -3461,12 +3461,11 @@
                 <module>plugins</module>
                 <module>plugingroups</module>
                 <module>assemblies</module>
-                <module>testsuite</module>
             </modules>
         </profile>
 
         <profile>
-            <id>no-it</id>
+            <id>with-it</id>
 
             <modules>
                 <module>repository</module>
@@ -3476,6 +3475,7 @@
                 <module>plugins</module>
                 <module>plugingroups</module>
                 <module>assemblies</module>
+                <module>testsuite</module>
             </modules>
         </profile>
 
@@ -3658,6 +3658,15 @@
                 <!--<txmanagerVersion>2.1.1</txmanagerVersion>-->
                 <txmanagerVersion>2.2-SNAPSHOT</txmanagerVersion>
             </properties>
+            <modules>
+                <module>repository</module>
+                <module>buildsupport</module>
+                <module>testsupport</module>
+                <module>framework</module>
+                <module>plugins</module>
+                <module>plugingroups</module>
+                <module>assemblies</module>
+            </modules>
         </profile>
     </profiles>
 
