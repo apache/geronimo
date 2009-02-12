@@ -47,7 +47,7 @@
 
     <profiles>
         <profile>
-            <id>with-it</id>
+            <id>it</id>
             <modules>
                 <module>mconsole-jetty-server</module>
             </modules>

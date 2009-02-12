@@ -3465,7 +3465,7 @@
         </profile>
 
         <profile>
-            <id>with-it</id>
+            <id>it</id>
 
             <modules>
                 <module>repository</module>

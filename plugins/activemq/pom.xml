@@ -49,7 +49,7 @@
 
     <profiles>
         <profile>
-            <id>with-it</id>
+            <id>it</id>
             <modules>
                 <module>activemq-server</module>
             </modules>
