@@ -21,7 +21,7 @@ Welcome to Apache Geronimo
 To build you will need:
 
  * JDK 5.0+ (J2SE 1.5.0+) (http://java.sun.com/j2se/1.5.0)
- * Maven 2.0.5+ (http://maven.apache.org)
+ * Maven 2.0.9+ (http://maven.apache.org)
 
 For detailed instructions please see:
 
