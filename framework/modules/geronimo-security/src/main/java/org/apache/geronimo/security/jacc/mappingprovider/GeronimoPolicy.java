@@ -56,6 +56,10 @@ public class GeronimoPolicy extends Policy {
             }
         }
         root.refresh();
+
+        // Force GeronimoPolicyConfigurationFactory class to be loaded
+        // before the new Policy is in the place. See GERONIMO-4037.
+        GeronimoPolicyConfigurationFactory.getSingleton();
     }
 
     public PermissionCollection getPermissions(CodeSource codesource) {
