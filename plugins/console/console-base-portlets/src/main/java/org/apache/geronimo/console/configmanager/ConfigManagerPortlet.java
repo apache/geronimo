@@ -166,7 +166,7 @@ public class ConfigManagerPortlet extends BasePortlet {
                 configurationManager.uninstallConfiguration(configId);
                 message(actionResponse, null, "Uninstalled application<br /><br />"+configId+"<br /><br />");
             } else if (RESTART_ACTION.equals(action)) {
-                LifecycleResults lcresult = configurationManager.reloadConfiguration(configId);
+                LifecycleResults lcresult = configurationManager.restartConfiguration(configId);
                 message(actionResponse, lcresult, "Restarted application<br /><br />");
             } else {
                 message(actionResponse, null, "Invalid value for changeState: " + action + "<br /><br />");

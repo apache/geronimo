@@ -32,6 +32,7 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.kernel.management.State;
@@ -659,6 +660,7 @@ public class SimpleConfigurationManager implements ConfigurationManager {
             // try to start the configuation
             try {
                 Configuration configuration = getConfiguration(configurationId);
+		applyOverrides(configuration);
                 monitor.starting(configurationId);
                 start(configuration);
                 monitor.succeeded(configurationId);
@@ -1344,6 +1346,20 @@ public class SimpleConfigurationManager implements ConfigurationManager {
             map.put(key, value);
         }
         return map;
+    }
+
+    /**
+     * Used to apply overrides to a configuration's gbeans. 
+     * The overrides are applied before configuration restart.
+     * @throws InvalidConfigException
+     */
+    private void applyOverrides(Configuration configuration) throws InvalidConfigException{
+    	ClassLoader configurationClassLoader = configuration.getConfigurationClassLoader();
+        Collection<GBeanData> gbeans = configuration.getConfigurationData().getGBeans(configurationClassLoader);
+        if (configuration.getManageableAttributeStore() != null) {
+        	configuration.getManageableAttributeStore().applyOverrides(configuration.getId(), gbeans, 
+        			configurationClassLoader);
+        }
     }
 
     public static final GBeanInfo GBEAN_INFO;
