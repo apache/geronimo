@@ -165,7 +165,7 @@ public class ConfigManagerPortlet extends BasePortlet {
                 configurationManager.uninstallConfiguration(configId);
                 addInfoMessage(actionRequest, getLocalizedString(actionRequest, "infoMsg04") + "<br />" + configId);
             } else if (RESTART_ACTION.equals(action)) {
-                LifecycleResults lcresult = configurationManager.reloadConfiguration(configId);
+                LifecycleResults lcresult = configurationManager.restartConfiguration(configId);
                 addInfoMessage(actionRequest, getLocalizedString(actionRequest, "infoMsg03") + printResults(lcresult.getStarted()));
             } else {
                 addWarningMessage(actionRequest, getLocalizedString(actionRequest, "warnMsg01") + action + "<br />");

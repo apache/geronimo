@@ -200,6 +200,11 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent
      * The parent of this configuration;
      */
     private Configuration parent = null;
+    
+    /**
+     * Manageable Attribute Store containing overrides to this configuration.
+     */
+    private ManageableAttributeStore attributeStore = null;
 
     /**
      * Only used to allow declaration as a reference.
@@ -234,7 +239,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent
         this.configurationResolver = configurationResolver;
         this.classPath = new LinkedHashSet<String>(configurationData.getClassPath());
         this.naming = configurationData.getNaming();
-
+        this.attributeStore = attributeStore;
         this.id = environment.getConfigId();
         abstractName = getConfigurationAbstractName(id);
 
@@ -587,6 +592,15 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent
      */
     public Configuration getEnclosingConfiguration() {
         return parent;
+    }
+    
+    /**
+     * Gets the manageable attribute store for this configuration.
+     * This is used in the configuration manager to apply overrides
+     * @return
+     */
+    ManageableAttributeStore getManageableAttributeStore(){
+    	return attributeStore;
     }
 
     public synchronized AbstractName addGBean(String name, GBeanData gbean) throws GBeanAlreadyExistsException {
