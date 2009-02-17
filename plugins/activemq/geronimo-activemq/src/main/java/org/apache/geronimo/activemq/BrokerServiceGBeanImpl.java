@@ -81,7 +81,9 @@ public class BrokerServiceGBeanImpl implements BrokerServiceGBean, GBeanLifecycl
                 System.setProperty("activemq.brokerName", brokerName);
                 System.setProperty("activemq.home", new File(baseDir).toString());
                 System.setProperty("activemq.data", new File(dataDir).toString());
-                System.setProperty("activemq.geronimo.home.url", new File(serverInfo.getBaseDirectory()).toURI().toURL().toString());
+                
+                File geronimoHomeURL = serverInfo.resolveServer("./");
+                System.setProperty("activemq.geronimo.home.url", geronimoHomeURL.toURI().toURL().toString());
                 brokerFactory.afterPropertiesSet();                
             }
             brokerService = brokerFactory.getBroker();
