@@ -82,7 +82,7 @@
         <springVersion>2.5.6</springVersion>
         <plutoVersion>1.1.6-G643117</plutoVersion>
         <openjpaVersion>1.2.1-SNAPSHOT</openjpaVersion>
-        <xbeanVersion>3.4.1</xbeanVersion>
+        <xbeanVersion>3.5</xbeanVersion>
         <wadiVersion>2.0</wadiVersion>
 
         <!-- Deployers -->
@@ -323,7 +323,7 @@
             <dependency>
                 <groupId>org.apache.xbean</groupId>
                 <artifactId>xbean-naming</artifactId>
-                <version>3.5</version>
+                <version>${xbeanVersion}</version>
             </dependency>
 
             <dependency>
@@ -347,13 +347,13 @@
             <dependency>
                 <groupId>asm</groupId>
                 <artifactId>asm</artifactId>
-                <version>2.2.3</version>
+                <version>3.1</version>
             </dependency>
 
             <dependency>
                 <groupId>asm</groupId>
                 <artifactId>asm-commons</artifactId>
-                <version>2.2.3</version>
+                <version>3.1</version>
                 <exclusions>
                     <exclusion>
                         <groupId>asm</groupId>
