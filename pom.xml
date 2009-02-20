@@ -3455,7 +3455,6 @@
 
             <modules>
                 <module>repository</module>
-                <module>buildsupport</module>
                 <module>testsupport</module>
                 <module>framework</module>
                 <module>plugins</module>
@@ -3469,7 +3468,6 @@
 
             <modules>
                 <module>repository</module>
-                <module>buildsupport</module>
                 <module>testsupport</module>
                 <module>framework</module>
                 <module>plugins</module>
@@ -3520,9 +3518,9 @@
 
             <modules>
                 <module>repository</module>
-                <module>buildsupport</module>
-                <module>testsupport</module>
-                <module>framework/modules</module>
+                <!--<module>buildsupport</module>-->
+                <!--<module>testsupport</module>-->
+                <module>framework</module>
             </modules>
         </profile>
 
@@ -3556,7 +3554,7 @@
 
             <modules>
                 <module>repository</module>
-                <module>buildsupport</module>
+                <!--<module>buildsupport</module>-->
                 <module>testsupport</module>
                 <module>framework</module>
                 <module>plugins</module>
@@ -3574,7 +3572,7 @@
             </activation>
 
             <modules>
-                <module>buildsupport</module>
+                <!--<module>buildsupport</module>-->
                 <module>testsupport</module>
                 <module>framework/modules</module>
             </modules>
@@ -3660,7 +3658,6 @@
             </properties>
             <modules>
                 <module>repository</module>
-                <module>buildsupport</module>
                 <module>testsupport</module>
                 <module>framework</module>
                 <module>plugins</module>

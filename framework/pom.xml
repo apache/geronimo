@@ -33,18 +33,47 @@
     <name>Geronimo Framework</name>
     <packaging>pom</packaging>
     
-    <dependencies>
-        <dependency>
-            <groupId>org.apache.geronimo.testsupport</groupId>
-            <artifactId>testsupport-common</artifactId>
-            <version>${version}</version>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
+    <!--<dependencies>-->
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.testsupport</groupId>-->
+            <!--<artifactId>testsupport-common</artifactId>-->
+            <!--<version>${version}</version>-->
+            <!--<scope>test</scope>-->
+        <!--</dependency>-->
+    <!--</dependencies>-->
     
-    <modules>
-        <module>modules</module>
-        <module>configs</module>
-    </modules>
-    
+    <profiles>
+        <profile>
+            <id>default</id>
+
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+
+            <modules>
+                <module>modules</module>
+                <module>buildsupport</module>
+                <module>configs</module>
+                <module>plugingroups</module>
+                <module>assemblies</module>
+            </modules>
+        </profile>
+
+        <profile>
+            <id>stage-bootstrap</id>
+
+            <activation>
+                <property>
+                    <name>stage</name>
+                    <value>bootstrap</value>
+                </property>
+            </activation>
+
+            <modules>
+                <module>buildsupport</module>
+                <module>modules</module>
+            </modules>
+        </profile>
+
+    </profiles>
 </project>

@@ -30,7 +30,6 @@
 </description>
   <modules>
     <module>xbean-finder</module>
-    <module>geronimo-javaee-deployment_1.1MR3_spec</module>
     <module>geronimo-schema-jee_5</module>
   </modules>
 </project>

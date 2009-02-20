@@ -24,11 +24,12 @@
     <modelVersion>4.0.0</modelVersion>
     
     <parent>
-        <groupId>org.apache.geronimo.testsupport</groupId>
-        <artifactId>testsupport</artifactId>
+        <groupId>org.apache.geronimo.framework</groupId>
+        <artifactId>modules</artifactId>
         <version>2.2-SNAPSHOT</version>
     </parent>
     
+    <groupId>org.apache.geronimo.testsupport</groupId>
     <artifactId>testsupport-common</artifactId>
     <name>Geronimo Test Support :: Common</name>
     

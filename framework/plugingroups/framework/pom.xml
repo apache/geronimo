@@ -22,7 +22,7 @@
 
     <parent>
         <artifactId>plugingroups</artifactId>
-        <groupId>org.apache.geronimo.plugingroups</groupId>
+        <groupId>org.apache.geronimo.framework.plugingroups</groupId>
         <version>2.2-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>

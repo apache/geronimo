@@ -46,31 +46,78 @@
     </dependencies>
     
     <modules>
-        <module>geronimo-logging</module>
-        <module>geronimo-cli</module>
-        <module>geronimo-commands</module>
+        <module>testsupport-common</module>
         <module>geronimo-common</module>
-        <module>geronimo-core</module>
-        <module>geronimo-deploy-config</module>
-        <module>geronimo-deploy-jsr88</module>
-        <module>geronimo-deploy-jsr88-bootstrapper</module>
-        <module>geronimo-deploy-tool</module>
-        <module>geronimo-deployment</module>
-        <module>geronimo-interceptor</module>
-        <!--<module>geronimo-j2ee</module>-->
-        <module>geronimo-jdbc</module>
-        <module>geronimo-jmx-remoting</module>
-        <module>geronimo-kernel</module>
-        <module>geronimo-config-groovy-transformer</module>
-        <module>geronimo-management</module>
-        <module>geronimo-naming</module>
-        <module>geronimo-security</module>
-        <module>geronimo-service-builder</module>
         <module>geronimo-system</module>
-        <module>geronimo-transformer</module>
-        <module>geronimo-upgrade</module>
-        <module>geronimo-crypto</module>
+        <module>geronimo-logging</module>
+        <module>geronimo-kernel</module>
         <module>geronimo-plugin</module>
+        <module>geronimo-deploy-tool</module>
     </modules>
-    
+    <profiles>
+        <profile>
+            <id>default</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <modules>
+                <!-- needed for car-maven-plugin -->
+                <module>testsupport-common</module>
+                <module>geronimo-common</module>
+                <module>geronimo-system</module>
+                <module>geronimo-logging</module>
+                <module>geronimo-kernel</module>
+                <module>geronimo-plugin</module>
+                <module>geronimo-deploy-tool</module>
+                <module>geronimo-cli</module>
+                <module>geronimo-crypto</module>
+                <module>geronimo-service-builder</module>
+                <module>geronimo-deploy-jsr88</module>
+                <module>geronimo-deployment</module>
+                <module>geronimo-deploy-config</module>
+
+                <!-- not needed for car-maven-plugin -->
+                <module>geronimo-commands</module>
+                <module>geronimo-core</module>
+                <module>geronimo-deploy-jsr88-bootstrapper</module>
+                <module>geronimo-interceptor</module>
+                <!--<module>geronimo-j2ee</module>-->
+                <module>geronimo-jdbc</module>
+                <module>geronimo-jmx-remoting</module>
+                <module>geronimo-config-groovy-transformer</module>
+                <module>geronimo-management</module>
+                <module>geronimo-naming</module>
+                <module>geronimo-security</module>
+                <module>geronimo-transformer</module>
+                <module>geronimo-upgrade</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>stage-bootstrap</id>
+
+            <activation>
+                <property>
+                    <name>stage</name>
+                    <value>bootstrap</value>
+                </property>
+            </activation>
+
+            <modules>
+                <module>testsupport-common</module>
+                <module>geronimo-common</module>
+                <module>geronimo-system</module>
+                <module>geronimo-logging</module>
+                <module>geronimo-kernel</module>
+                <module>geronimo-plugin</module>
+                <module>geronimo-deploy-tool</module>
+                <module>geronimo-cli</module>
+                <module>geronimo-crypto</module>
+                <module>geronimo-service-builder</module>
+                <module>geronimo-deploy-jsr88</module>
+                <module>geronimo-deployment</module>
+                <module>geronimo-deploy-config</module>
+            </modules>
+        </profile>
+    </profiles>
+
 </project>

@@ -40,7 +40,7 @@
     </description>
 
     <modules>
-        <module>testsupport-common</module>
+        <!--<module>testsupport-common</module>-->
         <module>testsupport-selenium</module>
         <module>testsupport-commands</module>
         <module>testsupport-packaging</module>
