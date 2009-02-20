@@ -191,6 +191,8 @@ Support
  Jira:
  https://issues.apache.org/jira/browse/GERONIMO
 
+ Information concerning security issues and reporting security concerns: 
+ http://geronimo.apache.org/security-reports.html
 
  _______________________________________
  Notice Regarding Cryptographic Software
