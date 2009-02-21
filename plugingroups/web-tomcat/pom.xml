@@ -39,8 +39,8 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.apache.geronimo.assemblies</groupId>
-            <artifactId>geronimo-boilerplate</artifactId>
+            <groupId>org.apache.geronimo.framework.plugingroups</groupId>
+            <artifactId>framework</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>

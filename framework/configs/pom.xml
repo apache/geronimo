@@ -56,6 +56,7 @@
         <module>gshell-geronimo</module>
         <module>jmx-security</module>
         <module>geronimo-javaee-deployment_1.1MR3_spec</module>
+        <module>geronimo-boilerplate</module>
     </modules>
     
     <build>

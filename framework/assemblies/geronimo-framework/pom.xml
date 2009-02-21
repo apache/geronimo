@@ -39,7 +39,7 @@
     
     <dependencies>
         <dependency>
-            <groupId>org.apache.geronimo.plugingroups</groupId>
+            <groupId>org.apache.geronimo.framework.plugingroups</groupId>
             <artifactId>framework</artifactId>
             <version>${version}</version>
             <type>car</type>

@@ -25,12 +25,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.apache.geronimo.framework.assemblies</groupId>
-        <artifactId>assemblies</artifactId>
+        <groupId>org.apache.geronimo.framework</groupId>
+        <artifactId>configs</artifactId>
         <version>2.2-SNAPSHOT</version>
     </parent>
 
-    <groupId>org.apache.geronimo.assemblies</groupId>
     <artifactId>geronimo-boilerplate</artifactId>
     <packaging>car</packaging>
     <name>Geronimo Assemblies :: Boilerplate</name>

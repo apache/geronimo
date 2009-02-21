@@ -39,7 +39,6 @@
     </properties>
 
     <modules>
-        <module>geronimo-boilerplate</module>
         <module>geronimo-framework</module>
     </modules>
 
