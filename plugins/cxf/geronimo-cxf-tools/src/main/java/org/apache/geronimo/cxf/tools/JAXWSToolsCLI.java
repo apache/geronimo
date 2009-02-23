@@ -32,18 +32,20 @@ import java.util.Set;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.MultiParentClassLoader;
 import org.apache.geronimo.kernel.config.SimpleConfigurationManager;
+import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
 import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
 import org.apache.geronimo.kernel.repository.Maven2Repository;
+import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.system.configuration.RepositoryConfigurationStore;
 
 public class JAXWSToolsCLI {
                
     private static final String CONFIG_ID = "org.apache.geronimo.configs/cxf-tools//car";
     
-    enum Command { JAVA2WS, WSDL2JAVA };
+    enum Command { JAVA2WS, WSDL2JAVA }
     
     private static final String USAGE_MSG =
         "Usage: jaxws-tools <toolName> <tool options>\n\n" +
@@ -84,10 +86,10 @@ public class JAXWSToolsCLI {
 
         String repository = System.getProperty("Xorg.apache.geronimo.repository.boot.path", "repository");
         Maven2Repository bootRepository = new Maven2Repository(new File(geronimoHome, repository));
-        Collection<Maven2Repository> repositories = Collections.singleton(bootRepository);
+        Collection<Repository> repositories = Collections.<Repository>singleton(bootRepository);
         ArtifactResolver artifactResolver = new DefaultArtifactResolver(new DefaultArtifactManager(), bootRepository);
         RepositoryConfigurationStore repositoryStore = new RepositoryConfigurationStore(bootRepository);
-        Collection<RepositoryConfigurationStore> repositoryStores = Collections.singleton(repositoryStore);
+        Collection<ConfigurationStore> repositoryStores = Collections.<ConfigurationStore>singleton(repositoryStore);
         SimpleConfigurationManager manager = new SimpleConfigurationManager(repositoryStores, artifactResolver, repositories);
         
         Artifact id = Artifact.create(CONFIG_ID);

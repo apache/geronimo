@@ -17,7 +17,6 @@
 package org.apache.geronimo.kernel.config;
 
 import java.util.LinkedHashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 import org.apache.geronimo.kernel.repository.Artifact;
@@ -27,16 +26,16 @@ import org.apache.geronimo.kernel.repository.Artifact;
  */
 public class ConfigurationStatus {
     private Artifact configurationId;
-    private final Set loadParents = new LinkedHashSet();
-    private final Set startParents = new LinkedHashSet();
-    private final LinkedHashSet loadChildren = new LinkedHashSet();
-    private final LinkedHashSet startChildren = new LinkedHashSet();
+    private final Set<ConfigurationStatus> loadParents = new LinkedHashSet<ConfigurationStatus>();
+    private final Set<ConfigurationStatus> startParents = new LinkedHashSet<ConfigurationStatus>();
+    private final LinkedHashSet<ConfigurationStatus> loadChildren = new LinkedHashSet<ConfigurationStatus>();
+    private final LinkedHashSet<ConfigurationStatus> startChildren = new LinkedHashSet<ConfigurationStatus>();
     private boolean loaded = false;
     private boolean started = false;
     private boolean userLoaded = false;
     private boolean userStarted = false;
 
-    public ConfigurationStatus(Artifact configId, Set loadParents, Set startParents) {
+    public ConfigurationStatus(Artifact configId, Set<ConfigurationStatus> loadParents, Set<ConfigurationStatus> startParents) {
         if (configId == null) throw new NullPointerException("configId is null");
         if (loadParents == null) throw new NullPointerException("loadParents is null");
         if (startParents == null) throw new NullPointerException("startParents is null");
@@ -47,13 +46,11 @@ public class ConfigurationStatus {
         this.loadParents.addAll(loadParents);
         this.startParents.addAll(startParents);
 
-        for (Iterator iterator = loadParents.iterator(); iterator.hasNext();) {
-            ConfigurationStatus loadParent = (ConfigurationStatus) iterator.next();
+        for (ConfigurationStatus loadParent : loadParents) {
             loadParent.loadChildren.add(this);
         }
 
-        for (Iterator iterator = startParents.iterator(); iterator.hasNext();) {
-            ConfigurationStatus startParent = (ConfigurationStatus) iterator.next();
+        for (ConfigurationStatus startParent : startParents) {
             startParent.startChildren.add(this);
         }
     }
@@ -69,14 +66,12 @@ public class ConfigurationStatus {
             throw new IllegalStateException("Configuration " + configurationId + " still has children");
         }
 
-        for (Iterator iterator = loadParents.iterator(); iterator.hasNext();) {
-            ConfigurationStatus loadParent = (ConfigurationStatus) iterator.next();
+        for (ConfigurationStatus loadParent : loadParents) {
             loadParent.loadChildren.remove(this);
         }
         loadParents.clear();
 
-        for (Iterator iterator = startParents.iterator(); iterator.hasNext();) {
-            ConfigurationStatus startParent = (ConfigurationStatus) iterator.next();
+        for (ConfigurationStatus startParent : startParents) {
             startParent.startChildren.remove(this);
         }
         startChildren.clear();
@@ -86,28 +81,26 @@ public class ConfigurationStatus {
         return configurationId;
     }
     
-    public LinkedHashSet getStartedChildren() {
-        LinkedHashSet childrenStatuses = new LinkedHashSet();
+    public LinkedHashSet<Artifact> getStartedChildren() {
+        LinkedHashSet<ConfigurationStatus> childrenStatuses = new LinkedHashSet<ConfigurationStatus>();
         getStartedChildrenInternal(childrenStatuses);
 
-        LinkedHashSet childrenIds = new LinkedHashSet(childrenStatuses.size());
-        for (Iterator iterator = childrenStatuses.iterator(); iterator.hasNext();) {
-            ConfigurationStatus configurationStatus = (ConfigurationStatus) iterator.next();
+        LinkedHashSet<Artifact> childrenIds = new LinkedHashSet<Artifact>(childrenStatuses.size());
+        for (ConfigurationStatus configurationStatus : childrenStatuses) {
             childrenIds.add(configurationStatus.configurationId);
         }
 
         return childrenIds;
     }
 
-    private void getStartedChildrenInternal(LinkedHashSet childrenStatuses) {
+    private void getStartedChildrenInternal(LinkedHashSet<ConfigurationStatus> childrenStatuses) {
         // if we aren't started, there is nothing to do
         if (!started) {
             return;
         }
 
         // visit all children
-        for (Iterator iterator = startChildren.iterator(); iterator.hasNext();) {
-            ConfigurationStatus child = (ConfigurationStatus) iterator.next();
+        for (ConfigurationStatus child : startChildren) {
             if (child.isStarted() && !child.configurationId.equals(configurationId)) {
                 child.getStartedChildrenInternal(childrenStatuses);
             }
@@ -132,20 +125,18 @@ public class ConfigurationStatus {
     }
 
 
-    public void upgrade(Artifact newId, Set newLoadParents, Set newStartParents) {
+    public void upgrade(Artifact newId, Set<ConfigurationStatus> newLoadParents, Set<ConfigurationStatus> newStartParents) {
         this.configurationId = newId;
 
         //
         // remove links from the current parents to me
         //
-        for (Iterator iterator = loadParents.iterator(); iterator.hasNext();) {
-            ConfigurationStatus loadParent = (ConfigurationStatus) iterator.next();
+        for (ConfigurationStatus loadParent : loadParents) {
             loadParent.loadChildren.remove(this);
         }
         loadParents.clear();
 
-        for (Iterator iterator = startParents.iterator(); iterator.hasNext();) {
-            ConfigurationStatus startParent = (ConfigurationStatus) iterator.next();
+        for (ConfigurationStatus startParent : startParents) {
             startParent.startChildren.remove(this);
         }
         startChildren.clear();
@@ -156,28 +147,25 @@ public class ConfigurationStatus {
         this.loadParents.addAll(newLoadParents);
         this.startParents.addAll(newStartParents);
 
-        for (Iterator iterator = loadParents.iterator(); iterator.hasNext();) {
-            ConfigurationStatus loadParent = (ConfigurationStatus) iterator.next();
+        for (ConfigurationStatus loadParent : loadParents) {
             loadParent.loadChildren.add(this);
         }
 
-        for (Iterator iterator = startParents.iterator(); iterator.hasNext();) {
-            ConfigurationStatus startParent = (ConfigurationStatus) iterator.next();
+        for (ConfigurationStatus startParent : startParents) {
             startParent.startChildren.add(this);
         }
     }
 
-    public LinkedHashSet load() {
-        LinkedHashSet loadList = new LinkedHashSet();
+    public LinkedHashSet<Artifact> load() {
+        LinkedHashSet<Artifact> loadList = new LinkedHashSet<Artifact>();
         loadInternal(loadList);
         userLoaded = true;
         return loadList;
     }
 
-    private void loadInternal(LinkedHashSet loadList) {
+    private void loadInternal(LinkedHashSet<Artifact> loadList) {
         // visit all unloaded parents
-        for (Iterator iterator = loadParents.iterator(); iterator.hasNext();) {
-            ConfigurationStatus parent = (ConfigurationStatus) iterator.next();
+        for (ConfigurationStatus parent : loadParents) {
             if (!parent.isLoaded()) {
                 parent.loadInternal(loadList);
             }
@@ -190,21 +178,20 @@ public class ConfigurationStatus {
     }
 
 
-    public LinkedHashSet start() {
+    public LinkedHashSet<Artifact> start() {
         if (!loaded) {
             throw new IllegalStateException(configurationId + " is not loaded");
         }
-        LinkedHashSet startList = new LinkedHashSet();
+        LinkedHashSet<Artifact> startList = new LinkedHashSet<Artifact>();
         startInternal(startList);
         userLoaded = true;
         userStarted = true;
         return startList;
     }
 
-    private void startInternal(LinkedHashSet startList) {
+    private void startInternal(LinkedHashSet<Artifact> startList) {
         // visit all stopped parents
-        for (Iterator iterator = startParents.iterator(); iterator.hasNext();) {
-            ConfigurationStatus parent = (ConfigurationStatus) iterator.next();
+        for (ConfigurationStatus parent : startParents) {
             if (!parent.isStarted()) {
                 parent.startInternal(startList);
             }
@@ -219,29 +206,29 @@ public class ConfigurationStatus {
     /**
      * Stop this configuration and its children (if it's running) or do nothing
      * (if it's not running).
+     * @param gc whether to gc (??)
+     * @return list of Artifacts for stopped configurations
      */
-    public LinkedHashSet stop(boolean gc) {
-        LinkedHashSet stopStatuses = new LinkedHashSet();
+    public LinkedHashSet<Artifact> stop(boolean gc) {
+        LinkedHashSet<ConfigurationStatus> stopStatuses = new LinkedHashSet<ConfigurationStatus>();
         stopInternal(stopStatuses, gc);
 
-        LinkedHashSet stopIds = new LinkedHashSet(stopStatuses.size());
-        for (Iterator iterator = stopStatuses.iterator(); iterator.hasNext();) {
-            ConfigurationStatus configurationStatus = (ConfigurationStatus) iterator.next();
+        LinkedHashSet<Artifact> stopIds = new LinkedHashSet<Artifact>(stopStatuses.size());
+        for (ConfigurationStatus configurationStatus : stopStatuses) {
             stopIds.add(configurationStatus.configurationId);
         }
 
         return stopIds;
     }
 
-    private void stopInternal(LinkedHashSet stopList, boolean gc) {
+    private void stopInternal(LinkedHashSet<ConfigurationStatus> stopList, boolean gc) {
         // if we aren't started, there is nothing to do
         if (!started) {
             return;
         }
 
         // visit all children
-        for (Iterator iterator = startChildren.iterator(); iterator.hasNext();) {
-            ConfigurationStatus child = (ConfigurationStatus) iterator.next();
+        for (ConfigurationStatus child : startChildren) {
             if (child.isStarted()) {
                 child.stopInternal(stopList, gc);
             }
@@ -256,8 +243,7 @@ public class ConfigurationStatus {
             // if we are garbage collecting, visit parents
             if (gc) {
                 // visit all non-user started parents that haven't already been visited
-                for (Iterator iterator = startParents.iterator(); iterator.hasNext();) {
-                    ConfigurationStatus parent = (ConfigurationStatus) iterator.next();
+                for (ConfigurationStatus parent : startParents) {
                     if (!parent.isUserStarted() && stopList.containsAll(parent.startChildren)) {
                         parent.stopInternal(stopList, gc);
                     }
@@ -266,17 +252,16 @@ public class ConfigurationStatus {
         }
     }
 
-    public LinkedHashSet restart() {
+    public LinkedHashSet<Artifact> restart() {
         if (!started) {
             throw new IllegalStateException(configurationId + " is not started");
         }
 
-        LinkedHashSet restartStatuses = new LinkedHashSet();
+        LinkedHashSet<ConfigurationStatus> restartStatuses = new LinkedHashSet<ConfigurationStatus>();
         restartInternal(restartStatuses);
 
-        LinkedHashSet restartIds = new LinkedHashSet(restartStatuses.size());
-        for (Iterator iterator = restartStatuses.iterator(); iterator.hasNext();) {
-            ConfigurationStatus configurationStatus = (ConfigurationStatus) iterator.next();
+        LinkedHashSet<Artifact> restartIds = new LinkedHashSet<Artifact>(restartStatuses.size());
+        for (ConfigurationStatus configurationStatus : restartStatuses) {
             restartIds.add(configurationStatus.configurationId);
         }
 
@@ -285,15 +270,14 @@ public class ConfigurationStatus {
         return restartIds;
     }
 
-    private void restartInternal(LinkedHashSet restartList) {
+    private void restartInternal(LinkedHashSet<ConfigurationStatus> restartList) {
         // if we aren't started, there is nothing to do
         if (!started) {
             return;
         }
 
         // visit all children
-        for (Iterator iterator = startChildren.iterator(); iterator.hasNext();) {
-            ConfigurationStatus child = (ConfigurationStatus) iterator.next();
+        for (ConfigurationStatus child : startChildren) {
             if (child.isStarted()) {
                 child.restartInternal(restartList);
             }
@@ -306,30 +290,30 @@ public class ConfigurationStatus {
     /**
      * Unload the configuration and all its children (if it's loaded), or do
      * nothing (if it's not loaded).
+     * @param gc whether to gc (??)
+     * @return artifacts for unloaded configurations
      */
-    public LinkedHashSet unload(boolean gc) {
+    public LinkedHashSet<Artifact> unload(boolean gc) {
 
-        LinkedHashSet unloadStatuses = new LinkedHashSet();
+        LinkedHashSet<ConfigurationStatus> unloadStatuses = new LinkedHashSet<ConfigurationStatus>();
         unloadInternal(unloadStatuses, gc);
 
-        LinkedHashSet unloadIds = new LinkedHashSet(unloadStatuses.size());
-        for (Iterator iterator = unloadStatuses.iterator(); iterator.hasNext();) {
-            ConfigurationStatus configurationStatus = (ConfigurationStatus) iterator.next();
+        LinkedHashSet<Artifact> unloadIds = new LinkedHashSet<Artifact>(unloadStatuses.size());
+        for (ConfigurationStatus configurationStatus : unloadStatuses) {
             unloadIds.add(configurationStatus.configurationId);
         }
 
         return unloadIds;
     }
 
-    private void unloadInternal(LinkedHashSet unloadList, boolean gc) {
+    private void unloadInternal(LinkedHashSet<ConfigurationStatus> unloadList, boolean gc) {
         // if we aren't loaded, there is nothing to do
         if (!loaded) {
             return;
         }
 
         // visit all loaded children
-        for (Iterator iterator = loadChildren.iterator(); iterator.hasNext();) {
-            ConfigurationStatus child = (ConfigurationStatus) iterator.next();
+        for (ConfigurationStatus child : loadChildren) {
             if (child.isLoaded()) {
                 child.unloadInternal(unloadList, gc);
             }
@@ -346,8 +330,7 @@ public class ConfigurationStatus {
             // if we are garbage collecting, visit parents
             if (gc) {
                 // visit all non-user loaded parents
-                for (Iterator iterator = loadParents.iterator(); iterator.hasNext();) {
-                    ConfigurationStatus parent = (ConfigurationStatus) iterator.next();
+                for (ConfigurationStatus parent : loadParents) {
                     if (!parent.isUserLoaded() && unloadList.containsAll(parent.loadChildren)) {
                         parent.unloadInternal(unloadList, gc);
                     }
@@ -356,17 +339,16 @@ public class ConfigurationStatus {
         }
     }
 
-    public LinkedHashSet reload() {
+    public LinkedHashSet<Artifact> reload() {
         if (!loaded) {
             throw new IllegalStateException(configurationId + " is not loaded");
         }
 
-        LinkedHashSet reloadStatuses = new LinkedHashSet();
+        LinkedHashSet<ConfigurationStatus> reloadStatuses = new LinkedHashSet<ConfigurationStatus>();
         reloadInternal(reloadStatuses);
 
-        LinkedHashSet reloadIds = new LinkedHashSet(reloadStatuses.size());
-        for (Iterator iterator = reloadStatuses.iterator(); iterator.hasNext();) {
-            ConfigurationStatus configurationStatus = (ConfigurationStatus) iterator.next();
+        LinkedHashSet<Artifact> reloadIds = new LinkedHashSet<Artifact>(reloadStatuses.size());
+        for (ConfigurationStatus configurationStatus : reloadStatuses) {
             reloadIds.add(configurationStatus.configurationId);
         }
 
@@ -374,15 +356,14 @@ public class ConfigurationStatus {
         return reloadIds;
     }
 
-    private void reloadInternal(LinkedHashSet reloadList) {
+    private void reloadInternal(LinkedHashSet<ConfigurationStatus> reloadList) {
         // if we aren't loaded, there is nothing to do
         if (!loaded) {
             return;
         }
 
         // visit all children
-        for (Iterator iterator = loadChildren.iterator(); iterator.hasNext();) {
-            ConfigurationStatus child = (ConfigurationStatus) iterator.next();
+        for (ConfigurationStatus child : loadChildren) {
             if (child.isLoaded()) {
                 child.reloadInternal(reloadList);
             }

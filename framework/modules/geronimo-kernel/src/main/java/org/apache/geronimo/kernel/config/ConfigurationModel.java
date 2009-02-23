@@ -16,13 +16,12 @@
  */
 package org.apache.geronimo.kernel.config;
 
-import java.util.Iterator;
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.List;
-import java.util.ArrayList;
 
 import org.apache.geronimo.kernel.repository.Artifact;
 
@@ -30,24 +29,23 @@ import org.apache.geronimo.kernel.repository.Artifact;
  * @version $Rev$ $Date$
  */
 public class ConfigurationModel {
-    private final Map configurations = new TreeMap();
+    private final Map<Artifact, ConfigurationStatus> configurations = new TreeMap<Artifact, ConfigurationStatus>();
 
-    public void addConfiguation(Artifact configurationId, Set loadParentIds, Set startParentIds) throws NoSuchConfigException {
-        Set startParents = getStatuses(startParentIds);
+    public void addConfiguation(Artifact configurationId, Set<Artifact> loadParentIds, Set<Artifact> startParentIds) throws NoSuchConfigException {
+        Set<ConfigurationStatus> startParents = getStatuses(startParentIds);
 
         // load parents are a superset of start parents
-        Set loadParents = new LinkedHashSet(startParents);
+        Set<ConfigurationStatus> loadParents = new LinkedHashSet<ConfigurationStatus>(startParents);
         loadParents.addAll(getStatuses(loadParentIds));
 
         ConfigurationStatus configurationStatus = new ConfigurationStatus(configurationId, loadParents, startParents);
         configurations.put(configurationId, configurationStatus);
     }
 
-    private Set getStatuses(Set configurationIds) throws NoSuchConfigException {
-        LinkedHashSet statuses = new LinkedHashSet(configurationIds.size());
-        for (Iterator iterator = configurationIds.iterator(); iterator.hasNext();) {
-            Artifact configurationId = (Artifact) iterator.next();
-            ConfigurationStatus configurationStatus = (ConfigurationStatus) configurations.get(configurationId);
+    private Set<ConfigurationStatus> getStatuses(Set<Artifact> configurationIds) throws NoSuchConfigException {
+        LinkedHashSet<ConfigurationStatus> statuses = new LinkedHashSet<ConfigurationStatus>(configurationIds.size());
+        for (Artifact configurationId : configurationIds) {
+            ConfigurationStatus configurationStatus = configurations.get(configurationId);
             if (configurationStatus == null) {
                 throw new NoSuchConfigException(configurationId);
             }
@@ -58,7 +56,7 @@ public class ConfigurationModel {
     }
 
     public void removeConfiguration(Artifact configurationId) throws NoSuchConfigException {
-        ConfigurationStatus configurationStatus = (ConfigurationStatus) configurations.get(configurationId);
+        ConfigurationStatus configurationStatus = configurations.get(configurationId);
         if (configurationStatus == null) {
             throw new NoSuchConfigException(configurationId);
         }
@@ -70,14 +68,14 @@ public class ConfigurationModel {
         return configurations.containsKey(configurationId);
     }
 
-    public void upgradeConfiguration(Artifact existingId, Artifact newId, Set newLoadParentIds, Set newStartParentIds) throws NoSuchConfigException {
-        Set newStartParents = getStatuses(newStartParentIds);
+    public void upgradeConfiguration(Artifact existingId, Artifact newId, Set<Artifact> newLoadParentIds, Set<Artifact> newStartParentIds) throws NoSuchConfigException {
+        Set<ConfigurationStatus> newStartParents = getStatuses(newStartParentIds);
 
         // load parents are a superset of start parents
-        Set newLoadParents = new LinkedHashSet(newStartParents);
+        Set<ConfigurationStatus> newLoadParents = new LinkedHashSet<ConfigurationStatus>(newStartParents);
         newLoadParents.addAll(getStatuses(newLoadParentIds));
 
-        ConfigurationStatus configurationStatus = (ConfigurationStatus) configurations.remove(existingId);
+        ConfigurationStatus configurationStatus = configurations.remove(existingId);
         if (configurationStatus == null) {
             throw new NoSuchConfigException(existingId);
         }
@@ -86,7 +84,7 @@ public class ConfigurationModel {
     }
 
     public boolean isLoaded(Artifact configurationId) {
-        ConfigurationStatus configurationStatus = (ConfigurationStatus) configurations.get(configurationId);
+        ConfigurationStatus configurationStatus = configurations.get(configurationId);
         if (configurationStatus != null) {
             return configurationStatus.isLoaded();
         }
@@ -94,20 +92,19 @@ public class ConfigurationModel {
     }
 
     public Artifact[] getLoaded(Artifact query) {
-        List results = new ArrayList();
-        for (Iterator it = configurations.entrySet().iterator(); it.hasNext();) {
-            Map.Entry entry = (Map.Entry) it.next();
-            Artifact test = (Artifact) entry.getKey();
-            ConfigurationStatus status = (ConfigurationStatus) entry.getValue();
-            if(query.matches(test) && status.isLoaded()) {
+        List<Artifact> results = new ArrayList<Artifact>();
+        for (Map.Entry<Artifact, ConfigurationStatus> entry : configurations.entrySet()) {
+            Artifact test = entry.getKey();
+            ConfigurationStatus status = entry.getValue();
+            if (query.matches(test) && status.isLoaded()) {
                 results.add(test);
             }
         }
-        return (Artifact[]) results.toArray(new Artifact[results.size()]);
+        return results.toArray(new Artifact[results.size()]);
     }
 
     public boolean isStarted(Artifact configurationId) {
-        ConfigurationStatus configurationStatus = (ConfigurationStatus) configurations.get(configurationId);
+        ConfigurationStatus configurationStatus = configurations.get(configurationId);
         if (configurationStatus != null) {
             return configurationStatus.isStarted();
         }
@@ -115,78 +112,76 @@ public class ConfigurationModel {
     }
 
     public Artifact[] getStarted(Artifact query) {
-        List results = new ArrayList();
-        for (Iterator it = configurations.entrySet().iterator(); it.hasNext();) {
-            Map.Entry entry = (Map.Entry) it.next();
-            Artifact test = (Artifact) entry.getKey();
-            ConfigurationStatus status = (ConfigurationStatus) entry.getValue();
-            if(query.matches(test) && status.isStarted()) {
+        List<Artifact> results = new ArrayList<Artifact>();
+        for (Map.Entry<Artifact, ConfigurationStatus> entry : configurations.entrySet()) {
+            Artifact test = entry.getKey();
+            ConfigurationStatus status = entry.getValue();
+            if (query.matches(test) && status.isStarted()) {
                 results.add(test);
             }
         }
-        return (Artifact[]) results.toArray(new Artifact[results.size()]);
+        return results.toArray(new Artifact[results.size()]);
     }
 
     public LinkedHashSet load(Artifact configurationId) throws NoSuchConfigException {
-        ConfigurationStatus configurationStatus = (ConfigurationStatus) configurations.get(configurationId);
+        ConfigurationStatus configurationStatus = configurations.get(configurationId);
         if (configurationStatus == null) {
             throw new NoSuchConfigException(configurationId);
         }
         return configurationStatus.load();
     }
 
-    public LinkedHashSet start(Artifact configurationId) throws NoSuchConfigException {
-        ConfigurationStatus configurationStatus = (ConfigurationStatus) configurations.get(configurationId);
+    public LinkedHashSet<Artifact> start(Artifact configurationId) throws NoSuchConfigException {
+        ConfigurationStatus configurationStatus = configurations.get(configurationId);
         if (configurationStatus == null) {
             throw new NoSuchConfigException(configurationId);
         }
         return configurationStatus.start();
     }
 
-    public LinkedHashSet stop(Artifact configurationId) throws NoSuchConfigException {
+    public LinkedHashSet<Artifact> stop(Artifact configurationId) throws NoSuchConfigException {
         return stop(configurationId, true);
     }
 
-    public LinkedHashSet stop(Artifact configurationId, boolean gc) throws NoSuchConfigException {
-        ConfigurationStatus configurationStatus = (ConfigurationStatus) configurations.get(configurationId);
+    public LinkedHashSet<Artifact> stop(Artifact configurationId, boolean gc) throws NoSuchConfigException {
+        ConfigurationStatus configurationStatus = configurations.get(configurationId);
         if (configurationStatus == null) {
             throw new NoSuchConfigException(configurationId);
         }
         return configurationStatus.stop(gc);
     }
 
-    public LinkedHashSet restart(Artifact configurationId) throws NoSuchConfigException {
-        ConfigurationStatus configurationStatus = (ConfigurationStatus) configurations.get(configurationId);
+    public LinkedHashSet<Artifact> restart(Artifact configurationId) throws NoSuchConfigException {
+        ConfigurationStatus configurationStatus = configurations.get(configurationId);
         if (configurationStatus == null) {
             throw new NoSuchConfigException(configurationId);
         }
         return configurationStatus.restart();
     }
 
-    public LinkedHashSet unload(Artifact configurationId) throws NoSuchConfigException {
+    public LinkedHashSet<Artifact> unload(Artifact configurationId) throws NoSuchConfigException {
         return unload(configurationId, true);
     }
 
-    public LinkedHashSet unload(Artifact configurationId, boolean gc) throws NoSuchConfigException {
-        ConfigurationStatus configurationStatus = (ConfigurationStatus) configurations.get(configurationId);
+    public LinkedHashSet<Artifact> unload(Artifact configurationId, boolean gc) throws NoSuchConfigException {
+        ConfigurationStatus configurationStatus = configurations.get(configurationId);
         if (configurationStatus == null) {
             throw new NoSuchConfigException(configurationId);
         }
         return configurationStatus.unload(gc);
     }
 
-    public LinkedHashSet reload(Artifact existingConfigurationId) throws NoSuchConfigException {
-        ConfigurationStatus configurationStatus = (ConfigurationStatus) configurations.get(existingConfigurationId);
+    public LinkedHashSet<Artifact> reload(Artifact existingConfigurationId) throws NoSuchConfigException {
+        ConfigurationStatus configurationStatus = configurations.get(existingConfigurationId);
         if (configurationStatus == null) {
-            return new LinkedHashSet();
+            return new LinkedHashSet<Artifact>();
         }
         return configurationStatus.reload();
     }
 
-    public Set getLoaded() {
-        Set result = new LinkedHashSet();
-        for (Iterator iterator = configurations.values().iterator(); iterator.hasNext();) {
-            ConfigurationStatus status = (ConfigurationStatus) iterator.next();
+    public Set<Artifact> getLoaded() {
+        Set<Artifact> result = new LinkedHashSet<Artifact>();
+        for (ConfigurationStatus status : configurations.values()) {
             if (status.isLoaded()) {
                 result.add(status.getConfigurationId());
             }
@@ -194,10 +189,9 @@ public class ConfigurationModel {
         return result;
     }
 
-    public Set getStarted() {
-        Set result = new LinkedHashSet();
-        for (Iterator iterator = configurations.values().iterator(); iterator.hasNext();) {
-            ConfigurationStatus status = (ConfigurationStatus) iterator.next();
+    public Set<Artifact> getStarted() {
+        Set<Artifact> result = new LinkedHashSet<Artifact>();
+        for (ConfigurationStatus status : configurations.values()) {
             if (status.isStarted()) {
                 result.add(status.getConfigurationId());
             }
@@ -205,10 +199,9 @@ public class ConfigurationModel {
         return result;
     }
 
-    public Set getUserLoaded() {
-        Set result = new LinkedHashSet();
-        for (Iterator iterator = configurations.values().iterator(); iterator.hasNext();) {
-            ConfigurationStatus status = (ConfigurationStatus) iterator.next();
+    public Set<Artifact> getUserLoaded() {
+        Set<Artifact> result = new LinkedHashSet<Artifact>();
+        for (ConfigurationStatus status : configurations.values()) {
             if (status.isUserLoaded()) {
                 result.add(status.getConfigurationId());
             }
@@ -216,10 +209,9 @@ public class ConfigurationModel {
         return result;
     }
 
-    public Set getUserStarted() {
-        Set result = new LinkedHashSet();
-        for (Iterator iterator = configurations.values().iterator(); iterator.hasNext();) {
-            ConfigurationStatus status = (ConfigurationStatus) iterator.next();
+    public Set<Artifact> getUserStarted() {
+        Set<Artifact> result = new LinkedHashSet<Artifact>();
+        for (ConfigurationStatus status : configurations.values()) {
             if (status.isUserStarted()) {
                 result.add(status.getConfigurationId());
             }
@@ -227,10 +219,10 @@ public class ConfigurationModel {
         return result;
     }
     
-    public LinkedHashSet getStartedChildren(Artifact configurationId) {
-        ConfigurationStatus configurationStatus = (ConfigurationStatus) configurations.get(configurationId);
+    public LinkedHashSet<Artifact> getStartedChildren(Artifact configurationId) {
+        ConfigurationStatus configurationStatus = configurations.get(configurationId);
         if (configurationStatus == null) {
-            return new LinkedHashSet();
+            return new LinkedHashSet<Artifact>();
         }
         return configurationStatus.getStartedChildren();
     }

@@ -16,22 +16,21 @@
  */
 package org.apache.geronimo.kernel.config;
 
-import java.io.Serializable;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.io.ByteArrayInputStream;
-import java.io.EOFException;
-import java.io.ByteArrayOutputStream;
 import java.io.ObjectOutputStream;
-import java.util.List;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
+import java.util.List;
 
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.ObjectInputStreamExt;
 import org.apache.geronimo.kernel.repository.Environment;
@@ -45,20 +44,20 @@ public class SerializedGBeanState implements GBeanState, Serializable {
     /**
      * GBeans contained in this configuration.
      */
-    private final List gbeans = new ArrayList();
+    private final List<GBeanData> gbeans = new ArrayList<GBeanData>();
 
     /**
      * The serialized form of the gbeans.  Once this is set on more gbeans can be added.
      */
     private byte[] gbeanState;
 
-    public SerializedGBeanState(Collection gbeans) {
+    public SerializedGBeanState(Collection<GBeanData> gbeans) {
         if (gbeans != null){
             this.gbeans.addAll(gbeans);
         }
     }
 
-    public List getGBeans(ClassLoader classLoader) throws InvalidConfigException {
+    public List<GBeanData> getGBeans(ClassLoader classLoader) throws InvalidConfigException {
         if (gbeanState == null) {
             return Collections.unmodifiableList(gbeans);
         }
@@ -96,8 +95,8 @@ public class SerializedGBeanState implements GBeanState, Serializable {
         stream.defaultWriteObject();
     }
 
-    private static List loadGBeans(byte[] gbeanState, ClassLoader classLoader) throws InvalidConfigException {
-        List gbeans = new ArrayList();
+    private static List<GBeanData> loadGBeans(byte[] gbeanState, ClassLoader classLoader) throws InvalidConfigException {
+        List<GBeanData> gbeans = new ArrayList<GBeanData>();
         if (gbeanState != null && gbeanState.length > 0) {
             // Set the thread context classloader so deserializing classes can grab the cl from the thread
             ClassLoader oldCl = Thread.currentThread().getContextClassLoader();
@@ -129,7 +128,7 @@ public class SerializedGBeanState implements GBeanState, Serializable {
         return gbeans;
     }
 
-    private static byte[] storeGBeans(List gbeans) throws IOException {
+    private static byte[] storeGBeans(List<GBeanData> gbeans) throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream oos;
         try {
@@ -137,8 +136,7 @@ public class SerializedGBeanState implements GBeanState, Serializable {
         } catch (IOException e) {
             throw (AssertionError) new AssertionError("Unable to initialize ObjectOutputStream").initCause(e);
         }
-        for (Iterator iterator = gbeans.iterator(); iterator.hasNext();) {
-            GBeanData gbeanData = (GBeanData) iterator.next();
+        for (GBeanData gbeanData : gbeans) {
             try {
                 gbeanData.writeExternal(oos);
             } catch (Exception e) {
@@ -146,7 +144,7 @@ public class SerializedGBeanState implements GBeanState, Serializable {
                 // HACK:
                 //
                 System.err.println("FAILED TO SERIALIZE: " + gbeanData.getGBeanInfo());
-                
+
                 throw (IOException) new IOException("Unable to serialize GBeanData for " + gbeanData.getAbstractName()).initCause(e);
             }
         }

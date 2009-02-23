@@ -16,13 +16,12 @@
  */
 package org.apache.geronimo.kernel.config;
 
-import java.util.LinkedHashSet;
-import java.util.LinkedHashMap;
-import java.util.Set;
-import java.util.Map;
-import java.util.Collections;
-import java.util.Iterator;
 import java.io.Serializable;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.geronimo.kernel.repository.Artifact;
 
@@ -32,11 +31,11 @@ import org.apache.geronimo.kernel.repository.Artifact;
  */
 public class LifecycleResults implements Serializable {
     private static final long serialVersionUID = 4660197333193740244L;
-    private final Set loaded = new LinkedHashSet();
-    private final Set unloaded = new LinkedHashSet();
-    private final Set started = new LinkedHashSet();
-    private final Set stopped = new LinkedHashSet();
-    private final Map failed = new LinkedHashMap();
+    private final Set<Artifact> loaded = new LinkedHashSet<Artifact>();
+    private final Set<Artifact> unloaded = new LinkedHashSet<Artifact>();
+    private final Set<Artifact> started = new LinkedHashSet<Artifact>();
+    private final Set<Artifact> stopped = new LinkedHashSet<Artifact>();
+    private final Map<Artifact, Throwable> failed = new LinkedHashMap<Artifact, Throwable>();
 
     /**
      * Checks whether the specified configuration was loaded.
@@ -54,7 +53,7 @@ public class LifecycleResults implements Serializable {
      * Gets the configuration identifiers (Artifact) of the configurations loaded.
      * @return the configuration identifiers (Artifact)
      */
-    public Set getLoaded() {
+    public Set<Artifact> getLoaded() {
         return Collections.unmodifiableSet(loaded);
     }
 
@@ -70,7 +69,7 @@ public class LifecycleResults implements Serializable {
      * Clears the existing loaded set and add alls the specified configurations to the set
      * @param loaded the configuration identifiers (Artifact)
      */
-    public void setLoaded(Set loaded) {
+    public void setLoaded(Set<Artifact> loaded) {
         this.loaded.clear();
         this.loaded.addAll(loaded);
     }
@@ -91,7 +90,7 @@ public class LifecycleResults implements Serializable {
      * Gets the configuration identifiers (Artifact) of the configurations unloaded.
      * @return the configuration identifiers (Artifact)
      */
-    public Set getUnloaded() {
+    public Set<Artifact> getUnloaded() {
         return Collections.unmodifiableSet(unloaded);
     }
 
@@ -107,7 +106,7 @@ public class LifecycleResults implements Serializable {
      * Clears the existing unloaded set and add alls the specified configurations to the set
      * @param unloaded the configuration identifiers (Artifact)
      */
-    public void setUnloaded(Set unloaded) {
+    public void setUnloaded(Set<Artifact> unloaded) {
         this.unloaded.clear();
         this.unloaded.addAll(unloaded);
     }
@@ -128,7 +127,7 @@ public class LifecycleResults implements Serializable {
      * Gets the configuration identifiers (Artifact) of the configurations started.
      * @return the configuration identifiers (Artifact)
      */
-    public Set getStarted() {
+    public Set<Artifact> getStarted() {
         return Collections.unmodifiableSet(started);
     }
 
@@ -144,7 +143,7 @@ public class LifecycleResults implements Serializable {
      * Clears the existing started set and add alls the specified configurations to the set
      * @param started the configuration identifiers (Artifact)
      */
-    public void setStarted(Set started) {
+    public void setStarted(Set<Artifact> started) {
         this.started.clear();
         this.started.addAll(started);
     }
@@ -165,7 +164,7 @@ public class LifecycleResults implements Serializable {
      * Gets the configuration identifiers (Artifact) of the configurations stopped.
      * @return the configuration identifiers (Artifact)
      */
-    public Set getStopped() {
+    public Set<Artifact> getStopped() {
         return Collections.unmodifiableSet(stopped);
     }
 
@@ -181,7 +180,7 @@ public class LifecycleResults implements Serializable {
      * Clears the existing stopped set and add alls the specified configurations to the set
      * @param stopped the configuration identifiers (Artifact)
      */
-    public void setStopped(Set stopped) {
+    public void setStopped(Set<Artifact> stopped) {
         this.stopped.clear();
         this.stopped.addAll(stopped);
     }
@@ -199,9 +198,8 @@ public class LifecycleResults implements Serializable {
      *              operation
      */
     public boolean wasFailed(Artifact configurationId) {
-        for (Iterator it = failed.keySet().iterator(); it.hasNext();) {
-            Artifact failID = (Artifact) it.next();
-            if(configurationId.matches(failID)) {
+        for (Artifact failID : failed.keySet()) {
+            if (configurationId.matches(failID)) {
                 return true;
             }
         }
@@ -210,17 +208,18 @@ public class LifecycleResults implements Serializable {
 
     /**
      * Gets the exception that caused the operation on the specified configuration to fail.
+     * @param configurationId id for artifact we are asking about
      * @return the configuration identifiers (Artifact)
      */
     public Throwable getFailedCause(Artifact configurationId) {
-        return (Throwable) failed.get(configurationId);
+        return failed.get(configurationId);
     }
 
     /**
      * Gets the configuration identifiers (Artifact) of the configurations that failed the operation and threw an exception.
      * @return the configuration identifiers (Artifact)
      */
-    public Map getFailed() {
+    public Map<Artifact, Throwable> getFailed() {
         return Collections.unmodifiableMap(failed);
     }
 
@@ -237,7 +236,7 @@ public class LifecycleResults implements Serializable {
      * Clears the existing failed map and add alls the specified configurations to the map
      * @param failed a map from configuration identifier (Artifact) to causal exception
      */
-    public void setFailed(Map failed) {
+    public void setFailed(Map<Artifact, Throwable> failed) {
         this.failed.clear();
         this.failed.putAll(failed);
     }

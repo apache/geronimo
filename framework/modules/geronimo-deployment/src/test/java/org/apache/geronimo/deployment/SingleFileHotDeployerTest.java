@@ -18,43 +18,31 @@ package org.apache.geronimo.deployment;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
-import java.util.LinkedHashSet;
 import java.util.jar.JarFile;
 
 import junit.framework.TestCase;
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.kernel.Jsr77Naming;
-import org.apache.geronimo.kernel.mock.MockConfigStore;
 import org.apache.geronimo.kernel.config.Configuration;
-import org.apache.geronimo.kernel.config.ConfigurationAlreadyExistsException;
 import org.apache.geronimo.kernel.config.ConfigurationData;
-import org.apache.geronimo.kernel.config.ConfigurationManager;
+import org.apache.geronimo.kernel.config.ConfigurationInfo;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationResolver;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
-import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.LifecycleException;
-import org.apache.geronimo.kernel.config.LifecycleMonitor;
 import org.apache.geronimo.kernel.config.LifecycleResults;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
-import org.apache.geronimo.kernel.config.NoSuchStoreException;
 import org.apache.geronimo.kernel.config.SimpleConfigurationManager;
-import org.apache.geronimo.kernel.config.ConfigurationInfo;
+import org.apache.geronimo.kernel.mock.MockConfigStore;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
 import org.apache.geronimo.kernel.repository.Environment;
-import org.apache.geronimo.kernel.repository.Version;
 import org.apache.geronimo.kernel.repository.Repository;
-import org.apache.geronimo.kernel.repository.MissingDependencyException;
 
 
 /**
@@ -276,7 +264,7 @@ public class SingleFileHotDeployerTest extends TestCase {
                     null,
                     ConfigurationModuleType.CAR,
                     new Jsr77Naming(),
-                    new SimpleConfigurationManager(Collections.singletonList(store), artifactResolver, Collections.EMPTY_SET));
+                    new SimpleConfigurationManager(Collections.<ConfigurationStore>singletonList(store), artifactResolver, Collections.<Repository>emptySet()));
         }
     }
 

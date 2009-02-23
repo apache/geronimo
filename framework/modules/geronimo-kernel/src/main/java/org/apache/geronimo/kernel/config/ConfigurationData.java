@@ -168,11 +168,11 @@ public class ConfigurationData implements Serializable {
         return moduleType;
     }
 
-    public List getClassPath() {
-        return Collections.unmodifiableList(new ArrayList(classPath));
+    public List<String> getClassPath() {
+        return Collections.unmodifiableList(new ArrayList<String>(classPath));
     }
 
-    public List getGBeans(ClassLoader classLoader) throws InvalidConfigException {
+    public List<GBeanData> getGBeans(ClassLoader classLoader) throws InvalidConfigException {
         if (classLoader == null) throw new NullPointerException("classLoader is null");
         List<GBeanData> gbeans = gbeanState.getGBeans(classLoader);
         if (null == configurationDataTransformer) {
@@ -200,6 +200,7 @@ public class ConfigurationData implements Serializable {
      * Gets a map of module name to ConfigurationData for nested
      * configurations (as in, a WAR within an EAR, not dependencies between
      * totally separate configurations).
+     * @return map of child configuration name to ConfigurationData for that child
      */
     public Map<String, ConfigurationData> getChildConfigurations() {
         return Collections.unmodifiableMap(childConfigurations);

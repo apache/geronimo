@@ -27,7 +27,7 @@ import org.apache.geronimo.kernel.repository.Environment;
  * @version $Rev$ $Date$
  */
 public interface GBeanState {
-    List getGBeans(ClassLoader classLoader) throws InvalidConfigException;
+    List<GBeanData> getGBeans(ClassLoader classLoader) throws InvalidConfigException;
 
     void addGBean(GBeanData gbeanData);
 

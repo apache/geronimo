@@ -47,7 +47,7 @@ public class XStreamGBeanState implements GBeanState {
     /**
      * GBeans contained in this configuration.
      */
-    private final List gbeans = new ArrayList();
+    private final List<GBeanData> gbeans = new ArrayList<GBeanData>();
 
     /**
      * The serialized form of the gbeans.  Once this is set on more gbeans can be added.
@@ -58,7 +58,7 @@ public class XStreamGBeanState implements GBeanState {
         this.gbeanState = gbeanState;
     }
 
-    public XStreamGBeanState(Collection gbeans) {
+    public XStreamGBeanState(Collection<GBeanData> gbeans) {
         if (gbeans != null){
             this.gbeans.addAll(gbeans);
         }
@@ -72,7 +72,7 @@ public class XStreamGBeanState implements GBeanState {
         return gbeanState;
     }
 
-    public List getGBeans(ClassLoader classLoader) throws InvalidConfigException {
+    public List<GBeanData> getGBeans(ClassLoader classLoader) throws InvalidConfigException {
         if (gbeanState == null) {
             return Collections.unmodifiableList(gbeans);
         }
@@ -101,7 +101,7 @@ public class XStreamGBeanState implements GBeanState {
         return gBeanData;
     }
 
-    private static List loadGBeans(Element element, ClassLoader classLoader) throws InvalidConfigException {
+    private static List<GBeanData> loadGBeans(Element element, ClassLoader classLoader) throws InvalidConfigException {
         if (element != null) {
             // Set the thread context classloader so deserializing classes can grab the cl from the thread
             ClassLoader oldCl = Thread.currentThread().getContextClassLoader();
@@ -120,14 +120,14 @@ public class XStreamGBeanState implements GBeanState {
                 Thread.currentThread().setContextClassLoader(oldCl);
             }
         }
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
 
-    private static Element storeGBeans(List gbeans) throws IOException {
-        GBeanData[] gbeanDatas = (GBeanData[]) gbeans.toArray(new GBeanData[gbeans.size()]);
+    private static Element storeGBeans(List<GBeanData> gbeans) throws IOException {
+        GBeanData[] gbeanDatas = gbeans.toArray(new GBeanData[gbeans.size()]);
 
         DocumentBuilderFactory documentBuilderFactory = XmlUtil.newDocumentBuilderFactory();
-        DocumentBuilder documentBuilder = null;
+        DocumentBuilder documentBuilder;
         try {
             documentBuilder = documentBuilderFactory.newDocumentBuilder();
         } catch (ParserConfigurationException e) {
