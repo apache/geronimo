@@ -132,9 +132,7 @@ Support
  Jira:
  http://issues.apache.org/jira/secure/BrowseProject.jspa?id=10220 
  
- Information concerning security issues and reporting security concerns: 
- http://geronimo.apache.org/security-reports.html
-
+ 
  ---------------------------------------
  Notice Regarding Cryptographic Software
  =======================================

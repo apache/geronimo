@@ -53,9 +53,7 @@ import org.apache.openejb.OpenEJBException;
 import org.apache.openejb.assembler.classic.EjbJarInfo;
 import org.apache.openejb.assembler.classic.JndiEncBuilder;
 import org.apache.openejb.assembler.classic.JndiEncInfo;
-import org.apache.openejb.assembler.classic.AppInfo;
 import org.apache.openejb.config.JndiEncInfoBuilder;
-import org.apache.openejb.config.AppModule;
 import org.apache.openejb.core.ivm.naming.IntraVmJndiReference;
 import org.apache.openejb.jee.EjbLocalRef;
 import org.apache.openejb.jee.EjbRef;
@@ -142,19 +140,14 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
             if (earData != null) {
                 ejbJars = earData.getEjbJars();
             }
-
-            AppInfo appInfo = new AppInfo();
-            appInfo.ejbJars.addAll(ejbJars);
-
-            JndiEncInfoBuilder jndiEncInfoBuilder = new JndiEncInfoBuilder(appInfo);
+            JndiEncInfoBuilder jndiEncInfoBuilder = new JndiEncInfoBuilder(ejbJars);
             JndiEncInfo jndiEncInfo;
             if (module.isStandAlone()) {
                 jndiEncInfo = jndiEncInfoBuilder.build(consumer, "GeronimoEnc", null);
             } else {
                 jndiEncInfo = jndiEncInfoBuilder.build(consumer, "GeronimoEnc", module.getTargetPath());
             }
-            JndiEncBuilder jndiEncBuilder = new JndiEncBuilder(jndiEncInfo, null, module.getName(), getClass().getClassLoader());
-
+            JndiEncBuilder jndiEncBuilder = new JndiEncBuilder(jndiEncInfo, module.getName());
             map = jndiEncBuilder.buildMap();
         } catch (OpenEJBException e) {
             throw new DeploymentException(e);
@@ -290,10 +283,10 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
 
             // create the ejb-ref
             EjbLocalRef ref = new EjbLocalRef();
+            jndiConsumer.getEjbLocalRef().add(ref);
+
             // ejb-ref-name
             ref.setEjbRefName(refName);
-
-            jndiConsumer.getEjbLocalRef().add(ref);
 
             // ejb-ref-type
             String refType = getStringValue(xmlbeansRef.getEjbRefType());

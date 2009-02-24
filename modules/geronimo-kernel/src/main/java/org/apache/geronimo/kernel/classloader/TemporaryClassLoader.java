@@ -129,7 +129,7 @@ public class TemporaryClassLoader extends URLClassLoader {
    private static boolean isAnnotationClass(byte[] bytes) {
        IsAnnotationVisitor isAnnotationVisitor = new IsAnnotationVisitor();
        ClassReader classReader = new ClassReader(bytes);
-       classReader.accept(isAnnotationVisitor, ClassReader.SKIP_DEBUG);
+       classReader.accept(isAnnotationVisitor, true);
        return isAnnotationVisitor.isAnnotation;
    }
 

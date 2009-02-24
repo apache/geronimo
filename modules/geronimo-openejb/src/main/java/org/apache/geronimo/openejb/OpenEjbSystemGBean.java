@@ -59,10 +59,12 @@ import org.apache.openejb.assembler.classic.Assembler;
 import org.apache.openejb.assembler.classic.ClientInfo;
 import org.apache.openejb.assembler.classic.ContainerInfo;
 import org.apache.openejb.assembler.classic.EjbJarInfo;
+import org.apache.openejb.assembler.classic.LinkResolver;
 import org.apache.openejb.assembler.classic.MdbContainerInfo;
 import org.apache.openejb.assembler.classic.ProxyFactoryInfo;
 import org.apache.openejb.assembler.classic.SecurityServiceInfo;
 import org.apache.openejb.assembler.classic.TransactionServiceInfo;
+import org.apache.openejb.assembler.classic.UniqueDefaultLinkResolver;
 import org.apache.openejb.assembler.dynamic.PassthroughFactory;
 import org.apache.openejb.config.AppModule;
 import org.apache.openejb.config.ClientModule;
@@ -358,8 +360,17 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
 
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(classLoader);
+        LinkResolver<EntityManagerFactory> emfLinkResolver = new UniqueDefaultLinkResolver<EntityManagerFactory>();
+        for (PersistenceUnitGBean persistenceUnitGBean: persistenceUnitGBeans) {
+            EntityManagerFactory factory = persistenceUnitGBean.getEntityManagerFactory();
+            String persistenceUnitRoot = persistenceUnitGBean.getPersistenceUnitRoot();
+            String persistenceUnitName = persistenceUnitGBean.getPersistenceUnitName();
+            if (!"cmp".equals(persistenceUnitName)) {
+                emfLinkResolver.add(persistenceUnitRoot, persistenceUnitName, factory);
+            }
+        }
         try {
-            assembler.createEjbJar(ejbJarInfo, classLoader);
+            assembler.createEjbJar(ejbJarInfo, emfLinkResolver, classLoader);
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
