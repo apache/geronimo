@@ -180,6 +180,14 @@ limitations under the License.
         <attribute name="specific">false</attribute>
         <attribute name="RARName">org.tranql/tranql-connector-ra//rar</attribute>
     </gbean>
+    <gbean name="Database111" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean">
+        <attribute name="name">Informix XA</attribute>
+        <attribute name="URLPrototype">null</attribute>
+        <attribute name="driverClassName">null</attribute>
+        <attribute name="defaultPort">0</attribute>
+        <attribute name="specific">true</attribute>
+        <attribute name="RARName">org.tranql/tranql-connector-informix-xa//rar</attribute>
+    </gbean>
     <gbean name="Database12" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean">
         <attribute name="name">Informix (DataDirect)</attribute>
         <attribute name="URLPrototype">jdbc:datadirect:informix://{Host}:{Port};informixServer={dbservername};DatabaseName={Database}</attribute>
@@ -354,6 +362,22 @@ limitations under the License.
         <attribute name="defaultPort">1433</attribute>
         <attribute name="specific">false</attribute>
         <attribute name="RARName">org.tranql/tranql-connector-ra//rar</attribute>
+    </gbean>
+    <gbean name="Database281" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean">
+    <attribute name="name">SQL Server 2000 XA</attribute>
+        <attribute name="URLPrototype">null</attribute>
+        <attribute name="driverClassName">null</attribute>
+        <attribute name="defaultPort">0</attribute>
+        <attribute name="specific">true</attribute>
+        <attribute name="RARName">org.tranql/tranql-connector-sqlserver2000-xa//rar</attribute>
+    </gbean>
+    <gbean name="Database282" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean">
+        <attribute name="name">SQL Server 2005 XA</attribute>
+        <attribute name="URLPrototype">null</attribute>
+        <attribute name="driverClassName">null</attribute>
+        <attribute name="defaultPort">0</attribute>
+        <attribute name="specific">true</attribute>
+        <attribute name="RARName">org.tranql/tranql-connector-sqlserver2005-xa//rar</attribute>
     </gbean>
     <gbean name="Database29" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean">
         <attribute name="name">SQL Server (jTDS)</attribute>
