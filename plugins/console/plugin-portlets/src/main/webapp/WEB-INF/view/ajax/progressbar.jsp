@@ -49,7 +49,7 @@ dwr.engine.setErrorHandler(<portlet:namespace/>onError);
 function setErrorMessage(errorMsg) {
     if (errorMsg != null) {
         document.getElementById('<portlet:namespace/>ErrorMessage').innerHTML = errorMsg;
-        document.getElementById('<portlet:namespace/>BackBtn').innerHTML = "<br><form method="POST"><input type='submit' value='Go Back' onclick='history.go(-3); return false;' /></form>";
+        document.getElementById('<portlet:namespace/>BackBtn').innerHTML = "<br><form><input type='submit' value='Go Back' onclick='history.go(-3); return false;' /></form>";
     }
 }
 
