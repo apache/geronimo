@@ -169,6 +169,12 @@
 
         <dependency>
             <groupId>org.tranql</groupId>
+            <artifactId>tranql-connector-informix-xa</artifactId>
+            <type>rar</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.tranql</groupId>
             <artifactId>tranql-connector-mysql-local</artifactId>
             <type>rar</type>
         </dependency>
@@ -200,6 +206,17 @@
         <dependency>
             <groupId>org.tranql</groupId>
             <artifactId>tranql-connector-postgresql-xa</artifactId>
+            <type>rar</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.tranql</groupId>
+            <artifactId>tranql-connector-sqlserver2000-xa</artifactId>
+            <type>rar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.tranql</groupId>
+            <artifactId>tranql-connector-sqlserver2005-xa</artifactId>
             <type>rar</type>
         </dependency>
 

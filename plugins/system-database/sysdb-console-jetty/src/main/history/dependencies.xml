@@ -43,7 +43,32 @@
     </dependency>
     <dependency>
         <groupId>org.tranql</groupId>
+        <artifactId>tranql-connector-ra</artifactId>
+        <type>rar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.tranql</groupId>
+        <artifactId>tranql-connector-db2-xa</artifactId>
+        <type>rar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.tranql</groupId>
         <artifactId>tranql-connector-derby-embed-local</artifactId>
+        <type>rar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.tranql</groupId>
+        <artifactId>tranql-connector-derby-client-local</artifactId>
+        <type>rar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.tranql</groupId>
+        <artifactId>tranql-connector-derby-client-xa</artifactId>
+        <type>rar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.tranql</groupId>
+        <artifactId>tranql-connector-informix-xa</artifactId>
         <type>rar</type>
     </dependency>
     <dependency>
@@ -58,6 +83,16 @@
     </dependency>
     <dependency>
         <groupId>org.tranql</groupId>
+        <artifactId>tranql-connector-oracle-xa</artifactId>
+        <type>rar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.tranql</groupId>
+        <artifactId>tranql-connector-oracle-local</artifactId>
+        <type>rar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.tranql</groupId>
         <artifactId>tranql-connector-postgresql-local</artifactId>
         <type>rar</type>
     </dependency>
@@ -68,32 +103,12 @@
     </dependency>
     <dependency>
         <groupId>org.tranql</groupId>
-        <artifactId>tranql-connector-derby-client-local</artifactId>
+        <artifactId>tranql-connector-sqlserver2000-xa</artifactId>
         <type>rar</type>
     </dependency>
     <dependency>
         <groupId>org.tranql</groupId>
-        <artifactId>tranql-connector-ra</artifactId>
-        <type>rar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.tranql</groupId>
-        <artifactId>tranql-connector-oracle-xa</artifactId>
-        <type>rar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.tranql</groupId>
-        <artifactId>tranql-connector-db2-xa</artifactId>
-        <type>rar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.tranql</groupId>
-        <artifactId>tranql-connector-derby-client-xa</artifactId>
-        <type>rar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.tranql</groupId>
-        <artifactId>tranql-connector-oracle-local</artifactId>
+        <artifactId>tranql-connector-sqlserver2005-xa</artifactId>
         <type>rar</type>
     </dependency>
 </plugin-artifact>
