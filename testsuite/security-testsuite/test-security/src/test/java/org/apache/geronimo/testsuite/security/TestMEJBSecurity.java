@@ -114,7 +114,7 @@ public class TestMEJBSecurity extends TestSupport {
     }
     
     protected Management getMEJB(Hashtable env) throws Exception { 
-        String jndiName = "ejb/mgmt/MEJBRemoteHome"; // should be "ejb/mgmt/MEJB"
+        String jndiName = "ejb/mgmt/MEJB";
         InitialContext ctx = new InitialContext(env);
         Object objref = ctx.lookup(jndiName);
         ManagementHome home = (ManagementHome)
