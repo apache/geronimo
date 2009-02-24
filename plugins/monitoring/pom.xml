@@ -31,6 +31,18 @@
 
     <description> Geronimo Monitoring and Management </description>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.apache.geronimo.plugins</groupId>
+                <artifactId>system-database</artifactId>
+                <version>${version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+	</dependencies>
+    </dependencyManagement>
+
     <modules>
         <module>agent</module>
         <module>agent-ds</module>

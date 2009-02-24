@@ -36,6 +36,17 @@
         UDDI Server plugin
     </description>
     
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.apache.geronimo.plugins</groupId>
+                <artifactId>system-database</artifactId>
+                <version>${version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+	</dependencies>
+    </dependencyManagement>
     <modules>
         <module>geronimo-uddi-server</module>
         <module>uddi-jetty6</module>

@@ -30,6 +30,18 @@
     <packaging>car</packaging>
     <name>Geronimo Plugins, Clustering :: Plugin Farm Datasource</name>
     <description>Plugin defining a derby datasource for the plugin farm. Intended to be replaced with a remote datasource for greater reliability in actual deployments</description>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.apache.geronimo.plugins</groupId>
+                <artifactId>system-database</artifactId>
+                <version>${version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+	</dependencies>
+    </dependencyManagement>
     <dependencies>
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
@@ -50,7 +62,7 @@
             <type>rar</type>
             <scope>provided</scope>
         </dependency>
-
+        
     </dependencies>
     <build>
         <plugins>
