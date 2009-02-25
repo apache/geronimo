@@ -116,7 +116,7 @@ public class MasterRemoteControl {
             p.setProperty(Context.INITIAL_CONTEXT_FACTORY, "org.apache.openejb.client.LocalInitialContextFactory");
             InitialContext ctx = new InitialContext(p);
 
-            ManagementHome mejbHome = (ManagementHome)ctx.lookup("ejb/mgmt/MEJBRemoteHome");
+            ManagementHome mejbHome = (ManagementHome)ctx.lookup("ejb/mgmt/MEJB");
             mejb = mejbHome.create();
             
             // save credentials
