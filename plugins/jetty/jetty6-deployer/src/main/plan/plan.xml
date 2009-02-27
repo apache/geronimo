@@ -23,7 +23,7 @@
     <gbean name="JettyWebBuilder" class="org.apache.geronimo.jetty6.deployment.JettyModuleBuilder">
         <attribute name="defaultSessionTimeoutSeconds">1800</attribute>
         <attribute name="defaultWelcomeFiles">index.html,index.htm,index.jsp</attribute>
-        <attribute name="jettyContainerObjectName">?name=JettyWebContainer</attribute>
+        <attribute name="jettyContainerObjectName">?name=WebContainer</attribute>
         <attribute name="defaultLocaleEncodingMappings">
 ar=ISO-8859-6
 be=ISO-8859-5

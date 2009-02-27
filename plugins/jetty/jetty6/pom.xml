@@ -178,7 +178,7 @@
                             <config-substitution key="AJPPort">8009</config-substitution>
                             <config-substitution key="HTTPSPort">8443</config-substitution>
                             <config-substitution key="ServerHostname">0.0.0.0</config-substitution>
-                            <config-substitution key="webcontainer">JettyWebContainer</config-substitution>
+                            <config-substitution key="webcontainer">WebContainer</config-substitution>
                             <config-substitution key="webcontainerName">jetty6</config-substitution>
                         </plugin-artifact>
                     </instance>
