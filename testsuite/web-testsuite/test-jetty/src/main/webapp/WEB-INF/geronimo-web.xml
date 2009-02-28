@@ -28,7 +28,7 @@
     </sys:environment>
     <context-root>/JettyWeb</context-root>
     <web-container>
-        <gbean-link>JettyWebContainer</gbean-link>
+        <gbean-link>WebContainer</gbean-link>
     </web-container>
     <container-config>
         <jetty xmlns="http://geronimo.apache.org/xml/ns/web/jetty/config-1.0">

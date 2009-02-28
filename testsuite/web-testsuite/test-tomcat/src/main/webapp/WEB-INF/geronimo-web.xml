@@ -31,7 +31,7 @@
     </sys:environment>
     <context-root>/TomcatWeb</context-root>
     <web-container>
-        <gbean-link>TomcatWebContainer</gbean-link>
+        <gbean-link>WebContainer</gbean-link>
     </web-container>
     <container-config>
         <tomcat xmlns="http://geronimo.apache.org/xml/ns/web/tomcat/config-1.0">
