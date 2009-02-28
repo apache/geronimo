@@ -38,6 +38,18 @@
     FIXME: Split this module up... one to build the ear, one to run the tests.
     -->
     
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.apache.geronimo.plugins</groupId>
+                <artifactId>system-database</artifactId>
+                <version>${version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+	</dependencies>
+    </dependencyManagement>
+
     <dependencies>
         <dependency>
             <groupId>org.tranql</groupId>
