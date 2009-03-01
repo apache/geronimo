@@ -56,6 +56,12 @@
             <version>${geronimoVersion}</version>
             <type>car</type>
         </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.plugins</groupId>
+            <artifactId>activemq-webconsole-jetty</artifactId>
+            <version>${geronimoVersion}</version>
+            <type>car</type>
+        </dependency>
     </dependencies>
 
     <build>

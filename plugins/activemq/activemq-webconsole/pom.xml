@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+    <parent>
+        <artifactId>activemq</artifactId>
+        <groupId>org.apache.geronimo.plugins</groupId>
+        <version>2.2-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.apache.geronimo.plugins</groupId>
+    <artifactId>activemq-webconsole</artifactId>
+    <packaging>war</packaging>
+    <name>Slimmed activemq-web-console</name>
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>activemq-web-console</artifactId>
+            <version>5.3-SNAPSHOT</version>
+            <type>war</type>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <inherited>false</inherited>
+                <configuration>
+                    <failOnMissingWebXml>false</failOnMissingWebXml>
+                    <overlays>
+                        <overlay>
+                            <id>activemq-webconsole</id>
+                            <groupId>org.apache.activemq</groupId>
+                            <artifactId>activemq-web-console</artifactId>
+                            <excludes>
+                                <!-- this probably isn't read.... but just in case -->
+                                <exclude>WEB-INF/classes/log4j.properties</exclude>
+                                <exclude>WEB-INF/lib/*</exclude>
+                            </excludes>
+                        </overlay>
+                    </overlays>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

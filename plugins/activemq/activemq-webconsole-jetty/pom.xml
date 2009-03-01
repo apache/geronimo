@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+    <parent>
+        <artifactId>activemq</artifactId>
+        <groupId>org.apache.geronimo.plugins
+		</groupId>
+        <version>2.2-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>activemq-webconsole-jetty</artifactId>
+    <name>ActiveMQ web console on Jetty</name>
+    <packaging>car</packaging>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>geronimo-gbean-deployer
+			</artifactId>
+            <version>${geronimoVersion}</version>
+            <type>car</type>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>j2ee-deployer</artifactId>
+            <version>${geronimoVersion}</version>
+            <type>car</type>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>${jetty}-deployer</artifactId>
+            <version>${geronimoVersion}</version>
+            <type>car</type>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>jasper-deployer</artifactId>
+            <version>${geronimoVersion}</version>
+            <type>car</type>
+            <scope>provided</scope>
+        </dependency>
+
+        <!--
+			should be added by deployers but isn't into geronimo-plugin.xml
+		-->
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>${jetty}</artifactId>
+            <version>${geronimoVersion}</version>
+            <type>car</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>jasper</artifactId>
+            <version>${geronimoVersion}</version>
+            <type>car</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>activemq-broker</artifactId>
+            <version>${geronimoVersion}</version>
+            <type>car</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.plugins</groupId>
+            <artifactId>activemq-webconsole</artifactId>
+            <version>${geronimoVersion}</version>
+            <type>war</type>
+        </dependency>
+
+        <!--  dependencies from original web console -->
+        <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>activemq-web</artifactId>
+            <version>5.3-SNAPSHOT</version>
+        </dependency>
+
+        <!-- XMPP support -->
+        <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>activemq-xmpp</artifactId>
+            <version>5.3-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>activemq-console</artifactId>
+            <version>5.3-SNAPSHOT</version>
+        </dependency>
+
+        <!-- SiteMesh for layout -->
+        <dependency>
+            <groupId>opensymphony</groupId>
+            <artifactId>sitemesh</artifactId>
+            <version>2.2.1</version>
+        </dependency>
+
+
+    </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.geronimo.buildsupport
+				</groupId>
+                <artifactId>car-maven-plugin</artifactId>
+                <configuration>
+                    <deploymentConfigs>
+                        <deploymentConfig>${gbeanDeployer}</deploymentConfig>
+                        <deploymentConfig>${j2eeDeployer}</deploymentConfig>
+                        <deploymentConfig>${jettyDeployer}</deploymentConfig>
+                        <deploymentConfig>${jasperDeployer}</deploymentConfig>
+                    </deploymentConfigs>
+                    <module>
+                        <groupId>org.apache.geronimo.plugins</groupId>
+                        <artifactId>activemq-webconsole</artifactId>
+                        <type>war</type>
+                    </module>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
