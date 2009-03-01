@@ -30,8 +30,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.geronimo.farm.config.ClusterInfo;
 import org.apache.geronimo.farm.config.NodeInfo;
 import org.apache.geronimo.gbean.AbstractName;
@@ -53,6 +51,8 @@ import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.WritableListableRepository;
 import org.apache.geronimo.system.configuration.RepositoryConfigurationStore;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -67,7 +67,7 @@ public class MasterConfigurationStore implements ConfigurationStore {
     private final ClusterInfo clusterInfo;
     private final AbstractName clusterInfoName;
     private final ClusterConfigurationStoreClient storeDelegate;
-    private final SlaveConfigurationNameBuilder slaveConfigNameBuilder;
+    private final ConfigurationNameBuilder configNameBuilder;
     
     
     public MasterConfigurationStore(@ParamSpecial(type=SpecialAttributeType.kernel) Kernel kernel,
@@ -94,21 +94,20 @@ public class MasterConfigurationStore implements ConfigurationStore {
         this.clusterInfo = clusterInfo;
         this.storeDelegate = storeDelegate;
 
-        slaveConfigNameBuilder = newSlaveConfigurationNameBuilder();
+        configNameBuilder = newMasterConfigurationNameBuilder();
         clusterInfoName = kernel.getAbstractNameFor(clusterInfo);
         delegate = newConfigurationStore(kernel, objectName, abstractName, repository);
     }
 
     public boolean containsConfiguration(Artifact configId) {
-        if (slaveConfigNameBuilder.isSlaveConfigurationName(configId)) {
+        if (!configNameBuilder.isMasterConfigurationName(configId)) {
             return false;
         }
         return delegate.containsConfiguration(configId);
     }
 
     public File createNewConfigurationDir(Artifact configId) throws ConfigurationAlreadyExistsException {
-        Artifact slaveConfigId = slaveConfigNameBuilder.buildSlaveConfigurationName(configId);
-        return delegate.createNewConfigurationDir(slaveConfigId);
+        return delegate.createNewConfigurationDir(configId);
     }
 
     public void exportConfiguration(Artifact configId, OutputStream output) throws IOException, NoSuchConfigException {
@@ -125,16 +124,14 @@ public class MasterConfigurationStore implements ConfigurationStore {
     }
 
     public void install(ConfigurationData configurationData) throws IOException, InvalidConfigException {
-        Environment environment = configurationData.getEnvironment();
-        Artifact actualConfigId = environment.getConfigId();
-        Artifact slaveConfigId = slaveConfigNameBuilder.buildSlaveConfigurationName(actualConfigId);
-        environment.setConfigId(slaveConfigId);
-
         storeDelegate.install(clusterInfo, configurationData);
+
         installSlaveConfiguration(configurationData);
 
-        environment.setConfigId(actualConfigId);
-
+        Environment environment = configurationData.getEnvironment();
+        Artifact slaveConfigId = environment.getConfigId();
+        Artifact masterConfigId = configNameBuilder.buildMasterConfigurationName(slaveConfigId);
+        environment.setConfigId(masterConfigId);
         installMasterConfiguration(configurationData, slaveConfigId);
     }
 
@@ -148,7 +145,7 @@ public class MasterConfigurationStore implements ConfigurationStore {
         
         List<ConfigurationInfo> filteredConfigurationInfos = new ArrayList<ConfigurationInfo>();
         for (ConfigurationInfo configurationInfo : configurationInfos) {
-            if (!slaveConfigNameBuilder.isSlaveConfigurationName(configurationInfo.getConfigID())) {
+            if (configNameBuilder.isMasterConfigurationName(configurationInfo.getConfigID())) {
                 filteredConfigurationInfos.add(configurationInfo);
             }
         }
@@ -171,7 +168,7 @@ public class MasterConfigurationStore implements ConfigurationStore {
     public void uninstall(Artifact configId) throws NoSuchConfigException, IOException {
         ensureArtifactForMasterConfiguration(configId);
         
-        Artifact slaveConfigId = slaveConfigNameBuilder.buildSlaveConfigurationName(configId);
+        Artifact slaveConfigId = configNameBuilder.buildSlaveConfigurationName(configId);
         storeDelegate.uninstall(clusterInfo, slaveConfigId);
 
         try {
@@ -183,7 +180,7 @@ public class MasterConfigurationStore implements ConfigurationStore {
     }
 
     protected void ensureArtifactForMasterConfiguration(Artifact configId) throws NoSuchConfigException {
-        if (slaveConfigNameBuilder.isSlaveConfigurationName(configId)) {
+        if (!configNameBuilder.isMasterConfigurationName(configId)) {
             throw new NoSuchConfigException(configId);
         }
     }
@@ -195,8 +192,8 @@ public class MasterConfigurationStore implements ConfigurationStore {
         return new RepositoryConfigurationStore(kernel, objectName, abstractName, repository);
     }
 
-    protected SlaveConfigurationNameBuilder newSlaveConfigurationNameBuilder() {
-        return new BasicSlaveConfigurationNameBuilder();
+    protected ConfigurationNameBuilder newMasterConfigurationNameBuilder() {
+        return new BasicConfigurationNameBuilder();
     }
 
     protected void installMasterConfiguration(ConfigurationData configurationData, Artifact slaveConfigId)
@@ -288,8 +285,6 @@ public class MasterConfigurationStore implements ConfigurationStore {
     }
 
     public static final String GBEAN_J2EE_TYPE = "ConfigurationStore";
-    public static final String GBEAN_ATTR_KERNEL = "kernel";
-    public static final String GBEAN_ATTR_OBJECT_NAME = "objectName";
     public static final String GBEAN_ATTR_DEFAULT_ENV = "defaultEnvironment";
     public static final String GBEAN_REF_REPOSITORY = "Repository";
     public static final String GBEAN_REF_CLUSTER_INFO = "ClusterInfo";

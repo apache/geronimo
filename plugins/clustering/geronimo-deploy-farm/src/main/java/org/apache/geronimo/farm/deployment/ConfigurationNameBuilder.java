@@ -25,8 +25,10 @@ import org.apache.geronimo.kernel.repository.Artifact;
  *
  * @version $Rev:$ $Date:$
  */
-public interface SlaveConfigurationNameBuilder {
+public interface ConfigurationNameBuilder {
+    Artifact buildMasterConfigurationName(Artifact configId);
+
     Artifact buildSlaveConfigurationName(Artifact configId);
 
-    boolean isSlaveConfigurationName(Artifact configId);
+    boolean isMasterConfigurationName(Artifact configId);
 }
