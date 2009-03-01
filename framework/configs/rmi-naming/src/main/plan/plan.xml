@@ -43,7 +43,10 @@
         <attribute name="nameInNamespace">ger:</attribute>
     </gbean>
 
-    <gbean name="MBeanServerReference" class="org.apache.geronimo.system.jmx.RealMBeanServerReference"/>
+    <gbean name="MBeanServerReference" class="org.apache.geronimo.system.jmx.RealMBeanServerReference">
+        <attribute name="usePlatformMBeanServer">true</attribute>
+    </gbean>
+
 
     <!-- MBean server service -->
     <gbean name="MBeanServerKernelBridge" class="org.apache.geronimo.system.jmx.MBeanServerKernelBridge">
