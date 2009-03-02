@@ -31,7 +31,7 @@
 </p>
 
 <%-- todo: calculate the /console prefix somehow --%>
-<form action="/console/forwards/car-export" method="POST">
+<form action="/console/forwards/car-export" method="GET">
     <input type="hidden" name="configId" value="${configId}" />
     <input type="submit" value='<fmt:message key="car.common.exportPlugin" />' />
     <input type="submit" value='<fmt:message key="consolebase.common.done" />' onclick="history.go(-2); return false;" />
