@@ -42,7 +42,8 @@ public class TestMEJBSecurity extends TestSupport {
         
         Management mgmt = getMEJB(env);
         System.out.println(mgmt.getDefaultDomain());
-        assertEquals("geronimo", mgmt.getDefaultDomain());        
+//        assertEquals("geronimo", mgmt.getDefaultDomain());
+        assertEquals("DefaultDomain", mgmt.getDefaultDomain());        
     }
 
     @Test
