@@ -118,11 +118,7 @@
                 <artifactId>maven-war-plugin</artifactId>
                 <configuration>
                     <webXml>${project.build.directory}/jspweb.xml</webXml>
-                    <archiveClasses>true</archiveClasses>
-                    <archive>
-                        <!-- Do not include META-INF/maven to avoid long file problems on windows -->
-                        <addMavenDescriptor>false</addMavenDescriptor>
-                    </archive>
+                    <warSourceExcludes>**/*.jsp</warSourceExcludes>
                 </configuration>
             </plugin>
         </plugins>

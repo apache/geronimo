@@ -151,6 +151,10 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
+                <configuration>
+                    <webXml>${project.build.directory}/jspweb.xml</webXml>
+                    <warSourceExcludes>**/*.jsp</warSourceExcludes>
+                </configuration>
             </plugin>
         </plugins>
     </build>
