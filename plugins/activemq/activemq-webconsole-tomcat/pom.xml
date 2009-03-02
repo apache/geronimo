@@ -92,6 +92,7 @@
             <artifactId>activemq-webconsole</artifactId>
             <version>${geronimoVersion}</version>
             <type>war</type>
+            <scope>provided</scope>
         </dependency>
 
         <!--  dependencies from original web console -->
@@ -99,6 +100,24 @@
             <groupId>org.apache.activemq</groupId>
             <artifactId>activemq-web</artifactId>
             <version>5.3-SNAPSHOT</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging-api</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.mortbay.jetty</groupId>
+                    <artifactId>jetty-util</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.geronimo.specs</groupId>
+                    <artifactId>geronimo-jta_1.0.1B_spec</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!-- XMPP support -->
