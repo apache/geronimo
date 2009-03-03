@@ -161,12 +161,14 @@ public class RunSQLHelper {
                 }
             }
             conn.commit();
-        } catch (Throwable e) {
-            if (e instanceof SQLException) {
-                result = getSQLError((SQLException) e);
-            } else {
-                result = e.getMessage();
+        } catch (SQLException e) {
+            try {
+                conn.rollback();
+            } catch (Exception unHandledException) {
             }
+            result = getSQLError(e);
+        } catch (Throwable e) {
+            result = e.getMessage();
         } finally {
             // close DB connection
             try {
