@@ -152,6 +152,13 @@ public class RunSQLHelper {
             conn.commit();
             portlet.addInfoMessage(request, portlet.getLocalizedString(request, "infoMsg03"));
             return true;
+        } catch (SQLException e) {
+            try {
+                conn.rollback();
+            } catch (Exception unHandledException) {
+            }
+            portlet.addErrorMessage(request, portlet.getLocalizedString(request, "errorMsg08"), e.getMessage());
+            return false;
         } catch (Throwable e) {
             portlet.addErrorMessage(request, portlet.getLocalizedString(request, "errorMsg08"), e.getMessage());
             return false;
