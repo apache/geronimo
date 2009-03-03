@@ -208,8 +208,13 @@ public class SecurityRealmPortlet extends BasePortlet {
             if (test == null || test.equals("true")) {
                 actionResponse.setRenderParameter(MODE_KEY, TEST_LOGIN_MODE);
             } else {
-                actionSaveRealm(actionRequest, data);
-                actionResponse.setRenderParameter(MODE_KEY, LIST_MODE);
+                final String error = actionSaveRealm(actionRequest, data);
+                if (error == null) {
+                    actionResponse.setRenderParameter(MODE_KEY, LIST_MODE);
+                } else {
+                    actionResponse.setRenderParameter("LoginModuleError", error);
+                    actionResponse.setRenderParameter(MODE_KEY, CONFIGURE_MODE);
+                }
             }
         } else if (mode.equals("process-" + TEST_LOGIN_MODE)) {
             actionAttemptLogin(data, actionRequest, actionRequest.getPortletSession(true), actionRequest.getParameter("username"), actionRequest.getParameter("password"));
@@ -230,8 +235,13 @@ public class SecurityRealmPortlet extends BasePortlet {
                 actionResponse.setRenderParameter(MODE_KEY, CONFIGURE_MODE);
             }
         } else if (mode.equals(SAVE_MODE)) {
-            actionSaveRealm(actionRequest, data);
-            actionResponse.setRenderParameter(MODE_KEY, LIST_MODE);
+            final String error = actionSaveRealm(actionRequest, data);
+            if (error == null) {
+                actionResponse.setRenderParameter(MODE_KEY, LIST_MODE);
+            } else {
+                actionResponse.setRenderParameter("LoginModuleError", error);
+                actionResponse.setRenderParameter(MODE_KEY, CONFIGURE_MODE);
+            }
         } else {
             actionResponse.setRenderParameter(MODE_KEY, mode);
         }
@@ -487,7 +497,7 @@ public class SecurityRealmPortlet extends BasePortlet {
         data.modules = (LoginModuleDetails[]) list.toArray(new LoginModuleDetails[list.size()]);
     }
 
-    private void actionSaveRealm(PortletRequest request, RealmData data) {
+    private String actionSaveRealm(PortletRequest request, RealmData data) {
         normalize(data);
         if (data.getAbstractName() == null || data.getAbstractName().equals("")) { // we're creating a new realm
             try {
@@ -516,9 +526,16 @@ public class SecurityRealmPortlet extends BasePortlet {
                     if (po.getDeploymentStatus().isCompleted()) {
                         log.info("Deployment completed successfully!");
                     }
+                    else {
+                        return "Unable to save security realm ";
+                    }
+                }
+                else {
+                    return "Unable to save security realm ";
                 }
             } catch (IOException e) {
                 log.error("Unable to save security realm", e);
+                return "Unable to save security realm: " + e.getMessage();
             }
         } else {
             SecurityRealm realm = (SecurityRealm) PortletManager.getManagedBean(request, new AbstractName(URI.create(data.getAbstractName())));
@@ -544,6 +561,7 @@ public class SecurityRealmPortlet extends BasePortlet {
                 module.setLoginModuleClass(details.getClassName());
             }
         }
+        return null;
     }
 
     private void renderList(RenderRequest request, RenderResponse response) throws IOException, PortletException {
