@@ -712,25 +712,25 @@ public class PluginInstallerGBean implements PluginInstaller {
             repos.add(defaultRepository);
         }
         if (!restrictToDefaultRepository) {
-            List<String> repoLocations;
-            List<String> defaultRepoLocations;
-
             if (!instance.getSourceRepository().isEmpty()) {
-                repoLocations = instance.getSourceRepository();
-                for (String repoLocation : repoLocations) {
-                    SourceRepository repo = SourceRepositoryFactory.getSourceRepository(repoLocation);
-                    repos.add(repo);
-                }
+                addRepos(repos, instance.getSourceRepository());
             } 
             
             //always add the default repository location no matter if the plugin instance contains source-repository.
-            defaultRepoLocations = pluginsToInstall.getDefaultRepository();
-            for (String defaultRepoLocation : defaultRepoLocations) {
-                SourceRepository repo = SourceRepositoryFactory.getSourceRepository(defaultRepoLocation);
-                repos.add(repo);
-            }
+            addRepos(repos, pluginsToInstall.getDefaultRepository());
         }
         return repos;
+    }
+
+    private void addRepos(List<SourceRepository> repos, List<String> repoLocations) {
+        for (String repoLocation : repoLocations) {
+            try {
+                SourceRepository repo = SourceRepositoryFactory.getSourceRepository(repoLocation);
+                repos.add(repo);
+            } catch (IllegalStateException e) {
+                log.warn("Invalid repository: " + repoLocation, e);
+            }
+        }
     }
 
     /**
