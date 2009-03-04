@@ -169,6 +169,7 @@ public class RunSQLHelper {
                     s.close();
                 }
                 if (conn != null) {
+                    conn.setAutoCommit(true);
                     conn.close();
                 }
             } catch (SQLException e) {
