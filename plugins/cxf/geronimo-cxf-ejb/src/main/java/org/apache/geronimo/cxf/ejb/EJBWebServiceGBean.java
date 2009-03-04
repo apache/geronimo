@@ -17,6 +17,7 @@
 package org.apache.geronimo.cxf.ejb;
 
 import java.net.URL;
+import java.util.Collection;
 
 import javax.naming.Context;
 
@@ -46,18 +47,18 @@ public class EJBWebServiceGBean implements GBeanLifecycle {
                               PortInfo portInfo,                              
                               Kernel kernel,
                               URL configurationBaseUrl,                              
-                              SoapHandler soapHandler,
+                              Collection<SoapHandler> webContainers,
                               String securityRealmName,
                               String realmName,
                               String transportGuarantee,
                               String authMethod,
                               String[] protectedMethods,
                               String[] virtualHosts) throws Exception {        
-        if (ejbDeploymentContext == null || soapHandler == null || portInfo == null) {
+        if (ejbDeploymentContext == null || webContainers == null || webContainers.isEmpty() || portInfo == null) {
             return;
         }
                 
-        this.soapHandler = soapHandler;
+        this.soapHandler = webContainers.iterator().next();
         this.location = portInfo.getLocation();
         
         assert this.location != null : "null location received";
@@ -81,18 +82,15 @@ public class EJBWebServiceGBean implements GBeanLifecycle {
         
         this.container = new EJBWebServiceContainer(bus, configurationBaseUrl, beanClass);
         
-        if (soapHandler != null) {
-            soapHandler.addWebService(this.location, 
-                                      virtualHosts, 
-                                      this.container, 
-                                      securityRealmName, 
-                                      realmName, 
-                                      transportGuarantee, 
-                                      authMethod, 
-                                      protectedMethods, 
-                                      classLoader);
-        }
-        
+        soapHandler.addWebService(this.location, 
+                                  virtualHosts, 
+                                  this.container, 
+                                  securityRealmName, 
+                                  realmName, 
+                                  transportGuarantee, 
+                                  authMethod, 
+                                  protectedMethods, 
+                                  classLoader);        
     }
 
     public void doStart() throws Exception {
