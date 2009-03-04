@@ -35,9 +35,6 @@
     </gbean>
 
     <gbean name="CXFModuleBuilderExtension" class="org.apache.geronimo.jaxws.builder.JAXWSEJBModuleBuilderExtension">
-        <!-- This attribute and the environment must be updated appropriately in the config.xml file -->
-        <attribute name="listener">?name=WebContainer</attribute>
-
         <reference name="WebServiceBuilder">
             <name>CXFEJBBuilder</name>
         </reference>
@@ -46,6 +43,15 @@
         </reference>
     </gbean>
 
-    <gbean name="CXFWebServiceEJBLinkTemplate" class="org.apache.geronimo.cxf.ejb.EJBWebServiceGBean"/>
+    <gbean name="CXFWebServiceEJBLinkTemplate" class="org.apache.geronimo.cxf.ejb.EJBWebServiceGBean">
+        <references name="WebServiceContainer">
+            <pattern>
+                <name>JettyWebContainer</name>
+            </pattern>
+            <pattern>
+                <name>TomcatWebContainer</name>
+            </pattern>
+        </references>
+    </gbean>
 
 </module>

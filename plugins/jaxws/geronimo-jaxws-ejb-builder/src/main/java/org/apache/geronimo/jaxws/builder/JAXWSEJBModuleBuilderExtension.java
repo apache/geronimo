@@ -31,6 +31,7 @@ import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilderExtension;
@@ -56,6 +57,7 @@ public class JAXWSEJBModuleBuilderExtension implements ModuleBuilderExtension {
     protected WebServiceBuilder jaxwsBuilder;
     protected AbstractNameQuery listener;    
     protected GBeanInfo wsGBeanInfo;
+    protected GBeanData wsGBeanData;
     protected Environment defaultEnvironment;
 
     public JAXWSEJBModuleBuilderExtension() throws Exception {
@@ -69,14 +71,12 @@ public class JAXWSEJBModuleBuilderExtension implements ModuleBuilderExtension {
         this.jaxwsBuilder = wsBuilder;
         this.listener = listener;    
         this.defaultEnvironment = defaultEnvironment;
-        this.wsGBeanInfo = getGBeanInfo(kernel, dataLink);
+        
+        AbstractName webServiceLinkTemplateName = kernel.getAbstractNameFor(dataLink);
+        this.wsGBeanInfo = kernel.getGBeanInfo(webServiceLinkTemplateName);
+        this.wsGBeanData = kernel.getGBeanData(webServiceLinkTemplateName);
     }
     
-    private static GBeanInfo getGBeanInfo(Kernel kernel, Object webServiceLinkTemplate) throws Exception {
-        AbstractName webServiceLinkTemplateName = kernel.getAbstractNameFor(webServiceLinkTemplate);
-        return kernel.getGBeanInfo(webServiceLinkTemplateName);
-    }
-
     public void createModule(Module module, Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
         if (this.defaultEnvironment != null) {
             EnvironmentBuilder.mergeEnvironments(environment, this.defaultEnvironment);
@@ -175,8 +175,9 @@ public class JAXWSEJBModuleBuilderExtension implements ModuleBuilderExtension {
                             e);
                 }
                 
-                if (this.listener != null) {
-                    ejbWebServiceGBean.setReferencePattern("WebServiceContainer", this.listener);
+                ReferencePatterns patterns = this.wsGBeanData.getReferencePatterns("WebServiceContainer");
+                if (patterns != null) {
+                    ejbWebServiceGBean.setReferencePatterns("WebServiceContainer", patterns);
                 }
                 
                 ejbWebServiceGBean.setReferencePattern("EjbDeployment", sessionName);
