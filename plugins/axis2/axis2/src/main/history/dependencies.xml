@@ -102,11 +102,6 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>javax.ws.rs</groupId>
-        <artifactId>jsr311-api</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
         <groupId>org.apache.axis2</groupId>
         <artifactId>axis2-saaj</artifactId>
         <type>jar</type>
