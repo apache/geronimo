@@ -1,0 +1,915 @@
+Index: modules/saaj/test/org/apache/axis2/saaj/SOAPEnvelopeTest.java
+===================================================================
+--- modules/saaj/test/org/apache/axis2/saaj/SOAPEnvelopeTest.java	(revision 749742)
++++ modules/saaj/test/org/apache/axis2/saaj/SOAPEnvelopeTest.java	(working copy)
+@@ -21,6 +21,8 @@
+ 
+ import junit.framework.TestCase;
+ 
++import javax.xml.parsers.DocumentBuilder;
++import javax.xml.parsers.DocumentBuilderFactory;
+ import javax.xml.soap.Detail;
+ import javax.xml.soap.DetailEntry;
+ import javax.xml.soap.MessageFactory;
+@@ -28,6 +30,7 @@
+ import javax.xml.soap.Name;
+ import javax.xml.soap.Node;
+ import javax.xml.soap.SOAPBody;
++import javax.xml.soap.SOAPBodyElement;
+ import javax.xml.soap.SOAPConstants;
+ import javax.xml.soap.SOAPElement;
+ import javax.xml.soap.SOAPEnvelope;
+@@ -38,6 +41,16 @@
+ import javax.xml.soap.SOAPMessage;
+ import javax.xml.soap.SOAPPart;
+ import javax.xml.soap.Text;
++import javax.xml.transform.Result;
++import javax.xml.transform.Source;
++import javax.xml.transform.Transformer;
++import javax.xml.transform.TransformerFactory;
++import javax.xml.transform.dom.DOMResult;
++import javax.xml.transform.dom.DOMSource;
++
++import org.w3c.dom.Document;
++import org.w3c.dom.Element;
++
+ import java.io.ByteArrayInputStream;
+ import java.util.Iterator;
+ 
+@@ -565,4 +578,55 @@
+             fail("Unexpected Exception: " + e.getMessage());
+         }
+     }
++    
++    public void testTransform() throws Exception {
++        MessageFactory fact = MessageFactory.newInstance();
++        SOAPMessage message = fact.createMessage();
++        SOAPBody body = message.getSOAPBody();
++        Source source = new DOMSource(createDocument());
++        Result result = new DOMResult(body);
++        TransformerFactory transformerFactory = TransformerFactory.newInstance();
++        Transformer transformer = transformerFactory.newTransformer();
++        transformer.transform(source, result);
++        
++        assertEquals(1, body.getChildNodes().getLength());
++        Iterator iter = body.getChildElements();
++        assertTrue(iter.hasNext()); 
++        Object obj = iter.next();
++        assertTrue(obj instanceof SOAPBodyElement);  
++        SOAPElement soapElement = (SOAPElement)obj;
++        assertEquals("http://example.com", soapElement.getNamespaceURI());
++        assertEquals("GetLastTradePrice", soapElement.getLocalName());
++        
++        iter = soapElement.getChildElements();
++        assertTrue(iter.hasNext()); 
++        obj = iter.next();
++        assertTrue(obj instanceof SOAPElement);  
++        soapElement = (SOAPElement)obj;
++        assertEquals("", soapElement.getNamespaceURI());
++        assertEquals("symbol", soapElement.getLocalName());
++        assertFalse(iter.hasNext());
++        
++        iter = soapElement.getChildElements();
++        assertTrue(iter.hasNext()); 
++        obj = iter.next();
++        assertTrue(obj instanceof Text);  
++        Text text = (Text)obj;
++        assertEquals("DEF", text.getData());
++        assertFalse(iter.hasNext());
++    }
++    
++    private Element createDocument() throws Exception {
++        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
++        documentBuilderFactory.setNamespaceAware(true);
++        DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
++        Document document = documentBuilder.newDocument();
++        Element getLastTradePrice = document.createElementNS("http://example.com", "m:GetLastTradePrice");        
++        Element symbol = document.createElement("symbol");
++        getLastTradePrice.appendChild(symbol);
++        org.w3c.dom.Text def = document.createTextNode("DEF");
++        symbol.appendChild(def);
++        document.appendChild(getLastTradePrice);
++        return getLastTradePrice;
++    }
+ }
+\ No newline at end of file
+Index: modules/saaj/test/org/apache/axis2/saaj/SOAPHeaderTest.java
+===================================================================
+--- modules/saaj/test/org/apache/axis2/saaj/SOAPHeaderTest.java	(revision 749742)
++++ modules/saaj/test/org/apache/axis2/saaj/SOAPHeaderTest.java	(working copy)
+@@ -33,6 +33,11 @@
+ import javax.xml.soap.SOAPHeaderElement;
+ import javax.xml.soap.SOAPMessage;
+ import javax.xml.soap.SOAPPart;
++import javax.xml.soap.Text;
++
++import org.w3c.dom.Document;
++import org.w3c.dom.Element;
++
+ import java.util.ArrayList;
+ import java.util.Iterator;
+ 
+@@ -360,4 +365,52 @@
+             fail("Unexpected Exception: " + e.getMessage());
+         }
+     }
++    
++    public void testAppendChild() throws Exception {
++        MessageFactory fact = MessageFactory.newInstance();
++        SOAPMessage message = fact.createMessage();
++        SOAPHeader soapHeader = message.getSOAPHeader();
++        
++        assertEquals(0, soapHeader.getChildNodes().getLength());
++        assertFalse(soapHeader.getChildElements().hasNext());
++        
++        Document doc = soapHeader.getOwnerDocument();        
++        String namespace = "http://example.com";
++        String localName = "GetLastTradePrice";
++        Element getLastTradePrice = doc.createElementNS(namespace, localName);        
++        Element symbol = doc.createElement("symbol");
++        symbol.setAttribute("foo", "bar");
++        getLastTradePrice.appendChild(symbol);
++        org.w3c.dom.Text def = doc.createTextNode("DEF");
++        symbol.appendChild(def);
++                        
++        soapHeader.appendChild(getLastTradePrice);
++                
++        assertEquals(1, soapHeader.getChildNodes().getLength());
++        Iterator iter = soapHeader.getChildElements();
++        assertTrue(iter.hasNext()); 
++        Object obj = iter.next();
++        // must be SOAPHeaderElement
++        assertTrue(obj instanceof SOAPHeaderElement);  
++        SOAPElement soapElement = (SOAPElement)obj;
++        assertEquals(namespace, soapElement.getNamespaceURI());
++        assertEquals(localName, soapElement.getLocalName());
++        
++        iter = soapElement.getChildElements();
++        assertTrue(iter.hasNext()); 
++        obj = iter.next();
++        assertTrue(obj instanceof SOAPElement);  
++        soapElement = (SOAPElement)obj;
++        assertEquals(null, soapElement.getNamespaceURI());
++        assertEquals("symbol", soapElement.getLocalName());
++        assertFalse(iter.hasNext());
++        
++        iter = soapElement.getChildElements();
++        assertTrue(iter.hasNext()); 
++        obj = iter.next();
++        assertTrue(obj instanceof Text);  
++        Text text = (Text)obj;
++        assertEquals("DEF", text.getData());
++        assertFalse(iter.hasNext());   
++    }
+ }
+\ No newline at end of file
+Index: modules/saaj/test/org/apache/axis2/saaj/SOAPElementTest.java
+===================================================================
+--- modules/saaj/test/org/apache/axis2/saaj/SOAPElementTest.java	(revision 749742)
++++ modules/saaj/test/org/apache/axis2/saaj/SOAPElementTest.java	(working copy)
+@@ -20,6 +20,8 @@
+ 
+ import junit.framework.TestCase;
+ import org.apache.axiom.om.impl.dom.NodeImpl;
++import org.w3c.dom.Document;
++import org.w3c.dom.Element;
+ 
+ import javax.xml.namespace.QName;
+ import javax.xml.soap.MessageFactory;
+@@ -766,4 +768,84 @@
+             fail("Error : " + e);
+         }
+     }
++    
++    public void testAppendChild() throws Exception {
++        MessageFactory fact = MessageFactory.newInstance();
++        SOAPMessage message = fact.createMessage();
++        SOAPBody soapBody = message.getSOAPBody();
++
++        QName qname1 = new QName("http://wombat.ztrade.com",
++                                 "GetLastTradePrice", "ztrade");
++        SOAPElement child = soapBody.addChildElement(qname1);
++        
++        assertFalse(child.getChildElements().hasNext());
++        
++        Document doc = child.getOwnerDocument();        
++        String namespace = "http://example.com";
++        String localName = "GetLastTradePrice";
++        Element getLastTradePrice = doc.createElementNS(namespace, localName);        
++        Element symbol = doc.createElement("symbol");
++        symbol.setAttribute("foo", "bar");
++        getLastTradePrice.appendChild(symbol);
++        org.w3c.dom.Text def = doc.createTextNode("DEF");
++        symbol.appendChild(def);
++                
++        child.appendChild(getLastTradePrice);
++        
++        Iterator iter = child.getChildElements();
++        assertTrue(iter.hasNext()); 
++        Object obj = iter.next();
++        assertTrue(obj instanceof SOAPElement);  
++        SOAPElement soapElement = (SOAPElement)obj;
++        assertEquals(namespace, soapElement.getNamespaceURI());
++        assertEquals(localName, soapElement.getLocalName());
++        assertFalse(iter.hasNext());
++        
++        iter = soapElement.getChildElements();
++        assertTrue(iter.hasNext()); 
++        obj = iter.next();
++        assertTrue(obj instanceof SOAPElement);  
++        soapElement = (SOAPElement)obj;
++        assertEquals(null, soapElement.getNamespaceURI());
++        assertEquals("symbol", soapElement.getLocalName());
++        assertFalse(iter.hasNext());
++        
++        iter = soapElement.getChildElements();
++        assertTrue(iter.hasNext()); 
++        obj = iter.next();
++        assertTrue(obj instanceof Text);  
++        Text text = (Text)obj;
++        assertEquals("DEF", text.getData());
++        assertFalse(iter.hasNext());               
++    }
++    
++    public void testRemoveChild() throws Exception {
++        MessageFactory fact = MessageFactory.newInstance();
++        SOAPMessage message = fact.createMessage();
++        SOAPBody soapBody = message.getSOAPBody();
++
++        assertFalse(soapBody.getChildElements().hasNext());
++        
++        QName qname1 = new QName("http://wombat.ztrade.com",
++                                 "GetLastTradePrice", "ztrade");
++        SOAPElement child = soapBody.addChildElement(qname1);
++        child.addTextNode("foo");
++        
++        assertTrue(child.getChildElements().hasNext());
++        
++        Node textNode = (Node)child.getChildElements().next();
++        assertTrue(textNode instanceof Text);
++        
++        /* 
++        child.removeChild(textNode);
++        
++        assertFalse(child.getChildElements().hasNext());
++        */
++        
++        assertTrue(soapBody.getChildElements().hasNext());
++        
++        soapBody.removeChild(child);
++        
++        assertFalse(soapBody.getChildElements().hasNext());
++    }
+ }
+Index: modules/saaj/test/org/apache/axis2/saaj/SOAPBodyTest.java
+===================================================================
+--- modules/saaj/test/org/apache/axis2/saaj/SOAPBodyTest.java	(revision 749742)
++++ modules/saaj/test/org/apache/axis2/saaj/SOAPBodyTest.java	(working copy)
+@@ -262,5 +262,53 @@
+         }
+     }
+ 
+-
++    public void testAppendChild() throws Exception {
++        MessageFactory fact = MessageFactory.newInstance();
++        SOAPMessage message = fact.createMessage();
++        SOAPBody soapBody = message.getSOAPBody();
++        
++        assertEquals(0, soapBody.getChildNodes().getLength());
++        assertFalse(soapBody.getChildElements().hasNext());
++                      
++        Document doc = soapBody.getOwnerDocument();        
++        String namespace = "http://example.com";
++        String localName = "GetLastTradePrice";
++        Element getLastTradePrice = doc.createElementNS(namespace, localName);        
++        Element symbol = doc.createElement("symbol");
++        symbol.setAttribute("foo", "bar");
++        getLastTradePrice.appendChild(symbol);
++        org.w3c.dom.Text def = doc.createTextNode("DEF");
++        symbol.appendChild(def);
++                        
++        soapBody.appendChild(getLastTradePrice);
++        
++        assertEquals(1, soapBody.getChildNodes().getLength());
++        Iterator iter = soapBody.getChildElements();
++        assertTrue(iter.hasNext()); 
++        Object obj = iter.next();
++        // must be SOAPBodyElement
++        assertTrue(obj instanceof SOAPBodyElement);  
++        SOAPElement soapElement = (SOAPElement)obj;
++        assertEquals(namespace, soapElement.getNamespaceURI());
++        assertEquals(localName, soapElement.getLocalName());
++        assertFalse(iter.hasNext());
++        
++        iter = soapElement.getChildElements();
++        assertTrue(iter.hasNext()); 
++        obj = iter.next();
++        assertTrue(obj instanceof SOAPElement);  
++        soapElement = (SOAPElement)obj;
++        assertEquals(null, soapElement.getNamespaceURI());
++        assertEquals("symbol", soapElement.getLocalName());
++        assertFalse(iter.hasNext());
++        
++        iter = soapElement.getChildElements();
++        assertTrue(iter.hasNext()); 
++        obj = iter.next();
++        assertTrue(obj instanceof Text);  
++        Text text = (Text)obj;
++        assertEquals("DEF", text.getData());
++        assertFalse(iter.hasNext());   
++    }
++        
+ }
+Index: modules/saaj/test/org/apache/axis2/saaj/SOAPPartTest.java
+===================================================================
+--- modules/saaj/test/org/apache/axis2/saaj/SOAPPartTest.java	(revision 749742)
++++ modules/saaj/test/org/apache/axis2/saaj/SOAPPartTest.java	(working copy)
+@@ -21,6 +21,7 @@
+ import junit.framework.TestCase;
+ import org.w3c.dom.Document;
+ import org.w3c.dom.Node;
++import org.w3c.dom.NodeList;
+ 
+ import javax.xml.parsers.DocumentBuilder;
+ import javax.xml.parsers.DocumentBuilderFactory;
+@@ -28,6 +29,7 @@
+ import javax.xml.soap.Name;
+ import javax.xml.soap.SOAPBody;
+ import javax.xml.soap.SOAPElement;
++import javax.xml.soap.SOAPEnvelope;
+ import javax.xml.soap.SOAPHeader;
+ import javax.xml.soap.SOAPHeaderElement;
+ import javax.xml.soap.SOAPMessage;
+@@ -42,9 +44,9 @@
+  */
+ public class SOAPPartTest extends TestCase {
+ 
+-    public void testAddSource() {
++    public void testAddSource() throws Exception {
+         DOMSource domSource;
+-        try {
++
+             /*
+             FileReader testFile = new FileReader(new File(System.getProperty("basedir",".")+"/test-resources" + File.separator + "soap-part.xml"));
+             StAXOMBuilder stAXOMBuilder =
+@@ -76,9 +78,7 @@
+             Iterator iter2 = body.getChildElements();
+             getContents(iter2, "");
+ 
+-        } catch (Exception e) {
+-            fail("Unexpected Exception : " + e);
+-        }
++
+     }
+ 
+     public void getContents(Iterator iterator, String indent) {
+@@ -186,4 +186,44 @@
+             fail("Unexpected Exception " + e);
+         }
+     }
++    
++    public void testNodeTypes() throws Exception {
++        MessageFactory fact = MessageFactory.newInstance();
++        SOAPMessage message = fact.createMessage();
++        SOAPPart soapPart = message.getSOAPPart();     
++
++        assertTrue("first child", soapPart.getFirstChild() instanceof SOAPEnvelope);
++        assertTrue("last child", soapPart.getLastChild() instanceof SOAPEnvelope);
++                
++        NodeList nodes = soapPart.getChildNodes();
++        
++        assertEquals(1, nodes.getLength());
++        for (int i = 0; i < nodes.getLength(); i++) {
++            assertTrue(nodes.item(i) instanceof SOAPEnvelope);
++        }             
++    }
++    
++    public void testRemoveChild1() throws Exception {
++        MessageFactory fact = MessageFactory.newInstance();
++        SOAPMessage message = fact.createMessage();
++        SOAPPart soapPart = message.getSOAPPart();  
++                                
++        assertTrue("soap env before", soapPart.getFirstChild() instanceof SOAPEnvelope);
++        
++        soapPart.removeChild(soapPart.getFirstChild());
++        
++        assertTrue("soap env after", soapPart.getFirstChild() == null);
++    }
++    
++    public void testRemoveChild2() throws Exception {
++        MessageFactory fact = MessageFactory.newInstance();
++        SOAPMessage message = fact.createMessage();
++        SOAPPart soapPart = message.getSOAPPart();  
++                                
++        assertTrue("soap env before", soapPart.getFirstChild() instanceof SOAPEnvelope);
++        
++        soapPart.removeChild(soapPart.getEnvelope());
++        
++        assertTrue("soap env after", soapPart.getFirstChild() == null);
++    }
+ }
+Index: modules/saaj/src/org/apache/axis2/saaj/SOAPBodyImpl.java
+===================================================================
+--- modules/saaj/src/org/apache/axis2/saaj/SOAPBodyImpl.java	(revision 749742)
++++ modules/saaj/src/org/apache/axis2/saaj/SOAPBodyImpl.java	(working copy)
+@@ -96,6 +96,22 @@
+         return childEle;
+     }
+ 
++    protected Element appendElement(ElementImpl child) throws SOAPException {    
++        String namespaceURI = child.getNamespaceURI();
++        String prefix = child.getPrefix();
++
++        element.declareNamespace(namespaceURI, prefix);
++        
++        SOAPBodyElementImpl childEle = new SOAPBodyElementImpl(child);
++
++        childEle.element.setUserData(SAAJ_NODE, childEle, null);
++        childEle.element.setNamespace(childEle.element.declareNamespace(namespaceURI, prefix));
++        element.appendChild(childEle.element);
++        ((NodeImpl)childEle.element.getParentNode()).setUserData(SAAJ_NODE, this, null);
++        childEle.setParentElement(this);
++        return childEle;
++    }
++    
+     public SOAPElement addChildElement(SOAPElement soapElement) throws SOAPException {
+         String namespaceURI = soapElement.getNamespaceURI();
+         String prefix = soapElement.getPrefix();
+Index: modules/saaj/src/org/apache/axis2/saaj/NodeImplEx.java
+===================================================================
+--- modules/saaj/src/org/apache/axis2/saaj/NodeImplEx.java	(revision 749742)
++++ modules/saaj/src/org/apache/axis2/saaj/NodeImplEx.java	(working copy)
+@@ -160,30 +160,37 @@
+      * @return the SAAJ Node corresponding to the domNode
+      */
+     javax.xml.soap.Node toSAAJNode(org.w3c.dom.Node domNode) {
++        return toSAAJNode(domNode, this);
++    }
++    
++    /**
++     * Converts or extracts the SAAJ node from the given DOM Node (domNode)
++     *
++     * @param domNode
++     * @return the SAAJ Node corresponding to the domNode
++     */
++    static javax.xml.soap.Node toSAAJNode(org.w3c.dom.Node domNode, Node parentNode) {
+         if (domNode == null) {
+             return null;
+         }
++        Node saajNode = (Node)((NodeImpl)domNode).getUserData(SAAJ_NODE);
++        if (saajNode == null) {  // if SAAJ node has not been set in userData, try to construct it
++            return toSAAJNode2(domNode, parentNode);
++        }
++        // update siblings for text nodes
+         if (domNode instanceof org.w3c.dom.Text || domNode instanceof org.w3c.dom.Comment) {
+             org.w3c.dom.Node prevSiblingDOMNode = domNode.getPreviousSibling();
+             org.w3c.dom.Node nextSiblingDOMNode = domNode.getNextSibling();
+-
+-            TextImplEx saajTextNode = (TextImplEx)((NodeImpl)domNode).getUserData(SAAJ_NODE);
+-            if (saajTextNode == null) {
+-                // if SAAJ node has not been set in userData, try to construct it
+-                return toSAAJNode2(domNode);
+-            }
++            
++            TextImplEx saajTextNode = (TextImplEx)saajNode;
++            
+             saajTextNode.setPreviousSibling(prevSiblingDOMNode);
+             saajTextNode.setNextSibling(nextSiblingDOMNode);
+-            return saajTextNode;
+         }
+-        Node saajNode = (Node)((NodeImpl)domNode).getUserData(SAAJ_NODE);
+-        if (saajNode == null) {  // if SAAJ node has not been set in userData, try to construct it
+-            return toSAAJNode2(domNode);
+-        }
+         return saajNode;
+     }
+ 
+-    private javax.xml.soap.Node toSAAJNode2(org.w3c.dom.Node domNode) {
++    private static javax.xml.soap.Node toSAAJNode2(org.w3c.dom.Node domNode, Node parentNode) {
+         if (domNode == null) {
+             return null;
+         }
+Index: modules/saaj/src/org/apache/axis2/saaj/SOAPPartImpl.java
+===================================================================
+--- modules/saaj/src/org/apache/axis2/saaj/SOAPPartImpl.java	(revision 749742)
++++ modules/saaj/src/org/apache/axis2/saaj/SOAPPartImpl.java	(working copy)
+@@ -841,7 +841,7 @@
+      * been removed from the tree, this is <code>null</code>.
+      */
+     public Node getParentNode() {
+-        return document.getParentNode();
++        return toSAAJNode(document.getParentNode());
+     }
+ 
+     /**
+@@ -849,17 +849,22 @@
+      * this is a <code>NodeList</code> containing no nodes.
+      */
+     public NodeList getChildNodes() {
+-        return document.getChildNodes();
++        NodeList childNodes = document.getChildNodes();
++        NodeListImpl nodes = new NodeListImpl();
++        for (int i = 0; i < childNodes.getLength(); i++) {
++            nodes.addNode(toSAAJNode(childNodes.item(i)));
++        }
++        return nodes;
+     }
+ 
+     /** The first child of this node. If there is no such node, this returns <code>null</code>. */
+     public Node getFirstChild() {
+-        return document.getFirstChild();
++        return toSAAJNode(document.getFirstChild());
+     }
+ 
+     /** The last child of this node. If there is no such node, this returns <code>null</code>. */
+     public Node getLastChild() {
+-        return document.getLastChild();
++        return toSAAJNode(document.getLastChild());
+     }
+ 
+     /**
+@@ -867,7 +872,7 @@
+      * <code>null</code>.
+      */
+     public Node getPreviousSibling() {
+-        return document.getPreviousSibling();
++        return toSAAJNode(document.getPreviousSibling());
+     }
+ 
+     /**
+@@ -875,7 +880,7 @@
+      * <code>null</code>.
+      */
+     public Node getNextSibling() {
+-        return document.getNextSibling();
++        return toSAAJNode(document.getNextSibling());
+     }
+ 
+     /**
+@@ -954,6 +959,11 @@
+      *                      this node.
+      */
+     public Node removeChild(Node oldChild) throws DOMException {
++        if (oldChild instanceof SOAPElementImpl) {
++            oldChild = ((SOAPElementImpl)oldChild).getElement();
++        } else if (oldChild instanceof TextImplEx) {
++            // TODO: handle text nodes somehow
++        }
+         return document.removeChild(oldChild);
+     }
+ 
+@@ -1222,4 +1232,8 @@
+     public void setValue(String value) {
+     	throw new IllegalStateException("Cannot set value of SOAPPart.");
+     }
++    
++    javax.xml.soap.Node toSAAJNode(org.w3c.dom.Node domNode) {
++        return NodeImplEx.toSAAJNode(domNode, this);
++    }
+ }
+Index: modules/saaj/src/org/apache/axis2/saaj/SOAPHeaderImpl.java
+===================================================================
+--- modules/saaj/src/org/apache/axis2/saaj/SOAPHeaderImpl.java	(revision 749742)
++++ modules/saaj/src/org/apache/axis2/saaj/SOAPHeaderImpl.java	(working copy)
+@@ -30,6 +30,7 @@
+ import org.apache.axiom.soap.impl.dom.soap12.SOAP12Factory;
+ import org.apache.axiom.soap.impl.dom.soap12.SOAP12HeaderBlockImpl;
+ import org.apache.axis2.namespace.Constants;
++import org.w3c.dom.Element;
+ 
+ import javax.xml.namespace.QName;
+ import javax.xml.soap.Name;
+@@ -127,6 +128,30 @@
+         return soapHeaderElement;
+     }
+ 
++    protected Element appendElement(ElementImpl child) throws SOAPException {     
++        OMNamespace ns = new NamespaceImpl(child.getNamespaceURI(),
++                                           child.getPrefix());
++        SOAPHeaderBlock headerBlock = null;
++        if (this.element.getOMFactory() instanceof SOAP11Factory) {
++            headerBlock = new SOAP11HeaderBlockImpl(child.getLocalName(), ns,
++                                                    omSOAPHeader,
++                                                    (SOAPFactory)this.element.getOMFactory());
++        } else {
++            headerBlock = new SOAP12HeaderBlockImpl(child.getLocalName(), ns,
++                                                    omSOAPHeader,
++                                                    (SOAPFactory)this.element.getOMFactory());
++
++        }
++     
++        element.setUserData(SAAJ_NODE, this, null);
++        
++        SOAPHeaderElementImpl soapHeaderElement = new SOAPHeaderElementImpl(headerBlock);
++        copyContents(soapHeaderElement, child);
++        soapHeaderElement.element.setUserData(SAAJ_NODE, soapHeaderElement, null);
++        soapHeaderElement.setParentElement(this);
++        return soapHeaderElement;
++    }
++    
+     /**
+      * Creates a new <CODE>SOAPHeaderElement</CODE> object initialized with the specified name and
+      * adds it to this <CODE>SOAPHeader</CODE> object.
+Index: modules/saaj/src/org/apache/axis2/saaj/SOAPElementImpl.java
+===================================================================
+--- modules/saaj/src/org/apache/axis2/saaj/SOAPElementImpl.java	(revision 749742)
++++ modules/saaj/src/org/apache/axis2/saaj/SOAPElementImpl.java	(working copy)
+@@ -35,6 +35,7 @@
+ import org.w3c.dom.Attr;
+ import org.w3c.dom.DOMException;
+ import org.w3c.dom.Document;
++import org.w3c.dom.Element;
+ import org.w3c.dom.NamedNodeMap;
+ import org.w3c.dom.Node;
+ import org.w3c.dom.NodeList;
+@@ -848,4 +849,81 @@
+     public NamedNodeMap getAttributes() {
+         return element.getAttributes();
+     }
++        
++    public Node removeChild(Node oldChild) throws DOMException {
++        if (oldChild instanceof SOAPElementImpl) {
++            oldChild = ((SOAPElementImpl)oldChild).getElement();
++        } else if (oldChild instanceof TextImplEx) {
++            // TODO: handle text nodes somehow
++        }
++        return element.removeChild(oldChild);
++    }
++    
++    public Node appendChild(Node child) throws DOMException {        
++        if (getOwnerDocument() != child.getOwnerDocument()) {
++            throw new DOMException(DOMException.WRONG_DOCUMENT_ERR, "Wrong document");
++        }
++        try {
++            if (child instanceof Text) {
++                return appendText((Text)child);
++            } else if (child instanceof ElementImpl) {
++                return appendElement((ElementImpl)child);
++            }
++        } catch (SOAPException e) {
++            DOMException ex = 
++                new DOMException(DOMException.HIERARCHY_REQUEST_ERR, e.getMessage());
++            ex.initCause(e);
++            throw ex;
++        }
++        
++        return super.appendChild(child);        
++    }
++    
++    protected Text appendText(Text child) throws SOAPException {
++        String text = child.getData();
++        Text textNode = getOwnerDocument().createTextNode(text);
++        NodeImpl node = ((NodeImpl)element.appendChild(textNode));
++        TextImplEx saajTextNode = new TextImplEx(text, this);
++        node.setUserData(SAAJ_NODE, saajTextNode, null);
++        return saajTextNode;
++    }
++    
++    protected Element appendElement(ElementImpl child) throws SOAPException {
++        String namespaceURI = child.getNamespaceURI();
++        String prefix = child.getPrefix();
++
++        SOAPElementImpl childEle = new SOAPElementImpl(child);
++        
++        childEle.element.setUserData(SAAJ_NODE, childEle, null);
++        if (namespaceURI != null && namespaceURI.trim().length() > 0) {
++            childEle.element.setNamespace(childEle.element.declareNamespace(namespaceURI, prefix));
++        }
++        element.appendChild(childEle.element);
++        ((NodeImpl)childEle.element.getParentNode()).setUserData(SAAJ_NODE, this, null);
++        childEle.setParentElement(this);
++        return childEle;
++    }
++    
++    protected void copyContents(SOAPElementImpl childEle, Node child) throws SOAPException {
++        NamedNodeMap attributes = child.getAttributes();
++        for (int i = 0; i < attributes.getLength(); i++) {
++            Attr node = (Attr)attributes.item(i);
++            QName name;
++            if (node.getPrefix() == null) {
++                name = new QName(node.getNamespaceURI(), 
++                                 node.getLocalName());
++            } else {
++                name = new QName(node.getNamespaceURI(), 
++                                 node.getLocalName(),
++                                 node.getPrefix());
++            }
++            childEle.addAttribute(name, node.getValue());
++        }
++
++        NodeList children = child.getChildNodes();        
++        for (int i = 0; i < children.getLength(); i++) {
++            Node node = children.item(i);
++            childEle.appendChild(node);
++        }
++    }
+ }
+Index: modules/metadata/src/org/apache/axis2/jaxws/i18n/resource.properties
+===================================================================
+--- modules/metadata/src/org/apache/axis2/jaxws/i18n/resource.properties	(revision 749742)
++++ modules/metadata/src/org/apache/axis2/jaxws/i18n/resource.properties	(working copy)
+@@ -182,3 +182,5 @@
+ onewayAsync=The async listener property was set.  A one way invocation cannot be performed using an async response channel.
+ soapBindingUseEncoded=The SEI {0} contains method {1} with an unsupported SOAPBinding annotation value. SOAPBinding.Use field cannot be set to ENCODED.
+ soapBindingStyle=The SEI {0} contains method {1} with annotation SOAPBinding.Style set to RPC.
++validateImplErr=Validation error: Implementation subclass does not implement method on specified interface.  Implementation class: {0}; missing method name: {1}; endpointInterface: {2}
++
+Index: modules/metadata/src/org/apache/axis2/jaxws/description/impl/ServiceDescriptionImpl.java
+===================================================================
+--- modules/metadata/src/org/apache/axis2/jaxws/description/impl/ServiceDescriptionImpl.java	(revision 749742)
++++ modules/metadata/src/org/apache/axis2/jaxws/description/impl/ServiceDescriptionImpl.java	(working copy)
+@@ -987,62 +987,79 @@
+         return validDefaultCtor;
+     }
+ 
++
+     private void validateImplementation(DescriptionBuilderComposite seic) {
+         /*
+-           *	Verify that an impl class implements all the methods of the SEI. We
+-           *  have to verify this because an impl class is not required to actually use
+-           *  the 'implements' clause. So, if it doesn't, the Java compiler won't
+-           *	catch it. Don't need to worry about chaining because only one EndpointInterface
+-           *  can be specified, and the SEI cannot specify an EndpointInterface, so the Java
+-           *	compiler will take care of everything else.
+-           */
++         *  Verify that an impl class implements all the methods of the SEI. We have to verify this 
++         *  because an impl class is not required to actually use the 'implements' clause. So, if 
++         *  it doesn't, the Java compiler won't catch it. Don't need to worry about chaining 
++         *  because only one EndpointInterface can be specified, and the SEI cannot specify an 
++         *  EndpointInterface, so the Java compiler will take care of everything else.
++         *  
++         *  Note, however, that we do need to take overloaded methods into a consideration.  The
++         *  same method name can be specified for multiple methods, but they can have different
++         *  parameters.  Note that methods which differ only in the return type or the exceptions
++         *  thrown are not overloaded (and therefore would cause a compile error).
++         */
+ 
+-        HashMap<String, MethodDescriptionComposite> compositeHashMap = 
+-            new HashMap<String, MethodDescriptionComposite>();
+-        Iterator<MethodDescriptionComposite> compIterator =
+-                composite.getMethodDescriptionsList().iterator();
+-        while (compIterator.hasNext()) {
+-            MethodDescriptionComposite mdc = compIterator.next();
+-            compositeHashMap.put(mdc.getMethodName(), mdc);
+-        }
++        List<MethodDescriptionComposite> implMethods = composite.getMethodDescriptionsList();
+         // Add methods declared in the implementation's superclass
+-        addSuperClassMethods(compositeHashMap, composite);
++        addSuperClassMethods(implMethods, composite);
+ 
+-        HashMap<String, MethodDescriptionComposite> seiMethodHashMap = 
+-            new HashMap<String, MethodDescriptionComposite>();
+-        Iterator<MethodDescriptionComposite> seiMethodIterator =
+-                seic.getMethodDescriptionsList().iterator();
+-        while (seiMethodIterator.hasNext()) {
+-            MethodDescriptionComposite mdc = seiMethodIterator.next();
+-            seiMethodHashMap.put(mdc.getMethodName(), mdc);
+-        }
++        List<MethodDescriptionComposite> seiMethods = seic.getMethodDescriptionsList();
+         // Add any methods declared in superinterfaces of the SEI
+-        addSuperClassMethods(seiMethodHashMap, seic);
++        addSuperClassMethods(seiMethods, seic);
+ 
+         // Make sure all the methods in the SEI (including any inherited from superinterfaces) are
+-        // implemented by the bean (including inherited methods on the bean).
+-        Iterator<MethodDescriptionComposite> verifySEIIterator =
+-                seiMethodHashMap.values().iterator();
++        // implemented by the bean (including inherited methods on the bean), taking into
++        // account overloaded methods.
++        Iterator<MethodDescriptionComposite> verifySEIIterator = seiMethods.iterator();
+         while (verifySEIIterator.hasNext()) {
+-            MethodDescriptionComposite mdc = verifySEIIterator.next();
+-            // TODO: This does not take into consideration overloaded java methods!
+-            MethodDescriptionComposite implMDC = compositeHashMap.get(mdc.getMethodName());
++            MethodDescriptionComposite seiMDC = verifySEIIterator.next();
+             
+-            if (implMDC == null) {
+-                // TODO: RAS/NLS
+-                throw ExceptionFactory.makeWebServiceException(
+-                        "Validation error: Implementation subclass does not implement method on specified interface.  Implementation class: "
+-                                + composite.getClassName() + "; missing method name: " +
+-                                mdc.getMethodName() + "; endpointInterface: " +
+-                                seic.getClassName());
+-            } else {
+-                //At least we found it, now make sure that signatures match up
++            // Make sure the implementation implements this SEI method.  Since we have to account
++            // for method overloading, we look for ALL methods with the same name in the 
++            // implementation, then from that collection of methods, we look for one that has the 
++            // same parameters.  If we find one with the same parameters, then we check the return
++            // and exceptions.  Note that in Java, overloaded methods are ones that have the same
++            // name but different parameters; a difference in the return type or thrown exceptions
++            // does not constitute overloading and is a compile error.
++            Iterator<MethodDescriptionComposite> implMDCIterator = implMethods.iterator();
++            boolean methodImplFound = false;
++            while (implMDCIterator.hasNext()) {
++                MethodDescriptionComposite implMDC = implMDCIterator.next();
+                 
+-                //Check for exception and signature matching
+-                validateMethodExceptions(mdc, implMDC, seic.getClassName());
+-                validateMethodReturnValue(mdc, implMDC, seic.getClassName());
+-                validateMethodParameters(mdc, implMDC, seic.getClassName());
++                if (seiMDC.getMethodName().equals(implMDC.getMethodName())) {
++                    // The method names match, so now check the parameters
++                    try {
++                        validateMethodParameters(seiMDC, implMDC, seic.getClassName());
++                        methodImplFound = true;
++                    }
++                    catch (Exception ex) {
++                        // The parameters didn't match, so we'll check the next 
++                        // implemntation method on the next iteration of the inner loop.
++                    }
++                    
++                    // If the name and the parameters matched, then we've found the method
++                    // implementation, even if it was overloaded. Now check the return value and
++                    // thrown exceptions.  Note these will methods throw exceptions if validation fails.
++                    // If all the validation passes, we can break out of the inner loop since we 
++                    // found the implementation for this sei method.
++                    if (methodImplFound) {
++                        validateMethodExceptions(seiMDC, implMDC, seic.getClassName());
++                        validateMethodReturnValue(seiMDC, implMDC, seic.getClassName());
++                        break;
++                    }
++                }
+             }
++            
++            if (!methodImplFound) {
++                // We didn't find the implementation for this SEI method, so throw a validation
++                // exception.
++                throw ExceptionFactory.makeWebServiceException(
++                		Messages.getMessage("validateImplErr",composite.getClassName(),
++                				seiMDC.getMethodName(),seic.getClassName()));
++            }
+         }
+     }
+ 
+@@ -1200,29 +1217,27 @@
+ 
+     }
+ 
+-    /**
+-     * Adds any methods declared in superclasses to the HashMap.  The hierachy starting with the DBC
++   /**
++     * Adds any methods declared in superclasses to the List.  The hierachy starting with the DBC
+      * will be walked up recursively, adding methods from each parent DBC encountered.
+      * <p/>
+      * Note that this can be used for either classes or interfaces.
+      *
+-     * @param methodMap
+-     * @param dbc
++     * @param methodList The current collection of methods, including overloaded ones
++     * @param dbc The composite to be checked for methods to be added to the collection
+      */
+-    private void addSuperClassMethods(HashMap methodMap, DescriptionBuilderComposite dbc) {
++    private void addSuperClassMethods(List<MethodDescriptionComposite> methodList, DescriptionBuilderComposite dbc) {
+         DescriptionBuilderComposite superDBC = dbcMap.get(dbc.getSuperClassName());
+         if (superDBC != null) {
+-            Iterator<MethodDescriptionComposite> mIter =
+-                    superDBC.getMethodDescriptionsList().iterator();
++            Iterator<MethodDescriptionComposite> mIter = superDBC.getMethodDescriptionsList().iterator();
+             while (mIter.hasNext()) {
+                 MethodDescriptionComposite mdc = mIter.next();
+-                methodMap.put(mdc.getMethodName(), mdc);
++                methodList.add(mdc);
+             }
+-            addSuperClassMethods(methodMap, superDBC);
++            addSuperClassMethods(methodList, superDBC);
+         }
+     }
+ 
+-
+     /*
+       * This method verifies that, if there are any WebMethod with exclude == false, then
+       * make sure that we find all of those methods represented in the wsdl. However, if
+Index: modules/jaxws/src/org/apache/axis2/jaxws/message/impl/XMLPartBase.java
+===================================================================
+--- modules/jaxws/src/org/apache/axis2/jaxws/message/impl/XMLPartBase.java	(revision 749742)
++++ modules/jaxws/src/org/apache/axis2/jaxws/message/impl/XMLPartBase.java	(working copy)
+@@ -147,7 +147,7 @@
+                 // Okay
+             } else
+             if (qName.getNamespaceURI().equals(SOAP12Constants.SOAP_ENVELOPE_NAMESPACE_URI)) {
+-                throw ExceptionFactory.makeWebServiceException("UNEXPECTED");  // TODO NLS
++                //throw ExceptionFactory.makeWebServiceException("UNEXPECTED");  // TODO NLS
+             } else {
+                 content = _createSpine(Protocol.rest, Style.DOCUMENT, 0, root);
+                 contentType = SPINE;
+Index: modules/jaxws/src/org/apache/axis2/jaxws/message/databinding/impl/SourceBlockImpl.java
+===================================================================
+--- modules/jaxws/src/org/apache/axis2/jaxws/message/databinding/impl/SourceBlockImpl.java	(revision 749742)
++++ modules/jaxws/src/org/apache/axis2/jaxws/message/databinding/impl/SourceBlockImpl.java	(working copy)
+@@ -126,6 +126,7 @@
+     protected Object _getBOFromReader(XMLStreamReader reader, Object busContext)
+             throws XMLStreamException {
+ 
++        /*
+         // Best solution is to use a StAXSource
+         if (staxSource != null) {
+             try {
+@@ -136,6 +137,7 @@
+             } catch (Exception e) {
+             }
+         }
++        */
+ 
+         // TODO StreamSource is not performant...work is needed here to make this faster
+         Reader2Writer r2w = new Reader2Writer(reader);

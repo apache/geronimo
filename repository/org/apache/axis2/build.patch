@@ -1,0 +1,33 @@
+Index: modules/integration/test/org/apache/axis2/rpc/complex/ComplexDataTypesDocLitBareTest.java
+===================================================================
+--- modules/integration/test/org/apache/axis2/rpc/complex/ComplexDataTypesDocLitBareTest.java	(revision 749817)
++++ modules/integration/test/org/apache/axis2/rpc/complex/ComplexDataTypesDocLitBareTest.java	(working copy)
+@@ -482,7 +482,7 @@
+     /**
+      * Auto generated test method
+      */
+-    public void testretObject() throws java.lang.Exception {
++    public void DISABLEDtestretObject() throws java.lang.Exception {
+ 
+         OMFactory factory = OMAbstractFactory.getOMFactory();
+         // lets create the namespace object of the Article element
+Index: modules/integration/test/org/apache/axis2/rpc/complex/ComplexDataTypesComplexDataTypesSOAP11Test.java
+===================================================================
+--- modules/integration/test/org/apache/axis2/rpc/complex/ComplexDataTypesComplexDataTypesSOAP11Test.java	(revision 749817)
++++ modules/integration/test/org/apache/axis2/rpc/complex/ComplexDataTypesComplexDataTypesSOAP11Test.java	(working copy)
+@@ -466,7 +466,7 @@
+     /**
+      * Auto generated test method
+      */
+-    public void testretObject() throws java.lang.Exception {
++    public void DISABLEDtestretObject() throws java.lang.Exception {
+ 
+         OMFactory factory = OMAbstractFactory.getOMFactory();
+         // lets create the namespace object of the Article element
+@@ -607,4 +607,4 @@
+         assertEquals(input, ret);
+     }
+ }
+-    
+\ No newline at end of file
++    
