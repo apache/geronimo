@@ -34,7 +34,7 @@
     <!-- The following is the equivalent of the server.xml file, but done with GBeans -->
 
     <!-- The TomcatContainer/Service -->
-    <gbean name="WebContainer" class="org.apache.geronimo.tomcat.TomcatContainer">
+    <gbean name="TomcatWebContainer" class="org.apache.geronimo.tomcat.TomcatContainer">
         <attribute name="catalinaHome">var/catalina</attribute>
         <!--<attribute name="applicationListeners">org.apache.myfaces.webapp.StartupServletContextListener</attribute>-->
         <reference name="EngineGBean">
@@ -69,7 +69,7 @@
         <attribute name="connectionTimeout">20000</attribute>
         <attribute name="disableUploadTimeout">true</attribute>
         <reference name="TomcatContainer">
-            <name>WebContainer</name>
+            <name>TomcatWebContainer</name>
         </reference>
         <reference name="ServerInfo">
             <name>ServerInfo</name>
@@ -85,7 +85,7 @@
         <attribute name="enableLookups">false</attribute>
         <attribute name="redirectPort">${PlanHTTPSPort}</attribute>
         <reference name="TomcatContainer">
-            <name>WebContainer</name>
+            <name>TomcatWebContainer</name>
         </reference>
         <reference name="ServerInfo">
             <name>ServerInfo</name>
@@ -113,7 +113,7 @@
         <attribute name="keystorePass">secret</attribute>
         <attribute name="keystoreType">JKS</attribute>
         <reference name="TomcatContainer">
-            <name>WebContainer</name>
+            <name>TomcatWebContainer</name>
         </reference>
         <reference name="ServerInfo">
             <name>ServerInfo</name>

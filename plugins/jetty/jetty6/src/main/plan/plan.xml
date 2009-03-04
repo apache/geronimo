@@ -39,7 +39,7 @@
     </gbean>
 
     <!-- default WAR container using Jetty -->
-    <gbean name="WebContainer" class="org.apache.geronimo.jetty6.JettyContainerImpl">
+    <gbean name="JettyWebContainer" class="org.apache.geronimo.jetty6.JettyContainerImpl">
         <attribute name="jettyHome">var/jetty</attribute>
         <reference name="WebManager">
             <name>JettyWebManager</name>
@@ -51,7 +51,7 @@
 
     <gbean name="JettyRequestLog" class="org.apache.geronimo.jetty6.requestlog.NCSARequestLog">
         <reference name="JettyContainer">
-            <name>WebContainer</name>
+            <name>JettyWebContainer</name>
         </reference>
         <reference name="ServerInfo">
             <name>ServerInfo</name>
@@ -66,7 +66,7 @@
         <attribute name="port">${PlanHTTPPort}</attribute>
         <attribute name="headerBufferSizeBytes">8192</attribute>
         <reference name="JettyContainer">
-            <name>WebContainer</name>
+            <name>JettyWebContainer</name>
         </reference>
         <reference name="ThreadPool">
             <name>DefaultThreadPool</name>
@@ -78,7 +78,7 @@
         <attribute name="host">${PlanServerHostname}</attribute>
         <attribute name="port">${PlanAJPPort}</attribute>
         <reference name="JettyContainer">
-            <name>WebContainer</name>
+            <name>JettyWebContainer</name>
         </reference>
         <reference name="ThreadPool">
             <name>DefaultThreadPool</name>
@@ -99,7 +99,7 @@
             <attribute name="secureProtocol">TLS</attribute>
             <attribute name="maxThreads">50</attribute>
             <reference name="JettyContainer">
-                <name>WebContainer</name>
+                <name>JettyWebContainer</name>
             </reference>
             <reference name="ThreadPool">
                 <name>DefaultThreadPool</name>
@@ -122,7 +122,7 @@
         <attribute name="secureProtocol">TLS</attribute>
         <attribute name="maxThreads">50</attribute>
         <reference name="JettyContainer">
-            <name>WebContainer</name>
+            <name>JettyWebContainer</name>
         </reference>
         <reference name="ThreadPool">
             <name>DefaultThreadPool</name>

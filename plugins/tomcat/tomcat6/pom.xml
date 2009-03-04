@@ -196,7 +196,7 @@
                             <config-substitution key="HTTPSPort">8443</config-substitution>
                             <config-substitution key="ServerHostname">0.0.0.0</config-substitution>
                             <config-substitution key="WebConnectorConTimeout">20000</config-substitution>
-                            <config-substitution key="webcontainer">WebContainer</config-substitution>
+                            <config-substitution key="webcontainer">TomcatWebContainer</config-substitution>
                             <config-substitution key="webcontainerName">tomcat6</config-substitution>
                         </plugin-artifact>
                     </instance>
