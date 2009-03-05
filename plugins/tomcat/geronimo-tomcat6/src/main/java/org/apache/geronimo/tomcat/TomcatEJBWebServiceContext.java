@@ -26,6 +26,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import javax.security.jacc.PolicyContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -180,6 +181,7 @@ public class TomcatEJBWebServiceContext extends StandardContext{
     public class EJBWebServiceValve extends ValveBase {
 
         public void invoke(Request req, Response res) throws IOException, ServletException {
+            PolicyContext.setHandlerData((realm == null) ? null : req);
             Thread currentThread = Thread.currentThread();
             ClassLoader oldClassLoader = currentThread.getContextClassLoader();
             currentThread.setContextClassLoader(classLoader);
