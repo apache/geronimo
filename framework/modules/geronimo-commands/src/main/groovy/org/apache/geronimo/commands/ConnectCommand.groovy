@@ -24,8 +24,7 @@ import org.apache.geronimo.gshell.command.annotation.CommandComponent
 import org.apache.geronimo.gshell.command.CommandSupport
 import org.apache.geronimo.deployment.cli.ServerConnection
 import org.apache.geronimo.deployment.cli.ServerConnection.UsernamePasswordHandler
-import org.apache.geronimo.deployment.plugin.factories.DeploymentFactoryWithKernel
-import org.apache.geronimo.deployment.plugin.jmx.RemoteDeploymentManager
+import org.apache.geronimo.deployment.plugin.factories.BaseDeploymentFactory
 import org.apache.geronimo.cli.deployer.ConnectionParamsImpl
 import org.apache.geronimo.kernel.basic.BasicKernel
 import org.apache.geronimo.gshell.command.annotation.Requirement
@@ -70,8 +69,7 @@ class ConnectCommand extends CommandSupport {
         }
         
         def kernel = new BasicKernel("gshell deployer")
-        def deploymentManager = new RemoteDeploymentManager(Collections.emptySet());
-        def deploymentFactory = new DeploymentFactoryWithKernel(kernel, deploymentManager)
+        def deploymentFactory = new BaseDeploymentFactory()
         def connectionParams = new ConnectionParamsImpl(host: hostname, port: port, user: username, password: password, offline: false, secure: secure)
         def connection = new ServerConnection(connectionParams, new GShellUserPasswordHandler(prompter), kernel, deploymentFactory)
 
