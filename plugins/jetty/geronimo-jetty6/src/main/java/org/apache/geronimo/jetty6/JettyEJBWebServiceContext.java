@@ -24,6 +24,7 @@ import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.security.jacc.PolicyContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -160,6 +161,7 @@ public class JettyEJBWebServiceContext extends ContextHandler {
                     throw new HttpException(403, null);
                 }
             }
+            PolicyContext.setHandlerData((realm == null) ? null : req);
             Thread currentThread = Thread.currentThread();
             ClassLoader oldClassLoader = currentThread.getContextClassLoader();
             currentThread.setContextClassLoader(classLoader);

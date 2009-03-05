@@ -25,6 +25,7 @@ import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.security.jacc.PolicyContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -172,6 +173,7 @@ public class TomcatEJBWebServiceContext extends StandardContext{
                         return;
                     }
                 }
+                PolicyContext.setHandlerData((realm == null) ? null : req);
                 Thread currentThread = Thread.currentThread();
                 ClassLoader oldClassLoader = currentThread.getContextClassLoader();
                 currentThread.setContextClassLoader(classLoader);
