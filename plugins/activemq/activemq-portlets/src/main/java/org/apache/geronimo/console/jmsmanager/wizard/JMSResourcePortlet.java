@@ -37,8 +37,8 @@ public class JMSResourcePortlet extends MultiPagePortlet {
         addHelper(new CreateConnectionFactoryHandler(), config);
         addHelper(new SelectDestinationTypeHandler(), config);
         addHelper(new CreateDestinationHandler(), config);
-        addHelper(new ShowPlanHandler(), config);
-        addHelper(new DeployHandler(), config);
+        addHelper(new ShowPlanHandler(this), config);
+        addHelper(new DeployHandler(this), config);
         addHelper(new ReviewHandler(), config);
         addHelper(new ViewMessageHandler(), config);
         addHelper(new MessageDetailsHandler(), config);

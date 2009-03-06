@@ -23,6 +23,7 @@ import javax.portlet.PortletException;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import org.apache.geronimo.console.util.PortletManager;
+import org.apache.geronimo.console.BasePortlet;
 import org.apache.geronimo.console.MultiPageModel;
 
 /**
@@ -31,8 +32,8 @@ import org.apache.geronimo.console.MultiPageModel;
  * @version $Rev$ $Date$
  */
 public class ShowPlanHandler extends AbstractHandler {
-    public ShowPlanHandler() {
-        super(SHOW_PLAN_MODE, "/WEB-INF/view/jmswizard/plan.jsp");
+    public ShowPlanHandler(BasePortlet portlet) {
+        super(SHOW_PLAN_MODE, "/WEB-INF/view/jmswizard/plan.jsp", portlet);
     }
 
     public String actionBeforeView(ActionRequest request, ActionResponse response, MultiPageModel model) throws PortletException, IOException {

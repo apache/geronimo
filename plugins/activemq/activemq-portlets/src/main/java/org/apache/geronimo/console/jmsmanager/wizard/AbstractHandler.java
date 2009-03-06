@@ -26,6 +26,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+
 import javax.enterprise.deploy.model.DDBean;
 import javax.enterprise.deploy.model.DDBeanRoot;
 import javax.enterprise.deploy.spi.DeploymentConfiguration;
@@ -36,8 +37,7 @@ import javax.enterprise.deploy.spi.status.ProgressObject;
 import javax.portlet.ActionResponse;
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletSession;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.apache.geronimo.connector.deployment.jsr88.AdminObjectDCB;
 import org.apache.geronimo.connector.deployment.jsr88.AdminObjectInstance;
 import org.apache.geronimo.connector.deployment.jsr88.ConnectionDefinition;
@@ -56,6 +56,8 @@ import org.apache.geronimo.deployment.service.jsr88.EnvironmentData;
 import org.apache.geronimo.deployment.tools.loader.ConnectorDeployable;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.naming.deployment.jsr88.GBeanLocator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Base class for portlet helpers
@@ -485,7 +487,7 @@ public abstract class AbstractHandler extends MultiPageAbstractHandler {
         return configs[Integer.parseInt(num)].getName();
     }
 
-    protected static String save(PortletRequest request, ActionResponse response, JMSResourceData data, boolean planOnly) throws IOException {
+    protected String save(PortletRequest request, ActionResponse response, JMSResourceData data, boolean planOnly) throws IOException {
         JMSProviderData provider = JMSProviderData.getProviderData(data.rarURI, request);
         if(data.objectName == null || data.objectName.equals("")) { // we're creating a new pool
             //data.instanceName = data.instanceName.replaceAll("\\s", "");
@@ -655,8 +657,11 @@ public abstract class AbstractHandler extends MultiPageAbstractHandler {
                         waitForProgress(po);
                         if(po.getDeploymentStatus().isCompleted()) {
                             ids = po.getResultTargetModuleIDs();
+                            portlet.addInfoMessage(request, portlet.getLocalizedString(request, "activemq.infoMsg02"));
                             log.info("Deployment completed successfully!");
                         }
+                    } else if (po.getDeploymentStatus().isFailed()){
+                        portlet.addErrorMessage(request, portlet.getLocalizedString(request, "activemq.errorMsg02"), po.getDeploymentStatus().getMessage());
                     }
                 }
             } catch (Exception e) {
