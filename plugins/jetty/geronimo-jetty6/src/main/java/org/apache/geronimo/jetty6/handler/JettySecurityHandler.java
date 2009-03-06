@@ -114,6 +114,8 @@ public class JettySecurityHandler extends SecurityHandler {
             super.handle(target, request, response, dispatch);
         } finally {
             PolicyContext.setContextID(old_policy_id);
+            // Must unset handler data from thread - see GERONIMO-4574
+            PolicyContext.setHandlerData(null);
             ContextManager.popCallers(oldCallers);
         }
     }
