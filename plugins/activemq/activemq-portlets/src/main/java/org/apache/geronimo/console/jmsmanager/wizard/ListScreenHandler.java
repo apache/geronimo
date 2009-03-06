@@ -169,6 +169,9 @@ public class ListScreenHandler extends AbstractHandler {
         renderRequest.setAttribute("resources", resources);
         // Get the list of JMS providers
         renderRequest.setAttribute("providers", JMSProviderData.getAllProviders());
+        
+        renderRequest.setAttribute("successMsg", renderRequest.getParameter("successMsg"));
+        renderRequest.setAttribute("errorMsg", renderRequest.getParameter("errorMsg"));
     }
 
 

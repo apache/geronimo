@@ -26,16 +26,21 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+
 import javax.enterprise.deploy.model.DDBean;
 import javax.enterprise.deploy.model.DDBeanRoot;
 import javax.enterprise.deploy.spi.DeploymentConfiguration;
 import javax.enterprise.deploy.spi.DeploymentManager;
 import javax.enterprise.deploy.spi.Target;
 import javax.enterprise.deploy.spi.TargetModuleID;
+import javax.enterprise.deploy.spi.status.DeploymentStatus;
+import javax.enterprise.deploy.spi.status.ProgressEvent;
+import javax.enterprise.deploy.spi.status.ProgressListener;
 import javax.enterprise.deploy.spi.status.ProgressObject;
 import javax.portlet.ActionResponse;
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletSession;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.connector.deployment.jsr88.AdminObjectDCB;
@@ -461,7 +466,7 @@ public abstract class AbstractHandler extends MultiPageAbstractHandler {
         return configs[Integer.parseInt(num)].getName();
     }
 
-    protected static String save(PortletRequest request, ActionResponse response, JMSResourceData data, boolean planOnly) throws IOException {
+    protected static String save(PortletRequest request, final ActionResponse response, JMSResourceData data, boolean planOnly) throws IOException {
         JMSProviderData provider = JMSProviderData.getProviderData(data.rarURI, request);
         if(data.objectName == null || data.objectName.equals("")) { // we're creating a new pool
             //data.instanceName = data.instanceName.replaceAll("\\s", "");
@@ -624,6 +629,19 @@ public abstract class AbstractHandler extends MultiPageAbstractHandler {
                     targets = new Target[] {targets[0]};
                     
                     ProgressObject po = mgr.distribute(targets, rarFile, tempFile);
+                    po.addProgressListener(new ProgressListener() {
+                        
+                        public void handleProgressEvent(ProgressEvent event)  {
+                            DeploymentStatus status = event.getDeploymentStatus();
+                            String msg = status.getMessage();
+                            if (status.isCompleted()) {
+                                response.setRenderParameter("successMsg", msg);
+                            } else if (status.isFailed()) {
+                                response.setRenderParameter("errorMsg", msg);
+                            }
+                        }
+                        
+                    });
                     waitForProgress(po);
                     if(po.getDeploymentStatus().isCompleted()) {
                         TargetModuleID[] ids = po.getResultTargetModuleIDs();

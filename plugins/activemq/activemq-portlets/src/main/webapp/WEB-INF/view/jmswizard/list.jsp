@@ -20,6 +20,13 @@
 <fmt:setBundle basename="activemq"/>
 <portlet:defineObjects/>
 
+<c:if test="${!(empty successMsg)}">
+    <div style="color: green; background-color:#F7F7F7; border:1px solid #88A4D7;"><c:out value="${successMsg}"/></div>
+</c:if>
+<c:if test="${!(empty errorMsg)}">
+    <div style="color: red; background-color:#F7F7F7; border:1px solid #88A4D7;"><pre><c:out value="${errorMsg}"/></pre></div>
+</c:if>
+
 <p><fmt:message key="jmswizard.list.title" /></p>
 
 <c:choose>
