@@ -20,10 +20,9 @@ import java.io.IOException;
 import java.lang.ref.SoftReference;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
-import java.text.MessageFormat;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.GenericPortlet;
@@ -32,15 +31,14 @@ import javax.portlet.PortletRequest;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import org.apache.geronimo.console.util.PortletManager;
-import org.apache.geronimo.management.geronimo.WebContainer;
+import org.apache.geronimo.console.i18n.ConsoleResourceRegistry;
 import org.apache.geronimo.console.message.CommonMessage;
 import org.apache.geronimo.console.message.ErrorMessage;
 import org.apache.geronimo.console.message.InfoMessage;
 import org.apache.geronimo.console.message.WarnMessage;
+import org.apache.geronimo.console.util.PortletManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Superclass with some generic functionality for console portlets
@@ -54,6 +52,16 @@ public class BasePortlet extends GenericPortlet {
     protected final static String WEB_SERVER_GENERIC = "generic";
     private static final String COMMON_MESSAGES = "commonMessages";
     private static final String FMT_LOCALE = "javax.servlet.jsp.jstl.fmt.locale.request";
+    private static final String BASENAME = "portletinfo";
+    private static ConsoleResourceRegistry resourceRegistry;
+    
+    static {
+        try {
+            resourceRegistry = (ConsoleResourceRegistry) PortletManager.getKernel().getGBean(ConsoleResourceRegistry.class);
+        } catch (Exception e) {
+            log.error("Cannot get the console resource registery service", e);
+        }
+    }    
 
     protected final static String getWebServerType(Class cls) {
         Class[] intfs = cls.getInterfaces();
@@ -158,7 +166,7 @@ public class BasePortlet extends GenericPortlet {
     }
 
     public final String getLocalizedString(PortletRequest request, String key, Object... vars) {
-        String value = getResourceBundle(request.getLocale()).getString(key);
+        String value = resourceRegistry.handleGetObject(BASENAME, request.getLocale(), key);
         if (null == value || 0 == value.length()) return key;     
         return MessageFormat.format(value, vars);
     }

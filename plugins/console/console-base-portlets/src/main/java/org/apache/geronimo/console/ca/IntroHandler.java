@@ -63,20 +63,20 @@ public class IntroHandler extends BaseCAHandler {
             CertificationAuthority ca = getCertificationAuthority(request);
             if(ca == null) {
                 log.warn("CA is not running or CA may not have been initialized.  Unable to lock CA.");
-                portlet.addWarningMessage(request, portlet.getLocalizedString(request, "warnMsg05"));
+                portlet.addWarningMessage(request, portlet.getLocalizedString(request, "consolebase.warnMsg05"));
             } else {
                 ca.lock();
                 log.info("CA is now locked.");
-                portlet.addInfoMessage(request, portlet.getLocalizedString(request, "infoMsg12"));
+                portlet.addInfoMessage(request, portlet.getLocalizedString(request, "consolebase.infoMsg12"));
             }
         } else if(request.getParameter("publish") != null) {
             CertificationAuthority ca = getCertificationAuthority(request);
             try {
                 getCertificateStore(request).storeCACertificate(ca.getCertificate());
-                portlet.addInfoMessage(request, portlet.getLocalizedString(request, "infoMsg13"));
+                portlet.addInfoMessage(request, portlet.getLocalizedString(request, "consolebase.infoMsg13"));
             } catch (Exception e) {
                 log.error("Error while publishing CA's certificate to Certificate Store", e);
-                portlet.addErrorMessage(request, portlet.getLocalizedString(request, "errorMsg13"), e.getMessage());
+                portlet.addErrorMessage(request, portlet.getLocalizedString(request, "consolebase.errorMsg13"), e.getMessage());
             }
         }
         return getMode()+BEFORE_ACTION;

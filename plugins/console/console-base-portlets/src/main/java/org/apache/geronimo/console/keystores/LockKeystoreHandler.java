@@ -42,7 +42,7 @@ public class LockKeystoreHandler extends BaseKeystoreHandler {
         KeystoreData data = ((KeystoreData) request.getPortletSession(true).getAttribute(KEYSTORE_DATA_PREFIX + keystore));
         try {
             data.lockUse();
-            portlet.addInfoMessage(request, portlet.getLocalizedString(request, "infoMsg08", keystore));
+            portlet.addInfoMessage(request, portlet.getLocalizedString(request, "consolebase.infoMsg08", keystore));
         } catch (KeystoreException e) {
             throw new PortletException(e);
         }

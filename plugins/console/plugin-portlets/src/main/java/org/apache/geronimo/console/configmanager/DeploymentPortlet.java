@@ -154,7 +154,7 @@ public class DeploymentPortlet extends BasePortlet {
                 String abbrStatusMessage;
                 String fullStatusMessage = null;
                 if(progress.getDeploymentStatus().isCompleted()) {
-                    abbrStatusMessage = getLocalizedString(actionRequest, !isRedeploy ? "infoMsg01" : "infoMsg02");
+                    abbrStatusMessage = getLocalizedString(actionRequest, !isRedeploy ? "plugin.infoMsg01" : "plugin.infoMsg02");
                     addInfoMessage(actionRequest, abbrStatusMessage);
                     // start installed app/s
                     if (!isRedeploy && startApp != null && !startApp.equals("")) {
@@ -163,10 +163,10 @@ public class DeploymentPortlet extends BasePortlet {
                             Thread.sleep(100);
                         }
                         if (progress.getDeploymentStatus().isCompleted()) {
-                            abbrStatusMessage = getLocalizedString(actionRequest, "infoMsg03");
+                            abbrStatusMessage = getLocalizedString(actionRequest, "plugin.infoMsg03");
                             addInfoMessage(actionRequest, abbrStatusMessage);
                         } else {
-                            abbrStatusMessage = getLocalizedString(actionRequest, "errorMsg02");
+                            abbrStatusMessage = getLocalizedString(actionRequest, "plugin.errorMsg02");
                             fullStatusMessage = progress.getDeploymentStatus().getMessage();
                             addErrorMessage(actionRequest, abbrStatusMessage, fullStatusMessage);
                         }
@@ -175,7 +175,7 @@ public class DeploymentPortlet extends BasePortlet {
                     fullStatusMessage = progress.getDeploymentStatus().getMessage();
                     // for the abbreviated status message clip off everything
                     // after the first line, which in most cases means the gnarly stacktrace
-                    abbrStatusMessage = getLocalizedString(actionRequest, "errorMsg01");
+                    abbrStatusMessage = getLocalizedString(actionRequest, "plugin.errorMsg01");
                     addErrorMessage(actionRequest, abbrStatusMessage, fullStatusMessage);
                     // try to provide an upgraded version of the plan
                     try {

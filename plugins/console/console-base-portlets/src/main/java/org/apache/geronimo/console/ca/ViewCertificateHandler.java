@@ -90,7 +90,7 @@ public class ViewCertificateHandler extends BaseCAHandler {
             if("true".equalsIgnoreCase(request.getParameter("linkToListRequests")))
                 request.setAttribute("linkToListRequests", Boolean.TRUE);
         } catch (Exception e) {
-            portlet.addErrorMessage(request, portlet.getLocalizedString(request, "errorMsg16", sNo), e.getMessage());
+            portlet.addErrorMessage(request, portlet.getLocalizedString(request, "consolebase.errorMsg16", sNo), e.getMessage());
             log.error("Errors trying to view certificate with serial number '"+sNo+"'", e);
         }
     }

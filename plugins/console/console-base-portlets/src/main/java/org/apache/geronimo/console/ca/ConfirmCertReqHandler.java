@@ -61,10 +61,10 @@ public class ConfirmCertReqHandler extends BaseCAHandler {
         String reject = request.getParameter("reject");
         if(approve != null) {
             getCertificateRequestStore(request).setRequestVerified(requestId);
-            portlet.addInfoMessage(request, portlet.getLocalizedString(request, "infoMsg16", requestId));
+            portlet.addInfoMessage(request, portlet.getLocalizedString(request, "consolebase.infoMsg16", requestId));
         } else if(reject != null) {
             getCertificateRequestStore(request).deleteRequest(requestId);
-            portlet.addInfoMessage(request, portlet.getLocalizedString(request, "infoMsg17", requestId));
+            portlet.addInfoMessage(request, portlet.getLocalizedString(request, "consolebase.infoMsg17", requestId));
         }
         return LIST_REQUESTS_VERIFY_MODE+BEFORE_ACTION;
     }

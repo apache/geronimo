@@ -40,7 +40,7 @@ public class LockEditKeystoreHandler extends BaseKeystoreHandler {
         String keystore = request.getParameter("keystore");
         KeystoreData data = ((KeystoreData) request.getPortletSession(true).getAttribute(KEYSTORE_DATA_PREFIX + keystore));
         data.lockEdit();
-        portlet.addInfoMessage(request, portlet.getLocalizedString(request, "infoMsg06", keystore));
+        portlet.addInfoMessage(request, portlet.getLocalizedString(request, "consolebase.infoMsg06", keystore));
         return LIST_MODE+BEFORE_ACTION;
     }
 

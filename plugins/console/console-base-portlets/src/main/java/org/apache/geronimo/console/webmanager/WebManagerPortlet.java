@@ -122,7 +122,7 @@ public class WebManagerPortlet extends BasePortlet {
                                 populateStats = true;      // this is a Lazy provider and stats are enabled so populate the stats
                             } else {
                                 renderRequest.setAttribute("statsOn", Boolean.FALSE);  // indicate that stats are currently disabled
-                                addWarningMessage(renderRequest, getLocalizedString(renderRequest, "warnMsg04"));
+                                addWarningMessage(renderRequest, getLocalizedString(renderRequest, "consolebase.warnMsg04"));
                             }
                         } else {
                             renderRequest.setAttribute("statsLazy", Boolean.FALSE);  // indicate that enable/disable should not be shown for this container
@@ -156,7 +156,7 @@ public class WebManagerPortlet extends BasePortlet {
                         }
                     } else {
                         renderRequest.setAttribute("statsSupported", Boolean.FALSE);   // indicate that statistics are not supported for this container
-                        addWarningMessage(renderRequest, getLocalizedString(renderRequest, "warnMsg03"));
+                        addWarningMessage(renderRequest, getLocalizedString(renderRequest, "consolebase.warnMsg03"));
                     }
                 } else {
                     log.error("Error attempting to retrieve the web containers");

@@ -123,7 +123,7 @@ public class SEGroupsPortlet extends AbstractSecurityManagerPortlet {
                 try {
                     SERealmGroupHelper.addGroup(group, users);
                 } catch (Exception e) {
-                    addErrorMessage(actionRequest, getLocalizedString(actionRequest, "errorMsg07"), e.getMessage());
+                    addErrorMessage(actionRequest, getLocalizedString(actionRequest, "consolebase.errorMsg07"), e.getMessage());
                 }
             } else if ("new".equals(action)) {
                 currAction = "new";
@@ -135,7 +135,7 @@ public class SEGroupsPortlet extends AbstractSecurityManagerPortlet {
                 actionResponse.setRenderParameter("group", group);
             }
         } catch (Exception e) {
-            addErrorMessage(actionRequest, getLocalizedString(actionRequest, "errorMsg06"), e.getMessage());
+            addErrorMessage(actionRequest, getLocalizedString(actionRequest, "consolebase.errorMsg06"), e.getMessage());
         }
     }
 }

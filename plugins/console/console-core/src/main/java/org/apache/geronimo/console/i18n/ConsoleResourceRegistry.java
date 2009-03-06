@@ -18,8 +18,10 @@
 package org.apache.geronimo.console.i18n;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
@@ -31,6 +33,13 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
  * console-portal-driver can load the resource bundle for the above classloader.
  */
 public class ConsoleResourceRegistry {
+    
+    private static final Locale defaultLocale = new Locale("");
+    private static Map<String, Locale> localeMap;
+    
+    static {
+        localeMap = new HashMap<String, Locale>();
+    }
 
     private List<ClassLoader> classloaders = new ArrayList<ClassLoader>();
 
@@ -59,8 +68,15 @@ public class ConsoleResourceRegistry {
      * @param key key for desired string
      */
     public String handleGetObject(String basename, Locale locale, String key) {
+        if (localeMap.containsKey(locale.getLanguage())) {
+            locale = localeMap.get(locale.getLanguage());
+        }
         for (ClassLoader classloader : classloaders) {
             ResourceBundle rb = ResourceBundle.getBundle(basename, locale, classloader);
+            if (!locale.getLanguage().equals(rb.getLocale().getLanguage())) {
+                localeMap.put(locale.getLanguage(), defaultLocale);
+                rb = ResourceBundle.getBundle(basename, defaultLocale, classloader);
+            }
             try {
                 if (rb != null) {
                     String value = rb.getString(key);

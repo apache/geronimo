@@ -81,11 +81,11 @@ public class UnlockKeystoreHandler extends BaseKeystoreHandler {
                 return UNLOCK_KEY+BEFORE_ACTION;
             } // otherwise it has no keys
         } catch (Exception e) {
-        	portlet.addErrorMessage(request, portlet.getLocalizedString(request, "errorMsg09", keystore), e.getMessage());
+        	portlet.addErrorMessage(request, portlet.getLocalizedString(request, "consolebase.errorMsg09", keystore), e.getMessage());
             log.error("Unable to unlock keystore '"+keystore+"' for availability.", e);
             return getMode()+BEFORE_ACTION;
         }
-        portlet.addInfoMessage(request, portlet.getLocalizedString(request, "infoMsg07", keystore));
+        portlet.addInfoMessage(request, portlet.getLocalizedString(request, "consolebase.infoMsg07", keystore));
         return LIST_MODE+BEFORE_ACTION;
     }
 }

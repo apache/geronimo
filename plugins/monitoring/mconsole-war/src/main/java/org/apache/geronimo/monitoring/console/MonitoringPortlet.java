@@ -258,9 +258,9 @@ public class MonitoringPortlet extends BasePortlet {
                                   String password, int port, String protocol, PortletRequest request) {
         try {
             new MRCConnector(ip, username, password, port, protocol);
-            addInfoMessage(request, getLocalizedString(request, "infoMsg01"));
+            addInfoMessage(request, getLocalizedString(request, "mconsole.infoMsg01"));
         } catch (Exception e) {
-            addInfoMessage(request, getLocalizedString(request, "errorMsg01"), e.getMessage());
+            addInfoMessage(request, getLocalizedString(request, "mconsole.errorMsg01"), e.getMessage());
         }
     }
 
@@ -274,17 +274,17 @@ public class MonitoringPortlet extends BasePortlet {
                 userTransaction.commit();
             }
             if (enable) {
-                addInfoMessage(request, getLocalizedString(request, "infoMsg02", server_id));
+                addInfoMessage(request, getLocalizedString(request, "mconsole.infoMsg02", server_id));
             }
             else {
-                addInfoMessage(request, getLocalizedString(request, "infoMsg03", server_id));
+                addInfoMessage(request, getLocalizedString(request, "mconsole.infoMsg03", server_id));
             }
         } catch (Exception e) {
             if (enable) {
-                addErrorMessage(request, getLocalizedString(request, "errorMsg02", server_id), e.getMessage());
+                addErrorMessage(request, getLocalizedString(request, "mconsole.errorMsg02", server_id), e.getMessage());
             }
             else {
-            	addErrorMessage(request, getLocalizedString(request, "errorMsg03", server_id), e.getMessage());
+            	addErrorMessage(request, getLocalizedString(request, "mconsole.errorMsg03", server_id), e.getMessage());
             }
         }
     }
@@ -571,9 +571,9 @@ public class MonitoringPortlet extends BasePortlet {
             } finally {
                 userTransaction.commit();
             }
-            addInfoMessage(actionRequest, getLocalizedString(actionRequest, "infoMsg08", actionRequest.getParameter("name")));
+            addInfoMessage(actionRequest, getLocalizedString(actionRequest, "mconsole.infoMsg08", actionRequest.getParameter("name")));
         } catch (Exception e) {
-        	addErrorMessage(actionRequest, getLocalizedString(actionRequest, "errorMsg11", actionRequest.getParameter("name")), e.getMessage());
+        	addErrorMessage(actionRequest, getLocalizedString(actionRequest, "mconsole.errorMsg11", actionRequest.getParameter("name")), e.getMessage());
         }
 
     }
@@ -600,9 +600,9 @@ public class MonitoringPortlet extends BasePortlet {
             } finally {
                 userTransaction.commit();
             }
-            addInfoMessage(actionRequest, getLocalizedString(actionRequest, "infoMsg09", name));
+            addInfoMessage(actionRequest, getLocalizedString(actionRequest, "mconsole.infoMsg09", name));
         } catch (Exception e) {
-        	addErrorMessage(actionRequest, getLocalizedString(actionRequest, "errorMsg12", name), e.getMessage());
+        	addErrorMessage(actionRequest, getLocalizedString(actionRequest, "mconsole.errorMsg12", name), e.getMessage());
         }
     }
 
@@ -637,9 +637,9 @@ public class MonitoringPortlet extends BasePortlet {
             } finally {
                 userTransaction.commit();
             }
-            addInfoMessage(actionRequest, getLocalizedString(actionRequest, "infoMsg10"));
+            addInfoMessage(actionRequest, getLocalizedString(actionRequest, "mconsole.infoMsg10"));
         } catch (Exception e) {
-        	addErrorMessage(actionRequest, getLocalizedString(actionRequest, "errorMsg13"), e.getMessage());
+        	addErrorMessage(actionRequest, getLocalizedString(actionRequest, "mconsole.errorMsg13"), e.getMessage());
         }
     }
 
@@ -665,9 +665,9 @@ public class MonitoringPortlet extends BasePortlet {
             } finally {
                 userTransaction.commit();
             }
-            addInfoMessage(actionRequest, getLocalizedString(actionRequest, "infoMsg11", name, host));
+            addInfoMessage(actionRequest, getLocalizedString(actionRequest, "mconsole.infoMsg11", name, host));
         } catch (Exception e) {
-        	addErrorMessage(actionRequest, getLocalizedString(actionRequest, "errorMsg14"), e.getMessage());
+        	addErrorMessage(actionRequest, getLocalizedString(actionRequest, "mconsole.errorMsg14"), e.getMessage());
         }
     }
 
@@ -684,9 +684,9 @@ public class MonitoringPortlet extends BasePortlet {
             } finally {
                 userTransaction.commit();
             }
-            addInfoMessage(actionRequest, getLocalizedString(actionRequest, "infoMsg12"));
+            addInfoMessage(actionRequest, getLocalizedString(actionRequest, "mconsole.infoMsg12"));
         } catch (Exception e) {
-        	addErrorMessage(actionRequest, getLocalizedString(actionRequest, "errorMsg15"), e.getMessage());
+        	addErrorMessage(actionRequest, getLocalizedString(actionRequest, "mconsole.errorMsg15"), e.getMessage());
         }
     }
 
@@ -703,9 +703,9 @@ public class MonitoringPortlet extends BasePortlet {
             } finally {
                 userTransaction.commit();
             }
-            addInfoMessage(actionRequest, getLocalizedString(actionRequest, "infoMsg13"));
+            addInfoMessage(actionRequest, getLocalizedString(actionRequest, "mconsole.infoMsg13"));
         } catch (Exception e) {
-        	addErrorMessage(actionRequest, getLocalizedString(actionRequest, "errorMsg16"), e.getMessage());
+        	addErrorMessage(actionRequest, getLocalizedString(actionRequest, "mconsole.errorMsg16"), e.getMessage());
         }
     }
 
@@ -723,9 +723,9 @@ public class MonitoringPortlet extends BasePortlet {
             } finally {
                 userTransaction.commit();
             }
-            addInfoMessage(actionRequest, getLocalizedString(actionRequest, "infoMsg14", graph.getGraphName1()));
+            addInfoMessage(actionRequest, getLocalizedString(actionRequest, "mconsole.infoMsg14", graph.getGraphName1()));
         } catch (Exception e) {
-        	addErrorMessage(actionRequest, getLocalizedString(actionRequest, "errorMsg17"), e.getMessage());
+        	addErrorMessage(actionRequest, getLocalizedString(actionRequest, "mconsole.errorMsg17"), e.getMessage());
         }
     }
 
@@ -762,14 +762,14 @@ public class MonitoringPortlet extends BasePortlet {
                 Node node = entityManager.find(Node.class, actionRequest.getParameter("server_id"));
                 graph.setNode(node);
                 updateGraphFromRequest(actionRequest, graph);
-                addInfoMessage(actionRequest, getLocalizedString(actionRequest, "infoMsg15", graph.getGraphName1()));
+                addInfoMessage(actionRequest, getLocalizedString(actionRequest, "mconsole.infoMsg15", graph.getGraphName1()));
             } finally {
                 userTransaction.commit();
             }
 
         } catch (Exception e) {
             log.info("error updating graph", e);
-            addErrorMessage(actionRequest, getLocalizedString(actionRequest, "errorMsg18"), e.getMessage());
+            addErrorMessage(actionRequest, getLocalizedString(actionRequest, "mconsole.errorMsg18"), e.getMessage());
         }
     }
 
@@ -782,14 +782,14 @@ public class MonitoringPortlet extends BasePortlet {
             try {
                 Graph graph = entityManager.find(Graph.class, Integer.parseInt(graph_id));
                 entityManager.remove(graph);
-                addInfoMessage(actionRequest, getLocalizedString(actionRequest, "infoMsg16", graph.getGraphName1()));
+                addInfoMessage(actionRequest, getLocalizedString(actionRequest, "mconsole.infoMsg16", graph.getGraphName1()));
             } finally {
                 userTransaction.commit();
             }
 
         } catch (Exception e) {
             log.info("error deleting graph", e);
-            addErrorMessage(actionRequest, getLocalizedString(actionRequest, "errorMsg19"), e.getMessage());
+            addErrorMessage(actionRequest, getLocalizedString(actionRequest, "mconsole.errorMsg19"), e.getMessage());
         }
     }
 
@@ -798,14 +798,14 @@ public class MonitoringPortlet extends BasePortlet {
         try {
             node = getNodeByName(server_id);
         } catch (PortletException e) {
-            addInfoMessage(request, getLocalizedString(request, "errorMsg04"), e.getMessage());
+            addInfoMessage(request, getLocalizedString(request, "mconsole.errorMsg04"), e.getMessage());
             return;
         }
         MRCConnector mrc;
         try {
             mrc = new MRCConnector(node);
         } catch (Exception e) {
-            addErrorMessage(request, getLocalizedString(request, "errorMsg05", node.getHost()), e.getMessage());
+            addErrorMessage(request, getLocalizedString(request, "mconsole.errorMsg05", node.getHost()), e.getMessage());
             return;
         }
 
@@ -813,13 +813,13 @@ public class MonitoringPortlet extends BasePortlet {
         try {
             if (mrc.startTrackingMbean(mbean)) {
                 String mbarr[] = mbean.split("name=");
-                addInfoMessage(request, getLocalizedString(request, "infoMsg04", mbarr[1], node.getHost()));
+                addInfoMessage(request, getLocalizedString(request, "mconsole.infoMsg04", mbarr[1], node.getHost()));
             } else {
                 String mbarr[] = mbean.split("name=");
-                addErrorMessage(request, getLocalizedString(request, "errorMsg06", mbarr[1], node.getHost()));
+                addErrorMessage(request, getLocalizedString(request, "mconsole.errorMsg06", mbarr[1], node.getHost()));
             }
         } catch (Exception e) {
-            addErrorMessage(request, getLocalizedString(request, "errorMsg06", mbean, node.getHost()), e.getMessage());
+            addErrorMessage(request, getLocalizedString(request, "mconsole.errorMsg06", mbean, node.getHost()), e.getMessage());
         }
     }
 
@@ -828,14 +828,14 @@ public class MonitoringPortlet extends BasePortlet {
         try {
             node = getNodeByName(server_id);
         } catch (PortletException e) {
-            addInfoMessage(request, getLocalizedString(request, "errorMsg04"), e.getMessage());
+            addInfoMessage(request, getLocalizedString(request, "mconsole.errorMsg04"), e.getMessage());
             return;
         }
         MRCConnector mrc;
         try {
             mrc = new MRCConnector(node);
         } catch (Exception e) {
-            addErrorMessage(request, getLocalizedString(request, "errorMsg05", node.getHost()), e.getMessage());
+            addErrorMessage(request, getLocalizedString(request, "mconsole.errorMsg05", node.getHost()), e.getMessage());
             return;
 
         }
@@ -843,13 +843,13 @@ public class MonitoringPortlet extends BasePortlet {
         try {
             if (mrc.stopTrackingMbean(mbean)) {
                 String mbarr[] = mbean.split("name=");
-                addInfoMessage(request, getLocalizedString(request, "infoMsg05", mbarr[1], node.getHost()));
+                addInfoMessage(request, getLocalizedString(request, "mconsole.infoMsg05", mbarr[1], node.getHost()));
             } else {
                 String mbarr[] = mbean.split("name=");
-                addErrorMessage(request, getLocalizedString(request, "errorMsg06", mbarr[1], node.getHost()));
+                addErrorMessage(request, getLocalizedString(request, "mconsole.errorMsg06", mbarr[1], node.getHost()));
             }
         } catch (Exception e) {
-            addErrorMessage(request, getLocalizedString(request, "errorMsg06", mbean, node.getHost()), e.getMessage());
+            addErrorMessage(request, getLocalizedString(request, "mconsole.errorMsg06", mbean, node.getHost()), e.getMessage());
         }
     }
 
@@ -859,18 +859,18 @@ public class MonitoringPortlet extends BasePortlet {
             node = getNodeByName(server_id);
         } catch (PortletException e) {
             log.info("error", e);
-            addErrorMessage(request, getLocalizedString(request, "errorMsg08", server_id), e.getMessage());
+            addErrorMessage(request, getLocalizedString(request, "mconsole.errorMsg08", server_id), e.getMessage());
             return;
         }
         try {
             MRCConnector mrc = new MRCConnector(node);
             if (mrc.stopSnapshotThread()) {
-                addInfoMessage(request, getLocalizedString(request, "infoMsg06", server_id));
+                addInfoMessage(request, getLocalizedString(request, "mconsole.infoMsg06", server_id));
             } else {
-            	addErrorMessage(request, getLocalizedString(request, "errorMsg09", server_id));
+            	addErrorMessage(request, getLocalizedString(request, "mconsole.errorMsg09", server_id));
             }
         } catch (Exception e) {
-        	addErrorMessage(request, getLocalizedString(request, "errorMsg09", server_id), e.getMessage());
+        	addErrorMessage(request, getLocalizedString(request, "mconsole.errorMsg09", server_id), e.getMessage());
         }
     }
 
@@ -880,18 +880,18 @@ public class MonitoringPortlet extends BasePortlet {
             node = getNodeByName(server_id);
         } catch (PortletException e) {
             log.info("error", e);
-            addErrorMessage(request, getLocalizedString(request, "errorMsg08", server_id), e.getMessage());
+            addErrorMessage(request, getLocalizedString(request, "mconsole.errorMsg08", server_id), e.getMessage());
             return;
         }
         try {
             MRCConnector mrc = new MRCConnector(node);
             if (mrc.startSnapshotThread(snapshotDuration)) {
-                addInfoMessage(request, getLocalizedString(request, "infoMsg07", server_id));
+                addInfoMessage(request, getLocalizedString(request, "mconsole.infoMsg07", server_id));
             } else {
-            	addErrorMessage(request, getLocalizedString(request, "errorMsg10", server_id));
+            	addErrorMessage(request, getLocalizedString(request, "mconsole.errorMsg10", server_id));
             }
         } catch (Exception e) {
-        	addErrorMessage(request, getLocalizedString(request, "errorMsg10", server_id), e.getMessage());
+        	addErrorMessage(request, getLocalizedString(request, "mconsole.errorMsg10", server_id), e.getMessage());
 
         }
     }

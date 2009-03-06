@@ -130,13 +130,13 @@ public class ConfirmCAHandler extends BaseCAHandler {
             
             // CA Setup is succeessful.
             // Load a page to show CA details.
-            portlet.addInfoMessage(request, portlet.getLocalizedString(request, "infoMsg15"));
+            portlet.addInfoMessage(request, portlet.getLocalizedString(request, "consolebase.infoMsg15"));
             log.info("CA Setup is successful.");
             
             return CADETAILS_MODE+BEFORE_ACTION;
         } catch(Exception e) {
             // An error occurred.  Go back to CA details entry page so that user can correct the errors.
-            portlet.addErrorMessage(request, portlet.getLocalizedString(request, "infoMsg07"), e.getMessage());
+            portlet.addErrorMessage(request, portlet.getLocalizedString(request, "consolebase.infoMsg07"), e.getMessage());
             log.error("Errors in CA Setup process.", e);
         }
 

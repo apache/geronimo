@@ -83,7 +83,7 @@ public class ConfirmClientCertHandler extends BaseCAHandler {
                 // This may happen if the user clicks on "Issue Certificate" button a second time
                 log.warn("Second request to issue certificate with serial number'"+sNo+"'.  A certificate has already been issued.");
                 response.setRenderParameter("sNo", sNo.toString());
-                portlet.addWarningMessage(request, portlet.getLocalizedString(request, "warnMsg06", sNo));
+                portlet.addWarningMessage(request, portlet.getLocalizedString(request, "consolebase.warnMsg06", sNo));
                 return VIEW_CERT_MODE;
             }
 
@@ -153,12 +153,12 @@ public class ConfirmClientCertHandler extends BaseCAHandler {
 
             // Set the serial number and forward to view certificate page
             response.setRenderParameter("sNo", sNo.toString());
-            portlet.addInfoMessage(request, portlet.getLocalizedString(request, "infoMsg18", sNo));
+            portlet.addInfoMessage(request, portlet.getLocalizedString(request, "consolebase.infoMsg18", sNo));
             log.info("Certificate with serial number '"+sNo+"' issued to "+subject);
             return VIEW_CERT_MODE;
         } catch(Exception e) {
             // An error occurred.  Go back to previous screen to let the user correct the errors.
-            portlet.addErrorMessage(request, portlet.getLocalizedString(request, "errorMsg23"), e.getMessage());
+            portlet.addErrorMessage(request, portlet.getLocalizedString(request, "consolebase.errorMsg23"), e.getMessage());
             log.error("Errors in issuing certificate.", e);
         }
         return CERT_REQ_DETAILS_MODE+BEFORE_ACTION;

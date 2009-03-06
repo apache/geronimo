@@ -89,7 +89,7 @@ public class ListRequestsVerifyHandler extends BaseCAHandler {
             }
             return CONFIRM_CERT_REQ_MODE+BEFORE_ACTION;
         } catch(Exception e) {
-            portlet.addErrorMessage(request, portlet.getLocalizedString(request, "errorMsg18", requestId), e.getMessage());
+            portlet.addErrorMessage(request, portlet.getLocalizedString(request, "consolebase.errorMsg18", requestId), e.getMessage());
             log.error("Errors while verifying Certificate Request. id="+requestId, e);
         }
         return getMode()+BEFORE_ACTION;

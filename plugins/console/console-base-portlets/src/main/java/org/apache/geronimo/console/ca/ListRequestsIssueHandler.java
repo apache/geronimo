@@ -89,7 +89,7 @@ public class ListRequestsIssueHandler extends BaseCAHandler {
             }
             return CERT_REQ_DETAILS_MODE+BEFORE_ACTION;
         } catch(Exception e) {
-            portlet.addErrorMessage(request, portlet.getLocalizedString(request, "errorMsg17", requestId), e.getMessage());
+            portlet.addErrorMessage(request, portlet.getLocalizedString(request, "consolebase.errorMsg17", requestId), e.getMessage());
             log.error("Errors while processing a Certificate Request. id="+requestId, e);
         }
         return getMode()+BEFORE_ACTION;

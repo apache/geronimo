@@ -81,7 +81,7 @@ public class CADetailsHandler extends BaseCAHandler {
             fingerPrints.put("SHA1", CertificateUtil.generateFingerprint(caCert, "SHA1"));
             request.setAttribute("fingerPrints", fingerPrints);
         } catch (Exception e) {
-            portlet.addErrorMessage(request, portlet.getLocalizedString(request, "errorMsg15"), e.getMessage());
+            portlet.addErrorMessage(request, portlet.getLocalizedString(request, "consolebase.errorMsg15"), e.getMessage());
             log.error("Errors while trying to view CA Details.", e);
         }
     }

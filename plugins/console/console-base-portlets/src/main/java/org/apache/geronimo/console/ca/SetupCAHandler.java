@@ -102,7 +102,7 @@ public class SetupCAHandler extends BaseCAHandler {
             // Load page to confirm CA details
             return CONFIRM_CA_MODE+BEFORE_ACTION;
         } catch(Exception e) {
-            portlet.addErrorMessage(request, portlet.getLocalizedString(request, "errorMsg19"), e.getMessage());
+            portlet.addErrorMessage(request, portlet.getLocalizedString(request, "consolebase.errorMsg19"), e.getMessage());
             log.error("", e);
         }
         return getMode()+BEFORE_ACTION;

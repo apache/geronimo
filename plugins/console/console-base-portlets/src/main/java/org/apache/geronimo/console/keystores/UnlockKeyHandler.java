@@ -72,11 +72,11 @@ public class UnlockKeyHandler extends BaseKeystoreHandler {
         } catch (KeystoreException e) {
             response.setRenderParameter("keystore", keystore);
             response.setRenderParameter("password", password);
-            portlet.addErrorMessage(request, portlet.getLocalizedString(request, "errorMsg10", alias), e.getMessage());
+            portlet.addErrorMessage(request, portlet.getLocalizedString(request, "consolebase.errorMsg10", alias), e.getMessage());
             log.error("Unable to unlock key '"+alias+"'.", e);
             return getMode()+BEFORE_ACTION;
         }
-        portlet.addInfoMessage(request, portlet.getLocalizedString(request, "infoMsg09", alias, keystore));
+        portlet.addInfoMessage(request, portlet.getLocalizedString(request, "consolebase.infoMsg09", alias, keystore));
         return LIST_MODE+BEFORE_ACTION;
     }
 }

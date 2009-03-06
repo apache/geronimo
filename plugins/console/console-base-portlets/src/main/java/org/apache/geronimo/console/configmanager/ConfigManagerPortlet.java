@@ -151,7 +151,7 @@ public class ConfigManagerPortlet extends BasePortlet {
                 }
                 if(!configurationManager.isRunning(configId)) {
                     org.apache.geronimo.kernel.config.LifecycleResults lcresult = configurationManager.startConfiguration(configId);
-                    addInfoMessage(actionRequest, getLocalizedString(actionRequest, "infoMsg01") + printResults(lcresult.getStarted()));
+                    addInfoMessage(actionRequest, getLocalizedString(actionRequest, "consolebase.infoMsg01") + printResults(lcresult.getStarted()));
                 }
             } else if (STOP_ACTION.equals(action)) {
                 if(configurationManager.isRunning(configId)) {
@@ -159,28 +159,28 @@ public class ConfigManagerPortlet extends BasePortlet {
                 }
                 if(configurationManager.isLoaded(configId)) {
                     LifecycleResults lcresult = configurationManager.unloadConfiguration(configId);
-                    addInfoMessage(actionRequest, getLocalizedString(actionRequest, "infoMsg02") + printResults(lcresult.getStarted()));
+                    addInfoMessage(actionRequest, getLocalizedString(actionRequest, "consolebase.infoMsg02") + printResults(lcresult.getStarted()));
                 }
             } else if (UNINSTALL_ACTION.equals(action)) {
                 configurationManager.uninstallConfiguration(configId);
-                addInfoMessage(actionRequest, getLocalizedString(actionRequest, "infoMsg04") + "<br />" + configId);
+                addInfoMessage(actionRequest, getLocalizedString(actionRequest, "consolebase.infoMsg04") + "<br />" + configId);
             } else if (RESTART_ACTION.equals(action)) {
                 LifecycleResults lcresult = configurationManager.restartConfiguration(configId);
-                addInfoMessage(actionRequest, getLocalizedString(actionRequest, "infoMsg03") + printResults(lcresult.getStarted()));
+                addInfoMessage(actionRequest, getLocalizedString(actionRequest, "consolebase.infoMsg03") + printResults(lcresult.getStarted()));
             } else {
-                addWarningMessage(actionRequest, getLocalizedString(actionRequest, "warnMsg01") + action + "<br />");
+                addWarningMessage(actionRequest, getLocalizedString(actionRequest, "consolebase.warnMsg01") + action + "<br />");
                 throw new PortletException("Invalid value for changeState: " + action);
             }
         } catch (NoSuchConfigException e) {
             // ignore this for now
-            addErrorMessage(actionRequest, getLocalizedString(actionRequest, "errorMsg01"));
+            addErrorMessage(actionRequest, getLocalizedString(actionRequest, "consolebase.errorMsg01"));
             logger.error("Configuration not found", e);
         } catch (LifecycleException e) {
             // todo we have a much more detailed report now
-            addErrorMessage(actionRequest, getLocalizedString(actionRequest, "errorMsg02"));
+            addErrorMessage(actionRequest, getLocalizedString(actionRequest, "consolebase.errorMsg02"));
             logger.error("Lifecycle operation failed ", e);
         } catch (Throwable e) {
-            addErrorMessage(actionRequest, getLocalizedString(actionRequest, "errorMsg03"));
+            addErrorMessage(actionRequest, getLocalizedString(actionRequest, "consolebase.errorMsg03"));
             logger.error("Exception", e);
         }
     }
@@ -307,7 +307,7 @@ public class ConfigManagerPortlet extends BasePortlet {
         renderRequest.setAttribute("showWebInfo", Boolean.valueOf(showWebInfo()));
         renderRequest.setAttribute("showDependencies", Boolean.valueOf(showDependencies));
         if (moduleDetails.size() == 0) {
-            addWarningMessage(renderRequest, getLocalizedString(renderRequest, "warnMsg02"));
+            addWarningMessage(renderRequest, getLocalizedString(renderRequest, "consolebase.warnMsg02"));
         }
         if (WindowState.NORMAL.equals(renderRequest.getWindowState())) {
             normalView.include(renderRequest, renderResponse);

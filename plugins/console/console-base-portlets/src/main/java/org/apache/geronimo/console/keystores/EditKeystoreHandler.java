@@ -68,11 +68,11 @@ public class EditKeystoreHandler extends BaseKeystoreHandler {
         try {
             data.unlockEdit(storePass);
         } catch (KeystoreException e) {
-        	portlet.addErrorMessage(request, portlet.getLocalizedString(request, "errorMsg08", keystore), e.getMessage());
+        	portlet.addErrorMessage(request, portlet.getLocalizedString(request, "consolebase.errorMsg08", keystore), e.getMessage());
             log.error("Unable to unlock keystore "+keystore+" for editing.", e);
             return getMode()+BEFORE_ACTION;
         }
-        portlet.addInfoMessage(request, portlet.getLocalizedString(request, "infoMsg05", keystore));
+        portlet.addInfoMessage(request, portlet.getLocalizedString(request, "consolebase.infoMsg05", keystore));
         return LIST_MODE+BEFORE_ACTION;
     }
 }
