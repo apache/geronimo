@@ -43,6 +43,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -74,8 +75,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.portlet.PortletFileUpload;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.geronimo.connector.deployment.jsr88.ConfigPropertySetting;
 import org.apache.geronimo.connector.deployment.jsr88.ConnectionDefinition;
 import org.apache.geronimo.connector.deployment.jsr88.ConnectionDefinitionInstance;
@@ -86,8 +85,8 @@ import org.apache.geronimo.connector.deployment.jsr88.ResourceAdapter;
 import org.apache.geronimo.connector.deployment.jsr88.SinglePool;
 import org.apache.geronimo.connector.outbound.PoolingAttributes;
 import org.apache.geronimo.console.BasePortlet;
-import org.apache.geronimo.console.databasemanager.ManagementHelper;
 import org.apache.geronimo.console.ajax.ProgressInfo;
+import org.apache.geronimo.console.databasemanager.ManagementHelper;
 import org.apache.geronimo.console.util.PortletManager;
 import org.apache.geronimo.converter.DatabaseConversionStatus;
 import org.apache.geronimo.converter.JDBCPool;
@@ -108,6 +107,8 @@ import org.apache.geronimo.kernel.repository.WriteableRepository;
 import org.apache.geronimo.kernel.util.XmlUtil;
 import org.apache.geronimo.management.geronimo.JCAManagedConnectionFactory;
 import org.apache.geronimo.management.geronimo.ResourceAdapterModule;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -179,6 +180,7 @@ public class DatabasePoolPortlet extends BasePortlet {
     private static final String LOCAL = "LOCAL";
     private static final String XA = "XA";
     private static final String NONE = "NONE";
+    private static final String[] ORDERED_PROPERTY_NAMES = { "property-DatabaseName", "property-CreateDatabase", "property-UserName", "property-Password" };
 
     private PortletRequestDispatcher listView;
     private PortletRequestDispatcher editView;
@@ -669,6 +671,7 @@ public class DatabasePoolPortlet extends BasePortlet {
                     Object value = factory.getConfigProperty(cp.getName());
                     data.properties.put("property-" + cp.getName(), value == null ? null : value.toString());
                 }
+                data.sort();
             }
         } catch (Exception e) {
             log.error("Unable to look up connection property", e);
@@ -791,6 +794,7 @@ public class DatabasePoolPortlet extends BasePortlet {
             if (more) {
                 data.loadPropertyNames();
             }
+            data.sort();
             renderRequest.setAttribute("ConfigParams", map);
         }
         editView.include(renderRequest, renderResponse);
@@ -1304,7 +1308,7 @@ public class DatabasePoolPortlet extends BasePortlet {
         private String dbtype;
         private String user;
         private String password;
-        private Map<String, String> properties = new HashMap<String, String>(); // Configuration for non-Generic drivers
+        private Map<String, String> properties = new LinkedHashMap<String, String>(); // Configuration for non-Generic drivers
         private Map<String, Object> urlProperties = new HashMap<String, Object>(); // URL substitution for Generic drivers
         private Map<String, String> propertyNames; //todo: store these in the ConfigParam instead
         private String driverClass;
@@ -1370,7 +1374,7 @@ public class DatabasePoolPortlet extends BasePortlet {
             if (importSource != null && importSource.equals("")) importSource = null;
             transactionType = request.getParameter("transactionType");
             if (transactionType != null && "".equals(transactionType)) {
-                if(dbtype.endsWith("XA")){
+                if (dbtype != null && dbtype.endsWith("XA")) {
                     transactionType = XA;
                 } else {
                     transactionType = LOCAL;
@@ -1387,6 +1391,7 @@ public class DatabasePoolPortlet extends BasePortlet {
                     propertyNames.put(key, getPropertyName(key));
                 }
             }
+            sort();
             deployError = request.getParameter("deployError");
             if (deployError != null && deployError.equals("")) deployError = null;
         }
@@ -1459,6 +1464,22 @@ public class DatabasePoolPortlet extends BasePortlet {
                 }
             }
             if (deployError != null) response.setRenderParameter("deployError", deployError);
+        }
+
+
+        public void sort() {
+            Map<String, String> sortedProperties = new LinkedHashMap<String, String>();
+
+            for (String propertyName : ORDERED_PROPERTY_NAMES) {
+                if (properties.containsKey(propertyName)) {
+                    sortedProperties.put(propertyName, properties.get(propertyName));
+                    properties.remove(propertyName);
+                }
+            }
+
+            sortedProperties.putAll(properties);
+
+            properties = sortedProperties;
         }
 
         public String getName() {
