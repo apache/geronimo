@@ -196,6 +196,12 @@
 
         <dependency>
             <groupId>org.tranql</groupId>
+            <artifactId>tranql-connector-oracle-rac-local</artifactId>
+            <type>rar</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.tranql</groupId>
             <artifactId>tranql-connector-postgresql-local</artifactId>
             <type>rar</type>
         </dependency>
