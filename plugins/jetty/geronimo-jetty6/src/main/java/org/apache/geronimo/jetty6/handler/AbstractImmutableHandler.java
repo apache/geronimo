@@ -23,6 +23,7 @@ import org.mortbay.jetty.HandlerContainer;
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.handler.AbstractHandler;
 import org.mortbay.jetty.handler.AbstractHandlerContainer;
+import org.mortbay.component.LifeCycle;
 
 /**
  * @version $Rev$ $Date$
@@ -114,5 +115,11 @@ public abstract class AbstractImmutableHandler implements Handler /*extends Abst
 
     public boolean isFailed() {
         return false;
+    }
+
+    public void addLifeCycleListener(Listener listener) {
+    }
+
+    public void removeLifeCycleListener(Listener listener) {
     }
 }

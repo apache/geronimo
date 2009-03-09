@@ -19,6 +19,7 @@ package org.apache.geronimo.jetty6;
 
 import org.mortbay.jetty.Handler;
 import org.mortbay.jetty.Server;
+import org.mortbay.component.LifeCycle;
 
 /**
  * @version $Rev: 449059 $ $Date: 2006-09-23 05:23:09 +1000 (Sat, 23 Sep 2006) $
@@ -36,6 +37,12 @@ public abstract class AbstractPreHandler implements PreHandler {
 
     public final boolean isFailed() {
         throw new UnsupportedOperationException();
+    }
+
+    public void addLifeCycleListener(Listener listener) {
+    }
+
+    public void removeLifeCycleListener(Listener listener) {
     }
 
     public final boolean isRunning() {

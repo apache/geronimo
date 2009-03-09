@@ -28,6 +28,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.mortbay.jetty.servlet.SessionHandler;
+import org.mortbay.component.LifeCycle;
 
 
 /**
@@ -69,7 +70,12 @@ public class ApplicationTest extends AbstractWebModuleTest {
                         throws IOException, ServletException {
                     next.handle(target, request, response, dispatch);
                 }
-                
+
+                public void addLifeCycleListener(Listener listener) {
+                }
+
+                public void removeLifeCycleListener(Listener listener) {
+                }
             };
         }
 

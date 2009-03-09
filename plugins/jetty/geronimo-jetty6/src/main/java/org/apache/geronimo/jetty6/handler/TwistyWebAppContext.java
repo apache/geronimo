@@ -33,6 +33,7 @@ import org.mortbay.jetty.security.SecurityHandler;
 import org.mortbay.jetty.servlet.ServletHandler;
 import org.mortbay.jetty.servlet.SessionHandler;
 import org.mortbay.jetty.webapp.WebAppContext;
+import org.mortbay.component.LifeCycle;
 
 /**
  * @version $Rev$ $Date$
@@ -107,6 +108,12 @@ public class TwistyWebAppContext extends WebAppContext {
 
         public boolean isFailed() {
             return TwistyWebAppContext.super.isFailed();
+        }
+
+        public void addLifeCycleListener(Listener listener) {
+        }
+
+        public void removeLifeCycleListener(Listener listener) {
         }
     }
 }
