@@ -222,7 +222,7 @@ function <portlet:namespace/>validate() {
     <!-- ENTRY FIELD: Username -->
       <tr>
         <th><div align="right"><fmt:message key="dbwizard.common.DBUserName"/>:</div></th>
-        <td><input name="user" type="text" size="20" value="${pool.user}"></td>
+        <td><input name="user" type="text" size="20" value="${pool.user}" autocomplete="off"></td>
       </tr>
       <tr>
         <td></td>
@@ -231,11 +231,11 @@ function <portlet:namespace/>validate() {
     <!-- ENTRY FIELD: Password -->
       <tr>
         <th><div align="right"><fmt:message key="dbwizard.common.DBPassword"/>:</div></th>
-        <td><input name="password" type="password" size="20" value="${pool.password}"></td>
+        <td><input name="password" type="password" size="20" value="${pool.password}" autocomplete="off"></td>
       </tr>
       <tr>
         <th><div align="right"><fmt:message key="dbwizard.common.confirmPassword"/>:</div></th>
-        <td><input name="confirm-password" type="password" size="20" value="${pool.password}"></td>
+        <td><input name="confirm-password" type="password" size="20" value="${pool.password}" autocomplete="off"></td>
       </tr>
       <script language="JavaScript">
         <portlet:namespace/>passwordFields = <portlet:namespace/>passwordFields.concat(new Array("password"));
@@ -286,12 +286,13 @@ function <portlet:namespace/>validate() {
     <c:forEach var="prop" items="${pool.properties}">
       <tr>
         <th><div align="right">${pool.propertyNames[prop.key]}:</div></th>
-        <td><input name="${prop.key}" type="<c:choose><c:when test="${fn:containsIgnoreCase(prop.key, 'password')}">password</c:when><c:otherwise>text</c:otherwise></c:choose>" size="20" value="${prop.value}"></td>
+        <td><input name="${prop.key}" <c:choose><c:when test="${fn:containsIgnoreCase(prop.key, 'password')}">type="password" autocomplete="off"</c:when><c:otherwise>type="text"</c:otherwise></c:choose> size="20" value="${prop.value}"></td>
+
       </tr>
     <c:if test="${fn:containsIgnoreCase(prop.key, 'password')}">
       <tr>
         <th><div align="right"><fmt:message key="dbwizard.common.confirmPassword"/>:</div></th>
-        <td><input name="confirm-${prop.key}" type="password" size="20" value="${prop.value}"></td>
+        <td><input name="confirm-${prop.key}" type="password" size="20" value="${prop.value}" autocomplete="off"></td>
       </tr>
       <script language="JavaScript">
         <portlet:namespace/>passwordFields = <portlet:namespace/>passwordFields.concat(new Array("${prop.key}"));

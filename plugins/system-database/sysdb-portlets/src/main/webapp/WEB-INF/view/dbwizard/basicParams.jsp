@@ -95,7 +95,7 @@ function <portlet:namespace/>validateForm(){
     <!-- ENTRY FIELD: Username -->
       <tr>
         <th><div align="right"><fmt:message key="dbwizard.common.DBUserName"/>:</div></th>
-        <td><input name="user" type="text" size="20" value="${pool.user}"></td>
+        <td><input name="user" type="text" size="20" value="${pool.user}" autocomplete="off"></td>
       </tr>
       <tr>
         <td></td>
@@ -104,11 +104,11 @@ function <portlet:namespace/>validateForm(){
     <!-- ENTRY FIELD: Password -->
       <tr>
         <th><div align="right"><fmt:message key="dbwizard.common.DBPassword"/>:</div></th>
-        <td><input name="password" type="password" size="20" value="${pool.password}"></td>
+        <td><input name="password" type="password" size="20" value="${pool.password}" autocomplete="off"></td>
       </tr>
       <tr>
         <th><div align="right"><fmt:message key="dbwizard.common.confirmPassword"/>:</div></th>
-        <td><input name="confirm-password" type="password" size="20" value="${pool.password}"></td>
+        <td><input name="confirm-password" type="password" size="20" value="${pool.password}" autocomplete="off"></td>
       </tr>
       <tr>
         <td></td>
