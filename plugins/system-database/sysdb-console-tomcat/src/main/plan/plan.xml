@@ -281,6 +281,14 @@ limitations under the License.
         <attribute name="specific">true</attribute>
         <attribute name="RARName">org.tranql/tranql-connector-oracle-xa//rar</attribute>
     </gbean>
+    <gbean name="Database20c" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean">
+        <attribute name="name">Oracle RAC</attribute>
+        <attribute name="URLPrototype">null</attribute>
+        <attribute name="driverClassName">null</attribute>
+        <attribute name="defaultPort">0</attribute>
+        <attribute name="specific">true</attribute>
+        <attribute name="RARName">org.tranql/tranql-connector-oracle-rac-local//rar</attribute>
+    </gbean>
     <gbean name="Database20" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean">
         <attribute name="name">Oracle Thin</attribute>
         <attribute name="URLPrototype">jdbc:oracle:thin:@{Host}:{Port}:{SID}</attribute>
