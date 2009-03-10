@@ -1,6 +1,6 @@
 Index: modules/saaj/test/org/apache/axis2/saaj/SOAPEnvelopeTest.java
 ===================================================================
---- modules/saaj/test/org/apache/axis2/saaj/SOAPEnvelopeTest.java	(revision 749742)
+--- modules/saaj/test/org/apache/axis2/saaj/SOAPEnvelopeTest.java	(revision 749891)
 +++ modules/saaj/test/org/apache/axis2/saaj/SOAPEnvelopeTest.java	(working copy)
 @@ -21,6 +21,8 @@
  
@@ -19,7 +19,7 @@ Index: modules/saaj/test/org/apache/axis2/saaj/SOAPEnvelopeTest.java
  import javax.xml.soap.SOAPConstants;
  import javax.xml.soap.SOAPElement;
  import javax.xml.soap.SOAPEnvelope;
-@@ -38,6 +41,16 @@
+@@ -38,7 +41,21 @@
  import javax.xml.soap.SOAPMessage;
  import javax.xml.soap.SOAPPart;
  import javax.xml.soap.Text;
@@ -29,17 +29,33 @@ Index: modules/saaj/test/org/apache/axis2/saaj/SOAPEnvelopeTest.java
 +import javax.xml.transform.TransformerFactory;
 +import javax.xml.transform.dom.DOMResult;
 +import javax.xml.transform.dom.DOMSource;
++import javax.xml.transform.sax.SAXSource;
 +
++import org.w3c.dom.Comment;  
 +import org.w3c.dom.Document;
 +import org.w3c.dom.Element;
++import org.xml.sax.InputSource; 
 +
  import java.io.ByteArrayInputStream;
++import java.io.StringReader;
  import java.util.Iterator;
  
-@@ -565,4 +578,55 @@
+ public class SOAPEnvelopeTest extends TestCase {
+@@ -59,6 +76,8 @@
+                     "</shw:Address>\n" +
+                     "</soapenv:Body>\n" +
+                     "</soapenv:Envelope>";
++    
++    private static final String XML_INPUT_1 = "<root><a><!-- this is a test with a comment node --></a></root>";
+ 
+     public SOAPEnvelopeTest(String name) {
+         super(name);
+@@ -565,4 +584,106 @@
              fail("Unexpected Exception: " + e.getMessage());
          }
      }
+-}
+\ No newline at end of file
 +    
 +    public void testTransform() throws Exception {
 +        MessageFactory fact = MessageFactory.newInstance();
@@ -91,11 +107,61 @@ Index: modules/saaj/test/org/apache/axis2/saaj/SOAPEnvelopeTest.java
 +        document.appendChild(getLastTradePrice);
 +        return getLastTradePrice;
 +    }
- }
-\ No newline at end of file
++    
++    public void testTransformWithComments() throws Exception {
++        MessageFactory fact = MessageFactory.newInstance();
++        SOAPMessage message = fact.createMessage();
++        SOAPBody body = message.getSOAPBody();
++        Source source = new SAXSource(new InputSource(new StringReader(XML_INPUT_1)));
++        DOMResult result = new DOMResult(body);
++        TransformerFactory transformerFactory = TransformerFactory.newInstance();
++        Transformer transformer = transformerFactory.newTransformer();
++        transformer.transform(source, result);
++        
++        // test DOM
++        org.w3c.dom.Node rootNode = result.getNode();
++        org.w3c.dom.Node node = rootNode.getFirstChild();
++        assertTrue(node instanceof Element);
++        assertEquals("root", node.getNodeName());
++        
++        node = node.getFirstChild();
++        assertTrue(node instanceof Element);
++        assertEquals("a", node.getNodeName());
++        
++        node = node.getFirstChild();
++        assertTrue(node instanceof Comment);
++        assertEquals("this is a test with a comment node", node.getNodeValue().trim());
++        
++        // test SAAJ
++        assertEquals(1, body.getChildNodes().getLength());
++        Iterator iter = body.getChildElements();
++        assertTrue(iter.hasNext()); 
++        Object obj = iter.next();
++        assertTrue(obj instanceof SOAPBodyElement);  
++        SOAPElement soapElement = (SOAPElement)obj;
++        assertEquals("root", soapElement.getLocalName());
++        
++        iter = soapElement.getChildElements();
++        assertTrue(iter.hasNext()); 
++        obj = iter.next();
++        assertTrue(obj instanceof SOAPElement);  
++        soapElement = (SOAPElement)obj;
++        assertEquals("a", soapElement.getLocalName());
++        assertFalse(iter.hasNext());
++        
++        iter = soapElement.getChildElements();
++        assertTrue(iter.hasNext()); 
++        obj = iter.next();
++        assertTrue(obj instanceof Text);  
++        Text text = (Text)obj;
++        assertTrue(text.isComment());
++        assertEquals("this is a test with a comment node", text.getData().trim());
++        assertFalse(iter.hasNext());        
++    }
++}
 Index: modules/saaj/test/org/apache/axis2/saaj/SOAPHeaderTest.java
 ===================================================================
---- modules/saaj/test/org/apache/axis2/saaj/SOAPHeaderTest.java	(revision 749742)
+--- modules/saaj/test/org/apache/axis2/saaj/SOAPHeaderTest.java	(revision 749891)
 +++ modules/saaj/test/org/apache/axis2/saaj/SOAPHeaderTest.java	(working copy)
 @@ -33,6 +33,11 @@
  import javax.xml.soap.SOAPHeaderElement;
@@ -165,7 +231,7 @@ Index: modules/saaj/test/org/apache/axis2/saaj/SOAPHeaderTest.java
 \ No newline at end of file
 Index: modules/saaj/test/org/apache/axis2/saaj/SOAPElementTest.java
 ===================================================================
---- modules/saaj/test/org/apache/axis2/saaj/SOAPElementTest.java	(revision 749742)
+--- modules/saaj/test/org/apache/axis2/saaj/SOAPElementTest.java	(revision 749891)
 +++ modules/saaj/test/org/apache/axis2/saaj/SOAPElementTest.java	(working copy)
 @@ -20,6 +20,8 @@
  
@@ -263,7 +329,7 @@ Index: modules/saaj/test/org/apache/axis2/saaj/SOAPElementTest.java
  }
 Index: modules/saaj/test/org/apache/axis2/saaj/SOAPBodyTest.java
 ===================================================================
---- modules/saaj/test/org/apache/axis2/saaj/SOAPBodyTest.java	(revision 749742)
+--- modules/saaj/test/org/apache/axis2/saaj/SOAPBodyTest.java	(revision 749891)
 +++ modules/saaj/test/org/apache/axis2/saaj/SOAPBodyTest.java	(working copy)
 @@ -262,5 +262,53 @@
          }
@@ -320,9 +386,32 @@ Index: modules/saaj/test/org/apache/axis2/saaj/SOAPBodyTest.java
 +    }
 +        
  }
+Index: modules/saaj/test/org/apache/axis2/saaj/TextTest.java
+===================================================================
+--- modules/saaj/test/org/apache/axis2/saaj/TextTest.java	(revision 749891)
++++ modules/saaj/test/org/apache/axis2/saaj/TextTest.java	(working copy)
+@@ -20,6 +20,7 @@
+ package org.apache.axis2.saaj;
+ 
+ import junit.framework.TestCase;
++import org.w3c.dom.Comment;
+ import org.w3c.dom.Node;
+ import org.w3c.dom.NodeList;
+ 
+@@ -179,8 +180,10 @@
+             isComment = ((Text)node).isComment();
+             if (i == 1 || i == 3) {
+                 assertEquals(true, isComment);
++                assertTrue(node instanceof Comment);
+             } else {
+                 assertEquals(false, isComment);
++                assertFalse(node instanceof Comment);
+             }
+         }
+     }
 Index: modules/saaj/test/org/apache/axis2/saaj/SOAPPartTest.java
 ===================================================================
---- modules/saaj/test/org/apache/axis2/saaj/SOAPPartTest.java	(revision 749742)
+--- modules/saaj/test/org/apache/axis2/saaj/SOAPPartTest.java	(revision 749891)
 +++ modules/saaj/test/org/apache/axis2/saaj/SOAPPartTest.java	(working copy)
 @@ -21,6 +21,7 @@
  import junit.framework.TestCase;
@@ -410,7 +499,7 @@ Index: modules/saaj/test/org/apache/axis2/saaj/SOAPPartTest.java
  }
 Index: modules/saaj/src/org/apache/axis2/saaj/SOAPBodyImpl.java
 ===================================================================
---- modules/saaj/src/org/apache/axis2/saaj/SOAPBodyImpl.java	(revision 749742)
+--- modules/saaj/src/org/apache/axis2/saaj/SOAPBodyImpl.java	(revision 749891)
 +++ modules/saaj/src/org/apache/axis2/saaj/SOAPBodyImpl.java	(working copy)
 @@ -96,6 +96,22 @@
          return childEle;
@@ -420,12 +509,12 @@ Index: modules/saaj/src/org/apache/axis2/saaj/SOAPBodyImpl.java
 +        String namespaceURI = child.getNamespaceURI();
 +        String prefix = child.getPrefix();
 +
-+        element.declareNamespace(namespaceURI, prefix);
-+        
 +        SOAPBodyElementImpl childEle = new SOAPBodyElementImpl(child);
 +
 +        childEle.element.setUserData(SAAJ_NODE, childEle, null);
-+        childEle.element.setNamespace(childEle.element.declareNamespace(namespaceURI, prefix));
++        if (namespaceURI != null && namespaceURI.trim().length() > 0) {
++            childEle.element.setNamespace(childEle.element.declareNamespace(namespaceURI, prefix));
++        }
 +        element.appendChild(childEle.element);
 +        ((NodeImpl)childEle.element.getParentNode()).setUserData(SAAJ_NODE, this, null);
 +        childEle.setParentElement(this);
@@ -435,9 +524,18 @@ Index: modules/saaj/src/org/apache/axis2/saaj/SOAPBodyImpl.java
      public SOAPElement addChildElement(SOAPElement soapElement) throws SOAPException {
          String namespaceURI = soapElement.getNamespaceURI();
          String prefix = soapElement.getPrefix();
+@@ -412,7 +428,7 @@
+         }
+         if (node instanceof org.w3c.dom.Comment) {
+             org.w3c.dom.Comment domText = (org.w3c.dom.Comment)node;
+-            return new TextImplEx("<!--" + domText.getData() + "-->", parent);
++            return new CommentImpl(domText.getData(), parent);
+         }
+         Element domEle = ((Element)node);
+         int indexOfColon = domEle.getTagName().indexOf(":");
 Index: modules/saaj/src/org/apache/axis2/saaj/NodeImplEx.java
 ===================================================================
---- modules/saaj/src/org/apache/axis2/saaj/NodeImplEx.java	(revision 749742)
+--- modules/saaj/src/org/apache/axis2/saaj/NodeImplEx.java	(revision 749891)
 +++ modules/saaj/src/org/apache/axis2/saaj/NodeImplEx.java	(working copy)
 @@ -160,30 +160,37 @@
       * @return the SAAJ Node corresponding to the domNode
@@ -489,9 +587,20 @@ Index: modules/saaj/src/org/apache/axis2/saaj/NodeImplEx.java
          if (domNode == null) {
              return null;
          }
+@@ -201,9 +208,7 @@
+             org.w3c.dom.Node prevSiblingDOMNode = comment.getPreviousSibling();
+             org.w3c.dom.Node nextSiblingDOMNode = comment.getNextSibling();
+             SOAPElementImpl parent = new SOAPElementImpl((ElementImpl)domNode.getParentNode());
+-            TextImplEx saajTextNode = new TextImplEx("<!--" +
+-                    comment.getData() +
+-                    "-->",
++            CommentImpl saajTextNode = new CommentImpl(comment.getData(),
+                                                      parent, prevSiblingDOMNode,
+                                                      nextSiblingDOMNode);
+             ((NodeImpl)domNode).setUserData(SAAJ_NODE, saajTextNode, null);
 Index: modules/saaj/src/org/apache/axis2/saaj/SOAPPartImpl.java
 ===================================================================
---- modules/saaj/src/org/apache/axis2/saaj/SOAPPartImpl.java	(revision 749742)
+--- modules/saaj/src/org/apache/axis2/saaj/SOAPPartImpl.java	(revision 749891)
 +++ modules/saaj/src/org/apache/axis2/saaj/SOAPPartImpl.java	(working copy)
 @@ -841,7 +841,7 @@
       * been removed from the tree, this is <code>null</code>.
@@ -569,7 +678,7 @@ Index: modules/saaj/src/org/apache/axis2/saaj/SOAPPartImpl.java
  }
 Index: modules/saaj/src/org/apache/axis2/saaj/SOAPHeaderImpl.java
 ===================================================================
---- modules/saaj/src/org/apache/axis2/saaj/SOAPHeaderImpl.java	(revision 749742)
+--- modules/saaj/src/org/apache/axis2/saaj/SOAPHeaderImpl.java	(revision 749891)
 +++ modules/saaj/src/org/apache/axis2/saaj/SOAPHeaderImpl.java	(working copy)
 @@ -30,6 +30,7 @@
  import org.apache.axiom.soap.impl.dom.soap12.SOAP12Factory;
@@ -612,7 +721,7 @@ Index: modules/saaj/src/org/apache/axis2/saaj/SOAPHeaderImpl.java
       * adds it to this <CODE>SOAPHeader</CODE> object.
 Index: modules/saaj/src/org/apache/axis2/saaj/SOAPElementImpl.java
 ===================================================================
---- modules/saaj/src/org/apache/axis2/saaj/SOAPElementImpl.java	(revision 749742)
+--- modules/saaj/src/org/apache/axis2/saaj/SOAPElementImpl.java	(revision 749891)
 +++ modules/saaj/src/org/apache/axis2/saaj/SOAPElementImpl.java	(working copy)
 @@ -35,6 +35,7 @@
  import org.w3c.dom.Attr;
@@ -704,212 +813,3 @@ Index: modules/saaj/src/org/apache/axis2/saaj/SOAPElementImpl.java
 +        }
 +    }
  }
-Index: modules/metadata/src/org/apache/axis2/jaxws/i18n/resource.properties
-===================================================================
---- modules/metadata/src/org/apache/axis2/jaxws/i18n/resource.properties	(revision 749742)
-+++ modules/metadata/src/org/apache/axis2/jaxws/i18n/resource.properties	(working copy)
-@@ -182,3 +182,5 @@
- onewayAsync=The async listener property was set.  A one way invocation cannot be performed using an async response channel.
- soapBindingUseEncoded=The SEI {0} contains method {1} with an unsupported SOAPBinding annotation value. SOAPBinding.Use field cannot be set to ENCODED.
- soapBindingStyle=The SEI {0} contains method {1} with annotation SOAPBinding.Style set to RPC.
-+validateImplErr=Validation error: Implementation subclass does not implement method on specified interface.  Implementation class: {0}; missing method name: {1}; endpointInterface: {2}
-+
-Index: modules/metadata/src/org/apache/axis2/jaxws/description/impl/ServiceDescriptionImpl.java
-===================================================================
---- modules/metadata/src/org/apache/axis2/jaxws/description/impl/ServiceDescriptionImpl.java	(revision 749742)
-+++ modules/metadata/src/org/apache/axis2/jaxws/description/impl/ServiceDescriptionImpl.java	(working copy)
-@@ -987,62 +987,79 @@
-         return validDefaultCtor;
-     }
- 
-+
-     private void validateImplementation(DescriptionBuilderComposite seic) {
-         /*
--           *	Verify that an impl class implements all the methods of the SEI. We
--           *  have to verify this because an impl class is not required to actually use
--           *  the 'implements' clause. So, if it doesn't, the Java compiler won't
--           *	catch it. Don't need to worry about chaining because only one EndpointInterface
--           *  can be specified, and the SEI cannot specify an EndpointInterface, so the Java
--           *	compiler will take care of everything else.
--           */
-+         *  Verify that an impl class implements all the methods of the SEI. We have to verify this 
-+         *  because an impl class is not required to actually use the 'implements' clause. So, if 
-+         *  it doesn't, the Java compiler won't catch it. Don't need to worry about chaining 
-+         *  because only one EndpointInterface can be specified, and the SEI cannot specify an 
-+         *  EndpointInterface, so the Java compiler will take care of everything else.
-+         *  
-+         *  Note, however, that we do need to take overloaded methods into a consideration.  The
-+         *  same method name can be specified for multiple methods, but they can have different
-+         *  parameters.  Note that methods which differ only in the return type or the exceptions
-+         *  thrown are not overloaded (and therefore would cause a compile error).
-+         */
- 
--        HashMap<String, MethodDescriptionComposite> compositeHashMap = 
--            new HashMap<String, MethodDescriptionComposite>();
--        Iterator<MethodDescriptionComposite> compIterator =
--                composite.getMethodDescriptionsList().iterator();
--        while (compIterator.hasNext()) {
--            MethodDescriptionComposite mdc = compIterator.next();
--            compositeHashMap.put(mdc.getMethodName(), mdc);
--        }
-+        List<MethodDescriptionComposite> implMethods = composite.getMethodDescriptionsList();
-         // Add methods declared in the implementation's superclass
--        addSuperClassMethods(compositeHashMap, composite);
-+        addSuperClassMethods(implMethods, composite);
- 
--        HashMap<String, MethodDescriptionComposite> seiMethodHashMap = 
--            new HashMap<String, MethodDescriptionComposite>();
--        Iterator<MethodDescriptionComposite> seiMethodIterator =
--                seic.getMethodDescriptionsList().iterator();
--        while (seiMethodIterator.hasNext()) {
--            MethodDescriptionComposite mdc = seiMethodIterator.next();
--            seiMethodHashMap.put(mdc.getMethodName(), mdc);
--        }
-+        List<MethodDescriptionComposite> seiMethods = seic.getMethodDescriptionsList();
-         // Add any methods declared in superinterfaces of the SEI
--        addSuperClassMethods(seiMethodHashMap, seic);
-+        addSuperClassMethods(seiMethods, seic);
- 
-         // Make sure all the methods in the SEI (including any inherited from superinterfaces) are
--        // implemented by the bean (including inherited methods on the bean).
--        Iterator<MethodDescriptionComposite> verifySEIIterator =
--                seiMethodHashMap.values().iterator();
-+        // implemented by the bean (including inherited methods on the bean), taking into
-+        // account overloaded methods.
-+        Iterator<MethodDescriptionComposite> verifySEIIterator = seiMethods.iterator();
-         while (verifySEIIterator.hasNext()) {
--            MethodDescriptionComposite mdc = verifySEIIterator.next();
--            // TODO: This does not take into consideration overloaded java methods!
--            MethodDescriptionComposite implMDC = compositeHashMap.get(mdc.getMethodName());
-+            MethodDescriptionComposite seiMDC = verifySEIIterator.next();
-             
--            if (implMDC == null) {
--                // TODO: RAS/NLS
--                throw ExceptionFactory.makeWebServiceException(
--                        "Validation error: Implementation subclass does not implement method on specified interface.  Implementation class: "
--                                + composite.getClassName() + "; missing method name: " +
--                                mdc.getMethodName() + "; endpointInterface: " +
--                                seic.getClassName());
--            } else {
--                //At least we found it, now make sure that signatures match up
-+            // Make sure the implementation implements this SEI method.  Since we have to account
-+            // for method overloading, we look for ALL methods with the same name in the 
-+            // implementation, then from that collection of methods, we look for one that has the 
-+            // same parameters.  If we find one with the same parameters, then we check the return
-+            // and exceptions.  Note that in Java, overloaded methods are ones that have the same
-+            // name but different parameters; a difference in the return type or thrown exceptions
-+            // does not constitute overloading and is a compile error.
-+            Iterator<MethodDescriptionComposite> implMDCIterator = implMethods.iterator();
-+            boolean methodImplFound = false;
-+            while (implMDCIterator.hasNext()) {
-+                MethodDescriptionComposite implMDC = implMDCIterator.next();
-                 
--                //Check for exception and signature matching
--                validateMethodExceptions(mdc, implMDC, seic.getClassName());
--                validateMethodReturnValue(mdc, implMDC, seic.getClassName());
--                validateMethodParameters(mdc, implMDC, seic.getClassName());
-+                if (seiMDC.getMethodName().equals(implMDC.getMethodName())) {
-+                    // The method names match, so now check the parameters
-+                    try {
-+                        validateMethodParameters(seiMDC, implMDC, seic.getClassName());
-+                        methodImplFound = true;
-+                    }
-+                    catch (Exception ex) {
-+                        // The parameters didn't match, so we'll check the next 
-+                        // implemntation method on the next iteration of the inner loop.
-+                    }
-+                    
-+                    // If the name and the parameters matched, then we've found the method
-+                    // implementation, even if it was overloaded. Now check the return value and
-+                    // thrown exceptions.  Note these will methods throw exceptions if validation fails.
-+                    // If all the validation passes, we can break out of the inner loop since we 
-+                    // found the implementation for this sei method.
-+                    if (methodImplFound) {
-+                        validateMethodExceptions(seiMDC, implMDC, seic.getClassName());
-+                        validateMethodReturnValue(seiMDC, implMDC, seic.getClassName());
-+                        break;
-+                    }
-+                }
-             }
-+            
-+            if (!methodImplFound) {
-+                // We didn't find the implementation for this SEI method, so throw a validation
-+                // exception.
-+                throw ExceptionFactory.makeWebServiceException(
-+                		Messages.getMessage("validateImplErr",composite.getClassName(),
-+                				seiMDC.getMethodName(),seic.getClassName()));
-+            }
-         }
-     }
- 
-@@ -1200,29 +1217,27 @@
- 
-     }
- 
--    /**
--     * Adds any methods declared in superclasses to the HashMap.  The hierachy starting with the DBC
-+   /**
-+     * Adds any methods declared in superclasses to the List.  The hierachy starting with the DBC
-      * will be walked up recursively, adding methods from each parent DBC encountered.
-      * <p/>
-      * Note that this can be used for either classes or interfaces.
-      *
--     * @param methodMap
--     * @param dbc
-+     * @param methodList The current collection of methods, including overloaded ones
-+     * @param dbc The composite to be checked for methods to be added to the collection
-      */
--    private void addSuperClassMethods(HashMap methodMap, DescriptionBuilderComposite dbc) {
-+    private void addSuperClassMethods(List<MethodDescriptionComposite> methodList, DescriptionBuilderComposite dbc) {
-         DescriptionBuilderComposite superDBC = dbcMap.get(dbc.getSuperClassName());
-         if (superDBC != null) {
--            Iterator<MethodDescriptionComposite> mIter =
--                    superDBC.getMethodDescriptionsList().iterator();
-+            Iterator<MethodDescriptionComposite> mIter = superDBC.getMethodDescriptionsList().iterator();
-             while (mIter.hasNext()) {
-                 MethodDescriptionComposite mdc = mIter.next();
--                methodMap.put(mdc.getMethodName(), mdc);
-+                methodList.add(mdc);
-             }
--            addSuperClassMethods(methodMap, superDBC);
-+            addSuperClassMethods(methodList, superDBC);
-         }
-     }
- 
--
-     /*
-       * This method verifies that, if there are any WebMethod with exclude == false, then
-       * make sure that we find all of those methods represented in the wsdl. However, if
-Index: modules/jaxws/src/org/apache/axis2/jaxws/message/impl/XMLPartBase.java
-===================================================================
---- modules/jaxws/src/org/apache/axis2/jaxws/message/impl/XMLPartBase.java	(revision 749742)
-+++ modules/jaxws/src/org/apache/axis2/jaxws/message/impl/XMLPartBase.java	(working copy)
-@@ -147,7 +147,7 @@
-                 // Okay
-             } else
-             if (qName.getNamespaceURI().equals(SOAP12Constants.SOAP_ENVELOPE_NAMESPACE_URI)) {
--                throw ExceptionFactory.makeWebServiceException("UNEXPECTED");  // TODO NLS
-+                //throw ExceptionFactory.makeWebServiceException("UNEXPECTED");  // TODO NLS
-             } else {
-                 content = _createSpine(Protocol.rest, Style.DOCUMENT, 0, root);
-                 contentType = SPINE;
-Index: modules/jaxws/src/org/apache/axis2/jaxws/message/databinding/impl/SourceBlockImpl.java
-===================================================================
---- modules/jaxws/src/org/apache/axis2/jaxws/message/databinding/impl/SourceBlockImpl.java	(revision 749742)
-+++ modules/jaxws/src/org/apache/axis2/jaxws/message/databinding/impl/SourceBlockImpl.java	(working copy)
-@@ -126,6 +126,7 @@
-     protected Object _getBOFromReader(XMLStreamReader reader, Object busContext)
-             throws XMLStreamException {
- 
-+        /*
-         // Best solution is to use a StAXSource
-         if (staxSource != null) {
-             try {
-@@ -136,6 +137,7 @@
-             } catch (Exception e) {
-             }
-         }
-+        */
- 
-         // TODO StreamSource is not performant...work is needed here to make this faster
-         Reader2Writer r2w = new Reader2Writer(reader);

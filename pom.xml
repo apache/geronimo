@@ -1408,19 +1408,19 @@
             <dependency>
                 <groupId>org.apache.axis2</groupId>
                 <artifactId>axis2-jaxws</artifactId>
-                <version>1.3-G20090303</version>
+                <version>1.3-G20090310</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.axis2</groupId>
                 <artifactId>axis2-metadata</artifactId>
-                <version>1.3-G20090303</version>
+                <version>1.3-G20090310</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.axis2</groupId>
                 <artifactId>axis2-saaj</artifactId>
-                <version>1.3-G20090303</version>
+                <version>1.3-G20090310</version>
             </dependency>
 
             <dependency>

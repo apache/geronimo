@@ -1,0 +1,33 @@
+Index: modules/jaxws/src/org/apache/axis2/jaxws/message/impl/XMLPartBase.java
+===================================================================
+--- modules/jaxws/src/org/apache/axis2/jaxws/message/impl/XMLPartBase.java	(revision 749891)
++++ modules/jaxws/src/org/apache/axis2/jaxws/message/impl/XMLPartBase.java	(working copy)
+@@ -147,7 +147,7 @@
+                 // Okay
+             } else
+             if (qName.getNamespaceURI().equals(SOAP12Constants.SOAP_ENVELOPE_NAMESPACE_URI)) {
+-                throw ExceptionFactory.makeWebServiceException("UNEXPECTED");  // TODO NLS
++                //throw ExceptionFactory.makeWebServiceException("UNEXPECTED");  // TODO NLS
+             } else {
+                 content = _createSpine(Protocol.rest, Style.DOCUMENT, 0, root);
+                 contentType = SPINE;
+Index: modules/jaxws/src/org/apache/axis2/jaxws/message/databinding/impl/SourceBlockImpl.java
+===================================================================
+--- modules/jaxws/src/org/apache/axis2/jaxws/message/databinding/impl/SourceBlockImpl.java	(revision 749891)
++++ modules/jaxws/src/org/apache/axis2/jaxws/message/databinding/impl/SourceBlockImpl.java	(working copy)
+@@ -126,6 +126,7 @@
+     protected Object _getBOFromReader(XMLStreamReader reader, Object busContext)
+             throws XMLStreamException {
+ 
++        /*
+         // Best solution is to use a StAXSource
+         if (staxSource != null) {
+             try {
+@@ -136,6 +137,7 @@
+             } catch (Exception e) {
+             }
+         }
++        */
+ 
+         // TODO StreamSource is not performant...work is needed here to make this faster
+         Reader2Writer r2w = new Reader2Writer(reader);
