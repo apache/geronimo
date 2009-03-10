@@ -288,6 +288,9 @@ public class ConfigManagerPortlet extends BasePortlet {
                                 }
                             }                                            
                         }
+                    } else if (info.getType().equals(ConfigurationModuleType.CAR)) {
+                        Configuration config = configManager.getConfiguration(info.getConfigID());
+                        details.setClientAppServerSide(config.getOwnedConfigurations().size() > 0);
                     }
                     if (showDependencies) {
                         addDependencies(details, configObjName);
@@ -443,6 +446,8 @@ public class ConfigManagerPortlet extends BasePortlet {
         private boolean expertConfig = false;   // used to mark this config as one that should only be managed (stop/uninstall) by expert users.
         private List<String> contextPaths = new ArrayList<String>();
         private String componentName;
+        //This flag is used to indicate whether it is the client side if the module is a client application
+        private boolean clientAppServerSide = false;
 
         public ModuleDetails(Artifact configId, ConfigurationModuleType type, State state) {
             this.configId = configId;
@@ -495,6 +500,14 @@ public class ConfigManagerPortlet extends BasePortlet {
         
         public void setComponentName(String name){
             componentName = name;
+        }
+        
+        public void setClientAppServerSide(boolean clientAppServerSide) {
+            this.clientAppServerSide = clientAppServerSide;
+        }
+
+        public boolean isClientAppServerSide() {
+            return this.clientAppServerSide;
         }
     }
 }
