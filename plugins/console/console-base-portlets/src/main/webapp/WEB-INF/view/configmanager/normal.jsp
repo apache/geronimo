@@ -281,7 +281,7 @@ function toggleShowDependenciesMode() {
                     &nbsp;<a><fmt:message key="consolebase.common.stop"/></a>&nbsp;
                 </span>
             </c:if>
-            <c:if test="${moduleDetails.state.stopped && (moduleDetails.type.name ne 'CAR')}">
+            <c:if test="${moduleDetails.state.stopped && (moduleDetails.type.name ne 'CAR' || moduleDetails.clientAppServerSide)}">
                 &nbsp;<a href="<portlet:actionURL><portlet:param name='configId' value='${moduleDetails.configId}'/><portlet:param name='action' value='start'/></portlet:actionURL>"><fmt:message key="consolebase.common.start"/></a>&nbsp;
             </c:if>
         </td>
