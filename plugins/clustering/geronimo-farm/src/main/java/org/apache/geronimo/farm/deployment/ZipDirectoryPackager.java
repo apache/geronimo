@@ -56,7 +56,7 @@ public class ZipDirectoryPackager implements DirectoryPackager {
         unpack(targetDir, packedConfigurationDir);
         return targetDir;
     }
-    
+     
     public void unpack(File targetDir, File packedConfigurationDir) throws IOException {
         ZipFile zipFile = new ZipFile(packedConfigurationDir);
         Enumeration<? extends ZipEntry> zipEntries = zipFile.entries();
@@ -83,6 +83,7 @@ public class ZipDirectoryPackager implements DirectoryPackager {
                 out.close();
             }
         }
+        zipFile.close();
     }
     
     protected void zip(ZipOutputStream zos, File configurationDir, File nestedFile) throws IOException {
@@ -94,7 +95,7 @@ public class ZipDirectoryPackager implements DirectoryPackager {
         } else {
             String nestedFilePath = nestedFile.getAbsolutePath();
             String zipEntryName = nestedFilePath.substring(configurationDir.getAbsolutePath().length() + 1, nestedFilePath.length());
-            ZipEntry zipEntry = new ZipEntry(zipEntryName);
+            ZipEntry zipEntry = new ZipEntry(normalizePathOfEntry(zipEntryName));
             zos.putNextEntry(zipEntry);
             
             InputStream in = new FileInputStream(nestedFile);
@@ -109,6 +110,10 @@ public class ZipDirectoryPackager implements DirectoryPackager {
             in.close();
             zos.closeEntry();
         }
+    }
+    
+    private String normalizePathOfEntry(String entryName){
+        return entryName.replace('\\', '/');
     }
 
 }
