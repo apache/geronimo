@@ -130,7 +130,7 @@
             <dependency>
                 <groupId>org.tranql</groupId>
                 <artifactId>tranql-connector-db2-xa</artifactId>
-                <version>1.2</version>
+                <version>1.3</version>
                 <type>rar</type>
                 <exclusions>
                     <exclusion>
