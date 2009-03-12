@@ -30,7 +30,7 @@ Patch Information
  build.patch    - disables broken tests
  saaj.patch     - contains fixes for AXIS2-3808, AXIS2-4027, and AXIS2-4266
  metadata.patch - contains fixes for SEI with overloaded methods
- jaxws.patch    - contains fixes for Java 6 compatibility and RESTful invocations
+ jaxws.patch    - contains fixes for AXIS2-3343 and RESTful invocations
 
 
 Copy patched jar files to appropriate locations
