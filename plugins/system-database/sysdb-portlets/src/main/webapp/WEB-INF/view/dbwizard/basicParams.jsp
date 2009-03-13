@@ -21,6 +21,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<%@ taglib uri="/WEB-INF/CommonMsg.tld" prefix="CommonMsg" %>
 <fmt:setBundle basename="systemdatabase"/>
 
 <portlet:defineObjects/>
@@ -30,14 +31,19 @@ var <portlet:namespace/>formName = "<portlet:namespace/>DatabaseForm";
 var <portlet:namespace/>requiredFields = new Array("driverClass", "jars");
 var <portlet:namespace/>passwordFields = new Array("password");
 function <portlet:namespace/>validateForm(){
-    if(!textElementsNotEmpty(<portlet:namespace/>formName,<portlet:namespace/>requiredFields))
+    if(!textElementsNotEmpty(<portlet:namespace/>formName,<portlet:namespace/>requiredFields)) {
+        addErrorMessage("<portlet:namespace/>", '<fmt:message key="dbwizard.common.emptyText"/>');
         return false;
+    }
     if(!passwordElementsConfirm(<portlet:namespace/>formName, <portlet:namespace/>passwordFields)) {
+        addErrorMessage("<portlet:namespace/>", '<fmt:message key="dbwizard.common.passwordMismatch"/>');
         return false;
     }
     return true;
 }
 </script>
+
+<CommonMsg:commonMsg/><div id="<portlet:namespace/>CommonMsgContainer"></div>
 
 <p><fmt:message key="dbwizard.basicParams.title"/></p>
 
@@ -68,7 +74,6 @@ function <portlet:namespace/>validateForm(){
       <tr>
         <td></td>
         <td>
-          <c:if test="${!(empty driverError)}"><font color="red"><b><fmt:message key="dbwizard.basicParams.unableToLoadDriver"/></b></font></c:if>
           <fmt:message key="dbwizard.basicParams.seeDocumentation"/>
         </td>
       </tr>

@@ -27,8 +27,14 @@
 var <portlet:namespace/>formName = "<portlet:namespace/>addgroup";
 var <portlet:namespace/>requiredFields = new Array("group");
 function <portlet:namespace/>validateForm(){
-    return (textElementsNotEmpty(<portlet:namespace/>formName,<portlet:namespace/>requiredFields));
+    if(!textElementsNotEmpty(<portlet:namespace/>formName,<portlet:namespace/>requiredFields)) {
+        addErrorMessage("<portlet:namespace/>", '<fmt:message key="securityrealmmanager.common.emptyText"/>');
+        return false;    
+    }
+    
+    return true;
 }
+
 function <portlet:namespace/>move(formName, from, to){
     var objFrom = eval("document." + formName + "." + from);
     var objTo = eval("document." + formName + "." + to);
@@ -41,6 +47,7 @@ function <portlet:namespace/>move(formName, from, to){
         }
     }    
 }
+
 function <portlet:namespace/>removeAt(obj,pos){
     for(var i = pos; i < obj.options.length-1; i++){
         obj.options[i].value = obj.options[i+1].value;
@@ -58,6 +65,9 @@ function <portlet:namespace/>selectAll(formName, objName){
 }
 
 </script>
+
+<div id="<portlet:namespace/>CommonMsgContainer"></div><br>
+
 <c:set var="add" value="${group == null}"/>
 <form name="<portlet:namespace/>addgroup" action="<portlet:actionURL portletMode="view"/>" method="POST">
     <table cellspacing="5">
@@ -67,12 +77,12 @@ function <portlet:namespace/>selectAll(formName, objName){
 	   <c:when test="${add}"> 
        		<b><fmt:message key="securityrealmmanager.se.groups.addmaximized.addGroup" /></b>
       		<c:set var="GroupName" value=""/>
-      		<c:set var="Submit" value="Add"/>
+      	    <c:set var="Submit" value="securityrealmmanager.common.add"/>
        </c:when>
        <c:otherwise>
 			<b><fmt:message key="securityrealmmanager.se.groups.addmaximized.updateGroup" /></b>
       		<c:set var="GroupName" value="${group}"/>
-      		<c:set var="Submit" value="Update"/>
+      		<c:set var="Submit" value="securityrealmmanager.common.update"/>
        </c:otherwise>
        </c:choose>
         </td>
@@ -83,7 +93,7 @@ function <portlet:namespace/>selectAll(formName, objName){
        <c:choose>
 	   <c:when test="${add}"> 
 	    <input type="hidden" name="action" value="add">
-	    <input type="text" name="group" title='<fmt:message key="consolebase.common.groupName"/>' value="">
+	    <input type="text" name="group" title='Submit' value="">
        </c:when>
        <c:otherwise>
 	    <input type="hidden" name="action" value="update">
@@ -119,12 +129,12 @@ function <portlet:namespace/>selectAll(formName, objName){
                 </td>
                 <td align="center" valign="middle">
                 <input type = "button" 
-                    value="&nbsp;&nbsp;&nbsp;&nbsp;Add &gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp;"
+                    value="<fmt:message key="securityrealmmanager.common.add"/>&nbsp;&gt;&gt;"
                     onclick="<portlet:namespace/>move('<portlet:namespace/>addgroup','availusers','users');"
                     />
                     
                     <br/>
-                <input type = "button" value="&lt;&lt; Remove"
+                <input type = "button" value="&lt;&lt;&nbsp;<fmt:message key="securityrealmmanager.common.remove"/>"
                     onclick="<portlet:namespace/>move('<portlet:namespace/>addgroup','users','availusers');"
                     />                
                 </td> 
@@ -155,7 +165,7 @@ function <portlet:namespace/>selectAll(formName, objName){
     </tr>
     <tr>   
        <td>&nbsp;</td><td align="left" class="formElement">
-       <input type="submit" value="${Submit}" 
+       <input type="submit" value="<fmt:message key="${Submit}"/>" 
             onclick="return <portlet:namespace/>validateForm() && <portlet:namespace/>selectAll('<portlet:namespace/>addgroup', 'users');">
        <input type="submit" name="cancel"  value="<fmt:message key="consolebase.common.cancel"/>">
        </td>

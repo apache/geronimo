@@ -17,16 +17,16 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<%@ taglib uri="/WEB-INF/CommonMsg.tld" prefix="CommonMsg" %>
 <fmt:setBundle basename="systemdatabase"/>
 <portlet:defineObjects/>
+
+<CommonMsg:commonMsg/>
 
 <p><fmt:message key="dbwizard.importStatus.title"/></p>
 
 <p><fmt:message key="dbwizard.importStatus.summary"/></p>
 
-<c:choose>
-  <c:when test="${empty(status.pools)}"><p><i><fmt:message key="dbwizard.importStatus.importFailed"/></i></p></c:when>
-  <c:otherwise>
 <table width="100%">
   <tr>
     <td class="DarkBackground"><fmt:message key="dbwizard.importStatus.originalJNDI"/></td>
@@ -61,8 +61,6 @@
     </td>
   </tr>
 </table>
-  </c:otherwise>
-</c:choose>
 
 <hr />
 
@@ -70,14 +68,5 @@
 <ul>
 <c:forEach var="pool" items="${pools}">
   <li>${pool.name}</li>
-</c:forEach>
-</ul>
-
-<hr />
-
-<p><fmt:message key="dbwizard.importStatus.importMessages"/>:</p>
-<ul>
-<c:forEach var="message" items="${status.original.messages}">
-  <li>${message}</li>
 </c:forEach>
 </ul>

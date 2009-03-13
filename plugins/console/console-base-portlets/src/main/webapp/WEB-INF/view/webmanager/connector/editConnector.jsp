@@ -22,37 +22,42 @@
 <portlet:defineObjects/>
 <script language="JavaScript">
 // validate the form submission
+var <portlet:namespace/>formName = "<portlet:namespace/>Form";
+var <portlet:namespace/>requiredFields = new Array("uniqueName");
 function <portlet:namespace/>validateForm(){
-    var attributeName;
-    var element;
-
-    element = document.forms['<portlet:namespace/>Form'].elements['uniqueName'];
-    if(element.value.length < 1){
-        alert("uniqueName must not be empty.");
-        return false;
+    if(!textElementsNotEmpty(<portlet:namespace/>formName,<portlet:namespace/>requiredFields)) {
+        addErrorMessage("<portlet:namespace/>", '<fmt:message key="webmanager.common.emptyText"/>');
+        return false;    
     }
     
-<c:forEach var="connectorAttribute" items="${connectorAttributes}">
-    attributeName = '${connectorAttribute.attributeName}';
-    element = document.forms['<portlet:namespace/>Form'].elements[attributeName];
-    <c:if test="${connectorAttribute.required && connectorAttribute.attributeClass.simpleName ne 'Boolean'}">
-    //validate the required attribute has a value
-    if(element.value.length < 1){
-        alert(attributeName + " must not be empty.");
-        return false;
+    return <portlet:namespace/>validate();
+}
+
+function <portlet:namespace/>validate() {
+    with(document.<portlet:namespace/>Form){
+        <c:forEach var="connectorAttribute" items="${connectorAttributes}">
+            <c:if test="${connectorAttribute.required && connectorAttribute.attributeClass.simpleName ne 'Boolean'}">
+            //validate the required attribute has a value
+            if(${connectorAttribute.attributeName}.value.length < 1){
+                addErrorMessage("<portlet:namespace/>", '<fmt:message key="webmanager.common.emptyText"/>');
+                return false;
+            }
+            </c:if>
+            <c:if test="${connectorAttribute.attributeClass.simpleName eq 'Integer'}">
+            //validate the Integer attribute has a numeric value
+            if(!checkIntegral('<portlet:namespace/>Form', '${connectorAttribute.attributeName}')) {
+                addErrorMessage("<portlet:namespace/>", '<fmt:message key="webmanager.common.integer"/>');
+                return false;
+            }
+            </c:if>
+        </c:forEach>  
     }
-    </c:if>
-    <c:if test="${connectorAttribute.attributeClass.simpleName eq 'Integer'}">
-    //validate the Integer attribute has a numeric value
-    if(element.value.length > 0 && !checkIntegral('<portlet:namespace/>Form', attributeName)) {
-        return false;
-    }
-    </c:if>
-</c:forEach>
 
     return true;
 }
 </script>
+
+<div id="<portlet:namespace/>CommonMsgContainer"></div><br>
 
 <form method="POST" name="<portlet:namespace/>Form" action="<portlet:actionURL/>">
 <input type="hidden" name="mode" value="${mode}">

@@ -31,7 +31,6 @@ function <portlet:namespace/>refreshProgress()
 }
 
 function <portlet:namespace/>onError() {
-    DWRUtil.setValue("<portlet:namespace/>ErrorArea", 'I had a problem!');
 }
 
 function <portlet:namespace/>updateProgress(progressInfo)
@@ -83,5 +82,3 @@ function <portlet:namespace/>startProgress()
         </div>
     </div>
 </div>
-
-<div id="<portlet:namespace/>ErrorArea"></div>

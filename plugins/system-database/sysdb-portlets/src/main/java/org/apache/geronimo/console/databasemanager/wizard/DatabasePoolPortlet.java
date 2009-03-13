@@ -194,6 +194,7 @@ public class DatabasePoolPortlet extends BasePortlet {
     private PortletRequestDispatcher importUploadView;
     private PortletRequestDispatcher importStatusView;
     private PortletRequestDispatcher usageView;
+    private Map<String, String> rarPathMap;
 
     public void init(PortletConfig portletConfig) throws PortletException {
         super.init(portletConfig);
@@ -209,6 +210,22 @@ public class DatabasePoolPortlet extends BasePortlet {
         importUploadView = portletConfig.getPortletContext().getRequestDispatcher(IMPORT_UPLOAD_VIEW);
         importStatusView = portletConfig.getPortletContext().getRequestDispatcher(IMPORT_STATUS_VIEW);
         usageView = portletConfig.getPortletContext().getRequestDispatcher(USAGE_VIEW);
+        rarPathMap = new HashMap<String, String>();
+        rarPathMap.put("TranQL XA Resource Adapter for DB2", "tranql-connector-db2-xa");
+        rarPathMap.put("TranQL Client Local Transaction Resource Adapter for Apache Derby", "tranql-connector-derby-client-local");
+        rarPathMap.put("TranQL Client XA Resource Adapter for Apache Derby", "tranql-connector-derby-client-xa");
+//      rarPathMap.put("TranQL Embedded Local Transaction Resource Adapter for Apache Derby", "tranql-connector-derby-embed-local");
+//      rarPathMap.put("TranQL Embedded XA Resource Adapter for Apache Derby", "tranql-connector-derby-embed-xa");
+        rarPathMap.put("TranQL Embedded XA Resource Adapter for Apache Derby", "tranql-connector-derby-embed-local");
+        rarPathMap.put("TranQL XA Resource Adapter for Informix", "tranql-connector-informix-xa");
+        rarPathMap.put("TranQL Client Local Transaction Resource Adapter for MySQL", "tranql-connector-mysql-local");
+        rarPathMap.put("TranQL Client XA Resource Adapter for MySQL", "tranql-connector-mysql-xa");
+        rarPathMap.put("TranQL Local Resource Adapter for Oracle", "tranql-connector-oracle-local");
+        rarPathMap.put("TranQL XA Resource Adapter for Oracle", "tranql-connector-oracle-xa");
+        rarPathMap.put("TranQL Local Resource Adapter for PostgreSQL", "tranql-connector-postgresql-local");
+        rarPathMap.put("TranQL XA Resource Adapter for PostgreSQL", "tranql-connector-postgresql-xa");
+        rarPathMap.put("TranQL XA Resource Adapter for SQLServer 2000", "tranql-connector-sqlserver2000-xa");
+        rarPathMap.put("TranQL XA Resource Adapter for SQLServer 2005", "tranql-connector-sqlserver2005-xa");
     }
 
     public void destroy() {
@@ -224,6 +241,7 @@ public class DatabasePoolPortlet extends BasePortlet {
         importUploadView = null;
         importStatusView = null;
         usageView = null;
+        rarPathMap.clear();
         super.destroy();
     }
 
@@ -262,8 +280,7 @@ public class DatabasePoolPortlet extends BasePortlet {
             if (results == null) {
                 results = loadConfigPropertiesByPath(request, rarPath);
                 session.setAttribute(CONFIG_SESSION_KEY + "-" + rarPath, results, PortletSession.APPLICATION_SCOPE);
-                session.setAttribute(CONFIG_SESSION_KEY + "-" + results.displayName, results,
-                        PortletSession.APPLICATION_SCOPE);
+                session.setAttribute(CONFIG_SESSION_KEY + "-" + results.displayName, results, PortletSession.APPLICATION_SCOPE);
             }
             return results;
         } else if (displayName != null && !displayName.equals(
@@ -271,7 +288,7 @@ public class DatabasePoolPortlet extends BasePortlet {
             ResourceAdapterParams results = (ResourceAdapterParams) session.getAttribute(
                     CONFIG_SESSION_KEY + "-" + displayName, PortletSession.APPLICATION_SCOPE);
             if (results == null) {
-                results = loadConfigPropertiesByAbstractName(request, adapterAbstractName);
+                results = loadConfigPropertiesByAbstractName(request, rarPathMap.get(displayName), adapterAbstractName);
                 session.setAttribute(CONFIG_SESSION_KEY + "-" + displayName, results, PortletSession.APPLICATION_SCOPE);
             }
             return results;
@@ -577,8 +594,7 @@ public class DatabasePoolPortlet extends BasePortlet {
                     }
                 }
             }
-            return new ResourceAdapterParams(adapterName, adapterDesc,
-                    configs.toArray(new ConfigParam[configs.size()]));
+            return new ResourceAdapterParams(adapterName, adapterDesc, rarPath.substring(11, rarPath.length()-5), configs.toArray(new ConfigParam[configs.size()]));
         } catch (Exception e) {
             log.error("Unable to read configuration properties", e);
             return null;
@@ -587,7 +603,7 @@ public class DatabasePoolPortlet extends BasePortlet {
         }
     }
 
-    private ResourceAdapterParams loadConfigPropertiesByAbstractName(PortletRequest request, String abstractName) {
+    private ResourceAdapterParams loadConfigPropertiesByAbstractName(PortletRequest request, String rarPath, String abstractName) {
         ResourceAdapterModule module = (ResourceAdapterModule) PortletManager.getManagedBean(request,
                 new AbstractName(URI.create(abstractName)));
         String dd = module.getDeploymentDescriptor();
@@ -623,7 +639,7 @@ public class DatabasePoolPortlet extends BasePortlet {
                     }
                 }
             }
-            return new ResourceAdapterParams(displayName, description, all.toArray(new ConfigParam[all.size()]));
+            return new ResourceAdapterParams(displayName, description, rarPath, all.toArray(new ConfigParam[all.size()]));
         } catch (Exception e) {
             log.error("Unable to read resource adapter DD", e);
             return null;
@@ -781,6 +797,7 @@ public class DatabasePoolPortlet extends BasePortlet {
                     data.getAdapterDisplayName(), renderRequest.getParameter("adapterAbstractName"));
             data.adapterDisplayName = params.getDisplayName();
             data.adapterDescription = params.getDescription();
+            data.adapterRarPath = params.getRarPath();
             Map<String, ConfigParam> map = new HashMap<String, ConfigParam>();
             boolean more = false;
             for (int i = 0; i < params.getConfigParams().length; i++) {
@@ -1322,6 +1339,7 @@ public class DatabasePoolPortlet extends BasePortlet {
         private String abstractName;
         private String adapterDisplayName;
         private String adapterDescription;
+        private String adapterRarPath;
         private String rarPath;
         private String transactionType;
         private String importSource;
@@ -1554,6 +1572,10 @@ public class DatabasePoolPortlet extends BasePortlet {
             return adapterDescription;
         }
 
+        public String getAdapterRarPath() {
+            return adapterRarPath;
+        }
+
         public String getRarPath() {
             return rarPath;
         }
@@ -1665,11 +1687,13 @@ public class DatabasePoolPortlet extends BasePortlet {
     public static class ResourceAdapterParams {
         private String displayName;
         private String description;
+        private String rarPath;
         private ConfigParam[] configParams;
 
-        public ResourceAdapterParams(String displayName, String description, ConfigParam[] configParams) {
+        public ResourceAdapterParams(String displayName, String description, String rarPath, ConfigParam[] configParams) {
             this.displayName = displayName;
             this.description = description;
+            this.rarPath = rarPath;
             this.configParams = configParams;
         }
 
@@ -1679,6 +1703,10 @@ public class DatabasePoolPortlet extends BasePortlet {
 
         public String getDescription() {
             return description;
+        }
+        
+        public String getRarPath() {
+            return rarPath;
         }
 
         public ConfigParam[] getConfigParams() {

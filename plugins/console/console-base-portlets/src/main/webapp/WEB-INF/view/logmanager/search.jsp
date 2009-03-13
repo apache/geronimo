@@ -21,6 +21,18 @@
 <fmt:setBundle basename="consolebase"/>
 
 <script language="JavaScript">
+var <portlet:namespace/>formName = "<portlet:namespace/>searchForm";
+var <portlet:namespace/>integerFields = new Array("startPos", "endPos", "maxRows");
+function <portlet:namespace/>validateForm(){
+    for (i in <portlet:namespace/>integerFields) {
+        if("" != document.forms[<portlet:namespace/>formName].elements[<portlet:namespace/>integerFields[i]].value && !checkIntegral(<portlet:namespace/>formName,<portlet:namespace/>integerFields[i])) {
+            addErrorMessage("<portlet:namespace/>", '<fmt:message key="logmanager.common.integer"/>');
+            return false;    
+        }
+    }
+    return true;
+}
+
 var numbers = new Array(0,1,2,3,4,5,6,7,8,9);
 var max = ${lineCount};
 function <portlet:namespace/>binarySearch(criteria, arr, left, right){
@@ -34,38 +46,9 @@ function <portlet:namespace/>binarySearch(criteria, arr, left, right){
 function <portlet:namespace/>search(criteria, arr){
     return <portlet:namespace/>binarySearch(criteria, arr, 0, arr.length)
 }
-
-function <portlet:namespace/>isNumeric(candidate){
-    for (i = 0; i < candidate.length; i++) {
-        if (<portlet:namespace/>search(candidate.charAt(i),numbers) < 0) {
-            return false;
-        }
-    }
-    return true;
-}
-
-function <portlet:namespace/>validateForm(){
-    var startPos = document.<portlet:namespace/>searchForm.startPos.value;
-    var endPos = document.<portlet:namespace/>searchForm.endPos.value;
-    var maxRows = document.<portlet:namespace/>searchForm.maxRows.value;
-    if (!<portlet:namespace/>isNumeric(startPos)) {
-        alert("Start Position must be a number.");
-        document.<portlet:namespace/>searchForm.startPos.focus();
-        return false;
-    }
-    if (!<portlet:namespace/>isNumeric(endPos)) {
-        alert("End Position must be a number.");
-        document.<portlet:namespace/>searchForm.endPos.focus();
-        return false;
-    }
-    if (!<portlet:namespace/>isNumeric(maxRows)) {
-        alert("Maximum results must be a number.");
-        document.<portlet:namespace/>searchForm.maxRows.focus();
-        return false;
-    }
-    return true;
-}
 </script>
+
+<div id="<portlet:namespace/>CommonMsgContainer"></div><br>
 
 <table>
     <tr>

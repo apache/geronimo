@@ -25,13 +25,17 @@ var <portlet:namespace/>formName = "<portlet:namespace/>ProcessCSRForm";
 var <portlet:namespace/>requiredFields = new Array("pkcs10certreq");
 
 function <portlet:namespace/>validateForm(){
-    if(!textElementsNotEmpty(<portlet:namespace/>formName,<portlet:namespace/>requiredFields))
+    if(!textElementsNotEmpty(<portlet:namespace/>formName,<portlet:namespace/>requiredFields)) {
+        addErrorMessage("<portlet:namespace/>", '<fmt:message key="ca.common.emptyText"/>');
         return false;
+    }       
     return true;
 }
 </script>
 
-<jsp:include page="_header.jsp" /><br>
+<jsp:include page="_header.jsp" />
+
+<div id="<portlet:namespace/>CommonMsgContainer"></div><br>
 
 <fmt:message key="ca.processCSR.title"/>
 

@@ -23,7 +23,6 @@
 <fmt:setBundle basename="openejb-portlet"/>
 <portlet:defineObjects/>
 
-<fmt:setBundle basename="openejb-portlet"/>
 <% String dwrForwarderServlet = "/console/dwr6"; %>
 <script type='text/javascript' src='<%= dwrForwarderServlet %>/interface/EjbHelper.js'></script>
 <script type='text/javascript' src='<%= dwrForwarderServlet %>/engine.js'></script>
@@ -57,26 +56,17 @@ table thead td, table thead th {
     var data = '';
     var containerPropertyValue = ''; 
 
-    EjbHelper.getEjbInformation({callback:createStore,async:false});
-        
-    function errh(errorObj) {
-       alert(errorObj.message);
-    }
-
+    EjbHelper.getEjbInformation({callback:createStore,async:false});    
         
     function check(curr,last) {
-    
-    var cr = curr.split(".");
+        var cr = curr.split(".");
         var ls = last.split(".");
-
         for (var i =0; i < cr.length; i++)
             if(parseInt(cr[i]) < parseInt(ls[i]))
                 return false;
-
         return true;
     }
-    
-   
+       
     function createStore(treeDat){    
         var json = dojo.toJson(treeDat);
         data = {data:""};
@@ -85,9 +75,9 @@ table thead td, table thead th {
     }
       
     
-  /**
-   * DWR table render option
-   */
+   /**
+    * DWR table render option
+    */
    var tableOption = {
        rowCreator: function(options) {
            var row = document.createElement('tr');
@@ -103,44 +93,42 @@ table thead td, table thead th {
            return td;
        },
        escapeHtml:false
-  }
+   }
 
-function updateEjbInfoTable(ejbInfos){
-    var containerId = "";
-    var showDialogFlag = false;
-    DWRUtil.removeAllRows('ejbInfoTableBody');
-    DWRUtil.addRows(
-        'ejbInfoTableBody', 
-        ejbInfos,
-        [ 
-            function(info) {            
-                if(info.editable == "true" && info.dirty == "true"){                    
-                    showDialogFlag = true;                   
-                    return "<div style='width:100%;display:inline;'><p id='" + info.id + "para' style='color: red'>" + info.name + "</p></div>";
-                } else { 
-                    return "<div style='width:100%;display:inline;'><p id='" + info.id + "para'>" + info.name + "</p></div>";
-                }		
-            },
-            function(info) {
-	        var value = info.value;
-		    var name = info.name;
-                if(info.id == "ContainerId"){
-		            containerId = info.value;  
-                } 		
-                if(info.editable == "true"){                                        
-                    return "<div style='width:100%;display:inline;'><input type='text' id="+info.id + " name="+info.name + " value="+info.value+" widgetId="+info.id+" dojoType='Textbox' /><button dojoType='Button'  onclick=updateValues('"+escape(containerId)+"','"+info.id+"','"+info.value+"')>Update!</button></div> "
-                } else {
-                    return "<div style='width:100%'>" + info.value + "</div>";		
-                } 
-	   }	   
-              ],
-        tableOption
-    );
-    if(showDialogFlag)
-        alert("<fmt:message key="portlet.openejb.view.message5"/>");   
-
-      
-  }
+   function updateEjbInfoTable(ejbInfos){
+       var containerId = "";
+       var showDialogFlag = false;
+       DWRUtil.removeAllRows('ejbInfoTableBody');
+       DWRUtil.addRows(
+           'ejbInfoTableBody', 
+           ejbInfos,
+           [ 
+               function(info) {            
+                   if(info.editable == "true" && info.dirty == "true"){                    
+                       showDialogFlag = true;                   
+                       return "<div style='width:100%;display:inline;'><p id='" + info.id + "para' style='color: red'>" + info.name + "</p></div>";
+                   } else { 
+                       return "<div style='width:100%;display:inline;'><p id='" + info.id + "para'>" + info.name + "</p></div>";
+                   }		
+               },
+               function(info) {
+	               var value = info.value;
+		           var name = info.name;
+                   if(info.id == "ContainerId"){
+		               containerId = info.value;  
+                   } 		
+                   if(info.editable == "true"){                                        
+                       return "<div style='width:100%;display:inline;'><input type='text' id="+info.id + " name="+info.name + " value="+info.value+" widgetId="+info.id+" dojoType='Textbox' /><button dojoType='Button'  onclick=updateValues('"+escape(containerId)+"','"+info.id+"','"+info.value+"')><fmt:message key="portlet.openejb.view.update"/></button></div> "
+                   } else {
+                       return "<div style='width:100%'>" + info.value + "</div>";		
+                   } 
+	           }	   
+           ],
+           tableOption
+       );
+       if(showDialogFlag)
+           addWarningMessage("<portlet:namespace/>", "<fmt:message key='portlet.openejb.view.unrestarted'/>");         
+   }
 
    function getCurrentValue(value){
        containerPropertyValue = value; 
@@ -159,13 +147,15 @@ function updateEjbInfoTable(ejbInfos){
        }
    }
    
-   function updateResult(status){
-	     alert(status.message);
+   function updateResult(msg){
+       addCommonMessage("<portlet:namespace/>", msg);
    }
      
    document.body.className="soria";
    
   </script>
+
+<div id="<portlet:namespace/>CommonMsgContainer"></div><br>
 
   <div dojoType="dijit.tree.ForestStoreModel" jsId="storeModel" 
 		store="serverStore" 

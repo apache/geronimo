@@ -23,7 +23,6 @@
 <p><fmt:message key="jmsmanager.server.connector.normal.title" />:</p>
 
 <!-- Show existing connectors -->
-<c:if test="${empty(connectors)}"><fmt:message key="jmsmanager.server.connector.normal.noJMSNetworkConnectors" /></c:if>
 <c:if test="${!empty(connectors)}">
 <table width="50%" class="TableLine" summary="JMS Network Listeners - Connectors">
 

@@ -30,7 +30,7 @@
         return true;
       }
     }
-    alert("You must choose at least one plugin to install.");
+    addErrorMessage("<portlet:namespace/>", '<fmt:message key="car.list.nothing"/>');
     return false;
   }
 
@@ -133,6 +133,8 @@
         toggleExpertMode();
     }
 </script>
+
+<div id="<portlet:namespace/>CommonMsgContainer"></div>
 
 <form name="frmlst" action="<portlet:actionURL/>" method="POST">
 

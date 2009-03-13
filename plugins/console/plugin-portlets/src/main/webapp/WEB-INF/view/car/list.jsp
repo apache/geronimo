@@ -30,10 +30,12 @@
         return true;
       }
     }
-    alert("You must choose at least one plugin to install.");
+    addErrorMessage("<portlet:namespace/>", '<fmt:message key="car.list.nothing"/>');
     return false;
   }
 </script>
+
+<div id="<portlet:namespace/>CommonMsgContainer"></div>
 
 <h3><fmt:message key="car.list.pluginRepo" />&nbsp;<a href='${repository}'>${repository}</a></h3>
 

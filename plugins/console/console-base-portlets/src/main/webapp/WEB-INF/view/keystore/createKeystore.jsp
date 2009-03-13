@@ -30,14 +30,18 @@ var <portlet:namespace/>requiredFields = new Array("filename", "password");
 var <portlet:namespace/>passwordFields = new Array("password");
 function <portlet:namespace/>validateForm(){
     if(!textElementsNotEmpty(<portlet:namespace/>formName, <portlet:namespace/>requiredFields)) {
+        addErrorMessage("<portlet:namespace/>", '<fmt:message key="keystore.common.emptyText"/>');
         return false;
     }
     if(!passwordElementsConfirm(<portlet:namespace/>formName, <portlet:namespace/>passwordFields)) {
+        addErrorMessage("<portlet:namespace/>", '<fmt:message key="keystore.common.passwordMismatch"/>');
         return false;
     }
     return true;
 }
 </script>
+
+<div id="<portlet:namespace/>CommonMsgContainer"></div><br>
 
 <form name="<portlet:namespace/>KeystoreForm" action="<portlet:actionURL/>" method="POST">
     <input type="hidden" name="mode" value="createKeystore-after" />

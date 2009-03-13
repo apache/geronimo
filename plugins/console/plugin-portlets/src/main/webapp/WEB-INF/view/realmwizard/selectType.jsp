@@ -27,9 +27,15 @@
 var <portlet:namespace/>formName = "<portlet:namespace/>RealmForm";
 var <portlet:namespace/>requiredFields = new Array("name");
 function <portlet:namespace/>validateForm(){
-    return textElementsNotEmpty(<portlet:namespace/>formName,<portlet:namespace/>requiredFields);
+    if(!textElementsNotEmpty(<portlet:namespace/>formName,<portlet:namespace/>requiredFields)) {
+        addErrorMessage("<portlet:namespace/>", '<fmt:message key="realmwizard.common.emptyText"/>');
+        return false;    
+    }
+    return true;
 }
 </script>
+
+<div id="<portlet:namespace/>CommonMsgContainer"></div>
 
 <p><fmt:message key="realmwizard.selectType.title" /></p>
 

@@ -37,7 +37,7 @@ public class BaseRemoteProxy {
         }
     }   
     
-    public final String getLocalizedString(HttpServletRequest request, ClassLoader loader, String bundleName, String key, Object... vars) {
+    public final String getLocalizedString(HttpServletRequest request, String bundleName, String key, Object... vars) {
         String value = resourceRegistry.handleGetObject(bundleName, request.getLocale(), key);
         if (null == value || 0 == value.length()) return key;     
         return MessageFormat.format(value, vars);

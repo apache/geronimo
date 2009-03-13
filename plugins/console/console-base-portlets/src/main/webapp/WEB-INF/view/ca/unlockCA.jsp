@@ -25,13 +25,17 @@ var <portlet:namespace/>formName = "<portlet:namespace/>UnlockCAForm";
 var <portlet:namespace/>requiredFields = new Array("password");
 
 function <portlet:namespace/>validateForm(){
-    if(!textElementsNotEmpty(<portlet:namespace/>formName,<portlet:namespace/>requiredFields))
+    if(!textElementsNotEmpty(<portlet:namespace/>formName,<portlet:namespace/>requiredFields)) {
+        addErrorMessage("<portlet:namespace/>", '<fmt:message key="ca.common.emptyText"/>');
         return false;
+    }
     return true;
 }
 </script>
 
-<jsp:include page="_header.jsp" /><br>
+<jsp:include page="_header.jsp" />
+
+<div id="<portlet:namespace/>CommonMsgContainer"></div><br>
 
 <b><fmt:message key="ca.common.unlockCertAuthority"/></b>
 

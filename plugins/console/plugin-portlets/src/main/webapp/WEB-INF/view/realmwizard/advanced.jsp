@@ -26,27 +26,37 @@
 <script language="JavaScript">
 var <portlet:namespace/>formName = "<portlet:namespace/>RealmForm";
 function <portlet:namespace/>validateForm(){
-    var valid = true;
-    var realmForm = document.forms[<portlet:namespace/>formName];
-    if(realmForm.elements['enableAuditing'].checked)
-        valid = textElementsNotEmpty(<portlet:namespace/>formName, new Array('auditPath'));
-    if(!valid) return false;
-    
-    if(realmForm.elements['enableLockout'].checked) {
-        var fields = new Array('lockoutCount', 'lockoutWindow', 'lockoutDuration');
-        for(i in fields) {
-            valid = checkIntegral(<portlet:namespace/>formName, fields[i]);
-            if(!valid) return false;
+    with(document.forms[<portlet:namespace/>formName]) {
+        if(enableAuditing.checked) {
+            var requiredFields = new Array('auditPath');
+            if (!textElementsNotEmpty(<portlet:namespace/>formName, requiredFields)) {
+                addErrorMessage("<portlet:namespace/>", '<fmt:message key="realmwizard.common.emptyText"/>');
+                return false;
+            }
         }
+        if(enableLockout.checked) {            
+            var integerFields = new Array('lockoutCount', 'lockoutWindow', 'lockoutDuration');
+            for(i in integerFields) {
+                if (!checkIntegral(<portlet:namespace/>formName, integerFields[i])) {
+                    addErrorMessage("<portlet:namespace/>", '<fmt:message key="realmwizard.common.integer"/>');
+                    return false;
+                }
+            }
+        }
+        if(namedUPC.checked) {
+            var requiredFields = new Array('credentialName');
+            if (!textElementsNotEmpty(<portlet:namespace/>formName, requiredFields)) {
+                addErrorMessage("<portlet:namespace/>", '<fmt:message key="realmwizard.common.emptyText"/>');
+                return false;
+            }
+        }        
     }
-
-    if(realmForm.elements['namedUPC'].checked)
-        valid = textElementsNotEmpty(<portlet:namespace/>formName, new Array('credentialName'));
-    if(!valid) return false;
-
+    
     return true;
 }
 </script>
+
+<div id="<portlet:namespace/>CommonMsgContainer"></div>
 
 <p><fmt:message key="realmwizard.advanced.title" /></p>
 

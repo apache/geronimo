@@ -22,39 +22,46 @@
 
 <script language="JavaScript">
 var <portlet:namespace/>formName = "<portlet:namespace/>CADetailsForm";
-var <portlet:namespace/>requiredFields = new Array("caCN", "caOU", "caO", "caL", "caST", "caC", "alias", "password", "validFrom", "validTo");
-var <portlet:namespace/>numericFields = new Array("sNo");
+var <portlet:namespace/>requiredFields = new Array("caCN", "caOU", "caO", "caL", "caST", "caC", "alias", "password", "sNo", "validFrom", "validTo");
+var <portlet:namespace/>integerFields = new Array("sNo");
 var <portlet:namespace/>dateFields = new Array("validFrom", "validTo")
-
+var <portlet:namespace/>passwordFields = new Array("password");
 function <portlet:namespace/>validateForm(){
-    if(!textElementsNotEmpty(<portlet:namespace/>formName,<portlet:namespace/>requiredFields))
+    if(!textElementsNotEmpty(<portlet:namespace/>formName,<portlet:namespace/>requiredFields)) {
+        addErrorMessage("<portlet:namespace/>", '<fmt:message key="ca.common.emptyText"/>');
         return false;
-    for(i in <portlet:namespace/>numericFields) {
-        if(!checkIntegral(<portlet:namespace/>formName, <portlet:namespace/>numericFields[i]))
+    }
+    if(!passwordElementsConfirm(<portlet:namespace/>formName, <portlet:namespace/>passwordFields)) {
+        addErrorMessage("<portlet:namespace/>", '<fmt:message key="ca.common.passwordMismatch"/>');
+        return false;
+    }
+    for(i in <portlet:namespace/>integerFields) {
+        if(!checkIntegral(<portlet:namespace/>formName, <portlet:namespace/>integerFields[i])) {
+            addErrorMessage("<portlet:namespace/>", '<fmt:message key="ca.common.integer"/>');
             return false;
+        }
     }
     for(i in <portlet:namespace/>dateFields) {
-        if(!checkDateMMDDYYYY(<portlet:namespace/>formName, <portlet:namespace/>dateFields[i]))
+        if(!checkDateMMDDYYYY(<portlet:namespace/>formName, <portlet:namespace/>dateFields[i])) {
+            addErrorMessage("<portlet:namespace/>", '<fmt:message key="ca.common.mmddyyyy"/>');
             return false;
+        }
     }
     // Check if from date is before to date
     var fromDate = new Date(document.forms[<portlet:namespace/>formName].validFrom.value);
     var toDate = new Date(document.forms[<portlet:namespace/>formName].validTo.value);
     if(fromDate >= toDate) {
-        alert('validFrom date must be before validTo date');
+        addErrorMessage("<portlet:namespace/>", '<fmt:message key="ca.common.wrongDate"/>');
         return false;
     }
-    // Check if password and confirmPassword match
-    if(document.forms[<portlet:namespace/>formName].password.value != document.forms[<portlet:namespace/>formName].confirmPassword.value) {
-        alert('password and confirm password do not match.');
-        document.forms[<portlet:namespace/>formName].password.focus();
-        return false;
-    }
+
     return true;
 }
 </script>
 
-<jsp:include page="_header.jsp"/><br>
+<jsp:include page="_header.jsp"/>
+
+<div id="<portlet:namespace/>CommonMsgContainer"></div><br>
 
 <fmt:message key="ca.setupCA.title"/>
 
@@ -142,7 +149,7 @@ function <portlet:namespace/>validateForm(){
         <tr>
             <th align="right"><label for="<portlet:namespace/>confirmPassword"><fmt:message key="consolebase.common.confirmPassword"/></label>:</th>
             <td>
-                <input type="password" name="confirmPassword" id="<portlet:namespace/>confirmPassword" size="20" maxlength="200"/>
+                <input type="password" name="confirm-password" id="<portlet:namespace/>confirmPassword" size="20" maxlength="200"/>
             </td>
         </tr>
         <tr><td>&nbsp</td></tr>

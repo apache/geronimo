@@ -31,9 +31,11 @@ var <portlet:namespace/>requiredFields;
 var <portlet:namespace/>passwordFields;
 function <portlet:namespace/>validateForm(){
     if(!textElementsNotEmpty(<portlet:namespace/>formName,<portlet:namespace/>requiredFields)) {
+        addErrorMessage("<portlet:namespace/>", '<fmt:message key="realmwizard.common.emptyText"/>');
         return false;
     }
     if(!passwordElementsConfirm(<portlet:namespace/>formName, <portlet:namespace/>passwordFields)) {
+        addErrorMessage("<portlet:namespace/>", '<fmt:message key="realmwizard.common.passwordMismatch"/>');
         return false;
     }
     return true;
@@ -41,6 +43,7 @@ function <portlet:namespace/>validateForm(){
 </script>
 
 <CommonMsg:commonMsg/>
+<div id="<portlet:namespace/>CommonMsgContainer"></div>
 
 <p><fmt:message key="realmwizard.configure.title" /></p>
 

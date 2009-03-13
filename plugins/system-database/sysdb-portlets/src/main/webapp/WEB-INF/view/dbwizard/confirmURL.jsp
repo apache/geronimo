@@ -20,52 +20,48 @@
 <fmt:setBundle basename="systemdatabase"/>
 <portlet:defineObjects/>
 
+<div id="<portlet:namespace/>CommonMsgContainer"></div>
+
 <p><fmt:message key="dbwizard.confirmURL.title"/></p>
 
 <script language="JavaScript">
 function <portlet:namespace/>validate() {
 
    if (document.<portlet:namespace/>DatabaseForm.minSize.value == "") {
-      document.<portlet:namespace/>DatabaseForm.minSize.value = 0;
+       document.<portlet:namespace/>DatabaseForm.minSize.value = 0;
    }
    if (document.<portlet:namespace/>DatabaseForm.maxSize.value == "") {
-      document.<portlet:namespace/>DatabaseForm.maxSize.value = 10;
+       document.<portlet:namespace/>DatabaseForm.maxSize.value = 10;
    }
 
    var min = parseInt(document.<portlet:namespace/>DatabaseForm.minSize.value); 
    var max = parseInt(document.<portlet:namespace/>DatabaseForm.maxSize.value); 
-   result = true;
 
    if (isNaN(min)) {
-      alert("Min pool size must be a number. Defaulted to 0");
-      min = document.<portlet:namespace/>DatabaseForm.minSize.value = 0;
-      result = false;
+       addErrorMessage("<portlet:namespace/>", '<fmt:message key="dbwizard.edit.errorMsg01"/>');
+       min = document.<portlet:namespace/>DatabaseForm.minSize.value = 0;
+       return false;
    }
-   if (min < 0)
-   {
-      alert("Min pool size must be non-negative. Defaulted to 0");
-      min = document.<portlet:namespace/>DatabaseForm.minSize.value = 0;
-      result = false;
+   if (min < 0){
+       addErrorMessage("<portlet:namespace/>", '<fmt:message key="dbwizard.edit.errorMsg02"/>');
+       min = document.<portlet:namespace/>DatabaseForm.minSize.value = 0;
+       return false;
    }
-
    if (isNaN(max)) {
-      alert("Max pool size must be a number. Defaulted to 10");
-      max = document.<portlet:namespace/>DatabaseForm.maxSize.value = 10;
-      result = false;
+       addErrorMessage("<portlet:namespace/>", '<fmt:message key="dbwizard.edit.errorMsg03"/>');
+       max = document.<portlet:namespace/>DatabaseForm.maxSize.value = 10;
+       return false;
    }
-   if (max <= 0)
-   {
-      alert("Max pool size must be greater than zero. Defaulted to 10" );
-      max = document.<portlet:namespace/>DatabaseForm.maxSize.value = 10;
-      result = false;
+   if (max <= 0){
+       addErrorMessage("<portlet:namespace/>", '<fmt:message key="dbwizard.edit.errorMsg04"/>');
+       max = document.<portlet:namespace/>DatabaseForm.maxSize.value = 10;
+       return false;
    } 
-
    if (min > max) {
-      alert("Max pool size must be greater than Min pool size." );
-      return false;
+       addErrorMessage("<portlet:namespace/>", '<fmt:message key="dbwizard.edit.errorMsg05"/>');
+       return false;
    }
-
-   return result;
+   return true;
 }
 </script>
 
@@ -146,7 +142,7 @@ function <portlet:namespace/>validate() {
     <!-- ENTRY FIELD: Blocking Timeout -->
       <tr>
         <th><div align="right"><fmt:message key="dbwizard.common.blockingTimeout"/>:</div></th>
-        <td><input name="blockingTimeout" id="<portlet:namespace/>blockingTimeout" type="text" size="7" value="${pool.blockingTimeout}"> (in milliseconds)</td>
+        <td><input name="blockingTimeout" id="<portlet:namespace/>blockingTimeout" type="text" size="7" value="${pool.blockingTimeout}"> (<fmt:message key="dbwizard.common.inMilliseconds"/>)</td>
       </tr>
       <tr>
         <td></td>

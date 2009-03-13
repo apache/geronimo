@@ -23,17 +23,26 @@
 <script language="JavaScript">
 var <portlet:namespace/>formName = "<portlet:namespace/>sNoForm";
 var <portlet:namespace/>requiredFields = new Array("sNo");
-
+var <portlet:namespace/>integerFields = new Array("sNo");
 function <portlet:namespace/>validateForm(){
-    for(i in <portlet:namespace/>numericFields) {
-        if(!checkIntegral(<portlet:namespace/>formName, <portlet:namespace/>numericFields[i]))
-            return false;
+    if(!textElementsNotEmpty(<portlet:namespace/>formName,<portlet:namespace/>requiredFields)) {
+        addErrorMessage("<portlet:namespace/>", '<fmt:message key="ca.common.emptyText"/>');
+        return false;
     }
+    for(i in <portlet:namespace/>integerFields) {
+        if(!checkIntegral(<portlet:namespace/>formName, <portlet:namespace/>integerFields[i])) {
+            addErrorMessage("<portlet:namespace/>", '<fmt:message key="ca.common.integer"/>');
+            return false;
+        }
+    }
+
     return true;
 }
 </script>
 
-<jsp:include page="_header.jsp" /><br>
+<jsp:include page="_header.jsp" />
+
+<div id="<portlet:namespace/>CommonMsgContainer"></div><br>
 
 <b><fmt:message key="ca.common.title"/></b>
 

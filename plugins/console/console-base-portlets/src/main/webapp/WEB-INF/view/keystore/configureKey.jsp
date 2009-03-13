@@ -26,22 +26,30 @@
 
 <script language="JavaScript">
 var <portlet:namespace/>formName = "<portlet:namespace/>KeystoreForm";
-var <portlet:namespace/>requiredFields = new Array("alias", "password", "certCN", "certO", "certOU", "certL", "certST", "certC");
-var <portlet:namespace/>numericFields = new Array("valid");
+var <portlet:namespace/>requiredFields = new Array("alias", "password", "valid", "certCN", "certO", "certOU", "certL", "certST", "certC");
+var <portlet:namespace/>integerFields = new Array("valid");
 var <portlet:namespace/>passwordFields = new Array("password");
 function <portlet:namespace/>validateForm(){
-    if(!textElementsNotEmpty(<portlet:namespace/>formName,<portlet:namespace/>requiredFields))
-        return false;
-    for(i in <portlet:namespace/>numericFields) {
-        if(!checkIntegral(<portlet:namespace/>formName, <portlet:namespace/>numericFields[i]))
-            return false;
+    if(!textElementsNotEmpty(<portlet:namespace/>formName,<portlet:namespace/>requiredFields)) {
+        addErrorMessage("<portlet:namespace/>", '<fmt:message key="keystore.common.emptyText"/>');
+        return false;    
     }
     if(!passwordElementsConfirm(<portlet:namespace/>formName, <portlet:namespace/>passwordFields)) {
+        addErrorMessage("<portlet:namespace/>", '<fmt:message key="keystore.common.passwordMismatch"/>');
         return false;
     }
+    for(i in <portlet:namespace/>integerFields) {
+        if(!checkIntegral(<portlet:namespace/>formName, <portlet:namespace/>integerFields[i])) {
+            addErrorMessage("<portlet:namespace/>", '<fmt:message key="keystore.common.integer"/>');
+            return false;
+        }
+    }
+    
     return true;
 }
 </script>
+
+<div id="<portlet:namespace/>CommonMsgContainer"></div>
 
 <p><fmt:message key="keystore.configureKey.title"/></p>
 

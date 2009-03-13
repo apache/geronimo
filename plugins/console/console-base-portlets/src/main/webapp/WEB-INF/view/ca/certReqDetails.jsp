@@ -22,25 +22,34 @@
 
 <script language="JavaScript">
 var <portlet:namespace/>formName = "<portlet:namespace/>certReqDetailsForm";
+var <portlet:namespace/>requiredFields = new Array("validFrom", "validTo");
 var <portlet:namespace/>dateFields = new Array("validFrom", "validTo");
-
 function <portlet:namespace/>validateForm(){
+    if(!textElementsNotEmpty(<portlet:namespace/>formName,<portlet:namespace/>requiredFields)) {
+        addErrorMessage("<portlet:namespace/>", '<fmt:message key="ca.common.emptyText"/>');
+        return false;
+    }
     for(i in <portlet:namespace/>dateFields) {
-        if(!checkDateMMDDYYYY(<portlet:namespace/>formName, <portlet:namespace/>dateFields[i]))
+        if(!checkDateMMDDYYYY(<portlet:namespace/>formName, <portlet:namespace/>dateFields[i])) {
+            addErrorMessage("<portlet:namespace/>", '<fmt:message key="ca.common.mmddyyyy"/>');
             return false;
+        }
     }
     // Check if from date is before to date
     var fromDate = new Date(document.forms[<portlet:namespace/>formName].validFrom.value);
     var toDate = new Date(document.forms[<portlet:namespace/>formName].validTo.value);
     if(fromDate >= toDate) {
-        alert('validFrom date must be before validTo date');
+        addErrorMessage("<portlet:namespace/>", '<fmt:message key="ca.common.wrongDate"/>');
         return false;
     }
+
     return true;
 }
 </script>
 
-<jsp:include page="_header.jsp" /><br>
+<jsp:include page="_header.jsp" />
+
+<div id="<portlet:namespace/>CommonMsgContainer"></div><br>
 
 <fmt:message key="ca.certReqDetails.title"/>
 <p>

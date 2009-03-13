@@ -24,13 +24,14 @@
 <script language="javascript" type="text/javascript">
   function checkArtifactId() {
      if(document.frmlst.artifactId.value == "") {
-      alert("You must provide an Artifact Id Name.");
+      addErrorMessage("<portlet:namespace/>", '<fmt:message key="car.list.requireArtifactId"/>');
       return false;
     }
     return true;
   }
 </script>
 
+<div id="<portlet:namespace/>CommonMsgContainer"></div>
 
 <c:choose>
 <c:when test="${!containsPlugin}">

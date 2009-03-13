@@ -37,29 +37,40 @@
 </style>  
 
 <script language="JavaScript">
+var <portlet:namespace/>formName = "<portlet:namespace/>fileSelect";
+var <portlet:namespace/>requiredFields = new Array("local", "group", "artifact", "version", "fileType");
 function <portlet:namespace/>validateForm() {
-   var illegalChars= /[\.]{2}|[()<>,;:\\/"']/ ;
-   if (! (document.<portlet:namespace/>fileSelect.local.value 
-      && document.<portlet:namespace/>fileSelect.group.value 
-      && document.<portlet:namespace/>fileSelect.artifact.value 
-      && document.<portlet:namespace/>fileSelect.version.value 
-      && document.<portlet:namespace/>fileSelect.fileType.value))
-   {
-      alert("File, Group, Artifact, Version, and Type are all required fields");
-      return false;
-   } else if (document.<portlet:namespace/>fileSelect.group.value.match(illegalChars)) {
-       alert("Group contains invalid characters");
-       return false;
-   } else if (document.<portlet:namespace/>fileSelect.artifact.value.match(illegalChars)) {
-       alert("Artifact contains invalid characters");
-       return false;
-   } else if (document.<portlet:namespace/>fileSelect.version.value.match(illegalChars)) {
-       alert("Version contains invalid characters");
-       return false;
-   } else if (document.<portlet:namespace/>fileSelect.fileType.value.match(illegalChars)) {
-       alert("File type contains invalid characters");
-       return false;
-   }
+    if(!textElementsNotEmpty(<portlet:namespace/>formName,<portlet:namespace/>requiredFields)) {
+        addErrorMessage("<portlet:namespace/>", '<fmt:message key="repository.normal.emptyText"/>');
+        return false;    
+    }
+    
+    return <portlet:namespace/>validate();
+}
+
+function <portlet:namespace/>validate() {
+    with(document.<portlet:namespace/>fileSelect){
+        var illegalChars= /[\.]{2}|[()<>,;:\\/"']/ ;
+        if (group.value.match(illegalChars)) {
+            group.focus(); 
+            addErrorMessage("<portlet:namespace/>", '<fmt:message key="repository.normal.invalidChar"/>');
+            return false;
+        } else if (artifact.value.match(illegalChars)) {
+            artifact.focus(); 
+            addErrorMessage("<portlet:namespace/>", '<fmt:message key="repository.normal.invalidChar"/>');
+            return false;
+        } else if (version.value.match(illegalChars)) {
+            version.focus(); 
+            addErrorMessage("<portlet:namespace/>", '<fmt:message key="repository.normal.invalidChar"/>');
+            return false;
+        } else if (fileType.value.match(illegalChars)) {
+            fileType.focus(); 
+            addErrorMessage("<portlet:namespace/>", '<fmt:message key="repository.normal.invalidChar"/>');
+            return false;
+        } 
+    }
+
+    return true;
 }
 
 function <portlet:namespace/>parse(localFile) {
@@ -103,6 +114,8 @@ function <portlet:namespace/>parse(localFile) {
 }
 
 </script>
+
+<div id="<portlet:namespace/>CommonMsgContainer"></div><br>
 
 <table width="100%">
 <tr>

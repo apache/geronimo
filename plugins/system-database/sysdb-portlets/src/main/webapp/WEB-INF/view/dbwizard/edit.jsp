@@ -21,6 +21,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<%@ taglib uri="/WEB-INF/CommonMsg.tld" prefix="CommonMsg" %>
 <fmt:setBundle basename="systemdatabase"/>
 
 <portlet:defineObjects/>
@@ -30,64 +31,69 @@ var <portlet:namespace/>formName = "<portlet:namespace/>DatabaseForm";
 var <portlet:namespace/>requiredFields = new Array();
 var <portlet:namespace/>passwordFields = new Array();
 function <portlet:namespace/>validateForm(){
-    if(!textElementsNotEmpty(<portlet:namespace/>formName,<portlet:namespace/>requiredFields))
-        return false;
+    if(!textElementsNotEmpty(<portlet:namespace/>formName,<portlet:namespace/>requiredFields)) {
+        addErrorMessage("<portlet:namespace/>", '<fmt:message key="dbwizard.common.emptyText"/>');
+        return false;    
+    }
     if(!passwordElementsConfirm(<portlet:namespace/>formName, <portlet:namespace/>passwordFields)) {
+        addErrorMessage("<portlet:namespace/>", '<fmt:message key="dbwizard.common.passwordMismatch"/>');
         return false;
     }
-    if(!<portlet:namespace/>validate()) {
-        return false;
-    }
-    return true;
+    return <portlet:namespace/>validate();
 }
 </script>
 
-<p><fmt:message key="dbwizard.edit.summary"/></p>
+<CommonMsg:commonMsg/><div id="<portlet:namespace/>CommonMsgContainer"></div>
+
+<p>
+  <c:choose> <%-- Can't change the pool name after deployment because it's wired into all the ObjectNames --%>
+    <c:when test="${empty pool.rarPath}">
+      <fmt:message key="dbwizard.edit.summary"/>
+    </c:when>
+    <c:otherwise>
+      <fmt:message key="dbwizard.basicParams.title"/>
+    </c:otherwise>
+  </c:choose>
+</p>
 
 <script language="JavaScript">
 function <portlet:namespace/>validate() {
 
    if (document.<portlet:namespace/>DatabaseForm.minSize.value == "") {
-      document.<portlet:namespace/>DatabaseForm.minSize.value = 0;
+       document.<portlet:namespace/>DatabaseForm.minSize.value = 0;
    }
    if (document.<portlet:namespace/>DatabaseForm.maxSize.value == "") {
-      document.<portlet:namespace/>DatabaseForm.maxSize.value = 10;
+       document.<portlet:namespace/>DatabaseForm.maxSize.value = 10;
    }
 
    var min = parseInt(document.<portlet:namespace/>DatabaseForm.minSize.value); 
    var max = parseInt(document.<portlet:namespace/>DatabaseForm.maxSize.value); 
-   result = true;
 
    if (isNaN(min)) {
-      alert("Min pool size must be a number. Defaulted to 0");
-      min = document.<portlet:namespace/>DatabaseForm.minSize.value = 0;
-      result = false;
+       addErrorMessage("<portlet:namespace/>", '<fmt:message key="dbwizard.edit.errorMsg01"/>');
+       min = document.<portlet:namespace/>DatabaseForm.minSize.value = 0;
+       return false;
    }
-   if (min < 0)
-   {
-      alert("Min pool size must be non-negative. Defaulted to 0");
-      min = document.<portlet:namespace/>DatabaseForm.minSize.value = 0;
-      result = false;
+   if (min < 0){
+       addErrorMessage("<portlet:namespace/>", '<fmt:message key="dbwizard.edit.errorMsg02"/>');
+       min = document.<portlet:namespace/>DatabaseForm.minSize.value = 0;
+       return false;
    }
-
    if (isNaN(max)) {
-      alert("Max pool size must be a number. Defaulted to 10");
-      max = document.<portlet:namespace/>DatabaseForm.maxSize.value = 10;
-      result = false;
+       addErrorMessage("<portlet:namespace/>", '<fmt:message key="dbwizard.edit.errorMsg03"/>');
+       max = document.<portlet:namespace/>DatabaseForm.maxSize.value = 10;
+       return false;
    }
-   if (max <= 0)
-   {
-      alert("Max pool size must be greater than zero. Defaulted to 10" );
-      max = document.<portlet:namespace/>DatabaseForm.maxSize.value = 10;
-      result = false;
+   if (max <= 0){
+       addErrorMessage("<portlet:namespace/>", '<fmt:message key="dbwizard.edit.errorMsg04"/>');
+       max = document.<portlet:namespace/>DatabaseForm.maxSize.value = 10;
+       return false;
    } 
-
    if (min > max) {
-      alert("Max pool size must be greater than Min pool size." );
-      return false;
+       addErrorMessage("<portlet:namespace/>", '<fmt:message key="dbwizard.edit.errorMsg05"/>');
+       return false;
    }
-
-   return result;
+   return true;
 }
 </script>
 
@@ -108,12 +114,6 @@ function <portlet:namespace/>validate() {
     <input type="hidden" name="rarPath" value="${pool.rarPath}" />
 
     <table border="0">
-    <c:if test="${!(empty pool.deployError)}">
-      <tr>
-          <th><div align="right"><font color="red"><fmt:message key="dbwizard.edit.errorDeploying"/>:</font></div></th>
-          <td><font color="red">${pool.deployError} - <fmt:message key="dbwizard.edit.seeLog"/></font></td>
-      </tr>
-    </c:if>
     <!-- ENTRY FIELD: NAME -->
       <tr>
         <th style="min-width: 140px"><div align="right"><fmt:message key="dbwizard.edit.poolName"/>:</div></th>
@@ -221,12 +221,12 @@ function <portlet:namespace/>validate() {
       </tr>
     <!-- ENTRY FIELD: Username -->
       <tr>
-        <th><fmt:message key="dbwizard.common.DBUserName"/>:</div></th>
+        <th><div align="right"><label for="<portlet:namespace/>user"><fmt:message key="dbwizard.common.DBUserName"/></label>:</div></th>
         <td><input name="user" id="<portlet:namespace/>user" type="text" size="20" value="${pool.user}" autocomplete="off"></td>
       </tr>
       <tr>
         <td></td>
-        <td><div align="right"><label for="<portlet:namespace/>user"><fmt:message key="dbwizard.common.DBUserNameExp"/></label></td>
+        <td><fmt:message key="dbwizard.common.DBUserNameExp"/></td>
       </tr>
     <!-- ENTRY FIELD: Password -->
       <tr>
@@ -285,7 +285,7 @@ function <portlet:namespace/>validate() {
   </c:choose>
     <c:forEach var="prop" items="${pool.properties}">
       <tr>
-        <th><div align="right"><label for="<portlet:namespace/>${prop.key}">${pool.propertyNames[prop.key]}</label>:</div></th>
+        <th><div align="right"><label for="<portlet:namespace/>${prop.key}"><fmt:message key="dbwizard.${pool.adapterRarPath}.${fn:substring(prop.key, 9, -1)}"/></label>:</div></th>
         <td><input name="${prop.key}" id="<portlet:namespace/>${prop.key}" <c:choose><c:when test="${fn:containsIgnoreCase(prop.key, 'password')}">type="password" autocomplete="off"</c:when><c:otherwise>type="text"</c:otherwise></c:choose> size="20" value="${prop.value}"></td>
       </tr>
     <c:if test="${fn:containsIgnoreCase(prop.key, 'password')}">
@@ -299,7 +299,7 @@ function <portlet:namespace/>validate() {
     </c:if>   
       <tr>
         <td></td>
-        <td>${ConfigParams[prop.key].description}</td>
+        <td><fmt:message key="dbwizard.${pool.adapterRarPath}.${fn:substring(prop.key, 9, -1)}Exp"/></td>
       </tr>
     </c:forEach>
       <tr><td colspan="2">

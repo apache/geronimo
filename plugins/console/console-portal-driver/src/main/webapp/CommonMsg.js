@@ -37,6 +37,14 @@ function addInfoMessage(namespace, message){
 
 function addCommonMessage(namespace, msg){
     var container = document.getElementById(namespace+"CommonMsgContainer");
+    var pre = container.previousSibling;
+    while (pre) {
+        if (pre.className=="messagePortlet") {
+            container.parentNode.removeChild(pre);
+            break;
+        }
+        pre = pre.previousSibling;
+    }
     while(container.firstChild) {
         container.removeChild(container.firstChild);
     }
@@ -118,6 +126,71 @@ function addCommonMessage(namespace, msg){
         pre.appendChild(document.createTextNode(msg.detail));
         pre.appendChild(document.createElement("br"));
     }
+}
+
+function showConfirmMessage() {
+    dojo.require("dijit.Dialog");
+    dojo.require("dijit.form.Button");
+    document.body.className = "soria";
+    var target = arguments[0];
+    var submit = new dojo.Deferred();
+    submit.addCallback(function(){
+        switch (target.nodeName.toLowerCase()) {
+            case "input":
+                var formNode = target.parentNode;
+                while (formNode) {
+                    if (formNode.nodeName.toLowerCase() == "form") {
+                        break;
+                    }
+                    formNode = formNode.parentNode;
+                }
+                if (formNode) {
+                    formNode.submit();
+                }
+                break;
+            case "a":
+                location.href=target.href;
+                break;
+            default:                            
+        }
+    });
+    var d = new dijit.Dialog();
+    dojo.style(d.closeButtonNode, "visibility", "hidden");
+    var table = document.createElement("table");
+    table.width="100%";
+    var tbody =  document.createElement("tbody");
+    table.appendChild(tbody);
+    var tr1 = document.createElement("tr");
+    tbody.appendChild(tr1);
+    var tr2 = document.createElement("tr");
+    tbody.appendChild(tr2);
+    var td11 = document.createElement("td");
+    tr1.appendChild(td11);
+    td11.colSpan="2"; td11.style.paddingBottom="10px"; td11.align="left";
+    var img = document.createElement("img");
+    td11.appendChild(img);
+    td11.appendChild(document.createTextNode(arguments[1]));
+    img.height="16"; img.width="16"; img.style.marginRight="8"; img.align="baseline"; img.src="/console/images/msg_warn.gif"; img.alt="Warn"; img.title="Warning";               
+    var td21 = document.createElement("td");
+    tr2.appendChild(td21);
+    td21.align="right";
+    var td22 = document.createElement("td");
+    tr2.appendChild(td22);
+    td22.align="left";
+    var b1 = new dijit.form.Button({label: arguments[2], tabIndex: "2"});
+    td21.appendChild(b1.domNode);
+    dojo.connect(b1, "onClick", function() {
+        d.hide();
+        submit.callback();
+    });
+    var b2 = new dijit.form.Button({label: arguments[3], tabIndex: "1"});
+    td22.appendChild(b2.domNode);
+    dojo.connect(b2, "onClick", function() {
+        d.hide();             
+    });
+    d.setContent(table);
+    d.show();
+    return false;
 }
 
 function showHideSection(id){

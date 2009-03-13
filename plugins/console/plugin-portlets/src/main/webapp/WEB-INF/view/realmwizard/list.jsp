@@ -22,9 +22,6 @@
 
 <p><fmt:message key="realmwizard.list.title" /></p>
 
-<c:choose>
-  <c:when test="${empty(realms)}"><p><i><fmt:message key="realmwizard.list.noSecurityRealms" /></i></p></c:when>
-  <c:otherwise>
 <p><fmt:message key="realmwizard.list.seeExamples" /></p>
 
 <table width="100%" class="TableLine" summary="Security Realms - List">
@@ -86,8 +83,6 @@
   </tr>
 </c:forEach>
 </table>
-  </c:otherwise>
-</c:choose>
 
 <p><a href="<portlet:actionURL portletMode="view">
               <portlet:param name="mode" value="type" />

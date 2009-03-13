@@ -27,24 +27,29 @@
 var <portlet:namespace/>formName = "<portlet:namespace/>searchForm";
 var <portlet:namespace/>dateFields = new Array("fromDate", "toDate");
 
-function <portlet:namespace/>validateForm(){
+function <portlet:namespace/>validateForm(){    
     if (document.forms[<portlet:namespace/>formName].ignoreDates.checked)
         return true;
     for (i in <portlet:namespace/>dateFields) {
-        if (!checkDateMMDDYYYY(<portlet:namespace/>formName, <portlet:namespace/>dateFields[i]))
+        if (!checkDateMMDDYYYY(<portlet:namespace/>formName, <portlet:namespace/>dateFields[i])) {
+            addErrorMessage("<portlet:namespace/>", '<fmt:message key="webaccesslogmanager.common.mmddyyyy"/>');
             return false;
+        }
     }
     // Check if to date is after from date
     var fromDate = new Date(document.forms[<portlet:namespace/>formName].fromDate.value);
     var toDate = new Date(document.forms[<portlet:namespace/>formName].toDate.value);
     if (fromDate > toDate) {
-        alert('to date must be after from date.');
+        addErrorMessage("<portlet:namespace/>", '<fmt:message key="webaccesslogmanager.view.wrongDate"/>');
         return false;
     }
     return true;
 }
 
 </script>
+
+<div id="<portlet:namespace/>CommonMsgContainer"></div><br>
+
 <table>
     <tr>
         <td><button onclick="location='<portlet:renderURL><portlet:param name="action" value="refresh"/></portlet:renderURL>'"><fmt:message key="consolebase.common.refresh" /></button>

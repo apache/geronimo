@@ -72,20 +72,20 @@ public class ConsoleResourceRegistry {
             locale = localeMap.get(locale.getLanguage());
         }
         for (ClassLoader classloader : classloaders) {
-            ResourceBundle rb = ResourceBundle.getBundle(basename, locale, classloader);
-            if (!locale.getLanguage().equals(rb.getLocale().getLanguage())) {
-                localeMap.put(locale.getLanguage(), defaultLocale);
-                rb = ResourceBundle.getBundle(basename, defaultLocale, classloader);
-            }
             try {
-                if (rb != null) {
+                ResourceBundle rb = ResourceBundle.getBundle(basename, locale, classloader);            
+                if (null != rb) {
+                    if (!locale.getLanguage().equals(rb.getLocale().getLanguage())) {
+                        localeMap.put(locale.getLanguage(), defaultLocale);
+                        rb = ResourceBundle.getBundle(basename, defaultLocale, classloader);
+                    }
                     String value = rb.getString(key);
-                    if (value != null) {
+                    if (null != value) {
                         return value;
                     }
                 }
             } catch (MissingResourceException e) {
-                //nothing to do
+                continue;
             }
         }
 

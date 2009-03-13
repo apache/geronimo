@@ -21,14 +21,12 @@
 <fmt:setBundle basename="activemq"/>
 <portlet:defineObjects/>
 
+<CommonMsg:confirmMsg/>
+<CommonMsg:commonMsg/>
+
 <p><fmt:message key="jmsmanager.server.normal.title" />:</p>
-<CommonMsg:commonMsg/><br>
-<c:choose>
-    <c:when test="${empty(brokers)}">
-           <fmt:message key="jmsmanager.server.normal.noJMSBrokers"/>
-    </c:when>
-    <c:otherwise>
-    <table width="50%" class="TableLine" summary="JMS Server Manager - Brokers">
+
+<table width="50%" class="TableLine" summary="JMS Server Manager - Brokers">
         <tr>
             <th scope="col" class="DarkBackground"><fmt:message key="jmsmanager.common.name"/></th>
             <th scope="col" class="DarkBackground" align="center"><fmt:message key="jmsmanager.common.state"/></th>
@@ -68,17 +66,14 @@
                  <portlet:param name="brokerURI" value="${entry.brokerURI}" />
                  <portlet:param name="brokerName" value="${entry.brokerName}" />   
                </portlet:renderURL>"><fmt:message key="jmsmanager.common.edit"/></a>
-               <a href="<portlet:actionURL portletMode="view">
-                 <portlet:param name="mode" value="delete" />
-                 <portlet:param name="brokerURI" value="${entry.brokerURI}" />
-                 <portlet:param name="brokerName" value="${entry.brokerName}" />   
-               </portlet:actionURL>" onClick="return confirm('Are you sure you want to delete ${entry.brokerName}?');"><fmt:message key="jmsmanager.common.delete"/></a>
+               <a href="<portlet:actionURL portletMode="view"><portlet:param name="mode" value="delete" /><portlet:param name="brokerURI" value="${entry.brokerURI}" /><portlet:param name="brokerName" value="${entry.brokerName}" /></portlet:actionURL>"
+                   onClick="return showConfirmMessage(this, '<fmt:message key="jmsmanager.broker.confirmMsg01"/>${entry.brokerName}?', '<fmt:message key="jmsmanager.broker.ok"/>', '<fmt:message key="jmsmanager.broker.cancel"/>');">
+                   <fmt:message key="jmsmanager.common.delete"/>
+               </a>
              </td>
           </tr>
 </c:forEach>
 </table>
-</c:otherwise>
-</c:choose>
 
 <br />
 <a href="<portlet:renderURL portletMode="view">

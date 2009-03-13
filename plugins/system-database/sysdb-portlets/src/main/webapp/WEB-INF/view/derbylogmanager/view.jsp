@@ -20,6 +20,22 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <fmt:setBundle basename="systemdatabase"/>
 
+<script language="JavaScript">
+var <portlet:namespace/>formName = "<portlet:namespace/>searchForm";
+var <portlet:namespace/>integerFields = new Array("startPos", "endPos", "maxRows");
+function <portlet:namespace/>validateForm(){
+    for (i in <portlet:namespace/>integerFields) {
+        if("" != document.forms[<portlet:namespace/>formName].elements[<portlet:namespace/>integerFields[i]].value && !checkIntegral(<portlet:namespace/>formName,<portlet:namespace/>integerFields[i])) {
+            addErrorMessage("<portlet:namespace/>", '<fmt:message key="derbylogmanager.view.integer"/>');
+            return false;    
+        }
+    }
+    return true;
+}
+</script>
+
+<div id="<portlet:namespace/>CommonMsgContainer"></div><br>
+
 <table>
     <tr>
         <td><button onclick="location='<portlet:renderURL><portlet:param name="action" value="refresh"/></portlet:renderURL>'"><fmt:message key="derbylogmanager.view.refresh"/></button>
@@ -29,7 +45,7 @@
     </tr>
     <tr>
         <td class="Smaller" valign="middle">
-            <form action="<portlet:actionURL/>" name="<portlet:namespace/>searchForm" method="POST">
+            <form action="<portlet:actionURL/>" name="<portlet:namespace/>searchForm" method="POST" onsubmit="return <portlet:namespace/>validateForm();">
                 <b><fmt:message key="derbylogmanager.view.filterResults"/>:</b>
                 <input type="hidden" value="search" name="action"/>
                 <br/>

@@ -14,19 +14,21 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 --%>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%@ taglib uri="/WEB-INF/CommonMsg.tld" prefix="CommonMsg"%>
-<fmt:setBundle basename="consolebase"/>
-<portlet:defineObjects/>
+<fmt:setBundle basename="consolebase" />
+<portlet:defineObjects />
 
-<table width="100%" border="0" cellspacing="0" cellpadding="0">    
-  <tr>
-    <td width="25%" >&nbsp;</td>
-    <td><CommonMsg:commonMsg/></td>
-    <td width="25%" >&nbsp;</td>
-  </tr>
+<CommonMsg:confirmMsg/>
+
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+    <tr>
+        <td width="25%">&nbsp;</td>
+        <td><CommonMsg:commonMsg /></td>
+        <td width="25%">&nbsp;</td>
+    </tr>
 </table>
 <%--   Removed until a better mechanism for rebooting the server is created
 <table width="100%">
@@ -37,9 +39,16 @@
 --%>
 <br />
 <table width="100%">
-<form action="<portlet:actionURL/>" method="POST">
-<tr><td align="center"><input type="submit" value='<fmt:message key="servermanager.normal.shutdown"/>' name="shutdown"
-onClick="return confirm('<fmt:message key="servermanager.normal.areYouSure"/>');" /></td></tr>
-</form>
+    <tbody>
+        <tr>
+            <td align="center">
+            <form action="<portlet:actionURL/>" method="POST">
+                <input type="hidden" name="shutdown" value="shutdown" />
+                <input type="button" value='<fmt:message key="servermanager.normal.shutdown"/>' 
+                       onClick="showConfirmMessage(this, '<fmt:message key="servermanager.normal.comfirmMsg01"/>', '<fmt:message key="servermanager.normal.ok"/>', '<fmt:message key="servermanager.normal.cancel"/>');" />
+            </form>
+            </td>
+        </tr>
+    </tbody>
 </table>
 <br />

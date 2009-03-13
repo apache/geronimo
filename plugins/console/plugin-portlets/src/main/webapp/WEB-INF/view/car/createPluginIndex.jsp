@@ -25,7 +25,7 @@ function <portlet:namespace/>validateForm(){
     with(document.<portlet:namespace/>ExportForm){
         selected = configId.options[configId.selectedIndex].text;
         if (selected==null || selected=="") {
-            alert("<fmt:message key="car.index.validateConfig"/>");
+            addErrorMessage("<portlet:namespace/>", '<fmt:message key="car.index.validateConfig"/>');
             return false;
         }
     }
@@ -34,6 +34,8 @@ function <portlet:namespace/>validateForm(){
 </script>
 
 <portlet:defineObjects/>
+
+<div id="<portlet:namespace/>CommonMsgContainer"></div>
 
 <h2><fmt:message key="car.common.createGeronimoPlugin"/></h2>
 

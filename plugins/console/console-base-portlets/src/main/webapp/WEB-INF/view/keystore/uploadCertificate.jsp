@@ -25,7 +25,12 @@
 var <portlet:namespace/>formName = "<portlet:namespace/>KeystoreForm";
 var <portlet:namespace/>requiredFields = new Array("certificate", "alias");
 function <portlet:namespace/>validateForm(){
-    return textElementsNotEmpty(<portlet:namespace/>formName,<portlet:namespace/>requiredFields);
+    if(!textElementsNotEmpty(<portlet:namespace/>formName, <portlet:namespace/>requiredFields)) {
+        addErrorMessage("<portlet:namespace/>", '<fmt:message key="keystore.common.emptyText"/>');
+        return false;
+    }
+    
+    return true;
 }
 </script>
 
@@ -34,6 +39,9 @@ function <portlet:namespace/>validateForm(){
 certificate file and specify an alias to store it under in the keystore.  The next
 step will be to review the certificate before committing it to the keystore.</p>
 -->
+
+<div id="<portlet:namespace/>CommonMsgContainer"></div>
+
 <p><fmt:message key="keystore.uploadCertificate.title"/></p>
 
 <form enctype="multipart/form-data" method="POST" name="<portlet:namespace/>KeystoreForm" action="<portlet:actionURL/>">

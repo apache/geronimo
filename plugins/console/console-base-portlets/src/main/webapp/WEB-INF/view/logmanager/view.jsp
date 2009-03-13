@@ -22,37 +22,39 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <fmt:setBundle basename="consolebase"/>
 
-<script>
-function trim(str){
-    if(!str) return "";
-    else if(str.charAt(0) == " "){       
-        return trim(str.substring(1));
-    }else if(str.charAt(str.length-1) == " "){
-        return trim(str.substring(0,str.length-1));
-    }else return str;    
-}
+<script language="JavaScript">
+var <portlet:namespace/>formName = "<portlet:namespace/>update";
+var <portlet:namespace/>requiredFields = new Array("configFile");
+var <portlet:namespace/>integerFields = new Array("refreshPeriod");
 function <portlet:namespace/>validateForm(){
+    if(!textElementsNotEmpty(<portlet:namespace/>formName,<portlet:namespace/>requiredFields)) {
+        addErrorMessage("<portlet:namespace/>", '<fmt:message key="logmanager.common.emptyText"/>');
+        return false;    
+    }
+    for (i in <portlet:namespace/>integerFields) {
+        if(!checkIntegral(<portlet:namespace/>formName,<portlet:namespace/>integerFields[i])) {
+            addErrorMessage("<portlet:namespace/>", '<fmt:message key="logmanager.common.integer"/>');
+            return false;    
+        }
+    }
+    return <portlet:namespace/>validate();
+}
+
+function <portlet:namespace/>validate() {
     with(document.<portlet:namespace/>update){
-        if(trim(logFile.value).length == ""){
-            alert("Please input the log file name.");
-            logFile.value="";
-            logFile.focus();
+        if(parseInt(refreshPeriod.value) < 5) {
+            addErrorMessage("<portlet:namespace/>", '<fmt:message key="logmanager.common.refreshPeriodTooShort"/>');
             return false;
-        }
-        if(trim(layoutPattern.value) == ""){
-            alert("Please input layout pattern.");
-            layoutPattern.value="";
-            layoutPattern.focus();
-            return false;
-        }
-        
+        }    
     }
     return true;
 }
 </script>
 
-<fmt:message key="logmanager.common.title"/>
-<p/>
+<div id="<portlet:namespace/>CommonMsgContainer"></div>
+
+<p><fmt:message key="logmanager.common.title"/></p>
+
 <form name="<portlet:namespace/>update" action="<portlet:actionURL/>" onsubmit="return <portlet:namespace/>validateForm()" method="POST">
 <input type="hidden" name="action" value="update"/>
 <table width="680">

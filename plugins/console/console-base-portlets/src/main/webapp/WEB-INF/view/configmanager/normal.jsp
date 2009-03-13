@@ -21,6 +21,8 @@
 <fmt:setBundle basename="consolebase"/>
 <portlet:defineObjects/>
 
+<CommonMsg:confirmMsg/>
+
 <script>
 var EXPERT_COOKIE = "org.apache.geronimo.configmanager.expertmode";
 var SHOW_DEPENDENCIES_COOKIE = "org.apache.geronimo.configmanager.showDependencies";
@@ -31,29 +33,18 @@ var SHOW_DEPENDENCIES_COOKIE = "org.apache.geronimo.configmanager.showDependenci
 // that depend on them (like the console itself) from functioning properly.
 // If the component is not safe to stop then prompt to make sure that
 // the user really intends to stop the component prior to any action.
-function promptIfUnsafeToStop(configId,expertConfig, type) {
+function promptIfUnsafeToStop(target, configId, expertConfig, type) {
     // if the component is a Geronimo "expert" service then provide a stern warning
     if ((type == 'SERVICE') && (expertConfig == 'true')) {
-        return confirm( configId + " is an Apache Geronimo service.\r\n \r\n" +
-                       "Stopping this component may prevent the server or the "+
-                       "administration console from functioning properly. " +
-                       "All dependent components and subsequent dependencies will also be stopped. " +
-                       "Reference the 'Child Components' list in the view for directly affected components.\r\n \r\n" +
-                       "Proceed with this action?");
+        return showConfirmMessage(target, configId + '<fmt:message key="configmanager.normal.confirmMsg01"/>', '<fmt:message key="configmanager.normal.ok"/>', '<fmt:message key="configmanager.normal.cancel"/>');
     }
     // if the component is the web console provide an appropriate warning
-    if (configId.indexOf("org.apache.geronimo.configs/webconsole-") == 0) {
-        return confirm( configId + " provides the administration console interface " +
-                       "that you are currently viewing.\r\n \r\n Stopping it will cause the interface " +
-                       "to become unavailable and manual action will be required to restore the function.\r\n \r\n" +
-                       "Proceed with this action?");
+    if (configId.indexOf("org.apache.geronimo.plugins") == 0 && configId.indexOf("console") > 0) {
+        return showConfirmMessage(target, configId + '<fmt:message key="configmanager.normal.confirmMsg02"/>', '<fmt:message key="configmanager.normal.ok"/>', '<fmt:message key="configmanager.normal.cancel"/>');
     }
     // if the component is any other Geronimo "expert" component provide an appropriate warning
     if (expertConfig == 'true') {
-        return confirm( configId + " is provided by Apache Geronimo and may be required by other " +
-                       "modules (reference the 'Child Components' listed in the view).\r\n \r\n " +
-                       "All dependent components and subsequent dependencies will also be stopped. \r\n \r\n" +
-                       "Proceed with this action?");
+        return showConfirmMessage(target, configId + '<fmt:message key="configmanager.normal.confirmMsg03"/>', '<fmt:message key="configmanager.normal.ok"/>', '<fmt:message key="configmanager.normal.cancel"/>');
     }
     // otherwise don't challenge the stop operation
     return true;
@@ -66,30 +57,18 @@ function promptIfUnsafeToStop(configId,expertConfig, type) {
 // that depend on them (like the console itself) from functioning properly.
 // If the component is not safe to stop then prompt to make sure that
 // the user really intends to stop the component prior to any action.
-function promptIfUnsafeToRestart(configId,expertConfig, type) {
+function promptIfUnsafeToRestart(target, configId, expertConfig, type) {
     // if the component is a Geronimo "expert" service then provide a stern warning
     if ((type == 'SERVICE') && (expertConfig == 'true')) {
-        return confirm( configId + " is an Apache Geronimo service.\r\n \r\n " +
-                       "Restarting this component may prevent the server or the "+
-                       "administration console from functioning properly. " +
-                       "As part of the stop action, all dependent components and subsequent dependencies will also be stopped. " +
-                       "Only this component will be restarted. " +
-                       "Reference the 'Child Components' list in the view for directly affected components.\r\n \r\n " +
-                       "Proceed with this action?");
+        return showConfirmMessage(target, configId + '<fmt:message key="configmanager.normal.confirmMsg04"/>', '<fmt:message key="configmanager.normal.ok"/>', '<fmt:message key="configmanager.normal.cancel"/>');
     }
     // if the component is the web console provide an appropriate warning
-    if (configId.indexOf("org.apache.geronimo.configs/webconsole-") == 0) {
-        return confirm( configId + " provides the administration console interface " +
-                       "that you are currently viewing.\r\n \r\n  Restarting it will cause the interface " +
-                       "to become unavailable and manual action may be necessary to restore the console function.\r\n \r\n" +
-                       "Proceed with this action?");
+    if (configId.indexOf("org.apache.geronimo.plugins") == 0 && configId.indexOf("console") > 0) {
+        return showConfirmMessage(target, configId + '<fmt:message key="configmanager.normal.confirmMsg05"/>', '<fmt:message key="configmanager.normal.ok"/>', '<fmt:message key="configmanager.normal.cancel"/>');
     }
     // if the component is a Geronimo "expert" component then provide an appropriate warning
     if (expertConfig == 'true') {
-        return confirm( configId + " is provided by Apache Geronimo and may be required by other " +
-                       "modules (reference the 'Child Components' listed in the view).\r\n \r\n " +
-                       "As part of the stop action, all dependent components and subsequent dependencies will also be stopped. \r\n \r\n" +
-                       "Proceed with this action?");
+        return showConfirmMessage(target, configId + '<fmt:message key="configmanager.normal.confirmMsg06"/>', '<fmt:message key="configmanager.normal.ok"/>', '<fmt:message key="configmanager.normal.cancel"/>');
     }
     // otherwise don't challenge the restart operation
     return true;
@@ -102,31 +81,21 @@ function promptIfUnsafeToRestart(configId,expertConfig, type) {
 // dependencies of the web console or dependencies of other core server 
 // modules.  In such cases. it may leave the server in a state where it 
 // cannot be restarted.  These situations require more stringent warnings.
-function uninstallPrompt(configId,expertConfig, type) {
+function uninstallPrompt(target, configId, expertConfig, type) {
     // if the component is a geronimo "expert" service always provide the most stern warning
     if ((type == 'SERVICE') && (expertConfig == 'true')) {
-        return confirm( configId + " is an Apache Geronimo service.\r\n \r\n" +
-                       "Uninstalling this component may have unexpected results "+
-                       "such as rendering the administration web console or even the "+
-                       "server itself unstable.  Reference the 'Child Components' view " + 
-                       "for directly affected components. \r\n \r\n" +
-                       "Are you certain you wish to proceed with this uninstall?");
+        return showConfirmMessage(target, configId + '<fmt:message key="configmanager.normal.confirmMsg07"/>', '<fmt:message key="configmanager.normal.ok"/>', '<fmt:message key="configmanager.normal.cancel"/>');
     }
     // if the component is a the web console itself then provide an appropriate warning
-    if (configId.indexOf("org.apache.geronimo.configs/webconsole-") == 0) {
-        return confirm( configId + " provides the administration console user interface " +
-                       "that you are currently viewing.\r\n \r\n  Uninstalling it will cause the interface " +
-                       "to become unavailable and manual action will be required to restore the function.\r\n \r\n " +
-                       "Are you certain you wish to proceed with this uninstall?");
+    if (configId.indexOf("org.apache.geronimo.plugins") == 0 && configId.indexOf("console") > 0) {
+        return showConfirmMessage(target, configId + '<fmt:message key="configmanager.normal.confirmMsg08"/>', '<fmt:message key="configmanager.normal.ok"/>', '<fmt:message key="configmanager.normal.cancel"/>');
     }
     // if the component is any other Apache Geronimo "expert" component then provide an appropriate warning
     if (expertConfig == 'true') {
-        return confirm( configId + " is provided by Apache Geronimo and may be required by other " +
-                       "modules (reference the 'Child Components' listed in the view). \r\n \r\n" +
-                       "Are you certain you wish to proceed with this uninstall?");
+        return showConfirmMessage(target, configId + '<fmt:message key="configmanager.normal.confirmMsg09"/>', '<fmt:message key="configmanager.normal.ok"/>', '<fmt:message key="configmanager.normal.cancel"/>');
     }
     // if the component is none of the above provide a standard warning
-    return confirm("Are you certain you wish to uninstall " + configId + " ?");
+    return showConfirmMessage(target, '<fmt:message key="configmanager.normal.confirmMsg10"/>' + configId + '?', '<fmt:message key="configmanager.normal.ok"/>', '<fmt:message key="configmanager.normal.cancel"/>');
 }
 
 // Toggle expert mode on and off with onClick
@@ -278,7 +247,7 @@ function toggleShowDependenciesMode() {
         <td width="75" class="${backgroundClass}">
             <c:if test="${moduleDetails.state.running || moduleDetails.state.failed}">
                 <span <c:if test="${moduleDetails.expertConfig}"> name=expert </c:if>> 
-                    &nbsp;<a href="<portlet:actionURL><portlet:param name='configId' value='${moduleDetails.configId}'/><portlet:param name='action' value='stop'/></portlet:actionURL>" onClick="return promptIfUnsafeToStop('${moduleDetails.configId}','${moduleDetails.expertConfig}','${moduleDetails.type.name}');"><fmt:message key="consolebase.common.stop"/></a>&nbsp;
+                    &nbsp;<a href="<portlet:actionURL><portlet:param name='configId' value='${moduleDetails.configId}'/><portlet:param name='action' value='stop'/></portlet:actionURL>" onClick="return promptIfUnsafeToStop(this, '${moduleDetails.configId}','${moduleDetails.expertConfig}','${moduleDetails.type.name}');"><fmt:message key="consolebase.common.stop"/></a>&nbsp;
                 </span>
             </c:if>
             <c:if test="${moduleDetails.expertConfig && (moduleDetails.state.running || moduleDetails.state.failed)}">
@@ -295,7 +264,7 @@ function toggleShowDependenciesMode() {
         <td width="75" class="${backgroundClass}">
             <c:if test="${moduleDetails.state.running}">
                 <span <c:if test="${moduleDetails.expertConfig}"> name=expert </c:if>> 
-                    &nbsp;<a href="<portlet:actionURL><portlet:param name='configId' value='${moduleDetails.configId}'/><portlet:param name='action' value='restart'/></portlet:actionURL>" onClick="return promptIfUnsafeToRestart('${moduleDetails.configId}','${moduleDetails.expertConfig}','${moduleDetails.type.name}');"><fmt:message key="consolebase.common.restart"/></a>&nbsp;
+                    &nbsp;<a href="<portlet:actionURL><portlet:param name='configId' value='${moduleDetails.configId}'/><portlet:param name='action' value='restart'/></portlet:actionURL>" onClick="return promptIfUnsafeToRestart(this, '${moduleDetails.configId}','${moduleDetails.expertConfig}','${moduleDetails.type.name}');"><fmt:message key="consolebase.common.restart"/></a>&nbsp;
                 </span>
             </c:if>
             <c:if test="${moduleDetails.expertConfig && moduleDetails.state.running}">
@@ -308,7 +277,7 @@ function toggleShowDependenciesMode() {
         <!-- Uninstall action -->
         <td width="75" class="${backgroundClass}">
             <span <c:if test="${moduleDetails.expertConfig}"> name=expert </c:if>> 
-                &nbsp;<a href="<portlet:actionURL><portlet:param name='configId' value='${moduleDetails.configId}'/><portlet:param name='action' value='uninstall'/></portlet:actionURL>" onClick="return uninstallPrompt('${moduleDetails.configId}','${moduleDetails.expertConfig}','${moduleDetails.type.name}');"><fmt:message key="consolebase.common.uninstall"/></a>&nbsp;
+                &nbsp;<a href="<portlet:actionURL><portlet:param name='configId' value='${moduleDetails.configId}'/><portlet:param name='action' value='uninstall'/></portlet:actionURL>" onClick="return uninstallPrompt(this, '${moduleDetails.configId}','${moduleDetails.expertConfig}','${moduleDetails.type.name}');"><fmt:message key="consolebase.common.uninstall"/></a>&nbsp;
             </span>
             <c:if test="${moduleDetails.expertConfig}">
                 <span name=nonexpert> 

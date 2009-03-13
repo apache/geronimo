@@ -19,6 +19,21 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <fmt:setBundle basename="activemq"/>
 <portlet:defineObjects/>
+
+<script language="JavaScript">
+    var <portlet:namespace/>formName = "<portlet:namespace/>ActiveMQForm";
+    var <portlet:namespace/>requiredFields = new Array("brokerName", "configXML");
+    function <portlet:namespace/>validateForm() {
+        if(!textElementsNotEmpty(<portlet:namespace/>formName,<portlet:namespace/>requiredFields)) {
+            addErrorMessage("<portlet:namespace/>", '<fmt:message key="jmsmanager.broker.emptyText"/>');
+            return false;    
+        }
+        return true;
+    }
+</script>
+
+<div id="<portlet:namespace/>CommonMsgContainer"></div><br>
+
 <form name="<portlet:namespace/>ActiveMQForm" action="<portlet:actionURL/>" onsubmit="return <portlet:namespace/>validateForm();" method="post">
 <input type="hidden" name="mode" value="${mode}"/>
 <table width="100%" align="center" border="0" cellspacing="4">    		
@@ -65,21 +80,4 @@
 </table>                
 </table>
 </form>
-<script>
-    function <portlet:namespace/>validateForm() {
-        var configXML = document.getElementById("<portlet:namespace/>configXML").value;
-        if(configXML == "")
-        {
-            alert("<fmt:message key="jmsmanager.broker.emptybrokerconfig"/>");
-            return false;
-        }
-        var brokerName = document.getElementById("<portlet:namespace/>brokerName").value;
-        if(brokerName == "")
-        {
-            alert("<fmt:message key="jmsmanager.broker.emptybrokername"/>");
-            return false;
-        }       
-        return true;
-    }
-</script>
         

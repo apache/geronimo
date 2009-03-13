@@ -31,7 +31,13 @@ var <portlet:namespace/>requiredFields2 = new Array("sqlStmts");
 function <portlet:namespace/>validateForm1(){
     var action = document.forms[<portlet:namespace/>formName].elements['action'];
     action.value="Create";
-    return textElementsNotEmpty(<portlet:namespace/>formName, <portlet:namespace/>requiredFields);
+    var valid = textElementsNotEmpty(<portlet:namespace/>formName, <portlet:namespace/>requiredFields);
+    if (!valid) {
+        addErrorMessage("<portlet:namespace/>", '<fmt:message key="internaldb.common.emptyText"/>');
+        return false;
+    }
+    else
+        return true;
 }
 function <portlet:namespace/>validateForm2(){
     var action = document.forms[<portlet:namespace/>formName].elements['action'];
@@ -41,11 +47,11 @@ function <portlet:namespace/>validateForm2(){
 function <portlet:namespace/>validateForm3(){
     var action = document.forms[<portlet:namespace/>formName].elements['action'];
     action.value="Run SQL";
-    return textElementsNotEmpty(<portlet:namespace/>formName, <portlet:namespace/>requiredFields2);
+    return true;
 }
 </script>
 
-<CommonMsg:commonMsg/><br>
+<CommonMsg:commonMsg/><div id="<portlet:namespace/>CommonMsgContainer"></div><br>
 
 <form name="<portlet:namespace/>DBForm" action="<portlet:actionURL portletMode='view'/>" method="post">
 <input type="hidden" name="action" value="" />

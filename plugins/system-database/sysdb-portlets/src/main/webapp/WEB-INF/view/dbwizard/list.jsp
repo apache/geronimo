@@ -22,9 +22,6 @@
 
 <p><fmt:message key="dbwizard.list.summary"/></p>
 
-<c:choose>
-  <c:when test="${empty(pools)}"><p><i><fmt:message key="dbwizard.list.noDatabasePools"/></i></p></c:when>
-  <c:otherwise>
 <p><fmt:message key="dbwizard.list.hasDatabasePools"/></p>
 
 <table width="100%" class="TableLine" summary="Database Pools - List">
@@ -96,8 +93,6 @@
   </tr>
 </c:forEach>
 </table>
-  </c:otherwise>
-</c:choose>
 
 <p><fmt:message key="dbwizard.list.createPool"/>:</p>
 <ul>

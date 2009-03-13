@@ -41,10 +41,10 @@ limitations under the License.
           <param-name>classes</param-name>
           <param-value>
               org.apache.geronimo.console.ejbserver.EjbInformation,
-	      org.apache.geronimo.console.ejbserver.TreeEntry,
-	      org.apache.geronimo.console.ejbserver.EjbHelper,
-	      org.apache.geronimo.console.ejbserver.Status,
-              org.apache.geronimo.console.ejbserver.Tree
+	          org.apache.geronimo.console.ejbserver.TreeEntry,
+	          org.apache.geronimo.console.ejbserver.EjbHelper,
+              org.apache.geronimo.console.ejbserver.Tree,
+              org.apache.geronimo.console.message.JSCommonMessage
           </param-value>
       </init-param>
       <load-on-startup>1</load-on-startup>

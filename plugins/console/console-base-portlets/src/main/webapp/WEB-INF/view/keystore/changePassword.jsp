@@ -29,16 +29,21 @@ var <portlet:namespace/>formName = "<portlet:namespace/>ChangePasswordForm";
 var <portlet:namespace/>requiredFields = new Array("password", "newPassword");
 var <portlet:namespace/>passwordFields = new Array("newPassword");
 function <portlet:namespace/>validateForm(){
-    if(!textElementsNotEmpty(<portlet:namespace/>formName,<portlet:namespace/>requiredFields))
-        return false;
+    if(!textElementsNotEmpty(<portlet:namespace/>formName,<portlet:namespace/>requiredFields)) {
+        addErrorMessage("<portlet:namespace/>", '<fmt:message key="keystore.common.emptyText"/>');
+        return false;    
+    }
     if(!passwordElementsConfirm(<portlet:namespace/>formName, <portlet:namespace/>passwordFields)) {
+        addErrorMessage("<portlet:namespace/>", '<fmt:message key="keystore.common.passwordMismatch"/>');
         return false;
     }
     return true;
 }
 </script>
 
-<jsp:include page="_header.jsp" /><br>
+<jsp:include page="_header.jsp" />
+
+<div id="<portlet:namespace/>CommonMsgContainer"></div><br>
 
 <c:choose>
     <c:when test="${!empty(alias)}">

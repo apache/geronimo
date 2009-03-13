@@ -23,7 +23,6 @@ function textElementsNotEmpty(formName, elementNameArray){
         var elem = elementNameArray[i];
         obj = eval("document.forms['" + formName + "'].elements['"+ elem +"']");
         if(isEmptyString(obj.value)){
-            alert(elem + " must not be empty.");
             obj.focus(); 
             return false;             
         }
@@ -37,7 +36,6 @@ function checkIntegral(formName, elementName){
     var obj = eval("document.forms['" + formName + "'].elements['"+ elementName +"']");
     if(isIntegral(obj.value)) return true;
     else{
-        alert(elementName + " must be an integer.");
         obj.focus();
         return false;
     }
@@ -58,9 +56,8 @@ function isIntegral(value){
 
 function checkDateMMDDYYYY(formName, elementName) {
     var obj = eval("document.forms['" + formName + "'].elements['"+ elementName +"']");
-    if(validDateMMDDYYYY(obj.value)) return true;
+    if(obj.value.length==10 && validDateMMDDYYYY(obj.value)) return true;
     else{
-        alert(elementName + " must be a date in MM/DD/YYYY format.");
         obj.focus();
         return false;
     }
@@ -68,9 +65,8 @@ function checkDateMMDDYYYY(formName, elementName) {
 
 function checkDateMMDDYY(formName, elementName) {
     var obj = eval("document.forms['" + formName + "'].elements['"+ elementName +"']");
-    if(validDateMMDDYY(obj.value)) return true;
+    if(obj.value.length==8 && validDateMMDDYY(obj.value)) return true;
     else{
-        alert(elementName + " must be a date in MM/DD/YY format.");
         obj.focus();
         return false;
     }
@@ -101,7 +97,6 @@ function passwordElementsConfirm(formName, elementNameArray) {
         pwd = eval("document.forms['" + formName + "'].elements['"+ elem +"']");
         cnf = eval("document.forms['" + formName + "'].elements['confirm-"+ elem +"']");
         if(pwd.value != cnf.value){
-            alert(elem + " and confirm password do not match.");
             pwd.focus(); 
             return false;             
         }

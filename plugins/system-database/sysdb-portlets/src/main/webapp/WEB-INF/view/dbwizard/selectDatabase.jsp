@@ -28,11 +28,15 @@
 var <portlet:namespace/>formName = "<portlet:namespace/>DatabaseForm";
 var <portlet:namespace/>requiredFields = new Array("name");
 function <portlet:namespace/>validateForm(){
-    if(!textElementsNotEmpty(<portlet:namespace/>formName,<portlet:namespace/>requiredFields))
+    if(!textElementsNotEmpty(<portlet:namespace/>formName,<portlet:namespace/>requiredFields)) {
+        addErrorMessage("<portlet:namespace/>", '<fmt:message key="dbwizard.common.emptyText"/>');
         return false;
+    }
     return true;
 }
 </script>
+
+<div id="<portlet:namespace/>CommonMsgContainer"></div>
 
 <p><fmt:message key="dbwizard.selectDatabase.title"/></p>
 

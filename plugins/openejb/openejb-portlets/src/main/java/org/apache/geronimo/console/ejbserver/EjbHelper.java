@@ -17,15 +17,19 @@
 package org.apache.geronimo.console.ejbserver;
 
 import java.lang.reflect.Method;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.TreeMap;
+import java.text.MessageFormat;
 
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.geronimo.console.BaseRemoteProxy;
+import org.apache.geronimo.console.message.CommonMessage;
+import org.apache.geronimo.console.message.JSCommonMessage;
 import org.apache.geronimo.console.util.KernelManagementHelper;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
@@ -56,7 +60,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @RemoteProxy
-public class EjbHelper {
+public class EjbHelper extends BaseRemoteProxy {
 
     private static final Logger log = LoggerFactory.getLogger(EjbHelper.class);
     
@@ -96,8 +100,7 @@ public class EjbHelper {
     
     private ContainerSystem containerSystem;
     private OpenEjbConfiguration configuration;
-    private Kernel kernel;    
-    private ResourceBundle resourceBundle;
+    private Kernel kernel;
     private KernelManagementHelper helper = null;
     public EjbHelper() {
         initContainerSystem();
@@ -110,7 +113,6 @@ public class EjbHelper {
                 ContainerSystem.class);
         configuration = SystemInstance.get().getComponent(
                 OpenEjbConfiguration.class);
-        resourceBundle = ResourceBundle.getBundle(BUNDLE_NAME);
     }
 
     @RemoteMethod
@@ -188,7 +190,7 @@ public class EjbHelper {
     }
 
     @RemoteMethod
-    public List<EjbInformation> getContainerInfo(String containerId) {
+    public List<EjbInformation> getContainerInfo(String containerId, HttpServletRequest request) {
     	containerId = replaceEscapes(containerId); 
         Container container = containerSystem.getContainer(containerId);
         if (container == null)
@@ -210,22 +212,22 @@ public class EjbHelper {
         for (ContainerInfo containerInfo : containerInfos) {
             if (containerInfo.id.equals(containerId)) {
                 information = new EjbInformation();
-                information.setName(resourceBundle.getString(CC_KEY));
+                information.setName(getLocalizedString(request, BUNDLE_NAME, CC_KEY));
                 information.setId("ContainerClass");
                 information.setValue(containerInfo.className);
                 infos.add(information);
                 information = new EjbInformation();
-                information.setName(resourceBundle.getString(CI_KEY));
+                information.setName(getLocalizedString(request, BUNDLE_NAME, CI_KEY));
                 information.setId("ContainerId");
                 information.setValue(containerInfo.id);
                 infos.add(information);
                 information = new EjbInformation();
-                information.setName(resourceBundle.getString(CD_KEY));
+                information.setName(getLocalizedString(request, BUNDLE_NAME, CD_KEY));
                 information.setId("ContainerDesc");
                 information.setValue(containerInfo.description);
                 infos.add(information);
                 information = new EjbInformation();
-                information.setName(resourceBundle.getString(DN_KEY));
+                information.setName(getLocalizedString(request, BUNDLE_NAME, DN_KEY));
                 information.setId("DisplayName");
                 information.setValue(containerInfo.displayName);
                 infos.add(information);
@@ -276,8 +278,8 @@ public class EjbHelper {
     }
 
     @RemoteMethod
-    public Status setContainerProperty(String containerId, String propertyKey,
-            String propertyValue) {
+    public JSCommonMessage setContainerProperty(String containerId, String propertyKey,
+            String propertyValue, HttpServletRequest request) {
         propertyKey = propertyKey.trim();
         propertyValue = propertyValue.trim();
         
@@ -295,18 +297,18 @@ public class EjbHelper {
             try {
                 Integer.parseInt(propertyValue);
             } catch (NumberFormatException nfe) {
-                return new Status(MessageFormat.format(resourceBundle.getString("portlet.openejb.view.message1"),propertyKey));
+                return new JSCommonMessage(CommonMessage.Type.Error, getLocalizedString(request, BUNDLE_NAME, "portlet.openejb.view.numeric", propertyKey), null);
             }
         } else if (STRICTPOOLING.equals(propertyKey)) {
             if (!propertyValue.equalsIgnoreCase(TRUE)
                     && !propertyValue.equalsIgnoreCase(FALSE)) {
-                return new Status(MessageFormat.format(resourceBundle.getString("portlet.openejb.view.message2"),propertyKey));
+                return new JSCommonMessage(CommonMessage.Type.Error, getLocalizedString(request, BUNDLE_NAME, "portlet.openejb.view.boolean", propertyKey), null);
             }        
         } else {
             try {
                 EjbHelper.class.getClassLoader().loadClass(propertyValue);
             } catch (ClassNotFoundException e) {
-                return new Status(MessageFormat.format(resourceBundle.getString("portlet.openejb.view.message3"),propertyKey));
+                return new JSCommonMessage(CommonMessage.Type.Error, getLocalizedString(request, BUNDLE_NAME, "portlet.openejb.view.invalid", propertyKey), null);
             }
         }
 
@@ -355,18 +357,18 @@ public class EjbHelper {
                         }
                     }
                 } catch (GBeanNotFoundException e) {
-                    return new Status(
-                            resourceBundle.getString("portlet.openejb.view.errorMessage1"));
+                    return new JSCommonMessage(CommonMessage.Type.Error, 
+                            getLocalizedString(request, BUNDLE_NAME, "portlet.openejb.view.unchanged", propertyKey), null);
                 } catch (NoSuchAttributeException e) {
-                    return new Status(
-                            resourceBundle.getString("portlet.openejb.view.errorMessage1"));
+                    return new JSCommonMessage(CommonMessage.Type.Error, 
+                            getLocalizedString(request, BUNDLE_NAME, "portlet.openejb.view.unchanged", propertyKey), null);
                 } catch (Exception e) {
-                    return new Status(
-                            resourceBundle.getString("portlet.openejb.view.errorMessage1"));
+                    return new JSCommonMessage(CommonMessage.Type.Error, 
+                            getLocalizedString(request, BUNDLE_NAME, "portlet.openejb.view.unchanged", propertyKey), null);
                 }
             }
         }
-        return new Status(resourceBundle.getString("portlet.openejb.view.message4"));
+        return new JSCommonMessage(CommonMessage.Type.Warn, getLocalizedString(request, BUNDLE_NAME, "portlet.openejb.view.restart"), null);
     }
     
     private GBeanData getGBeanDataFromConfiguration(AbstractName absName){
@@ -376,43 +378,43 @@ public class EjbHelper {
     }
     @RemoteMethod
     public List<EjbInformation> getDeploymentInfo(String containerId,
-            String deploymentId) {
+            String deploymentId, HttpServletRequest request) {
         Container container = containerSystem.getContainer(containerId);
         DeploymentInfo deploymentInfo = container
                 .getDeploymentInfo(deploymentId);
         List<EjbInformation> informations = new ArrayList<EjbInformation>();
         EjbInformation information = new EjbInformation();
-        information.setName(resourceBundle.getString(BEANCLASSNAME_KEY));        
+        information.setName(getLocalizedString(request, BUNDLE_NAME, BEANCLASSNAME_KEY));        
         information.setValue(deploymentInfo.getBeanClass().getName());
         informations.add(information);
 
         if (deploymentInfo.getBusinessLocalInterface() != null) {
             information = new EjbInformation();
-            information.setName(resourceBundle.getString(BLI_KEY));
+            information.setName(getLocalizedString(request, BUNDLE_NAME, BLI_KEY));
             information.setValue(appendMultipleInterfaces(deploymentInfo
                     .getBusinessLocalInterfaces()));
             informations.add(information);
         }
         if (deploymentInfo.getBusinessRemoteInterface() != null) {
             information = new EjbInformation();
-            information.setName(resourceBundle.getString(BRI_KEY));
+            information.setName(getLocalizedString(request, BUNDLE_NAME, BRI_KEY));
             information.setValue(appendMultipleInterfaces(deploymentInfo
                     .getBusinessRemoteInterfaces()));
             informations.add(information);
         }
         information = new EjbInformation();
-        information.setName(resourceBundle.getString(DEPLOYMENTID_KEY));
+        information.setName(getLocalizedString(request, BUNDLE_NAME, DEPLOYMENTID_KEY));
         information.setValue(deploymentId);
         informations.add(information);
         ;
         information = new EjbInformation();
-        information.setName(resourceBundle.getString(EJBNAME_KEY));
+        information.setName(getLocalizedString(request, BUNDLE_NAME, EJBNAME_KEY));
         information.setValue(deploymentInfo.getEjbName());
         informations.add(information);
         if (deploymentInfo.getHomeInterface() != null) {
             information = new EjbInformation();
             information.setValue(deploymentInfo.getHomeInterface().getName());
-            information.setName(resourceBundle.getString(EJBHOMEI_KEY));
+            information.setName(getLocalizedString(request, BUNDLE_NAME, EJBHOMEI_KEY));
             informations.add(information);
         }
         if (!container.getContainerType().equals(ContainerType.MESSAGE_DRIVEN)) {
@@ -433,14 +435,14 @@ public class EjbHelper {
                 }
                 information.setValue(names.substring(0, names.length() - 1));
             } catch (Exception e) {
-                log.error(resourceBundle.getString("portlet.openejb.view.errorMessage2"), e);
+                log.error("Exception when trying to get JNDI name", e);
             }
-            information.setName(resourceBundle.getString(JNDINAMES_KEY));
+            information.setName(getLocalizedString(request, BUNDLE_NAME, JNDINAMES_KEY));
             informations.add(information);
         }
         if (deploymentInfo.getLocalHomeInterface() != null) {
             information = new EjbInformation();
-            information.setName(resourceBundle.getString(LHI_KEY));
+            information.setName(getLocalizedString(request, BUNDLE_NAME, LHI_KEY));
             information.setValue(deploymentInfo.getLocalHomeInterface()
                     .getName());
             informations.add(information);
@@ -448,35 +450,35 @@ public class EjbHelper {
 
         if (deploymentInfo.getLocalInterface() != null) {
             information = new EjbInformation();
-            information.setName(resourceBundle.getString(LI_KEY));
+            information.setName(getLocalizedString(request, BUNDLE_NAME, LI_KEY));
             information.setValue(deploymentInfo.getLocalInterface().getName());
             informations.add(information);
         }
 
         if (deploymentInfo.getRemoteInterface() != null) {
             information = new EjbInformation();
-            information.setName(resourceBundle.getString(RI_KEY));
+            information.setName(getLocalizedString(request, BUNDLE_NAME, RI_KEY));
             information.setValue(deploymentInfo.getRemoteInterface().getName());
             informations.add(information);
         }
 
         if (deploymentInfo.getPrimaryKeyClass() != null) {
             information = new EjbInformation();
-            information.setName(resourceBundle.getString(PKC_KEY));
+            information.setName(getLocalizedString(request, BUNDLE_NAME, PKC_KEY));
             information.setValue(deploymentInfo.getPrimaryKeyClass().getName());
             informations.add(information);
         }
 
         if (deploymentInfo.getPrimaryKeyField() != null) {
             information = new EjbInformation();
-            information.setName(resourceBundle.getString(PKF_KEY));
+            information.setName(getLocalizedString(request, BUNDLE_NAME, PKF_KEY));
             information.setValue(deploymentInfo.getPrimaryKeyField());
             informations.add(information);
         }
 
         if (deploymentInfo.getServiceEndpointInterface() != null) {
             information = new EjbInformation();
-            information.setName(resourceBundle.getString(SEI_KEY));
+            information.setName(getLocalizedString(request, BUNDLE_NAME, SEI_KEY));
             information.setValue(deploymentInfo.getServiceEndpointInterface()
                     .getName());
             informations.add(information);
@@ -523,13 +525,13 @@ public class EjbHelper {
             try {
                 data = kernel.getGBeanData((AbstractName) obj);
             } catch (GBeanNotFoundException e) {
-                log.error(MessageFormat.format(resourceBundle.getString("portlet.openejb.view.errorMessage3")
+                log.error(MessageFormat.format("GBeanNotFoundException for GBean Name: {0}"
                         , (AbstractName) obj), e);
             } catch (InternalKernelException e) {
-                log.error(MessageFormat.format(resourceBundle.getString("portlet.openejb.view.errorMessage4")
+                log.error(MessageFormat.format("InternalKernelException for GBean Name: {0}"
                         , (AbstractName) obj), e);
             } catch (IllegalStateException e) {
-                log.error(MessageFormat.format(resourceBundle.getString("portlet.openejb.view.errorMessage5")
+                log.error(MessageFormat.format("IllegalStateException for GBean Name: {0}"
                         , (AbstractName) obj), e);
             }
             if (containerId.equals(EjbContainer.getId(data.getAbstractName()))

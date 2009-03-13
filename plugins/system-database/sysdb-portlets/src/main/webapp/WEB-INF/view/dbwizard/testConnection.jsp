@@ -17,10 +17,13 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<%@ taglib uri="/WEB-INF/CommonMsg.tld" prefix="CommonMsg" %>
 <fmt:setBundle basename="systemdatabase"/>
 <portlet:defineObjects/>
 
-<p><b><fmt:message key="dbwizard.testConnection.title"/></p>
+<CommonMsg:commonMsg/>
+
+<p><fmt:message key="dbwizard.testConnection.title"/></p>
 
 <!--   FORM TO COLLECT DATA FOR THIS PAGE   -->
 <form name="<portlet:namespace/>DatabaseForm" action="<portlet:actionURL/>" method="POST">
@@ -50,26 +53,6 @@
     <input type="hidden" name="${prop.key}" value="${prop.value}" />
   </c:forEach>
     <table border="0">
-    <!-- STATUS FIELD: Conection Result -->
-      <tr>
-        <th style="min-width: 140px"><div align="right"><fmt:message key="dbwizard.testConnection.testResult"/>:</div></th>
-        <td>
-          <c:choose>
-            <c:when test="${empty connectResult}">
-              <font color="red"><i><fmt:message key="dbwizard.testConnection.connectionError"/></i></font>
-            </c:when><c:otherwise>
-              <fmt:message key="dbwizard.testConnection.connectedTo"/> ${connectResult}
-            </c:otherwise>
-          </c:choose>
-        </td>
-      </tr>
-    <!-- STATUS FIELD: Connection Errors -->
-    <c:if test="${!(empty connectError)}">
-      <tr>
-        <th><div align="right"><label for="<portlet:namespace/>connectError"><fmt:message key="dbwizard.testConnection.testError"/></label>:</div></th>
-        <td><textarea rows="30" cols="60" id="<portlet:namespace/>connectError" readonly>${connectError}</textarea></td>
-      </tr>
-    </c:if>
     <!-- SUBMIT BUTTON -->
       <tr>
         <td></td>

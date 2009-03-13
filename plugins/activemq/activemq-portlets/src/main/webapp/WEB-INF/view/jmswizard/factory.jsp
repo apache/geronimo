@@ -21,6 +21,20 @@
 <fmt:setBundle basename="activemq"/>
 <portlet:defineObjects/>
 
+<script language="JavaScript">
+var <portlet:namespace/>formName = "<portlet:namespace/>JMSForm";
+var <portlet:namespace/>requiredFields = new Array("factory.${data.currentFactoryID}.instanceName");
+function <portlet:namespace/>validateForm(){
+    if(!textElementsNotEmpty(<portlet:namespace/>formName,<portlet:namespace/>requiredFields)) {
+        addErrorMessage("<portlet:namespace/>", '<fmt:message key="jmswizard.common.emptyText"/>');
+        return false;    
+    }
+    return true;
+}
+</script>
+
+<div id="<portlet:namespace/>CommonMsgContainer"></div>
+
 <p><fmt:message key="jmswizard.factory.title" /></p>
 
 <!--   FORM TO COLLECT DATA FOR THIS PAGE   -->
@@ -149,7 +163,7 @@
         <td></td>
         <td>
             <input type="hidden" name="nextAction" value="review" />
-            <input type="submit" value='<fmt:message key="jmswizard.common.next"/>' />
+            <input type="submit" value='<fmt:message key="jmswizard.common.next"/>'  onClick="return <portlet:namespace/>validateForm()"/>
         </td>
       </tr>
     </table>

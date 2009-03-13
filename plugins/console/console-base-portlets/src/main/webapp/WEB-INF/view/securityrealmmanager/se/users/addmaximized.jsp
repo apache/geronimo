@@ -24,19 +24,23 @@
 <script language="JavaScript">
 var <portlet:namespace/>formName = "adduser";
 var <portlet:namespace/>requiredFields = new Array("userId","password");
+var <portlet:namespace/>passwordFields = new Array("password");
 function <portlet:namespace/>validateForm(){
-    return (textElementsNotEmpty(<portlet:namespace/>formName,<portlet:namespace/>requiredFields) && <portlet:namespace/>passwordMatch());
-}
-function <portlet:namespace/>passwordMatch(){
-     with(document.adduser){
-        if(password.value != confirmpassword.value){
-            alert("Password and confirm password do not match!");
-            password.focus();
-            return false;
-        }
+    if(!textElementsNotEmpty(<portlet:namespace/>formName,<portlet:namespace/>requiredFields)) {
+        addErrorMessage("<portlet:namespace/>", '<fmt:message key="securityrealmmanager.common.emptyText"/>');
+        return false;    
     }
+    if(!passwordElementsConfirm(<portlet:namespace/>formName, <portlet:namespace/>passwordFields)) {
+        addErrorMessage("<portlet:namespace/>", '<fmt:message key="securityrealmmanager.common.passwordMismatch"/>');
+        return false;
+    }
+    
+    return true;
 }
 </script>
+
+<div id="<portlet:namespace/>CommonMsgContainer"></div><br>
+
 <c:set var="add" value="${userID == null}"/>
 <form name="adduser" action="<portlet:actionURL portletMode="view"/>" method="POST">
     <table cellspacing="5">
@@ -47,13 +51,13 @@ function <portlet:namespace/>passwordMatch(){
        		<b><fmt:message key="securityrealmmanager.se.users.addmaximized.addUser" /></b>
       		<c:set var="UserName" value=""/>
       		<c:set var="Action" value="add"/>      		
-      		<c:set var="Submit" value="Add"/>
+      		<c:set var="Submit" value="securityrealmmanager.common.add"/>
        </c:when>
        <c:otherwise>
 			<b><fmt:message key="securityrealmmanager.se.users.addmaximized.updateUser" /></b>
       		<c:set var="UserName" value="${userID}"/>
       		<c:set var="Action" value="update"/>      		
-      		<c:set var="Submit" value="Update"/>
+      		<c:set var="Submit" value="securityrealmmanager.common.update"/>
        </c:otherwise>
        </c:choose>
         </td>
@@ -96,10 +100,10 @@ function <portlet:namespace/>passwordMatch(){
     </tr>   
     <tr>
         <td width="200"><label for="<portlet:namespace/>confirmpassword"><fmt:message key="consolebase.common.confirmPassword"/></label></td>
-        <td><input type="password" name="confirmpassword" id="<portlet:namespace/>confirmpassword" value=""></td>
+        <td><input type="password" name="confirm-password" id="<portlet:namespace/>confirmpassword" value=""></td>
     </tr>
     <tr>   
-       <td>&nbsp;</td> <td  align="left" class="formElement"><input type="submit" value="${Submit}" onclick="return <portlet:namespace/>validateForm()"> <input type="submit" name="cancel"  value="<fmt:message key="consolebase.common.cancel"/>"></td>
+       <td>&nbsp;</td> <td  align="left" class="formElement"><input type="submit" value="<fmt:message key="${Submit}"/>" onclick="return <portlet:namespace/>validateForm()"> <input type="submit" name="cancel"  value="<fmt:message key="consolebase.common.cancel"/>"></td>
      </tr>
     </table>
 </form>
