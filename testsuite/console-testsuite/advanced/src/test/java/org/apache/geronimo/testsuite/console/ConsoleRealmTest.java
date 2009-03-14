@@ -33,7 +33,7 @@ public class ConsoleRealmTest extends TestSupport {
         waitForPageLoad();
         selenium.type("userId", "myuser");
         selenium.type("password", "myuser");
-        selenium.type("confirmpassword", "myuser");
+        selenium.type("confirm-password", "myuser");
         selenium.click("//input[@value='Add']");
         waitForPageLoad();
         assertTrue(selenium.isTextPresent("myuser"));
