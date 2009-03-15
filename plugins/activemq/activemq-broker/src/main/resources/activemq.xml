@@ -37,7 +37,7 @@
          </property>
     </bean>
 
-    <broker xmlns="http://activemq.apache.org/schema/core" brokerName="${activemq.brokerName}">
+    <broker xmlns="http://activemq.apache.org/schema/core" brokerName="${activemq.brokerName}" tmpDataDirectory="${activemq.data}/tmp_storage">
 
         <!--
             Configure per-destination policies on the broker. The policies
@@ -180,12 +180,12 @@
             http://activemq.apache.org/configuring-transports.html 
         -->
         <transportConnectors>
-            <transportConnector name="openwire" uri="tcp://localhost:${${ActiveMQPort} + ${PortOffset}}" />
+            <transportConnector name="openwire" uri="tcp://${ServerHostname}:${${ActiveMQPort} + ${PortOffset}}" />
             <!--
-            <transportConnector name="openwire2" uri="tcp://localhost:${* + ${PortOffset}}" discoveryUri="multicast://default"/>
-            <transportConnector name="ssl" uri="ssl://localhost:${61617 + ${PortOffset}}"/>
-            <transportConnector name="stomp" uri="stomp://localhost:${61613 + ${PortOffset}}"/>
-            <transportConnector name="xmpp" uri="xmpp://localhost:${61222 + ${PortOffset}}"/>
+            <transportConnector name="openwire2" uri="tcp://${ServerHostname}:${* + ${PortOffset}}" discoveryUri="multicast://default"/>
+            <transportConnector name="ssl" uri="ssl://${ServerHostname}:${61617 + ${PortOffset}}"/>
+            <transportConnector name="stomp" uri="stomp://${ServerHostname}:${61613 + ${PortOffset}}"/>
+            <transportConnector name="xmpp" uri="xmpp://${ServerHostname}:${61222 + ${PortOffset}}"/>
             -->
         </transportConnectors>
 

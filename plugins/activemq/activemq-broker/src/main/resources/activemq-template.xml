@@ -37,7 +37,7 @@
          </property>
     </bean>
 
-    <broker xmlns="http://activemq.apache.org/schema/core" brokerName="${activemq.brokerName}">
+    <broker xmlns="http://activemq.apache.org/schema/core" brokerName="${activemq.brokerName}" tmpDataDirectory="${activemq.data}/tmp_storage">
 
         <!--
             Configure per-destination policies on the broker. The policies
@@ -181,10 +181,10 @@
         -->
         <transportConnectors>
             <!--
-            <transportConnector name="openwire" uri="tcp://localhost:${* + ${PortOffset}}" />            
-            <transportConnector name="openwire2" uri="tcp://localhost:${* + ${PortOffset}}" discoveryUri="multicast://default"/>
-            <transportConnector name="ssl" uri="ssl://localhost:${* + ${PortOffset}}"/>
-            <transportConnector name="stomp" uri="stomp://localhost:${* + ${PortOffset}}"/>            
+            <transportConnector name="openwire" uri="tcp://${ServerHostname}:${* + ${PortOffset}}" />            
+            <transportConnector name="openwire2" uri="tcp://${ServerHostname}:${* + ${PortOffset}}" discoveryUri="multicast://default"/>
+            <transportConnector name="ssl" uri="ssl://${ServerHostname}:${* + ${PortOffset}}"/>
+            <transportConnector name="stomp" uri="stomp://${ServerHostname}:${* + ${PortOffset}}"/>            
             -->
         </transportConnectors>
 
