@@ -56,7 +56,8 @@ public class JMSResourcesTest extends TestSupport {
         selenium.click("link=J2EE Connectors");
         waitForPageLoad();
         selenium.click("link=Uninstall");              
-        selenium.click("dijit_form_Button_0");      
+        selenium.click("dijit_form_Button_0");
+        waitForPageLoad();
         selenium.click("link=JMS Resources");
         waitForPageLoad();
         assertFalse(selenium.isTextPresent("UniqueName (console.jms/UniqueName/1.0/rar)"));
