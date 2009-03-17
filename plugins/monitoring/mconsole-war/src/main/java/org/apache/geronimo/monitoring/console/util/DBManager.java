@@ -112,14 +112,16 @@ public class DBManager
                             + "server_id   INTEGER PRIMARY KEY NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 0, INCREMENT BY 1),"
                             + "enabled     SMALLINT DEFAULT 1 NOT NULL,"
                             + "name        VARCHAR(128) DEFAULT NULL,"
-                            + "ip          VARCHAR(128) UNIQUE NOT NULL,"
+                            + "ip          VARCHAR(128) NOT NULL,"
                             + "port        INTEGER NOT NULL,"
                             + "protocol    INTEGER DEFAULT 1 NOT NULL,"
                             + "username    VARCHAR(128) NOT NULL,"
                             + "password    VARCHAR(1024) NOT NULL,"
                             + "added       TIMESTAMP NOT NULL,"
                             + "modified    TIMESTAMP NOT NULL,"
-                            + "last_seen   TIMESTAMP NOT NULL" + ")");
+                            + "last_seen   TIMESTAMP NOT NULL,"
+                            + "CONSTRAINT  UNQ_IP_PORT UNIQUE(ip,port)"
+                            + ")");
             pStmt.executeUpdate();
             pStmt = con
                     .prepareStatement("CREATE TABLE graphs("
