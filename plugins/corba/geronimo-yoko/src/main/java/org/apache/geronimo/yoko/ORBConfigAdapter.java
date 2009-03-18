@@ -170,18 +170,26 @@ public class ORBConfigAdapter implements GBeanLifecycle, ConfigAdapter {
      */
     public Object createNameService(String host, int port) throws ConfigException {
         try {
-            // create a name service using the supplied host and publish under the name "NameService"
-            TransientNameService service = new TransientNameService(host, port, "NameService");
-            // Create an ORB object
-            java.util.Properties props = new Properties();
-            props.putAll(System.getProperties());
-            props.put("org.omg.CORBA.ORBServerId", "1000000" ) ;
-            props.put("org.omg.CORBA.ORBClass", "org.apache.yoko.orb.CORBA.ORB");
-            props.put("org.omg.CORBA.ORBSingletonClass", "org.apache.yoko.orb.CORBA.ORBSingleton");
-            props.put("yoko.orb.oa.endpoint", "iiop --bind " + host  + " --host " + host + " --port " + port );
-            log.debug("Creating ORB endpoint with host=" + host + ", port=" + port);
-            ORB createdOrb = ORB.init((String[])null, props) ;
-            service.initialize(createdOrb);
+            // create a name service using the supplied host and publish under the name "NameService"            
+            TransientNameService service = new TransientNameService(host, port, "NameService") {
+                public void run() throws TransientServiceException {
+                    // Create an ORB object
+                    java.util.Properties props = new Properties();
+                    props.putAll(System.getProperties());
+
+                    props.put("org.omg.CORBA.ORBServerId", "1000000" ) ;
+                    props.put("org.omg.CORBA.ORBClass", "org.apache.yoko.orb.CORBA.ORB");
+                    props.put("org.omg.CORBA.ORBSingletonClass", "org.apache.yoko.orb.CORBA.ORBSingleton");
+                    props.put("yoko.orb.oa.endpoint", "iiop --bind " + host  + " --host " + host + " --port " + port );
+
+                    createdOrb = ORB.init((String[])null, props) ;
+
+                    // now initialize the service
+                    initialize(createdOrb);
+                }
+            };
+            service.run();
+            log.debug("Creating ORB endpoint with host=" + host + ", port=" + port);            
             // the service instance is returned as an opaque object.
             return service;
         } catch (TransientServiceException e) {
