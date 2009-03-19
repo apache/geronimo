@@ -103,8 +103,16 @@ public abstract class JMSMessageHelper {
                 producer.send(msg,deliveryMode,messageInfo.getPriority(),TextMessage.DEFAULT_TIME_TO_LIVE);
                 session.commit();
             } finally {
-                session.close();
-                connection.close();
+                if (session != null)
+                    try {
+                        session.close();
+                    } catch (Exception e) {
+                    }
+                if (connection != null)
+                    try {
+                        connection.close();
+                    } catch (Exception e) {
+                    }                
             }
         } else {
             Topic destination = (Topic) dest;
@@ -137,8 +145,16 @@ public abstract class JMSMessageHelper {
                 producer.send(msg,deliveryMode,messageInfo.getPriority(),TextMessage.DEFAULT_TIME_TO_LIVE);
                 session.commit();
             } finally {
-                session.close();
-                connection.close();
+                if (session != null)
+                    try {
+                        session.close();
+                    } catch (Exception e) {
+                    }
+                if (connection != null)
+                    try {
+                        connection.close();
+                    } catch (Exception e) {
+                    }
             }
         }
     }
@@ -266,23 +282,23 @@ public abstract class JMSMessageHelper {
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         } finally {
-            try {
-                if (qBrowser != null) {
+            if (qBrowser != null) {
+                try {
                     qBrowser.close();
+                } catch (JMSException ignore) {
                 }
-            } catch (JMSException ignore) {
             }
-            try {
-                if (qSession != null) {
+            if (qSession != null) {
+                try {
                     qSession.close();
+                } catch (JMSException ignore) {
                 }
-            } catch (JMSException ignore) {
             }
-            try {
-                if (qConnection != null) {
+            if (qConnection != null) {
+                try {
                     qConnection.close();
+                } catch (JMSException ignore) {
                 }
-            } catch (JMSException ignore) {
             }
         }
         return ret;

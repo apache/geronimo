@@ -19,11 +19,14 @@ package org.apache.geronimo.console.jmsmanager.wizard;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.List;
 
 import javax.management.MalformedObjectNameException;
@@ -37,6 +40,7 @@ import javax.portlet.RenderResponse;
 
 import org.apache.geronimo.activemq.BrokerServiceGBean;
 import org.apache.geronimo.activemq.management.ActiveMQManagerGBean;
+import org.apache.geronimo.console.BasePortlet;
 import org.apache.geronimo.console.MultiPageModel;
 import org.apache.geronimo.console.jmsmanager.DestinationStatistics;
 import org.apache.geronimo.console.jmsmanager.helper.JMSMessageHelper;
@@ -70,7 +74,11 @@ public class ListScreenHandler extends AbstractHandler {
     public ListScreenHandler() {
         super(LIST_MODE, "/WEB-INF/view/jmswizard/list.jsp");
     }
-
+    
+    public ListScreenHandler(BasePortlet basePortlet) {
+        super(LIST_MODE, "/WEB-INF/view/jmswizard/list.jsp", basePortlet);
+    }
+    
     public String actionBeforeView(ActionRequest request, ActionResponse response, MultiPageModel model) throws PortletException, IOException {
         String purgeStr = request.getParameter(PURGE);
         if (purgeStr != null) {
@@ -150,8 +158,8 @@ public class ListScreenHandler extends AbstractHandler {
                         name = ObjectName.getInstance(module.getObjectName()).getKeyProperty(NameFactory.J2EE_NAME);
                     }
                     String sServerUrl = adapters.length > 0 ? getServerUrl(renderRequest,module) : "";                                        
-                    target = new JMSResourceSummary(PortletManager.getConfigurationFor(renderRequest, PortletManager.getNameFor(renderRequest, module)).toString(),
-                            module.getObjectName(), name, ((GeronimoManagedBean) module).getState(), getBrokerName(renderRequest,sServerUrl));
+                    target = new JMSResourceSummary(PortletManager.getConfigurationFor(renderRequest, PortletManager.getNameFor(renderRequest, module)).toString(), module.getObjectName(), name,
+                            ((GeronimoManagedBean) module).getState(), getBrokerName(renderRequest, sServerUrl, name));
                     resources.add(target);
                 }
 
@@ -191,8 +199,8 @@ public class ListScreenHandler extends AbstractHandler {
                         name = ObjectName.getInstance(module.getObjectName()).getKeyProperty(NameFactory.J2EE_NAME);
                     }
                     String sServerUrl = adapters.length > 0 ? getServerUrl(renderRequest,module) : "";
-                    target = new JMSResourceSummary(PortletManager.getConfigurationFor(renderRequest, PortletManager.getNameFor(renderRequest, module)).toString(),
-                            module.getObjectName(), name, ((GeronimoManagedBean) module).getState(), getBrokerName(renderRequest,sServerUrl));
+                    target = new JMSResourceSummary(PortletManager.getConfigurationFor(renderRequest, PortletManager.getNameFor(renderRequest, module)).toString(), module.getObjectName(), name,
+                            ((GeronimoManagedBean) module).getState(), getBrokerName(renderRequest, sServerUrl, name));
                     resources.add(target);
                 }
 
@@ -210,7 +218,12 @@ public class ListScreenHandler extends AbstractHandler {
                     }
                     String destType = admins[j].getAdminObjectInterface().indexOf("Queue") > -1 ? "Queue" : "Topic";
                     String vendorName = module.getVendorName();
-                    DestinationStatistics destinationStat = JMSMessageHelperFactory.getJMSMessageHelper(vendorName).getDestinationStatistics(target.getBrokerName(), destType, physicalName);
+                    DestinationStatistics destinationStat = null;
+                    if (target.getBrokerName() == null || physicalName == null) {
+                        destinationStat = new DestinationStatistics();
+                    } else {
+                        destinationStat = JMSMessageHelperFactory.getJMSMessageHelper(vendorName).getDestinationStatistics(target.getBrokerName(), destType, physicalName);
+                    }
                     target.getAdminObjects().add(
                             new AdminObjectSummary(bean.getObjectName(), queueName, physicalName,destType , bean
                                     .getState(),destinationStat));
@@ -229,19 +242,18 @@ public class ListScreenHandler extends AbstractHandler {
     private String getServerUrl(PortletRequest portletRequest, ResourceAdapterModule resourceAdapterModule) {
         try {
             Kernel kernel = PortletManager.getKernel();
-            AbstractName moduleAbstractName = PortletManager.getNameFor(portletRequest, resourceAdapterModule);
-            if (kernel.isRunning(moduleAbstractName)) {
-                GBeanData resourceAdapterGBeanData = (GBeanData) kernel.getAttribute(moduleAbstractName,
-                        "resourceAdapterGBeanData");
-                return (String) resourceAdapterGBeanData.getAttribute("ServerUrl");
+            AbstractName resourceAdapterAbstractName = PortletManager.getNameFor(portletRequest, resourceAdapterModule.getResourceAdapterInstances()[0].getJCAResourceImplementations()[0].getResourceAdapterInstances()[0]);
+            if (kernel.isRunning(resourceAdapterAbstractName)) {
+                return (String) kernel.getAttribute(resourceAdapterAbstractName, "ServerUrl");
             }
             return "";
         } catch (Exception e) {
+            log.error("Fail to get server URL of the JMS resource",e);
             return "";
         }
     }
     
-    private String getBrokerName(PortletRequest portletRequest, String serverURL) throws PortletException {
+    private String getBrokerName(PortletRequest portletRequest, String serverURL, String resourceName) throws PortletException {
         try {
             GeronimoManagedBean[] geronimoManagedBeans = PortletManager.getManagedBeans(portletRequest,
                     ActiveMQManagerGBean.class);
@@ -250,29 +262,110 @@ public class ListScreenHandler extends AbstractHandler {
             if (geronimoManagedBeans.length > 1)
                 log.warn("More than one ActiveMQ Manager exist in kernel");            
             JMSManager activeMQManager = (JMSManager) geronimoManagedBeans[0];            
-            JMSBroker findJMSBroker = null;
-            URI uri = new URI(serverURL);
-            //TODO 127.0.0.1 and localhost, shall we need to support the mapping between ip and host name ?
-            String sHostName = uri.getHost();
-            if (sHostName.equals("127.0.0.1") || sHostName.equals("localhost"))
-                try {
-                    sHostName = InetAddress.getLocalHost().getHostName();
-                } catch (UnknownHostException e) {
-                    log.warn("Fail to get the local machine name", e);
-                }            
+            JMSBroker targetJMSBroker = null;
+            URI uri = new URI(serverURL);            
+            String sResourceHostName = uri.getHost();
+            if(!isLocalMachine(sResourceHostName)) {
+                //The resource adapter may connect to the broker running on other servers, let's directly return null
+                portlet.addWarningMessage(portletRequest, portlet.getLocalizedString(portletRequest, "activemq.warnMsg01", resourceName));
+                return null;
+            }               
             for (JMSBroker jmsBroker : (JMSBroker[]) activeMQManager.getContainers()) {
                 NetworkConnector[] connectors = activeMQManager.getConnectorsForContainer(jmsBroker, uri.getScheme());
-                for (NetworkConnector connector : connectors) {                    
-                    if (connector.getHost().equals(sHostName) && connector.getPort() == uri.getPort())
-                        findJMSBroker = jmsBroker;
+                for (NetworkConnector connector : connectors) {                                       
+                    if(connector.getPort() != uri.getPort()) {
+                        continue;
+                    }
+                    boolean findJMSBroker = false;
+                    String sConnectorHostName = connector.getHost();
+                    /*
+                     * If the broker is binding on all the interfaces, it is the one we want.
+                     * else if the broker is listening on loop back address, the host name of the resource adapter should also be loop back address. 
+                     * else if the host name of resource adapter is local host name, it is the one we want.
+                     * else let us compare whether those two host name are the same textual presentation 
+                     * */
+                    if (isBindOnAllInterfaces(sConnectorHostName)) {
+                        findJMSBroker = true;
+                    } else if (isLoopbackAddress(sConnectorHostName)) {
+                        if (isLoopbackAddress(sResourceHostName)) {
+                            findJMSBroker = true;
+                        } else {
+                            continue;
+                        }
+                    } else if (sResourceHostName.equals(getLocalHostName()) || sResourceHostName.equals(getFullLocalHostName())) {
+                        findJMSBroker = true;
+                    } else if (sResourceHostName.equals(sConnectorHostName)) {
+                        findJMSBroker = true;
+                    }
+                    if (findJMSBroker) {
+                        targetJMSBroker = jmsBroker;
+                    }
                 }
-                if (findJMSBroker != null)
-                    return ((BrokerServiceGBean) findJMSBroker).getBrokerName();
+                if (targetJMSBroker != null)
+                    return ((BrokerServiceGBean) targetJMSBroker).getBrokerName();
             }
-            return null;
+            throw new PortletException("Could not find the broker according to the url [" + serverURL + "]");
         } catch (URISyntaxException e) {
             log.error("Unrecognized server URL [" + serverURL + "]", e);
             throw new PortletException("Unrecognized server URL [" + serverURL + "]", e);
+        }
+    }
+    
+    private boolean isLoopbackAddress(String hostName) {
+        try {
+            return InetAddress.getByName(hostName).isLoopbackAddress();
+        } catch (UnknownHostException e) {
+            return false;
+        }
+    }    
+    
+    private boolean isBindOnAllInterfaces(String hostName) {
+        if (hostName.equals("0.0.0.0") || hostName.equals(getLocalHostName())
+                || hostName.equals(getFullLocalHostName())) {
+            return true;
+        }
+        return false;
+    }
+
+    private String getLocalHostName() {
+        try {
+            return InetAddress.getLocalHost().getHostName();
+        } catch (UnknownHostException e) {
+            return null;
+        }
+    }
+    
+    private String getFullLocalHostName() {
+        try {
+            return InetAddress.getLocalHost().getCanonicalHostName();
+        } catch (UnknownHostException e) {
+            return null;
+        }
+    }
+    
+    private boolean isLocalMachine(String hostName) {
+        try {
+            InetAddress hostAddress = InetAddress.getByName(hostName);
+            if (hostAddress.isAnyLocalAddress() || hostAddress.isLoopbackAddress() || hostName.equals(getLocalHostName()) || hostName.equals(getFullLocalHostName())) {
+                return true;
+            } else {
+                Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces();
+                while (en.hasMoreElements()) {
+                    NetworkInterface iface = en.nextElement();
+                    Enumeration<InetAddress> ien = iface.getInetAddresses();
+                    while (ien.hasMoreElements()) {
+                        InetAddress address = ien.nextElement();
+                        if (address.equals(hostAddress)) {
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            }
+        } catch (SocketException e) {
+            return false;
+        } catch (UnknownHostException e) {
+            return false;
         }
     }
     

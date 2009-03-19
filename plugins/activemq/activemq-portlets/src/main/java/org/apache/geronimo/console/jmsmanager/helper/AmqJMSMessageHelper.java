@@ -48,7 +48,7 @@ public class AmqJMSMessageHelper extends JMSMessageHelper {
         try {
             MBeanServer server = getMBeanServer();
             ObjectName objName = new ObjectName("org.apache.activemq" + ":BrokerName=" + brokerName + ",Type=" + type + ",Destination=" + physicalQName);
-            if ("Queue".equals(type)) {
+            if (QUEUE_TYPE.equals(type)) {
                 QueueViewMBean proxy;
                 if (!server.isRegistered(objName)) {
                     // mbean is not yet registered.Adding the destination to activemq broker.
@@ -88,12 +88,12 @@ public class AmqJMSMessageHelper extends JMSMessageHelper {
     }
     
     public DestinationStatistics getDestinationStatistics(String brokerName, String destType, String physicalName) {
-        DestinationStatistics stat = new DestinationStatistics();
+        DestinationStatistics stat = new DestinationStatistics();        
         try {
             MBeanServer server = getMBeanServer();
             ObjectName objName = new ObjectName("org.apache.activemq" + ":BrokerName=" + brokerName + ",Type=" + destType + ",Destination=" + physicalName);
             DestinationViewMBean proxy;
-            if ("Queue".equals(destType)) {
+            if (QUEUE_TYPE.equals(destType)) {
                 if (!server.isRegistered(objName)) {
                     // mbean is not yet registered.Adding the destination to activemq broker.
                     ObjectName brokerObj = new ObjectName("org.apache.activemq" + ":BrokerName=" + brokerName + ",Type=Broker");
@@ -128,7 +128,7 @@ public class AmqJMSMessageHelper extends JMSMessageHelper {
             stat.setQueueSize(proxy.getQueueSize());
         } catch (Exception ex) {
             // ignoring the exception
-            log.error("Failed to get ActiveMQ stats", ex);
+            log.warn("Failed to get ActiveMQ stats", ex);
         }
         return stat;
     }

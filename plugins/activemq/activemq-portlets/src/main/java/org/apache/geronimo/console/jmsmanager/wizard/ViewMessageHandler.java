@@ -24,15 +24,13 @@ import java.util.List;
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
 import javax.portlet.PortletException;
-import javax.portlet.PortletRequest;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 
 import org.apache.geronimo.console.MultiPageModel;
-import org.apache.geronimo.console.jmsmanager.helper.AmqJMSMessageHelper;
+import org.apache.geronimo.console.jmsmanager.JMSMessageInfo;
 import org.apache.geronimo.console.jmsmanager.helper.JMSMessageHelper;
 import org.apache.geronimo.console.jmsmanager.helper.JMSMessageHelperFactory;
-import org.apache.geronimo.console.jmsmanager.wizard.AbstractHandler.JMSResourceData;
 
 /**
  * @version $Rev$ $Date$
@@ -78,7 +76,7 @@ public class ViewMessageHandler extends AbstractHandler {
         String adminObjType = request.getParameter(ADMIN_OBJ_TYPE);
         String adminObjName = request.getParameter(ADMIN_OBJ_NAME);
         JMSMessageHelper helper = JMSMessageHelperFactory.getMessageHelper(request, adapterObjectName);
-        List messages = new ArrayList();
+        List<JMSMessageInfo> messages = new ArrayList<JMSMessageInfo>();
         try {
             messages = helper.getMessagesList(request, adapterObjectName, adminObjName, physicalName, adminObjType);
         } catch (Exception e) {

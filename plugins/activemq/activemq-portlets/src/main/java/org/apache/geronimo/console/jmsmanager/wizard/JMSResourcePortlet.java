@@ -30,7 +30,7 @@ import org.apache.geronimo.console.MultiPagePortlet;
 public class JMSResourcePortlet extends MultiPagePortlet {
     public void init(PortletConfig config) throws PortletException {
         super.init(config);
-        addHelper(new ListScreenHandler(), config);
+        addHelper(new ListScreenHandler(this), config);
         addHelper(new SelectProviderHandler(), config);
         addHelper(new ConfigureRAInstanceHandler(), config);
         addHelper(new SelectConnectionFactoryTypeHandler(), config);
