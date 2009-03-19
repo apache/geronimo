@@ -61,13 +61,125 @@ Plan Creator (added in Geronimo 2.1.2)
 Geronimo @VERSION@ Issues Resolved
 ------------------------------
 ** Bug
-TBD
+    * [GERONIMO-3838] - Close potential denial of service attack vector (OOM) in Tomcat session handling
+    * [GERONIMO-4037] - Geronimo 2.0.3 (and I guess at least 2.0.2) can't run  with a security manager settled from the command line using -Djava.security.manager
+    * [GERONIMO-4071] - car-maven-plugin should be able to download provided dependencies
+    * [GERONIMO-4093] - gsh scripts are not using setjavaenv or optional setenv script
+    * [GERONIMO-4141] - The war exported as a geronimo plugin in admin console cannot be installed with install-plugin command of deploy.bat|.sh
+    * [GERONIMO-4178] - Misleading errors during deployment when missing entries in openejb-jar.xml
+    * [GERONIMO-4210] - EJB Injection in JSF Managed Bean
+    * [GERONIMO-4229] - clarify use of GERONIMO_HOME vs. GERONIMO_BASE in shell scripts
+    * [GERONIMO-4237] - Elements <jndi-name>, <jndi-local-name> and <jndi> ignored in openejb-jar.xml
+    * [GERONIMO-4251] - Class-Path entry in WAR manifest didn't work if entry is a directory
+    * [GERONIMO-4275] - PCEnhancer java.lang.OutOfMemoryError: Java heap space
+    * [GERONIMO-4276] - openejb-jar-2.2.xsd missing from the schema subdirectory of the main Geronimo installation directory
+    * [GERONIMO-4286] - Can't configure log4j using log4jResource in ApplicationLog4jConfigurationGBean
+    * [GERONIMO-4299] - Session invalidation problem - WADI Tomcat Clustering
+    * [GERONIMO-4306] - Plugin list won't be updated after installing a new server plugin
+    * [GERONIMO-4308] - Web service address caching in WSDL
+    * [GERONIMO-4311] - Deployment of service-refs with wsdl with external wsdl/xsd imports fails
+    * [GERONIMO-4312] - Starting using Java command failed with ClassNotFound exception
+    * [GERONIMO-4317] - SQL jdbc driver class name is wrong in db pool creation wizard
+    * [GERONIMO-4356] - search-plugins, list-targets, and list-modules commands fail using framework assembly
+    * [GERONIMO-4361] - Resource injection of simple env. entry types
+    * [GERONIMO-4369] - The new attribute values are overwrote while restarting the DB pool connector
+    * [GERONIMO-4375] - rebind of "auto-bound" stuff in jca: context doesn't work
+    * [GERONIMO-4377] - Fail to indicate datasource create unsuccessfully  in admin console "database pool" porlet when choosing wrong database driver
+    * [GERONIMO-4380] - dom4j InvalidXPathException on the Tomcat Javaee5 assembly when deploying a Grails application
+    * [GERONIMO-4389] - Can't start server when install it in a directory containing space
+    * [GERONIMO-4393] - Duplicate Xid with multiple JVMs on single host - default impl needs some 'random' entropy
+    * [GERONIMO-4404] - ActiveMQ connectors default to 0.0.0.0 when ServerHostname is set to localhost or actual IP.
+    * [GERONIMO-4405] - Postgresql new drives would not be listed in Drive Jars list and download driver list
+    * [GERONIMO-4407] - Dupldate attribute entries exist in the config.xml while changing the value between zero-length string and no-zero-length string
+    * [GERONIMO-4411] - Tools.jar expected but not found on Mac OS 10.5.5
+    * [GERONIMO-4416] - Axis2 creates an invalid extra instance of web service beans
+    * [GERONIMO-4420] - Create Files under repository even if fail to deploy a jar having problems.
+    * [GERONIMO-4422] - Show parent/child components option in the System Modules portlet no longer works
+    * [GERONIMO-4427] - Incorrect httpbinding namespace is used in Axis2 plugin
+    * [GERONIMO-4428] - Non-ascii characters in SQL script causing build failure in GB18030 encoded shell
+    * [GERONIMO-4436] - The address of httpbinding port in the WSDL query is not updated
+    * [GERONIMO-4438] - TransactionSynchronizationRegistry.getTransactionKey should return null when transaction is not associated with the current thread
+    * [GERONIMO-4440] - MTOM binding style is overwrite by the style from WSDL
+    * [GERONIMO-4441] - The assignment to variable "handler" has no effect in ConstantLoginModule.java
+    * [GERONIMO-4442] - Unable to configure IP address for many listening ports
+    * [GERONIMO-4448] - TransactionManager resume method should only resume valid transaction
+    * [GERONIMO-4449] - Transaction.rollback method also calls beforeCompletion
+    * [GERONIMO-4450] - EJB based Provider implementation should allow other interfaces in addtion to javax.xml.ws.Provider
+    * [GERONIMO-4451] - locking and unlocking for availability of a keystore results in duplicate attributes in config.xml
+    * [GERONIMO-4452] - Is it possible to deploy more than one mdb???
+    * [GERONIMO-4464] - GShell does not support login option of old deploy scripts
+    * [GERONIMO-4467] - null pointer acess in code.
+    * [GERONIMO-4468] - <jar-file> elements are interpreted relatively to EAR root instead of persistence unit
+    * [GERONIMO-4473] - Validate the artifact fields when adding an archive to the repository
+    * [GERONIMO-4495] - Invoking stop method on a gbean whose instancestate is destoryed caused that gbean in the stopping state
+    * [GERONIMO-4496] - Update copyright years for 2009
+    * [GERONIMO-4497] - Searching for resources in MultiParentClassLoader is not fully optimized
+    * [GERONIMO-4518] - Can't shutdown the server when host was set to 127.0.0.1 in config-substitutions.properties
+    * [GERONIMO-4519] - When XAException.XA_RBROLLBACK arisen from XAResource.end, TM should not send rollback request again to the XAResource
+    * [GERONIMO-4525] - No effective exit code for all Windows commands
+    * [GERONIMO-4526] - ejbTimout method not subject to permission checks
+    * [GERONIMO-4529] - Corba port 1050 is not released after stopping j2ee-corba-yoko configuration
+    * [GERONIMO-4533] - Fix "This is ridiculous" error messages on command execution
+    * [GERONIMO-4534] - Can't secure connect to JMX with JConsole.
+    * [GERONIMO-4541] - Upgrade to ASM 3.1
+    * [GERONIMO-4544] - Error occured when repeatedly create DB or records
+    * [GERONIMO-4547] - Fail to install a plugin from a remote repository
+    * [GERONIMO-4550] - No error message displays in console when fail to create jms resource
+    * [GERONIMO-4554] - Cant deploy an ejb web service as a plugin using car-maven-plugin
+    * [GERONIMO-4555] - Can't start  App Client after stop it from console
+    * [GERONIMO-4556] - Farm deployment of configurations using JNDI resource references does not work
+    * [GERONIMO-4558] - Update to latest TranQL DB2 driver
+    * [GERONIMO-4561] - An invalid string "system" shows up in the "Login Timeout" field in Derby Embedded or Derby Embedded XA database pool configuration page
+    * [GERONIMO-4562] - 405 error when create plugin via admin console
+    * [GERONIMO-4563] - Connecting To ip or hostname...Could not open connection to the host, on port 9999: Connect failed
+    * [GERONIMO-4567] - Gshell deploy/assemble command on a remote server cannot work
+    * [GERONIMO-4570] - deploy error after using login to save the name and password
+    * [GERONIMO-4573] - OpenEJB tries to parse sun-ejb-jar.xml
+    * [GERONIMO-4574] - PolicyContext handler data objects are never released
+    * [GERONIMO-4579] - There are errors during zip file extracted on Linux OS using farm clustering
+    * [GERONIMO-4588] - Adding multiple server with the same host in monitoring portlet results in a sql error
 
 ** Improvement
-TBD
+    * [GERONIMO-1224] - shutdown.bat / shutdown.sh and associated StopServer  class do not allow a hostname to be specified and is inconsistent with deploy tool
+    * [GERONIMO-1367] - Shutdown JAR should use deployer stored username/password
+    * [GERONIMO-3316] - warn but don't prevent deployment if an ear's manifest cps are messed up, and provide more info on where.
+    * [GERONIMO-3959] - Freeze during deploying OrderEAR sample from GMOxDOC21 
+    * [GERONIMO-4162] - Using Eclipse XML tools in Apache Geronimo 2.1
+    * [GERONIMO-4170] - Upgrade Selenium version for Firefox 3
+    * [GERONIMO-4212] - Upgrade Ant to 1.7.1 version
+    * [GERONIMO-4225] - Allow Run SQL portlet run sql against any configured data source
+    * [GERONIMO-4274] - Automate version numbers in README and RELASE_NOTES files
+    * [GERONIMO-4278] - Upgrade to OpenJPA 1.2.0
+    * [GERONIMO-4295] - Upgrade to Derby 10.4.2.0
+    * [GERONIMO-4297] - Include TranQL connector for Oracle RAC
+    * [GERONIMO-4324] - Upgrade to MyFaces v1.2.6
+    * [GERONIMO-4370] - improve usage of default-repository in plugin catalog
+    * [GERONIMO-4386] - rmi-naming should use ServerHostname from config-substitutions.properties
+    * [GERONIMO-4391] - Upgrade to ANT v1.7.1
+    * [GERONIMO-4397] - change log4j ConversionPattern to ISO8601
+    * [GERONIMO-4406] - when client.bat/sh a non-exist  project, return a error msg instead of a Exception stack log to user
+    * [GERONIMO-4413] - Improve usability of client.bat/sh
+    * [GERONIMO-4460] - Upgrade Spring plugin to 2.5.6 artifacts
+    * [GERONIMO-4461] - Improve exception during transaction manager one phase commit
+    * [GERONIMO-4462] - Allow JAVA_HOME to point to a JRE in Windows OS
+    * [GERONIMO-4463] - Display complete usage information in the geronimo command
+    * [GERONIMO-4466] - Improve exception during transaction manager commit when there are multiple XAResources
+    * [GERONIMO-4471] - improve heuristic exception handling in rollback when txmanager.commit is called
+    * [GERONIMO-4478] - enhance exception handling during transaction rollback
+    * [GERONIMO-4482] - a few improvements on XAExceptions during enlist resource, prepare, commit, rollback
+    * [GERONIMO-4485] - Port the GERONIMO-4474 patch for V2.1
+    * [GERONIMO-4506] - switch to use txmanager 2.1.2-snapshot in geronimo server 2.1 branch
+    * [GERONIMO-4521] - ejb apps with spec security constraints should only deploy if there are corresponding geronimo security constraints, as with web apps
+    * [GERONIMO-4552] - Upgrade to Geronimo JavaMail provider 1.7 and JavaMail spec 1.6
+    * [GERONIMO-4564] - update to use transaction manager 2.1.2
+    * [GERONIMO-4572] - EJB Webservice BASIC login HTTPServletRequest into LoginModule
+    * [GERONIMO-4592] - Upgrade to OpenEJB 3.0.1
+    * [GERONIMO-4593] - Upgrade to OpenJPA 1.2.1
 
 ** New Feature
-TBD
+    * [GERONIMO-4279] - Pull in TranQL SQLServer 2000 and 2005 XA connector 
+    * [GERONIMO-4365] - Pull in TranQL Informix XA connector
+    * [GERONIMO-4394] - Run Geronimo as a Windows service out of box
 
 
 
@@ -108,11 +220,88 @@ All programming elements of the Java EE 5.0 Specification are available.
 Known Issues and Limitations
 ----------------------------
 ** Bug
-TBD
-
-** Improvement
-TBD
-
-** New Feature
-TBD
+    * [GERONIMO-4586] - Error when deploy war to multiple targets in a wadi cluster
+    * [GERONIMO-4575] - Update Repository List in Plugin portlet does not display error message when geronimo.apache.org is down
+    * [GERONIMO-4549] - JMS resource jndi entries are not removed after uninstalling the JMS connect adapter
+    * [GERONIMO-4542] - Significant lock contention exists in HttpServletResponse.addCookie()
+    * [GERONIMO-4530] - unnecessary dependencies in custom server
+    * [GERONIMO-4516] - Can't edit datasource and JMS Resource deployment plan in Data pool porlet of admin console
+    * [GERONIMO-4514] - tiles2 requires dummy servlet-mapping
+    * [GERONIMO-4513] - LDAP Realm Improvements
+    * [GERONIMO-4505] - console-tomcat references directly to properties-login
+    * [GERONIMO-4477] - JNDI NameClassPair always returns isRelative() = false
+    * [GERONIMO-4446] - ServletRequestAttributeListener does not work with G Jetty 2.1.3, works with G Tomcat 2.1.3
+    * [GERONIMO-4444] - Oracle XA database pool causes StringIndexOutOfBoundsException
+    * [GERONIMO-4443] - car-maven-plugin does not support the obsoletes attribute for plugins
+    * [GERONIMO-4434] - Folder classpath cannot be added in geronimo
+    * [GERONIMO-4402] - Create Geronimo Deployment Plan displays no errors when AbstractWebModuleBuilder: Could not load servlet class is thrown
+    * [GERONIMO-4392] - "Assemble a server" should not fail with IOException: FULL head
+    * [GERONIMO-4383] - PortletException on file upload after console timeout
+    * [GERONIMO-4373] - application.xml in EJB META-INF breaks deployment
+    * [GERONIMO-4367] - default-subject does not work with EJB security
+    * [GERONIMO-4350] - Connection proxying to imitate DissociatableManagedConnection can easily cause problems
+    * [GERONIMO-4349] - jdbc driver is installed to wrong repository after installed server specific repo plugin
+    * [GERONIMO-4345] - jar-file in persistence.xml overwrites toplink.ddl-generation
+    * [GERONIMO-4335] - Implement the ability to define a custom valve in config.xml
+    * [GERONIMO-4333] - Lifecycle operation failed - provide more details
+    * [GERONIMO-4322] - Database pool portlet has incorrect driver connection properties and driverClass values for MacOS
+    * [GERONIMO-4315] - various links on the Installed Web Applications portlet lead to 404
+    * [GERONIMO-4305] - PortletException with Redeploy application checked for non existent application
+    * [GERONIMO-4287] - geronimo.out and geronimo.log stop logging with application specific loggin is enabled and the app is undeployed
+    * [GERONIMO-4257] - Problem with processing and delivery jms messages
+    * [GERONIMO-4250] - Wrong path to access JAR files in EAR from WAR modules with getResourceAsStream
+    * [GERONIMO-4247] - Maven Plugin Documentation Shows Outdated Configuration
+    * [GERONIMO-4223] - NPE when accessing Installed application EAR or Installed web application portlet
+    * [GERONIMO-4222] - Database pool unusable after database unavailable for awhile
+    * [GERONIMO-4219] - Edited GBean properties not reflected on restart
+    * [GERONIMO-4217] - Check for all data primitive types when shortcutting to the primordial classloader
+    * [GERONIMO-4184] - In-doubt transaction Id's could be reused during server startup
+    * [GERONIMO-4165] - The deploy command in a assembled server fail to start
+    * [GERONIMO-4155] - Can use a run-as role without defining it
+    * [GERONIMO-4153] - Messages are not being redelivered correctly
+    * [GERONIMO-4124] - Tomcat jacc usage is messed up
+    * [GERONIMO-4097] - unable to download extensible administration console using Little G
+    * [GERONIMO-4080] - Accessibility issue: No input error messages are shown in some forms if anything is unexpected
+    * [GERONIMO-4078] - Database Pools page: JNDI name formatting inconsistent
+    * [GERONIMO-4076] - Console runs in unhandled exception when user starts module with unresolved dependencies
+    * [GERONIMO-4032] - Accessibility issue: descriptions should be shown explicitly for automatic change
+    * [GERONIMO-4030] - Accessibility issue: The tree and tabbed content in Debug views is not keyboard navigatable
+    * [GERONIMO-4028] - Accessibility issue: no label elements and title attributes defined in all of forms in admin console
+    * [GERONIMO-4026] - Accessibility issue: no fieldset and legend elements for groups of radio and checkbox button
+    * [GERONIMO-4011] - Need new release of JLine to fix GShell problems on Windows
+    * [GERONIMO-4000] - Cannot start magicGball sample's client application thru gshell command
+    * [GERONIMO-3998] - @WebFault
+    * [GERONIMO-3997] - NPE in console
+    * [GERONIMO-3989] - gshell - infinite loop
+    * [GERONIMO-3957] - Updating svn:ignore lists
+    * [GERONIMO-3949] - Problem creating a DB2 datasource
+    * [GERONIMO-3946] - WARN [JettyModuleBuilder] Web application . does not contain a WEB-INF/geronimo-web.xml deployment plan
+    * [GERONIMO-3942] - IllegalStateException warning message for Jetty plugin installer
+    * [GERONIMO-3938] - Geronimo must add Java2 security to run with security manager
+    * [GERONIMO-3934] - geronimo/start-server --timeout option does not work as expected
+    * [GERONIMO-3892] - Persistence.CreateEntityManagerFactory leads to an JNDI Exception in EJB Container
+    * [GERONIMO-3878] - Unable to deploy Postgres Datasource from console dialog "Database Pools" because of missing jar files in jar selection listbox.
+    * [GERONIMO-3875] - Enabling authentication for Derby renders DB Viewer portlet unusable for all db's except SystemDatabase
+    * [GERONIMO-3874] - Deployment of Spring SpringContextResourceAdapter fails
+    * [GERONIMO-3863] - Default TomcatWebConnector maxPostSize setting cannot handle DayTrader application
+    * [GERONIMO-3851] - Plan Creator cannot recognize classes inside compressed JARs of WEB-INF/lib
+    * [GERONIMO-3844] - Errors on shutdown from admin console (Jetty only) - java.lang.InterruptedException
+    * [GERONIMO-3832] - Timers created using the Timer Services are not dropeed when the associated ejb module is stopped or undeployed.
+    * [GERONIMO-3815] - ContextManager.getCurrentContext() throws NullPointerException
+    * [GERONIMO-3768] - deployment failure is not logged in either geronimo.log or deployer.log
+    * [GERONIMO-3762] - Web Applications displayed during server startup include "system" console plugins
+    * [GERONIMO-3685] - Monitoring Console should display TimeStatistics and BoundedRangeStatistics correctly
+    * [GERONIMO-3664] - JNDIView Portlet should list ResourceAdaptors and its JCAManagedConnectionFactories for RAR Modules
+    * [GERONIMO-3602] - SEI specified in webservices.xml does not overwrite annotation
+    * [GERONIMO-3581] - Default security relam name in ContextManager
+    * [GERONIMO-3483] - Redeploy should start any dependent configurations it stops.
+    * [GERONIMO-3466] - car-maven-plugin can not generate server plugin which includes EJB
+    * [GERONIMO-3442] - Tomcat exception reports reference non-existent log files
+    * [GERONIMO-3419] - Console displays wrong database pool type when derby embed local is used.
+    * [GERONIMO-3392] - CA Helper App - Unable to find HTTPS Connector configured for ClientAuth
+    * [GERONIMO-3233] - Local EJB references cannot be resolved when <inverse-classloading> is set in web application
+    * [GERONIMO-2622] - Implement PolicyContextHandlerSOAPMessage
+    * [GERONIMO-2451] - Deployment fails
+    * [GERONIMO-2340] - Network Listener state not persisted across server startups
+    * [GERONIMO-2246] - Why resource-env-ref:admin-object-module?
 
