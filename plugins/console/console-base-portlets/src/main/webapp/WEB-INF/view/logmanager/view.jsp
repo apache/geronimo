@@ -33,19 +33,12 @@ function trim(str){
 }
 function <portlet:namespace/>validateForm(){
     with(document.<portlet:namespace/>update){
-        if(trim(logFile.value).length == ""){
-            alert("Please input the log file name.");
-            logFile.value="";
-            logFile.focus();
+        if(trim(configFile.value).length == ""){
+            alert("Please input the configuration file name.");
+            configFile.value="";
+            configFile.focus();
             return false;
         }
-        if(trim(layoutPattern.value) == ""){
-            alert("Please input layout pattern.");
-            layoutPattern.value="";
-            layoutPattern.focus();
-            return false;
-        }
-        
     }
     return true;
 }
