@@ -138,6 +138,7 @@ Geronimo @VERSION@ Issues Resolved
     * [GERONIMO-4574] - PolicyContext handler data objects are never released
     * [GERONIMO-4579] - There are errors during zip file extracted on Linux OS using farm clustering
     * [GERONIMO-4588] - Adding multiple server with the same host in monitoring portlet results in a sql error
+    * [GERONIMO-4595] - script error when clicking the update button in portlet console ---server---Server Logs -- Log Manager
 
 ** Improvement
     * [GERONIMO-1224] - shutdown.bat / shutdown.sh and associated StopServer  class do not allow a hostname to be specified and is inconsistent with deploy tool
