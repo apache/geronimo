@@ -123,7 +123,8 @@
                             <config-xml-content>
                                 <gbean name="DownloadedPluginRepos">
                                     <attribute name="repositoryList">http://geronimo.apache.org/plugins/plugin-repository-list-2.1.4.txt</attribute>
-                                    <attribute name="userRepositories">~/.m2/repository</attribute>
+                                    <!--<attribute name="userRepositories">~/.m2/repository</attribute>-->
+                                    <attribute name="userRepositories">http://geronimo.apache.org/plugins/geronimo-2.1.4</attribute>
                                 </gbean>
                             </config-xml-content>
                         </plugin-artifact>

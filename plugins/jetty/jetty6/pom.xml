@@ -113,46 +113,55 @@
                         <dependency start="true">
                             <groupId>org.apache.geronimo.configs</groupId>
                             <artifactId>j2ee-server</artifactId>
+                            <version>${version}</version>
                             <type>car</type>
                         </dependency>
                         <dependency start="true">
                             <groupId>org.apache.geronimo.framework</groupId>
                             <artifactId>server-security-config</artifactId>
+                            <version>${version}</version>
                             <type>car</type>
                         </dependency>
                         <dependency start="true">
                             <groupId>org.apache.geronimo.configs</groupId>
                             <artifactId>transaction</artifactId>
+                            <version>${version}</version>
                             <type>car</type>
                         </dependency>
                         <dependency start="true">
                             <groupId>org.apache.geronimo.modules</groupId>
                             <artifactId>geronimo-jetty6</artifactId>
+                            <version>${version}</version>
                             <type>jar</type>
                         </dependency>
                         <dependency start="true">
                             <groupId>org.mortbay.jetty</groupId>
                             <artifactId>jetty</artifactId>
+                            <version>6.1.7</version>
                             <type>jar</type>
                         </dependency>
                         <dependency start="true">
                             <groupId>org.mortbay.jetty</groupId>
                             <artifactId>jetty-ajp</artifactId>
+                            <version>6.1.7</version>
                             <type>jar</type>
                         </dependency>
                         <dependency start="true">
                             <groupId>org.mortbay.jetty</groupId>
                             <artifactId>jetty-sslengine</artifactId>
+                            <version>6.1.7</version>
                             <type>jar</type>
                         </dependency>
                         <dependency start="true">
                             <groupId>org.mortbay.jetty</groupId>
                             <artifactId>jetty-util</artifactId>
+                            <version>6.1.7</version>
                             <type>jar</type>
                         </dependency>
                         <dependency start="true">
                             <groupId>org.apache.geronimo.configs</groupId>
                             <artifactId>webservices-common</artifactId>
+                            <version>${version}</version>
                             <type>car</type>
                         </dependency>
                     </dependencies>

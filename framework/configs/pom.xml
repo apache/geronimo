@@ -70,12 +70,10 @@
                         <addMavenDescriptor>false</addMavenDescriptor>
                     </archive>
                     <osiApproved>true</osiApproved>
-                    <!--
                     <useMavenDependencies>
                         <value>true</value>
                         <includeVersion>true</includeVersion>
                     </useMavenDependencies>
-                    -->
                     <commonInstance>
                         <plugin-artifact>
                             <geronimo-version>${geronimoVersion}</geronimo-version>
@@ -85,7 +83,7 @@
                             <source-repository>~/.m2/repository/</source-repository>
                             <source-repository>http://repo1.maven.org/maven2/</source-repository>
                             <source-repository>http://people.apache.org/repo/m2-snapshot-repository/</source-repository>
-                            <source-repository>http://people.apache.org/repo/m2-incubating-repository/</source-repository>
+                            <!--<source-repository>http://people.apache.org/repo/m2-incubating-repository/</source-repository>-->
                             <artifact-alias key="${groupId}/${artifactId}//car">${groupId}/${artifactId}/${version}/car</artifact-alias>
                             <artifact-alias key="${groupId}/${artifactId}/2.1.3/car">${groupId}/${artifactId}/${version}/car</artifact-alias>
                             <artifact-alias key="${groupId}/${artifactId}/2.1.2/car">${groupId}/${artifactId}/${version}/car</artifact-alias>
