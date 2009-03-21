@@ -139,6 +139,8 @@ Geronimo @VERSION@ Issues Resolved
     * [GERONIMO-4579] - There are errors during zip file extracted on Linux OS using farm clustering
     * [GERONIMO-4588] - Adding multiple server with the same host in monitoring portlet results in a sql error
     * [GERONIMO-4595] - script error when clicking the update button in portlet console ---server---Server Logs -- Log Manager
+    * [GERONIMO-4597] - Validate Web Admin Console input
+    * [GERONIMO-4598] - Versions missing in plugins: as a result many plugins cannot be added to framework server
 
 ** Improvement
     * [GERONIMO-1224] - shutdown.bat / shutdown.sh and associated StopServer  class do not allow a hostname to be specified and is inconsistent with deploy tool
@@ -221,10 +223,15 @@ All programming elements of the Java EE 5.0 Specification are available.
 Known Issues and Limitations
 ----------------------------
 ** Bug
+    * [GERONIMO-4589] - Does not echo the command after expection occur in command line deploy.sh
     * [GERONIMO-4586] - Error when deploy war to multiple targets in a wadi cluster
+    * [GERONIMO-4580] - Wrong "Display Name" element in "ra.xml" of "tranql-connector-derby-embed-local-1.4.rar"
     * [GERONIMO-4575] - Update Repository List in Plugin portlet does not display error message when geronimo.apache.org is down
+    * [GERONIMO-4568] - could not stop the application EAR that has the wrong JMS deployment plan
+    * [GERONIMO-4553] - Admin console does not show error when creating duplicate security realm
     * [GERONIMO-4549] - JMS resource jndi entries are not removed after uninstalling the JMS connect adapter
     * [GERONIMO-4542] - Significant lock contention exists in HttpServletResponse.addCookie()
+    * [GERONIMO-4539] - Deployment failed if JPA PU jar in web module
     * [GERONIMO-4530] - unnecessary dependencies in custom server
     * [GERONIMO-4516] - Can't edit datasource and JMS Resource deployment plan in Data pool porlet of admin console
     * [GERONIMO-4514] - tiles2 requires dummy servlet-mapping
@@ -294,6 +301,7 @@ Known Issues and Limitations
     * [GERONIMO-3685] - Monitoring Console should display TimeStatistics and BoundedRangeStatistics correctly
     * [GERONIMO-3664] - JNDIView Portlet should list ResourceAdaptors and its JCAManagedConnectionFactories for RAR Modules
     * [GERONIMO-3602] - SEI specified in webservices.xml does not overwrite annotation
+    * [GERONIMO-3599] - Unable to create new JMS Resource group through console in IE7
     * [GERONIMO-3581] - Default security relam name in ContextManager
     * [GERONIMO-3483] - Redeploy should start any dependent configurations it stops.
     * [GERONIMO-3466] - car-maven-plugin can not generate server plugin which includes EJB
