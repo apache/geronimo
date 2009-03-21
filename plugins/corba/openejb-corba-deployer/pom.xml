@@ -81,22 +81,26 @@
                         <dependency>
                             <groupId>org.apache.geronimo.configs</groupId>
                             <artifactId>openejb-deployer</artifactId>
+                            <version>${version}</version>
                             <type>car</type>
                             <import>classes</import>
                         </dependency>
                         <dependency>
                             <groupId>org.apache.geronimo.modules</groupId>
                             <artifactId>geronimo-corba-builder</artifactId>
+                            <version>${version}</version>
                             <type>jar</type>
                         </dependency>
                         <dependency>
                             <groupId>org.apache.geronimo.configs</groupId>
                             <artifactId>j2ee-deployer</artifactId>
+                            <version>${version}</version>
                             <type>car</type>
                         </dependency>
                         <dependency>
                             <groupId>org.apache.geronimo.modules</groupId>
                             <artifactId>geronimo-corba</artifactId>
+                            <version>${version}</version>
                             <type>jar</type>
                         </dependency>
                     </dependencies>
