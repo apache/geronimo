@@ -110,6 +110,14 @@ public class UrlResourceFinderTest extends TestSupport {
         assertNull(resource.getManifest());
     }
 
+    public void testDirectoryResourceScope() throws Exception {
+        URL jar = new File(BASEDIR, "src/test/data/resourceFinderTest/jar1/").toURL();
+        UrlResourceFinder resourceFinder = new UrlResourceFinder(new URL[]{jar});
+
+        ResourceHandle resource = resourceFinder.getResource("../jar2/resource");
+        assertNull(resource);
+    }
+    
     public void testJarResource() throws Exception {
         URL jar = jarFile.toURL();
         UrlResourceFinder resourceFinder = new UrlResourceFinder(new URL[]{jar});
