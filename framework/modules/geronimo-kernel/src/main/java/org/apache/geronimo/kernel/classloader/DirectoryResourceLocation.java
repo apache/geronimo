@@ -37,7 +37,7 @@ public class DirectoryResourceLocation extends AbstractUrlResourceLocation {
 
     public ResourceHandle getResourceHandle(String resourceName) {
         File file = new File(baseDir, resourceName);
-        if (!file.exists()) {
+        if (!file.exists() || !isLocal(file)) {
             return null;
         }
 
@@ -46,6 +46,16 @@ public class DirectoryResourceLocation extends AbstractUrlResourceLocation {
             return resourceHandle;
         } catch (MalformedURLException e) {
             return null;
+        }
+    }
+
+    private boolean isLocal(File file) {
+        try {
+            String base = baseDir.getCanonicalPath();
+            String relative = file.getCanonicalPath();
+            return (relative.startsWith(base));
+        } catch (IOException e) {
+            return false;
         }
     }
 
