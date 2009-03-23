@@ -141,6 +141,7 @@ Geronimo @VERSION@ Issues Resolved
     * [GERONIMO-4595] - script error when clicking the update button in portlet console ---server---Server Logs -- Log Manager
     * [GERONIMO-4597] - Validate Web Admin Console input
     * [GERONIMO-4598] - Versions missing in plugins: as a result many plugins cannot be added to framework server
+    * [GERONIMO-4600] - JarFileClassLoader allows resources to be loaded from locations outside of the directory specified in its classpath
 
 ** Improvement
     * [GERONIMO-1224] - shutdown.bat / shutdown.sh and associated StopServer  class do not allow a hostname to be specified and is inconsistent with deploy tool
