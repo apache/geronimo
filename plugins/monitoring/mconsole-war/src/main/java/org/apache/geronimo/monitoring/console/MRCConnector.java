@@ -141,7 +141,7 @@ public class MRCConnector {
         try {
             Statement stmt = conn.createStatement();
             stmt.executeUpdate("UPDATE SERVERS SET LAST_SEEN = '" + currentTime
-                    + "' WHERE IP='" + ip + "'");
+                    + "' WHERE IP='" + ip + "' AND PORT=" + port);
         } catch (Exception e) {
             throw e;
         } finally {
