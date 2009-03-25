@@ -1,0 +1,113 @@
+Index: modules/kernel/src/org/apache/axis2/transport/http/ListingAgent.java
+===================================================================
+--- modules/kernel/src/org/apache/axis2/transport/http/ListingAgent.java	(revision 751793)
++++ modules/kernel/src/org/apache/axis2/transport/http/ListingAgent.java	(working copy)
+@@ -20,7 +20,6 @@
+ 
+ package org.apache.axis2.transport.http;
+ 
+-import org.apache.axiom.attachments.utils.IOUtils;
+ import org.apache.axis2.AxisFault;
+ import org.apache.axis2.Constants;
+ import org.apache.axis2.addressing.EndpointReference;
+@@ -186,9 +185,12 @@
+                 if (stream != null) {
+                     OutputStream out = res.getOutputStream();
+                     res.setContentType("text/xml");
+-                    copy(stream, out);
+-                    out.flush();
+-                    out.close();
++                    try {
++                        copy(stream, out);
++                    } finally {
++                        try { stream.close(); } catch (IOException e) {}
++                        try { out.close(); } catch (IOException e) {}
++                    }
+                     return;
+                 }
+             }
+@@ -202,13 +204,35 @@
+      * @param ostream the <code>OutputStream</code>
+      */
+     public static void copy(InputStream stream, OutputStream ostream) throws IOException {
+-        int nextValue = stream.read();
+-        while (-1 != nextValue) {
+-            ostream.write(nextValue);
+-            nextValue = stream.read();
++        byte[] buffer = new byte[4096];
++        int count;
++        while ((count = stream.read(buffer)) > 0) {
++            ostream.write(buffer, 0, count);
+         }
+     }
+ 
++    private static void getAsResource(HttpServletResponse res,
++                                      ClassLoader classLoader,
++                                      String extension,
++                                      String file) throws IOException {
++        if (!file.endsWith(extension) || file.indexOf("..") != -1) {
++            res.sendError(HttpServletResponse.SC_BAD_REQUEST);
++        } else {
++            InputStream in = classLoader.getResourceAsStream("META-INF/" + file);
++            if (in == null) {
++                res.sendError(HttpServletResponse.SC_NOT_FOUND);
++            } else {
++                OutputStream out = res.getOutputStream();
++                try {
++                    copy(in, out);
++                } finally {
++                    try { in.close(); } catch (IOException e) {}
++                    try { out.close(); } catch (IOException e) {}
++                }
++            }
++        }
++    }
++
+     public String extractServiceName(String urlString) {
+         int n = urlString.indexOf(configContext.getServiceContextPath());
+         if (n != -1) {
+@@ -244,23 +268,14 @@
+                 boolean isHttp = "http".equals(req.getScheme());
+                 if (wsdl2 >= 0) {
+                     res.setContentType("text/xml");
++                    AxisService axisService = (AxisService) serviceObj;
+                     String ip = extractHostAndPort(url, isHttp);
+                     String wsdlName = req.getParameter("wsdl2");
+                     if (wsdlName != null && wsdlName.length()>0) {
+-                        InputStream in = ((AxisService) serviceObj).getClassLoader()
+-                                .getResourceAsStream(DeploymentConstants.META_INF + "/" + wsdlName);
+-                        if (in != null) {
+-                            OutputStream out = res.getOutputStream();
+-                            out.write(IOUtils.getStreamAsByteArray(in));
+-                            out.flush();
+-                            out.close();
+-                        } else {
+-                            res.sendError(HttpServletResponse.SC_NOT_FOUND);
+-                        }
++                        getAsResource(res, axisService.getClassLoader(), ".wsdl", wsdlName);
+                     } else {
+                         OutputStream out = res.getOutputStream();
+-                        ((AxisService) serviceObj)
+-                                .printWSDL2(out, ip);
++                        axisService.printWSDL2(out, ip);
+                         out.flush();
+                         out.close();
+                     }
+@@ -310,16 +325,7 @@
+                             out.flush();
+                             out.close();
+                         } else {
+-                            InputStream in = axisService.getClassLoader()
+-                                    .getResourceAsStream(DeploymentConstants.META_INF + "/" + xsds);
+-                            if (in != null) {
+-                                OutputStream out = res.getOutputStream();
+-                                out.write(IOUtils.getStreamAsByteArray(in));
+-                                out.flush();
+-                                out.close();
+-                            } else {
+-                                res.sendError(HttpServletResponse.SC_NOT_FOUND);
+-                            }
++                            getAsResource(res, axisService.getClassLoader(), ".xsd", xsds);
+                         }
+ 
+                         //multiple schemas are present and the user specified

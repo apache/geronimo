@@ -1384,7 +1384,7 @@
             <dependency>
                 <groupId>org.apache.axis2</groupId>
                 <artifactId>axis2-kernel</artifactId>
-                <version>${axis2Version}</version>
+                <version>1.3-G20090325</version>
                 <exclusions>
                     <exclusion>
                         <groupId>org.apache.woden</groupId>
@@ -1408,19 +1408,19 @@
             <dependency>
                 <groupId>org.apache.axis2</groupId>
                 <artifactId>axis2-jaxws</artifactId>
-                <version>1.3-G20090310</version>
+                <version>1.3-G20090325</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.axis2</groupId>
                 <artifactId>axis2-metadata</artifactId>
-                <version>1.3-G20090310</version>
+                <version>1.3-G20090325</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.axis2</groupId>
                 <artifactId>axis2-saaj</artifactId>
-                <version>1.3-G20090310</version>
+                <version>1.3-G20090325</version>
             </dependency>
 
             <dependency>
