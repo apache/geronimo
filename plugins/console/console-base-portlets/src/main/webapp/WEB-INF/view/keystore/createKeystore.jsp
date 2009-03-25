@@ -29,8 +29,12 @@ var <portlet:namespace/>formName = "<portlet:namespace/>KeystoreForm";
 var <portlet:namespace/>requiredFields = new Array("filename", "password");
 var <portlet:namespace/>passwordFields = new Array("password");
 function <portlet:namespace/>validateForm(){
+    var illegalChars= /[\.]{2}|[()<>,;:\\/"'\|]/ ;
     if(!textElementsNotEmpty(<portlet:namespace/>formName, <portlet:namespace/>requiredFields)) {
         addErrorMessage("<portlet:namespace/>", '<fmt:message key="keystore.common.emptyText"/>');
+        return false;
+    } else if (document.forms[<portlet:namespace/>formName].filename.value.match(illegalChars)) {
+        alert("Keystore name contains illegal characters");
         return false;
     }
     if(!passwordElementsConfirm(<portlet:namespace/>formName, <portlet:namespace/>passwordFields)) {

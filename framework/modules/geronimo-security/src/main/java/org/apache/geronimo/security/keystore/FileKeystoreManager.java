@@ -58,6 +58,7 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.EditableConfigurationManager;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
+import org.apache.geronimo.kernel.util.InputUtils;
 import org.apache.geronimo.management.geronimo.KeyIsLocked;
 import org.apache.geronimo.management.geronimo.KeystoreException;
 import org.apache.geronimo.management.geronimo.KeystoreInstance;
@@ -367,6 +368,10 @@ public class FileKeystoreManager implements KeystoreManager, GBeanLifecycle {
     }
 
     public KeystoreInstance createKeystore(String name, char[] password, String keystoreType) throws KeystoreException {
+
+        // ensure there are no illegal chars in DB name
+        InputUtils.validateSafeInput(name);
+
         File test = new File(directory, name);
         if(test.exists()) {
             throw new IllegalArgumentException("Keystore already exists "+test.getAbsolutePath()+"!");

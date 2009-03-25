@@ -26,14 +26,14 @@
 <c:set var="reslist" value="${requestScope['org.apache.geronimo.console.repo.list']}"/>
 
 <style type="text/css">  
-	div.Hidden {
-	display: none;
-	}
+    div.Hidden {
+        display: none;
+    }
 	
-	div.Shown {
-	display: block;
-	font-size: 10px;
-	}
+    div.Shown {
+        display: block;
+    font-size: 10px;
+    }
 </style>  
 
 <script language="JavaScript">
@@ -50,7 +50,7 @@ function <portlet:namespace/>validateForm() {
 
 function <portlet:namespace/>validate() {
     with(document.<portlet:namespace/>fileSelect){
-        var illegalChars= /[\.]{2}|[()<>,;:\\/"']/ ;
+        var illegalChars= /[\.]{2}|[()<>,;:\\/"'\|]/ ;
         if (group.value.match(illegalChars)) {
             group.focus(); 
             addErrorMessage("<portlet:namespace/>", '<fmt:message key="repository.normal.invalidChar"/>');

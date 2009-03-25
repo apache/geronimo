@@ -29,6 +29,8 @@ import javax.portlet.PortletRequest;
 
 import org.apache.geronimo.console.BasePortlet;
 
+import org.apache.geronimo.kernel.util.InputUtils;
+
 public class RunSQLHelper {
 
     private static final Logger log = LoggerFactory.getLogger(RunSQLHelper.class);
@@ -48,6 +50,10 @@ public class RunSQLHelper {
     }
     
     public boolean createDB(String dbName, PortletRequest request) {
+
+        // ensure there are no illegal chars in DB name
+        InputUtils.validateSafeInput(dbName);
+
         Connection conn = null;
         try {
             conn = DerbyConnectionUtil.getDerbyConnection(dbName,

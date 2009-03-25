@@ -26,46 +26,17 @@
         Welcome to Geronimo
     </description>
 
-    <!--<servlet>-->
-        <!--<servlet-name>jsp_sample_installer</servlet-name>-->
-        <!--<servlet-class>org.apache.geronimo.welcome.AbsentSampleServlet</servlet-class>-->
-        <!--<init-param>-->
-            <!--<param-name>moduleId</param-name>-->
-            <!--<param-value>org.apache.geronimo.samples/jsp-examples-SERVER//car</param-value>-->
-        <!--</init-param>-->
-    <!--</servlet>-->
-
-    <!--<servlet>-->
-        <!--<servlet-name>servlet_sample_installer</servlet-name>-->
-        <!--<servlet-class>org.apache.geronimo.welcome.AbsentSampleServlet</servlet-class>-->
-        <!--<init-param>-->
-            <!--<param-name>moduleId</param-name>-->
-            <!--<param-value>org.apache.geronimo.samples/servlet-examples-SERVER//car</param-value>-->
-        <!--</init-param>-->
-    <!--</servlet>-->
-
-    <!--<servlet>-->
-        <!--<servlet-name>ldap_sample_installer</servlet-name>-->
-        <!--<servlet-class>org.apache.geronimo.welcome.AbsentSampleServlet</servlet-class>-->
-        <!--<init-param>-->
-            <!--<param-name>moduleId</param-name>-->
-            <!--<param-value>org.apache.geronimo.samples/ldap-sample-app-SERVER//car</param-value>-->
-        <!--</init-param>-->
-    <!--</servlet>-->
-
-    <!--<servlet-mapping>-->
-        <!--<servlet-name>jsp_sample_installer</servlet-name>-->
-        <!--<url-pattern>/jsp-examples/*</url-pattern>-->
-    <!--</servlet-mapping>-->
-
-    <!--<servlet-mapping>-->
-        <!--<servlet-name>servlet_sample_installer</servlet-name>-->
-        <!--<url-pattern>/servlets-examples/*</url-pattern>-->
-    <!--</servlet-mapping>-->
-
-    <!---<servlet-mapping>-->
-        <!--<servlet-name>ldap_sample_installer</servlet-name>-->
-        <!--<url-pattern>/ldap-demo/*</url-pattern>-->
-    <!--</servlet-mapping>-->
+    <!-- XSS/XSRF filter -->
+    <filter>
+        <filter-name>XSSXSRFFilter</filter-name>
+        <filter-class>org.apache.geronimo.console.filter.XSSXSRFFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>XSSXSRFFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    <listener>
+        <listener-class>org.apache.geronimo.console.filter.XSSXSRFFilter</listener-class>
+    </listener>
 
 </web-app>

@@ -567,7 +567,7 @@ public class MonitoringPortlet extends BasePortlet {
             try {
                 View view = entityManager.find(View.class, Integer.parseInt(view_id));
                 view.setName(actionRequest.getParameter("name"));
-                view.setDescription(actionRequest.getParameter("description"));
+                view.setDescription(actionRequest.getParameter("minxss_description"));
             } finally {
                 userTransaction.commit();
             }
@@ -586,7 +586,7 @@ public class MonitoringPortlet extends BasePortlet {
             try {
                 View view = new View();
                 view.setName(name);
-                view.setDescription(actionRequest.getParameter("description"));
+                view.setDescription(actionRequest.getParameter("minxss_description"));
                 String[] graphsArray = actionRequest.getParameterValues("graph_ids");
                 if (graphsArray != null) {
                     for (String graphIdString: graphsArray) {
@@ -731,7 +731,7 @@ public class MonitoringPortlet extends BasePortlet {
 
     private void updateGraphFromRequest(ActionRequest actionRequest, Graph graph) {
         graph.setGraphName1(actionRequest.getParameter("name"));
-        graph.setDescription(actionRequest.getParameter("description"));
+        graph.setDescription(actionRequest.getParameter("minxss_description"));
         graph.setXlabel(actionRequest.getParameter("xlabel"));
         graph.setYlabel(actionRequest.getParameter("ylabel"));
         graph.setTimeFrame(Integer.parseInt(actionRequest.getParameter("timeframe")));

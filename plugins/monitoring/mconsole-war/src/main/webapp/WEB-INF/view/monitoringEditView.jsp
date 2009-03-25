@@ -42,7 +42,7 @@ document.getElementById(x).style.display='';
 }
 function validate() {
    if (! (document.editView.name.value 
-      && document.editView.description.value  ))
+      && document.editView.minxss_description.value  ))
    {
       alert("Name and Description are required fields");
       return false;
@@ -91,7 +91,7 @@ function openNewWindow(theURL,winName,features) {
     <tr>
       <td><label for="<portlet:namespace/>description"><fmt:message key="monitor.common.desc"/></label>:</td>
       <td>&nbsp;</td>
-      <td align="right"><textarea rows="5" cols="50" name="description" id="<portlet:namespace/>description"><%=view.getDescription()%></textarea></td>
+      <td align="right"><textarea rows="5" cols="50" name="minxss_description" id="<portlet:namespace/>description"><%=view.getDescription()%></textarea></td>
     </tr>
     <tr>
       <td valign="top"><fmt:message key="monitor.common.graph"/>:</td>

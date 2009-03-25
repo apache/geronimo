@@ -29,11 +29,15 @@ var <portlet:namespace/>requiredFields = new Array("createDB");
 var <portlet:namespace/>requiredFields2 = new Array("sqlStmts");
 
 function <portlet:namespace/>validateForm1(){
+    var illegalChars= /[\.]{2}|[()<>,;:\\/"'\|]/ ;
     var action = document.forms[<portlet:namespace/>formName].elements['action'];
     action.value="Create";
-    var valid = textElementsNotEmpty(<portlet:namespace/>formName, <portlet:namespace/>requiredFields);
-    if (!valid) {
+    if (!textElementsNotEmpty(<portlet:namespace/>formName, <portlet:namespace/>requiredFields)) 
+    {
         addErrorMessage("<portlet:namespace/>", '<fmt:message key="internaldb.common.emptyText"/>');
+        return false;
+    } else if (document.forms[<portlet:namespace/>formName].createDB.value.match(illegalChars)) {
+        alert("Database name contains illegal characters");
         return false;
     }
     else

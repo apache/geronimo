@@ -452,7 +452,7 @@ function addOption(selectbox, value, text )
     <tr>
       <td><label for="<portlet:namespace/>description"><fmt:message key="monitor.common.desc"/></label>:</td>
       <td>&nbsp;</td>
-      <td align="right"><textarea rows="5" cols="50" name="description" id="<portlet:namespace/>description"><%=graph.getDescription()%></textarea></td>
+      <td align="right"><textarea rows="5" cols="50" name="minxss_description" id="<portlet:namespace/>description"><%=graph.getDescription()%></textarea></td>
       <td></td>
     </tr>
     <tr>
