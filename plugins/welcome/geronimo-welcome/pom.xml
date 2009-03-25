@@ -40,6 +40,12 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.apache.geronimo.plugins</groupId>
+            <artifactId>console-filter</artifactId>
+            <version>${version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-plugin</artifactId>
             <version>${version}</version>

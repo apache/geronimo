@@ -24,39 +24,19 @@
 
     <parent>
         <groupId>org.apache.geronimo.plugins</groupId>
-        <artifactId>plugins</artifactId>
+        <artifactId>console</artifactId>
         <version>2.1.5-SNAPSHOT</version>
     </parent>
 
-    <artifactId>console</artifactId>
-    <name>Geronimo Plugins, Console</name>
-    <packaging>pom</packaging>
+    <artifactId>console-filter</artifactId>
+    <name>Geronimo Plugins, Console :: XSSXSRF Filter</name>
 
-    <description>
-        Geronimo administration console supporting dynamic extensions
-    </description>
-    
     <dependencies>
         <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-servlet_2.5_spec</artifactId>
             <scope>provided</scope>
         </dependency>
     </dependencies>
-    
-    <modules>
-        <module>geronimo-converter</module>
-        <module>console-core</module>
-        <module>console-base-portlets</module>
-        <module>console-filter</module>
-        <module>console-portal-driver</module>
-        <module>console-ear</module>
-        <module>console-tomcat</module>
-        <module>console-jetty</module>
-        <module>plugin-portlets</module>
-        <module>plugin-console-jetty</module>
-        <module>plugin-console-tomcat</module>
-    </modules>
 
 </project>
-

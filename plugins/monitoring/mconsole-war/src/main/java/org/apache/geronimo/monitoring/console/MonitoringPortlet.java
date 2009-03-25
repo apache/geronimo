@@ -510,7 +510,7 @@ public class MonitoringPortlet extends GenericPortlet {
         DBManager DBase = new DBManager();
         Connection con = DBase.getConnection();
         String name = actionRequest.getParameter("name");
-        String description = actionRequest.getParameter("description");
+        String description = actionRequest.getParameter("minxss_description");
         String[] graphsArray = actionRequest.getParameterValues("graph_ids");
         if (graphsArray == null) {
             graphsArray = new String[0];
@@ -553,7 +553,7 @@ public class MonitoringPortlet extends GenericPortlet {
         DBManager DBase = new DBManager();
         Connection con = DBase.getConnection();
         String name = actionRequest.getParameter("name");
-        String description = actionRequest.getParameter("description");
+        String description = actionRequest.getParameter("minxss_description");
         String[] graphsArray = actionRequest.getParameterValues("graph_ids");
         if (graphsArray == null) {
             graphsArray = new String[0];
@@ -797,7 +797,7 @@ public class MonitoringPortlet extends GenericPortlet {
         DBManager DBase = new DBManager();
         Connection con = DBase.getConnection();
         String name = actionRequest.getParameter("name");
-        String description = actionRequest.getParameter("description");
+        String description = actionRequest.getParameter("minxss_description");
         String server_id = actionRequest.getParameter("server_id");
         String xlabel = actionRequest.getParameter("xlabel");
         String ylabel = actionRequest.getParameter("ylabel");
@@ -870,7 +870,7 @@ public class MonitoringPortlet extends GenericPortlet {
         actionResponse.setRenderParameter("graph_id", graph_id);
 
         String name = actionRequest.getParameter("name");
-        String description = actionRequest.getParameter("description");
+        String description = actionRequest.getParameter("minxss_description");
         String server_id = actionRequest.getParameter("server_id");
         String xlabel = actionRequest.getParameter("xlabel");
         String ylabel = actionRequest.getParameter("ylabel");

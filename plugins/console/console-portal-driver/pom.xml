@@ -33,6 +33,12 @@
     <packaging>war</packaging>
 
     <dependencies>
+        <dependency>
+            <groupId>org.apache.geronimo.plugins</groupId>
+            <artifactId>console-filter</artifactId>
+            <version>${version}</version>
+        </dependency>
+
         <!-- for jspc maven plugin -->
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>

@@ -459,7 +459,7 @@ if (!message.equals("")) {
 				<td><fmt:message key="monitor.common.desc"/>:</td>
 				<td>&nbsp;</td>
 				<td align="right"><textarea rows="5" cols="50"
-					name="description"></textarea></td>
+					name="minxss_description"></textarea></td>
 				<td></td>
 			</tr>
 			<tr>

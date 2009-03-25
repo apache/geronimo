@@ -56,7 +56,7 @@ document.getElementById(x).style.display='';
 }
 function validate() {
    if (! (document.addView.name.value 
-      && document.addView.description.value  ))
+      && document.addView.minxss_description.value  ))
    {
       alert("Name and Description are required fields");
       return false;
@@ -100,7 +100,7 @@ function openNewWindow(theURL,winName,features) {
     <tr>
       <td><fmt:message key="monitor.common.desc"/>:</td>
       <td>&nbsp;</td>
-      <td align="right"><textarea rows="5" cols="50" name="description"></textarea></td>
+      <td align="right"><textarea rows="5" cols="50" name="minxss_description"></textarea></td>
     </tr>
     <tr>
       <td><fmt:message key="monitor.common.graph"/>:</td>

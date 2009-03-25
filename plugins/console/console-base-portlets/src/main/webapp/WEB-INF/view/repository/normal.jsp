@@ -26,19 +26,19 @@
 <c:set var="reslist" value="${requestScope['org.apache.geronimo.console.repo.list']}"/>
 
 <style type="text/css">  
-	div.Hidden {
-	display: none;
-	}
-	
-	div.Shown {
-	display: block;
-	font-size: 10px;
-	}
+    div.Hidden {
+        display: none;
+    }
+
+    div.Shown {
+        display: block;
+        font-size: 10px;
+    }
 </style>  
 
 <script language="JavaScript">
 function <portlet:namespace/>validateForm() {
-   var illegalChars= /[\.]{2}|[()<>,;:\\/"']/ ;
+   var illegalChars= /[\.]{2}|[()<>,;:\\/"'\|]/ ;
    if (! (document.<portlet:namespace/>fileSelect.local.value 
       && document.<portlet:namespace/>fileSelect.group.value 
       && document.<portlet:namespace/>fileSelect.artifact.value 

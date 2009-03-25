@@ -25,6 +25,8 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import org.apache.geronimo.kernel.util.InputUtils;
+
 public class RunSQLHelper {
 
     private final static Log log = LogFactory.getLog(RunSQLHelper.class);
@@ -46,6 +48,10 @@ public class RunSQLHelper {
     private static final String BAK_PREFIX = "BAK_";
 
     public String createDB(String dbName) {
+
+        // ensure there are no illegal chars in DB name
+        InputUtils.validateSafeInput(dbName);
+
         String result = DB_CREATED_MSG + ": " + dbName;
 
         Connection conn = null;
