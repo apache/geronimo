@@ -28,9 +28,16 @@ var <portlet:namespace/>requiredFields = new Array("createDB");
 var <portlet:namespace/>requiredFields2 = new Array("sqlStmts");
 
 function <portlet:namespace/>validateForm1(){
+    var illegalChars= /[\.]{2}|[()<>,;:\\/"'\|]/ ;
     var action = document.forms[<portlet:namespace/>formName].elements['action'];
     action.value="Create";
-    return textElementsNotEmpty(<portlet:namespace/>formName, <portlet:namespace/>requiredFields);
+    if (!textElementsNotEmpty(<portlet:namespace/>formName, <portlet:namespace/>requiredFields)) 
+    {
+        return false;
+    } else if (document.forms[<portlet:namespace/>formName].createDB.value.match(illegalChars)) {
+        alert("Database name contains illegal characters");
+        return false;
+    }
 }
 function <portlet:namespace/>validateForm2(){
     var action = document.forms[<portlet:namespace/>formName].elements['action'];

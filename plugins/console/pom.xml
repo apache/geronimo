@@ -48,6 +48,7 @@
         <module>geronimo-converter</module>
         <module>console-core</module>
         <module>console-base-portlets</module>
+        <module>console-filter</module>
         <module>console-portal-driver</module>
         <module>console-ear</module>
         <module>console-tomcat</module>

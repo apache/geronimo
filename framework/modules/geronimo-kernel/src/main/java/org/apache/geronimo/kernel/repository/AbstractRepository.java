@@ -23,6 +23,8 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -38,6 +40,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.kernel.util.InputUtils;
 import org.apache.geronimo.kernel.util.XmlUtil;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -158,17 +161,7 @@ public abstract class AbstractRepository implements WriteableRepository {
     public void copyToRepository(File source, Artifact destination, FileWriteMonitor monitor) throws IOException {
 
         // ensure there are no illegal chars in destination elements
-        Matcher groupMatcher = ILLEGAL_CHARS.matcher(destination.getGroupId());
-        Matcher artifactMatcher = ILLEGAL_CHARS.matcher(destination.getArtifactId());
-        Matcher versionMatcher = ILLEGAL_CHARS.matcher(destination.getVersion().toString());
-        Matcher typeMatcher = ILLEGAL_CHARS.matcher(destination.getType());
-        if (groupMatcher.find() || 
-            artifactMatcher.find() ||
-            versionMatcher.find() ||
-            typeMatcher.find())
-        {
-            throw new IllegalArgumentException("Artifact  "+destination+" contains illegal characters, .. ( ) < > , ; : / \\ \' \" ");
-        }
+        InputUtils.validateSafeInput(new ArrayList(Arrays.asList(destination.getGroupId(), destination.getArtifactId(), destination.getVersion().toString(), destination.getType())));
 
         if(!destination.isResolved()) {
             throw new IllegalArgumentException("Artifact "+destination+" is not fully resolved");

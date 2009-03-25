@@ -37,6 +37,13 @@
     <description>Geronimo Monitorin Console :: WEB Module</description>
 
     <dependencies>
+
+        <dependency>
+            <groupId>org.apache.geronimo.plugins</groupId>
+            <artifactId>console-filter</artifactId>
+            <version>${version}</version>
+        </dependency>
+
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-management</artifactId>

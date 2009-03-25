@@ -19,6 +19,23 @@
 <web-app version="2.5" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
 
+    <!-- XSS/XSRF filter -->
+    <filter>
+        <filter-name>XSSXSRFFilter</filter-name>
+        <filter-class>org.apache.geronimo.console.filter.XSSXSRFFilter</filter-class>
+            <init-param>
+                <param-name>enableXSRF</param-name>
+                <param-value>false</param-value>
+            </init-param>
+    </filter>
+    <filter-mapping>
+        <filter-name>XSSXSRFFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    <listener>
+        <listener-class>org.apache.geronimo.console.filter.XSSXSRFFilter</listener-class>
+    </listener>
+
     <servlet>
         <servlet-name>monitoring</servlet-name>
         <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>

@@ -508,7 +508,7 @@ function addOption(selectbox, value, text )
     <tr>
       <td><fmt:message key="monitor.common.desc"/>:</td>
       <td>&nbsp;</td>
-      <td align="right"><textarea rows="5" cols="50" name="description"><%=description%></textarea></td>
+      <td align="right"><textarea rows="5" cols="50" name="minxss_description"><%=description%></textarea></td>
       <td></td>
     </tr>
     <tr>
