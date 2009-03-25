@@ -33,7 +33,7 @@
     <name>Geronimo</name>
     <packaging>pom</packaging>
 
-    <version>2.1.4-SNAPSHOT</version>
+    <version>2.1.4</version>
 
     <description>
         Apache Geronimo, the JavaEE server project of the Apache Software Foundation.
@@ -45,13 +45,13 @@
     </organization>
 
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/geronimo/server/branches/2.1.4</connection>
-        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/geronimo/server/branches/2.1.4</developerConnection>
-        <url>http://svn.apache.org/viewvc/geronimo/server/branches/2.1.4</url>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/geronimo/server/tags/2.1.4</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/geronimo/server/tags/2.1.4</developerConnection>
+        <url>http://svn.apache.org/viewvc/geronimo/server/tags/2.1.4</url>
     </scm>
 
     <properties>
-        <siteId>geronimo-2.1.4-SNAPSHOT</siteId>
+        <siteId>geronimo-2.1.4</siteId>
         <!--
         NOTE: Project version, to be used instead of ${pom.version} since that
               value magically changes when using SNAPSHOT versions.
@@ -60,7 +60,7 @@
               element, and it will need to be changed manually before a release,
               as the maven-release-plugin will not update this value.
         -->
-        <version>2.1.4-SNAPSHOT</version>
+        <version>2.1.4</version>
         
         <!-- This property is required by the car:package mojo -->
         <geronimoVersion>${version}</geronimoVersion>

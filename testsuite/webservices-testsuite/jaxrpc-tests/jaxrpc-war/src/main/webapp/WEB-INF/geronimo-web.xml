@@ -34,7 +34,7 @@
       <protocol>http</protocol>
       <host>localhost</host>
       <port>8080</port>
-      <uri>/jaxrpc-war-2.1.4-SNAPSHOT/servlet</uri>
+      <uri>/jaxrpc-war-2.1.4/servlet</uri>
    </port>
  </service-ref>
 
