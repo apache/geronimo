@@ -49,6 +49,16 @@
         </xsd:annotation>
     </xsd:import>
 
+    <xsd:element name="env-entry" type="gernaming:env-entryType">
+        <xsd:annotation>
+            <xsd:documentation>
+                The element env-entry is used to override env-entry
+                values supplied in the JavaEE deployment descriptor
+                or annotations.  There must be an env-entry with the
+                same name in the deployment descriptor.
+            </xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
     <xsd:element name="ejb-ref" type="gernaming:ejb-refType">
         <xsd:annotation>
             <xsd:documentation>
@@ -126,6 +136,17 @@
         <xsd:sequence>
             <xsd:element ref="gernaming:abstract-naming-entry" minOccurs="0"
                 maxOccurs="unbounded" />
+            <xsd:element name="env-entry" type="gernaming:env-entryType"
+                minOccurs="0" maxOccurs="unbounded">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        The element env-entry is used to override env-entry
+                        values supplied in the JavaEE deployment descriptor
+                        or annotations.  There must be an env-entry with the
+                        same name in the deployment descriptor.
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
             <xsd:element name="ejb-ref" type="gernaming:ejb-refType"
                 minOccurs="0" maxOccurs="unbounded">
                 <xsd:annotation>
@@ -205,6 +226,33 @@
 
     <xsd:complexType name="abstract-naming-entryType" abstract="true">
         <xsd:sequence></xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="env-entryType">
+        <xsd:sequence>
+            <xsd:element name="env-entry-name" type="xsd:string">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        The element env-entry-name is used to identify this env-entry.
+                        This name should be unique in a module and
+                        will be used by application as a part of JNDI name for
+                        the environment entry. The JNDI name used will be
+                        "java:/comp/env/env-entry-name. It must be identical to the
+                        "env-entry-name" provided in the deployment descriptor.
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element name="env-entry-value" type="xsd:string">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        The element env-entry-value supplies the value
+                        for the environment entry to be used instead of
+                        the value provided in the deployment descriptor
+                        or annotation.
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+        </xsd:sequence>
     </xsd:complexType>
 
     <!--ejb-link acts like ejb-link in spec descriptors-->

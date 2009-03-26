@@ -96,6 +96,52 @@ public class EnvironmentEntryBuilderTest extends TestCase {
             "<env-entry-value>TRUE</env-entry-value>" +
             "</env-entry>" +
             "</tmp>";
+    private static final String TEST_PLAN = "<tmp xmlns=\"http://geronimo.apache.org/xml/ns/naming-1.2\">" +
+            "<env-entry>" +
+            "<env-entry-name>string</env-entry-name>" +
+            "<env-entry-value>Goodbye World</env-entry-value>" +
+            "</env-entry>" +
+
+            "<env-entry>" +
+            "<env-entry-name>char</env-entry-name>" +
+            "<env-entry-value>K</env-entry-value>" +
+            "</env-entry>" +
+
+            "<env-entry>" +
+            "<env-entry-name>byte</env-entry-name>" +
+            "<env-entry-value>21</env-entry-value>" +
+            "</env-entry>" +
+
+            "<env-entry>" +
+            "<env-entry-name>short</env-entry-name>" +
+            "<env-entry-value>4321</env-entry-value>" +
+            "</env-entry>" +
+
+            "<env-entry>" +
+            "<env-entry-name>int</env-entry-name>" +
+            "<env-entry-value>87654321</env-entry-value>" +
+            "</env-entry>" +
+
+            "<env-entry>" +
+            "<env-entry-name>long</env-entry-name>" +
+            "<env-entry-value>6543210987654321</env-entry-value>" +
+            "</env-entry>" +
+
+            "<env-entry>" +
+            "<env-entry-name>float</env-entry-name>" +
+            "<env-entry-value>654.321</env-entry-value>" +
+            "</env-entry>" +
+
+            "<env-entry>" +
+            "<env-entry-name>double</env-entry-name>" +
+            "<env-entry-value>9876.54321</env-entry-value>" +
+            "</env-entry>" +
+
+            "<env-entry>" +
+            "<env-entry-name>boolean</env-entry-name>" +
+            "<env-entry-value>FALSE</env-entry-value>" +
+            "</env-entry>" +
+            "</tmp>";
 
     public void testEnvEntries() throws Exception {
 
@@ -118,6 +164,54 @@ public class EnvironmentEntryBuilderTest extends TestCase {
             cursor.dispose();
         }
         environmentEntryBuilder.buildNaming(doc, null, null, componentContext);
+        Context context = EnterpriseNamingContext.createEnterpriseNamingContext(NamingBuilder.JNDI_KEY.get(componentContext));
+        Set actual = new HashSet();
+        for (NamingEnumeration e = context.listBindings("env"); e.hasMore();) {
+            NameClassPair pair = (NameClassPair) e.next();
+            actual.add(pair.getName());
+        }
+        Set expected = new HashSet(Arrays.asList(new String[]{"string", "char", "byte", "short", "int", "long", "float", "double", "boolean"}));
+        assertEquals(expected, actual);
+        assertEquals(stringVal, context.lookup("env/string"));
+        assertEquals(charVal, context.lookup("env/char"));
+        assertEquals(byteVal, context.lookup("env/byte"));
+        assertEquals(shortVal, context.lookup("env/short"));
+        assertEquals(intVal, context.lookup("env/int"));
+        assertEquals(longVal, context.lookup("env/long"));
+        assertEquals(floatVal, context.lookup("env/float"));
+        assertEquals(doubleVal, context.lookup("env/double"));
+        assertEquals(booleanVal, context.lookup("env/boolean"));
+    }
+
+    public void testEnvEntriesOverride() throws Exception {
+
+        String stringVal = "Goodbye World";
+        Character charVal = new Character('K');
+        Byte byteVal = new Byte((byte) 21);
+        Short shortVal = new Short((short) 4321);
+        Integer intVal = new Integer(87654321);
+        Long longVal = new Long(6543210987654321L);
+        Float floatVal = new Float(654.321);
+        Double doubleVal = new Double(9876.54321);
+        Boolean booleanVal = Boolean.FALSE;
+
+        XmlObject doc = XmlObject.Factory.parse(TEST);
+        XmlCursor cursor = doc.newCursor();
+        try {
+            cursor.toFirstChild();
+            doc = cursor.getObject();
+        } finally {
+            cursor.dispose();
+        }
+        XmlObject plan = XmlObject.Factory.parse(TEST_PLAN);
+        cursor = plan.newCursor();
+        try {
+            cursor.toFirstChild();
+            plan = cursor.getObject();
+        } finally {
+            cursor.dispose();
+        }
+        environmentEntryBuilder.buildNaming(doc, plan, null, componentContext);
         Context context = EnterpriseNamingContext.createEnterpriseNamingContext(NamingBuilder.JNDI_KEY.get(componentContext));
         Set actual = new HashSet();
         for (NamingEnumeration e = context.listBindings("env"); e.hasMore();) {
