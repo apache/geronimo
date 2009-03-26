@@ -22,8 +22,10 @@ import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.ArrayList;
 
 import javax.annotation.Resource;
+import javax.xml.namespace.QName;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -36,6 +38,8 @@ import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedApp;
 import org.apache.geronimo.j2ee.deployment.annotation.ResourceAnnotationHelper;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.naming.reference.KernelReference;
+import org.apache.geronimo.xbeans.geronimo.naming.GerEnvEntryDocument;
+import org.apache.geronimo.xbeans.geronimo.naming.GerEnvEntryType;
 import org.apache.geronimo.xbeans.javaee.DescriptionType;
 import org.apache.geronimo.xbeans.javaee.EnvEntryType;
 import org.apache.geronimo.xbeans.javaee.EnvEntryTypeValuesType;
@@ -58,6 +62,8 @@ public class EnvironmentEntryBuilder extends AbstractNamingBuilder implements GB
         NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/naming-1.1", "http://geronimo.apache.org/xml/ns/naming-1.2");
     }
 
+    private static final QName GER_ENV_ENTRY_QNAME = GerEnvEntryDocument.type.getDocumentElementName();
+    private static final QNameSet GER_ENV_ENTRY_QNAME_SET = QNameSet.singleton(GER_ENV_ENTRY_QNAME);
     private final QNameSet envEntryQNameSet;
 
     public EnvironmentEntryBuilder(String[] eeNamespaces) {
@@ -91,10 +97,15 @@ public class EnvironmentEntryBuilder extends AbstractNamingBuilder implements GB
         }
 
         List<EnvEntryType> envEntriesUntyped = convert(specDD.selectChildren(envEntryQNameSet), JEE_CONVERTER, EnvEntryType.class, EnvEntryType.type);
+        XmlObject[] gerEnvEntryUntyped = plan == null ? NO_REFS : plan.selectChildren(GER_ENV_ENTRY_QNAME_SET);
+        Map<String, String> envEntryMap = mapEnvEntries(gerEnvEntryUntyped);
         for (EnvEntryType envEntry: envEntriesUntyped) {
             String name = getStringValue(envEntry.getEnvEntryName());
             String type = getStringValue(envEntry.getEnvEntryType());
-            String text = getStringValue(envEntry.getEnvEntryValue());
+            String text = envEntryMap.remove(name);
+            if (text == null) {
+                text = getStringValue(envEntry.getEnvEntryValue());
+            }
             try {
                 Object value;
                 if (text == null) {
@@ -134,9 +145,22 @@ public class EnvironmentEntryBuilder extends AbstractNamingBuilder implements GB
                 throw new DeploymentException("Invalid env-entry value for name: " + name, e);
             }
         }
+        if (!envEntryMap.isEmpty()) {
+            throw new DeploymentException("Unknown env-entry elements in geronimo plan: " + envEntryMap);
+        }
 
     }
 
+    private Map<String, String> mapEnvEntries(XmlObject[] refs) {
+        Map<String, String> envEntryMap = new HashMap<String, String>();
+        if (refs != null) {
+            for (XmlObject ref1 : refs) {
+                GerEnvEntryType ref = (GerEnvEntryType) ref1.copy().changeType(GerEnvEntryType.type);
+                envEntryMap.put(ref.getEnvEntryName().trim(), ref.getEnvEntryValue().trim());
+            }
+        }
+        return envEntryMap;
+    }
     public QNameSet getSpecQNameSet() {
         return envEntryQNameSet;
     }
