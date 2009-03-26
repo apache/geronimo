@@ -96,7 +96,7 @@
                                     <module-id>
                                         <type>jar</type>
                                     </module-id>
-                                    <copy-file relative-to="geronimo" dest-dir=""></copy-file>
+                                    <copy-file relative-to="geronimo" dest-dir="">contents/</copy-file>
                                 </plugin-artifact>
                             </instance>
                         </configuration>
