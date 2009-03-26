@@ -81,7 +81,7 @@
                     <category>Web Services</category>
                     <instance>
                         <plugin-artifact>
-                            <copy-file relative-to="geronimo" dest-dir=""></copy-file>
+                            <copy-file relative-to="geronimo" dest-dir="">contents/</copy-file>
                         </plugin-artifact>
                     </instance>
                 </configuration>

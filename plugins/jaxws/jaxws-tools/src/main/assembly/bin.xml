@@ -24,7 +24,7 @@
     <dependencySets>
 
         <dependencySet>
-            <outputDirectory>lib</outputDirectory>
+            <outputDirectory>contents/lib</outputDirectory>
             <useStrictFiltering>true</useStrictFiltering>
             <includes>
                 <include>org.apache.geronimo.modules:geronimo-jaxws-sun-tools</include>
@@ -32,7 +32,7 @@
         </dependencySet>
 
         <dependencySet>
-            <outputDirectory>bin</outputDirectory>
+            <outputDirectory>contents/bin</outputDirectory>
             <outputFileNameMapping>jaxws-tools.jar</outputFileNameMapping>
             <useStrictFiltering>true</useStrictFiltering>
             <includes>
@@ -46,7 +46,7 @@
         
         <fileSet>
             <directory>src/main/resources/bin</directory>
-            <outputDirectory>bin</outputDirectory>
+            <outputDirectory>contents/bin</outputDirectory>
             <includes>
                 <include>*</include>
             </includes>
@@ -62,7 +62,7 @@
         
         <fileSet>
             <directory>src/main/resources/bin</directory>
-            <outputDirectory>bin</outputDirectory>
+            <outputDirectory>contents/bin</outputDirectory>
             <includes>
                 <include>*.bat</include>
                 <include>*.cmd</include>

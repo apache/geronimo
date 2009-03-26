@@ -82,7 +82,7 @@
                     <instance>
                         <plugin-artifact>
                             <config-xml-content load="false"/>
-                            <copy-file relative-to="geronimo" dest-dir=""></copy-file>
+                            <copy-file relative-to="geronimo" dest-dir="">contents/</copy-file>
                         </plugin-artifact>
                     </instance>
                 </configuration>
