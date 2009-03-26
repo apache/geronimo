@@ -1,5 +1,5 @@
 ======================================================
-Apache Geronimo v@VERSION@  (date TBD)
+Apache Geronimo v@VERSION@ 
 
 http://geronimo.apache.org/
 ------------------------------------------------------
