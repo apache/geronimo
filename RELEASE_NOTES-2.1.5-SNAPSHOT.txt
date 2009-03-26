@@ -110,9 +110,3 @@ Known Issues and Limitations
 ** Bug
 TBD
 
-** Improvement
-TBD
-
-** New Feature
-TBD
-
