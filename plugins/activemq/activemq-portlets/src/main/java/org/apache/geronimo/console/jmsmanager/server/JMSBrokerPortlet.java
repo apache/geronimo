@@ -235,7 +235,7 @@ public class JMSBrokerPortlet extends BaseJMSPortlet {
         AbstractName brokerAbstractName = kernel.getNaming().createSiblingName(
                 PortletManager.getNameFor(actionRequest, getActiveMQManager(actionRequest)), sBrokerName, "JMSServer");
         validateBrokerName(brokerAbstractName, actionRequest);
-        saveConfigurationFile(resolveConfigurationFile(actionRequest, "/var/activemq/conf/" + sBrokerName + ".xml"),
+        saveConfigurationFile(resolveConfigurationFile(actionRequest, "var/activemq/conf/" + sBrokerName + ".xml"),
                 sConfigurationXML);
         GBeanData brokerGBeanData = new GBeanData(brokerAbstractName, BrokerServiceGBeanImpl.class);
         brokerGBeanData.setAttribute("brokerName", sBrokerName);
