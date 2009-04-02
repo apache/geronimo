@@ -75,7 +75,7 @@ public final class FilterResponseWrapper extends HttpServletResponseWrapper {
      * @throws IOException
      */
     public void setOutput(String s) throws IOException {
-        setOutput(s.getBytes());
+        setOutput(s.getBytes("UTF-8"));
     }
 
     /**
