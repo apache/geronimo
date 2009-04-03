@@ -23,6 +23,7 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NameClassPair;
 import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -348,7 +349,12 @@ public class JNDIViewPortlet extends BasePortlet {
             NamingEnumeration enumName = ctx.list("");
             while (enumName.hasMoreElements()) {
                 NameClassPair pair = (NameClassPair) enumName.next();
-                Object obj = ctx.lookup(pair.getName());
+                Object obj = null;
+                try {
+                    obj = ctx.lookup(pair.getName());
+                } catch (NamingException e) {
+                    //ignore.... not a context
+                }
                 if (obj instanceof Context) {
                     buildContextSub(node, (Context) obj, nodeCurr + "/"
                             + pair.getName());
@@ -371,7 +377,12 @@ public class JNDIViewPortlet extends BasePortlet {
         while (enum1.hasMoreElements()) {
             javax.naming.NameClassPair pair = (javax.naming.NameClassPair) enum1
                     .next();
-            Object obj = context.lookup(pair.getName());
+            Object obj = null;
+            try {
+                obj = context.lookup(pair.getName());
+            } catch (NamingException e) {
+                //ignore.... it wasn't a context
+            }
             if (obj instanceof Context) {
                 buildGlobal(tree, (Context) obj, parent + pair.getName());
             } else {
