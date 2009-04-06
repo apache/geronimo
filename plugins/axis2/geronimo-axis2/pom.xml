@@ -117,7 +117,7 @@
                         
         <dependency>
             <groupId>org.apache.axis2</groupId>
-            <artifactId>axis2-transport-tcp</artifactId>
+            <artifactId>axis2-transport-http</artifactId>
         </dependency>
 
         <dependency>

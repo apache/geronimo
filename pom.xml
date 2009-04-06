@@ -79,7 +79,6 @@
         <tomcatPatchedVersion>6.0.18-G678601</tomcatPatchedVersion>
         <cxfVersion>2.1.4</cxfVersion>
         <axis2Version>1.5-SNAPSHOT</axis2Version>
-        <axis2TransportVersion>SNAPSHOT</axis2TransportVersion>
         <axiomVersion>1.2.8</axiomVersion>
         <springVersion>2.5.6</springVersion>
         <plutoVersion>1.1.6-G643117</plutoVersion>
@@ -1602,10 +1601,6 @@
                         <artifactId>xalan</artifactId>
                     </exclusion>
                     <exclusion>
-                        <groupId>commons-fileupload</groupId>
-                        <artifactId>commons-fileupload</artifactId>
-                    </exclusion>
-                    <exclusion>
                         <groupId>commons-io</groupId>
                         <artifactId>commons-io</artifactId>
                     </exclusion>
@@ -1727,40 +1722,16 @@
 
             <dependency>
                 <groupId>org.apache.axis2</groupId>
-                <artifactId>axis2-transport-base</artifactId>
-                <version>${axis2TransportVersion}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>commons-logging</groupId>
-                        <artifactId>commons-logging</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.axis2</groupId>
                 <artifactId>axis2-transport-http</artifactId>
-                <version>${axis2TransportVersion}</version>
+                <version>${axis2Version}</version>
                 <exclusions>
                     <exclusion>
-                        <groupId>commons-logging</groupId>
-                        <artifactId>commons-logging</artifactId>
+                        <groupId>javax.mail</groupId>
+                        <artifactId>mail</artifactId>
                     </exclusion>
                     <exclusion>
-                        <groupId>javax.servlet</groupId>
-                        <artifactId>servlet-api</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.axis2</groupId>
-                <artifactId>axis2-transport-tcp</artifactId>
-                <version>${axis2TransportVersion}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>commons-logging</groupId>
-                        <artifactId>commons-logging</artifactId>
+                        <groupId>xalan</groupId>
+                         <artifactId>xalan</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -1768,11 +1739,15 @@
             <dependency>
                 <groupId>org.apache.axis2</groupId>
                 <artifactId>axis2-transport-local</artifactId>
-                <version>${axis2TransportVersion}</version>
+                <version>${axis2Version}</version>
                 <exclusions>
                     <exclusion>
-                        <groupId>commons-logging</groupId>
-                        <artifactId>commons-logging</artifactId>
+                        <groupId>javax.mail</groupId>
+                        <artifactId>mail</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>xalan</groupId>
+                        <artifactId>xalan</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
