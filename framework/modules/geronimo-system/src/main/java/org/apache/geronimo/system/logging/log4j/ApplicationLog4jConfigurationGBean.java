@@ -30,7 +30,6 @@ import java.util.Properties;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
-import org.apache.log4j.PropertyConfigurator;
 
 /**
  * @version $Rev$ $Date$
@@ -62,20 +61,25 @@ public class ApplicationLog4jConfigurationGBean {
         } finally {
             in.close();
         }
-        //remove any global log4j configuration
-        for (Iterator it = props.keySet().iterator(); it.hasNext(); ) {
-            String key = (String) it.next();
-            if (key.startsWith(CATEGORY_PREFIX)
-                    || key.startsWith(LOGGER_PREFIX)
-                    || key.startsWith(ADDITIVITY_PREFIX)
-                    || key.startsWith(APPENDER_PREFIX)
-                    || key.startsWith(RENDERER_PREFIX)) {
-                continue;
+        try {
+            Class log4jConfigClass = classloader.loadClass("org.apache.log4j.PropertyConfigurator");
+            if (log4jConfigClass.getClassLoader() == ClassLoader.getSystemClassLoader()) {
+                //remove any global log4j configuration
+                for (Iterator it = props.keySet().iterator(); it.hasNext();) {
+                    String key = (String) it.next();
+                    if (key.startsWith(CATEGORY_PREFIX)
+                            || key.startsWith(LOGGER_PREFIX)
+                            || key.startsWith(ADDITIVITY_PREFIX)
+                            || key.startsWith(APPENDER_PREFIX)
+                            || key.startsWith(RENDERER_PREFIX)) {
+                        continue;
+                    }
+                    it.remove();
+                }
             }
-            it.remove();
+            log4jConfigClass.getMethod("configure", Properties.class).invoke(null, props);
+        } catch (Exception e) {        
         }
-
-        PropertyConfigurator.configure(props);
     }
 
     public static final GBeanInfo GBEAN_INFO;
