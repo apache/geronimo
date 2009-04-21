@@ -31,4 +31,52 @@
         </moduleId>
    </environment>
 
+   <enterprise-beans>
+       <session>
+           <ejb-name>GreeterHTTPSourceMessageModeProvider</ejb-name>
+           <jndi-name>GreeterHTTPSourceMessageModeProviderRemote</jndi-name>
+       </session>
+
+       <session>
+           <ejb-name>GreeterHTTPSourcePayloadModeProvider</ejb-name>
+           <jndi-name>GreeterHTTPSourcePayloadModeProviderRemote</jndi-name>
+       </session>
+
+       <session>
+           <ejb-name>GreeterHTTPDataSourceProvider</ejb-name>
+           <jndi-name>GreeterHTTPDataSourceProviderRemote</jndi-name>
+       </session>
+
+       <session>
+           <ejb-name>GreeterSOAP11SOAPMessageProvider</ejb-name>
+           <jndi-name>GreeterSOAP11SOAPMessageProviderRemote</jndi-name>
+       </session>
+
+       <session>
+           <ejb-name>GreeterSOAP11SourceMessageModeProvider</ejb-name>
+           <jndi-name>GreeterSOAP11SourceMessageModeProviderRemote</jndi-name>
+       </session>
+
+       <session>
+           <ejb-name>GreeterSOAP11SourcePayloadModeProvider</ejb-name>
+           <jndi-name>GreeterSOAP11SourcePayloadModeProviderRemote</jndi-name>
+       </session>
+
+       <session>
+           <ejb-name>GreeterSOAP12SOAPMessageProvider</ejb-name>
+           <jndi-name>GreeterSOAP12SOAPMessageProviderRemote</jndi-name>
+       </session>
+
+       <session>
+           <ejb-name>GreeterSOAP12SourceMessageModeProvider</ejb-name>
+           <jndi-name>GreeterSOAP12SourceMessageModeProviderRemote</jndi-name>
+       </session>
+
+       <session>
+           <ejb-name>GreeterSOAP12SourcePayloadModeProvider</ejb-name>
+           <jndi-name>GreeterSOAP12SourcePayloadModeProviderRemote</jndi-name>
+       </session>
+   </enterprise-beans>
+
+
 </openejb-jar>
