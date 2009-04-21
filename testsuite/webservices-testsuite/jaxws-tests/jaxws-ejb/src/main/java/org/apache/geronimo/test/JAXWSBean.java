@@ -37,7 +37,7 @@ import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.soap.SOAPFaultException;
 
 @WebService
-@Stateless(mappedName="JAXWSBean")
+@Stateless(name="JAXWSBean")
 @Remote(JAXWSGreeter.class)
 @HandlerChain(file="handlers.xml")
 @SOAPBinding(style=SOAPBinding.Style.RPC, 
