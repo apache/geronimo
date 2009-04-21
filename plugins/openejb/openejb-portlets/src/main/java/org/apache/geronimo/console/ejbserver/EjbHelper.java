@@ -428,8 +428,8 @@ public class EjbHelper extends BaseRemoteProxy {
                         .get(cls));
                 StringBuffer names = new StringBuffer();
                 for (String jndiName : jndiNames) {
-                    if (jndiName.startsWith("openejb/ejb/")) {
-                        jndiName = jndiName.replaceFirst("openejb/ejb/", "");
+                    if (jndiName.startsWith("openejb/local/")) {
+                        jndiName = jndiName.replaceFirst("openejb/local/", "");
                         names.append(jndiName).append(",");
                     }
                 }
