@@ -42,7 +42,7 @@ import org.apache.geronimo.jaxws.greeter_provider.common.MessageUtils;
 @BindingType(value = SOAPBinding.SOAP11HTTP_BINDING)
 @ServiceMode(value = Service.Mode.MESSAGE)
 @WebServiceProvider(serviceName = "GreeterService", portName = "GreeterSOAP11SOAPMessagePort", wsdlLocation = "wsdl/greeter_provider.wsdl", targetNamespace = "http://geronimo.apache.org/greeter_provider")
-@Stateless(name = "GreeterSOAP11SOAPMessageProvider", mappedName = "ejb/provider/GreeterSOAP11SOAPMessageProvider")
+@Stateless(name = "GreeterSOAP11SOAPMessageProvider")
 @Local(value = { EchoLocal.class, Provider.class })
 @Remote(value = { EchoRemote.class })
 public class GreeterSOAP11SOAPMessageProvider implements Provider<SOAPMessage>, EchoLocal, EchoRemote {

@@ -39,7 +39,7 @@ import org.apache.geronimo.jaxws.greeter_provider.common.MessageUtils;
 @BindingType(value = HTTPBinding.HTTP_BINDING)
 @ServiceMode(value = Service.Mode.MESSAGE)
 @WebServiceProvider(serviceName = "GreeterService", portName = "GreeterHTTPSourceMessageModePort", wsdlLocation = "wsdl/greeter_provider.wsdl", targetNamespace = "http://geronimo.apache.org/greeter_provider")
-@Stateless(name = "GreeterHTTPSourceMessageModeProvider", mappedName = "ejb/provider/GreeterHTTPSourceMessageModeProvider")
+@Stateless(name = "GreeterHTTPSourceMessageModeProvider")
 @Local(value = { EchoLocal.class, Provider.class })
 @Remote(value = { EchoRemote.class })
 public class GreeterHTTPSourceMessageModeProvider implements Provider<Source>, EchoLocal, EchoRemote {

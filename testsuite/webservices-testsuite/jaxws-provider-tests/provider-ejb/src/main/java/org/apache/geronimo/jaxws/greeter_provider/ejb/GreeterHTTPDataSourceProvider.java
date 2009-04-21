@@ -42,7 +42,7 @@ import org.apache.geronimo.jaxws.greeter_provider.common.MessageUtils;
 @BindingType(value = HTTPBinding.HTTP_BINDING)
 @ServiceMode(value = Service.Mode.MESSAGE)
 @WebServiceProvider(serviceName = "GreeterService", portName = "GreeterHTTPDataSourcePort", targetNamespace = "http://geronimo.apache.org/greeter_provider")
-@Stateless(name = "GreeterHTTPDataSourceProvider", mappedName = "ejb/provider/GreeterHTTPDataSourceProvider")
+@Stateless(name = "GreeterHTTPDataSourceProvider")
 @Local(value = { EchoLocal.class, Provider.class })
 @Remote(value = { EchoRemote.class })
 public class GreeterHTTPDataSourceProvider implements Provider<DataSource>, EchoLocal, EchoRemote {
