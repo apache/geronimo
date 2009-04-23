@@ -19,7 +19,6 @@
 
 package org.apache.geronimo.openejb.cluster.stateful.container;
 
-import java.lang.reflect.Method;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
@@ -32,13 +31,8 @@ import org.apache.geronimo.openejb.cluster.infra.NetworkConnectorTrackerExceptio
 import org.apache.geronimo.openejb.cluster.infra.SessionManagerTracker;
 import org.apache.openejb.ClusteredRPCContainer;
 import org.apache.openejb.DeploymentInfo;
-import org.apache.openejb.OpenEJBException;
-import org.apache.openejb.core.CoreDeploymentInfo;
 import org.apache.openejb.core.stateful.StatefulContainer;
 import org.apache.openejb.spi.SecurityService;
-import org.codehaus.wadi.core.contextualiser.BasicInvocation;
-import org.codehaus.wadi.core.contextualiser.InvocationContext;
-import org.codehaus.wadi.core.contextualiser.InvocationException;
 import org.codehaus.wadi.core.manager.Manager;
 import org.codehaus.wadi.servicespace.ServiceRegistry;
 import org.codehaus.wadi.servicespace.ServiceSpace;
@@ -110,158 +104,6 @@ public class ClusteredStatefulContainer extends StatefulContainer implements Ses
             return null;
         }
         return connectorURIs.toArray(new URI[connectorURIs.size()]);
-    }
-
-    @Override
-    protected Object businessMethod(CoreDeploymentInfo deploymentInfo,
-        Object primKey,
-        Class callInterface,
-        Method callMethod,
-        Object[] args) throws OpenEJBException {
-        AbstractEJBInvocation invocation = new BusinessMethodInvocation(primKey.toString(),
-            5000,
-            deploymentInfo,
-            primKey,
-            callInterface,
-            callMethod,
-            args);
-        return invoke(deploymentInfo, invocation);
-    }
-
-    protected Object superBusinessMethod(CoreDeploymentInfo deploymentInfo,
-        Object primKey,
-        Class callInterface,
-        Method callMethod,
-        Object[] args) throws OpenEJBException {
-        return super.businessMethod(deploymentInfo, primKey, callInterface, callMethod, args);
-    }
-    
-    @Override
-    protected Object removeEJBObject(CoreDeploymentInfo deploymentInfo,
-        Object primKey,
-        Class callInterface,
-        Method callMethod,
-        Object[] args) throws OpenEJBException {
-        AbstractEJBInvocation invocation = new RemoveEJBObjectInvocation(primKey.toString(),
-            5000,
-            deploymentInfo,
-            primKey,
-            callInterface,
-            callMethod,
-            args);
-        return invoke(deploymentInfo, invocation);
-    }
-
-    protected Object superRemoveEJBObject(CoreDeploymentInfo deploymentInfo,
-        Object primKey,
-        Class callInterface,
-        Method callMethod,
-        Object[] args) throws OpenEJBException {
-        return super.removeEJBObject(deploymentInfo, primKey, callInterface, callMethod, args);
-    }
-
-    protected Object invoke(CoreDeploymentInfo deploymentInfo, AbstractEJBInvocation invocation) throws OpenEJBException {
-        Manager manager;
-        synchronized (deploymentIdToManager) {
-            manager = deploymentIdToManager.get(deploymentInfo.getDeploymentID());
-        }
-        if (null == manager) {
-            throw new OpenEJBException("No manager registered for [" + deploymentInfo + "]");
-        }
-        try {
-            manager.contextualise(invocation);
-        } catch (InvocationException e) {
-            Throwable throwable = e.getCause();
-            if (throwable instanceof OpenEJBException) {
-                throw (OpenEJBException) throwable;
-            } else {
-                throw new OpenEJBException(e);
-            }
-        }
-        return invocation.getResult();
-    }
-    
-    protected abstract class AbstractEJBInvocation extends BasicInvocation {
-        protected final CoreDeploymentInfo deploymentInfo;
-        protected final Object primKey;
-        protected final Class callInterface;
-        protected final Method callMethod;
-        protected final Object[] args;
-        protected Object result;
-
-        protected AbstractEJBInvocation(String sessionKey,
-            long exclusiveSessionLockWaitTime,
-            CoreDeploymentInfo deploymentInfo,
-            Object primKey,
-            Class callInterface,
-            Method callMethod,
-            Object[] args) {
-            super(sessionKey, exclusiveSessionLockWaitTime);
-            this.deploymentInfo = deploymentInfo;
-            this.primKey = primKey;
-            this.callMethod = callMethod;
-            this.callInterface = callInterface;
-            this.args = args;
-        }
-
-        public Object getResult() {
-            return result;
-        }
-
-        @Override
-        protected void doInvoke() throws InvocationException {
-            invokeEJBMethod();
-        }
-        
-        @Override
-        protected void doInvoke(InvocationContext context) throws InvocationException {
-            invokeEJBMethod();
-        }
-
-        protected abstract void invokeEJBMethod() throws InvocationException;
-    }
-    
-    protected class BusinessMethodInvocation extends AbstractEJBInvocation {
-        
-        protected BusinessMethodInvocation(String sessionKey,
-            long exclusiveSessionLockWaitTime,
-            CoreDeploymentInfo deploymentInfo,
-            Object primKey,
-            Class callInterface,
-            Method callMethod,
-            Object[] args) {
-            super(sessionKey, exclusiveSessionLockWaitTime, deploymentInfo, primKey, callInterface, callMethod, args);
-        }
-    
-        protected void invokeEJBMethod() throws InvocationException {
-            try {
-                result = superBusinessMethod(deploymentInfo, primKey, callInterface, callMethod, args);
-            } catch (OpenEJBException e) {
-                throw new InvocationException(e);
-            }
-        }
-    }
-    
-    protected class RemoveEJBObjectInvocation extends AbstractEJBInvocation {
-
-        protected RemoveEJBObjectInvocation(String sessionKey,
-            long exclusiveSessionLockWaitTime,
-            CoreDeploymentInfo deploymentInfo,
-            Object primKey,
-            Class callInterface,
-            Method callMethod,
-            Object[] args) {
-            super(sessionKey, exclusiveSessionLockWaitTime, deploymentInfo, primKey, callInterface, callMethod, args);
-        }
-        
-        protected void invokeEJBMethod() throws InvocationException {
-            try {
-                result = superRemoveEJBObject(deploymentInfo, primKey, callInterface, callMethod, args);
-            } catch (OpenEJBException e) {
-                throw new InvocationException(e);
-            }
-        }
-        
     }
 
 }
