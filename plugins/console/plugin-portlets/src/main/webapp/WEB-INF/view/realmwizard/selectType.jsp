@@ -30,7 +30,9 @@ function <portlet:namespace/>validateForm(){
     return textElementsNotEmpty(<portlet:namespace/>formName,<portlet:namespace/>requiredFields);
 }
 </script>
-
+<c:if test="${!(empty messagekey)}">
+	<fmt:message key="${messagekey}" />
+</c:if>
 <p><fmt:message key="realmwizard.selectType.title" /></p>
 
 <!--   FORM TO COLLECT DATA FOR THIS PAGE   -->
