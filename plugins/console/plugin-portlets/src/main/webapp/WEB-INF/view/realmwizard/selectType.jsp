@@ -20,6 +20,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<%@ taglib uri="/WEB-INF/CommonMsg.tld" prefix="CommonMsg"%>
 <fmt:setBundle basename="pluginportlets"/>
 <portlet:defineObjects/>
 
@@ -35,6 +36,7 @@ function <portlet:namespace/>validateForm(){
 }
 </script>
 
+<CommonMsg:commonMsg/>
 <div id="<portlet:namespace/>CommonMsgContainer"></div>
 
 <p><fmt:message key="realmwizard.selectType.title" /></p>

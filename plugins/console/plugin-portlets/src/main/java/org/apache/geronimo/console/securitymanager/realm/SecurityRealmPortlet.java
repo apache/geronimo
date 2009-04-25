@@ -186,12 +186,21 @@ public class SecurityRealmPortlet extends BasePortlet {
             actionResponse.setRenderParameter(MODE_KEY, SELECT_TYPE_MODE);
         } else if (mode.equals("process-" + SELECT_TYPE_MODE)) {
             if (data.getName() != null && !data.getName().trim().equals("")) {
-                // Config properties have to be set in render since they have values of null
-                if (data.getRealmType().equals("Other")) {
-                    actionResponse.setRenderParameter(MODE_KEY, CUSTOM_MODE);
+                // Check if realm with the same name already exists
+                Artifact artifact = new Artifact("console.realm", getArtifactId(data.getName()), "1.0", "car");
+                ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(PortletManager.getKernel());
+                if (configurationManager.isInstalled(artifact)) {
+                    actionResponse.setRenderParameter(MODE_KEY, SELECT_TYPE_MODE);
+                    String error = getLocalizedString(actionRequest, "plugin.errorMsg03");
+                    addErrorMessage(actionRequest, error);
                 } else {
-                    actionResponse.setRenderParameter(MODE_KEY, CONFIGURE_MODE);
-                }
+                    // Config properties have to be set in render since they have values of null
+                    if (data.getRealmType().equals("Other")) {
+                        actionResponse.setRenderParameter(MODE_KEY, CUSTOM_MODE);
+                    } else {
+                        actionResponse.setRenderParameter(MODE_KEY, CONFIGURE_MODE);
+                    }
+                } 
             } else {
                 actionResponse.setRenderParameter(MODE_KEY, SELECT_TYPE_MODE);
             }
@@ -349,6 +358,18 @@ public class SecurityRealmPortlet extends BasePortlet {
         }
     }
 
+    private String getArtifactId(String name) {
+        
+        String artifactId = name;
+        if(artifactId.indexOf('/') != -1) {
+            // slash in artifact-id results in invalid configuration-id and leads to deployment errors.
+            // Note: 0x002F = '/'
+            artifactId = artifactId.replaceAll("/", "%2F");
+        }
+        
+        return artifactId;
+    }
+    
     private XmlObject actionGeneratePlan(PortletRequest request, RealmData data) {
         normalize(data);
         ModuleDocument doc = ModuleDocument.Factory.newInstance();
@@ -356,12 +377,8 @@ public class SecurityRealmPortlet extends BasePortlet {
         EnvironmentType environment = root.addNewEnvironment();
         ArtifactType configId = environment.addNewModuleId();
         configId.setGroupId("console.realm");
-        String artifactId = data.getName();
-        if(artifactId.indexOf('/') != -1) {
-            // slash in artifact-id results in invalid configuration-id and leads to deployment errors.
-            // Note: 0x002F = '/'
-            artifactId = artifactId.replaceAll("/", "%2F");
-        }
+        String artifactId = getArtifactId(data.getName());
+        
         configId.setArtifactId(artifactId);
         configId.setVersion("1.0");
         configId.setType("car");
