@@ -18,9 +18,12 @@
 package org.apache.geronimo.security.util;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.security.AccessController;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
+import java.security.Principal;
 
 import javax.security.auth.x500.X500Principal;
 import javax.security.jacc.PolicyContext;
@@ -34,6 +37,8 @@ import org.apache.geronimo.security.PrimaryPrincipal;
 import org.apache.geronimo.security.PrimaryRealmPrincipal;
 import org.apache.geronimo.security.RealmPrincipal;
 import org.apache.geronimo.security.deploy.PrincipalInfo;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 
 /**
@@ -45,6 +50,7 @@ import org.apache.geronimo.security.deploy.PrincipalInfo;
  * @see "JSR 115" Java Authorization Contract for Containers
  */
 public class ConfigurationUtil {
+    private static final Logger log = LoggerFactory.getLogger(ConfigurationUtil.class);
 
     /**
      * Create an X500Principal from a deployment description.
@@ -63,23 +69,44 @@ public class ConfigurationUtil {
      * @param classLoader
      * @return a RealmPrincipal from a deployment description
      */
-    public static java.security.Principal generatePrincipal(final PrincipalInfo principalInfo, ClassLoader classLoader) {
+    public static Principal generatePrincipal(final PrincipalInfo principalInfo, ClassLoader classLoader) {
         return generatePrincipal(principalInfo.getClassName(), principalInfo.getPrincipalName(), classLoader);
     }
 
-    public static java.security.Principal generatePrincipal(final String className, final String principalName, final ClassLoader classLoader) {
+    public static Principal generatePrincipal(final String className, final String principalName, final ClassLoader classLoader) {
         try {
-            return (java.security.Principal) AccessController.doPrivileged(new PrivilegedExceptionAction() {
-                public Object run() throws Exception {
-                    Class clazz = classLoader.loadClass(className);
-                    Constructor constructor = clazz.getDeclaredConstructor(new Class[]{String.class});
-                    return (java.security.Principal) constructor.newInstance(new Object[]{principalName});
+            return AccessController.doPrivileged(new PrivilegedExceptionAction<Principal>() {
+                public Principal run() throws Exception {
+                    Class<Principal> clazz = (Class<Principal>) classLoader.loadClass(className);
+                    try {
+                        Constructor<Principal> constructor = clazz.getDeclaredConstructor(new Class[]{String.class});
+                        return constructor.newInstance(new Object[]{principalName});
+                    } catch (NoSuchMethodException e) {
+                        Constructor<Principal>[] constructors = (Constructor<Principal>[])clazz.getDeclaredConstructors();
+                        for (Constructor<Principal> constructor: constructors) {
+                            Class<?>[] paramTypes = constructor.getParameterTypes();
+                            if (paramTypes.length == 0) {
+                                Principal p = constructor.newInstance();
+                                Method m = clazz.getMethod("setName", String.class);
+                                m.invoke(p, principalName);
+                                return p;
+                            }
+                            if (paramTypes[0] == String.class) {
+                                Object[] params = new Object[paramTypes.length];
+                                params[0] = principalName;
+                                return constructor.newInstance(params);
+                            }
+                        }
+                        throw new RuntimeException("Could not construct principal of class: " + className);
+                    }
                 }
             });
         } catch (PrivilegedActionException e) {
             e.printStackTrace();
             if (e.getException() != null) {
-                e.getException().printStackTrace();
+                log.info("PrivilegedActionException containing", e.getException());
+            } else {
+                log.info("PrivilegedActionException", e);
             }
             return null;
         }
@@ -134,10 +161,10 @@ public class ConfigurationUtil {
         try {
             return (PrimaryRealmPrincipal) AccessController.doPrivileged(new PrivilegedExceptionAction() {
                 public Object run() throws Exception {
-                    java.security.Principal p = null;
+                    Principal p = null;
                     Class clazz = classLoader.loadClass(className);
                     Constructor constructor = clazz.getDeclaredConstructor(new Class[]{String.class});
-                    p = (java.security.Principal) constructor.newInstance(new Object[]{principalName});
+                    p = (Principal) constructor.newInstance(new Object[]{principalName});
 
                     return new PrimaryRealmPrincipal(realm, domain, p);
                 }
@@ -164,10 +191,10 @@ public class ConfigurationUtil {
         try {
             return (PrimaryDomainPrincipal) AccessController.doPrivileged(new PrivilegedExceptionAction() {
                 public Object run() throws Exception {
-                    java.security.Principal p = null;
+                    Principal p = null;
                     Class clazz = classLoader.loadClass(className);
                     Constructor constructor = clazz.getDeclaredConstructor(new Class[]{String.class});
-                    p = (java.security.Principal) constructor.newInstance(new Object[]{principalName});
+                    p = (Principal) constructor.newInstance(new Object[]{principalName});
 
                     return new PrimaryDomainPrincipal(domain, p);
                 }
@@ -192,10 +219,10 @@ public class ConfigurationUtil {
         try {
             return (PrimaryPrincipal) AccessController.doPrivileged(new PrivilegedExceptionAction() {
                 public Object run() throws Exception {
-                    java.security.Principal p = null;
+                    Principal p = null;
                     Class clazz = classLoader.loadClass(className);
                     Constructor constructor = clazz.getDeclaredConstructor(new Class[]{String.class});
-                    p = (java.security.Principal) constructor.newInstance(new Object[]{principalName});
+                    p = (Principal) constructor.newInstance(new Object[]{principalName});
 
                     return new PrimaryPrincipal(p);
                 }
