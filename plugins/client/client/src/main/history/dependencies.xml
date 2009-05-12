@@ -7,14 +7,9 @@
         <type>car</type>
     </module-id>
     <dependency>
-        <groupId>org.apache.openejb</groupId>
-        <artifactId>openejb-multicast</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
         <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>geronimo-interceptor</artifactId>
-        <type>jar</type>
+        <artifactId>client-system</artifactId>
+        <type>car</type>
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.framework</groupId>
@@ -28,17 +23,52 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>client-system</artifactId>
-        <type>car</type>
+        <artifactId>geronimo-management</artifactId>
+        <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>quartz</groupId>
-        <artifactId>quartz</artifactId>
+        <groupId>org.apache.geronimo.framework</groupId>
+        <artifactId>geronimo-interceptor</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.framework</groupId>
+        <artifactId>geronimo-naming</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.xbean</groupId>
+        <artifactId>xbean-naming</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.modules</groupId>
         <artifactId>geronimo-j2ee</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.modules</groupId>
+        <artifactId>geronimo-client</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.framework</groupId>
+        <artifactId>geronimo-security</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.modules</groupId>
+        <artifactId>geronimo-openejb</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.openejb</groupId>
+        <artifactId>openejb-core</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.openejb</groupId>
+        <artifactId>openejb-api</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -53,27 +83,7 @@
     </dependency>
     <dependency>
         <groupId>org.apache.openejb</groupId>
-        <artifactId>asm-finder</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.openejb</groupId>
         <artifactId>openejb-jee</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.codehaus.swizzle</groupId>
-        <artifactId>swizzle-stream</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>geronimo-openejb</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>geronimo-client</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -82,48 +92,13 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>commons-lang</groupId>
-        <artifactId>commons-lang</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>geronimo-management</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>wsdl4j</groupId>
-        <artifactId>wsdl4j</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.openejb</groupId>
-        <artifactId>openejb-client</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
         <groupId>net.sourceforge.serp</groupId>
         <artifactId>serp</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.openejb</groupId>
-        <artifactId>openejb-server</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>geronimo-security</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>geronimo-naming</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.openejb</groupId>
-        <artifactId>openejb-ejbd</artifactId>
+        <groupId>commons-lang</groupId>
+        <artifactId>commons-lang</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -132,13 +107,43 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.xbean</groupId>
-        <artifactId>xbean-naming</artifactId>
+        <groupId>org.apache.openejb</groupId>
+        <artifactId>asm-finder</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.codehaus.swizzle</groupId>
+        <artifactId>swizzle-stream</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>wsdl4j</groupId>
+        <artifactId>wsdl4j</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>quartz</groupId>
+        <artifactId>quartz</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
         <groupId>org.apache.openejb</groupId>
-        <artifactId>openejb-core</artifactId>
+        <artifactId>openejb-ejbd</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.openejb</groupId>
+        <artifactId>openejb-server</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.openejb</groupId>
+        <artifactId>openejb-client</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.openejb</groupId>
+        <artifactId>openejb-multicast</artifactId>
         <type>jar</type>
     </dependency>
 </plugin-artifact>
