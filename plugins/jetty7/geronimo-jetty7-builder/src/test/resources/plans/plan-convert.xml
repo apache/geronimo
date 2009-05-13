@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns='http://geronimo.apache.org/xml/ns/j2ee/web-2.0.1'>
+       <dep:environment xmlns:dep='http://geronimo.apache.org/xml/ns/deployment-1.2'>
+               <dep:moduleId>
+                       <dep:groupId>ssi.web</dep:groupId>
+                       <dep:artifactId>equipment-aaf</dep:artifactId>
+                       <dep:version>1.0</dep:version>
+                       <dep:type>war</dep:type>
+               </dep:moduleId>
+               <dep:dependencies>
+                       <dep:dependency>
+                               <dep:groupId>com.ibm</dep:groupId>
+                               <dep:artifactId>jtopen</dep:artifactId>
+                               <dep:version>6.1</dep:version>
+                               <dep:type>jar</dep:type>
+                       </dep:dependency>
+                       <dep:dependency>
+                               <dep:groupId>org.apache.openjpa</dep:groupId>
+                               <dep:artifactId>openjpa</dep:artifactId>
+                               <dep:version>1.0.2</dep:version>
+                               <dep:type>jar</dep:type>
+                       </dep:dependency>
+
+           <!--
+           <dep:dependency>
+               <dep:groupId>ssi</dep:groupId>
+               <dep:artifactId>ssi-api</dep:artifactId>
+               <dep:version>1.0</dep:version>
+               <dep:type>jar</dep:type>
+           </dep:dependency>
+           -->
+                       <dep:dependency>
+                               <dep:groupId>console.dbpool</dep:groupId>
+                               <dep:artifactId>jdbc%2FAAF</dep:artifactId>
+               <dep:version>1.0</dep:version>
+               <dep:type>rar</dep:type>
+           </dep:dependency>
+       </dep:dependencies>
+
+       </dep:environment>
+
+       <context-root>/aaf/equipment</context-root>
+
+       <security-realm-name>realm-SSLIB</security-realm-name>
+
+       <security xmlns:sec="http://geronimo.apache.org/xml/ns/security-2.0">
+               <default-principal realm-name="realm-SSLIB">
+                       <principal name="anonymous"
+class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal"/>
+               </default-principal>
+               <role-mappings>
+                       <role role-name="equipment-user">
+                               <realm realm-name="realm-SSLIB">
+                                       <principal name="ADMIN"
+class="org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal"/>
+                               </realm>
+                               <realm realm-name="realm-SSLIB">
+                                       <principal name="AAF"
+class="org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal"/>
+                               </realm>
+                       </role>
+               </role-mappings>
+       </security>
+
+       <nam:resource-ref xmlns:nam="http://geronimo.apache.org/xml/ns/naming-1.2">
+               <nam:ref-name>jdbc/ds</nam:ref-name>
+               <nam:resource-link>jdbc/AAF</nam:resource-link>
+       </nam:resource-ref>
+
+       <jpa:persistence version="1.0" xmlns:jpa='http://java.sun.com/xml/ns/persistence'>
+               <jpa:persistence-unit name="equipment-pu" transaction-type="JTA">
+                       <jpa:provider>org.apache.openjpa.persistence.PersistenceProviderImpl</jpa:provider>
+                       <jpa:jta-data-source>jdbc%2FAAF</jpa:jta-data-source>
+                       <jpa:non-jta-data-source>jdbc%2FAAF</jpa:non-jta-data-source>
+                       <jpa:class>ssi.api.jpa.company.Description</jpa:class>
+                       <jpa:class>ssi.api.jpa.company.Equipment</jpa:class>
+                       <jpa:class>ssi.api.jpa.company.EquipmentMaintanence</jpa:class>
+                       <jpa:class>ssi.api.jpa.company.EquipmentMaintanenceType</jpa:class>
+                       <jpa:class>ssi.api.jpa.company.EquipmentType</jpa:class>
+                       <jpa:exclude-unlisted-classes>true</jpa:exclude-unlisted-classes>
+                       <jpa:properties>
+                               <jpa:property name="openjpa.Log" value="DefaultLevel=TRACE, Tool=INFO,
+SQL=TRACE"/>
+                               <jpa:property name="openjpa.jdbc.DBDictionary"
+value="ssi.api.jpa.AS400Dictionary"/>
+                               <!--
+                               <jpa:property name="openjpa.jdbc.SynchronizeMappings" value="validate"/>
+
+                               <jpa:property name="openjpa.jdbc.TransactionIsolation" value="none"/>
+                               <jpa:property name="openjpa.LockManager" value="none"/>
+                               <jpa:property name="openjpa.ConnectionRetainMode" value="always"/>
+                               <jpa:property name="openjpa.FlushBeforeQueries" value="true"/>
+                                -->
+                       </jpa:properties>
+               </jpa:persistence-unit>
+       </jpa:persistence>
+
+</web-app>
