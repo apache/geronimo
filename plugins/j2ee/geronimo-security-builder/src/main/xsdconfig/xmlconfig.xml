@@ -40,4 +40,9 @@
         <xb:package>org.apache.geronimo.xbeans.geronimo.credentialstore</xb:package>
     </xb:namespace>
 
+    <xb:namespace uri="http://geronimo.apache.org/xml/ns/geronimo-jaspi">
+        <xb:package>org.apache.geronimo.xbeans.geronimo.jaspi</xb:package>
+        <xb:prefix>Jaspi</xb:prefix>
+    </xb:namespace>
+
 </xb:config>
