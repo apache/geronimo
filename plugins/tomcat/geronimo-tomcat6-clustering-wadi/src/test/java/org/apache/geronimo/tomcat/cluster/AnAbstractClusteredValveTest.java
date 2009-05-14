@@ -44,7 +44,7 @@ public class AnAbstractClusteredValveTest extends RMockTestCase {
 
     @Override
     protected void setUp() throws Exception {
-        valve = new AbstractClusteredValve() {
+        valve = new AbstractClusteredValve("NODE") {
             @Override
             protected ClusteredInvocation newClusteredInvocation(Request request, Response response) {
                 return new WebClusteredInvocation(request, response) {
@@ -100,7 +100,7 @@ public class AnAbstractClusteredValveTest extends RMockTestCase {
     
     public void testCIEIsWrappedAsIOE() throws Exception {
         final ClusteredInvocationException expected = new ClusteredInvocationException();
-        valve = new AbstractClusteredValve() {
+        valve = new AbstractClusteredValve("NODE") {
             @Override
             protected ClusteredInvocation newClusteredInvocation(Request request, Response response) {
                 return new WebClusteredInvocation(request, response) {

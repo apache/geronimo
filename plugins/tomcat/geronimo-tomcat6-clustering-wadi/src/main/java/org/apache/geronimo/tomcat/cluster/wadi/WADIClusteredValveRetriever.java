@@ -23,7 +23,6 @@ import org.apache.geronimo.clustering.wadi.WADISessionManager;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.tomcat.ObjectRetriever;
-import org.codehaus.wadi.core.manager.Manager;
 
 
 /**
@@ -32,18 +31,16 @@ import org.codehaus.wadi.core.manager.Manager;
  */
 public class WADIClusteredValveRetriever implements ObjectRetriever, GBeanLifecycle {
     private final WADISessionManager sessionManager;
-    private Manager wadiManager;
 
     public WADIClusteredValveRetriever(@ParamReference(name=GBEAN_REF_WADI_SESSION_MANAGER) WADISessionManager sessionManager) {
         this.sessionManager = sessionManager;
     }
     
     public Object getInternalObject() {
-        return new WADIClusteredValve(wadiManager);
+        return new WADIClusteredValve(sessionManager);
     }
 
     public void doStart() throws Exception {
-        wadiManager = sessionManager.getManager();
     }
     
     public void doStop() throws Exception {
