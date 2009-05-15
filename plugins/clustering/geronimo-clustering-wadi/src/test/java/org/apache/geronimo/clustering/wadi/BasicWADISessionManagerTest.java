@@ -97,7 +97,7 @@ public class BasicWADISessionManagerTest extends RMockTestCase {
                     @Override
                     public ServiceSpace getServiceSpace() {
                         return BasicWADISessionManagerTest.this.serviceSpace;
-                    };
+                    }
                     @Override
                     public Manager getManager() {
                         return BasicWADISessionManagerTest.this.wadiManager;

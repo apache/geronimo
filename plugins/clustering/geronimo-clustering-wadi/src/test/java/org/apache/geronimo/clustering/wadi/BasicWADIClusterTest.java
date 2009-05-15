@@ -181,7 +181,7 @@ public class BasicWADIClusterTest extends RMockTestCase {
 
             public Object invocation(Object[] arg0, MethodHandle arg1) throws Throwable {
                 org.codehaus.wadi.group.ClusterListener wadiListener = (org.codehaus.wadi.group.ClusterListener) arg0[0];
-                wadiListener.onListenerRegistration(wadiCluster, Collections.singleton(peer1));;
+                wadiListener.onListenerRegistration(wadiCluster, Collections.singleton(peer1));
                 return null;
             }
             
