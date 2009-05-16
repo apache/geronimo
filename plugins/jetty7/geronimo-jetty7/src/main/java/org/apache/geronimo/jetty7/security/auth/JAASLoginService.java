@@ -55,7 +55,7 @@ public class JAASLoginService implements LoginService {
     }
 
     public UserIdentity login(String username, Object credentials) {
-        char[] password = (char[]) credentials;
+        char[] password = credentials instanceof  String? ((String)credentials).toCharArray(): (char[]) credentials;
         CallbackHandler callbackHandler = new PasswordCallbackHandler(username, password);
         try {
             LoginContext loginContext = ContextManager.login(securityRealm, callbackHandler);

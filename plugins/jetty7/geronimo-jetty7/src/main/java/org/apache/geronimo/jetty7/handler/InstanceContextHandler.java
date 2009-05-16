@@ -51,7 +51,7 @@ public class InstanceContextHandler extends AbstractImmutableHandler {
     }
 
     public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-        DispatcherType dispatch = ((Request)request).getDispatcherType();
+        DispatcherType dispatch = baseRequest.getDispatcherType();
         try {
             if (DispatcherType.REQUEST.equals(dispatch)) {
                 ConnectorInstanceContext oldContext = trackedConnectionAssociator.enter(new SharedConnectorInstanceContext(unshareableResources, applicationManagedSecurityResources, false));

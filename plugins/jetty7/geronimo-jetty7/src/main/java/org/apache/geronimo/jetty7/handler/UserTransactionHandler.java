@@ -50,7 +50,7 @@ public class UserTransactionHandler extends AbstractImmutableHandler {
         try {
             next.handle(target, baseRequest, request, response);
         } finally {
-             DispatcherType dispatch = ((Request)request).getDispatcherType();
+             DispatcherType dispatch = baseRequest.getDispatcherType();
              if ((!active && isMarkedRollback()) || (DispatcherType.REQUEST.equals(dispatch) && isActive())) {
                 try {
                     userTransaction.rollback();
