@@ -34,26 +34,48 @@ import org.apache.catalina.connector.Response;
  * @version $Rev:$ $Date:$
  */
 public class JkRouter implements Router {
+    private final String nodeName;
 
-    public String stripRoutingInfoFromRequestedSessionId(Request request) {
+    public JkRouter(String nodeName) {
+        if (null == nodeName) {
+            throw new IllegalArgumentException("nodeName is required");
+        }
+        this.nodeName = nodeName;
+    }
+
+    public String replaceRoutingInfoInRequestedSessionId(Request request) {
         String requestedSessionId = request.getRequestedSessionId();
-        if (null != requestedSessionId) {
+        if (null != requestedSessionId && !requestedSessionId.endsWith("." + nodeName)) {
             int index = requestedSessionId.indexOf(".");
             if (0 < index) {
-                String newRequestedSessionId = requestedSessionId.substring(0, index);
+                String newRequestedSessionId = requestedSessionId.substring(0, index + 1);
+                newRequestedSessionId += nodeName;
                 request.setRequestedSessionId(newRequestedSessionId);
             }
         }
         return requestedSessionId;
     }
 
-    public void writeSessionIdWithRoutingInfo(Request request, Response response, String nodeName) {
+    public void writeSessionIdWithRoutingInfo(Request request, Response response) {
         String augmentedSessionID = buildAugmentedSessionId(request, nodeName);
         if (null == augmentedSessionID) {
             return;
         }
         
         setNewSessionCookie(request, response, augmentedSessionID);
+    }
+    
+    public String transformGlobalSessionIdToSessionId(String sessionId) {
+        return sessionId + "." + nodeName;
+    }
+
+    public String transformSessionIdToGlobalSessionId(String id) {
+        String globalSessionId = id;
+        int index = id.indexOf(".");
+        if (0 < index) {
+            globalSessionId = id.substring(0, index);
+        }
+        return globalSessionId;
     }
 
     protected void setNewSessionCookie(Request request, Response response, String augmentedSessionID) {
@@ -78,25 +100,17 @@ public class JkRouter implements Router {
     }
 
     protected String buildAugmentedSessionId(Request request, String nodeName) {
-        Session sessionInternal = request.getSessionInternal();
-        if (null == sessionInternal) {
+        Session session = request.getSessionInternal();
+        if (null == session) {
             return null;
         }
 
-        String internalSessionID = sessionInternal.getId();
-        String actualSessionId = request.getRequestedSessionId();
-        if (null == actualSessionId || !actualSessionId.startsWith(internalSessionID)) {
-            actualSessionId = internalSessionID;
+        String sessionID = session.getId();
+        String requestedSessionId = request.getRequestedSessionId();
+        if (null != requestedSessionId && requestedSessionId.equals(sessionID)) {
+            return null;
         }
-        
-        int index = actualSessionId.indexOf(".");
-        if (0 < index) {
-            String embeddedNodeName = actualSessionId.substring(index + 1);
-            if (embeddedNodeName.equals(nodeName)) {
-                return null;
-            }
-            actualSessionId = actualSessionId.substring(0, index);
-        }
-        return actualSessionId + "." + nodeName;
+
+        return sessionID;
     }
 }

@@ -39,7 +39,8 @@ public class JkRouterTest extends RMockTestCase {
 
     @Override
     protected void setUp() throws Exception {
-        router = new JkRouter();
+        nodeName = "NODE";
+        router = new JkRouter(nodeName);
         
         mockSession = (Session) mock(Session.class);
         request = new Request() {
@@ -50,21 +51,20 @@ public class JkRouterTest extends RMockTestCase {
         };
 
         sessionId = "ID";
-        nodeName = "NODE";
         requestedSessionId = sessionId + "." + nodeName;
     }
     
-    public void testStripRountingInfo() throws Exception {
-        request.setRequestedSessionId(requestedSessionId);
+    public void testReplaceRountingInfo() throws Exception {
+        request.setRequestedSessionId(sessionId + ".NODE2");
         
-        assertEquals(requestedSessionId, router.stripRoutingInfoFromRequestedSessionId(request));
-        assertEquals(sessionId, request.getRequestedSessionId());
+        assertEquals(sessionId + ".NODE2", router.replaceRoutingInfoInRequestedSessionId(request));
+        assertEquals(requestedSessionId, request.getRequestedSessionId());
     }
 
     public void testBuildAugmentedSessionIdWhenNewSession() throws Exception {
         request.setRequestedSessionId("OLDSession");
         mockSession.getId();
-        modify().returnValue(sessionId);
+        modify().returnValue(requestedSessionId);
 
         startVerification();
         
@@ -84,11 +84,18 @@ public class JkRouterTest extends RMockTestCase {
     public void testBuildAugmentedSessionIdReturnsNullWhenNoAugmentationIsRequired() throws Exception {
         request.setRequestedSessionId(requestedSessionId);
         mockSession.getId();
-        modify().returnValue(sessionId);
+        modify().returnValue(requestedSessionId);
 
         startVerification();
         
         assertNull(router.buildAugmentedSessionId(request, nodeName));
     }
     
+    public void testTransformGlobalSessionIdToSessionId() throws Exception {
+        assertEquals(requestedSessionId, router.transformGlobalSessionIdToSessionId(sessionId));
+    }
+
+    public void testTransformSessionIdToGlobalSessionId() throws Exception {
+        assertEquals(sessionId, router.transformSessionIdToGlobalSessionId(requestedSessionId));
+    }
 }

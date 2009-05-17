@@ -27,7 +27,11 @@ import org.apache.catalina.connector.Response;
  * @version $Rev:$ $Date:$
  */
 public interface Router {
-    String stripRoutingInfoFromRequestedSessionId(Request request);
+    String replaceRoutingInfoInRequestedSessionId(Request request);
     
-    void writeSessionIdWithRoutingInfo(Request request, Response response, String nodeName);
+    void writeSessionIdWithRoutingInfo(Request request, Response response);
+    
+    String transformGlobalSessionIdToSessionId(String sessionId);
+
+    String transformSessionIdToGlobalSessionId(String id);
 }

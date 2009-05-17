@@ -34,20 +34,17 @@ import org.apache.geronimo.clustering.ClusteredInvocationException;
  * @version $Rev:$ $Date:$
  */
 public abstract class AbstractClusteredValve extends ValveBase {
-    private final String nodeName;
     private final Router router;
     
     public AbstractClusteredValve(String nodeName) {
         if (null == nodeName) {
             throw new IllegalArgumentException("nodeName is required");
         }
-        this.nodeName = nodeName;
-        
-        router = newRouter();
+        router = newRouter(nodeName);
     }
 
-    protected JkRouter newRouter() {
-        return new JkRouter();
+    protected Router newRouter(String nodeName) {
+        return new JkRouter(nodeName);
     }
 
     @Override
@@ -84,7 +81,7 @@ public abstract class AbstractClusteredValve extends ValveBase {
         }
 
         protected void invokeLocally() throws ClusteredInvocationException {
-            String oldRequestedSessionId = router.stripRoutingInfoFromRequestedSessionId(request);
+            String oldRequestedSessionId = router.replaceRoutingInfoInRequestedSessionId(request);
             try {
                 next.invoke(request, response);
             } catch (IOException e) {
@@ -95,7 +92,7 @@ public abstract class AbstractClusteredValve extends ValveBase {
                 request.setRequestedSessionId(oldRequestedSessionId);
             }
             
-            router.writeSessionIdWithRoutingInfo(request, response, nodeName);
+            router.writeSessionIdWithRoutingInfo(request, response);
         }
 
         public String getRequestedSessionId() {
