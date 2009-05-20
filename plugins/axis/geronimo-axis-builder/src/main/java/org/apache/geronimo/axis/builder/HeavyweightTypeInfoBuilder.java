@@ -342,7 +342,7 @@ public class HeavyweightTypeInfoBuilder implements TypeInfoBuilder {
 
         Map paramNameToType = new HashMap();
         if (null == schemaType.getContentModel()) {
-            ;
+
         } else if (SchemaParticle.SEQUENCE == schemaType.getContentModel().getParticleType()
                 || SchemaParticle.ALL == schemaType.getContentModel().getParticleType()) {
             SchemaParticle[] properties = schemaType.getContentModel().getParticleChildren();

@@ -109,7 +109,7 @@ public class LightweightTypeInfoBuilder implements TypeInfoBuilder {
 
         Map nameToType = new HashMap();
         if (null  == schemaType.getContentModel()) {
-            ;
+
         } else if (SchemaParticle.SEQUENCE == schemaType.getContentModel().getParticleType()
                 || SchemaParticle.ALL == schemaType.getContentModel().getParticleType()) {
             SchemaParticle[] properties = schemaType.getContentModel().getParticleChildren();

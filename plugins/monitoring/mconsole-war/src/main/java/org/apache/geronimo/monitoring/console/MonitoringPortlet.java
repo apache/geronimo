@@ -403,7 +403,7 @@ public class MonitoringPortlet extends BasePortlet {
             editServer.include(request, response);
         } else if (action.equals("saveEditServer")) {
             String server_id = request.getParameter("server_id");
-            request.setAttribute("server_id", server_id);;
+            request.setAttribute("server_id", server_id);
             addNodeAttribute(request);
             editServer.include(request, response);
         } else if (action.equals("showAddServer")) {

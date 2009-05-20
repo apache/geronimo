@@ -63,11 +63,11 @@ public class JMSConnectionFactoryManagerPortlet extends BasePortlet {
     private final ObjectName DATABASE_QUERY = ObjectNameUtil
             .getObjectName("*:j2eeType=JCAManagedConnectionFactory,*");
 
-    protected final String NORMAL_VIEW = "/WEB-INF/view/jmsmanager/activemq/normal.jsp";;
+    protected final String NORMAL_VIEW = "/WEB-INF/view/jmsmanager/activemq/normal.jsp";
 
     protected final String DETAIL_VIEW = "/WEB-INF/view/jmsmanager/activemq/detail.jsp";
 
-    protected final String HELP_VIEW = "/WEB-INF/view/jmsmanager/activemq/help.jsp";;
+    protected final String HELP_VIEW = "/WEB-INF/view/jmsmanager/activemq/help.jsp";
 
     protected final String ADD_VIEW = "/WEB-INF/view/jmsmanager/activemq/addACF.jsp";
 

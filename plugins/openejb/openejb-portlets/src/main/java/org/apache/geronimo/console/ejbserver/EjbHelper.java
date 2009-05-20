@@ -406,7 +406,6 @@ public class EjbHelper extends BaseRemoteProxy {
         information.setName(getLocalizedString(request, BUNDLE_NAME, DEPLOYMENTID_KEY));
         information.setValue(deploymentId);
         informations.add(information);
-        ;
         information = new EjbInformation();
         information.setName(getLocalizedString(request, BUNDLE_NAME, EJBNAME_KEY));
         information.setValue(deploymentInfo.getEjbName());

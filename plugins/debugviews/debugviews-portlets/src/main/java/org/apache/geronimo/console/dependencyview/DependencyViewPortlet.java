@@ -173,7 +173,6 @@ public class DependencyViewPortlet extends BasePortlet {
                     .getConfigID());
             if (conf != null) {
                 StringTree curr = new StringTree(info.getConfigID().toString());
-                ;
                 switch (info.getType().getValue()) {
                 case 0:// EAR
                 {
