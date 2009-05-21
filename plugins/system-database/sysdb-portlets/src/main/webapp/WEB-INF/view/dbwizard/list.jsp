@@ -107,11 +107,11 @@
   <li><a href="<portlet:actionURL portletMode="view">
               <portlet:param name="mode" value="startImport" />
               <portlet:param name="importSource" value="JBoss 4" />
-              <portlet:param name="from" value="<tt>*-ds.xml</tt> file from the <tt>jboss4/server/name/deploy</tt> directory" />
+              <portlet:param name="from" value=" '*-ds.xml' file from the 'jboss4/server/name/deploy' directory" />
             </portlet:actionURL>"><fmt:message key="dbwizard.common.importFromJBoss"/></a></li>
   <li><a href="<portlet:actionURL portletMode="view">
               <portlet:param name="mode" value="startImport" />
               <portlet:param name="importSource" value="WebLogic 8.1" />
-              <portlet:param name="from" value="<tt>config.xml</tt> file from the WebLogic domain directory" />
+              <portlet:param name="from" value=" 'config.xml' file from the WebLogic domain directory" />
             </portlet:actionURL>"><fmt:message key="dbwizard.common.importFromWebLogic"/></a></li>
 </ul>
