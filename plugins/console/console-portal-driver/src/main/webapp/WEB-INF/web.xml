@@ -51,7 +51,22 @@ limitations under the License.
   <listener>
     <listener-class>org.apache.pluto.driver.PortalStartupListener</listener-class>
   </listener>
+  
+  <filter>
+    <filter-name>PlutoURLRebuildFilter</filter-name>
+    <filter-class>org.apache.geronimo.console.filter.PlutoURLRebuildFilter</filter-class>
+  </filter>
 
+  <filter-mapping>
+	<filter-name>PlutoURLRebuildFilter</filter-name>
+	<url-pattern>/portal/*</url-pattern>
+  </filter-mapping>
+
+  <filter-mapping>
+	<filter-name>PlutoURLRebuildFilter</filter-name>
+	<url-pattern>/secure/*</url-pattern>
+  </filter-mapping>
+  
   <servlet>
     <servlet-name>plutoPortalDriver</servlet-name>
     <display-name>Pluto Portal Driver</display-name>
