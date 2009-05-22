@@ -47,10 +47,9 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.apache.axis2.description.AxisService;
-import org.apache.geronimo.jaxws.WSDLUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.webservices.WebServiceContainer.Request;
+import org.apache.geronimo.jaxws.WSDLUtils;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -58,6 +57,8 @@ import org.w3c.dom.NodeList;
 public class WSDLQueryHandler {
 
     private static final Log LOG = LogFactory.getLog(WSDLQueryHandler.class);
+    
+    private static TransformerFactory transformerFactory = TransformerFactory.newInstance();
     
     private Map<String, Definition> mp = new ConcurrentHashMap<String, Definition>();
     private Map<String, SchemaReference> smp = new ConcurrentHashMap<String, SchemaReference>();
@@ -241,7 +242,7 @@ public class WSDLQueryHandler {
     public static void writeTo(Source src, OutputStream os) {
         Transformer it;
         try {
-            it = TransformerFactory.newInstance().newTransformer();
+            it = transformerFactory.newTransformer();
             it.setOutputProperty(OutputKeys.METHOD, "xml");
             it.setOutputProperty(OutputKeys.INDENT, "yes");
             it.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
