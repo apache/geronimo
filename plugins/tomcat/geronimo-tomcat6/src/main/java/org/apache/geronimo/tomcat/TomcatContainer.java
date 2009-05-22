@@ -344,12 +344,16 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
                     ((JAASRealm) realm).setAppName(securityRealmName);
 
                     anotherCtxObj.setRealm(realm);
-                } else {
-                    //Use the parent since a name matches
-                    anotherCtxObj.setRealm(realm);
+                } else {                    
+                    //Since the parent holds a realm, no need to set the parent realm for the child context
+                    //For the getRealm() method will automatically delegate the request to its parent
+                    //And if we set the parent's realm to the child context, it will make the realm replace its initial container
+                    //with the child context, somewhat it will cause the child context could not be GCed after it is destroyed.
+                    //anotherCtxObj.setRealm(realm);
                 }
-            } else {
-                anotherCtxObj.setRealm(realm);
+            } else {                
+                //The same reason with the above
+                //anotherCtxObj.setRealm(realm);
             }
         }
         
