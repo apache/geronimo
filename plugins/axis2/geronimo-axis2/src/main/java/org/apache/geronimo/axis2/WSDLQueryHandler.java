@@ -62,6 +62,8 @@ public class WSDLQueryHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(WSDLQueryHandler.class);
     
+    private static TransformerFactory transformerFactory = TransformerFactory.newInstance(); 
+    
     private Map<String, Definition> wsdlMap;
     private Map<String, SchemaReference> schemaMap;
     private Map<String, String> importMap;
@@ -294,7 +296,7 @@ public class WSDLQueryHandler {
     public static void writeTo(Source src, OutputStream os) {
         Transformer it;
         try {
-            it = TransformerFactory.newInstance().newTransformer();
+            it = transformerFactory.newTransformer();
             it.setOutputProperty(OutputKeys.METHOD, "xml");
             it.setOutputProperty(OutputKeys.INDENT, "yes");
             it.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
