@@ -7,6 +7,11 @@
         <type>car</type>
     </module-id>
     <dependency>
+        <groupId>org.apache.xbean</groupId>
+        <artifactId>xbean-asm-shaded</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
         <groupId>asm</groupId>
         <artifactId>asm</artifactId>
         <type>jar</type>

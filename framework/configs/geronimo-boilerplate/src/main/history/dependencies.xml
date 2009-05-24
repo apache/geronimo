@@ -7,6 +7,11 @@
         <type>car</type>
     </module-id>
     <dependency>
+        <groupId>org.apache.xbean</groupId>
+        <artifactId>xbean-asm-shaded</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
         <groupId>org.apache.geronimo.gshell</groupId>
         <artifactId>gshell-bootstrap</artifactId>
         <type>jar</type>
