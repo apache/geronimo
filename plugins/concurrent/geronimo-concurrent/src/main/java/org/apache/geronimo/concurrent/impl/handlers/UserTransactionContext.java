@@ -152,7 +152,7 @@ public class UserTransactionContext extends ContextFlyweight {
             Binding binding = (Binding)e.next();
             list.add(binding);
         }
-        list.add(new ContextUtil.ReadOnlyBinding(USER_TRANSACTION, new UserTransactionReference()));
+        list.add(new ContextUtil.ReadOnlyBinding(USER_TRANSACTION, new UserTransactionReference(), this));
         return new ListNamingEnumeration(list.iterator());
     }
     
