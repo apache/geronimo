@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
@@ -150,20 +151,29 @@ public class WARWebServiceFinder implements WebServiceFinder {
         }
         
         URL[] urls = urlList.toArray(new URL[] {});
-        JarFileClassLoader tempClassLoader = new JarFileClassLoader(null, urls, parentClassLoader);
-        ClassFinder classFinder = new ClassFinder(tempClassLoader, urlList);
-
-        List<Class> classes = new ArrayList<Class>();
-
-        classes.addAll(classFinder.findAnnotatedClasses(WebService.class));
-        classes.addAll(classFinder.findAnnotatedClasses(WebServiceProvider.class));       
-
-        tempClassLoader.destroy();
-
-        if (tmpDir != null) {
-            DeploymentUtil.recursiveDelete(tmpDir);
+        JarFileClassLoader tempClassLoader = null;
+        try {
+            tempClassLoader = new JarFileClassLoader(null, urls, parentClassLoader);
+            List<Class> classes = new ArrayList<Class>();
+            for (URL url : urlList) {
+                try {
+                    ClassFinder classFinder = new ClassFinder(tempClassLoader, Collections.singletonList(url));
+                    classes.addAll(classFinder.findAnnotatedClasses(WebService.class));
+                    classes.addAll(classFinder.findAnnotatedClasses(WebServiceProvider.class));
+                } catch (Exception e) {
+                    LOG.warn("Fail to search Web Service in jar [" + url + "]", e);
+                }
+            }
+            return classes;
+        } finally {
+            if (tempClassLoader != null)
+                try {
+                    tempClassLoader.destroy();
+                } catch (Exception e) {
+                }
+            if (tmpDir != null) {
+                DeploymentUtil.recursiveDelete(tmpDir);
+            }
         }
-
-        return classes;
     }
 }
