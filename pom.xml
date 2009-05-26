@@ -86,8 +86,8 @@
         <xbeanVersion>3.6-SNAPSHOT</xbeanVersion>
         <wadiVersion>2.1.1</wadiVersion>
         <!-- switch using  -Pee6 -->
-        <jetty>jetty6</jetty>
-        <!--<jetty>jetty7</jetty>-->
+        <!--<jetty>jetty6</jetty>-->
+        <jetty>jetty7</jetty>
 
         <connectorSuffix></connectorSuffix>
         <!--<connectorSuffix>-1_6</connectorSuffix>-->
@@ -3443,7 +3443,7 @@
             <id>ee6</id>
             <properties>
                 <!--<jetty>jetty6</jetty>-->
-                <jetty>jetty7</jetty>
+                <!--<jetty>jetty7</jetty>-->
 
                 <!--<connectorSuffix></connectorSuffix>-->
                 <connectorSuffix>-1_6</connectorSuffix>
