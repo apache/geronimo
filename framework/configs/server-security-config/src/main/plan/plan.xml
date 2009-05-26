@@ -37,6 +37,7 @@
     <gbean name="geronimo-admin"
         class="org.apache.geronimo.security.realm.GenericSecurityRealm">
         <attribute name="realmName">geronimo-admin</attribute>
+        <attribute name="global">true</attribute>
         <reference name="LoginModuleConfiguration">
             <name>properties-login</name>
         </reference>
