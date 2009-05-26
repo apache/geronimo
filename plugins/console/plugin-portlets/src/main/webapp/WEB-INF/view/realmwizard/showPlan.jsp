@@ -31,6 +31,7 @@
     <input type="hidden" name="jar" value="${realm.jar}" />
     <input type="hidden" name="name" value="${realm.name}" />
     <input type="hidden" name="realmType" value="${realm.realmType}" />
+    <input type="hidden" name="global" value="${realm.global}" />
   <c:forEach var="option" items="${realm.options}">
     <input type="hidden" name="option-${option.key}" value="${option.value}" />
   </c:forEach>

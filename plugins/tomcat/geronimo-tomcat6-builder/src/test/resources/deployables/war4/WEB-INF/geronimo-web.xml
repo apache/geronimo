@@ -51,6 +51,7 @@
             userClassNames=org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal
             roleClassNames=org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal
         </attribute>
+        <reference name="ConfigurationFactory"><name>securityRealm</name></reference>
     </gbean>
 
     <gbean name="FirstValve" class="org.apache.geronimo.tomcat.ValveGBean">
@@ -69,4 +70,32 @@
             pattern=common
         </attribute>
     </gbean>
+
+    <gbean name="properties-login"
+        class="org.apache.geronimo.security.jaas.LoginModuleGBean">
+        <attribute name="loginModuleClass">org.apache.geronimo.security.realm.providers.PropertiesFileLoginModule</attribute>
+        <attribute name="options">
+            usersURI=var/security/users.properties
+            groupsURI=var/security/groups.properties
+        </attribute>
+        <attribute name="loginDomainName">geronimo-admin</attribute>
+    </gbean>
+
+    <gbean name="securityRealm"
+        class="org.apache.geronimo.security.realm.GenericSecurityRealm">
+        <attribute name="realmName">securityRealm</attribute>
+        <attribute name="global">true</attribute>
+        <reference name="LoginModuleConfiguration">
+            <name>properties-login</name>
+        </reference>
+        <reference name="ServerInfo"><name>ServerInfo</name></reference>
+    </gbean>
+
+    <gbean name="properties-login" class="org.apache.geronimo.security.jaas.JaasLoginModuleUse">
+         <attribute name="controlFlag">REQUIRED</attribute>
+         <reference name="LoginModule">
+             <name>properties-login</name>
+         </reference>
+     </gbean>
+
 </web-app>

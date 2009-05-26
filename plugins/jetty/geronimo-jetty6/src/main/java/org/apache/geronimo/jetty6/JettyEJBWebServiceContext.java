@@ -232,14 +232,6 @@ public class JettyEJBWebServiceContext extends ContextHandler {
         return contextPath;
     }
 
-    public String getSecurityRealmName() {
-        if (realm == null) {
-            return null;
-        } else {
-            return realm.getSecurityRealmName();
-        }
-    }
-
     public static class RequestAdapter implements WebServiceContainer.Request {
         private final Request request;
         private URI uri;

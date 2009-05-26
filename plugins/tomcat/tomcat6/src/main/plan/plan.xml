@@ -188,6 +188,9 @@
             roleClassNames=org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal
             appName=DefaultJAASRealm
         </attribute>
+        <reference name="ConfigurationFactory">
+            <name>geronimo-admin</name>
+        </reference>
     </gbean>
 
     <!-- Host -->

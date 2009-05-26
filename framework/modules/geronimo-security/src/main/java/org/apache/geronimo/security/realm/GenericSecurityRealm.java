@@ -19,23 +19,23 @@ package org.apache.geronimo.security.realm;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Properties;
 import java.util.Set;
 
 import javax.security.auth.login.AppConfigurationEntry;
+import javax.security.auth.login.Configuration;
 
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.gbean.annotation.ParamSpecial;
 import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.security.SecurityNames;
 import org.apache.geronimo.security.jaas.ConfigurationEntryFactory;
 import org.apache.geronimo.security.jaas.JaasLoginModuleChain;
 import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
-import org.apache.geronimo.security.SecurityNames;
+import org.apache.geronimo.security.jaas.SingleLoginConfiguration;
+import org.apache.geronimo.security.jaas.ConfigurationFactory;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 
@@ -60,7 +60,7 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
  * @version $Rev$ $Date$
  */
 @GBean(j2eeType = SecurityNames.SECURITY_REALM)
-public class GenericSecurityRealm implements SecurityRealm, ConfigurationEntryFactory {
+public class GenericSecurityRealm implements SecurityRealm, ConfigurationEntryFactory, ConfigurationFactory {
 
     private final String realmName;
     private AppConfigurationEntry[] config;
@@ -69,12 +69,16 @@ public class GenericSecurityRealm implements SecurityRealm, ConfigurationEntryFa
     private final boolean wrapPrincipals;
     private final JaasLoginModuleUse loginModuleUse;
 
-    private final boolean publish;
+    private final boolean global;
+    private final ServerInfo serverInfo;
+    private final ClassLoader classLoader;
+    private final Kernel kernel;
+    private final Configuration configuration;
 
     public GenericSecurityRealm(@ParamAttribute(name="realmName") String realmName,
                                 @ParamReference(name="LoginModuleConfiguration", namingType = "LoginModuleUse")JaasLoginModuleUse loginModuleUse,
                                 @ParamAttribute(name="wrapPrincipals")boolean wrapPrincipals,
-                                @ParamAttribute(name="publish")Boolean publish,
+                                @ParamAttribute(name="global")boolean global,
                                 @ParamReference(name="ServerInfo")ServerInfo serverInfo,
                                 @ParamSpecial(type = SpecialAttributeType.classLoader) ClassLoader classLoader,
                                 @ParamSpecial(type = SpecialAttributeType.kernel)Kernel kernel
@@ -82,18 +86,13 @@ public class GenericSecurityRealm implements SecurityRealm, ConfigurationEntryFa
         this.realmName = realmName;
         this.wrapPrincipals = wrapPrincipals;
         this.loginModuleUse = loginModuleUse;
-        this.publish = publish == null || publish;
+        this.global = global;
+        this.serverInfo = serverInfo;
+        this.classLoader = classLoader;
+        this.kernel = kernel;
 
-        Set<String> domainNames = new HashSet<String>();
-        List<AppConfigurationEntry> loginModuleConfigurations = new ArrayList<AppConfigurationEntry>();
-
-        if (loginModuleUse != null) {
-            loginModuleUse.configure(domainNames, loginModuleConfigurations, realmName, kernel, serverInfo, classLoader);
-        }
-
-        domains = domainNames.toArray(new String[domainNames.size()]);
-        config = loginModuleConfigurations.toArray(new AppConfigurationEntry[loginModuleConfigurations.size()]);
-
+        refresh();
+        configuration = new SingleLoginConfiguration(this);
     }
 
     public String getRealmName() {
@@ -130,8 +129,28 @@ public class GenericSecurityRealm implements SecurityRealm, ConfigurationEntryFa
         return realmName;
     }
 
-    public Boolean isPublish() {
-        return publish;
+    public boolean isGlobal() {
+        return global;
+    }
+
+    public void refresh() {
+        Set<String> domainNames = new HashSet<String>();
+        List<AppConfigurationEntry> loginModuleConfigurations = new ArrayList<AppConfigurationEntry>();
+
+        if (loginModuleUse != null) {
+            try {
+                loginModuleUse.configure(domainNames, loginModuleConfigurations, realmName, kernel, serverInfo, classLoader);
+            } catch (ClassNotFoundException e) {
+                throw new IllegalStateException("can not configure realm", e);
+            }
+        }
+
+        domains = domainNames.toArray(new String[domainNames.size()]);
+        config = loginModuleConfigurations.toArray(new AppConfigurationEntry[loginModuleConfigurations.size()]);
+    }
+
+    public Configuration getConfiguration() {
+        return configuration;
     }
 
 }

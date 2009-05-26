@@ -45,6 +45,7 @@ import org.apache.geronimo.tomcat.realm.TomcatJAASRealm;
 import org.apache.geronimo.tomcat.util.SecurityHolder;
 import org.apache.geronimo.webservices.SoapHandler;
 import org.apache.geronimo.webservices.WebServiceContainer;
+import org.apache.geronimo.security.jaas.ConfigurationFactory;
 import org.apache.naming.resources.DirContextURLStreamHandlerFactory;
 
 
@@ -293,10 +294,7 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
         }
 
         //Get the security-realm-name if there is one
-        String securityRealmName = null;
-        SecurityHolder secHolder = ctx.getSecurityHolder();
-        if (secHolder != null)
-            securityRealmName = secHolder.getSecurityRealm();
+        SecurityHolder secHolder = ctx.getSecurityHolder() == null? new SecurityHolder(): ctx.getSecurityHolder();
 
         //Did we declare a GBean at the context level?
         if (ctx.getRealm() != null) {
@@ -304,54 +302,36 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
 
             //Allow for the <security-realm-name> override from the
             //geronimo-web.xml file to be used if our Realm is a JAAS type
-            if (securityRealmName != null) {
+            if (secHolder.getConfigurationFactory() != null) {
                 if (realm instanceof JAASRealm) {
-                    ((JAASRealm) realm).setAppName(securityRealmName);
+                    ((JAASRealm) realm).setAppName(secHolder.getConfigurationFactory().getConfigurationName());
                 }
             }
             anotherCtxObj.setRealm(realm);
         } else {
             Realm realm = host.getRealm();
             //Check and see if we have a declared realm name and no match to a parent name
-            if (securityRealmName != null) {
-                String parentRealmName = null;
-                if (realm instanceof JAASRealm) {
-                    parentRealmName = ((JAASRealm) realm).getAppName();
-                }
-
-                //Do we have a match to a parent?
-                if (!securityRealmName.equals(parentRealmName)) {
-                    //No...we need to create a default adapter
-
+            if (secHolder.getConfigurationFactory() != null) {
                     //Is the context requiring JACC?
                     if (secHolder.isSecurity()) {
                         //JACC
-                        realm = new TomcatGeronimoRealm();
+                        realm = new TomcatGeronimoRealm(secHolder.getConfigurationFactory());
                     } else {
                         //JAAS
-                        realm = new TomcatJAASRealm();
+                        realm = new TomcatJAASRealm(secHolder.getConfigurationFactory());
                         ((JAASRealm) realm).setUserClassNames("org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal");
                         ((JAASRealm) realm).setRoleClassNames("org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal");
                     }
 
                     if (log.isDebugEnabled()) {
-                        log.debug("The security-realm-name '" + securityRealmName +
+                        log.debug("The security-realm-name '" + secHolder.getConfigurationFactory().getConfigurationName() +
                             "' was specified and a parent (Engine/Host) is not named the same or no RealmGBean was configured for this context. " +
                             "Creating a default " + realm.getClass().getName() +
                             " adapter for this context.");
                     }
 
-                    ((JAASRealm) realm).setAppName(securityRealmName);
-
                     anotherCtxObj.setRealm(realm);
-                } else {                    
-                    //Since the parent holds a realm, no need to set the parent realm for the child context
-                    //For the getRealm() method will automatically delegate the request to its parent
-                    //And if we set the parent's realm to the child context, it will make the realm replace its initial container
-                    //with the child context, somewhat it will cause the child context could not be GCed after it is destroyed.
-                    //anotherCtxObj.setRealm(realm);
-                }
-            } else {                
+            } else {
                 //The same reason with the above
                 //anotherCtxObj.setRealm(realm);
             }
@@ -405,8 +385,8 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
         embedded.removeConnector(connector);
     }
 
-    public void addWebService(String contextPath, String[] virtualHosts, WebServiceContainer webServiceContainer, String securityRealmName, String realmName, String transportGuarantee, String authMethod, String[] protectedMethods, ClassLoader classLoader) throws Exception {
-        Context webServiceContext = embedded.createEJBWebServiceContext(contextPath, webServiceContainer, securityRealmName, realmName, transportGuarantee, authMethod, protectedMethods, classLoader);
+    public void addWebService(String contextPath, String[] virtualHosts, WebServiceContainer webServiceContainer, ConfigurationFactory configurationFactory, String realmName, String transportGuarantee, String authMethod, String[] protectedMethods, ClassLoader classLoader) throws Exception {
+        Context webServiceContext = embedded.createEJBWebServiceContext(contextPath, webServiceContainer, configurationFactory, realmName, transportGuarantee, authMethod, protectedMethods, classLoader);
 
         String virtualServer;
         if (virtualHosts != null && virtualHosts.length > 0) {

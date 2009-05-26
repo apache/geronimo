@@ -60,6 +60,7 @@ public abstract class AbstractLoginModuleTest extends AbstractTest {
         gbean.setAttribute("wrapPrincipals", Boolean.TRUE);
         gbean.setReferencePattern("LoginModuleConfiguration", testUseName);
         gbean.setReferencePattern("ServerInfo", serverInfo);
+        gbean.setAttribute("global", Boolean.TRUE);
         kernel.loadGBean(gbean, GenericSecurityRealm.class.getClassLoader());
 
         gbean = buildGBeanData("name", "NeverFailLoginModule", LoginModuleGBean.class);
@@ -92,6 +93,7 @@ public abstract class AbstractLoginModuleTest extends AbstractTest {
         gbean.setAttribute("wrapPrincipals", Boolean.TRUE);
         gbean.setReferencePattern("LoginModuleConfiguration", neverFailUseName);
         gbean.setReferencePattern("ServerInfo", serverInfo);
+        gbean.setAttribute("global", Boolean.TRUE);
         kernel.loadGBean(gbean, GenericSecurityRealm.class.getClassLoader());
 
         kernel.startGBean(loginConfiguration);

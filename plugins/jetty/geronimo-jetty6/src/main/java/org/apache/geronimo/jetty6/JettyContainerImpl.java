@@ -33,17 +33,17 @@ import org.apache.geronimo.management.geronimo.stats.JettyWebContainerStatsImpl;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.webservices.SoapHandler;
 import org.apache.geronimo.webservices.WebServiceContainer;
+import org.apache.geronimo.security.jaas.ConfigurationFactory;
 import org.mortbay.jetty.Connector;
 import org.mortbay.jetty.Handler;
 import org.mortbay.jetty.RequestLog;
 import org.mortbay.jetty.Server;
-import org.mortbay.jetty.handler.ContextHandler;
+import org.mortbay.jetty.handler.AbstractHandlerContainer;
 import org.mortbay.jetty.handler.ContextHandlerCollection;
 import org.mortbay.jetty.handler.DefaultHandler;
 import org.mortbay.jetty.handler.HandlerCollection;
 import org.mortbay.jetty.handler.RequestLogHandler;
 import org.mortbay.jetty.handler.StatisticsHandler;
-import org.mortbay.jetty.handler.AbstractHandlerContainer;
 
 /**
  * @version $Rev$ $Date$
@@ -55,14 +55,14 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLif
     private static final String DEFAULT_JETTY_HOME = "var/jetty";
 
     private final Server server;
-    private final Map webServices = new HashMap();
+    private final Map<String, JettyEJBWebServiceContext> webServices = new HashMap<String, JettyEJBWebServiceContext>();
     private final String objectName;
     private final WebManager manager;
     private final String jettyHome;
     private final ServerInfo serverInfo;
     private File jettyHomeDir;
     private JettyWebContainerStatsImpl stats;
-    private final Map realms = new HashMap();
+    private final Map<String, InternalJAASJettyRealm> realms = new HashMap<String, InternalJAASJettyRealm>();
     // list of handlers
     private StatisticsHandler statsHandler = new StatisticsHandler();  
     private HandlerCollection handlerCollection = new HandlerCollection();
@@ -176,9 +176,9 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLif
             /* set request duration time values, avg = Totaltime/Count */
             /* set active request count */
             stats.getRequestDurationImpl().setCount((long)statsHandler.getRequests());
-            stats.getRequestDurationImpl().setMaxTime((long)statsHandler.getRequestsDurationMax());
-            stats.getRequestDurationImpl().setMinTime((long)statsHandler.getRequestsDurationMin());
-            stats.getRequestDurationImpl().setTotalTime((long)statsHandler.getRequestsDurationTotal());
+            stats.getRequestDurationImpl().setMaxTime(statsHandler.getRequestsDurationMax());
+            stats.getRequestDurationImpl().setMinTime(statsHandler.getRequestsDurationMin());
+            stats.getRequestDurationImpl().setTotalTime(statsHandler.getRequestsDurationTotal());
     
             /* set request count values*/
             stats.getResponses1xxImpl().setCount((long)statsHandler.getResponses1xx());
@@ -188,7 +188,7 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLif
             stats.getResponses5xxImpl().setCount((long)statsHandler.getResponses5xx());
     
             /* set elapsed time for stats collection */
-            stats.getStatsOnMsImpl().setCount((long)statsHandler.getStatsOnMs());
+            stats.getStatsOnMsImpl().setCount(statsHandler.getStatsOnMs());
         }
         return stats;
     }
@@ -209,28 +209,8 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLif
         contextHandlerCollection.removeHandler(context);
     }
 
-    public InternalJAASJettyRealm addRealm(String realmName) {
-        InternalJAASJettyRealm realm = (InternalJAASJettyRealm) realms.get(realmName);
-        if (realm == null) {
-            realm = new InternalJAASJettyRealm(realmName);
-            realms.put(realmName, realm);
-        } else {
-            realm.addUse();
-        }
-        return realm;
-    }
-
-    public void removeRealm(String realmName) {
-        InternalJAASJettyRealm realm = (InternalJAASJettyRealm) realms.get(realmName);
-        if (realm != null) {
-            if (realm.removeUse() == 0) {
-                realms.remove(realmName);
-            }
-        }
-    }
-
-    public void addWebService(String contextPath, String[] virtualHosts, WebServiceContainer webServiceContainer, String securityRealmName, String realmName, String transportGuarantee, String authMethod, String[] protectedMethods, ClassLoader classLoader) throws Exception {
-        InternalJAASJettyRealm internalJAASJettyRealm = securityRealmName == null ? null : addRealm(securityRealmName);
+    public void addWebService(String contextPath, String[] virtualHosts, WebServiceContainer webServiceContainer, ConfigurationFactory configurationFactory, String realmName, String transportGuarantee, String authMethod, String[] protectedMethods, ClassLoader classLoader) throws Exception {
+        InternalJAASJettyRealm internalJAASJettyRealm = configurationFactory == null ? null : new InternalJAASJettyRealm(configurationFactory);
         JettyEJBWebServiceContext webServiceContext = new JettyEJBWebServiceContext(contextPath, webServiceContainer, internalJAASJettyRealm, realmName, transportGuarantee, authMethod, protectedMethods, classLoader);
         webServiceContext.setVirtualHosts(virtualHosts);
         addContext(webServiceContext);
@@ -239,11 +219,7 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLif
     }
 
     public void removeWebService(String contextPath) {
-        JettyEJBWebServiceContext webServiceContext = (JettyEJBWebServiceContext) webServices.remove(contextPath);
-        String securityRealmName = webServiceContext.getSecurityRealmName();
-        if (securityRealmName != null) {
-            removeRealm(securityRealmName);
-        }
+        JettyEJBWebServiceContext webServiceContext = webServices.remove(contextPath);
         try {
             removeContext(webServiceContext);
         } catch (Exception e) {
@@ -279,6 +255,7 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLif
         try {
             server.stop();
         } catch (Exception e) {
+            //ignore
         }
     }
 

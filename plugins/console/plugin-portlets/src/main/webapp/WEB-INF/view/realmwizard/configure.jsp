@@ -52,6 +52,7 @@ function <portlet:namespace/>validateForm(){
     <input type="hidden" name="mode" value="process-configure" />
     <input type="hidden" name="name" value="${realm.name}" />
     <input type="hidden" name="realmType" value="${realm.realmType}" />
+    <input type="hidden" name="global" value="${realm.global}" />
   <c:if test="${!fn:contains(realm.realmType, 'SQL')}">
     <input type="hidden" name="jar" value="${realm.jar}" />
   </c:if>

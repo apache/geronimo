@@ -62,6 +62,7 @@ import org.apache.geronimo.management.geronimo.WebModule;
 import org.apache.geronimo.naming.enc.EnterpriseNamingContext;
 import org.apache.geronimo.security.jacc.RunAsSource;
 import org.apache.geronimo.security.SecurityNames;
+import org.apache.geronimo.security.jaas.ConfigurationFactory;
 import org.apache.geronimo.transaction.GeronimoUserTransaction;
 import org.mortbay.jetty.Handler;
 import org.mortbay.jetty.MimeTypes;
@@ -125,7 +126,7 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
             PreHandlerFactory preHandlerFactory,
 
             String policyContextID,
-            String securityRealmName,
+            ConfigurationFactory configurationFactory,
 
             RunAsSource runAsSource, Holder holder,
 
@@ -161,8 +162,8 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
             sessionHandler = new SessionHandler();
         }
         JettySecurityHandler securityHandler = null;
-        if (securityRealmName != null) {
-            InternalJAASJettyRealm internalJAASJettyRealm = jettyContainer.addRealm(securityRealmName);
+        if (configurationFactory != null) {
+            InternalJAASJettyRealm internalJAASJettyRealm = new InternalJAASJettyRealm(configurationFactory);
             //wrap jetty realm with something that knows the dumb realmName
             JAASJettyRealm realm = new JAASJettyRealm(realmName, internalJAASJettyRealm);
             Subject defaultSubject =  this.runAsSource.getDefaultSubject();
@@ -573,7 +574,7 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
         infoBuilder.addInterface(JettyServletRegistration.class);
 
         infoBuilder.addAttribute("policyContextID", String.class, true);
-        infoBuilder.addAttribute("securityRealmName", String.class, true);
+        infoBuilder.addReference("ConfigurationFactory", ConfigurationFactory.class);
         infoBuilder.addReference("RunAsSource", RunAsSource.class, SecurityNames.JACC_MANAGER);
 
         infoBuilder.addAttribute("holder", Holder.class, true);
@@ -615,7 +616,7 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
                 GBEAN_REF_PRE_HANDLER_FACTORY,
 
                 "policyContextID",
-                "securityRealmName",
+                "ConfigurationFactory",
                 "RunAsSource",
 
                 "holder",

@@ -22,6 +22,7 @@ import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
 import org.apache.catalina.deploy.SecurityConstraint;
 import org.apache.catalina.Context;
+import org.apache.geronimo.security.jaas.ConfigurationFactory;
 
 /**
  * TomcatEJBWSGeronimoRealm is intended only for use with ejb web services in tomcat.
@@ -33,6 +34,10 @@ import org.apache.catalina.Context;
  * @version $Rev$ $Date$
  */
 public class TomcatEJBWSGeronimoRealm extends TomcatGeronimoRealm {
+
+    public TomcatEJBWSGeronimoRealm(ConfigurationFactory configurationFactory) {
+        super(configurationFactory);
+    }
 
     public boolean hasResourcePermission(Request request,
                                          Response response,

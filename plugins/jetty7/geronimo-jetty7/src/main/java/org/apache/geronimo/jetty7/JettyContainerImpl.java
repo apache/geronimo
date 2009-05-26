@@ -33,6 +33,7 @@ import org.apache.geronimo.management.geronimo.stats.JettyWebContainerStatsImpl;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.webservices.SoapHandler;
 import org.apache.geronimo.webservices.WebServiceContainer;
+import org.apache.geronimo.security.jaas.ConfigurationFactory;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.handler.StatisticsHandler;
@@ -204,27 +205,8 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLif
         contextHandlerCollection.removeHandler(context);
     }
 
-//    public InternalJAASJettyRealm addRealm(String realmName) {
-//        InternalJAASJettyRealm realm = (InternalJAASJettyRealm) realms.get(realmName);
-//        if (realm == null) {
-//            realm = new InternalJAASJettyRealm(realmName);
-//            realms.put(realmName, realm);
-//        } else {
-//            realm.addUse();
-//        }
-//        return realm;
-//    }
-//
-//    public void removeRealm(String realmName) {
-//        InternalJAASJettyRealm realm = (InternalJAASJettyRealm) realms.get(realmName);
-//        if (realm != null) {
-//            if (realm.removeUse() == 0) {
-//                realms.remove(realmName);
-//            }
-//        }
-//    }
    ///TODO figure out strings1 param
-    public void addWebService(String contextPath, String[] virtualHosts, WebServiceContainer webServiceContainer, String securityRealmName, String realmName, String transportGuarantee, String authMethod, String[] strings1, ClassLoader classLoader) throws Exception {
+    public void addWebService(String contextPath, String[] virtualHosts, WebServiceContainer webServiceContainer, ConfigurationFactory configurationFactory, String realmName, String transportGuarantee, String authMethod, String[] strings1, ClassLoader classLoader) throws Exception {
 //        InternalJAASJettyRealm internalJAASJettyRealm = securityRealmName == null ? null : addRealm(securityRealmName);
 //        JettyEJBWebServiceContext webServiceContext = new JettyEJBWebServiceContext(contextPath, webServiceContainer, internalJAASJettyRealm, realmName, transportGuarantee, authMethod, classLoader);
         JettyEJBWebServiceContext webServiceContext = new JettyEJBWebServiceContext(contextPath, webServiceContainer, realmName, transportGuarantee, authMethod, classLoader);
@@ -236,10 +218,6 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLif
 
     public void removeWebService(String contextPath) {
         JettyEJBWebServiceContext webServiceContext = (JettyEJBWebServiceContext) webServices.remove(contextPath);
-//        String securityRealmName = webServiceContext.getSecurityRealmName();
-//        if (securityRealmName != null) {
-//            removeRealm(securityRealmName);
-//        }
         try {
             removeContext(webServiceContext);
         } catch (Exception e) {

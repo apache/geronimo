@@ -59,7 +59,7 @@ import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
  */
 public abstract class AbstractWebModuleTest extends TestSupport {
     
-    protected ClassLoader cl;
+    protected ClassLoader cl = this.getClass().getClassLoader();
     protected final static String securityRealmName = "demo-properties-realm";
     protected ConnectorGBean connector;
     protected TomcatContainer container;
@@ -68,7 +68,7 @@ public abstract class AbstractWebModuleTest extends TestSupport {
     private ConnectionTrackingCoordinator connectionTrackingCoordinator;
 
     protected static final String POLICY_CONTEXT_ID = "securetest";
-    private GeronimoLoginConfiguration loginConfiguration;
+    protected GenericSecurityRealm realm;
 
     protected TomcatWebAppContext setUpInsecureAppContext(URI relativeWebAppRoot, URL configurationBaseURL, SecurityHolder securityHolder, RunAsSource runAsSource, ObjectRetriever tomcatRealm, ValveGBean valveChain) throws Exception {
 
@@ -85,6 +85,7 @@ public abstract class AbstractWebModuleTest extends TestSupport {
                 connectionTrackingCoordinator,
                 container,
                 runAsSource,
+                securityHolder == null? null: securityHolder.getConfigurationFactory(),
                 tomcatRealm,
                 null,
                 valveChain,
@@ -107,7 +108,7 @@ public abstract class AbstractWebModuleTest extends TestSupport {
 
     protected TomcatWebAppContext setUpSecureAppContext(Map roleDesignates, Map principalRoleMap, ComponentPermissions componentPermissions, RealmGBean realm, SecurityHolder securityHolder) throws Exception {
         ApplicationPolicyConfigurationManager jacc = setUpJACC(roleDesignates, principalRoleMap, componentPermissions, POLICY_CONTEXT_ID);
-
+        securityHolder.setConfigurationFactory(this.realm);
         URL configurationBaseURL = new File(BASEDIR, "src/test/resources/deployables/war3/WEB-INF/web.xml").toURL();
         return setUpInsecureAppContext(new File(BASEDIR, "src/test/resources/deployables/war3/").toURI(),
                 configurationBaseURL,
@@ -143,29 +144,23 @@ public abstract class AbstractWebModuleTest extends TestSupport {
 
         PrincipalInfo.PrincipalEditor principalEditor = new PrincipalInfo.PrincipalEditor();
         principalEditor.setAsText("metro,org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal");
-        GenericSecurityRealm realm = new GenericSecurityRealm(domainName, loginModuleUse, true, null, serverInfo,  cl, null);
-
-        loginConfiguration = new GeronimoLoginConfiguration(Collections.<ConfigurationEntryFactory>singleton(realm), true);
-        loginConfiguration.doStart();
-
+        realm = new GenericSecurityRealm(domainName, loginModuleUse, true, true, serverInfo,  cl, null);
     }
 
 
     protected void tearDownSecurity() throws Exception {
-        loginConfiguration.doStop();
     }
 
     protected void init(String realmClass) throws Exception {
-        cl = this.getClass().getClassLoader();
 
         RealmGBean realm = null;
-        if (realmClass != null) {
-            Map initParams = new HashMap();
-            initParams.put("userClassNames", "org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal");
-            initParams.put("roleClassNames", "org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal");
-            realm = new RealmGBean(realmClass, initParams);
-            realm.doStart();
-        }
+//        if (realmClass != null) {
+//            Map initParams = new HashMap();
+//            initParams.put("userClassNames", "org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal");
+//            initParams.put("roleClassNames", "org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal");
+//            realm = new RealmGBean(realmClass, initParams, null, null);
+//            realm.doStart();
+//        }
 
         //Default Host
         Map initParams = new HashMap();
@@ -181,6 +176,7 @@ public abstract class AbstractWebModuleTest extends TestSupport {
                 initParams,
                 host,
                 realm,
+                null,
                 null,
                 null,
                 null,

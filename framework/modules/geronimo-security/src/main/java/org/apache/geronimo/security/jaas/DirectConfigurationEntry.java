@@ -57,8 +57,11 @@ public class DirectConfigurationEntry implements ConfigurationEntryFactory {
     }
 
     //TODO configure this
-    public Boolean isPublish() {
+    public boolean isGlobal() {
         return true;
+    }
+
+    public void refresh() {
     }
 
     public static final GBeanInfo GBEAN_INFO;

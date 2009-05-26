@@ -179,6 +179,7 @@ public class ConfigurationEntryTest extends AbstractTest {
         gbean.setAttribute("realmName", "properties-realm");
         gbean.setReferencePattern("LoginModuleConfiguration", testUseName1);
         gbean.setReferencePattern("ServerInfo", serverInfo);
+        gbean.setAttribute("global", Boolean.TRUE);
         kernel.loadGBean(gbean, GenericSecurityRealm.class.getClassLoader());
 
         kernel.startGBean(loginConfiguration);

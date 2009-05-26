@@ -23,6 +23,7 @@ import org.apache.catalina.startup.Embedded;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.geronimo.webservices.WebServiceContainer;
+import org.apache.geronimo.security.jaas.ConfigurationFactory;
 
 /**
  * @version $Rev$ $Date$
@@ -56,7 +57,7 @@ public class TomcatGeronimoEmbedded extends Embedded{
 
    public Context createEJBWebServiceContext(String contextPath, 
            WebServiceContainer webServiceContainer, 
-           String securityRealmName, 
+           ConfigurationFactory configurationFactory,
            String realmName, 
            String transportGuarantee, 
            String authMethod, 
@@ -66,7 +67,7 @@ public class TomcatGeronimoEmbedded extends Embedded{
         if( log.isDebugEnabled() )
             log.debug("Creating EJBWebService context '" + contextPath + "'.");
 
-        TomcatEJBWebServiceContext context = new TomcatEJBWebServiceContext(contextPath, webServiceContainer, securityRealmName, realmName, transportGuarantee, authMethod, protectedMethods, classLoader);
+        TomcatEJBWebServiceContext context = new TomcatEJBWebServiceContext(contextPath, webServiceContainer, configurationFactory, realmName, transportGuarantee, authMethod, protectedMethods, classLoader);
 
         ContextConfig config = new ContextConfig();
         config.setCustomAuthenticators(authenticators);

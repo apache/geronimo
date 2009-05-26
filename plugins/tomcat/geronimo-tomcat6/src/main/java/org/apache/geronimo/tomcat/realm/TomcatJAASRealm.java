@@ -21,6 +21,7 @@ import org.apache.catalina.realm.JAASRealm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.geronimo.security.ContextManager;
+import org.apache.geronimo.security.jaas.ConfigurationFactory;
 import org.apache.geronimo.tomcat.JAASTomcatPrincipal;
 
 import javax.security.auth.Subject;
@@ -38,20 +39,21 @@ import java.util.List;
 public class TomcatJAASRealm extends JAASRealm implements Cloneable {
     private static final Logger log = LoggerFactory.getLogger(TomcatJAASRealm.class);
 
-    private static final String DEFAULT_NAME = "tomcat";
-
     /**
      * Descriptive information about this <code>Realm</code> implementation.
      */
-    protected static final String info = "org.apache.geronimo.tomcat.realm.TomcatJAASRealm/1.0";
+    protected static final String info = "org.apache.geronimo.tomcat.realm.TomcatJAASRealm/1.1";
 
     /**
      * Descriptive information about this <code>Realm</code> implementation.
      */
     protected static final String name = "TomcatJAASRealm";
 
-    public TomcatJAASRealm() {
+    private final ConfigurationFactory configurationFactory;
+
+    public TomcatJAASRealm(ConfigurationFactory configurationFactory) {
         super();
+        this.configurationFactory = configurationFactory;
     }
 
 
@@ -74,11 +76,9 @@ public class TomcatJAASRealm extends JAASRealm implements Cloneable {
         // Establish a LoginContext to use for authentication
         try {
             LoginContext loginContext = null;
-            if (appName == null)
-                appName = DEFAULT_NAME;
 
             if (log.isDebugEnabled())
-                log.debug(sm.getString("jaasRealm.beginLogin", username, appName));
+                log.debug(sm.getString("jaasRealm.beginLogin", username, configurationFactory.getConfigurationName()));
 
             // What if the LoginModule is in the container class loader ?
             ClassLoader ocl = null;
@@ -89,7 +89,7 @@ public class TomcatJAASRealm extends JAASRealm implements Cloneable {
             }
 
             try {
-                loginContext = ContextManager.login(appName, new JAASCallbackHandler(this, username, credentials));
+                loginContext = ContextManager.login(configurationFactory.getConfigurationName(), new JAASCallbackHandler(this, username, credentials), configurationFactory.getConfiguration());
             } catch (AccountExpiredException e) {
                 if (log.isDebugEnabled())
                     log.debug(sm.getString("jaasRealm.accountExpired", username));

@@ -28,6 +28,7 @@ import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
 import org.apache.geronimo.security.ContextManager;
+import org.apache.geronimo.security.jaas.ConfigurationFactory;
 import org.apache.geronimo.security.realm.providers.PasswordCallbackHandler;
 import org.eclipse.jetty.security.IdentityService;
 import org.eclipse.jetty.security.LoginService;
@@ -37,12 +38,17 @@ import org.eclipse.jetty.server.UserIdentity;
  * @version $Rev$ $Date$
  */
 public class JAASLoginService implements LoginService {
-    private final String securityRealm;
     private final String realmName;
+    private final ConfigurationFactory configurationFactory;
     private IdentityService identityService;
 
-    public JAASLoginService(String securityRealm, String realmName) {
-        this.securityRealm = securityRealm;
+    /**
+     * Construct a JAASLoginService
+     * @param configurationFactory may be null if auth system does not require local jaas login (such as openid)
+     * @param realmName may be null e.g. for jaspi.
+     */
+    public JAASLoginService(ConfigurationFactory configurationFactory, String realmName) {
+        this.configurationFactory = configurationFactory;
         this.realmName = realmName;
     }
 
@@ -58,7 +64,7 @@ public class JAASLoginService implements LoginService {
         char[] password = credentials instanceof  String? ((String)credentials).toCharArray(): (char[]) credentials;
         CallbackHandler callbackHandler = new PasswordCallbackHandler(username, password);
         try {
-            LoginContext loginContext = ContextManager.login(securityRealm, callbackHandler);
+            LoginContext loginContext = ContextManager.login(configurationFactory.getConfigurationName(), callbackHandler, configurationFactory.getConfiguration());
             Subject establishedSubject = loginContext.getSubject();
             Principal userPrincipal = ContextManager.getCurrentPrincipal(establishedSubject);
             return identityService.newUserIdentity(establishedSubject, userPrincipal, null);

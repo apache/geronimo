@@ -406,6 +406,9 @@ public class SecurityRealmPortlet extends BasePortlet {
         AttributeType realmName = realm.addNewAttribute();
         realmName.setName("realmName");
         realmName.setStringValue(data.getName());
+        AttributeType global = realm.addNewAttribute();
+        global.setName("global");
+        global.setStringValue(data.getGlobal());
         ReferenceType serverInfo = realm.addNewReference();
         serverInfo.setName2("ServerInfo");
         serverInfo.setName((String) PortletManager.getNameFor(request, PortletManager.getCurrentServer(request).getServerInfo()).getName().get("name"));
@@ -838,6 +841,7 @@ public class SecurityRealmPortlet extends BasePortlet {
         private String abstractName; // used when editing existing realms
         private LoginModuleDetails[] modules;
         private String credentialName;
+        private boolean global;
 
         public void load(PortletRequest request) {
             name = request.getParameter("name");
@@ -860,6 +864,8 @@ public class SecurityRealmPortlet extends BasePortlet {
             storePassword = test != null && !test.equals("") && !test.equals("false");
             credentialName = request.getParameter("credentialName");
             if (credentialName != null && credentialName.equals("")) credentialName = null;
+            String globalStr = request.getParameter("global");
+            global = "on".equals(globalStr) || "true".equals(globalStr);
             Map map = request.getParameterMap();
             for (Iterator it = map.keySet().iterator(); it.hasNext();) {
                 String key = (String) it.next();
@@ -954,8 +960,9 @@ public class SecurityRealmPortlet extends BasePortlet {
             if (abstractName != null) response.setRenderParameter("abstractName", abstractName);
             if (storePassword) response.setRenderParameter("storePassword", "true");
             if (credentialName != null) response.setRenderParameter("credentialName", credentialName);
-            for (Iterator it = options.keySet().iterator(); it.hasNext();) {
-                String name = (String) it.next();
+            response.setRenderParameter("global", getGlobal());
+            for (Object o : options.keySet()) {
+                String name = (String) o;
                 String value = (String) options.get(name);
                 if (value != null) {
                     response.setRenderParameter("option-" + name, value);
@@ -975,6 +982,7 @@ public class SecurityRealmPortlet extends BasePortlet {
                         response.setRenderParameter("module-options-" + i, module.getOptionString());
                 }
             }
+
         }
 
         public String getName() {
@@ -1035,6 +1043,10 @@ public class SecurityRealmPortlet extends BasePortlet {
 
         public LoginModuleDetails[] getModules() {
             return modules;
+        }
+
+        public String getGlobal() {
+            return Boolean.valueOf(global).toString();
         }
     }
 

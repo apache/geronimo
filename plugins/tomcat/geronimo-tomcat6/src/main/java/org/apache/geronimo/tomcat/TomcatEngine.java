@@ -37,12 +37,6 @@ public class TomcatEngine extends StandardEngine implements Engine{
             if (configured != null)
                 return configured;
         }
-        
-        //No realms found up the chain, so lets create a default JAAS Realm
-        TomcatJAASRealm defaultRealm = new TomcatJAASRealm();
-        defaultRealm.setUserClassNames("org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal");
-        defaultRealm.setRoleClassNames("org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal");
-        this.setRealm(defaultRealm);
-        return defaultRealm;
+        return null;
     }
 }

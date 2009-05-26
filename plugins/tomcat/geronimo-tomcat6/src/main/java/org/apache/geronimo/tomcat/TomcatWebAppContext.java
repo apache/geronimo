@@ -63,6 +63,7 @@ import org.apache.geronimo.management.geronimo.WebModule;
 import org.apache.geronimo.naming.enc.EnterpriseNamingContext;
 import org.apache.geronimo.security.jacc.RunAsSource;
 import org.apache.geronimo.security.SecurityNames;
+import org.apache.geronimo.security.jaas.ConfigurationFactory;
 import org.apache.geronimo.tomcat.cluster.CatalinaClusterGBean;
 import org.apache.geronimo.tomcat.stats.ModuleStats;
 import org.apache.geronimo.tomcat.util.SecurityHolder;
@@ -101,7 +102,6 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
     private final Set applicationManagedSecurityResources;
     private final TrackedConnectionAssociator trackedConnectionAssociator;
     private final SecurityHolder securityHolder;
-    private final RunAsSource runAsSource;
     private final J2EEServer server;
     private final Map webServices;
     private final String objectName;
@@ -119,7 +119,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
     private boolean reset = true;
 
     private final Valve clusteredValve;
-    
+
     public TomcatWebAppContext(
             ClassLoader classLoader,
             String objectName,
@@ -134,7 +134,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
             TrackedConnectionAssociator trackedConnectionAssociator,
             TomcatContainer container,
             RunAsSource runAsSource,
-            ObjectRetriever tomcatRealm,
+            ConfigurationFactory configurationFactory, ObjectRetriever tomcatRealm,
             ObjectRetriever clusteredValveRetriever,
             ValveGBean tomcatValveChain,
             LifecycleListenerGBean lifecycleListenerChain,
@@ -186,10 +186,9 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         this.trackedConnectionAssociator = trackedConnectionAssociator;
 
         this.server = server;
-        this.runAsSource = runAsSource == null? RunAsSource.NULL: runAsSource;
         if (securityHolder != null) {
-            securityHolder.setDefaultSubject(this.runAsSource.getDefaultSubject());
-            securityHolder.setRunAsSource(this.runAsSource);
+            securityHolder.setRunAsSource(runAsSource == null? RunAsSource.NULL: runAsSource);
+            securityHolder.setConfigurationFactory(configurationFactory);
         }
 
 
@@ -570,6 +569,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
 
         infoBuilder.addReference("Container", TomcatContainer.class, GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
         infoBuilder.addReference("RunAsSource", RunAsSource.class, SecurityNames.JACC_MANAGER);
+        infoBuilder.addReference("ConfigurationFactory", ConfigurationFactory.class);
         infoBuilder.addReference("TomcatRealm", ObjectRetriever.class);
         infoBuilder.addReference(GBEAN_REF_CLUSTERED_VALVE_RETRIEVER, ObjectRetriever.class);
         infoBuilder.addReference("TomcatValveChain", ValveGBean.class);
@@ -602,6 +602,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
                 "TrackedConnectionAssociator",
                 "Container",
                 "RunAsSource",
+                "ConfigurationFactory",
                 "TomcatRealm",
                 GBEAN_REF_CLUSTERED_VALVE_RETRIEVER,
                 "TomcatValveChain",

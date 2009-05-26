@@ -110,106 +110,6 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
     public static final String GBEAN_REF_SESSION_HANDLER_FACTORY = "SessionHandlerFactory";
     public static final String GBEAN_REF_PRE_HANDLER_FACTORY = "PreHandlerFactory";
 
-//    static {
-//        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic("Jetty WebApplication Context", JettyWebAppContext.class, NameFactory.WEB_MODULE);
-//        infoBuilder.addAttribute("deploymentDescriptor", String.class, true);
-//        //from jetty7's webapp context
-//
-//        infoBuilder.addAttribute("displayName", String.class, true);
-//        infoBuilder.addAttribute("contextParamMap", Map.class, true);
-//        infoBuilder.addAttribute("listenerClassNames", Collection.class, true);
-//        infoBuilder.addAttribute("distributable", boolean.class, true);
-//
-//        infoBuilder.addAttribute("mimeMap", Map.class, true);
-//        infoBuilder.addAttribute("welcomeFiles", String[].class, true);
-//        infoBuilder.addAttribute("localeEncodingMapping", Map.class, true);
-//        infoBuilder.addAttribute("errorPages", Map.class, true);
-//        infoBuilder.addAttribute("authenticator", Authenticator.class, true);
-//        infoBuilder.addAttribute("realmName", String.class, true);
-//        infoBuilder.addAttribute("tagLibMap", Map.class, true);
-//        infoBuilder.addAttribute(GBEAN_ATTR_SESSION_TIMEOUT, int.class, true);
-//        infoBuilder.addReference(GBEAN_REF_SESSION_HANDLER_FACTORY, SessionHandlerFactory.class,
-//                NameFactory.GERONIMO_SERVICE);
-//        infoBuilder.addReference(GBEAN_REF_PRE_HANDLER_FACTORY, PreHandlerFactory.class, NameFactory.GERONIMO_SERVICE);
-//
-//        infoBuilder.addAttribute("componentContext", Map.class, true);
-//        infoBuilder.addAttribute("classLoader", ClassLoader.class, false);
-//        infoBuilder.addAttribute("configurationBaseUrl", URL.class, true);
-//        infoBuilder.addAttribute("unshareableResources", Set.class, true);
-//        infoBuilder.addAttribute("applicationManagedSecurityResources", Set.class, true);
-//
-//        infoBuilder.addAttribute("contextPath", String.class, true);
-//        infoBuilder.addAttribute("compactPath", boolean.class, true);
-//
-//        infoBuilder.addAttribute("workDir", String.class, true);
-//        infoBuilder.addReference("Host", Host.class, "Host");
-//        infoBuilder.addReference("TransactionManager", TransactionManager.class, NameFactory.JTA_RESOURCE);
-//        infoBuilder.addReference("TrackedConnectionAssociator", TrackedConnectionAssociator.class, NameFactory.JCA_CONNECTION_TRACKER);
-//        infoBuilder.addReference("JettyContainer", JettyContainer.class, NameFactory.GERONIMO_SERVICE);
-//        infoBuilder.addReference("ContextCustomizer", RuntimeCustomizer.class, NameFactory.GERONIMO_SERVICE);
-//
-//        infoBuilder.addInterface(JettyServletRegistration.class);
-//
-//        infoBuilder.addAttribute("policyContextID", String.class, true);
-//        infoBuilder.addAttribute("securityRealmName", String.class, true);
-//        infoBuilder.addReference("RunAsSource", RunAsSource.class, NameFactory.JACC_MANAGER);
-//
-//        infoBuilder.addAttribute("holder", Holder.class, true);
-//
-//        infoBuilder.addReference("J2EEServer", J2EEServer.class);
-//        infoBuilder.addReference("J2EEApplication", J2EEApplication.class);
-//
-//        infoBuilder.addAttribute("kernel", Kernel.class, false);
-//        infoBuilder.addAttribute("objectName", String.class, false);
-//        infoBuilder.addAttribute("application", String.class, false);
-//        infoBuilder.addAttribute("javaVMs", String[].class, false);
-//        infoBuilder.addAttribute("servlets", String[].class, false);
-//
-//        infoBuilder.addInterface(WebModule.class);
-//
-//        infoBuilder.setConstructor(new String[]{
-//                "objectName",
-//                "deploymentDescriptor",
-//                "componentContext",
-//                "classLoader",
-//                "configurationBaseUrl",
-//                "unshareableResources",
-//                "applicationManagedSecurityResources",
-//
-//                "displayName",
-//                "contextParamMap",
-//                "listenerClassNames",
-//                "distributable",
-//                "mimeMap",
-//                "welcomeFiles",
-//                "localeEncodingMapping",
-//                "errorPages",
-//                "authenticator",
-//                "realmName",
-//                "tagLibMap",
-//                "compactPath",
-//                GBEAN_ATTR_SESSION_TIMEOUT,
-//                GBEAN_REF_SESSION_HANDLER_FACTORY,
-//                GBEAN_REF_PRE_HANDLER_FACTORY,
-//
-//                "policyContextID",
-//                "securityRealmName",
-//                "RunAsSource",
-//
-//                "holder",
-//
-//                "Host",
-//                "TransactionManager",
-//                "TrackedConnectionAssociator",
-//                "JettyContainer",
-//                "ContextCustomizer",
-//
-//                "J2EEServer",
-//                "J2EEApplication",
-//                "kernel"
-//        });
-//
-//    }
 
     public JettyWebAppContext(@ParamSpecial(type = SpecialAttributeType.objectName)String objectName,
                               @ParamAttribute(name = "contextPath")String contextPath,
@@ -284,7 +184,6 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
             //TODO may need to turn off security with Context._options.
 //            securityHandler = new NoSecurityHandler();
         }
-//        }
 
         ServletHandler servletHandler = new ServletHandler();
 

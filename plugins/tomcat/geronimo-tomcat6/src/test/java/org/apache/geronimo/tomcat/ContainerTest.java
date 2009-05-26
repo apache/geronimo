@@ -62,7 +62,7 @@ public class ContainerTest extends AbstractWebModuleTest {
 
         String contextPath = "/foo/webservice.ws";
         MockWebServiceContainer webServiceInvoker = new MockWebServiceContainer();
-        container.addWebService(contextPath, null, webServiceInvoker, securityRealmName, securityRealmName, "NONE", "BASIC", null, cl);
+        container.addWebService(contextPath, null, webServiceInvoker, realm, securityRealmName, "NONE", "BASIC", null, cl);
 
         //Veryify its secured
         HttpURLConnection connection = (HttpURLConnection) new URL(connector.getConnectUrl() + contextPath).openConnection();

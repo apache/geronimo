@@ -30,6 +30,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.Collections;
 import java.util.jar.JarFile;
 
 import javax.servlet.Servlet;
@@ -68,6 +69,7 @@ import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.naming.deployment.GBeanResourceEnvironmentBuilder;
 import org.apache.geronimo.naming.deployment.ResourceEnvironmentSetter;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
+import org.apache.geronimo.security.jaas.ConfigurationFactory;
 import org.apache.geronimo.tomcat.LifecycleListenerGBean;
 import org.apache.geronimo.tomcat.ManagerGBean;
 import org.apache.geronimo.tomcat.RealmGBean;
@@ -467,9 +469,10 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
                 }
 
                 SecurityHolder securityHolder = new SecurityHolder();
-                securityHolder.setSecurityRealm(tomcatWebApp.getSecurityRealmName().trim());
+                String securityRealmName = tomcatWebApp.getSecurityRealmName().trim();
 
                 webModuleData.setReferencePattern("RunAsSource", (AbstractNameQuery)earContext.getGeneralData().get(ROLE_MAPPER_DATA_NAME));
+                webModuleData.setReferencePattern("ConfigurationFactory", new AbstractNameQuery(null, Collections.singletonMap("name", securityRealmName), ConfigurationFactory.class.getName()));
 
                 /**
                  * TODO - go back to commented version when possible.

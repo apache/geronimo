@@ -30,6 +30,7 @@ import org.apache.geronimo.jaxws.PortInfo;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.openejb.EjbDeployment;
 import org.apache.geronimo.webservices.SoapHandler;
+import org.apache.geronimo.security.jaas.ConfigurationFactory;
 import org.apache.openejb.DeploymentInfo;
 
 /**
@@ -46,7 +47,7 @@ public class EJBWebServiceGBean implements GBeanLifecycle {
                               Kernel kernel,
                               URL configurationBaseUrl,                              
                               Collection<SoapHandler> webContainers,
-                              String securityRealmName,
+                              ConfigurationFactory configurationFactory,
                               String realmName,
                               String transportGuarantee,
                               String authMethod,
@@ -73,8 +74,8 @@ public class EJBWebServiceGBean implements GBeanLifecycle {
          
         soapHandler.addWebService(this.location, 
                                   virtualHosts, 
-                                  this.container, 
-                                  securityRealmName, 
+                                  this.container,
+                                  configurationFactory,
                                   realmName, 
                                   transportGuarantee, 
                                   authMethod, 
@@ -106,7 +107,7 @@ public class EJBWebServiceGBean implements GBeanLifecycle {
         infoFactory.addAttribute("portInfo", PortInfo.class, true);       
         infoFactory.addAttribute("kernel", Kernel.class, false);
         infoFactory.addAttribute("configurationBaseUrl", URL.class, true);
-        infoFactory.addAttribute("securityRealmName", String.class, true);
+        infoFactory.addReference("ConfigurationFactory", ConfigurationFactory.class);
         infoFactory.addAttribute("realmName", String.class, true);
         infoFactory.addAttribute("transportGuarantee", String.class, true);
         infoFactory.addAttribute("authMethod", String.class, true);
@@ -120,7 +121,7 @@ public class EJBWebServiceGBean implements GBeanLifecycle {
                 "kernel",
                 "configurationBaseUrl",
                 "WebServiceContainer",
-                "securityRealmName",
+                "ConfigurationFactory",
                 "realmName",
                 "transportGuarantee",
                 "authMethod",

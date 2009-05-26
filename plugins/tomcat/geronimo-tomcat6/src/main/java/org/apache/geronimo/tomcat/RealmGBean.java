@@ -17,25 +17,37 @@
 package org.apache.geronimo.tomcat;
 
 import java.util.Map;
+import java.lang.reflect.Constructor;
 
 import org.apache.catalina.Realm;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.security.jaas.ConfigurationFactory;
 
 public class RealmGBean extends BaseGBean implements GBeanLifecycle, ObjectRetriever {
     
     private final Realm realm;
 
-    public RealmGBean(String className, Map initParams) throws Exception {
-        super(); // TODO: make it an attribute
+    public RealmGBean(String className, Map initParams, ConfigurationFactory configurationFactory, ClassLoader classLoader) throws Exception {
+        super();
         
-        assert className != null;
-        
-        realm = (Realm)Class.forName(className).newInstance();
-        
+        if (className == null) throw new NullPointerException("No realm class supplied");
+
+        Class<?> clazz = Class.forName(className, true, classLoader);
+        Realm realm;
+        try {
+            Constructor c = clazz.getConstructor(ConfigurationFactory.class);
+            if (configurationFactory == null) {
+                throw new NullPointerException("ConfigurationFactory must be supplied");
+            }
+            realm = (Realm) c.newInstance(configurationFactory);
+        } catch (NoSuchMethodException e) {
+            realm = (Realm) clazz.newInstance();
+        }
+
         setParameters(realm, initParams);
-        
+        this.realm = realm;
     }
 
     public Object getInternalObject() {
@@ -57,9 +69,11 @@ public class RealmGBean extends BaseGBean implements GBeanLifecycle, ObjectRetri
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("TomcatRealm", RealmGBean.class);
         infoFactory.addAttribute("className", String.class, true);
         infoFactory.addAttribute("initParams", Map.class, true);
+        infoFactory.addReference("ConfigurationFactory", ConfigurationFactory.class);
+        infoFactory.addAttribute("classLoader", ClassLoader.class, false);
 
-        infoFactory.addOperation("getInternalObject");
-        infoFactory.setConstructor(new String[] { "className", "initParams" });
+
+        infoFactory.setConstructor(new String[] { "className", "initParams", "ConfigurationFactory", "classLoader" });
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

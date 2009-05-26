@@ -41,6 +41,7 @@ import org.apache.catalina.deploy.LoginConfig;
 import org.apache.catalina.deploy.SecurityConstraint;
 import org.apache.catalina.realm.JAASRealm;
 import org.apache.geronimo.security.ContextManager;
+import org.apache.geronimo.security.jaas.ConfigurationFactory;
 import org.apache.geronimo.security.realm.providers.CertificateChainCallbackHandler;
 import org.apache.geronimo.security.realm.providers.PasswordCallbackHandler;
 import org.apache.geronimo.tomcat.JAASTomcatPrincipal;
@@ -60,15 +61,17 @@ public class TomcatGeronimoRealm extends JAASRealm {
     /**
      * Descriptive information about this <code>Realm</code> implementation.
      */
-    protected static final String info = "org.apache.geronimo.tomcat.TomcatGeronimoRealm/1.0";
+    protected static final String info = "org.apache.geronimo.tomcat.TomcatGeronimoRealm/1.1";
 
     /**
      * Descriptive information about this <code>Realm</code> implementation.
      */
     protected static final String name = "TomcatGeronimoRealm";
 
-    public TomcatGeronimoRealm() {
+    private final ConfigurationFactory configurationFactory;
 
+    public TomcatGeronimoRealm(ConfigurationFactory configurationFactory) {
+        this.configurationFactory = configurationFactory;
     }
 
     public static String setRequestWrapperName(String requestWrapperName) {
@@ -259,11 +262,8 @@ public class TomcatGeronimoRealm extends JAASRealm {
 
             if ((principalName != null) && (!principalName.equals(""))) {
                 LoginContext loginContext = null;
-                if (appName == null)
-                    appName = "Tomcat";
-
                 if (log.isDebugEnabled())
-                    log.debug(sm.getString("jaasRealm.beginLogin", principalName, appName));
+                    log.debug(sm.getString("jaasRealm.beginLogin", principalName, configurationFactory.getConfigurationName()));
 
                 // What if the LoginModule is in the container class loader ?
                 ClassLoader ocl = null;
@@ -274,7 +274,7 @@ public class TomcatGeronimoRealm extends JAASRealm {
                 }
 
                 try {
-                    loginContext = ContextManager.login(appName, callbackHandler);
+                    loginContext = ContextManager.login(configurationFactory.getConfigurationName(), callbackHandler, configurationFactory.getConfiguration());
                 } catch (AccountExpiredException e) {
                     if (log.isDebugEnabled())
                         log.debug(sm.getString("jaasRealm.accountExpired", principalName));

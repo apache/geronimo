@@ -33,10 +33,12 @@ import javax.security.auth.message.config.ServerAuthConfig;
 
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
+import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.jetty7.handler.JettySecurityHandler;
 import org.apache.geronimo.jetty7.security.auth.JAASLoginService;
 import org.apache.geronimo.security.jacc.RunAsSource;
 import org.apache.geronimo.security.ContextManager;
+import org.apache.geronimo.security.jaas.ConfigurationFactory;
 import org.eclipse.jetty.security.Authenticator;
 import org.eclipse.jetty.security.LoginService;
 import org.eclipse.jetty.security.IdentityService;
@@ -62,14 +64,12 @@ public class AuthConfigProviderHandlerFactory implements SecurityHandlerFactory 
     private final LoginService loginService;
     private final ServerAuthConfig serverAuthConfig;
     private final ServletCallbackHandler servletCallbackHandler;
-//    private final IdentityService identityService;
-//    private final AccessControlContext defaultAcc;
 
 
     public AuthConfigProviderHandlerFactory(@ParamAttribute(name = "messageLayer")String messageLayer,
                                             @ParamAttribute(name = "appContext")String appContext,
-                                            @ParamAttribute(name = "securityRealm")String securityRealm,
-                                            @ParamAttribute(name = "allowLazyAuthentication") boolean allowLazyAuthentication
+                                            @ParamAttribute(name = "allowLazyAuthentication") boolean allowLazyAuthentication,
+                                            @ParamReference(name = "ConfigurationFactory") ConfigurationFactory configurationFactory
     ) throws AuthException {
         this.appContext = appContext;
         this.allowLazyAuthentication = allowLazyAuthentication;
@@ -80,7 +80,7 @@ public class AuthConfigProviderHandlerFactory implements SecurityHandlerFactory 
             }
         };
         AuthConfigProvider authConfigProvider = authConfigFactory.getConfigProvider(messageLayer, appContext, listener);
-        this.loginService = new JAASLoginService(securityRealm, null);
+        this.loginService = new JAASLoginService(configurationFactory, null);
         servletCallbackHandler = new ServletCallbackHandler(loginService);
         serverAuthConfig = authConfigProvider.getServerAuthConfig(messageLayer, appContext, servletCallbackHandler);
         //TODO appContext is supposed to be server-name<space>context-root

@@ -103,9 +103,9 @@ import org.apache.geronimo.security.jaspi.AuthConfigProviderGBean;
 import org.apache.geronimo.security.jaspi.ServerAuthContextGBean;
 import org.apache.geronimo.security.jaspi.ServerAuthModuleGBean;
 import org.apache.geronimo.security.jaspi.ServerAuthConfigGBean;
+import org.apache.geronimo.security.jaas.ConfigurationFactory;
 import org.apache.geronimo.web.deployment.GenericToSpecificPlanConverter;
 import org.apache.geronimo.web25.deployment.AbstractWebModuleBuilder;
-import org.apache.geronimo.xbeans.geronimo.j2ee.GerClusteringDocument;
 import org.apache.geronimo.xbeans.geronimo.web.jetty.JettyAuthenticationType;
 import org.apache.geronimo.xbeans.geronimo.web.jetty.JettyWebAppDocument;
 import org.apache.geronimo.xbeans.geronimo.web.jetty.JettyWebAppType;
@@ -788,9 +788,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
                 securityFactoryData.setAttribute("messageLayer", "HttpServlet");
                 Object contextPath = webModuleData.getAttribute("contextPath");
                 securityFactoryData.setAttribute("appContext", "server " + contextPath);
-                if (jettyWebApp.isSetSecurityRealmName()) {
-                    securityFactoryData.setAttribute("securityRealm", jettyWebApp.getSecurityRealmName());
-                }
+                configureConfigurationFactory(jettyWebApp, null, securityFactoryData);
                 moduleContext.addGBean(securityFactoryData);
                 GBeanData authConfigProviderData = null;
                 try {
@@ -870,9 +868,8 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
                     BuiltInAuthMethod auth = BuiltInAuthMethod.valueOf(authMethod);
                     GBeanData securityFactoryData = new GBeanData(factoryName, JettySecurityHandlerFactory.class);
                     securityFactoryData.setAttribute("authMethod", auth);
-                    if (jettyWebApp.isSetSecurityRealmName()) {
-                        securityFactoryData.setAttribute("securityRealm", jettyWebApp.getSecurityRealmName());
-                    } //TODO else error?
+                    configureConfigurationFactory(jettyWebApp, loginConfig, securityFactoryData);
+
                     moduleContext.addGBean(securityFactoryData);
 
 
@@ -902,6 +899,18 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
 //        } else if (jettyWebApp.isSetSecurityRealmName()) {
 //            webModuleData.setAttribute("authenticator", new NonAuthenticator());
         }
+    }
+
+    private void configureConfigurationFactory(JettyWebAppType jettyWebApp, LoginConfigType loginConfig, GBeanData securityFactoryData) {
+        String securityRealmName;
+        if (jettyWebApp.isSetSecurityRealmName()) {
+            securityRealmName = jettyWebApp.getSecurityRealmName().trim();
+        } else {
+            if (loginConfig == null) return;
+            securityRealmName = loginConfig.getRealmName().getStringValue().trim();
+        }
+        AbstractNameQuery configurationFactoryName = new AbstractNameQuery(null, Collections.singletonMap("name", securityRealmName), ConfigurationFactory.class.getName());
+        securityFactoryData.setReferencePattern("ConfigurationFactory", configurationFactoryName);
     }
 
     private void configureTagLibs(Module module, WebAppType webApp, GBeanData webModuleData, Map<String, Set<String>> servletMappings, Set<String> knownServletMappings, String jspServletName) throws DeploymentException {

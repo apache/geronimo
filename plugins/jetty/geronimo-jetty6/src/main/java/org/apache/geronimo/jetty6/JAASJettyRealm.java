@@ -71,8 +71,4 @@ public class JAASJettyRealm implements UserRealm {
         internalJAASJettyRealm.logout(user);
     }
 
-    public String getSecurityRealmName() {
-        return internalJAASJettyRealm.getSecurityRealmName();
-    }
-
 }

@@ -19,17 +19,12 @@ package org.apache.geronimo.jetty6;
 import java.io.File;
 import java.net.URL;
 import java.security.PermissionCollection;
-import java.security.Permissions;
 import java.security.Principal;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.security.auth.Subject;
-import javax.security.jacc.WebResourcePermission;
-import javax.security.jacc.WebUserDataPermission;
 import javax.transaction.TransactionManager;
 
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
@@ -41,6 +36,7 @@ import org.apache.geronimo.security.jaas.GeronimoLoginConfiguration;
 import org.apache.geronimo.security.jaas.LoginModuleControlFlag;
 import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
 import org.apache.geronimo.security.jaas.ConfigurationEntryFactory;
+import org.apache.geronimo.security.jaas.ConfigurationFactory;
 import org.apache.geronimo.security.deploy.SubjectInfo;
 import org.apache.geronimo.security.deploy.PrincipalInfo;
 import org.apache.geronimo.security.jacc.ApplicationPolicyConfigurationManager;
@@ -50,8 +46,6 @@ import org.apache.geronimo.security.jacc.RunAsSource;
 import org.apache.geronimo.security.jacc.mappingprovider.ApplicationPrincipalRoleConfigurationManager;
 import org.apache.geronimo.security.jacc.mappingprovider.GeronimoPolicy;
 import org.apache.geronimo.security.jacc.mappingprovider.GeronimoPolicyConfigurationFactory;
-import org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal;
-import org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal;
 import org.apache.geronimo.security.realm.GenericSecurityRealm;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
@@ -66,7 +60,7 @@ import org.mortbay.jetty.security.FormAuthenticator;
  */
 public class AbstractWebModuleTest extends TestSupport {
     protected ClassLoader cl;
-    protected final static String securityRealmName = "demo-properties-realm";
+    protected ConfigurationFactory configurationFactory;
     protected HTTPSocketConnector connector;
     protected JettyContainerImpl container;
     private TransactionManager transactionManager;
@@ -96,7 +90,7 @@ public class AbstractWebModuleTest extends TestSupport {
 
     }
 
-    protected JettyWebAppContext setUpAppContext(String realmName, String securityRealmName, Authenticator authenticator, String policyContextId, PermissionCollection excludedPermissions, RunAsSource runAsSource, PermissionCollection checkedPermissions, String uriString) throws Exception {
+    protected JettyWebAppContext setUpAppContext(String realmName, ConfigurationFactory configurationFactory, Authenticator authenticator, String policyContextId, PermissionCollection excludedPermissions, RunAsSource runAsSource, PermissionCollection checkedPermissions, String uriString) throws Exception {
 
         JettyWebAppContext app = new JettyWebAppContext(null,
                 null,
@@ -121,7 +115,7 @@ public class AbstractWebModuleTest extends TestSupport {
                 sessionHandlerFactory,
                 preHandlerFactory,
                 policyContextId,
-                securityRealmName,
+                configurationFactory,
                 runAsSource,
                 null,
                 null,
@@ -137,7 +131,7 @@ public class AbstractWebModuleTest extends TestSupport {
         return app;
     }
 
-    protected JettyWebAppContext setUpSecureAppContext(String securityRealmName, Map<String, SubjectInfo> roleDesignates, Map<Principal, Set<String>> principalRoleMap, ComponentPermissions componentPermissions, SubjectInfo defaultSubjectInfo, PermissionCollection checked, Set securityRoles) throws Exception {
+    protected JettyWebAppContext setUpSecureAppContext(ConfigurationFactory configurationFactory, Map<String, SubjectInfo> roleDesignates, Map<Principal, Set<String>> principalRoleMap, ComponentPermissions componentPermissions, SubjectInfo defaultSubjectInfo, PermissionCollection checked, Set securityRoles) throws Exception {
         String policyContextId = "TEST";
         ApplicationPolicyConfigurationManager jacc = setUpJACC(roleDesignates, principalRoleMap, componentPermissions, policyContextId);
 
@@ -145,7 +139,7 @@ public class AbstractWebModuleTest extends TestSupport {
         formAuthenticator.setLoginPage("/auth/logon.html?param=test");
         formAuthenticator.setErrorPage("/auth/logonError.html?param=test");
         return setUpAppContext("Test JAAS Realm",
-                securityRealmName,
+                configurationFactory,
                 formAuthenticator,
                 policyContextId,
                 componentPermissions.getExcludedPermissions(),
@@ -181,10 +175,10 @@ public class AbstractWebModuleTest extends TestSupport {
 
         PrincipalInfo.PrincipalEditor principalEditor = new PrincipalInfo.PrincipalEditor();
         principalEditor.setAsText("metro,org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal");
-        GenericSecurityRealm realm = new GenericSecurityRealm(domainName, loginModuleUse, true, null, serverInfo,  cl, null);
+        configurationFactory = new GenericSecurityRealm(domainName, loginModuleUse, true, false, serverInfo,  cl, null);
 
-        GeronimoLoginConfiguration loginConfiguration = new GeronimoLoginConfiguration(Collections.<ConfigurationEntryFactory>singleton(realm), true);
-        loginConfiguration.doStart();
+//        GeronimoLoginConfiguration loginConfiguration = new GeronimoLoginConfiguration(Collections.<ConfigurationEntryFactory>singleton(realm), true);
+//        loginConfiguration.doStart();
 
     }
 

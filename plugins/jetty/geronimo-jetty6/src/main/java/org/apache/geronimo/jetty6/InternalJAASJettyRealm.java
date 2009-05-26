@@ -30,6 +30,7 @@ import javax.security.jacc.WebRoleRefPermission;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.geronimo.security.ContextManager;
+import org.apache.geronimo.security.jaas.ConfigurationFactory;
 import org.apache.geronimo.security.realm.providers.CertificateCallbackHandler;
 import org.apache.geronimo.security.realm.providers.ClearableCallbackHandler;
 import org.apache.geronimo.security.realm.providers.PasswordCallbackHandler;
@@ -42,16 +43,12 @@ import org.mortbay.jetty.Request;
 public class InternalJAASJettyRealm {
     private static final Logger log = LoggerFactory.getLogger(InternalJAASJettyRealm.class);
 
-    private final String securityRealmName;
+    private final ConfigurationFactory configurationFactory;
     private final HashMap<String, Principal> userMap = new HashMap<String, Principal>();
     private int count = 1;
 
-    public InternalJAASJettyRealm(String geronimoRealmName) {
-        this.securityRealmName = geronimoRealmName;
-    }
-
-    public String getSecurityRealmName() {
-        return securityRealmName;
+    public InternalJAASJettyRealm(ConfigurationFactory configurationFactory) {
+        this.configurationFactory = configurationFactory;
     }
 
     public Principal getPrincipal(String username) {
@@ -88,7 +85,7 @@ public class InternalJAASJettyRealm {
                 }
 
                 //set up the login context
-                LoginContext loginContext = ContextManager.login(securityRealmName, callbackHandler);
+                LoginContext loginContext = ContextManager.login(configurationFactory.getConfigurationName(), callbackHandler, configurationFactory.getConfiguration());
                 callbackHandler.clear();
 
                 Subject subject = loginContext.getSubject();

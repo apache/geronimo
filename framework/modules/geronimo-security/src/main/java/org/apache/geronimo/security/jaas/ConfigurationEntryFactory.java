@@ -44,5 +44,15 @@ public interface ConfigurationEntryFactory {
      */
     AppConfigurationEntry[] getAppConfigurationEntries();
 
-    Boolean isPublish();
+    /**
+     * return false to exclude from global GeronimoLoginConfiguration
+     *
+     * @return whether to include in GeronimoLoginConfiguration
+     */
+    boolean isGlobal();
+
+    /**
+     * delegate from Configuration
+     */
+    void refresh();
 }

@@ -62,4 +62,8 @@
             <sec:principal class="org.apache.geronimo.security.realm.providers.PropertiesFileUserPrincipal" name="izumi"/>
         </sec:default-principal>
     </sec:security>
+
+    <gbean name="demo-properties-realm" class="org.apache.geronimo.security.realm.GenericSecurityRealm">
+        <attribute name="realmName">demo-properties-realm</attribute>
+    </gbean>
 </jetty:web-app>

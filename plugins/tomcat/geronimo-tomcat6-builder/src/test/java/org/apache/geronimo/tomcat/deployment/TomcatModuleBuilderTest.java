@@ -262,19 +262,19 @@ public class TomcatModuleBuilderTest extends TestSupport {
         securityService.setReferencePattern("ServerInfo", serverInfo.getAbstractName());
 
         // Default Realm
-        Map initParams = new HashMap();
-
-        initParams.put("userClassNames",
-                "org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal");
-        initParams.put("roleClassNames",
-                "org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal");
-        GBeanData realm = bootstrap.addGBean("tomcatRealm", RealmGBean.GBEAN_INFO);
-        realm.setAttribute("className",
-                "org.apache.geronimo.tomcat.realm.TomcatJAASRealm");
-        realm.setAttribute("initParams", initParams);
+//        Map initParams = new HashMap();
+//
+//        initParams.put("userClassNames",
+//                "org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal");
+//        initParams.put("roleClassNames",
+//                "org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal");
+//        GBeanData realm = bootstrap.addGBean("tomcatRealm", RealmGBean.GBEAN_INFO);
+//        realm.setAttribute("className",
+//                "org.apache.geronimo.tomcat.realm.TomcatJAASRealm");
+//        realm.setAttribute("initParams", initParams);
 
         // Default Host
-        initParams = new HashMap();
+        Map initParams = new HashMap();
         initParams.put("workDir", "work");
         initParams.put("name", "localhost");
         initParams.put("appBase", "");
@@ -289,7 +289,7 @@ public class TomcatModuleBuilderTest extends TestSupport {
         engine.setAttribute("className", "org.apache.geronimo.tomcat.TomcatEngine");
         engine.setAttribute("initParams", initParams);
         engine.setReferencePattern("DefaultHost", host.getAbstractName());
-        engine.setReferencePattern("RealmGBean", realm.getAbstractName());
+//        engine.setReferencePattern("RealmGBean", realm.getAbstractName());
 
         WebServiceBuilder webServiceBuilder = new MockWebServiceBuilder();
 

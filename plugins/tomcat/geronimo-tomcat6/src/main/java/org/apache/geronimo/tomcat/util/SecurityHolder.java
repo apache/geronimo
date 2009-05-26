@@ -21,6 +21,7 @@ import java.io.Serializable;
 import javax.security.auth.Subject;
 
 import org.apache.geronimo.security.jacc.RunAsSource;
+import org.apache.geronimo.security.jaas.ConfigurationFactory;
 
 public class SecurityHolder implements Serializable
 {
@@ -28,27 +29,13 @@ public class SecurityHolder implements Serializable
     private static final long serialVersionUID = 3761404231197734961L;
 
     private String policyContextID;
-    private Subject defaultSubject;
-    private String securityRealm;
     private boolean security;
-    private RunAsSource runAsSource;
-
-    public String getSecurityRealm() {
-        return securityRealm;
-    }
-
-    public void setSecurityRealm(String securityRealm) {
-        this.securityRealm = securityRealm;
-    }
+    private transient ConfigurationFactory configurationFactory;
+    private transient RunAsSource runAsSource;
 
     public Subject getDefaultSubject()
     {
-        return defaultSubject;
-    }
-
-    public void setDefaultSubject(Subject defaultSubject)
-    {
-        this.defaultSubject = defaultSubject;
+        return runAsSource.getDefaultSubject();
     }
 
     public String getPolicyContextID()
@@ -77,4 +64,11 @@ public class SecurityHolder implements Serializable
         this.runAsSource = runAsSource;
     }
 
+    public ConfigurationFactory getConfigurationFactory() {
+        return configurationFactory;
+    }
+
+    public void setConfigurationFactory(ConfigurationFactory configurationFactory) {
+        this.configurationFactory = configurationFactory;
+    }
 }

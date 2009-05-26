@@ -161,8 +161,6 @@ public class JACCSecurityTest extends AbstractWebModuleTest {
         SecurityHolder securityHolder = new SecurityHolder();
         securityHolder.setSecurity(true);
         securityHolder.setPolicyContextID(POLICY_CONTEXT_ID);
-//        securityHolder.setDefaultSubject(defaultPrincipal);
-        securityHolder.setSecurityRealm(securityRealmName);
         return setUpSecureAppContext(roleDesignates,
                 principalRoleMap,
                 componentPermissions,
@@ -176,7 +174,7 @@ public class JACCSecurityTest extends AbstractWebModuleTest {
 
     protected void setUp() throws Exception {
         super.setUp();
-        super.init("org.apache.geronimo.tomcat.realm.TomcatGeronimoRealm");
+        super.init(null);
     }
 
     protected void tearDown() throws Exception {

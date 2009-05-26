@@ -151,20 +151,21 @@ public class JAASSecurityTest extends AbstractWebModuleTest {
         initParams.put("userClassNames", "org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal");
         initParams.put("roleClassNames", "org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal");
 
-        RealmGBean realm = new RealmGBean("org.apache.geronimo.tomcat.realm.TomcatJAASRealm", initParams);
-        realm.doStart();
+//        RealmGBean realm = new RealmGBean("org.apache.geronimo.tomcat.realm.TomcatJAASRealm", initParams);
+//        realm.doStart();
 
         PermissionCollection excludedPermissions = new Permissions();
         PermissionCollection uncheckedPermissions = new Permissions();
         ComponentPermissions componentPermissions = new ComponentPermissions(excludedPermissions, uncheckedPermissions, new HashMap());
         //Force a new realm name and ignore the application name
         SecurityHolder securityHolder = new SecurityHolder();
-        securityHolder.setSecurityRealm(securityRealmName);
+        securityHolder.setSecurity(false);//redundant: forces use of TomcatJAASRealm not TomcatGeronimoRealm
+        securityHolder.setConfigurationFactory(this.realm);
         CredentialStore credentialStore = null;
         setUpSecureAppContext(new HashMap(),
                 new HashMap(),
                 componentPermissions,
-                realm,
+                null,
                 securityHolder
         );
     }
@@ -174,8 +175,8 @@ public class JAASSecurityTest extends AbstractWebModuleTest {
 
     protected void setUp() throws Exception {
         super.setUp();
-        super.init("org.apache.geronimo.tomcat.realm.TomcatJAASRealm");
         setUpSecurityService();
+        super.init(null);
     }
 
     protected void tearDown() throws Exception {

@@ -36,10 +36,6 @@ public interface JettyContainer extends WebContainer {
 
     void removeContext(AbstractHandlerContainer context);
 
-    InternalJAASJettyRealm addRealm(String realmName);
-
-    void removeRealm(String realmName);
-
     void resetStats();
 
     void setStatsOn(boolean on);

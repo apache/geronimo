@@ -47,7 +47,9 @@ public class JettySecurityHandler extends SecurityHandler {
     public JettySecurityHandler(
             String policyContextID,
             Authenticator authenticator,
-            final LoginService loginService, IdentityService identityService, AccessControlContext defaultAcc) {
+            final LoginService loginService,
+            IdentityService identityService,
+            AccessControlContext defaultAcc) {
         setAuthenticator(authenticator);
         this.policyContextID = policyContextID;
         this.defaultAcc = defaultAcc;

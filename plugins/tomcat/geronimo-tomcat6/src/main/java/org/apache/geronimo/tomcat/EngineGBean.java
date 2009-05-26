@@ -39,6 +39,8 @@ import org.apache.geronimo.gbean.ReferenceCollectionListener;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.system.jmx.MBeanServerReference;
 import org.apache.geronimo.tomcat.cluster.CatalinaClusterGBean;
+import org.apache.geronimo.tomcat.realm.TomcatJAASRealm;
+import org.apache.geronimo.security.jaas.ConfigurationFactory;
 import org.apache.tomcat.util.modeler.Registry;
 
 /**
@@ -57,6 +59,7 @@ public class EngineGBean extends BaseGBean implements GBeanLifecycle, ObjectRetr
             Map initParams,
             HostGBean defaultHost,
             ObjectRetriever realmGBean,
+            ConfigurationFactory configurationFactory,
             ValveGBean tomcatValveChain,
             LifecycleListenerGBean listenerChain,
             CatalinaClusterGBean clusterGBean,
@@ -96,6 +99,9 @@ public class EngineGBean extends BaseGBean implements GBeanLifecycle, ObjectRetr
         //Set realm (must be before Hosts)
         if (realmGBean != null){
             engine.setRealm((Realm)realmGBean.getInternalObject());
+        } else if (configurationFactory != null) {
+            Realm realm = new TomcatJAASRealm(configurationFactory);
+            engine.setRealm(realm);
         }
         
         //Set the default Host
@@ -171,17 +177,18 @@ public class EngineGBean extends BaseGBean implements GBeanLifecycle, ObjectRetr
         infoFactory.addAttribute("initParams", Map.class, true);
         infoFactory.addReference("DefaultHost", HostGBean.class, HostGBean.J2EE_TYPE);
         infoFactory.addReference("RealmGBean", ObjectRetriever.class, GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
+        infoFactory.addReference("ConfigurationFactory", ConfigurationFactory.class, GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
         infoFactory.addReference("TomcatValveChain", ValveGBean.class, ValveGBean.J2EE_TYPE);
         infoFactory.addReference("LifecycleListenerChain", LifecycleListenerGBean.class, LifecycleListenerGBean.J2EE_TYPE);
         infoFactory.addReference("CatalinaCluster", CatalinaClusterGBean.class, CatalinaClusterGBean.J2EE_TYPE);
         infoFactory.addReference("Manager", ManagerGBean.class, ManagerGBean.J2EE_TYPE);
         infoFactory.addReference("MBeanServerReference", MBeanServerReference.class);
-        infoFactory.addOperation("getInternalObject");
-        infoFactory.setConstructor(new String[] { 
+        infoFactory.setConstructor(new String[] {
                 "className", 
                 "initParams", 
                 "DefaultHost",
                 "RealmGBean",
+                "ConfigurationFactory",
                 "TomcatValveChain",
                 "LifecycleListenerChain",
                 "CatalinaCluster",

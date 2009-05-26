@@ -83,7 +83,7 @@
     <gbean name="monitoring-runas-realm"
         class="org.apache.geronimo.security.realm.GenericSecurityRealm">
         <attribute name="realmName">monitoring-runas-realm</attribute>
-        <attribute name="publish">false</attribute>
+        <attribute name="global">false</attribute>
         <xml-reference name="LoginModuleConfiguration">
             <lc:login-config xmlns:lc="http://geronimo.apache.org/xml/ns/loginconfig-1.2">
                 <lc:login-module control-flag="REQUIRED">

@@ -53,9 +53,9 @@ public class JettySecurityHandler extends SecurityHandler {
     private JAASJettyRealm realm;
 
     public JettySecurityHandler(Authenticator authenticator,
-            JAASJettyRealm userRealm,
-            String policyContextID,
-            Subject defaultSubject) {
+                                JAASJettyRealm userRealm,
+                                String policyContextID,
+                                Subject defaultSubject) {
         setAuthenticator(authenticator);
         this.policyContextID = policyContextID;
 
@@ -87,12 +87,7 @@ public class JettySecurityHandler extends SecurityHandler {
     }
 
     public void doStop(JettyContainer jettyContainer) throws Exception {
-        try {
-            super.doStop();
-        }
-        finally {
-            jettyContainer.removeRealm(realm.getSecurityRealmName());
-        }
+        super.doStop();
     }
 
     /* ------------------------------------------------------------ */
@@ -102,7 +97,7 @@ public class JettySecurityHandler extends SecurityHandler {
      *      javax.servlet.http.HttpServletResponse, int)
      */
     public void handle(String target, HttpServletRequest request,
-            HttpServletResponse response, int dispatch) throws IOException,
+                       HttpServletResponse response, int dispatch) throws IOException,
             ServletException {
         String old_policy_id = PolicyContext.getContextID();
         Callers oldCallers = ContextManager.getCallers();

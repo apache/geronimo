@@ -45,6 +45,7 @@ function <portlet:namespace/>validateForm(){
 <form name="<portlet:namespace/>RealmForm" action="<portlet:actionURL/>" method="POST">
     <input type="hidden" name="mode" value="process-type" />
     <input type="hidden" name="jar" value="${realm.jar}" />
+    <input type="hidden" name="global" value="${realm.global}" />
   <c:forEach var="option" items="${realm.options}">
     <input type="hidden" name="option-${option.key}" value="${option.value}" />
   </c:forEach>

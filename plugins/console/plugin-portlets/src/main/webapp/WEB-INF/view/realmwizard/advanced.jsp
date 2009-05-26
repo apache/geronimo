@@ -157,6 +157,16 @@ function <portlet:namespace/>validateForm(){
         <td></td>
         <td><fmt:message key="realmwizard.advanced.credentialNameExp" /></td>
       </tr>
+        <tr>
+            <th valign="top"><div align="right"><fmt:message key="realmwizard.advanced.global" /></div></th>
+            <td>
+                <input type="checkbox" name="global" id="<portlet:namespace/>global" <c:if test="${realm.global}">checked="true"</c:if> />
+            </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td><fmt:message key="realmwizard.advanced.global.description" /></td>
+        </tr>
     <!-- SUBMIT BUTTON -->
       <tr>
         <td></td>

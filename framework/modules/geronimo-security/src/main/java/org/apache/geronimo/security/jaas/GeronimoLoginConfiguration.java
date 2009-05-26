@@ -18,15 +18,12 @@
 package org.apache.geronimo.security.jaas;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.security.auth.login.AppConfigurationEntry;
 import javax.security.auth.login.Configuration;
 
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.ReferenceCollection;
 import org.apache.geronimo.gbean.ReferenceCollectionEvent;
@@ -75,7 +72,7 @@ public class GeronimoLoginConfiguration extends Configuration implements GBeanLi
         }
     }
 
-    public Collection getConfigurations() {
+    public Collection<ConfigurationEntryFactory> getConfigurations() {
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) sm.checkPermission(SecurityServiceImpl.CONFIGURE);
 
@@ -108,10 +105,10 @@ public class GeronimoLoginConfiguration extends Configuration implements GBeanLi
     }
 
     private void addConfiguration(ConfigurationEntryFactory factory) {
-        if (entries.containsKey(factory.getConfigurationName())) {
-            throw new java.lang.IllegalArgumentException("ConfigurationEntry named: " + factory.getConfigurationName() + " already registered");
-        }
-        if (useAllConfigurations || factory.isPublish()) {
+        if (useAllConfigurations || factory.isGlobal()) {
+            if (entries.containsKey(factory.getConfigurationName())) {
+                throw new java.lang.IllegalArgumentException("ConfigurationEntry named: " + factory.getConfigurationName() + " already registered");
+            }
             AppConfigurationEntry[] ace = factory.getAppConfigurationEntries();
             entries.put(factory.getConfigurationName(), ace);
             log.debug("Added Application Configuration Entry " + factory.getConfigurationName());

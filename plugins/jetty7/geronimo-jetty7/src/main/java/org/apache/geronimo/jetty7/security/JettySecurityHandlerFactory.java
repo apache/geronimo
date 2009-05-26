@@ -26,9 +26,11 @@ import javax.security.auth.Subject;
 
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
+import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.jetty7.handler.JettySecurityHandler;
 import org.apache.geronimo.jetty7.security.auth.JAASLoginService;
 import org.apache.geronimo.security.ContextManager;
+import org.apache.geronimo.security.jaas.ConfigurationFactory;
 import org.apache.geronimo.security.jacc.RunAsSource;
 import org.eclipse.jetty.security.Authenticator;
 import org.eclipse.jetty.security.IdentityService;
@@ -49,28 +51,28 @@ public class JettySecurityHandlerFactory implements SecurityHandlerFactory {
     private final String loginPage;
     private final String errorPage;
     private final String realmName;
-    private final String securityRealm;
+    private final ConfigurationFactory configurationFactory;
 
     public JettySecurityHandlerFactory(@ParamAttribute(name = "authMethod")BuiltInAuthMethod authMethod,
                                        @ParamAttribute(name = "loginPage")String loginPage,
                                        @ParamAttribute(name = "errorPage")String errorPage,
                                        @ParamAttribute(name = "realmName")String realmName,
-                                       @ParamAttribute(name = "securityRealm")String securityRealm) {
+                                       @ParamReference(name = "ConfigurationFactory") ConfigurationFactory configurationFactory) {
         if (authMethod == null) {
             throw new NullPointerException("authMethod required");
         }
-        if (securityRealm == null) {
-            throw new NullPointerException("securityRealm required");
+        if (configurationFactory == null) {
+            throw new NullPointerException("configurationFactory required");
         }
         this.authMethod = authMethod;
         this.loginPage = loginPage;
         this.errorPage = errorPage;
         this.realmName = realmName;
-        this.securityRealm = securityRealm;
+        this.configurationFactory = configurationFactory;
     }
 
     public JettySecurityHandler buildSecurityHandler(String policyContextID, Subject defaultSubject, RunAsSource runAsSource) {
-        final LoginService loginService = new JAASLoginService(securityRealm, realmName);
+        final LoginService loginService = new JAASLoginService(configurationFactory, realmName);
         Authenticator authenticator;
         if (authMethod == BuiltInAuthMethod.BASIC) {
             authenticator = new BasicAuthenticator();

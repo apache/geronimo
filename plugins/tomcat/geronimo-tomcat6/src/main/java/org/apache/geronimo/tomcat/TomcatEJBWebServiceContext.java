@@ -47,6 +47,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.geronimo.tomcat.realm.TomcatEJBWSGeronimoRealm;
 import org.apache.geronimo.webservices.WebServiceContainer;
+import org.apache.geronimo.security.jaas.ConfigurationFactory;
 
 public class TomcatEJBWebServiceContext extends StandardContext{
 
@@ -58,7 +59,7 @@ public class TomcatEJBWebServiceContext extends StandardContext{
     private final ClassLoader classLoader;
     private final Set<String> secureMethods;
 
-    public TomcatEJBWebServiceContext(String contextPath, WebServiceContainer webServiceContainer, String securityRealmName, String realmName, String transportGuarantee, String authMethod, String[] protectedMethods, ClassLoader classLoader) {
+    public TomcatEJBWebServiceContext(String contextPath, WebServiceContainer webServiceContainer, ConfigurationFactory configurationFactory, String realmName, String transportGuarantee, String authMethod, String[] protectedMethods, ClassLoader classLoader) {
         this.contextPath = contextPath;
         this.webServiceContainer = webServiceContainer;
         this.secureMethods = initSecureMethods(protectedMethods);
@@ -68,14 +69,10 @@ public class TomcatEJBWebServiceContext extends StandardContext{
         this.setDelegate(true);
 
         log.debug("EJB Webservice Context = " + contextPath);
-        if (securityRealmName != null) {
+        if (configurationFactory != null) {
 
-            TomcatEJBWSGeronimoRealm realm = new TomcatEJBWSGeronimoRealm();
-            realm.setAppName(securityRealmName);
-            realm.setUserClassNames("org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal");
-            realm.setRoleClassNames("org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal");
+            TomcatEJBWSGeronimoRealm realm = new TomcatEJBWSGeronimoRealm(configurationFactory);
             setRealm(realm);
-            this.realm = realm;
 
             if ("NONE".equals(transportGuarantee)) {
                 isSecureTransportGuarantee = false;
