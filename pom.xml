@@ -424,13 +424,7 @@
                 <artifactId>xbean-finder</artifactId>
                 <version>${xbeanVersion}</version>
             </dependency>
-            
-            <dependency>
-                <groupId>org.apache.xbean</groupId>
-                <artifactId>xbean-asm-shaded</artifactId>
-                <version>${xbeanVersion}</version>
-            </dependency>
-            
+
             <dependency>
                 <groupId>org.apache.xbean</groupId>
                 <artifactId>xbean-naming</artifactId>
@@ -1101,6 +1095,10 @@
                     <exclusion>
                         <groupId>org.objectweb.howl</groupId>
                         <artifactId>howl</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.xbean</groupId>
+                        <artifactId>xbean-finder-shaded</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>

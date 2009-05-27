@@ -26,11 +26,6 @@
         <artifactId>xbean-reflect</artifactId>
         <type>jar</type>
     </dependency>
-    <dependency>
-        <groupId>org.apache.xbean</groupId>
-        <artifactId>xbean-asm-shaded</artifactId>
-        <type>jar</type>
-    </dependency>
     <!--<dependency>-->
         <!--<groupId>asm</groupId>-->
         <!--<artifactId>asm-tree</artifactId>-->
