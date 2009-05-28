@@ -331,9 +331,9 @@ public class DatabasePoolPortlet extends BasePortlet {
             }
         } else if (mode.equals("process-" + DOWNLOAD_STATUS_MODE)) {
             if (data.getDbtype() == null || data.getDbtype().equals("Other")) {
-                actionResponse.setRenderParameter(MODE_KEY, EDIT_MODE);
-            } else {
                 actionResponse.setRenderParameter(MODE_KEY, BASIC_PARAMS_MODE);
+            } else {
+                actionResponse.setRenderParameter(MODE_KEY, EDIT_MODE);
             }
         } else if (mode.equals("process-" + BASIC_PARAMS_MODE)) {
             DatabaseDriver info;
