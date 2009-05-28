@@ -6,14 +6,109 @@
         <version>2.2-SNAPSHOT</version>
         <type>car</type>
     </module-id>
+    <dependency start="true">
+        <groupId>org.apache.geronimo.framework</groupId>
+        <artifactId>jsr88-cli</artifactId>
+        <type>car</type>
+    </dependency>
     <dependency>
         <groupId>org.apache.geronimo.modules</groupId>
         <artifactId>geronimo-web-2.5-builder</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
+        <groupId>org.apache.geronimo.modules</groupId>
+        <artifactId>geronimo-naming-builder</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.modules</groupId>
+        <artifactId>geronimo-j2ee-builder</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.modules</groupId>
+        <artifactId>geronimo-j2ee-schema</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.schema</groupId>
+        <artifactId>geronimo-schema-jee_5</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.schema</groupId>
+        <artifactId>geronimo-schema-j2ee_1.4</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.modules</groupId>
+        <artifactId>geronimo-j2ee</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
         <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>jsr88-cli</artifactId>
-        <type>car</type>
+        <artifactId>geronimo-management</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.specs</groupId>
+        <artifactId>geronimo-j2ee-management_1.1_spec</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.xbean</groupId>
+        <artifactId>xbean-finder</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.framework</groupId>
+        <artifactId>geronimo-naming</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.xbean</groupId>
+        <artifactId>xbean-naming</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.specs</groupId>
+        <artifactId>geronimo-jta_1.1_spec</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.modules</groupId>
+        <artifactId>geronimo-security-builder</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.framework</groupId>
+        <artifactId>geronimo-security</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.specs</groupId>
+        <artifactId>geronimo-jacc_1.1_spec</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.specs</groupId>
+        <artifactId>geronimo-jaspi_1.0_spec</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.components</groupId>
+        <artifactId>geronimo-jaspi</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>com.envoisolutions.sxc</groupId>
+        <artifactId>sxc-jaxb</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>com.envoisolutions.sxc</groupId>
+        <artifactId>sxc-runtime</artifactId>
+        <type>jar</type>
     </dependency>
 </plugin-artifact>
