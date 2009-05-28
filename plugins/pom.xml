@@ -29,6 +29,11 @@
     <name>Geronimo Plugins</name>
     <packaging>pom</packaging>
     
+    <properties>
+        <!-- This property is required by the car:package mojo -->
+<!-- bug in release plugin may be worked-around by copying it here
+        <geronimoVersion>${version}</geronimoVersion> -->
+    </properties>
     <dependencies>
         <dependency>
             <groupId>org.apache.geronimo.testsupport</groupId>

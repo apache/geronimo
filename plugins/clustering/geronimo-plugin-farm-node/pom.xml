@@ -33,16 +33,6 @@
     <description>An assembly that extends the framework assembly with the plugin farm node plugin.</description>
 
     <build>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.apache.geronimo.buildsupport</groupId>
-                    <artifactId>car-maven-plugin</artifactId>
-                    <version>${geronimoVersion}</version>
-                    <extensions>true</extensions>
-                </plugin>
-            </plugins>
-        </pluginManagement>
         <plugins>
             <plugin>
                 <groupId>org.apache.geronimo.buildsupport</groupId>
@@ -84,17 +74,14 @@
         <dependency>
             <groupId>org.apache.geronimo.framework.plugingroups</groupId>
             <artifactId>framework</artifactId>
-            <version>${geronimoVersion}</version>
+            <version>${version}</version>
             <type>car</type>
         </dependency>
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>plugin-farm-member</artifactId>
-            <version>${geronimoVersion}</version>
+            <version>${version}</version>
             <type>car</type>
         </dependency>
     </dependencies>
-    <properties>
-        <geronimoVersion>2.2-SNAPSHOT</geronimoVersion>
-    </properties>
 </project>

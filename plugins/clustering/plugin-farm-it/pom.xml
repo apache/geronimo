@@ -62,15 +62,13 @@
                     <groupId>org.apache.geronimo.buildsupport</groupId>
                     <artifactId>geronimo-maven-plugin</artifactId>
                     <version>${version}</version>
-                    <!--<version>${geronimoVersion}</version>-->
-
                     <configuration>
                         <assemblies>
                             <assembly>
                                 <id>node</id>
                                 <groupId>org.apache.geronimo.assemblies</groupId>
                                 <artifactId>geronimo-plugin-farm-node</artifactId>
-                                <version>${geronimoVersion}</version>
+                                <version>${version}</version>
                                 <classifier>bin</classifier>
                                 <type>zip</type>
                             </assembly>
@@ -78,7 +76,7 @@
                                 <id>jetty</id>
                                 <groupId>org.apache.geronimo.assemblies</groupId>
                                 <artifactId>geronimo-jetty6-javaee5</artifactId>
-                                <version>${geronimoVersion}</version>
+                                <version>${version}</version>
                                 <classifier>bin</classifier>
                                 <type>zip</type>
                             </assembly>
@@ -87,7 +85,7 @@
                                 <id>jetty-minimal</id>
                                 <groupId>org.apache.geronimo.assemblies</groupId>
                                 <artifactId>geronimo-jetty6-minimal</artifactId>
-                                <version>${geronimoVersion}</version>
+                                <version>${version}</version>
                                 <classifier>bin</classifier>
                                 <type>zip</type>
                             </assembly>
@@ -96,7 +94,7 @@
                                 <id>tomcat</id>
                                 <groupId>org.apache.geronimo.assemblies</groupId>
                                 <artifactId>geronimo-tomcat6-javaee5</artifactId>
-                                <version>${geronimoVersion}</version>
+                                <version>${version}</version>
                                 <classifier>bin</classifier>
                                 <type>zip</type>
                             </assembly>
@@ -105,7 +103,7 @@
                                 <id>tomcat-minimal</id>
                                 <groupId>org.apache.geronimo.assemblies</groupId>
                                 <artifactId>geronimo-tomcat6-minimal</artifactId>
-                                <version>${geronimoVersion}</version>
+                                <version>${version}</version>
                                 <classifier>bin</classifier>
                                 <type>zip</type>
                             </assembly>
@@ -114,7 +112,7 @@
                                 <id>framework</id>
                                 <groupId>org.apache.geronimo.assemblies</groupId>
                                 <artifactId>geronimo-framework</artifactId>
-                                <version>${geronimoVersion}</version>
+                                <version>${version}</version>
                                 <classifier>bin</classifier>
                                 <type>zip</type>
                             </assembly>
@@ -240,7 +238,7 @@
                                 <goal>install-plugin</goal>
                             </goals>
                             <!--<configuration>-->
-                            <!--<defaultGeronimoRepository>http://geronimo.apache.org/plugins/geronimo-${geronimoVersion}/</defaultGeronimoRepository>-->
+                            <!--<defaultGeronimoRepository>http://geronimo.apache.org/plugins/geronimo-${version}/</defaultGeronimoRepository>-->
                             <!--</configuration>-->
                         </execution>
                         <execution>
@@ -260,8 +258,6 @@
                 <artifactId>car-maven-plugin</artifactId>
                 <configuration>
                     <category>Clustering</category>
-                    <instance>
-                    </instance>
                 </configuration>
             </plugin>
             <plugin>
