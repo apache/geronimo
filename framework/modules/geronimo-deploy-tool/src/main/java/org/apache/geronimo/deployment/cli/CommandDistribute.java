@@ -18,7 +18,6 @@
 package org.apache.geronimo.deployment.cli;
 
 import java.io.File;
-import java.io.PrintWriter;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -29,11 +28,12 @@ import javax.enterprise.deploy.spi.Target;
 import javax.enterprise.deploy.spi.TargetModuleID;
 import javax.enterprise.deploy.spi.status.ProgressObject;
 
+import jline.ConsoleReader;
 import org.apache.geronimo.cli.deployer.CommandArgs;
 import org.apache.geronimo.cli.deployer.DistributeCommandArgs;
 import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.common.FileUtils;
 import org.apache.geronimo.deployment.plugin.jmx.JMXDeploymentManager;
-import jline.ConsoleReader;
 
 /**
  * The CLI deployer logic to distribute.
@@ -70,47 +70,55 @@ public class CommandDistribute extends AbstractCommand {
             throw new DeploymentSyntaxException("CommandArgs has the type [" + commandArgs.getClass() + "]; expected [" + DistributeCommandArgs.class + "]");
         }
         DistributeCommandArgs distributeCommandArgs = (DistributeCommandArgs) commandArgs;
-        
+
         BooleanHolder inPlaceHolder = new BooleanHolder();
         inPlaceHolder.inPlace = distributeCommandArgs.isInPlace();
-        
+
         List<String> targets = Arrays.asList(distributeCommandArgs.getTargets());
 
         String[] args = distributeCommandArgs.getArgs();
         File module = null;
         File plan = null;
-        if(args.length > 0) {
+        if (args.length > 0) {
             File test = new File(args[0]);
-            if(DeployUtils.isJarFile(test) || test.isDirectory()) {
-                if(module != null) {
-                    throw new DeploymentSyntaxException("Module and plan cannot both be JAR files or directories!");
+            try {
+                if (FileUtils.isJarFile(test) || test.isDirectory()) {
+                    if (module != null) {
+                        throw new DeploymentSyntaxException("Module and plan cannot both be JAR files or directories!");
+                    }
+                    module = test;
+                } else {
+                    if (plan != null) {
+                        throw new DeploymentSyntaxException("Module or plan must be a JAR file or directory!");
+                    }
+                    plan = test;
                 }
-                module = test;
-            } else {
-                if(plan != null) {
-                    throw new DeploymentSyntaxException("Module or plan must be a JAR file or directory!");
-                }
-                plan = test;
+            } catch (IOException e) {
+                throw new DeploymentException("Invalid JAR file " + args[0]);
             }
         }
-        if(args.length > 1) {
+        if (args.length > 1) {
             File test = new File(args[1]);
-            if(DeployUtils.isJarFile(test) || test.isDirectory()) {
-                if(module != null) {
-                    throw new DeploymentSyntaxException("Module and plan cannot both be JAR files or directories!");
+            try {
+                if (FileUtils.isJarFile(test) || test.isDirectory()) {
+                    if (module != null) {
+                        throw new DeploymentSyntaxException("Module and plan cannot both be JAR files or directories!");
+                    }
+                    module = test;
+                } else {
+                    if (plan != null) {
+                        throw new DeploymentSyntaxException("Module or plan must be a JAR file or directory!");
+                    }
+                    plan = test;
                 }
-                module = test;
-            } else {
-                if(plan != null) {
-                    throw new DeploymentSyntaxException("Module or plan must be a JAR file or directory!");
-                }
-                plan = test;
+            } catch (IOException e) {
+                throw new DeploymentException("Invalid JAR file " + args[1]);
             }
         }
-        if(module != null) {
+        if (module != null) {
             module = module.getAbsoluteFile();
         }
-        if(plan != null) {
+        if (plan != null) {
             plan = plan.getAbsoluteFile();
         }
         try {
@@ -144,13 +152,13 @@ public class CommandDistribute extends AbstractCommand {
 
         // print the results that succeeded
         results = po.getResultTargetModuleIDs();
-        for (int i = 0; i < results.length; i++) {
-            TargetModuleID result = results[i];
-            out.printString(DeployUtils.reformat(getAction()+" "+result.getModuleID()+(multipleTargets ? " to "+result.getTarget().getName() : "")+(result.getWebURL() == null || !getAction().equals("Deployed") ? "" : " @ "+result.getWebURL()), 4, 72));
-            if(result.getChildTargetModuleID() != null) {
+        for (TargetModuleID result : results) {
+            out.printString(DeployUtils.reformat(
+                    getAction() + " " + result.getModuleID() + (multipleTargets ? " to " + result.getTarget().getName() : "") + (result.getWebURL() == null || !getAction().equals("Deployed") ? "" : " @ " + result.getWebURL()), 4, 72));
+            if (result.getChildTargetModuleID() != null) {
                 for (int j = 0; j < result.getChildTargetModuleID().length; j++) {
                     TargetModuleID child = result.getChildTargetModuleID()[j];
-                    out.printString(DeployUtils.reformat("  `-> "+child.getModuleID()+(child.getWebURL() == null || !getAction().equals("Deployed") ? "" : " @ "+child.getWebURL()),4, 72));
+                    out.printString(DeployUtils.reformat("  `-> " + child.getModuleID() + (child.getWebURL() == null || !getAction().equals("Deployed") ? "" : " @ " + child.getWebURL()), 4, 72));
                 }
             }
         }

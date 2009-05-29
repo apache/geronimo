@@ -232,19 +232,6 @@ public class ConfigIDExtractor {
         }
     }
 
-    /**
-     * Try to determine whether a file is a JAR File (or, at least, a ZIP file).
-     *
-     * @deprecated See org.apache.geronimo.common.FileUtils.isJarFile
-     */
-    public static boolean isJarFile(File file) throws DeploymentException {
-        try {
-            return FileUtils.isZipFile(file);
-        } catch (IOException e) {
-            throw new DeploymentException("Unable to read file "+file.getAbsolutePath(), e);
-        }
-    }
-
     private static class ConfigIdHandler extends DefaultHandler {
         private String configId;
         private boolean inConfigId;

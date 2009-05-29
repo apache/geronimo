@@ -17,6 +17,7 @@
 package org.apache.geronimo.deployment.hot;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -30,6 +31,7 @@ import javax.enterprise.deploy.spi.status.ProgressObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.common.FileUtils;
 import org.apache.geronimo.deployment.cli.DeployUtils;
 import org.apache.geronimo.deployment.plugin.factories.DeploymentFactoryWithKernel;
 import org.apache.geronimo.deployment.plugin.jmx.JMXDeploymentManager;
@@ -269,7 +271,8 @@ public class DirectoryHotDeployer implements HotDeployer, DeploymentWatcher, GBe
             targets = new Target[] {targets[0]};
 
             ProgressObject po;
-            if (DeployUtils.isJarFile(file) || file.isDirectory()) {
+
+            if (FileUtils.isJarFile(file) || file.isDirectory()) {
                 po = mgr.distribute(targets, file, null);
             } else {
                 po = mgr.distribute(targets, null, file);
@@ -318,8 +321,7 @@ public class DirectoryHotDeployer implements HotDeployer, DeploymentWatcher, GBe
             }
         } catch (DeploymentManagerCreationException e) {
             log.error("Unable to open deployer", e);
-            return null;
-        } catch (DeploymentException e) {
+        } catch (IOException e) {
             log.error("Unable to determine if file is a jar", e);
         } finally {
             if (mgr != null) mgr.release();
@@ -409,7 +411,7 @@ public class DirectoryHotDeployer implements HotDeployer, DeploymentWatcher, GBe
             TargetModuleID[] ids = mgr.getAvailableModules(null, targets);
             ids = (TargetModuleID[]) DeployUtils.identifyTargetModuleIDs(ids, configId, true).toArray(new TargetModuleID[0]);
             ProgressObject po;
-            if (DeployUtils.isJarFile(file) || file.isDirectory()) {
+            if (FileUtils.isJarFile(file) || file.isDirectory()) {
                 po = mgr.redeploy(ids, file, null);
             } else {
                 po = mgr.redeploy(ids, null, file);

@@ -31,6 +31,7 @@ import javax.enterprise.deploy.spi.factories.DeploymentFactory;
 
 import org.apache.geronimo.cli.deployer.ConnectionParams;
 import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.common.FileUtils;
 import org.apache.geronimo.deployment.cli.DeployUtils.SavedAuthentication;
 import org.apache.geronimo.deployment.plugin.factories.AuthenticationFailedException;
 import org.apache.geronimo.deployment.plugin.jmx.JMXDeploymentManager;
@@ -162,8 +163,12 @@ public class ServerConnection {
 
     private void loadDriver(String driver, DeploymentFactoryManager mgr) throws DeploymentException {
         File file = new File(driver);
-        if (!file.exists() || !file.canRead() || !DeployUtils.isJarFile(file)) {
-            throw new DeploymentSyntaxException("Driver '" + file.getAbsolutePath() + "' is not a readable JAR file");
+        try {
+            if (!file.exists() || !file.canRead() || !FileUtils.isJarFile(file)) {
+                throw new DeploymentSyntaxException("Driver '" + file.getAbsolutePath() + "' is not a readable JAR file");
+            }
+        } catch (IOException e) {
+            throw new DeploymentException("Driver '" + file.getAbsolutePath() + "' is not a readable JAR file");
         }
         String className = null;
         try {
