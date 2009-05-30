@@ -60,7 +60,7 @@
                             <tasks>
                                 <mkdir dir="${project.build.outputDirectory}"/>
                                 <copy todir="${project.build.outputDirectory}">
-                                    <fileset dir="${project.build.directory}/${project.build.finalName}.dir/${project.build.finalName}">
+                                    <fileset dir="${project.build.directory}/${project.build.finalName}/${project.build.finalName}">
                                         <include name="**"/>
                                     </fileset>
                                 </copy>

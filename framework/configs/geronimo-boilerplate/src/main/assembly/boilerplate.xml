@@ -20,6 +20,8 @@
 
 <assembly>
     <id>boilerplate</id>
+
+    <includeBaseDirectory>false</includeBaseDirectory>
     
     <fileSets>
         <fileSet>
