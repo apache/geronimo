@@ -18,47 +18,44 @@
 var formID = '<%XSRF_UNIQUEID%>';
 function updateLinks() {
     var elements = document.all ? document.all : document.getElementsByTagName('*');
-    var len = elements.length;
-    for (var i=0; i<len; i++) {
-        var element = elements[i];      
-        updateLink(element, 'src');
-        updateLink(element, 'href');
-//        updateOnclickLink(element);
-    }
-}
-function updateForms() {
-   var forms = document.getElementsByTagName('form');
-   for (i=0; i<forms.length; i++) {
-       var input = document.createElement('input');
-       if (document.all) {
-          input.type = 'hidden';
-          input.name = 'formId';
-          input.value = formID;
-       } else if (document.getElementById) {
-          input.setAttribute('type', 'hidden');
-          input.setAttribute('name', 'formId');
-          input.setAttribute('value', formID);
-       }
-       forms[i].appendChild(input);
-   }
-}
-function updateLink(element, attr) {
-    var link = element.getAttribute(attr);
-    if ((link != null) && (link != '') && isURL(link)) {
-        var i = link.indexOf('?');
-        // add formId only if other attributes are present in link
-        if (i != -1) {
-            link = link + '&formId=' + formID;
-            // Note: we cannot use setAttribute due to IE issues so we are using element.*=
-            if (attr.substring(0,3) == 'src') {
-                element.src=link;
-            }
-            else {
-                element.href=link;
-            }
+    for (var i=0; i<elements.length; i++) {   
+        var link = elements[i].getAttribute('href');
+        if (link != null && isURL(link) && link.indexOf('?') != -1) {
+            // add formId only if other attributes are present in link
+           	// Note: we cannot use setAttribute due to IE issues so we are using element.*=
+          	elements[i].href = link + '&formId=' + formID;
         }
     }
 }
+
+function updateForms() {
+    var forms = document.getElementsByTagName('form');
+    for (i=0; i<forms.length; i++) {
+        if (forms[i].getAttribute('enctype').toLowerCase() == 'multipart/form-data'){ // add formId in action link
+            var link = forms[i].getAttribute('action');
+            if (link != null && isURL(link)) {
+                if (link.indexOf('?') == -1) {
+            		    link = link + '?'
+                }
+           	    // Note: we cannot use setAttribute due to IE issues so we are using element.*=
+           	    forms[i].action = link + '&formId=' + formID;
+            }
+        } else {
+            var input = document.createElement('input');
+            if (document.all) {		//IE
+                input.type = 'hidden';
+                input.name = 'formId';
+                input.value = formID;
+            } else if (document.getElementById) {	//firefox
+                input.setAttribute('type', 'hidden');
+                input.setAttribute('name', 'formId');
+                input.setAttribute('value', formID);
+            }
+            forms[i].appendChild(input);
+        }
+    }
+}
+
 function updateOnclickLink(element) {
     var link = element.getAttribute('onclick');
     if ((link != null) && (link != '')) {
@@ -74,12 +71,14 @@ function updateOnclickLink(element) {
     }
     return false;
 }
+
 function isURL(link) {
-    var rc = 0;
-    if (link.substring(0, 4) == 'http' || link.substring(0, 1) == '/') {
-        rc = 1;
-    }
-    return rc;
+   	if ((typeof link == 'string') && link.constructor == String){
+   	   	if (link != '' && (link.substring(0, 4) == 'http' || link.substring(0, 1) == '/')){
+   	    	return true;
+   	    }
+   	}
+   	return false;
 }
 updateLinks();
 updateForms();

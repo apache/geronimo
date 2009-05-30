@@ -87,9 +87,9 @@ public class XSRFHandler
             return false;
         }
 
-        String sesId = (String)hses.getAttribute(XSRF_UNIQUEID);
-        String reqId = (String)hreq.getParameter(XSRF_UNIQUEID);
         if ((hreq.getQueryString() != null) || (hreq.getParameterNames().hasMoreElements())) {
+            String sesId = (String)hses.getAttribute(XSRF_UNIQUEID);
+            String reqId = (String)hreq.getParameter(XSRF_UNIQUEID);
             log.debug("XSRF checking requestURI=" + hreq.getRequestURI());
             // only check if this is a form GET/POST
             if (sesId == null) {
