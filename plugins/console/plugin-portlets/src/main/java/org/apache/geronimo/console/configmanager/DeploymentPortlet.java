@@ -64,8 +64,7 @@ public class DeploymentPortlet extends BasePortlet {
     private static final String HELP_VIEW            = "/WEB-INF/view/configmanager/deployHelp.jsp";
     private static final String MIGRATED_PLAN_PARM   = "migratedPlan";
     private static final String ORIGINAL_PLAN_PARM   = "originalPlan";
-    private static final String FULL_STATUS_PARM     = "fullStatusMessage";
-    private static final String ABBR_STATUS_PARM     = "abbrStatusMessage";
+
     private PortletRequestDispatcher deployView;
     private PortletRequestDispatcher helpView;
 
@@ -141,7 +140,8 @@ public class DeploymentPortlet extends BasePortlet {
                 if(isRedeploy) {
                     TargetModuleID[] targets = identifyTargets(moduleFile, planFile, mgr.getAvailableModules(null, all));
                     if(targets.length == 0) {
-                        throw new PortletException("Unable to identify modules to replace.  Please include a Geronimo deployment plan or use the command-line deployment tool.");
+                    	addErrorMessage(actionRequest, getLocalizedString(actionRequest, "plugin.errorMsg04"), null);
+                    	return;
                     }
                     progress = mgr.redeploy(targets, moduleFile, planFile);
                 } else {
@@ -250,7 +250,7 @@ public class DeploymentPortlet extends BasePortlet {
         } catch (IOException e) {
             throw new PortletException("Unable to read input files: "+e.getMessage());
         } catch (DeploymentException e) {
-            throw new PortletException(e.getMessage(), e);
+        	return new TargetModuleID[0];
         }
         return (TargetModuleID[]) modules.toArray(new TargetModuleID[modules.size()]);
     }
