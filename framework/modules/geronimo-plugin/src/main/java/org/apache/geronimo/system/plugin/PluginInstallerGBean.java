@@ -678,10 +678,17 @@ public class PluginInstallerGBean implements PluginInstaller {
                     for (Artifact artifact : artifacts) {
                         if (!configManager.isRunning(artifact)) {
                             poller.setCurrentMessage("Starting " + artifact);
-                            if (!configManager.isLoaded(artifact)) {
-                                configManager.loadConfiguration(artifact);
+							if (!configManager.isLoaded(artifact)) {
+                                try {
+                                    configManager.loadConfiguration(artifact);
+                                } catch (Exception e) {
+                                    log.error("Unable to load configuration. ", e);
+                                    configManager.uninstallConfiguration(artifact);
+                                }
                             }
-                            configManager.startConfiguration(artifact);
+                            if (configManager.isLoaded(artifact)) {
+                                configManager.startConfiguration(artifact);
+                            }
                         }
                     }
                 }
