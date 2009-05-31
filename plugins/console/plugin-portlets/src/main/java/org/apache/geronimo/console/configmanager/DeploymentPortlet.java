@@ -128,6 +128,9 @@ public class DeploymentPortlet extends BasePortlet {
         try {
             DeploymentManager mgr = dfm.getDeploymentManager("deployer:geronimo:inVM", null, null);
             try {
+                
+                
+                
                 boolean isRedeploy = redeploy != null && !redeploy.equals("");
                 if(mgr instanceof JMXDeploymentManager) {
                     ((JMXDeploymentManager)mgr).setLogConfiguration(false, true);
@@ -141,7 +144,8 @@ public class DeploymentPortlet extends BasePortlet {
                 if(isRedeploy) {
                     TargetModuleID[] targets = identifyTargets(moduleFile, planFile, mgr.getAvailableModules(null, all));
                     if(targets.length == 0) {
-                        throw new PortletException("Unable to identify modules to replace.  Please include a Geronimo deployment plan or use the command-line deployment tool.");
+                        actionRequest.getPortletSession().setAttribute(ABBR_STATUS_PARM, "Unable to identify modules to replace. Please check if it has already been stopped or undeployed.");
+                        return;
                     }
                     progress = mgr.redeploy(targets, moduleFile, planFile);
                 } else {
@@ -153,6 +157,7 @@ public class DeploymentPortlet extends BasePortlet {
                 
                 String abbrStatusMessage;
                 String fullStatusMessage = null;
+               
                 if(progress.getDeploymentStatus().isCompleted()) {
                     abbrStatusMessage = "The application was successfully "+(isRedeploy ? "re" : "")+"deployed.<br/>";
                     // start installed app/s
@@ -251,7 +256,7 @@ public class DeploymentPortlet extends BasePortlet {
         } catch (IOException e) {
             throw new PortletException("Unable to read input files: "+e.getMessage());
         } catch (DeploymentException e) {
-            throw new PortletException(e.getMessage(), e);
+            return new TargetModuleID[0];
         }
         return (TargetModuleID[]) modules.toArray(new TargetModuleID[modules.size()]);
     }
