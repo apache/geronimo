@@ -17,6 +17,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 --%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<fmt:setLocale value="<%=request.getLocale()%>"/>
 <fmt:setBundle basename="portaldriver"/>
 
 <head>
