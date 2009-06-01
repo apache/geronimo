@@ -23,7 +23,7 @@ function updateLinks() {
         if (link != null && isURL(link) && link.indexOf('?') != -1) {
             // add formId only if other attributes are present in link
             // Note: we cannot use setAttribute due to IE issues so we are using element.*=
-            Elements[i].href = link + '&formId=' + formID;
+            elements[i].href = link + '&formId=' + formID;
         }
     }
 }
