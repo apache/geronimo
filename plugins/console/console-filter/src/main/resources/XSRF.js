@@ -22,38 +22,39 @@ function updateLinks() {
         var link = elements[i].getAttribute('href');
         if (link != null && isURL(link) && link.indexOf('?') != -1) {
             // add formId only if other attributes are present in link
-           	// Note: we cannot use setAttribute due to IE issues so we are using element.*=
-          	elements[i].href = link + '&formId=' + formID;
+            // Note: we cannot use setAttribute due to IE issues so we are using element.*=
+            Elements[i].href = link + '&formId=' + formID;
         }
     }
 }
 
 function updateForms() {
-	var forms = document.getElementsByTagName('form');
-	for (i=0; i<forms.length; i++) {
-		if (forms[i].getAttribute('enctype').toLowerCase() == 'multipart/form-data'){ // add formId in action link
+    var forms = document.getElementsByTagName('form');
+    for (i=0; i<forms.length; i++) {
+        var et = forms[i].getAttribute('enctype');
+        if (et!=null && et.toLowerCase() == 'multipart/form-data'){ // add formId in action link
             var link = forms[i].getAttribute('action');
             if (link != null && isURL(link)) {
-            	if (link.indexOf('?') == -1) {
-            		link = link + '?'
-            	}
-           	    // Note: we cannot use setAttribute due to IE issues so we are using element.*=
-           	    forms[i].action = link + '&formId=' + formID;
+                if (link.indexOf('?') == -1) {
+                    forms[i].action = link + '?formId=' + formID;
+                } else {
+                    forms[i].action = link + '&formId=' + formID;
+                }
             }
         } else {
-        	var input = document.createElement('input');
-        	if (document.all) {		//IE
-        	    input.type = 'hidden';
-        	    input.name = 'formId';
-        	    input.value = formID;
-        	} else if (document.getElementById) {	//firefox
-        	    input.setAttribute('type', 'hidden');
-        	    input.setAttribute('name', 'formId');
-        	    input.setAttribute('value', formID);
-        	}
-        	forms[i].appendChild(input);
-        }
-	}
+            var input = document.createElement('input');
+            if (document.all) {    //IE
+                input.type = 'hidden';
+                input.name = 'formId';
+                input.value = formID;
+            } else if (document.getElementById) {  //firefox
+                input.setAttribute('type', 'hidden');
+                input.setAttribute('name', 'formId');
+                input.setAttribute('value', formID);
+            }
+            forms[i].appendChild(input);
+         }
+     }
 }
 
 function updateOnclickLink(element) {
@@ -73,13 +74,14 @@ function updateOnclickLink(element) {
 }
 
 function isURL(link) {
-   	if ((typeof link == 'string') && link.constructor == String){
-   	   	if (link != '' && (link.substring(0, 4) == 'http' || link.substring(0, 1) == '/')){
-   	    	return true;
-   	    }
-   	}
-   	return false;
+    if ((typeof link == 'string') && link.constructor == String){
+        if (link != '' && (link.substring(0, 4) == 'http' || link.substring(0, 1) == '/')){
+            return true;
+        }
+    }
+    return false;
 }
+
 updateLinks();
 updateForms();
 </script>
