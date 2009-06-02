@@ -111,7 +111,7 @@
     </gbean>
 
     <gbean name="NewServerInstance" class="org.apache.geronimo.system.plugin.NewServerInstanceGBean">
-        <attribute name="defaultPlugins">org.apache.geronimo.plugingroups/framework/${version}/car</attribute>
+        <attribute name="defaultPlugins">org.apache.geronimo.framework.plugingroups/framework/${version}/car</attribute>
         <reference name="PluginInstallerGBean">
             <name>PluginInstaller</name>
         </reference>
