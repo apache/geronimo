@@ -30,6 +30,7 @@ import javax.portlet.RenderResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.console.BasePortlet;
 import org.apache.geronimo.console.MultiPageModel;
 
 /**
@@ -40,8 +41,8 @@ import org.apache.geronimo.console.MultiPageModel;
 public class DeployStatusHandler extends AbstractHandler {
     private static final Log log = LogFactory.getLog(DisplayPlanHandler.class);
 
-    public DeployStatusHandler() {
-        super(DEPLOY_STATUS_MODE, "/WEB-INF/view/configcreator/deployStatus.jsp");
+    public DeployStatusHandler(BasePortlet portlet) {
+        super(DEPLOY_STATUS_MODE, "/WEB-INF/view/configcreator/deployStatus.jsp", portlet);
     }
 
     public String actionBeforeView(ActionRequest request, ActionResponse response, MultiPageModel model)
@@ -62,8 +63,12 @@ public class DeployStatusHandler extends AbstractHandler {
             out.close();
 
             String[] status = JSR88_Util.deploy(request, moduleFile, planFile);
-            request.setAttribute(DEPLOY_ABBR_STATUS_PARAMETER, status[0]);
-            request.setAttribute(DEPLOY_FULL_STATUS_PARAMETER, status[1]);
+            if (null != status[1] && 0 != status[1].length()) {
+                portlet.addErrorMessage(request, portlet.getLocalizedString(request, status[0]), status[1]);
+            }
+            else {
+                portlet.addInfoMessage(request, portlet.getLocalizedString(request, status[0]));
+            }
         } catch (MalformedURLException e) {
             log.error(e.getMessage(), e);
         }

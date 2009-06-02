@@ -32,6 +32,7 @@ import javax.portlet.PortletSession;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.console.BasePortlet;
 import org.apache.geronimo.console.MultiPageAbstractHandler;
 import org.apache.geronimo.console.MultiPageModel;
 import org.apache.geronimo.management.geronimo.KeystoreException;
@@ -64,14 +65,12 @@ public abstract class BaseKeystoreHandler extends MultiPageAbstractHandler {
     protected static final String DELETE_ENTRY = "deleteEntry";
     protected static final String CHANGE_PASSWORD = "changePassword";
 
-    // Name of the attribute for error message to be displayed in a page
-    protected static final String ERROR_MSG = "errorMsg";
-    // Name of the attribute for information message to be displayed in a page
-    protected static final String INFO_MSG = "infoMsg";
-    
-
     protected BaseKeystoreHandler(String mode, String viewName) {
         super(mode, viewName);
+    }
+
+    protected BaseKeystoreHandler(String mode, String viewName, BasePortlet portlet) {
+        super(mode, viewName, portlet);
     }
 
     public final static class KeystoreModel implements MultiPageModel {

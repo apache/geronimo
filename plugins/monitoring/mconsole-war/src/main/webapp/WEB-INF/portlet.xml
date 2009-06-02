@@ -34,6 +34,10 @@
             <portlet-mode>HELP</portlet-mode>
             <portlet-mode>EDIT</portlet-mode>
         </supports>
+        <supported-locale>en</supported-locale>
+        <supported-locale>zh</supported-locale>
+        <supported-locale>ja</supported-locale>
+        <resource-bundle>portletinfo</resource-bundle>
         <portlet-info>
             <title>Monitoring</title>
         </portlet-info>

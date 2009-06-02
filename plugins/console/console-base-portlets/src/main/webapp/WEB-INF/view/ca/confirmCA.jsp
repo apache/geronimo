@@ -19,12 +19,13 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <fmt:setBundle basename="consolebase"/>
 <portlet:defineObjects/>
+
+<jsp:include page="_header.jsp" /><br>
+    
 <fmt:message key="ca.confirmCA.title"/>
 <p>
 <fmt:message key="ca.confirmCA.summary"/>
 </p>
-
-<jsp:include page="_header.jsp" />
 
 <form name="<portlet:namespace/>confirmCAForm" action="<portlet:actionURL/>" method="POST">
     <input type="hidden" name="mode" value="confirmCA-after" />

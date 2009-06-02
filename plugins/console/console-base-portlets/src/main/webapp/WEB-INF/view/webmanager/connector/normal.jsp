@@ -21,18 +21,14 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<%@ taglib uri="/WEB-INF/CommonMsg.tld" prefix="CommonMsg"%>
 <fmt:setBundle basename="consolebase"/>
 <portlet:defineObjects/>
 
+<CommonMsg:commonMsg/><br>
+
 <!-- Show existing connectors -->
-<c:choose>
-  <c:when test="${empty(containers)}">There are no Web Containers defined</c:when>
-  <c:otherwise>
-    <c:forEach var="container" items="${containers}">
-      <c:if test="${fn:length(containers) > 1}"><p><b>Connectors for ${container.name}:</b></p></c:if>
-        <c:choose>
-          <c:when test="${empty(container.connectors)}"><p>There are no connectors defined for ${container.name}</p></c:when>
-          <c:otherwise>
+<c:forEach var="container" items="${containers}">
 <table width="100%">
           <tr>
             <th class="DarkBackground" align="left"><fmt:message key="consolebase.common.name"/></th>
@@ -103,8 +99,6 @@
           </tr>
 </c:forEach>
 </table>
-          </c:otherwise>
-        </c:choose>
 
 <P><HR><P>
 <!-- Links to add new connectors -->
@@ -120,6 +114,4 @@
 </c:forEach>
 </ul>
 
-    </c:forEach>
-  </c:otherwise>
-</c:choose>
+</c:forEach>

@@ -17,12 +17,16 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<%@ taglib uri="/WEB-INF/CommonMsg.tld" prefix="CommonMsg"%>
 <fmt:setBundle basename="consolebase"/>
 <portlet:defineObjects/>
-<br />
-<p><font face="Verdana" size="+1" COLOR=DARKRED><center><b><fmt:message key="servermanager.normal.warning"/></b></center></font></p>
-<p><center><fmt:message key="servermanager.normal.proceedOnlyIf"/></center></p>
-<br />
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td width="15%" >&nbsp;</td>
+    <td><CommonMsg:commonMsg/></td>
+    <td width="15%" >&nbsp;</td>
+  </tr>
+</table>
 <%--   Removed until a better mechanism for rebooting the server is created
 <table width="100%">
 <form action="<portlet:actionURL/>">

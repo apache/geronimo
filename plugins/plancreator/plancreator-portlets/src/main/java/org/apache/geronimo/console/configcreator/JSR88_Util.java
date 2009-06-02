@@ -504,25 +504,16 @@ public class JSR88_Util {
                     Thread.sleep(100);
                 }
 
-                String abbrStatusMessage;
-                String fullStatusMessage = null;
                 if (progress.getDeploymentStatus().isCompleted()) {
-                    abbrStatusMessage = "The application was successfully deployed.<br/>";
-                    // start installed app/s
                     progress = mgr.start(progress.getResultTargetModuleIDs());
                     while (progress.getDeploymentStatus().isRunning()) {
                         Thread.sleep(100);
                     }
-                    abbrStatusMessage += "The application was successfully started";
+                    statusMsgs[0] = "infoMsg01";
                 } else {
-                    fullStatusMessage = progress.getDeploymentStatus().getMessage();
-                    // for the abbreviated status message clip off everything
-                    // after the first line, which in most cases means the gnarly stacktrace
-                    abbrStatusMessage = "Deployment failed:<br/>"
-                            + fullStatusMessage.substring(0, fullStatusMessage.indexOf('\n'));
+                    statusMsgs[0] = "errorMsg02";
+                    statusMsgs[1] = progress.getDeploymentStatus().getMessage();
                 }
-                statusMsgs[0] = abbrStatusMessage;
-                statusMsgs[1] = fullStatusMessage;
             } finally {
                 mgr.release();
             }

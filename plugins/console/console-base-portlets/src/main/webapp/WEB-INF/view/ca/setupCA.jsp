@@ -53,15 +53,14 @@ function <portlet:namespace/>validateForm(){
     return true;
 }
 </script>
+
+<jsp:include page="_header.jsp"/><br>
+
 <fmt:message key="ca.setupCA.title"/>
 
 <p>
 <fmt:message key="ca.setupCA.summary"/>
 </p>
-
-
-
-<jsp:include page="_header.jsp"/>
 
 <form name="<portlet:namespace/>CADetailsForm" action="<portlet:actionURL/>" method="POST">
     <input type="hidden" name="mode" value="setupCA-after"/>

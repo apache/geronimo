@@ -22,23 +22,25 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.MessageFormat;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
-import javax.portlet.GenericPortlet;
 import javax.portlet.PortletConfig;
 import javax.portlet.PortletException;
+import javax.portlet.PortletRequest;
 import javax.portlet.PortletRequestDispatcher;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 
+import org.apache.geronimo.console.BasePortlet;
 import org.apache.geronimo.monitoring.console.util.DBManager;
 import org.apache.geronimo.crypto.EncryptionManager;
 
 /**
  * STATS
  */
-public class MonitoringPortlet extends GenericPortlet {
+public class MonitoringPortlet extends BasePortlet {
 
     private static final String NORMALVIEW_JSP = "/WEB-INF/view/monitoringNormal.jsp";
 
@@ -169,31 +171,26 @@ public class MonitoringPortlet extends GenericPortlet {
         } else if (action.equals("stopThread")
                 || action.equals("disableServerViewQuery")) {
             String server_id = actionRequest.getParameter("server_id");
-            String message = stopThread(server_id);
+            stopThread(server_id, actionRequest);
             actionResponse.setRenderParameter("server_id", server_id);
-            actionResponse.setRenderParameter("message", message);
         } else if (action.equals("startThread")
                 || action.equals("enableServerViewQuery")) {
             String server_id = actionRequest.getParameter("server_id");
             String snapshotDuration = actionRequest
                     .getParameter("snapshotDuration");
-            String message = startThread(server_id, new Long(snapshotDuration));
-            actionResponse.setRenderParameter("message", message);
+            startThread(server_id, new Long(snapshotDuration), actionRequest);
             actionResponse.setRenderParameter("server_id", server_id);
             actionResponse.setRenderParameter("snapshotDuration",
                     snapshotDuration);
         } else if (action.equals("disableServer")
                 || action.equals("disableEditServer")) {
             String server_id = actionRequest.getParameter("server_id");
+            alterServerState(server_id, false, actionRequest);
             actionResponse.setRenderParameter("server_id", server_id);
-            ;
-            actionResponse.setRenderParameter("message", alterServerState(
-                    server_id, false));
         } else if (action.equals("enableServer")
                 || action.equals("enableEditServer")) {
             String server_id = actionRequest.getParameter("server_id");
-            actionResponse.setRenderParameter("message", alterServerState(
-                    server_id, true));
+            alterServerState(server_id, true, actionRequest);
             actionResponse.setRenderParameter("server_id", server_id);
             ;
         } else if (action.equals("testAddServerConnection")) {
@@ -204,8 +201,7 @@ public class MonitoringPortlet extends GenericPortlet {
             String password2 = actionRequest.getParameter("password2");
             Integer port = Integer.parseInt(actionRequest.getParameter("port"));
             Integer protocol = Integer.parseInt(actionRequest.getParameter("protocol"));
-            String message = testConnection(name, ip, username, password, port, protocol);
-            actionResponse.setRenderParameter("message", message);
+            testConnection(ip, username, password, port, protocol, actionRequest);
             actionResponse.setRenderParameter("name", name);
             actionResponse.setRenderParameter("username", username);
             actionResponse.setRenderParameter("ip", ip);
@@ -231,8 +227,7 @@ public class MonitoringPortlet extends GenericPortlet {
             if(retention == null) {
                 retention = "";
             }
-            String message = testConnection(name, ip, username, password, port, protocol);
-            actionResponse.setRenderParameter("message", message);
+            testConnection(ip, username, password, port, protocol, actionRequest);
             actionResponse.setRenderParameter("name", name);
             actionResponse.setRenderParameter("username", username);
             actionResponse.setRenderParameter("ip", ip);
@@ -247,20 +242,18 @@ public class MonitoringPortlet extends GenericPortlet {
         }
     }
 
-    private String testConnection(String name, String ip, String username,
-            String password, int port, int protocol) {
+    private void testConnection(String ip, String username,
+            String password, int port, int protocol, PortletRequest request) {
         try {
-            MRCConnector mrc = new MRCConnector(ip, username, password, port, protocol);
-
-            return "Connection was successfully established.";
+            new MRCConnector(ip, username, password, port, protocol);
+            addInfoMessage(request, getLocalizedString(request, "infoMsg01"));
         } catch (Exception e) {
-            return "Failed to create a connection to server.";
+            addErrorMessage(request, getLocalizedString(request, "errorMsg01"), e.getMessage());
         }
     }
 
-    private String alterServerState(String server_id, boolean b) {
+    private void alterServerState(String server_id, boolean b, PortletRequest request) {
         Connection conn = (new DBManager()).getConnection();
-        String message = "";
         String name = "";
         try {
             PreparedStatement pStmt = conn
@@ -274,15 +267,14 @@ public class MonitoringPortlet extends GenericPortlet {
             conn.close();
             conn = (new DBManager()).getConnection();
             Statement stmt = conn.createStatement();
-            if (!b) {
+            if (b) {
                 stmt
                         .executeUpdate("UPDATE SERVERS SET ENABLED = 0 WHERE SERVER_ID="
                                 + server_id);
                 stmt
                         .executeUpdate("UPDATE GRAPHS SET ENABLED = 0 WHERE SERVER_ID="
                                 + server_id);
-                message = "Server " + name
-                        + " was successfully disabled.";
+                addInfoMessage(request, MessageFormat.format(getLocalizedString(request, "infoMsg02"), name));
             } else {
                 stmt
                         .executeUpdate("UPDATE SERVERS SET ENABLED = 1 WHERE SERVER_ID="
@@ -290,18 +282,13 @@ public class MonitoringPortlet extends GenericPortlet {
                 stmt
                         .executeUpdate("UPDATE GRAPHS SET ENABLED = 1 WHERE SERVER_ID="
                                 + server_id);
-                message = "Server " + name
-                        + " was successfully enabled.";
+                addInfoMessage(request, MessageFormat.format(getLocalizedString(request, "infoMsg03"), name));
             }
         } catch (SQLException e) {
-            if (!b)
-                message = "[ERROR] Server with server_id = "
-                        + server_id
-                        + " could not be disabled.";
+            if (b)
+                addErrorMessage(request, MessageFormat.format(getLocalizedString(request, "errorMsg02"), server_id), e.getMessage());
             else
-                message = "[ERROR] Server with server_id = "
-                        + server_id
-                        + " could not be enabled.";
+                addErrorMessage(request, MessageFormat.format(getLocalizedString(request, "errorMsg03"), server_id), e.getMessage());
         } finally {
             if (conn != null) {
                 try {
@@ -311,7 +298,6 @@ public class MonitoringPortlet extends GenericPortlet {
                 }
             }
         }
-        return message;
     }
 
     @Override
@@ -342,37 +328,28 @@ public class MonitoringPortlet extends GenericPortlet {
             request.setAttribute("server_id", server_id);
             String mbean = request.getParameter("mbean");
             request.setAttribute("mbean", mbean);
-            String message = startTrackingMbean(server_id, mbean);
-            request.setAttribute("message", message);
+            startTrackingMbean(server_id, mbean, request);
             viewServer.include(request, response);
         } else if (action.equals("stopTrackingMbean")) {
             String server_id = request.getParameter("server_id");
             request.setAttribute("server_id", server_id);
             String mbean = request.getParameter("mbean");
             request.setAttribute("mbean", mbean);
-            String message = stopTrackingMbean(server_id, mbean);
-            request.setAttribute("message", message);
+            stopTrackingMbean(server_id, mbean, request);
             viewServer.include(request, response);
         } else if (action.equals("stopThread")) {
             String server_id = request.getParameter("server_id");
-            String message = request.getParameter("message");
-            request.setAttribute("message", message);
             normalView.include(request, response);
         } else if (action.equals("startThread")) {
             String server_id = request.getParameter("server_id");
             Long snapshotDuration = java.lang.Long.parseLong(
                     request.getParameter("snapshotDuration"));
-            String message = request.getParameter("message");
-            request.setAttribute("message", message);
             normalView.include(request, response);
         } else if (action.equals("disableServerViewQuery") || action.equals("enableServerViewQuery")) {
             String server_id = request.getParameter("server_id");
-            String message = request.getParameter("message");
-            request.setAttribute("message", message);
             request.setAttribute("server_id", server_id);
             viewServer.include(request, response);
         } else {
-            request.setAttribute("message", request.getParameter("message"));
             normalView.include(request, response);
         }
     }
@@ -396,14 +373,10 @@ public class MonitoringPortlet extends GenericPortlet {
         } else if (action.equals("saveEditView")) {
             String view_id = request.getParameter("view_id");
             request.setAttribute("view_id", view_id);
-            String message = request.getParameter("message");
-            request.setAttribute("message", message);
             editView.include(request, response);
         } else if (action.equals("showAddView")) {
             addView.include(request, response);
         } else if (action.equals("saveAddView")) {
-            String message = request.getParameter("message");
-            request.setAttribute("message", message);
             normalView.include(request, response);
         } else if (action.equals("showAddGraph")) {
             String server_id = request.getParameter("server_id");
@@ -414,8 +387,6 @@ public class MonitoringPortlet extends GenericPortlet {
             request.setAttribute("dataname", dataname);
             addGraph.include(request, response);
         } else if (action.equals("saveAddGraph")) {
-            String message = request.getParameter("message");
-            request.setAttribute("message", message);
             normalView.include(request, response);
         } else if (action.equals("showEditGraph")) {
             String graph_id = request.getParameter("graph_id");
@@ -424,16 +395,10 @@ public class MonitoringPortlet extends GenericPortlet {
         } else if (action.equals("saveEditGraph")) {
             String graph_id = request.getParameter("graph_id");
             request.setAttribute("graph_id", graph_id);
-            String message = request.getParameter("message");
-            request.setAttribute("message", message);
             editGraph.include(request, response);
         } else if (action.equals("deleteGraph")) {
-            String message = request.getParameter("message");
-            request.setAttribute("message", message);
             normalView.include(request, response);
         } else if (action.equals("deleteView")) {
-            String message = request.getParameter("message");
-            request.setAttribute("message", message);
             normalView.include(request, response);
         } else if (action.equals("showEditServer")) {
             String server_id = request.getParameter("server_id");
@@ -442,18 +407,12 @@ public class MonitoringPortlet extends GenericPortlet {
         } else if (action.equals("saveEditServer")) {
             String server_id = request.getParameter("server_id");
             request.setAttribute("server_id", server_id);
-            String message = request.getParameter("message");
-            request.setAttribute("message", message);
             editServer.include(request, response);
         } else if (action.equals("showAddServer")) {
             addServer.include(request, response);
         } else if (action.equals("saveAddServer")) {
-            String message = request.getParameter("message");
-            request.setAttribute("message", message);
             normalView.include(request, response);
         } else if (action.equals("deleteServer")) {
-            String message = request.getParameter("message");
-            request.setAttribute("message", message);
             normalView.include(request, response);
         } else if (action.equals("testAddServerConnection")) {
             request.setAttribute("name", request.getParameter("name"));
@@ -463,7 +422,6 @@ public class MonitoringPortlet extends GenericPortlet {
             request
                     .setAttribute("password2", request
                             .getParameter("password2"));
-            request.setAttribute("message", request.getParameter("message"));
             request.setAttribute("port", request.getParameter("port"));
             addServer.include(request, response);
         } else if (action.equals("testEditServerConnection")) {
@@ -475,7 +433,6 @@ public class MonitoringPortlet extends GenericPortlet {
             request
                     .setAttribute("password2", request
                             .getParameter("password2"));
-            request.setAttribute("message", request.getParameter("message"));
             request
                     .setAttribute("server_id", request
                             .getParameter("server_id"));
@@ -486,14 +443,12 @@ public class MonitoringPortlet extends GenericPortlet {
             editServer.include(request, response);
         } else if (action.equals("disableEditServer")
                 || action.equals("enableEditServer")) {
-            request.setAttribute("message", request.getParameter("message"));
             request
                     .setAttribute("server_id", request
                             .getParameter("server_id"));
             editServer.include(request, response);
         } else if (action.equals("disableServer")
                 || action.equals("enableServer")) {
-            request.setAttribute("message", request.getParameter("message"));
             request
                     .setAttribute("server_id", request
                             .getParameter("server_id"));
@@ -535,15 +490,11 @@ public class MonitoringPortlet extends GenericPortlet {
                     pStmt.executeUpdate();
                 }
             con.close();
-            actionResponse.setRenderParameter("message",
-                    "View " + name
-                            + " has been updated");
+            addInfoMessage(actionRequest, MessageFormat.format(getLocalizedString(actionRequest, "infoMsg08"), name));
             return;
 
         } catch (Exception e) {
-            actionResponse.setRenderParameter("message",
-                    "Error updating View "
-                            + name + " " + e.getMessage());
+            addErrorMessage(actionRequest, MessageFormat.format(getLocalizedString(actionRequest, "errorMsg11"), name), e.getMessage());
             return;
         }
     }
@@ -581,13 +532,9 @@ public class MonitoringPortlet extends GenericPortlet {
                 }
             }
             con.close();
-            actionResponse.setRenderParameter("message",
-                    "View " + name
-                            + " has been added");
+            addInfoMessage(actionRequest, MessageFormat.format(getLocalizedString(actionRequest, "infoMsg09"), name));
         } catch (Exception e) {
-            actionResponse.setRenderParameter("message",
-                    "Error adding View " + name
-                            + " " + e.getMessage());
+            addErrorMessage(actionRequest, MessageFormat.format(getLocalizedString(actionRequest, "errorMsg12"), name), e.getMessage());
         } finally {
             try {
                 con.close();
@@ -674,14 +621,9 @@ public class MonitoringPortlet extends GenericPortlet {
                         .setSnapshotRetention(Integer.parseInt(retention));
             }
             // set success message
-            actionResponse
-                    .setRenderParameter(
-                            "message",
-                            "Server has been updated");
+            addInfoMessage(actionRequest, getLocalizedString(actionRequest, "infoMsg10"));
         } catch (Exception e) {
-            actionResponse.setRenderParameter("message",
-                    "Error updating server "
-                            + e.getMessage());
+            addErrorMessage(actionRequest, getLocalizedString(actionRequest, "errorMsg13"), e.getMessage());
         }
     }
 
@@ -714,14 +656,9 @@ public class MonitoringPortlet extends GenericPortlet {
                             + ","
                             + protocol + ")");
             pStmt.executeUpdate();
-            actionResponse.setRenderParameter("message",
-                    "Server " + name + " at "
-                            + ip + " has been added.");
-
+            addInfoMessage(actionRequest, MessageFormat.format(getLocalizedString(actionRequest, "infoMsg11"), name, ip));
         } catch (Exception e) {
-            actionResponse.setRenderParameter("message",
-                    "Error adding server "
-                            + e.getMessage());
+            addErrorMessage(actionRequest, getLocalizedString(actionRequest, "errorMsg14"), e.getMessage());
         } finally {
             try {
                 con.close();
@@ -748,16 +685,11 @@ public class MonitoringPortlet extends GenericPortlet {
                     + server_id);
             pStmt.executeUpdate();
             con.close();
-            actionResponse
-                    .setRenderParameter(
-                            "message",
-                            "Server and associated graphs have been deleted");
+            addInfoMessage(actionRequest, getLocalizedString(actionRequest, "infoMsg12"));
             return;
 
         } catch (Exception e) {
-            actionResponse.setRenderParameter("message",
-                    "Error deleting server "
-                            + e.getMessage());
+            addErrorMessage(actionRequest, getLocalizedString(actionRequest, "errorMsg15"), e.getMessage());
             return;
         }
     }
@@ -779,15 +711,11 @@ public class MonitoringPortlet extends GenericPortlet {
                             + view_id);
             pStmt.executeUpdate();
             con.close();
-            actionResponse
-                    .setRenderParameter("message",
-                            "View has been deleted");
+            addInfoMessage(actionRequest, getLocalizedString(actionRequest, "infoMsg13"));
             return;
 
         } catch (Exception e) {
-            actionResponse.setRenderParameter("message",
-                    "Error deleting view "
-                            + e.getMessage());
+            addErrorMessage(actionRequest, getLocalizedString(actionRequest, "errorMsg16"), e.getMessage());
             return;
         }
     }
@@ -849,15 +777,11 @@ public class MonitoringPortlet extends GenericPortlet {
                             + showArchive + ")");
             pStmt.executeUpdate();
             con.close();
-            actionResponse.setRenderParameter("message",
-                    "Graph " + name
-                            + " has been added.");
+            addInfoMessage(actionRequest, MessageFormat.format(getLocalizedString(actionRequest, "infoMsg14"), name));
             return;
 
         } catch (Exception e) {
-            actionResponse.setRenderParameter("message",
-                    "Error adding graph "
-                            + e.getMessage());
+            addErrorMessage(actionRequest, getLocalizedString(actionRequest, "errorMsg17"), e.getMessage());
             return;
         }
     }
@@ -922,15 +846,11 @@ public class MonitoringPortlet extends GenericPortlet {
                             + archive + " WHERE graph_id=" + graph_id);
             pStmt.executeUpdate();
             con.close();
-            actionResponse.setRenderParameter("message",
-                    "Graph " + name
-                            + " has been updated.");
+            addInfoMessage(actionRequest, MessageFormat.format(getLocalizedString(actionRequest, "infoMsg15"), name));
             return;
 
         } catch (Exception e) {
-            actionResponse.setRenderParameter("message",
-                    "Error editing graph "
-                            + e.getMessage());
+            addErrorMessage(actionRequest, getLocalizedString(actionRequest, "errorMsg18"), e.getMessage());
             return;
         }
     }
@@ -938,6 +858,7 @@ public class MonitoringPortlet extends GenericPortlet {
     private void deleteGraph(ActionRequest actionRequest,
             ActionResponse actionResponse) {
         String graph_id = actionRequest.getParameter("graph_id");
+        String name = actionRequest.getParameter("name");
         actionResponse.setRenderParameter("graph_id", graph_id);
         DBManager DBase = new DBManager();
         Connection con = DBase.getConnection();
@@ -966,20 +887,16 @@ public class MonitoringPortlet extends GenericPortlet {
                             + graph_id);
             pStmt.executeUpdate();
             con.close();
-            actionResponse
-                    .setRenderParameter("message",
-                            "Graph has been deleted");
+            addInfoMessage(actionRequest, MessageFormat.format(getLocalizedString(actionRequest, "infoMsg16"), name));
             return;
 
         } catch (Exception e) {
-            actionResponse.setRenderParameter("message",
-                    "Error deleting graph "
-                            + e.getMessage());
+            addErrorMessage(actionRequest, getLocalizedString(actionRequest, "errorMsg19"), e.getMessage());
             return;
         }
     }
 
-    private String startTrackingMbean(String server_id, String mbean) {
+    private void startTrackingMbean(String server_id, String mbean, PortletRequest request) {
         PreparedStatement pStmt = null;
         ResultSet rs = null;
         MRCConnector mrc = null;
@@ -997,9 +914,8 @@ public class MonitoringPortlet extends GenericPortlet {
                             + server_id);
             rs = pStmt.executeQuery();
             if (!rs.next()) {
-                return "DATABASE ERROR: Server id "
-                        + server_id
-                        + " not found in database";
+                addErrorMessage(request, MessageFormat.format(getLocalizedString(request, "errorMsg08"), server_id));
+                return;
             }
             server_ip = rs.getString("ip");
             password = rs.getString("password");
@@ -1007,40 +923,36 @@ public class MonitoringPortlet extends GenericPortlet {
             port = rs.getInt("port");
             protocol = rs.getInt("protocol");
         } catch (SQLException e) {
-            return "DATABASE ERROR: "
-                    + e.getMessage();
+            addErrorMessage(request, getLocalizedString(request, "errorMsg04"), e.getMessage());
+            return;
         }
         // attempt to connect to the mrc server
         try {
             con.close();
             mrc = new MRCConnector(server_ip, username, password, port, protocol);
         } catch (Exception e) {
-            return "MRC ERROR: Unable to connect to server "
-                    + server_ip
-                    + ": "
-                    + e.getMessage();
+            addErrorMessage(request, MessageFormat.format(getLocalizedString(request, "errorMsg05"), server_ip), e.getMessage());
+            return;
         }
 
         // tell the mrc server to start tracking an mbean
         try {
             if (mrc.startTrackingMbean(mbean)) {
                 String mbarr[] = mbean.split("name=");
-                return "MBean " + mbarr[1]
-                        + " tracking on server " + rs.getString("name");
+                addInfoMessage(request, MessageFormat.format(getLocalizedString(request, "infoMsg04"), mbarr[1], rs.getString("name")));
+                return;
             } else {
                 String mbarr[] = mbean.split("name=");
-                return "ERROR: MBean "
-                        + mbarr[1] + " could NOT be tracked on server "
-                        + rs.getString("name");
+                addErrorMessage(request, MessageFormat.format(getLocalizedString(request, "errorMsg06"), mbarr[1], rs.getString("name")));
+                return;
             }
         } catch (Exception e) {
-            return "MRC ERROR: MBean " + mbean
-                    + " could NOT be tracked on server " + server_ip
-                    + ": " + e.getMessage();
+            addErrorMessage(request, MessageFormat.format(getLocalizedString(request, "errorMsg06"), mbean, server_ip), e.getMessage());
+            return;
         }
     }
 
-    private String stopTrackingMbean(String server_id, String mbean) {
+    private void stopTrackingMbean(String server_id, String mbean, PortletRequest request) {
         PreparedStatement pStmt = null;
         ResultSet rs = null;
         MRCConnector mrc = null;
@@ -1058,9 +970,8 @@ public class MonitoringPortlet extends GenericPortlet {
                             + server_id);
             rs = pStmt.executeQuery();
             if (!rs.next()) {
-                return "DATABASE ERROR: Server id "
-                        + server_id
-                        + " not found in database";
+                addErrorMessage(request, MessageFormat.format(getLocalizedString(request, "errorMsg08"), server_id));
+                return;
             }
             server_ip = rs.getString("ip");
             password = rs.getString("password");
@@ -1068,41 +979,34 @@ public class MonitoringPortlet extends GenericPortlet {
             port = rs.getInt("port");
             protocol = rs.getInt("protocol");
         } catch (SQLException e) {
-            return "DATABASE ERROR: "
-                    + e.getMessage();
+            addErrorMessage(request, getLocalizedString(request, "errorMsg04"), e.getMessage());
+            return;
         }
         // attempt to connect to the mrc-server
         try {
             con.close();
                 mrc = new MRCConnector(server_ip, username, password, port, protocol);
-       } catch (Exception e) {
-            return "MRC ERROR: Unable to connect to server "
-                    + server_ip
-                    + ": "
-                    + e.getMessage();
+        } catch (Exception e) {
+           addErrorMessage(request, MessageFormat.format(getLocalizedString(request, "errorMsg05"), server_ip), e.getMessage());
+           return;
         }
         // tell the mrc-server to stop tracking some mbean
         try {
             if (mrc.stopTrackingMbean(mbean)) {
                 String mbarr[] = mbean.split("name=");
-                return "MBean " + mbarr[1]
-                        + " removed from tracking on server "
-                        + rs.getString("name");
+                addInfoMessage(request, MessageFormat.format(getLocalizedString(request, "infoMsg05"), mbarr[1], rs.getString("name")));
+                return;
             } else {
                 String mbarr[] = mbean.split("name=");
-                return "ERROR: MBean "
-                        + mbarr[1]
-                        + " could NOT be removed from tracking on server "
-                        + rs.getString("name");
+                addErrorMessage(request, MessageFormat.format(getLocalizedString(request, "errorMsg07"), mbarr[1], rs.getString("name")));
+                return;
             }
         } catch (Exception e) {
-            return "MRC ERROR: MBean " + mbean
-                    + " could NOT be removed from tracking on server "
-                    + server_ip + ": " + e.getMessage();
+            addErrorMessage(request, MessageFormat.format(getLocalizedString(request, "errorMsg07"), mbean, server_ip), e.getMessage());
         }
     }
 
-    private String stopThread(String server_id) {
+    private void stopThread(String server_id, PortletRequest request) {
         PreparedStatement pStmt = null;
         ResultSet rs = null;
         MRCConnector mrc = null;
@@ -1120,9 +1024,8 @@ public class MonitoringPortlet extends GenericPortlet {
                             + server_id);
             rs = pStmt.executeQuery();
             if (!rs.next()) {
-                return "DATABASE ERROR: Server id "
-                        + server_id
-                        + " not found in database";
+                addErrorMessage(request, MessageFormat.format(getLocalizedString(request, "errorMsg08"), server_id));
+                return;
             }
             server_ip = rs.getString("ip");
             password = rs.getString("password");
@@ -1130,38 +1033,34 @@ public class MonitoringPortlet extends GenericPortlet {
             port = rs.getInt("port");
             protocol = rs.getInt("protocol");
         } catch (SQLException e) {
-            return "DATABASE ERROR: "
-                    + e.getMessage();
+            addErrorMessage(request, getLocalizedString(request, "errorMsg04"), e.getMessage());
+            return;
         }
         // attempt to connect to the mrc-server
         try {
             con.close();
             mrc = new MRCConnector(server_ip, username, password, port, protocol);
         } catch (Exception e) {
-            return "MRC ERROR: Unable to connect to server "
-                    + server_ip
-                    + ": "
-                    + e.getMessage();
+            addErrorMessage(request, MessageFormat.format(getLocalizedString(request, "errorMsg05"), server_ip), e.getMessage());
+            return;
         }
         // tell the mrc-server to stop taking snapshots
         try {
             if (mrc.stopSnapshotThread()) {
-                return "Snapshot thread stopped on server "
-                        + rs.getString("name");
+                addInfoMessage(request, MessageFormat.format(getLocalizedString(request, "infoMsg06"), server_ip));
+                return;
             } else {
-                return "ERROR: Snapshot thread could NOT be stopped on server "
-                        + rs.getString("name");
+                addErrorMessage(request, MessageFormat.format(getLocalizedString(request, "errorMsg09"), server_ip));
+                return;
             }
 
         } catch (Exception e) {
-            return "MRC ERROR: Snapshot thread could NOT be stopped on server "
-                    + server_ip
-                    + ": "
-                    + e.getMessage();
+            addErrorMessage(request, MessageFormat.format(getLocalizedString(request, "errorMsg09"), server_ip), e.getMessage());
+            return;
         }
     }
 
-    private String startThread(String server_id, Long snapshotDuration) {
+    private void startThread(String server_id, Long snapshotDuration, PortletRequest request) {
         PreparedStatement pStmt = null;
         ResultSet rs = null;
         MRCConnector mrc = null;
@@ -1179,9 +1078,8 @@ public class MonitoringPortlet extends GenericPortlet {
                             + server_id);
             rs = pStmt.executeQuery();
             if (!rs.next()) {
-                return "DATABASE ERROR: Server id "
-                        + server_id
-                        + " not found in database";
+                addErrorMessage(request, MessageFormat.format(getLocalizedString(request, "errorMsg08"), server_id));
+                return;
             }
             server_ip = rs.getString("ip");
             password = rs.getString("password");
@@ -1189,33 +1087,29 @@ public class MonitoringPortlet extends GenericPortlet {
             port = rs.getInt("port");
             protocol = rs.getInt("protocol");
         } catch (SQLException e) {
-            return "DATABASE ERROR: "
-                    + e.getMessage();
+            addErrorMessage(request, getLocalizedString(request, "errorMsg04"), e.getMessage());
+            return;
         }
         // attempt to connect to the mrc-server
         try {
             con.close();
             mrc = new MRCConnector(server_ip, username, password, port, protocol);
         } catch (Exception e) {
-            return "MRC ERROR: Unable to connect to server "
-                    + server_ip
-                    + ": "
-                    + e.getMessage();
+            addErrorMessage(request, MessageFormat.format(getLocalizedString(request, "errorMsg05"), server_ip), e.getMessage());
+            return;
         }
         // tell the mrc-server to start the collection of statistics
         try {
             if (mrc.startSnapshotThread(new Long(snapshotDuration))) {
-                return "Snapshot thread started on server "
-                        + rs.getString("name");
+                addInfoMessage(request, MessageFormat.format(getLocalizedString(request, "infoMsg07"), rs.getString("name")));
+                return;
             } else {
-                return "ERROR: Snapshot thread could NOT be started on server "
-                        + rs.getString("name");
+                addErrorMessage(request, MessageFormat.format(getLocalizedString(request, "errorMsg10"), rs.getString("name")));
+                return;
             }
         } catch (Exception e) {
-            return "MRC ERROR: Snapshot thread could NOT be started on server "
-                    + server_ip
-                    + ": "
-                    + e.getMessage();
+            addErrorMessage(request, MessageFormat.format(getLocalizedString(request, "errorMsg10"), server_ip), e.getMessage());
+            return;
         }
     }
 

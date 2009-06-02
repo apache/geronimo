@@ -34,6 +34,9 @@ limitations under the License.
             <portlet-mode>HELP</portlet-mode>
         </supports>
         <supported-locale>en</supported-locale>
+        <supported-locale>zh</supported-locale>
+        <supported-locale>ja</supported-locale>
+        <resource-bundle>portletinfo</resource-bundle>
         <portlet-info>
             <title>ClassLoader Viewer</title>
             <short-title>classloaderviewer</short-title>
@@ -52,6 +55,9 @@ limitations under the License.
             <portlet-mode>HELP</portlet-mode>
         </supports>
         <supported-locale>en</supported-locale>
+        <supported-locale>zh</supported-locale>
+        <supported-locale>ja</supported-locale>
+        <resource-bundle>portletinfo</resource-bundle>
         <portlet-info>
             <title>Dependency Viewer</title>
             <short-title>dependencyviewer</short-title>
@@ -70,6 +76,9 @@ limitations under the License.
             <portlet-mode>HELP</portlet-mode>
         </supports>
         <supported-locale>en</supported-locale>
+        <supported-locale>zh</supported-locale>
+        <supported-locale>ja</supported-locale>
+        <resource-bundle>portletinfo</resource-bundle>
         <portlet-info>
             <title>JMX Viewer</title>
             <short-title>jmxviewer</short-title>
@@ -88,6 +97,9 @@ limitations under the License.
             <portlet-mode>HELP</portlet-mode>
         </supports>
         <supported-locale>en</supported-locale>
+        <supported-locale>zh</supported-locale>
+        <supported-locale>ja</supported-locale>
+        <resource-bundle>portletinfo</resource-bundle>
         <portlet-info>
             <title>JNDI Viewer</title>
             <short-title>jndiviewer</short-title>
@@ -106,6 +118,9 @@ limitations under the License.
             <portlet-mode>HELP</portlet-mode>
         </supports>
         <supported-locale>en</supported-locale>
+        <supported-locale>zh</supported-locale>
+        <supported-locale>ja</supported-locale>
+        <resource-bundle>portletinfo</resource-bundle>
         <portlet-info>
             <title>LDAP Viewer</title>
             <short-title>ldapviewer</short-title>

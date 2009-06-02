@@ -24,20 +24,16 @@ import java.io.File;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.MessageFormat;
 
+import javax.portlet.PortletRequest;
+
+import org.apache.geronimo.console.BasePortlet;
 import org.apache.geronimo.kernel.util.InputUtils;
 
 public class RunSQLHelper {
 
     private final static Log log = LogFactory.getLog(RunSQLHelper.class);
-
-    public static final String SQL_SUCCESS_MSG = "SQL command/s successful";
-
-    public static final String SQL_EMPTY_MSG = "SQL Command/s can't be empty";
-
-    private static final String DB_CREATED_MSG = "Database created";
-
-    private static final String DB_DELETED_MSG = "Database deleted";
 
     private static final String DERBY_BACKUP_FOLDER = "derby.backup";
 
@@ -47,23 +43,26 @@ public class RunSQLHelper {
 
     private static final String BAK_PREFIX = "BAK_";
 
-    public String createDB(String dbName) {
+    private final BasePortlet portlet;
+
+    public RunSQLHelper (BasePortlet portlet) {
+        this.portlet = portlet;
+    }
+
+    public boolean createDB(String dbName, PortletRequest request) {
 
         // ensure there are no illegal chars in DB name
         InputUtils.validateSafeInput(dbName);
-
-        String result = DB_CREATED_MSG + ": " + dbName;
 
         Connection conn = null;
         try {
             conn = DerbyConnectionUtil.getDerbyConnection(dbName,
                     DerbyConnectionUtil.CREATE_DB_PROP);
+            portlet.addInfoMessage(request, MessageFormat.format(portlet.getLocalizedString(request, "infoMsg01"), dbName));
+            return true;
         } catch (Throwable e) {
-            if (e instanceof SQLException) {
-                result = getSQLError((SQLException) e);
-            } else {
-                result = e.getMessage();
-            }
+            portlet.addErrorMessage(request, portlet.getLocalizedString(request, "errorMsg01"), e.getMessage());
+            return false;
         } finally {
             // close DB connection
             try {
@@ -71,29 +70,24 @@ public class RunSQLHelper {
                     conn.close();
                 }
             } catch (SQLException e) {
-                result = "Problem closing DB connection";
+                portlet.addErrorMessage(request, portlet.getLocalizedString(request, "errorMsg02"), e.getMessage());
             }
         }
-
-        return result;
     }
 
-    public String backupDB(String derbyHome, String dbName) {
-        return "";
+    public boolean backupDB(String derbyHome, String dbName, PortletRequest request) {
+        return false;
     }
 
-    public String restoreDB(String derbyHome, String dbName) {
-        return "";
+    public boolean restoreDB(String derbyHome, String dbName, PortletRequest request) {
+        return false;
     }
 
-    public String deleteDB(String derbyHome, String dbName) {
-        String result = DB_DELETED_MSG + ": " + dbName;
-
+    public boolean deleteDB(String derbyHome, String dbName, PortletRequest request) {
         // shutdown database before deleting it
         if (!shutdownDB(dbName)) {
-            result = "Database not deleted: " + dbName
-                    + " Couldn't shutdown db: " + dbName;
-            return result;
+            portlet.addErrorMessage(request, portlet.getLocalizedString(request, "errorMsg03"));
+            return false;
         }
 
         try {
@@ -102,10 +96,8 @@ public class RunSQLHelper {
                     + PARENT_FOLDER + File.separatorChar + DERBY_BACKUP_FOLDER);
             if (!derbyBackupFolder.exists()) {
                 if (!derbyBackupFolder.mkdirs()) {
-                    result = "Database not deleted: " + dbName
-                            + " Derby backup folder not created: "
-                            + derbyBackupFolder;
-                    return result;
+                    portlet.addErrorMessage(request, portlet.getLocalizedString(request, "errorMsg04"));
+                    return false;
                 }
             }
 
@@ -124,28 +116,25 @@ public class RunSQLHelper {
                     if (newDBFolder.mkdirs()) {
                         if (!oldDBFolder.renameTo(new File(newDBFolder,
                                 oldDBFolder.getName()))) {
-                            result = "Database not deleted: " + dbName
-                                    + " DB folder not renamed";
-                            return result;
+                            portlet.addErrorMessage(request, portlet.getLocalizedString(request, "errorMsg05"));
+                            return false;
                         }
                     }
                 }
             }
+            portlet.addInfoMessage(request, MessageFormat.format(portlet.getLocalizedString(request, "infoMsg02"), dbName));
+            return true;
         } catch (Exception e) {
-            e.printStackTrace();
+            portlet.addErrorMessage(request, portlet.getLocalizedString(request, "errorMsg06"), e.getMessage());
+            return false;
         }
-
-        return result;
     }
 
-    public String runSQL(String connName, String sql, Boolean dsConn) {
-        String result = SQL_SUCCESS_MSG;
-
+    public boolean runSQL(String connName, String sql, Boolean dsConn, PortletRequest request) {
         if ((sql == null) || (sql.trim().length() == 0)) {
-            result = SQL_EMPTY_MSG;
-            return result;
+            portlet.addErrorMessage(request, portlet.getLocalizedString(request, "errorMsg07"));
+            return false;
         }
-        
 
         Connection conn = null;
         Statement s = null;
@@ -167,14 +156,18 @@ public class RunSQLHelper {
                 }
             }
             conn.commit();
+            portlet.addInfoMessage(request, portlet.getLocalizedString(request, "infoMsg03"));
+            return true;
         } catch (SQLException e) {
             try {
                 conn.rollback();
             } catch (Exception unHandledException) {
             }
-            result = getSQLError(e);
+            portlet.addErrorMessage(request, portlet.getLocalizedString(request, "errorMsg08"), e.getMessage());
+            return false;
         } catch (Throwable e) {
-            result = e.getMessage();
+            portlet.addErrorMessage(request, portlet.getLocalizedString(request, "errorMsg08"), e.getMessage());
+            return false;
         } finally {
             // close DB connection
             try {
@@ -186,13 +179,9 @@ public class RunSQLHelper {
                     conn.close();
                 }
             } catch (SQLException e) {
-                if (SQL_SUCCESS_MSG.equals(result)) {
-                    result = "Problem closing DB connection: " + e.getMessage();
-                }
+                portlet.addErrorMessage(request, portlet.getLocalizedString(request, "errorMsg02"), e.getMessage());
             }
         }
-
-        return result;
     }
 
     private boolean shutdownDB(String dbName) {
@@ -213,23 +202,4 @@ public class RunSQLHelper {
         return ok;
     }
 
-    private String getSQLError(SQLException e) {
-        StringBuffer errorMsg = new StringBuffer();
-        while (e != null) {
-            //errorMsg.append(e.toString());
-            errorMsg.append(e.getMessage());
-            errorMsg.append(" * ");
-            e = e.getNextException();
-        }
-
-        return errorMsg.toString();
-    }
-
-    public static void main(String[] args) {
-        new RunSQLHelper().runSQL("derbyDB4",
-                "create table derbyTbl1(num int, addr varchar(40));"
-                        + "create table derbyTbl2(num int, addr varchar(40));"
-                        + "create table derbyTbl3(num int, addr varchar(40));"
-                        + "insert into derb", false);
-    }
 }

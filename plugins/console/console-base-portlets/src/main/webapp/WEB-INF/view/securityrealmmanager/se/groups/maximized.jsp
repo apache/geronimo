@@ -17,10 +17,13 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<%@ taglib uri="/WEB-INF/CommonMsg.tld" prefix="CommonMsg"%>
 <fmt:setBundle basename="consolebase"/>
 <portlet:defineObjects/>
+
+<CommonMsg:commonMsg/>
+
 <table width="50%" cellspacing="5">
-    ${message}
 	<tr>
         <td><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="new"/></portlet:actionURL>"><fmt:message key="securityrealmmanager.se.groups.maximized.createNewGroup" /></a></td>
         <td></td>

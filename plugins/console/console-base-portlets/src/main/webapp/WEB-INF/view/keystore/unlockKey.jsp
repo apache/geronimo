@@ -24,9 +24,9 @@
 <fmt:setBundle basename="consolebase"/>
 <portlet:defineObjects/>
 
-<p><fmt:message key="keystore.unlockKey.title"/></p>
-
 <jsp:include page="_header.jsp" />
+
+<p><fmt:message key="keystore.unlockKey.title"/></p>
 
 <form name="<portlet:namespace/>KeystoreForm" action="<portlet:actionURL/>" method="POST">
     <input type="hidden" name="keystore" value="${keystore}" />

@@ -17,6 +17,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<%@ taglib uri="/WEB-INF/CommonMsg.tld" prefix="CommonMsg"%>
 <%@ page import="org.apache.geronimo.monitoring.console.StatsGraph" %>
 <%@ page import="org.apache.geronimo.monitoring.console.GraphsBuilder" %>
 <%@ page import="java.util.ArrayList" %>
@@ -40,7 +41,6 @@ Connection con = DBase.getConnection();
 PreparedStatement pStmt = con.prepareStatement("SELECT view_id, name, description, graph_count, added, modified FROM views WHERE enabled=1 AND view_id="+view_id);
 ResultSet rs = pStmt.executeQuery();
 GraphsBuilder run = new GraphsBuilder(con);
-String errors = new String("");
 
 if (rs.next())
 {
@@ -72,7 +72,7 @@ if (rs.next())
                 graphs.add( graph );
             }
         } catch (Exception e) {
-            errors = errors + "<li>Graph " + ids.get(i) + " could not be drawn due to server being offline</li>";
+            
         }
     }
     
@@ -112,6 +112,8 @@ timerID = setTimeout("refreshPeriodic()",300000);
     </script>
 <!-- </head> -->
 
+<CommonMsg:commonMsg/><br>
+
 <table>
     <tr>
         <!-- Body -->
@@ -139,14 +141,6 @@ for (StatsGraph graph : graphs)
 catch (Exception e)
 {
     
-}
-if (!errors.equals(""))
-{
-    %>
-    <ul>
-    <font color="red"><%=errors%></font>
-    </ul>
-    <%
 }
 %>
 

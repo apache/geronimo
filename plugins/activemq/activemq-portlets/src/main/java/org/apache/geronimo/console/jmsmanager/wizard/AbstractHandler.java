@@ -52,6 +52,7 @@ import org.apache.geronimo.connector.deployment.jsr88.ConnectorDCB;
 import org.apache.geronimo.connector.deployment.jsr88.ResourceAdapter;
 import org.apache.geronimo.connector.deployment.jsr88.ResourceAdapterInstance;
 import org.apache.geronimo.connector.deployment.jsr88.SinglePool;
+import org.apache.geronimo.console.BasePortlet;
 import org.apache.geronimo.console.MultiPageAbstractHandler;
 import org.apache.geronimo.console.MultiPageModel;
 import org.apache.geronimo.console.jmsmanager.ManagementHelper;
@@ -100,6 +101,10 @@ public abstract class AbstractHandler extends MultiPageAbstractHandler {
 
     public AbstractHandler(String mode, String viewName) {
         super(mode, viewName);
+    }
+
+    public AbstractHandler(String mode, String viewName, BasePortlet portlet) {
+        super(mode, viewName, portlet);
     }
 
     public static class JMSResourceData implements MultiPageModel {

@@ -30,13 +30,13 @@ function <portlet:namespace/>validateForm(){
     return true;
 }
 </script>
+
+<jsp:include page="_header.jsp" /><br>
+
 <b><fmt:message key="ca.common.unlockCertAuthority"/></b>
 
 <p><fmt:message key="ca.unlockCA.summary"/>
 </p>
-
-
-<jsp:include page="_header.jsp" />
 
 <form name="<portlet:namespace/>UnlockCAForm" action="<portlet:actionURL/>" method="POST">
     <input type="hidden" name="mode" value="unlockCA-after" />

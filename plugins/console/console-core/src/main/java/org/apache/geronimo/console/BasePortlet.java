@@ -17,18 +17,30 @@
 package org.apache.geronimo.console;
 
 import java.io.IOException;
+import java.lang.ref.SoftReference;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.text.MessageFormat;
+
+import javax.portlet.ActionRequest;
 import javax.portlet.GenericPortlet;
-import javax.portlet.PortletRequest;
 import javax.portlet.PortletException;
+import javax.portlet.PortletRequest;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import org.apache.geronimo.console.util.PortletManager;
 import org.apache.geronimo.management.geronimo.WebContainer;
+import org.apache.geronimo.console.message.CommonMessage;
+import org.apache.geronimo.console.message.ErrorMessage;
+import org.apache.geronimo.console.message.InfoMessage;
+import org.apache.geronimo.console.message.WarnMessage;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Superclass with some generic functionality for console portlets
@@ -40,6 +52,7 @@ public class BasePortlet extends GenericPortlet {
     protected final static String WEB_SERVER_JETTY = "jetty";
     protected final static String WEB_SERVER_TOMCAT = "tomcat";
     protected final static String WEB_SERVER_GENERIC = "generic";
+    private static final String COMMON_MESSAGES = "commonMessages";
     private static final String FMT_LOCALE = "javax.servlet.jsp.jstl.fmt.locale.request";
 
     protected final static String getWebServerType(Class cls) {
@@ -120,8 +133,85 @@ public class BasePortlet extends GenericPortlet {
 
     @Override
     public void render(RenderRequest request, RenderResponse response) throws PortletException, IOException {
+        @SuppressWarnings("unchecked")
+        SoftReference<List<CommonMessage>> msgRef = (SoftReference<List<CommonMessage>>) request.getPortletSession().getAttribute(COMMON_MESSAGES);
+        if (null != msgRef && null != msgRef.get()) {
+            request.setAttribute(COMMON_MESSAGES, msgRef.get());
+        }
+        request.getPortletSession().removeAttribute(COMMON_MESSAGES);
         request.setAttribute(FMT_LOCALE, request.getLocale());
         
         super.render(request, response);
     }
+
+    public final void addErrorMessage(PortletRequest request, String... messages) {
+        addCommonMessage(CommonMessage.Type.Error, request, messages);
+    }
+
+    public final void addWarningMessage(PortletRequest request, String... messages) {
+        addCommonMessage(CommonMessage.Type.Warn, request, messages);
+    }
+
+    public final void addInfoMessage(PortletRequest request, String... messages) {
+        addCommonMessage(CommonMessage.Type.Info, request, messages);
+    }
+
+    public final String getLocalizedString(PortletRequest request, String key, Object... vars) {
+        String value = getResourceBundle(request.getLocale()).getString(key);
+        if (null == value || 0 == value.length()) return key;
+        return MessageFormat.format(value, vars);
+    }
+
+    private void addCommonMessage(CommonMessage.Type type, PortletRequest request, String[] messages) {
+        if (null != messages && 0 != messages.length) {
+            if (1 == messages.length) {
+                addCommonMessage(type, request, messages[0], null);
+            } else {
+                StringBuilder sb = new StringBuilder();
+                for (String message : messages) {
+                    sb.append(message + "<br>");
+                }
+                addCommonMessage(type, request, messages[0], sb.toString());
+            }
+        }
+    }
+
+    private void addCommonMessage(CommonMessage.Type type, PortletRequest request, String abbr, String detail) {
+        if (request instanceof ActionRequest) {
+            List<CommonMessage> messages;
+            @SuppressWarnings("unchecked")
+            SoftReference<List<CommonMessage>> msgRef = (SoftReference<List<CommonMessage>>) request.getPortletSession().getAttribute(COMMON_MESSAGES);
+            if (null == msgRef || null == msgRef.get()) {
+                messages = new ArrayList<CommonMessage>();
+                msgRef = new SoftReference<List<CommonMessage>>(messages);
+                request.getPortletSession().setAttribute(COMMON_MESSAGES, msgRef);
+            } else {
+                messages = msgRef.get();
+            }
+            addCommonMessage(type, messages, abbr, detail);
+        } else {
+            @SuppressWarnings("unchecked")
+            List<CommonMessage> messages = (List<CommonMessage>) request.getAttribute(COMMON_MESSAGES);
+            if (null == messages) {
+                messages = new ArrayList<CommonMessage>();
+                request.setAttribute(COMMON_MESSAGES, messages);
+            }
+            addCommonMessage(type, messages, abbr, detail);
+        }
+    }
+
+    private void addCommonMessage(CommonMessage.Type type, List<CommonMessage> messages, String abbr, String detail) {
+        switch (type) {
+        case Error:
+            messages.add(new ErrorMessage(abbr, detail));
+            break;
+        case Warn:
+            messages.add(new WarnMessage(abbr, detail));
+            break;
+        case Info:
+            messages.add(new InfoMessage(abbr, detail));
+            break;
+        }
+    }
+
 }

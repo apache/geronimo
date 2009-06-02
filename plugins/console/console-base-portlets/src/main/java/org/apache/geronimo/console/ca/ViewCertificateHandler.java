@@ -22,6 +22,7 @@ import java.math.BigInteger;
 import java.security.PublicKey;
 import java.security.cert.Certificate;
 import java.security.interfaces.RSAPublicKey;
+import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -33,6 +34,7 @@ import javax.portlet.RenderResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.console.BasePortlet;
 import org.apache.geronimo.console.MultiPageModel;
 import org.apache.geronimo.management.geronimo.CertificationAuthority;
 import org.apache.geronimo.crypto.CertificateUtil;
@@ -44,12 +46,12 @@ import org.apache.geronimo.crypto.CertificateUtil;
  */
 public class ViewCertificateHandler extends BaseCAHandler {
     private final static Log log = LogFactory.getLog(ViewCertificateHandler.class);
-    public ViewCertificateHandler() {
-        super(VIEW_CERT_MODE, "/WEB-INF/view/ca/viewCertificate.jsp");
+    public ViewCertificateHandler(BasePortlet portlet) {
+        super(VIEW_CERT_MODE, "/WEB-INF/view/ca/viewCertificate.jsp", portlet);
     }
 
     public String actionBeforeView(ActionRequest request, ActionResponse response, MultiPageModel model) throws PortletException, IOException {
-        String[] params = {ERROR_MSG, INFO_MSG, "sNo"};
+        String[] params = {"sNo"};
         for(int i = 0; i < params.length; ++i) {
             String value = request.getParameter(params[i]);
             if(value != null) response.setRenderParameter(params[i], value);
@@ -58,12 +60,6 @@ public class ViewCertificateHandler extends BaseCAHandler {
     }
 
     public void renderView(RenderRequest request, RenderResponse response, MultiPageModel model) throws PortletException, IOException {
-        String[] params = {ERROR_MSG, INFO_MSG};
-        for(int i = 0; i < params.length; ++i) {
-            String value = request.getParameter(params[i]);
-            if(value != null) request.setAttribute(params[i], value);
-        }
-        String errorMsg = request.getParameter(ERROR_MSG);
         String sNo = request.getParameter("sNo");
         try {
             if(!request.getParameterMap().containsKey("sNo")) {
@@ -94,10 +90,9 @@ public class ViewCertificateHandler extends BaseCAHandler {
             if("true".equalsIgnoreCase(request.getParameter("linkToListRequests")))
                 request.setAttribute("linkToListRequests", Boolean.TRUE);
         } catch (Exception e) {
-            errorMsg = e.toString();
+            portlet.addErrorMessage(request, MessageFormat.format(portlet.getLocalizedString(request, "errorMsg16"), sNo), e.getMessage());
             log.error("Errors trying to view certificate with serial number '"+sNo+"'", e);
         }
-        request.setAttribute(ERROR_MSG, errorMsg);
     }
 
     public String actionAfterView(ActionRequest request, ActionResponse response, MultiPageModel model) throws PortletException, IOException {

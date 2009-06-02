@@ -49,11 +49,6 @@ public class ListHandler extends BaseKeystoreHandler {
     }
 
     public void renderView(RenderRequest request, RenderResponse response, MultiPageModel model) throws PortletException, IOException {
-        String[] params = {ERROR_MSG, INFO_MSG};
-        for(int i = 0; i < params.length; ++i) {
-            String value = request.getParameter(params[i]);
-            if(value != null) request.setAttribute(params[i], value);
-        }
         KeystoreManager manager = PortletManager.getCurrentServer(request).getKeystoreManager();
         KeystoreInstance[] keystores = manager.getKeystores();
         PortletSession session = request.getPortletSession(true);

@@ -21,9 +21,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <fmt:setBundle basename="pluginportlets"/>
 <portlet:defineObjects/>
-<p>
-<fmt:message key="car.results.titles" />
-</p>
+<p><b><fmt:message key="car.results.titles" />:</b></p>
 <% 
     String[] configIds = request.getParameterValues("configId");
     for(int j=0;j<configIds.length;j++){

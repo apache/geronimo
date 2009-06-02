@@ -18,6 +18,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<%@ taglib uri="/WEB-INF/CommonMsg.tld" prefix="CommonMsg"%>
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="java.sql.Connection" %>
 <%@ page import="java.sql.DatabaseMetaData" %>
@@ -35,13 +36,9 @@ function openNewWindow(theURL,winName,features) {
 }
 //-->
 </script>
-<%
-    String message = (String) request.getAttribute("message"); 
-    if (message != null)
-    {
-%>
-        <p><%= message %></p>
-<%  } %>
+
+<CommonMsg:commonMsg/>
+
 <br>
 <table width="100%" style="border-style: solid;
 border-width: 1px;">

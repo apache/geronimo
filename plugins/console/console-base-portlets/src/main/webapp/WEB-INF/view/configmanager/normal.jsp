@@ -17,6 +17,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<%@ taglib uri="/WEB-INF/CommonMsg.tld" prefix="CommonMsg"%>
 <fmt:setBundle basename="consolebase"/>
 <portlet:defineObjects/>
 
@@ -214,6 +215,7 @@ function toggleShowDependenciesMode() {
 
 </script>
 
+<CommonMsg:commonMsg/><br>
 
 <form name="checkExpert" method="POST">
 <input type="checkbox" name="expertMode" id="<portlet:namespace/>expertMode" onClick="toggleExpertMode();" />&nbsp;<label for="<portlet:namespace/>expertMode"><fmt:message key="configmanager.normal.expertMode" /></label>  
@@ -332,8 +334,6 @@ function toggleShowDependenciesMode() {
 </table>
 
 <br />
-<p>${messageInstalled} ${messageStatus}</p>
-
 
 <script>
 // Call to set initial expert mode actions correctly 

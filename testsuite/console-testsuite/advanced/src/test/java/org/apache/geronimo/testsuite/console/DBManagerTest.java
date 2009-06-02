@@ -68,7 +68,7 @@ public class DBManagerTest extends ConsoleTestSupport {
             selenium.type("sqlStmts", "select * from SYS.SYSDEPENDS;");
             selenium.click("//input[@value = 'Run SQL']");
             selenium.waitForPageToLoad("30000");
-            assertTrue(selenium.isTextPresent("SQL command/s successful"));
+            assertTrue(selenium.isTextPresent("SQL command(s) executed successfully"));
         } finally {
             logout();
         }

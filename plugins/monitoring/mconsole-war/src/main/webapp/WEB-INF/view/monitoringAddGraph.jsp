@@ -17,6 +17,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<%@ taglib uri="/WEB-INF/CommonMsg.tld" prefix="CommonMsg"%>
 <%@ page import="org.apache.geronimo.monitoring.console.StatsGraph"%>
 <%@ page import="org.apache.geronimo.monitoring.console.GraphsBuilder"%>
 <%@ page import="java.util.Set"%>
@@ -36,7 +37,6 @@
 <portlet:defineObjects />
 
 <%
-            String message = (String) request.getAttribute("message");
             String mbean = (String) request.getAttribute("mbean");
             String dataname1 = (String) request.getAttribute("dataname");
             String server_id = (String) request.getAttribute("server_id");
@@ -52,8 +52,6 @@
             ArrayList<String> serverNames = new ArrayList<String>();
             Long snapshotDuration = 5L;
 
-            if (message == null)
-                message = new String("");
             if (mbean == null)
                 mbean = new String("");
             if (dataname1 == null)
@@ -414,14 +412,9 @@ function addOption(selectbox, value, text )
 //-->
 </script>
 <!-- </head> -->
-<%
-if (!message.equals("")) {
-%>
-<div align="left" style="width: 500px"><%=message%><br>
-</div>
-<%
-}
-%>
+
+<CommonMsg:commonMsg/><br>
+
 <table>
 	<tr>
 		<!-- Body -->

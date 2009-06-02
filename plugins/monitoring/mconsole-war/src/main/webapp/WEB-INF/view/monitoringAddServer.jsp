@@ -17,6 +17,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<%@ taglib uri="/WEB-INF/CommonMsg.tld" prefix="CommonMsg"%>
 <%@ page import="org.apache.geronimo.monitoring.console.StatsGraph" %>
 <%@ page import="org.apache.geronimo.monitoring.console.GraphsBuilder" %>
 <%@ page import="java.util.Set" %>
@@ -35,7 +36,6 @@
 
 <%
 
-String message = (String) request.getAttribute("message");
 String name = (String) request.getAttribute("name");
 String ip = (String) request.getAttribute("ip");
 String username = (String) request.getAttribute("username");
@@ -44,7 +44,6 @@ String password2 = (String) request.getAttribute("password2");
 String port = (String) request.getAttribute("port");
 String protocol = (String) request.getAttribute("protocol");
 
-if(message == null)     message = "";
 if(name == null)        name = "";
 if(ip == null)          ip = "";
 if(username == null)    username = "";
@@ -111,14 +110,8 @@ function setPort() {
 </script>
 <!-- </head> -->
         
-            <%
- if (!message.equals(""))
- {
- %>
-<div align="left" style="width: 500px">
-<%=message %></b><br>
-</div>
-<%} %>
+<CommonMsg:commonMsg/><br>
+
 <table>
     <tr>
         <!-- Body -->

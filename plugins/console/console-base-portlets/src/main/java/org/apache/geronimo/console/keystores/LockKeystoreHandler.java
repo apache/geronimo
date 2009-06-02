@@ -16,6 +16,9 @@
  */
 package org.apache.geronimo.console.keystores;
 
+import java.text.MessageFormat;
+
+import org.apache.geronimo.console.BasePortlet;
 import org.apache.geronimo.console.MultiPageModel;
 import org.apache.geronimo.management.geronimo.KeystoreException;
 
@@ -32,8 +35,8 @@ import java.io.IOException;
  * @version $Rev$ $Date$
  */
 public class LockKeystoreHandler extends BaseKeystoreHandler {
-    public LockKeystoreHandler() {
-        super(LOCK_KEYSTORE_FOR_USAGE, null);
+    public LockKeystoreHandler(BasePortlet portlet) {
+        super(LOCK_KEYSTORE_FOR_USAGE, null, portlet);
     }
 
     public String actionBeforeView(ActionRequest request, ActionResponse response, MultiPageModel model) throws PortletException, IOException {
@@ -41,7 +44,7 @@ public class LockKeystoreHandler extends BaseKeystoreHandler {
         KeystoreData data = ((KeystoreData) request.getPortletSession(true).getAttribute(KEYSTORE_DATA_PREFIX + keystore));
         try {
             data.lockUse();
-            response.setRenderParameter(INFO_MSG, "Availability of keystore '"+keystore+"' is locked.");
+            portlet.addInfoMessage(request, MessageFormat.format(portlet.getLocalizedString(request, "infoMsg08"), keystore));
         } catch (KeystoreException e) {
             throw new PortletException(e);
         }

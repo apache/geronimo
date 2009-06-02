@@ -16,8 +16,11 @@
  */
 package org.apache.geronimo.console.keystores;
 
+import java.text.MessageFormat;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.console.BasePortlet;
 import org.apache.geronimo.console.MultiPageModel;
 import org.apache.geronimo.management.geronimo.KeystoreException;
 
@@ -35,8 +38,8 @@ import java.io.IOException;
  */
 public class UnlockKeyHandler extends BaseKeystoreHandler {
     private final static Log log = LogFactory.getLog(UnlockKeyHandler.class);
-    public UnlockKeyHandler() {
-        super(UNLOCK_KEY, "/WEB-INF/view/keystore/unlockKey.jsp");
+    public UnlockKeyHandler(BasePortlet portlet) {
+        super(UNLOCK_KEY, "/WEB-INF/view/keystore/unlockKey.jsp", portlet);
     }
 
     public String actionBeforeView(ActionRequest request, ActionResponse response, MultiPageModel model) throws PortletException, IOException {
@@ -44,11 +47,6 @@ public class UnlockKeyHandler extends BaseKeystoreHandler {
     }
 
     public void renderView(RenderRequest request, RenderResponse response, MultiPageModel model) throws PortletException, IOException {
-        String[] params = {ERROR_MSG, INFO_MSG};
-        for(int i = 0; i < params.length; ++i) {
-            String value = request.getParameter(params[i]);
-            if(value != null) request.setAttribute(params[i], value);
-        }
         String keystore = request.getParameter("keystore");
         String password = request.getParameter("password");
         request.setAttribute("keystore", keystore);
@@ -75,11 +73,11 @@ public class UnlockKeyHandler extends BaseKeystoreHandler {
         } catch (KeystoreException e) {
             response.setRenderParameter("keystore", keystore);
             response.setRenderParameter("password", password);
-            response.setRenderParameter(ERROR_MSG, "Unable to unlock key '"+alias+"'." + e);
+            portlet.addErrorMessage(request, MessageFormat.format(portlet.getLocalizedString(request, "errorMsg10"), alias), e.getMessage());
             log.error("Unable to unlock key '"+alias+"'.", e);
             return getMode()+BEFORE_ACTION;
         }
-        response.setRenderParameter(INFO_MSG, "Successfully unlocked key '"+alias+"' in keystore '"+keystore+"'.");
+        portlet.addInfoMessage(request, MessageFormat.format(portlet.getLocalizedString(request, "infoMsg09"), alias, keystore));
         return LIST_MODE+BEFORE_ACTION;
     }
 }

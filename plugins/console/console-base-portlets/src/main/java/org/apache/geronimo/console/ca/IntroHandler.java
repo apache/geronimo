@@ -27,6 +27,7 @@ import javax.portlet.RenderResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.console.BasePortlet;
 import org.apache.geronimo.console.MultiPageModel;
 import org.apache.geronimo.management.geronimo.CertificationAuthority;
 
@@ -37,26 +38,15 @@ import org.apache.geronimo.management.geronimo.CertificationAuthority;
  */
 public class IntroHandler extends BaseCAHandler {
     private final static Log log = LogFactory.getLog(IntroHandler.class);
-    public IntroHandler() {
-        super(INDEX_MODE, "/WEB-INF/view/ca/index.jsp");
+    public IntroHandler(BasePortlet portlet) {
+        super(INDEX_MODE, "/WEB-INF/view/ca/index.jsp", portlet);
     }
 
     public String actionBeforeView(ActionRequest request, ActionResponse response, MultiPageModel model) throws PortletException, IOException {
-        String[] params = new String[] {ERROR_MSG, INFO_MSG};
-        for(int i = 0; i < params.length; ++i) {
-            String value = request.getParameter(params[i]);
-            if(value != null) response.setRenderParameter(params[i], value);
-        }
         return getMode();
     }
 
     public void renderView(RenderRequest request, RenderResponse response, MultiPageModel model) throws PortletException, IOException {
-        String[] params = {ERROR_MSG, INFO_MSG};
-        for(int i = 0; i < params.length; ++i) {
-            String value = request.getParameter(params[i]);
-            if(value != null) request.setAttribute(params[i], value);
-        }
-        
         CertificationAuthority ca = getCertificationAuthority(request);
         if(ca == null) {
             // CA GBean is not running or the CA has not been initialized.
@@ -72,20 +62,20 @@ public class IntroHandler extends BaseCAHandler {
             CertificationAuthority ca = getCertificationAuthority(request);
             if(ca == null) {
                 log.warn("CA is not running or CA may not have been initialized.  Unable to lock CA.");
-                response.setRenderParameter(ERROR_MSG, "CA is not running or CA may not have been initialized.  Unable to lock CA.");
+                portlet.addWarningMessage(request, portlet.getLocalizedString(request, "warnMsg05"));
             } else {
                 ca.lock();
                 log.info("CA is now locked.");
-                response.setRenderParameter(INFO_MSG, "CA has been locked!");
+                portlet.addInfoMessage(request, portlet.getLocalizedString(request, "infoMsg12"));
             }
         } else if(request.getParameter("publish") != null) {
             CertificationAuthority ca = getCertificationAuthority(request);
             try {
                 getCertificateStore(request).storeCACertificate(ca.getCertificate());
-                response.setRenderParameter(INFO_MSG, "CA's certificate published to Certificate Store");
+                portlet.addInfoMessage(request, portlet.getLocalizedString(request, "infoMsg13"));
             } catch (Exception e) {
                 log.error("Error while publishing CA's certificate to Certificate Store", e);
-                response.setRenderParameter(ERROR_MSG, "Error while publishing CA's certificate to Certificate Store. "+e);
+                portlet.addErrorMessage(request, portlet.getLocalizedString(request, "errorMsg13"), e.getMessage());
             }
         }
         return getMode()+BEFORE_ACTION;

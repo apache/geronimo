@@ -32,22 +32,22 @@ public class KeystoresPortlet extends MultiPagePortlet {
     public void init(PortletConfig config) throws PortletException {
         super.init(config);
         addHelper(new ListHandler(), config);
-        addHelper(new EditKeystoreHandler(), config);
-        addHelper(new UnlockKeystoreHandler(), config);
+        addHelper(new EditKeystoreHandler(this), config);
+        addHelper(new UnlockKeystoreHandler(this), config);
         addHelper(new CreateKeystoreHandler(), config);
-        addHelper(new ViewKeystoreHandler(), config);
+        addHelper(new ViewKeystoreHandler(this), config);
         addHelper(new UploadCertificateHandler(), config);
         addHelper(new ConfirmCertificateHandler(), config);
         addHelper(new ConfigureNewKeyHandler(), config);
         addHelper(new ConfirmKeyHandler(), config);
-        addHelper(new LockEditKeystoreHandler(), config);
-        addHelper(new LockKeystoreHandler(), config);
-        addHelper(new UnlockKeyHandler(), config);
+        addHelper(new LockEditKeystoreHandler(this), config);
+        addHelper(new LockKeystoreHandler(this), config);
+        addHelper(new UnlockKeyHandler(this), config);
         addHelper(new CertificateDetailsHandler(), config);
         addHelper(new GenerateCSRHandler(), config);
         addHelper(new ImportCAReplyHandler(), config);
         addHelper(new DeleteEntryHandler(), config);
-        addHelper(new ChangePasswordHandler(), config);
+        addHelper(new ChangePasswordHandler(this), config);
     }
 
     protected String getModelJSPVariableName() {

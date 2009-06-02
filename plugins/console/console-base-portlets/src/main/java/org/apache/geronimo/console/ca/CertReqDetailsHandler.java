@@ -33,6 +33,7 @@ import javax.portlet.RenderResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.console.BasePortlet;
 import org.apache.geronimo.console.MultiPageModel;
 import org.apache.geronimo.management.geronimo.CertificationAuthority;
 
@@ -43,12 +44,12 @@ import org.apache.geronimo.management.geronimo.CertificationAuthority;
  */
 public class CertReqDetailsHandler extends BaseCAHandler {
     private final static Log log = LogFactory.getLog(CertReqDetailsHandler.class);
-    public CertReqDetailsHandler() {
-        super(CERT_REQ_DETAILS_MODE, "/WEB-INF/view/ca/certReqDetails.jsp");
+    public CertReqDetailsHandler(BasePortlet portlet) {
+        super(CERT_REQ_DETAILS_MODE, "/WEB-INF/view/ca/certReqDetails.jsp", portlet);
     }
 
     public String actionBeforeView(ActionRequest request, ActionResponse response, MultiPageModel model) throws PortletException, IOException {
-        String[] params = {ERROR_MSG, INFO_MSG, "algorithm", "sNo", "validFrom", "validTo", "pkcs10certreq", "subject", "publickey", "requestId"};
+        String[] params = {"algorithm", "sNo", "validFrom", "validTo", "pkcs10certreq", "subject", "publickey", "requestId"};
         for(int i = 0; i < params.length; ++i) {
             String value = request.getParameter(params[i]);
             if(value != null) response.setRenderParameter(params[i], value);
@@ -62,14 +63,14 @@ public class CertReqDetailsHandler extends BaseCAHandler {
                 response.setRenderParameter("sNo", sNo);
             } catch (Exception e) {
                 log.error("Unable to get next serial number from CA.", e);
-                response.setRenderParameter(ERROR_MSG, e.toString());
+                portlet.addErrorMessage(request, portlet.getLocalizedString(request, "errorMsg21"), e.getMessage());
             }
         }
         return getMode();
     }
 
     public void renderView(RenderRequest request, RenderResponse response, MultiPageModel model) throws PortletException, IOException {
-        String[] params = {ERROR_MSG, INFO_MSG, "subject", "publickey", "sNo", "validFrom", "validTo", "algorithm", "pkcs10certreq", "requestId"};
+        String[] params = {"subject", "publickey", "sNo", "validFrom", "validTo", "algorithm", "pkcs10certreq", "requestId"};
         for(int i = 0; i < params.length; ++i) {
             Object value = request.getParameter(params[i]);
             if(value != null) request.setAttribute(params[i], value);
@@ -115,11 +116,9 @@ public class CertReqDetailsHandler extends BaseCAHandler {
             // Go to client certificate confirmation page
             return CONFIRM_CLIENT_CERT_MODE+BEFORE_ACTION;
         } catch(Exception e) {
-            errorMsg = e.toString();
+            portlet.addErrorMessage(request, portlet.getLocalizedString(request, "errorMsg22"), e.getMessage());
             log.error("Errors in user input while processing a CSR.", e);
         }
-        
-        if(errorMsg != null) response.setRenderParameter(ERROR_MSG, errorMsg);
         return getMode()+BEFORE_ACTION;
     }
 }

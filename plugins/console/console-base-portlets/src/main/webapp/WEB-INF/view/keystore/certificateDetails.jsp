@@ -23,7 +23,7 @@
 <fmt:setBundle basename="consolebase"/>
 <portlet:defineObjects/>
 
-<jsp:include page="_header.jsp" />
+<jsp:include page="_header.jsp" /><br>
 
 <table>
 <th class="DarkBackground"><fmt:message key="keystore.common.keystore"/></th>

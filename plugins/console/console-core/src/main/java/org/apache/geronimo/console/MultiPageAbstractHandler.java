@@ -46,10 +46,17 @@ public abstract class MultiPageAbstractHandler {
     private final String viewName;
     private Map<String, FileItem> uploadFiles = new HashMap<String, FileItem>();
     private Properties uploadFields = new Properties();
+    protected BasePortlet portlet;
 
     protected MultiPageAbstractHandler(String mode, String viewName) {
         this.mode = mode;
         this.viewName = viewName;
+    }
+
+    protected MultiPageAbstractHandler(String mode, String viewName, BasePortlet portlet) {
+        this.mode = mode;
+        this.viewName = viewName;
+        this.portlet = portlet;
     }
 
     public String getMode() {

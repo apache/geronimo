@@ -19,11 +19,13 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <fmt:setBundle basename="consolebase"/>
 <portlet:defineObjects/>
+
+<jsp:include page="_header.jsp" />
+
 <p><b><fmt:message key="ca.caDetails.title"/></b></p>
 <p>
 <fmt:message key="ca.caDetails.summary"/>
 </p>
-<jsp:include page="_header.jsp" />
 
 <c:if test="${empty(caLocked) || !caLocked}">
   <table border="0">

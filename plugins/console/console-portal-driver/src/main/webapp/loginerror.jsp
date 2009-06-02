@@ -52,6 +52,26 @@
 
   <%--  Main body --%>
   <table WIDTH="100%" BORDER="0" CELLSPACING="0" CELLPADDING="0">
+    
+    <tr>
+      <td width="30%" >&nbsp;</td>
+      <td class="Body" align="CENTER" valign="top">
+        <table align="center" cellspacing="0" cellpadding="0" width="550" border="0" valign="top" style="background-color:#F7F7F7; border:1px solid #88A4D7; font-family:Verdana,Helvetica,sans-serif; font-size:100%;">
+          <tbody>
+            <tr valign="top">
+              <td style="width: 20px;"><img height="16" align="baseline" width="16" title="Error" alt="Error" src="/console/images/msg_error.gif"/></td>
+              <td><span style="color:#CC0000; font-family:Verdana,Helvetica,sans-serif;"><fmt:message key="console.login_error.invalid"/></span></td>
+            </tr>
+          </tbody>
+        </table>
+      </td> 
+      <td width="30%" >&nbsp;</td>
+    </tr>
+    <tr>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+    </tr>    
+    
     <TR CLASS="Content">
       <td width="30%" >&nbsp;</td>
 
@@ -62,9 +82,6 @@
       <table width="550" cellpadding="0" cellspacing="0" border="0">
         <tr>
           <td class="ReallyDarkBackground"><strong>&nbsp;<fmt:message key="console.common.loginToConsole"/></td>
-        </tr>
-        <tr>
-          <td class="MediumBackground" align="center"><font color="red"><b><i><fmt:message key="console.login_error.invalid"/></i></b></font></td>
         </tr>
         <tr>
           <td>

@@ -30,14 +30,14 @@ function <portlet:namespace/>validateForm(){
     return true;
 }
 </script>
+
+<jsp:include page="_header.jsp" /><br>
+
 <fmt:message key="ca.processCSR.title"/>
 
 <p>
 <fmt:message key="ca.processCSR.summary"/>
 </p>
-
-
-<jsp:include page="_header.jsp" />
 
 <form name="<portlet:namespace/>ProcessCSRForm" action="<portlet:actionURL/>" method="POST">
     <input type="hidden" name="mode" value="processCSR-after" />

@@ -70,6 +70,13 @@
         </dependency>
 
         <dependency>
+            <groupId>org.apache.geronimo.plugins</groupId>
+            <artifactId>console-core</artifactId>
+            <version>${version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
             <groupId>org.apache.geronimo.plugins.monitoring</groupId>
             <artifactId>agent-ejb</artifactId>
             <version>${monitoringConsoleVersion}</version>

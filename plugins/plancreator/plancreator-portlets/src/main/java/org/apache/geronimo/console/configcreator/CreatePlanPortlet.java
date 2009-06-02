@@ -30,13 +30,13 @@ import org.apache.geronimo.console.MultiPagePortlet;
 public class CreatePlanPortlet extends MultiPagePortlet {
     public void init(PortletConfig config) throws PortletException {
         super.init(config);
-        addHelper(new GetArchiveHandler(), config);
+        addHelper(new GetArchiveHandler(this), config);
         addHelper(new EnvironmentHandler(), config);
-        addHelper(new ReferencesHandler(), config);
+        addHelper(new ReferencesHandler(this), config);
         addHelper(new SecurityHandler(), config);
         addHelper(new DependenciesHandler(), config);
         addHelper(new DisplayPlanHandler(), config);
-        addHelper(new DeployStatusHandler(), config);
+        addHelper(new DeployStatusHandler(this), config);
     }
 
     protected String getModelJSPVariableName() {

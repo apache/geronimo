@@ -17,6 +17,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<%@ taglib uri="/WEB-INF/CommonMsg.tld" prefix="CommonMsg"%>
 <%@ page import="org.apache.geronimo.monitoring.console.StatsGraph" %>
 <%@ page import="org.apache.geronimo.monitoring.console.GraphsBuilder" %>
 <%@ page import="java.util.Set" %>
@@ -37,7 +38,6 @@
 <%
 
 String view_id = (String) request.getAttribute("view_id"); 
-String message = (String) request.getAttribute("message");
 
 
 DBManager DBase = new DBManager();
@@ -45,9 +45,6 @@ Connection con = DBase.getConnection();
 
 PreparedStatement pStmt = con.prepareStatement("SELECT * FROM views WHERE view_id="+view_id);
 ResultSet rs = pStmt.executeQuery();
-
-if (message == null)
-    message = new String("");
 
 if (rs.next())
 {    
@@ -90,14 +87,8 @@ function openNewWindow(theURL,winName,features) {
 </script>
 <!-- </head> -->
         
-            <%
- if (!message.equals(""))
- {
- %>
-<div align="left" style="width: 650px">
-<%=message %><br>
-</div>
-<%} %>
+<CommonMsg:commonMsg/><br>
+
 <table>
     <tr>
         <!-- Body -->

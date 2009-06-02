@@ -69,6 +69,7 @@ public class ServerManagerPortlet extends BasePortlet {
 
     protected void doView(RenderRequest request, RenderResponse response)
             throws PortletException, IOException {
+        addWarningMessage(request, getLocalizedString(request, "warnMsg07"));
         normalView.include(request, response);
     }
 

@@ -27,6 +27,7 @@ import javax.portlet.RenderResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.console.BasePortlet;
 import org.apache.geronimo.console.MultiPageModel;
 import org.apache.geronimo.management.geronimo.CertificationAuthority;
 
@@ -37,29 +38,18 @@ import org.apache.geronimo.management.geronimo.CertificationAuthority;
  */
 public class UnlockCAHandler extends BaseCAHandler {
     private final static Log log = LogFactory.getLog(UnlockCAHandler.class);
-    public UnlockCAHandler() {
-        super(UNLOCKCA_MODE, "/WEB-INF/view/ca/unlockCA.jsp");
+    public UnlockCAHandler(BasePortlet portlet) {
+        super(UNLOCKCA_MODE, "/WEB-INF/view/ca/unlockCA.jsp", portlet);
     }
 
     public String actionBeforeView(ActionRequest request, ActionResponse response, MultiPageModel model) throws PortletException, IOException {
-        String[] params = {ERROR_MSG, INFO_MSG};
-        for(int i = 0; i < params.length; ++i) {
-            String value = request.getParameter(params[i]);
-            if(value != null) response.setRenderParameter(params[i], value);
-        }
         return getMode();
     }
 
     public void renderView(RenderRequest request, RenderResponse response, MultiPageModel model) throws PortletException, IOException {
-        String[] params = {ERROR_MSG, INFO_MSG};
-        for(int i = 0; i < params.length; ++i) {
-            Object value = request.getParameter(params[i]);
-            if(value != null) request.setAttribute(params[i], value);
-        }
     }
 
     public String actionAfterView(ActionRequest request, ActionResponse response, MultiPageModel model) throws PortletException, IOException {
-        String errorMsg = null;
         try {
             String password = request.getParameter("password");
             if(password == null) {
@@ -72,15 +62,14 @@ public class UnlockCAHandler extends BaseCAHandler {
             ca.unlock(password.toCharArray());
 
             // Return to CA's index page
-            response.setRenderParameter(INFO_MSG, "CA has been unlocked successfully!");
+            portlet.addInfoMessage(request, portlet.getLocalizedString(request, "infoMsg14"));
             log.info("CA has been unlocked successfully!");
             return INDEX_MODE+BEFORE_ACTION;
         } catch(Exception e) {
-            errorMsg = e.toString();
+            // An error occurred.  Set the error message and load the page again.
+            portlet.addErrorMessage(request, portlet.getLocalizedString(request, "errorMsg14"), e.getMessage());
             log.error("Errors in unlocking CA.", e);
         }
-        // An error occurred.  Set the error message and load the page again.
-        response.setRenderParameter(ERROR_MSG, errorMsg);
         return getMode()+BEFORE_ACTION;
     }
 }

@@ -53,9 +53,9 @@ public class RunSQLPortlet extends BasePortlet {
 
     private static final String DATABASE_MODE = "database";
 
-    private static RunSQLHelper sqlHelper = new RunSQLHelper();
-
     private static DBViewerHelper dbHelper = new DBViewerHelper();
+
+    private RunSQLHelper sqlHelper;
 
     private PortletRequestDispatcher normalView;
 
@@ -81,9 +81,9 @@ public class RunSQLPortlet extends BasePortlet {
 
     private String sqlStmts;
 
-    private String actionResult;
-
     private String connectionMode;  // either datasource or database
+
+    private boolean actionResult;
 
     public void processAction(ActionRequest actionRequest,
             ActionResponse actionResponse) throws PortletException, IOException {
@@ -95,17 +95,16 @@ public class RunSQLPortlet extends BasePortlet {
         backupDB = actionRequest.getParameter("backupDB");
         restoreDB = actionRequest.getParameter("restoreDB");
         sqlStmts = actionRequest.getParameter("sqlStmts");
-        actionResult = "";
         if (CREATEDB_ACTION.equals(action)) {
-            actionResult = sqlHelper.createDB(createDB);
+            actionResult = sqlHelper.createDB(createDB, actionRequest);
         } else if (DELETEDB_ACTION.equals(action)) {
-            actionResult = sqlHelper.deleteDB(DerbyConnectionUtil.getDerbyHome(), deleteDB);
+            actionResult = sqlHelper.deleteDB(DerbyConnectionUtil.getDerbyHome(), deleteDB, actionRequest);
         } else if (RUNSQL_ACTION.equals(action)) {
-            actionResult = sqlHelper.runSQL(useDB, sqlStmts, RunSQLPortlet.DATASOURCE_MODE.equals(connectionMode));
+            actionResult = sqlHelper.runSQL(useDB, sqlStmts, RunSQLPortlet.DATASOURCE_MODE.equals(connectionMode), actionRequest);
         } else if (BACKUPDB_ACTION.equals(action)) {
-            actionResult = sqlHelper.backupDB(DerbyConnectionUtil.getDerbyHome(), backupDB);
+            actionResult = sqlHelper.backupDB(DerbyConnectionUtil.getDerbyHome(), backupDB, actionRequest);
         } else if (RESTOREDB_ACTION.equals(action)) {
-            actionResult = sqlHelper.restoreDB(DerbyConnectionUtil.getDerbyHome(), restoreDB);
+            actionResult = sqlHelper.restoreDB(DerbyConnectionUtil.getDerbyHome(), restoreDB, actionRequest);
         }
     }
 
@@ -127,20 +126,15 @@ public class RunSQLPortlet extends BasePortlet {
             // check if it's a single Select statement
             if ((sqlStmts != null) && (sqlStmts.trim().indexOf(';') == -1)
                     && sqlStmts.trim().toUpperCase().startsWith("SELECT")
-                    && RunSQLHelper.SQL_SUCCESS_MSG.equals(actionResult)) {
+                    && actionResult) {
                 singleSelectStmt = sqlStmts.trim();
-                // set action result to blank so it won't display
-                actionResult = "";
             } else {
                 singleSelectStmt = "";
             }
-            renderRequest
-                    .setAttribute("singleSelectStmt", singleSelectStmt);
-            renderRequest.setAttribute("ds", DerbyConnectionUtil
-                    .getDataSource(useDB));
+            renderRequest.setAttribute("singleSelectStmt", singleSelectStmt);
+            renderRequest.setAttribute("ds", DerbyConnectionUtil.getDataSource(useDB));
         }
         if ((action != null) && (action.trim().length() > 0)) {
-            renderRequest.setAttribute("actionResult", actionResult);
             //set action to null so that subsequent renders of portlet
             // won't display
             //action result if there is no action to process
@@ -175,6 +169,7 @@ public class RunSQLPortlet extends BasePortlet {
         } else {
             connectionMode = RunSQLPortlet.DATABASE_MODE;
         }
+        sqlHelper = new RunSQLHelper(this);
     }
 
     public void destroy() {

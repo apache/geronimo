@@ -17,6 +17,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<%@ taglib uri="/WEB-INF/CommonMsg.tld" prefix="CommonMsg"%>
 <%@ page import="org.apache.geronimo.monitoring.console.StatsGraph" %>
 <%@ page import="org.apache.geronimo.monitoring.console.GraphsBuilder" %>
 <%@ page import="java.util.ArrayList" %>
@@ -41,7 +42,6 @@
 <%
 
 String server_id = (String) request.getAttribute("server_id"); 
-String message = (String) request.getAttribute("message");
 
 DBManager DBase = new DBManager();
 Connection con = DBase.getConnection();
@@ -51,9 +51,6 @@ MRCConnector mrc = null;
 boolean isOnline = true;
 Integer collecting = 0;
 Long snapshotDuration = new Long(0);
-
-if (message == null)
-    message = new String("");
 
 DBase = new DBManager();
 con = DBase.getConnection();
@@ -84,7 +81,6 @@ if (rs.next()) {
     } catch (Exception e) {
         isOnline = false;
         collecting = 0;
-        message = message + "<br><font color='red'><strong><li>Server is offline</li></strong></font>";
     }
     
 %>
@@ -100,14 +96,9 @@ document.getElementById(x).style.display='';
 //-->
 </script>
 <!-- </head> -->
-            <%
- if (!message.equals(""))
- {
- %>
-<div align="left" style="width: 500px">
-<%=message %><br>
-</div>
-<%} %>
+
+<CommonMsg:commonMsg/><br>
+
 <table>
     <tr>
         <!-- Body -->

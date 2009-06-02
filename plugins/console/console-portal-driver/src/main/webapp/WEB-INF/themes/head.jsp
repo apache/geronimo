@@ -24,6 +24,8 @@ limitations under the License.
     <title><fmt:message key="console.head.title"/></title>
     <link rel="stylesheet" href="<%=request.getContextPath()%>/main.css" type="text/css"/>
     <link rel="stylesheet" href="<%=request.getContextPath()%>/pluto.css" type="text/css"/>
+    <link rel="stylesheet" href="<%=request.getContextPath()%>/CommonMsg.css" type="text/css"/>
     <link rel="SHORTCUT ICON" href="<%=request.getContextPath()%>/favicon.ico" type="image/x-icon"/>
     <script language="Javascript" src="<%=request.getContextPath()%>/js/forms.js" type="text/javascript"></script>
+    <script language="Javascript" src="<%=request.getContextPath()%>/CommonMsg.js" type="text/javascript"></script>
 </head>

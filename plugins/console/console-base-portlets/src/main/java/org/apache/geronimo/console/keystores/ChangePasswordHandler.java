@@ -16,8 +16,11 @@
  */
 package org.apache.geronimo.console.keystores;
 
+import java.text.MessageFormat;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.console.BasePortlet;
 import org.apache.geronimo.console.MultiPageModel;
 
 import javax.portlet.ActionRequest;
@@ -34,12 +37,12 @@ import java.io.IOException;
  */
 public class ChangePasswordHandler extends BaseKeystoreHandler {
     private final static Log log = LogFactory.getLog(ChangePasswordHandler.class);
-    public ChangePasswordHandler() {
-        super(CHANGE_PASSWORD, "/WEB-INF/view/keystore/changePassword.jsp");
+    public ChangePasswordHandler(BasePortlet portlet) {
+        super(CHANGE_PASSWORD, "/WEB-INF/view/keystore/changePassword.jsp", portlet);
     }
 
     public String actionBeforeView(ActionRequest request, ActionResponse response, MultiPageModel model) throws PortletException, IOException {
-        String[] params = {ERROR_MSG, INFO_MSG, "keystore", "alias"};
+        String[] params = {"keystore", "alias"};
         for(int i = 0; i < params.length; ++i) {
             String value = request.getParameter(params[i]);
             if(value != null) response.setRenderParameter(params[i], value);
@@ -48,7 +51,7 @@ public class ChangePasswordHandler extends BaseKeystoreHandler {
     }
 
     public void renderView(RenderRequest request, RenderResponse response, MultiPageModel model) throws PortletException, IOException {
-        String[] params = {ERROR_MSG, INFO_MSG, "keystore", "alias"};
+        String[] params = {"keystore", "alias"};
         for(int i = 0; i < params.length; ++i) {
             String value = request.getParameter(params[i]);
             if(value != null) request.setAttribute(params[i], value);
@@ -76,19 +79,25 @@ public class ChangePasswordHandler extends BaseKeystoreHandler {
                 // Keystore password is to be changed.
                 data.changeKeystorePassword(password.toCharArray(), newPassword.toCharArray());
                 response.setRenderParameter("id", keystore);
-                response.setRenderParameter(INFO_MSG, "Password changed for keystore '"+keystore+"'.");
+                portlet.addInfoMessage(request, MessageFormat.format(portlet.getLocalizedString(request, "infoMsg10"), keystore));
                 return VIEW_KEYSTORE+BEFORE_ACTION;
             } else {
                 // Private key password is to be changed.
                 data.changeKeyPassword(alias, password.toCharArray(), newPassword.toCharArray());
                 response.setRenderParameter("id", keystore);
                 response.setRenderParameter("alias", alias);
-                response.setRenderParameter(INFO_MSG, "Password changed for private key '"+alias+"'.");
+                portlet.addInfoMessage(request, MessageFormat.format(portlet.getLocalizedString(request, "infoMsg11"), alias));
                 return CERTIFICATE_DETAILS;
             }
         } catch (Exception e) {
-            String message = "Unable to change password for "+ (alias == null || alias.equals("") ? "keystore "+keystore : "private key "+alias) + ".";
-            response.setRenderParameter(ERROR_MSG, message+" "+e.toString());
+            String message = "";
+            if(alias == null || alias.equals("")) {
+                message = "Unable to change password for keystore " + keystore + ".";
+                portlet.addErrorMessage(request, MessageFormat.format(portlet.getLocalizedString(request, "errorMsg11"), keystore), e.getMessage());
+            } else {
+                message = "Unable to change password for private key " + alias + ".";
+                portlet.addErrorMessage(request, MessageFormat.format(portlet.getLocalizedString(request, "errorMsg12"), alias), e.getMessage());
+            }
             log.error(message, e);
             return getMode()+BEFORE_ACTION;
         }

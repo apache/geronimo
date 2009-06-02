@@ -123,19 +123,20 @@ public class ConfigManagerPortlet extends BasePortlet {
         return kids;
     }
 
-    public void printResults(Set<Artifact> lcresult, StringBuffer buf) {
+    public String printResults(Set<Artifact> lcresult) {
+        StringBuilder sb = new StringBuilder();
         for (Artifact config : lcresult) {
 
-            //TODO might be a hack
+            // TODO might be a hack
             List<String> kidsChild = loadChildren(kernel, config.toString());
 
-            //TODO figure out the web url and show it when appropriate.
-            buf.append("    ").append(config).append("<br />");
-            for (String kid: kidsChild) {
-                buf.append("      `-> ").append(kid).append("<br />");
+            // TODO figure out the web url and show it when appropriate.
+            sb.append("<br />").append(config);
+            for (String kid : kidsChild) {
+                sb.append("<br />-> ").append(kid);
             }
-            buf.append("<br />");
         }
+        return sb.toString();
     }
 
     public void processAction(ActionRequest actionRequest, ActionResponse actionResponse) throws PortletException, IOException {
@@ -152,7 +153,7 @@ public class ConfigManagerPortlet extends BasePortlet {
                 }
                 if(!configurationManager.isRunning(configId)) {
                     org.apache.geronimo.kernel.config.LifecycleResults lcresult = configurationManager.startConfiguration(configId);
-                    message(actionResponse, lcresult, "Started application<br /><br />");
+                    addInfoMessage(actionRequest, getLocalizedString(actionRequest, "infoMsg01") + printResults(lcresult.getStarted()));
                 }
             } else if (STOP_ACTION.equals(action)) {
                 if(configurationManager.isRunning(configId)) {
@@ -160,38 +161,30 @@ public class ConfigManagerPortlet extends BasePortlet {
                 }
                 if(configurationManager.isLoaded(configId)) {
                     LifecycleResults lcresult = configurationManager.unloadConfiguration(configId);
-                    message(actionResponse, lcresult, "Stopped application<br /><br />");
+                    addInfoMessage(actionRequest, getLocalizedString(actionRequest, "infoMsg02") + printResults(lcresult.getStarted()));
                 }
             } else if (UNINSTALL_ACTION.equals(action)) {
                 configurationManager.uninstallConfiguration(configId);
-                message(actionResponse, null, "Uninstalled application<br /><br />"+configId+"<br /><br />");
+                addInfoMessage(actionRequest, getLocalizedString(actionRequest, "infoMsg04") + "<br />" + configId);
             } else if (RESTART_ACTION.equals(action)) {
                 LifecycleResults lcresult = configurationManager.restartConfiguration(configId);
-                message(actionResponse, lcresult, "Restarted application<br /><br />");
+                addInfoMessage(actionRequest, getLocalizedString(actionRequest, "infoMsg03") + printResults(lcresult.getStarted()));
             } else {
-                message(actionResponse, null, "Invalid value for changeState: " + action + "<br /><br />");
+                addWarningMessage(actionRequest, getLocalizedString(actionRequest, "warnMsg01") + action + "<br />");
                 throw new PortletException("Invalid value for changeState: " + action);
             }
         } catch (NoSuchConfigException e) {
             // ignore this for now
-            message(actionResponse, null, "Configuration not found<br /><br />");
+            addErrorMessage(actionRequest, getLocalizedString(actionRequest, "errorMsg01"));
             log.error("Configuration not found", e);
         } catch (LifecycleException e) {
             // todo we have a much more detailed report now
-            message(actionResponse, null, "Lifecycle operation failed<br /><br />");
+            addErrorMessage(actionRequest, getLocalizedString(actionRequest, "errorMsg02"));
             log.error("Lifecycle operation failed ", e);
         } catch (Throwable e) {
-            message(actionResponse, null, "Encountered an unhandled exception<br /><br />");
+            addErrorMessage(actionRequest, getLocalizedString(actionRequest, "errorMsg03"));
             log.error("Exception", e);
         }
-    }
-
-    private void message(ActionResponse actionResponse, LifecycleResults lcresult, String str) {
-        StringBuffer buf = new StringBuffer(str);
-        if (lcresult != null) {
-            this.printResults(lcresult.getStarted(), buf);
-        }
-        actionResponse.setRenderParameter("messageStatus", buf.toString());
     }
 
     /**
@@ -319,11 +312,8 @@ public class ConfigManagerPortlet extends BasePortlet {
         renderRequest.setAttribute("showWebInfo", Boolean.valueOf(showWebInfo()));
         renderRequest.setAttribute("showDependencies", Boolean.valueOf(showDependencies));
         if (moduleDetails.size() == 0) {
-            renderRequest.setAttribute("messageInstalled", "No modules found of this type<br /><br />");
-        } else {
-            renderRequest.setAttribute("messageInstalled", "");
+            addWarningMessage(renderRequest, getLocalizedString(renderRequest, "warnMsg02"));
         }
-        renderRequest.setAttribute("messageStatus", renderRequest.getParameter("messageStatus"));
         if (WindowState.NORMAL.equals(renderRequest.getWindowState())) {
             normalView.include(renderRequest, renderResponse);
         } else {

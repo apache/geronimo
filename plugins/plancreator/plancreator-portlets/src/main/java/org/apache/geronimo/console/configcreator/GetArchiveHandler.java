@@ -28,6 +28,7 @@ import javax.portlet.RenderResponse;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.console.BasePortlet;
 import org.apache.geronimo.console.MultiPageModel;
 
 /**
@@ -38,8 +39,8 @@ import org.apache.geronimo.console.MultiPageModel;
 public class GetArchiveHandler extends AbstractHandler {
     private static final Log log = LogFactory.getLog(GetArchiveHandler.class);
 
-    public GetArchiveHandler() {
-        super(GET_ARCHIVE_MODE, "/WEB-INF/view/configcreator/getArchive.jsp");
+    public GetArchiveHandler(BasePortlet portlet) {
+        super(GET_ARCHIVE_MODE, "/WEB-INF/view/configcreator/getArchive.jsp", portlet);
     }
 
     public String actionBeforeView(ActionRequest request, ActionResponse response, MultiPageModel model)
@@ -50,9 +51,6 @@ public class GetArchiveHandler extends AbstractHandler {
     public void renderView(RenderRequest request, RenderResponse response, MultiPageModel model)
             throws PortletException, IOException {
         setNewSessionData(request);
-        if ("true".equals(request.getParameter(ARCHIVE_NOT_SUPPORTED_PARAMETER))) {
-            request.setAttribute(ARCHIVE_NOT_SUPPORTED_PARAMETER, "true");
-        }
     }
 
     public String actionAfterView(ActionRequest request, ActionResponse response, MultiPageModel model)
@@ -68,7 +66,7 @@ public class GetArchiveHandler extends AbstractHandler {
         // TODO Is there a better way of checking whether the archive is a WAR or not?
         int i = fileName.length() - 4;
         if (!fileName.substring(i).equalsIgnoreCase(".war")) {
-            response.setRenderParameter(ARCHIVE_NOT_SUPPORTED_PARAMETER, "true");
+            portlet.addErrorMessage(request, portlet.getLocalizedString(request, "errorMsg01"));
             return getMode();
         }
 

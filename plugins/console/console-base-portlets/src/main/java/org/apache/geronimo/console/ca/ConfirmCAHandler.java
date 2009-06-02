@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.net.URI;
 import java.text.DateFormat;
+import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -33,6 +34,7 @@ import javax.portlet.RenderResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.console.BasePortlet;
 import org.apache.geronimo.console.MultiPageModel;
 import org.apache.geronimo.console.util.PortletManager;
 import org.apache.geronimo.gbean.AbstractName;
@@ -56,12 +58,12 @@ import org.apache.geronimo.crypto.KeystoreUtil;
  */
 public class ConfirmCAHandler extends BaseCAHandler {
     private final static Log log = LogFactory.getLog(ConfirmCAHandler.class);
-    public ConfirmCAHandler() {
-        super(CONFIRM_CA_MODE, "/WEB-INF/view/ca/confirmCA.jsp");
+    public ConfirmCAHandler(BasePortlet portlet) {
+        super(CONFIRM_CA_MODE, "/WEB-INF/view/ca/confirmCA.jsp", portlet);
     }
 
     public String actionBeforeView(ActionRequest request, ActionResponse response, MultiPageModel model) throws PortletException, IOException {
-        String[] params = {ERROR_MSG, INFO_MSG, "caCN", "caOU", "caO", "caL", "caST", "caC", "alias", "keyAlgorithm", "keySize", "algorithm", "validFrom", "validTo", "sNo", "password"};
+        String[] params = {"caCN", "caOU", "caO", "caL", "caST", "caC", "alias", "keyAlgorithm", "keySize", "algorithm", "validFrom", "validTo", "sNo", "password"};
         for(int i = 0; i < params.length; ++i) {
             String value = request.getParameter(params[i]);
             if(value != null) response.setRenderParameter(params[i], value);
@@ -70,7 +72,7 @@ public class ConfirmCAHandler extends BaseCAHandler {
     }
 
     public void renderView(RenderRequest request, RenderResponse response, MultiPageModel model) throws PortletException, IOException {
-        String[] params = {ERROR_MSG, INFO_MSG, "caCN", "caOU", "caO", "caL", "caST", "caC", "alias", "keyAlgorithm", "keySize", "algorithm", "validFrom", "validTo", "sNo", "password"};
+        String[] params = {"caCN", "caOU", "caO", "caL", "caST", "caC", "alias", "keyAlgorithm", "keySize", "algorithm", "validFrom", "validTo", "sNo", "password"};
         for(int i = 0; i < params.length; ++i) {
             String value = request.getParameter(params[i]);
             if(value != null) request.setAttribute(params[i], value);
@@ -92,7 +94,6 @@ public class ConfirmCAHandler extends BaseCAHandler {
         String validFrom = request.getParameter("validFrom");
         String validTo = request.getParameter("validTo");
         String sNo = request.getParameter("sNo");
-        String errorMsg = null;
         
         try {
             // Generate keypair
@@ -128,17 +129,15 @@ public class ConfirmCAHandler extends BaseCAHandler {
             
             // CA Setup is succeessful.
             // Load a page to show CA details.
-            response.setRenderParameter(INFO_MSG, "CA Setup is successful!");
+            portlet.addInfoMessage(request, portlet.getLocalizedString(request, "infoMsg15"));
             log.info("CA Setup is successful.");
             
             return CADETAILS_MODE+BEFORE_ACTION;
         } catch(Exception e) {
-            errorMsg = e.toString();
+            // An error occurred.  Go back to CA details entry page so that user can correct the errors.
+            portlet.addErrorMessage(request, portlet.getLocalizedString(request, "infoMsg07"), e.getMessage());
             log.error("Errors in CA Setup process.", e);
         }
-        
-        // An error occurred.  Go back to CA details entry page so that user can correct the errors.
-        if(errorMsg != null) response.setRenderParameter(ERROR_MSG, errorMsg);
         return SETUPCA_MODE+BEFORE_ACTION;
     }
     

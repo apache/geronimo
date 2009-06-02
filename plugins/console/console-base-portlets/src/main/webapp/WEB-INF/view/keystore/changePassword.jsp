@@ -24,8 +24,6 @@
 <fmt:setBundle basename="consolebase"/>
 <portlet:defineObjects/>
 
-<jsp:include page="_header.jsp" />
-
 <script language="JavaScript">
 var <portlet:namespace/>formName = "<portlet:namespace/>ChangePasswordForm";
 var <portlet:namespace/>requiredFields = new Array("password", "newPassword");
@@ -39,6 +37,8 @@ function <portlet:namespace/>validateForm(){
     return true;
 }
 </script>
+
+<jsp:include page="_header.jsp" /><br>
 
 <c:choose>
     <c:when test="${!empty(alias)}">

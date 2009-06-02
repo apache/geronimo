@@ -17,6 +17,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<%@ taglib uri="/WEB-INF/CommonMsg.tld" prefix="CommonMsg"%>
 <%@ page import="org.apache.geronimo.monitoring.console.StatsGraph" %>
 <%@ page import="org.apache.geronimo.monitoring.console.GraphsBuilder" %>
 <%@ page import="java.util.Set" %>
@@ -38,14 +39,9 @@
 <%
 
 String graph_id = (String) request.getAttribute("graph_id");
-String message = (String) request.getAttribute("message");
 
 DBManager DBase = new DBManager();
 Connection con = DBase.getConnection();
-
-
-if (message == null)
-    message = new String("");
 
 
 PreparedStatement pStmt = con.prepareStatement("SELECT * FROM graphs WHERE graph_id="+graph_id);
@@ -442,14 +438,8 @@ function addOption(selectbox, value, text )
 </script>
 <!-- </head> -->
         
-            <%
- if (!message.equals(""))
- {
- %>
-<div align="left" style="width: 500px">
-<%=message %><br>
-</div>
-<%} %>
+<CommonMsg:commonMsg/><br>
+
 <table>
     <tr>
         <!-- Body -->

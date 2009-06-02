@@ -26,6 +26,7 @@ import javax.portlet.PortletSession;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.console.BasePortlet;
 import org.apache.geronimo.console.MultiPageAbstractHandler;
 import org.apache.geronimo.console.MultiPageModel;
 import org.apache.geronimo.deployment.xbeans.PatternType;
@@ -136,6 +137,10 @@ public abstract class AbstractHandler extends MultiPageAbstractHandler {
 
     public AbstractHandler(String mode, String viewName) {
         super(mode, viewName);
+    }
+
+    public AbstractHandler(String mode, String viewName, BasePortlet portlet) {
+        super(mode, viewName, portlet);
     }
 
     public static class WARConfigModel implements MultiPageModel {

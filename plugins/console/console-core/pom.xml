@@ -76,6 +76,13 @@
             <artifactId>dwr</artifactId>
             <scope>provided</scope>
         </dependency>
+
+        <dependency>
+            <groupId>org.apache.tomcat</groupId>
+            <artifactId>jsp-api</artifactId>
+            <version>6.0.18</version>
+        </dependency>
+
     </dependencies>
 
 </project>

@@ -16,6 +16,9 @@
  */
 package org.apache.geronimo.console.keystores;
 
+import java.text.MessageFormat;
+
+import org.apache.geronimo.console.BasePortlet;
 import org.apache.geronimo.console.MultiPageModel;
 
 import javax.portlet.ActionRequest;
@@ -31,15 +34,15 @@ import java.io.IOException;
  * @version $Rev$ $Date$
  */
 public class LockEditKeystoreHandler extends BaseKeystoreHandler {
-    public LockEditKeystoreHandler() {
-        super(LOCK_KEYSTORE_FOR_EDITING, null);
+    public LockEditKeystoreHandler(BasePortlet portlet) {
+        super(LOCK_KEYSTORE_FOR_EDITING, null, portlet);
     }
 
     public String actionBeforeView(ActionRequest request, ActionResponse response, MultiPageModel model) throws PortletException, IOException {
         String keystore = request.getParameter("keystore");
         KeystoreData data = ((KeystoreData) request.getPortletSession(true).getAttribute(KEYSTORE_DATA_PREFIX + keystore));
         data.lockEdit();
-        response.setRenderParameter(INFO_MSG, "Keystore '"+keystore+"' is now edit locked.");
+        portlet.addInfoMessage(request, MessageFormat.format(portlet.getLocalizedString(request, "infoMsg06"), keystore));
         return LIST_MODE+BEFORE_ACTION;
     }
 

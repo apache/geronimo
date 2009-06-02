@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.security.PublicKey;
 import java.text.DateFormat;
+import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
@@ -36,6 +37,7 @@ import javax.security.auth.x500.X500Principal;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.console.BasePortlet;
 import org.apache.geronimo.console.MultiPageModel;
 import org.apache.geronimo.management.geronimo.CertificationAuthority;
 import org.apache.geronimo.crypto.CaUtils;
@@ -48,12 +50,12 @@ import org.apache.geronimo.crypto.asn1.x509.X509Name;
  */
 public class ConfirmClientCertHandler extends BaseCAHandler {
     private final static Log log = LogFactory.getLog(ConfirmClientCertHandler.class);
-    public ConfirmClientCertHandler() {
-        super(CONFIRM_CLIENT_CERT_MODE, "/WEB-INF/view/ca/confirmClientCert.jsp");
+    public ConfirmClientCertHandler(BasePortlet portlet) {
+        super(CONFIRM_CLIENT_CERT_MODE, "/WEB-INF/view/ca/confirmClientCert.jsp", portlet);
     }
 
     public String actionBeforeView(ActionRequest request, ActionResponse response, MultiPageModel model) throws PortletException, IOException {
-        String[] params = {ERROR_MSG, INFO_MSG, "subject", "publickey", "algorithm", "validFrom", "validTo", "sNo", "pkcs10certreq", "requestId"};
+        String[] params = {"subject", "publickey", "algorithm", "validFrom", "validTo", "sNo", "pkcs10certreq", "requestId"};
         for(int i = 0; i < params.length; ++i) {
             String value = request.getParameter(params[i]);
             if(value != null) response.setRenderParameter(params[i], value);
@@ -62,7 +64,7 @@ public class ConfirmClientCertHandler extends BaseCAHandler {
     }
 
     public void renderView(RenderRequest request, RenderResponse response, MultiPageModel model) throws PortletException, IOException {
-        String[] params = {ERROR_MSG, INFO_MSG, "subject", "publickey", "algorithm", "validFrom", "validTo", "sNo", "pkcs10certreq", "requestId"};
+        String[] params = {"subject", "publickey", "algorithm", "validFrom", "validTo", "sNo", "pkcs10certreq", "requestId"};
         for(int i = 0; i < params.length; ++i) {
             String value = request.getParameter(params[i]);
             if(value != null) request.setAttribute(params[i], value);
@@ -70,7 +72,6 @@ public class ConfirmClientCertHandler extends BaseCAHandler {
     }
 
     public String actionAfterView(ActionRequest request, ActionResponse response, MultiPageModel model) throws PortletException, IOException {
-        String errorMsg = null;
         try {
             CertificationAuthority ca = getCertificationAuthority(request);
             if(ca == null) {
@@ -81,9 +82,7 @@ public class ConfirmClientCertHandler extends BaseCAHandler {
                 // A certificate with the serial number has already been issued.
                 // This may happen if the user clicks on "Issue Certificate" button a second time
                 log.warn("Second request to issue certificate with serial number'"+sNo+"'.  A certificate has already been issued.");
-                response.setRenderParameter("sNo", sNo.toString());
-                response.setRenderParameter(INFO_MSG, "A certificate with the serial number '"+sNo+"' has already been issued. "
-                        +"You may be seeing this message since you have clicked on 'Issue Certificate' button a second time.");
+                portlet.addWarningMessage(request, MessageFormat.format(portlet.getLocalizedString(request, "warnMsg06"), sNo));                
                 return VIEW_CERT_MODE;
             }
 
@@ -153,16 +152,14 @@ public class ConfirmClientCertHandler extends BaseCAHandler {
 
             // Set the serial number and forward to view certificate page
             response.setRenderParameter("sNo", sNo.toString());
-            response.setRenderParameter(INFO_MSG, "Certificate Issued successfully. This Certificate details can also be viewed using the serial number '"
-                    +sNo+"' with the 'View Issued Certificate' link provided in the CA home screen.");
+            portlet.addInfoMessage(request, MessageFormat.format(portlet.getLocalizedString(request, "infoMsg18"), sNo));
             log.info("Certificate with serial number '"+sNo+"' issued to "+subject);
             return VIEW_CERT_MODE;
         } catch(Exception e) {
-            errorMsg = e.toString();
+            // An error occurred.  Go back to previous screen to let the user correct the errors.
+            portlet.addErrorMessage(request, portlet.getLocalizedString(request, "errorMsg23"), e.getMessage());
             log.error("Errors in issuing certificate.", e);
         }
-        // An error occurred.  Go back to previous screen to let the user correct the errors.
-        response.setRenderParameter(ERROR_MSG, errorMsg);
         return CERT_REQ_DETAILS_MODE+BEFORE_ACTION;
     }
 }

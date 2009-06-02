@@ -21,6 +21,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<%@ taglib uri="/WEB-INF/CommonMsg.tld" prefix="CommonMsg" %>
 <fmt:setBundle basename="plancreator-portlet"/>
 <portlet:defineObjects />
 
@@ -128,14 +129,11 @@ function <portlet:namespace/>removePort(serviceRefId, trId)
 }
 </script>
 
+<CommonMsg:commonMsg/>
+
 <p><fmt:message key="plancreator.reference.title"/></p>
 
 <p><fmt:message key="plancreator.reference.desc"/></p>
-
-<!-- References not resolved -->
-<c:if test="${data.referenceNotResolved}">
-  <p><fmt:message key="plancreator.reference.resolveErr"/>
-</c:if>
 
 <!--   FORM TO COLLECT DATA FOR THIS PAGE   -->
 <form name="<portlet:namespace/>ReferencesForm" action="<portlet:actionURL/>" method="POST">

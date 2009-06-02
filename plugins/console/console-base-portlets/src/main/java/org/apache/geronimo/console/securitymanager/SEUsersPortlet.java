@@ -114,7 +114,7 @@ public class SEUsersPortlet extends AbstractSecurityManagerPortlet {
         helpView = pc
                 .getRequestDispatcher("/WEB-INF/view/securityrealmmanager/se/users/help.jsp");
         errorView = pc
-                .getRequestDispatcher("/WEB-INF/view/securityrealmmanager/derby/groups/error.jsp");
+                .getRequestDispatcher("/WEB-INF/view/securityrealmmanager/se/groups/error.jsp");
     }
 
     public void processAction(ActionRequest actionRequest,
@@ -144,8 +144,7 @@ public class SEUsersPortlet extends AbstractSecurityManagerPortlet {
                     }
                     SERealmUserHelper.deleteUser(user);
                 } catch (Exception e) {
-                    actionResponse.setRenderParameter("message",
-                            "ERROR: Error in SEUsersPortlet while deleting user "+user+". Cause: "+e.getMessage());
+                    addErrorMessage(actionRequest, getLocalizedString(actionRequest, "errorMsg04"), e.getMessage());
                 }
             } else if ("update".equals(action)) {
                 if(password != null && !password.equals("")) {
@@ -162,8 +161,7 @@ public class SEUsersPortlet extends AbstractSecurityManagerPortlet {
                         SERealmGroupHelper.updateGroup(group, groupUsers);
                     }
                 } catch (Exception e) {
-                    actionResponse.setRenderParameter("message",
-                            "ERROR: Error in SEUsersPortlet while adding user "+user+" to group "+group+". Cause: "+e.getMessage());
+                    addErrorMessage(actionRequest, getLocalizedString(actionRequest, "errorMsg05"), e.getMessage());
                 }
             } else if ("new".equals(action)) {
                 currAction = "new";
@@ -175,9 +173,7 @@ public class SEUsersPortlet extends AbstractSecurityManagerPortlet {
                 actionResponse.setRenderParameter("user", user);
             }
         } catch (Exception e) {
-            actionResponse.setRenderParameter("message",
-                    "Error encountered in SEUsersPortlet. Cause: "
-                            + e.getMessage());
+            addErrorMessage(actionRequest, getLocalizedString(actionRequest, "errorMsg06"), e.getMessage());
         }
     }
 
