@@ -356,16 +356,22 @@ public class WsdlGenerator {
         ByteArrayOutputStream os = new ByteArrayOutputStream();
         boolean rs = this.jaxwsTools.invokeWsgen(jars, os, arguments);
         os.close();
-        
-        if (LOG.isDebugEnabled()) {
-            byte [] arr = os.toByteArray();
-            String wsgenOutput = new String(arr, 0, arr.length);
-            LOG.debug("wsgen output: " + wsgenOutput);
+     
+        if (!rs) {
+            LOG.error("WSDL generation failed");
+            LOG.error(getOutput(os));
+        } else if (LOG.isDebugEnabled()) {
+            LOG.debug("wsgen output: " + getOutput(os));
         }
         
         return rs;
     }
     
+    private static String getOutput(ByteArrayOutputStream os) {
+        byte [] arr = os.toByteArray();
+        return new String(arr, 0, arr.length);
+    }
+
     private boolean forkWsgen(StringBuilder classPath, String[] arguments) throws Exception {           
         List<String> cmd = new ArrayList<String>();
         String javaHome = System.getProperty("java.home");                       
