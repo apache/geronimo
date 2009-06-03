@@ -23,6 +23,8 @@ import java.net.URL;
 import java.util.Map;
 import java.util.jar.JarFile;
 
+import javax.xml.ws.http.HTTPBinding;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.DeploymentException;
@@ -228,4 +230,28 @@ public abstract class JAXWSServiceBuilder implements WebServiceBuilder {
             throw new DeploymentException("Unable to load Web Service class: " + className, ex);
         }
     }
+
+    protected boolean isWsdlSet(PortInfo portInfo, Class serviceClass) {
+        return (portInfo.getWsdlFile() != null && !portInfo.getWsdlFile().trim().equals(""))
+                || JAXWSUtils.containsWsdlLocation(serviceClass, serviceClass.getClassLoader());
+    }
+    
+    protected boolean isHTTPBinding(PortInfo portInfo, Class serviceClass) {
+        String bindingURI = "";
+        String bindingURIFromAnnot;
+        
+        if (portInfo.getProtocolBinding() != null) {
+            bindingURI = JAXWSUtils.getBindingURI(portInfo.getProtocolBinding());
+        }        
+        bindingURIFromAnnot = JAXWSUtils.getBindingURIFromAnnot(serviceClass, serviceClass.getClassLoader());
+        
+        if (bindingURI != null && !bindingURI.trim().equals("")) {
+            return bindingURI.equals(HTTPBinding.HTTP_BINDING);
+        } else if (bindingURIFromAnnot != null && !bindingURIFromAnnot.trim().equals("")) {
+            return bindingURIFromAnnot.equals(HTTPBinding.HTTP_BINDING);
+        } 
+        
+        return false;  
+    }
+
 }

@@ -26,8 +26,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.jar.JarFile;
 
-import javax.xml.ws.http.HTTPBinding;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.axis2.pojo.POJOWebServiceContainerFactoryGBean;
@@ -192,17 +190,22 @@ public class Axis2Builder extends JAXWSServiceBuilder {
     @Override
     protected void initialize(GBeanData targetGBean, Class serviceClass, PortInfo portInfo, Module module) 
         throws DeploymentException {
+        String serviceName = (portInfo.getServiceName() == null ? serviceClass.getName() : portInfo.getServiceName());
         if (isWsdlSet(portInfo, serviceClass)) {
-            log.debug("Service " + portInfo.getServiceName() + " has WSDL.");
+            log.debug("Service " + serviceName + " has WSDL.");
             return;
-        }
+        }        
         
         if (isHTTPBinding(portInfo, serviceClass)) {
-            log.debug("Service " + portInfo.getServiceName() + " is HTTPBinding.  Only SOAP 1.1 or 1.2 is supported.");
+            log.debug("Service " + serviceName + " has HTTPBinding.");
             return;
         }
         
-        log.debug("Service " + portInfo.getServiceName() + " does not have WSDL. Generating WSDL...");
+        if (JAXWSUtils.isWebServiceProvider(serviceClass)) {
+            throw new DeploymentException("WSDL must be specified for @WebServiceProvider service " + serviceName);
+        }
+        
+        log.debug("Service " + serviceName + " does not have WSDL. Generating WSDL...");
 
         WsdlGenerator generator = new WsdlGenerator();
         generator.setAxis2SAAJ();
@@ -222,32 +225,9 @@ public class Axis2Builder extends JAXWSServiceBuilder {
         String wsdlFile = generator.generateWsdl(module, serviceClass.getName(), module.getEarContext(), portInfo);
         portInfo.setWsdlFile(wsdlFile);
         
-        log.debug("Generated " + wsdlFile + " for service " + portInfo.getServiceName());        
+        log.debug("Generated " + wsdlFile + " for service " + serviceName);
     }
     
-    private boolean isWsdlSet(PortInfo portInfo, Class serviceClass) {
-        return (portInfo.getWsdlFile() != null && !portInfo.getWsdlFile().trim().equals(""))
-                || JAXWSUtils.containsWsdlLocation(serviceClass, serviceClass.getClassLoader());
-    }
-    
-    private boolean isHTTPBinding(PortInfo portInfo, Class serviceClass) {
-        String bindingURI = "";
-        String bindingURIFromAnnot;
-        
-        if (portInfo.getProtocolBinding() != null) {
-            bindingURI = JAXWSUtils.getBindingURI(portInfo.getProtocolBinding());
-        }        
-        bindingURIFromAnnot = JAXWSUtils.getBindingURIFromAnnot(serviceClass, serviceClass.getClassLoader());
-        
-        if (bindingURI != null && !bindingURI.trim().equals("")) {
-            return bindingURI.equals(HTTPBinding.HTTP_BINDING);
-        } else if (bindingURIFromAnnot != null && !bindingURIFromAnnot.trim().equals("")) {
-            return bindingURIFromAnnot.equals(HTTPBinding.HTTP_BINDING);
-        } 
-        
-        return false;  
-    }
-        
     public static final GBeanInfo GBEAN_INFO;
 
     static {

@@ -76,6 +76,10 @@ public class JAXWSUtils {
                  isProperWebService(clazz));
     }
     
+    public static boolean isWebServiceProvider(Class clazz) {
+        return (clazz.isAnnotationPresent(WebServiceProvider.class) && isProperWebService(clazz));
+    }
+
     private static boolean isProperWebService(Class clazz) {
         int modifiers = clazz.getModifiers();
         return (Modifier.isPublic(modifiers) &&
