@@ -211,11 +211,22 @@ public class CXFBuilder extends JAXWSServiceBuilder {
     
     private void generateWSDL(Class serviceClass, PortInfo portInfo, Module module) 
         throws DeploymentException {
+        String serviceName = (portInfo.getServiceName() == null ? serviceClass.getName() : portInfo.getServiceName());
         if (isWsdlSet(portInfo, serviceClass)) {
-            LOG.debug("Service " + portInfo.getServiceName() + " has WSDL.");
+            LOG.debug("Service " + serviceName + " has WSDL.");
             return;
         }        
-        LOG.debug("Service " + portInfo.getServiceName() + " does not have WSDL. Generating WSDL...");
+        
+        if (isHTTPBinding(portInfo, serviceClass)) {
+            LOG.debug("Service " + serviceName + " has HTTPBinding.");
+            return;
+        }
+        
+        if (JAXWSUtils.isWebServiceProvider(serviceClass)) {            
+            throw new DeploymentException("WSDL must be specified for @WebServiceProvider service " + serviceName);
+        }
+        
+        LOG.debug("Service " + serviceName + " does not have WSDL. Generating WSDL...");
         
         WsdlGenerator wsdlGenerator = getWsdlGenerator();
         
@@ -239,13 +250,8 @@ public class CXFBuilder extends JAXWSServiceBuilder {
         String wsdlFile = wsdlGenerator.generateWsdl(module, serviceClass.getName(), module.getEarContext(), options);
         portInfo.setWsdlFile(wsdlFile);
         
-        LOG.debug("Generated " + wsdlFile + " for service " + portInfo.getServiceName()); 
-    }   
-    
-    private boolean isWsdlSet(PortInfo portInfo, Class serviceClass) {
-        return (portInfo.getWsdlFile() != null && !portInfo.getWsdlFile().trim().equals(""))
-                || JAXWSUtils.containsWsdlLocation(serviceClass, serviceClass.getClassLoader());
-    }    
+        LOG.debug("Generated " + wsdlFile + " for service " + serviceName);
+    }     
     
     public static final GBeanInfo GBEAN_INFO;
 
