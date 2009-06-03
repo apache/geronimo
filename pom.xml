@@ -3202,20 +3202,20 @@
         NOTE: The default repositories are picked up by Genesis, but need to
               specify where Genesis lives to pick it up any other repositories.
         -->
-        <!--<repository>-->
-            <!--<id>apache.snapshots</id>-->
-            <!--<name>Apache Snapshots Repository</name>-->
-            <!--<url>http://people.apache.org/repo/m2-snapshot-repository</url>-->
-            <!--<layout>default</layout>-->
-            <!--<snapshots>-->
-                <!--<enabled>true</enabled>-->
-                <!--<updatePolicy>daily</updatePolicy>-->
-                <!--<checksumPolicy>ignore</checksumPolicy>-->
-            <!--</snapshots>-->
-            <!--<releases>-->
-                <!--<enabled>false</enabled>-->
-            <!--</releases>-->
-        <!--</repository>-->
+        <repository>
+            <id>apache.snapshots</id>
+            <name>Apache Snapshots Repository</name>
+            <url>http://people.apache.org/repo/m2-snapshot-repository</url>
+            <layout>default</layout>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>daily</updatePolicy>
+                <checksumPolicy>ignore</checksumPolicy>
+            </snapshots>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+        </repository>
         
         <!--<repository>-->
             <!--<id>apache.nexus.snapshots</id>-->
