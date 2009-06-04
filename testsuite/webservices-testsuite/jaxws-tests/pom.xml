@@ -81,6 +81,7 @@
         <module>jaxws-ejb-sec</module>
         <module>jaxws-rest-war</module>
         <module>jaxws-partial</module>
+        <module>jaxws-war-sec</module>
     </modules>
 
 </project>

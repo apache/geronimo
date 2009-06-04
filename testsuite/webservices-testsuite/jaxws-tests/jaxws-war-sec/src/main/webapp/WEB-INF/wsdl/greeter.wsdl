@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements. See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership. The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License. You may obtain a copy of the License at
+ 
+  http://www.apache.org/licenses/LICENSE-2.0
+ 
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied. See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+<definitions xmlns="http://schemas.xmlsoap.org/wsdl/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tns="http://test.geronimo.apache.org/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" name="JAXWSBeanService" targetNamespace="http://test.geronimo.apache.org/">
+  <types>
+        <schema targetNamespace="http://test.geronimo.apache.org/"
+                xmlns="http://www.w3.org/2001/XMLSchema" 
+                elementFormDefault="qualified">
+        </schema>
+  </types>
+  <message name="greetMeResponse">
+    <part name="return" type="xsd:string">
+    </part>
+  </message>
+  <message name="greetMe">
+    <part name="arg0" type="xsd:string">
+    </part>
+  </message>
+  <portType name="JAXWSBean">
+    <operation name="greetMe">
+      <input message="tns:greetMe">
+    </input>
+      <output message="tns:greetMeResponse">
+    </output>
+    </operation>
+  </portType>
+  <binding name="JAXWSBeanPortBinding" type="tns:JAXWSBean">
+    <soap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <operation name="greetMe">
+      <soap:operation soapAction=""/>
+      <input>
+        <soap:body namespace="http://test.geronimo.apache.org/" use="literal"/>
+      </input>
+      <output>
+        <soap:body namespace="http://test.geronimo.apache.org/" use="literal"/>
+      </output>
+    </operation>
+  </binding>
+  <service name="JAXWSBeanService">
+    <port binding="tns:JAXWSBeanPortBinding" name="JAXWSBeanPort">
+      <soap:address location="http://localhost:8080/JAXWSBean1/ejb"/>
+    </port>
+  </service>
+</definitions>
