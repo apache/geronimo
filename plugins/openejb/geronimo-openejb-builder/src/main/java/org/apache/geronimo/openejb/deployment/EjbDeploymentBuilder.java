@@ -178,7 +178,7 @@ public class EjbDeploymentBuilder {
 
     public ComponentPermissions buildComponentPermissions() throws DeploymentException {
         List<MethodPermission> methodPermissions = ejbModule.getEjbJar().getAssemblyDescriptor().getMethodPermission();
-        if (!methodPermissions.isEmpty()) {
+        if (earContext.getSecurityConfiguration() != null) {
             earContext.setHasSecurity(true);
         }
         if (earContext.getSecurityConfiguration() == null && methodPermissions.size() > 0) {
