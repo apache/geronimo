@@ -38,11 +38,6 @@
     </dependency>
     <dependency>
         <groupId>org.apache.openejb</groupId>
-        <artifactId>openejb-api</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.openejb</groupId>
         <artifactId>openejb-loader</artifactId>
         <type>jar</type>
     </dependency>
@@ -57,8 +52,8 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.xbean</groupId>
-        <artifactId>xbean-asm-shaded</artifactId>
+        <groupId>org.apache.openejb</groupId>
+        <artifactId>asm-finder</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
