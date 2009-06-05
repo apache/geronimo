@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.apache.ws.scout</groupId>
+		<artifactId>scout-parent</artifactId>
+		<version>1.0rc1</version>
+		<!-- Should better be ${axiom.version} -->
+	</parent>
+	<artifactId>scout</artifactId>
+	<name>Scout Implementation</name>
+	<version>1.0rc1</version>
+	<description>
+		Apache Scout is an implementation of the JSR 93 - JavaTM API for
+		XML Registries 1.0 (JAXR)
+	</description>
+	<dependencies>
+		<dependency>
+			<groupId>org.apache.ws.scout</groupId>
+			<artifactId>jaxr-api</artifactId>
+			<version>1.0rc1</version>
+		</dependency>
+
+		<!-- external JARs -->
+
+	</dependencies>
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<inherited>true</inherited>
+				<configuration>
+					<source>1.5</source>
+					<target>1.5</target>
+				</configuration>
+			</plugin>
+			<plugin>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>2.3</version>
+				<configuration>
+					<skip>false</skip>
+					<excludes>
+						<exclude>**/*Abstract*.java</exclude>
+					</excludes>
+					<includes>
+						<include>**/*Test.java</include>
+					</includes>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<version>1.1</version>
+				<executions>
+					<execution>
+						<id>gen-ts</id>
+						<phase>generate-sources</phase>
+						<configuration>
+							<tasks>
+								<property name="schema.output.base.dir"
+									value="target/schema" />
+								<property
+									name="schema.generated.src.dir"
+									value="${schema.output.base.dir}/src" />
+								<property name="compiled.classes.dir"
+									value="target/classes" />
+
+								<mkdir dir="${schema.output.base.dir}" />
+								<mkdir
+									dir="${schema.generated.src.dir}" />
+								<mkdir dir="${compiled.classes.dir}" />
+
+								<echo>
+									Generating xmlbeans from schema
+								</echo>
+								<taskdef name="xmlbean"
+									classname="org.apache.xmlbeans.impl.tool.XMLBean"
+									classpathref="maven.runtime.classpath" />
+								<xmlbean
+									classgendir="${compiled.classes.dir}"
+									srcgendir="${schema.generated.src.dir}"
+									classpathref="maven.runtime.classpath">
+									<fileset dir="${basedir}/../etc/"
+										includes="uddi_v2.xsd,uddi_v2.xsdconfig" />
+								</xmlbean>
+							</tasks>
+						</configuration>
+						<goals>
+							<goal>run</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>add-source</id>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>add-source</goal>
+						</goals>
+						<configuration>
+							<sources>
+								<source>target/schema/src</source>
+							</sources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+	<profiles>
+    <profile>
+      <id>release</id>
+      <activation>
+        <property>
+          <name>release</name>
+          <value></value>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>jar</goal>
+                </goals>
+              </execution>
+            </executions>
+            <configuration>
+              <attach>true</attach>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+</project>

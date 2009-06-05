@@ -126,6 +126,20 @@
             <groupId>dwr</groupId>
             <artifactId>dwr</artifactId>
         </dependency>
+
+        <!-- Published scout-1.0rc1.pom has depend on jaxr-api-SNAPSHOT
+             DON'T remove these, or GEP testsuite will fail for 2.0.2 -->
+        <dependency>
+            <groupId>org.apache.ws.scout</groupId>
+            <artifactId>scout</artifactId>
+            <version>1.0rc1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.ws.scout</groupId>
+            <artifactId>jaxr-api</artifactId>
+            <version>1.0rc1</version>
+        </dependency>
+
     </dependencies>
 
     <repositories>
