@@ -73,7 +73,7 @@
                ie. you have a hundred dependencies that all use the same version.
         -->
 
-        <openejbVersion>3.1.1-SNAPSHOT</openejbVersion>
+        <openejbVersion>3.1.1</openejbVersion>
         <derbyVersion>10.4.2.0</derbyVersion>
         <tomcatVersion>6.0.18</tomcatVersion>
         <tomcatPatchedVersion>6.0.18-G678601</tomcatPatchedVersion>
