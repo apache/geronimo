@@ -41,9 +41,14 @@ import org.apache.commons.cli.Options;
  */
 public class PrintHelper {
 
-    public static String reformat(String source, int indent, int endCol) {
+    public static String reformat(String source, int indent, int width) {
+        int endCol = width;
+        if (endCol == 0) {
+            endCol = DEFAULT_WIDTH;
+        }
         if(endCol-indent < 10) {
-            throw new IllegalArgumentException("This is ridiculous!");
+            throw new IllegalArgumentException("Need at least 10 spaces for " +
+                "printing, but indent=" + indent + " and endCol=" + endCol);
         }
         StringBuffer buf = new StringBuffer((int)(source.length()*1.1));
         String prefix = indent == 0 ? "" : buildIndent(indent);
