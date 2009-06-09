@@ -49,13 +49,18 @@ public class DeployUtils extends ConfigIDExtractor {
      *
      * @param source The unformatted String
      * @param indent The number of characters to indent on the left
-     * @param endCol The maximum width of the entire line in characters,
+     * @param width  The maximum width of the entire line in characters,
      *               including indent (indent 10 with endCol 70 results
      *               in 60 "usable" characters).
      */
-    public static String reformat(String source, int indent, int endCol) {
+    public static String reformat(String source, int indent, int width) {
+        int endCol = width;
+        if (endCol == 0) {
+            endCol = DEFAULT_WIDTH;
+        }
         if (endCol - indent < 10) {
-            throw new IllegalArgumentException("This is ridiculous!");
+            throw new IllegalArgumentException("Need at least 10 spaces for " +
+                "printing, but indent=" + indent + " and endCol=" + endCol);
         }
         StringBuffer buf = new StringBuffer((int) (source.length() * 1.1));
         String prefix = indent == 0 ? "" : buildIndent(indent);
@@ -95,7 +100,7 @@ public class DeployUtils extends ConfigIDExtractor {
         return buf.toString();
     }
 
-    private final static int DEFAULT_TERM_WIDTH = 256;
+    private final static int DEFAULT_WIDTH = 76;
 
     public static void println(String line, int indent, ConsoleReader consoleReader) throws IOException {
         int endCol = consoleReader.getTermwidth();
@@ -104,11 +109,12 @@ public class DeployUtils extends ConfigIDExtractor {
         // some terminals will give a terminal width of zero (e.g. emacs shell). 
         // in that case, default to a reasonable term width value.
         if (endCol == 0) {
-            endCol = DEFAULT_TERM_WIDTH;
+            endCol = DEFAULT_WIDTH;
         }
 
         if (endCol - indent < 10) {
-            throw new IllegalArgumentException("This is ridiculous!");
+            throw new IllegalArgumentException("Need at least 10 spaces for " +
+                "printing, but indent=" + indent + " and endCol=" + endCol);
         }
         String prefix = indent == 0 ? "" : buildIndent(indent);
         int pos;
