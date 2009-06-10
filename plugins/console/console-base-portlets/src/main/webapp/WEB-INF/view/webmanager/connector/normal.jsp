@@ -113,5 +113,6 @@
          </portlet:actionURL>">${connectorType.description}</a>
 </c:forEach>
 </ul>
+<fmt:message key="webmanager.connector.normal.addNewNote"/>
 
 </c:forEach>

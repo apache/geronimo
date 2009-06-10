@@ -27,6 +27,7 @@ import java.util.Set;
 
 import javax.net.ssl.KeyManagerFactory;
 
+import org.apache.catalina.connector.Connector;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.AbstractName;
@@ -82,6 +83,14 @@ public class TomcatManagerImpl implements WebManager {
             HTTPS_NIO,
             HTTP_APR,
             HTTPS_APR,
+            AJP
+    );
+    
+    private static List<ConnectorType> NON_APR_CONNECTOR_TYPES = Arrays.asList(
+            HTTP_BIO,
+            HTTPS_BIO,
+            HTTP_NIO,
+            HTTPS_NIO,
             AJP
     );
     
@@ -283,7 +292,10 @@ public class TomcatManagerImpl implements WebManager {
     }
 
     public List<ConnectorType> getConnectorTypes() {
-        return CONNECTOR_TYPES;
+        if (isNativeAPRLibInstalled())
+            return CONNECTOR_TYPES;
+        else
+            return NON_APR_CONNECTOR_TYPES;
     }
 
     public List<ConnectorAttribute> getConnectorAttributes(ConnectorType connectorType) {
@@ -541,6 +553,20 @@ public class TomcatManagerImpl implements WebManager {
         }
             
         return connectorType;
+    }
+    
+    private boolean isNativeAPRLibInstalled() {
+
+        try {
+        	Connector connector = new Connector("HTTP/1.1");
+            if (!connector.getProtocolHandlerClassName().equalsIgnoreCase("org.apache.coyote.http11.Http11AprProtocol")) {        
+               return false;
+            } 
+        } catch (Exception e) {
+           
+           return false;
+        }
+        return true;
     }
     
     public static final GBeanInfo GBEAN_INFO;
