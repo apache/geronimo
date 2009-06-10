@@ -70,7 +70,7 @@
   </tr>
   <tr>
     <td></td>
-    <td><fmt:message key="plancreator.env.artifactIDesc"/></td>
+    <td><fmt:message key="plancreator.env.artifactIdDesc"/></td>
   </tr>
   <tr>
     <th><div align="right"><label for="<portlet:namespace/>version"><fmt:message key="plancreator.env.version"/></label>:</div></th>

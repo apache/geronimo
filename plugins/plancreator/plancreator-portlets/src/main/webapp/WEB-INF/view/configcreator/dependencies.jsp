@@ -36,7 +36,7 @@ web-application is dependent. Default selections should be sufficient in most sc
     <th>
     <div align="right"></div>
     </th>
-    <td><input type="submit" value="Next" /></td>
+    <td><input type="submit" value="<fmt:message key="plancreator.common.next"/>" /></td>
   </tr>
 
   <!-- Dependencies -->
@@ -59,7 +59,7 @@ web-application is dependent. Default selections should be sufficient in most sc
     <th>
     <div align="right"></div>
     </th>
-    <td><input type="submit" value="Next" /></td>
+    <td><input type="submit" value="<fmt:message key="plancreator.common.next"/>" /></td>
   </tr>
 </table>
 </form>
