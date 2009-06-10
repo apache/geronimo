@@ -164,7 +164,6 @@ public class ExportConfigHandler extends BaseImportExportHandler {
         int counter = 1;
         while (true) {
             String prefix = "prereq" + counter;
-            ++counter;
             String id = request.getParameter(prefix);
             if (id == null || id.trim().equals("")) {
                 break;
@@ -182,6 +181,7 @@ public class ExportConfigHandler extends BaseImportExportHandler {
             prereq.setDescription(desc);
             prereq.setId(PluginInstallerGBean.toArtifactType(Artifact.create(id)));
             prereqs.add(counter - 1, prereq);
+            counter++;
         }
 
         // Save updated metadata
