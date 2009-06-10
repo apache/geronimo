@@ -140,8 +140,9 @@ public class DeploymentPortlet extends BasePortlet {
                 if(isRedeploy) {
                     TargetModuleID[] targets = identifyTargets(moduleFile, planFile, mgr.getAvailableModules(null, all));
                     if(targets.length == 0) {
-                    	addErrorMessage(actionRequest, getLocalizedString(actionRequest, "plugin.errorMsg04"), null);
-                    	return;
+                        addErrorMessage(actionRequest, getLocalizedString(actionRequest, "plugin.errorMsg04"), null);
+                        log.error(getLocalizedString(actionRequest, "plugin.errorMsg04"));
+                        return;
                     }
                     progress = mgr.redeploy(targets, moduleFile, planFile);
                 } else {
@@ -169,6 +170,7 @@ public class DeploymentPortlet extends BasePortlet {
                             abbrStatusMessage = getLocalizedString(actionRequest, "plugin.errorMsg02");
                             fullStatusMessage = progress.getDeploymentStatus().getMessage();
                             addErrorMessage(actionRequest, abbrStatusMessage, fullStatusMessage);
+                            log.error(abbrStatusMessage + "\n" + fullStatusMessage);
                         }
                     }
                 } else {
@@ -177,6 +179,7 @@ public class DeploymentPortlet extends BasePortlet {
                     // after the first line, which in most cases means the gnarly stacktrace
                     abbrStatusMessage = getLocalizedString(actionRequest, "plugin.errorMsg01");
                     addErrorMessage(actionRequest, abbrStatusMessage, fullStatusMessage);
+                    log.error(abbrStatusMessage + "\n" + fullStatusMessage);
                     // try to provide an upgraded version of the plan
                     try {
                         if (planFile != null && planFile.exists()) {
@@ -250,7 +253,7 @@ public class DeploymentPortlet extends BasePortlet {
         } catch (IOException e) {
             throw new PortletException("Unable to read input files: "+e.getMessage());
         } catch (DeploymentException e) {
-        	return new TargetModuleID[0];
+            return new TargetModuleID[0];
         }
         return (TargetModuleID[]) modules.toArray(new TargetModuleID[modules.size()]);
     }
