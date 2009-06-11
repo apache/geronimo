@@ -98,8 +98,9 @@ public class GenericForwardServlet extends HttpServlet {
 
     private void addGBean(AbstractName name) {
         ContextForward forward = (ContextForward) kernel.getProxyManager().createProxy(name, ContextForward.class);
-        forwards.put(forward.getPortalPathPrefix(), new ForwardData(getServletContext().getContext(forward.getPortletContextPath()),
-                                                                    forward.getPortletServletPath(), name));
+        forwards.put(forward.getPortalPathPrefix(), new ForwardData(forward.getPortletContextPath(), 
+                                                                    forward.getPortletServletPath(), 
+                                                                    name));
     }
 
     private void removeGBean(AbstractName name) {
@@ -123,7 +124,7 @@ public class GenericForwardServlet extends HttpServlet {
         String path = req.getPathInfo();
         if(path == null) {
             log.error("Unable to forward request; no path information provided.  Path is used to identify where to forward to.");
-            return;
+            throw new ServletException("Unable to forward request");
         }
         ForwardData forward = null;
         for (Iterator it = forwards.keySet().iterator(); it.hasNext();) {
@@ -131,11 +132,12 @@ public class GenericForwardServlet extends HttpServlet {
             if(path.startsWith(prefix)) {
                 forward = (ForwardData) forwards.get(prefix);
                 path = path.substring(prefix.length());
+                break;
             }
         }
         if(forward == null) {
             log.error("Unable to forward URL "+path+"; does not match any known ContextForward definitions.");
-            return;
+            throw new ServletException("Unable to forward request");
         }
         if(!path.equals("") && !path.startsWith("/")) path = "/"+path;
         String queryString = req.getQueryString();
@@ -143,23 +145,32 @@ public class GenericForwardServlet extends HttpServlet {
             path += "?" + queryString;
         }
         path = forward.getServletPath()+path;
-        RequestDispatcher dispatcher = forward.getForwardContext().getRequestDispatcher(path);
+        ServletContext ctx = forward.getForwardContext(getServletContext());
+        if (ctx == null) {
+            log.error("Unable to forward URL " + path + ". Context not found: " + forward.getContextPath());
+            throw new ServletException("Unable to forward request");
+        }
+        RequestDispatcher dispatcher = ctx.getRequestDispatcher(path);
         dispatcher.forward(req, resp);
     }
 
     private static class ForwardData {
-        private ServletContext forwardContext;
+        private String contextPath;
         private String servletPath;
         private AbstractName gbean;
 
-        public ForwardData(ServletContext forwardContext, String servletPath, AbstractName gbean) {
-            this.forwardContext = forwardContext;
+        public ForwardData(String contextPath, String servletPath, AbstractName gbean) {
+            this.contextPath = contextPath;
             this.servletPath = servletPath;
             this.gbean = gbean;
         }
 
-        public ServletContext getForwardContext() {
-            return forwardContext;
+        public ServletContext getForwardContext(ServletContext ctx) {
+            return ctx.getContext(contextPath);
+        }
+        
+        public String getContextPath() {
+            return contextPath;
         }
 
         public String getServletPath() {
