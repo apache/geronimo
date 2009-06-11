@@ -48,7 +48,7 @@ public class JAXWSToolsCLI {
     enum Command { JAVA2WS, WSDL2JAVA }
     
     private static final String USAGE_MSG =
-        "Usage: jaxws-tools <toolName> <tool options>\n\n" +
+        "Usage: cxf-tools <toolName> <tool options>\n\n" +
         "where <toolName> is:\n" +
         "  java2ws     - generate portable artifacts from class\n" +
         "  wsdl2java   - generate portable artifacts from WSDL\n";
