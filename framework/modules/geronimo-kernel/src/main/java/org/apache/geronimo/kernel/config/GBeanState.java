@@ -32,4 +32,5 @@ public interface GBeanState {
     void addGBean(GBeanData gbeanData);
 
     GBeanData addGBean(String name, GBeanInfo gbeanInfo, Naming naming, Environment environment);
+    GBeanData addGBean(String name, Class gbeanClass, Naming naming, Environment environment);
 }

@@ -192,6 +192,12 @@ public class ConfigurationData implements Serializable {
         return gbeanState.addGBean(name, gbeanInfo, naming, environment);
     }
 
+    public GBeanData addGBean(String name, Class gbeanClass) {
+        if (name == null) throw new NullPointerException("name is null");
+        if (gbeanClass == null) throw new NullPointerException("gbeanInfo is null");
+        return gbeanState.addGBean(name, gbeanClass, naming, environment);
+    }
+
     public GBeanState getGbeanState() {
         return gbeanState;
     }

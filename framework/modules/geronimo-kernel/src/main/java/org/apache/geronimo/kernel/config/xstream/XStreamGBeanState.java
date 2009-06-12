@@ -101,6 +101,20 @@ public class XStreamGBeanState implements GBeanState {
         return gBeanData;
     }
 
+    public GBeanData addGBean(String name, Class gbeanClass, Naming naming, Environment environment) {
+        if (gbeanState != null) {
+            throw new IllegalStateException("GBeans have been serialized, so no more GBeans can be added");
+        }
+        GBeanData gBeanData = new GBeanData(gbeanClass);
+
+        String j2eeType = gBeanData.getGBeanInfo().getJ2eeType();
+        if (j2eeType == null) j2eeType = "GBean";
+        AbstractName abstractName = naming.createRootName(environment.getConfigId(), name, j2eeType);
+        gBeanData.setAbstractName(abstractName);
+        addGBean(gBeanData);
+        return gBeanData;
+    }
+
     private static List<GBeanData> loadGBeans(Element element, ClassLoader classLoader) throws InvalidConfigException {
         if (element != null) {
             // Set the thread context classloader so deserializing classes can grab the cl from the thread

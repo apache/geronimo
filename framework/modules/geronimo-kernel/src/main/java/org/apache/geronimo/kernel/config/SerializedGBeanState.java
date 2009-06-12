@@ -86,6 +86,20 @@ public class SerializedGBeanState implements GBeanState, Serializable {
         return gBeanData;
     }
 
+    public GBeanData addGBean(String name, Class gbeanClass, Naming naming, Environment environment) {
+        if (gbeanState != null) {
+            throw new IllegalStateException("GBeans have been serialized, so no more GBeans can be added");
+        }
+        GBeanData gBeanData = new GBeanData(gbeanClass);
+
+        String j2eeType = gBeanData.getGBeanInfo().getJ2eeType();
+        if (j2eeType == null) j2eeType = "GBean";
+        AbstractName abstractName = naming.createRootName(environment.getConfigId(), name, j2eeType);
+        gBeanData.setAbstractName(abstractName);
+        addGBean(gBeanData);
+        return gBeanData;
+    }
+
     private void writeObject(java.io.ObjectOutputStream stream) throws IOException {
         if (gbeanState == null) {
             gbeanState = storeGBeans(gbeans);
