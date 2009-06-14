@@ -51,8 +51,8 @@ public class StatTest extends AbstractWebModuleTest {
         for (int k = 0; k < n; k++) {
             HttpURLConnection connection = (HttpURLConnection) new URL(connector.getConnectUrl() + "/test/hello.txt")
                     .openConnection();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
             assertEquals(HttpURLConnection.HTTP_OK, connection.getResponseCode());
+            BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
             assertEquals("Hello World", reader.readLine());
             
             Stats stats = component.getStats();

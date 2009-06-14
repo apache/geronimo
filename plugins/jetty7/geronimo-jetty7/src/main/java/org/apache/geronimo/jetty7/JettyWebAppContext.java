@@ -92,7 +92,7 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
     private final ClassLoader webClassLoader;
     private final JettyContainer jettyContainer;
 
-    private final String webAppRoot;
+//    private final String webAppRoot;
     private final URL configurationBaseURL;
     private String displayName;
 
@@ -242,7 +242,9 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
         //DONT install the jetty TLD configuration as we find and create all the listeners ourselves
         webAppContext.setConfigurationClasses(new String[]{});
 
-        webAppRoot = configurationBaseUrl.toString();
+        String webAppRoot = configurationBaseUrl.toString();
+        webAppContext.setResourceBase(webAppRoot);
+        webAppContext.setWar(webAppRoot);
         webClassLoader = classLoader;
         webAppContext.setClassLoader(webClassLoader);
 
@@ -344,7 +346,7 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
     public void doStart() throws Exception {
         // reset the classsloader... jetty likes to set it to null when stopping
         this.webAppContext.setClassLoader(webClassLoader);
-        this.webAppContext.setWar(webAppRoot);
+//        this.webAppContext.setWar(webAppRoot);
 
         getLifecycleChain().lifecycleCommand(new StartCommand());
     }
