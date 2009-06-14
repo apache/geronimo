@@ -7,13 +7,13 @@
         <type>car</type>
     </module-id>
     <dependency>
-        <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>geronimo-jetty6</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>j2ee-server</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.framework</groupId>
+        <artifactId>server-security-config</artifactId>
         <type>car</type>
     </dependency>
     <dependency>
@@ -22,14 +22,19 @@
         <type>car</type>
     </dependency>
     <dependency>
-        <groupId>org.mortbay.jetty</groupId>
-        <artifactId>jetty</artifactId>
+        <groupId>org.apache.geronimo.modules</groupId>
+        <artifactId>geronimo-jetty6</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>server-security-config</artifactId>
+        <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>webservices-common</artifactId>
         <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.mortbay.jetty</groupId>
+        <artifactId>jetty</artifactId>
+        <type>jar</type>
     </dependency>
     <dependency>
         <groupId>org.mortbay.jetty</groupId>
@@ -40,11 +45,6 @@
         <groupId>org.mortbay.jetty</groupId>
         <artifactId>jetty-ajp</artifactId>
         <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>webservices-common</artifactId>
-        <type>car</type>
     </dependency>
     <dependency>
         <groupId>org.mortbay.jetty</groupId>

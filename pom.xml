@@ -18,14 +18,15 @@
 
 <!-- $Rev$ $Date$ -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.apache.geronimo.genesis.flava</groupId>
+        <groupId>org.apache.geronimo.genesis</groupId>
         <artifactId>genesis-java5-flava</artifactId>
-        <version>2.0-SNAPSHOT</version>
+        <version>2.0</version>
     </parent>
 
     <groupId>org.apache.geronimo</groupId>
@@ -52,7 +53,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        
+
         <!--
         NOTE: Project version, to be used instead of ${pom.version} since that
               value magically changes when using SNAPSHOT versions.
@@ -61,7 +62,7 @@
               element, and it will need to be changed manually before a release,
               as the maven-release-plugin will not update this value.
         -->
-<!--        <version>2.2-SNAPSHOT</version>-->
+        <!--        <version>2.2-SNAPSHOT</version>-->
 
         <!-- This property is required by the car:package mojo -->
         <geronimoVersion>${version}</geronimoVersion>
@@ -72,11 +73,11 @@
         FIXME: STOP using properties for dependency versions unless you absolutly need them,
                ie. you have a hundred dependencies that all use the same version.
         -->
+        <tomcatVersion>6.0.18-SNAPSHOT</tomcatVersion>
+        <tomcatGroupId>org.apache.geronimo.ext.tomcat</tomcatGroupId>
 
         <openejbVersion>3.1.1</openejbVersion>
         <derbyVersion>10.4.2.0</derbyVersion>
-        <tomcatVersion>6.0.18</tomcatVersion>
-        <tomcatPatchedVersion>6.0.18-G678601</tomcatPatchedVersion>
         <cxfVersion>2.1.4</cxfVersion>
         <axis2Version>1.5-SNAPSHOT</axis2Version>
         <axiomVersion>1.2.8</axiomVersion>
@@ -84,22 +85,23 @@
         <plutoVersion>1.1.6-G643117</plutoVersion>
         <openjpaVersion>1.2.1</openjpaVersion>
         <xbeanVersion>3.6-SNAPSHOT</xbeanVersion>
-        <wadiVersion>2.1.1</wadiVersion>
         <!-- switch using  -Pee6 -->
         <!--<jetty>jetty6</jetty>-->
         <jetty>jetty7</jetty>
 
         <connectorSuffix></connectorSuffix>
-        <!--<connectorSuffix>-1_6</connectorSuffix>-->
         <connectorSpec>geronimo-j2ee-connector_1.5_spec</connectorSpec>
-        <servletSpec>geronimo-servlet_2.5_spec</servletSpec>
-        <!--<connectorSpec>geronimo-j2ee-connector_1.6_spec</connectorSpec>-->
         <txmanagerVersion>2.1.2</txmanagerVersion>
-        <!--<txmanagerVersion>2.2-SNAPSHOT</txmanagerVersion>-->
+        <!--<connectorSuffix>-1_6</connectorSuffix>
+        <connectorSpec>geronimo-j2ee-connector_1.6_spec</connectorSpec>
+        <txmanagerVersion>2.2-SNAPSHOT</txmanagerVersion>-->
+        <servletSpec>geronimo-servlet_2.5_spec</servletSpec>
+
         <monitoringConsoleVersion>2.2-SNAPSHOT</monitoringConsoleVersion>
 
         <!-- Deployers -->
-        <gbeanDeployerBootstrap>org.apache.geronimo.framework/geronimo-gbean-deployer-bootstrap/${version}/car</gbeanDeployerBootstrap>
+        <gbeanDeployerBootstrap>org.apache.geronimo.framework/geronimo-gbean-deployer-bootstrap/${version}/car
+        </gbeanDeployerBootstrap>
         <gbeanDeployer>org.apache.geronimo.framework/geronimo-gbean-deployer/${version}/car</gbeanDeployer>
         <j2eeDeployer>org.apache.geronimo.configs/j2ee-deployer/${version}/car</j2eeDeployer>
         <clientDeployer>org.apache.geronimo.configs/client-deployer/${version}/car</clientDeployer>
@@ -190,8 +192,8 @@
 
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
-                <artifactId>geronimo-jaspi_1.0_spec</artifactId>
-                <version>1.0-SNAPSHOT</version>
+                <artifactId>geronimo-jaspic_1.0_spec</artifactId>
+                <version>1.0</version>
             </dependency>
 
             <dependency>
@@ -1240,207 +1242,62 @@
                 <version>0.9rc4</version>
             </dependency>
 
-            <!-- Tomcat web container -->
-            <dependency>
-                <groupId>org.apache.tomcat</groupId>
-                <artifactId>jasper</artifactId>
-                <version>${tomcatPatchedVersion}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.apache.tomcat</groupId>
-                        <artifactId>servlet-api</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.tomcat</groupId>
-                        <artifactId>juli</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.tomcat</groupId>
-                        <artifactId>jsp-api</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.tomcat</groupId>
-                        <artifactId>el-api</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.tomcat</groupId>
-                        <artifactId>catalina</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.tomcat</groupId>
-                        <artifactId>annotations-api</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
+            <!--<dependency>-->
+            <!--<groupId>org.apache.tomcat</groupId>-->
+            <!--<artifactId>jasper</artifactId>-->
+            <!--<version>${tomcatPatchedVersion}</version>-->
+            <!--<exclusions>-->
+            <!--<exclusion>-->
+            <!--<groupId>$[tomcatGroupId}</groupId>-->
+            <!--<artifactId>servlet-api</artifactId>-->
+            <!--</exclusion>-->
+            <!--<exclusion>-->
+            <!--<groupId>$[tomcatGroupId}</groupId>-->
+            <!--<artifactId>juli</artifactId>-->
+            <!--</exclusion>-->
+            <!--<exclusion>-->
+            <!--<groupId>$[tomcatGroupId}</groupId>-->
+            <!--<artifactId>jsp-api</artifactId>-->
+            <!--</exclusion>-->
+            <!--<exclusion>-->
+            <!--<groupId>$[tomcatGroupId}</groupId>-->
+            <!--<artifactId>el-api</artifactId>-->
+            <!--</exclusion>-->
+            <!--<exclusion>-->
+            <!--<groupId>$[tomcatGroupId}</groupId>-->
+            <!--<artifactId>catalina</artifactId>-->
+            <!--</exclusion>-->
+            <!--<exclusion>-->
+            <!--<groupId>$[tomcatGroupId}</groupId>-->
+            <!--<artifactId>annotations-api</artifactId>-->
+            <!--</exclusion>-->
+            <!--</exclusions>-->
+            <!--</dependency>-->
+            <!--<dependency>-->
+            <!--<groupId>org.apache.tomcat</groupId>-->
+            <!--<artifactId>jasper-el</artifactId>-->
+            <!--<version>${tomcatPatchedVersion}</version>-->
+            <!--<exclusions>-->
+            <!--<exclusion>-->
+            <!--<groupId>org.apache.tomcat</groupId>-->
+            <!--<artifactId>el-api</artifactId>-->
+            <!--</exclusion>-->
+            <!--</exclusions>-->
+            <!--</dependency>-->
 
-            <dependency>
-                <groupId>org.apache.tomcat</groupId>
-                <artifactId>jasper-el</artifactId>
-                <version>${tomcatPatchedVersion}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.apache.tomcat</groupId>
-                        <artifactId>el-api</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
+            <!--<dependency>-->
+            <!--<groupId>org.apache.tomcat</groupId>-->
+            <!--<artifactId>jasper-jdt</artifactId>-->
+            <!--<version>${tomcatVersion}</version>-->
+            <!--</dependency>-->
 
-            <dependency>
-                <groupId>org.apache.tomcat</groupId>
-                <artifactId>jasper-jdt</artifactId>
-                <version>${tomcatVersion}</version>
-            </dependency>
+            <!--<dependency>-->
+            <!-- used in wadi.  How does this differ from o.a.t.extras:juli, which is a larger jar? -->
+            <!--<groupId>org.apache.tomcat</groupId>-->
+            <!--<artifactId>juli</artifactId>-->
+            <!--<version>${tomcatVersion}</version>-->
+            <!--</dependency>-->
 
-            <dependency>
-                <groupId>org.apache.tomcat.extras</groupId>
-                <artifactId>juli</artifactId>
-                <version>${tomcatVersion}</version>
-            </dependency>
-            <dependency>
-                <!-- used in wadi.  How does this differ from o.a.t.extras:juli, which is a larger jar? -->
-                <groupId>org.apache.tomcat</groupId>
-                <artifactId>juli</artifactId>
-                <version>${tomcatVersion}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.tomcat.extras</groupId>
-                <artifactId>juli-adapters</artifactId>
-                <version>${tomcatVersion}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.apache.tomcat</groupId>
-                        <artifactId>servlet-api</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.tomcat</groupId>
-                <artifactId>catalina</artifactId>
-                <version>${tomcatPatchedVersion}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.apache.tomcat</groupId>
-                        <artifactId>servlet-api</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.tomcat</groupId>
-                        <artifactId>juli</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.tomcat</groupId>
-                        <artifactId>annotations-api</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.tomcat</groupId>
-                <artifactId>catalina-ha</artifactId>
-                <version>${tomcatVersion}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.apache.tomcat</groupId>
-                        <artifactId>servlet-api</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.tomcat</groupId>
-                        <artifactId>juli</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.tomcat</groupId>
-                <artifactId>tribes</artifactId>
-                <version>${tomcatVersion}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.apache.tomcat</groupId>
-                        <artifactId>juli</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.tomcat</groupId>
-                <artifactId>coyote</artifactId>
-                <version>${tomcatVersion}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.apache.tomcat</groupId>
-                        <artifactId>servlet-api</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.tomcat</groupId>
-                        <artifactId>juli</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-
-            <!-- WADI support -->
-            <dependency>
-                <groupId>org.codehaus.wadi</groupId>
-                <artifactId>wadi-aop</artifactId>
-                <version>${wadiVersion}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>commons-logging</groupId>
-                        <artifactId>commons-logging</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <!-- wrong version.... c-m-p picks up this one -->
-                        <groupId>aspectj</groupId>
-                        <artifactId>aspectjrt</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-            <dependency>
-                <groupId>org.codehaus.wadi</groupId>
-                <artifactId>wadi-core</artifactId>
-                <version>${wadiVersion}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>commons-logging</groupId>
-                        <artifactId>commons-logging</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>commons-httpclient</groupId>
-                        <artifactId>commons-httpclient</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>regexp</groupId>
-                        <artifactId>regexp</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-            <dependency>
-                <groupId>org.codehaus.wadi</groupId>
-                <artifactId>wadi-group</artifactId>
-                <version>${wadiVersion}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>commons-logging</groupId>
-                        <artifactId>commons-logging</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-            <dependency>
-                <groupId>org.codehaus.wadi</groupId>
-                <artifactId>wadi-tribes</artifactId>
-                <version>${wadiVersion}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>commons-logging</groupId>
-                        <artifactId>commons-logging</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
 
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
@@ -1489,24 +1346,30 @@
             </dependency>
 
             <dependency>
-                <groupId>javax.xml.bind</groupId>
-                <artifactId>jaxb-api</artifactId>
-                <version>2.1</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>javax.xml.bind</groupId>
-                        <artifactId>jsr173_api</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>javax.xml.stream</groupId>
-                        <artifactId>stax-api</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>javax.activation</groupId>
-                        <artifactId>activation</artifactId>
-                    </exclusion>
-                </exclusions>
+                <groupId>org.apache.geronimo.specs</groupId>
+                <artifactId>geronimo-jaxb_2.1_spec</artifactId>
+                <version>1.0-SNAPSHOT</version>
             </dependency>
+
+            <!--<dependency>-->
+            <!--<groupId>javax.xml.bind</groupId>-->
+            <!--<artifactId>jaxb-api</artifactId>-->
+            <!--<version>2.1</version>-->
+            <!--<exclusions>-->
+            <!--<exclusion>-->
+            <!--<groupId>javax.xml.bind</groupId>-->
+            <!--<artifactId>jsr173_api</artifactId>-->
+            <!--</exclusion>-->
+            <!--<exclusion>-->
+            <!--<groupId>javax.xml.stream</groupId>-->
+            <!--<artifactId>stax-api</artifactId>-->
+            <!--</exclusion>-->
+            <!--<exclusion>-->
+            <!--<groupId>javax.activation</groupId>-->
+            <!--<artifactId>activation</artifactId>-->
+            <!--</exclusion>-->
+            <!--</exclusions>-->
+            <!--</dependency>-->
 
             <dependency>
                 <groupId>com.sun.xml.messaging.saaj</groupId>
@@ -1574,184 +1437,6 @@
                     <exclusion>
                         <groupId>commons-logging</groupId>
                         <artifactId>commons-logging</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-            <!--Axis2 modules dependencies-->
-            <dependency>
-                <groupId>org.apache.axis2</groupId>
-                <artifactId>axis2-kernel</artifactId>
-                <version>${axis2Version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>commons-logging</groupId>
-                        <artifactId>commons-logging</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>javax.mail</groupId>
-                        <artifactId>mail</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>javax.servlet</groupId>
-                        <artifactId>servlet-api</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>xerces</groupId>
-                        <artifactId>xercesImpl</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>xalan</groupId>
-                        <artifactId>xalan</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>commons-io</groupId>
-                        <artifactId>commons-io</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.httpcomponents</groupId>
-                        <artifactId>httpcore-nio</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.httpcomponents</groupId>
-                        <artifactId>httpcore-niossl</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.axis2</groupId>
-                <artifactId>axis2-jaxws</artifactId>
-                <version>${axis2Version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>javax.mail</groupId>
-                        <artifactId>mail</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>xerces</groupId>
-                        <artifactId>xercesImpl</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>xalan</groupId>
-                        <artifactId>xalan</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>commons-io</groupId>
-                        <artifactId>commons-io</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>jaxen</groupId>
-                        <artifactId>jaxen</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>com.sun.xml.bind</groupId>
-                        <artifactId>jaxb-xjc</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.axis2</groupId>
-                <artifactId>axis2-metadata</artifactId>
-                <version>${axis2Version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>javax.mail</groupId>
-                        <artifactId>mail</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>xerces</groupId>
-                        <artifactId>xercesImpl</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>xalan</groupId>
-                        <artifactId>xalan</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>commons-io</groupId>
-                        <artifactId>commons-io</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>com.sun.xml.bind</groupId>
-                        <artifactId>jaxb-xjc</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.axis2</groupId>
-                <artifactId>axis2-saaj</artifactId>
-                <version>${axis2Version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>javax.mail</groupId>
-                        <artifactId>mail</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>xerces</groupId>
-                        <artifactId>xercesImpl</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>xalan</groupId>
-                        <artifactId>xalan</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>commons-io</groupId>
-                        <artifactId>commons-io</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.axis2</groupId>
-                <artifactId>addressing</artifactId>
-                <version>${axis2Version}</version>
-                <type>mar</type>
-                <exclusions>
-                    <exclusion>
-                        <groupId>javax.mail</groupId>
-                        <artifactId>mail</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>xerces</groupId>
-                        <artifactId>xercesImpl</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>xalan</groupId>
-                        <artifactId>xalan</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.axis2</groupId>
-                <artifactId>axis2-transport-http</artifactId>
-                <version>${axis2Version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>javax.mail</groupId>
-                        <artifactId>mail</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>xalan</groupId>
-                         <artifactId>xalan</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.axis2</groupId>
-                <artifactId>axis2-transport-local</artifactId>
-                <version>${axis2Version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>javax.mail</groupId>
-                        <artifactId>mail</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>xalan</groupId>
-                        <artifactId>xalan</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -2392,298 +2077,6 @@
                 </exclusions>
             </dependency>
 
-            <!-- CXF Plugin -->
-            <dependency>
-                <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-api</artifactId>
-                <version>${cxfVersion}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>javax.annotation</groupId>
-                        <artifactId>jsr250-api</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>javax.jws</groupId>
-                        <artifactId>jsr181-api</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.cxf</groupId>
-                        <artifactId>cxf-common-schemas</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-metacode</artifactId>
-                <version>${cxfVersion}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>javax.annotation</groupId>
-                        <artifactId>jsr250-api</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>javax.jws</groupId>
-                        <artifactId>jsr181-api</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-common-utilities</artifactId>
-                <version>${cxfVersion}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>javax.annotation</groupId>
-                        <artifactId>jsr250-api</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>javax.jws</groupId>
-                        <artifactId>jsr181-api</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>commons-lang</groupId>
-                        <artifactId>commons-lang</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-rt-core</artifactId>
-                <version>${cxfVersion}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>javax.annotation</groupId>
-                        <artifactId>jsr250-api</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>javax.jws</groupId>
-                        <artifactId>jsr181-api</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>com.sun.xml.bind</groupId>
-                        <artifactId>jaxb-impl</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>com.sun.xml.fastinfoset</groupId>
-                        <artifactId>FastInfoset</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.geronimo.specs</groupId>
-                        <artifactId>geronimo-javamail_1.4_spec</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-rt-bindings-xml</artifactId>
-                <version>${cxfVersion}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>javax.annotation</groupId>
-                        <artifactId>jsr250-api</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>javax.jws</groupId>
-                        <artifactId>jsr181-api</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-rt-bindings-soap</artifactId>
-                <version>${cxfVersion}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>javax.annotation</groupId>
-                        <artifactId>jsr250-api</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>javax.jws</groupId>
-                        <artifactId>jsr181-api</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-rt-databinding-jaxb</artifactId>
-                <version>${cxfVersion}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>javax.annotation</groupId>
-                        <artifactId>jsr250-api</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>javax.jws</groupId>
-                        <artifactId>jsr181-api</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>com.sun.xml.bind</groupId>
-                        <artifactId>jaxb-impl</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.geronimo.specs</groupId>
-                        <artifactId>geronimo-javamail_1.4_spec</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>com.sun.xml.bind</groupId>
-                        <artifactId>jaxb-xjc</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-rt-frontend-jaxws</artifactId>
-                <version>${cxfVersion}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>javax.annotation</groupId>
-                        <artifactId>jsr250-api</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>javax.jws</groupId>
-                        <artifactId>jsr181-api</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>com.sun.xml.bind</groupId>
-                        <artifactId>jaxb-impl</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>javax.xml.ws</groupId>
-                        <artifactId>jaxws-api</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>javax.xml.soap</groupId>
-                        <artifactId>saaj-api</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>com.sun.xml.parsers</groupId>
-                        <artifactId>jaxp-ri</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-rt-frontend-simple</artifactId>
-                <version>${cxfVersion}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>javax.annotation</groupId>
-                        <artifactId>jsr250-api</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>javax.jws</groupId>
-                        <artifactId>jsr181-api</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>javax.xml.ws</groupId>
-                        <artifactId>jaxws-api</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>javax.xml.soap</groupId>
-                        <artifactId>saaj-api</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-rt-transports-http</artifactId>
-                <version>${cxfVersion}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>javax.annotation</groupId>
-                        <artifactId>jsr250-api</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>javax.jws</groupId>
-                        <artifactId>jsr181-api</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>com.sun.xml.bind</groupId>
-                        <artifactId>jaxb-impl</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-tools-common</artifactId>
-                <version>${cxfVersion}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>javax.annotation</groupId>
-                        <artifactId>jsr250-api</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>javax.jws</groupId>
-                        <artifactId>jsr181-api</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>com.sun.xml.bind</groupId>
-                        <artifactId>jaxb-impl</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>javax.xml.soap</groupId>
-                        <artifactId>saaj-api</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>com.sun.xml.bind</groupId>
-                        <artifactId>jaxb-xjc</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.velocity</groupId>
-                        <artifactId>velocity</artifactId>
-                    </exclusion>
-                    <!-- New excludes for org.apache.velocity -->
-                    <exclusion>
-                        <groupId>commons-collections</groupId>
-                        <artifactId>commons-collections</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>commons-lang</groupId>
-                        <artifactId>commons-lang</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>oro</groupId>
-                        <artifactId>oro</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-tools-java2ws</artifactId>
-                <version>${cxfVersion}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.apache.cxf</groupId>
-                        <artifactId>cxf-rt-javascript</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.cxf</groupId>
-                        <artifactId>cxf-rt-databinding-aegis</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>javax.xml.soap</groupId>
-                        <artifactId>saaj-api</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-rt-ws-addr</artifactId>
-                <version>${cxfVersion}</version>
-            </dependency>
-
             <dependency>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-ws-security</artifactId>
@@ -2734,24 +2127,24 @@
         <pluginManagement>
             <plugins>
                 <!--<plugin>-->
-                    <!--<groupId>org.apache.maven.plugins</groupId>-->
-                    <!--<artifactId>maven-resources-plugin</artifactId>-->
-                    <!--<version>2.3</version>-->
+                <!--<groupId>org.apache.maven.plugins</groupId>-->
+                <!--<artifactId>maven-resources-plugin</artifactId>-->
+                <!--<version>2.3</version>-->
                 <!--</plugin>-->
 
                 <!--<plugin>-->
-                    <!--<groupId>org.apache.maven.plugins</groupId>-->
-                    <!--<artifactId>maven-assembly-plugin</artifactId>-->
-                    <!--<version>2.2-beta-2</version>-->
+                <!--<groupId>org.apache.maven.plugins</groupId>-->
+                <!--<artifactId>maven-assembly-plugin</artifactId>-->
+                <!--<version>2.2-beta-2</version>-->
                 <!--</plugin>-->
 
                 <!--<plugin>-->
-                    <!--<groupId>org.apache.maven.plugins</groupId>-->
-                    <!--<artifactId>maven-javadoc-plugin</artifactId>-->
-                    <!--<version>2.4</version>-->
-                    <!--<configuration>-->
-                        <!--<source>1.5</source>-->
-                    <!--</configuration>-->
+                <!--<groupId>org.apache.maven.plugins</groupId>-->
+                <!--<artifactId>maven-javadoc-plugin</artifactId>-->
+                <!--<version>2.4</version>-->
+                <!--<configuration>-->
+                <!--<source>1.5</source>-->
+                <!--</configuration>-->
                 <!--</plugin>-->
 
                 <plugin>
@@ -2778,15 +2171,15 @@
                 </plugin>
 
                 <!--<plugin>-->
-                    <!--<groupId>org.codehaus.groovy.maven</groupId>-->
-                    <!--<artifactId>gmaven-plugin</artifactId>-->
-                    <!--<version>1.0-rc-2</version>-->
+                <!--<groupId>org.codehaus.groovy.maven</groupId>-->
+                <!--<artifactId>gmaven-plugin</artifactId>-->
+                <!--<version>1.0-rc-2</version>-->
                 <!--</plugin>-->
 
                 <!--<plugin>-->
-                    <!--<groupId>org.apache.maven.plugins</groupId>-->
-                    <!--<artifactId>maven-plugin-plugin</artifactId>-->
-                    <!--<version>2.4.1</version>-->
+                <!--<groupId>org.apache.maven.plugins</groupId>-->
+                <!--<artifactId>maven-plugin-plugin</artifactId>-->
+                <!--<version>2.4.1</version>-->
                 <!--</plugin>-->
 
                 <plugin>
@@ -2821,9 +2214,9 @@
                         </dependency>
 
                         <dependency>
-                            <groupId>org.apache.tomcat</groupId>
+                            <groupId>${tomcatGroupId}</groupId>
                             <artifactId>jasper</artifactId>
-                            <version>${tomcatPatchedVersion}</version>
+                            <version>${tomcatVersion}</version>
                         </dependency>
                     </dependencies>
                 </plugin>
@@ -2843,9 +2236,9 @@
                     <artifactId>maven-war-plugin</artifactId>
                     <!--<version>2.1-alpha-2</version>-->
                     <configuration>
-                    <!-- 
-                        <webXml>${project.build.directory}/jspweb.xml</webXml>
-                         -->
+                        <!--
+                       <webXml>${project.build.directory}/jspweb.xml</webXml>
+                        -->
                         <archiveClasses>true</archiveClasses>
                         <archive>
                             <!-- Do not include META-INF/maven to avoid long file problems on windows -->
@@ -2872,39 +2265,39 @@
                 </plugin>
 
                 <!--<plugin>-->
-                    <!--<groupId>org.apache.maven.plugins</groupId>-->
-                    <!--<artifactId>maven-ear-plugin</artifactId>-->
-                    <!--<version>2.3</version>-->
-                    <!--<configuration>-->
-                        <!--<archive>-->
-                            <!-- Do not include META-INF/maven to avoid long file problems on windows -->
-                            <!--<addMavenDescriptor>false</addMavenDescriptor>-->
-                        <!--</archive>-->
-                    <!--</configuration>-->
+                <!--<groupId>org.apache.maven.plugins</groupId>-->
+                <!--<artifactId>maven-ear-plugin</artifactId>-->
+                <!--<version>2.3</version>-->
+                <!--<configuration>-->
+                <!--<archive>-->
+                <!-- Do not include META-INF/maven to avoid long file problems on windows -->
+                <!--<addMavenDescriptor>false</addMavenDescriptor>-->
+                <!--</archive>-->
+                <!--</configuration>-->
                 <!--</plugin>-->
 
                 <!--<plugin>-->
-                    <!--<groupId>org.apache.maven.plugins</groupId>-->
-                    <!--<artifactId>maven-rar-plugin</artifactId>-->
-                    <!--<version>2.2</version>-->
-                    <!--<configuration>-->
-                        <!--<archive>-->
-                            <!-- Do not include META-INF/maven to avoid long file problems on windows -->
-                            <!--<addMavenDescriptor>false</addMavenDescriptor>-->
-                        <!--</archive>-->
-                    <!--</configuration>-->
+                <!--<groupId>org.apache.maven.plugins</groupId>-->
+                <!--<artifactId>maven-rar-plugin</artifactId>-->
+                <!--<version>2.2</version>-->
+                <!--<configuration>-->
+                <!--<archive>-->
+                <!-- Do not include META-INF/maven to avoid long file problems on windows -->
+                <!--<addMavenDescriptor>false</addMavenDescriptor>-->
+                <!--</archive>-->
+                <!--</configuration>-->
                 <!--</plugin>-->
 
                 <!--<plugin>-->
-                    <!--<groupId>org.apache.maven.plugins</groupId>-->
-                    <!--<artifactId>maven-jar-plugin</artifactId>-->
-                    <!--<version>2.1</version>-->
-                    <!--<configuration>-->
-                        <!--<archive>-->
-                            <!-- Do not include META-INF/maven to avoid long file problems on windows -->
-                            <!--<addMavenDescriptor>false</addMavenDescriptor>-->
-                        <!--</archive>-->
-                    <!--</configuration>-->
+                <!--<groupId>org.apache.maven.plugins</groupId>-->
+                <!--<artifactId>maven-jar-plugin</artifactId>-->
+                <!--<version>2.1</version>-->
+                <!--<configuration>-->
+                <!--<archive>-->
+                <!-- Do not include META-INF/maven to avoid long file problems on windows -->
+                <!--<addMavenDescriptor>false</addMavenDescriptor>-->
+                <!--</archive>-->
+                <!--</configuration>-->
                 <!--</plugin>-->
 
                 <plugin>
@@ -2918,9 +2311,9 @@
                 </plugin>
 
                 <!--<plugin>-->
-                    <!--<groupId>org.codehaus.mojo</groupId>-->
-                    <!--<artifactId>shitty-maven-plugin</artifactId>-->
-                    <!--<version>1.0-alpha-3</version>-->
+                <!--<groupId>org.codehaus.mojo</groupId>-->
+                <!--<artifactId>shitty-maven-plugin</artifactId>-->
+                <!--<version>1.0-alpha-3</version>-->
                 <!--</plugin>-->
 
                 <plugin>
@@ -2930,93 +2323,93 @@
                 </plugin>
 
                 <!--<plugin>-->
-                    <!--<groupId>org.apache.maven.plugins</groupId>-->
-                    <!--<artifactId>maven-deploy-plugin</artifactId>-->
-                    <!--<version>2.3</version>-->
-                    <!--<inherited>true</inherited>-->
-                    <!--<configuration>-->
-                        <!--<updateReleaseInfo>true</updateReleaseInfo>-->
-                        <!--<altDeploymentRepository>${deploy.altRepository}</altDeploymentRepository>-->
-                    <!--</configuration>-->
+                <!--<groupId>org.apache.maven.plugins</groupId>-->
+                <!--<artifactId>maven-deploy-plugin</artifactId>-->
+                <!--<version>2.3</version>-->
+                <!--<inherited>true</inherited>-->
+                <!--<configuration>-->
+                <!--<updateReleaseInfo>true</updateReleaseInfo>-->
+                <!--<altDeploymentRepository>${deploy.altRepository}</altDeploymentRepository>-->
+                <!--</configuration>-->
                 <!--</plugin>-->
 
                 <!--<plugin>-->
-                    <!--<groupId>org.apache.maven.plugins</groupId>-->
-                    <!--<artifactId>maven-gpg-plugin</artifactId>-->
-                    <!--<version>1.0-alpha-3</version>-->
-                    <!--<configuration>-->
-                        <!--<passphrase>${gpg.passphrase}</passphrase>-->
-                    <!--</configuration>-->
-                    <!--<executions>-->
-                        <!--<execution>-->
-                            <!--<goals>-->
-                                <!--<goal>sign</goal>-->
-                            <!--</goals>-->
-                        <!--</execution>-->
-                    <!--</executions>-->
+                <!--<groupId>org.apache.maven.plugins</groupId>-->
+                <!--<artifactId>maven-gpg-plugin</artifactId>-->
+                <!--<version>1.0-alpha-3</version>-->
+                <!--<configuration>-->
+                <!--<passphrase>${gpg.passphrase}</passphrase>-->
+                <!--</configuration>-->
+                <!--<executions>-->
+                <!--<execution>-->
+                <!--<goals>-->
+                <!--<goal>sign</goal>-->
+                <!--</goals>-->
+                <!--</execution>-->
+                <!--</executions>-->
                 <!--</plugin>-->
 
                 <!--<plugin>-->
-                    <!--<groupId>org.apache.maven.plugins</groupId>-->
-                    <!--<artifactId>maven-release-plugin</artifactId>-->
-                    <!--<version>2.0-beta-9</version>-->
+                <!--<groupId>org.apache.maven.plugins</groupId>-->
+                <!--<artifactId>maven-release-plugin</artifactId>-->
+                <!--<version>2.0-beta-9</version>-->
                 <!--</plugin>-->
 
                 <!--<plugin>-->
-                    <!--<groupId>org.codehaus.plexus</groupId>-->
-                    <!--<artifactId>plexus-maven-plugin</artifactId>-->
-                    <!--<version>1.3.6</version>-->
+                <!--<groupId>org.codehaus.plexus</groupId>-->
+                <!--<artifactId>plexus-maven-plugin</artifactId>-->
+                <!--<version>1.3.6</version>-->
                 <!--</plugin>-->
 
                 <!--<plugin>-->
-                    <!--<groupId>org.apache.maven.plugins</groupId>-->
-                    <!--<artifactId>maven-enforcer-plugin</artifactId>-->
-                    <!--<version>1.0-alpha-3</version>-->
+                <!--<groupId>org.apache.maven.plugins</groupId>-->
+                <!--<artifactId>maven-enforcer-plugin</artifactId>-->
+                <!--<version>1.0-alpha-3</version>-->
                 <!--</plugin>-->
 
                 <!--<plugin>-->
-                    <!--<groupId>org.apache.maven.plugins</groupId>-->
-                    <!--<artifactId>maven-dependency-plugin</artifactId>-->
-                    <!--<version>2.0</version>-->
-                    <!--<configuration>-->
-                        <!--<silent>true</silent>-->
-                    <!--</configuration>-->
+                <!--<groupId>org.apache.maven.plugins</groupId>-->
+                <!--<artifactId>maven-dependency-plugin</artifactId>-->
+                <!--<version>2.0</version>-->
+                <!--<configuration>-->
+                <!--<silent>true</silent>-->
+                <!--</configuration>-->
                 <!--</plugin>-->
 
                 <!--<plugin>-->
-                    <!--<groupId>org.apache.maven.plugins</groupId>-->
-                    <!--<artifactId>maven-reactor-plugin</artifactId>-->
-                    <!--<version>1.0</version>-->
+                <!--<groupId>org.apache.maven.plugins</groupId>-->
+                <!--<artifactId>maven-reactor-plugin</artifactId>-->
+                <!--<version>1.0</version>-->
                 <!--</plugin>-->
 
                 <!--<plugin>-->
-                    <!--<groupId>org.apache.maven.plugins</groupId>-->
-                    <!--<artifactId>maven-remote-resources-plugin</artifactId>-->
-                    <!--<version>1.0</version>-->
-                    <!--<executions>-->
-                        <!--<execution>-->
-                            <!--<goals>-->
-                                <!--<goal>process</goal>-->
-                            <!--</goals>-->
-                            <!--<configuration>-->
-                                <!--<resourceBundles>-->
-                                    <!--<resourceBundle>org.apache:apache-jar-resource-bundle:1.4</resourceBundle>-->
-                                <!--</resourceBundles>-->
-                            <!--</configuration>-->
-                        <!--</execution>-->
-                    <!--</executions>-->
+                <!--<groupId>org.apache.maven.plugins</groupId>-->
+                <!--<artifactId>maven-remote-resources-plugin</artifactId>-->
+                <!--<version>1.0</version>-->
+                <!--<executions>-->
+                <!--<execution>-->
+                <!--<goals>-->
+                <!--<goal>process</goal>-->
+                <!--</goals>-->
+                <!--<configuration>-->
+                <!--<resourceBundles>-->
+                <!--<resourceBundle>org.apache:apache-jar-resource-bundle:1.4</resourceBundle>-->
+                <!--</resourceBundles>-->
+                <!--</configuration>-->
+                <!--</execution>-->
+                <!--</executions>-->
                 <!--</plugin>-->
 
                 <!--<plugin>-->
-                    <!--<groupId>org.codehaus.mojo</groupId>-->
-                    <!--<artifactId>ianal-maven-plugin</artifactId>-->
-                    <!--<version>1.0-alpha-1</version>-->
+                <!--<groupId>org.codehaus.mojo</groupId>-->
+                <!--<artifactId>ianal-maven-plugin</artifactId>-->
+                <!--<version>1.0-alpha-1</version>-->
                 <!--</plugin>-->
 
                 <!--<plugin>-->
-                    <!--<groupId>org.codehaus.mojo</groupId>-->
-                    <!--<artifactId>jaxb2-maven-plugin</artifactId>-->
-                    <!--<version>1.2</version>-->
+                <!--<groupId>org.codehaus.mojo</groupId>-->
+                <!--<artifactId>jaxb2-maven-plugin</artifactId>-->
+                <!--<version>1.2</version>-->
                 <!--</plugin>-->
 
                 <!-- INTERNAL -->
@@ -3118,105 +2511,105 @@
         </pluginManagement>
 
         <!--<plugins>-->
-            <!--<plugin>-->
-                <!--<groupId>org.apache.maven.plugins</groupId>-->
-                <!--<artifactId>maven-enforcer-plugin</artifactId>-->
-                <!--<executions>-->
-                    <!--<execution>-->
-                        <!--<phase>validate</phase>-->
-                        <!--<goals>-->
-                            <!--<goal>enforce</goal>-->
-                        <!--</goals>-->
-                        <!--<configuration>-->
-                            <!--<rules>-->
-                                <!-- Allow any Java >= 1.5 -->
-                                <!--<requireJavaVersion>-->
-                                    <!--<version>[1.5,)</version>-->
-                                <!--</requireJavaVersion>-->
+        <!--<plugin>-->
+        <!--<groupId>org.apache.maven.plugins</groupId>-->
+        <!--<artifactId>maven-enforcer-plugin</artifactId>-->
+        <!--<executions>-->
+        <!--<execution>-->
+        <!--<phase>validate</phase>-->
+        <!--<goals>-->
+        <!--<goal>enforce</goal>-->
+        <!--</goals>-->
+        <!--<configuration>-->
+        <!--<rules>-->
+        <!-- Allow any Java >= 1.5 -->
+        <!--<requireJavaVersion>-->
+        <!--<version>[1.5,)</version>-->
+        <!--</requireJavaVersion>-->
 
-                                <!-- Require Maven 2.0.9+ -->
-                                <!--<requireMavenVersion>-->
-                                    <!--<version>[2.0.9,)</version>-->
-                                <!--</requireMavenVersion>-->
-                            <!--</rules>-->
-                        <!--</configuration>-->
-                    <!--</execution>-->
-                <!--</executions>-->
-            <!--</plugin>-->
+        <!-- Require Maven 2.0.9+ -->
+        <!--<requireMavenVersion>-->
+        <!--<version>[2.0.9,)</version>-->
+        <!--</requireMavenVersion>-->
+        <!--</rules>-->
+        <!--</configuration>-->
+        <!--</execution>-->
+        <!--</executions>-->
+        <!--</plugin>-->
 
-            <!--<plugin>-->
-                <!--<groupId>org.apache.maven.plugins</groupId>-->
-                <!--<artifactId>maven-compiler-plugin</artifactId>-->
-                <!--<configuration>-->
-                    <!--<source>1.5</source>-->
-                    <!--<target>1.5</target>-->
-                <!--</configuration>-->
-            <!--</plugin>-->
+        <!--<plugin>-->
+        <!--<groupId>org.apache.maven.plugins</groupId>-->
+        <!--<artifactId>maven-compiler-plugin</artifactId>-->
+        <!--<configuration>-->
+        <!--<source>1.5</source>-->
+        <!--<target>1.5</target>-->
+        <!--</configuration>-->
+        <!--</plugin>-->
 
-            <!--<plugin>-->
-                <!--<groupId>org.apache.maven.plugins</groupId>-->
-                <!--<artifactId>maven-idea-plugin</artifactId>-->
-                <!--<configuration>-->
-                    <!--<jdkName>1.5</jdkName>-->
-                    <!--<jdkLevel>1.5</jdkLevel>-->
-                    <!--<linkModules>true</linkModules>-->
-                <!--</configuration>-->
-            <!--</plugin>-->
+        <!--<plugin>-->
+        <!--<groupId>org.apache.maven.plugins</groupId>-->
+        <!--<artifactId>maven-idea-plugin</artifactId>-->
+        <!--<configuration>-->
+        <!--<jdkName>1.5</jdkName>-->
+        <!--<jdkLevel>1.5</jdkLevel>-->
+        <!--<linkModules>true</linkModules>-->
+        <!--</configuration>-->
+        <!--</plugin>-->
 
-            <!--<plugin>-->
-                <!--<groupId>org.apache.maven.plugins</groupId>-->
-                <!--<artifactId>maven-reactor-plugin</artifactId>-->
-            <!--</plugin>-->
+        <!--<plugin>-->
+        <!--<groupId>org.apache.maven.plugins</groupId>-->
+        <!--<artifactId>maven-reactor-plugin</artifactId>-->
+        <!--</plugin>-->
 
-            <!--<plugin>-->
-                <!--<groupId>org.apache.maven.plugins</groupId>-->
-                <!--<artifactId>maven-remote-resources-plugin</artifactId>-->
-            <!--</plugin>-->
+        <!--<plugin>-->
+        <!--<groupId>org.apache.maven.plugins</groupId>-->
+        <!--<artifactId>maven-remote-resources-plugin</artifactId>-->
+        <!--</plugin>-->
 
-            <!--<plugin>-->
-                <!--<groupId>org.codehaus.mojo</groupId>-->
-                <!--<artifactId>ianal-maven-plugin</artifactId>-->
-                <!--<executions>-->
-                    <!--<execution>-->
-                        <!--<goals>-->
-                            <!--<goal>verify-legal-files</goal>-->
-                        <!--</goals>-->
-                        <!--<configuration>-->
-                            <!-- Fail the build if any artifacts are missing legal files -->
-                            <!--<strict>true</strict>-->
-                        <!--</configuration>-->
-                    <!--</execution>-->
-                <!--</executions>-->
-            <!--</plugin>-->
+        <!--<plugin>-->
+        <!--<groupId>org.codehaus.mojo</groupId>-->
+        <!--<artifactId>ianal-maven-plugin</artifactId>-->
+        <!--<executions>-->
+        <!--<execution>-->
+        <!--<goals>-->
+        <!--<goal>verify-legal-files</goal>-->
+        <!--</goals>-->
+        <!--<configuration>-->
+        <!-- Fail the build if any artifacts are missing legal files -->
+        <!--<strict>true</strict>-->
+        <!--</configuration>-->
+        <!--</execution>-->
+        <!--</executions>-->
+        <!--</plugin>-->
         <!--</plugins>-->
     </build>
 
     <reporting>
         <plugins>
             <!--<plugin>-->
-                <!--<groupId>org.apache.maven.plugins</groupId>-->
-                <!--<artifactId>maven-javadoc-plugin</artifactId>-->
-                <!--<version>2.4</version>-->
-                <!--<configuration>-->
-                    <!--<breakiterator>true</breakiterator>-->
-                    <!--<quiet>true</quiet>-->
-                    <!--<verbose>false</verbose>-->
-                    <!--<source>1.5</source>-->
-                    <!--<linksource>true</linksource>-->
-                    <!--<links>-->
-                        <!--<link>http://java.sun.com/j2se/1.5.0/docs/api/</link>-->
-                        <!--<link>http://java.sun.com/javaee/5/docs/api/</link>-->
-                    <!--</links>-->
-                <!--</configuration>-->
+            <!--<groupId>org.apache.maven.plugins</groupId>-->
+            <!--<artifactId>maven-javadoc-plugin</artifactId>-->
+            <!--<version>2.4</version>-->
+            <!--<configuration>-->
+            <!--<breakiterator>true</breakiterator>-->
+            <!--<quiet>true</quiet>-->
+            <!--<verbose>false</verbose>-->
+            <!--<source>1.5</source>-->
+            <!--<linksource>true</linksource>-->
+            <!--<links>-->
+            <!--<link>http://java.sun.com/j2se/1.5.0/docs/api/</link>-->
+            <!--<link>http://java.sun.com/javaee/5/docs/api/</link>-->
+            <!--</links>-->
+            <!--</configuration>-->
             <!--</plugin>-->
 
             <!--<plugin>-->
-                <!--<groupId>org.apache.maven.plugins</groupId>-->
-                <!--<artifactId>maven-pmd-plugin</artifactId>-->
-                <!--<version>2.2</version>-->
-                <!--<configuration>-->
-                    <!--<targetJdk>1.5</targetJdk>-->
-                <!--</configuration>-->
+            <!--<groupId>org.apache.maven.plugins</groupId>-->
+            <!--<artifactId>maven-pmd-plugin</artifactId>-->
+            <!--<version>2.2</version>-->
+            <!--<configuration>-->
+            <!--<targetJdk>1.5</targetJdk>-->
+            <!--</configuration>-->
             <!--</plugin>-->
         </plugins>
     </reporting>
@@ -3240,20 +2633,20 @@
                 <enabled>false</enabled>
             </releases>
         </repository>
-        
+
         <!--<repository>-->
-            <!--<id>apache.nexus.snapshots</id>-->
-            <!--<name>Apache Nexus Repository</name>-->
-            <!--<url>https://repository.apache.org/content/repositories/snapshots</url>-->
-            <!--<layout>default</layout>-->
-            <!--<snapshots>-->
-                <!--<enabled>true</enabled>-->
-                <!--<updatePolicy>daily</updatePolicy>-->
-                <!--<checksumPolicy>ignore</checksumPolicy>-->
-            <!--</snapshots>-->
-            <!--<releases>-->
-                <!--<enabled>false</enabled>-->
-            <!--</releases>-->
+        <!--<id>apache.nexus.snapshots</id>-->
+        <!--<name>Apache Nexus Repository</name>-->
+        <!--<url>https://repository.apache.org/content/repositories/snapshots</url>-->
+        <!--<layout>default</layout>-->
+        <!--<snapshots>-->
+        <!--<enabled>true</enabled>-->
+        <!--<updatePolicy>daily</updatePolicy>-->
+        <!--<checksumPolicy>ignore</checksumPolicy>-->
+        <!--</snapshots>-->
+        <!--<releases>-->
+        <!--<enabled>false</enabled>-->
+        <!--</releases>-->
         <!--</repository>-->
     </repositories>
 
@@ -3402,32 +2795,32 @@
         </profile>
 
         <!--<profile>-->
-            <!--<id>idea</id>-->
+        <!--<id>idea</id>-->
 
-            <!--<build>-->
-                <!--<defaultGoal>validate</defaultGoal>-->
+        <!--<build>-->
+        <!--<defaultGoal>validate</defaultGoal>-->
 
-                <!--<plugins>-->
-                    <!--<plugin>-->
-                        <!--<groupId>org.apache.maven.plugins</groupId>-->
-                        <!--<artifactId>maven-idea-plugin</artifactId>-->
-                        <!--<configuration>-->
-                            <!--<overwrite>true</overwrite>-->
-                            <!--<downloadSources>true</downloadSources>-->
-                            <!--<downloadJavadocs>true</downloadJavadocs>-->
-                        <!--</configuration>-->
-                        <!--<executions>-->
-                            <!--<execution>-->
-                                <!--<phase>validate</phase>-->
-                                <!--<goals>-->
-                                    <!--<goal>clean</goal>-->
-                                    <!--<goal>idea</goal>-->
-                                <!--</goals>-->
-                            <!--</execution>-->
-                        <!--</executions>-->
-                    <!--</plugin>-->
-                <!--</plugins>-->
-            <!--</build>-->
+        <!--<plugins>-->
+        <!--<plugin>-->
+        <!--<groupId>org.apache.maven.plugins</groupId>-->
+        <!--<artifactId>maven-idea-plugin</artifactId>-->
+        <!--<configuration>-->
+        <!--<overwrite>true</overwrite>-->
+        <!--<downloadSources>true</downloadSources>-->
+        <!--<downloadJavadocs>true</downloadJavadocs>-->
+        <!--</configuration>-->
+        <!--<executions>-->
+        <!--<execution>-->
+        <!--<phase>validate</phase>-->
+        <!--<goals>-->
+        <!--<goal>clean</goal>-->
+        <!--<goal>idea</goal>-->
+        <!--</goals>-->
+        <!--</execution>-->
+        <!--</executions>-->
+        <!--</plugin>-->
+        <!--</plugins>-->
+        <!--</build>-->
         <!--</profile>-->
 
         <profile>

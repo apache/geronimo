@@ -124,6 +124,12 @@
             </exclusions>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.geronimo.plugins.classloaders</groupId>
+            <artifactId>xbean-finder</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
         <!--<dependency>-->
             <!--<groupId>org.apache.xbean</groupId>-->
             <!--<artifactId>xbean-reflect</artifactId>-->

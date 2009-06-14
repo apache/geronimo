@@ -243,6 +243,12 @@ public class GeronimoStandardContext extends StandardContext {
             }
         }
     }
+
+    public void init() throws Exception {
+        String docBase = getDocBase();
+        super.init();
+        setDocBase(docBase);
+    }
     
     public synchronized void start() throws LifecycleException {
         if (pipelineInitialized) {
@@ -273,8 +279,9 @@ public class GeronimoStandardContext extends StandardContext {
             } catch (ServletException e) {
                 throw new LifecycleException(e);
             }
-        } else
+        } else {
             super.start();
+        }
     }
 
     public void addChild(Container child) {

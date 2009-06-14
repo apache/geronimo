@@ -104,8 +104,8 @@
 
         <!-- used by plugin installer -->
         <dependency>
-            <groupId>javax.xml.bind</groupId>
-            <artifactId>jaxb-api</artifactId>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-jaxb_2.1_spec</artifactId>
         </dependency>
         <dependency>
             <groupId>com.sun.xml.bind</groupId>

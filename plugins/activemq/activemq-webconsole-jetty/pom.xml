@@ -114,6 +114,12 @@
             <groupId>org.apache.activemq</groupId>
             <artifactId>activemq-xmpp</artifactId>
             <version>5.3-SNAPSHOT</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>javax.xml.bind</groupId>
+                    <artifactId>jaxb-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.apache.activemq</groupId>

@@ -72,28 +72,28 @@
         </dependency>
 
         <!--<dependency>-->
-            <!--<groupId>org.apache.tomcat</groupId>-->
-            <!--<artifactId>jasper</artifactId>-->
+        <!--<groupId>${tomcatGroupId}</groupId>-->
+        <!--<artifactId>jasper</artifactId>-->
         <!--</dependency>-->
 
         <!--<dependency>-->
-            <!--<groupId>org.apache.tomcat</groupId>-->
-            <!--<artifactId>jasper-jdt</artifactId>-->
+        <!--<groupId>${tomcatGroupId}</groupId>-->
+        <!--<artifactId>jasper-jdt</artifactId>-->
         <!--</dependency>-->
 
         <!--<dependency>-->
-            <!--<groupId>org.apache.tomcat</groupId>-->
-            <!--<artifactId>jasper-el</artifactId>-->
+        <!--<groupId>${tomcatGroupId}</groupId>-->
+        <!--<artifactId>jasper-el</artifactId>-->
         <!--</dependency>-->
 
         <!-- are these required? -->
-        <dependency>
-            <groupId>org.apache.tomcat.extras</groupId>
-            <artifactId>juli-adapters</artifactId>
-        </dependency>
+        <!--<dependency>-->
+        <!--<groupId>${tomcatGroupId}</groupId>-->
+        <!--<artifactId>juli-adapters</artifactId>-->
+        <!--</dependency>-->
 
         <dependency>
-            <groupId>org.apache.tomcat.extras</groupId>
+            <groupId>${tomcatGroupId}</groupId>
             <artifactId>juli</artifactId>
         </dependency>
     </dependencies>

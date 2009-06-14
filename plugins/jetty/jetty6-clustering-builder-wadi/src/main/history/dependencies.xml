@@ -12,13 +12,13 @@
         <type>car</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>jetty6-clustering-wadi</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
         <groupId>org.apache.geronimo.modules</groupId>
         <artifactId>geronimo-jetty6-clustering-builder-wadi</artifactId>
         <type>jar</type>
+    </dependency>
+    <dependency start="true">
+        <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>jetty6-clustering-wadi</artifactId>
+        <type>car</type>
     </dependency>
 </plugin-artifact>

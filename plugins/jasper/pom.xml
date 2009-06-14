@@ -43,4 +43,64 @@
         <module>jasper-deployer</module>
     </modules>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>${tomcatGroupId}</groupId>
+                <artifactId>jasper</artifactId>
+                <version>${tomcatVersion}</version>
+                <exclusions>
+                    <!--<exclusion>-->
+                    <!--<groupId>${tomcatGroupId}</groupId>-->
+                    <!--<artifactId>servlet-api</artifactId>-->
+                    <!--</exclusion>-->
+                    <!--<exclusion>-->
+                    <!--<groupId>${tomcatGroupId}</groupId>-->
+                    <!--<artifactId>juli</artifactId>-->
+                    <!--</exclusion>-->
+                    <!--<exclusion>-->
+                    <!--<groupId>${tomcatGroupId}</groupId>-->
+                    <!--<artifactId>jsp-api</artifactId>-->
+                    <!--</exclusion>-->
+                    <!--<exclusion>-->
+                    <!--<groupId>${tomcatGroupId}</groupId>-->
+                    <!--<artifactId>el-api</artifactId>-->
+                    <!--</exclusion>-->
+                    <!--<exclusion>-->
+                    <!--<groupId>${tomcatGroupId}</groupId>-->
+                    <!--<artifactId>catalina</artifactId>-->
+                    <!--</exclusion>-->
+                    <!--<exclusion>-->
+                    <!--<groupId>${tomcatGroupId}</groupId>-->
+                    <!--<artifactId>annotations-api</artifactId>-->
+                    <!--</exclusion>-->
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>${tomcatGroupId}</groupId>
+                <artifactId>jasper-el</artifactId>
+                <version>${tomcatVersion}</version>
+                <exclusions>
+                    <!--<exclusion>-->
+                    <!--<groupId>${tomcatGroupId}</groupId>-->
+                    <!--<artifactId>el-api</artifactId>-->
+                    <!--</exclusion>-->
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>${tomcatGroupId}</groupId>
+                <artifactId>juli</artifactId>
+                <version>${tomcatVersion}</version>
+            </dependency>
+
+            <!--<dependency>-->
+            <!--<groupId>${tomcatGroupId}</groupId>-->
+            <!--<artifactId>jasper-jdt</artifactId>-->
+            <!--<version>${tomcatVersion}</version>-->
+            <!--</dependency>-->
+
+
+        </dependencies>
+    </dependencyManagement>
+
 </project>

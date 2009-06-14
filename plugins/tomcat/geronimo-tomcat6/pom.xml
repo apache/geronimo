@@ -27,12 +27,19 @@
         <artifactId>tomcat</artifactId>
         <version>2.2-SNAPSHOT</version>
     </parent>
-    
+
     <groupId>org.apache.geronimo.modules</groupId>
     <artifactId>geronimo-tomcat6</artifactId>
     <name>Geronimo Plugins, Tomcat :: Core</name>
-    
+
     <dependencies>
+        <dependency>
+            <groupId>org.apache.geronimo.plugins</groupId>
+            <artifactId>clustering</artifactId>
+            <version>${version}</version>
+            <type>pom</type>
+            <scope>import</scope>
+        </dependency>
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>transaction</artifactId>
@@ -41,10 +48,10 @@
         </dependency>
 
         <!--<dependency>-->
-            <!--<groupId>org.apache.geronimo.framework</groupId>-->
-            <!--<artifactId>rmi-naming</artifactId>-->
-            <!--<version>${version}</version>-->
-            <!--<type>car</type>-->
+        <!--<groupId>org.apache.geronimo.framework</groupId>-->
+        <!--<artifactId>rmi-naming</artifactId>-->
+        <!--<version>${version}</version>-->
+        <!--<type>car</type>-->
         <!--</dependency>-->
 
         <dependency>
@@ -62,12 +69,12 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.tomcat</groupId>
+            <groupId>${tomcatGroupId}</groupId>
             <artifactId>catalina</artifactId>
         </dependency>
-        
+
         <dependency>
-            <groupId>org.apache.tomcat</groupId>
+            <groupId>${tomcatGroupId}</groupId>
             <artifactId>catalina-ha</artifactId>
         </dependency>
 
@@ -78,26 +85,26 @@
             <scope>test</scope>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.tomcat</groupId>
-            <artifactId>jasper-jdt</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.tomcat</groupId>
-            <artifactId>coyote</artifactId>
-        </dependency>
-        
         <!--<dependency>-->
-            <!--<groupId>org.apache.tomcat.extras</groupId>-->
-            <!--<artifactId>juli</artifactId>-->
+        <!--<groupId>${tomcatGroupId}</groupId>-->
+        <!--<artifactId>jasper-jdt</artifactId>-->
+        <!--<scope>test</scope>-->
+        <!--</dependency>-->
+
+        <!--<dependency>-->
+        <!--<groupId>${tomcatGroupId}</groupId>-->
+        <!--<artifactId>coyote</artifactId>-->
         <!--</dependency>-->
 
         <dependency>
-            <groupId>org.apache.tomcat.extras</groupId>
-            <artifactId>juli-adapters</artifactId>
+            <groupId>${tomcatGroupId}</groupId>
+            <artifactId>juli</artifactId>
         </dependency>
+
+        <!--<dependency>-->
+        <!--<groupId>${tomcatGroupId}/groupId>-->
+        <!--<artifactId>juli-adapters</artifactId>-->
+        <!--</dependency>-->
 
         <dependency>
             <groupId>org.slf4j</groupId>

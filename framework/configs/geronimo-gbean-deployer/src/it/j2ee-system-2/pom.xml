@@ -88,10 +88,10 @@
 
         <!-- used by plugin installer -->
         <dependency>
-            <groupId>javax.xml.bind</groupId>
-            <artifactId>jaxb-api</artifactId>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-jaxb_2.1_spec</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>com.sun.xml.bind</groupId>
             <artifactId>jaxb-impl</artifactId>
@@ -181,8 +181,8 @@
                         </element>
                         <!-- TODO bad idea... temp, for plugins -->
                         <element>
-                            <groupId>javax.xml.bind</groupId>
-                            <artifactId>jaxb-api</artifactId>
+                            <groupId>org.apache.geronimo.specs</groupId>
+                            <artifactId>geronimo-jaxb_2.1_spec</artifactId>
                         </element>
                         <element>
                             <groupId>com.sun.xml.bind</groupId>

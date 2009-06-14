@@ -64,19 +64,19 @@
         See GERONIMO-3010  These artifacts are here temporarily while we discuss the proposed change in
         managed object lifecycle handling with the tomcat team.  One way or another it should be gone in a couple of weeks 
         -->
-        <dependency>
-            <groupId>org.apache.tomcat</groupId>
-            <artifactId>catalina</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.tomcat</groupId>
-            <artifactId>jasper</artifactId>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.tomcat</groupId>-->
+            <!--<artifactId>catalina</artifactId>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>org.apache.tomcat</groupId>-->
+            <!--<artifactId>jasper</artifactId>-->
+        <!--</dependency>-->
         <!-- This is an additional patch until 6.0.19 is released -->
-        <dependency>
-            <groupId>org.apache.tomcat</groupId>
-            <artifactId>jasper-el</artifactId>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.tomcat</groupId>-->
+            <!--<artifactId>jasper-el</artifactId>-->
+        <!--</dependency>-->
 
         <!-- Added for patched build of Pluto 1.1.6-G643117 -->
         <dependency>

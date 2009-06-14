@@ -238,7 +238,7 @@ public class TomcatModuleBuilderTest extends TestSupport {
         ConfigurationData bootstrap = new ConfigurationData(baseId, naming);
 
         GBeanData serverInfo = bootstrap.addGBean("ServerInfo", BasicServerInfo.GBEAN_INFO);
-        serverInfo.setAttribute("baseDirectory", ".");
+        serverInfo.setAttribute("baseDirectory", BASEDIR.getAbsolutePath());
 
         AbstractName configStoreName = bootstrap.addGBean("MockConfigurationStore", MockConfigStore.GBEAN_INFO).getAbstractName();
 
@@ -293,7 +293,7 @@ public class TomcatModuleBuilderTest extends TestSupport {
 
         WebServiceBuilder webServiceBuilder = new MockWebServiceBuilder();
 
-        GBeanData containerData = bootstrap.addGBean("TomcatContainer", TomcatContainer.GBEAN_INFO);
+        GBeanData containerData = bootstrap.addGBean("TomcatContainer", TomcatContainer.class);
         containerData.setAttribute("catalinaHome", new File(BASEDIR, "target/var/catalina").toString());
         containerData.setReferencePattern("EngineGBean", engine.getAbstractName());
         containerData.setReferencePattern("ServerInfo", serverInfo.getAbstractName());

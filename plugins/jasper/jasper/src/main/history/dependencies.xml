@@ -7,38 +7,8 @@
         <type>car</type>
     </module-id>
     <dependency>
-        <groupId>org.apache.tomcat</groupId>
-        <artifactId>jasper</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>j2ee-server</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.tomcat</groupId>
-        <artifactId>jasper-el</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.tomcat</groupId>
-        <artifactId>jasper-jdt</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.tomcat.extras</groupId>
-        <artifactId>juli</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.tomcat.extras</groupId>
-        <artifactId>juli-adapters</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>transaction</artifactId>
         <type>car</type>
     </dependency>
     <dependency>
@@ -47,8 +17,48 @@
         <type>car</type>
     </dependency>
     <dependency>
+        <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>transaction</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
         <groupId>org.apache.geronimo.modules</groupId>
         <artifactId>geronimo-jasper</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.ext.tomcat</groupId>
+        <artifactId>jasper</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.ext.tomcat</groupId>
+        <artifactId>juli</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.ext.tomcat</groupId>
+        <artifactId>shared</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.ant</groupId>
+        <artifactId>ant</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.ant</groupId>
+        <artifactId>ant-launcher</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.eclipse.jdt</groupId>
+        <artifactId>core</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.ext.tomcat</groupId>
+        <artifactId>jasper-el</artifactId>
         <type>jar</type>
     </dependency>
 </plugin-artifact>

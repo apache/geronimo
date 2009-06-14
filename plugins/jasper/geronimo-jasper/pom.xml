@@ -34,17 +34,17 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.apache.tomcat</groupId>
+            <groupId>${tomcatGroupId}</groupId>
             <artifactId>jasper</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.tomcat</groupId>
-            <artifactId>jasper-jdt</artifactId>
-        </dependency>
+        <!--<dependency>-->
+        <!--<groupId>${tomcatGroupId}</groupId>-->
+        <!--<artifactId>jasper-jdt</artifactId>-->
+        <!--</dependency>-->
 
         <dependency>
-            <groupId>org.apache.tomcat</groupId>
+            <groupId>${tomcatGroupId}</groupId>
             <artifactId>jasper-el</artifactId>
         </dependency>
 
@@ -53,7 +53,7 @@
             <artifactId>geronimo-kernel</artifactId>
             <version>${version}</version>
         </dependency>
-        
+
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-j2ee</artifactId>
@@ -79,18 +79,18 @@
             <artifactId>geronimo-el_1.0_spec</artifactId>
             <scope>provided</scope>
         </dependency>
-        
+
         <!--
         TODO: See if this logging package is really needed.
         -->
         <!--<dependency>-->
-            <!--<groupId>org.apache.tomcat</groupId>-->
-            <!--<artifactId>juli</artifactId>-->
+        <!--<groupId>${tomcatGroupId}</groupId>-->
+        <!--<artifactId>juli</artifactId>-->
         <!--</dependency>-->
 
         <!--<dependency>-->
-            <!--<groupId>org.apache.tomcat</groupId>-->
-            <!--<artifactId>catalina</artifactId>-->
+        <!--<groupId>${tomcatGroupId}</groupId>-->
+        <!--<artifactId>catalina</artifactId>-->
         <!--</dependency>-->
     </dependencies>
 

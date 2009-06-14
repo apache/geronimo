@@ -87,7 +87,7 @@
         
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-jaspi_1.0_spec</artifactId>
+            <artifactId>geronimo-jaspic_1.0_spec</artifactId>
         </dependency>
 
         <!-- NOTA BENE: use the org.apache.geronimo.javamail/geronimo-javamail_1.4_mail uber jar
@@ -149,8 +149,8 @@
         -->
         <!--
         <dependency>
-            <groupId>javax.xml.bind</groupId>
-            <artifactId>jaxb-api</artifactId>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-jaxb_2.1_spec</artifactId>
         </dependency>
         -->
         <!-- JAXB Impl should not be here! -->

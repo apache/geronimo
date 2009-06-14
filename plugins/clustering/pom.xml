@@ -14,24 +14,26 @@
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
---><!-- $Rev$ $Date$ --><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+--><!-- $Rev$ $Date$ -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-    
+
     <parent>
         <groupId>org.apache.geronimo.plugins</groupId>
         <artifactId>plugins</artifactId>
         <version>2.2-SNAPSHOT</version>
     </parent>
-    
+
     <artifactId>clustering</artifactId>
     <name>Geronimo Plugins, Clustering</name>
     <packaging>pom</packaging>
-    
+
     <description>
         clustering plugin
     </description>
-    
+
     <modules>
         <module>geronimo-clustering</module>
         <module>geronimo-clustering-wadi</module>
@@ -55,5 +57,107 @@
             </modules>
         </profile>
     </profiles>
+
+    <properties>
+        <wadiVersion>2.1.1</wadiVersion>
+    </properties>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>${tomcatGroupId}</groupId>
+                <artifactId>juli</artifactId>
+                <version>${tomcatVersion}</version>
+            </dependency>
+            <dependency>
+                <groupId>${tomcatGroupId}</groupId>
+                <artifactId>tribes</artifactId>
+                <version>${tomcatVersion}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>${tomcatGroupId}</groupId>
+                        <artifactId>juli</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <!-- WADI support -->
+            <dependency>
+                <groupId>org.codehaus.wadi</groupId>
+                <artifactId>wadi-aop</artifactId>
+                <version>${wadiVersion}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <!-- wrong version.... c-m-p picks up this one -->
+                        <groupId>aspectj</groupId>
+                        <artifactId>aspectjrt</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.codehaus.wadi</groupId>
+                <artifactId>wadi-core</artifactId>
+                <version>${wadiVersion}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>commons-httpclient</groupId>
+                        <artifactId>commons-httpclient</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>regexp</groupId>
+                        <artifactId>regexp</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.codehaus.wadi</groupId>
+                <artifactId>wadi-group</artifactId>
+                <version>${wadiVersion}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.codehaus.wadi</groupId>
+                <artifactId>wadi-tribes</artifactId>
+                <version>${wadiVersion}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.tomcat</groupId>
+                        <artifactId>tribes</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>${tomcatGroupId}</groupId>
+                <artifactId>tribes</artifactId>
+                <version>${tomcatVersion}</version>
+                <!--<exclusions>-->
+                <!--<exclusion>-->
+                <!--<groupId>${tomcatGroupId}</groupId>-->
+                <!--<artifactId>juli</artifactId>-->
+                <!--</exclusion>-->
+                <!--</exclusions>-->
+            </dependency>
+
+        </dependencies>
+    </dependencyManagement>
 
 </project>

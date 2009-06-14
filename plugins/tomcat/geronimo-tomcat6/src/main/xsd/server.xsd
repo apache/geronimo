@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="Server" type="ServerType">
+    <xs:annotation>
+      <xs:documentation>Note: A "Server" is not itself a "Container", so you may not
+        define subcomponents such as "Valves" at this level.
+        Documentation at /docs/config/server.html
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:complexType name="EngineType">
+    <xs:sequence>
+      <xs:element type="RealmType" name="Realm" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>For clustering, please take a look at documentation at:
+            /docs/cluster-howto.html (simple how to)
+            /docs/config/cluster.html (reference documentation)
+            &lt;Cluster className="org.apache.catalina.ha.tcp.SimpleTcpCluster"/>
+            The request dumper valve dumps useful debugging information about
+            the request and response data received and sent by Tomcat.
+            Documentation at: /docs/config/valve.html
+            &lt;Valve className="org.apache.catalina.valves.RequestDumperValve"/>
+            This Realm uses the UserDatabase configured in the global JNDI
+            resources under the key "UserDatabase". Any edits
+            that are performed against this UserDatabase are immediately
+            available for use by the Realm.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element type="HostType" name="Host" minOccurs="0" maxOccurs="unbounded">
+        <xs:annotation>
+          <xs:documentation>Define the default virtual host
+            Note: XML Schema validation will not work with Xerces 2.2.
+            SingleSignOn valve, share authentication between web applications
+            Documentation at: /docs/config/valve.html
+            &lt;Valve className="org.apache.catalina.authenticator.SingleSignOn" />
+            Access log processes all example.
+            Documentation at: /docs/config/valve.html
+            &lt;Valve className="org.apache.catalina.valves.AccessLogValve" directory="logs"
+            prefix="localhost_access_log." suffix=".txt" pattern="common" resolveHosts="false"/>
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Cluster" type="ClusterType" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="Listener" type="ListenerType" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+    <xs:attribute type="xs:string" name="className" use="optional"/>
+    <xs:attribute type="xs:string" name="name"/>
+    <xs:attribute type="xs:string" name="defaultHost"/>
+    <xs:attribute type="xs:string" name="jvmRoute"/>
+    <xs:attribute type="xs:int" name="backgroundProcessorDelay"/>
+    <xs:anyAttribute namespace="##local"/>
+  </xs:complexType>
+
+  <xs:complexType name="NamingResourcesType">
+    <xs:sequence>
+      <xs:element type="EjbType" name="Ejb" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element type="EnvironmentType" name="Environment" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element type="LocalEjbType" name="LocalEjb" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element type="ResourceType" name="Resource" minOccurs="0" maxOccurs="unbounded">
+        <xs:annotation>
+          <xs:documentation>Editable user database that can also be used by
+            UserDatabaseRealm to authenticate users
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element type="ResourceEnvRefType" name="ResourceEnvRef" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element type="ServiceRefType" name="ServiceRef" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element type="TransactionType" name="Transaction" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ResourceType">
+    <xs:attribute type="xs:string" name="name"/>
+    <xs:attribute type="xs:string" name="type"/>
+    <xs:attribute type="xs:string" name="description"/>
+    <xs:attribute type="xs:string" name="auth"/>
+    <xs:attribute type="xs:string" name="scope"/>
+    <xs:anyAttribute namespace="##local"/>
+  </xs:complexType>
+
+  <xs:complexType name="ListenerType">
+    <xs:attribute type="xs:string" name="className"/>
+    <xs:anyAttribute namespace="##local"/>
+  </xs:complexType>
+
+  <xs:complexType name="HostType">
+    <xs:sequence>
+      <xs:element name="Alias" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="Cluster" type="ClusterType" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="Listener" type="ListenerType" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="Realm" type="RealmType" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="Valve" type="ValveType" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="Context" type="ContextType" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+    <xs:attribute type="xs:string" name="className" use="optional"/>
+    <xs:attribute type="xs:string" name="name"/>
+    <xs:attribute type="xs:string" name="appBase"/>
+    <xs:attribute type="xs:string" name="hostConfigClass"/>
+    <xs:attribute type="xs:boolean" name="unpackWARs"/>
+    <xs:attribute type="xs:boolean" name="autoDeploy"/>
+    <xs:attribute type="xs:boolean" name="deployOnStartup"/>
+    <xs:attribute type="xs:boolean" name="xmlValidation"/>
+    <xs:attribute type="xs:boolean" name="xmlNamespaceAware"/>
+    <xs:anyAttribute namespace="##local"/>
+  </xs:complexType>
+
+  <xs:complexType name="ConnectorType">
+    <xs:sequence>
+      <xs:element name="Listener" type="ListenerType" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+    <xs:attribute type="xs:string" name="className"/>
+    <xs:attribute type="xs:boolean" name="allowTrace"/>
+    <xs:attribute type="xs:boolean" name="emptySessionPath"/>
+    <xs:attribute type="xs:boolean" name="enableLookups"/>
+    <xs:attribute type="xs:int" name="maxPostSize"/>
+    <xs:attribute type="xs:int" name="maxSavePostSize"/>
+    <xs:attribute type="xs:int" name="port"/>
+    <xs:attribute type="xs:string" name="protocol"/>
+    <xs:attribute type="xs:string" name="protocolHandlerClassName"/>
+    <xs:attribute type="xs:string" name="proxyName"/>
+    <xs:attribute type="xs:int" name="proxyPort"/>
+    <xs:attribute type="xs:int" name="redirectPort"/>
+    <xs:attribute type="xs:string" name="scheme"/>
+    <xs:attribute type="xs:boolean" name="secure"/>
+    <xs:attribute type="xs:string" name="encoding"/>
+    <xs:attribute type="xs:string" name="useBodyEncodingForURI"/>
+    <xs:attribute type="xs:string" name="xpoweredBy"/>
+    <xs:attribute type="xs:boolean" name="useIPVHosts"/>
+    <xs:anyAttribute namespace="##local"/>
+  </xs:complexType>
+
+  <xs:complexType name="ServiceType">
+    <xs:sequence>
+      <xs:element type="ConnectorType" name="Connector" minOccurs="0" maxOccurs="unbounded">
+        <xs:annotation>
+          <xs:documentation>The connectors can use a shared executor, you can define one or more named thread pools
+            &lt;Executor name="tomcatThreadPool" namePrefix="catalina-exec-"
+            maxThreads="150" minSpareThreads="4"/>
+            A "Connector" represents an endpoint by which requests are received
+            and responses are returned. Documentation at :
+            Java HTTP Connector: /docs/config/http.html (blocking &amp; non-blocking)
+            Java AJP Connector: /docs/config/ajp.html
+            APR (HTTP/AJP) Connector: /docs/apr.html
+            Define a non-SSL HTTP/1.1 Connector on port 8080
+            A "Connector" using the shared thread pool
+            &lt;Connector executor="tomcatThreadPool"
+            port="8080" protocol="HTTP/1.1"
+            connectionTimeout="20000"
+            redirectPort="8443" />
+            Define a SSL HTTP/1.1 Connector on port 8443
+            This connector uses the JSSE configuration, when using APR, the
+            connector should be using the OpenSSL style configuration
+            described in the APR documentation
+            &lt;Connector port="8443" protocol="HTTP/1.1" SSLEnabled="true"
+            maxThreads="150" scheme="https" secure="true"
+            clientAuth="false" sslProtocol="TLS" />
+            Define an AJP 1.3 Connector on port 8009
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element type="EngineType" name="Engine" minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>An Engine represents the entry point (within Catalina) that processes
+            every request. The Engine implementation for Tomcat stand alone
+            analyzes the HTTP headers included with the request, and passes them
+            on to the appropriate Host (virtual host).
+            Documentation at /docs/config/engine.html You should set jvmRoute to support load-balancing via AJP ie :
+            &lt;Engine name="Standalone" defaultHost="localhost" jvmRoute="jvm1">
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element type="ListenerType" name="Listener" minOccurs="0" maxOccurs="unbounded">
+        <xs:annotation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element type="ExecutorType" name="Executor" minOccurs="0" maxOccurs="unbounded">
+        <xs:annotation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+    <xs:attribute type="xs:string" name="className" use="optional"/>
+    <xs:attribute type="xs:string" name="name"/>
+    <xs:anyAttribute namespace="##local"/>
+  </xs:complexType>
+  <xs:complexType name="ServerType">
+    <xs:sequence>
+      <xs:element type="ListenerType" name="Listener" minOccurs="0" maxOccurs="unbounded">
+        <xs:annotation>
+          <xs:documentation>APR library loader. Documentation at /docs/apr.html Initialize Jasper prior to webapps are loaded. Documentation at /docs/jasper-howto.html JMX Support for the Tomcat server. Documentation at
+            /docs/non-existent.html
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element type="NamingResourcesType" name="GlobalNamingResources" minOccurs="0" maxOccurs="unbounded">
+        <xs:annotation>
+          <xs:documentation>Global JNDI resources
+            Documentation at /docs/jndi-resources-howto.html
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element type="ServiceType" name="Service" minOccurs="0" maxOccurs="unbounded">
+        <xs:annotation>
+          <xs:documentation>A "Service" is a collection of one or more "Connectors" that share
+            a single "Container" Note: A "Service" is not itself a "Container",
+            so you may not define subcomponents such as "Valves" at this level.
+            Documentation at /docs/config/service.html
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+    <xs:attribute type="xs:string" name="className" use="optional"/>
+    <xs:attribute type="xs:int" name="port"/>
+    <xs:attribute type="xs:string" name="shutdown"/>
+    <xs:anyAttribute namespace="##local"/>
+  </xs:complexType>
+
+  <xs:complexType name="RealmType">
+    <xs:attribute type="xs:string" name="className"/>
+    <xs:anyAttribute namespace="##local"/>
+  </xs:complexType>
+
+  <xs:complexType name="ExecutorType">
+    <xs:attribute type="xs:string" name="className" use="optional"/>
+    <xs:anyAttribute namespace="##local"/>
+  </xs:complexType>
+
+  <xs:complexType name="ClusterType">
+    <!-- may need another namespace?? -->
+  </xs:complexType>
+
+  <xs:complexType name="EjbType"></xs:complexType>
+  <xs:complexType name="EnvironmentType"></xs:complexType>
+  <xs:complexType name="LocalEjbType"></xs:complexType>
+  <xs:complexType name="ResourceEnvRefType"></xs:complexType>
+  <xs:complexType name="ServiceRefType"></xs:complexType>
+  <xs:complexType name="TransactionType"></xs:complexType>
+  
+  <xs:complexType name="ValveType">
+    <xs:attribute type="xs:string" name="className"/>
+    <xs:anyAttribute namespace="##local"/>
+  </xs:complexType>
+
+  <xs:complexType name="ContextType">
+    <xs:complexContent>
+      <xs:extension base="NamingResourcesType"/>
+      <!-- see ContextRuleSet.  Very incomplete -->
+    </xs:complexContent>
+  </xs:complexType>
+</xs:schema>

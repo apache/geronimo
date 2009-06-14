@@ -33,6 +33,11 @@
     </dependency>
     <dependency>
         <groupId>org.apache.openejb</groupId>
+        <artifactId>openejb-api</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.openejb</groupId>
         <artifactId>openejb-loader</artifactId>
         <type>jar</type>
     </dependency>
@@ -48,7 +53,17 @@
     </dependency>
     <dependency>
         <groupId>org.apache.openejb</groupId>
-        <artifactId>asm-finder</artifactId>
+        <artifactId>xbean-asm-shaded</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.openejb</groupId>
+        <artifactId>xbean-finder-shaded</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.openejb</groupId>
+        <artifactId>xbean-reflect</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>

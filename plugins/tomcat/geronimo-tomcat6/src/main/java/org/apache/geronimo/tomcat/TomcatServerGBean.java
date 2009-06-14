@@ -1,0 +1,137 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+
+package org.apache.geronimo.tomcat;
+
+import java.io.Reader;
+import java.io.IOException;
+import java.io.StringReader;
+import java.io.File;
+import java.io.FileReader;
+import java.util.Arrays;
+
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
+import javax.xml.bind.JAXBElement;
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.ParamSpecial;
+import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
+import org.apache.geronimo.gbean.annotation.ParamReference;
+import org.apache.geronimo.gbean.annotation.ParamAttribute;
+import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.tomcat.model.ServerType;
+import org.apache.geronimo.system.serverinfo.ServerInfo;
+import org.apache.catalina.Server;
+import org.apache.catalina.Lifecycle;
+import org.apache.catalina.Engine;
+import org.apache.catalina.Service;
+import org.xml.sax.SAXException;
+
+/**
+ * @version $Rev$ $Date$
+ */
+
+@GBean
+public class TomcatServerGBean implements GBeanLifecycle {
+    public static final XMLInputFactory XMLINPUT_FACTORY = XMLInputFactory.newInstance();
+    public static final JAXBContext SERVER_CONTEXT;
+
+    static {
+        try {
+            SERVER_CONTEXT = JAXBContext.newInstance(ServerType.class);
+        } catch (JAXBException e) {
+            throw new RuntimeException("Could not create jaxb contexts for plugin types", e);
+        }
+    }
+
+    //server.xml as a string
+    private final String serverConfig;
+    private final ClassLoader classLoader;
+    private final ServerInfo serverInfo;
+    private final Server server;
+
+    public TomcatServerGBean(@ParamAttribute(name = "serverConfig")String serverConfig,
+                             @ParamAttribute(name = "serverConfigLocation")String serverConfigLocation,
+                             @ParamReference(name = "ServerInfo") ServerInfo serverInfo,
+                             @ParamSpecial(type= SpecialAttributeType.classLoader)ClassLoader classLoader) throws Exception {
+        this.serverConfig = serverConfig;
+        this.serverInfo = serverInfo;
+        this.classLoader = classLoader;
+
+        Reader in;
+        if (serverConfig != null) {
+            in = new StringReader(serverConfig);
+        } else {
+            File loc = serverInfo.resolveServer(serverConfigLocation);
+            in = new FileReader(loc);
+        }
+        try {
+            ServerType serverType = loadServerType(in);
+            server = serverType.build(classLoader);
+        } finally {
+            in.close();
+        }
+    }
+
+    static ServerType loadServerType(Reader in) throws ParserConfigurationException, IOException, SAXException, JAXBException, XMLStreamException {
+        Unmarshaller unmarshaller = SERVER_CONTEXT.createUnmarshaller();
+        XMLStreamReader xmlStream = XMLINPUT_FACTORY.createXMLStreamReader(in);
+        JAXBElement<ServerType> element = unmarshaller.unmarshal(xmlStream, ServerType.class);
+        ServerType serverType = element.getValue();
+        return serverType;
+    }
+
+    public void doStart() throws Exception {
+        ((Lifecycle)server).start();
+    }
+
+    public void doStop() throws Exception {
+        ((Lifecycle)server).stop();
+    }
+
+    public void doFail() {
+        try {
+            doStop();
+        } catch (Exception e) {
+            //TODO log??
+        }
+    }
+
+    public Engine getEngine(String serviceName) {
+        Service service;
+        if (serviceName == null) {
+            Service[] services = server.findServices();
+            if (services == null || services.length == 0) throw new IllegalStateException("No services in server");
+
+            if (services.length > 1) throw new IllegalStateException("More than one service in server.  Provide name of desired server" + Arrays.asList(services));
+            service = services[0];
+
+        } else {
+            service = server.findService(serviceName);
+        }
+        return (Engine) service.getContainer();
+    }
+}
