@@ -193,7 +193,13 @@ public class ORBConfigAdapter implements GBeanLifecycle, ConfigAdapter {
             // the service instance is returned as an opaque object.
             return service;
         } catch (TransientServiceException e) {
-            throw new ConfigException("Error starting transient name service", e);
+            
+            if (e.getCause() != null && e.getCause().getCause() != null
+                    && e.getCause().getCause() instanceof java.net.BindException) {
+                
+                throw new ConfigException("Error starting transient name service, Port already in use:" + port, e);
+
+            } else throw new ConfigException("Error starting transient name service", e);
         }
     }
 
