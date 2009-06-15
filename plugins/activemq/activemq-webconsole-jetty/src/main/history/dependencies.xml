@@ -42,6 +42,11 @@
         <type>jar</type>
     </dependency>
     <dependency>
+        <groupId>org.apache.camel</groupId>
+        <artifactId>camel-core</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-tx</artifactId>
         <type>jar</type>

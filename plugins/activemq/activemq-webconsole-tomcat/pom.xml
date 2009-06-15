@@ -117,6 +117,10 @@
                     <groupId>org.apache.geronimo.specs</groupId>
                     <artifactId>geronimo-jta_1.0.1B_spec</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>javax.xml.bind</groupId>
+                    <artifactId>jaxb-api</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
 
