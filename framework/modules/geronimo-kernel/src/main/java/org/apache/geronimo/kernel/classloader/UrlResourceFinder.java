@@ -203,7 +203,7 @@ public class UrlResourceFinder implements ResourceFinder {
                     } catch (UnsupportedOperationException ex) {
                         // the protocol for the JAR file's URL is not supported.  This can occur when
                         // the jar file is embedded in an EAR or CAR file.  Proceed but log the message.
-                        log.error("The protocol for the JAR file's URL is not supported", ex);
+                        log.debug("The protocol for the JAR file's URL is not supported", ex);
                         continue;
                     }
                 }
