@@ -156,12 +156,9 @@ public class ConfigManagerPortlet extends BasePortlet {
                     addInfoMessage(actionRequest, getLocalizedString(actionRequest, "infoMsg01") + printResults(lcresult.getStarted()));
                 }
             } else if (STOP_ACTION.equals(action)) {
-                if(configurationManager.isRunning(configId)) {
-                    configurationManager.stopConfiguration(configId);
-                }
                 if(configurationManager.isLoaded(configId)) {
                     LifecycleResults lcresult = configurationManager.unloadConfiguration(configId);
-                    addInfoMessage(actionRequest, getLocalizedString(actionRequest, "infoMsg02") + printResults(lcresult.getStarted()));
+                    addInfoMessage(actionRequest, getLocalizedString(actionRequest, "infoMsg02") + printResults(lcresult.getStopped()));
                 }
             } else if (UNINSTALL_ACTION.equals(action)) {
                 configurationManager.uninstallConfiguration(configId);
