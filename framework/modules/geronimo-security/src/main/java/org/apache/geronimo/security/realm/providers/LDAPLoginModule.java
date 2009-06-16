@@ -87,10 +87,12 @@ public class LDAPLoginModule implements LoginModule {
     private static final String ROLE_SEARCH_MATCHING = "roleSearchMatching";
     private static final String ROLE_SEARCH_SUBTREE = "roleSearchSubtree";
     private static final String USER_ROLE_NAME = "userRoleName";
+    private static final String FOLLOW_REFERRALS = "followReferrals";
+    
     public final static List<String> supportedOptions = Collections.unmodifiableList(Arrays.asList(INITIAL_CONTEXT_FACTORY, CONNECTION_URL,
             CONNECTION_USERNAME, CONNECTION_PASSWORD, CONNECTION_PROTOCOL, AUTHENTICATION, USER_BASE,
             USER_SEARCH_MATCHING, USER_SEARCH_SUBTREE, ROLE_BASE, ROLE_NAME, ROLE_SEARCH_MATCHING, ROLE_SEARCH_SUBTREE,
-            USER_ROLE_NAME));
+            USER_ROLE_NAME, FOLLOW_REFERRALS));
 
     private String initialContextFactory;
     private String connectionURL;
@@ -102,6 +104,7 @@ public class LDAPLoginModule implements LoginModule {
     private String roleBase;
     private String roleName;
     private String userRoleName;
+    private boolean followReferrals = true;
 
     private String cbUsername;
     private String cbPassword;
@@ -145,6 +148,8 @@ public class LDAPLoginModule implements LoginModule {
         roleSearchMatchingFormat = new MessageFormat(roleSearchMatching);
         userSearchSubtreeBool = Boolean.valueOf(userSearchSubtree);
         roleSearchSubtreeBool = Boolean.valueOf(roleSearchSubtree);
+        String followReferralsStr = (String) options.get(FOLLOW_REFERRALS);
+        followReferrals = (followReferralsStr == null) ? true : Boolean.valueOf(followReferralsStr);
     }
 
     /**
@@ -451,6 +456,7 @@ public class LDAPLoginModule implements LoginModule {
             env.put(Context.SECURITY_PROTOCOL, connectionProtocol == null ? "" : connectionProtocol);
             env.put(Context.PROVIDER_URL, connectionURL == null ? "" : connectionURL);
             env.put(Context.SECURITY_AUTHENTICATION, authentication == null ? "" : authentication);
+            env.put(Context.REFERRAL, (followReferrals) ? "follow" : "ignore");
             context = new InitialDirContext(env);
         } catch (NamingException e) {
             log.error("Failed to open context", e);
