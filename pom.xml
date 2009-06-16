@@ -79,7 +79,7 @@
         <openejbVersion>3.1.1</openejbVersion>
         <derbyVersion>10.4.2.0</derbyVersion>
         <cxfVersion>2.1.4</cxfVersion>
-        <axis2Version>1.5-SNAPSHOT</axis2Version>
+        <axis2Version>1.5</axis2Version>
         <axiomVersion>1.2.8</axiomVersion>
         <springVersion>2.5.6</springVersion>
         <plutoVersion>1.1.6-G643117</plutoVersion>
