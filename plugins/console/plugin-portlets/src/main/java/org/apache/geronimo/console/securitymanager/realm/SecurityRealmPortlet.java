@@ -573,9 +573,9 @@ public class SecurityRealmPortlet extends BasePortlet {
             // apply settings
             for (int i = 0; i < data.getModules().length; i++) {
                 LoginModuleDetails details = data.getModules()[i];
-                node = (JaasLoginModuleChain) nodes.get(details.getLoginDomainName());
+                node = (JaasLoginModuleChain)PortletManager.getManagedBean(request, PortletManager.getNameFor(request, nodes.get(details.getLoginDomainName())));
                 node.setControlFlag(details.getControlFlag());
-                LoginModuleSettings module = node.getLoginModule();
+                LoginModuleSettings module =(LoginModuleSettings)PortletManager.getManagedBean(request, PortletManager.getNameFor(request, node.getLoginModule()));
                 module.setOptions(details.getOptions());
                 module.setWrapPrincipals(details.isWrapPrincipals());
                 module.setLoginModuleClass(details.getClassName());
