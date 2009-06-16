@@ -56,7 +56,7 @@ public class TomcatServerGBeanTest extends TestSupport {
     }
     public void testGBeanServer1() throws Exception {
         ServerInfo serverInfo = new BasicServerInfo(BASEDIR.getAbsolutePath());
-        TomcatServerGBean tomcatServerGBean = new TomcatServerGBean(null, SERVER_1, serverInfo, getClass().getClassLoader());
+        TomcatServerGBean tomcatServerGBean = new TomcatServerGBean(null, SERVER_1, serverInfo, null, getClass().getClassLoader());
         try {
             tomcatServerGBean.doStart();
         } finally {

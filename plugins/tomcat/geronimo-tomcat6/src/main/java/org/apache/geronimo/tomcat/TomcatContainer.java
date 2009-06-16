@@ -134,7 +134,8 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
         System.setProperty("catalina.home", catalinaHome);
 
         if (server != null) {
-            this.engine = server.getEngine(serviceName);
+            embedded = server.getService(serviceName);
+            engine = (Engine) embedded.getContainer();
         } else {
             this.engine = (Engine) engineGBean.getInternalObject();
             StandardService embedded = new StandardService();

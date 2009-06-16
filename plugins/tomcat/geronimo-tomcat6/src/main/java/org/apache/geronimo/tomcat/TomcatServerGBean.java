@@ -20,34 +20,36 @@
 
 package org.apache.geronimo.tomcat;
 
-import java.io.Reader;
-import java.io.IOException;
-import java.io.StringReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
 import java.util.Arrays;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.JAXBElement;
-import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.catalina.Engine;
+import org.apache.catalina.Lifecycle;
+import org.apache.catalina.Server;
+import org.apache.catalina.Service;
+import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.ParamAttribute;
+import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.gbean.annotation.ParamSpecial;
 import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
-import org.apache.geronimo.gbean.annotation.ParamReference;
-import org.apache.geronimo.gbean.annotation.ParamAttribute;
-import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.tomcat.model.ServerType;
+import org.apache.geronimo.system.jmx.MBeanServerReference;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
-import org.apache.catalina.Server;
-import org.apache.catalina.Lifecycle;
-import org.apache.catalina.Engine;
-import org.apache.catalina.Service;
+import org.apache.geronimo.tomcat.model.ServerType;
+import org.apache.tomcat.util.modeler.Registry;
 import org.xml.sax.SAXException;
 
 /**
@@ -76,6 +78,7 @@ public class TomcatServerGBean implements GBeanLifecycle {
     public TomcatServerGBean(@ParamAttribute(name = "serverConfig")String serverConfig,
                              @ParamAttribute(name = "serverConfigLocation")String serverConfigLocation,
                              @ParamReference(name = "ServerInfo") ServerInfo serverInfo,
+                             @ParamReference(name = "MBeanServerReference") MBeanServerReference mbeanServerReference,
                              @ParamSpecial(type= SpecialAttributeType.classLoader)ClassLoader classLoader) throws Exception {
         this.serverConfig = serverConfig;
         this.serverInfo = serverInfo;
@@ -88,8 +91,13 @@ public class TomcatServerGBean implements GBeanLifecycle {
             File loc = serverInfo.resolveServer(serverConfigLocation);
             in = new FileReader(loc);
         }
+
+        if(mbeanServerReference != null) {
+            Registry.setServer(mbeanServerReference.getMBeanServer());
+        }
+        
         try {
-            ServerType serverType = loadServerType(in);
+            ServerType serverType = loadServerType(in);            
             server = serverType.build(classLoader);
         } finally {
             in.close();
@@ -120,7 +128,7 @@ public class TomcatServerGBean implements GBeanLifecycle {
         }
     }
 
-    public Engine getEngine(String serviceName) {
+    public Service getService(String serviceName) {
         Service service;
         if (serviceName == null) {
             Service[] services = server.findServices();
@@ -132,6 +140,6 @@ public class TomcatServerGBean implements GBeanLifecycle {
         } else {
             service = server.findService(serviceName);
         }
-        return (Engine) service.getContainer();
+        return service;
     }
 }
