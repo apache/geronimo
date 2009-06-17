@@ -6,29 +6,29 @@
         <version>2.2-SNAPSHOT</version>
         <type>car</type>
     </module-id>
-    <dependency start="true">
-        <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>jsr88-cli</artifactId>
-        <type>car</type>
-    </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>geronimo-client-builder</artifactId>
+        <groupId>org.apache.geronimo.components</groupId>
+        <artifactId>geronimo-connector</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>geronimo-client</artifactId>
+        <groupId>org.apache.geronimo.components</groupId>
+        <artifactId>geronimo-transaction</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.framework</groupId>
+        <artifactId>geronimo-core</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.framework</groupId>
+        <artifactId>geronimo-management</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.framework</groupId>
         <artifactId>geronimo-naming</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.xbean</groupId>
-        <artifactId>xbean-naming</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -41,14 +41,24 @@
         <artifactId>jee-specs</artifactId>
         <type>car</type>
     </dependency>
+    <dependency start="true">
+        <groupId>org.apache.geronimo.framework</groupId>
+        <artifactId>jsr88-cli</artifactId>
+        <type>car</type>
+    </dependency>
     <dependency>
         <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>geronimo-j2ee</artifactId>
+        <artifactId>geronimo-client</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>geronimo-management</artifactId>
+        <groupId>org.apache.geronimo.modules</groupId>
+        <artifactId>geronimo-client-builder</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.modules</groupId>
+        <artifactId>geronimo-connector</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -58,32 +68,17 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>geronimo-connector</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.components</groupId>
-        <artifactId>geronimo-connector</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.components</groupId>
-        <artifactId>geronimo-transaction</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.objectweb.howl</groupId>
-        <artifactId>howl</artifactId>
+        <artifactId>geronimo-j2ee</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>geronimo-transaction</artifactId>
+        <artifactId>geronimo-j2ee-builder</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>geronimo-core</artifactId>
+        <groupId>org.apache.geronimo.modules</groupId>
+        <artifactId>geronimo-j2ee-schema</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -93,22 +88,17 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>geronimo-j2ee-builder</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.schema</groupId>
-        <artifactId>geronimo-schema-j2ee_1.4</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.modules</groupId>
         <artifactId>geronimo-security-builder</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>geronimo-j2ee-schema</artifactId>
+        <artifactId>geronimo-transaction</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.schema</groupId>
+        <artifactId>geronimo-schema-j2ee_1.4</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -119,6 +109,16 @@
     <dependency>
         <groupId>org.apache.xbean</groupId>
         <artifactId>xbean-finder</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.xbean</groupId>
+        <artifactId>xbean-naming</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.objectweb.howl</groupId>
+        <artifactId>howl</artifactId>
         <type>jar</type>
     </dependency>
 </plugin-artifact>

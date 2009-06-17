@@ -6,6 +6,16 @@
         <version>2.2-SNAPSHOT</version>
         <type>car</type>
     </module-id>
+    <dependency>
+        <groupId>org.apache.geronimo.framework</groupId>
+        <artifactId>geronimo-deployment</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.framework</groupId>
+        <artifactId>geronimo-management</artifactId>
+        <type>jar</type>
+    </dependency>
     <dependency start="true">
         <groupId>org.apache.geronimo.framework</groupId>
         <artifactId>jsr88-cli</artifactId>
@@ -18,6 +28,11 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.modules</groupId>
+        <artifactId>geronimo-j2ee</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.modules</groupId>
         <artifactId>geronimo-j2ee-builder</artifactId>
         <type>jar</type>
     </dependency>
@@ -27,33 +42,13 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>geronimo-deployment</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>xml-resolver</groupId>
-        <artifactId>xml-resolver</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.schema</groupId>
-        <artifactId>geronimo-schema-jee_5</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
         <groupId>org.apache.geronimo.schema</groupId>
         <artifactId>geronimo-schema-j2ee_1.4</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>geronimo-j2ee</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>geronimo-management</artifactId>
+        <groupId>org.apache.geronimo.schema</groupId>
+        <artifactId>geronimo-schema-jee_5</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -64,6 +59,11 @@
     <dependency>
         <groupId>org.apache.xbean</groupId>
         <artifactId>xbean-finder</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>xml-resolver</groupId>
+        <artifactId>xml-resolver</artifactId>
         <type>jar</type>
     </dependency>
 </plugin-artifact>

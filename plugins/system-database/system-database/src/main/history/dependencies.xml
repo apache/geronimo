@@ -7,11 +7,6 @@
         <type>car</type>
     </module-id>
     <dependency>
-        <groupId>org.tranql</groupId>
-        <artifactId>tranql-connector-derby-embed-xa</artifactId>
-        <type>rar</type>
-    </dependency>
-    <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>derby</artifactId>
         <type>car</type>
@@ -25,5 +20,10 @@
         <groupId>org.apache.geronimo.modules</groupId>
         <artifactId>geronimo-derby</artifactId>
         <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.tranql</groupId>
+        <artifactId>tranql-connector-derby-embed-xa</artifactId>
+        <type>rar</type>
     </dependency>
 </plugin-artifact>

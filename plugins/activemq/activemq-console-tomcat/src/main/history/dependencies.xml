@@ -7,28 +7,13 @@
         <type>car</type>
     </module-id>
     <dependency>
-        <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>geronimo-deploy-jsr88</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>geronimo-activemq-ra</artifactId>
-        <type>rar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.plugins</groupId>
-        <artifactId>console-tomcat</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>activemq-ra</artifactId>
         <type>car</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>plugin</artifactId>
+        <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>connector-deployer</artifactId>
         <type>car</type>
     </dependency>
     <dependency>
@@ -37,18 +22,33 @@
         <type>car</type>
     </dependency>
     <dependency>
+        <groupId>org.apache.geronimo.framework</groupId>
+        <artifactId>geronimo-deploy-jsr88</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.framework</groupId>
+        <artifactId>geronimo-gbean-deployer</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.framework</groupId>
+        <artifactId>plugin</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.modules</groupId>
+        <artifactId>geronimo-activemq-ra</artifactId>
+        <type>rar</type>
+    </dependency>
+    <dependency>
         <groupId>org.apache.geronimo.modules</groupId>
         <artifactId>geronimo-test-ddbean</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>connector-deployer</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>geronimo-gbean-deployer</artifactId>
+        <groupId>org.apache.geronimo.plugins</groupId>
+        <artifactId>console-tomcat</artifactId>
         <type>car</type>
     </dependency>
 </plugin-artifact>

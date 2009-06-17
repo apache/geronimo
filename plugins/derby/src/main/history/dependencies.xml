@@ -8,12 +8,7 @@
     </module-id>
     <dependency>
         <groupId>org.apache.derby</groupId>
-        <artifactId>derbynet</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.derby</groupId>
-        <artifactId>derbytools</artifactId>
+        <artifactId>derby</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -23,7 +18,12 @@
     </dependency>
     <dependency>
         <groupId>org.apache.derby</groupId>
-        <artifactId>derby</artifactId>
+        <artifactId>derbynet</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.derby</groupId>
+        <artifactId>derbytools</artifactId>
         <type>jar</type>
     </dependency>
 </plugin-artifact>

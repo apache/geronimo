@@ -12,16 +12,6 @@
         <type>car</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>server-security-config</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>geronimo-jetty7</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>transaction</artifactId>
         <type>car</type>
@@ -32,8 +22,33 @@
         <type>car</type>
     </dependency>
     <dependency>
+        <groupId>org.apache.geronimo.framework</groupId>
+        <artifactId>server-security-config</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.modules</groupId>
+        <artifactId>geronimo-jetty7</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
         <groupId>org.eclipse.jetty</groupId>
         <artifactId>jetty-ajp</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-continuation</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-http</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-io</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -53,12 +68,7 @@
     </dependency>
     <dependency>
         <groupId>org.eclipse.jetty</groupId>
-        <artifactId>jetty-webapp</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.eclipse.jetty</groupId>
-        <artifactId>jetty-xml</artifactId>
+        <artifactId>jetty-servlet</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -68,22 +78,12 @@
     </dependency>
     <dependency>
         <groupId>org.eclipse.jetty</groupId>
-        <artifactId>jetty-servlet</artifactId>
+        <artifactId>jetty-webapp</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
         <groupId>org.eclipse.jetty</groupId>
-        <artifactId>jetty-continuation</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.eclipse.jetty</groupId>
-        <artifactId>jetty-http</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.eclipse.jetty</groupId>
-        <artifactId>jetty-io</artifactId>
+        <artifactId>jetty-xml</artifactId>
         <type>jar</type>
     </dependency>
 </plugin-artifact>

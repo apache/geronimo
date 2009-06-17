@@ -7,13 +7,23 @@
         <type>car</type>
     </module-id>
     <dependency>
-        <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>client-system</artifactId>
-        <type>car</type>
+        <groupId>commons-collections</groupId>
+        <artifactId>commons-collections</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>commons-lang</groupId>
+        <artifactId>commons-lang</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>net.sourceforge.serp</groupId>
+        <artifactId>serp</artifactId>
+        <type>jar</type>
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>jee-specs</artifactId>
+        <artifactId>client-system</artifactId>
         <type>car</type>
     </dependency>
     <dependency>
@@ -23,12 +33,12 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>geronimo-management</artifactId>
+        <artifactId>geronimo-interceptor</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>geronimo-interceptor</artifactId>
+        <artifactId>geronimo-management</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -37,8 +47,18 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.xbean</groupId>
-        <artifactId>xbean-naming</artifactId>
+        <groupId>org.apache.geronimo.framework</groupId>
+        <artifactId>geronimo-security</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.framework</groupId>
+        <artifactId>jee-specs</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.modules</groupId>
+        <artifactId>geronimo-client</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -48,17 +68,22 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>geronimo-client</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>geronimo-security</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.modules</groupId>
         <artifactId>geronimo-openejb</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.plugins.classloaders</groupId>
+        <artifactId>xbean-finder</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.openejb</groupId>
+        <artifactId>openejb-api</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.openejb</groupId>
+        <artifactId>openejb-client</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -68,12 +93,7 @@
     </dependency>
     <dependency>
         <groupId>org.apache.openejb</groupId>
-        <artifactId>openejb-api</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.openejb</groupId>
-        <artifactId>openejb-loader</artifactId>
+        <artifactId>openejb-ejbd</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -87,23 +107,18 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.openjpa</groupId>
-        <artifactId>openjpa</artifactId>
+        <groupId>org.apache.openejb</groupId>
+        <artifactId>openejb-loader</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>net.sourceforge.serp</groupId>
-        <artifactId>serp</artifactId>
+        <groupId>org.apache.openejb</groupId>
+        <artifactId>openejb-multicast</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>commons-lang</groupId>
-        <artifactId>commons-lang</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>commons-collections</groupId>
-        <artifactId>commons-collections</artifactId>
+        <groupId>org.apache.openejb</groupId>
+        <artifactId>openejb-server</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -122,13 +137,18 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.codehaus.swizzle</groupId>
-        <artifactId>swizzle-stream</artifactId>
+        <groupId>org.apache.openjpa</groupId>
+        <artifactId>openjpa</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>wsdl4j</groupId>
-        <artifactId>wsdl4j</artifactId>
+        <groupId>org.apache.xbean</groupId>
+        <artifactId>xbean-naming</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.codehaus.swizzle</groupId>
+        <artifactId>swizzle-stream</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -137,28 +157,8 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.openejb</groupId>
-        <artifactId>openejb-ejbd</artifactId>
+        <groupId>wsdl4j</groupId>
+        <artifactId>wsdl4j</artifactId>
         <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.openejb</groupId>
-        <artifactId>openejb-server</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.openejb</groupId>
-        <artifactId>openejb-client</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.openejb</groupId>
-        <artifactId>openejb-multicast</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.plugins.classloaders</groupId>
-        <artifactId>xbean-finder</artifactId>
-        <type>car</type>
     </dependency>
 </plugin-artifact>

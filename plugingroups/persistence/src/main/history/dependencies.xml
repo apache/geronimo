@@ -8,12 +8,12 @@
     </module-id>
     <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>persistence-jpa10-deployer</artifactId>
+        <artifactId>openjpa</artifactId>
         <type>car</type>
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>openjpa</artifactId>
+        <artifactId>persistence-jpa10-deployer</artifactId>
         <type>car</type>
     </dependency>
 </plugin-artifact>

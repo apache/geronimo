@@ -7,6 +7,16 @@
         <type>car</type>
     </module-id>
     <dependency>
+        <groupId>org.apache.geronimo.components</groupId>
+        <artifactId>geronimo-connector</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.components</groupId>
+        <artifactId>geronimo-transaction</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>client</artifactId>
         <type>car</type>
@@ -22,28 +32,18 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.components</groupId>
-        <artifactId>geronimo-connector</artifactId>
+        <groupId>org.apache.geronimo.modules</groupId>
+        <artifactId>geronimo-persistence-jpa10</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.components</groupId>
+        <groupId>org.apache.geronimo.modules</groupId>
         <artifactId>geronimo-transaction</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
         <groupId>org.objectweb.howl</groupId>
         <artifactId>howl</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>geronimo-transaction</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>geronimo-persistence-jpa10</artifactId>
         <type>jar</type>
     </dependency>
 </plugin-artifact>

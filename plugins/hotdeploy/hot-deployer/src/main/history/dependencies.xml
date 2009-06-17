@@ -7,6 +7,11 @@
         <type>car</type>
     </module-id>
     <dependency>
+        <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>j2ee-deployer</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
         <groupId>org.apache.geronimo.framework</groupId>
         <artifactId>geronimo-deploy-jsr88</artifactId>
         <type>jar</type>
@@ -15,11 +20,6 @@
         <groupId>org.apache.geronimo.framework</groupId>
         <artifactId>geronimo-deploy-tool</artifactId>
         <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>j2ee-deployer</artifactId>
-        <type>car</type>
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.framework</groupId>

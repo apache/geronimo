@@ -7,9 +7,9 @@
         <type>car</type>
     </module-id>
     <dependency>
-        <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>geronimo-jetty7-clustering-wadi</artifactId>
-        <type>jar</type>
+        <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>jetty7</artifactId>
+        <type>car</type>
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
@@ -18,8 +18,18 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>wadi-clustering</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>webservices-common</artifactId>
         <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.modules</groupId>
+        <artifactId>geronimo-jetty7-clustering-wadi</artifactId>
+        <type>jar</type>
     </dependency>
     <dependency>
         <groupId>org.eclipse.jetty</groupId>
@@ -33,6 +43,11 @@
     </dependency>
     <dependency>
         <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-servlet</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.eclipse.jetty</groupId>
         <artifactId>jetty-webapp</artifactId>
         <type>jar</type>
     </dependency>
@@ -40,20 +55,5 @@
         <groupId>org.eclipse.jetty</groupId>
         <artifactId>jetty-xml</artifactId>
         <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.eclipse.jetty</groupId>
-        <artifactId>jetty-servlet</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>jetty7</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>wadi-clustering</artifactId>
-        <type>car</type>
     </dependency>
 </plugin-artifact>

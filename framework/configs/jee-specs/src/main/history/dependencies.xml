@@ -7,18 +7,38 @@
         <type>car</type>
     </module-id>
     <dependency>
+        <groupId>jstl</groupId>
+        <artifactId>jstl</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.framework</groupId>
+        <artifactId>geronimo-jdbc</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency start="true">
+        <groupId>org.apache.geronimo.framework</groupId>
+        <artifactId>j2ee-system</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.javamail</groupId>
+        <artifactId>geronimo-javamail_1.4_mail</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
         <groupId>org.apache.geronimo.specs</groupId>
         <artifactId>geronimo-annotation_1.0_spec</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.specs</groupId>
-        <artifactId>geronimo-ejb_3.0_spec</artifactId>
+        <artifactId>geronimo-concurrent_1.0_spec</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.openejb</groupId>
-        <artifactId>ejb31-api-experimental</artifactId>
+        <groupId>org.apache.geronimo.specs</groupId>
+        <artifactId>geronimo-ejb_3.0_spec</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -52,8 +72,8 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.javamail</groupId>
-        <artifactId>geronimo-javamail_1.4_mail</artifactId>
+        <groupId>org.apache.geronimo.specs</groupId>
+        <artifactId>geronimo-jaxr_1.0_spec</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -63,7 +83,7 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.specs</groupId>
-        <artifactId>geronimo-jaxr_1.0_spec</artifactId>
+        <artifactId>geronimo-jaxws_2.1_spec</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -88,12 +108,12 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.specs</groupId>
-        <artifactId>geronimo-servlet_2.5_spec</artifactId>
+        <artifactId>geronimo-saaj_1.3_spec</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.specs</groupId>
-        <artifactId>geronimo-concurrent_1.0_spec</artifactId>
+        <artifactId>geronimo-servlet_2.5_spec</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -102,33 +122,13 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.specs</groupId>
-        <artifactId>geronimo-jaxws_2.1_spec</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.specs</groupId>
-        <artifactId>geronimo-saaj_1.3_spec</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>jstl</groupId>
-        <artifactId>jstl</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
         <groupId>org.apache.myfaces.core</groupId>
         <artifactId>myfaces-api</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>geronimo-jdbc</artifactId>
+        <groupId>org.apache.openejb</groupId>
+        <artifactId>ejb31-api-experimental</artifactId>
         <type>jar</type>
-    </dependency>
-    <dependency start="true">
-        <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>j2ee-system</artifactId>
-        <type>car</type>
     </dependency>
 </plugin-artifact>

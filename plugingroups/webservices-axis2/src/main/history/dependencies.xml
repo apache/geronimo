@@ -8,12 +8,7 @@
     </module-id>
     <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>axis2-ejb-deployer</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>jaxws-tools</artifactId>
+        <artifactId>axis-deployer</artifactId>
         <type>car</type>
     </dependency>
     <dependency>
@@ -23,12 +18,17 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>axis-deployer</artifactId>
+        <artifactId>axis2-ejb-deployer</artifactId>
         <type>car</type>
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>cxf-tools</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>jaxws-tools</artifactId>
         <type>car</type>
     </dependency>
 </plugin-artifact>

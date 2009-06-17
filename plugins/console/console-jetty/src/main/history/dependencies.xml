@@ -7,16 +7,6 @@
         <type>car</type>
     </module-id>
     <dependency>
-        <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>j2ee-security</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.plugins</groupId>
-        <artifactId>pluto-support</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
         <groupId>commons-fileupload</groupId>
         <artifactId>commons-fileupload</artifactId>
         <type>jar</type>
@@ -27,23 +17,33 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.plugins</groupId>
-        <artifactId>console-core</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.directwebremoting</groupId>
-        <artifactId>dwr</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>jasper</artifactId>
         <type>car</type>
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>${jetty}</artifactId>
+        <artifactId>jetty7</artifactId>
         <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.framework</groupId>
+        <artifactId>j2ee-security</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.plugins</groupId>
+        <artifactId>console-core</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.plugins</groupId>
+        <artifactId>pluto-support</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.directwebremoting</groupId>
+        <artifactId>dwr</artifactId>
+        <type>jar</type>
     </dependency>
 </plugin-artifact>

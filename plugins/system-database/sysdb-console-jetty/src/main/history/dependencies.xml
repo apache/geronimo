@@ -7,8 +7,8 @@
         <type>car</type>
     </module-id>
     <dependency>
-        <groupId>org.apache.geronimo.plugins</groupId>
-        <artifactId>console-jetty</artifactId>
+        <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>jsr88-rar-configurer</artifactId>
         <type>car</type>
     </dependency>
     <dependency>
@@ -17,19 +17,9 @@
         <type>car</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>jsr88-rar-configurer</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
         <groupId>org.apache.geronimo.framework</groupId>
         <artifactId>geronimo-gbean-deployer</artifactId>
         <type>car</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>geronimo-converter</artifactId>
-        <type>jar</type>
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.framework</groupId>
@@ -38,17 +28,22 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.modules</groupId>
+        <artifactId>geronimo-converter</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.modules</groupId>
         <artifactId>geronimo-test-ddbean</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.tranql</groupId>
-        <artifactId>tranql-connector-derby-embed-local</artifactId>
-        <type>rar</type>
+        <groupId>org.apache.geronimo.plugins</groupId>
+        <artifactId>console-jetty</artifactId>
+        <type>car</type>
     </dependency>
     <dependency>
         <groupId>org.tranql</groupId>
-        <artifactId>tranql-connector-ra</artifactId>
+        <artifactId>tranql-connector-db2-xa</artifactId>
         <type>rar</type>
     </dependency>
     <dependency>
@@ -63,7 +58,7 @@
     </dependency>
     <dependency>
         <groupId>org.tranql</groupId>
-        <artifactId>tranql-connector-db2-xa</artifactId>
+        <artifactId>tranql-connector-derby-embed-local</artifactId>
         <type>rar</type>
     </dependency>
     <dependency>
@@ -88,12 +83,12 @@
     </dependency>
     <dependency>
         <groupId>org.tranql</groupId>
-        <artifactId>tranql-connector-oracle-xa</artifactId>
+        <artifactId>tranql-connector-oracle-rac-local</artifactId>
         <type>rar</type>
     </dependency>
     <dependency>
         <groupId>org.tranql</groupId>
-        <artifactId>tranql-connector-oracle-rac-local</artifactId>
+        <artifactId>tranql-connector-oracle-xa</artifactId>
         <type>rar</type>
     </dependency>
     <dependency>
@@ -104,6 +99,11 @@
     <dependency>
         <groupId>org.tranql</groupId>
         <artifactId>tranql-connector-postgresql-xa</artifactId>
+        <type>rar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.tranql</groupId>
+        <artifactId>tranql-connector-ra</artifactId>
         <type>rar</type>
     </dependency>
     <dependency>

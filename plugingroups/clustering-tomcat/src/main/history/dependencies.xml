@@ -8,7 +8,7 @@
     </module-id>
     <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>wadi-clustering</artifactId>
+        <artifactId>farming</artifactId>
         <type>car</type>
     </dependency>
     <dependency>
@@ -23,7 +23,7 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>farming</artifactId>
+        <artifactId>wadi-clustering</artifactId>
         <type>car</type>
     </dependency>
 </plugin-artifact>

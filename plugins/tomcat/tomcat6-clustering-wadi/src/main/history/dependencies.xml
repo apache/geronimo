@@ -7,11 +7,6 @@
         <type>car</type>
     </module-id>
     <dependency>
-        <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>geronimo-tomcat6-clustering-wadi</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>tomcat6-no-ha</artifactId>
         <type>car</type>
@@ -20,5 +15,10 @@
         <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>wadi-clustering</artifactId>
         <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.modules</groupId>
+        <artifactId>geronimo-tomcat6-clustering-wadi</artifactId>
+        <type>jar</type>
     </dependency>
 </plugin-artifact>

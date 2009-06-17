@@ -8,13 +8,13 @@
     </module-id>
     <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>cxf-ejb</artifactId>
+        <artifactId>cxf-deployer</artifactId>
         <type>car</type>
     </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>geronimo-cxf-ejb-builder</artifactId>
-        <type>jar</type>
+    <dependency start="true">
+        <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>cxf-ejb</artifactId>
+        <type>car</type>
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
@@ -22,8 +22,8 @@
         <type>car</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>cxf-deployer</artifactId>
-        <type>car</type>
+        <groupId>org.apache.geronimo.modules</groupId>
+        <artifactId>geronimo-cxf-ejb-builder</artifactId>
+        <type>jar</type>
     </dependency>
 </plugin-artifact>

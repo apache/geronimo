@@ -17,18 +17,28 @@
         <type>car</type>
     </dependency>
     <dependency>
+        <groupId>org.apache.geronimo.ext.tomcat</groupId>
+        <artifactId>juli</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.ext.tomcat</groupId>
+        <artifactId>tribes</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
         <groupId>org.apache.geronimo.modules</groupId>
         <artifactId>geronimo-clustering-wadi</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
         <groupId>org.codehaus.wadi</groupId>
-        <artifactId>wadi-core</artifactId>
+        <artifactId>wadi-aop</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
         <groupId>org.codehaus.wadi</groupId>
-        <artifactId>wadi-aop</artifactId>
+        <artifactId>wadi-core</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -39,16 +49,6 @@
     <dependency>
         <groupId>org.codehaus.wadi</groupId>
         <artifactId>wadi-tribes</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.ext.tomcat</groupId>
-        <artifactId>tribes</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.ext.tomcat</groupId>
-        <artifactId>juli</artifactId>
         <type>jar</type>
     </dependency>
 </plugin-artifact>

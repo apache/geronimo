@@ -8,13 +8,13 @@
     </module-id>
     <dependency>
         <groupId>org.apache.geronimo.plugins.monitoring</groupId>
-        <artifactId>agent-jar</artifactId>
-        <type>jar</type>
+        <artifactId>agent-ds</artifactId>
+        <type>car</type>
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.plugins.monitoring</groupId>
-        <artifactId>agent-ds</artifactId>
-        <type>car</type>
+        <artifactId>agent-jar</artifactId>
+        <type>jar</type>
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.plugins.monitoring</groupId>

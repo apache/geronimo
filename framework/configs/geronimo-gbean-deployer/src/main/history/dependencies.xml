@@ -13,12 +13,7 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>xmlbeans</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
-        <groupId>xml-resolver</groupId>
-        <artifactId>xml-resolver</artifactId>
+        <artifactId>geronimo-service-builder</artifactId>
         <type>jar</type>
     </dependency>
     <dependency start="true">
@@ -28,7 +23,12 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>geronimo-service-builder</artifactId>
+        <artifactId>xmlbeans</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>xml-resolver</groupId>
+        <artifactId>xml-resolver</artifactId>
         <type>jar</type>
     </dependency>
 </plugin-artifact>

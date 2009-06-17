@@ -6,14 +6,14 @@
         <version>2.2-SNAPSHOT</version>
         <type>car</type>
     </module-id>
-    <dependency>
+    <dependency start="true">
         <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>jaxws-deployer</artifactId>
+        <artifactId>axis2</artifactId>
         <type>car</type>
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>axis2</artifactId>
+        <artifactId>jaxws-deployer</artifactId>
         <type>car</type>
     </dependency>
     <dependency>

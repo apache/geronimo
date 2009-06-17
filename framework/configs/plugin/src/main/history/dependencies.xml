@@ -7,9 +7,19 @@
         <type>car</type>
     </module-id>
     <dependency>
-        <groupId>org.codehaus.plexus</groupId>
-        <artifactId>plexus-utils</artifactId>
+        <groupId>org.apache.geronimo.framework</groupId>
+        <artifactId>geronimo-plugin</artifactId>
         <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.framework</groupId>
+        <artifactId>rmi-naming</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.plugins.classloaders</groupId>
+        <artifactId>geronimo-javaee-deployment_1.1MR3_spec</artifactId>
+        <type>car</type>
     </dependency>
     <dependency>
         <groupId>org.codehaus.plexus</groupId>
@@ -17,8 +27,8 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>geronimo-plugin</artifactId>
+        <groupId>org.codehaus.plexus</groupId>
+        <artifactId>plexus-component-api</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -27,18 +37,8 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.plugins.classloaders</groupId>
-        <artifactId>geronimo-javaee-deployment_1.1MR3_spec</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>rmi-naming</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
         <groupId>org.codehaus.plexus</groupId>
-        <artifactId>plexus-component-api</artifactId>
+        <artifactId>plexus-utils</artifactId>
         <type>jar</type>
     </dependency>
 </plugin-artifact>

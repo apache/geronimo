@@ -8,6 +8,16 @@
     </module-id>
     <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>connector-deployer</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>j2ee-deployer</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency start="true">
+        <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>openejb</artifactId>
         <type>car</type>
     </dependency>
@@ -20,15 +30,5 @@
         <groupId>org.apache.geronimo.modules</groupId>
         <artifactId>geronimo-webservices-builder</artifactId>
         <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>j2ee-deployer</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>connector-deployer</artifactId>
-        <type>car</type>
     </dependency>
 </plugin-artifact>

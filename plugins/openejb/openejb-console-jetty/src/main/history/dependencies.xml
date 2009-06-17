@@ -7,8 +7,8 @@
         <type>car</type>
     </module-id>
     <dependency>
-        <groupId>org.apache.geronimo.plugins</groupId>
-        <artifactId>console-jetty</artifactId>
+        <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>dojo-jetty6</artifactId>
         <type>car</type>
     </dependency>
     <dependency>
@@ -22,8 +22,8 @@
         <type>car</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>dojo-jetty6</artifactId>
+        <groupId>org.apache.geronimo.plugins</groupId>
+        <artifactId>console-jetty</artifactId>
         <type>car</type>
     </dependency>
 </plugin-artifact>

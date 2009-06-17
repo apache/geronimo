@@ -7,23 +7,38 @@
         <type>car</type>
     </module-id>
     <dependency>
+        <groupId>com.thoughtworks.xstream</groupId>
+        <artifactId>xstream</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
         <groupId>commons-jexl</groupId>
         <artifactId>commons-jexl</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.gshell.support</groupId>
-        <artifactId>gshell-ansi</artifactId>
+        <groupId>jline</groupId>
+        <artifactId>jline</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.codehaus.plexus</groupId>
-        <artifactId>plexus-classworlds</artifactId>
+        <groupId>org.apache.geronimo.gshell</groupId>
+        <artifactId>gshell-cli</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.codehaus.plexus</groupId>
-        <artifactId>plexus-container-default</artifactId>
+        <groupId>org.apache.geronimo.gshell</groupId>
+        <artifactId>gshell-command-api</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.gshell</groupId>
+        <artifactId>gshell-core</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.gshell</groupId>
+        <artifactId>gshell-parser</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -33,17 +48,17 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.gshell.support</groupId>
+        <artifactId>gshell-ansi</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.gshell.support</groupId>
+        <artifactId>gshell-clp</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.gshell.support</groupId>
         <artifactId>gshell-common</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>jline</groupId>
-        <artifactId>jline</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>xpp3</groupId>
-        <artifactId>xpp3_min</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -52,8 +67,13 @@
         <type>jar</type>
     </dependency>
     <dependency>
+        <groupId>org.apache.geronimo.gshell.support</groupId>
+        <artifactId>gshell-prefs</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
         <groupId>org.codehaus.plexus</groupId>
-        <artifactId>plexus-component-api</artifactId>
+        <artifactId>plexus-classworlds</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -63,17 +83,17 @@
     </dependency>
     <dependency>
         <groupId>org.codehaus.plexus</groupId>
+        <artifactId>plexus-component-api</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.codehaus.plexus</groupId>
+        <artifactId>plexus-container-default</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.codehaus.plexus</groupId>
         <artifactId>plexus-utils</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.gshell</groupId>
-        <artifactId>gshell-core</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.gshell.support</groupId>
-        <artifactId>gshell-prefs</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -82,28 +102,8 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.gshell</groupId>
-        <artifactId>gshell-command-api</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>com.thoughtworks.xstream</groupId>
-        <artifactId>xstream</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.gshell</groupId>
-        <artifactId>gshell-cli</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.gshell.support</groupId>
-        <artifactId>gshell-clp</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.gshell</groupId>
-        <artifactId>gshell-parser</artifactId>
+        <groupId>xpp3</groupId>
+        <artifactId>xpp3_min</artifactId>
         <type>jar</type>
     </dependency>
 </plugin-artifact>

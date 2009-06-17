@@ -7,18 +7,18 @@
         <type>car</type>
     </module-id>
     <dependency>
-        <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>geronimo-myfaces-builder</artifactId>
-        <type>jar</type>
+        <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>j2ee-deployer</artifactId>
+        <type>car</type>
     </dependency>
-    <dependency>
+    <dependency start="true">
         <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>myfaces</artifactId>
         <type>car</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>j2ee-deployer</artifactId>
-        <type>car</type>
+        <groupId>org.apache.geronimo.modules</groupId>
+        <artifactId>geronimo-myfaces-builder</artifactId>
+        <type>jar</type>
     </dependency>
 </plugin-artifact>

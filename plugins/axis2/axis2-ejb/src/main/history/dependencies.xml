@@ -7,9 +7,9 @@
         <type>car</type>
     </module-id>
     <dependency>
-        <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>geronimo-axis2-ejb</artifactId>
-        <type>jar</type>
+        <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>axis2</artifactId>
+        <type>car</type>
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
@@ -17,8 +17,8 @@
         <type>car</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>axis2</artifactId>
-        <type>car</type>
+        <groupId>org.apache.geronimo.modules</groupId>
+        <artifactId>geronimo-axis2-ejb</artifactId>
+        <type>jar</type>
     </dependency>
 </plugin-artifact>

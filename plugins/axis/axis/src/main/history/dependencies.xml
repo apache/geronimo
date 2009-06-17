@@ -12,24 +12,19 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.openejb</groupId>
-        <artifactId>openejb-axis</artifactId>
+        <groupId>commons-discovery</groupId>
+        <artifactId>commons-discovery</artifactId>
         <type>jar</type>
     </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>geronimo-axis</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
+    <dependency start="true">
         <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>openejb</artifactId>
         <type>car</type>
     </dependency>
     <dependency>
-        <groupId>commons-discovery</groupId>
-        <artifactId>commons-discovery</artifactId>
-        <type>jar</type>
+        <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>webservices-common</artifactId>
+        <type>car</type>
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.framework</groupId>
@@ -37,13 +32,18 @@
         <type>car</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.ws.scout</groupId>
-        <artifactId>scout</artifactId>
+        <groupId>org.apache.geronimo.modules</groupId>
+        <artifactId>geronimo-axis</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>webservices-common</artifactId>
-        <type>car</type>
+        <groupId>org.apache.openejb</groupId>
+        <artifactId>openejb-axis</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.ws.scout</groupId>
+        <artifactId>scout</artifactId>
+        <type>jar</type>
     </dependency>
 </plugin-artifact>

@@ -7,13 +7,18 @@
         <type>car</type>
     </module-id>
     <dependency>
-        <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>j2ee-server</artifactId>
-        <type>car</type>
+        <groupId>org.apache.ant</groupId>
+        <artifactId>ant</artifactId>
+        <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>server-security-config</artifactId>
+        <groupId>org.apache.ant</groupId>
+        <artifactId>ant-launcher</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>j2ee-server</artifactId>
         <type>car</type>
     </dependency>
     <dependency>
@@ -22,13 +27,13 @@
         <type>car</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>geronimo-jasper</artifactId>
+        <groupId>org.apache.geronimo.ext.tomcat</groupId>
+        <artifactId>jasper</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.ext.tomcat</groupId>
-        <artifactId>jasper</artifactId>
+        <artifactId>jasper-el</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -42,23 +47,18 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.ant</groupId>
-        <artifactId>ant</artifactId>
-        <type>jar</type>
+        <groupId>org.apache.geronimo.framework</groupId>
+        <artifactId>server-security-config</artifactId>
+        <type>car</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.ant</groupId>
-        <artifactId>ant-launcher</artifactId>
+        <groupId>org.apache.geronimo.modules</groupId>
+        <artifactId>geronimo-jasper</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
         <groupId>org.eclipse.jdt</groupId>
         <artifactId>core</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.ext.tomcat</groupId>
-        <artifactId>jasper-el</artifactId>
         <type>jar</type>
     </dependency>
 </plugin-artifact>

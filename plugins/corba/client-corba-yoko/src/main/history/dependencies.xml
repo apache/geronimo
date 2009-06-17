@@ -7,24 +7,14 @@
         <type>car</type>
     </module-id>
     <dependency>
-        <groupId>org.apache.yoko</groupId>
-        <artifactId>yoko-rmi-impl</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.yoko</groupId>
-        <artifactId>yoko-spec-corba</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
         <groupId>org.apache.bcel</groupId>
         <artifactId>bcel</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>geronimo-yoko</artifactId>
-        <type>jar</type>
+        <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>client</artifactId>
+        <type>car</type>
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
@@ -37,13 +27,23 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>client</artifactId>
-        <type>car</type>
+        <groupId>org.apache.geronimo.modules</groupId>
+        <artifactId>geronimo-yoko</artifactId>
+        <type>jar</type>
     </dependency>
     <dependency>
         <groupId>org.apache.yoko</groupId>
         <artifactId>yoko-core</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.yoko</groupId>
+        <artifactId>yoko-rmi-impl</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.yoko</groupId>
+        <artifactId>yoko-spec-corba</artifactId>
         <type>jar</type>
     </dependency>
 </plugin-artifact>

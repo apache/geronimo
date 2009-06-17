@@ -7,11 +7,6 @@
         <type>car</type>
     </module-id>
     <dependency>
-        <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>geronimo-concurrent-builder</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>concurrent</artifactId>
         <type>car</type>
@@ -20,5 +15,10 @@
         <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>j2ee-deployer</artifactId>
         <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.modules</groupId>
+        <artifactId>geronimo-concurrent-builder</artifactId>
+        <type>jar</type>
     </dependency>
 </plugin-artifact>

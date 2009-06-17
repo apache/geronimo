@@ -8,12 +8,12 @@
     </module-id>
     <dependency>
         <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>geronimo-upgrade</artifactId>
-        <type>jar</type>
+        <artifactId>geronimo-gbean-deployer</artifactId>
+        <type>car</type>
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>geronimo-gbean-deployer</artifactId>
-        <type>car</type>
+        <artifactId>geronimo-upgrade</artifactId>
+        <type>jar</type>
     </dependency>
 </plugin-artifact>

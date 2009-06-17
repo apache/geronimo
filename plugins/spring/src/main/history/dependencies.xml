@@ -7,6 +7,16 @@
         <type>car</type>
     </module-id>
     <dependency>
+        <groupId>org.apache.geronimo.framework</groupId>
+        <artifactId>jee-specs</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-beans</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-context</artifactId>
         <type>jar</type>
@@ -15,16 +25,6 @@
         <groupId>org.springframework</groupId>
         <artifactId>spring-core</artifactId>
         <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-beans</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>jee-specs</artifactId>
-        <type>car</type>
     </dependency>
     <dependency>
         <groupId>org.springframework</groupId>

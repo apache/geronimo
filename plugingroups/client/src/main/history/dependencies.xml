@@ -8,7 +8,7 @@
     </module-id>
     <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>jsr88-jar-configurer</artifactId>
+        <artifactId>client-corba-yoko</artifactId>
         <type>car</type>
     </dependency>
     <dependency>
@@ -18,7 +18,7 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>client-corba-yoko</artifactId>
+        <artifactId>jsr88-jar-configurer</artifactId>
         <type>car</type>
     </dependency>
 </plugin-artifact>

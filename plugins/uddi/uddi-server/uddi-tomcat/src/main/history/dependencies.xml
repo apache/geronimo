@@ -7,9 +7,9 @@
         <type>car</type>
     </module-id>
     <dependency>
-        <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>jasper</artifactId>
-        <type>car</type>
+        <groupId>juddi</groupId>
+        <artifactId>juddi</artifactId>
+        <type>jar</type>
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
@@ -17,18 +17,18 @@
         <type>car</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.plugins</groupId>
-        <artifactId>geronimo-uddi-db</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>juddi</groupId>
-        <artifactId>juddi</artifactId>
-        <type>jar</type>
+        <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>jasper</artifactId>
+        <type>car</type>
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>system-database</artifactId>
         <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.plugins</groupId>
+        <artifactId>geronimo-uddi-db</artifactId>
+        <type>jar</type>
     </dependency>
 </plugin-artifact>

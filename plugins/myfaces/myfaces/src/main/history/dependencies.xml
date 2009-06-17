@@ -7,23 +7,18 @@
         <type>car</type>
     </module-id>
     <dependency>
+        <groupId>commons-beanutils</groupId>
+        <artifactId>commons-beanutils</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
         <groupId>commons-codec</groupId>
         <artifactId>commons-codec</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>j2ee-server</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
         <groupId>commons-collections</groupId>
         <artifactId>commons-collections</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>geronimo-myfaces</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -37,13 +32,18 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.myfaces.core</groupId>
-        <artifactId>myfaces-impl</artifactId>
+        <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>j2ee-server</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.modules</groupId>
+        <artifactId>geronimo-myfaces</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>commons-beanutils</groupId>
-        <artifactId>commons-beanutils</artifactId>
+        <groupId>org.apache.myfaces.core</groupId>
+        <artifactId>myfaces-impl</artifactId>
         <type>jar</type>
     </dependency>
 </plugin-artifact>

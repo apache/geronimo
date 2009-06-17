@@ -8,6 +8,11 @@
     </module-id>
     <dependency start="true">
         <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>jetty7-clustering-wadi</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency start="true">
+        <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>jetty7-deployer</artifactId>
         <type>car</type>
     </dependency>
@@ -15,10 +20,5 @@
         <groupId>org.apache.geronimo.modules</groupId>
         <artifactId>geronimo-jetty7-clustering-builder-wadi</artifactId>
         <type>jar</type>
-    </dependency>
-    <dependency start="true">
-        <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>jetty7-clustering-wadi</artifactId>
-        <type>car</type>
     </dependency>
 </plugin-artifact>

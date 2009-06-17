@@ -7,23 +7,8 @@
         <type>car</type>
     </module-id>
     <dependency>
-        <groupId>org.apache.geronimo.plugins</groupId>
-        <artifactId>console-tomcat</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>j2ee-security</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.plugins.monitoring</groupId>
-        <artifactId>mconsole-ds</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>openjpa</artifactId>
+        <artifactId>dojo-tomcat</artifactId>
         <type>car</type>
     </dependency>
     <dependency>
@@ -33,7 +18,22 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>dojo-tomcat</artifactId>
+        <artifactId>openjpa</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.framework</groupId>
+        <artifactId>j2ee-security</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.plugins</groupId>
+        <artifactId>console-tomcat</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.plugins.monitoring</groupId>
+        <artifactId>mconsole-ds</artifactId>
         <type>car</type>
     </dependency>
 </plugin-artifact>

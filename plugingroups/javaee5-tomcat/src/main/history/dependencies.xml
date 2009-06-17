@@ -7,6 +7,51 @@
         <type>car</type>
     </module-id>
     <dependency>
+        <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>activemq-ra</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>ca-helper-tomcat</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>concurrent-deployer</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>javamail</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>myfaces-deployer</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>uddi-tomcat</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>welcome-tomcat</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.framework</groupId>
+        <artifactId>jmx-security</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.framework.plugingroups</groupId>
+        <artifactId>framework</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
         <groupId>org.apache.geronimo.plugingroups</groupId>
         <artifactId>client</artifactId>
         <type>car</type>
@@ -19,11 +64,6 @@
     <dependency>
         <groupId>org.apache.geronimo.plugingroups</groupId>
         <artifactId>ejb</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.framework.plugingroups</groupId>
-        <artifactId>framework</artifactId>
         <type>car</type>
     </dependency>
     <dependency>
@@ -47,56 +87,6 @@
         <type>car</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>concurrent-deployer</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>javamail</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>uddi-tomcat</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>welcome-tomcat</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>jmx-security</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>activemq-ra</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>myfaces-deployer</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>ca-helper-tomcat</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.plugins.monitoring</groupId>
-        <artifactId>agent</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.plugins.monitoring</groupId>
-        <artifactId>mconsole-tomcat</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
         <groupId>org.apache.geronimo.plugins</groupId>
         <artifactId>activemq-console-tomcat</artifactId>
         <type>car</type>
@@ -104,6 +94,11 @@
     <dependency>
         <groupId>org.apache.geronimo.plugins</groupId>
         <artifactId>debugviews-console-tomcat</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.plugins</groupId>
+        <artifactId>openejb-console-tomcat</artifactId>
         <type>car</type>
     </dependency>
     <dependency>
@@ -122,8 +117,13 @@
         <type>car</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.plugins</groupId>
-        <artifactId>openejb-console-tomcat</artifactId>
+        <groupId>org.apache.geronimo.plugins.monitoring</groupId>
+        <artifactId>agent</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.plugins.monitoring</groupId>
+        <artifactId>mconsole-tomcat</artifactId>
         <type>car</type>
     </dependency>
 </plugin-artifact>

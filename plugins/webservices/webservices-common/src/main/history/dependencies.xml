@@ -7,9 +7,9 @@
         <type>car</type>
     </module-id>
     <dependency>
-        <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>j2ee-security</artifactId>
-        <type>car</type>
+        <groupId>com.sun.xml.messaging.saaj</groupId>
+        <artifactId>saaj-impl</artifactId>
+        <type>jar</type>
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
@@ -17,14 +17,9 @@
         <type>car</type>
     </dependency>
     <dependency>
-        <groupId>com.sun.xml.messaging.saaj</groupId>
-        <artifactId>saaj-impl</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.codehaus.castor</groupId>
-        <artifactId>castor</artifactId>
-        <type>jar</type>
+        <groupId>org.apache.geronimo.framework</groupId>
+        <artifactId>j2ee-security</artifactId>
+        <type>car</type>
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.framework</groupId>
@@ -42,6 +37,16 @@
         <type>jar</type>
     </dependency>
     <dependency>
+        <groupId>org.apache.geronimo.plugins.classloaders</groupId>
+        <artifactId>geronimo-schema-jee_5</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.codehaus.castor</groupId>
+        <artifactId>castor</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
         <groupId>wsdl4j</groupId>
         <artifactId>wsdl4j</artifactId>
         <type>jar</type>
@@ -50,10 +55,5 @@
         <groupId>xml-resolver</groupId>
         <artifactId>xml-resolver</artifactId>
         <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.plugins.classloaders</groupId>
-        <artifactId>geronimo-schema-jee_5</artifactId>
-        <type>car</type>
     </dependency>
 </plugin-artifact>

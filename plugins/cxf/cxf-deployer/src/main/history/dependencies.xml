@@ -6,6 +6,11 @@
         <version>2.2-SNAPSHOT</version>
         <type>car</type>
     </module-id>
+    <dependency start="true">
+        <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>cxf</artifactId>
+        <type>car</type>
+    </dependency>
     <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>jaxws-deployer</artifactId>
@@ -13,17 +18,12 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>cxf</artifactId>
+        <artifactId>jaxws-sun-tools</artifactId>
         <type>car</type>
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.modules</groupId>
         <artifactId>geronimo-cxf-builder</artifactId>
         <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>jaxws-sun-tools</artifactId>
-        <type>car</type>
     </dependency>
 </plugin-artifact>
