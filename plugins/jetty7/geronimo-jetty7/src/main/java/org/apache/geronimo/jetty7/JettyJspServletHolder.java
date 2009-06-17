@@ -23,33 +23,32 @@ package org.apache.geronimo.jetty7;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.ParamAttribute;
+import org.apache.geronimo.gbean.annotation.ParamReference;
+import org.apache.geronimo.gbean.annotation.ParamSpecial;
+import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 /**
  * @version $Rev$ $Date$
  */
+@GBean(j2eeType = NameFactory.SERVLET_TEMPLATE)
 public class JettyJspServletHolder extends JettyServletHolder {
 
     public JettyJspServletHolder() {
     }
 
-    public JettyJspServletHolder(String objectName, String servletName, String servletClassName, String jspFile, Map initParams, Integer loadOnStartup, Set servletMappings, String runAsRole, JettyServletRegistration context) throws Exception {
+    public JettyJspServletHolder(@ParamSpecial(type = SpecialAttributeType.objectName) String objectName,
+                                 @ParamAttribute(name = "servletName") String servletName,
+                                 @ParamAttribute(name = "servletClass") String servletClassName,
+                                 @ParamAttribute(name = "jspFile") String jspFile,
+                                 @ParamAttribute(name = "initParams") Map initParams,
+                                 @ParamAttribute(name = "loadOnStartup") Integer loadOnStartup,
+                                 @ParamAttribute(name = "servletMappings") Set<String> servletMappings,
+                                 @ParamAttribute(name = "runAsRole") String runAsRole,
+                                 @ParamReference(name = "JettyServletRegistration", namingType = NameFactory.WEB_MODULE) JettyServletRegistration context) throws Exception {
         super(objectName, servletName, servletClassName, jspFile, initParams, loadOnStartup, servletMappings, runAsRole, context);
     }
-
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(JettyJspServletHolder.class, JettyServletHolder.GBEAN_INFO, NameFactory.SERVLET_TEMPLATE);
-
-        GBEAN_INFO = infoBuilder.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
-
 
 }

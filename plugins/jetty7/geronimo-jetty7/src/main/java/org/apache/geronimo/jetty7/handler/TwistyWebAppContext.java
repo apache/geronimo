@@ -25,16 +25,24 @@ import java.io.IOException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.naming.Context;
+import javax.transaction.Status;
+import javax.transaction.SystemException;
+import javax.resource.ResourceException;
 
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.server.DispatcherType;
 import org.eclipse.jetty.server.handler.ErrorHandler;
 import org.eclipse.jetty.security.SecurityHandler;
 import org.eclipse.jetty.servlet.ServletHandler;
 import org.eclipse.jetty.server.session.SessionHandler;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.eclipse.jetty.util.component.LifeCycle;
+import org.apache.geronimo.naming.java.RootContext;
+import org.apache.geronimo.connector.outbound.connectiontracking.ConnectorInstanceContext;
+import org.apache.geronimo.connector.outbound.connectiontracking.SharedConnectorInstanceContext;
 
 /**
  * @version $Rev$ $Date$
@@ -42,10 +50,13 @@ import org.eclipse.jetty.util.component.LifeCycle;
 public class TwistyWebAppContext extends WebAppContext {
 
     private Handler handler;
+    protected final IntegrationContext integrationContext;
 
 
-    public TwistyWebAppContext(SecurityHandler securityHandler, SessionHandler sessionHandler, ServletHandler servletHandler, ErrorHandler errorHandler) {
+    public TwistyWebAppContext(SecurityHandler securityHandler, SessionHandler sessionHandler, ServletHandler servletHandler, ErrorHandler errorHandler, IntegrationContext integrationContext, ClassLoader classLoader) {
         super(sessionHandler, securityHandler, servletHandler, errorHandler);
+        this.integrationContext = integrationContext;
+        setClassLoader(classLoader);
     }
 
     public void setTwistyHandler(Handler handler) {
@@ -57,9 +68,64 @@ public class TwistyWebAppContext extends WebAppContext {
     }
 
     @Override
-    public void doHandle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-        handler.handle(target, baseRequest, request, response);
+    protected void doStart() throws Exception {
+        javax.naming.Context context = integrationContext.setContext();
+        boolean txActive = integrationContext.isTxActive();
+        SharedConnectorInstanceContext newContext = integrationContext.newConnectorInstanceContext(null);
+        ConnectorInstanceContext connectorContext = integrationContext.setConnectorInstance(null, newContext);
+        try {
+            try {
+                super.doStart();
+            } finally {
+                integrationContext.restoreConnectorContext(connectorContext, null, newContext);
+            }
+        } finally {
+            integrationContext.restoreContext(context);
+            integrationContext.completeTx(txActive, null);
+        }
     }
+
+    @Override
+    protected void doStop() throws Exception {
+        javax.naming.Context context = integrationContext.setContext();
+        boolean txActive = integrationContext.isTxActive();
+        SharedConnectorInstanceContext newContext = integrationContext.newConnectorInstanceContext(null);
+        ConnectorInstanceContext connectorContext = integrationContext.setConnectorInstance(null, newContext);
+        try {
+            try {
+                super.doStop();
+            } finally {
+                integrationContext.restoreConnectorContext(connectorContext, null, newContext);
+            }
+        } finally {
+            integrationContext.restoreContext(context);
+            integrationContext.completeTx(txActive, null);
+        }
+    }
+
+    @Override
+    public void doScope(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+        javax.naming.Context context = integrationContext.setContext();
+        boolean txActive = integrationContext.isTxActive();
+        SharedConnectorInstanceContext newContext = integrationContext.newConnectorInstanceContext(baseRequest);
+        ConnectorInstanceContext connectorContext = integrationContext.setConnectorInstance(baseRequest, newContext);
+        try {
+            try {
+                super.doScope(target, baseRequest, request, response);
+            } finally {
+                integrationContext.restoreConnectorContext(connectorContext, baseRequest, newContext);
+            }
+        } finally {
+            integrationContext.restoreContext(context);
+            integrationContext.completeTx(txActive, baseRequest);
+        }
+    }
+
+
+//    @Override
+//    public void doHandle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+//        handler.handle(target, baseRequest, request, response);
+//    }
 
     private class TwistyHandler implements Handler {
 
@@ -117,4 +183,5 @@ public class TwistyWebAppContext extends WebAppContext {
         public void removeLifeCycleListener(Listener listener) {
         }
     }
+
 }

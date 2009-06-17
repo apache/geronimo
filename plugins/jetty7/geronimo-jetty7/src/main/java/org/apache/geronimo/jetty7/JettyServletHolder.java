@@ -18,14 +18,15 @@ package org.apache.geronimo.jetty7;
 
 import java.util.Map;
 import java.util.Set;
-import java.util.Enumeration;
-import java.net.URL;
 
 import javax.security.auth.Subject;
 
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.ParamAttribute;
+import org.apache.geronimo.gbean.annotation.ParamReference;
+import org.apache.geronimo.gbean.annotation.ParamSpecial;
+import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.management.Servlet;
 import org.eclipse.jetty.servlet.ServletHolder;
@@ -40,6 +41,8 @@ import org.eclipse.jetty.servlet.ServletHolder;
  *
  * @version $Rev$ $Date$
  */
+
+@GBean(j2eeType = NameFactory.SERVLET)
 public class JettyServletHolder implements ServletNameSource, Servlet, GBeanLifecycle {
 
 
@@ -54,18 +57,18 @@ public class JettyServletHolder implements ServletNameSource, Servlet, GBeanLife
         objectName = null;
     }
 
-    public JettyServletHolder(String objectName,
-            String servletName,
-            String servletClassName,
-            String jspFile,
-            Map initParams,
-            Integer loadOnStartup,
-            Set<String> servletMappings,
-            String runAsRole,
-            JettyServletRegistration context) throws Exception {
+    public JettyServletHolder(@ParamSpecial(type = SpecialAttributeType.objectName) String objectName,
+                              @ParamAttribute(name = "servletName") String servletName,
+                              @ParamAttribute(name = "servletClass") String servletClassName,
+                              @ParamAttribute(name = "jspFile") String jspFile,
+                              @ParamAttribute(name = "initParams") Map initParams,
+                              @ParamAttribute(name = "loadOnStartup") Integer loadOnStartup,
+                              @ParamAttribute(name = "servletMappings") Set<String> servletMappings,
+                              @ParamAttribute(name = "runAsRole") String runAsRole,
+                              @ParamReference(name = "JettyServletRegistration", namingType = NameFactory.WEB_MODULE) JettyServletRegistration context) throws Exception {
         servletRegistration = context;
-        Subject runAsSubject = context == null? null: context.getSubjectForRole(runAsRole);
-        servletHolder = new InternalJettyServletHolder(context == null? null: context.getLifecycleChain(), runAsSubject, servletRegistration);
+        Subject runAsSubject = context == null ? null : context.getSubjectForRole(runAsRole);
+        servletHolder = new InternalJettyServletHolder(context == null ? null : context.getIntegrationContext(), runAsSubject, servletRegistration);
         servletHolder.setName(servletName);
         servletHolder.setClassName(servletClassName);
         //context will be null only for use as "default servlet info holder" in deployer.
@@ -125,42 +128,6 @@ public class JettyServletHolder implements ServletNameSource, Servlet, GBeanLife
         } catch (Exception e) {
             //?? ignore
         }
-    }
-
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(JettyServletHolder.class, NameFactory.SERVLET);
-        //todo replace with interface
-//        infoBuilder.addInterface(ServletHolder.class);
-
-        infoBuilder.addAttribute("servletName", String.class, true);
-        infoBuilder.addAttribute("servletClass", String.class, true);
-        infoBuilder.addAttribute("jspFile", String.class, true);
-        infoBuilder.addAttribute("initParams", Map.class, true);
-        infoBuilder.addAttribute("loadOnStartup", Integer.class, true);
-        infoBuilder.addAttribute("servletMappings", Set.class, true);
-        infoBuilder.addAttribute("runAsRole", String.class, true);
-        infoBuilder.addAttribute("objectName", String.class, false);
-        infoBuilder.addInterface(Servlet.class);
-
-        infoBuilder.addReference("JettyServletRegistration", JettyServletRegistration.class, NameFactory.WEB_MODULE);
-
-        infoBuilder.setConstructor(new String[]{"objectName",
-                "servletName",
-                "servletClass",
-                "jspFile",
-                "initParams",
-                "loadOnStartup",
-                "servletMappings",
-                "runAsRole",
-                "JettyServletRegistration"});
-
-        GBEAN_INFO = infoBuilder.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
     }
 
 }

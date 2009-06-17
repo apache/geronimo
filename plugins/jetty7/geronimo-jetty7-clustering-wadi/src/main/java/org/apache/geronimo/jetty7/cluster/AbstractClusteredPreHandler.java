@@ -25,8 +25,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.geronimo.clustering.ClusteredInvocation;
 import org.apache.geronimo.clustering.ClusteredInvocationException;
 import org.apache.geronimo.jetty7.AbstractPreHandler;
-import org.eclipse.jetty.io.HttpException;
 import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.http.HttpException;
 
 /**
  * @version $Rev$ $Date$

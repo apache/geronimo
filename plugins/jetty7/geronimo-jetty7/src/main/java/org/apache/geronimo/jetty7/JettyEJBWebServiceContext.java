@@ -32,7 +32,7 @@ import org.apache.geronimo.webservices.WebServiceContainer;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Response;
 import org.eclipse.jetty.server.handler.ContextHandler;
-import org.eclipse.jetty.io.HttpException;
+import org.eclipse.jetty.http.HttpException;
 
 /**
  * Delegates requests to a WebServiceContainer which is presumably for an EJB WebService.

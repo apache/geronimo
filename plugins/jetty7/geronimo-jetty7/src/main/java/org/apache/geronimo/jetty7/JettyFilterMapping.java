@@ -26,6 +26,9 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.ReferenceCollection;
 import org.apache.geronimo.gbean.ReferenceCollectionEvent;
 import org.apache.geronimo.gbean.ReferenceCollectionListener;
+import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.ParamReference;
+import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.eclipse.jetty.servlet.FilterMapping;
 import org.eclipse.jetty.servlet.ServletHandler;
@@ -33,6 +36,7 @@ import org.eclipse.jetty.servlet.ServletHandler;
 /**
  * @version $Rev$ $Date$
  */
+@GBean(j2eeType = NameFactory.URL_WEB_FILTER_MAPPING)
 public class JettyFilterMapping extends FilterMapping {
 
     private final String[] urlPatterns;
@@ -45,28 +49,15 @@ public class JettyFilterMapping extends FilterMapping {
     private final JettyFilterMapping previous;
     private final JettyServletRegistration jettyServletRegistration;
 
-    //todo use an interface for endpoints.
-    public JettyFilterMapping() {
-        this.urlPatterns = null;
-        this.requestDispatch = false;
-        this.forwardDispatch = false;
-        this.includeDispatch = false;
-        this.errorDispatch = false;
-        this.jettyFilterHolder = null;
-        this.jettyServletHolders = null;
-        this.previous = null;
-        this.jettyServletRegistration = null;
-    }
-
-    public JettyFilterMapping(String[] urlPatterns,
-            boolean requestDispatch,
-            boolean forwardDispatch,
-            boolean includeDispatch,
-            boolean errorDispatch,
-            JettyFilterHolder jettyFilterHolder,
-            Collection<ServletNameSource> jettyServletHolders,
-            JettyFilterMapping previous,
-            JettyServletRegistration jettyServletRegistration) {
+    public JettyFilterMapping(@ParamAttribute(name = "urlPatterns")String[] urlPatterns,
+            @ParamAttribute(name = "requestDispatch")boolean requestDispatch,
+            @ParamAttribute(name = "forwardDispatch")boolean forwardDispatch,
+            @ParamAttribute(name = "includeDispatch")boolean includeDispatch,
+            @ParamAttribute(name = "errorDispatch")boolean errorDispatch,
+            @ParamReference(name="Filter", namingType = NameFactory.WEB_FILTER)JettyFilterHolder jettyFilterHolder,
+            @ParamReference(name="Servlets", namingType = NameFactory.SERVLET)Collection<ServletNameSource> jettyServletHolders,
+            @ParamReference(name="Previous", namingType = NameFactory.URL_WEB_FILTER_MAPPING)JettyFilterMapping previous,
+            @ParamReference(name="JettyServletRegistration", namingType = NameFactory.WEB_MODULE)JettyServletRegistration jettyServletRegistration) {
         this.urlPatterns = urlPatterns;
         this.requestDispatch = requestDispatch;
         this.forwardDispatch = forwardDispatch;
@@ -174,35 +165,4 @@ public class JettyFilterMapping extends FilterMapping {
         return jettyServletRegistration;
     }
 
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(JettyFilterMapping.class, NameFactory.URL_WEB_FILTER_MAPPING);
-        infoBuilder.addAttribute("urlPatterns", String[].class, true);
-        infoBuilder.addAttribute("requestDispatch", boolean.class, true);
-        infoBuilder.addAttribute("forwardDispatch", boolean.class, true);
-        infoBuilder.addAttribute("includeDispatch", boolean.class, true);
-        infoBuilder.addAttribute("errorDispatch", boolean.class, true);
-
-        infoBuilder.addReference("Filter", JettyFilterHolder.class, NameFactory.WEB_FILTER);
-        infoBuilder.addReference("Servlets", JettyServletHolder.class, NameFactory.SERVLET);
-        infoBuilder.addReference("Previous", JettyFilterMapping.class, NameFactory.URL_WEB_FILTER_MAPPING);
-        infoBuilder.addReference("JettyServletRegistration", JettyServletRegistration.class, NameFactory.WEB_MODULE);
-
-        infoBuilder.setConstructor(new String[]{"urlPatterns",
-                "requestDispatch",
-                "forwardDispatch",
-                "includeDispatch",
-                "errorDispatch",
-                "Filter",
-                "Servlets",
-                "Previous",
-                "JettyServletRegistration"});
-
-        GBEAN_INFO = infoBuilder.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
 }

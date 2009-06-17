@@ -20,21 +20,20 @@
 
 package org.apache.geronimo.jetty7.security;
 
-import java.security.Principal;
 import java.security.AccessControlContext;
+import java.security.Principal;
 import java.util.Arrays;
 
 import javax.security.auth.Subject;
 
+import org.apache.geronimo.jetty7.handler.GeronimoRunAsToken;
+import org.apache.geronimo.jetty7.handler.GeronimoUserIdentity;
+import org.apache.geronimo.security.Callers;
+import org.apache.geronimo.security.ContextManager;
+import org.apache.geronimo.security.jacc.RunAsSource;
 import org.eclipse.jetty.security.IdentityService;
 import org.eclipse.jetty.security.RunAsToken;
 import org.eclipse.jetty.server.UserIdentity;
-import org.apache.geronimo.jetty7.handler.GeronimoUserIdentity;
-import org.apache.geronimo.jetty7.handler.GeronimoRunAsToken;
-import org.apache.geronimo.jetty7.handler.GeronimoUserIdentityWrapper;
-import org.apache.geronimo.security.ContextManager;
-import org.apache.geronimo.security.Callers;
-import org.apache.geronimo.security.jacc.RunAsSource;
 
 /**
  * @version $Rev$ $Date$
@@ -49,16 +48,14 @@ public class JettyIdentityService implements IdentityService {
         this.runAsSource = runAsSource;
     }
 
-    //Umm, what was this supposed to do?
     public void associate(UserIdentity user) {
-//        if (user instanceof GeronimoUserIdentityWrapper) {
-//            return ((GeronimoUserIdentityWrapper) user).newWrapper(context);
-//        } else {
-//            return new GeronimoUserIdentityWrapper(user, context);
-//        }
-    }
-
-    public void disassociate(GeronimoUserIdentityWrapper source) {
+        if (user == null) {
+            //exit
+            ContextManager.clearCallers();
+        } else {
+            //enter
+            ContextManager.setCallers(user.getSubject(), user.getSubject());
+        }
     }
 
     public Object setRunAs(UserIdentity userIdentity, RunAsToken token) {
@@ -74,7 +71,6 @@ public class JettyIdentityService implements IdentityService {
     public UserIdentity newUserIdentity(Subject subject, Principal userPrincipal, String[] roles) {
         if (subject != null) {
             AccessControlContext acc = ContextManager.registerSubjectShort(subject, userPrincipal, roles == null? null: Arrays.asList(roles));
-            ContextManager.setCallers(subject, subject);
             return new GeronimoUserIdentity(subject, userPrincipal, acc);
         }
         return new GeronimoUserIdentity(null, null, defaultAcc);

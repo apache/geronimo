@@ -253,7 +253,7 @@ public class JettyModuleBuilderTest extends TestSupport {
         Object pojoWebServiceTemplate = null;
         WebServiceBuilder webServiceBuilder = new UnavailableWebServiceBuilder();
 
-        GBeanData containerData = bootstrap.addGBean("JettyContainer", JettyContainerImpl.GBEAN_INFO);
+        GBeanData containerData = bootstrap.addGBean("JettyContainer", JettyContainerImpl.class);
         AbstractName containerName = containerData.getAbstractName();
         containerData.setAttribute("jettyHome", new File(BASEDIR, "target/var/jetty").toString());
         containerData.setReferencePattern("ServerInfo", serverInfo.getAbstractName());

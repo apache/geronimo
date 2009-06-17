@@ -24,10 +24,10 @@ import javax.security.auth.Subject;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-import javax.servlet.UnavailableException;
 
-import org.apache.geronimo.jetty7.handler.AbstractImmutableHandler;
-import org.apache.geronimo.jetty7.handler.LifecycleCommand;
+import org.apache.geronimo.connector.outbound.connectiontracking.ConnectorInstanceContext;
+import org.apache.geronimo.connector.outbound.connectiontracking.SharedConnectorInstanceContext;
+import org.apache.geronimo.jetty7.handler.IntegrationContext;
 import org.apache.geronimo.security.Callers;
 import org.apache.geronimo.security.ContextManager;
 import org.eclipse.jetty.server.Request;
@@ -38,15 +38,12 @@ import org.eclipse.jetty.servlet.ServletHolder;
  */
 public class InternalJettyServletHolder extends ServletHolder {
 
-    private static final ThreadLocal<String> currentServletName = new ThreadLocal<String>();
-
-    private final AbstractImmutableHandler lifecycleChain;
+    private final IntegrationContext integrationContext;
     private final Subject runAsSubject;
     private final JettyServletRegistration servletRegistration;
-    private boolean stopped;
 
-    public InternalJettyServletHolder(AbstractImmutableHandler lifecycleChain, Subject runAsSubject, JettyServletRegistration servletRegistration) {
-        this.lifecycleChain = lifecycleChain;
+    public InternalJettyServletHolder(IntegrationContext integrationContext, Subject runAsSubject, JettyServletRegistration servletRegistration) {
+        this.integrationContext = integrationContext;
         this.runAsSubject = runAsSubject;
         this.servletRegistration = servletRegistration;
     }
@@ -58,22 +55,16 @@ public class InternalJettyServletHolder extends ServletHolder {
      * current JettyServletHolder.
      */
     public void handle(Request baseRequest, ServletRequest request, ServletResponse response)
-            throws ServletException, UnavailableException, IOException {
-        String oldServletName = getCurrentServletName();
-        setCurrentServletName(getName());
-        try {
-            if (runAsSubject == null) {
+            throws ServletException, IOException {
+        if (runAsSubject == null) {
+            super.handle(baseRequest, request, response);
+        } else {
+            Callers oldCallers = ContextManager.pushNextCaller(runAsSubject);
+            try {
                 super.handle(baseRequest, request, response);
-            } else {
-                Callers oldCallers = ContextManager.pushNextCaller(runAsSubject);
-                try {
-                    super.handle(baseRequest, request, response);
-                } finally {
-                    ContextManager.popCallers(oldCallers);
-                }
+            } finally {
+                ContextManager.popCallers(oldCallers);
             }
-        } finally {
-            setCurrentServletName(oldServletName);
         }
     }
 
@@ -83,60 +74,43 @@ public class InternalJettyServletHolder extends ServletHolder {
     }
 
     public void destroyInstance(Object o) throws Exception {
-        if (!stopped) {
-            super.destroyInstance(o);
-            servletRegistration.destroyInstance(o);
-        }
+        super.destroyInstance(o);
+        servletRegistration.destroyInstance(o);
     }
 
-    /**
-     * Provide the thread's current JettyServletHolder
-     *
-     * @return the thread's current JettyServletHolder
-     * TODO remove
-     */
-    static String getCurrentServletName() {
-        return currentServletName.get();
-    }
-
-    static void setCurrentServletName(String servletName) {
-        currentServletName.set(servletName);
-    }
-
+    @Override
     public void doStart() throws Exception {
-        LifecycleCommand lifecycleCommand = new StartCommand();
-        lifecycleChain.lifecycleCommand(lifecycleCommand);
-    }
-
-    public void doStop() {
-        LifecycleCommand lifecycleCommand = new StopCommand();
+        javax.naming.Context context = integrationContext.setContext();
+        boolean txActive = integrationContext.isTxActive();
+        SharedConnectorInstanceContext newContext = integrationContext.newConnectorInstanceContext(null);
+        ConnectorInstanceContext connectorContext = integrationContext.setConnectorInstance(null, newContext);
         try {
-            lifecycleChain.lifecycleCommand(lifecycleCommand);
-        } catch (Exception e) {
-            //ignore????
+            try {
+                super.doStart();
+            } finally {
+                integrationContext.restoreConnectorContext(connectorContext, null, newContext);
+            }
+        } finally {
+            integrationContext.restoreContext(context);
+            integrationContext.completeTx(txActive, null);
         }
     }
 
-    private void internalDoStart() throws Exception {
-        super.doStart();
-    }
-
-    private void internalDoStop() {
-        super.doStop();
-        stopped = true;
-    }
-
-    public class StartCommand implements LifecycleCommand {
-
-        public void lifecycleMethod() throws Exception {
-            internalDoStart();
-        }
-    }
-
-    public class StopCommand implements LifecycleCommand {
-
-        public void lifecycleMethod() throws Exception {
-            internalDoStop();
+    @Override
+    public void doStop() throws Exception {
+        javax.naming.Context context = integrationContext.setContext();
+        boolean txActive = integrationContext.isTxActive();
+        SharedConnectorInstanceContext newContext = integrationContext.newConnectorInstanceContext(null);
+        ConnectorInstanceContext connectorContext = integrationContext.setConnectorInstance(null, newContext);
+        try {
+            try {
+                super.doStop();
+            } finally {
+                integrationContext.restoreConnectorContext(connectorContext, null, newContext);
+            }
+        } finally {
+            integrationContext.restoreContext(context);
+            integrationContext.completeTx(txActive, null);
         }
     }
 

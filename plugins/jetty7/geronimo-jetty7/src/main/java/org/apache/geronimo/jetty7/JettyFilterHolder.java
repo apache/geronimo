@@ -18,26 +18,30 @@ package org.apache.geronimo.jetty7;
 
 import java.util.Map;
 
+import org.apache.geronimo.connector.outbound.connectiontracking.ConnectorInstanceContext;
+import org.apache.geronimo.connector.outbound.connectiontracking.SharedConnectorInstanceContext;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.ParamAttribute;
+import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.jetty7.handler.LifecycleCommand;
+import org.apache.geronimo.jetty7.handler.IntegrationContext;
 import org.eclipse.jetty.servlet.FilterHolder;
 
 /**
  * @version $Rev$ $Date$
  */
+@GBean(j2eeType = NameFactory.WEB_FILTER)
 public class JettyFilterHolder implements GBeanLifecycle {
 
     private final FilterHolder filterHolder;
 
-    //todo consider an interface instead of this constructor for endpoint use.
-    public JettyFilterHolder() {
-        filterHolder = null;
-    }
-
-    public JettyFilterHolder(String filterName, String filterClass, Map initParams, JettyServletRegistration jettyServletRegistration) throws Exception {
+    public JettyFilterHolder(@ParamAttribute(name = "filterName") String filterName,
+                             @ParamAttribute(name = "filterClass") String filterClass,
+                             @ParamAttribute(name = "initParams") Map initParams,
+                             @ParamReference(name = "JettyServletRegistration", namingType = NameFactory.WEB_MODULE) JettyServletRegistration jettyServletRegistration) throws Exception {
         filterHolder = new InternalFilterHolder(jettyServletRegistration);
         if (jettyServletRegistration != null) {
             filterHolder.setName(filterName);
@@ -87,35 +91,43 @@ public class JettyFilterHolder implements GBeanLifecycle {
                 destroyed = true;
             }
         }
-        
-        public void doStop() {
-            LifecycleCommand lifecycleCommand = (new LifecycleCommand() {
-                public void lifecycleMethod() throws Exception {
-                    internalDoStop();
-                }
-            });
+
+        @Override
+        public void doStart() throws Exception {
+            IntegrationContext integrationContext = servletRegistration.getIntegrationContext();
+            javax.naming.Context context = integrationContext.setContext();
+            boolean txActive = integrationContext.isTxActive();
+            SharedConnectorInstanceContext newContext = integrationContext.newConnectorInstanceContext(null);
+            ConnectorInstanceContext connectorContext = integrationContext.setConnectorInstance(null, newContext);
             try {
-                this.servletRegistration.getLifecycleChain().lifecycleCommand(lifecycleCommand);
-            } catch (Exception e) {
-                //ignore????
+                try {
+                    super.doStart();
+                } finally {
+                    integrationContext.restoreConnectorContext(connectorContext, null, newContext);
+                }
+            } finally {
+                integrationContext.restoreContext(context);
+                integrationContext.completeTx(txActive, null);
             }
         }
-        
-        public void doStart() throws Exception {
-            LifecycleCommand lifecycleCommand = (new LifecycleCommand() {
-                public void lifecycleMethod() throws Exception {
-                    internalDoStart();
-                }
-            });
-            this.servletRegistration.getLifecycleChain().lifecycleCommand(lifecycleCommand);
-        }
-        
-        private void internalDoStart() throws Exception {
-            super.doStart();
-        }
 
-        private void internalDoStop() {
-            super.doStop();
+        @Override
+        public void doStop() throws Exception {
+            IntegrationContext integrationContext = servletRegistration.getIntegrationContext();
+            javax.naming.Context context = integrationContext.setContext();
+            boolean txActive = integrationContext.isTxActive();
+            SharedConnectorInstanceContext newContext = integrationContext.newConnectorInstanceContext(null);
+            ConnectorInstanceContext connectorContext = integrationContext.setConnectorInstance(null, newContext);
+            try {
+                try {
+                    super.doStop();
+                } finally {
+                    integrationContext.restoreConnectorContext(connectorContext, null, newContext);
+                }
+            } finally {
+                integrationContext.restoreContext(context);
+                integrationContext.completeTx(txActive, null);
+            }
         }
 
     }

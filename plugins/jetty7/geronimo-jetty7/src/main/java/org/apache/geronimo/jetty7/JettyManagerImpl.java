@@ -31,6 +31,9 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.ReferencePatterns;
+import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.ParamSpecial;
+import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 import org.apache.geronimo.jetty7.connector.AJP13Connector;
 import org.apache.geronimo.jetty7.connector.HTTPBlockingConnector;
 import org.apache.geronimo.jetty7.connector.HTTPSSelectChannelConnector;
@@ -60,6 +63,8 @@ import org.slf4j.LoggerFactory;
  *
  * @version $Rev:386276 $ $Date$
  */
+
+@GBean
 public class JettyManagerImpl implements WebManager {
     private static final Logger log = LoggerFactory.getLogger(JettyManagerImpl.class);
 
@@ -124,7 +129,7 @@ public class JettyManagerImpl implements WebManager {
 
     private final Kernel kernel;
 
-    public JettyManagerImpl(Kernel kernel) {
+    public JettyManagerImpl(@ParamSpecial(type = SpecialAttributeType.kernel)Kernel kernel) {
         this.kernel = kernel;
     }
 
@@ -408,17 +413,4 @@ public class JettyManagerImpl implements WebManager {
         }
     }
 
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("Jetty Web Manager", JettyManagerImpl.class);
-        infoFactory.addAttribute("kernel", Kernel.class, false);
-        infoFactory.addInterface(WebManager.class);
-        infoFactory.setConstructor(new String[]{"kernel"});
-        GBEAN_INFO = infoFactory.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
 }

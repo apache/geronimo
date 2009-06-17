@@ -46,13 +46,8 @@ import org.apache.geronimo.j2ee.annotation.Holder;
 import org.apache.geronimo.j2ee.annotation.LifecycleMethod;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.management.impl.InvalidObjectNameException;
-import org.apache.geronimo.jetty7.handler.AbstractImmutableHandler;
-import org.apache.geronimo.jetty7.handler.ComponentContextHandler;
-import org.apache.geronimo.jetty7.handler.InstanceContextHandler;
-import org.apache.geronimo.jetty7.handler.LifecycleCommand;
-import org.apache.geronimo.jetty7.handler.ThreadClassloaderHandler;
+import org.apache.geronimo.jetty7.handler.IntegrationContext;
 import org.apache.geronimo.jetty7.handler.TwistyWebAppContext;
-import org.apache.geronimo.jetty7.handler.UserTransactionHandler;
 import org.apache.geronimo.jetty7.security.SecurityHandlerFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.ObjectNameUtil;
@@ -63,14 +58,13 @@ import org.apache.geronimo.management.geronimo.WebModule;
 import org.apache.geronimo.naming.enc.EnterpriseNamingContext;
 import org.apache.geronimo.security.jacc.RunAsSource;
 import org.apache.geronimo.transaction.GeronimoUserTransaction;
-import org.eclipse.jetty.server.Handler;
+import org.eclipse.jetty.http.MimeTypes;
 import org.eclipse.jetty.security.SecurityHandler;
+import org.eclipse.jetty.server.session.SessionHandler;
 import org.eclipse.jetty.servlet.ErrorPageErrorHandler;
 import org.eclipse.jetty.servlet.ServletHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.servlet.ServletMapping;
-import org.eclipse.jetty.server.session.SessionHandler;
-import org.eclipse.jetty.http.MimeTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -92,13 +86,11 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
     private final ClassLoader webClassLoader;
     private final JettyContainer jettyContainer;
 
-//    private final String webAppRoot;
     private final URL configurationBaseURL;
     private String displayName;
 
     private final String objectName;
-    private final TwistyWebAppContext webAppContext;//delegate
-    private final AbstractImmutableHandler lifecycleChain;
+    private final TwistyWebAppContext webAppContext;
     private final Context componentContext;
     private final Holder holder;
     private final RunAsSource runAsSource;
@@ -109,47 +101,48 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
 
     public static final String GBEAN_REF_SESSION_HANDLER_FACTORY = "SessionHandlerFactory";
     public static final String GBEAN_REF_PRE_HANDLER_FACTORY = "PreHandlerFactory";
+    private IntegrationContext integrationContext;
 
 
-    public JettyWebAppContext(@ParamSpecial(type = SpecialAttributeType.objectName)String objectName,
-                              @ParamAttribute(name = "contextPath")String contextPath,
-                              @ParamAttribute(name = "deploymentDescriptor")String originalSpecDD,
-                              @ParamAttribute(name = "componentContext")Map<String, Object> componentContext,
-                              @ParamSpecial(type = SpecialAttributeType.classLoader)ClassLoader classLoader,
-                              @ParamAttribute(name = "configurationBaseUrl")URL configurationBaseUrl,
-                              @ParamAttribute(name = "unshareableResources")Set unshareableResources,
-                              @ParamAttribute(name = "applicationManagedSecurityResources")Set applicationManagedSecurityResources,
-                              @ParamAttribute(name = "displayName")String displayName,
-                              @ParamAttribute(name = "contextParamMap")Map contextParamMap,
-                              @ParamAttribute(name = "listenerClassNames")Collection<String> listenerClassNames,
-                              @ParamAttribute(name = "distributable")boolean distributable,
-                              @ParamAttribute(name = "mimeMap")Map mimeMap,
-                              @ParamAttribute(name = "welcomeFiles")String[] welcomeFiles,
-                              @ParamAttribute(name = "localeEncodingMapping")Map<String, String> localeEncodingMapping,
-                              @ParamAttribute(name = "errorPages")Map errorPages,
-                              @ParamAttribute(name = "tagLibMap")Map<String, String> tagLibMap,
-                              @ParamAttribute(name = "compactPath")boolean compactPath,
+    public JettyWebAppContext(@ParamSpecial(type = SpecialAttributeType.objectName) String objectName,
+                              @ParamAttribute(name = "contextPath") String contextPath,
+                              @ParamAttribute(name = "deploymentDescriptor") String originalSpecDD,
+                              @ParamAttribute(name = "componentContext") Map<String, Object> componentContext,
+                              @ParamSpecial(type = SpecialAttributeType.classLoader) ClassLoader classLoader,
+                              @ParamAttribute(name = "configurationBaseUrl") URL configurationBaseUrl,
+                              @ParamAttribute(name = "workDir") String workDir,
+                              @ParamAttribute(name = "unshareableResources") Set<String> unshareableResources,
+                              @ParamAttribute(name = "applicationManagedSecurityResources") Set<String> applicationManagedSecurityResources,
+                              @ParamAttribute(name = "displayName") String displayName,
+                              @ParamAttribute(name = "contextParamMap") Map<String, String> contextParamMap,
+                              @ParamAttribute(name = "listenerClassNames") Collection<String> listenerClassNames,
+                              @ParamAttribute(name = "distributable") boolean distributable,
+                              @ParamAttribute(name = "mimeMap") Map mimeMap,
+                              @ParamAttribute(name = "welcomeFiles") String[] welcomeFiles,
+                              @ParamAttribute(name = "localeEncodingMapping") Map<String, String> localeEncodingMapping,
+                              @ParamAttribute(name = "errorPages") Map errorPages,
+                              @ParamAttribute(name = "tagLibMap") Map<String, String> tagLibMap,
+                              @ParamAttribute(name = "compactPath") boolean compactPath,
 
-                              @ParamAttribute(name = GBEAN_ATTR_SESSION_TIMEOUT)int sessionTimeoutSeconds,
-                              @ParamReference(name = GBEAN_REF_SESSION_HANDLER_FACTORY)SessionHandlerFactory handlerFactory,
-                              @ParamReference(name = GBEAN_REF_PRE_HANDLER_FACTORY)PreHandlerFactory preHandlerFactory,
+                              @ParamAttribute(name = GBEAN_ATTR_SESSION_TIMEOUT) int sessionTimeoutSeconds,
+                              @ParamReference(name = GBEAN_REF_SESSION_HANDLER_FACTORY) SessionHandlerFactory handlerFactory,
+                              @ParamReference(name = GBEAN_REF_PRE_HANDLER_FACTORY) PreHandlerFactory preHandlerFactory,
 
-                              @ParamAttribute(name = "policyContextID")String policyContextID,
-                              @ParamAttribute(name = "securityRealmName")String securityRealmName,
-                              @ParamReference(name = "SecurityHandlerFactory")SecurityHandlerFactory securityHandlerFactory,
-                              @ParamReference(name = "RunAsSource")RunAsSource runAsSource,
+                              @ParamAttribute(name = "policyContextID") String policyContextID,
+                              @ParamReference(name = "SecurityHandlerFactory") SecurityHandlerFactory securityHandlerFactory,
+                              @ParamReference(name = "RunAsSource") RunAsSource runAsSource,
 
-                              @ParamAttribute(name = "holder")Holder holder,
+                              @ParamAttribute(name = "holder") Holder holder,
 
-                              @ParamReference(name = "Host")Host host,
-                              @ParamReference(name = "TransactionManager")TransactionManager transactionManager,
-                              @ParamReference(name = "TrackedConnectionAssociator")TrackedConnectionAssociator trackedConnectionAssociator,
-                              @ParamReference(name = "JettyContainer")JettyContainer jettyContainer,
-                              @ParamReference(name = "ContextCustomizer")RuntimeCustomizer contextCustomizer,
+                              @ParamReference(name = "Host") Host host,
+                              @ParamReference(name = "TransactionManager") TransactionManager transactionManager,
+                              @ParamReference(name = "TrackedConnectionAssociator") TrackedConnectionAssociator trackedConnectionAssociator,
+                              @ParamReference(name = "JettyContainer") JettyContainer jettyContainer,
+                              @ParamReference(name = "ContextCustomizer") RuntimeCustomizer contextCustomizer,
 
-                              @ParamReference(name = "J2EEServer")J2EEServer server,
-                              @ParamReference(name = "J2EEApplication")J2EEApplication application,
-                              @ParamSpecial(type = SpecialAttributeType.kernel)Kernel kernel) throws Exception {
+                              @ParamReference(name = "J2EEServer") J2EEServer server,
+                              @ParamReference(name = "J2EEApplication") J2EEApplication application,
+                              @ParamSpecial(type = SpecialAttributeType.kernel) Kernel kernel) throws Exception {
 
         assert componentContext != null;
         assert classLoader != null;
@@ -157,6 +150,9 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
         assert transactionManager != null;
         assert trackedConnectionAssociator != null;
         assert jettyContainer != null;
+        if (contextPath == null || !contextPath.startsWith("/")) {
+            throw new IllegalArgumentException("context contextPath must be non-null and start with '/', not " + contextPath);
+        }
 
         this.holder = holder == null ? Holder.EMPTY : holder;
 
@@ -187,17 +183,20 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
 
         ServletHandler servletHandler = new ServletHandler();
 
-        webAppContext = new TwistyWebAppContext(securityHandler, sessionHandler, servletHandler, null);
-        if (contextPath == null || !contextPath.startsWith("/")) {
-            throw new IllegalArgumentException("context contextPath must be non-null and start with '/', not " + contextPath);
-        }
+        //wrap the web app context with the jndi handler
+        GeronimoUserTransaction userTransaction = new GeronimoUserTransaction(transactionManager);
+        this.componentContext = EnterpriseNamingContext.createEnterpriseNamingContext(componentContext, userTransaction, kernel, classLoader);
+        integrationContext = new IntegrationContext(this.componentContext, unshareableResources, applicationManagedSecurityResources, trackedConnectionAssociator, userTransaction);
+        webAppContext = new TwistyWebAppContext(securityHandler, sessionHandler, servletHandler, null, integrationContext, classLoader);
         webAppContext.setContextPath(contextPath);
         //See Jetty-386.  Setting this to true can expose secured content.
         webAppContext.setCompactPath(compactPath);
 
-        //wrap the web app context with the jndi handler
-        GeronimoUserTransaction userTransaction = new GeronimoUserTransaction(transactionManager);
-        this.componentContext = EnterpriseNamingContext.createEnterpriseNamingContext(componentContext, userTransaction, kernel, classLoader);
+        if (workDir == null) {
+            workDir = contextPath;
+        }
+        this.webAppContext.setTempDirectory(jettyContainer.resolveToJettyHome(workDir));
+
 
         //install jasper injection support if required
         if (contextCustomizer != null) {
@@ -211,19 +210,6 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
             }
         }
 
-        // localize access to next
-        {
-            //install the other handlers inside the web app context
-            Handler next = webAppContext.newTwistyHandler();
-            next = new ThreadClassloaderHandler(next, classLoader);
-
-            next = new InstanceContextHandler(next, unshareableResources, applicationManagedSecurityResources, trackedConnectionAssociator);
-            next = new UserTransactionHandler(next, userTransaction);
-            next = new ComponentContextHandler(next, this.componentContext);
-            webAppContext.setTwistyHandler(next);
-
-            lifecycleChain = (AbstractImmutableHandler) next;
-        }
         MimeTypes mimeTypes = new MimeTypes();
         mimeTypes.setMimeMap(mimeMap);
         webAppContext.setMimeTypes(mimeTypes);
@@ -307,23 +293,16 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
         return this.webAppContext.getContextPath();
     }
 
-    public void setWorkDir(@ParamAttribute(name = "workDir") String workDir) {
-        if(workDir == null) {
-            return;
-        }
-        this.webAppContext.setTempDirectory(jettyContainer.resolveToJettyHome(workDir));
-    }
-    
     public ClassLoader getWebClassLoader() {
         return webClassLoader;
     }
 
-    public AbstractImmutableHandler getLifecycleChain() {
-        return lifecycleChain;
-    }
-
     public Subject getSubjectForRole(String role) throws LoginException {
         return runAsSource.getSubjectForRole(role);
+    }
+
+    public IntegrationContext getIntegrationContext() {
+        return integrationContext;
     }
 
     public Object newInstance(String className) throws InstantiationException, IllegalAccessException {
@@ -346,18 +325,13 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
     public void doStart() throws Exception {
         // reset the classsloader... jetty likes to set it to null when stopping
         this.webAppContext.setClassLoader(webClassLoader);
-//        this.webAppContext.setWar(webAppRoot);
-
-        getLifecycleChain().lifecycleCommand(new StartCommand());
+        jettyContainer.addContext(webAppContext);
+        webAppContext.start();
     }
 
     public void doStop() throws Exception {
-        getLifecycleChain().lifecycleCommand(new StopCommand());
-
-        // need to release the JSF factories. Otherwise, we'll leak ClassLoaders.
-        //should be done in a myfaces gbean
-//        FactoryFinder.releaseFactories();
-
+        webAppContext.stop();
+        jettyContainer.removeContext(webAppContext);
         log.debug("JettyWebAppContext stopped");
     }
 
@@ -369,27 +343,6 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
         }
 
         log.warn("JettyWebAppContext failed");
-    }
-
-    public class StartCommand implements LifecycleCommand {
-
-        public void lifecycleMethod() throws Exception {
-            //order seems backwards... .maybe container is calling start itself???
-            jettyContainer.addContext(webAppContext);
-            webAppContext.start();
-        }
-    }
-
-    public class StopCommand implements LifecycleCommand {
-
-        public void lifecycleMethod() throws Exception {
-            webAppContext.stop();
-            //TODO is this order correct?
-            for (EventListener listener : webAppContext.getEventListeners()) {
-                destroyInstance(listener);
-            }
-            jettyContainer.removeContext(webAppContext);
-        }
     }
     //pass through attributes.  They should be constructor params
 
@@ -510,8 +463,6 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
                 this.webAppContext.getServletHandler().addServletMapping(servletMapping);
             }
         }
-//        LifecycleCommand lifecycleCommand = new LifecycleCommand.StartCommand(servletHolder);
-//        lifecycleChain.lifecycleCommand(lifecycleCommand);
         if (objectName != null) {
             synchronized (servletNames) {
                 servletNames.add(objectName);
@@ -531,8 +482,6 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
 //                webAppContext.getServletHandler().removeServletMapping(servletMapping);
 //            }
 //        }
-//        LifecycleCommand lifecycleCommand = new LifecycleCommand.StopCommand(servletHolder);
-//        lifecycleChain.lifecycleCommand(lifecycleCommand);
         if (objectName != null) {
             synchronized (servletNames) {
                 servletNames.remove(objectName);

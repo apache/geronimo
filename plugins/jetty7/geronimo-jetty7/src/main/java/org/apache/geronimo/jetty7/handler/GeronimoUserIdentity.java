@@ -30,11 +30,14 @@ import javax.security.auth.Subject;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.server.UserIdentity;
 import org.eclipse.jetty.security.RunAsToken;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @version $Rev$ $Date$
  */
 public class GeronimoUserIdentity implements UserIdentity {
+    private final Logger log = LoggerFactory.getLogger(GeronimoUserIdentity.class);
 
     private final Subject subject;
     private final Principal userPrincipal;
@@ -59,11 +62,23 @@ public class GeronimoUserIdentity implements UserIdentity {
     }
 
     public String[] getRoles() {
-        throw new RuntimeException("Not implemented");
+        RuntimeException e = new RuntimeException("Not implemented");
+        log.info("getRoles called on identity " + this, e);
+        throw e;
     }
 
-    public boolean isUserInRole(String role) {
-        throw new RuntimeException("Not implemented");
+    public boolean isUserInRole(String role, Scope scope) {
+
+        String servletName = scope.getName();
+        if (servletName == null || servletName.equals("jsp")) {
+            servletName = "";
+        }
+        try {
+            acc.checkPermission(new WebRoleRefPermission(servletName, role));
+            return true;
+        } catch (AccessControlException e) {
+            return false;
+        }
     }
 
     //jaspi called from FormAuthenticator.valueUnbound (when session is unbound)
@@ -75,47 +90,8 @@ public class GeronimoUserIdentity implements UserIdentity {
         return acc;
     }
 
-//    public RunAsToken getOldRunAsToken() {
-//        throw new RuntimeException("Not implemented");
-//    }
-//
-//    public void setOldRunAsToken(RunAsToken oldRunAsToken) {
-//        throw new RuntimeException("Not implemented");
-//    }
-//
-//    private static class NamedUserIdentity extends GeronimoUserIdentity {
-//        private final String servletName;
-//        private RunAsToken oldRunAsToken;
-//
-//        private NamedUserIdentity(GeronimoUserIdentity gui, String servletName) {
-//            super(gui.subject, gui.userPrincipal, gui.acc);
-//            // JACC v1.0 section B.19
-//            if (servletName == null || servletName.equals("jsp")) {
-//                servletName = "";
-//            }
-//            this.servletName = servletName;
-//        }
-//
-//        public boolean isUserInRole(String role) {
-//            if (servletName == null || servletName.equals("jsp")) {
-//                servletName = "";
-//            }
-//            try {
-//                getAccessControlContext().checkPermission(new WebRoleRefPermission(servletName, role));
-//                return true;
-//            } catch (AccessControlException e) {
-//                return false;
-//            }
-//        }
-//
-//        public RunAsToken getOldRunAsToken() {
-//            return oldRunAsToken;
-//        }
-//
-//        public void setOldRunAsToken(RunAsToken oldRunAsToken) {
-//            this.oldRunAsToken = oldRunAsToken;
-//        }
-//    }
-
-
+    @Override
+    public String toString() {
+        return "GeronimoUserIdentity[Subject: " + subject + ", Principal: " + userPrincipal + ", acc: " + acc + "]";
+    }
 }

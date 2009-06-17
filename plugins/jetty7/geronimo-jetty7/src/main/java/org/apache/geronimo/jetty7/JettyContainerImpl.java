@@ -23,30 +23,34 @@ import java.util.Map;
 
 import javax.management.j2ee.statistics.Stats;
 
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.ParamAttribute;
+import org.apache.geronimo.gbean.annotation.ParamReference;
+import org.apache.geronimo.gbean.annotation.ParamSpecial;
+import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 import org.apache.geronimo.management.LazyStatisticsProvider;
 import org.apache.geronimo.management.geronimo.NetworkConnector;
 import org.apache.geronimo.management.geronimo.WebManager;
 import org.apache.geronimo.management.geronimo.stats.JettyWebContainerStatsImpl;
+import org.apache.geronimo.security.jaas.ConfigurationFactory;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.webservices.SoapHandler;
 import org.apache.geronimo.webservices.WebServiceContainer;
-import org.apache.geronimo.security.jaas.ConfigurationFactory;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Handler;
-import org.eclipse.jetty.server.handler.StatisticsHandler;
-import org.eclipse.jetty.server.handler.HandlerCollection;
-import org.eclipse.jetty.server.handler.ContextHandlerCollection;
-import org.eclipse.jetty.server.handler.DefaultHandler;
-import org.eclipse.jetty.server.handler.RequestLogHandler;
 import org.eclipse.jetty.server.RequestLog;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.handler.ContextHandlerCollection;
+import org.eclipse.jetty.server.handler.DefaultHandler;
+import org.eclipse.jetty.server.handler.HandlerCollection;
+import org.eclipse.jetty.server.handler.RequestLogHandler;
+import org.eclipse.jetty.server.handler.StatisticsHandler;
 
 /**
  * @version $Rev$ $Date$
  */
+@GBean
 public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLifecycle, LazyStatisticsProvider {
     /**
      * The default value of JETTY_HOME variable
@@ -61,17 +65,19 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLif
     private final ServerInfo serverInfo;
     private File jettyHomeDir;
     private JettyWebContainerStatsImpl stats;
-//    private final Map realms = new HashMap();
     // list of handlers
     private StatisticsHandler statsHandler = new StatisticsHandler();
     private HandlerCollection handlerCollection = new HandlerCollection();
     private ContextHandlerCollection contextHandlerCollection = new ContextHandlerCollection();
     private DefaultHandler defaultHandler = new DefaultHandler();
     private RequestLogHandler requestLogHandler = new RequestLogHandler();
-//    private boolean statsHandlerInPlace = false;
-    private boolean statsOn=false;
+    //    private boolean statsHandlerInPlace = false;
+    private boolean statsOn = false;
 
-    public JettyContainerImpl(String objectName, WebManager manager, String jettyHome, ServerInfo serverInfo) {
+    public JettyContainerImpl(@ParamSpecial(type = SpecialAttributeType.objectName) String objectName,
+                              @ParamReference(name = "WebManager") WebManager manager,
+                              @ParamAttribute(name = "jettyHome") String jettyHome,
+                              @ParamReference(name = "ServerInfo") ServerInfo serverInfo) {
         this.objectName = objectName;
         this.jettyHome = jettyHome;
         this.serverInfo = serverInfo;
@@ -133,7 +139,7 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLif
     public boolean isStatsOn() {
         return statsOn;
     }
-    
+
     public void setStatsOn(boolean on) {
         try {
             if (on) {
@@ -155,7 +161,7 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLif
 //                }
             }
             statsOn = on;
-        } catch(Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -165,26 +171,26 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLif
             stats.setLastSampleTime();
 
             /* set active request range values */
-            stats.getActiveRequestCountImpl().setCurrent((long)statsHandler.getRequestsActive());
-            stats.getActiveRequestCountImpl().setLowWaterMark((long)statsHandler.getRequestsActiveMin());
-            stats.getActiveRequestCountImpl().setHighWaterMark((long)statsHandler.getRequestsActiveMax());
-    
+            stats.getActiveRequestCountImpl().setCurrent((long) statsHandler.getRequestsActive());
+            stats.getActiveRequestCountImpl().setLowWaterMark((long) statsHandler.getRequestsActiveMin());
+            stats.getActiveRequestCountImpl().setHighWaterMark((long) statsHandler.getRequestsActiveMax());
+
             /* set request duration time values, avg = Totaltime/Count */
             /* set active request count */
-            stats.getRequestDurationImpl().setCount((long)statsHandler.getRequests());
-            stats.getRequestDurationImpl().setMaxTime((long)statsHandler.getRequestsDurationMax());
-            stats.getRequestDurationImpl().setMinTime((long)statsHandler.getRequestsDurationMin());
-            stats.getRequestDurationImpl().setTotalTime((long)statsHandler.getRequestsDurationTotal());
-    
+            stats.getRequestDurationImpl().setCount((long) statsHandler.getRequests());
+            stats.getRequestDurationImpl().setMaxTime((long) statsHandler.getRequestsDurationMax());
+            stats.getRequestDurationImpl().setMinTime((long) statsHandler.getRequestsDurationMin());
+            stats.getRequestDurationImpl().setTotalTime((long) statsHandler.getRequestsDurationTotal());
+
             /* set request count values*/
-            stats.getResponses1xxImpl().setCount((long)statsHandler.getResponses1xx());
-            stats.getResponses2xxImpl().setCount((long)statsHandler.getResponses2xx());
-            stats.getResponses3xxImpl().setCount((long)statsHandler.getResponses3xx());
-            stats.getResponses4xxImpl().setCount((long)statsHandler.getResponses4xx());
-            stats.getResponses5xxImpl().setCount((long)statsHandler.getResponses5xx());
-    
+            stats.getResponses1xxImpl().setCount((long) statsHandler.getResponses1xx());
+            stats.getResponses2xxImpl().setCount((long) statsHandler.getResponses2xx());
+            stats.getResponses3xxImpl().setCount((long) statsHandler.getResponses3xx());
+            stats.getResponses4xxImpl().setCount((long) statsHandler.getResponses4xx());
+            stats.getResponses5xxImpl().setCount((long) statsHandler.getResponses5xx());
+
             /* set elapsed time for stats collection */
-            stats.getStatsOnMsImpl().setCount((long)statsHandler.getStatsOnMs());
+            stats.getStatsOnMsImpl().setCount((long) statsHandler.getStatsOnMs());
         }
         return stats;
     }
@@ -205,7 +211,7 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLif
         contextHandlerCollection.removeHandler(context);
     }
 
-   ///TODO figure out strings1 param
+    ///TODO figure out strings1 param
     public void addWebService(String contextPath, String[] virtualHosts, WebServiceContainer webServiceContainer, ConfigurationFactory configurationFactory, String realmName, String transportGuarantee, String authMethod, String[] strings1, ClassLoader classLoader) throws Exception {
 //        InternalJAASJettyRealm internalJAASJettyRealm = securityRealmName == null ? null : addRealm(securityRealmName);
 //        JettyEJBWebServiceContext webServiceContext = new JettyEJBWebServiceContext(contextPath, webServiceContainer, internalJAASJettyRealm, realmName, transportGuarantee, authMethod, classLoader);
@@ -263,35 +269,5 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLif
             // continue
         }
     }
-
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic("Jetty Web Container", JettyContainerImpl.class);
-        infoBuilder.addAttribute("statsOn", Boolean.TYPE, true);
-        infoBuilder.addAttribute("collectStatisticsStarted", Long.TYPE, false);
-        infoBuilder.addAttribute("objectName", String.class, false);
-        infoBuilder.addAttribute("jettyHome", String.class, true);
-
-        infoBuilder.addReference("WebManager", WebManager.class);
-        infoBuilder.addReference("ServerInfo", ServerInfo.class, "GBean");
-
-        // this is needed because the getters/setters are not added automatically
-        infoBuilder.addOperation("setStatsOn", new Class[] { boolean.class }, "void");
-        infoBuilder.addOperation("resetStats");
-
-        infoBuilder.addInterface(SoapHandler.class);
-        infoBuilder.addInterface(JettyContainer.class);
-        infoBuilder.addInterface(LazyStatisticsProvider.class);
-
-        infoBuilder.setConstructor(new String[]{"objectName", "WebManager", "jettyHome", "ServerInfo"});
-
-        GBEAN_INFO = infoBuilder.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
-
 
 }

@@ -86,9 +86,4 @@
         <artifactId>jetty-io</artifactId>
         <type>jar</type>
     </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.specs</groupId>
-        <artifactId>geronimo-jaspi_1.0_spec</artifactId>
-        <type>jar</type>
-    </dependency>
 </plugin-artifact>

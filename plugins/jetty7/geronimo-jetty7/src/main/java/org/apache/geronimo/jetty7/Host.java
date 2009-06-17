@@ -16,23 +16,20 @@
  */
 package org.apache.geronimo.jetty7;
 
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.ParamAttribute;
 
 /**
  * Host gbean for jetty7 containing an array of hosts and virtual hosts
  */
+@GBean
 public class Host {
 
     private final String[] hosts;
     private final String[] virtualHosts;
 
-    public Host() {
-        hosts = null;
-        virtualHosts = null;
-    }
-
-    public Host(String[] hosts, String[] virtualHosts) {
+    public Host(@ParamAttribute(name="hosts")String[] hosts, 
+                @ParamAttribute(name="virtualHosts")String[] virtualHosts) {
         this.hosts = hosts;
         this.virtualHosts = virtualHosts;
     }
@@ -45,17 +42,4 @@ public class Host {
         return virtualHosts;
     }
 
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(Host.class, "Host");
-        infoBuilder.addAttribute("hosts", String[].class, true);
-        infoBuilder.addAttribute("virtualHosts", String[].class, true);
-        infoBuilder.setConstructor(new String[] {"hosts", "virtualHosts"});
-        GBEAN_INFO = infoBuilder.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
 }

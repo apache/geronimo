@@ -19,6 +19,7 @@
 package org.apache.geronimo.jetty7;
 
 import junit.framework.TestCase;
+import org.apache.geronimo.gbean.annotation.AnnotationGBeanInfoFactory;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 
@@ -28,12 +29,12 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
 public class GBeanInfoTest extends TestCase {
 
     public void testJettyPOJOWebServiceHolder() throws Exception {
-        JettyPOJOWebServiceHolder.getGBeanInfo();
-        new JettyPOJOWebServiceHolder();
+        new AnnotationGBeanInfoFactory().getGBeanInfo(JettyPOJOWebServiceHolder.class);
+//        new JettyPOJOWebServiceHolder();
     }
 
     public void testJettyContainerImpl() throws Exception {
-        JettyContainerImpl.getGBeanInfo();
+        new AnnotationGBeanInfoFactory().getGBeanInfo(JettyContainerImpl.class);
         ServerInfo serverInfo = new BasicServerInfo(".");
         new JettyContainerImpl(null, null, null, serverInfo);
     }

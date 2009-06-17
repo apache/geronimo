@@ -129,7 +129,7 @@ public class JettySecurityHandler extends SecurityHandler {
     }
 
     protected boolean checkWebResourcePermissions(String pathInContext, Request request, Response response, Object constraintInfo, UserIdentity userIdentity) throws IOException {
-        if (!(userIdentity instanceof GeronimoUserIdentity) && !(userIdentity instanceof GeronimoUserIdentityWrapper)){
+        if (!(userIdentity instanceof GeronimoUserIdentity)){
             //we already checked against default_acc and got false
             return false;
         }

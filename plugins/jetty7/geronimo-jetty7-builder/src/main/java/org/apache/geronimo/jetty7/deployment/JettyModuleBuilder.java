@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.io.Serializable;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import java.net.URL;
@@ -98,12 +99,12 @@ import org.apache.geronimo.naming.deployment.ResourceEnvironmentSetter;
 import org.apache.geronimo.schema.ElementConverter;
 import org.apache.geronimo.schema.NamespaceElementConverter;
 import org.apache.geronimo.schema.SchemaConversionUtils;
+import org.apache.geronimo.security.jaas.ConfigurationFactory;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.geronimo.security.jaspi.AuthConfigProviderGBean;
+import org.apache.geronimo.security.jaspi.ServerAuthConfigGBean;
 import org.apache.geronimo.security.jaspi.ServerAuthContextGBean;
 import org.apache.geronimo.security.jaspi.ServerAuthModuleGBean;
-import org.apache.geronimo.security.jaspi.ServerAuthConfigGBean;
-import org.apache.geronimo.security.jaas.ConfigurationFactory;
 import org.apache.geronimo.web.deployment.GenericToSpecificPlanConverter;
 import org.apache.geronimo.web25.deployment.AbstractWebModuleBuilder;
 import org.apache.geronimo.xbeans.geronimo.web.jetty.JettyAuthenticationType;
@@ -639,7 +640,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
         FilterMappingType[] filterMappingArray = webApp.getFilterMappingArray();
         for (FilterMappingType filterMappingType : filterMappingArray) {
             String filterName = filterMappingType.getFilterName().getStringValue().trim();
-            GBeanData filterMappingData = new GBeanData(JettyFilterMapping.GBEAN_INFO);
+            GBeanData filterMappingData = new GBeanData(JettyFilterMapping.class);
             if (previous != null) {
                 filterMappingData.addDependency(previous);
             }
@@ -707,7 +708,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
             moduleContext.addGBean(filterGBeanData);
             //add a mapping to /*
 
-            GBeanData filterMappingGBeanData = new GBeanData(JettyFilterMapping.GBEAN_INFO);
+            GBeanData filterMappingGBeanData = new GBeanData(JettyFilterMapping.class);
             if (previous != null) {
                 filterMappingGBeanData.addDependency(previous);
             }
@@ -1013,7 +1014,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
         if (hosts.length > 0 || virtualHosts.length > 0) {
             //use name same as module
             AbstractName hostName = earContext.getNaming().createChildName(webModuleData.getAbstractName(), "Host", "Host");
-            GBeanData hostData = new GBeanData(hostName, Host.GBEAN_INFO);
+            GBeanData hostData = new GBeanData(hostName, Host.class);
             hostData.setAttribute("hosts", hosts);
             hostData.setAttribute("virtualHosts", virtualHosts);
             earContext.addGBean(hostData);
@@ -1100,7 +1101,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
                 throw new DeploymentException("Could not load javax.servlet.Servlet in web classloader", e); // TODO identify web app in message
             }
             if (baseServletClass.isAssignableFrom(servletClass)) {
-                servletData = new GBeanData(servletAbstractName, JettyServletHolder.GBEAN_INFO);
+                servletData = new GBeanData(servletAbstractName, JettyServletHolder.class);
                 servletData.setAttribute("servletClass", servletClassName);
             } else {
                 servletData = new GBeanData(pojoWebServiceTemplate);
@@ -1123,7 +1124,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
                 }
             }
         } else if (servletType.isSetJspFile()) {
-            servletData = new GBeanData(servletAbstractName, JettyServletHolder.GBEAN_INFO);
+            servletData = new GBeanData(servletAbstractName, JettyServletHolder.class);
             servletData.setAttribute("jspFile", servletType.getJspFile().getStringValue().trim());
             servletData.setAttribute("servletClass", jspServlet.getServletClassName());
             initParams.put("development", "false");
@@ -1218,7 +1219,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
         return GBEAN_INFO;
     }
 
-    static class StartupOrderComparator implements Comparator<ServletType> {
+    static class StartupOrderComparator implements Comparator<ServletType>, Serializable {
         /**
          * comparator that compares first on the basis of startup order, and then on the lexicographical
          * ordering of servlet name.  Since the servlet names have a uniqueness constraint, this should
