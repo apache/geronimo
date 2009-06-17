@@ -32,6 +32,7 @@ import java.io.StringWriter;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Comparator;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.stream.XMLStreamException;
@@ -156,7 +157,7 @@ public class DependencyChangeMojo extends AbstractCarMojo {
     }
 
     protected File saveTreeListing() throws IOException {
-        File treeListFile = new File(dependencyFile.getParentFile(), "treeListing.xml");
+        File treeListFile = new File(dependencyFile.getParentFile(), "treeListing.txt");
         OutputStream os = new FileOutputStream(treeListFile);
         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os));
         try {
@@ -184,6 +185,20 @@ public class DependencyChangeMojo extends AbstractCarMojo {
             throw new IOException("expected dependencies history directory is not a directory: " + parent);
         }
         FileWriter out = new FileWriter(file);
+        Collections.sort(pluginArtifactType.getDependency(), new Comparator<DependencyType>() {
+
+            public int compare(DependencyType a, DependencyType b) {
+                int result = a.getGroupId().compareTo(b.getGroupId());
+                if (result != 0) return result;
+                result = a.getArtifactId().compareTo(b.getArtifactId());
+                if (result != 0) return result;
+                return getType(a).compareTo(getType(b));
+            }
+
+            private String getType(DependencyType a) {
+                return a.getType() == null? "jar": a.getType();
+            }
+        });
         try {
             PluginXmlUtil.writePluginArtifact(pluginArtifactType, out);
         } finally {
