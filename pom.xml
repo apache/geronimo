@@ -2522,7 +2522,7 @@
             </plugins>
         </pluginManagement>
 
-        <!--<plugins>-->
+        <plugins>
         <!--<plugin>-->
         <!--<groupId>org.apache.maven.plugins</groupId>-->
         <!--<artifactId>maven-enforcer-plugin</artifactId>-->
@@ -2549,14 +2549,18 @@
         <!--</executions>-->
         <!--</plugin>-->
 
-        <!--<plugin>-->
-        <!--<groupId>org.apache.maven.plugins</groupId>-->
-        <!--<artifactId>maven-compiler-plugin</artifactId>-->
-        <!--<configuration>-->
-        <!--<source>1.5</source>-->
-        <!--<target>1.5</target>-->
-        <!--</configuration>-->
-        <!--</plugin>-->
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <configuration>
+                <optimize>true</optimize>
+                <debug>false</debug>
+                <showDeprecation>false</showDeprecation>
+                <showWarnings>false</showWarnings>
+                <source>1.5</source>
+                <target>1.5</target>
+            </configuration>
+        </plugin>
 
         <!--<plugin>-->
         <!--<groupId>org.apache.maven.plugins</groupId>-->
@@ -2593,7 +2597,7 @@
         <!--</execution>-->
         <!--</executions>-->
         <!--</plugin>-->
-        <!--</plugins>-->
+        </plugins>
     </build>
 
     <reporting>
@@ -2658,7 +2662,27 @@
             <url>scp://people.apache.org/www/geronimo.apache.org/maven/server</url>
         </site>
     </distributionManagement>
-
+    
+    <!--
+        Remove this once the genesis 2.0.1 is released or there is a better solution
+    -->
+    <pluginRepositories>
+        <pluginRepository>
+            <id>apache.snapshots</id>
+            <name>Apache Snapshots Repository</name>
+            <url>http://repository.apache.org/snapshots</url>
+            <layout>default</layout>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>daily</updatePolicy>
+                <checksumPolicy>ignore</checksumPolicy>
+            </snapshots>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+        </pluginRepository>
+    </pluginRepositories>
+    
     <profiles>
         <profile>
             <id>default</id>

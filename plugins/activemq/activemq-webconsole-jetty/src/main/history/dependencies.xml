@@ -88,6 +88,11 @@
     </dependency>
     <dependency>
         <groupId>org.springframework</groupId>
+        <artifactId>spring-aop</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.springframework</groupId>
         <artifactId>spring-context-support</artifactId>
         <type>jar</type>
     </dependency>
