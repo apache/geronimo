@@ -36,6 +36,20 @@
     
     <description>Geronimo JEE5 Webservices JAXB tests</description>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-jaxb_2.1_spec</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-stax-api_1.0_spec</artifactId>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
     <modules>
         <module>jaxb-war</module>
         <module>jaxb-ejb</module>
