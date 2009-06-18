@@ -81,8 +81,6 @@
         <attribute name="acceptCount">100</attribute>
         <attribute name="connectionTimeout">20000</attribute>
         <attribute name="disableUploadTimeout">true</attribute>
-        <attribute name="maxSavePostSize">-1</attribute>
-        <attribute name="maxSavePostSize">-1</attribute>
         <reference name="TomcatContainer">
             <name>TomcatWebContainer</name>
         </reference>
