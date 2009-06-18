@@ -43,7 +43,7 @@ public class JAXWSTools {
     { 
         { "org.apache.geronimo.specs", "geronimo-jaxws_2.1_spec" },
         { "org.apache.geronimo.specs", "geronimo-saaj_1.3_spec" },
-        { "javax.xml.bind",   "jaxb-api" },
+        { "org.apache.geronimo.specs", "geronimo-jaxb_2.1_spec" },
         { "com.sun.xml.bind", "jaxb-impl" },
         { "com.sun.xml.bind", "jaxb-xjc" },
         { "com.sun.xml.ws",   "jaxws-tools" },
