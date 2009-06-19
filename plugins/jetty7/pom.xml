@@ -116,8 +116,9 @@
     </modules>
 
     <repositories>
+        <!--
         <repository>
-            <id>oss.sonatype.org</id>
+            <id>jetty-snapshots.oss.sonatype.org</id>
             <name>Jetty Snapshot Repository</name>
             <layout>default</layout>
             <url>http://oss.sonatype.org/content/repositories/jetty-snapshots/</url>
@@ -126,6 +127,19 @@
             </snapshots>
             <releases>
                 <enabled>false</enabled>
+            </releases>
+        </repository>
+        -->
+        <repository>
+            <id>jetty-releases.oss.sonatype.org</id>
+            <name>Jetty-Releases Snapshot Repository</name>
+            <layout>default</layout>
+            <url>http://oss.sonatype.org/content/repositories/jetty-releases/</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
             </releases>
         </repository>
     </repositories>
