@@ -36,6 +36,9 @@ import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.ReferenceCollection;
 import org.apache.geronimo.gbean.ReferenceCollectionEvent;
 import org.apache.geronimo.gbean.ReferenceCollectionListener;
+import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.ParamAttribute;
+import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.system.jmx.MBeanServerReference;
 import org.apache.geronimo.tomcat.cluster.CatalinaClusterGBean;
@@ -46,6 +49,7 @@ import org.apache.tomcat.util.modeler.Registry;
 /**
  * @version $Rev$ $Date$
  */
+@GBean
 public class EngineGBean extends BaseGBean implements GBeanLifecycle, ObjectRetriever {
 
     private static final Logger log = LoggerFactory.getLogger(EngineGBean.class);
@@ -55,17 +59,25 @@ public class EngineGBean extends BaseGBean implements GBeanLifecycle, ObjectRetr
 
     private final Engine engine;
 
-    public EngineGBean(String className,
-            Map initParams,
-            HostGBean defaultHost,
-            ObjectRetriever realmGBean,
-            ConfigurationFactory configurationFactory,
-            ValveGBean tomcatValveChain,
-            LifecycleListenerGBean listenerChain,
-            CatalinaClusterGBean clusterGBean,
-            ManagerGBean manager,
-            MBeanServerReference mbeanServerReference) throws Exception {
-        super(); // TODO: make it an attribute
+    public EngineGBean(
+            //fish engine out of server configured with server.xml
+            @ParamReference(name="Server")TomcatServerGBean server,
+            @ParamAttribute(name="serviceName")String serviceName,
+
+            //Or (deprecated) set up an engine directly
+            @ParamAttribute(name = "className")String className,
+            @ParamAttribute(name = "initParams")Map initParams,
+            @ParamReference(name="DefaultHost", namingType = HostGBean.J2EE_TYPE)HostGBean defaultHost,
+            @ParamReference(name="RealmGBean", namingType = GBeanInfoBuilder.DEFAULT_J2EE_TYPE)ObjectRetriever realmGBean,
+            @ParamReference(name="ConfigurationFactory", namingType = GBeanInfoBuilder.DEFAULT_J2EE_TYPE)ConfigurationFactory configurationFactory,
+            @ParamReference(name="TomcatValveChain", namingType = ValveGBean.J2EE_TYPE)ValveGBean tomcatValveChain,
+            @ParamReference(name="LifecycleListenerChain", namingType = LifecycleListenerGBean.J2EE_TYPE)LifecycleListenerGBean listenerChain,
+            @ParamReference(name="CatalinaCluster", namingType = CatalinaClusterGBean.J2EE_TYPE)CatalinaClusterGBean clusterGBean,
+            @ParamReference(name="Manager", namingType = ManagerGBean.J2EE_TYPE)ManagerGBean manager,
+            @ParamReference(name="MBeanServerReference")MBeanServerReference mbeanServerReference) throws Exception {
+
+        if (server == null) {
+            //legacy configuration
 
         if (className == null){
             className = "org.apache.geronimo.tomcat.TomcatEngine";
@@ -143,6 +155,11 @@ public class EngineGBean extends BaseGBean implements GBeanLifecycle, ObjectRetr
         if (clusterGBean != null){
             engine.setCluster((Cluster)clusterGBean.getInternalObject());
         }
+        } else {
+            //get engine from server gbean
+            engine = (Engine) server.getService(serviceName).getContainer();
+        }
+
     }
 
     public void removeHost(Host host) {
@@ -169,35 +186,4 @@ public class EngineGBean extends BaseGBean implements GBeanLifecycle, ObjectRetr
         log.debug("Stopped");
     }
 
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("TomcatEngine", EngineGBean.class);
-        infoFactory.addAttribute("className", String.class, true);
-        infoFactory.addAttribute("initParams", Map.class, true);
-        infoFactory.addReference("DefaultHost", HostGBean.class, HostGBean.J2EE_TYPE);
-        infoFactory.addReference("RealmGBean", ObjectRetriever.class, GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
-        infoFactory.addReference("ConfigurationFactory", ConfigurationFactory.class, GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
-        infoFactory.addReference("TomcatValveChain", ValveGBean.class, ValveGBean.J2EE_TYPE);
-        infoFactory.addReference("LifecycleListenerChain", LifecycleListenerGBean.class, LifecycleListenerGBean.J2EE_TYPE);
-        infoFactory.addReference("CatalinaCluster", CatalinaClusterGBean.class, CatalinaClusterGBean.J2EE_TYPE);
-        infoFactory.addReference("Manager", ManagerGBean.class, ManagerGBean.J2EE_TYPE);
-        infoFactory.addReference("MBeanServerReference", MBeanServerReference.class);
-        infoFactory.setConstructor(new String[] {
-                "className", 
-                "initParams", 
-                "DefaultHost",
-                "RealmGBean",
-                "ConfigurationFactory",
-                "TomcatValveChain",
-                "LifecycleListenerChain",
-                "CatalinaCluster",
-                "Manager",
-                "MBeanServerReference"});
-        GBEAN_INFO = infoFactory.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
 }

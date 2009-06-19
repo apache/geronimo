@@ -139,7 +139,6 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
         } else {
             this.engine = (Engine) engineGBean.getInternalObject();
             StandardService embedded = new StandardService();
-//            StandardService embedded = new Embedded();
 
             // Assemble FileLogger as a gbean
             /*
@@ -150,7 +149,6 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
             // 2. Set the relevant properties of this object itself. In particular,
             // you will want to establish the default Logger to be used, as well as
             // the default Realm if you are using container-managed security.
-//            embedded.setUseNaming(false);
 
             //Add default contexts
             File rootContext = new File(catalinaHome + "/ROOT");

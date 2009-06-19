@@ -285,7 +285,7 @@ public class TomcatModuleBuilderTest extends TestSupport {
         // Default Engine
         initParams = new HashMap();
         initParams.put("name", "Geronimo");
-        GBeanData engine = bootstrap.addGBean("tomcatEngine", EngineGBean.GBEAN_INFO);
+        GBeanData engine = bootstrap.addGBean("tomcatEngine", EngineGBean.class);
         engine.setAttribute("className", "org.apache.geronimo.tomcat.TomcatEngine");
         engine.setAttribute("initParams", initParams);
         engine.setReferencePattern("DefaultHost", host.getAbstractName());

@@ -63,7 +63,15 @@
             <!--<name>AprLifecycleListener</name>-->
         <!--</reference>-->
     </gbean>
-<!--
+
+    <!-- for support of Host, Valve, etc gbeans in web app plans that need an Engine reference -->
+    <gbean name="TomcatEngine" class="org.apache.geronimo.tomcat.EngineGBean">
+        <reference name="Server">
+            <name>TomcatServer</name>
+        </reference>
+    </gbean>
+
+    <!--
     <gbean name="AprLifecycleListener" class="org.apache.geronimo.tomcat.LifecycleListenerGBean">
         <attribute name="className">org.apache.geronimo.tomcat.listener.GeronimoAprLifecycleListener</attribute>
     </gbean>

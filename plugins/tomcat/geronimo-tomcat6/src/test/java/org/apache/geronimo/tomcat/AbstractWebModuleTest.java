@@ -16,24 +16,11 @@
  */
 package org.apache.geronimo.tomcat;
 
-import java.io.File;
-import java.net.URI;
-import java.net.URL;
-import java.security.Principal;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-
-import javax.transaction.TransactionManager;
-
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
 import org.apache.geronimo.connector.outbound.connectiontracking.GeronimoTransactionListener;
 import org.apache.geronimo.security.SecurityServiceImpl;
 import org.apache.geronimo.security.deploy.PrincipalInfo;
 import org.apache.geronimo.security.deploy.SubjectInfo;
-import org.apache.geronimo.security.jaas.ConfigurationEntryFactory;
-import org.apache.geronimo.security.jaas.GeronimoLoginConfiguration;
 import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
 import org.apache.geronimo.security.jaas.LoginModuleControlFlag;
 import org.apache.geronimo.security.jaas.LoginModuleGBean;
@@ -52,6 +39,16 @@ import org.apache.geronimo.tomcat.connector.ConnectorGBean;
 import org.apache.geronimo.tomcat.connector.Http11ConnectorGBean;
 import org.apache.geronimo.tomcat.util.SecurityHolder;
 import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
+
+import javax.transaction.TransactionManager;
+import java.io.File;
+import java.net.URI;
+import java.net.URL;
+import java.security.Principal;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 
 /**
@@ -172,7 +169,8 @@ public abstract class AbstractWebModuleTest extends TestSupport {
         //Default Engine
         initParams = Collections.singletonMap("name", "Geronimo");
 
-        EngineGBean engine = new EngineGBean("org.apache.geronimo.tomcat.TomcatEngine",
+        EngineGBean engine = new EngineGBean(null, null,
+                "org.apache.geronimo.tomcat.TomcatEngine",
                 initParams,
                 host,
                 realm,
