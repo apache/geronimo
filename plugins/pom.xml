@@ -56,6 +56,7 @@
     </dependencies>
     
     <modules>
+        <module>system-database</module>
         <module>activemq</module>
         <module>aspectj</module>
         <module>axis</module>
@@ -80,7 +81,6 @@
         <module>openjpa</module>
         <module>plancreator</module>
         <module>pluto</module>
-        <module>system-database</module>
         <module>webservices</module>
         <module>spring</module>
         <module>ca-helper</module>
