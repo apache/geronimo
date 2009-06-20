@@ -92,20 +92,10 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.openejb</groupId>
+        <groupId>org.apache.xbean</groupId>
         <artifactId>xbean-asm-shaded</artifactId>
         <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.openejb</groupId>
-        <artifactId>xbean-finder-shaded</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.openejb</groupId>
-        <artifactId>xbean-reflect</artifactId>
-        <type>jar</type>
-    </dependency>
+    </dependency>    
     <dependency>
         <groupId>org.apache.yoko</groupId>
         <artifactId>yoko-spec-corba</artifactId>

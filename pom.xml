@@ -76,7 +76,7 @@
         <tomcatVersion>6.0.18-SNAPSHOT</tomcatVersion>
         <tomcatGroupId>org.apache.geronimo.ext.tomcat</tomcatGroupId>
 
-        <openejbVersion>3.1.1</openejbVersion>
+        <openejbVersion>3.1.2-SNAPSHOT</openejbVersion>
         <derbyVersion>10.4.2.0</derbyVersion>
         <cxfVersion>2.1.4</cxfVersion>
         <axis2Version>1.5</axis2Version>
@@ -2455,7 +2455,7 @@
                             <assembly>
                                 <id>jetty</id>
                                 <groupId>org.apache.geronimo.assemblies</groupId>
-                                <artifactId>geronimo-jetty6-javaee5</artifactId>
+                                <artifactId>geronimo-jetty7-javaee5</artifactId>
                                 <version>${version}</version>
                                 <classifier>bin</classifier>
                                 <type>zip</type>
@@ -2464,7 +2464,7 @@
                             <assembly>
                                 <id>jetty-minimal</id>
                                 <groupId>org.apache.geronimo.assemblies</groupId>
-                                <artifactId>geronimo-jetty6-minimal</artifactId>
+                                <artifactId>geronimo-jetty7-minimal</artifactId>
                                 <version>${version}</version>
                                 <classifier>bin</classifier>
                                 <type>zip</type>
