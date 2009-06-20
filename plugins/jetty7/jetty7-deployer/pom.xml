@@ -33,7 +33,7 @@
     <name>Geronimo Plugins, Jetty :: Deployer</name>
     <packaging>car</packaging>
 
-    <description>Geronimo deployer for Jetty 6 Web Server integration.</description>
+    <description>Geronimo deployer for Jetty 7 Web Server integration.</description>
     
     <dependencies>
         <dependency>

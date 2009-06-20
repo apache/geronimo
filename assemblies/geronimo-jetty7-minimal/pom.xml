@@ -29,7 +29,7 @@
     </parent>
 
     <artifactId>geronimo-jetty7-minimal</artifactId>
-    <name>Geronimo Assemblies :: Minimal + Jetty6</name>
+    <name>Geronimo Assemblies :: Minimal + Jetty7</name>
     <packaging>server-assembly</packaging>
 
     <description>
