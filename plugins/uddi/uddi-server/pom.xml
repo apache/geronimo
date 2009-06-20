@@ -49,7 +49,7 @@
     </dependencyManagement>
     <modules>
         <module>geronimo-uddi-server</module>
-        <module>uddi-jetty6</module>
+        <module>uddi-jetty</module>
         <module>uddi-tomcat</module>
     </modules>
 

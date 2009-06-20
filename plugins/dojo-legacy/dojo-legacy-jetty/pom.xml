@@ -29,7 +29,7 @@
     </parent>
     
     <groupId>org.apache.geronimo.configs</groupId>
-    <artifactId>dojo-legacy-jetty6</artifactId>
+    <artifactId>dojo-legacy-jetty</artifactId>
     <name>Geronimo Plugins, Dojo Legacy :: Jetty6</name>
     <packaging>car</packaging>
     

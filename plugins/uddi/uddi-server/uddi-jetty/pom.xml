@@ -29,7 +29,7 @@
     </parent>
 
     <groupId>org.apache.geronimo.configs</groupId>
-    <artifactId>uddi-jetty6</artifactId>
+    <artifactId>uddi-jetty</artifactId>
     <name>Geronimo Plugins, UDDI Server :: Jetty6</name>
     <packaging>car</packaging>
 

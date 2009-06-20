@@ -73,7 +73,7 @@
 
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>dojo-jetty6</artifactId>
+            <artifactId>dojo-jetty</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>

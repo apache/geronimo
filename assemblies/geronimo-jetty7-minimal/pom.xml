@@ -28,7 +28,7 @@
         <version>2.2-SNAPSHOT</version>
     </parent>
 
-    <artifactId>geronimo-jetty6-minimal</artifactId>
+    <artifactId>geronimo-jetty7-minimal</artifactId>
     <name>Geronimo Assemblies :: Minimal + Jetty6</name>
     <packaging>server-assembly</packaging>
 

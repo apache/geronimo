@@ -29,8 +29,8 @@
     </parent>
     
     <groupId>org.apache.geronimo.configs</groupId>
-    <artifactId>dojo-jetty6</artifactId>
-    <name>Geronimo Plugins, Dojo :: Jetty6</name>
+    <artifactId>dojo-jetty</artifactId>
+    <name>Geronimo Plugins, Dojo :: Jetty</name>
     <packaging>car</packaging>
     
     <description>

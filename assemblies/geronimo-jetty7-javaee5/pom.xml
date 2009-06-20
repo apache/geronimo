@@ -28,8 +28,8 @@
         <version>2.2-SNAPSHOT</version>
     </parent>
 
-    <artifactId>geronimo-jetty6-javaee5</artifactId>
-    <name>Geronimo Assemblies :: JavaEE 5 + Jetty6</name>
+    <artifactId>geronimo-jetty7-javaee5</artifactId>
+    <name>Geronimo Assemblies :: JavaEE 5 + Jetty7</name>
     <packaging>server-assembly</packaging>
 
     <description>

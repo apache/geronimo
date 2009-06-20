@@ -41,7 +41,7 @@
     -->
     
     <properties>
-        <container>jetty6</container>
+        <container>jetty7</container>
     </properties>
 
     <dependencies>

@@ -80,7 +80,7 @@
 
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>dojo-legacy-jetty6</artifactId>
+            <artifactId>dojo-legacy-jetty</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>

@@ -33,7 +33,7 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>uddi-jetty6</artifactId>
+        <artifactId>uddi-jetty</artifactId>
         <type>car</type>
     </dependency>
     <dependency>
