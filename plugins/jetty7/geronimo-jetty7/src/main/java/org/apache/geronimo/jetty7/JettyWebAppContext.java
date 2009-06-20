@@ -17,6 +17,7 @@
 
 package org.apache.geronimo.jetty7;
 
+import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -195,7 +196,12 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
         if (workDir == null) {
             workDir = contextPath;
         }
-        this.webAppContext.setTempDirectory(jettyContainer.resolveToJettyHome(workDir));
+        File tempFolder = jettyContainer.resolveToJettyHome(workDir);
+        if (!tempFolder.exists()) {
+            tempFolder.mkdirs();
+            tempFolder.deleteOnExit();
+        }
+        this.webAppContext.setTempDirectory(tempFolder);
 
 
         //install jasper injection support if required
