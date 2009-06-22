@@ -38,10 +38,10 @@
     </description>
 
     <dependencies>
-        <dependency>
-            <groupId>juddi</groupId>
-            <artifactId>juddi</artifactId>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>juddi</groupId>-->
+            <!--<artifactId>juddi</artifactId>-->
+        <!--</dependency>-->
 
         <dependency>
             <groupId>jstl</groupId>

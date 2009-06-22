@@ -187,7 +187,7 @@
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
                 <artifactId>geronimo-jacc_1.1_spec</artifactId>
-                <version>1.0.1</version>
+                <version>1.0.2-SNAPSHOT</version>
             </dependency>
 
             <dependency>
@@ -1242,11 +1242,6 @@
             </dependency>
 
 
-            <dependency>
-                <groupId>juddi</groupId>
-                <artifactId>juddi</artifactId>
-                <version>0.9rc4</version>
-            </dependency>
 
             <!--<dependency>-->
             <!--<groupId>org.apache.tomcat</groupId>-->
@@ -2522,135 +2517,7 @@
             </plugins>
         </pluginManagement>
 
-        <plugins>
-        <!--<plugin>-->
-        <!--<groupId>org.apache.maven.plugins</groupId>-->
-        <!--<artifactId>maven-enforcer-plugin</artifactId>-->
-        <!--<executions>-->
-        <!--<execution>-->
-        <!--<phase>validate</phase>-->
-        <!--<goals>-->
-        <!--<goal>enforce</goal>-->
-        <!--</goals>-->
-        <!--<configuration>-->
-        <!--<rules>-->
-        <!-- Allow any Java >= 1.5 -->
-        <!--<requireJavaVersion>-->
-        <!--<version>[1.5,)</version>-->
-        <!--</requireJavaVersion>-->
-
-        <!-- Require Maven 2.0.9+ -->
-        <!--<requireMavenVersion>-->
-        <!--<version>[2.0.9,)</version>-->
-        <!--</requireMavenVersion>-->
-        <!--</rules>-->
-        <!--</configuration>-->
-        <!--</execution>-->
-        <!--</executions>-->
-        <!--</plugin>-->
-
-        <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-compiler-plugin</artifactId>
-            <configuration>
-                <optimize>true</optimize>
-                <debug>false</debug>
-                <showDeprecation>false</showDeprecation>
-                <showWarnings>false</showWarnings>
-                <source>1.5</source>
-                <target>1.5</target>
-            </configuration>
-        </plugin>
-
-        <!--<plugin>-->
-        <!--<groupId>org.apache.maven.plugins</groupId>-->
-        <!--<artifactId>maven-idea-plugin</artifactId>-->
-        <!--<configuration>-->
-        <!--<jdkName>1.5</jdkName>-->
-        <!--<jdkLevel>1.5</jdkLevel>-->
-        <!--<linkModules>true</linkModules>-->
-        <!--</configuration>-->
-        <!--</plugin>-->
-
-        <!--<plugin>-->
-        <!--<groupId>org.apache.maven.plugins</groupId>-->
-        <!--<artifactId>maven-reactor-plugin</artifactId>-->
-        <!--</plugin>-->
-
-        <!--<plugin>-->
-        <!--<groupId>org.apache.maven.plugins</groupId>-->
-        <!--<artifactId>maven-remote-resources-plugin</artifactId>-->
-        <!--</plugin>-->
-
-        <!--<plugin>-->
-        <!--<groupId>org.codehaus.mojo</groupId>-->
-        <!--<artifactId>ianal-maven-plugin</artifactId>-->
-        <!--<executions>-->
-        <!--<execution>-->
-        <!--<goals>-->
-        <!--<goal>verify-legal-files</goal>-->
-        <!--</goals>-->
-        <!--<configuration>-->
-        <!-- Fail the build if any artifacts are missing legal files -->
-        <!--<strict>true</strict>-->
-        <!--</configuration>-->
-        <!--</execution>-->
-        <!--</executions>-->
-        <!--</plugin>-->
-        </plugins>
     </build>
-
-    <reporting>
-        <plugins>
-            <!--<plugin>-->
-            <!--<groupId>org.apache.maven.plugins</groupId>-->
-            <!--<artifactId>maven-javadoc-plugin</artifactId>-->
-            <!--<version>2.4</version>-->
-            <!--<configuration>-->
-            <!--<breakiterator>true</breakiterator>-->
-            <!--<quiet>true</quiet>-->
-            <!--<verbose>false</verbose>-->
-            <!--<source>1.5</source>-->
-            <!--<linksource>true</linksource>-->
-            <!--<links>-->
-            <!--<link>http://java.sun.com/j2se/1.5.0/docs/api/</link>-->
-            <!--<link>http://java.sun.com/javaee/5/docs/api/</link>-->
-            <!--</links>-->
-            <!--</configuration>-->
-            <!--</plugin>-->
-
-            <!--<plugin>-->
-            <!--<groupId>org.apache.maven.plugins</groupId>-->
-            <!--<artifactId>maven-pmd-plugin</artifactId>-->
-            <!--<version>2.2</version>-->
-            <!--<configuration>-->
-            <!--<targetJdk>1.5</targetJdk>-->
-            <!--</configuration>-->
-            <!--</plugin>-->
-        </plugins>
-    </reporting>
-
-    <repositories>
-        <!--
-        NOTE: The default repositories are picked up by Genesis, but need to
-              specify where Genesis lives to pick it up any other repositories.
-        -->
-
-        <!--<repository>-->
-        <!--<id>apache.nexus.snapshots</id>-->
-        <!--<name>Apache Nexus Repository</name>-->
-        <!--<url>https://repository.apache.org/content/repositories/snapshots</url>-->
-        <!--<layout>default</layout>-->
-        <!--<snapshots>-->
-        <!--<enabled>true</enabled>-->
-        <!--<updatePolicy>daily</updatePolicy>-->
-        <!--<checksumPolicy>ignore</checksumPolicy>-->
-        <!--</snapshots>-->
-        <!--<releases>-->
-        <!--<enabled>false</enabled>-->
-        <!--</releases>-->
-        <!--</repository>-->
-    </repositories>
 
     <distributionManagement>
         <!--
