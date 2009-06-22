@@ -38,6 +38,9 @@
         <reference name="ServerInfo">
             <name>ServerInfo</name>
         </reference>
+        <reference name="AttributeManager">
+            <name>AttributeManager</name>
+        </reference>
         <reference name="MBeanServerReference">
             <name>MBeanServerReference</name>
         </reference>

@@ -26,6 +26,9 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.Arrays;
+import java.util.Map;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
@@ -48,6 +51,7 @@ import org.apache.geronimo.gbean.annotation.ParamSpecial;
 import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 import org.apache.geronimo.system.jmx.MBeanServerReference;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
+import org.apache.geronimo.system.configuration.PluginAttributeStore;
 import org.apache.geronimo.tomcat.model.ServerType;
 import org.apache.tomcat.util.modeler.Registry;
 import org.xml.sax.SAXException;
@@ -78,24 +82,34 @@ public class TomcatServerGBean implements GBeanLifecycle {
     public TomcatServerGBean(@ParamAttribute(name = "serverConfig")String serverConfig,
                              @ParamAttribute(name = "serverConfigLocation")String serverConfigLocation,
                              @ParamReference(name = "ServerInfo") ServerInfo serverInfo,
+                             @ParamReference(name = "AttributeManager", namingType = "AttributeStore") PluginAttributeStore attributeStore,
                              @ParamReference(name = "MBeanServerReference") MBeanServerReference mbeanServerReference,
                              @ParamSpecial(type= SpecialAttributeType.classLoader)ClassLoader classLoader) throws Exception {
         this.serverConfig = serverConfig;
         this.serverInfo = serverInfo;
         this.classLoader = classLoader;
 
-        Reader in;
-        if (serverConfig != null) {
-            in = new StringReader(serverConfig);
-        } else {
-            File loc = serverInfo.resolveServer(serverConfigLocation);
-            in = new FileReader(loc);
-        }
-
         if(mbeanServerReference != null) {
             Registry.setServer(mbeanServerReference.getMBeanServer());
         }
-        
+
+        if (serverConfig == null) {
+            File loc = serverInfo.resolveServer(serverConfigLocation);
+            Reader in = new FileReader(loc);
+            StringBuilder b = new StringBuilder();
+            char[] buf = new char[1024];
+            int i;
+            while ((i = in.read(buf)) > 0) {
+                b.append(buf, 0, i);
+            }
+            serverConfig = b.toString();
+        }
+
+        if (attributeStore != null) {
+            serverConfig = attributeStore.substitute(serverConfig);
+        }
+        Reader in = new StringReader(serverConfig);
+
         try {
             ServerType serverType = loadServerType(in);            
             server = serverType.build(classLoader);

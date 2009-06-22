@@ -127,7 +127,7 @@ public class JexlExpressionParser
 
         log.trace("Parsing input: {}", input);
 
-        StringBuffer buff = new StringBuffer();
+        StringBuilder buff = new StringBuilder();
 
         int cur = 0;
         int prefixLoc;

@@ -251,6 +251,10 @@ public class LocalAttributeManager implements LocalPluginAttributeStore, Persist
         return serverOverride.getConfiguration(artifact) != null;
     }
 
+    public String substitute(String in) {
+        return expressionParser.parse(in);
+    }
+
     public void addConfigSubstitutions(Properties properties) {
         localConfigSubstitutions.putAll(properties);
         Map<String, Object> configSubstutions = loadAllConfigSubstitutions(localConfigSubstitutions, prefix);

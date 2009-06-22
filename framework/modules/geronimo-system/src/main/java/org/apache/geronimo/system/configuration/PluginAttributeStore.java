@@ -41,4 +41,6 @@ public interface PluginAttributeStore extends ManageableAttributeStore {
     void addConfigSubstitutions(Properties properties);
 
     boolean isModuleInstalled(Artifact artifact);
+
+    String substitute(final String in);
 }
