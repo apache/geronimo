@@ -663,13 +663,13 @@ public class ConnectorType {
         if (isUseIPVHosts() != null) {
             properties.put(USE_IPVHOSTS, isUseIPVHosts());
         }
-        for (Map.Entry<QName, String> entry: otherAttributes.entrySet()) {
-            String name = entry.getKey().getLocalPart();
-            properties.put(name, entry.getValue());
-        }
         ObjectRecipe recipe = new ObjectRecipe(className, properties);
         recipe.allow(Option.IGNORE_MISSING_PROPERTIES);
         Connector connector = (Connector) recipe.create(cl);
+        for (Map.Entry<QName, String> entry: otherAttributes.entrySet()) {
+            String name = entry.getKey().getLocalPart();
+            connector.setProperty(name, entry.getValue());
+        }
         
         for (ListenerType listenerType: getListener()) {
             LifecycleListener listener = listenerType.getLifecycleListener(cl);

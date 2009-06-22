@@ -91,6 +91,8 @@
                scheme="https"
                secure="true"
                clientAuth="false"
+               keystoreFile="../security/keystores/geronimo-default"
+               keystorePass="secret"
                sslProtocol="TLS" />
 
     <!-- Define an AJP 1.3 Connector on port 8009 -->
