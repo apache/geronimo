@@ -136,6 +136,9 @@
                         <plugin-artifact>
                             <copy-file relative-to="server" dest-dir="var/catalina">tomcat-base/</copy-file>
                             <config-xml-content>
+                                <gbean name="AccessLogValve">
+                                    <attribute name="containerName">${ServerHostname}</attribute>
+                                </gbean
                                 <!-- To disable accesslogging uncomment the following lines
                                 <gbean name="TomcatEngine">
                                     <reference name="TomcatValveChain" />

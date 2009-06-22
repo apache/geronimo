@@ -9,27 +9,25 @@
 package org.apache.geronimo.tomcat.model;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAnyAttribute;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
-import javax.xml.bind.annotation.XmlAnyAttribute;
 import javax.xml.namespace.QName;
 
 import org.apache.catalina.Host;
-import org.apache.catalina.LifecycleListener;
 import org.apache.catalina.Lifecycle;
-import org.apache.catalina.Valve;
+import org.apache.catalina.LifecycleListener;
 import org.apache.catalina.Pipeline;
-import org.apache.catalina.Cluster;
 import org.apache.catalina.Realm;
+import org.apache.catalina.Valve;
 import org.apache.catalina.core.StandardHost;
-import org.apache.catalina.core.ContainerBase;
 import org.apache.xbean.recipe.ObjectRecipe;
 import org.apache.xbean.recipe.Option;
 

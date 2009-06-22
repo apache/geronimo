@@ -109,7 +109,7 @@
     <!-- You should set jvmRoute to support load-balancing via AJP ie :
     <Engine name="Standalone" defaultHost="localhost" jvmRoute="jvm1">
     -->
-    <Engine name="Catalina" defaultHost="localhost">
+    <Engine name="Catalina" defaultHost="${ServerHostname}">
 
       <!--For clustering, please take a look at documentation at:
           /docs/cluster-howto.html  (simple how to)
@@ -135,10 +135,12 @@
       <!-- Define the default virtual host
            Note: XML Schema validation will not work with Xerces 2.2.
        -->
-      <Host name="localhost"  appBase="tomcat-base"
+      <Host name="${ServerHostname}"  appBase="tomcat-base"
             unpackWARs="true" autoDeploy="true"
             xmlValidation="false" xmlNamespaceAware="false">
 
+        <Valve className="org.apache.catalina.valves.AccessLogValve" directory="logs"
+               prefix="${ServerHostname}_access_log." suffix=".txt" pattern="common" resolveHosts="false"/> 
         <!-- SingleSignOn valve, share authentication between web applications
              Documentation at: /docs/config/valve.html -->
         <!--

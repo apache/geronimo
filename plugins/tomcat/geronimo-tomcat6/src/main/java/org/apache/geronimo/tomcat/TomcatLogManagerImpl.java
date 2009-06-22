@@ -72,10 +72,10 @@ public class TomcatLogManagerImpl implements TomcatLogManager {
     private final static int GROUP_RESPONSE_LENGTH = 8;
     private final static String ACCESS_LOG_DATE_FORMAT = "dd/MMM/yyyy:HH:mm:ss ZZZZ";
     private final static String LOG_FILE_NAME_FORMAT = "yyyy-MM-dd";
-    private final Collection logGbeans;
+    private final Collection<ValveGBean> logGbeans;
     private final ServerInfo serverInfo;
 
-    public TomcatLogManagerImpl(ServerInfo serverInfo, Collection logGbeans) {
+    public TomcatLogManagerImpl(ServerInfo serverInfo, Collection<ValveGBean> logGbeans) {
         this.serverInfo = serverInfo;
         this.logGbeans = logGbeans;
     }
@@ -88,8 +88,8 @@ public class TomcatLogManagerImpl implements TomcatLogManager {
      *
      */
     public String[] getLogNames() {
-        List logNames = new ArrayList();
-        for (Iterator it = logGbeans.iterator(); it.hasNext();) {
+        List<String> logNames = new ArrayList<String>();
+        for (Iterator<ValveGBean> it = logGbeans.iterator(); it.hasNext();) {
             ValveGBean logGBean = (ValveGBean) it.next();
             AccessLogValve logFile = (AccessLogValve) logGBean.getInternalObject();
             if(logFile != null) {
@@ -108,7 +108,7 @@ public class TomcatLogManagerImpl implements TomcatLogManager {
      *
      */
     public String[] getLogFileNames(String logName) {
-        List names = new ArrayList();
+        List<String> names = new ArrayList<String>();
 
         // Find all the files for this logName
         File[] logFiles = getLogFiles(logName);
@@ -174,7 +174,7 @@ public class TomcatLogManagerImpl implements TomcatLogManager {
         long start = startDate == null ? 0 : startDate.getTime();
         long end = endDate == null ? 0 : endDate.getTime();
 
-        List list = new LinkedList();
+        List<LogMessage> list = new LinkedList<LogMessage>();
         boolean capped = false;
         int lineCount = 0, fileLineCount = 0;
 

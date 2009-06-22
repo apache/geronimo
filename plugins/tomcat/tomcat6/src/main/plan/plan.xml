@@ -74,6 +74,25 @@
         </reference>
     </gbean>
 
+    <gbean name="TomcatAccessLogManager" class="org.apache.geronimo.tomcat.TomcatLogManagerImpl">
+        <reference name="ServerInfo">
+            <name>ServerInfo</name>
+        </reference>
+        <references name="LogGBeans">
+            <pattern>
+                <name>AccessLogValve</name>
+            </pattern>
+        </references>
+    </gbean>
+
+    <gbean name="AccessLogValve" class="org.apache.geronimo.tomcat.ValveGBean">
+        <reference name="Server">
+            <name>TomcatServer</name>
+        </reference>
+        <attribute name="seq">0</attribute>
+        <attribute name="containerName">${PlanServerHostname}</attribute>
+    </gbean>
+
     <!--
     <gbean name="AprLifecycleListener" class="org.apache.geronimo.tomcat.LifecycleListenerGBean">
         <attribute name="className">org.apache.geronimo.tomcat.listener.GeronimoAprLifecycleListener</attribute>

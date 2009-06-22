@@ -26,9 +26,6 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.Arrays;
-import java.util.Map;
-import java.util.regex.Pattern;
-import java.util.regex.Matcher;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
@@ -39,7 +36,6 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
-import org.apache.catalina.Engine;
 import org.apache.catalina.Lifecycle;
 import org.apache.catalina.Server;
 import org.apache.catalina.Service;
@@ -49,9 +45,9 @@ import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.gbean.annotation.ParamSpecial;
 import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
+import org.apache.geronimo.system.configuration.PluginAttributeStore;
 import org.apache.geronimo.system.jmx.MBeanServerReference;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
-import org.apache.geronimo.system.configuration.PluginAttributeStore;
 import org.apache.geronimo.tomcat.model.ServerType;
 import org.apache.tomcat.util.modeler.Registry;
 import org.xml.sax.SAXException;
@@ -64,7 +60,7 @@ import org.xml.sax.SAXException;
 public class TomcatServerGBean implements GBeanLifecycle {
     public static final XMLInputFactory XMLINPUT_FACTORY = XMLInputFactory.newInstance();
     public static final JAXBContext SERVER_CONTEXT;
-
+    private static final String DEFAULT_CATALINA_HOME = "var/catalina";
     static {
         try {
             SERVER_CONTEXT = JAXBContext.newInstance(ServerType.class);
@@ -81,6 +77,7 @@ public class TomcatServerGBean implements GBeanLifecycle {
 
     public TomcatServerGBean(@ParamAttribute(name = "serverConfig")String serverConfig,
                              @ParamAttribute(name = "serverConfigLocation")String serverConfigLocation,
+                             @ParamAttribute(name= "catalinaHome")String catalinaHome,
                              @ParamReference(name = "ServerInfo") ServerInfo serverInfo,
                              @ParamReference(name = "AttributeManager", namingType = "AttributeStore") PluginAttributeStore attributeStore,
                              @ParamReference(name = "MBeanServerReference") MBeanServerReference mbeanServerReference,
@@ -92,6 +89,12 @@ public class TomcatServerGBean implements GBeanLifecycle {
         if(mbeanServerReference != null) {
             Registry.setServer(mbeanServerReference.getMBeanServer());
         }
+        
+        if (catalinaHome == null){
+            catalinaHome = DEFAULT_CATALINA_HOME;
+        }
+        System.setProperty("catalina.home", serverInfo.resolveServerPath(catalinaHome));
+        System.setProperty("catalina.base", serverInfo.resolveServerPath(catalinaHome));
 
         if (serverConfig == null) {
             File loc = serverInfo.resolveServer(serverConfigLocation);
