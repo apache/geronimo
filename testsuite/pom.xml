@@ -270,21 +270,6 @@
                     </execution>
                 </executions>
             </plugin>
-            
-            <plugin>
-                <groupId>org.apache.geronimo.buildsupport</groupId>
-                <artifactId>testsuite-maven-plugin</artifactId>
-                <inherited>false</inherited>
-                <executions>
-                    <execution>
-                        <id>summarize</id>
-                        <phase>post-site</phase>
-                        <goals>
-                            <goal>summarize</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
         </plugins>
     </build>
 
@@ -294,16 +279,6 @@
             <url>scp://people.apache.org/www/people.apache.org/builds/geronimo/server/testsuite/${buildNumber}</url>
         </site>
     </distributionManagement>
-
-    <reporting>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.geronimo.buildsupport</groupId>
-                <artifactId>testsuite-maven-plugin</artifactId>
-                <version>${version}</version>
-            </plugin>
-        </plugins>
-    </reporting>
 
     <pluginRepositories>
         <pluginRepository>

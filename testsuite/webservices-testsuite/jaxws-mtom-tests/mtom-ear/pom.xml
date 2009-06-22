@@ -97,27 +97,6 @@
                 </executions>
             </plugin>
             <plugin>
-                <groupId>org.apache.geronimo.buildsupport</groupId>
-                <artifactId>testsuite-maven-plugin</artifactId>
-                <version>${version}</version>
-                <executions>
-                    <execution>
-                        <id>generate-surefire-xml</id>
-                        <phase>install</phase>
-                        <goals>
-                            <goal>generate-surefire-xml</goal>
-                        </goals>
-                        <!-- 
-                        Merging the configuration of this plugin with the one it inherits.
-                        Updating the reports in the grandparent directly as we'd have missed the boat for the parent's install phase.
-                        -->
-                        <configuration>
-                            <grandParent>true</grandParent>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
