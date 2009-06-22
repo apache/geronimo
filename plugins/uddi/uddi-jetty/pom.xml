@@ -29,8 +29,8 @@
     </parent>
 
     <groupId>org.apache.geronimo.configs</groupId>
-    <artifactId>uddi-jetty6</artifactId>
-    <name>Geronimo Plugins, UDDI Server :: Jetty6</name>
+    <artifactId>uddi-jetty</artifactId>
+    <name>Geronimo Plugins, UDDI Server :: Jetty</name>
     <packaging>car</packaging>
 
     <dependencies>
