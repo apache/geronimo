@@ -24,12 +24,12 @@
 
     <parent>
         <groupId>org.apache.geronimo.plugins</groupId>
-        <artifactId>uddi-server</artifactId>
+        <artifactId>uddi</artifactId>
         <version>2.2-SNAPSHOT</version>
     </parent>
 
     <groupId>org.apache.geronimo.configs</groupId>
-    <artifactId>uddi-jetty</artifactId>
+    <artifactId>uddi-jetty6</artifactId>
     <name>Geronimo Plugins, UDDI Server :: Jetty6</name>
     <packaging>car</packaging>
 
@@ -94,10 +94,15 @@
         </dependency>
 
         <dependency>
-            <groupId>juddi</groupId>
+            <groupId>org.apache.juddi</groupId>
             <artifactId>juddi</artifactId>
         </dependency>
-        
+
+        <dependency>
+            <groupId>org.apache.juddi</groupId>
+            <artifactId>juddi-ws</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>jasper</artifactId>
