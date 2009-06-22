@@ -194,14 +194,9 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
         webAppContext.setCompactPath(compactPath);
 
         if (workDir == null) {
-            workDir = contextPath;
+            workDir = contextPath.replace('/', '_');
         }
-        File tempFolder = jettyContainer.resolveToJettyHome(workDir);
-        if (!tempFolder.exists()) {
-            tempFolder.mkdirs();
-            tempFolder.deleteOnExit();
-        }
-        this.webAppContext.setTempDirectory(tempFolder);
+        webAppContext.setTempDirectory(jettyContainer.resolveToJettyHome(workDir));
 
 
         //install jasper injection support if required
