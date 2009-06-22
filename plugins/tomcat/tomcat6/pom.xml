@@ -138,7 +138,7 @@
                             <config-xml-content>
                                 <gbean name="AccessLogValve">
                                     <attribute name="containerName">${ServerHostname}</attribute>
-                                </gbean
+                                </gbean>
                                 <!-- To disable accesslogging uncomment the following lines
                                 <gbean name="TomcatEngine">
                                     <reference name="TomcatValveChain" />
