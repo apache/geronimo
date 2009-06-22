@@ -18,6 +18,7 @@ package org.apache.geronimo.jaxws.builder;
 
 import java.net.URL;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,6 +45,7 @@ import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.openejb.deployment.EjbModule;
+import org.apache.geronimo.security.jaas.ConfigurationFactory;
 import org.apache.openejb.assembler.classic.EnterpriseBeanInfo;
 import org.apache.openejb.jee.oejb2.GeronimoEjbJarType;
 import org.apache.openejb.jee.oejb2.WebServiceBindingType;
@@ -155,7 +157,9 @@ public class JAXWSEJBModuleBuilderExtension implements ModuleBuilderExtension {
                 
                 WebServiceSecurityType wsSecurity = wsBinding.getWebServiceSecurity();
                 if (wsSecurity != null) {
-                    ejbWebServiceGBean.setAttribute("securityRealmName", wsSecurity.getSecurityRealmName().trim());
+                    ejbWebServiceGBean.setReferencePattern("ConfigurationFactory",
+                            new AbstractNameQuery(null, Collections.singletonMap("name", wsSecurity.getSecurityRealmName().trim()),
+                            ConfigurationFactory.class.getName()));
                     ejbWebServiceGBean.setAttribute("transportGuarantee", wsSecurity.getTransportGuarantee().toString());
                     ejbWebServiceGBean.setAttribute("authMethod", wsSecurity.getAuthMethod().value());
                     if (wsSecurity.getRealmName() != null) {
