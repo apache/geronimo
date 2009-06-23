@@ -1649,7 +1649,7 @@
             <dependency>
                 <groupId>org.apache.woden</groupId>
                 <artifactId>woden-impl-dom</artifactId>
-                <version>1.0-SNAPSHOT</version>
+                <version>1.0M8</version>
                 <exclusions>
                     <exclusion>
                         <groupId>org.apache.ant</groupId>
