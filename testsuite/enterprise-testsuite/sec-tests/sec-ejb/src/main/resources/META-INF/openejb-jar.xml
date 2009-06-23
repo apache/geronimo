@@ -63,6 +63,7 @@
     <gbean name="test-realm"
            class="org.apache.geronimo.security.realm.GenericSecurityRealm">
         <attribute name="realmName">test-realm</attribute>
+        <attribute name="global">true</attribute>
         <xml-reference name="LoginModuleConfiguration">
             <lc:login-config xmlns:lc="http://geronimo.apache.org/xml/ns/loginconfig-${geronimoSchemaVersion}">
                 <lc:login-module control-flag="REQUIRED" wrap-principals="false">
