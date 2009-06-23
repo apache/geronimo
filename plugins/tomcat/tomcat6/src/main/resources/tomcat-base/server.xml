@@ -137,7 +137,7 @@
       <!-- Define the default virtual host
            Note: XML Schema validation will not work with Xerces 2.2.
        -->
-      <Host name="${ServerHostname}"  appBase="tomcat-base"
+      <Host name="${ServerHostname}"  appBase=""
             unpackWARs="true" autoDeploy="true"
             xmlValidation="false" xmlNamespaceAware="false">
 
