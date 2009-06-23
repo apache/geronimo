@@ -44,25 +44,10 @@
 
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>connector-deployer</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>jasper-deployer</artifactId>
             <version>${version}</version>
             <type>car</type>
             <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>system-database</artifactId>
-            <version>${version}</version>
-            <type>car</type>
         </dependency>
 
         <dependency>
@@ -74,8 +59,9 @@
 
         <dependency>
             <groupId>org.apache.geronimo.plugins</groupId>
-            <artifactId>geronimo-uddi-db</artifactId>
+            <artifactId>uddi-db</artifactId>
             <version>${version}</version>
+            <type>car</type>
         </dependency>
         
         <dependency>
@@ -83,13 +69,6 @@
             <artifactId>geronimo-uddi-server</artifactId>
             <version>${version}</version>
             <type>war</type>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.tranql</groupId>
-            <artifactId>tranql-connector-derby-embed-local</artifactId>
-            <type>rar</type>
             <scope>provided</scope>
         </dependency>
 
@@ -121,10 +100,15 @@
                         <deploymentConfig>${gbeanDeployer}</deploymentConfig>
                         <deploymentConfig>${j2eeDeployer}</deploymentConfig>
                         <deploymentConfig>${tomcatDeployer}</deploymentConfig>
-                        <deploymentConfig>${connectorDeployer}</deploymentConfig>
                         <deploymentConfig>${jasperDeployer}</deploymentConfig>
                     </deploymentConfigs>
                     <category>Web Services</category>
+                    <module>
+                        <groupId>org.apache.geronimo.plugins</groupId>
+                        <artifactId>geronimo-uddi-server</artifactId>
+                        <version>${version}</version>
+                        <type>war</type>
+                    </module>
                 </configuration>
             </plugin>
         </plugins>

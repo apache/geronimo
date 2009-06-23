@@ -19,22 +19,58 @@
 <!-- $Rev$ $Date$ -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    
+
     <modelVersion>4.0.0</modelVersion>
-    
+
     <parent>
         <groupId>org.apache.geronimo.plugins</groupId>
         <artifactId>uddi</artifactId>
         <version>2.2-SNAPSHOT</version>
     </parent>
 
-    <artifactId>geronimo-uddi-db</artifactId>
+    <artifactId>uddi-db</artifactId>
+    <packaging>car</packaging>
     <name>Geronimo Plugins, UDDI : Database</name>
-    
-    <properties>
-        <derby.system.home>${project.build.outputDirectory}/META-INF/${pom.artifactId}/var/derby</derby.system.home>
-    </properties>
-    
+
+    <!--<properties>-->
+        <!--<derby.system.home>${project.build.outputDirectory}/META-INF/${pom.artifactId}/var/derby</derby.system.home>-->
+    <!--</properties>-->
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.apache.geronimo.plugins</groupId>
+                <artifactId>system-database</artifactId>
+                <version>${geronimoVersion}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>connector-deployer</artifactId>
+            <version>${geronimoVersion}</version>
+            <type>car</type>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>system-database</artifactId>
+            <version>${geronimoVersion}</version>
+            <type>car</type>
+        </dependency>
+        <dependency>
+            <groupId>org.tranql</groupId>
+            <artifactId>tranql-connector-derby-embed-local</artifactId>
+            <type>rar</type>
+            <scope>provided</scope>
+        </dependency>
+
+    </dependencies>
+
     <build>
         <plugins>
             <plugin>
@@ -56,11 +92,11 @@
                     </execution>
                 </executions>
             </plugin>
-            
+
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>sql-maven-plugin</artifactId>
-                
+
                 <dependencies>
                     <dependency>
                         <groupId>org.apache.derby</groupId>
@@ -69,7 +105,7 @@
                         <version>${derbyVersion}</version>
                     </dependency>
                 </dependencies>
-                
+
                 <executions>
                     <execution>
                         <id>create-db</id>
@@ -79,7 +115,7 @@
                         </goals>
                         <configuration>
                             <driver>org.apache.derby.jdbc.EmbeddedDriver</driver>
-                            <url>jdbc:derby:${derby.system.home}/UddiDatabase;create=true</url>
+                            <url>jdbc:derby:${project.build.outputDirectory}/var/derby/UddiDatabase;create=true</url>
                             <autocommit>true</autocommit>
                             <onError>abort</onError>
                             <delimiter>;</delimiter>
@@ -90,7 +126,30 @@
                     </execution>
                 </executions>
             </plugin>
+
+
+            <plugin>
+                <groupId>org.apache.geronimo.buildsupport</groupId>
+                <artifactId>car-maven-plugin</artifactId>
+                <configuration>
+                    <deploymentConfigs>
+                        <deploymentConfig>${gbeanDeployer}</deploymentConfig>
+                        <deploymentConfig>${j2eeDeployer}</deploymentConfig>
+                        <deploymentConfig>${connectorDeployer}</deploymentConfig>
+                    </deploymentConfigs>
+                    <module>
+                        <groupId>org.tranql</groupId>
+                        <artifactId>tranql-connector-derby-embed-local</artifactId>
+                        <type>rar</type>
+                    </module>
+                    <instance>
+                        <plugin-artifact>
+                            <copy-file relative-to="server" dest-dir="var">var/derby</copy-file>
+                        </plugin-artifact>
+                    </instance>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
-    
+
 </project>

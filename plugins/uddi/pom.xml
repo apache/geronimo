@@ -37,7 +37,7 @@
     </description>
 
     <modules>
-        <module>geronimo-uddi-db</module>
+        <module>uddi-db</module>
         <module>geronimo-uddi-server</module>
         <module>uddi-jetty</module>
         <module>uddi-tomcat</module>

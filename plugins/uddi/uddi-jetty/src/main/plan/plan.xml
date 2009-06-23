@@ -18,63 +18,14 @@
 
 <!-- $Rev$ $Date$ -->
 
-<application xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-${geronimoSchemaVersion}">
-
-    <ext-module>
-        <web>uddi-jetty</web>
-        <external-path xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.2">
-            <dep:groupId>org.apache.geronimo.plugins</dep:groupId>
-            <dep:artifactId>geronimo-uddi-server</dep:artifactId>
-            <dep:type>war</dep:type>
-        </external-path>
-        <web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/jetty-${geronimoSchemaVersion}">
-            <context-root>/juddi</context-root>
-            <gbean name="UDDIResources" class="org.apache.geronimo.system.util.DirectoryInitializationGBean">
-                <!-- copies uddi derby db files into specified location -->
-                <attribute name="prefix">META-INF/geronimo-uddi-db</attribute>
-                <attribute name="path">var/derby</attribute>
-                <reference name="ServerInfo">
-                    <name>ServerInfo</name>
-                </reference>
-            </gbean>
-        </web-app>
-    </ext-module>
-
-    <ext-module>
-        <connector>uddi-db</connector>
-        <external-path xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.2">
-            <dep:groupId>org.tranql</dep:groupId>
-            <dep:artifactId>tranql-connector-derby-embed-local</dep:artifactId>
-            <dep:type>rar</dep:type>
-        </external-path>
-        <connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector-${geronimoSchemaVersion}">
-            <resourceadapter>
-                <outbound-resourceadapter>
-                    <connection-definition>
-                        <connectionfactory-interface>javax.sql.DataSource</connectionfactory-interface>
-                        <connectiondefinition-instance>
-                            <name>jdbc/juddiDB</name>
-                            <config-property-setting name="UserName"></config-property-setting>
-                            <config-property-setting name="Password"></config-property-setting>
-                            <config-property-setting name="DatabaseName">UddiDatabase</config-property-setting>
-                            <config-property-setting name="CreateDatabase">false</config-property-setting>
-                            <connectionmanager>
-                                <local-transaction/>
-                                <single-pool>
-                                    <max-size>100</max-size>
-                                    <blocking-timeout-milliseconds>5000</blocking-timeout-milliseconds>
-                                    <match-one/>
-                                </single-pool>
-                            </connectionmanager>
-                        </connectiondefinition-instance>
-                    </connection-definition>
-                </outbound-resourceadapter>
-            </resourceadapter>
-
-
-        </connector>
-    </ext-module>
-
-    <!--<gbean name="eis/JAXR" class="org.apache.geronimo.webservices.jaxr.JAXRGBean"/>-->
-
-</application>
+<web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/jetty-2.0.2">
+  <context-root>/juddi</context-root>
+  <!--<gbean name="UDDIResources" class="org.apache.geronimo.system.util.DirectoryInitializationGBean">-->
+    <!-- copies uddi derby db files into specified location -->
+    <!--<attribute name="prefix">META-INF/geronimo-uddi-db</attribute>-->
+    <!--<attribute name="path">var/derby</attribute>-->
+    <!--<reference name="ServerInfo">-->
+      <!--<name>ServerInfo</name>-->
+    <!--</reference>-->
+  <!--</gbean>-->
+</web-app>
