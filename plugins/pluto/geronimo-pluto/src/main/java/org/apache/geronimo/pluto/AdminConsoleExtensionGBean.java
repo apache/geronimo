@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.pluto.driver.services.portal.PageConfig;
+import org.apache.geronimo.pluto.impl.PageConfig;
 import org.apache.pluto.driver.services.portal.PortletWindowConfig;
 import org.apache.pluto.driver.services.portal.RenderConfigService;
 import org.apache.pluto.driver.services.portal.admin.RenderConfigAdminService;
@@ -154,7 +154,7 @@ public class AdminConsoleExtensionGBean implements GBeanLifecycle {
     private PageConfig getPageConfigFromPluto() {
         RenderConfigService service = portletContainerServices.getRenderConfigService();
 
-        return service.getPage(pageTitle);
+        return (PageConfig) service.getPage(pageTitle);
     }
 
     /*

@@ -22,7 +22,7 @@ limitations under the License.
 <fmt:setLocale value="<%=request.getLocale()%>"/>
 <fmt:setBundle basename="org.apache.geronimo.console.i18n.ConsoleResource"/>
 
-<%@ page import="java.util.ArrayList,java.util.HashMap,org.apache.pluto.driver.services.portal.PageConfig" %>
+<%@ page import="java.util.ArrayList,java.util.HashMap,org.apache.geronimo.pluto.impl.PageConfig" %>
 
 
 <%

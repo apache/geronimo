@@ -40,7 +40,15 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-	</dependencies>
+            <dependency>
+                <groupId>org.apache.geronimo.plugins</groupId>
+                <artifactId>pluto</artifactId>
+                <version>${version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+        </dependencies>
     </dependencyManagement>
 
     <modules>

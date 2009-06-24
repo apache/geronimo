@@ -100,12 +100,12 @@ limitations under the License.
     </bean>
 
     <bean id="PropertyConfigService"
-          class="org.apache.pluto.driver.services.impl.resource.PropertyConfigServiceImpl"
+          class="org.apache.geronimo.pluto.impl.PropertyConfigServiceImpl"
           singleton="true">
     </bean>
 
     <bean id="RenderConfigService"
-          class="org.apache.pluto.driver.services.impl.resource.RenderConfigServiceImpl"
+          class="org.apache.geronimo.pluto.impl.RenderConfigServiceImpl"
           singleton="true">
     </bean>
     
