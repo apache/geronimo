@@ -96,13 +96,6 @@ public class TomcatGeronimoRealm extends JAASRealm {
                                          SecurityConstraint[] constraints)
             throws IOException {
 
-        /**
-         * Ensures the transport-guarantee (if any) is met. 
-         */
-        if (!super.hasUserDataPermission(request, response, constraints)) {
-            return false;
-        }
-        
         setSubject(request);
         try {
 
