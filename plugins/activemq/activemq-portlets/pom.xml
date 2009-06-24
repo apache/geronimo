@@ -21,19 +21,7 @@
     <artifactId>activemq-portlets</artifactId>
     <name>Geronimo Plugins, ActiveMQ v5 :: Portlets</name>
     <packaging>war</packaging>
-
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.apache.geronimo.plugins</groupId>
-                <artifactId>pluto</artifactId>
-                <version>${version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-
-        </dependencies>
-    </dependencyManagement>
+    
     <dependencies>
         <!-- for jspc maven plugin -->
         <dependency>
