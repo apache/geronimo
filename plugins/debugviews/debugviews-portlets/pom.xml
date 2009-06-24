@@ -31,7 +31,7 @@
     <artifactId>debugviews-portlets</artifactId>
     <name>Geronimo Plugins, Debug Views :: Portlets</name>
     <packaging>war</packaging>
-
+    </dependencies>
         <!-- for jspc maven plugin -->
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
