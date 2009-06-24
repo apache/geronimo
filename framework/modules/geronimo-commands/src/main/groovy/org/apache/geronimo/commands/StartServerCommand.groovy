@@ -134,7 +134,7 @@ class StartServerCommand extends BaseJavaCommand {
                         }
                         
                         log.info("Using Java virtual machine: $javaVirtualMachine")
-                        node.setAttribute('jvm', javaVirtualMachine)
+                        node.setAttribute('jvm', javaVirtualMachine.absolutePath)
                     }
                     
                     javaFlags.each {
