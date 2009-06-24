@@ -32,10 +32,6 @@
     <packaging>car</packaging>
     <name>Geronimo Plugins, UDDI : Database</name>
 
-    <!--<properties>-->
-        <!--<derby.system.home>${project.build.outputDirectory}/META-INF/${pom.artifactId}/var/derby</derby.system.home>-->
-    <!--</properties>-->
-
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -85,8 +81,7 @@
                         </goals>
                         <configuration>
                             <tasks>
-                                <delete dir="${derby.system.home}"/>
-                                <mkdir dir="${derby.system.home}"/>
+                                <delete dir="${project.build.outputDirectory}/var/derby"/>
                             </tasks>
                         </configuration>
                     </execution>
