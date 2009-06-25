@@ -358,7 +358,7 @@ public abstract class AbstractCarMojo
 
 
             getDependencies(project, useMavenDependencies.isUseTransitiveDependencies());
-            for (org.apache.maven.artifact.Artifact artifact : localDependencies) {
+            for (Artifact artifact : localDependencies) {
                 Dependency explicitDependency = explicitDependencyMap.get(getKey(artifact));
                 dependencies.add(toDependency(artifact, useMavenDependencies.isIncludeVersion(), explicitDependency, includeImport));
             }
@@ -371,7 +371,7 @@ public abstract class AbstractCarMojo
         Dependency dependency = new Dependency();
         dependency.setGroupId(artifact.getGroupId());
         dependency.setArtifactId(artifact.getArtifactId());
-        dependency.setVersion(includeVersion ? artifact.getVersion() : null);
+        dependency.setVersion(includeVersion ? artifact.getVersionRange().getRecommendedVersion().toString() : null);
         dependency.setType(artifact.getType());
         String importType = ImportType.ALL.getName();
         if (includeImport && explicitDependency != null && explicitDependency.getImport() != null) {
