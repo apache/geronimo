@@ -19,11 +19,11 @@ package org.apache.geronimo.tomcat;
 import java.util.Map;
 
 import org.apache.catalina.Container;
-import org.apache.catalina.Engine;
 import org.apache.catalina.Pipeline;
 import org.apache.catalina.Service;
 import org.apache.catalina.Valve;
 import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.gbean.annotation.ParamSpecial;
@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @version $Rev$ $Date$
  */
+@GBean(j2eeType="TomcatValve")
 public class ValveGBean extends BaseGBean implements GBeanLifecycle, ObjectRetriever {
 
     private static final Logger log = LoggerFactory.getLogger(ValveGBean.class);

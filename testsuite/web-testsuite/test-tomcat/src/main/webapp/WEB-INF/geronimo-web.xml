@@ -43,12 +43,12 @@
     <gbean name="NewVirtualHost"
         class="org.apache.geronimo.tomcat.HostGBean">
         <attribute name="className">
-			org.apache.catalina.core.StandardHost
+            org.apache.catalina.core.StandardHost
         </attribute>
         <attribute name="initParams">
-			name=testhost.com
-			appBase=
-			workDir=work
+            name=testhost.com
+            appBase=
+            workDir=work
         </attribute>
         <reference name="Engine">
             <name>TomcatEngine</name>
@@ -57,29 +57,35 @@
     <gbean name="FirstValve"
         class="org.apache.geronimo.tomcat.ValveGBean">
         <attribute name="className">
-			org.apache.catalina.authenticator.SingleSignOn
+            org.apache.catalina.authenticator.SingleSignOn
         </attribute>
         <reference name="NextValve">
-            <name>SecondValve</name>
+            <type>TomcatValve</type>
+            <name>SecondValve</name> 
         </reference>
     </gbean>
     <gbean name="SecondValve"
         class="org.apache.geronimo.tomcat.ValveGBean">
         <attribute name="className">
-			org.apache.catalina.valves.AccessLogValve
+            org.apache.catalina.valves.AccessLogValve
         </attribute>
         <attribute name="initParams">
-			prefix=localhost_access_log. suffix=.txt pattern=common
+            prefix=localhost_access_log. 
+            suffix=.txt 
+            pattern=common
         </attribute>
     </gbean>
     <gbean name="TomcatRealm"
         class="org.apache.geronimo.tomcat.RealmGBean">
         <attribute name="className">
-			org.apache.geronimo.tomcat.realm.TomcatGeronimoRealm
+        org.apache.geronimo.tomcat.realm.TomcatGeronimoRealm
         </attribute>
+        <reference name="ConfigurationFactory">
+            <name>geronimo-admin</name>
+        </reference>
         <attribute name="initParams">
-			userClassNames=org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal
-			roleClassNames=org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal
+            userClassNames=org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal
+            roleClassNames=org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal
         </attribute>
     </gbean>
 </web-app>
