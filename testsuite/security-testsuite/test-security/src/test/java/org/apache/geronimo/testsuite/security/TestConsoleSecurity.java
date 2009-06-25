@@ -35,6 +35,9 @@ public class TestConsoleSecurity extends SeleniumTestSupport {
         selenium.click("submit");
         waitForPageLoad();
         assertTrue(selenium.isTextPresent("Deploy New"));
+        selenium.click("//a[contains(@href, '/console/logout.jsp')]");
+        waitForPageLoad();
+        assertEquals("Geronimo Console Login", selenium.getTitle());
     }
 
     @Test

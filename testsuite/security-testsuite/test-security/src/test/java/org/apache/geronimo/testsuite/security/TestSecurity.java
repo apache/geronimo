@@ -33,6 +33,7 @@ public class TestSecurity extends SeleniumTestSupport {
         selenium.click("submit");
         waitForPageLoad();
         assertEquals("hello world.", selenium.getText("xpath=/html"));
+        selenium.deleteAllVisibleCookies();
     }
 
     @Test
