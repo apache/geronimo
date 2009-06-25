@@ -57,7 +57,7 @@
     <gbean name="FirstValve" class="org.apache.geronimo.tomcat.ValveGBean">
         <attribute name="className">org.apache.catalina.authenticator.SingleSignOn</attribute>
         <reference name="NextValve">
-            <!--<moduleType>J2EEModule</moduleType>-->
+            <type>TomcatValve</type>
             <name>SecondValve</name>
         </reference>
     </gbean>
