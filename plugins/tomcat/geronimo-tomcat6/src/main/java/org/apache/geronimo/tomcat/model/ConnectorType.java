@@ -24,15 +24,18 @@ import javax.xml.namespace.QName;
 
 import org.apache.catalina.connector.Connector;
 import org.apache.catalina.LifecycleListener;
+import org.apache.catalina.Service;
+import org.apache.catalina.Executor;
 import org.apache.xbean.recipe.ObjectRecipe;
 import org.apache.xbean.recipe.Option;
+import org.apache.tomcat.util.IntrospectionUtils;
 
 
 /**
  * <p>Java class for ConnectorType complex type.
- *
+ * <p/>
  * <p>The following schema fragment specifies the expected content contained within this class.
- *
+ * <p/>
  * <pre>
  * &lt;complexType name="ConnectorType">
  *   &lt;complexContent>
@@ -62,12 +65,10 @@ import org.apache.xbean.recipe.Option;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "ConnectorType", propOrder = {
-    "listener"
+        "listener"
 })
 public class ConnectorType {
 
@@ -132,25 +133,23 @@ public class ConnectorType {
 
     /**
      * Gets the value of the listener property.
-     *
-     * <p>
+     * <p/>
+     * <p/>
      * This accessor method returns a reference to the live list,
      * not a snapshot. Therefore any modification you make to the
      * returned list will be present inside the JAXB object.
      * This is why there is not a <CODE>set</CODE> method for the listener property.
-     *
-     * <p>
+     * <p/>
+     * <p/>
      * For example, to add a new item, do as follows:
      * <pre>
      *    getListener().add(newItem);
      * </pre>
-     *
-     *
-     * <p>
+     * <p/>
+     * <p/>
+     * <p/>
      * Objects of the following type(s) are allowed in the list
      * {@link ListenerType }
-     *
-     *
      */
     public List<ListenerType> getListener() {
         if (listener == null) {
@@ -162,10 +161,8 @@ public class ConnectorType {
     /**
      * Gets the value of the className property.
      *
-     * @return
-     *     possible object is
-     *     {@link String }
-     *
+     * @return possible object is
+     *         {@link String }              z
      */
     public String getClassName() {
         return className;
@@ -174,10 +171,8 @@ public class ConnectorType {
     /**
      * Sets the value of the className property.
      *
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *
+     * @param value allowed object is
+     *              {@link String }
      */
     public void setClassName(String value) {
         this.className = value;
@@ -186,10 +181,8 @@ public class ConnectorType {
     /**
      * Gets the value of the allowTrace property.
      *
-     * @return
-     *     possible object is
-     *     {@link Boolean }
-     *
+     * @return possible object is
+     *         {@link Boolean }
      */
     public Boolean isAllowTrace() {
         return allowTrace;
@@ -198,10 +191,8 @@ public class ConnectorType {
     /**
      * Sets the value of the allowTrace property.
      *
-     * @param value
-     *     allowed object is
-     *     {@link Boolean }
-     *
+     * @param value allowed object is
+     *              {@link Boolean }
      */
     public void setAllowTrace(Boolean value) {
         this.allowTrace = value;
@@ -210,10 +201,8 @@ public class ConnectorType {
     /**
      * Gets the value of the emptySessionPath property.
      *
-     * @return
-     *     possible object is
-     *     {@link Boolean }
-     *
+     * @return possible object is
+     *         {@link Boolean }
      */
     public Boolean isEmptySessionPath() {
         return emptySessionPath;
@@ -222,10 +211,8 @@ public class ConnectorType {
     /**
      * Sets the value of the emptySessionPath property.
      *
-     * @param value
-     *     allowed object is
-     *     {@link Boolean }
-     *
+     * @param value allowed object is
+     *              {@link Boolean }
      */
     public void setEmptySessionPath(Boolean value) {
         this.emptySessionPath = value;
@@ -234,10 +221,8 @@ public class ConnectorType {
     /**
      * Gets the value of the enableLookups property.
      *
-     * @return
-     *     possible object is
-     *     {@link Boolean }
-     *
+     * @return possible object is
+     *         {@link Boolean }
      */
     public Boolean isEnableLookups() {
         return enableLookups;
@@ -246,10 +231,8 @@ public class ConnectorType {
     /**
      * Sets the value of the enableLookups property.
      *
-     * @param value
-     *     allowed object is
-     *     {@link Boolean }
-     *
+     * @param value allowed object is
+     *              {@link Boolean }
      */
     public void setEnableLookups(Boolean value) {
         this.enableLookups = value;
@@ -258,10 +241,8 @@ public class ConnectorType {
     /**
      * Gets the value of the maxPostSize property.
      *
-     * @return
-     *     possible object is
-     *     {@link Integer }
-     *
+     * @return possible object is
+     *         {@link Integer }
      */
     public Integer getMaxPostSize() {
         return maxPostSize;
@@ -270,10 +251,8 @@ public class ConnectorType {
     /**
      * Sets the value of the maxPostSize property.
      *
-     * @param value
-     *     allowed object is
-     *     {@link Integer }
-     *
+     * @param value allowed object is
+     *              {@link Integer }
      */
     public void setMaxPostSize(Integer value) {
         this.maxPostSize = value;
@@ -282,10 +261,8 @@ public class ConnectorType {
     /**
      * Gets the value of the maxSavePostSize property.
      *
-     * @return
-     *     possible object is
-     *     {@link Integer }
-     *
+     * @return possible object is
+     *         {@link Integer }
      */
     public Integer getMaxSavePostSize() {
         return maxSavePostSize;
@@ -294,10 +271,8 @@ public class ConnectorType {
     /**
      * Sets the value of the maxSavePostSize property.
      *
-     * @param value
-     *     allowed object is
-     *     {@link Integer }
-     *
+     * @param value allowed object is
+     *              {@link Integer }
      */
     public void setMaxSavePostSize(Integer value) {
         this.maxSavePostSize = value;
@@ -306,10 +281,8 @@ public class ConnectorType {
     /**
      * Gets the value of the port property.
      *
-     * @return
-     *     possible object is
-     *     {@link Integer }
-     *
+     * @return possible object is
+     *         {@link Integer }
      */
     public Integer getPort() {
         return port;
@@ -318,10 +291,8 @@ public class ConnectorType {
     /**
      * Sets the value of the port property.
      *
-     * @param value
-     *     allowed object is
-     *     {@link Integer }
-     *
+     * @param value allowed object is
+     *              {@link Integer }
      */
     public void setPort(Integer value) {
         this.port = value;
@@ -330,10 +301,8 @@ public class ConnectorType {
     /**
      * Gets the value of the protocol property.
      *
-     * @return
-     *     possible object is
-     *     {@link String }
-     *
+     * @return possible object is
+     *         {@link String }
      */
     public String getProtocol() {
         return protocol;
@@ -342,10 +311,8 @@ public class ConnectorType {
     /**
      * Sets the value of the protocol property.
      *
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *
+     * @param value allowed object is
+     *              {@link String }
      */
     public void setProtocol(String value) {
         this.protocol = value;
@@ -354,10 +321,8 @@ public class ConnectorType {
     /**
      * Gets the value of the protocolHandlerClassName property.
      *
-     * @return
-     *     possible object is
-     *     {@link String }
-     *
+     * @return possible object is
+     *         {@link String }
      */
     public String getProtocolHandlerClassName() {
         return protocolHandlerClassName;
@@ -366,10 +331,8 @@ public class ConnectorType {
     /**
      * Sets the value of the protocolHandlerClassName property.
      *
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *
+     * @param value allowed object is
+     *              {@link String }
      */
     public void setProtocolHandlerClassName(String value) {
         this.protocolHandlerClassName = value;
@@ -378,10 +341,8 @@ public class ConnectorType {
     /**
      * Gets the value of the proxyName property.
      *
-     * @return
-     *     possible object is
-     *     {@link String }
-     *
+     * @return possible object is
+     *         {@link String }
      */
     public String getProxyName() {
         return proxyName;
@@ -390,10 +351,8 @@ public class ConnectorType {
     /**
      * Sets the value of the proxyName property.
      *
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *
+     * @param value allowed object is
+     *              {@link String }
      */
     public void setProxyName(String value) {
         this.proxyName = value;
@@ -402,10 +361,8 @@ public class ConnectorType {
     /**
      * Gets the value of the proxyPort property.
      *
-     * @return
-     *     possible object is
-     *     {@link Integer }
-     *
+     * @return possible object is
+     *         {@link Integer }
      */
     public Integer getProxyPort() {
         return proxyPort;
@@ -414,10 +371,8 @@ public class ConnectorType {
     /**
      * Sets the value of the proxyPort property.
      *
-     * @param value
-     *     allowed object is
-     *     {@link Integer }
-     *
+     * @param value allowed object is
+     *              {@link Integer }
      */
     public void setProxyPort(Integer value) {
         this.proxyPort = value;
@@ -426,10 +381,8 @@ public class ConnectorType {
     /**
      * Gets the value of the redirectPort property.
      *
-     * @return
-     *     possible object is
-     *     {@link Integer }
-     *
+     * @return possible object is
+     *         {@link Integer }
      */
     public Integer getRedirectPort() {
         return redirectPort;
@@ -438,10 +391,8 @@ public class ConnectorType {
     /**
      * Sets the value of the redirectPort property.
      *
-     * @param value
-     *     allowed object is
-     *     {@link Integer }
-     *
+     * @param value allowed object is
+     *              {@link Integer }
      */
     public void setRedirectPort(Integer value) {
         this.redirectPort = value;
@@ -450,10 +401,8 @@ public class ConnectorType {
     /**
      * Gets the value of the scheme property.
      *
-     * @return
-     *     possible object is
-     *     {@link String }
-     *
+     * @return possible object is
+     *         {@link String }
      */
     public String getScheme() {
         return scheme;
@@ -462,10 +411,8 @@ public class ConnectorType {
     /**
      * Sets the value of the scheme property.
      *
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *
+     * @param value allowed object is
+     *              {@link String }
      */
     public void setScheme(String value) {
         this.scheme = value;
@@ -474,10 +421,8 @@ public class ConnectorType {
     /**
      * Gets the value of the secure property.
      *
-     * @return
-     *     possible object is
-     *     {@link Boolean }
-     *
+     * @return possible object is
+     *         {@link Boolean }
      */
     public Boolean isSecure() {
         return secure;
@@ -486,10 +431,8 @@ public class ConnectorType {
     /**
      * Sets the value of the secure property.
      *
-     * @param value
-     *     allowed object is
-     *     {@link Boolean }
-     *
+     * @param value allowed object is
+     *              {@link Boolean }
      */
     public void setSecure(Boolean value) {
         this.secure = value;
@@ -498,10 +441,8 @@ public class ConnectorType {
     /**
      * Gets the value of the encoding property.
      *
-     * @return
-     *     possible object is
-     *     {@link String }
-     *
+     * @return possible object is
+     *         {@link String }
      */
     public String getEncoding() {
         return encoding;
@@ -510,10 +451,8 @@ public class ConnectorType {
     /**
      * Sets the value of the encoding property.
      *
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *
+     * @param value allowed object is
+     *              {@link String }
      */
     public void setEncoding(String value) {
         this.encoding = value;
@@ -522,10 +461,8 @@ public class ConnectorType {
     /**
      * Gets the value of the useBodyEncodingForURI property.
      *
-     * @return
-     *     possible object is
-     *     {@link String }
-     *
+     * @return possible object is
+     *         {@link String }
      */
     public String getUseBodyEncodingForURI() {
         return useBodyEncodingForURI;
@@ -534,10 +471,8 @@ public class ConnectorType {
     /**
      * Sets the value of the useBodyEncodingForURI property.
      *
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *
+     * @param value allowed object is
+     *              {@link String }
      */
     public void setUseBodyEncodingForURI(String value) {
         this.useBodyEncodingForURI = value;
@@ -546,10 +481,8 @@ public class ConnectorType {
     /**
      * Gets the value of the xpoweredBy property.
      *
-     * @return
-     *     possible object is
-     *     {@link String }
-     *
+     * @return possible object is
+     *         {@link String }
      */
     public String getXpoweredBy() {
         return xpoweredBy;
@@ -558,10 +491,8 @@ public class ConnectorType {
     /**
      * Sets the value of the xpoweredBy property.
      *
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *
+     * @param value allowed object is
+     *              {@link String }
      */
     public void setXpoweredBy(String value) {
         this.xpoweredBy = value;
@@ -570,10 +501,8 @@ public class ConnectorType {
     /**
      * Gets the value of the useIPVHosts property.
      *
-     * @return
-     *     possible object is
-     *     {@link Boolean }
-     *
+     * @return possible object is
+     *         {@link Boolean }
      */
     public Boolean isUseIPVHosts() {
         return useIPVHosts;
@@ -582,10 +511,8 @@ public class ConnectorType {
     /**
      * Sets the value of the useIPVHosts property.
      *
-     * @param value
-     *     allowed object is
-     *     {@link Boolean }
-     *
+     * @param value allowed object is
+     *              {@link Boolean }
      */
     public void setUseIPVHosts(Boolean value) {
         this.useIPVHosts = value;
@@ -593,24 +520,22 @@ public class ConnectorType {
 
     /**
      * Gets a map that contains attributes that aren't bound to any typed property on this class.
-     *
-     * <p>
+     * <p/>
+     * <p/>
      * the map is keyed by the name of the attribute and
      * the value is the string value of the attribute.
-     *
+     * <p/>
      * the map returned by this method is live, and you can add new attribute
      * by updating the map directly. Because of this design, there's no setter.
      *
-     *
-     * @return
-     *     always non-null
+     * @return always non-null
      */
     public Map<QName, String> getOtherAttributes() {
         return otherAttributes;
     }
 
 
-    public Connector getConnector(ClassLoader cl) throws Exception {
+    public Connector getConnector(ClassLoader cl, Service service) throws Exception {
         Map<String, Object> properties = new HashMap<String, Object>();
         if (isAllowTrace() != null) {
             properties.put(ALLOW_TRACE, isAllowTrace());
@@ -666,12 +591,25 @@ public class ConnectorType {
         ObjectRecipe recipe = new ObjectRecipe(className, properties);
         recipe.allow(Option.IGNORE_MISSING_PROPERTIES);
         Connector connector = (Connector) recipe.create(cl);
-        for (Map.Entry<QName, String> entry: otherAttributes.entrySet()) {
+        for (Map.Entry<QName, String> entry : otherAttributes.entrySet()) {
             String name = entry.getKey().getLocalPart();
-            connector.setProperty(name, entry.getValue());
+            if ("executor".equals(name)) {
+                Executor executor = service.getExecutor(entry.getValue());
+                if (executor == null) {
+                    throw new IllegalArgumentException("No executor found in service with name: " + entry.getValue());
+                }
+                IntrospectionUtils.callMethod1(connector.getProtocolHandler(),
+                        "setExecutor",
+                        executor,
+                        java.util.concurrent.Executor.class.getName(),
+                        cl);
+
+            } else {
+                connector.setProperty(name, entry.getValue());
+            }
         }
-        
-        for (ListenerType listenerType: getListener()) {
+
+        for (ListenerType listenerType : getListener()) {
             LifecycleListener listener = listenerType.getLifecycleListener(cl);
             connector.addLifecycleListener(listener);
         }

@@ -23,7 +23,6 @@ package org.apache.geronimo.tomcat;
 import java.io.File;
 import java.io.FileReader;
 
-import junit.framework.TestCase;
 import org.apache.geronimo.testsupport.TestSupport;
 import org.apache.geronimo.tomcat.model.ServerType;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
@@ -44,7 +43,7 @@ public class TomcatServerGBeanTest extends TestSupport {
         try {
             ServerType serverType = TomcatServerGBean.loadServerType(in);
             assertEquals(4, serverType.getListener().size());
-            Server server = serverType.build(getClass().getClassLoader());
+            Server server = serverType.build(getClass().getClassLoader(), null);
             try {
                 ((Lifecycle)server).start();
             } finally {
@@ -56,7 +55,7 @@ public class TomcatServerGBeanTest extends TestSupport {
     }
     public void testGBeanServer1() throws Exception {
         ServerInfo serverInfo = new BasicServerInfo(BASEDIR.getAbsolutePath());
-        TomcatServerGBean tomcatServerGBean = new TomcatServerGBean(null, SERVER_1, null ,serverInfo, null, null, getClass().getClassLoader());
+        TomcatServerGBean tomcatServerGBean = new TomcatServerGBean(null, SERVER_1, null ,serverInfo, null, null, getClass().getClassLoader(), null);
         try {
             tomcatServerGBean.doStart();
         } finally {

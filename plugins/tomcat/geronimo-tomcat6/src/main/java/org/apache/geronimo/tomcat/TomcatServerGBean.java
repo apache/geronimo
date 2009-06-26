@@ -49,6 +49,7 @@ import org.apache.geronimo.system.configuration.PluginAttributeStore;
 import org.apache.geronimo.system.jmx.MBeanServerReference;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.tomcat.model.ServerType;
+import org.apache.geronimo.kernel.Kernel;
 import org.apache.tomcat.util.modeler.Registry;
 import org.xml.sax.SAXException;
 
@@ -75,13 +76,14 @@ public class TomcatServerGBean implements GBeanLifecycle {
     private final ServerInfo serverInfo;
     private final Server server;
 
-    public TomcatServerGBean(@ParamAttribute(name = "serverConfig")String serverConfig,
-                             @ParamAttribute(name = "serverConfigLocation")String serverConfigLocation,
-                             @ParamAttribute(name= "catalinaHome")String catalinaHome,
+    public TomcatServerGBean(@ParamAttribute(name = "serverConfig") String serverConfig,
+                             @ParamAttribute(name = "serverConfigLocation") String serverConfigLocation,
+                             @ParamAttribute(name = "catalinaHome") String catalinaHome,
                              @ParamReference(name = "ServerInfo") ServerInfo serverInfo,
                              @ParamReference(name = "AttributeManager", namingType = "AttributeStore") PluginAttributeStore attributeStore,
                              @ParamReference(name = "MBeanServerReference") MBeanServerReference mbeanServerReference,
-                             @ParamSpecial(type= SpecialAttributeType.classLoader)ClassLoader classLoader) throws Exception {
+                             @ParamSpecial(type = SpecialAttributeType.classLoader) ClassLoader classLoader,
+                             @ParamSpecial(type = SpecialAttributeType.kernel) Kernel kernel) throws Exception {
         this.serverConfig = serverConfig;
         this.serverInfo = serverInfo;
         this.classLoader = classLoader;
@@ -115,7 +117,7 @@ public class TomcatServerGBean implements GBeanLifecycle {
 
         try {
             ServerType serverType = loadServerType(in);            
-            server = serverType.build(classLoader);
+            server = serverType.build(classLoader, kernel);
         } finally {
             in.close();
         }

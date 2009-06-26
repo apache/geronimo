@@ -29,6 +29,7 @@ import org.apache.catalina.core.StandardServer;
 import org.apache.catalina.deploy.NamingResources;
 import org.apache.xbean.recipe.ObjectRecipe;
 import org.apache.xbean.recipe.Option;
+import org.apache.geronimo.kernel.Kernel;
 
 
 /**
@@ -255,7 +256,7 @@ public class ServerType {
         return otherAttributes;
     }
 
-    public Server build(ClassLoader cl) throws Exception {
+    public Server build(ClassLoader cl, Kernel kernel) throws Exception {
         Map<String, Object> properties = new HashMap<String, Object>();
         for (Map.Entry<QName, String> entry: otherAttributes.entrySet()) {
             String name = entry.getKey().getLocalPart();
@@ -281,7 +282,7 @@ public class ServerType {
         instance.setGlobalNamingResources(globalNamingResources);
 
         for (ServiceType serviceType: getService()) {
-            Service service = serviceType.getService(cl);
+            Service service = serviceType.getService(cl, kernel);
             instance.addService(service);
         }
 

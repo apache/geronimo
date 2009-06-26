@@ -10,6 +10,8 @@ package org.apache.geronimo.tomcat.model;
 
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Set;
+import java.net.URI;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -22,6 +24,9 @@ import org.apache.catalina.Executor;
 import org.apache.catalina.core.StandardThreadExecutor;
 import org.apache.xbean.recipe.ObjectRecipe;
 import org.apache.xbean.recipe.Option;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.gbean.AbstractName;
 
 
 /**
@@ -93,15 +98,25 @@ public class ExecutorType {
     }
 
 
-    public Executor getExecutor(ClassLoader cl) throws Exception {
+    public Executor getExecutor(ClassLoader cl, Kernel kernel) throws Exception {
         Map<String, Object> properties = new HashMap<String, Object>();
 
         for (Map.Entry<QName, String> entry: otherAttributes.entrySet()) {
             String name = entry.getKey().getLocalPart();
-            properties.put(name, entry.getValue());
+            if (name.endsWith("-ref")) {
+                AbstractNameQuery query = new AbstractNameQuery(URI.create(entry.getValue()));
+                Set<AbstractName> names = kernel.listGBeans(query);
+                if (names.size() != 1) throw new IllegalStateException("Unsatisfied reference for name " + name + " and reference to " + entry.getValue());
+                Object ref = kernel.getGBean(names.iterator().next());
+                properties.put(name.substring(0, name.length() - 4), ref);
+
+            } else {
+                properties.put(name, entry.getValue());
+            }
         }
         ObjectRecipe recipe = new ObjectRecipe(className, properties);
         recipe.allow(Option.IGNORE_MISSING_PROPERTIES);
+        recipe.allow(Option.NAMED_PARAMETERS);
         Executor executor = (Executor) recipe.create(cl);
         return executor;
     }

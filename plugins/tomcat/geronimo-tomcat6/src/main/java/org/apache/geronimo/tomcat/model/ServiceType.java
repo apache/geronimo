@@ -30,6 +30,7 @@ import org.apache.catalina.core.StandardService;
 import org.apache.catalina.connector.Connector;
 import org.apache.xbean.recipe.ObjectRecipe;
 import org.apache.xbean.recipe.Option;
+import org.apache.geronimo.kernel.Kernel;
 
 
 /**
@@ -257,7 +258,7 @@ public class ServiceType {
         return otherAttributes;
     }
 
-    public Service getService(ClassLoader cl) throws Exception {
+    public Service getService(ClassLoader cl, Kernel kernel) throws Exception {
         Map<String, Object> properties = new HashMap<String, Object>();
         properties.put("name", getName());
         for (Map.Entry<QName, String> entry: otherAttributes.entrySet()) {
@@ -267,13 +268,13 @@ public class ServiceType {
         ObjectRecipe recipe = new ObjectRecipe(className, properties);
         recipe.allow(Option.IGNORE_MISSING_PROPERTIES);
         Service service = (Service) recipe.create(cl);
-        for (ConnectorType connectorType: getConnector()) {
-            Connector connector = connectorType.getConnector(cl);
-            service.addConnector(connector);
-        }
         for (ExecutorType executorType: getExecutor()) {
-            Executor executor = executorType.getExecutor(cl);
+            Executor executor = executorType.getExecutor(cl, kernel);
             service.addExecutor(executor);
+        }
+        for (ConnectorType connectorType: getConnector()) {
+            Connector connector = connectorType.getConnector(cl, service);
+            service.addConnector(connector);
         }
         if (service instanceof Lifecycle) {
             Lifecycle lifecycle = (Lifecycle) service;
