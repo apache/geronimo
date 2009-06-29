@@ -113,6 +113,9 @@
          </portlet:actionURL>">${connectorType.description}</a>
 </c:forEach>
 </ul>
-<fmt:message key="webmanager.connector.normal.addNewNote"/>
+
+<c:if test="${container.name eq 'Tomcat'}">
+    <fmt:message key="webmanager.connector.normal.addNewNote"/>
+</c:if>
 
 </c:forEach>
