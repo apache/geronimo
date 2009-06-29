@@ -20,6 +20,12 @@
 
 <module xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
 
+    <gbean name="OpenEjbSystemProperties" class="org.apache.geronimo.system.properties.SystemProperties">
+        <attribute name="systemProperties">
+            openejb.strict.interface.declaration=true
+        </attribute>
+    </gbean>
+    
     <gbean name="OpenEjbSystem" class="org.apache.geronimo.openejb.OpenEjbSystemGBean">
         <reference name="TransactionManager">
             <name>TransactionManager</name>
