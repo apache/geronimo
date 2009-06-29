@@ -87,7 +87,7 @@
                   <ns:property name="password">manager</ns:property>
                   <ns:property name="protocol">rmi</ns:property>
                   <ns:property name="host">localhost</ns:property>
-                  <ns:property name="port">1099</ns:property>
+                  <ns:property name="port">${PlanNamingPort}</ns:property>
                   <ns:property name="urlPath">JMXConnector</ns:property>
                   <ns:property name="local">true</ns:property>
               </ns:javabean>
