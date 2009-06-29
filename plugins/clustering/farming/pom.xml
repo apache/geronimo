@@ -90,6 +90,17 @@
                                 </gbean>
                                 <gbean name="ClusterInfo">
                                     <attribute name="name">#{clusterName}</attribute>
+                                    <attribute propertyEditor="org.apache.geronimo.farm.deployment.DeploymentExtendedJMXConnectorInfoEditor" name="extendedJMXConnectorInfo">
+                                        <ns:javabean class="org.apache.geronimo.farm.deployment.DeploymentExtendedJMXConnectorInfo" xmlns:ns="http://geronimo.apache.org/xml/ns/deployment/javabean-1.0">
+                                            <ns:property name="username">system</ns:property>
+                                            <ns:property name="password">manager</ns:property>
+                                            <ns:property name="protocol">rmi</ns:property>
+                                            <ns:property name="host">localhost</ns:property>
+                                            <ns:property name="port">${NamingPort + PortOffset}</ns:property>
+                                            <ns:property name="urlPath">JMXConnector</ns:property>
+                                            <ns:property name="local">true</ns:property>
+                                        </ns:javabean>
+                                    </attribute>
                                 </gbean>
                             </config-xml-content>
                             <config-substitution key="clusterNodeName">NODE</config-substitution>
