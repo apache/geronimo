@@ -229,9 +229,9 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLif
                               String[] protectedMethods, //allowed methods?
                               ClassLoader classLoader) throws Exception {
         SecurityHandler securityHandler = null;
-        if (realmName != null) {
+        if (configurationFactory != null) {
             JettySecurityHandlerFactory  factory = new JettySecurityHandlerFactory(BuiltInAuthMethod.valueOf(authMethod), null, null, realmName, configurationFactory);
-            Permission permission = new WebUserDataPermission("/*", protectedMethods, ":" + transportGuarantee);
+            Permission permission = new WebUserDataPermission("/*", protectedMethods, transportGuarantee);
             securityHandler = factory.buildEJBSecurityHandler(permission);
         }
         ServletHandler servletHandler = new EJBServletHandler(webServiceContainer);

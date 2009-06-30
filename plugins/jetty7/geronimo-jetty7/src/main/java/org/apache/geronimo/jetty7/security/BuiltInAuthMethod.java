@@ -21,8 +21,8 @@
 package org.apache.geronimo.jetty7.security;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public enum BuiltInAuthMethod {
-    BASIC, DIGEST, FORM, CLIENTCERT
+    NONE, BASIC, DIGEST, FORM, CLIENTCERT
 }

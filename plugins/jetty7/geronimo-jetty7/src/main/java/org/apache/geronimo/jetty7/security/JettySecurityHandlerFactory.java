@@ -103,6 +103,8 @@ public class JettySecurityHandlerFactory implements SecurityHandlerFactory {
             authenticator = new ClientCertAuthenticator();
         } else if (authMethod == BuiltInAuthMethod.FORM) {
             authenticator = new SessionCachingAuthenticator(new FormAuthenticator(loginPage, errorPage));
+        } else if (authMethod == BuiltInAuthMethod.NONE) {
+            return null;
         } else {
             throw new IllegalStateException("someone added a new BuiltInAuthMethod without telling us");
         }
