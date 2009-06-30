@@ -76,7 +76,7 @@ public class EJBServletHandler extends ServletHandler {
         // TODO: add support for context
         request.setAttribute(WebServiceContainer.SERVLET_CONTEXT, null);
 
-        if (req.getParameter("wsdl") != null) {
+        if (isWSDLRequest(req)) {
             try {
                 webServiceContainer.getWsdl(request, response);
                 baseRequest.setHandled(true);
@@ -95,6 +95,10 @@ public class EJBServletHandler extends ServletHandler {
                 throw (HttpException) new HttpException(500, "Could not process message!").initCause(e);
             }
         }
+    }
+
+    private boolean isWSDLRequest(HttpServletRequest req) {
+        return ("GET".equals(req.getMethod()) && (req.getParameter("wsdl") != null || req.getParameter("xsd") != null));            
     }
 
     public static class RequestAdapter implements WebServiceContainer.Request {
