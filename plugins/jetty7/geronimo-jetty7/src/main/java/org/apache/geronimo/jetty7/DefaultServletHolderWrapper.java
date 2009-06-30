@@ -31,12 +31,12 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
  * @version $Rev$ $Date$
  */
 @GBean(j2eeType = NameFactory.SERVLET_TEMPLATE)
-public class JettyDefaultServletHolder extends JettyServletHolder {
+public class DefaultServletHolderWrapper extends ServletHolderWrapper {
 
-    public JettyDefaultServletHolder() {
+    public DefaultServletHolderWrapper() {
     }
 
-    public JettyDefaultServletHolder(@ParamSpecial(type = SpecialAttributeType.objectName) String objectName,
+    public DefaultServletHolderWrapper(@ParamSpecial(type = SpecialAttributeType.objectName) String objectName,
                                      @ParamAttribute(name = "servletName") String servletName,
                                      @ParamAttribute(name = "servletClass") String servletClassName,
                                      @ParamAttribute(name = "jspFile") String jspFile,

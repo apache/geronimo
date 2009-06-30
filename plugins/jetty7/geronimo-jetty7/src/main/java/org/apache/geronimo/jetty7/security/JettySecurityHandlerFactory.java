@@ -21,13 +21,15 @@
 package org.apache.geronimo.jetty7.security;
 
 import java.security.AccessControlContext;
+import java.security.Permission;
 
 import javax.security.auth.Subject;
 
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.gbean.annotation.ParamReference;
-import org.apache.geronimo.jetty7.handler.JettySecurityHandler;
+import org.apache.geronimo.jetty7.handler.JaccSecurityHandler;
+import org.apache.geronimo.jetty7.handler.EJBWebServiceSecurityHandler;
 import org.apache.geronimo.jetty7.security.auth.JAASLoginService;
 import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.jaas.ConfigurationFactory;
@@ -35,6 +37,7 @@ import org.apache.geronimo.security.jacc.RunAsSource;
 import org.eclipse.jetty.security.Authenticator;
 import org.eclipse.jetty.security.IdentityService;
 import org.eclipse.jetty.security.LoginService;
+import org.eclipse.jetty.security.SecurityHandler;
 import org.eclipse.jetty.security.authentication.BasicAuthenticator;
 import org.eclipse.jetty.security.authentication.ClientCertAuthenticator;
 import org.eclipse.jetty.security.authentication.DigestAuthenticator;
@@ -53,10 +56,10 @@ public class JettySecurityHandlerFactory implements SecurityHandlerFactory {
     private final String realmName;
     private final ConfigurationFactory configurationFactory;
 
-    public JettySecurityHandlerFactory(@ParamAttribute(name = "authMethod")BuiltInAuthMethod authMethod,
-                                       @ParamAttribute(name = "loginPage")String loginPage,
-                                       @ParamAttribute(name = "errorPage")String errorPage,
-                                       @ParamAttribute(name = "realmName")String realmName,
+    public JettySecurityHandlerFactory(@ParamAttribute(name = "authMethod") BuiltInAuthMethod authMethod,
+                                       @ParamAttribute(name = "loginPage") String loginPage,
+                                       @ParamAttribute(name = "errorPage") String errorPage,
+                                       @ParamAttribute(name = "realmName") String realmName,
                                        @ParamReference(name = "ConfigurationFactory") ConfigurationFactory configurationFactory) {
         if (authMethod == null) {
             throw new NullPointerException("authMethod required");
@@ -71,8 +74,26 @@ public class JettySecurityHandlerFactory implements SecurityHandlerFactory {
         this.configurationFactory = configurationFactory;
     }
 
-    public JettySecurityHandler buildSecurityHandler(String policyContextID, Subject defaultSubject, RunAsSource runAsSource) {
+    public SecurityHandler buildSecurityHandler(String policyContextID, Subject defaultSubject, RunAsSource runAsSource) {
         final LoginService loginService = new JAASLoginService(configurationFactory, realmName);
+        Authenticator authenticator = buildAuthenticator();
+        if (defaultSubject == null) {
+            defaultSubject = ContextManager.EMPTY;
+        }
+        AccessControlContext defaultAcc = ContextManager.registerSubjectShort(defaultSubject, null, null);
+        IdentityService identityService = new JettyIdentityService(defaultAcc, runAsSource);
+        return new JaccSecurityHandler(policyContextID, authenticator, loginService, identityService, defaultAcc);
+    }
+
+    public SecurityHandler buildEJBSecurityHandler(Permission permission) {
+        final LoginService loginService = new JAASLoginService(configurationFactory, realmName);
+        Authenticator authenticator = buildAuthenticator();
+        AccessControlContext defaultAcc = ContextManager.registerSubjectShort(ContextManager.EMPTY, null, null);
+        IdentityService identityService = new JettyIdentityService(defaultAcc, null);
+        return new EJBWebServiceSecurityHandler(authenticator, loginService, identityService, permission);
+    }
+
+    private Authenticator buildAuthenticator() {
         Authenticator authenticator;
         if (authMethod == BuiltInAuthMethod.BASIC) {
             authenticator = new BasicAuthenticator();
@@ -85,11 +106,6 @@ public class JettySecurityHandlerFactory implements SecurityHandlerFactory {
         } else {
             throw new IllegalStateException("someone added a new BuiltInAuthMethod without telling us");
         }
-        if (defaultSubject == null) {
-            defaultSubject = ContextManager.EMPTY;
-        }
-        AccessControlContext defaultAcc = ContextManager.registerSubjectShort(defaultSubject, null, null);
-        IdentityService identityService = new JettyIdentityService(defaultAcc, runAsSource);
-        return new JettySecurityHandler(policyContextID, authenticator, loginService, identityService, defaultAcc);
+        return authenticator;
     }
 }

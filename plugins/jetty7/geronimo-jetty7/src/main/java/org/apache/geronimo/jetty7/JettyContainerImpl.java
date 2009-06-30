@@ -20,8 +20,10 @@ package org.apache.geronimo.jetty7;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
+import java.security.Permission;
 
 import javax.management.j2ee.statistics.Stats;
+import javax.security.jacc.WebUserDataPermission;
 
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.annotation.GBean;
@@ -37,6 +39,10 @@ import org.apache.geronimo.security.jaas.ConfigurationFactory;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.webservices.SoapHandler;
 import org.apache.geronimo.webservices.WebServiceContainer;
+import org.apache.geronimo.jetty7.handler.EJBServletHandler;
+import org.apache.geronimo.jetty7.handler.EJBWebServiceContext;
+import org.apache.geronimo.jetty7.security.JettySecurityHandlerFactory;
+import org.apache.geronimo.jetty7.security.BuiltInAuthMethod;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.RequestLog;
@@ -46,6 +52,8 @@ import org.eclipse.jetty.server.handler.DefaultHandler;
 import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.eclipse.jetty.server.handler.RequestLogHandler;
 import org.eclipse.jetty.server.handler.StatisticsHandler;
+import org.eclipse.jetty.servlet.ServletHandler;
+import org.eclipse.jetty.security.SecurityHandler;
 
 /**
  * @version $Rev$ $Date$
@@ -58,7 +66,7 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLif
     private static final String DEFAULT_JETTY_HOME = "var/jetty";
 
     private final Server server;
-    private final Map webServices = new HashMap();
+    private final Map<String, EJBWebServiceContext> webServices = new HashMap<String, EJBWebServiceContext>();
     private final String objectName;
     private final WebManager manager;
     private final String jettyHome;
@@ -67,9 +75,7 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLif
     private JettyWebContainerStatsImpl stats;
     // list of handlers
     private StatisticsHandler statsHandler = new StatisticsHandler();
-    private HandlerCollection handlerCollection = new HandlerCollection();
     private ContextHandlerCollection contextHandlerCollection = new ContextHandlerCollection();
-    private DefaultHandler defaultHandler = new DefaultHandler();
     private RequestLogHandler requestLogHandler = new RequestLogHandler();
     //    private boolean statsHandlerInPlace = false;
     private boolean statsOn = false;
@@ -95,7 +101,9 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLif
         //handled by a Handler in the ContextHandlerCollection.
         //The third element is the RequestLogHandler, which requires
         //a RequestLog impl to be set.
+        DefaultHandler defaultHandler = new DefaultHandler();
         Handler[] handlers = {contextHandlerCollection, defaultHandler, requestLogHandler, statsHandler};
+        HandlerCollection handlerCollection = new HandlerCollection();
         handlerCollection.setHandlers(handlers);
         server.setHandler(handlerCollection);
 
@@ -211,11 +219,23 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLif
         contextHandlerCollection.removeHandler(context);
     }
 
-    ///TODO figure out strings1 param
-    public void addWebService(String contextPath, String[] virtualHosts, WebServiceContainer webServiceContainer, ConfigurationFactory configurationFactory, String realmName, String transportGuarantee, String authMethod, String[] strings1, ClassLoader classLoader) throws Exception {
-//        InternalJAASJettyRealm internalJAASJettyRealm = securityRealmName == null ? null : addRealm(securityRealmName);
-//        JettyEJBWebServiceContext webServiceContext = new JettyEJBWebServiceContext(contextPath, webServiceContainer, internalJAASJettyRealm, realmName, transportGuarantee, authMethod, classLoader);
-        JettyEJBWebServiceContext webServiceContext = new JettyEJBWebServiceContext(contextPath, webServiceContainer, realmName, transportGuarantee, authMethod, classLoader);
+    public void addWebService(String contextPath,
+                              String[] virtualHosts,
+                              WebServiceContainer webServiceContainer,
+                              ConfigurationFactory configurationFactory,
+                              String realmName,
+                              String transportGuarantee,
+                              String authMethod,
+                              String[] protectedMethods, //allowed methods?
+                              ClassLoader classLoader) throws Exception {
+        SecurityHandler securityHandler = null;
+        if (realmName != null) {
+            JettySecurityHandlerFactory  factory = new JettySecurityHandlerFactory(BuiltInAuthMethod.valueOf(authMethod), null, null, realmName, configurationFactory);
+            Permission permission = new WebUserDataPermission("/*", protectedMethods, ":" + transportGuarantee);
+            securityHandler = factory.buildEJBSecurityHandler(permission);
+        }
+        ServletHandler servletHandler = new EJBServletHandler(webServiceContainer);
+        EJBWebServiceContext webServiceContext = new EJBWebServiceContext(contextPath, securityHandler, servletHandler, classLoader);
         webServiceContext.setVirtualHosts(virtualHosts);
         addContext(webServiceContext);
         webServiceContext.start();
@@ -223,7 +243,7 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLif
     }
 
     public void removeWebService(String contextPath) {
-        JettyEJBWebServiceContext webServiceContext = (JettyEJBWebServiceContext) webServices.remove(contextPath);
+        EJBWebServiceContext webServiceContext = webServices.remove(contextPath);
         try {
             removeContext(webServiceContext);
         } catch (Exception e) {

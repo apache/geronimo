@@ -78,12 +78,12 @@ import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedWebApp;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.jetty7.Host;
-import org.apache.geronimo.jetty7.JettyDefaultServletHolder;
-import org.apache.geronimo.jetty7.JettyFilterHolder;
+import org.apache.geronimo.jetty7.DefaultServletHolderWrapper;
+import org.apache.geronimo.jetty7.FilterHolderWrapper;
 import org.apache.geronimo.jetty7.JettyFilterMapping;
-import org.apache.geronimo.jetty7.JettyJspServletHolder;
-import org.apache.geronimo.jetty7.JettyServletHolder;
-import org.apache.geronimo.jetty7.JettyWebAppContext;
+import org.apache.geronimo.jetty7.JspServletHolderWrapper;
+import org.apache.geronimo.jetty7.ServletHolderWrapper;
+import org.apache.geronimo.jetty7.WebAppContextWrapper;
 import org.apache.geronimo.jetty7.security.AuthConfigProviderHandlerFactory;
 import org.apache.geronimo.jetty7.security.BuiltInAuthMethod;
 import org.apache.geronimo.jetty7.security.JettySecurityHandlerFactory;
@@ -169,7 +169,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
 
     private final Environment defaultEnvironment;
     private final AbstractNameQuery jettyContainerObjectName;
-    private final JettyJspServletHolder jspServlet;
+    private final JspServletHolderWrapper jspServlet;
     private final Collection defaultServlets;
     private final Collection defaultFilters;
     private final Collection defaultFilterMappings;
@@ -188,7 +188,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
                               Integer defaultSessionTimeoutSeconds,
                               List<String> defaultWelcomeFiles,
                               AbstractNameQuery jettyContainerName,
-                              JettyJspServletHolder jspServlet,
+                              JspServletHolderWrapper jspServlet,
                               Collection defaultServlets,
                               Collection defaultFilters,
                               Collection defaultFilterMappings,
@@ -393,7 +393,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
 
         WebAppType webApp = (WebAppType) webModule.getSpecDD();
         JettyWebAppType jettyWebApp = (JettyWebAppType) webModule.getVendorDD();
-        GBeanData webModuleData = new GBeanData(moduleName, JettyWebAppContext.class);
+        GBeanData webModuleData = new GBeanData(moduleName, WebAppContextWrapper.class);
 
         configureBasicWebModuleAttributes(webApp, jettyWebApp, moduleContext, earContext, webModule, webModuleData);
 
@@ -440,7 +440,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
             // configure listeners.
             configureListeners(webApp, webModuleData);
 
-            webModuleData.setAttribute(JettyWebAppContext.GBEAN_ATTR_SESSION_TIMEOUT,
+            webModuleData.setAttribute(WebAppContextWrapper.GBEAN_ATTR_SESSION_TIMEOUT,
                     (webApp.getSessionConfigArray().length == 1 && webApp.getSessionConfigArray(0).getSessionTimeout() != null) ?
                             webApp.getSessionConfigArray(0).getSessionTimeout().getBigIntegerValue().intValue() * 60 :
                             defaultSessionTimeoutSeconds);
@@ -449,7 +449,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
             webModuleData.setAttribute("distributable", distributable);
             if (TRUE == distributable) {
                 clusteringBuilders.build(jettyWebApp, earContext, moduleContext);
-                if (webModuleData.getReferencePatterns(JettyWebAppContext.GBEAN_REF_SESSION_HANDLER_FACTORY) == null) {
+                if (webModuleData.getReferencePatterns(WebAppContextWrapper.GBEAN_REF_SESSION_HANDLER_FACTORY) == null) {
                     log.warn("No clustering builders configured: app will not be clustered");
                     configureNoClustering(moduleContext, webModuleData);
                 }
@@ -573,7 +573,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
 //                "DefaultWebApplicationHandlerFactory",
 //                NameFactory.GERONIMO_SERVICE);
 //        GBeanData beanData = new GBeanData(name, DefaultWebApplicationHandlerFactory.GBEAN_INFO);
-//        webModuleData.setReferencePattern(JettyWebAppContext.GBEAN_REF_WEB_APPLICATION_HANDLER_FACTORY, name);
+//        webModuleData.setReferencePattern(WebAppContextWrapper.GBEAN_REF_WEB_APPLICATION_HANDLER_FACTORY, name);
 //        moduleContext.addGBean(beanData);
     }
 
@@ -622,7 +622,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
         for (FilterType filterType : filterArray) {
             String filterName = filterType.getFilterName().getStringValue().trim();
             AbstractName filterAbstractName = earContext.getNaming().createChildName(moduleName, filterName, NameFactory.WEB_FILTER);
-            GBeanData filterData = new GBeanData(filterAbstractName, JettyFilterHolder.GBEAN_INFO);
+            GBeanData filterData = new GBeanData(filterAbstractName, FilterHolderWrapper.GBEAN_INFO);
             filterData.setAttribute("filterName", filterName);
             filterData.setAttribute("filterClass", filterType.getFilterClass().getStringValue().trim());
             Map<String, String> initParams = new HashMap<String, String>();
@@ -1101,7 +1101,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
                 throw new DeploymentException("Could not load javax.servlet.Servlet in web classloader", e); // TODO identify web app in message
             }
             if (baseServletClass.isAssignableFrom(servletClass)) {
-                servletData = new GBeanData(servletAbstractName, JettyServletHolder.class);
+                servletData = new GBeanData(servletAbstractName, ServletHolderWrapper.class);
                 servletData.setAttribute("servletClass", servletClassName);
             } else {
                 servletData = new GBeanData(pojoWebServiceTemplate);
@@ -1124,7 +1124,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
                 }
             }
         } else if (servletType.isSetJspFile()) {
-            servletData = new GBeanData(servletAbstractName, JettyServletHolder.class);
+            servletData = new GBeanData(servletAbstractName, ServletHolderWrapper.class);
             servletData.setAttribute("jspFile", servletType.getJspFile().getStringValue().trim());
             servletData.setAttribute("servletClass", jspServlet.getServletClassName());
             initParams.put("development", "false");
@@ -1179,8 +1179,8 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
         infoBuilder.addAttribute("defaultLocaleEncodingMappings", Map.class, true, true);
         infoBuilder.addAttribute("defaultMimeTypeMappings", Map.class, true, true);
         infoBuilder.addAttribute("jettyContainerObjectName", AbstractNameQuery.class, true, true);
-        infoBuilder.addReference("JspServlet", JettyJspServletHolder.class, NameFactory.SERVLET_TEMPLATE);
-        infoBuilder.addReference("DefaultServlets", JettyDefaultServletHolder.class, NameFactory.SERVLET_TEMPLATE);
+        infoBuilder.addReference("JspServlet", JspServletHolderWrapper.class, NameFactory.SERVLET_TEMPLATE);
+        infoBuilder.addReference("DefaultServlets", DefaultServletHolderWrapper.class, NameFactory.SERVLET_TEMPLATE);
         infoBuilder.addReference("DefaultFilters", Object.class);
         infoBuilder.addReference("DefaultFilterMappings", Object.class);
         infoBuilder.addReference("PojoWebServiceTemplate", Object.class, NameFactory.SERVLET_WEB_SERVICE_TEMPLATE);

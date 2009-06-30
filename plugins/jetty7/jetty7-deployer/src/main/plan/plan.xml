@@ -149,7 +149,7 @@ wsdl=text/xml
         </xml-attribute>
     </gbean>
 
-    <gbean name="StaticContent" class="org.apache.geronimo.jetty7.JettyDefaultServletHolder">
+    <gbean name="StaticContent" class="org.apache.geronimo.jetty7.DefaultServletHolderWrapper">
         <attribute name="servletName">default</attribute>
         <attribute name="servletClass">org.eclipse.jetty.servlet.DefaultServlet</attribute>
         <attribute name="loadOnStartup">0</attribute>
@@ -164,7 +164,7 @@ wsdl=text/xml
         <attribute name="servletMappings">/</attribute>
     </gbean>
 
-    <gbean name="JSPServlet" class="org.apache.geronimo.jetty7.JettyJspServletHolder">
+    <gbean name="JSPServlet" class="org.apache.geronimo.jetty7.JspServletHolderWrapper">
         <attribute name="servletName">jsp</attribute>
         <attribute name="servletClass">org.apache.jasper.servlet.JspServlet</attribute>
         <attribute name="loadOnStartup">0</attribute>
@@ -178,7 +178,7 @@ wsdl=text/xml
         <attribute name="servletMappings">*.jsp,*.jspf,*.jspx,*.xsp</attribute>
     </gbean>
 
-    <gbean name="POJOTemplate" class="org.apache.geronimo.jetty7.JettyPOJOWebServiceHolder">
+    <gbean name="POJOTemplate" class="org.apache.geronimo.jetty7.POJOWebServiceHolderWrapper">
         <attribute name="servletName">dummy</attribute>
     </gbean>
 

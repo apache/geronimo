@@ -29,8 +29,8 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
 public class GBeanInfoTest extends TestCase {
 
     public void testJettyPOJOWebServiceHolder() throws Exception {
-        new AnnotationGBeanInfoFactory().getGBeanInfo(JettyPOJOWebServiceHolder.class);
-//        new JettyPOJOWebServiceHolder();
+        new AnnotationGBeanInfoFactory().getGBeanInfo(POJOWebServiceHolderWrapper.class);
+//        new POJOWebServiceHolderWrapper();
     }
 
     public void testJettyContainerImpl() throws Exception {

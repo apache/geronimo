@@ -37,7 +37,7 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.jetty7.JettyWebAppContext;
+import org.apache.geronimo.jetty7.WebAppContextWrapper;
 import org.apache.geronimo.jetty7.cluster.ClusteredSessionHandlerFactory;
 import org.apache.geronimo.jetty7.cluster.wadi.WADIClusteredPreHandlerFactory;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
@@ -121,7 +121,7 @@ public class WADIJettyClusteringBuilder implements NamespaceDrivenBuilder {
 
     protected GBeanData extractWebModule(DeploymentContext moduleContext) throws DeploymentException {
         Configuration configuration = moduleContext.getConfiguration();
-        AbstractNameQuery webModuleQuery = new AbstractNameQuery(configuration.getId(), Collections.EMPTY_MAP, Collections.singleton(JettyWebAppContext.class.getName()));
+        AbstractNameQuery webModuleQuery = new AbstractNameQuery(configuration.getId(), Collections.EMPTY_MAP, Collections.singleton(WebAppContextWrapper.class.getName()));
         try {
             return configuration.findGBeanData(webModuleQuery);
         } catch (GBeanNotFoundException e) {
@@ -194,7 +194,7 @@ public class WADIJettyClusteringBuilder implements NamespaceDrivenBuilder {
     }
 
     protected Integer getSessionTimeout(GBeanData webModuleData) throws AssertionError {
-        Integer sessionTimeout = (Integer) webModuleData.getAttribute(JettyWebAppContext.GBEAN_ATTR_SESSION_TIMEOUT);
+        Integer sessionTimeout = (Integer) webModuleData.getAttribute(WebAppContextWrapper.GBEAN_ATTR_SESSION_TIMEOUT);
         if (null == sessionTimeout) {
             throw new AssertionError();
         }
@@ -257,7 +257,7 @@ public class WADIJettyClusteringBuilder implements NamespaceDrivenBuilder {
         GBeanData beanData = new GBeanData(name, WADIClusteredPreHandlerFactory.class);
         beanData.setReferencePattern(WADIClusteredPreHandlerFactory.GBEAN_REF_WADI_SESSION_MANAGER, sessionManagerName);
 
-        webModuleData.setReferencePattern(JettyWebAppContext.GBEAN_REF_PRE_HANDLER_FACTORY, name);
+        webModuleData.setReferencePattern(WebAppContextWrapper.GBEAN_REF_PRE_HANDLER_FACTORY, name);
 
         moduleContext.addGBean(beanData);
 
@@ -272,7 +272,7 @@ public class WADIJettyClusteringBuilder implements NamespaceDrivenBuilder {
         GBeanData beanData = new GBeanData(name, ClusteredSessionHandlerFactory.class);
         beanData.setReferencePattern(ClusteredSessionHandlerFactory.GBEAN_REF_SESSION_MANAGER, sessionManagerName);
 
-        webModuleData.setReferencePattern(JettyWebAppContext.GBEAN_REF_SESSION_HANDLER_FACTORY, name);
+        webModuleData.setReferencePattern(WebAppContextWrapper.GBEAN_REF_SESSION_HANDLER_FACTORY, name);
 
         moduleContext.addGBean(beanData);
 

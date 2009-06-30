@@ -33,18 +33,13 @@
     <name>Geronimo Plugins, Jetty :: Core</name>
 
     <dependencies>
-        <!--<dependency>-->
-            <!--<groupId>org.apache.geronimo.specs</groupId>-->
-            <!--<artifactId>geronimo-servlet_3.0_spec</artifactId>-->
-            <!--<version>1.0-EA-SNAPSHOT</version>-->
-        <!--</dependency>-->
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-servlet_2.5_spec</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-ejb_3.0_spec</artifactId>
+            <artifactId>geronimo-jacc_1.1_spec</artifactId>
         </dependency>
 
         <dependency>
@@ -66,12 +61,6 @@
             <artifactId>jee-specs</artifactId>
             <version>${version}</version>
             <type>car</type>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.apache.geronimo.specs</groupId>
-                    <artifactId>geronimo-servlet_2.5_spec</artifactId>
-                </exclusion>
-            </exclusions>
             <scope>provided</scope>
         </dependency>
 
@@ -80,27 +69,9 @@
             <artifactId>webservices-common</artifactId>
             <type>car</type>
             <version>${version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.apache.geronimo.specs</groupId>
-                    <artifactId>geronimo-servlet_2.5_spec</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
 
-        <!-- xbean-reflect, g-management come via g-j2ee from this -->
-        <!--<dependency>-->
-            <!--<groupId>org.apache.geronimo.modules</groupId>-->
-            <!--<artifactId>geronimo-webservices</artifactId>-->
-            <!--<version>${version}</version>-->
-            <!--<scope>provided</scope>-->
-        <!--</dependency>-->
-         
-        <!--<dependency>-->
-            <!--<groupId>org.eclipse.jetty</groupId>-->
-            <!--<artifactId>jetty-server</artifactId>-->
-        <!--</dependency>-->
-        
+
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-ajp</artifactId>
@@ -111,37 +82,18 @@
             <artifactId>jetty-jaspi</artifactId>
         </dependency>
 
-        <!--<dependency>-->
-            <!--<groupId>org.eclipse.jetty</groupId>-->
-            <!--<artifactId>jetty-util</artifactId>-->
-        <!--</dependency>-->
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-webapp</artifactId>
         </dependency>
-        <!--<dependency>-->
-            <!--<groupId>org.eclipse.jetty</groupId>-->
-            <!--<artifactId>jetty-security</artifactId>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.eclipse.jetty</groupId>-->
-            <!--<artifactId>jetty-servlet</artifactId>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.eclipse.jetty</groupId>-->
-            <!--<artifactId>jetty-plus</artifactId>-->
-        <!--</dependency>-->
-
-        <!--<dependency>-->
-            <!--<groupId>xerces</groupId>-->
-            <!--<artifactId>xercesImpl</artifactId>-->
-            <!--<scope>test</scope>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.slf4j</groupId>-->
-            <!--<artifactId>jcl104-over-slf4j</artifactId>-->
-            <!--<scope>test</scope>-->
-        <!--</dependency>-->
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-security</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-servlet</artifactId>
+        </dependency>
     </dependencies>
     
     <build>

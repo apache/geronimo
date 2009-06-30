@@ -36,13 +36,13 @@ import org.eclipse.jetty.servlet.ServletHolder;
 /**
  * @version $Rev$ $Date$
  */
-public class InternalJettyServletHolder extends ServletHolder {
+public class GeronimoServletHolder extends ServletHolder {
 
     private final IntegrationContext integrationContext;
     private final Subject runAsSubject;
     private final JettyServletRegistration servletRegistration;
 
-    public InternalJettyServletHolder(IntegrationContext integrationContext, Subject runAsSubject, JettyServletRegistration servletRegistration) {
+    public GeronimoServletHolder(IntegrationContext integrationContext, Subject runAsSubject, JettyServletRegistration servletRegistration) {
         this.integrationContext = integrationContext;
         this.runAsSubject = runAsSubject;
         this.servletRegistration = servletRegistration;

@@ -14,7 +14,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.jetty7;
+package org.apache.geronimo.jetty7.handler;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;

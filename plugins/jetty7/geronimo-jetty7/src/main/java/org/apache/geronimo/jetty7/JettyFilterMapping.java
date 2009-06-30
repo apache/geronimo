@@ -21,8 +21,6 @@ import java.util.EnumSet;
 
 import org.eclipse.jetty.server.DispatcherType;
 
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.ReferenceCollection;
 import org.apache.geronimo.gbean.ReferenceCollectionEvent;
 import org.apache.geronimo.gbean.ReferenceCollectionListener;
@@ -44,7 +42,7 @@ public class JettyFilterMapping extends FilterMapping {
     private final boolean forwardDispatch;
     private final boolean includeDispatch;
     private final boolean errorDispatch;
-    private final JettyFilterHolder jettyFilterHolder;
+    private final FilterHolderWrapper jettyFilterHolder;
     private final Collection<ServletNameSource> jettyServletHolders;
     private final JettyFilterMapping previous;
     private final JettyServletRegistration jettyServletRegistration;
@@ -54,7 +52,7 @@ public class JettyFilterMapping extends FilterMapping {
             @ParamAttribute(name = "forwardDispatch")boolean forwardDispatch,
             @ParamAttribute(name = "includeDispatch")boolean includeDispatch,
             @ParamAttribute(name = "errorDispatch")boolean errorDispatch,
-            @ParamReference(name="Filter", namingType = NameFactory.WEB_FILTER)JettyFilterHolder jettyFilterHolder,
+            @ParamReference(name="Filter", namingType = NameFactory.WEB_FILTER) FilterHolderWrapper jettyFilterHolder,
             @ParamReference(name="Servlets", namingType = NameFactory.SERVLET)Collection<ServletNameSource> jettyServletHolders,
             @ParamReference(name="Previous", namingType = NameFactory.URL_WEB_FILTER_MAPPING)JettyFilterMapping previous,
             @ParamReference(name="JettyServletRegistration", namingType = NameFactory.WEB_MODULE)JettyServletRegistration jettyServletRegistration) {
@@ -149,7 +147,7 @@ public class JettyFilterMapping extends FilterMapping {
         return errorDispatch;
     }
 
-    public JettyFilterHolder getFilter() {
+    public FilterHolderWrapper getFilter() {
         return jettyFilterHolder;
     }
 

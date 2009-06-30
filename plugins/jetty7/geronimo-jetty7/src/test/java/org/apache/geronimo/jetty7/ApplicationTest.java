@@ -37,7 +37,7 @@ import org.eclipse.jetty.server.Request;
 public class ApplicationTest extends AbstractWebModuleTest {
 
     public void testApplication() throws Exception {
-        JettyWebAppContext app = setUpAppContext(null, null, "policyContextID", null, "war1/");
+        WebAppContextWrapper app = setUpAppContext(null, null, "policyContextID", null, "war1/");
 
         setUpStaticContentServlet(app);
 
@@ -51,7 +51,7 @@ public class ApplicationTest extends AbstractWebModuleTest {
     public void testApplicationWithSessionHandler() throws Exception {
         preHandlerFactory = new MockPreHandlerFactory();
         sessionHandlerFactory = new MockSessionHandlerFactory();
-        JettyWebAppContext app = setUpAppContext(null, null, "policyContextID", null, "war1/");
+        WebAppContextWrapper app = setUpAppContext(null, null, "policyContextID", null, "war1/");
 
         setUpStaticContentServlet(app);
 

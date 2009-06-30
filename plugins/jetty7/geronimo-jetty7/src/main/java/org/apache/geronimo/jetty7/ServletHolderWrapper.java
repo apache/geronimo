@@ -43,7 +43,7 @@ import org.eclipse.jetty.servlet.ServletHolder;
  */
 
 @GBean(j2eeType = NameFactory.SERVLET)
-public class JettyServletHolder implements ServletNameSource, Servlet, GBeanLifecycle {
+public class ServletHolderWrapper implements ServletNameSource, Servlet, GBeanLifecycle {
 
 
     private final JettyServletRegistration servletRegistration;
@@ -51,13 +51,13 @@ public class JettyServletHolder implements ServletNameSource, Servlet, GBeanLife
     private final String objectName;
 
     //todo consider interface instead of this constructor for endpoint use.
-    public JettyServletHolder() {
+    public ServletHolderWrapper() {
         servletRegistration = null;
         servletHolder = null;
         objectName = null;
     }
 
-    public JettyServletHolder(@ParamSpecial(type = SpecialAttributeType.objectName) String objectName,
+    public ServletHolderWrapper(@ParamSpecial(type = SpecialAttributeType.objectName) String objectName,
                               @ParamAttribute(name = "servletName") String servletName,
                               @ParamAttribute(name = "servletClass") String servletClassName,
                               @ParamAttribute(name = "jspFile") String jspFile,
@@ -68,7 +68,7 @@ public class JettyServletHolder implements ServletNameSource, Servlet, GBeanLife
                               @ParamReference(name = "JettyServletRegistration", namingType = NameFactory.WEB_MODULE) JettyServletRegistration context) throws Exception {
         servletRegistration = context;
         Subject runAsSubject = context == null ? null : context.getSubjectForRole(runAsRole);
-        servletHolder = new InternalJettyServletHolder(context == null ? null : context.getIntegrationContext(), runAsSubject, servletRegistration);
+        servletHolder = new GeronimoServletHolder(context == null ? null : context.getIntegrationContext(), runAsSubject, servletRegistration);
         servletHolder.setName(servletName);
         servletHolder.setClassName(servletClassName);
         //context will be null only for use as "default servlet info holder" in deployer.

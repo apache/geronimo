@@ -34,11 +34,11 @@ import org.eclipse.jetty.servlet.FilterHolder;
  * @version $Rev$ $Date$
  */
 @GBean(j2eeType = NameFactory.WEB_FILTER)
-public class JettyFilterHolder implements GBeanLifecycle {
+public class FilterHolderWrapper implements GBeanLifecycle {
 
     private final FilterHolder filterHolder;
 
-    public JettyFilterHolder(@ParamAttribute(name = "filterName") String filterName,
+    public FilterHolderWrapper(@ParamAttribute(name = "filterName") String filterName,
                              @ParamAttribute(name = "filterClass") String filterClass,
                              @ParamAttribute(name = "initParams") Map initParams,
                              @ParamReference(name = "JettyServletRegistration", namingType = NameFactory.WEB_MODULE) JettyServletRegistration jettyServletRegistration) throws Exception {
@@ -135,7 +135,7 @@ public class JettyFilterHolder implements GBeanLifecycle {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(JettyFilterHolder.class, NameFactory.WEB_FILTER);
+        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(FilterHolderWrapper.class, NameFactory.WEB_FILTER);
         infoBuilder.addAttribute("filterName", String.class, true);
         infoBuilder.addAttribute("filterClass", String.class, true);
         infoBuilder.addAttribute("initParams", Map.class, true);

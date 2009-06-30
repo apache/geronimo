@@ -91,7 +91,7 @@ public class AbstractWebModuleTest extends TestSupport {
         staticContentServletInitParams.put("redirectWelcome", "false");
         staticContentServletInitParams.put("minGzipLength", "8192");
 
-        new JettyServletHolder("test:name=staticservlet",
+        new ServletHolderWrapper("test:name=staticservlet",
                 "default",
                 "org.eclipse.jetty.servlet.DefaultServlet",
                 null,
@@ -103,7 +103,7 @@ public class AbstractWebModuleTest extends TestSupport {
 
     }
 
-    protected JettyWebAppContext setUpAppContext(String securityRealmName, SecurityHandlerFactory securityHandlerFactory, String policyContextId, RunAsSource runAsSource, String uriString) throws Exception {
+    protected WebAppContextWrapper setUpAppContext(String securityRealmName, SecurityHandlerFactory securityHandlerFactory, String policyContextId, RunAsSource runAsSource, String uriString) throws Exception {
 
         if (securityHandlerFactory == null) {
             Permissions unchecked = new Permissions();
@@ -134,7 +134,7 @@ public class AbstractWebModuleTest extends TestSupport {
             }, loginService, false);
         }
         String contextPath = "/test";
-        JettyWebAppContext app = new JettyWebAppContext(null,
+        WebAppContextWrapper app = new WebAppContextWrapper(null,
                 contextPath,
                 null,
                 Collections.<String, Object>emptyMap(),
@@ -171,7 +171,7 @@ public class AbstractWebModuleTest extends TestSupport {
         return app;
     }
 
-    protected JettyWebAppContext setUpSecureAppContext(String securityRealmName, Map<String, SubjectInfo> roleDesignates, Map<Principal, Set<String>> principalRoleMap, ComponentPermissions componentPermissions, SubjectInfo defaultSubjectInfo, PermissionCollection checked, Set securityRoles) throws Exception {
+    protected WebAppContextWrapper setUpSecureAppContext(String securityRealmName, Map<String, SubjectInfo> roleDesignates, Map<Principal, Set<String>> principalRoleMap, ComponentPermissions componentPermissions, SubjectInfo defaultSubjectInfo, PermissionCollection checked, Set securityRoles) throws Exception {
         String policyContextId = "TEST";
         ApplicationPolicyConfigurationManager jacc = setUpJACC(roleDesignates, principalRoleMap, componentPermissions, policyContextId);
         LoginService loginService = newLoginService();

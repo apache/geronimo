@@ -17,7 +17,6 @@
 
 package org.apache.geronimo.jetty7;
 
-import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -48,7 +47,7 @@ import org.apache.geronimo.j2ee.annotation.LifecycleMethod;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.management.impl.InvalidObjectNameException;
 import org.apache.geronimo.jetty7.handler.IntegrationContext;
-import org.apache.geronimo.jetty7.handler.TwistyWebAppContext;
+import org.apache.geronimo.jetty7.handler.GeronimoWebAppContext;
 import org.apache.geronimo.jetty7.security.SecurityHandlerFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.ObjectNameUtil;
@@ -77,8 +76,8 @@ import org.slf4j.LoggerFactory;
 
 @GBean(name="Jetty WebApplication Context",
 j2eeType=NameFactory.WEB_MODULE)
-public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistration, WebModule {
-    private static final Logger log = LoggerFactory.getLogger(JettyWebAppContext.class);
+public class WebAppContextWrapper implements GBeanLifecycle, JettyServletRegistration, WebModule {
+    private static final Logger log = LoggerFactory.getLogger(WebAppContextWrapper.class);
 
     private final String originalSpecDD;
     private final J2EEServer server;
@@ -91,7 +90,7 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
     private String displayName;
 
     private final String objectName;
-    private final TwistyWebAppContext webAppContext;
+    private final GeronimoWebAppContext webAppContext;
     private final Context componentContext;
     private final Holder holder;
     private final RunAsSource runAsSource;
@@ -105,7 +104,7 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
     private IntegrationContext integrationContext;
 
 
-    public JettyWebAppContext(@ParamSpecial(type = SpecialAttributeType.objectName) String objectName,
+    public WebAppContextWrapper(@ParamSpecial(type = SpecialAttributeType.objectName) String objectName,
                               @ParamAttribute(name = "contextPath") String contextPath,
                               @ParamAttribute(name = "deploymentDescriptor") String originalSpecDD,
                               @ParamAttribute(name = "componentContext") Map<String, Object> componentContext,
@@ -188,7 +187,7 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
         GeronimoUserTransaction userTransaction = new GeronimoUserTransaction(transactionManager);
         this.componentContext = EnterpriseNamingContext.createEnterpriseNamingContext(componentContext, userTransaction, kernel, classLoader);
         integrationContext = new IntegrationContext(this.componentContext, unshareableResources, applicationManagedSecurityResources, trackedConnectionAssociator, userTransaction);
-        webAppContext = new TwistyWebAppContext(securityHandler, sessionHandler, servletHandler, null, integrationContext, classLoader);
+        webAppContext = new GeronimoWebAppContext(securityHandler, sessionHandler, servletHandler, null, integrationContext, classLoader);
         webAppContext.setContextPath(contextPath);
         //See Jetty-386.  Setting this to true can expose secured content.
         webAppContext.setCompactPath(compactPath);
@@ -204,7 +203,7 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
             Map<String, Object> servletContext = new HashMap<String, Object>();
             Map<Class, Object> customizerContext = new HashMap<Class, Object>();
             customizerContext.put(Map.class, servletContext);
-            customizerContext.put(Context.class, JettyWebAppContext.this.componentContext);
+            customizerContext.put(Context.class, WebAppContextWrapper.this.componentContext);
             contextCustomizer.customize(customizerContext);
             for (Map.Entry<String, Object> entry: servletContext.entrySet()) {
                 webAppContext.setAttribute(entry.getKey(), entry.getValue());
@@ -333,7 +332,7 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
     public void doStop() throws Exception {
         webAppContext.stop();
         jettyContainer.removeContext(webAppContext);
-        log.debug("JettyWebAppContext stopped");
+        log.debug("WebAppContextWrapper stopped");
     }
 
     public void doFail() {
@@ -343,7 +342,7 @@ public class JettyWebAppContext implements GBeanLifecycle, JettyServletRegistrat
             //ignore
         }
 
-        log.warn("JettyWebAppContext failed");
+        log.warn("WebAppContextWrapper failed");
     }
     //pass through attributes.  They should be constructor params
 

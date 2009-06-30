@@ -38,13 +38,13 @@ import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Response;
 import org.eclipse.jetty.server.UserIdentity;
 
-public class JettySecurityHandler extends SecurityHandler {
+public class JaccSecurityHandler extends SecurityHandler {
 
     private final String policyContextID;
 
     private final AccessControlContext defaultAcc;
 
-    public JettySecurityHandler(
+    public JaccSecurityHandler(
             String policyContextID,
             Authenticator authenticator,
             final LoginService loginService,

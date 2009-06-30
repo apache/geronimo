@@ -83,7 +83,7 @@ public class StatTest extends AbstractWebModuleTest {
 
     protected void setUp() throws Exception {
         super.setUp();
-        JettyWebAppContext app;
+        WebAppContextWrapper app;
         app = setUpAppContext(null, null, "policyContextID", null, "war1/");
         setUpStaticContentServlet(app);
     }

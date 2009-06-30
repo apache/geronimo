@@ -22,14 +22,14 @@ package org.apache.geronimo.jetty7.security;
 
 import javax.security.auth.Subject;
 
-import org.apache.geronimo.jetty7.handler.JettySecurityHandler;
 import org.apache.geronimo.security.jacc.RunAsSource;
+import org.eclipse.jetty.security.SecurityHandler;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public interface SecurityHandlerFactory {
 
-    JettySecurityHandler buildSecurityHandler(String policyContextID, Subject defaultSubject, RunAsSource runAsSource);
+    SecurityHandler buildSecurityHandler(String policyContextID, Subject defaultSubject, RunAsSource runAsSource);
 
 }

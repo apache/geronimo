@@ -26,12 +26,13 @@ import java.util.Map;
 
 import javax.security.auth.Subject;
 
-import org.apache.geronimo.jetty7.handler.JettySecurityHandler;
+import org.apache.geronimo.jetty7.handler.JaccSecurityHandler;
 import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.jacc.RunAsSource;
 import org.eclipse.jetty.security.Authenticator;
 import org.eclipse.jetty.security.IdentityService;
 import org.eclipse.jetty.security.LoginService;
+import org.eclipse.jetty.security.SecurityHandler;
 import org.eclipse.jetty.security.authentication.DeferredAuthenticator;
 
 /**
@@ -55,13 +56,13 @@ public class ServerAuthenticationGBean implements SecurityHandlerFactory {
         this.loginService = loginService;
     }
 
-    public JettySecurityHandler buildSecurityHandler(String policyContextID, Subject defaultSubject, RunAsSource runAsSource) {
+    public SecurityHandler buildSecurityHandler(String policyContextID, Subject defaultSubject, RunAsSource runAsSource) {
         if (defaultSubject == null) {
             defaultSubject = ContextManager.EMPTY;
         }
         AccessControlContext defaultAcc = ContextManager.registerSubjectShort(defaultSubject, null, null);
         IdentityService identityService = new JettyIdentityService(defaultAcc, runAsSource);
-        return new JettySecurityHandler(policyContextID, authenticator, loginService, identityService, defaultAcc);
+        return new JaccSecurityHandler(policyContextID, authenticator, loginService, identityService, defaultAcc);
     }
 
 }

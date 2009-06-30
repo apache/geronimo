@@ -50,14 +50,14 @@ import org.eclipse.jetty.servlet.ServletHolder;
  */
 
 @GBean(j2eeType = NameFactory.SERVLET_WEB_SERVICE_TEMPLATE)
-public class JettyPOJOWebServiceHolder implements ServletNameSource, GBeanLifecycle {
+public class POJOWebServiceHolderWrapper implements ServletNameSource, GBeanLifecycle {
     private final ServletHolder servletHolder;
     private final WebServiceContainer webServiceContainer;
     private final Set<String> servletMappings;
     private final JettyServletRegistration context;
     private final String pojoClassName;
 
-    public JettyPOJOWebServiceHolder(@ParamAttribute(name = "pojoClassName") String pojoClassName,
+    public POJOWebServiceHolderWrapper(@ParamAttribute(name = "pojoClassName") String pojoClassName,
                                      @ParamAttribute(name = "servletName") String servletName,
                                      @ParamAttribute(name = "initParams") Map<String, String> initParams,
                                      @ParamAttribute(name = "loadOnStartup") Integer loadOnStartup,
@@ -66,7 +66,7 @@ public class JettyPOJOWebServiceHolder implements ServletNameSource, GBeanLifecy
                                      @ParamReference(name = "WebServiceContainerFactory") WebServiceContainerFactory webServiceContainerFactory,
                                      @ParamReference(name = "JettyServletRegistration", namingType = NameFactory.WEB_MODULE) JettyServletRegistration context) throws Exception {
         Subject runAsSubject = context == null ? null : context.getSubjectForRole(runAsRole);
-        servletHolder = new InternalJettyServletHolder(context == null ? null : context.getIntegrationContext(), runAsSubject, context);
+        servletHolder = new GeronimoServletHolder(context == null ? null : context.getIntegrationContext(), runAsSubject, context);
         //context will be null only for use as "default servlet info holder" in deployer.
 
         this.pojoClassName = pojoClassName;

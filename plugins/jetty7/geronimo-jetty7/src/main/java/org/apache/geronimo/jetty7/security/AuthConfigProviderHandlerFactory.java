@@ -34,7 +34,7 @@ import javax.security.auth.message.config.ServerAuthConfig;
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.gbean.annotation.ParamReference;
-import org.apache.geronimo.jetty7.handler.JettySecurityHandler;
+import org.apache.geronimo.jetty7.handler.JaccSecurityHandler;
 import org.apache.geronimo.jetty7.security.auth.JAASLoginService;
 import org.apache.geronimo.security.jacc.RunAsSource;
 import org.apache.geronimo.security.ContextManager;
@@ -42,6 +42,7 @@ import org.apache.geronimo.security.jaas.ConfigurationFactory;
 import org.eclipse.jetty.security.Authenticator;
 import org.eclipse.jetty.security.LoginService;
 import org.eclipse.jetty.security.IdentityService;
+import org.eclipse.jetty.security.SecurityHandler;
 import org.eclipse.jetty.security.jaspi.JaspiAuthenticator;
 import org.eclipse.jetty.security.jaspi.ServletCallbackHandler;
 
@@ -87,7 +88,7 @@ public class AuthConfigProviderHandlerFactory implements SecurityHandlerFactory 
 
     }
 
-    public JettySecurityHandler buildSecurityHandler(String policyContextID, Subject defaultSubject, RunAsSource runAsSource) {
+    public SecurityHandler buildSecurityHandler(String policyContextID, Subject defaultSubject, RunAsSource runAsSource) {
         if (defaultSubject == null) {
             defaultSubject = ContextManager.EMPTY;
         }
@@ -96,7 +97,7 @@ public class AuthConfigProviderHandlerFactory implements SecurityHandlerFactory 
         authConfigProperties.put(POLICY_CONTEXT_ID_KEY, policyContextID);
         Authenticator authenticator = new JaspiAuthenticator(serverAuthConfig, authConfigProperties, servletCallbackHandler, serviceSubject, allowLazyAuthentication, identityService);
         //login service functionality is already inside the servletCallbackHandler
-        return new JettySecurityHandler(policyContextID, authenticator, loginService, identityService, defaultAcc);
+        return new JaccSecurityHandler(policyContextID, authenticator, loginService, identityService, defaultAcc);
     }
 
 }
