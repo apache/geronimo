@@ -30,20 +30,22 @@ public final class ConfirmMessageTag extends TagSupport {
     private static final long serialVersionUID = 0L;
     private static final Logger log = LoggerFactory.getLogger(ConfirmMessageTag.class);
 
+    private static final String DOJO_BASE = "/dojo/dojo";
+
     @Override
     public int doStartTag() throws JspException {
         JspWriter out = pageContext.getOut();
         try {
             out.println("<style type=\"text/css\">");
-            out.println("@import \"/dojo/dijit/themes/soria/soria.css\";");
-            out.println("@import \"/dojo/dojo/resources/dojo.css\";");
+            out.println("@import \"" + DOJO_BASE + "/dijit/themes/soria/soria.css\";");
+            out.println("@import \"" + DOJO_BASE + "/dojo/resources/dojo.css\";");
             out.println(".soria .dijitDialog {background:#F7F7F7; border:3px solid #88A4D7; width:450px; padding:10px; font-family:Verdana,Helvetica,sans-serif;}");
             out.println(".soria .dijitDialog .dijitDialogPaneContent {background:#F7F7F7; border:0; padding:0;}");
             out.println(".soria .dijitDialogUnderlay {background:#000000; opacity:0.5;}");
             out.println(".soria .dijitDialogTitleBar {display:none;}");
             out.println(".soria .dijitButtonNode {background:#F7F7F7; border:2px solid #88A4D7; padding:0.2em; font-family:Verdana,Helvetica,sans-serif;}");
             out.println("</style>");
-            out.println(" <script type=\"text/javascript\" src=\"/dojo/dojo/dojo.js\" djConfig=\"parseOnLoad:true\"></script>");
+            out.println(" <script type=\"text/javascript\" src=\"" + DOJO_BASE + "/dojo/dojo.js\" djConfig=\"parseOnLoad:true\"></script>");
         } catch (IOException e) {
             log.error("Unable to display confirm messages");
         }
