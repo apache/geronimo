@@ -26,17 +26,4 @@
         Welcome to Geronimo
     </description>
 
-    <!-- XSS/XSRF filter -->
-    <filter>
-        <filter-name>XSSXSRFFilter</filter-name>
-        <filter-class>org.apache.geronimo.console.filter.XSSXSRFFilter</filter-class>
-    </filter>
-    <filter-mapping>
-        <filter-name>XSSXSRFFilter</filter-name>
-        <url-pattern>/*</url-pattern>
-    </filter-mapping>
-    <listener>
-        <listener-class>org.apache.geronimo.console.filter.XSSXSRFFilter</listener-class>
-    </listener>
-
 </web-app>
