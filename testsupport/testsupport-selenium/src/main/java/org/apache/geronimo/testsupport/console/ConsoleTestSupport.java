@@ -34,7 +34,9 @@ public abstract class ConsoleTestSupport
         waitForPageLoad();
         
         assertEquals("Apache Geronimo", selenium.getTitle());
-        
+
+        selenium.deleteAllVisibleCookies();
+
         selenium.click("link=Console");
         waitForPageLoad();
         
