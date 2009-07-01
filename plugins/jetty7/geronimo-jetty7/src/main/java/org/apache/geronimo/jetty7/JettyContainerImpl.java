@@ -230,9 +230,11 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLif
                               ClassLoader classLoader) throws Exception {
         SecurityHandler securityHandler = null;
         if (configurationFactory != null) {
-            JettySecurityHandlerFactory  factory = new JettySecurityHandlerFactory(BuiltInAuthMethod.valueOf(authMethod), null, null, realmName, configurationFactory);
+            BuiltInAuthMethod builtInAuthMethod = BuiltInAuthMethod.valueOf(authMethod);
+            JettySecurityHandlerFactory  factory = new JettySecurityHandlerFactory(builtInAuthMethod, null, null, realmName, configurationFactory);
             Permission permission = new WebUserDataPermission("/*", protectedMethods, transportGuarantee);
-            securityHandler = factory.buildEJBSecurityHandler(permission);
+            boolean authMandatory = builtInAuthMethod != BuiltInAuthMethod.NONE;
+            securityHandler = factory.buildEJBSecurityHandler(permission, authMandatory);
         }
         ServletHandler servletHandler = new EJBServletHandler(webServiceContainer);
         EJBWebServiceContext webServiceContext = new EJBWebServiceContext(contextPath, securityHandler, servletHandler, classLoader);

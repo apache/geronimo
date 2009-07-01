@@ -40,18 +40,20 @@ import org.eclipse.jetty.server.UserIdentity;
 public class EJBWebServiceSecurityHandler extends SecurityHandler {
 
     private final Permission permission;
+    private final boolean authMandatory;
 
     public EJBWebServiceSecurityHandler(
             Authenticator authenticator,
             final LoginService loginService,
             IdentityService identityService,
-            Permission permission) {
+            Permission permission, boolean authMandatory) {
         setAuthenticator(authenticator);
 
         loginService.setIdentityService(identityService);
         setLoginService(loginService);
         setIdentityService(identityService);
         this.permission = permission;
+        this.authMandatory = authMandatory;
     }
 
     protected Object prepareConstraintInfo(String pathInContext, Request request) {
@@ -63,8 +65,7 @@ public class EJBWebServiceSecurityHandler extends SecurityHandler {
     }
 
     protected boolean isAuthMandatory(Request baseRequest, Response base_response, Object constraintInfo) {
-        //TODO we were given a list of protected methods, but how to we figure out what the method is?
-        return true;
+        return authMandatory;
     }
 
     protected boolean checkWebResourcePermissions(String pathInContext, Request request, Response response, Object constraintInfo, UserIdentity userIdentity) throws IOException {

@@ -31,6 +31,7 @@ import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.jetty7.handler.JaccSecurityHandler;
 import org.apache.geronimo.jetty7.handler.EJBWebServiceSecurityHandler;
 import org.apache.geronimo.jetty7.security.auth.JAASLoginService;
+import org.apache.geronimo.jetty7.security.auth.NoneAuthenticator;
 import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.jaas.ConfigurationFactory;
 import org.apache.geronimo.security.jacc.RunAsSource;
@@ -85,12 +86,12 @@ public class JettySecurityHandlerFactory implements SecurityHandlerFactory {
         return new JaccSecurityHandler(policyContextID, authenticator, loginService, identityService, defaultAcc);
     }
 
-    public SecurityHandler buildEJBSecurityHandler(Permission permission) {
+    public SecurityHandler buildEJBSecurityHandler(Permission permission, boolean authMandatory) {
         final LoginService loginService = new JAASLoginService(configurationFactory, realmName);
         Authenticator authenticator = buildAuthenticator();
         AccessControlContext defaultAcc = ContextManager.registerSubjectShort(ContextManager.EMPTY, null, null);
         IdentityService identityService = new JettyIdentityService(defaultAcc, null);
-        return new EJBWebServiceSecurityHandler(authenticator, loginService, identityService, permission);
+        return new EJBWebServiceSecurityHandler(authenticator, loginService, identityService, permission, authMandatory);
     }
 
     private Authenticator buildAuthenticator() {
@@ -104,7 +105,7 @@ public class JettySecurityHandlerFactory implements SecurityHandlerFactory {
         } else if (authMethod == BuiltInAuthMethod.FORM) {
             authenticator = new SessionCachingAuthenticator(new FormAuthenticator(loginPage, errorPage));
         } else if (authMethod == BuiltInAuthMethod.NONE) {
-            return null;
+            authenticator = new NoneAuthenticator();
         } else {
             throw new IllegalStateException("someone added a new BuiltInAuthMethod without telling us");
         }
