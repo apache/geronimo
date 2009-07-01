@@ -77,6 +77,7 @@ public class Deployer implements GBeanLifecycle {
     private final Collection watchers;
     private final ArtifactResolver artifactResolver;
     private final Kernel kernel;
+    private static final URI PLAN_LOCATION = URI.create("META-INF/plan.xml");
 
     public Deployer(String remoteDeployAddress, Collection builders, Collection stores, Collection watchers, Kernel kernel) {
         this(remoteDeployAddress, builders, stores, watchers, getArtifactResolver(kernel), kernel);
@@ -254,7 +255,11 @@ public class Deployer implements GBeanLifecycle {
 
             // It's our responsibility to close this context, once we're done with it...
             DeploymentContext context = builder.buildConfiguration(inPlace, configID, plan, module, stores, artifactResolver, store);
-            
+            // Copy the external plan to the META-INF folder with the uniform name plan.xml if there is nothing there already
+            if (planFile != null && !context.getTargetFile(PLAN_LOCATION).exists()) {
+                context.addFile(PLAN_LOCATION, planFile);
+            }
+            // install the configuration
             return install(targetFile, install, manifest, store, context);
         } catch (Throwable e) {
             //TODO not clear all errors will result in total cleanup

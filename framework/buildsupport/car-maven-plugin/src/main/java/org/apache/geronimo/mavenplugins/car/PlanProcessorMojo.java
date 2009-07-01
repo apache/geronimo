@@ -67,7 +67,7 @@ public class PlanProcessorMojo
     /**
      * Directory to put the processed plan in.
      *
-     * @parameter expression="${project.build.directory}/resources/META-INF"
+     * @parameter expression="${project.build.directory}/work"
      * @required
      */
     protected File targetDir = null;
@@ -75,7 +75,7 @@ public class PlanProcessorMojo
     /**
      * XXX
      *
-     * @parameter expression="${project.build.directory}/resources/META-INF/plan.xml"
+     * @parameter expression="${project.build.directory}/work/plan.xml"
      * @required
      */
     protected File targetFile = null;
@@ -99,7 +99,7 @@ public class PlanProcessorMojo
     /**
      * we copy the plan here for filtering, then add env stuff.
      *
-     * @parameter expression="${project.build.directory}/fliteredplan/plan.xml"
+     * @parameter expression="${project.build.directory}/work/filteredplan.xml"
      * @required
      */
     protected File filteredPlanFile;

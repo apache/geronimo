@@ -116,7 +116,7 @@ public class PackageMojo extends AbstractCarMojo {
     /**
      * The plan file for the CAR.
      *
-     * @parameter expression="${project.build.directory}/resources/META-INF/plan.xml"
+     * @parameter expression="${project.build.directory}/work/plan.xml"
      * @required
      */
     private File planFile = null;

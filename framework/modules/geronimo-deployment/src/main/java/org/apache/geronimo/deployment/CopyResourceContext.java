@@ -144,6 +144,19 @@ class CopyResourceContext implements ResourceContext {
         addFile(getTargetFile(targetPath), new ByteArrayInputStream(source.getBytes()));
     }
 
+    public void addFile(URI targetPath, byte[] contents) throws IOException {
+        File file = getTargetFile(targetPath);
+        if (!file.getParentFile().mkdirs()) {
+            throw new IOException("Could not create parent directory for entry: " + targetPath + " at " + file.getParentFile());
+        }
+        FileOutputStream out = new FileOutputStream(file);
+        try {
+            out.write(contents);
+        } finally {
+            DeploymentUtil.close(out);
+        }
+    }
+
     public File getTargetFile(URI targetPath) {
         if (targetPath == null) throw new NullPointerException("targetPath is null");
         if (targetPath.isAbsolute()) throw new IllegalArgumentException("targetPath is absolute");
