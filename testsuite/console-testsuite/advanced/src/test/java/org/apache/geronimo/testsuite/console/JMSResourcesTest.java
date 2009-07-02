@@ -56,7 +56,7 @@ public class JMSResourcesTest extends TestSupport {
         selenium.click("link=J2EE Connectors");
         waitForPageLoad();
         selenium.click("link=Uninstall"); 
-        Thread.sleep(30 * 1000);
+        Thread.sleep(45 * 1000);
         selenium.click("dijit_form_Button_0");
         waitForPageLoad();
         selenium.click("link=JMS Resources");
