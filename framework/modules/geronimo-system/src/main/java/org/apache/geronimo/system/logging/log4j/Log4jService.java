@@ -575,6 +575,11 @@ public class Log4jService implements GBeanLifecycle, SystemLog {
             timer.cancel();
             timer = null;
         }
+
+        log.info("Stopping Logging Service");
+        log.info("----------------------------------------------");
+
+        LogManager.shutdown();
     }
 
     public void doFail() {
