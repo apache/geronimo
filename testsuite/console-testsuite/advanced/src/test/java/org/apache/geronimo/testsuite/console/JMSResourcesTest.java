@@ -56,11 +56,22 @@ public class JMSResourcesTest extends TestSupport {
         selenium.click("link=J2EE Connectors");
         waitForPageLoad();
         selenium.click("link=Uninstall"); 
-        Thread.sleep(45 * 1000);
+        assertTrue("timed out waiting for button", waitForButton());
         selenium.click("dijit_form_Button_0");
         waitForPageLoad();
         selenium.click("link=JMS Resources");
         waitForPageLoad();
         assertFalse(selenium.isTextPresent("UniqueName (console.jms/UniqueName/1.0/rar)"));
     }
+
+    private boolean waitForButton() throws InterruptedException {
+        for (int i = 0; i < 10; i++) {
+            if (selenium.isElementPresent("dijit_form_Button_0")) {
+                return true;
+            }
+            Thread.sleep(10 * 1000);
+        }
+        return false;
+    }
+
 }
