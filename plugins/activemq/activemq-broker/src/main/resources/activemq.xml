@@ -37,7 +37,7 @@
          </property>
     </bean>
 
-    <broker xmlns="http://activemq.apache.org/schema/core" brokerName="${activemq.brokerName}" tmpDataDirectory="${activemq.data}/tmp_storage" useShutdownHook="false">
+    <broker xmlns="http://activemq.apache.org/schema/core" brokerName="${activemq.brokerName}" tmpDataDirectory="${activemq.data}/tmp_storage">
 
         <!--
             Configure per-destination policies on the broker. The policies
