@@ -73,7 +73,7 @@
         FIXME: STOP using properties for dependency versions unless you absolutly need them,
                ie. you have a hundred dependencies that all use the same version.
         -->
-        <tomcatVersion>6.0.18-SNAPSHOT</tomcatVersion>
+        <tomcatVersion>6.0.20-SNAPSHOT</tomcatVersion>
         <tomcatGroupId>org.apache.geronimo.ext.tomcat</tomcatGroupId>
 
         <openejbVersion>3.1.2-SNAPSHOT</openejbVersion>
