@@ -65,7 +65,7 @@ public class JMSResourcesTest extends TestSupport {
     }
 
     private boolean waitForButton() throws InterruptedException {
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 12; i++) {
             if (selenium.isElementPresent("dijit_form_Button_0")) {
                 return true;
             }
