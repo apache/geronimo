@@ -29,6 +29,7 @@ import org.apache.geronimo.security.jaas.ConfigurationFactory;
 import org.apache.openejb.server.axis.EjbContainerProvider;
 
 import java.net.URI;
+import java.util.Properties;
 
 public class EjbWebServiceGBean implements GBeanLifecycle {
 
@@ -50,7 +51,8 @@ public class EjbWebServiceGBean implements GBeanLifecycle {
                               String transportGuarantee,
                               String authMethod,
                               String[] protectedMethods, 
-                              String[] virtualHosts) throws Exception {
+                              String[] virtualHosts,
+                              Properties properties) throws Exception {
 
         this.soapHandler = soapHandler;
         this.location = location;
@@ -75,7 +77,16 @@ public class EjbWebServiceGBean implements GBeanLifecycle {
         
         AxisWebServiceContainer axisContainer = new AxisWebServiceContainer(location, wsdlURI, service, serviceInfo.getWsdlMap(), classLoader);
         if (soapHandler != null) {
-            soapHandler.addWebService(location.getPath(), virtualHosts, axisContainer, configurationFactory, realmName, transportGuarantee, authMethod, protectedMethods, classLoader);
+            soapHandler.addWebService(location.getPath(), 
+                                      virtualHosts, 
+                                      axisContainer, 
+                                      configurationFactory, 
+                                      realmName, 
+                                      transportGuarantee, 
+                                      authMethod, 
+                                      protectedMethods, 
+                                      properties,
+                                      classLoader);
         }
     }
 
@@ -111,6 +122,7 @@ public class EjbWebServiceGBean implements GBeanLifecycle {
         infoFactory.addAttribute("protectedMethods", String[].class, true);
         infoFactory.addAttribute("virtualHosts", String[].class, true);
         infoFactory.addReference("WebServiceContainer", SoapHandler.class);
+        infoFactory.addAttribute("properties", Properties.class, true);
 
         infoFactory.setConstructor(new String[]{
                 "EjbDeployment",
@@ -123,7 +135,8 @@ public class EjbWebServiceGBean implements GBeanLifecycle {
                 "transportGuarantee",
                 "authMethod",
                 "protectedMethods",
-                "virtualHosts"
+                "virtualHosts",
+                "properties"
         });
 
         GBEAN_INFO = infoFactory.getBeanInfo();

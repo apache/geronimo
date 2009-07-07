@@ -20,6 +20,7 @@ package org.apache.geronimo.jetty6;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 import javax.management.j2ee.statistics.Stats;
 
@@ -209,7 +210,16 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLif
         contextHandlerCollection.removeHandler(context);
     }
 
-    public void addWebService(String contextPath, String[] virtualHosts, WebServiceContainer webServiceContainer, ConfigurationFactory configurationFactory, String realmName, String transportGuarantee, String authMethod, String[] protectedMethods, ClassLoader classLoader) throws Exception {
+    public void addWebService(String contextPath, 
+                              String[] virtualHosts, 
+                              WebServiceContainer webServiceContainer, 
+                              ConfigurationFactory configurationFactory, 
+                              String realmName, 
+                              String transportGuarantee, 
+                              String authMethod, 
+                              String[] protectedMethods, 
+                              Properties properties,
+                              ClassLoader classLoader) throws Exception {
         InternalJAASJettyRealm internalJAASJettyRealm = configurationFactory == null ? null : new InternalJAASJettyRealm(configurationFactory);
         JettyEJBWebServiceContext webServiceContext = new JettyEJBWebServiceContext(contextPath, webServiceContainer, internalJAASJettyRealm, realmName, transportGuarantee, authMethod, protectedMethods, classLoader);
         webServiceContext.setVirtualHosts(virtualHosts);

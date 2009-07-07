@@ -20,6 +20,7 @@ package org.apache.geronimo.jetty7;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 import java.security.Permission;
 
 import javax.management.j2ee.statistics.Stats;
@@ -227,6 +228,7 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLif
                               String transportGuarantee,
                               String authMethod,
                               String[] protectedMethods, //allowed methods?
+                              Properties properties, 
                               ClassLoader classLoader) throws Exception {
         SecurityHandler securityHandler = null;
         if (configurationFactory != null) {

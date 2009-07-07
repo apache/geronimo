@@ -21,6 +21,7 @@ import java.net.URL;
 import java.net.URLStreamHandlerFactory;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 import javax.management.ObjectName;
 import javax.management.MalformedObjectNameException;
@@ -373,7 +374,16 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
         embedded.removeConnector(connector);
     }
 
-    public void addWebService(String contextPath, String[] virtualHosts, WebServiceContainer webServiceContainer, ConfigurationFactory configurationFactory, String realmName, String transportGuarantee, String authMethod, String[] protectedMethods, ClassLoader classLoader) throws Exception {
+    public void addWebService(String contextPath, 
+                              String[] virtualHosts, 
+                              WebServiceContainer webServiceContainer, 
+                              ConfigurationFactory configurationFactory, 
+                              String realmName, 
+                              String transportGuarantee,
+                              String authMethod, 
+                              String[] protectedMethods, 
+                              Properties properties,
+                              ClassLoader classLoader) throws Exception {
         Context webServiceContext = createEJBWebServiceContext(contextPath, webServiceContainer, configurationFactory, realmName, transportGuarantee, authMethod, protectedMethods, classLoader);
 
         String virtualServer;

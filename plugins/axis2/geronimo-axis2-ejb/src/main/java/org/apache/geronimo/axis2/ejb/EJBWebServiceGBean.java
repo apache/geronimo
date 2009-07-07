@@ -19,6 +19,7 @@ package org.apache.geronimo.axis2.ejb;
 
 import java.net.URL;
 import java.util.Collection;
+import java.util.Properties;
 
 import javax.naming.Context;
 
@@ -52,7 +53,8 @@ public class EJBWebServiceGBean implements GBeanLifecycle {
                               String transportGuarantee,
                               String authMethod,
                               String[] protectedMethods, 
-                              String[] virtualHosts) throws Exception {        
+                              String[] virtualHosts,
+                              Properties properties) throws Exception {        
         if (ejbDeploymentContext == null || webContainers == null || webContainers.isEmpty() || portInfo == null) {
             return;
         }
@@ -80,6 +82,7 @@ public class EJBWebServiceGBean implements GBeanLifecycle {
                                   transportGuarantee, 
                                   authMethod, 
                                   protectedMethods, 
+                                  properties,
                                   classLoader);        
     }
 
@@ -114,6 +117,7 @@ public class EJBWebServiceGBean implements GBeanLifecycle {
         infoFactory.addAttribute("protectedMethods", String[].class, true);
         infoFactory.addAttribute("virtualHosts", String[].class, true);
         infoFactory.addReference("WebServiceContainer", SoapHandler.class);
+        infoFactory.addAttribute("properties", Properties.class, true);
         
         infoFactory.setConstructor(new String[]{
                 "EjbDeployment",
@@ -126,7 +130,8 @@ public class EJBWebServiceGBean implements GBeanLifecycle {
                 "transportGuarantee",
                 "authMethod",
                 "protectedMethods",
-                "virtualHosts"
+                "virtualHosts",
+                "properties"
         });
 
         
