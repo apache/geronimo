@@ -30,7 +30,7 @@ public final class ConfirmMessageTag extends TagSupport {
     private static final long serialVersionUID = 0L;
     private static final Logger log = LoggerFactory.getLogger(ConfirmMessageTag.class);
 
-    private static final String DOJO_BASE = "/dojo/dojo";
+    private static final String DOJO_BASE = "/dojo";
 
     @Override
     public int doStartTag() throws JspException {
