@@ -51,10 +51,10 @@ function <portlet:namespace/>validateForm(){
 <!-- Current Task -->
 <c:choose>
   <c:when test="${mode eq 'add'}">
-    <tr><th colspan="2" align="left">Add new ${protocol} connector for ${brokerName}</th></tr>
+    <tr><th colspan="2" align="left"><fmt:message key="jmsmanager.server.connector.editGeneric.addJMSConnector"><fmt:param value="${protocol}"/><fmt:param value="${brokerName}"/></fmt:message></th></tr>
   </c:when>
   <c:otherwise>
-    <tr><th colspan="2" align="left">Edit ${protocol} connector ${connectorName} for ${brokerName}.</th></tr>
+    <tr><th colspan="2" align="left"><fmt:message key="jmsmanager.server.connector.editGeneric.editJMSConnector"><fmt:param value="${protocol}"/><fmt:param value="${connectorName}"/><fmt:param value="${brokerName}"/></fmt:message></th></tr>
   </c:otherwise>
 </c:choose>
 
