@@ -105,7 +105,7 @@
         <groupId>org.apache.openejb</groupId>
         <artifactId>openejb-server</artifactId>
         <type>jar</type>
-    </dependency>    
+    </dependency>
     <dependency>
         <groupId>org.apache.openjpa</groupId>
         <artifactId>openjpa</artifactId>
@@ -113,12 +113,12 @@
     </dependency>
     <dependency>
         <groupId>org.apache.xbean</groupId>
-        <artifactId>xbean-naming</artifactId>
+        <artifactId>xbean-asm-shaded</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
         <groupId>org.apache.xbean</groupId>
-        <artifactId>xbean-asm-shaded</artifactId>
+        <artifactId>xbean-naming</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
