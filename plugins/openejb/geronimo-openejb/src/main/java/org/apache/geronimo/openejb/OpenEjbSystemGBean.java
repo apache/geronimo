@@ -32,16 +32,18 @@ import javax.naming.Context;
 import javax.resource.spi.ResourceAdapter;
 import javax.transaction.TransactionManager;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.geronimo.connector.ResourceAdapterWrapper;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.ReferenceCollection;
 import org.apache.geronimo.gbean.ReferenceCollectionEvent;
 import org.apache.geronimo.gbean.ReferenceCollectionListener;
+import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.ParamAttribute;
+import org.apache.geronimo.gbean.annotation.ParamReference;
+import org.apache.geronimo.gbean.annotation.ParamSpecial;
+import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.persistence.PersistenceUnitGBean;
@@ -66,17 +68,21 @@ import org.apache.openejb.config.ConfigurationFactory;
 import org.apache.openejb.config.EjbModule;
 import org.apache.openejb.core.ServerFederation;
 import org.apache.openejb.loader.SystemInstance;
-import org.apache.openejb.resource.XAResourceWrapper;
 import org.apache.openejb.resource.GeronimoTransactionManagerFactory.GeronimoXAResourceWrapper;
+import org.apache.openejb.resource.XAResourceWrapper;
 import org.apache.openejb.spi.ApplicationServer;
 import org.apache.openejb.spi.ContainerSystem;
 import org.apache.openejb.spi.SecurityService;
 import org.apache.openejb.util.proxy.Jdk13ProxyFactory;
 import org.omg.CORBA.ORB;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @version $Rev$ $Date$
  */
+
+@GBean
 public class OpenEjbSystemGBean implements OpenEjbSystem {
     private static final Logger log = LoggerFactory.getLogger(OpenEjbSystemGBean.class);
     private final ConfigurationFactory configurationFactory;
@@ -91,9 +97,19 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
     private Properties properties; 
     
     public OpenEjbSystemGBean(TransactionManager transactionManager) throws Exception {
-        this(transactionManager, null, null, null, OpenEjbSystemGBean.class.getClassLoader(), new Properties());
+        this(transactionManager, null, null, new DeepBindableContext("java:openejb", false, true, true, false), null, OpenEjbSystemGBean.class.getClassLoader(), new Properties());
     }
-    public OpenEjbSystemGBean(TransactionManager transactionManager, Collection<ResourceAdapterWrapper> resourceAdapters, Collection<PersistenceUnitGBean> persistenceUnitGBeans, Kernel kernel, ClassLoader classLoader, Properties properties) throws Exception {
+
+    public OpenEjbSystemGBean(@ParamReference(name = "TransactionManager", namingType = NameFactory.JTA_RESOURCE) TransactionManager transactionManager,
+                              @ParamReference(name = "ResourceAdapterWrappers") Collection<ResourceAdapterWrapper> resourceAdapters,
+                              @ParamReference(name = "PersistenceUnitGBeans") Collection<PersistenceUnitGBean> persistenceUnitGBeans,
+                              @ParamReference(name = "OpenEjbContext")DeepBindableContext openejbContext,
+                              @ParamSpecial(type = SpecialAttributeType.kernel) Kernel kernel,
+                              @ParamSpecial(type = SpecialAttributeType.classLoader) ClassLoader classLoader,
+                              @ParamAttribute(name = "properties") Properties properties) throws Exception {
+        if (transactionManager == null) {
+            throw new NullPointerException("transactionManager is null");
+        }
         this.kernel = kernel;
         this.classLoader = classLoader;
         this.properties = properties;
@@ -107,14 +123,10 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
         setDefaultProperty("openejb.jndiname.format", "{ejbName}{interfaceType.annotationName}");
         setDefaultProperty("openejb.jndiname.failoncollision", "false");
 
-        System.setProperty("openejb.naming", "xbean");
-        if (transactionManager == null) {
-            throw new NullPointerException("transactionManager is null");
-        }
-
+//        System.setProperty("openejb.naming", "xbean");
         boolean offline = true;
         configurationFactory = new ConfigurationFactory(offline);
-        assembler = new Assembler();
+        assembler = new Assembler(openejbContext.newJndiFactory());
 
         // install application server
         ApplicationServer applicationServer = new ServerFederation();
@@ -429,28 +441,4 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
         }
     }
 
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(OpenEjbSystemGBean.class);
-        infoBuilder.addReference("TransactionManager", TransactionManager.class);
-        infoBuilder.addReference("ResourceAdapterWrappers", ResourceAdapterWrapper.class);
-        infoBuilder.addReference("PersistenceUnitGBeans", PersistenceUnitGBean.class);
-        infoBuilder.addAttribute("kernel", Kernel.class, false);
-        infoBuilder.addAttribute("classLoader", ClassLoader.class, false);
-        infoBuilder.addAttribute("properties", Properties.class, true, true);
-        infoBuilder.setConstructor(new String[] {
-                "TransactionManager",
-                "ResourceAdapterWrappers",
-                "PersistenceUnitGBeans",
-                "kernel",
-                "classLoader",
-                "properties"
-        });
-        GBEAN_INFO = infoBuilder.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
 }
