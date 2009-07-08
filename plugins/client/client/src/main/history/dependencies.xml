@@ -7,21 +7,6 @@
         <type>car</type>
     </module-id>
     <dependency>
-        <groupId>commons-collections</groupId>
-        <artifactId>commons-collections</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>commons-lang</groupId>
-        <artifactId>commons-lang</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>net.sourceforge.serp</groupId>
-        <artifactId>serp</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
         <groupId>org.apache.geronimo.framework</groupId>
         <artifactId>client-system</artifactId>
         <type>car</type>
