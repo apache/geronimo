@@ -252,7 +252,7 @@ public class MonitoringPortlet extends BasePortlet {
         }
     }
 
-    private void alterServerState(String server_id, boolean b, PortletRequest request) {
+    private void alterServerState(String server_id, boolean enable, PortletRequest request) {
         Connection conn = (new DBManager()).getConnection();
         String name = "";
         try {
@@ -267,28 +267,29 @@ public class MonitoringPortlet extends BasePortlet {
             conn.close();
             conn = (new DBManager()).getConnection();
             Statement stmt = conn.createStatement();
-            if (b) {
-                stmt
-                        .executeUpdate("UPDATE SERVERS SET ENABLED = 0 WHERE SERVER_ID="
-                                + server_id);
-                stmt
-                        .executeUpdate("UPDATE GRAPHS SET ENABLED = 0 WHERE SERVER_ID="
-                                + server_id);
-                addInfoMessage(request, MessageFormat.format(getLocalizedString(request, "infoMsg02"), name));
-            } else {
+            if (enable) {
                 stmt
                         .executeUpdate("UPDATE SERVERS SET ENABLED = 1 WHERE SERVER_ID="
                                 + server_id);
                 stmt
                         .executeUpdate("UPDATE GRAPHS SET ENABLED = 1 WHERE SERVER_ID="
                                 + server_id);
+                addInfoMessage(request, MessageFormat.format(getLocalizedString(request, "infoMsg02"), name));
+            } else {
+                stmt
+                        .executeUpdate("UPDATE SERVERS SET ENABLED = 0 WHERE SERVER_ID="
+                                + server_id);
+                stmt
+                        .executeUpdate("UPDATE GRAPHS SET ENABLED = 0 WHERE SERVER_ID="
+                                + server_id);
                 addInfoMessage(request, MessageFormat.format(getLocalizedString(request, "infoMsg03"), name));
             }
         } catch (SQLException e) {
-            if (b)
+            if (enable) {
                 addErrorMessage(request, MessageFormat.format(getLocalizedString(request, "errorMsg02"), server_id), e.getMessage());
-            else
+            } else {
                 addErrorMessage(request, MessageFormat.format(getLocalizedString(request, "errorMsg03"), server_id), e.getMessage());
+            }
         } finally {
             if (conn != null) {
                 try {
