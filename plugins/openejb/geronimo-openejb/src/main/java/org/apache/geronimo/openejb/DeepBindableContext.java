@@ -20,9 +20,12 @@
 
 package org.apache.geronimo.openejb;
 
-import java.util.Collections;
-import java.util.Hashtable;
-import java.util.Map;
+import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.ParamAttribute;
+import org.apache.openejb.SystemException;
+import org.apache.openejb.core.JndiFactory;
+import org.apache.xbean.naming.context.ContextAccess;
+import org.apache.xbean.naming.context.WritableContext;
 
 import javax.naming.Binding;
 import javax.naming.CompositeName;
@@ -33,13 +36,9 @@ import javax.naming.NameClassPair;
 import javax.naming.NameParser;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-
-import org.apache.geronimo.gbean.annotation.GBean;
-import org.apache.geronimo.gbean.annotation.ParamAttribute;
-import org.apache.openejb.SystemException;
-import org.apache.openejb.core.JndiFactory;
-import org.apache.xbean.naming.context.ContextAccess;
-import org.apache.xbean.naming.context.WritableContext;
+import java.util.Collections;
+import java.util.Hashtable;
+import java.util.Map;
 
 /**
  * @version $Rev$ $Date$
@@ -47,22 +46,22 @@ import org.apache.xbean.naming.context.WritableContext;
 @GBean
 public class DeepBindableContext extends WritableContext {
 
-    public DeepBindableContext(@ParamAttribute(name="nameInNamespace") String nameInNamespace,
-                               @ParamAttribute(name="cacheReferences") boolean cacheReferences,
-                               @ParamAttribute(name="supportReferenceable") boolean supportReferenceable,
-                               @ParamAttribute(name="checkDereferenceDifferent") boolean checkDereferenceDifferent,
-                               @ParamAttribute(name="assumeDereferenceBound") boolean assumeDereferenceBound) throws NamingException {
-         super(nameInNamespace, Collections.<String, Object>emptyMap(), ContextAccess.MODIFIABLE, cacheReferences, supportReferenceable, checkDereferenceDifferent, assumeDereferenceBound);
-     }
+    public DeepBindableContext(@ParamAttribute(name = "nameInNamespace") String nameInNamespace,
+                               @ParamAttribute(name = "cacheReferences") boolean cacheReferences,
+                               @ParamAttribute(name = "supportReferenceable") boolean supportReferenceable,
+                               @ParamAttribute(name = "checkDereferenceDifferent") boolean checkDereferenceDifferent,
+                               @ParamAttribute(name = "assumeDereferenceBound") boolean assumeDereferenceBound) throws NamingException {
+        super(nameInNamespace, Collections.<String, Object>emptyMap(), ContextAccess.MODIFIABLE, cacheReferences, supportReferenceable, checkDereferenceDifferent, assumeDereferenceBound);
+    }
 
-     void addDeepBinding(String name, Object value) throws NamingException {
-         addDeepBinding(new CompositeName(name), value, false, true);
-     }
+    void addDeepBinding(String name, Object value) throws NamingException {
+        addDeepBinding(new CompositeName(name), value, false, true);
+    }
 
     public JndiFactory newJndiFactory() throws NamingException {
         return new XBeanJndiFactory();
     }
-    
+
     class XBeanJndiFactory implements JndiFactory {
         private final Context rootContext;
 
@@ -92,9 +91,6 @@ public class DeepBindableContext extends WritableContext {
         public Context createRootContext() {
             return rootContext;
         }
-
-
-
     }
 
     class ContextWrapper implements Context {
