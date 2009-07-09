@@ -86,14 +86,14 @@
                             <copy-file relative-to="geronimo" dest-dir="farming">master-repository</copy-file>
                             <config-xml-content load="false">
                                 <gbean name="NodeInfo">
-                                    <attribute name="name">#{clusterNodeName}</attribute>
+                                    <attribute name="name">#{ClusterNodeName}</attribute>
                                 </gbean>
                                 <gbean name="ClusterInfo">
-                                    <attribute name="name">#{clusterName}</attribute>
+                                    <attribute name="name">#{FarmName}</attribute>
                                 </gbean>
                             </config-xml-content>
-                            <config-substitution key="clusterNodeName">NODE</config-substitution>
-                            <config-substitution key="clusterName">CLUSTER_NAME</config-substitution>
+                            <config-substitution key="ClusterNodeName">NODE</config-substitution>
+                            <config-substitution key="FarmName">DEFAULT_FARM</config-substitution>
                         </plugin-artifact>
                     </instance>
                 </configuration>
