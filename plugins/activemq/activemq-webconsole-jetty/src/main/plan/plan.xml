@@ -23,7 +23,7 @@
 
     <gbean name="amq-console-properties" class="org.apache.geronimo.system.properties.SystemProperties">
         <attribute name="systemProperties">
-            webconsole.type=inVM
+            webconsole.type=invm
         </attribute>
     </gbean>
 </web-app>

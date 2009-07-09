@@ -19,11 +19,11 @@
 <!-- $Rev: 630365 $ $Date: 2008-02-22 19:34:01 -0500 (Fri, 22 Feb 2008) $ -->
 
 <web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web-2.0.1">
-    <context-root>/ /Users/david/geronimo/svn/geronimo/server/trunk/plugins/activemq/activemq-webconsole-tomcat/src/main/history/dependencies.xml-console</context-root>
+    <context-root>/activemq-console</context-root>
 
     <gbean name="amq-console-properties" class="org.apache.geronimo.system.properties.SystemProperties">
         <attribute name="systemProperties">
-            webconsole.type=inVM
+            webconsole.type=invm
         </attribute>
     </gbean>
 </web-app>
