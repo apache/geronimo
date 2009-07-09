@@ -90,10 +90,10 @@
                             <copy-file relative-to="geronimo" dest-dir="">master-repository</copy-file>
                             <config-xml-content load="false">
                                 <gbean name="NodeInfo">
-                                    <attribute name="name">#{clusterNodeName}</attribute>
+                                    <attribute name="name">#{ClusterNodeName}</attribute>
                                 </gbean>
                                 <gbean name="ClusterInfo">
-                                    <attribute name="name">#{clusterName}</attribute>
+                                    <attribute name="name">#{FarmName}</attribute>
                                     <attribute propertyEditor="org.apache.geronimo.farm.config.BasicExtendedJMXConnectorInfoEditor" name="extendedJMXConnectorInfo">
                                         <ns:javabean class="org.apache.geronimo.farm.config.BasicExtendedJMXConnectorInfo" xmlns:ns="http://geronimo.apache.org/xml/ns/deployment/javabean-1.0">
                                             <ns:property name="username">system</ns:property>
@@ -107,8 +107,8 @@
                                     </attribute>
                                 </gbean>
                             </config-xml-content>
-                            <config-substitution key="clusterNodeName">NODE</config-substitution>
-                            <config-substitution key="clusterName">CLUSTER_NAME</config-substitution>
+                            <config-substitution key="ClusterNodeName">NODE</config-substitution>
+                            <config-substitution key="FarmName">DEFAULT_FRAM</config-substitution>
                         </plugin-artifact>
                     </instance>
                 </configuration>

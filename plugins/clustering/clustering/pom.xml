@@ -88,10 +88,10 @@
                         <plugin-artifact>
                             <config-xml-content>
                                 <gbean name="Node">
-                                    <attribute name="nodeName">#{clusterNodeName}</attribute>
+                                    <attribute name="nodeName">#{ClusterNodeName}</attribute>
                                 </gbean>
                             </config-xml-content>
-                            <config-substitution key="clusterNodeName">NODE</config-substitution>
+                            <config-substitution key="ClusterNodeName">NODE</config-substitution>
                         </plugin-artifact>
                     </instance>
                 </configuration>

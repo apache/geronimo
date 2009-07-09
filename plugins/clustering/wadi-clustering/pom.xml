@@ -106,12 +106,12 @@
                                 </gbean>
                                 <gbean name="DefaultDispatcherHolder">
                                     <attribute name="endPointURI">#{EndPointURI}</attribute>
-                                    <attribute name="clusterName">#{ClusterName}</attribute>
+                                    <attribute name="clusterName">#{WADIClusterName}</attribute>
                                 </gbean>
                             </config-xml-content>
                             <config-substitution key="ReplicaCount">2</config-substitution>
                             <config-substitution key="EndPointURI">http://localhost:8080</config-substitution>
-                            <config-substitution key="ClusterName">DEFAULT_CLUSTER</config-substitution>
+                            <config-substitution key="WADIClusterName">DEFAULT_WADI_CLUSTER</config-substitution>
                         </plugin-artifact>
                     </instance>
                 </configuration>
