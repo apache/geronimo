@@ -24,5 +24,26 @@ package org.apache.geronimo.jetty7.security;
  * @version $Rev$ $Date$
  */
 public enum BuiltInAuthMethod {
-    NONE, BASIC, DIGEST, FORM, CLIENTCERT
+
+    NONE("NONE"), BASIC("BASIC"), DIGEST("DIGEST"), FORM("FORM"), CLIENTCERT("CLIENT-CERT");
+
+    private String value;
+
+    private BuiltInAuthMethod(String value) {
+        this.value = value;
+    }
+
+    public String toString() {
+        return value;
+    }
+
+    public static BuiltInAuthMethod getValueOf(String name) {
+        for (BuiltInAuthMethod method : BuiltInAuthMethod.values()) {
+            if (method.toString().equals(name)) {
+                return method;
+            }
+        }
+        throw new IllegalArgumentException("No enum for " + name);
+    }
+
 }

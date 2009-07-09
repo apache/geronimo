@@ -232,7 +232,7 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLif
                               ClassLoader classLoader) throws Exception {
         SecurityHandler securityHandler = null;
         if (configurationFactory != null) {
-            BuiltInAuthMethod builtInAuthMethod = BuiltInAuthMethod.valueOf(authMethod);
+            BuiltInAuthMethod builtInAuthMethod = BuiltInAuthMethod.getValueOf(authMethod);
             JettySecurityHandlerFactory  factory = new JettySecurityHandlerFactory(builtInAuthMethod, null, null, realmName, configurationFactory);
             Permission permission = new WebUserDataPermission("/*", protectedMethods, transportGuarantee);
             boolean authMandatory = builtInAuthMethod != BuiltInAuthMethod.NONE;
