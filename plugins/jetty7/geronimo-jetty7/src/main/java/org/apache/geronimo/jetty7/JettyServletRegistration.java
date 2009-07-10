@@ -42,7 +42,5 @@ public interface JettyServletRegistration {
 
     void destroyInstance(Object o) throws Exception;
 
-    Subject getSubjectForRole(String role) throws LoginException;
-
     IntegrationContext getIntegrationContext();
 }

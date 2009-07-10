@@ -19,8 +19,6 @@ package org.apache.geronimo.jetty7;
 import java.util.Map;
 import java.util.Set;
 
-import javax.security.auth.Subject;
-
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
@@ -67,10 +65,10 @@ public class ServletHolderWrapper implements ServletNameSource, Servlet, GBeanLi
                               @ParamAttribute(name = "runAsRole") String runAsRole,
                               @ParamReference(name = "JettyServletRegistration", namingType = NameFactory.WEB_MODULE) JettyServletRegistration context) throws Exception {
         servletRegistration = context;
-        Subject runAsSubject = context == null ? null : context.getSubjectForRole(runAsRole);
-        servletHolder = new GeronimoServletHolder(context == null ? null : context.getIntegrationContext(), runAsSubject, servletRegistration);
+        servletHolder = new GeronimoServletHolder(context == null ? null : context.getIntegrationContext(), servletRegistration);
         servletHolder.setName(servletName);
         servletHolder.setClassName(servletClassName);
+        servletHolder.setRunAsRole(runAsRole);
         //context will be null only for use as "default servlet info holder" in deployer.
 
         if (context != null) {

@@ -65,8 +65,7 @@ public class POJOWebServiceHolderWrapper implements ServletNameSource, GBeanLife
                                      @ParamAttribute(name = "runAsRole") String runAsRole,
                                      @ParamReference(name = "WebServiceContainerFactory") WebServiceContainerFactory webServiceContainerFactory,
                                      @ParamReference(name = "JettyServletRegistration", namingType = NameFactory.WEB_MODULE) JettyServletRegistration context) throws Exception {
-        Subject runAsSubject = context == null ? null : context.getSubjectForRole(runAsRole);
-        servletHolder = new GeronimoServletHolder(context == null ? null : context.getIntegrationContext(), runAsSubject, context);
+        servletHolder = new GeronimoServletHolder(context == null ? null : context.getIntegrationContext(), context);
         //context will be null only for use as "default servlet info holder" in deployer.
 
         this.pojoClassName = pojoClassName;
@@ -76,6 +75,7 @@ public class POJOWebServiceHolderWrapper implements ServletNameSource, GBeanLife
         if (context != null) {
             servletHolder.setName(servletName);
             servletHolder.setClassName(POJOWebServiceServlet.class.getName());
+            servletHolder.setRunAsRole(runAsRole);
             servletHolder.setInitParameters(initParams);
             if (loadOnStartup != null) {
                 servletHolder.setInitOrder(loadOnStartup);

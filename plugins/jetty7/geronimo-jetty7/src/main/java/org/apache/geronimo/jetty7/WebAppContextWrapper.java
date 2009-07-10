@@ -93,7 +93,6 @@ public class WebAppContextWrapper implements GBeanLifecycle, JettyServletRegistr
     private final GeronimoWebAppContext webAppContext;
     private final Context componentContext;
     private final Holder holder;
-    private final RunAsSource runAsSource;
 
     private final Set<String> servletNames = new HashSet<String>();
 
@@ -156,7 +155,7 @@ public class WebAppContextWrapper implements GBeanLifecycle, JettyServletRegistr
 
         this.holder = holder == null ? Holder.EMPTY : holder;
 
-        this.runAsSource = runAsSource == null? RunAsSource.NULL: runAsSource;
+        RunAsSource runAsSource1 = runAsSource == null ? RunAsSource.NULL : runAsSource;
 
         SessionHandler sessionHandler;
         if (null != handlerFactory) {
@@ -174,7 +173,7 @@ public class WebAppContextWrapper implements GBeanLifecycle, JettyServletRegistr
             //wrap jetty realm with something that knows the dumb realmName
 //            JAASJettyRealm realm = new JAASJettyRealm(realmName, internalJAASJettyRealm);
         if (securityHandlerFactory != null) {
-            Subject defaultSubject =  this.runAsSource.getDefaultSubject();
+            Subject defaultSubject =  runAsSource1.getDefaultSubject();
             securityHandler = securityHandlerFactory.buildSecurityHandler(policyContextID, defaultSubject, runAsSource, true);
         } else {
             //TODO may need to turn off security with Context._options.
@@ -295,10 +294,6 @@ public class WebAppContextWrapper implements GBeanLifecycle, JettyServletRegistr
 
     public ClassLoader getWebClassLoader() {
         return webClassLoader;
-    }
-
-    public Subject getSubjectForRole(String role) throws LoginException {
-        return runAsSource.getSubjectForRole(role);
     }
 
     public IntegrationContext getIntegrationContext() {

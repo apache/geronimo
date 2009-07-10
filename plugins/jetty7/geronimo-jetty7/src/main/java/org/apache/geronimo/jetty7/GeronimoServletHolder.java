@@ -39,35 +39,12 @@ import org.eclipse.jetty.servlet.ServletHolder;
 public class GeronimoServletHolder extends ServletHolder {
 
     private final IntegrationContext integrationContext;
-    private final Subject runAsSubject;
     private final JettyServletRegistration servletRegistration;
 
-    public GeronimoServletHolder(IntegrationContext integrationContext, Subject runAsSubject, JettyServletRegistration servletRegistration) {
+    public GeronimoServletHolder(IntegrationContext integrationContext, JettyServletRegistration servletRegistration) {
         this.integrationContext = integrationContext;
-        this.runAsSubject = runAsSubject;
         this.servletRegistration = servletRegistration;
     }
-
-    //TODO probably need to override init and destroy (?) to handle runAsSubject since we are not setting it in the superclass any more.
-
-    /**
-     * Service a request with this servlet.  Set the ThreadLocal to hold the
-     * current JettyServletHolder.
-     */
-    public void handle(Request baseRequest, ServletRequest request, ServletResponse response)
-            throws ServletException, IOException {
-        if (runAsSubject == null) {
-            super.handle(baseRequest, request, response);
-        } else {
-            Callers oldCallers = ContextManager.pushNextCaller(runAsSubject);
-            try {
-                super.handle(baseRequest, request, response);
-            } finally {
-                ContextManager.popCallers(oldCallers);
-            }
-        }
-    }
-
 
     public synchronized Object newInstance() throws InstantiationException, IllegalAccessException {
         return servletRegistration.newInstance(_className);

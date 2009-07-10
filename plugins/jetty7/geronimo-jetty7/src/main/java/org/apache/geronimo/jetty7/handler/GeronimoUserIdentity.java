@@ -32,6 +32,7 @@ import org.eclipse.jetty.server.UserIdentity;
 import org.eclipse.jetty.security.RunAsToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.apache.geronimo.security.ContextManager;
 
 /**
  * @version $Rev$ $Date$
@@ -58,6 +59,7 @@ public class GeronimoUserIdentity implements UserIdentity {
     }
 
     public Principal getUserPrincipal() {
+        //not clear whether this should reflect any run-as identity.  Currently it does not.
         return userPrincipal;
     }
 
@@ -74,6 +76,8 @@ public class GeronimoUserIdentity implements UserIdentity {
             servletName = "";
         }
         try {
+            //correct run-as identity available from context manager.
+            AccessControlContext acc = ContextManager.getCurrentContext();
             acc.checkPermission(new WebRoleRefPermission(servletName, role));
             return true;
         } catch (AccessControlException e) {
