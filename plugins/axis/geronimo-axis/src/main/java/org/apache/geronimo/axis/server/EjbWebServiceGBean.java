@@ -16,77 +16,77 @@
  */
 package org.apache.geronimo.axis.server;
 
+import java.net.URI;
+import java.util.Collection;
+import java.util.Properties;
+
 import org.apache.axis.description.JavaServiceDesc;
 import org.apache.axis.handlers.soap.SOAPService;
 import org.apache.axis.providers.java.RPCProvider;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.ParamAttribute;
+import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.openejb.EjbDeployment;
-import org.apache.geronimo.webservices.SoapHandler;
 import org.apache.geronimo.security.jaas.ConfigurationFactory;
+import org.apache.geronimo.webservices.SoapHandler;
 import org.apache.openejb.server.axis.EjbContainerProvider;
 
-import java.net.URI;
-import java.util.Properties;
-
+@GBean(j2eeType = NameFactory.WEB_SERVICE_LINK)
 public class EjbWebServiceGBean implements GBeanLifecycle {
 
     private final SoapHandler soapHandler;
     private final URI location;
 
-    protected EjbWebServiceGBean() {
-        soapHandler = null;
-        location = null;
-    }
-
-    public EjbWebServiceGBean(EjbDeployment ejbDeploymentContext,
-                              URI location,
-                              URI wsdlURI,
-                              SoapHandler soapHandler,
-                              ServiceInfo serviceInfo,
-                              ConfigurationFactory configurationFactory,
-                              String realmName,
-                              String transportGuarantee,
-                              String authMethod,
-                              String[] protectedMethods, 
-                              String[] virtualHosts,
-                              Properties properties) throws Exception {
-
-        this.soapHandler = soapHandler;
+    public EjbWebServiceGBean(@ParamReference(name = "EjbDeployment") EjbDeployment ejbDeploymentContext,
+                              @ParamAttribute(name = "location") URI location,
+                              @ParamAttribute(name = "wsdlURI") URI wsdlURI,
+                              @ParamAttribute(name = "serviceInfo") ServiceInfo serviceInfo,
+                              @ParamReference(name = "WebServiceContainer") Collection<SoapHandler> webContainers,
+                              @ParamAttribute(name = "policyContextID") String policyContextID,
+                              @ParamReference(name = "ConfigurationFactory") ConfigurationFactory configurationFactory,
+                              @ParamAttribute(name = "realmName") String realmName,
+                              @ParamAttribute(name = "transportGuarantee") String transportGuarantee,
+                              @ParamAttribute(name = "authMethod") String authMethod,
+                              @ParamAttribute(name = "protectedMethods") String[] protectedMethods,
+                              @ParamAttribute(name = "virtualHosts") String[] virtualHosts,
+                              @ParamAttribute(name = "properties") Properties properties) throws Exception {
         this.location = location;
-                        
         //for use as a template
-        if (ejbDeploymentContext == null) {
+        if (webContainers == null || webContainers.isEmpty()) {
+            soapHandler = null;
             return;
         }
+        this.soapHandler = webContainers.iterator().next();
+
         RPCProvider provider = new EjbContainerProvider(ejbDeploymentContext.getDeploymentInfo(), serviceInfo.getHandlerInfos());
         SOAPService service = new SOAPService(null, provider, null);
 
         JavaServiceDesc serviceDesc = serviceInfo.getServiceDesc();
         service.setServiceDescription(serviceDesc);
-        
+
         ClassLoader classLoader = ejbDeploymentContext.getClassLoader();
-                
-        Class serviceEndpointInterface = 
-            classLoader.loadClass(ejbDeploymentContext.getServiceEndpointInterfaceName());
-        
+
+        Class serviceEndpointInterface =
+                classLoader.loadClass(ejbDeploymentContext.getServiceEndpointInterfaceName());
+
         service.setOption("className", serviceEndpointInterface.getName());
         serviceDesc.setImplClass(serviceEndpointInterface);
-        
+
         AxisWebServiceContainer axisContainer = new AxisWebServiceContainer(location, wsdlURI, service, serviceInfo.getWsdlMap(), classLoader);
         if (soapHandler != null) {
-            soapHandler.addWebService(location.getPath(), 
-                                      virtualHosts, 
-                                      axisContainer, 
-                                      configurationFactory, 
-                                      realmName, 
-                                      transportGuarantee, 
-                                      authMethod, 
-                                      protectedMethods, 
-                                      properties,
-                                      classLoader);
+            soapHandler.addWebService(location.getPath(),
+                    virtualHosts,
+                    axisContainer,
+                    policyContextID,
+                    configurationFactory,
+                    realmName,
+                    transportGuarantee,
+                    authMethod,
+                    protectedMethods,
+                    properties,
+                    classLoader);
         }
     }
 
@@ -103,48 +103,5 @@ public class EjbWebServiceGBean implements GBeanLifecycle {
     public void doFail() {
 
     }
-
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(EjbWebServiceGBean.class, EjbWebServiceGBean.class, NameFactory.WEB_SERVICE_LINK);
-
-//        infoFactory.addOperation("invoke", new Class[]{WebServiceContainer.Request.class, WebServiceContainer.Response.class});
-
-        infoFactory.addReference("EjbDeployment", EjbDeployment.class);
-        infoFactory.addAttribute("location", URI.class, true);
-        infoFactory.addAttribute("wsdlURI", URI.class, true);
-        infoFactory.addReference("ConfigurationFactory", ConfigurationFactory.class);
-        infoFactory.addAttribute("realmName", String.class, true);
-        infoFactory.addAttribute("transportGuarantee", String.class, true);
-        infoFactory.addAttribute("authMethod", String.class, true);
-        infoFactory.addAttribute("serviceInfo", ServiceInfo.class, true);
-        infoFactory.addAttribute("protectedMethods", String[].class, true);
-        infoFactory.addAttribute("virtualHosts", String[].class, true);
-        infoFactory.addReference("WebServiceContainer", SoapHandler.class);
-        infoFactory.addAttribute("properties", Properties.class, true);
-
-        infoFactory.setConstructor(new String[]{
-                "EjbDeployment",
-                "location",
-                "wsdlURI",
-                "WebServiceContainer",
-                "serviceInfo",
-                "ConfigurationFactory",
-                "realmName",
-                "transportGuarantee",
-                "authMethod",
-                "protectedMethods",
-                "virtualHosts",
-                "properties"
-        });
-
-        GBEAN_INFO = infoFactory.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
-
 
 }

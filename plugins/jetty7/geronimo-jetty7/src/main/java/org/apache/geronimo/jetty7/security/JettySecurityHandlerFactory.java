@@ -21,7 +21,7 @@
 package org.apache.geronimo.jetty7.security;
 
 import java.security.AccessControlContext;
-import java.security.Permission;
+import java.security.Permissions;
 
 import javax.security.auth.Subject;
 
@@ -75,7 +75,7 @@ public class JettySecurityHandlerFactory implements SecurityHandlerFactory {
         this.configurationFactory = configurationFactory;
     }
 
-    public SecurityHandler buildSecurityHandler(String policyContextID, Subject defaultSubject, RunAsSource runAsSource) {
+    public SecurityHandler buildSecurityHandler(String policyContextID, Subject defaultSubject, RunAsSource runAsSource, boolean checkRolePermissions) {
         final LoginService loginService = new JAASLoginService(configurationFactory, realmName);
         Authenticator authenticator = buildAuthenticator();
         if (defaultSubject == null) {
@@ -83,15 +83,11 @@ public class JettySecurityHandlerFactory implements SecurityHandlerFactory {
         }
         AccessControlContext defaultAcc = ContextManager.registerSubjectShort(defaultSubject, null, null);
         IdentityService identityService = new JettyIdentityService(defaultAcc, runAsSource);
-        return new JaccSecurityHandler(policyContextID, authenticator, loginService, identityService, defaultAcc);
-    }
-
-    public SecurityHandler buildEJBSecurityHandler(Permission permission, boolean authMandatory) {
-        final LoginService loginService = new JAASLoginService(configurationFactory, realmName);
-        Authenticator authenticator = buildAuthenticator();
-        AccessControlContext defaultAcc = ContextManager.registerSubjectShort(ContextManager.EMPTY, null, null);
-        IdentityService identityService = new JettyIdentityService(defaultAcc, null);
-        return new EJBWebServiceSecurityHandler(authenticator, loginService, identityService, permission, authMandatory);
+        if (checkRolePermissions) {
+            return new JaccSecurityHandler(policyContextID, authenticator, loginService, identityService, defaultAcc);
+        } else {
+            return new EJBWebServiceSecurityHandler(policyContextID, authenticator, loginService, identityService, defaultAcc);
+        }
     }
 
     private Authenticator buildAuthenticator() {

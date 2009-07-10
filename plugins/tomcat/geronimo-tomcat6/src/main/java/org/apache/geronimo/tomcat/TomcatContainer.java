@@ -376,7 +376,8 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
 
     public void addWebService(String contextPath, 
                               String[] virtualHosts, 
-                              WebServiceContainer webServiceContainer, 
+                              WebServiceContainer webServiceContainer,
+                              String policyContextId,
                               ConfigurationFactory configurationFactory, 
                               String realmName, 
                               String transportGuarantee,

@@ -21,15 +21,15 @@
 package org.apache.geronimo.jetty7.handler;
 
 import java.io.IOException;
+import java.security.Permissions;
 import java.security.AccessControlContext;
-import java.security.Permission;
 
 import javax.security.jacc.WebUserDataPermission;
 
-import org.eclipse.jetty.security.SecurityHandler;
 import org.eclipse.jetty.security.Authenticator;
-import org.eclipse.jetty.security.LoginService;
 import org.eclipse.jetty.security.IdentityService;
+import org.eclipse.jetty.security.LoginService;
+import org.eclipse.jetty.security.SecurityHandler;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Response;
 import org.eclipse.jetty.server.UserIdentity;
@@ -37,35 +37,10 @@ import org.eclipse.jetty.server.UserIdentity;
 /**
  * @version $Rev$ $Date$
  */
-public class EJBWebServiceSecurityHandler extends SecurityHandler {
+public class EJBWebServiceSecurityHandler extends JaccSecurityHandler {
 
-    private final Permission permission;
-    private final boolean authMandatory;
-
-    public EJBWebServiceSecurityHandler(
-            Authenticator authenticator,
-            final LoginService loginService,
-            IdentityService identityService,
-            Permission permission, boolean authMandatory) {
-        setAuthenticator(authenticator);
-
-        loginService.setIdentityService(identityService);
-        setLoginService(loginService);
-        setIdentityService(identityService);
-        this.permission = permission;
-        this.authMandatory = authMandatory;
-    }
-
-    protected Object prepareConstraintInfo(String pathInContext, Request request) {
-        return null;
-    }
-
-    protected boolean checkUserDataPermissions(String pathInContext, Request request, Response response, Object constraintInfo) throws IOException {
-        return permission.implies(new WebUserDataPermission(request));
-    }
-
-    protected boolean isAuthMandatory(Request baseRequest, Response base_response, Object constraintInfo) {
-        return authMandatory;
+    public EJBWebServiceSecurityHandler(String policyContextID, Authenticator authenticator, LoginService loginService, IdentityService identityService, AccessControlContext defaultAcc) {
+        super(policyContextID, authenticator, loginService, identityService, defaultAcc);
     }
 
     protected boolean checkWebResourcePermissions(String pathInContext, Request request, Response response, Object constraintInfo, UserIdentity userIdentity) throws IOException {

@@ -28,6 +28,11 @@ import org.apache.geronimo.cxf.CXFWebServiceContainer;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.ParamReference;
+import org.apache.geronimo.gbean.annotation.ParamAttribute;
+import org.apache.geronimo.gbean.annotation.ParamSpecial;
+import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.jaxws.JAXWSUtils;
 import org.apache.geronimo.jaxws.JNDIResolver;
@@ -39,24 +44,26 @@ import org.apache.geronimo.webservices.SoapHandler;
 import org.apache.geronimo.security.jaas.ConfigurationFactory;
 import org.apache.openejb.DeploymentInfo;
 
+@GBean(j2eeType = NameFactory.WEB_SERVICE_LINK)
 public class EJBWebServiceGBean implements GBeanLifecycle {
 
     private SoapHandler soapHandler;
     private String location;
     private EJBWebServiceContainer container;
 
-    public EJBWebServiceGBean(EjbDeployment ejbDeploymentContext,
-                              PortInfo portInfo,                              
-                              Kernel kernel,
-                              URL configurationBaseUrl,                              
-                              Collection<SoapHandler> webContainers,
-                              ConfigurationFactory configurationFactory,
-                              String realmName,
-                              String transportGuarantee,
-                              String authMethod,
-                              String[] protectedMethods,
-                              String[] virtualHosts,
-                              Properties properties) throws Exception {        
+    public EJBWebServiceGBean(@ParamReference(name="EjbDeployment")EjbDeployment ejbDeploymentContext,
+                              @ParamAttribute(name="portInfo")PortInfo portInfo,
+                              @ParamSpecial(type = SpecialAttributeType.kernel)Kernel kernel,
+                              @ParamAttribute(name="configurationBaseUrl")URL configurationBaseUrl,
+                              @ParamReference(name="WebServiceContainer")Collection<SoapHandler> webContainers,
+                              @ParamAttribute(name="policyContextID")String policyContextID,
+                              @ParamReference(name="ConfigurationFactory")ConfigurationFactory configurationFactory,
+                              @ParamAttribute(name="realmName")String realmName,
+                              @ParamAttribute(name="transportGuarantee")String transportGuarantee,
+                              @ParamAttribute(name="authMethod")String authMethod,
+                              @ParamAttribute(name="protectedMethods")String[] protectedMethods,
+                              @ParamAttribute(name="virtualHosts")String[] virtualHosts,
+                              @ParamAttribute(name="properties")Properties properties) throws Exception {
         if (ejbDeploymentContext == null || webContainers == null || webContainers.isEmpty() || portInfo == null) {
             return;
         }
@@ -88,6 +95,7 @@ public class EJBWebServiceGBean implements GBeanLifecycle {
         soapHandler.addWebService(this.location, 
                                   virtualHosts, 
                                   this.container,
+                                  policyContextID,
                                   configurationFactory,
                                   realmName, 
                                   transportGuarantee, 
@@ -112,45 +120,5 @@ public class EJBWebServiceGBean implements GBeanLifecycle {
     public void doFail() {
     }
 
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(EJBWebServiceGBean.class, EJBWebServiceGBean.class, NameFactory.WEB_SERVICE_LINK);
-        
-        infoFactory.addReference("EjbDeployment", EjbDeployment.class);
-        infoFactory.addAttribute("portInfo", PortInfo.class, true);       
-        infoFactory.addAttribute("kernel", Kernel.class, false);
-        infoFactory.addAttribute("configurationBaseUrl", URL.class, true);
-        infoFactory.addReference("ConfigurationFactory", ConfigurationFactory.class);
-        infoFactory.addAttribute("realmName", String.class, true);
-        infoFactory.addAttribute("transportGuarantee", String.class, true);
-        infoFactory.addAttribute("authMethod", String.class, true);
-        infoFactory.addAttribute("protectedMethods", String[].class, true);
-        infoFactory.addAttribute("virtualHosts", String[].class, true);
-        infoFactory.addReference("WebServiceContainer", SoapHandler.class);
-        infoFactory.addAttribute("properties", Properties.class, true);
-        
-        infoFactory.setConstructor(new String[]{
-                "EjbDeployment",
-                "portInfo",
-                "kernel",
-                "configurationBaseUrl",
-                "WebServiceContainer",
-                "ConfigurationFactory",
-                "realmName",
-                "transportGuarantee",
-                "authMethod",
-                "protectedMethods",
-                "virtualHosts",
-                "properties"
-        });
-
-        
-        GBEAN_INFO = infoFactory.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
 
 }

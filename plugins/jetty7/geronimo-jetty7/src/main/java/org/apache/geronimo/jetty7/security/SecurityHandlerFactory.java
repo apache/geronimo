@@ -30,6 +30,6 @@ import org.eclipse.jetty.security.SecurityHandler;
  */
 public interface SecurityHandlerFactory {
 
-    SecurityHandler buildSecurityHandler(String policyContextID, Subject defaultSubject, RunAsSource runAsSource);
+    SecurityHandler buildSecurityHandler(String policyContextID, Subject defaultSubject, RunAsSource runAsSource, boolean checkRolePermissions);
 
 }

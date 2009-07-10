@@ -20,7 +20,8 @@
 <openejb-jar xmlns="http://openejb.apache.org/xml/ns/openejb-jar-2.2"
   xmlns:pkgen="http://openejb.apache.org/xml/ns/pkgen-2.1"
   xmlns:naming="http://geronimo.apache.org/xml/ns/naming-1.2"
-  xmlns:sys="http://geronimo.apache.org/xml/ns/deployment-1.2">
+  xmlns:sys="http://geronimo.apache.org/xml/ns/deployment-1.2"
+  xmlns:sec="http://geronimo.apache.org/xml/ns/security-2.0">
 
     <environment>
         <moduleId>
@@ -50,6 +51,8 @@
                 <transport-guarantee>NONE</transport-guarantee>
                 <auth-method>BASIC</auth-method>
                 <http-method>POST</http-method>
+                <properties>getProtected=false
+                getSecured=false</properties>
             </web-service-security>
         </session>
 
@@ -60,6 +63,7 @@
                 <security-realm-name>geronimo-admin</security-realm-name>
                 <transport-guarantee>CONFIDENTIAL</transport-guarantee>
                 <auth-method>NONE</auth-method>
+                <!--<properties>getSecured=false</properties>-->
             </web-service-security>
         </session>
 
@@ -71,8 +75,17 @@
                 <transport-guarantee>CONFIDENTIAL</transport-guarantee>
                 <auth-method>NONE</auth-method>
                 <http-method>POST</http-method>
+                <properties>getProtected=false</properties>
             </web-service-security>
         </session>
     </enterprise-beans>
 
+    <sec:security>
+        <sec:role-mappings>
+            <sec:role role-name="admin">
+                <sec:principal class="org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal"
+                               name="admin"/>
+            </sec:role>
+        </sec:role-mappings>
+    </sec:security>
 </openejb-jar>

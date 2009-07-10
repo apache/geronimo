@@ -83,7 +83,7 @@ public class AxisModuleBuilderExtension implements ModuleBuilderExtension {
         EjbModule ejbModule = (EjbModule) module;
         
         //overridden web service locations
-        Map correctedPortLocations = new HashMap();     
+        Map<String, String> correctedPortLocations = new HashMap<String, String>();     
         Map<String, WebServiceBinding> wsBindingMap = createWebServiceBindingMap(ejbModule);
         for (Map.Entry<String, WebServiceBinding> entry : wsBindingMap.entrySet()) {
             String location = entry.getValue().getWebServiceAddress();
@@ -130,7 +130,7 @@ public class AxisModuleBuilderExtension implements ModuleBuilderExtension {
 
             AbstractName ejbWebServiceName = earContext.getNaming().createChildName(sessionName, ejbName, NameFactory.WEB_SERVICE_LINK);
 
-            GBeanData ejbWebServiceGBean = new GBeanData(ejbWebServiceName, EjbWebServiceGBean.GBEAN_INFO);
+            GBeanData ejbWebServiceGBean = new GBeanData(ejbWebServiceName, EjbWebServiceGBean.class);
 
             ejbWebServiceGBean.setAttribute("ejbName", ejbName);
             ejbWebServiceGBean.setAttribute("ejbClass", bean.ejbClass);

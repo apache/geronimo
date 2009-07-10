@@ -35,7 +35,7 @@ public class ContainerTest extends AbstractWebModuleTest {
 
         String contextPath = "/foo/webservice.ws";
         MockWebServiceContainer webServiceInvoker = new MockWebServiceContainer();
-        container.addWebService(contextPath, null, webServiceInvoker, null, null, null, null, null, null, cl);
+        container.addWebService(contextPath, null, webServiceInvoker, null, null, null, null, null, null, null, cl);
         HttpURLConnection connection = (HttpURLConnection) new URL(connector.getConnectUrl() + contextPath).openConnection();
         try {
             BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
@@ -62,7 +62,7 @@ public class ContainerTest extends AbstractWebModuleTest {
 
         String contextPath = "/foo/webservice.ws";
         MockWebServiceContainer webServiceInvoker = new MockWebServiceContainer();
-        container.addWebService(contextPath, null, webServiceInvoker, realm, securityRealmName, "NONE", "BASIC", null, null, cl);
+        container.addWebService(contextPath, null, webServiceInvoker, "ContextID", realm, securityRealmName, "NONE", "BASIC", null, null, cl);
 
         //Veryify its secured
         HttpURLConnection connection = (HttpURLConnection) new URL(connector.getConnectUrl() + contextPath).openConnection();

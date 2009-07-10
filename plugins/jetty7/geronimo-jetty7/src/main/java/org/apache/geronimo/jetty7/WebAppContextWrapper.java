@@ -175,7 +175,7 @@ public class WebAppContextWrapper implements GBeanLifecycle, JettyServletRegistr
 //            JAASJettyRealm realm = new JAASJettyRealm(realmName, internalJAASJettyRealm);
         if (securityHandlerFactory != null) {
             Subject defaultSubject =  this.runAsSource.getDefaultSubject();
-            securityHandler = securityHandlerFactory.buildSecurityHandler(policyContextID, defaultSubject, runAsSource);
+            securityHandler = securityHandlerFactory.buildSecurityHandler(policyContextID, defaultSubject, runAsSource, true);
         } else {
             //TODO may need to turn off security with Context._options.
 //            securityHandler = new NoSecurityHandler();

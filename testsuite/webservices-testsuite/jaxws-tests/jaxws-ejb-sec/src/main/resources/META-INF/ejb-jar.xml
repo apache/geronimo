@@ -54,4 +54,32 @@
     </session>
   </enterprise-beans>
 
+    <assembly-descriptor>
+        <security-role>
+            <role-name>admin</role-name>
+        </security-role>
+        <method-permission>
+            <role-name>admin</role-name>
+            <method>
+                <ejb-name>BeanBasic</ejb-name>
+                <method-name>greetMe</method-name>
+            </method>
+            <method>
+                <ejb-name>BeanBasicAllowGet</ejb-name>
+                <method-name>greetMe</method-name>
+            </method>
+        </method-permission>
+        <method-permission>
+            <unchecked/>
+            <method>
+                <ejb-name>BeanHttps</ejb-name>
+                <method-name>greetMe</method-name>
+            </method>
+            <method>
+                <ejb-name>BeanHttpsAllowGet</ejb-name>
+                <method-name>greetMe</method-name>
+            </method>
+        </method-permission>
+    </assembly-descriptor>
+
 </ejb-jar>

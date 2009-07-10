@@ -56,7 +56,7 @@ public class ServerAuthenticationGBean implements SecurityHandlerFactory {
         this.loginService = loginService;
     }
 
-    public SecurityHandler buildSecurityHandler(String policyContextID, Subject defaultSubject, RunAsSource runAsSource) {
+    public SecurityHandler buildSecurityHandler(String policyContextID, Subject defaultSubject, RunAsSource runAsSource, boolean checkRolePermissions) {
         if (defaultSubject == null) {
             defaultSubject = ContextManager.EMPTY;
         }

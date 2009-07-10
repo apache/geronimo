@@ -212,7 +212,8 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLif
 
     public void addWebService(String contextPath, 
                               String[] virtualHosts, 
-                              WebServiceContainer webServiceContainer, 
+                              WebServiceContainer webServiceContainer,
+                              String policyContextID,
                               ConfigurationFactory configurationFactory, 
                               String realmName, 
                               String transportGuarantee, 

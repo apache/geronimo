@@ -22,6 +22,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.security.Permission;
+import java.security.Permissions;
+import java.security.PermissionCollection;
 
 import javax.management.j2ee.statistics.Stats;
 import javax.security.jacc.WebUserDataPermission;
@@ -223,6 +225,7 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLif
     public void addWebService(String contextPath,
                               String[] virtualHosts,
                               WebServiceContainer webServiceContainer,
+                              String contextID,
                               ConfigurationFactory configurationFactory,
                               String realmName,
                               String transportGuarantee,
@@ -234,9 +237,7 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLif
         if (configurationFactory != null) {
             BuiltInAuthMethod builtInAuthMethod = BuiltInAuthMethod.getValueOf(authMethod);
             JettySecurityHandlerFactory  factory = new JettySecurityHandlerFactory(builtInAuthMethod, null, null, realmName, configurationFactory);
-            Permission permission = new WebUserDataPermission("/*", protectedMethods, transportGuarantee);
-            boolean authMandatory = builtInAuthMethod != BuiltInAuthMethod.NONE;
-            securityHandler = factory.buildEJBSecurityHandler(permission, authMandatory);
+            securityHandler = factory.buildSecurityHandler(contextID, null, null, false);
         }
         ServletHandler servletHandler = new EJBServletHandler(webServiceContainer);
         EJBWebServiceContext webServiceContext = new EJBWebServiceContext(contextPath, securityHandler, servletHandler, classLoader);

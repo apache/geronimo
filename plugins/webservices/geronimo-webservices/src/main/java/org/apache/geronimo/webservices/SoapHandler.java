@@ -25,15 +25,16 @@ import org.apache.geronimo.security.jaas.ConfigurationFactory;
  */
 public interface SoapHandler {
 
-    void addWebService(String contextPath, 
-                       String[] virtualHosts, 
-                       WebServiceContainer webServiceContainer, 
-                       ConfigurationFactory configurationFactory, 
-                       String realmName, 
-                       String transportGuarantee, 
-                       String authMethod, 
-                       String[] protectedMethods, 
-                       Properties properties, 
+    void addWebService(String contextPath,
+                       String[] virtualHosts,
+                       WebServiceContainer webServiceContainer,
+                       String contextID,
+                       ConfigurationFactory configurationFactory,
+                       String realmName,
+                       String transportGuarantee,
+                       String authMethod,
+                       String[] protectedMethods,
+                       Properties properties,
                        ClassLoader classLoader) throws Exception;
 
     void removeWebService(String contextPath);

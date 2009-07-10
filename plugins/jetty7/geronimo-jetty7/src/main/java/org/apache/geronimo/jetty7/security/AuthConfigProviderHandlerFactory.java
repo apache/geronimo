@@ -88,7 +88,7 @@ public class AuthConfigProviderHandlerFactory implements SecurityHandlerFactory 
 
     }
 
-    public SecurityHandler buildSecurityHandler(String policyContextID, Subject defaultSubject, RunAsSource runAsSource) {
+    public SecurityHandler buildSecurityHandler(String policyContextID, Subject defaultSubject, RunAsSource runAsSource, boolean checkRolePermissions) {
         if (defaultSubject == null) {
             defaultSubject = ContextManager.EMPTY;
         }
