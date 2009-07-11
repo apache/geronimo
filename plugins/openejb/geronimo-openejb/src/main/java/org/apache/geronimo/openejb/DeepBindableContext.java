@@ -58,6 +58,10 @@ public class DeepBindableContext extends WritableContext {
         addDeepBinding(new CompositeName(name), value, false, true);
     }
 
+    void removeDeepBinding(Name name) throws NamingException {
+        removeDeepBinding(name, true, false);
+    }
+
     public JndiFactory newJndiFactory() throws NamingException {
         return new XBeanJndiFactory();
     }
@@ -95,9 +99,14 @@ public class DeepBindableContext extends WritableContext {
 
     class ContextWrapper implements Context {
         private final Context rootContext;
+        private final String shortPrefix;
+        private final String longPrefix;
 
-        ContextWrapper(Context rootContext) {
+
+        ContextWrapper(Context rootContext) throws NamingException {
             this.rootContext = rootContext;
+            shortPrefix = DeepBindableContext.this.getNameInNamespace();
+            longPrefix = "java:" + shortPrefix;
         }
 
         public Object lookup(Name name) throws NamingException {
@@ -113,10 +122,10 @@ public class DeepBindableContext extends WritableContext {
         }
 
         public void bind(String name, Object value) throws NamingException {
-            if (name.startsWith("java:openejb/")) {
-                name = name.substring("java:openejb/".length());
-            } else if (name.startsWith("openejb/")) {
-                name = name.substring("openejb/".length());
+            if (name.startsWith(longPrefix + "/")) {
+                name = name.substring(longPrefix.length() + 1);
+            } else if (name.startsWith(shortPrefix + "/")) {
+                name = name.substring(shortPrefix.length() + 1);
             }
             addDeepBinding(name, value);
         }
@@ -130,12 +139,16 @@ public class DeepBindableContext extends WritableContext {
         }
 
         public void unbind(Name name) throws NamingException {
-            rootContext.unbind(name);
+            if (name.get(0).equals(shortPrefix) || name.get(0).equals(longPrefix)) {
+                name = (Name) name.clone();
+                name.remove(0);
+            }
+            removeDeepBinding(name);
         }
 
-        public void unbind(String s) throws NamingException {
-            rootContext.unbind(s);
-        }
+        public void unbind(String name) throws NamingException {
+            unbind(getNameParser(name).parse(name));
+         }
 
         public void rename(Name name, Name name1) throws NamingException {
             rootContext.rename(name, name1);
