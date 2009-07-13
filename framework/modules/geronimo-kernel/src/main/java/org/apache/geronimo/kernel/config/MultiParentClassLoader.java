@@ -308,7 +308,11 @@ public class MultiParentClassLoader extends URLClassLoader {
                 name.equals("boolean") ||
                 name.equals("int") ||
                 name.equals("double") ||
-                name.equals("long")) {
+                name.equals("long") ||
+                name.equals("short") ||
+                name.equals("float") ||
+                name.equals("byte") ||
+                name.equals("char")) {
             Class clazz = ClassLoader.getSystemClassLoader().loadClass(name);
             return resolveClass(clazz, resolve);
         }
@@ -389,7 +393,11 @@ public class MultiParentClassLoader extends URLClassLoader {
                 name.equals("boolean") ||
                 name.equals("int") ||
                 name.equals("double") ||
-                name.equals("long")) {
+                name.equals("long") ||
+                name.equals("short") ||
+                name.equals("float") ||
+                name.equals("byte") ||
+                name.equals("char")) {
             try {
         	    return resolveClass(findSystemClass(name), resolve);
             } catch (ClassNotFoundException cnfe) {
