@@ -6,9 +6,4 @@
         <version>2.2-SNAPSHOT</version>
         <type>car</type>
     </module-id>
-    <dependency>
-        <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>jasper</artifactId>
-        <type>car</type>
-    </dependency>
 </plugin-artifact>
