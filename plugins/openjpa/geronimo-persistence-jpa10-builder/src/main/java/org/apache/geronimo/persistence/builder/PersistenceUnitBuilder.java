@@ -206,7 +206,7 @@ public class PersistenceUnitBuilder implements ModuleBuilderExtension {
             abstractName = moduleContext.getNaming().createChildName(module.getModuleName(), persistenceUnitName, PersistenceUnitGBean.GBEAN_INFO.getJ2eeType());
         } else {
             abstractName = moduleContext.getNaming().createChildName(module.getModuleName(), persistenceModulePath, NameFactory.PERSISTENCE_UNIT_MODULE);
-            abstractName = moduleContext.getNaming().createChildName(abstractName, persistenceUnitName, PersistenceUnitGBean.GBEAN_INFO.getJ2eeType());
+            abstractName = moduleContext.getNaming().createChildName(abstractName, moduleContext.getConfigID(), persistenceUnitName, PersistenceUnitGBean.GBEAN_INFO.getJ2eeType());
         }
         GBeanData gbeanData = new GBeanData(abstractName, PersistenceUnitGBean.GBEAN_INFO);
         try {
