@@ -866,7 +866,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
                 LoginConfigType loginConfig = loginConfigArray[0];
                 if (loginConfig.isSetAuthMethod()) {
                     String authMethod = loginConfig.getAuthMethod().getStringValue().trim();
-                    BuiltInAuthMethod auth = BuiltInAuthMethod.valueOf(authMethod);
+                    BuiltInAuthMethod auth = BuiltInAuthMethod.getValueOf(authMethod);
                     GBeanData securityFactoryData = new GBeanData(factoryName, JettySecurityHandlerFactory.class);
                     securityFactoryData.setAttribute("authMethod", auth);
                     configureConfigurationFactory(jettyWebApp, loginConfig, securityFactoryData);
