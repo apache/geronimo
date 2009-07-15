@@ -38,6 +38,7 @@ import org.apache.geronimo.jaxws.JAXWSAnnotationProcessor;
 import org.apache.geronimo.jaxws.JNDIResolver;
 import org.apache.geronimo.jaxws.client.EndpointInfo;
 import org.apache.geronimo.jaxws.client.JAXWSServiceReference;
+import org.apache.geronimo.jaxws.client.PortMethodInterceptor;
 import org.apache.geronimo.jaxws.handler.GeronimoHandlerResolver;
 import org.apache.geronimo.xbeans.javaee.HandlerChainsType;
 
@@ -93,4 +94,9 @@ public class CXFServiceReference extends JAXWSServiceReference {
                 new GeronimoHandlerResolver(classLoader, serviceClass, getHandlerChains(), annotationProcessor);
         return handlerResolver;
     }
+    
+    protected PortMethodInterceptor getPortMethodInterceptor() {
+        return new CXFPortMethodInterceptor(this.seiInfoMap);
+    }
+    
 }

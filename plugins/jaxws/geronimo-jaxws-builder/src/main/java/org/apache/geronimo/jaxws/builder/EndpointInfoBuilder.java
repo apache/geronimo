@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import javax.wsdl.Binding;
 import javax.wsdl.Definition;
@@ -47,6 +48,7 @@ import org.apache.geronimo.jaxws.JAXWSUtils;
 import org.apache.geronimo.jaxws.client.EndpointInfo;
 import org.apache.geronimo.jaxws.wsdl.CatalogJarWSDLLocator;
 import org.apache.geronimo.jaxws.wsdl.CatalogWSDLLocator;
+import org.apache.geronimo.xbeans.geronimo.naming.GerPortPropertyType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerPortType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
 import org.apache.geronimo.xbeans.javaee.PortComponentRefType;
@@ -118,7 +120,8 @@ public class EndpointInfoBuilder {
                         URL location = getLocation(gerPort);
                         String credentialsName = getCredentialsName(gerPort);
                         boolean mtomEnabled = isMTOMEnabled(portName);
-                        EndpointInfo info = new EndpointInfo(location, credentialsName, mtomEnabled);
+                        Map<String, Object> props = getProperties(gerPort);
+                        EndpointInfo info = new EndpointInfo(location, credentialsName, mtomEnabled, props);
                         this.portInfoMap.put(portName, info);
                     }
                 }
@@ -240,7 +243,9 @@ public class EndpointInfoBuilder {
 
                 boolean mtomEnabled = isMTOMEnabled(portType.getQName());
                 
-                EndpointInfo info = new EndpointInfo(location, credentialsName, mtomEnabled);
+                Map<String, Object> props = getProperties(gerPort);
+                
+                EndpointInfo info = new EndpointInfo(location, credentialsName, mtomEnabled, props);
                 this.portInfoMap.put(portName, info);
                 // prefer first binding listed in wsdl
                 if (!this.portInfoMap.containsKey(portType.getQName())) {
@@ -272,6 +277,16 @@ public class EndpointInfoBuilder {
         return null;
     }
 
+    private Map<String, Object> getProperties(GerPortType port) {
+        Map<String, Object> props = new HashMap<String, Object>();
+        if (port.getPropertyArray() != null) {
+            for (GerPortPropertyType propertyType : port.getPropertyArray()) {
+                props.put(propertyType.getName(), propertyType.getStringValue().trim());
+            }
+        }
+        return props;
+    }
+    
     private String getCredentialsName(GerPortType port) {
         String credentialsName = port.getCredentialsName();
         return (credentialsName == null) ? null : credentialsName.trim();        

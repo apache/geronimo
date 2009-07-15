@@ -18,17 +18,20 @@ package org.apache.geronimo.jaxws.client;
 
 import java.io.Serializable;
 import java.net.URL;
+import java.util.Map;
 
 public class EndpointInfo implements Serializable {
 
     private URL location;
     private String credentialsName;
     private boolean mtomEnabled;
+    private Map<String, Object> properties;
     
-    public EndpointInfo(URL location, String credentialsName, boolean mtomEnabled) {
+    public EndpointInfo(URL location, String credentialsName, boolean mtomEnabled, Map<String, Object> properties) {
         this.location = location;
         this.credentialsName = credentialsName;  
         this.mtomEnabled = mtomEnabled;        
+        this.properties = properties;
     }
 
     public boolean isMTOMEnabled() {
@@ -43,7 +46,11 @@ public class EndpointInfo implements Serializable {
         return this.credentialsName;
     }
     
+    public Map<String, Object> getProperties() {
+        return properties;
+    }
+    
     public String toString() {
-        return this.location + " " + this.credentialsName + " " + this.mtomEnabled;
+        return this.location + " " + this.credentialsName + " " + this.mtomEnabled + " " + this.properties;
     }
 }

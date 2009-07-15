@@ -97,7 +97,14 @@ public class PortMethodInterceptor implements MethodInterceptor {
         setProperties(proxy, info);
     }
     
-    private void setProperties(BindingProvider proxy, EndpointInfo info) {
+    protected void setProperties(BindingProvider proxy, EndpointInfo info) {
+        if (info == null) {
+            return;
+        } 
+        setProperties(proxy, info, info.getProperties());
+    }
+    
+    protected void setProperties(BindingProvider proxy, EndpointInfo info, Map<String, Object> properties) {
         if (info == null) {
             return;
         }       
@@ -119,29 +126,35 @@ public class PortMethodInterceptor implements MethodInterceptor {
         // set credentials
         String credentialsName = info.getCredentialsName();
         if (credentialsName != null) {
-            Subject subject = ContextManager.getNextCaller();
-            if (subject == null) {
-                throw new IllegalStateException("Subject missing but authentication turned on");
-            } else {
-                Set creds = subject.getPrivateCredentials(NamedUsernamePasswordCredential.class);
-                boolean found = false;
-                
-                for (Iterator iterator = creds.iterator(); iterator.hasNext();) {
-                    NamedUsernamePasswordCredential namedUsernamePasswordCredential = (NamedUsernamePasswordCredential) iterator.next();
-                    if (credentialsName.equals(namedUsernamePasswordCredential.getName())) {
-                        proxy.getRequestContext().put(BindingProvider.USERNAME_PROPERTY, 
-                                                      namedUsernamePasswordCredential.getUsername());
-                        proxy.getRequestContext().put(BindingProvider.PASSWORD_PROPERTY, 
-                                                      new String(namedUsernamePasswordCredential.getPassword()));
-                        LOG.debug("Set username/password property: " + credentialsName);
-                        found = true;
-                        break;
-                    }
-                }
-                if (!found) {
-                    throw new IllegalStateException("no NamedUsernamePasswordCredential found for name " + credentialsName);
+            NamedUsernamePasswordCredential namedUsernamePasswordCredential = findCredential(credentialsName);            
+            proxy.getRequestContext().put(BindingProvider.USERNAME_PROPERTY, 
+                                          namedUsernamePasswordCredential.getUsername());
+            proxy.getRequestContext().put(BindingProvider.PASSWORD_PROPERTY, 
+                                         new String(namedUsernamePasswordCredential.getPassword()));
+            LOG.debug("Set username/password property: " + credentialsName);
+        }
+        
+        // set user-specified properties
+        if (properties != null) {
+            for (Map.Entry<String, Object> entry : properties.entrySet()) {
+                proxy.getRequestContext().put(entry.getKey(), entry.getValue());
+            }
+        }
+    }
+    
+    protected NamedUsernamePasswordCredential findCredential(String credentialsName) {
+        Subject subject = ContextManager.getNextCaller();
+        if (subject == null) {
+            throw new IllegalStateException("Subject missing but authentication turned on");
+        } else {
+            Set creds = subject.getPrivateCredentials(NamedUsernamePasswordCredential.class);
+            for (Iterator iterator = creds.iterator(); iterator.hasNext();) {
+                NamedUsernamePasswordCredential namedUsernamePasswordCredential = (NamedUsernamePasswordCredential) iterator.next();
+                if (credentialsName.equals(namedUsernamePasswordCredential.getName())) {
+                    return namedUsernamePasswordCredential;
                 }
             }
+            throw new IllegalStateException("No NamedUsernamePasswordCredential found for name " + credentialsName);
         }
     }
 }
