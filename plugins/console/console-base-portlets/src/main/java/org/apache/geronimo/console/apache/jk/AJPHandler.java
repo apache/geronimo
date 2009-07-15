@@ -48,7 +48,7 @@ public class AJPHandler extends BaseApacheHandler {
         for (int i = 0; i < managers.length; i++) {
             WebManager manager = managers[i];
             NetworkConnector[] connectors = manager.getConnectors(WebManager.PROTOCOL_AJP);
-            if(connectors.length > 0) {
+            if(connectors.length > 0 && connectors[0]!=null) {
                 log.warn("Found AJP listener on port "+connectors[0].getPort());
                 return BASIC_CONFIG_MODE+BEFORE_ACTION;
             }
@@ -59,9 +59,9 @@ public class AJPHandler extends BaseApacheHandler {
         while(true) {
             for (int i = 0; i < managers.length; i++) {
                 WebManager manager = managers[i];
-                WebConnector[] cons = (WebConnector[]) manager.getConnectors();
+                NetworkConnector[] cons = manager.getConnectors();
                 for (int j = 0; j < cons.length; j++) {
-                    WebConnector con = cons[j];
+                    NetworkConnector con = cons[j];
                     if(con.getPort() == port) {
                         port += 10;
                         continue outer;
@@ -88,9 +88,9 @@ public class AJPHandler extends BaseApacheHandler {
         WebManager[] managers = PortletManager.getWebManagers(request);
         for (int i = 0; i < managers.length; i++) {
             WebManager manager = managers[i];
-            WebConnector[] cons = (WebConnector[]) manager.getConnectors();
+            NetworkConnector[] cons =  manager.getConnectors();
             for (int j = 0; j < cons.length; j++) {
-                WebConnector con = cons[j];
+                NetworkConnector con = cons[j];
                 if(con.getPort() == model.getAddAjpPort().intValue()) {
                     return getMode()+BEFORE_ACTION; //todo: some sort of error message
                 }
