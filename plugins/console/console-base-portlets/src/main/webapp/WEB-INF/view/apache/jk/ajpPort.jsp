@@ -28,7 +28,7 @@
     <input type="hidden" name="workersPath" value="${model.workersPath}"/>
     <input type="hidden" name="logFilePath" value="${model.logFilePath}"/>
     <c:forEach var="webApp" items="${model.webApps}" varStatus="status">
-        <input type="hidden" name="webapp.${status.index}.configId" value="${webApp.configId}"/>
+        <input type="hidden" name="webapp.${status.index}.configId" value="${webApp.parentConfigId}"/>
         <input type="hidden" name="webapp.${status.index}.enabled" value="${webApp.enabled}"/>
         <input type="hidden" name="webapp.${status.index}.dynamicPattern" value="${webApp.dynamicPattern}"/>
         <input type="hidden" name="webapp.${status.index}.serveStaticContent" value="${webApp.serveStaticContent}"/>
