@@ -279,7 +279,7 @@ public class EndpointInfoBuilder {
 
     private Map<String, Object> getProperties(GerPortType port) {
         Map<String, Object> props = new HashMap<String, Object>();
-        if (port.getPropertyArray() != null) {
+        if (port != null && port.getPropertyArray() != null) {
             for (GerPortPropertyType propertyType : port.getPropertyArray()) {
                 props.put(propertyType.getName(), propertyType.getStringValue().trim());
             }
