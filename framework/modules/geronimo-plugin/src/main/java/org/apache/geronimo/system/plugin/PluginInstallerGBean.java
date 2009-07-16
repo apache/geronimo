@@ -18,10 +18,10 @@ package org.apache.geronimo.system.plugin;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.FileInputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.net.URL;
@@ -63,6 +63,7 @@ import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 import org.apache.geronimo.kernel.InvalidGBeanException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.basic.BasicKernel;
+import org.apache.geronimo.kernel.config.ConfigurationAlreadyExistsException;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
@@ -71,7 +72,6 @@ import org.apache.geronimo.kernel.config.KernelConfigurationManager;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.config.NoSuchStoreException;
 import org.apache.geronimo.kernel.config.PersistentConfigurationList;
-import org.apache.geronimo.kernel.config.ConfigurationAlreadyExistsException;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ArtifactManager;
 import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
@@ -990,7 +990,7 @@ public class PluginInstallerGBean implements PluginInstaller {
             // 2. Validate that we can install this
             if (!validatePlugin(data)) {
                 //already installed
-                throw new MissingDependencyException("Already installed", toArtifact(data.getPluginArtifact().get(0).getModuleId()), (Stack<Artifact>)null);
+                throw new ConfigurationAlreadyExistsException("Configuration " + toArtifact(data.getPluginArtifact().get(0).getModuleId()) + " is already installed.");
             }
 
             verifyPrerequisites(data);
