@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.xml.ws.BindingProvider;
+import javax.xml.ws.Dispatch;
 
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.endpoint.Endpoint;
@@ -70,6 +71,13 @@ public class CXFPortMethodInterceptor extends PortMethodInterceptor {
         
         super.setProperties(proxy, info, otherProps);
                 
+        if (proxy instanceof Dispatch) {
+            if (!wss4jInProps.isEmpty() || !wss4jOutProps.isEmpty()) {
+                LOG.warn("wss4j properties are not supported for Dispatch clients");
+            }
+            return;
+        }
+        
         Client client = ClientProxy.getClient(proxy);
         Endpoint cxfEndpoint = client.getEndpoint();
                 
