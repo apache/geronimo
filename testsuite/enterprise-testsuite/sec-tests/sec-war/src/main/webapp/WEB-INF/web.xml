@@ -32,7 +32,7 @@
     </servlet>
     <servlet>
         <display-name>Security itest servlet</display-name>
-        <servlet-name>servlet</servlet-name>
+        <servlet-name>runAsServlet</servlet-name>
         <servlet-class>org.apache.geronimo.itest.TestServlet</servlet-class>
         <load-on-startup>0</load-on-startup>
         <run-as>
@@ -111,7 +111,7 @@
         <url-pattern>/noRunAsServlet</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
-        <servlet-name>servlet</servlet-name>
+        <servlet-name>runAsServlet</servlet-name>
         <url-pattern>/servlet</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
