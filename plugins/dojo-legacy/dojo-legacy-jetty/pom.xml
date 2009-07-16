@@ -30,30 +30,29 @@
     
     <groupId>org.apache.geronimo.configs</groupId>
     <artifactId>dojo-legacy-jetty</artifactId>
-    <name>Geronimo Plugins, Dojo Legacy :: Jetty6</name>
+    <name>Geronimo Plugins, Dojo Legacy :: Jetty</name>
     <packaging>car</packaging>
     
     <description>
         The Dojo AJAX library for Geronimo. This binds to /dojo so that
         applications needing to add dojo support can simply include a
-        reference to /dojo/dojo.js to enable Dojo support.
+        reference to /dojo/0.4/dojo.js to enable Dojo support.
     </description>
 
     <dependencies>
         <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-dojo-legacy</artifactId>
-            <version>${version}</version>
+            <groupId>org.apache.geronimo.ext</groupId>
+            <artifactId>geronimo-dojo-0.4.3</artifactId>
             <type>war</type>
             <scope>provided</scope>
         </dependency>
 
-        <dependency>
+        <!--dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>jasper</artifactId>
             <version>${version}</version>
             <type>car</type>
-        </dependency>
+        </dependency-->
 
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
@@ -83,17 +82,13 @@
                         <deploymentConfig>${jettyDeployer}</deploymentConfig>
                     </deploymentConfigs>
                     <module>
-                        <groupId>org.apache.geronimo.modules</groupId>
-                        <artifactId>geronimo-dojo-legacy</artifactId>
-                        <version>${version}</version>
+                        <groupId>org.apache.geronimo.ext</groupId>
+                        <artifactId>geronimo-dojo-0.4.3</artifactId>
+                        <version>1.0-SNAPSHOT</version>
                         <type>war</type>
                     </module>
 
                     <category>Web Framework</category>
-                    <useMavenDependencies>
-                        <value>true</value>
-                        <includeVersion>true</includeVersion>
-                    </useMavenDependencies>
                 </configuration>
             </plugin>
         </plugins>

@@ -48,17 +48,17 @@
             <artifactId>jstl</artifactId>
         </dependency>
 -->
-        <dependency>
-            <groupId>org.dojotoolkit</groupId>
-            <artifactId>dojo-ajax</artifactId>
-            <type>zip</type>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.dojotoolkit</groupId>-->
+            <!--<artifactId>dojo-ajax</artifactId>-->
+            <!--<type>zip</type>-->
+        <!--</dependency>-->
 
-        <dependency>
-            <groupId>org.dojotoolkit</groupId>
-            <artifactId>dojo-mini</artifactId>
-            <type>zip</type>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.dojotoolkit</groupId>-->
+            <!--<artifactId>dojo-mini</artifactId>-->
+            <!--<type>zip</type>-->
+        <!--</dependency>-->
 
         <!--
         See GERONIMO-3010  These artifacts are here temporarily while we discuss the proposed change in
@@ -104,11 +104,11 @@
             <!--<artifactId>pluto-taglib</artifactId>-->
         <!--</dependency>-->
 
-        <dependency>
-            <groupId>jtidy</groupId>
-            <artifactId>jtidy</artifactId>
-            <version>8.0-20060801</version>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>jtidy</groupId>-->
+            <!--<artifactId>jtidy</artifactId>-->
+            <!--<version>8.0-20060801</version>-->
+        <!--</dependency>-->
 
         <!-- See GERONIMO-4266 -->
         <dependency>
