@@ -34,6 +34,12 @@ public class JAASTomcatPrincipal implements Principal {
         this.name = name;
     }
 
+    public JAASTomcatPrincipal(String name, Subject subject, List roles) {
+        this.name = name;
+        this.subject = subject;
+        this.roles = roles;
+    }
+
     public String getName() {
         return name;
     }

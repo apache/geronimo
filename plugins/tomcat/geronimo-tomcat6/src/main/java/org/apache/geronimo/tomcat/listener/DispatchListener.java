@@ -17,6 +17,7 @@
 package org.apache.geronimo.tomcat.listener;
 
 import java.util.Stack;
+
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
@@ -25,14 +26,14 @@ import org.apache.catalina.Globals;
 import org.apache.catalina.InstanceEvent;
 import org.apache.catalina.InstanceListener;
 import org.apache.catalina.core.StandardWrapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.geronimo.tomcat.GeronimoStandardContext;
 import org.apache.geronimo.tomcat.interceptor.BeforeAfter;
-import org.apache.geronimo.tomcat.realm.TomcatGeronimoRealm;
+import org.apache.geronimo.tomcat.security.jacc.JACCRealm;
 import org.apache.tomcat.util.buf.MessageBytes;
 import org.apache.tomcat.util.http.mapper.Mapper;
 import org.apache.tomcat.util.http.mapper.MappingData;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DispatchListener implements InstanceListener {
 
@@ -68,7 +69,7 @@ public class DispatchListener implements InstanceListener {
             Stack<Object[]> stack = currentContext.get();
             Object context[] = new Object[webContext.getContextCount() + 1];
             String wrapperName = getWrapperName(request, webContext);
-            context[webContext.getContextCount()] = TomcatGeronimoRealm.setRequestWrapperName(wrapperName);
+            context[webContext.getContextCount()] = JACCRealm.setRequestWrapperName(wrapperName);
 
             beforeAfter.before(context, request, response, BeforeAfter.DISPATCHED);
 
@@ -85,7 +86,7 @@ public class DispatchListener implements InstanceListener {
 
             beforeAfter.after(context, request, response, BeforeAfter.DISPATCHED);
 
-            TomcatGeronimoRealm.setRequestWrapperName((String) context[webContext.getContextCount()]);
+            JACCRealm.setRequestWrapperName((String) context[webContext.getContextCount()]);
         }
     }
 

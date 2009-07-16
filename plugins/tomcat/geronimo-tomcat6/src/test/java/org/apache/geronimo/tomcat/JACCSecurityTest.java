@@ -48,7 +48,7 @@ import org.apache.geronimo.tomcat.util.SecurityHolder;
 public class JACCSecurityTest extends AbstractWebModuleTest {
 
     ObjectName appName = null;
-
+  
     /**
      * Test the explicit map feature.  Only Alan should be able to log in.
      *

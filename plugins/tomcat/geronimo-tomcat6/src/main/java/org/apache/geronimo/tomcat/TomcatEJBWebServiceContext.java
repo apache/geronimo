@@ -22,9 +22,7 @@ import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import javax.security.jacc.PolicyContext;
 import javax.servlet.ServletException;
@@ -32,114 +30,30 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.catalina.Wrapper;
-import org.apache.catalina.authenticator.BasicAuthenticator;
-import org.apache.catalina.authenticator.DigestAuthenticator;
-import org.apache.catalina.authenticator.NonLoginAuthenticator;
-import org.apache.catalina.authenticator.SSLAuthenticator;
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
 import org.apache.catalina.core.StandardContext;
-import org.apache.catalina.deploy.LoginConfig;
-import org.apache.catalina.deploy.SecurityCollection;
-import org.apache.catalina.deploy.SecurityConstraint;
 import org.apache.catalina.valves.ValveBase;
+import org.apache.geronimo.webservices.WebServiceContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.geronimo.tomcat.realm.TomcatEJBWSGeronimoRealm;
-import org.apache.geronimo.webservices.WebServiceContainer;
-import org.apache.geronimo.security.jaas.ConfigurationFactory;
 
 public class TomcatEJBWebServiceContext extends StandardContext{
 
     private static final Logger log = LoggerFactory.getLogger(TomcatEJBWebServiceContext.class);
 
-    private final String contextPath;
     private final WebServiceContainer webServiceContainer;
-    private final boolean isSecureTransportGuarantee;
     private final ClassLoader classLoader;
-    private final Set<String> secureMethods;
 
-    public TomcatEJBWebServiceContext(String contextPath, WebServiceContainer webServiceContainer, ConfigurationFactory configurationFactory, String realmName, String transportGuarantee, String authMethod, String[] protectedMethods, ClassLoader classLoader) {
-        this.contextPath = contextPath;
+    public TomcatEJBWebServiceContext(String contextPath, WebServiceContainer webServiceContainer, ClassLoader classLoader) {
         this.webServiceContainer = webServiceContainer;
-        this.secureMethods = initSecureMethods(protectedMethods);
         this.setPath(contextPath);
         this.setDocBase("");
         this.setParentClassLoader(classLoader);
         this.setDelegate(true);
 
         log.debug("EJB Webservice Context = " + contextPath);
-        if (configurationFactory != null) {
 
-            TomcatEJBWSGeronimoRealm realm = new TomcatEJBWSGeronimoRealm(configurationFactory);
-            setRealm(realm);
-
-            if ("NONE".equals(transportGuarantee)) {
-                isSecureTransportGuarantee = false;
-            } else if ("INTEGRAL".equals(transportGuarantee) ||
-                       "CONFIDENTIAL".equals(transportGuarantee)) {
-                isSecureTransportGuarantee = true;
-            } else {
-                throw new IllegalArgumentException("Invalid transport-guarantee: " + transportGuarantee);
-            }
-
-            if ("NONE".equals(authMethod) ||
-                "BASIC".equals(authMethod) ||
-                "DIGEST".equals(authMethod) ||
-                "CLIENT-CERT".equals(authMethod)) {
-
-                //Setup a login configuration
-                LoginConfig loginConfig = new LoginConfig();
-                loginConfig.setAuthMethod(authMethod);
-                loginConfig.setRealmName(realmName);
-                this.setLoginConfig(loginConfig);
-
-                //Setup a default Security Constraint
-                SecurityCollection collection = new SecurityCollection();
-                if (secureMethods == null) {
-                    // protect all
-                    collection.addMethod("GET");
-                    collection.addMethod("POST");
-                    collection.addMethod("PUT");
-                    collection.addMethod("DELETE");
-                    collection.addMethod("HEAD");
-                    collection.addMethod("OPTIONS");
-                    collection.addMethod("TRACE");
-                    collection.addMethod("CONNECT");
-                } else {
-                    // protect specified
-                    for (String method : secureMethods) {
-                        collection.addMethod(method);
-                    }
-                }
-                collection.addPattern("/*");
-                collection.setName("default");
-                SecurityConstraint sc = new SecurityConstraint();
-                sc.addAuthRole("*");
-                sc.addCollection(collection);
-                sc.setAuthConstraint(true);
-                sc.setUserConstraint(transportGuarantee);
-                this.addConstraint(sc);
-                this.addSecurityRole("default");
-
-                //Set the proper authenticator
-                if ("BASIC".equals(authMethod) ){
-                    this.addValve(new BasicAuthenticator());
-                } else if ("DIGEST".equals(authMethod) ){
-                    this.addValve(new DigestAuthenticator());
-                } else if ("CLIENT-CERT".equals(authMethod) ){
-                    this.addValve(new SSLAuthenticator());
-                } else if ("NONE".equals(authMethod)) {
-                    this.addValve(new NonLoginAuthenticator());
-                }
-
-            } else {
-                throw new IllegalArgumentException("Invalid authMethod: " + authMethod);
-            }
-        } else {
-            isSecureTransportGuarantee = false;
-        }
-        
         this.classLoader = classLoader;
         this.addValve(new EJBWebServiceValve());
         
@@ -150,29 +64,6 @@ public class TomcatEJBWebServiceContext extends StandardContext{
         this.addChild(wrapper);
         this.addServletMapping("/*", name);
 
-    }
-    
-    private Set<String> initSecureMethods(String[] protectedMethods) {
-        if (protectedMethods == null) {
-            return null;
-        }
-        Set<String> methods = null;
-        for (String method : protectedMethods) {
-            if (method == null) {
-                continue;
-            }
-            method = method.trim();
-            if (method.length() == 0) {
-                continue;
-            }
-            method = method.toUpperCase();
-            
-            if (methods == null) {
-                methods = new HashSet<String>();
-            }
-            methods.add(method);
-        }
-        return methods;
     }
     
     public class EJBWebServiceValve extends ValveBase {
@@ -201,12 +92,6 @@ public class TomcatEJBWebServiceContext extends StandardContext{
 
             req.finishRequest();
             
-            if (secureMethods == null || secureMethods.contains(req.getMethod())) {
-                if (isSecureTransportGuarantee && !req.isSecure()) {
-                    res.sendError(403);
-                    return;
-                }
-            }
             if (isWSDLRequest(req)) {
                 try {
                     webServiceContainer.getWsdl(request, response);

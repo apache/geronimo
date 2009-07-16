@@ -25,19 +25,18 @@ import java.util.Properties;
 
 import javax.management.ObjectName;
 import javax.management.MalformedObjectNameException;
+import javax.security.auth.Subject;
 
 import org.apache.catalina.Container;
 import org.apache.catalina.Context;
 import org.apache.catalina.Engine;
 import org.apache.catalina.LifecycleListener;
-import org.apache.catalina.Realm;
 import org.apache.catalina.Service;
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.Lifecycle;
 import org.apache.catalina.core.StandardService;
 import org.apache.catalina.startup.ContextConfig;
 import org.apache.catalina.connector.Connector;
-import org.apache.catalina.realm.JAASRealm;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
@@ -48,9 +47,8 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.management.geronimo.NetworkConnector;
 import org.apache.geronimo.management.geronimo.WebManager;
 import org.apache.geronimo.security.jaas.ConfigurationFactory;
+import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
-import org.apache.geronimo.tomcat.realm.TomcatGeronimoRealm;
-import org.apache.geronimo.tomcat.realm.TomcatJAASRealm;
 import org.apache.geronimo.tomcat.util.SecurityHolder;
 import org.apache.geronimo.webservices.SoapHandler;
 import org.apache.geronimo.webservices.WebServiceContainer;
@@ -262,22 +260,22 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
      * <p/>
      * It simply delegates the call to Tomcat's Embedded and Host classes
      *
-     * @param ctx the context to be added
+     * @param contextInfo the context to be added
      * @see org.apache.catalina.startup.Embedded
      * @see org.apache.catalina.Host
      */
-    public void addContext(TomcatContext ctx) throws Exception {
-        Context anotherCtxObj = createContext(ctx.getContextPath(), ctx.getDocBase(), ctx.getClassLoader());
+    public void addContext(TomcatContext contextInfo) throws Exception {
+        Context context = createContext(contextInfo.getContextPath(), contextInfo.getDocBase(), contextInfo.getClassLoader());
 
         // Set the context for the Tomcat implementation
-        ctx.setContext(anotherCtxObj);
+        contextInfo.setContext(context);
 
         // Have the context to set its properties if its a GeronimoStandardContext
-        if (anotherCtxObj instanceof GeronimoStandardContext) {
-            ((GeronimoStandardContext) anotherCtxObj).setContextProperties(ctx);
+        if (context instanceof GeronimoStandardContext) {
+            ((GeronimoStandardContext) context).setContextProperties(contextInfo);
         }
         //Was a virtual server defined?
-        String virtualServer = ctx.getVirtualServer();
+        String virtualServer = contextInfo.getVirtualServer();
         if (virtualServer == null) {
             virtualServer = engine.getDefaultHost();
         }
@@ -287,60 +285,60 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
         }
 
         //Get the security-realm-name if there is one
-        SecurityHolder secHolder = ctx.getSecurityHolder() == null? new SecurityHolder(): ctx.getSecurityHolder();
+        SecurityHolder secHolder = contextInfo.getSecurityHolder() == null? new SecurityHolder(): contextInfo.getSecurityHolder();
 
         //Did we declare a GBean at the context level?
-        if (ctx.getRealm() != null) {
-            Realm realm = ctx.getRealm();
-
-            //Allow for the <security-realm-name> override from the
-            //geronimo-web.xml file to be used if our Realm is a JAAS type
-            if (secHolder.getConfigurationFactory() != null) {
-                if (realm instanceof JAASRealm) {
-                    ((JAASRealm) realm).setAppName(secHolder.getConfigurationFactory().getConfigurationName());
-                }
-            }
-            anotherCtxObj.setRealm(realm);
-        } else {
-            Realm realm = host.getRealm();
-            //Check and see if we have a declared realm name and no match to a parent name
-            if (secHolder.getConfigurationFactory() != null) {
-                    //Is the context requiring JACC?
-                    if (secHolder.isSecurity()) {
-                        //JACC
-                        realm = new TomcatGeronimoRealm(secHolder.getConfigurationFactory());
-                    } else {
-                        //JAAS
-                        realm = new TomcatJAASRealm(secHolder.getConfigurationFactory());
-                        ((JAASRealm) realm).setUserClassNames("org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal");
-                        ((JAASRealm) realm).setRoleClassNames("org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal");
-                    }
-
-                    if (log.isDebugEnabled()) {
-                        log.debug("The security-realm-name '" + secHolder.getConfigurationFactory().getConfigurationName() +
-                            "' was specified and a parent (Engine/Host) is not named the same or no RealmGBean was configured for this context. " +
-                            "Creating a default " + realm.getClass().getName() +
-                            " adapter for this context.");
-                    }
-
-                    anotherCtxObj.setRealm(realm);
-            } else {
-                //The same reason with the above
-                //anotherCtxObj.setRealm(realm);
-            }
-        }
+//        if (contextInfo.getRealm() != null) {
+//            Realm realm = contextInfo.getRealm();
+//
+//            //Allow for the <security-realm-name> override from the
+//            //geronimo-web.xml file to be used if our Realm is a JAAS type
+//            if (secHolder.getConfigurationFactory() != null) {
+//                if (realm instanceof JAASRealm) {
+//                    ((JAASRealm) realm).setAppName(secHolder.getConfigurationFactory().getConfigurationName());
+//                }
+//            }
+//            context.setRealm(realm);
+//        } else {
+//            Realm realm = host.getRealm();
+//            //Check and see if we have a declared realm name and no match to a parent name
+//            if (secHolder.getConfigurationFactory() != null) {
+//                    //Is the context requiring JACC?
+//                    if (secHolder.isSecurity()) {
+//                        //JACC
+//                        realm = new TomcatGeronimoRealm(secHolder.getConfigurationFactory());
+//                    } else {
+//                        //JAAS
+//                        realm = new TomcatJAASRealm(secHolder.getConfigurationFactory());
+//                        ((JAASRealm) realm).setUserClassNames("org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal");
+//                        ((JAASRealm) realm).setRoleClassNames("org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal");
+//                    }
+//
+//                    if (log.isDebugEnabled()) {
+//                        log.debug("The security-realm-name '" + secHolder.getConfigurationFactory().getConfigurationName() +
+//                            "' was specified and a parent (Engine/Host) is not named the same or no RealmGBean was configured for this context. " +
+//                            "Creating a default " + realm.getClass().getName() +
+//                            " adapter for this context.");
+//                    }
+//
+//                    context.setRealm(realm);
+//            } else {
+//                //The same reason with the above
+//                //anotherCtxObj.setRealm(realm);
+//            }
+//        }
         
         // add application listeners to the new context
         if (applicationListeners != null) {
             for (String listener : applicationListeners) {
-                anotherCtxObj.addApplicationListener(listener);
+                context.addApplicationListener(listener);
             }
         }
         
         try {
-            host.addChild(anotherCtxObj);
+            host.addChild(context);
         } catch (IllegalArgumentException ex) {
-            log.error("Unable to add the child container: " + anotherCtxObj.getName() 
+            log.error("Unable to add the child container: " + context.getName()
                     + " .  Please check if your project's context-root is unique.", ex);
         }
     }
@@ -385,7 +383,16 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
                               String[] protectedMethods, 
                               Properties properties,
                               ClassLoader classLoader) throws Exception {
-        Context webServiceContext = createEJBWebServiceContext(contextPath, webServiceContainer, configurationFactory, realmName, transportGuarantee, authMethod, protectedMethods, classLoader);
+
+        if( log.isDebugEnabled() )
+            log.debug("Creating EJBWebService context '" + contextPath + "'.");
+
+        TomcatEJBWebServiceContext context = new TomcatEJBWebServiceContext(contextPath, webServiceContainer, classLoader);
+        Subject defaultSubject = ContextManager.EMPTY;
+        ContextConfig config = new EjbWsContextConfig(policyContextId,  configurationFactory, defaultSubject, authMethod, realmName);
+        context.addLifecycleListener(config);
+
+        Context webServiceContext = (context);
 
         String virtualServer;
         if (virtualHosts != null && virtualHosts.length > 0) {
@@ -415,51 +422,6 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
         webServices.remove(contextPath);
     }
 
-//    public static final GBeanInfo GBEAN_INFO;
-//
-//    static {
-//        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("Tomcat Web Container", TomcatContainer.class);
-//
-//        infoFactory.setConstructor(new String[]{
-//                "classLoader",
-//                "catalinaHome",
-//                "applicationListeners",
-//                "EngineGBean",
-//                "LifecycleListenerChain",
-//                "ServerInfo",
-//                "objectName",
-//                "WebManager"});
-//
-//        infoFactory.addAttribute("classLoader", ClassLoader.class, false);
-//
-//        infoFactory.addAttribute("catalinaHome", String.class, true);
-//
-//        infoFactory.addAttribute("applicationListeners", String[].class, true);
-//
-//        infoFactory.addAttribute("objectName", String.class, false);
-//
-//        infoFactory.addReference("EngineGBean", ObjectRetriever.class, GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
-//        infoFactory.addReference("LifecycleListenerChain", LifecycleListenerGBean.class, LifecycleListenerGBean.J2EE_TYPE);
-//
-//        infoFactory.addReference("ServerInfo", ServerInfo.class, "GBean");
-//        infoFactory.addReference("WebManager", WebManager.class);
-//
-//        infoFactory.addOperation("addContext", new Class[]{TomcatContext.class});
-//        infoFactory.addOperation("removeContext", new Class[]{TomcatContext.class});
-//
-//        infoFactory.addOperation("addConnector", new Class[]{Connector.class});
-//        infoFactory.addOperation("removeConnector", new Class[]{Connector.class});
-//
-//        infoFactory.addInterface(SoapHandler.class);
-//        infoFactory.addInterface(TomcatWebContainer.class);
-//
-//        GBEAN_INFO = infoFactory.getBeanInfo();
-//    }
-//
-//    public static GBeanInfo getGBeanInfo() {
-//        return GBEAN_INFO;
-//    }
-
     public Context createContext(String path, String docBase, ClassLoader cl) {
 
         if( log.isDebugEnabled() )
@@ -474,35 +436,12 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
         if (cl != null)
             context.setParentClassLoader(cl);
 
-        ContextConfig config = new ContextConfig();
-//        config.setCustomAuthenticators(authenticators);
+        ContextConfig config = new WebContextConfig();
         context.addLifecycleListener(config);
 
         context.setDelegate(true);
         return context;
 
     }
-    
-    public Context createEJBWebServiceContext(String contextPath,
-            WebServiceContainer webServiceContainer,
-            ConfigurationFactory configurationFactory,
-            String realmName,
-            String transportGuarantee,
-            String authMethod,
-            String[] protectedMethods,
-            ClassLoader classLoader) {
-
-         if( log.isDebugEnabled() )
-             log.debug("Creating EJBWebService context '" + contextPath + "'.");
-
-         TomcatEJBWebServiceContext context = new TomcatEJBWebServiceContext(contextPath, webServiceContainer, configurationFactory, realmName, transportGuarantee, authMethod, protectedMethods, classLoader);
-
-         ContextConfig config = new ContextConfig();
-//         config.setCustomAuthenticators(authenticators);
-         ((Lifecycle) context).addLifecycleListener(config);
-
-         return (context);
-
-     }
 
 }

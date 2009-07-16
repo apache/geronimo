@@ -19,7 +19,6 @@ package org.apache.geronimo.tomcat;
 import org.apache.catalina.Engine;
 import org.apache.catalina.Realm;
 import org.apache.catalina.core.StandardEngine;
-import org.apache.geronimo.tomcat.realm.TomcatJAASRealm;
 
 public class TomcatEngine extends StandardEngine implements Engine{
 

@@ -48,12 +48,12 @@ public class PolicyContextBeforeAfter implements BeforeAfter{
 
         //Save the old
 
-        context[policyContextIDIndex] = PolicyContext.getContextID();
+//        context[policyContextIDIndex] = PolicyContext.getContextID();
         context[callersIndex] = ContextManager.getCallers();
 
         //Set the new
-        PolicyContext.setContextID(policyContextID);
-        PolicyContext.setHandlerData(httpRequest);
+//        PolicyContext.setContextID(policyContextID);
+//        PolicyContext.setHandlerData(httpRequest);
         if (httpRequest != null){
             context[defaultSubjectIndex] = httpRequest.getAttribute(DEFAULT_SUBJECT);
             httpRequest.setAttribute(DEFAULT_SUBJECT, defaultSubject);
@@ -71,9 +71,9 @@ public class PolicyContextBeforeAfter implements BeforeAfter{
         }
 
         //Replace the old
-        PolicyContext.setContextID((String)context[policyContextIDIndex]);
+//        PolicyContext.setContextID((String)context[policyContextIDIndex]);
         // Must unset handler data from thread - see GERONIMO-4574
-        PolicyContext.setHandlerData(null);
+//        PolicyContext.setHandlerData(null);
         ContextManager.popCallers((Callers) context[callersIndex]);
         if (httpRequest != null)
             httpRequest.setAttribute(DEFAULT_SUBJECT, context[defaultSubjectIndex]);

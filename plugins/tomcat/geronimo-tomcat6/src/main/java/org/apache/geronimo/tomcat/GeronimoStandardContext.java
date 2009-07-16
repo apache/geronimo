@@ -42,6 +42,7 @@ import org.apache.catalina.valves.ValveBase;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.common.GeronimoSecurityException;
 import org.apache.geronimo.security.ContextManager;
+import org.apache.geronimo.security.jaas.ConfigurationFactory;
 import org.apache.geronimo.security.jacc.RunAsSource;
 import org.apache.geronimo.tomcat.interceptor.BeforeAfter;
 import org.apache.geronimo.tomcat.interceptor.ComponentContextBeforeAfter;
@@ -63,6 +64,11 @@ import org.apache.geronimo.webservices.WebServiceContainerInvoker;
 public class GeronimoStandardContext extends StandardContext {
 
     private static final long serialVersionUID = 3834587716552831032L;
+    private static final boolean allowLinking;
+
+    static {
+        allowLinking = new Boolean(System.getProperty("org.apache.geronimo.tomcat.GeronimoStandardContext.allowLinking", "false"));
+    }
 
     private Subject defaultSubject = null;
     private RunAsSource runAsSource = RunAsSource.NULL;
@@ -73,12 +79,10 @@ public class GeronimoStandardContext extends StandardContext {
 
     private BeforeAfter beforeAfter = null;
     private int contextCount = 0;
-    
-    private static final boolean allowLinking;
-    
-    static {
-        allowLinking = new Boolean(System.getProperty("org.apache.geronimo.tomcat.GeronimoStandardContext.allowLinking", "false"));
-    }
+
+    private boolean authenticatorInstalled;
+    private ConfigurationFactory configurationFactory;
+    private String policyContextId;
 
     public void setContextProperties(TomcatContext ctx) throws DeploymentException {
 
@@ -104,6 +108,9 @@ public class GeronimoStandardContext extends StandardContext {
                     getServletContext().setAttribute(entry.getKey(), entry.getValue());
                 }
             }
+            if (tctx.getSecurityHolder() != null) {
+                configurationFactory = tctx.getSecurityHolder().getConfigurationFactory();
+            }
         }
 
         int index = 0;
@@ -127,8 +134,8 @@ public class GeronimoStandardContext extends StandardContext {
             
             if (securityHolder.getPolicyContextID() != null) {
 
-                PolicyContext.setContextID(securityHolder.getPolicyContextID());
-
+                policyContextId = securityHolder.getPolicyContextID();
+                PolicyContext.setContextID(policyContextId);
                 /**
                  * Register our default subject with the ContextManager
                  */
@@ -138,7 +145,7 @@ public class GeronimoStandardContext extends StandardContext {
                     defaultSubject = ContextManager.EMPTY;
                 }
 
-                interceptor = new PolicyContextBeforeAfter(interceptor, index++, index++, index++, securityHolder.getPolicyContextID(), defaultSubject);
+                interceptor = new PolicyContextBeforeAfter(interceptor, index++, index++, index++, policyContextId, defaultSubject);
 
             }
         }
@@ -447,5 +454,25 @@ public class GeronimoStandardContext extends StandardContext {
      */
     public Subject getSubjectForRole(String runAsRole) {
         return runAsSource.getSubjectForRole(runAsRole);
+    }
+
+    public boolean isAuthenticatorInstalled() {
+        return authenticatorInstalled;
+    }
+
+    public void setAuthenticatorInstalled(boolean authenticatorInstalled) {
+        this.authenticatorInstalled = authenticatorInstalled;
+    }
+
+    public ConfigurationFactory getConfigurationFactory() {
+        return configurationFactory;
+    }
+
+    public Subject getDefaultSubject() {
+        return defaultSubject;
+    }
+
+    public String getPolicyContextId() {
+        return policyContextId;
     }
 }

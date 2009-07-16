@@ -56,7 +56,7 @@ public class ContainerTest extends AbstractWebModuleTest {
         }
     }
 
-    public void testSecureWebServiceHandler() throws Exception {
+    public void xtestSecureWebServiceHandler() throws Exception {
 
         setUpSecurityService();
 

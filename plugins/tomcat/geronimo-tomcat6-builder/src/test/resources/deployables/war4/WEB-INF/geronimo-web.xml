@@ -45,14 +45,14 @@
         <!--</default-subject>-->
     <!--</security>-->
 
-    <gbean name="TomcatRealm" class="org.apache.geronimo.tomcat.RealmGBean">
-        <attribute name="className">org.apache.geronimo.tomcat.realm.TomcatGeronimoRealm</attribute>
-        <attribute name="initParams">
-            userClassNames=org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal
-            roleClassNames=org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal
-        </attribute>
-        <reference name="ConfigurationFactory"><name>securityRealm</name></reference>
-    </gbean>
+    <!--<gbean name="TomcatRealm" class="org.apache.geronimo.tomcat.RealmGBean">-->
+        <!--<attribute name="className">org.apache.geronimo.tomcat.realm.TomcatGeronimoRealm</attribute>-->
+        <!--<attribute name="initParams">-->
+            <!--userClassNames=org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal-->
+            <!--roleClassNames=org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal-->
+        <!--</attribute>-->
+        <!--<reference name="ConfigurationFactory"><name>securityRealm</name></reference>-->
+    <!--</gbean>-->
 
     <gbean name="FirstValve" class="org.apache.geronimo.tomcat.ValveGBean">
         <attribute name="className">org.apache.catalina.authenticator.SingleSignOn</attribute>
