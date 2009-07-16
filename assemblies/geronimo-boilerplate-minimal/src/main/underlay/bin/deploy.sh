@@ -181,7 +181,9 @@ if [ "$GERONIMO_ENV_INFO" != "off" ] ; then
   fi
 fi
 
-exec "$_RUNJAVA" $JAVA_OPTS $GERONIMO_OPTS \
+"$_RUNJAVA" $JAVA_OPTS $GERONIMO_OPTS \
   -Dorg.apache.geronimo.home.dir="$GERONIMO_HOME" \
   -Djava.io.tmpdir="$GERONIMO_TMPDIR" \
   -jar "$GERONIMO_HOME"/bin/deployer.jar "$@" 
+
+stty echo
