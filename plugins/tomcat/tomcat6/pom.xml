@@ -79,23 +79,23 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.tomcat</groupId>
+            <groupId>org.apache.geronimo.ext.tomcat</groupId>
             <artifactId>catalina</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>org.apache.tomcat</groupId>
+            <groupId>org.apache.geronimo.ext.tomcat</groupId>
             <artifactId>catalina-ha</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>org.apache.tomcat</groupId>
-            <artifactId>tribes</artifactId>
+            <groupId>org.apache.geronimo.ext.tomcat</groupId>
+            <artifactId>util</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>org.apache.tomcat</groupId>
-            <artifactId>coyote</artifactId>
+            <groupId>org.apache.geronimo.ext.tomcat</groupId>
+            <artifactId>tribes</artifactId>
         </dependency>
 
         <dependency>

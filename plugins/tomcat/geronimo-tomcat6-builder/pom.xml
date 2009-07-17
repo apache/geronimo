@@ -66,27 +66,21 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.tomcat</groupId>
+            <groupId>org.apache.geronimo.ext.tomcat</groupId>
             <artifactId>jasper</artifactId>
             <scope>test</scope>
         </dependency>
 
         <dependency>
-            <groupId>org.apache.tomcat</groupId>
+            <groupId>org.apache.geronimo.ext.tomcat</groupId>
             <artifactId>jasper-el</artifactId>
             <scope>test</scope>
         </dependency>
 
         <dependency>
-            <groupId>org.apache.tomcat</groupId>
-            <artifactId>jasper-jdt</artifactId>
+            <groupId>org.apache.geronimo.ext.tomcat</groupId>
+            <artifactId>shared</artifactId>
             <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <!-- TODO remove this WTF??? why isn't this picked up from geronimo-web-2.5-builder? -->
-            <groupId>asm</groupId>
-            <artifactId>asm</artifactId>
         </dependency>
 
         <dependency>

@@ -72,7 +72,9 @@
         -->
         <openejbVersion>3.0.1</openejbVersion>
         <derbyVersion>10.4.2.0</derbyVersion>
-        <tomcatVersion>6.0.18</tomcatVersion>
+        <externalTomcatVersion>6.0.20-SNAPSHOT</externalTomcatVersion>
+        <tomcatVersion>6.0.20</tomcatVersion>
+        <eclipseVersion>3.3.0-v_771</eclipseVersion>
         <tranqlVendorsVersion>1.4</tranqlVendorsVersion>
         <dojoVersion>1.0.2</dojoVersion>
         <dojoLegacyVersion>0.4.3</dojoLegacyVersion>
@@ -1188,21 +1190,21 @@
 
             <!-- Tomcat web container -->
             <dependency>
-                <groupId>org.apache.tomcat</groupId>
+                <groupId>org.apache.geronimo.ext.tomcat</groupId>
                 <artifactId>jasper</artifactId>
-                <version>6.0.18-G678601</version>
+                <version>${externalTomcatVersion}</version>
             </dependency>
 
             <dependency>
-                <groupId>org.apache.tomcat</groupId>
+                <groupId>org.apache.geronimo.ext.tomcat</groupId>
                 <artifactId>jasper-el</artifactId>
-                <version>6.0.18-G678601</version>
+                <version>${externalTomcatVersion}</version>
             </dependency>
 
             <dependency>
-                <groupId>org.apache.tomcat</groupId>
-                <artifactId>jasper-jdt</artifactId>
-                <version>${tomcatVersion}</version>
+                <groupId>org.eclipse.jdt</groupId>
+                <artifactId>core</artifactId>
+                <version>${eclipseVersion}</version>
             </dependency>
 
             <dependency>
@@ -1218,33 +1220,39 @@
             </dependency>
 
             <dependency>
-                <groupId>org.apache.tomcat</groupId>
+                <groupId>org.apache.geronimo.ext.tomcat</groupId>
                 <artifactId>catalina</artifactId>
-                <version>6.0.18-G678601</version>
+                <version>${externalTomcatVersion}</version>
             </dependency>
 
             <dependency>
-                <groupId>org.apache.tomcat</groupId>
+                <groupId>org.apache.geronimo.ext.tomcat</groupId>
+                <artifactId>util</artifactId>
+                <version>${externalTomcatVersion}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.geronimo.ext.tomcat</groupId>
+                <artifactId>shared</artifactId>
+                <version>${externalTomcatVersion}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.geronimo.ext.tomcat</groupId>
                 <artifactId>catalina-ha</artifactId>
-                <version>${tomcatVersion}</version>
+                <version>${externalTomcatVersion}</version>
             </dependency>
 
             <dependency>
-                <groupId>org.apache.tomcat</groupId>
+                <groupId>org.apache.geronimo.ext.tomcat</groupId>
                 <artifactId>tribes</artifactId>
-                <version>${tomcatVersion}</version>
+                <version>${externalTomcatVersion}</version>
             </dependency>
 
             <dependency>
-                <groupId>org.apache.tomcat</groupId>
-                <artifactId>coyote</artifactId>
-                <version>${tomcatVersion}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.tomcat</groupId>
+                <groupId>org.apache.geronimo.ext.tomcat</groupId>
                 <artifactId>juli</artifactId>
-                <version>${tomcatVersion}</version>
+                <version>${externalTomcatVersion}</version>
             </dependency>
 
             <!-- WADI support -->
@@ -2187,9 +2195,9 @@
                         </dependency>
 
                         <dependency>
-                            <groupId>org.apache.tomcat</groupId>
+                            <groupId>org.apache.geronimo.ext.tomcat</groupId>
                             <artifactId>jasper</artifactId>
-                            <version>6.0.18-G678601</version>
+                            <version>${externalTomcatVersion}</version>
                         </dependency>
                     </dependencies>
                 </plugin>
@@ -2532,11 +2540,12 @@
     <repositories>
         <!--
         NOTE: The default repositories are picked up by Genesis.
-              We only need to include apache-snapshots for Genesis SNAPSHOTs.
+              We need the apache-snapshot repo, since it isn't defined by Genesis 1.3.1. 
+        -->
         <repository>
             <id>apache-snapshots</id>
             <name>Apache Snapshots Repository</name>
-            <url>http://people.apache.org/repo/m2-snapshot-repository</url>
+            <url>http://repository.apache.org/snapshots/</url>
             <layout>default</layout>
             <snapshots>
                 <enabled>true</enabled>
@@ -2547,7 +2556,6 @@
                 <enabled>false</enabled>
             </releases>
         </repository>
-        -->
     </repositories>
 
     <url>http://geronimo.apache.org/maven/${siteId}/${version}</url>

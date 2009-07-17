@@ -34,17 +34,44 @@
     
     <dependencies>
         <dependency>
-            <groupId>org.apache.tomcat</groupId>
+            <groupId>org.apache.geronimo.ext.tomcat</groupId>
             <artifactId>jasper</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>org.apache.tomcat</groupId>
-            <artifactId>jasper-jdt</artifactId>
+          <groupId>org.apache.geronimo.ext.tomcat</groupId>
+          <artifactId>shared</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>org.apache.tomcat</groupId>
+            <groupId>org.eclipse.jdt</groupId>
+            <artifactId>core</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.eclipse.core</groupId>
+                    <artifactId>resources</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.eclipse.core</groupId>
+                    <artifactId>runtime</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.eclipse.core</groupId>
+                    <artifactId>filesystem</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.eclipse</groupId>
+                    <artifactId>text</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.eclipse.team</groupId>
+                    <artifactId>core</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.ext.tomcat</groupId>
             <artifactId>jasper-el</artifactId>
         </dependency>
 
@@ -59,32 +86,6 @@
             <version>${version}</version>
         </dependency>
 
-        <!-- these are normally transitive dependencies of the tomcat-jasper jar -->
-        <!-- if our hacked jasper copy gets a pom we won't need these -->
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-servlet_2.5_spec</artifactId>
-        </dependency>
-        
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-jsp_2.1_spec</artifactId>
-        </dependency>
-        
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-el_1.0_spec</artifactId>
-        </dependency>
-        
-        <dependency>
-          <groupId>org.apache.tomcat</groupId>
-          <artifactId>juli</artifactId>
-        </dependency>
-        
-        <dependency>
-          <groupId>org.apache.tomcat</groupId>
-          <artifactId>catalina</artifactId>
-        </dependency>
     </dependencies>
 
 </project>
