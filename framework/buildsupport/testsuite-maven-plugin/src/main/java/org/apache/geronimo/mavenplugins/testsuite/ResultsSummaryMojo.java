@@ -74,6 +74,7 @@ import org.apache.tools.ant.taskdefs.optional.ssh.SSHExec;
  */
 public class ResultsSummaryMojo
 extends MojoSupport {
+    //TODO for this to actually work most likely we need to get a more up to date jtidy such as the one formerly in the svn repo version 8.0-20060801
     /**
      * @component
      */

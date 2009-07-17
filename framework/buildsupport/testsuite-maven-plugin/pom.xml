@@ -53,7 +53,8 @@
         <dependency>
             <groupId>jtidy</groupId>
             <artifactId>jtidy</artifactId>
-            <version>8.0-20060801</version>
+            <!--<version>8.0-20060801</version>-->
+            <version>4aug2000r7-dev</version>
         </dependency>
         <dependency>
             <groupId>ant</groupId>
