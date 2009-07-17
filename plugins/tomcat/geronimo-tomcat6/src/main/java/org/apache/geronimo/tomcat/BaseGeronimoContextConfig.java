@@ -100,11 +100,8 @@ public class BaseGeronimoContextConfig extends ContextConfig {
             authenticator = new DigestAuthenticator(loginService, realmName, unauthenticatedIdentity);
         } else if ("FORM".equalsIgnoreCase(authMethod)) {
             authenticator = new FormAuthenticator(loginService, unauthenticatedIdentity, loginPage, errorPage);
-        } else  if ("NONE".equalsIgnoreCase(authMethod)) {
+        } else {
             authenticator = new NoneAuthenticator(unauthenticatedIdentity);
-        }
-        if (authenticator == null) {
-            throw new IllegalStateException("No authenticator configured");
         }
 
         AccessControlContext defaultAcc = ContextManager.registerSubjectShort(defaultSubject,  null, null);

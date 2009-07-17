@@ -36,11 +36,13 @@ public class WebContextConfig extends BaseGeronimoContextConfig {
         if (geronimoContext.isAuthenticatorInstalled()) {
             return;
         }
-        SecurityConstraint constraints[] = context.findConstraints();
-        if ((constraints == null) || (constraints.length == 0)) {
+        if (geronimoContext.getDefaultSubject() == null) {
             return;
         }
         LoginConfig loginConfig = context.getLoginConfig();
+        if (loginConfig == null) {
+            loginConfig = new LoginConfig();
+        }
         String authMethod = loginConfig.getAuthMethod();
         String realmName = loginConfig.getRealmName();
         String loginPage = loginConfig.getLoginPage();

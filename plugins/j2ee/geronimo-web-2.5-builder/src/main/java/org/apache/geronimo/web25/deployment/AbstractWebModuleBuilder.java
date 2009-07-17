@@ -333,6 +333,8 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
             if (!hasSecurityRealmName) {
                 throw new DeploymentException("web.xml for web app " + module.getName() + " includes security elements but Geronimo deployment plan is not provided or does not contain <security-realm-name> element necessary to configure security accordingly.");
             }
+        }
+        if (hasSecurityRealmName) {
             earContext.setHasSecurity(true);
         }
         //TODO think about how to provide a default security realm name
