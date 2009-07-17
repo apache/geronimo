@@ -145,7 +145,7 @@ public class GeronimoStandardContext extends StandardContext {
                     defaultSubject = ContextManager.EMPTY;
                 }
 
-                interceptor = new PolicyContextBeforeAfter(interceptor, index++, index++, index++, policyContextId, defaultSubject);
+//                interceptor = new PolicyContextBeforeAfter(interceptor, index++, index++, index++, policyContextId, defaultSubject);
 
             }
         }
@@ -265,8 +265,8 @@ public class GeronimoStandardContext extends StandardContext {
                 //Install the DefaultSubjectValve after the authentication valve so the default subject is supplied
                 //only if no real subject is authenticated.
 
-                Valve defaultSubjectValve = new DefaultSubjectValve(defaultSubject);
-                addValve(defaultSubjectValve);
+//                Valve defaultSubjectValve = new DefaultSubjectValve(defaultSubject);
+//                addValve(defaultSubjectValve);
 
                 // if a servlet uses run-as then make sure role desgnates have been provided
                 if (hasRunAsServlet()) {

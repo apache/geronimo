@@ -38,6 +38,7 @@ public class JACCUserIdentity implements UserIdentity {
     private final AccessControlContext acc;
 
     public JACCUserIdentity(Subject subject, Principal userPrincipal, List<String> groups, AccessControlContext acc) {
+        if (subject == null) throw new NullPointerException("No Subject in user identity");
         this.subject = subject;
         this.userPrincipal = userPrincipal;
         this.groups = groups;

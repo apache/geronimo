@@ -25,37 +25,34 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.security.auth.Subject;
-import javax.security.auth.message.config.AuthConfigFactory;
-import javax.security.auth.message.config.RegistrationListener;
-import javax.security.auth.message.config.AuthConfigProvider;
-import javax.security.auth.message.config.ServerAuthConfig;
 import javax.security.auth.message.AuthException;
+import javax.security.auth.message.config.AuthConfigFactory;
+import javax.security.auth.message.config.AuthConfigProvider;
+import javax.security.auth.message.config.RegistrationListener;
+import javax.security.auth.message.config.ServerAuthConfig;
 
-import org.apache.catalina.deploy.LoginConfig;
-import org.apache.catalina.deploy.SecurityConstraint;
-import org.apache.catalina.startup.ContextConfig;
-import org.apache.catalina.Context;
 import org.apache.catalina.core.StandardContext;
+import org.apache.catalina.startup.ContextConfig;
+import org.apache.geronimo.security.ContextManager;
+import org.apache.geronimo.security.jaas.ConfigurationFactory;
 import org.apache.geronimo.tomcat.security.Authenticator;
-import org.apache.geronimo.tomcat.security.LoginService;
-import org.apache.geronimo.tomcat.security.IdentityService;
 import org.apache.geronimo.tomcat.security.Authorizer;
+import org.apache.geronimo.tomcat.security.IdentityService;
+import org.apache.geronimo.tomcat.security.LoginService;
 import org.apache.geronimo.tomcat.security.SecurityValve;
 import org.apache.geronimo.tomcat.security.UserIdentity;
+import org.apache.geronimo.tomcat.security.authentication.BasicAuthenticator;
+import org.apache.geronimo.tomcat.security.authentication.ClientCertAuthenticator;
+import org.apache.geronimo.tomcat.security.authentication.DigestAuthenticator;
+import org.apache.geronimo.tomcat.security.authentication.FormAuthenticator;
+import org.apache.geronimo.tomcat.security.authentication.NoneAuthenticator;
+import org.apache.geronimo.tomcat.security.authentication.jaspic.JaspicAuthenticator;
+import org.apache.geronimo.tomcat.security.authentication.jaspic.JaspicCallbackHandler;
+import org.apache.geronimo.tomcat.security.impl.GeronimoIdentityService;
+import org.apache.geronimo.tomcat.security.impl.GeronimoLoginService;
 import org.apache.geronimo.tomcat.security.jacc.JACCAuthorizer;
 import org.apache.geronimo.tomcat.security.jacc.JACCRealm;
 import org.apache.geronimo.tomcat.security.jacc.JACCSecurityValve;
-import org.apache.geronimo.tomcat.security.impl.GeronimoLoginService;
-import org.apache.geronimo.tomcat.security.impl.GeronimoIdentityService;
-import org.apache.geronimo.tomcat.security.authentication.BasicAuthenticator;
-import org.apache.geronimo.tomcat.security.authentication.NoneAuthenticator;
-import org.apache.geronimo.tomcat.security.authentication.DigestAuthenticator;
-import org.apache.geronimo.tomcat.security.authentication.ClientCertAuthenticator;
-import org.apache.geronimo.tomcat.security.authentication.FormAuthenticator;
-import org.apache.geronimo.tomcat.security.authentication.jaspic.JaspicCallbackHandler;
-import org.apache.geronimo.tomcat.security.authentication.jaspic.JaspicAuthenticator;
-import org.apache.geronimo.security.ContextManager;
-import org.apache.geronimo.security.jaas.ConfigurationFactory;
 
 /**
  * @version $Rev$ $Date$
@@ -65,10 +62,10 @@ public class BaseGeronimoContextConfig extends ContextConfig {
 
 
     protected void configureSecurity(StandardContext geronimoContext, String policyContextId, ConfigurationFactory configurationFactory, Subject defaultSubject, String authMethod, String realmName, String loginPage, String errorPage) {
-        IdentityService identityService = new GeronimoIdentityService();
         if (defaultSubject == null) {
             defaultSubject = ContextManager.EMPTY;
         }
+        IdentityService identityService = new GeronimoIdentityService(defaultSubject);
         UserIdentity unauthenticatedIdentity = identityService.newUserIdentity(defaultSubject, null, null);
         LoginService loginService = new GeronimoLoginService(configurationFactory, identityService);
         Authenticator authenticator = null;

@@ -30,19 +30,27 @@ import org.apache.geronimo.tomcat.security.IdentityService;
 import org.apache.geronimo.tomcat.security.UserIdentity;
 import org.apache.geronimo.tomcat.security.jacc.JACCUserIdentity;
 import org.apache.geronimo.security.ContextManager;
+import org.apache.geronimo.security.Callers;
 
 /**
  * @version $Rev$ $Date$
  */
 public class GeronimoIdentityService implements IdentityService {
+    private final Subject defaultSubject;
+
+    public GeronimoIdentityService(Subject defaultSubject) {
+        this.defaultSubject = defaultSubject;
+    }
+
     public Object associate(UserIdentity userIdentity) {
-        Subject subject = userIdentity == null? ContextManager.EMPTY: userIdentity.getSubject();
+        Subject subject = userIdentity == null? defaultSubject: userIdentity.getSubject();
+        Callers callers = ContextManager.getCallers();
         ContextManager.setCallers(subject, subject);
-        return null;
+        return callers;
     }
 
     public void dissociate(Object previous) {
-        ContextManager.clearCallers();
+        ContextManager.popCallers((Callers) previous);
     }
 
     public UserIdentity newUserIdentity(Subject subject, Principal userPrincipal, List<String> groups) {
