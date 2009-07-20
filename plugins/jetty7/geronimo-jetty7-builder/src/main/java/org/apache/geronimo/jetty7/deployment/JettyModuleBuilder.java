@@ -87,6 +87,7 @@ import org.apache.geronimo.jetty7.WebAppContextWrapper;
 import org.apache.geronimo.jetty7.security.AuthConfigProviderHandlerFactory;
 import org.apache.geronimo.jetty7.security.BuiltInAuthMethod;
 import org.apache.geronimo.jetty7.security.JettySecurityHandlerFactory;
+import org.apache.geronimo.jetty7.security.auth.NoneAuthenticator;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
@@ -778,7 +779,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
             throw new DeploymentException("Web app " + module.getName() + " cannot have more than one login-config element.  Currently has " + loginConfigArray.length + " login-config elements.");
         }
         JettyAuthenticationType authType = jettyWebApp.getAuthentication();
-        if (loginConfigArray.length == 1 || authType != null) {
+        if (loginConfigArray.length == 1 || authType != null || jettyWebApp.isSetSecurityRealmName()) {
             AbstractName factoryName = moduleContext.getNaming().createChildName(module.getModuleName(), "securityHandlerFactory", GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
             webModuleData.setReferencePattern("SecurityHandlerFactory", factoryName);
 
@@ -863,42 +864,41 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
                 }
                 //otherwise rely on pre-configured jaspi
             } else {
-                LoginConfigType loginConfig = loginConfigArray[0];
-                if (loginConfig.isSetAuthMethod()) {
-                    String authMethod = loginConfig.getAuthMethod().getStringValue().trim();
-                    BuiltInAuthMethod auth = BuiltInAuthMethod.getValueOf(authMethod);
-                    GBeanData securityFactoryData = new GBeanData(factoryName, JettySecurityHandlerFactory.class);
-                    securityFactoryData.setAttribute("authMethod", auth);
-                    configureConfigurationFactory(jettyWebApp, loginConfig, securityFactoryData);
+                LoginConfigType loginConfig = loginConfigArray.length == 1? loginConfigArray[0]: null;
+                GBeanData securityFactoryData = new GBeanData(factoryName, JettySecurityHandlerFactory.class);
+                configureConfigurationFactory(jettyWebApp, loginConfig, securityFactoryData);
+                BuiltInAuthMethod auth = BuiltInAuthMethod.NONE;
+                if (loginConfig != null) {
+                    if (loginConfig.isSetAuthMethod()) {
+                        String authMethod = loginConfig.getAuthMethod().getStringValue().trim();
+                        auth = BuiltInAuthMethod.getValueOf(authMethod);
 
-                    moduleContext.addGBean(securityFactoryData);
-
-
-                    if (auth == BuiltInAuthMethod.BASIC) {
-                        securityFactoryData.setAttribute("realmName", loginConfig.getRealmName().getStringValue().trim());
-                    } else if (auth == BuiltInAuthMethod.DIGEST) {
-                        securityFactoryData.setAttribute("realmName", loginConfig.getRealmName().getStringValue().trim());
-                    } else if (auth == BuiltInAuthMethod.FORM) {
-                        if (loginConfig.isSetFormLoginConfig()) {
-                            FormLoginConfigType formLoginConfig = loginConfig.getFormLoginConfig();
-                            securityFactoryData.setAttribute("loginPage", formLoginConfig.getFormLoginPage().getStringValue());
-                            securityFactoryData.setAttribute("errorPage", formLoginConfig.getFormErrorPage().getStringValue());
+                        if (auth == BuiltInAuthMethod.BASIC) {
+                            securityFactoryData.setAttribute("realmName", loginConfig.getRealmName().getStringValue().trim());
+                        } else if (auth == BuiltInAuthMethod.DIGEST) {
+                            securityFactoryData.setAttribute("realmName", loginConfig.getRealmName().getStringValue().trim());
+                        } else if (auth == BuiltInAuthMethod.FORM) {
+                            if (loginConfig.isSetFormLoginConfig()) {
+                                FormLoginConfigType formLoginConfig = loginConfig.getFormLoginConfig();
+                                securityFactoryData.setAttribute("loginPage", formLoginConfig.getFormLoginPage().getStringValue());
+                                securityFactoryData.setAttribute("errorPage", formLoginConfig.getFormErrorPage().getStringValue());
+                            }
+                        } else if (auth == BuiltInAuthMethod.CLIENTCERT) {
+                            //nothing to do
+                        } else {
+                            throw new DeploymentException("unrecognized auth method, use jaspi to configure: " + authMethod);
                         }
-                    } else if (auth == BuiltInAuthMethod.CLIENTCERT) {
-                        //nothing to do
-                    } else {
-                        throw new DeploymentException("unrecognized auth method, use jaspi to configure: " + authMethod);
-                    }
 
-                } else {
-                    throw new DeploymentException("No auth method configured and no jaspi configured");
+                    } else {
+                        throw new DeploymentException("No auth method configured and no jaspi configured");
+                    }
+                    if (loginConfig.isSetRealmName()) {
+                        webModuleData.setAttribute("realmName", loginConfig.getRealmName().getStringValue());
+                    }
                 }
-                if (loginConfig.isSetRealmName()) {
-                    webModuleData.setAttribute("realmName", loginConfig.getRealmName().getStringValue());
-                }
+                securityFactoryData.setAttribute("authMethod", auth);
+                moduleContext.addGBean(securityFactoryData);
             }
-//        } else if (jettyWebApp.isSetSecurityRealmName()) {
-//            webModuleData.setAttribute("authenticator", new NonAuthenticator());
         }
     }
 
