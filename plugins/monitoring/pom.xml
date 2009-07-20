@@ -74,14 +74,7 @@
         </profile>
     </profiles>
 
-    <build>
-        <resources>
-            <resource>
-                <directory>${pom.basedir}/src/main/resources</directory>
-                <filtering>true</filtering>
-            </resource>
-        </resources>
-        
+    <build>        
         <pluginManagement>
             <plugins>
                 <!-- inheriting configration for war plugin, i,e, precompile JSPs -->

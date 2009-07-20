@@ -80,14 +80,7 @@
         </dependency>
     </dependencies>
     
-    <build>
-        <resources>
-            <resource>
-                <directory>${pom.basedir}/src/main/resources</directory>
-                <filtering>true</filtering>
-            </resource>
-        </resources>
-        
+    <build>  
         <plugins>
             <plugin>
                 <groupId>org.apache.geronimo.buildsupport</groupId>

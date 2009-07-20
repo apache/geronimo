@@ -34,15 +34,6 @@
 
     <description> Geronimo Management EJB for JSR77 </description>
 
-    <build>
-        <resources>
-            <resource>
-                <directory>${pom.basedir}/src/main/resources</directory>
-                <filtering>true</filtering>
-            </resource>
-        </resources>
-    </build>
-
     <dependencies>
         <dependency>
             <groupId>org.apache.openejb</groupId>

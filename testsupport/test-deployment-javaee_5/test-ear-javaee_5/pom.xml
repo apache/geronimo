@@ -62,13 +62,6 @@
     </dependencies>
     
     <build>
-        <resources>
-            <resource>
-                <directory>${pom.basedir}/src/main/resources</directory>
-                <filtering>true</filtering>
-            </resource>
-        </resources>
-        
         <plugins>
             <plugin>
                 <artifactId>maven-ear-plugin</artifactId>
