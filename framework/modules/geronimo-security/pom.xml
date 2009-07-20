@@ -33,38 +33,6 @@
     
     <dependencies>
 
-        <!-- for GERONIMO_SERVICE constant string -->
-        <!--<dependency>-->
-            <!--<groupId>org.apache.geronimo.framework</groupId>-->
-            <!--<artifactId>geronimo-j2ee</artifactId>-->
-            <!--<version>${version}</version>-->
-            <!--<scope>provided</scope>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.apache.geronimo.framework</groupId>-->
-            <!--<artifactId>geronimo-kernel</artifactId>-->
-            <!--<version>${version}</version>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.apache.geronimo.framework</groupId>-->
-            <!--<artifactId>geronimo-system</artifactId>-->
-            <!--<version>${version}</version>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.apache.geronimo.framework</groupId>-->
-            <!--<artifactId>geronimo-common</artifactId>-->
-            <!--<version>${version}</version>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.apache.geronimo.framework</groupId>-->
-            <!--<artifactId>geronimo-crypto</artifactId>-->
-            <!--<version>${version}</version>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.apache.geronimo.framework</groupId>-->
-            <!--<artifactId>geronimo-management</artifactId>-->
-            <!--<version>${version}</version>-->
-        <!--</dependency>-->
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>rmi-naming</artifactId>
@@ -95,18 +63,6 @@
             <artifactId>geronimo-jaspi</artifactId>
         </dependency>
 
-<!--
-        <dependency>
-            <groupId>org.soter.rbac</groupId>
-            <artifactId>rbac-xml-model</artifactId>
-            <version>1.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>org.soter.rbac</groupId>
-            <artifactId>rbac-jacc</artifactId>
-            <version>1.0-SNAPSHOT</version>
-        </dependency>
--->
         <dependency>
             <groupId>org.apache.geronimo.testsupport</groupId>
             <artifactId>testsupport-common</artifactId>

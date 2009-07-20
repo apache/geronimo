@@ -32,7 +32,6 @@
     <groupId>org.apache.geronimo.plugins.monitoring.itest</groupId>
     <artifactId>mconsole-itest-simple</artifactId>
     <packaging>jar</packaging>
-    <version>2.2-SNAPSHOT</version>
     <name>mconsole-itest-simple</name>
 
     <dependencies>
