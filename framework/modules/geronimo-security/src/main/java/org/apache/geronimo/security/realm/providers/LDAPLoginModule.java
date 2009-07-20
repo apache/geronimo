@@ -348,6 +348,7 @@ public class LDAPLoginModule implements LoginModule {
         } else {
             constraints.setSearchScope(SearchControls.ONELEVEL_SCOPE);
         }
+        constraints.setReturningAttributes(new String[] { roleName });
         NamingEnumeration results =
                 context.search(roleBase, filter, constraints);
         while (results.hasMore()) {
