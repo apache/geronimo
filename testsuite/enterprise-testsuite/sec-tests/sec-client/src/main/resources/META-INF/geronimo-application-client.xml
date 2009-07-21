@@ -46,7 +46,7 @@
         <attribute name="realmName">remote-openejb-realm</attribute>
         <attribute name="global">true</attribute>
         <xml-reference name="LoginModuleConfiguration">
-            <lc:login-config xmlns:lc="http://geronimo.apache.org/xml/ns/loginconfig-${geronimoSchemaVersion}">
+            <lc:login-config xmlns:lc="http://geronimo.apache.org/xml/ns/loginconfig-1.2">
                 <lc:login-module control-flag="REQUIRED">
                     <lc:login-domain-name>remote-openejb-realm</lc:login-domain-name>
                     <lc:login-module-class>org.apache.geronimo.openejb.OpenejbRemoteLoginModule</lc:login-module-class>
