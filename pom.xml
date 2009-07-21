@@ -2558,6 +2558,23 @@
         </repository>
     </repositories>
 
+   <pluginRepositories>
+        <pluginRepository>
+            <id>apache-snapshots</id>
+            <name>Apache Snapshots Repository</name>
+            <url>http://repository.apache.org/snapshots</url>
+            <layout>default</layout>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>daily</updatePolicy>
+                <checksumPolicy>ignore</checksumPolicy>
+            </snapshots>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+        </pluginRepository>
+    </pluginRepositories>
+
     <url>http://geronimo.apache.org/maven/${siteId}/${version}</url>
     <distributionManagement>
         <!--
