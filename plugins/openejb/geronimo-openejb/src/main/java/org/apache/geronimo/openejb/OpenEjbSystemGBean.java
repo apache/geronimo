@@ -27,8 +27,8 @@ import java.util.concurrent.ConcurrentMap;
 
 import javax.ejb.spi.HandleDelegate;
 import javax.management.ObjectName;
-import javax.naming.NamingException;
 import javax.naming.Context;
+import javax.naming.NamingException;
 import javax.resource.spi.ResourceAdapter;
 import javax.transaction.TransactionManager;
 
@@ -68,8 +68,8 @@ import org.apache.openejb.config.ConfigurationFactory;
 import org.apache.openejb.config.EjbModule;
 import org.apache.openejb.core.ServerFederation;
 import org.apache.openejb.loader.SystemInstance;
-import org.apache.openejb.resource.GeronimoTransactionManagerFactory.GeronimoXAResourceWrapper;
 import org.apache.openejb.resource.XAResourceWrapper;
+import org.apache.openejb.resource.GeronimoTransactionManagerFactory.GeronimoXAResourceWrapper;
 import org.apache.openejb.spi.ApplicationServer;
 import org.apache.openejb.spi.ContainerSystem;
 import org.apache.openejb.spi.SecurityService;
@@ -102,7 +102,7 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
 
     public OpenEjbSystemGBean(@ParamReference(name = "TransactionManager", namingType = NameFactory.JTA_RESOURCE) TransactionManager transactionManager,
                               @ParamReference(name = "ResourceAdapterWrappers") Collection<ResourceAdapterWrapper> resourceAdapters,
-                              @ParamReference(name = "PersistenceUnitGBeans") Collection<PersistenceUnitGBean> persistenceUnitGBeans,
+                              @ParamReference(name = "PersistenceUnitGBeans", namingType = NameFactory.PERSISTENCE_UNIT) Collection<PersistenceUnitGBean> persistenceUnitGBeans,
                               @ParamReference(name = "OpenEjbContext")DeepBindableContext openejbContext,
                               @ParamSpecial(type = SpecialAttributeType.kernel) Kernel kernel,
                               @ParamSpecial(type = SpecialAttributeType.classLoader) ClassLoader classLoader,
