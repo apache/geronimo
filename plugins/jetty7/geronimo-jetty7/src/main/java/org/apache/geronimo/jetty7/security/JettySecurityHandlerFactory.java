@@ -21,7 +21,6 @@
 package org.apache.geronimo.jetty7.security;
 
 import java.security.AccessControlContext;
-import java.security.Permissions;
 
 import javax.security.auth.Subject;
 
@@ -44,6 +43,7 @@ import org.eclipse.jetty.security.authentication.ClientCertAuthenticator;
 import org.eclipse.jetty.security.authentication.DigestAuthenticator;
 import org.eclipse.jetty.security.authentication.FormAuthenticator;
 import org.eclipse.jetty.security.authentication.SessionCachingAuthenticator;
+import org.eclipse.jetty.server.UserIdentity;
 
 /**
  * @version $Rev$ $Date$
@@ -77,12 +77,13 @@ public class JettySecurityHandlerFactory implements SecurityHandlerFactory {
 
     public SecurityHandler buildSecurityHandler(String policyContextID, Subject defaultSubject, RunAsSource runAsSource, boolean checkRolePermissions) {
         final LoginService loginService = new JAASLoginService(configurationFactory, realmName);
-        Authenticator authenticator = buildAuthenticator();
         if (defaultSubject == null) {
             defaultSubject = ContextManager.EMPTY;
         }
         AccessControlContext defaultAcc = ContextManager.registerSubjectShort(defaultSubject, null, null);
         IdentityService identityService = new JettyIdentityService(defaultAcc, runAsSource);
+        UserIdentity defaultIdentity = identityService.newUserIdentity(defaultSubject, null, null);
+        Authenticator authenticator = buildAuthenticator(defaultIdentity);
         if (checkRolePermissions) {
             return new JaccSecurityHandler(policyContextID, authenticator, loginService, identityService, defaultAcc);
         } else {
@@ -90,7 +91,7 @@ public class JettySecurityHandlerFactory implements SecurityHandlerFactory {
         }
     }
 
-    private Authenticator buildAuthenticator() {
+    private Authenticator buildAuthenticator(UserIdentity defaultIdentity) {
         Authenticator authenticator;
         if (authMethod == BuiltInAuthMethod.BASIC) {
             authenticator = new BasicAuthenticator();
@@ -101,7 +102,7 @@ public class JettySecurityHandlerFactory implements SecurityHandlerFactory {
         } else if (authMethod == BuiltInAuthMethod.FORM) {
             authenticator = new SessionCachingAuthenticator(new FormAuthenticator(loginPage, errorPage));
         } else if (authMethod == BuiltInAuthMethod.NONE) {
-            authenticator = new NoneAuthenticator();
+            authenticator = new NoneAuthenticator(defaultIdentity);
         } else {
             throw new IllegalStateException("someone added a new BuiltInAuthMethod without telling us");
         }

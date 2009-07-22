@@ -28,12 +28,20 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.eclipse.jetty.security.Authenticator;
 import org.eclipse.jetty.security.ServerAuthException;
+import org.eclipse.jetty.security.UserAuthentication;
 import org.eclipse.jetty.server.Authentication;
+import org.eclipse.jetty.server.UserIdentity;
 
 /**
  * @version $Rev$ $Date$
  */
 public class NoneAuthenticator implements Authenticator {
+
+    private final Authentication unauthenticated;
+
+    public NoneAuthenticator(UserIdentity unauthenticatedIdentity) {
+        unauthenticated = new UserAuthentication(this, unauthenticatedIdentity);
+    }
 
     public void setConfiguration(Configuration configuration) {
     }
@@ -51,7 +59,7 @@ public class NoneAuthenticator implements Authenticator {
             }
             return Authentication.SEND_FAILURE;
         } else {
-            return Authentication.UNAUTHENTICATED;
+            return unauthenticated;
         }
     }
 
