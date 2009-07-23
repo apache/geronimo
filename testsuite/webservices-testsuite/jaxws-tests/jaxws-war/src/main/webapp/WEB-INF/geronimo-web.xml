@@ -35,10 +35,6 @@
       <host>localhost</host>
       <port>8080</port>
       <uri>/jaxws-war/servlet2</uri>
-      <property name="wss4j.out.action">UsernameToken Timestamp</property>
-      <property name="wss4j.out.user">gawor</property>
-      <property name="wss4j.out.password">jarek</property>
-<!--      <property name="wss4j.out.passwordType">PasswordText</property> -->
    </port>
  </service-ref>
 
