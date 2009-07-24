@@ -47,4 +47,4 @@ def assertSame = { file1, file2 ->
 
 assertSame('src/test/resources/META-INF/geronimo-plugin.xml', 'target/resources/META-INF/geronimo-plugin.xml')
 
-assertSame('src/test/resources/META-INF/plan.xml', 'target/resources/META-INF/plan.xml')
+assertSame('src/test/resources/META-INF/plan.xml', 'target/work/plan.xml')

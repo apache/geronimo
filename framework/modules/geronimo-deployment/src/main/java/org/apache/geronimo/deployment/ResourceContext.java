@@ -40,6 +40,8 @@ interface ResourceContext {
     void addFile(URI targetPath, File source) throws IOException;
 
     void addFile(URI targetPath, String source) throws IOException;
+
+    void addFile(URI targetPath, byte[] contents) throws IOException;
     
     File getTargetFile(URI targetPath);
     

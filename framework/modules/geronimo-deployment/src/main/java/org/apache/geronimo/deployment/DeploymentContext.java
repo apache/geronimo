@@ -594,10 +594,7 @@ public void addManifestClassPath(JarFile moduleFile, URI moduleBaseUri, JarFileF
             throw new IllegalStateException("target path must end with a '/' character: " + targetPath);
 
         String classFileName = fqcn.replace('.', '/') + ".class";
-
-        File targetFile = getTargetFile(new URI(targetPath.toString() + classFileName));
-        addFile(targetFile, new ByteArrayInputStream(bytes));
-
+        resourceContext.addFile(new URI(targetPath.toString() + classFileName), bytes);
         configuration.addToClassPath(targetPath.toString());
     }
 
@@ -615,21 +612,6 @@ public void addManifestClassPath(JarFile moduleFile, URI moduleBaseUri, JarFileF
 
     public void addFile(URI targetPath, String source) throws IOException {
         resourceContext.addFile(targetPath, source);
-    }
-
-    private void addFile(File targetFile, InputStream source) throws IOException {
-        targetFile.getParentFile().mkdirs();
-        OutputStream out = null;
-        try {
-            out = new FileOutputStream(targetFile);
-            byte[] buffer = new byte[4096];
-            int count;
-            while ((count = source.read(buffer)) > 0) {
-                out.write(buffer, 0, count);
-            }
-        } finally {
-            DeploymentUtil.close(out);
-        }
     }
 
     public File getTargetFile(URI targetPath) {
