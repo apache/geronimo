@@ -41,21 +41,30 @@ import org.eclipse.jetty.server.UserIdentity;
 public class JettyIdentityService implements IdentityService {
 
     private final AccessControlContext defaultAcc;
+    private final Subject defaultSubject;
     private final RunAsSource runAsSource;
 
-    public JettyIdentityService(AccessControlContext defaultAcc, RunAsSource runAsSource) {
+    public JettyIdentityService(AccessControlContext defaultAcc, Subject defaultSubject, RunAsSource runAsSource) {
         this.defaultAcc = defaultAcc;
+        this.defaultSubject = defaultSubject;
         this.runAsSource = runAsSource;
     }
 
-    public void associate(UserIdentity user) {
+    public Object associate(UserIdentity user) {
+        Callers oldCallers = ContextManager.getCallers();
         if (user == null) {
             //exit
-            ContextManager.clearCallers();
+            ContextManager.setCallers(defaultSubject, defaultSubject);
         } else {
             //enter
             ContextManager.setCallers(user.getSubject(), user.getSubject());
         }
+        return oldCallers;
+    }
+
+    public void disassociate(Object previousIdentity) {
+        ContextManager.popCallers((Callers) previousIdentity);
+
     }
 
     public Object setRunAs(UserIdentity userIdentity, RunAsToken token) {
