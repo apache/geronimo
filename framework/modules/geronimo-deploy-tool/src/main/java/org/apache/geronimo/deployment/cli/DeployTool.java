@@ -54,6 +54,8 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.util.Main;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import jline.ConsoleReader;
 
 
@@ -72,6 +74,7 @@ import jline.ConsoleReader;
 public class DeployTool implements Main {
 
     private static final IdentityHashMap<CommandMetaData, DeployCommand> commands = new IdentityHashMap<CommandMetaData, DeployCommand>();
+    private static final Log log = LogFactory.getLog(DeployTool.class);
 
     static {
         commands.put(LoginCommandMetaData.META_DATA, new CommandLogin());
@@ -209,10 +212,7 @@ public class DeployTool implements Main {
 
     private void processException(PrintWriter out, Exception e) {
         failed = true;
-        out.print(DeployUtils.reformat("Error: "+e.getMessage(),4,72));
-        if(e.getCause() != null) {
-            e.getCause().printStackTrace(out);
-        }
+        log.error("Error: ", e);
     }
 
     public static final GBeanInfo GBEAN_INFO;

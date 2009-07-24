@@ -145,6 +145,7 @@ public class DeploymentPortlet extends BasePortlet {
                     TargetModuleID[] targets = identifyTargets(moduleFile, planFile, mgr.getAvailableModules(null, all));
                     if(targets.length == 0) {
                         addErrorMessage(actionRequest, getLocalizedString(actionRequest, "errorMsg04"), null);
+                        log.error(getLocalizedString(actionRequest, "errorMsg04"));
                         return;
                     }
                     progress = mgr.redeploy(targets, moduleFile, planFile);
@@ -174,6 +175,7 @@ public class DeploymentPortlet extends BasePortlet {
                             abbrStatusMessage = getLocalizedString(actionRequest, "errorMsg02");
                             fullStatusMessage = progress.getDeploymentStatus().getMessage();
                             addErrorMessage(actionRequest, abbrStatusMessage, fullStatusMessage);
+                            log.error(abbrStatusMessage + "\n" + fullStatusMessage);
                         }
                     }
                 } else {
@@ -182,6 +184,8 @@ public class DeploymentPortlet extends BasePortlet {
                     // after the first line, which in most cases means the gnarly stacktrace
                     abbrStatusMessage = getLocalizedString(actionRequest, "errorMsg01");
                     addErrorMessage(actionRequest, abbrStatusMessage, fullStatusMessage);
+                    log.error(abbrStatusMessage + "\n" + fullStatusMessage);
+                    
                     // try to provide an upgraded version of the plan
                     try {
                         if (planFile != null && planFile.exists()) {
