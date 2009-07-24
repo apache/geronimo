@@ -1107,6 +1107,10 @@
                         <groupId>org.apache.xbean</groupId>
                         <artifactId>xbean-finder-shaded</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.openjpa</groupId>
+                        <artifactId>openjpa</artifactId>
+                    </exclusion>
                 </exclusions>
             </dependency>
 
