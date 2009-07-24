@@ -890,8 +890,8 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
 
             //all the modules in the geronimo plan should have been found by now.
             if (!moduleLocations.containsAll(altVendorDDs.keySet())) {
-                HashSet<String> missingModules = new HashSet<String>(moduleLocations);
-                missingModules.removeAll(altVendorDDs.keySet());
+                HashSet<String> missingModules = new HashSet<String>(altVendorDDs.keySet());
+                missingModules.removeAll(moduleLocations);
                 throw new DeploymentException("Geronimo ear plan contains modules that are not in the ear: " + missingModules);
             }
             //deploy the extension modules
