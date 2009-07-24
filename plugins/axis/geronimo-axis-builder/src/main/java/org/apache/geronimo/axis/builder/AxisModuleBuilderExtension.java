@@ -17,6 +17,8 @@
 package org.apache.geronimo.axis.builder;
 
 import java.net.URL;
+import java.security.PermissionCollection;
+import java.security.Permissions;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -24,6 +26,9 @@ import java.util.Map;
 import java.util.Collections;
 import java.util.Properties;
 import java.util.jar.JarFile;
+
+import javax.security.jacc.WebResourcePermission;
+import javax.security.jacc.WebUserDataPermission;
 
 import org.apache.geronimo.axis.server.EjbWebServiceGBean;
 import org.apache.geronimo.common.DeploymentException;
@@ -46,7 +51,9 @@ import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.openejb.deployment.EjbModule;
 import org.apache.geronimo.security.jaas.ConfigurationFactory;
+import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.openejb.assembler.classic.EnterpriseBeanInfo;
+import org.apache.openejb.jee.oejb2.AuthMethodType;
 import org.apache.openejb.jee.oejb2.EnterpriseBean;
 import org.apache.openejb.jee.oejb2.GeronimoEjbJarType;
 import org.apache.openejb.jee.oejb2.OpenejbJarType;
@@ -107,6 +114,59 @@ public class AxisModuleBuilderExtension implements ModuleBuilderExtension {
     }
 
     public void initContext(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException {
+        if (module.getType() != ConfigurationModuleType.EJB) {
+            return;
+        }
+
+        EjbModule ejbModule = (EjbModule) module;
+
+        Map<String, WebServiceBinding> wsBindingMap = createWebServiceBindingMap(ejbModule);
+
+        for (EnterpriseBeanInfo bean : ejbModule.getEjbJarInfo().enterpriseBeans) {
+            if (bean.type != EnterpriseBeanInfo.STATELESS) {
+                continue;
+            }
+
+            String ejbName = bean.ejbName;
+
+            AbstractName sessionName = earContext.getNaming().createChildName(module.getModuleName(), ejbName, NameFactory.STATELESS_SESSION_BEAN);
+
+            assert sessionName != null: "StatelesSessionBean object name is null";
+
+            WebServiceBinding wsBinding = wsBindingMap.get(ejbName);
+            if (wsBinding != null) {
+                WebServiceSecurityType wsSecurity = wsBinding.getWebServiceSecurity();
+                if (wsSecurity != null) {
+                    earContext.setHasSecurity(true);
+                    String policyContextID = sessionName.toString();
+                    Properties properties = wsSecurity.getProperties();
+                    PermissionCollection uncheckedPermissions = new Permissions();
+                    String transportGuarantee = wsSecurity.getTransportGuarantee().toString().trim();
+                    boolean getProtected = properties.get("getProtected") == null? true: Boolean.valueOf((String) properties.get("getProtected"));
+                    if (getProtected) {
+                        WebUserDataPermission webUserDataPermission = new WebUserDataPermission("/*", null, transportGuarantee);
+                        uncheckedPermissions.add(webUserDataPermission);
+                    } else {
+                        uncheckedPermissions.add(new WebUserDataPermission("/*", new String[] {"GET"}, "NONE"));
+                        uncheckedPermissions.add(new WebUserDataPermission("/*", "!GET:" + transportGuarantee));
+                    }
+                    Map<String, PermissionCollection> rolePermissions = new HashMap<String, PermissionCollection>();
+                    //TODO allow jaspi authentication
+                    boolean secured = wsSecurity.getAuthMethod() != null && AuthMethodType.NONE != (wsSecurity.getAuthMethod());// || wsSecurity.isSetAuthentication();
+                    if (secured) {
+                        boolean getSecured = properties.get("getSecured") == null? true: Boolean.valueOf((String) properties.get("getSecured"));
+                        if (!getSecured) {
+                            uncheckedPermissions.add(new WebResourcePermission("/*", "GET"));
+                        }
+                    } else {
+                        uncheckedPermissions.add(new WebResourcePermission("/*", (String[]) null));
+                    }
+                    ComponentPermissions permissions = new ComponentPermissions(new Permissions(), uncheckedPermissions, rolePermissions);
+                    earContext.addSecurityContext(policyContextID, permissions);
+                }
+            }
+
+        }
     }
 
     public void addGBeans(EARContext earContext, Module module, ClassLoader cl, Collection repository) throws DeploymentException {
@@ -164,6 +224,8 @@ public class AxisModuleBuilderExtension implements ModuleBuilderExtension {
                     }
                     Properties properties = wsSecurity.getProperties();
                     ejbWebServiceGBean.setAttribute("properties", properties);
+                    String policyContextID = sessionName.toString();
+                    ejbWebServiceGBean.setAttribute("policyContextID", policyContextID);
                 }
             }
             
