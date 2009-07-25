@@ -17,44 +17,7 @@
 
 package org.apache.geronimo.jetty7.deployment;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.StringWriter;
-import java.io.Serializable;
-import static java.lang.Boolean.FALSE;
-import static java.lang.Boolean.TRUE;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.jar.JarFile;
-
-import javax.management.ObjectName;
-import javax.security.auth.message.module.ServerAuthModule;
-import javax.servlet.Servlet;
-import javax.xml.bind.JAXBException;
-import javax.xml.namespace.NamespaceContext;
-import javax.xml.namespace.QName;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.stream.Location;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
-
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.components.jaspi.model.AuthModuleType;
-import org.apache.geronimo.components.jaspi.model.ConfigProviderType;
-import org.apache.geronimo.components.jaspi.model.JaspiXmlUtil;
-import org.apache.geronimo.components.jaspi.model.ServerAuthConfigType;
-import org.apache.geronimo.components.jaspi.model.ServerAuthContextType;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
 import org.apache.geronimo.deployment.NamespaceDrivenBuilder;
 import org.apache.geronimo.deployment.NamespaceDrivenBuilderCollection;
@@ -77,9 +40,9 @@ import org.apache.geronimo.j2ee.deployment.WebModule;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedWebApp;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.jetty7.Host;
 import org.apache.geronimo.jetty7.DefaultServletHolderWrapper;
 import org.apache.geronimo.jetty7.FilterHolderWrapper;
+import org.apache.geronimo.jetty7.Host;
 import org.apache.geronimo.jetty7.JettyFilterMapping;
 import org.apache.geronimo.jetty7.JspServletHolderWrapper;
 import org.apache.geronimo.jetty7.ServletHolderWrapper;
@@ -87,7 +50,6 @@ import org.apache.geronimo.jetty7.WebAppContextWrapper;
 import org.apache.geronimo.jetty7.security.AuthConfigProviderHandlerFactory;
 import org.apache.geronimo.jetty7.security.BuiltInAuthMethod;
 import org.apache.geronimo.jetty7.security.JettySecurityHandlerFactory;
-import org.apache.geronimo.jetty7.security.auth.NoneAuthenticator;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
@@ -102,12 +64,13 @@ import org.apache.geronimo.schema.NamespaceElementConverter;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.security.jaas.ConfigurationFactory;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
-import org.apache.geronimo.security.jaspi.AuthConfigProviderGBean;
-import org.apache.geronimo.security.jaspi.ServerAuthConfigGBean;
-import org.apache.geronimo.security.jaspi.ServerAuthContextGBean;
-import org.apache.geronimo.security.jaspi.ServerAuthModuleGBean;
 import org.apache.geronimo.web.deployment.GenericToSpecificPlanConverter;
 import org.apache.geronimo.web25.deployment.AbstractWebModuleBuilder;
+import org.apache.geronimo.web25.deployment.security.AuthenticationWrapper;
+import org.apache.geronimo.xbeans.geronimo.jaspi.JaspiAuthModuleType;
+import org.apache.geronimo.xbeans.geronimo.jaspi.JaspiConfigProviderType;
+import org.apache.geronimo.xbeans.geronimo.jaspi.JaspiServerAuthConfigType;
+import org.apache.geronimo.xbeans.geronimo.jaspi.JaspiServerAuthContextType;
 import org.apache.geronimo.xbeans.geronimo.web.jetty.JettyAuthenticationType;
 import org.apache.geronimo.xbeans.geronimo.web.jetty.JettyWebAppDocument;
 import org.apache.geronimo.xbeans.geronimo.web.jetty.JettyWebAppType;
@@ -132,12 +95,32 @@ import org.apache.geronimo.xbeans.javaee.UrlPatternType;
 import org.apache.geronimo.xbeans.javaee.WebAppDocument;
 import org.apache.geronimo.xbeans.javaee.WebAppType;
 import org.apache.geronimo.xbeans.javaee.WelcomeFileListType;
-import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xml.sax.SAXException;
+
+import javax.management.ObjectName;
+import javax.servlet.Servlet;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.Serializable;
+import static java.lang.Boolean.FALSE;
+import static java.lang.Boolean.TRUE;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.jar.JarFile;
 
 /**
  * @version $Rev:385659 $ $Date$
@@ -784,84 +767,14 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
             webModuleData.setReferencePattern("SecurityHandlerFactory", factoryName);
 
 
-            AbstractName providerName = moduleContext.getNaming().createChildName(module.getModuleName(), "authConfigProvider", GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
             if (authType != null) {
                 GBeanData securityFactoryData = new GBeanData(factoryName, AuthConfigProviderHandlerFactory.class);
                 securityFactoryData.setAttribute("messageLayer", "HttpServlet");
-                Object contextPath = webModuleData.getAttribute("contextPath");
+                String contextPath = (String)webModuleData.getAttribute("contextPath");
                 securityFactoryData.setAttribute("appContext", "server " + contextPath);
                 configureConfigurationFactory(jettyWebApp, null, securityFactoryData);
                 moduleContext.addGBean(securityFactoryData);
-                GBeanData authConfigProviderData = null;
-                try {
-                    if (authType.isSetConfigProvider()) {
-                        authConfigProviderData = new GBeanData(providerName, AuthConfigProviderGBean.class);
-                        final XmlCursor xmlCursor = authType.getConfigProvider().newCursor();
-                        try {
-                            XMLStreamReader reader = new InternWrapper(xmlCursor.newXMLStreamReader());
-                            ConfigProviderType configProviderType = JaspiXmlUtil.loadConfigProvider(reader);
-                            StringWriter out = new StringWriter();
-                            JaspiXmlUtil.writeConfigProvider(configProviderType, out);
-                            authConfigProviderData.setAttribute("config", out.toString());
-                        } finally {
-                            xmlCursor.dispose();
-                        }
-                    } else if (authType.isSetServerAuthConfig()) {
-                        authConfigProviderData = new GBeanData(providerName, ServerAuthConfigGBean.class);
-                        final XmlCursor xmlCursor = authType.getServerAuthConfig().newCursor();
-                        try {
-                            XMLStreamReader reader = new InternWrapper(xmlCursor.newXMLStreamReader());
-                            ServerAuthConfigType serverAuthConfigType = JaspiXmlUtil.loadServerAuthConfig(reader);
-                            StringWriter out = new StringWriter();
-                            JaspiXmlUtil.writeServerAuthConfig(serverAuthConfigType, out);
-                            authConfigProviderData.setAttribute("config", out.toString());
-                        } finally {
-                            xmlCursor.dispose();
-                        }
-                    } else if (authType.isSetServerAuthContext()) {
-                        authConfigProviderData = new GBeanData(providerName, ServerAuthContextGBean.class);
-                        final XmlCursor xmlCursor = authType.getServerAuthContext().newCursor();
-                        try {
-                            XMLStreamReader reader = new InternWrapper(xmlCursor.newXMLStreamReader());
-                            ServerAuthContextType serverAuthContextType = JaspiXmlUtil.loadServerAuthContext(reader);
-                            StringWriter out = new StringWriter();
-                            JaspiXmlUtil.writeServerAuthContext(serverAuthContextType, out);
-                            authConfigProviderData.setAttribute("config", out.toString());
-                        } finally {
-                            xmlCursor.dispose();
-                        }
-                    } else if (authType.isSetServerAuthModule()) {
-                        authConfigProviderData = new GBeanData(providerName, ServerAuthModuleGBean.class);
-                        final XmlCursor xmlCursor = authType.getServerAuthModule().newCursor();
-                        try {
-                            XMLStreamReader reader = new InternWrapper(xmlCursor.newXMLStreamReader());
-                            AuthModuleType<ServerAuthModule> authModuleType = JaspiXmlUtil.loadServerAuthModule(reader);
-                            StringWriter out = new StringWriter();
-                            JaspiXmlUtil.writeServerAuthModule(authModuleType, out);
-                            authConfigProviderData.setAttribute("config", out.toString());
-                            authConfigProviderData.setAttribute("messageLayer", "Http");
-                            authConfigProviderData.setAttribute("appContext", contextPath);
-                            //TODO ??
-                            authConfigProviderData.setAttribute("authenticationID", contextPath);
-                        } finally {
-                            xmlCursor.dispose();
-                        }
-                    }
-                } catch (ParserConfigurationException e) {
-                    throw new DeploymentException("Could not read auth config", e);
-                } catch (IOException e) {
-                    throw new DeploymentException("Could not read auth config", e);
-                } catch (SAXException e) {
-                    throw new DeploymentException("Could not read auth config", e);
-                } catch (JAXBException e) {
-                    throw new DeploymentException("Could not read auth config", e);
-                } catch (XMLStreamException e) {
-                    throw new DeploymentException("Could not read auth config", e);
-                }
-                if (authConfigProviderData != null) {
-                    moduleContext.addGBean(authConfigProviderData);
-                    securityFactoryData.addDependency(providerName);
-                }
+                configureLocalJaspicProvider(new JettyAuthenticationWrapper(authType), contextPath, module, securityFactoryData);
                 //otherwise rely on pre-configured jaspi
             } else {
                 LoginConfigType loginConfig = loginConfigArray.length == 1? loginConfigArray[0]: null;
@@ -899,6 +812,46 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
                 securityFactoryData.setAttribute("authMethod", auth);
                 moduleContext.addGBean(securityFactoryData);
             }
+        }
+    }
+
+    private static class JettyAuthenticationWrapper implements AuthenticationWrapper {
+        private final JettyAuthenticationType authType;
+
+        private JettyAuthenticationWrapper(JettyAuthenticationType authType) {
+            this.authType = authType;
+        }
+
+        public JaspiConfigProviderType getConfigProvider() {
+            return authType.getConfigProvider();
+        }
+
+        public boolean isSetConfigProvider() {
+            return authType.isSetConfigProvider();
+        }
+
+        public JaspiServerAuthConfigType getServerAuthConfig() {
+            return authType.getServerAuthConfig();
+        }
+
+        public boolean isSetServerAuthConfig() {
+            return authType.isSetServerAuthConfig();
+        }
+
+        public JaspiServerAuthContextType getServerAuthContext() {
+            return authType.getServerAuthContext();
+        }
+
+        public boolean isSetServerAuthContext() {
+            return authType.isSetServerAuthContext();
+        }
+
+        public JaspiAuthModuleType getServerAuthModule() {
+            return authType.getServerAuthModule();
+        }
+
+        public boolean isSetServerAuthModule() {
+            return authType.isSetServerAuthModule();
         }
     }
 
@@ -1260,191 +1213,4 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
         }
     }
 
-    private static class InternWrapper implements XMLStreamReader {
-        private final XMLStreamReader delegate;
-
-        private InternWrapper(XMLStreamReader delegate) {
-            this.delegate = delegate;
-        }
-
-        public void close() throws XMLStreamException {
-                 delegate.close();
-            }
-
-            public int getAttributeCount() {
-                return  delegate.getAttributeCount();
-            }
-
-            public String getAttributeLocalName(int i) {
-                return  delegate.getAttributeLocalName(i);
-            }
-
-            public QName getAttributeName(int i) {
-                return  delegate.getAttributeName(i);
-            }
-
-            public String getAttributeNamespace(int i) {
-                return  delegate.getAttributeNamespace(i);
-            }
-
-            public String getAttributePrefix(int i) {
-                return  delegate.getAttributePrefix(i);
-            }
-
-            public String getAttributeType(int i) {
-                return  delegate.getAttributeType(i);
-            }
-
-            public String getAttributeValue(int i) {
-                return  delegate.getAttributeValue(i);
-            }
-
-            public String getAttributeValue(String s, String s1) {
-                return  delegate.getAttributeValue(s, s1);
-            }
-
-            public String getCharacterEncodingScheme() {
-                return  delegate.getCharacterEncodingScheme();
-            }
-
-            public String getElementText() throws XMLStreamException {
-                return  delegate.getElementText();
-            }
-
-            public String getEncoding() {
-                return  delegate.getEncoding();
-            }
-
-            public int getEventType() {
-                return  delegate.getEventType();
-            }
-
-            public String getLocalName() {
-                return  delegate.getLocalName().intern();
-            }
-
-            public Location getLocation() {
-                return  delegate.getLocation();
-            }
-
-            public QName getName() {
-                return  delegate.getName();
-            }
-
-            public NamespaceContext getNamespaceContext() {
-                return  delegate.getNamespaceContext();
-            }
-
-            public int getNamespaceCount() {
-                return  delegate.getNamespaceCount();
-            }
-
-            public String getNamespacePrefix(int i) {
-                return  delegate.getNamespacePrefix(i);
-            }
-
-            public String getNamespaceURI() {
-                return  delegate.getNamespaceURI().intern();
-            }
-
-            public String getNamespaceURI(int i) {
-                return  delegate.getNamespaceURI(i);
-            }
-
-            public String getNamespaceURI(String s) {
-                return  delegate.getNamespaceURI(s);
-            }
-
-            public String getPIData() {
-                return  delegate.getPIData();
-            }
-
-            public String getPITarget() {
-                return  delegate.getPITarget();
-            }
-
-            public String getPrefix() {
-                return  delegate.getPrefix();
-            }
-
-            public Object getProperty(String s) throws IllegalArgumentException {
-                return  delegate.getProperty(s);
-            }
-
-            public String getText() {
-                return  delegate.getText();
-            }
-
-            public char[] getTextCharacters() {
-                return  delegate.getTextCharacters();
-            }
-
-            public int getTextCharacters(int i, char[] chars, int i1, int i2) throws XMLStreamException {
-                return  delegate.getTextCharacters(i, chars, i1, i2);
-            }
-
-            public int getTextLength() {
-                return  delegate.getTextLength();
-            }
-
-            public int getTextStart() {
-                return  delegate.getTextStart();
-            }
-
-            public String getVersion() {
-                return  delegate.getVersion();
-            }
-
-            public boolean hasName() {
-                return  delegate.hasName();
-            }
-
-            public boolean hasNext() throws XMLStreamException {
-                return  delegate.hasNext();
-            }
-
-            public boolean hasText() {
-                return  delegate.hasText();
-            }
-
-            public boolean isAttributeSpecified(int i) {
-                return  delegate.isAttributeSpecified(i);
-            }
-
-            public boolean isCharacters() {
-                return  delegate.isCharacters();
-            }
-
-            public boolean isEndElement() {
-                return  delegate.isEndElement();
-            }
-
-            public boolean isStandalone() {
-                return  delegate.isStandalone();
-            }
-
-            public boolean isStartElement() {
-                return  delegate.isStartElement();
-            }
-
-            public boolean isWhiteSpace() {
-                return  delegate.isWhiteSpace();
-            }
-
-            public int next() throws XMLStreamException {
-                return  delegate.next();
-            }
-
-            public int nextTag() throws XMLStreamException {
-                return  delegate.nextTag();
-            }
-
-            public void require(int i, String s, String s1) throws XMLStreamException {
-                 delegate.require(i, s, s1);
-            }
-
-            public boolean standaloneSet() {
-                return  delegate.standaloneSet();
-            }
-    }
 }

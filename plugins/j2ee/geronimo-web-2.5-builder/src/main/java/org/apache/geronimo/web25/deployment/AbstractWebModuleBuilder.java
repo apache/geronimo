@@ -19,6 +19,7 @@ package org.apache.geronimo.web25.deployment;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -36,6 +37,13 @@ import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
 import javax.xml.namespace.QName;
+import javax.xml.namespace.NamespaceContext;
+import javax.xml.stream.XMLStreamReader;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.Location;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.bind.JAXBException;
+import javax.security.auth.message.module.ServerAuthModule;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.ClassPathList;
@@ -48,6 +56,7 @@ import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.annotation.Holder;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
@@ -60,6 +69,7 @@ import org.apache.geronimo.j2ee.deployment.annotation.SecurityAnnotationHelper;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.Naming;
+import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
@@ -69,7 +79,12 @@ import org.apache.geronimo.kernel.repository.ImportType;
 import org.apache.geronimo.naming.deployment.ResourceEnvironmentSetter;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
+import org.apache.geronimo.security.jaspi.AuthConfigProviderGBean;
+import org.apache.geronimo.security.jaspi.ServerAuthConfigGBean;
+import org.apache.geronimo.security.jaspi.ServerAuthContextGBean;
+import org.apache.geronimo.security.jaspi.ServerAuthModuleGBean;
 import org.apache.geronimo.web25.deployment.security.SpecSecurityBuilder;
+import org.apache.geronimo.web25.deployment.security.AuthenticationWrapper;
 import org.apache.geronimo.xbeans.geronimo.j2ee.GerSecurityDocument;
 import org.apache.geronimo.xbeans.javaee.FilterMappingType;
 import org.apache.geronimo.xbeans.javaee.FilterType;
@@ -82,6 +97,11 @@ import org.apache.geronimo.xbeans.javaee.UrlPatternType;
 import org.apache.geronimo.xbeans.javaee.WebAppDocument;
 import org.apache.geronimo.xbeans.javaee.WebAppType;
 import org.apache.geronimo.xbeans.javaee.WebResourceCollectionType;
+import org.apache.geronimo.components.jaspi.model.ConfigProviderType;
+import org.apache.geronimo.components.jaspi.model.JaspiXmlUtil;
+import org.apache.geronimo.components.jaspi.model.ServerAuthConfigType;
+import org.apache.geronimo.components.jaspi.model.ServerAuthContextType;
+import org.apache.geronimo.components.jaspi.model.AuthModuleType;
 import org.apache.xbean.finder.ClassFinder;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlDocumentProperties;
@@ -89,6 +109,7 @@ import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xml.sax.SAXException;
 
 /**
  * @version $Rev$ $Date$
@@ -461,6 +482,81 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         return builder.buildSpecSecurityConfig(webApp);
     }
 
+    protected void configureLocalJaspicProvider(AuthenticationWrapper authType, String contextPath, Module module, GBeanData securityFactoryData) throws DeploymentException, GBeanAlreadyExistsException {
+        EARContext moduleContext = module.getEarContext();
+        GBeanData authConfigProviderData = null;
+        AbstractName providerName = moduleContext.getNaming().createChildName(module.getModuleName(), "authConfigProvider", GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
+        try {
+            if (authType.isSetConfigProvider()) {
+                authConfigProviderData = new GBeanData(providerName, AuthConfigProviderGBean.class);
+                final XmlCursor xmlCursor = authType.getConfigProvider().newCursor();
+                try {
+                    XMLStreamReader reader = new InternWrapper(xmlCursor.newXMLStreamReader());
+                    ConfigProviderType configProviderType = JaspiXmlUtil.loadConfigProvider(reader);
+                    StringWriter out = new StringWriter();
+                    JaspiXmlUtil.writeConfigProvider(configProviderType, out);
+                    authConfigProviderData.setAttribute("config", out.toString());
+                } finally {
+                    xmlCursor.dispose();
+                }
+            } else if (authType.isSetServerAuthConfig()) {
+                authConfigProviderData = new GBeanData(providerName, ServerAuthConfigGBean.class);
+                final XmlCursor xmlCursor = authType.getServerAuthConfig().newCursor();
+                try {
+                    XMLStreamReader reader = new InternWrapper(xmlCursor.newXMLStreamReader());
+                    ServerAuthConfigType serverAuthConfigType = JaspiXmlUtil.loadServerAuthConfig(reader);
+                    StringWriter out = new StringWriter();
+                    JaspiXmlUtil.writeServerAuthConfig(serverAuthConfigType, out);
+                    authConfigProviderData.setAttribute("config", out.toString());
+                } finally {
+                    xmlCursor.dispose();
+                }
+            } else if (authType.isSetServerAuthContext()) {
+                authConfigProviderData = new GBeanData(providerName, ServerAuthContextGBean.class);
+                final XmlCursor xmlCursor = authType.getServerAuthContext().newCursor();
+                try {
+                    XMLStreamReader reader = new InternWrapper(xmlCursor.newXMLStreamReader());
+                    ServerAuthContextType serverAuthContextType = JaspiXmlUtil.loadServerAuthContext(reader);
+                    StringWriter out = new StringWriter();
+                    JaspiXmlUtil.writeServerAuthContext(serverAuthContextType, out);
+                    authConfigProviderData.setAttribute("config", out.toString());
+                } finally {
+                    xmlCursor.dispose();
+                }
+            } else if (authType.isSetServerAuthModule()) {
+                authConfigProviderData = new GBeanData(providerName, ServerAuthModuleGBean.class);
+                final XmlCursor xmlCursor = authType.getServerAuthModule().newCursor();
+                try {
+                    XMLStreamReader reader = new InternWrapper(xmlCursor.newXMLStreamReader());
+                    AuthModuleType<ServerAuthModule> authModuleType = JaspiXmlUtil.loadServerAuthModule(reader);
+                    StringWriter out = new StringWriter();
+                    JaspiXmlUtil.writeServerAuthModule(authModuleType, out);
+                    authConfigProviderData.setAttribute("config", out.toString());
+                    authConfigProviderData.setAttribute("messageLayer", "Http");
+                    authConfigProviderData.setAttribute("appContext", contextPath);
+                    //TODO ??
+                    authConfigProviderData.setAttribute("authenticationID", contextPath);
+                } finally {
+                    xmlCursor.dispose();
+                }
+            }
+        } catch (ParserConfigurationException e) {
+            throw new DeploymentException("Could not read auth config", e);
+        } catch (IOException e) {
+            throw new DeploymentException("Could not read auth config", e);
+        } catch (SAXException e) {
+            throw new DeploymentException("Could not read auth config", e);
+        } catch (JAXBException e) {
+            throw new DeploymentException("Could not read auth config", e);
+        } catch (XMLStreamException e) {
+            throw new DeploymentException("Could not read auth config", e);
+        }
+        if (authConfigProviderData != null) {
+            moduleContext.addGBean(authConfigProviderData);
+            securityFactoryData.addDependency(authConfigProviderData.getAbstractName());
+        }
+    }
+
     protected static void check(WebAppType webApp) throws DeploymentException {
         checkURLPattern(webApp);
         checkMultiplicities(webApp);
@@ -642,4 +738,192 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         webModuleData.setReferencePattern("TrackedConnectionAssociator", moduleContext.getConnectionTrackerName());
     }
 
+    private static class InternWrapper implements XMLStreamReader {
+        private final XMLStreamReader delegate;
+
+        private InternWrapper(XMLStreamReader delegate) {
+            this.delegate = delegate;
+        }
+
+        public void close() throws XMLStreamException {
+                 delegate.close();
+            }
+
+            public int getAttributeCount() {
+                return  delegate.getAttributeCount();
+            }
+
+            public String getAttributeLocalName(int i) {
+                return  delegate.getAttributeLocalName(i);
+            }
+
+            public QName getAttributeName(int i) {
+                return  delegate.getAttributeName(i);
+            }
+
+            public String getAttributeNamespace(int i) {
+                return  delegate.getAttributeNamespace(i);
+            }
+
+            public String getAttributePrefix(int i) {
+                return  delegate.getAttributePrefix(i);
+            }
+
+            public String getAttributeType(int i) {
+                return  delegate.getAttributeType(i);
+            }
+
+            public String getAttributeValue(int i) {
+                return  delegate.getAttributeValue(i);
+            }
+
+            public String getAttributeValue(String s, String s1) {
+                return  delegate.getAttributeValue(s, s1);
+            }
+
+            public String getCharacterEncodingScheme() {
+                return  delegate.getCharacterEncodingScheme();
+            }
+
+            public String getElementText() throws XMLStreamException {
+                return  delegate.getElementText();
+            }
+
+            public String getEncoding() {
+                return  delegate.getEncoding();
+            }
+
+            public int getEventType() {
+                return  delegate.getEventType();
+            }
+
+            public String getLocalName() {
+                return  delegate.getLocalName().intern();
+            }
+
+            public Location getLocation() {
+                return  delegate.getLocation();
+            }
+
+            public QName getName() {
+                return  delegate.getName();
+            }
+
+            public NamespaceContext getNamespaceContext() {
+                return  delegate.getNamespaceContext();
+            }
+
+            public int getNamespaceCount() {
+                return  delegate.getNamespaceCount();
+            }
+
+            public String getNamespacePrefix(int i) {
+                return  delegate.getNamespacePrefix(i);
+            }
+
+            public String getNamespaceURI() {
+                return  delegate.getNamespaceURI().intern();
+            }
+
+            public String getNamespaceURI(int i) {
+                return  delegate.getNamespaceURI(i);
+            }
+
+            public String getNamespaceURI(String s) {
+                return  delegate.getNamespaceURI(s);
+            }
+
+            public String getPIData() {
+                return  delegate.getPIData();
+            }
+
+            public String getPITarget() {
+                return  delegate.getPITarget();
+            }
+
+            public String getPrefix() {
+                return  delegate.getPrefix();
+            }
+
+            public Object getProperty(String s) throws IllegalArgumentException {
+                return  delegate.getProperty(s);
+            }
+
+            public String getText() {
+                return  delegate.getText();
+            }
+
+            public char[] getTextCharacters() {
+                return  delegate.getTextCharacters();
+            }
+
+            public int getTextCharacters(int i, char[] chars, int i1, int i2) throws XMLStreamException {
+                return  delegate.getTextCharacters(i, chars, i1, i2);
+            }
+
+            public int getTextLength() {
+                return  delegate.getTextLength();
+            }
+
+            public int getTextStart() {
+                return  delegate.getTextStart();
+            }
+
+            public String getVersion() {
+                return  delegate.getVersion();
+            }
+
+            public boolean hasName() {
+                return  delegate.hasName();
+            }
+
+            public boolean hasNext() throws XMLStreamException {
+                return  delegate.hasNext();
+            }
+
+            public boolean hasText() {
+                return  delegate.hasText();
+            }
+
+            public boolean isAttributeSpecified(int i) {
+                return  delegate.isAttributeSpecified(i);
+            }
+
+            public boolean isCharacters() {
+                return  delegate.isCharacters();
+            }
+
+            public boolean isEndElement() {
+                return  delegate.isEndElement();
+            }
+
+            public boolean isStandalone() {
+                return  delegate.isStandalone();
+            }
+
+            public boolean isStartElement() {
+                return  delegate.isStartElement();
+            }
+
+            public boolean isWhiteSpace() {
+                return  delegate.isWhiteSpace();
+            }
+
+            public int next() throws XMLStreamException {
+                return  delegate.next();
+            }
+
+            public int nextTag() throws XMLStreamException {
+                return  delegate.nextTag();
+            }
+
+            public void require(int i, String s, String s1) throws XMLStreamException {
+                 delegate.require(i, s, s1);
+            }
+
+            public boolean standaloneSet() {
+                return  delegate.standaloneSet();
+            }
+    }
+    
 }

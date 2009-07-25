@@ -79,10 +79,16 @@ import org.apache.geronimo.tomcat.cluster.CatalinaClusterGBean;
 import org.apache.geronimo.tomcat.util.SecurityHolder;
 import org.apache.geronimo.web.deployment.GenericToSpecificPlanConverter;
 import org.apache.geronimo.web25.deployment.AbstractWebModuleBuilder;
+import org.apache.geronimo.web25.deployment.security.AuthenticationWrapper;
 import org.apache.geronimo.xbeans.geronimo.j2ee.GerClusteringDocument;
 import org.apache.geronimo.xbeans.geronimo.web.tomcat.TomcatWebAppDocument;
 import org.apache.geronimo.xbeans.geronimo.web.tomcat.TomcatWebAppType;
+import org.apache.geronimo.xbeans.geronimo.web.tomcat.TomcatAuthenticationType;
 import org.apache.geronimo.xbeans.geronimo.web.tomcat.config.GerTomcatDocument;
+import org.apache.geronimo.xbeans.geronimo.jaspi.JaspiConfigProviderType;
+import org.apache.geronimo.xbeans.geronimo.jaspi.JaspiServerAuthConfigType;
+import org.apache.geronimo.xbeans.geronimo.jaspi.JaspiServerAuthContextType;
+import org.apache.geronimo.xbeans.geronimo.jaspi.JaspiAuthModuleType;
 import org.apache.geronimo.xbeans.javaee.EjbLocalRefType;
 import org.apache.geronimo.xbeans.javaee.EjbRefType;
 import org.apache.geronimo.xbeans.javaee.EnvEntryType;
@@ -347,9 +353,10 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
 
         GBeanData webModuleData = new GBeanData(moduleName, TomcatWebAppContext.GBEAN_INFO);
         configureBasicWebModuleAttributes(webApp, tomcatWebApp, moduleContext, earContext, webModule, webModuleData);
+        String contextPath = webModule.getContextRoot();
         try {
             moduleContext.addGBean(webModuleData);
-            webModuleData.setAttribute("contextPath", webModule.getContextRoot());
+            webModuleData.setAttribute("contextPath", contextPath);
             // unsharableResources, applicationManagedSecurityResources
             GBeanResourceEnvironmentBuilder rebuilder = new GBeanResourceEnvironmentBuilder(webModuleData);
             //N.B. use earContext not moduleContext
@@ -486,6 +493,12 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
                 securityHolder.setSecurity(true);
 
                 webModuleData.setAttribute("securityHolder", securityHolder);
+                //local jaspic configuration
+                if (tomcatWebApp.isSetAuthentication()) {
+                    AuthenticationWrapper authType = new TomcatAuthenticationWrapper(tomcatWebApp.getAuthentication());
+                    configureLocalJaspicProvider(authType, contextPath, module, webModuleData);
+                }
+
             }
 
             //listeners added directly to the StandardContext will get loaded by the tomcat classloader, not the app classloader!
@@ -575,6 +588,47 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
     public String getSchemaNamespace() {
         return TOMCAT_NAMESPACE;
     }
+
+    private static class TomcatAuthenticationWrapper implements AuthenticationWrapper {
+        private final TomcatAuthenticationType authType;
+
+        private TomcatAuthenticationWrapper(TomcatAuthenticationType authType) {
+            this.authType = authType;
+        }
+
+        public JaspiConfigProviderType getConfigProvider() {
+            return authType.getConfigProvider();
+        }
+
+        public boolean isSetConfigProvider() {
+            return authType.isSetConfigProvider();
+        }
+
+        public JaspiServerAuthConfigType getServerAuthConfig() {
+            return authType.getServerAuthConfig();
+        }
+
+        public boolean isSetServerAuthConfig() {
+            return authType.isSetServerAuthConfig();
+        }
+
+        public JaspiServerAuthContextType getServerAuthContext() {
+            return authType.getServerAuthContext();
+        }
+
+        public boolean isSetServerAuthContext() {
+            return authType.isSetServerAuthContext();
+        }
+
+        public JaspiAuthModuleType getServerAuthModule() {
+            return authType.getServerAuthModule();
+        }
+
+        public boolean isSetServerAuthModule() {
+            return authType.isSetServerAuthModule();
+        }
+    }
+
 
 
     public static final GBeanInfo GBEAN_INFO;
