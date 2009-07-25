@@ -35,12 +35,12 @@
     <packaging>war</packaging>
 
     <build>
-        <!--
-        FIXME: Why?
-        -->
         <resources>
             <resource>
                 <directory>src/main/java</directory>
+                <includes>
+                    <include>**/*.xml</include>
+                </includes>
             </resource>
         </resources>
 
