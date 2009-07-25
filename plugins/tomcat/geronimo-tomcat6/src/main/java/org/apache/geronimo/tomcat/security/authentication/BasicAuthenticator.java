@@ -120,7 +120,7 @@ public class BasicAuthenticator implements Authenticator {
                         .addValue(AUTHENTICATE_BYTES, 0, AUTHENTICATE_BYTES.length);
                 CharChunk authenticateCC = authenticate.getCharChunk();
                 authenticateCC.append("Basic realm=\"");
-                authenticateCC.append(realmName);
+                authenticateCC.append((realmName == null) ? "<unspecified>" : realmName);
                 authenticateCC.append('\"');
                 authenticate.toChars();
                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
