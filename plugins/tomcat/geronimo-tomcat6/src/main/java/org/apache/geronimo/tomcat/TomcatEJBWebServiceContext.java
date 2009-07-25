@@ -29,6 +29,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.catalina.LifecycleException;
 import org.apache.catalina.Wrapper;
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
@@ -38,7 +39,7 @@ import org.apache.geronimo.webservices.WebServiceContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TomcatEJBWebServiceContext extends StandardContext{
+public class TomcatEJBWebServiceContext extends StandardContext {
 
     private static final Logger log = LoggerFactory.getLogger(TomcatEJBWebServiceContext.class);
 
@@ -55,7 +56,6 @@ public class TomcatEJBWebServiceContext extends StandardContext{
         log.debug("EJB Webservice Context = " + contextPath);
 
         this.classLoader = classLoader;
-        this.addValve(new EJBWebServiceValve());
         
         //Create a dummy wrapper
         Wrapper wrapper = this.createWrapper();
@@ -65,11 +65,15 @@ public class TomcatEJBWebServiceContext extends StandardContext{
         this.addServletMapping("/*", name);
 
     }
-    
+
+    public void start() throws LifecycleException {
+        super.start();
+        addValve(new EJBWebServiceValve());
+    }
+
     public class EJBWebServiceValve extends ValveBase {
 
         public void invoke(Request req, Response res) throws IOException, ServletException {
-            PolicyContext.setHandlerData((realm == null) ? null : req);
             Thread currentThread = Thread.currentThread();
             ClassLoader oldClassLoader = currentThread.getContextClassLoader();
             currentThread.setContextClassLoader(classLoader);

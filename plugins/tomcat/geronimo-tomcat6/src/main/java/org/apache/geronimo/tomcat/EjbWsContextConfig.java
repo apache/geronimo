@@ -20,9 +20,14 @@
 
 package org.apache.geronimo.tomcat;
 
+import java.security.AccessControlContext;
+
 import javax.security.auth.Subject;
 
 import org.apache.geronimo.security.jaas.ConfigurationFactory;
+import org.apache.geronimo.tomcat.security.Authorizer;
+import org.apache.geronimo.tomcat.security.jacc.JACCAuthorizer;
+import org.apache.geronimo.tomcat.security.jacc.JACCEJBWebServiceAuthorizer;
 import org.apache.catalina.core.StandardContext;
 
 /**
@@ -56,4 +61,7 @@ public class EjbWsContextConfig extends BaseGeronimoContextConfig {
                 authMethod, realmName, null, null);
     }
 
+    protected Authorizer createAuthorizer(AccessControlContext defaultAcc) {
+        return new JACCEJBWebServiceAuthorizer(defaultAcc);
+    }
 }

@@ -107,7 +107,7 @@ public class BaseGeronimoContextConfig extends ContextConfig {
         }
 
         AccessControlContext defaultAcc = ContextManager.registerSubjectShort(defaultSubject,  null, null);
-        Authorizer authorizer = new JACCAuthorizer(defaultAcc);
+        Authorizer authorizer = createAuthorizer(defaultAcc);
 
         SecurityValve securityValve = new JACCSecurityValve(authenticator, authorizer, identityService, policyContextId);
 
@@ -119,5 +119,9 @@ public class BaseGeronimoContextConfig extends ContextConfig {
         }
 
         geronimoContext.setRealm(new JACCRealm());
+    }
+    
+    protected Authorizer createAuthorizer(AccessControlContext defaultAcc) {
+        return new JACCAuthorizer(defaultAcc);
     }
 }
