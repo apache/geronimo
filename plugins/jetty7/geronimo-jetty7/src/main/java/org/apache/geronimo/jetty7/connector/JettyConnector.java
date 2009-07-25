@@ -87,15 +87,10 @@ public abstract class JettyConnector implements GBeanLifecycle, JettyWebConnecto
     }
     
     public int getHeaderBufferSizeBytes() {
-        return listener.getRequestHeaderSize();
+        return listener.getHeaderBufferSize();
     }
     public void setHeaderBufferSizeBytes(int size) {
-
-        //TODO see https://bugs.eclipse.org/bugs/show_bug.cgi?id=280843
-        if (size == listener.getRequestBufferSize()) throw new IllegalArgumentException("Do not set the header buffer size to the same as the request buffer size: " + listener.getRequestBufferSize());
-        if (size == listener.getResponseBufferSize()) throw new IllegalArgumentException("Do not set the header buffer size to the same as the response buffer size: " + listener.getResponseBufferSize());
-        listener.setRequestHeaderSize(size);
-        listener.setResponseHeaderSize(size);
+        listener.setHeaderBufferSize(size);
     }
 
     public abstract int getDefaultPort();
@@ -135,18 +130,13 @@ public abstract class JettyConnector implements GBeanLifecycle, JettyWebConnecto
     }
 
     public int getBufferSizeBytes() {
-        //TODO return the request buffer size, what about the response buffer size?
+        //TODO return the request buffer size, what about the response and header buffer size?
         return listener.getRequestBufferSize();
     }
 
     public void setBufferSizeBytes(int bytes) {
-        //TODO what about the response buffer size?
-
-        //TODO see https://bugs.eclipse.org/bugs/show_bug.cgi?id=280843
-        if (bytes == listener.getRequestHeaderSize()) throw new IllegalArgumentException("Do not set the buffer size to the same as the header request buffer size: " + listener.getRequestBufferSize());
-        if (bytes == listener.getResponseHeaderSize()) throw new IllegalArgumentException("Do not set the buffer size to the same as the header response buffer size: " + listener.getResponseBufferSize());
+        //TODO what about the response and header buffer size?
         listener.setRequestBufferSize(bytes);
-        listener.setResponseBufferSize(bytes);
     }
 
     public int getAcceptQueueSize() {

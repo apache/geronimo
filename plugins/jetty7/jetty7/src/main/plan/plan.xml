@@ -64,7 +64,7 @@
     <gbean name="JettyWebConnector" class="org.apache.geronimo.jetty7.connector.HTTPSelectChannelConnector">
         <attribute name="host">${PlanServerHostname}</attribute>
         <attribute name="port">${PlanHTTPPort}</attribute>
-        <!--<attribute name="headerBufferSizeBytes">6000</attribute>-->
+        <attribute name="headerBufferSizeBytes">8192</attribute>
         <reference name="JettyContainer">
             <name>JettyWebContainer</name>
         </reference>
@@ -113,7 +113,7 @@
     <gbean name="JettySSLConnector" class="org.apache.geronimo.jetty7.connector.HTTPSSelectChannelConnector">
         <attribute name="host">${PlanServerHostname}</attribute>
         <attribute name="port">${PlanHTTPSPort}</attribute>
-        <!--<attribute name="headerBufferSizeBytes">8192</attribute>-->
+        <attribute name="headerBufferSizeBytes">8192</attribute>
         <attribute name="keyStore">geronimo-default</attribute>
         <attribute name="keyAlias">geronimo</attribute>
         <attribute name="trustStore">geronimo-default</attribute>
