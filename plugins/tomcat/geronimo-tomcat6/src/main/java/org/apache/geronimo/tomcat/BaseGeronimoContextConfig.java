@@ -59,6 +59,7 @@ import org.apache.geronimo.tomcat.security.jacc.JACCSecurityValve;
  */
 public class BaseGeronimoContextConfig extends ContextConfig {
     private static final String MESSAGE_LAYER = "HttpServlet";
+    private static final String POLICY_CONTEXT_ID_KEY = "javax.security.jacc.PolicyContext";
 
 
     protected void configureSecurity(StandardContext geronimoContext, String policyContextId, ConfigurationFactory configurationFactory, Subject defaultSubject, String authMethod, String realmName, String loginPage, String errorPage) {
@@ -68,7 +69,7 @@ public class BaseGeronimoContextConfig extends ContextConfig {
         IdentityService identityService = new GeronimoIdentityService(defaultSubject);
         UserIdentity unauthenticatedIdentity = identityService.newUserIdentity(defaultSubject, null, null);
         LoginService loginService = new GeronimoLoginService(configurationFactory, identityService);
-        Authenticator authenticator = null;
+        Authenticator authenticator;
         AuthConfigFactory authConfigFactory = AuthConfigFactory.getFactory();
         RegistrationListener listener = new RegistrationListener() {
 
@@ -90,6 +91,7 @@ public class BaseGeronimoContextConfig extends ContextConfig {
         }
         if (serverAuthConfig != null) {
             Map authProperties = new HashMap();
+            authProperties.put(POLICY_CONTEXT_ID_KEY, policyContextId);
             Subject serviceSubject = new Subject();
             authenticator = new JaspicAuthenticator(serverAuthConfig, authProperties, serviceSubject, callbackHandler, identityService);
         } else if ("BASIC".equalsIgnoreCase(authMethod)) {

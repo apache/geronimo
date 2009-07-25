@@ -36,7 +36,7 @@ import org.apache.catalina.connector.Response;
 public class JaspicMessageInfo implements MessageInfo {
     private static final String MANDATORY_KEY = "javax.security.auth.message.MessagePolicy.isMandatory";
 
-    private final Map map = new HashMap();
+    private final Map<String, Object> map = new HashMap<String, Object>();
     private HttpServletRequest request;
     private HttpServletResponse response;
 
@@ -46,7 +46,9 @@ public class JaspicMessageInfo implements MessageInfo {
     public JaspicMessageInfo(Request request, Response response, boolean authMandatory) {
         this.request = request;
         this.response = response;
-        map.put(MANDATORY_KEY, authMandatory);
+        if (authMandatory) {
+            map.put(MANDATORY_KEY, Boolean.toString(authMandatory));
+        }
     }
 
     public Map getMap() {
