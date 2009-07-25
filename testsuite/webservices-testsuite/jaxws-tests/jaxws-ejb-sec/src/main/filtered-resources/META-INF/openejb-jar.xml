@@ -50,7 +50,6 @@
                 <security-realm-name>geronimo-admin</security-realm-name>
                 <transport-guarantee>NONE</transport-guarantee>
                 <auth-method>BASIC</auth-method>
-                <http-method>POST</http-method>
                 <properties>getProtected=false
                 getSecured=false</properties>
             </web-service-security>
@@ -74,7 +73,6 @@
                 <security-realm-name>geronimo-admin</security-realm-name>
                 <transport-guarantee>CONFIDENTIAL</transport-guarantee>
                 <auth-method>NONE</auth-method>
-                <http-method>POST</http-method>
                 <properties>getProtected=false</properties>
             </web-service-security>
         </session>
