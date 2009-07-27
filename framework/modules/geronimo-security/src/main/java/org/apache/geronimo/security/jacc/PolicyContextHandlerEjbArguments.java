@@ -20,6 +20,7 @@ package org.apache.geronimo.security.jacc;
 import javax.security.jacc.PolicyContextException;
 import javax.security.jacc.PolicyContextHandler;
 import javax.servlet.http.HttpServletRequest;
+import javax.ejb.EnterpriseBean;
 import org.apache.geronimo.security.ThreadData;
 import org.apache.geronimo.security.ContextManager;
 
@@ -27,8 +28,8 @@ import org.apache.geronimo.security.ContextManager;
 /**
  * @version $Rev$ $Date$
  */
-public class PolicyContextHandlerHttpServletRequest implements PolicyContextHandler {
-    public static final String HANDLER_KEY = "javax.servlet.http.HttpServletRequest";
+public class PolicyContextHandlerEjbArguments implements PolicyContextHandler {
+    public static final String HANDLER_KEY = "javax.ejb.arguments";
 
     public boolean supports(String key) throws PolicyContextException {
         return HANDLER_KEY.equals(key);
@@ -40,20 +41,20 @@ public class PolicyContextHandlerHttpServletRequest implements PolicyContextHand
 
     public Object getContext(String key, Object data) throws PolicyContextException {
         if (HANDLER_KEY.equals(key)) {
-            return ((ThreadData)data).getRequest();
+            return ((ThreadData)data).getArgs();
         }
         return null;
     }
 
-    public static HttpServletRequest pushContextData(HttpServletRequest httpServletRequest) {
+    public static Object[] pushContextData(Object[] args) {
         ThreadData threadData = ContextManager.getThreadData();
-        HttpServletRequest oldRequest = threadData.getRequest();
-        threadData.setRequest(httpServletRequest);
-        return oldRequest;
+        Object[] oldArgs = threadData.getArgs();
+        threadData.setArgs(args);
+        return oldArgs;
     }
 
-    public static void popContextData(HttpServletRequest oldRequest) {
+    public static void popContextData(Object[] oldArgs) {
         ThreadData threadData = ContextManager.getThreadData();
-        threadData.setRequest(oldRequest);
+        threadData.setArgs(oldArgs);
     }
 }

@@ -19,6 +19,10 @@ package org.apache.geronimo.security.jacc;
 
 import javax.security.jacc.PolicyContextException;
 import javax.security.jacc.PolicyContextHandler;
+import javax.xml.soap.SOAPMessage;
+import javax.servlet.http.HttpServletRequest;
+import org.apache.geronimo.security.ThreadData;
+import org.apache.geronimo.security.ContextManager;
 
 
 /**
@@ -36,7 +40,21 @@ public class PolicyContextHandlerSOAPMessage implements PolicyContextHandler {
     }
 
     public Object getContext(String key, Object data) throws PolicyContextException {
-        // todo: Wire in the return of the SOAPMessage object
+        if (HANDLER_KEY.equals(key)) {
+            return ((ThreadData)data).getSoapMessage();
+        }
         return null;
+    }
+
+    public static SOAPMessage pushContextData(SOAPMessage SOAPMessage) {
+        ThreadData threadData = ContextManager.getThreadData();
+        SOAPMessage oldMessage = threadData.getSoapMessage();
+        threadData.setSoapMessage(SOAPMessage);
+        return oldMessage;
+    }
+
+    public static void popContextData(SOAPMessage oldMessage) {
+        ThreadData threadData = ContextManager.getThreadData();
+        threadData.setSoapMessage(oldMessage);
     }
 }

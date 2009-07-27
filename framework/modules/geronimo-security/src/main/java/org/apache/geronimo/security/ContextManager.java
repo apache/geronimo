@@ -39,6 +39,7 @@ import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.login.Configuration;
+import javax.security.jacc.PolicyContext;
 
 import org.apache.geronimo.security.realm.providers.GeronimoCallerPrincipal;
 
@@ -49,6 +50,14 @@ import org.apache.geronimo.security.realm.providers.GeronimoCallerPrincipal;
 public class ContextManager {
 
     private static final ThreadLocal<Callers> callers = new ThreadLocal<Callers>();
+    private static final ThreadLocal<ThreadData> threadData = new ThreadLocal<ThreadData>() {
+        @Override
+        protected ThreadData initialValue() {
+            ThreadData threadData = new ThreadData();
+            PolicyContext.setHandlerData(threadData);
+            return threadData;
+        }
+    };
     private static Map<Subject, Context> subjectContexts = new IdentityHashMap<Subject, Context>();
     private static Map<SubjectId, Subject> subjectIds =  Collections.synchronizedMap(new HashMap<SubjectId, Subject>());
     private static long nextSubjectId = System.currentTimeMillis();
@@ -362,6 +371,12 @@ public class ContextManager {
             if (!set.isEmpty()) return (IdentificationPrincipal) set.iterator().next();
         }
         return null;
+    }
+
+    public static ThreadData getThreadData() {
+        SecurityManager sm = System.getSecurityManager();
+        if (sm != null) sm.checkPermission(GET_CONTEXT);
+        return threadData.get();
     }
 
     public static String getAlgorithm() {

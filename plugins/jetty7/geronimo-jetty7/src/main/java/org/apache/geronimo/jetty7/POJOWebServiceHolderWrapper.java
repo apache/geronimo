@@ -90,22 +90,6 @@ public class POJOWebServiceHolderWrapper implements ServletNameSource, GBeanLife
         return servletHolder.getName();
     }
 
-    /**
-     * TODO THIS IS NOT CALLED!!! only the ServletHolder is!!
-     * Service a request with this servlet.  Set the ThreadLocal to hold the
-     * current JettyServletHolder.
-     */
-    public void handle(Request baseRequest, ServletRequest request, ServletResponse response)
-            throws ServletException, UnavailableException, IOException {
-
-        //  TODO There has to be some way to get this in on the Servlet's init method.
-//        request.setAttribute(POJOWebServiceServlet.WEBSERVICE_CONTAINER, webServiceContainer);
-
-        PolicyContext.setHandlerData(Request.getRequest((HttpServletRequest) request));
-
-        servletHolder.handle(baseRequest, request, response);
-    }
-
     public void doStart() throws Exception {
         if (context != null) {
             Class pojoClass = context.getWebClassLoader().loadClass(pojoClassName);

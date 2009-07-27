@@ -17,18 +17,18 @@
 
 package org.apache.geronimo.security.jacc;
 
+import javax.ejb.EnterpriseBean;
 import javax.security.jacc.PolicyContextException;
 import javax.security.jacc.PolicyContextHandler;
-import javax.servlet.http.HttpServletRequest;
-import org.apache.geronimo.security.ThreadData;
 import org.apache.geronimo.security.ContextManager;
+import org.apache.geronimo.security.ThreadData;
 
 
 /**
  * @version $Rev$ $Date$
  */
-public class PolicyContextHandlerHttpServletRequest implements PolicyContextHandler {
-    public static final String HANDLER_KEY = "javax.servlet.http.HttpServletRequest";
+public class PolicyContextHandlerEnterpriseBean implements PolicyContextHandler {
+    public static final String HANDLER_KEY = "javax.ejb.EnterpriseBean";
 
     public boolean supports(String key) throws PolicyContextException {
         return HANDLER_KEY.equals(key);
@@ -40,20 +40,20 @@ public class PolicyContextHandlerHttpServletRequest implements PolicyContextHand
 
     public Object getContext(String key, Object data) throws PolicyContextException {
         if (HANDLER_KEY.equals(key)) {
-            return ((ThreadData)data).getRequest();
+            return ((ThreadData)data).getBean();
         }
         return null;
     }
 
-    public static HttpServletRequest pushContextData(HttpServletRequest httpServletRequest) {
+    public static EnterpriseBean pushContextData(EnterpriseBean bean) {
         ThreadData threadData = ContextManager.getThreadData();
-        HttpServletRequest oldRequest = threadData.getRequest();
-        threadData.setRequest(httpServletRequest);
-        return oldRequest;
+        EnterpriseBean oldBean = threadData.getBean();
+        threadData.setBean(bean);
+        return oldBean;
     }
 
-    public static void popContextData(HttpServletRequest oldRequest) {
+    public static void popContextData(EnterpriseBean oldBean) {
         ThreadData threadData = ContextManager.getThreadData();
-        threadData.setRequest(oldRequest);
+        threadData.setBean(oldBean);
     }
 }

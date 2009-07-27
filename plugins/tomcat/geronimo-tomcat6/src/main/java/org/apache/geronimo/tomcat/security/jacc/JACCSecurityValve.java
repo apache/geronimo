@@ -23,12 +23,14 @@ package org.apache.geronimo.tomcat.security.jacc;
 import java.io.IOException;
 
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
 import javax.security.jacc.PolicyContext;
 
 import org.apache.geronimo.tomcat.security.SecurityValve;
 import org.apache.geronimo.tomcat.security.Authenticator;
 import org.apache.geronimo.tomcat.security.Authorizer;
 import org.apache.geronimo.tomcat.security.IdentityService;
+import org.apache.geronimo.security.jacc.PolicyContextHandlerHttpServletRequest;
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
 
@@ -47,13 +49,13 @@ public class JACCSecurityValve extends SecurityValve {
     public void invoke(Request request, Response response) throws IOException, ServletException {
         String oldContextId = PolicyContext.getContextID();
         PolicyContext.setContextID(policyContextId);
-        PolicyContext.setHandlerData(request);
+        HttpServletRequest oldRequest = PolicyContextHandlerHttpServletRequest.pushContextData(request);
         try {
             super.invoke(request, response);
         } finally {
             PolicyContext.setContextID(oldContextId);
             // Must unset handler data from thread - see GERONIMO-4574
-            PolicyContext.setHandlerData(null);
+            PolicyContextHandlerHttpServletRequest.popContextData(oldRequest);
         }
     }
 }

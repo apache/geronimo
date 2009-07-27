@@ -30,6 +30,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.geronimo.jetty7.JettyContainer;
 import org.apache.geronimo.security.Callers;
 import org.apache.geronimo.security.ContextManager;
+import org.apache.geronimo.security.jacc.PolicyContextHandlerHttpServletRequest;
 import org.eclipse.jetty.security.Authenticator;
 import org.eclipse.jetty.security.SecurityHandler;
 import org.eclipse.jetty.security.IdentityService;
@@ -80,15 +81,16 @@ public class JaccSecurityHandler extends SecurityHandler {
             ServletException {
         String old_policy_id = PolicyContext.getContextID();
         Callers oldCallers = ContextManager.getCallers();
-
+        HttpServletRequest oldRequest = PolicyContextHandlerHttpServletRequest.pushContextData(request);
         try {
             PolicyContext.setContextID(policyContextID);
-            PolicyContext.setHandlerData(request);
+
 
             super.handle(target, baseRequest, request, response);
         } finally {
             PolicyContext.setContextID(old_policy_id);
             ContextManager.popCallers(oldCallers);
+            PolicyContextHandlerHttpServletRequest.popContextData(oldRequest);
         }
     }
 
