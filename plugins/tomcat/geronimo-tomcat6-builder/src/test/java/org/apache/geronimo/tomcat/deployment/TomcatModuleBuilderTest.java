@@ -254,7 +254,7 @@ public class TomcatModuleBuilderTest extends TestSupport {
         GBeanData serverData = new GBeanData(serverName, J2EEServerImpl.GBEAN_INFO);
         bootstrap.addGBean(serverData);
 
-        GBeanData securityService = bootstrap.addGBean("SecurityService", SecurityServiceImpl.GBEAN_INFO);
+        GBeanData securityService = bootstrap.addGBean("SecurityService", SecurityServiceImpl.class);
         securityService.setAttribute("policyConfigurationFactory", GeronimoPolicyConfigurationFactory.class.getName());
         securityService.setAttribute("policyProvider", GeronimoPolicy.class.getName());
         securityService.setReferencePattern("ServerInfo", serverInfo.getAbstractName());
