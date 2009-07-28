@@ -20,12 +20,16 @@
 
 package org.apache.geronimo.tomcat.security;
 
+import java.security.cert.X509Certificate;
+
 /**
  * @version $Rev$ $Date$
  */
 public interface LoginService {
 
     UserIdentity login(String userName, String password);
+
+    UserIdentity login(X509Certificate[] certs);
 
     void logout(UserIdentity userIdentity);
 }

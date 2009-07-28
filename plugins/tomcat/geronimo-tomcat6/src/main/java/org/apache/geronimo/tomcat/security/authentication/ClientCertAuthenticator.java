@@ -77,11 +77,7 @@ public class ClientCertAuthenticator implements Authenticator {
             }
 
             // Authenticate the specified certificate chain
-            //TODO almost certainly wrong
-            Principal p = certs[0].getSubjectDN();
-            byte[] sig = certs[0].getSignature();
-            String cred = new String(Base64.encode(sig));
-            UserIdentity userIdentity = loginService.login(p.getName(), cred);
+            UserIdentity userIdentity = loginService.login(certs);
             if (userIdentity != null) {
                 return new AuthResult(TomcatAuthStatus.SUCCESS, userIdentity);
             }
