@@ -42,7 +42,8 @@ import javax.persistence.GeneratedValue;
 @NamedQueries(
  { 
     @NamedQuery(name = "allGraphs", query = "SELECT a FROM graph a"), 
-    @NamedQuery(name = "graphById", query = "SELECT g FROM graph g WHERE g.id = :id")
+    @NamedQuery(name = "graphById", query = "SELECT g FROM graph g WHERE g.id = :id"),
+    @NamedQuery(name = "graphsByNode", query = "SELECT g FROM graph g WHERE g.node.name = :name")
  }
  )
 public class Graph {

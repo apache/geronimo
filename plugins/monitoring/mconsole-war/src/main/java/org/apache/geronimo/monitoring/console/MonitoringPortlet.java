@@ -679,7 +679,13 @@ public class MonitoringPortlet extends BasePortlet {
         try {
             userTransaction.begin();
             try {
-                Node node = entityManager.find(Node.class, server_id);
+            	Node node = entityManager.find(Node.class, server_id);
+            	// check if there is any graph created against the node before delete it.
+            	List<Graph> graphs = entityManager.createNamedQuery("graphsByNode").setParameter("name", node.getName()).getResultList();
+            	if (!(graphs == null || graphs.isEmpty())) {
+            		addErrorMessage(actionRequest, getLocalizedString(actionRequest, "mconsole.errorMsg20"));
+            		return;
+            	} 
                 entityManager.remove(node);
             } finally {
                 userTransaction.commit();
