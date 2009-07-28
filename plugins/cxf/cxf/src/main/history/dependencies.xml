@@ -111,9 +111,4 @@
         <artifactId>wss4j</artifactId>
         <type>jar</type>
     </dependency>
-    <dependency>
-        <groupId>xalan</groupId>
-        <artifactId>xalan</artifactId>
-        <type>jar</type>
-    </dependency>
 </plugin-artifact>
