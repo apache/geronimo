@@ -366,6 +366,16 @@ public class GBeanOverride implements Serializable {
             String valueString = entry.getValue();
             Object value = getValue(attributeInfo, valueString, configName, gbeanName, classLoader);
             data.setAttribute(attributeName, value);
+
+            //encrypt any encryptable attributes set to plaintext by users
+            if (valueString != null) {
+                if (valueString.equals(attributeInfo.getEncryptedSetting().decrypt(valueString))) {
+                    String encrypted = (String) attributeInfo.getEncryptedSetting().encrypt(valueString);
+                    if (!encrypted.equals(valueString)) {
+                        entry.setValue(encrypted);
+                    }
+                }
+            }
         }
 
         //Clear attributes
