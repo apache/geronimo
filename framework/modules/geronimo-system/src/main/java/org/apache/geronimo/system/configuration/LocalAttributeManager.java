@@ -277,7 +277,7 @@ public class LocalAttributeManager implements LocalPluginAttributeStore, Persist
         }
 
         try {
-            gbean.setAttribute(attribute.getName(), value, attribute.getType(), classLoader);
+            gbean.setAttribute(attribute, value, classLoader);
             attributeChanged();
         } catch (InvalidAttributeException e) {
             // attribute can not be represented as a string
@@ -408,6 +408,13 @@ public class LocalAttributeManager implements LocalPluginAttributeStore, Persist
             throw new IOException(
                     "EXTREMELY CRITICAL!  Unable to move manageable attributes working file to proper file name!  Configuration will revert to defaults unless this is manually corrected!  (could not rename " + tempFile.getAbsolutePath() + " to " + attributeFile.getAbsolutePath() + ")");
         }
+    }
+
+    void write(Writer writer) throws XMLStreamException, JAXBException,
+            IOException {
+        AttributesType attributes = serverOverride.writeXml();
+        AttributesXmlUtil.writeAttributes(attributes, writer);
+        writer.flush();
     }
 
     private static void saveXmlToFile(File file, ServerOverride serverOverride) {

@@ -32,9 +32,6 @@ import java.util.Set;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.stream.XMLStreamException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.geronimo.common.propertyeditor.PropertyEditors;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
@@ -51,7 +48,8 @@ import org.apache.geronimo.system.configuration.condition.JexlExpressionParser;
 import org.apache.geronimo.system.plugin.model.AttributeType;
 import org.apache.geronimo.system.plugin.model.GbeanType;
 import org.apache.geronimo.system.plugin.model.ReferenceType;
-import org.apache.geronimo.crypto.EncryptionManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @version $Rev$ $Date$
@@ -64,6 +62,7 @@ public class GBeanOverride implements Serializable {
     private final Object name;
     private String comment;
     private boolean load;
+    //Note that encrypted attributes are stored encrypted in this map.
     private final Map<String, String> attributes = new LinkedHashMap<String, String>();
     private final Map<String, String> propertyEditors = new HashMap<String, String>();
     private final Map<String, ReferencePatterns> references = new LinkedHashMap<String, ReferencePatterns>();
@@ -136,15 +135,15 @@ public class GBeanOverride implements Serializable {
         load = true;
 
         // set attributes
-        for (Object o : gbeanData.getAttributes().entrySet()) {
-            Map.Entry entry = (Map.Entry) o;
-            String attributeName = (String) entry.getKey();
+        for (Map.Entry<String, Object> entry : gbeanData.getAttributes().entrySet()) {
+            String attributeName = entry.getKey();
             GAttributeInfo attributeInfo = gbeanInfo.getAttribute(attributeName);
             if (attributeInfo == null) {
                 throw new InvalidAttributeException("No attribute: " + attributeName + " for gbean: " + gbeanData.getAbstractName());
             }
+            // TODO: shouldn't we only save manageable attributes here?
             Object attributeValue = entry.getValue();
-            setAttribute(attributeName, attributeValue, attributeInfo.getType(), classLoader);
+            setAttribute(attributeInfo, attributeValue, classLoader);
         }
 
         // references can be coppied in blind
@@ -197,8 +196,7 @@ public class GBeanOverride implements Serializable {
                     if (value == null || value.length() == 0) {
                         setClearAttribute(attr.getName());
                     } else {
-                        String truevalue = (String) EncryptionManager.decrypt(value);
-                        setAttribute(attr.getName(), truevalue);
+                        setAttribute(attr.getName(), value);
                     }
                 }
             } else if (o instanceof ReferenceType) {
@@ -312,12 +310,22 @@ public class GBeanOverride implements Serializable {
         references.remove(referenceName);
     }
 
-    public void setAttribute(String attributeName, Object attributeValue, String attributeType, ClassLoader classLoader) throws InvalidAttributeException {
-        String stringValue = getAsText(attributeName, attributeValue, attributeType, classLoader);
-        setAttribute(attributeName, stringValue);
+    public void setAttribute(GAttributeInfo attrInfo, Object attributeValue,
+            ClassLoader classLoader) throws InvalidAttributeException {
+        String stringValue = getAsText(attrInfo.getName(), attributeValue, attrInfo.getType(), classLoader);
+        stringValue = (String) attrInfo.getEncryptedSetting().encrypt(stringValue);
+        setAttribute(attrInfo.getName(), stringValue);
     }
 
-    public void setAttribute(String attributeName, String attributeValue) {
+    /**
+     * This method should be discouraged for usage outside in future, as it does
+     * not pass in encryption meta-information about the attribute being set.
+     * 
+     * Use setAttribute(GAttributeInfo attrInfo, Object attributeValue,
+     * ClassLoader classLoader) instead.
+     * 
+     */
+    private void setAttribute(String attributeName, String attributeValue) {
         if (attributeValue == null || attributeValue.length() == 0) {
             setClearAttribute(attributeName);
         } else {
@@ -395,6 +403,7 @@ public class GBeanOverride implements Serializable {
         if (value == null) {
             return null;
         }
+        value = (String) attribute.getEncryptedSetting().decrypt(value);
         value = substituteVariables(attribute.getName(), value);
         PropertyEditor editor = loadPropertyEditor(attribute, classLoader);
         editor.setAsText(value);
@@ -468,10 +477,6 @@ public class GBeanOverride implements Serializable {
             } else {                
                 nullAttributes.remove(name);
                 clearAttributes.remove(name);
-
-                if (name.toLowerCase().indexOf("password") > -1) {
-                    value = EncryptionManager.encrypt(value);
-                }
 /**
  * if there was a value such as jdbc url with &amp; then when that value was oulled
  * from the config.xml the &amp; would have been replaced/converted to '&', we need to check

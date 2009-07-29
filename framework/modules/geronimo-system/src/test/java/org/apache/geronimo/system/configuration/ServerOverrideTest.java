@@ -32,6 +32,7 @@ import junit.framework.TestCase;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.ReferencePatterns;
+import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.system.configuration.condition.JexlExpressionParser;
 import org.apache.geronimo.system.configuration.condition.ParserUtils;
@@ -43,6 +44,13 @@ import org.apache.geronimo.system.plugin.model.ModuleType;
  */
 public class ServerOverrideTest extends TestCase {
     private JexlExpressionParser expressionParser;
+
+    private GAttributeInfo cheeseInfo = new GAttributeInfo("cheese", String.class.getName(), true, true, "getCheese", "setCheese");
+    private GAttributeInfo sizeInfo = new GAttributeInfo("size", String.class.getName(), true, true, "getSize", "setSize");
+    private GAttributeInfo emptyStringInfo = new GAttributeInfo("emptyString", String.class.getName(), true, true, "getEmptyString", "setEmptyString");
+    private GAttributeInfo portInfo = new GAttributeInfo("port", int.class.getName(), true, true, "getPort", "setPort");
+    private GAttributeInfo expressionInfo = new GAttributeInfo("expression", boolean.class.getName(), true, true, "getExpression", "setExpression");
+    private ClassLoader classLoader = getClass().getClassLoader();
 
     protected void setUp() throws java.lang.Exception {
         HashMap<String, String> subs = new HashMap<String, String>();
@@ -60,7 +68,7 @@ public class ServerOverrideTest extends TestCase {
         pizza.setLoad(false);
         assertFalse(pizza.isLoad());
 
-        pizza.setAttribute("cheese", "mozzarella");
+        pizza.setAttribute(cheeseInfo, "mozzarella", classLoader);
         assertEquals("mozzarella", pizza.getAttribute("cheese"));
 
         AbstractNameQuery pizzaOvenQuery = getAbstractNameQuery(":name=PizzaOven");
@@ -105,10 +113,10 @@ public class ServerOverrideTest extends TestCase {
         pizza.setLoad(false);
         assertCopyIdentical(pizza);
 
-        pizza.setAttribute("cheese", "mozzarella");
+        pizza.setAttribute(cheeseInfo, "mozzarella", classLoader);
         assertCopyIdentical(pizza);
 
-        pizza.setAttribute("size", "x-large");
+        pizza.setAttribute(sizeInfo, "x-large", classLoader);
         assertCopyIdentical(pizza);
 
         AbstractNameQuery pizzaOvenQuery = getAbstractNameQuery(":name=PizzaOven");
@@ -131,9 +139,9 @@ public class ServerOverrideTest extends TestCase {
         assertCopyIdentical(dinnerMenu);
 
         GBeanOverride pizza = new GBeanOverride("Pizza", false, expressionParser);
-        pizza.setAttribute("cheese", "mozzarella");
-        pizza.setAttribute("size", "x-large");
-        pizza.setAttribute("emptyString", "");
+        pizza.setAttribute(cheeseInfo, "mozzarella", classLoader);
+        pizza.setAttribute(sizeInfo, "x-large", classLoader);
+        pizza.setAttribute(emptyStringInfo, "", classLoader);
         pizza.setClearAttribute("greenPeppers");
         pizza.setNullAttribute("pineapple");
 
@@ -163,9 +171,9 @@ public class ServerOverrideTest extends TestCase {
         ConfigurationOverride dinnerMenu = new ConfigurationOverride(new Artifact("test","Dinner Menu","1.0","car"), false);
         restaurant.addConfiguration(dinnerMenu);
         GBeanOverride pizza = new GBeanOverride("Pizza", false, expressionParser);
-        pizza.setAttribute("cheese", "mozzarella");
-        pizza.setAttribute("size", "x-large");
-        pizza.setAttribute("emptyString", "");
+        pizza.setAttribute(cheeseInfo, "mozzarella", classLoader);
+        pizza.setAttribute(sizeInfo, "x-large", classLoader);
+        pizza.setAttribute(emptyStringInfo, "", classLoader);
         pizza.setClearAttribute("greenPeppers");
         pizza.setNullAttribute("pineapple");
         AbstractNameQuery pizzaOvenQuery = getAbstractNameQuery(":name=PizzaOven");
@@ -258,21 +266,21 @@ public class ServerOverrideTest extends TestCase {
         GBeanOverride gbean = new GBeanOverride(gbeanElement, expressionParser);
         assertCopyIdentical(gbean);
         GBeanData data = new GBeanData(MockGBean.GBEAN_INFO);
-        gbean.setAttribute("port", "${port}");
+        gbean.setAttribute(portInfo, "${port}", classLoader);
         gbean.applyOverrides(data, null, null, getClass().getClassLoader());
         assertEquals(8080, data.getAttribute("port"));
-        gbean.setAttribute("port", "${port + 1}");
+        gbean.setAttribute(portInfo, "${port + 1}", classLoader);
         gbean.applyOverrides(data, null, null, getClass().getClassLoader());
         assertEquals(8081, data.getAttribute("port"));
-        gbean.setAttribute("port", "${port + portOffset}");
+        gbean.setAttribute(portInfo, "${port + portOffset}", classLoader);
         gbean.applyOverrides(data, null, null, getClass().getClassLoader());
         assertEquals(8081, data.getAttribute("port"));
         
-        gbean.setAttribute("expression", "${if (java == null) 'null'; else 'non-null';}");
+        gbean.setAttribute(expressionInfo, "${if (java == null) 'null'; else 'non-null';}", classLoader);
         gbean.applyOverrides(data, null, null, getClass().getClassLoader());
         assertEquals("non-null", data.getAttribute("expression"));
         
-        gbean.setAttribute("expression", "${if (java == null) { 'null'; } else { if (os == null) { 'java,null'; } else { 'java,non-null'; } } }");
+        gbean.setAttribute(expressionInfo, "${if (java == null) { 'null'; } else { if (os == null) { 'java,null'; } else { 'java,non-null'; } } }", classLoader);
         gbean.applyOverrides(data, null, null, getClass().getClassLoader());
         assertEquals("java,non-null", data.getAttribute("expression"));
     }

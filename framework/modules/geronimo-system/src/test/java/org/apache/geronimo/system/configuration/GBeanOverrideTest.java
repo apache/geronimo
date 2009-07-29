@@ -19,18 +19,21 @@
 
 package org.apache.geronimo.system.configuration;
 
+import junit.framework.TestCase;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.ReferencePatterns;
+import org.apache.geronimo.gbean.GAttributeInfo;
+import org.apache.geronimo.gbean.annotation.AnnotationGBeanInfoFactory;
+import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.system.configuration.condition.JexlExpressionParser;
+import org.apache.geronimo.system.plugin.model.AttributeType;
+import org.apache.geronimo.system.plugin.model.GbeanType;
+
 import java.beans.PropertyEditorSupport;
 import java.net.URI;
 import java.util.Collection;
 import java.util.Collections;
-
-import junit.framework.TestCase;
-
-import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.gbean.ReferencePatterns;
-import org.apache.geronimo.system.configuration.condition.JexlExpressionParser;
-import org.apache.geronimo.system.plugin.model.AttributeType;
-import org.apache.geronimo.system.plugin.model.GbeanType;
 
 /**
  *
@@ -40,13 +43,26 @@ public class GBeanOverrideTest extends TestCase {
 
     private GbeanType gbeanType;
     private String attributeName;
+    private GBeanInfo gbeanInfo;
+    private GAttributeInfo beanInfo;
+    private GAttributeInfo serviceInfo;
+    private GAttributeInfo intInfo;
+    private GAttributeInfo collectionInfo;
+    private GAttributeInfo fooInfo;
+    private ClassLoader classLoader = getClass().getClassLoader();
 
     @Override
     protected void setUp() throws Exception {
         gbeanType = new GbeanType();
         gbeanType.setName("name");
         
-        attributeName = "attName";
+        attributeName = "bean";
+        gbeanInfo = new AnnotationGBeanInfoFactory().getGBeanInfo(TestGBean.class);
+        beanInfo = gbeanInfo.getAttribute(attributeName);
+        serviceInfo = gbeanInfo.getAttribute("service");
+        intInfo = gbeanInfo.getAttribute("intValue");
+        collectionInfo = gbeanInfo.getAttribute("collection");
+        fooInfo = gbeanInfo.getAttribute("foo");
     }
     
     public void testPropertyEditorIsCarriedByWriteXml() throws Exception {
@@ -65,7 +81,7 @@ public class GBeanOverrideTest extends TestCase {
     
     public void testPropertyEditorIsUsedToGetTextValue() throws Exception {
         GBeanOverride override = new GBeanOverride(gbeanType, new JexlExpressionParser());
-        override.setAttribute(attributeName, new Bean(), Bean.class.getName(), getClass().getClassLoader());
+        override.setAttribute(beanInfo, new Bean(), classLoader);
         
         assertEquals("bean", override.getAttribute(attributeName));
         
@@ -77,7 +93,7 @@ public class GBeanOverrideTest extends TestCase {
     
     public void testPropertyEditorIsDefinedWhenAttributeIsNotAPrimitiveAndItsTypeDoesNotEqualValueType() throws Exception {
         GBeanOverride override = new GBeanOverride(gbeanType, new JexlExpressionParser());
-        override.setAttribute(attributeName, new Bean(), Service.class.getName(), getClass().getClassLoader());
+        override.setAttribute(serviceInfo, new Bean(), classLoader);
         
         GbeanType copiedGBeanType = override.writeXml();
         assertEquals(1, copiedGBeanType.getAttributeOrReference().size());
@@ -87,7 +103,7 @@ public class GBeanOverrideTest extends TestCase {
     
     public void testPropertyEditorIsNotDefinedWhenAttributeTypeEqualsValueType() throws Exception {
         GBeanOverride override = new GBeanOverride(gbeanType, new JexlExpressionParser());
-        override.setAttribute(attributeName, new Bean(), Bean.class.getName(), getClass().getClassLoader());
+        override.setAttribute(beanInfo, new Bean(), classLoader);
         
         GbeanType copiedGBeanType = override.writeXml();
         assertEquals(1, copiedGBeanType.getAttributeOrReference().size());
@@ -97,7 +113,7 @@ public class GBeanOverrideTest extends TestCase {
     
     public void testPropertyEditorIsNotDefinedForPrimitives() throws Exception {
         GBeanOverride override = new GBeanOverride(gbeanType, new JexlExpressionParser());
-        override.setAttribute(attributeName, new Integer(1), int.class.getName(), getClass().getClassLoader());
+        override.setAttribute(intInfo, 1, classLoader);
         
         GbeanType copiedGBeanType = override.writeXml();
         assertEquals(1, copiedGBeanType.getAttributeOrReference().size());
@@ -107,7 +123,7 @@ public class GBeanOverrideTest extends TestCase {
     
     public void testPropertyEditorIsNotDefinedForCollectionSubClasses() throws Exception {
         GBeanOverride override = new GBeanOverride(gbeanType, new JexlExpressionParser());
-        override.setAttribute(attributeName, Collections.singleton("test"), Collection.class.getName(), getClass().getClassLoader());
+        override.setAttribute(collectionInfo, Collections.singleton("test"), classLoader);
         
         GbeanType copiedGBeanType = override.writeXml();
         assertEquals(1, copiedGBeanType.getAttributeOrReference().size());
@@ -145,7 +161,7 @@ public class GBeanOverrideTest extends TestCase {
         override = new GBeanOverride(gbeanType, new JexlExpressionParser()); 
         override.setNullAttribute("foo");
         override.setClearAttribute("foo");
-        override.setAttribute("foo", "bar");
+        override.setAttribute(fooInfo, "bar", classLoader);
         override.writeXml();
         
         assertFalse(override.isNullAttribute("foo"));
@@ -156,7 +172,7 @@ public class GBeanOverrideTest extends TestCase {
         assertTrue(override.getAttributes().containsKey("foo"));
             
         override = new GBeanOverride(gbeanType, new JexlExpressionParser()); 
-        override.setAttribute("foo", "bar");
+        override.setAttribute(fooInfo, "bar", classLoader);
         override.setNullAttribute("foo");
         override.setClearAttribute("foo");
         override.writeXml();
@@ -170,7 +186,7 @@ public class GBeanOverrideTest extends TestCase {
         
         override = new GBeanOverride(gbeanType, new JexlExpressionParser()); 
         override.setClearAttribute("foo");
-        override.setAttribute("foo", "bar");
+        override.setAttribute(fooInfo, "bar", classLoader);
         override.setNullAttribute("foo");
         override.writeXml();
             
@@ -182,8 +198,8 @@ public class GBeanOverrideTest extends TestCase {
         assertTrue(override.getNullAttributes().contains("foo"));
         
         override = new GBeanOverride(gbeanType, new JexlExpressionParser()); 
-        override.setAttribute("bar1", "foo");
-        override.setAttribute("bar2", "foo");
+        override.setAttribute(gbeanInfo.getAttribute("bar1"), "foo", classLoader);
+        override.setAttribute(gbeanInfo.getAttribute("bar2"), "foo", classLoader);
         override.getAttributes().put("foo", null);
         GbeanType gbean = override.writeXml();
         assertEquals(3, gbean.getAttributeOrReference().size());
@@ -192,13 +208,80 @@ public class GBeanOverrideTest extends TestCase {
         assertTrue(attribute.isNull());
     }
     
+    @GBean
+    public static class TestGBean {
+        private Bean bean;
+        private Service service;
+        private int intvalue;
+        private Collection collection;
+        private String foo;
+        private String bar1;
+        private String bar2;
+
+        public String getFoo() {
+            return foo;
+        }
+
+        public void setFoo(String foo) {
+            this.foo = foo;
+        }
+
+        public String getBar1() {
+            return bar1;
+        }
+
+        public void setBar1(String bar1) {
+            this.bar1 = bar1;
+        }
+
+        public String getBar2() {
+            return bar2;
+        }
+
+        public void setBar2(String bar2) {
+            this.bar2 = bar2;
+        }
+
+        public Collection getCollection() {
+            return collection;
+        }
+
+        public void setCollection(Collection collection) {
+            this.collection = collection;
+        }
+
+        public int getIntValue() {
+            return intvalue;
+        }
+
+        public void setIntValue(int intvalue) {
+            this.intvalue = intvalue;
+        }
+
+        public Service getService() {
+            return service;
+        }
+
+        public void setService(Service service) {
+            this.service = service;
+        }
+
+
+        public Bean getBean() {
+            return bean;
+        }
+
+        public void setBean(Bean bean) {
+            this.bean = bean;
+        }
+    }
+    
     public interface Service {
     }
-    
-    public static class Bean implements Service {
 
+    public static class Bean implements Service {
     }
-    
+
     public static class BeanEditor extends PropertyEditorSupport {
         
         @Override
@@ -212,5 +295,18 @@ public class GBeanOverrideTest extends TestCase {
         }
         
     }
-    
+    public static class ServiceEditor extends PropertyEditorSupport {
+
+        @Override
+        public String getAsText() {
+            return "bean";
+        }
+
+        @Override
+        public void setAsText(String text) throws IllegalArgumentException {
+            assertEquals("bean", text);
+        }
+
+    }
+
 }
