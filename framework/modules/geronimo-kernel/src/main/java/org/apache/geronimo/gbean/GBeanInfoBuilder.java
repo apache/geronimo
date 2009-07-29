@@ -120,11 +120,11 @@ public class GBeanInfoBuilder {
 
     private final Class gbeanType;
 
-    private final Map attributes = new HashMap();
+    private final Map<String, GAttributeInfo> attributes = new HashMap<String, GAttributeInfo>();
 
     private GConstructorInfo constructor = new GConstructorInfo();
 
-    private final Map operations = new HashMap();
+    private final Map<GOperationSignature, GOperationInfo> operations = new HashMap<GOperationSignature, GOperationInfo>();
 
     private final Map references = new HashMap();
 
@@ -233,11 +233,12 @@ public class GBeanInfoBuilder {
                     // magic attributes can't be persistent
                     continue;
                 }
-                attributes.put(attributeName,
+                attributes.put(attributeName,   
                         new GAttributeInfo(attributeName,
-                                attribute.getType(),
+                                attribute.getType(), 
                                 true,
                                 attribute.isManageable(),
+                                attribute.getEncryptedSetting(),
                                 attribute.getGetterName(),
                                 attribute.getSetterName()));
             } else {
@@ -264,6 +265,7 @@ public class GBeanInfoBuilder {
                                 attribute.getType(),
                                 attribute.isPersistent(),
                                 true,
+                                attribute.getEncryptedSetting(),
                                 attribute.getGetterName(),
                                 attribute.getSetterName()));
             }
@@ -317,6 +319,7 @@ public class GBeanInfoBuilder {
                                     attributeType,
                                     attribute.isPersistent() || persistentNames.contains(attributeName),
                                     attribute.isManageable() || manageableNames.contains(attributeName),
+                                    attribute.getEncryptedSetting(),
                                     method.getName(),
                                     attribute.getSetterName()));
                 }
@@ -341,6 +344,7 @@ public class GBeanInfoBuilder {
                                     attributeType,
                                     attribute.isPersistent() || persistentNames.contains(attributeName),
                                     attribute.isManageable() || manageableNames.contains(attributeName),
+                                    attribute.getEncryptedSetting(),
                                     attribute.getGetterName(),
                                     method.getName()));
                 }
@@ -362,7 +366,6 @@ public class GBeanInfoBuilder {
             addInterface(set, cls[i]);
         }
     }
-
     public void addAttribute(String name, Class type, boolean persistent) {
         addAttribute(name, type.getName(), persistent, true);
     }
@@ -379,6 +382,16 @@ public class GBeanInfoBuilder {
         String getter = searchForGetter(name, type, gbeanType);
         String setter = searchForSetter(name, type, gbeanType);
         addAttribute(new GAttributeInfo(name, type, persistent, manageable, getter, setter));
+    }
+
+    public void addAttribute(String name, Class type, boolean persistent, boolean manageable, boolean encrypted) {
+        addAttribute(name, type.getName(), persistent, manageable, encrypted);
+    }
+
+    public void addAttribute(String name, String type, boolean persistent, boolean manageable, boolean encrypted) {
+        String getter = searchForGetter(name, type, gbeanType);
+        String setter = searchForSetter(name, type, gbeanType);
+        addAttribute(new GAttributeInfo(name, type, persistent, manageable, encrypted, getter, setter));
     }
 
     public void addAttribute(GAttributeInfo info) {

@@ -50,11 +50,14 @@ public class AnnotationGBeanInfoBuilderTest extends TestCase {
 
         GConstructorInfo constructor = beanInfo.getConstructor();
         List<String> cstrNames = constructor.getAttributeNames();
-        assertEquals(4, cstrNames.size());
+        assertEquals(5, cstrNames.size());
         assertEquals("classLoader", cstrNames.get(0));
         assertEquals("name", cstrNames.get(1));
         assertEquals("Name", cstrNames.get(2));
         assertEquals("Collection", cstrNames.get(3));
+        assertEquals("attr1", cstrNames.get(4));
+        assertTrue(beanInfo.getAttribute("attr1").isEncrypted());
+        
         
         GAttributeInfo nameAttribute = beanInfo.getAttribute("name");
         assertNotNull(nameAttribute);
@@ -74,12 +77,21 @@ public class AnnotationGBeanInfoBuilderTest extends TestCase {
         assertEquals(String.class.getName(), setterAttribute.getType());
         assertEquals(true, setterAttribute.isPersistent());
         assertEquals(true, setterAttribute.isManageable());
+        assertEquals(EncryptionSetting.ENCRYPTED, setterAttribute.getEncryptedSetting());
+        
+        GAttributeInfo password = beanInfo.getAttribute("password");
+        assertNotNull(password);
+        assertEquals(String.class.getName(), password.getType());
+        assertEquals(true, password.isPersistent());
+        assertEquals(true, password.isManageable());
+        assertEquals(EncryptionSetting.ENCRYPTED, password.getEncryptedSetting());
 
         GAttributeInfo setterNotManageableAttribute = beanInfo.getAttribute("setterNotManageableAttribute");
         assertNotNull(setterNotManageableAttribute);
         assertEquals(String.class.getName(), setterNotManageableAttribute.getType());
         assertEquals(true, setterNotManageableAttribute.isPersistent());
         assertEquals(false, setterNotManageableAttribute.isManageable());
+        assertEquals(EncryptionSetting.PLAINTEXT, setterNotManageableAttribute.getEncryptedSetting());
         
         GReferenceInfo setterReference = beanInfo.getReference("SetterReference");
         assertNotNull(setterReference);
@@ -165,10 +177,11 @@ public class AnnotationGBeanInfoBuilderTest extends TestCase {
         public SmokeGBean(@ParamSpecial(type = SpecialAttributeType.classLoader) ClassLoader classLoader,
             @ParamAttribute(name = "name") String name,
             @ParamReference(name = "Name") Runnable runnable,
-            @ParamReference(name = "Collection") Collection<Runnable> runnables) {
+            @ParamReference(name = "Collection") Collection<Runnable> runnables,
+            @ParamAttribute(name = "attr1", encrypted = EncryptionSetting.ENCRYPTED) String confidential) {
         }
         
-        @Persistent
+        @Persistent(encrypted=EncryptionSetting.ENCRYPTED)
         public void setSetterAttribute(String value) {
         }
         
@@ -176,6 +189,10 @@ public class AnnotationGBeanInfoBuilderTest extends TestCase {
         public void setSetterNotManageableAttribute(String value) {
         }
         
+        @Persistent
+        public void setPassword(String value) {
+        }
+                
         @Reference
         public void setSetterReference(Runnable value) {
         }

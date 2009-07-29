@@ -67,7 +67,10 @@ public class MockGBean implements MockEndpoint, MockParentInterface1, MockParent
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
         infoFactory.addAttribute("actualKernel", Kernel.class, false);
         infoFactory.addAttribute("kernel", Kernel.class, false);
-        infoFactory.addAttribute("value", String.class, true);
+        infoFactory.addAttribute("value", String.class, true, true, true);
+        infoFactory.addAttribute("myPassword", String.class, true, true, false);
+        infoFactory.addAttribute("yourPassword", String.class, true);
+        infoFactory.addAttribute("nonStringPassword", Object.class, true);
         infoFactory.addAttribute("finalInt", Integer.TYPE, true);
         infoFactory.addAttribute("mutableInt", Integer.TYPE, false);
         infoFactory.addAttribute("exceptionMutableInt", Integer.TYPE, true);

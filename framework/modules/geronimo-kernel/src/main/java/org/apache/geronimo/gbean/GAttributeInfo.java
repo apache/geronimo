@@ -17,10 +17,10 @@
 
 package org.apache.geronimo.gbean;
 
-import java.io.Serializable;
-import java.util.Arrays;
-
+import org.apache.geronimo.gbean.annotation.EncryptionSetting;
 import org.apache.geronimo.kernel.KernelRegistry;
+
+import java.io.Serializable;
 
 /**
  * Describes an attibute of a GBean.
@@ -51,6 +51,11 @@ public class GAttributeInfo implements Serializable {
     private final boolean manageable;
 
     /**
+     * Does this attribute need to be encrypted when persisted?
+     */
+    private final EncryptionSetting encrypted;
+
+    /**
      * Is this attribute readable?
      */
     private final boolean readable;
@@ -77,11 +82,34 @@ public class GAttributeInfo implements Serializable {
     }
 
     public GAttributeInfo(String name, String type, boolean persistent, boolean manageable, boolean readable, boolean writable, String getterName, String setterName) {
+        this(name, type, persistent, manageable, EncryptionSetting.defaultEncryption(name, type), readable, writable, getterName,
+                setterName);
+    }
+
+    public GAttributeInfo(String name, String type, boolean persistent, boolean manageable, boolean encrypted, String getterName, String setterName) {
+        this(name, type, persistent, manageable, encrypted ? EncryptionSetting.ENCRYPTED : EncryptionSetting.PLAINTEXT, getterName != null, setterName != null, getterName,
+                setterName);
+    }
+
+    public GAttributeInfo(String name, String type, boolean persistent, boolean manageable, EncryptionSetting encrypted, String getterName, String setterName) {
+        this(name, type, persistent, manageable, encrypted, getterName != null, setterName != null, getterName,
+                setterName);
+    }
+
+    public GAttributeInfo(String name, String type, boolean persistent, boolean manageable, EncryptionSetting encrypted, boolean readable, boolean writable, String getterName, String setterName) {
+        if (encrypted == null) throw new NullPointerException("enctryption must be specified");
+        if (encrypted == EncryptionSetting.ENCRYPTED && !"java.lang.String".equals(type)) {
+            throw new IllegalArgumentException("Only attributes of String type can be encrypted.");
+        }
+        if (encrypted == EncryptionSetting.DEFAULT) {
+            encrypted = EncryptionSetting.defaultEncryption(name, type);
+        }
         this.name = name;
         this.type = type;
         this.persistent = persistent;
         //non persistent attributes cannot be manageable
         this.manageable = manageable & persistent;
+        this.encrypted = encrypted;
         this.readable = readable;
         this.writable = writable;
         this.getterName = getterName;
@@ -104,6 +132,14 @@ public class GAttributeInfo implements Serializable {
         return manageable;
     }
 
+    public boolean isEncrypted() {
+        return encrypted == EncryptionSetting.ENCRYPTED;
+    }
+
+    public EncryptionSetting getEncryptedSetting() {
+        return encrypted;
+    }
+
     public boolean isReadable() {
         return readable;
     }
@@ -122,44 +158,48 @@ public class GAttributeInfo implements Serializable {
 
     public String toString() {
         return "[GAttributeInfo: name=" + name +
-                 " type=" + type +
-                 " persistent=" + persistent +
-                 " manageable=" + manageable +
-                 " readable=" + readable +
-                 " writable=" + writable +
-                 " getterName=" + getterName +
-                 " setterName=" + setterName +
-                 "]";
+                " type=" + type +
+                " persistent=" + persistent +
+                " manageable=" + manageable +
+                " encrypted=" + encrypted +
+                " readable=" + readable +
+                " writable=" + writable +
+                " getterName=" + getterName +
+                " setterName=" + setterName +
+                "]";
     }
 
     public String toXML(AbstractName abstractName) {
         StringBuilder xml = new StringBuilder();
 
         xml.append("<gAttributeInfo ");
-        xml.append("name='" + name + "' ");
-        xml.append("type='" + type + "' ");
-        xml.append("persistent='" + persistent + "' ");
-        xml.append("manageable='" + manageable + "' ");
-        xml.append("readable='" + readable + "' ");
-        xml.append("writable='" + writable + "' ");
+        xml.append("name='").append(name).append("' ");
+        xml.append("type='").append(type).append("' ");
+        xml.append("persistent='").append(persistent).append("' ");
+        xml.append("manageable='").append(manageable).append("' ");
+        xml.append("encrypted='").append(encrypted).append("' ");
+        xml.append("readable='").append(readable).append("' ");
+        xml.append("writable='").append(writable).append("' ");
         xml.append(">");
 
-        xml.append("<getterName>" + getterName + "</getterName>");
-        xml.append("<setterName>" + setterName + "</setterName>");
+        xml.append("<getterName>").append(getterName).append("</getterName>");
+        xml.append("<setterName>").append(setterName).append("</setterName>");
 
         if (readable) {
             try {
                 Object value = KernelRegistry.getSingleKernel().getAttribute(abstractName, name);
                 if (value != null) {
                     if (value instanceof String[]) {
-                        for (String valueString : Arrays.asList((String[]) value))
-                            xml.append("<value>" + valueString + "</value>");
+                        for (String valueString : (String[])value) {
+                            xml.append("<value>").append(valueString).append("</value>");
+                        }
                     } else {
-                        xml.append("<value>" + value + "</value>");
+                        value = encrypted.encrypt((String) value);
+                        xml.append("<value>").append(value).append("</value>");
                     }
                 }
             } catch (Exception e) {
-
+                xml.append("<value>[could not be determined:").append(e.getMessage()).append("]</value>");
             }
         }
 

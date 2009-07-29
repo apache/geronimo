@@ -39,4 +39,7 @@ public @interface ParamAttribute {
     boolean persistent() default true;
     
     boolean manageable() default true;
+    
+    EncryptionSetting encrypted() default EncryptionSetting.DEFAULT;
+
 }

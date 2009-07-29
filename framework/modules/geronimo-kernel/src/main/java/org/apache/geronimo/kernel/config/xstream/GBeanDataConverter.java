@@ -16,17 +16,16 @@
  */
 package org.apache.geronimo.kernel.config.xstream;
 
-import java.util.Iterator;
+import java.net.URI;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.LinkedHashSet;
-import java.util.LinkedHashMap;
-import java.net.URI;
 
+import com.thoughtworks.xstream.converters.ConversionException;
 import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.MarshallingContext;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
-import com.thoughtworks.xstream.converters.ConversionException;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 import com.thoughtworks.xstream.mapper.Mapper;
@@ -36,6 +35,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.MultiGBeanInfoFactory;
 import org.apache.geronimo.gbean.ReferencePatterns;
+import org.apache.geronimo.gbean.annotation.EncryptionSetting;
 
 /**
  * @version $Rev$ $Date$
@@ -79,20 +79,19 @@ public class GBeanDataConverter implements Converter {
         }
 
         // dependencies Set<ReferencePatterns>
-        Set dependencies = gbeanData.getDependencies();
-        for (Iterator iterator = dependencies.iterator(); iterator.hasNext();) {
-            ReferencePatterns referencePatterns = (ReferencePatterns) iterator.next();
+        Set<ReferencePatterns> dependencies = gbeanData.getDependencies();
+        for (ReferencePatterns referencePatterns : dependencies) {
             writer.startNode("dependency");
             marshallingContext.convertAnother(referencePatterns);
             writer.endNode();
         }
 
         // attributes Map<String, Object>
-        Map attributes = gbeanData.getAttributes();
-        for (Iterator iterator = attributes.entrySet().iterator(); iterator.hasNext();) {
-            Map.Entry entry = (Map.Entry) iterator.next();
-            String attributeName = (String) entry.getKey();
-            Object attributeValue = entry.getValue();
+        Map<String, Object> attributes = gbeanData.getAttributes();
+        for (Map.Entry<String, Object> entry : attributes.entrySet()) {
+            String attributeName = entry.getKey();
+            EncryptionSetting encryptionSetting = gbeanInfo.getAttribute(attributeName).getEncryptedSetting();
+            Object attributeValue = encryptionSetting.encrypt(entry.getValue());
             if (attributeValue != null) {
                 writer.startNode("attribute");
                 writer.addAttribute("name", attributeName);
@@ -105,11 +104,10 @@ public class GBeanDataConverter implements Converter {
             }
         }
         // references Map<String, ReferencePatterns>
-        Map references = gbeanData.getReferences();
-        for (Iterator iterator = references.entrySet().iterator(); iterator.hasNext();) {
-            Map.Entry entry = (Map.Entry) iterator.next();
-            String referenceName = (String) entry.getKey();
-            ReferencePatterns referencePatterns = (ReferencePatterns) entry.getValue();
+        Map<String, ReferencePatterns> references = gbeanData.getReferences();
+        for (Map.Entry<String, ReferencePatterns> entry : references.entrySet()) {
+            String referenceName = entry.getKey();
+            ReferencePatterns referencePatterns = entry.getValue();
             writer.startNode("reference");
             writer.addAttribute("name", referenceName);
             marshallingContext.convertAnother(referencePatterns);
@@ -137,9 +135,9 @@ public class GBeanDataConverter implements Converter {
             gbeanInfo = infoFactory.getGBeanInfo(sourceClass, classLoader);
         }
 
-        Set dependencies = new LinkedHashSet();
-        Map attributes = new LinkedHashMap();
-        Map references = new LinkedHashMap();
+        Set<ReferencePatterns> dependencies = new LinkedHashSet<ReferencePatterns>();
+        Map<String, Object> attributes = new LinkedHashMap<String, Object>();
+        Map<String, ReferencePatterns> references = new LinkedHashMap<String, ReferencePatterns>();
         while (reader.hasMoreChildren()) {
             reader.moveDown();
 
@@ -184,16 +182,14 @@ public class GBeanDataConverter implements Converter {
 
         GBeanData gbeanData = new GBeanData(abstractName, gbeanInfo);
         gbeanData.setDependencies(dependencies);
-        for (Iterator iterator = attributes.entrySet().iterator(); iterator.hasNext();) {
-            Map.Entry entry = (Map.Entry) iterator.next();
-            String attributeName = (String) entry.getKey();
+        for (Map.Entry<String, Object> entry : attributes.entrySet()) {
+            String attributeName = entry.getKey();
             Object attributeValue = entry.getValue();
             gbeanData.setAttribute(attributeName, attributeValue);
         }
-        for (Iterator iterator = references.entrySet().iterator(); iterator.hasNext();) {
-            Map.Entry entry = (Map.Entry) iterator.next();
-            String referenceName = (String) entry.getKey();
-            ReferencePatterns referencePatterns = (ReferencePatterns) entry.getValue();
+        for (Map.Entry <String, ReferencePatterns> entry : references.entrySet()) {
+            String referenceName = entry.getKey();
+            ReferencePatterns referencePatterns = entry.getValue();
             gbeanData.setReferencePatterns(referenceName, referencePatterns);
         }
 

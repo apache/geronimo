@@ -67,6 +67,12 @@
             <version>${version}</version>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>geronimo-crypto</artifactId>
+            <version>${version}</version>
+        </dependency>
     </dependencies>
 
     <build>

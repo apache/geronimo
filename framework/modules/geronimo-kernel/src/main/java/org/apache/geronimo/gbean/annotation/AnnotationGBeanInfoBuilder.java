@@ -114,7 +114,16 @@ public class AnnotationGBeanInfoBuilder {
                     String name = attribute.name();
                     boolean persistent = attribute.persistent();
                     boolean manageable = attribute.manageable();
-                    infoBuilder.addAttribute(name, parameterType, persistent, manageable);
+                    if (attribute.encrypted() == EncryptionSetting.ENCRYPTED) {
+                        infoBuilder.addAttribute(name, parameterType,
+                                persistent, manageable, true);
+                    } else if (attribute.encrypted() == EncryptionSetting.PLAINTEXT) {
+                        infoBuilder.addAttribute(name, parameterType,
+                                persistent, manageable, false);
+                    } else {
+                        infoBuilder.addAttribute(name, parameterType,
+                                persistent, manageable);
+                    }
                     cstrNames[index] = name;
                     annotationFound = true;
                     break;
@@ -168,7 +177,13 @@ public class AnnotationGBeanInfoBuilder {
             Class type = method.getParameterTypes()[0];
             String name = getName(method);
             name = Introspector.decapitalize(name);
-            infoBuilder.addAttribute(name, type, true, persistent.manageable());
+            if (persistent.encrypted() == EncryptionSetting.ENCRYPTED) {
+                infoBuilder.addAttribute(name, type, true, persistent.manageable(), true);
+            } else if (persistent.encrypted() == EncryptionSetting.PLAINTEXT) {
+                infoBuilder.addAttribute(name, type, true, persistent.manageable(), false);
+            } else {
+                infoBuilder.addAttribute(name, type, true, persistent.manageable());
+            }
         }
     }
     

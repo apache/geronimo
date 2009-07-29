@@ -126,6 +126,11 @@
                     <classpath>
                         <element>
                             <groupId>org.apache.geronimo.framework</groupId>
+                            <artifactId>geronimo-crypto</artifactId>
+                            <version>${version}</version>
+                        </element>
+                        <element>
+                            <groupId>org.apache.geronimo.framework</groupId>
                             <artifactId>geronimo-kernel</artifactId>
                             <version>${version}</version>
                         </element>

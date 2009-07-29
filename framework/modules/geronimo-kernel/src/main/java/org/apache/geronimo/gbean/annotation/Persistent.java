@@ -35,4 +35,5 @@ import java.lang.annotation.Target;
 @Target(value = {METHOD})
 public @interface Persistent {
     boolean manageable() default true;
+    EncryptionSetting encrypted() default EncryptionSetting.DEFAULT;
 }
