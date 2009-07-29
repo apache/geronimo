@@ -39,6 +39,7 @@ import org.apache.geronimo.gbean.ReferenceCollectionListener;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.system.jmx.MBeanServerReference;
 import org.apache.geronimo.tomcat.cluster.CatalinaClusterGBean;
+import org.apache.geronimo.tomcat.valve.ThreadCleanerValve;
 import org.apache.tomcat.util.modeler.Registry;
 
 /**
@@ -109,10 +110,12 @@ public class EngineGBean extends BaseGBean implements GBeanLifecycle, ObjectRetr
 
         //Add the valve and listener lists
         if (engine instanceof StandardEngine){
+            StandardEngine standardEngine = (StandardEngine)engine;
+            standardEngine.addValve(new ThreadCleanerValve());
             if (tomcatValveChain != null){
                 ValveGBean valveGBean = tomcatValveChain;
                 while(valveGBean != null){
-                    ((StandardEngine)engine).addValve((Valve)valveGBean.getInternalObject());
+                    standardEngine.addValve((Valve)valveGBean.getInternalObject());
                     valveGBean = valveGBean.getNextValve();
                 }
             }
