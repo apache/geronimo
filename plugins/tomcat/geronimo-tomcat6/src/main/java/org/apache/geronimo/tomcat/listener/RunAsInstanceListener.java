@@ -16,11 +16,9 @@
  */
 package org.apache.geronimo.tomcat.listener;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Stack;
 
 import javax.security.auth.Subject;
-
 import org.apache.catalina.Container;
 import org.apache.catalina.InstanceEvent;
 import org.apache.catalina.InstanceListener;
@@ -31,35 +29,30 @@ import org.apache.geronimo.tomcat.GeronimoStandardContext;
 
 public class RunAsInstanceListener implements InstanceListener {
 
-    private static final ThreadLocal<List<Callers>> threadLocal = new ThreadLocal<List<Callers>>() {
-        protected List<Callers> initialValue() {
-            return new ArrayList<Callers>(2);
+    private static final ThreadLocal<Stack<Callers>> threadLocal = new ThreadLocal<Stack<Callers>>() {
+        protected Stack<Callers> initialValue() {
+            return new Stack<Callers>();
         }
     };
-    
+
     public void instanceEvent(InstanceEvent event) {
-        
+
         if (event.getType().equals(InstanceEvent.BEFORE_SERVICE_EVENT)) {
             Container parent = event.getWrapper().getParent();
             if (parent instanceof GeronimoStandardContext) {
-                GeronimoStandardContext context = (GeronimoStandardContext)parent;
+                Stack<Callers> callersStack = threadLocal.get();
+                GeronimoStandardContext context = (GeronimoStandardContext) parent;
                 Wrapper wrapper = event.getWrapper();
                 String runAsRole = wrapper.getRunAs();
                 Subject runAsSubject = context.getSubjectForRole(runAsRole);
-                List<Callers> callersStack = threadLocal.get();
-                if (runAsSubject != null) {
-                    Callers oldCallers = ContextManager.pushNextCaller(runAsSubject);
-                    callersStack.add(oldCallers);
-                } else {
-                    callersStack.add(null);
-                }
+                Callers oldCallers = ContextManager.pushNextCaller(runAsSubject);
+                callersStack.push(oldCallers);
             }
-        }
-
-        else if (event.getType().equals(InstanceEvent.AFTER_SERVICE_EVENT)) {
-            List<Callers> callersStack = threadLocal.get();
-            Callers oldCallers = callersStack.remove(callersStack.size() - 1);
-            if (oldCallers!=null) {
+        } else if (event.getType().equals(InstanceEvent.AFTER_SERVICE_EVENT)) {
+            Container parent = event.getWrapper().getParent();
+            if (parent instanceof GeronimoStandardContext) {
+                Stack<Callers> callersStack = threadLocal.get();
+                Callers oldCallers = callersStack.pop();
                 ContextManager.popCallers(oldCallers);
             }
         }

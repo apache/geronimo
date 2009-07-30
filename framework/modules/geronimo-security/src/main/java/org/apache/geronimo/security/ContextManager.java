@@ -162,6 +162,12 @@ public class ContextManager {
         return oldCallers;
     }
 
+    /**
+     * Pusth the run-as identity as the next identity.  If the run-as identity is not specified,
+     * push the current identity as the next identity.  Return the previous pair of current identity, next identity.
+     * @param nextCaller next run-as identity or null
+     * @return existing pair of (current identity, next identity)
+     */
     public static Callers pushNextCaller(Subject nextCaller) {
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) sm.checkPermission(SET_CONTEXT);

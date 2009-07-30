@@ -21,6 +21,7 @@
 package org.apache.geronimo.security.jacc;
 
 import javax.security.auth.Subject;
+import org.apache.geronimo.security.ContextManager;
 
 /**
  * @version $Rev$ $Date$
@@ -29,15 +30,25 @@ public interface RunAsSource {
     RunAsSource NULL = new RunAsSource() {
 
         public Subject getDefaultSubject() {
-            return null;
+            return ContextManager.EMPTY;
         }
 
         public Subject getSubjectForRole(String role) {
-            return null;
+            if (role == null) return null;
+            return ContextManager.EMPTY;
         }
     };
 
+    /**
+     *
+     * @return the non-null default subject for this security environment
+     */
     Subject getDefaultSubject();
 
+    /**
+     * If role is null, return null.  Otherwise return a non-null Subject or throw an IllegalArgumentException.
+     * @param role role to estabilish identity for
+     * @return non-null Subject embodying the identity for the supplied non-null role, or null if role is null.
+     */
     Subject getSubjectForRole(String role);
 }

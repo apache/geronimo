@@ -104,7 +104,10 @@ public class ApplicationPrincipalRoleConfigurationManager implements PrincipalRo
     }
 
     public Subject getSubjectForRole(String role) {
-        return roleDesignates.get(role);
+        if (role == null) return null;
+        Subject runAs = roleDesignates.get(role);
+        if (runAs == null) throw new IllegalStateException("no run-as identity configured for role: " + role);
+        return runAs;
     }
 
     public void doStart() throws Exception {

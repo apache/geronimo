@@ -69,7 +69,7 @@ public class JettyIdentityService implements IdentityService {
 
     public Object setRunAs(UserIdentity userIdentity, RunAsToken token) {
         GeronimoRunAsToken geronimoRunAsToken = (GeronimoRunAsToken) token;
-        Subject runAsSubject = geronimoRunAsToken.getRunAsSubject();
+        Subject runAsSubject = geronimoRunAsToken == null? null: geronimoRunAsToken.getRunAsSubject();
         return ContextManager.pushNextCaller(runAsSubject);
     }
 

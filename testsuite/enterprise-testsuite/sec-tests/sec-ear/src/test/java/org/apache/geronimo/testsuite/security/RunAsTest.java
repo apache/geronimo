@@ -106,7 +106,7 @@ public class RunAsTest
     @Test
     public void testForwardRunAsServlet() throws Exception {
         String path = "/sec/forwardRunAsServlet";
-        testPath(path, SERVLET_FOO + "\n" + SERVLET_FOO + EJB_BAZ + SERVLET_FOO + "\n" + SERVLET_FOO);
+        testPath(path, SERVLET_FOO + "\n" + SERVLET_BAZ + EJB_BAZ + SERVLET_BAZ + "\n" + SERVLET_FOO);
     }
     @Test
     public void testForwardRunAsServletToRunAs() throws Exception {
