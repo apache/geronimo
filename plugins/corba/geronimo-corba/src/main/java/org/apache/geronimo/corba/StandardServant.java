@@ -219,7 +219,7 @@ public class StandardServant extends Servant implements InvokeHandler {
                                 try {
                                     Object handleKey = handle.getPrimaryKey(); 
                                     RpcContainer container = (RpcContainer) ejbDeployment.getContainer();
-                                    result = container.invoke(ejbDeployment.getDeploymentId(), method, arguments, handleKey, null);
+                                    result = container.invoke(ejbDeployment.getDeploymentId(), interfaceType, method.getDeclaringClass(), method, arguments, handleKey);
                                 } catch (OpenEJBException e) {
                                     Throwable cause = e.getCause();
                                     if (cause instanceof Exception) {
@@ -247,7 +247,7 @@ public class StandardServant extends Servant implements InvokeHandler {
                 } else {
                     try {
                         RpcContainer container = (RpcContainer) ejbDeployment.getContainer();
-                        result = container.invoke(ejbDeployment.getDeploymentId(), method, arguments, primaryKey, null);
+                        result = container.invoke(ejbDeployment.getDeploymentId(), interfaceType, method.getDeclaringClass(), method, arguments, primaryKey);
                         // some methods like create() or find* return ProxyInfo objects.  We need to 
                         // turn those into real EJB remote references. 
                         if (result instanceof ProxyInfo || method.getName().startsWith("find")) {
