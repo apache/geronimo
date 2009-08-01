@@ -47,6 +47,15 @@ public class FlagsMeaningTest extends TestCase {
         lc.login();
     }
 
+    public void testSufficientFalseTrue() throws LoginException {
+        Configuration conf = new FixedConfiguration(new AppConfigurationEntry[] {
+                new AppConfigurationEntry(FalseLM.class.getName(), AppConfigurationEntry.LoginModuleControlFlag.SUFFICIENT, noOptions),
+                new AppConfigurationEntry(TrueLM.class.getName(), AppConfigurationEntry.LoginModuleControlFlag.SUFFICIENT, noOptions),
+        });
+        LoginContext lc = new LoginContext("foo", null, null, conf);
+        lc.login();
+    }
+
     public void testSufficientExceptionRequiredTrue() throws LoginException {
         Configuration conf = new FixedConfiguration(new AppConfigurationEntry[] {
                 new AppConfigurationEntry(ExceptionLM.class.getName(), AppConfigurationEntry.LoginModuleControlFlag.SUFFICIENT, noOptions),
