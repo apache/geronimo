@@ -89,4 +89,8 @@ public class ChildrenConfigurationClassLoader extends SecureClassLoader {
         return super.getResources(name);
     }
 
+    @Override
+    public String toString() {
+        return getClass().getName() + " wrapping " + getParent().toString();
+    }
 }
