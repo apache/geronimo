@@ -57,6 +57,11 @@
             <artifactId>geronimo-cxf-tools</artifactId>
             <version>${version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>geronimo-crypto</artifactId>
+            <version>${version}</version>
+        </dependency>
     </dependencies>
     
     <build>
@@ -81,6 +86,11 @@
                         <element>
                             <groupId>org.apache.geronimo.framework</groupId>
                             <artifactId>geronimo-kernel</artifactId>
+                            <version>${version}</version>
+                        </element>
+                        <element>
+                            <groupId>org.apache.geronimo.framework</groupId>
+                            <artifactId>geronimo-crypto</artifactId>
                             <version>${version}</version>
                         </element>
                         <element>

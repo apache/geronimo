@@ -49,10 +49,16 @@
             <artifactId>geronimo-j2ee</artifactId>
             <version>${version}</version>
         </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.framework</groupId>-->
+            <!--<artifactId>geronimo-deploy-config</artifactId>-->
+            <!--<version>${version}</version>-->
+        <!--</dependency>-->
         <dependency>
-            <groupId>org.apache.geronimo.framework</groupId>
-            <artifactId>geronimo-deploy-config</artifactId>
+            <groupId>org.apache.geronimo.plugins.classloaders</groupId>
+            <artifactId>geronimo-javaee-deployment_1.1MR3_spec</artifactId>
             <version>${version}</version>
+            <type>car</type>
         </dependency>
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>

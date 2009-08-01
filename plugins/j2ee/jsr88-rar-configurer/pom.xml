@@ -41,11 +41,16 @@
             <!--<type>car</type>-->
         <!--</dependency>-->
 
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.configs</groupId>-->
+            <!--<artifactId>connector-deployer</artifactId>-->
+            <!--<version>${version}</version>-->
+            <!--<type>car</type>-->
+        <!--</dependency>-->
         <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>connector-deployer</artifactId>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-connector-builder</artifactId>
             <version>${version}</version>
-            <type>car</type>
         </dependency>
     </dependencies>
     
@@ -58,12 +63,12 @@
                     <warnOnDependencyChange>true</warnOnDependencyChange>
                     <dependencies>
                         <!-- should this be the connector-deployer jar??? -->
-                        <dependency>
-                            <groupId>org.apache.geronimo.configs</groupId>
-                            <artifactId>connector-deployer</artifactId>
-                            <type>car</type>
-                            <import>classes</import>
-                        </dependency>
+                        <!--<dependency>-->
+                            <!--<groupId>org.apache.geronimo.configs</groupId>-->
+                            <!--<artifactId>connector-deployer</artifactId>-->
+                            <!--<type>car</type>-->
+                            <!--<import>classes</import>-->
+                        <!--</dependency>-->
                         <!--<dependency>-->
                             <!--<groupId>org.apache.geronimo.framework</groupId>-->
                             <!--<artifactId>jsr88-cli</artifactId>-->
