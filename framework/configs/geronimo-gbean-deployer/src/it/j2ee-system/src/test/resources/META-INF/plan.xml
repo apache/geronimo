@@ -106,13 +106,13 @@ specific services - those should be provided by children.-->
         <type>jar</type>
         <import>classes</import>
       </dependency>
-      <dependency>
-        <groupId>javax.xml.bind</groupId>
-        <artifactId>jaxb-api</artifactId>
-        <version>2.1</version>
-        <type>jar</type>
-        <import>classes</import>
-      </dependency>
+        <dependency>
+          <groupId>org.apache.geronimo.specs</groupId>
+          <artifactId>geronimo-jaxb_2.1_spec</artifactId>
+            <version>1.0</version>
+            <type>jar</type>
+            <import>classes</import>
+        </dependency>
       <dependency>
         <groupId>org.apache.geronimo.specs</groupId>
         <artifactId>geronimo-activation_1.1_spec</artifactId>
