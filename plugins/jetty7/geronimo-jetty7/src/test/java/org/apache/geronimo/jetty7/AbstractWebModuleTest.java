@@ -64,7 +64,6 @@ import org.eclipse.jetty.security.ServerAuthException;
 import org.eclipse.jetty.security.Authenticator;
 import org.eclipse.jetty.security.IdentityService;
 import org.eclipse.jetty.security.UserAuthentication;
-import org.eclipse.jetty.security.authentication.SessionCachingAuthenticator;
 import org.eclipse.jetty.security.authentication.FormAuthenticator;
 
 
@@ -131,7 +130,7 @@ public class AbstractWebModuleTest extends TestSupport {
                     return null;
                 }
 
-            }, loginService, false);
+            }, loginService);
         }
         String contextPath = "/test";
         WebAppContextWrapper app = new WebAppContextWrapper(null,
@@ -175,9 +174,8 @@ public class AbstractWebModuleTest extends TestSupport {
         String policyContextId = "TEST";
         ApplicationPolicyConfigurationManager jacc = setUpJACC(roleDesignates, principalRoleMap, componentPermissions, policyContextId);
         LoginService loginService = newLoginService();
-        FormAuthenticator authenticator = new FormAuthenticator("/auth/logon.html?param=test", "/auth/logonError.html?param=test");
-        Authenticator serverAuthentication = new SessionCachingAuthenticator(authenticator);
-        SecurityHandlerFactory securityHandlerFactory = new ServerAuthenticationGBean(serverAuthentication, loginService, false);
+        Authenticator serverAuthentication = new FormAuthenticator("/auth/logon.html?param=test", "/auth/logonError.html?param=test", true);
+        SecurityHandlerFactory securityHandlerFactory = new ServerAuthenticationGBean(serverAuthentication, loginService);
         return setUpAppContext(
                 securityRealmName,
                 securityHandlerFactory,
@@ -293,6 +291,10 @@ public class AbstractWebModuleTest extends TestSupport {
                 return identityService.newUserIdentity(subject, userPrincipal, null);
             }
             return null;
+        }
+
+        public boolean validate(UserIdentity user) {
+            return false;
         }
 
         public void logout(UserIdentity user) {

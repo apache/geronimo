@@ -43,7 +43,6 @@ import org.eclipse.jetty.security.authentication.BasicAuthenticator;
 import org.eclipse.jetty.security.authentication.ClientCertAuthenticator;
 import org.eclipse.jetty.security.authentication.DigestAuthenticator;
 import org.eclipse.jetty.security.authentication.FormAuthenticator;
-import org.eclipse.jetty.security.authentication.SessionCachingAuthenticator;
 
 /**
  * @version $Rev$ $Date$
@@ -99,7 +98,8 @@ public class JettySecurityHandlerFactory implements SecurityHandlerFactory {
         } else if (authMethod == BuiltInAuthMethod.CLIENTCERT) {
             authenticator = new ClientCertAuthenticator();
         } else if (authMethod == BuiltInAuthMethod.FORM) {
-            authenticator = new SessionCachingAuthenticator(new FormAuthenticator(loginPage, errorPage));
+            boolean dispatch = true;
+            authenticator = new FormAuthenticator(loginPage, errorPage, dispatch);
         } else if (authMethod == BuiltInAuthMethod.NONE) {
             authenticator = new NoneAuthenticator();
         } else {

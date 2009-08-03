@@ -33,7 +33,6 @@ import org.eclipse.jetty.security.Authenticator;
 import org.eclipse.jetty.security.IdentityService;
 import org.eclipse.jetty.security.LoginService;
 import org.eclipse.jetty.security.SecurityHandler;
-import org.eclipse.jetty.security.authentication.DeferredAuthenticator;
 
 /**
  * Wraps a supplied ServerAuthentication in a AuthenticationManager instance.  Mostly for testing...
@@ -48,10 +47,7 @@ public class ServerAuthenticationGBean implements SecurityHandlerFactory {
     private final LoginService loginService;
 
 
-    public ServerAuthenticationGBean(Authenticator authenticator, LoginService loginService, boolean allowLazyAuthentication) {
-        if (allowLazyAuthentication) {
-            authenticator = new DeferredAuthenticator(authenticator);
-        }
+    public ServerAuthenticationGBean(Authenticator authenticator, LoginService loginService) {
         this.authenticator = authenticator;
         this.loginService = loginService;
     }
