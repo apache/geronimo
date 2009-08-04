@@ -997,7 +997,7 @@ public class DatabasePoolPortlet extends BasePortlet {
                 environment.setConfigId(configId);
                 configId.setGroupId("console.dbpool");
                 configId.setVersion("1.0");
-                configId.setType("rar");
+                configId.setType("car");
                 
                 String artifactId = data.name;
                 // simply replace / with _ if / exists within the artifactId
