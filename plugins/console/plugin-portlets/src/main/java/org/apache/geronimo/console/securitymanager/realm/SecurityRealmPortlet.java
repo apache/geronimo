@@ -87,6 +87,7 @@ import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ListableRepository;
 import org.apache.geronimo.management.geronimo.JCAManagedConnectionFactory;
+import org.apache.geronimo.security.jaas.ConfigurationEntryFactory;
 import org.apache.geronimo.security.jaas.JaasLoginModuleChain;
 import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
 import org.apache.geronimo.security.jaas.LoginModuleSettings;
@@ -498,6 +499,7 @@ public class SecurityRealmPortlet extends BasePortlet {
     private void actionLoadExistingRealm(PortletRequest request, RealmData data) {
         SecurityRealm realm = (SecurityRealm) PortletManager.getManagedBean(request, new AbstractName(URI.create(data.getAbstractName())));
         data.name = realm.getRealmName();
+        data.global = ((ConfigurationEntryFactory)realm).isGlobal();
         List list = new ArrayList();
         JaasLoginModuleChain node = realm.getLoginModuleChain();
         while (node != null) {
