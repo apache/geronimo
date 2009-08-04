@@ -217,7 +217,7 @@ public class XSRFHandler
                 // only update the content if it is HTML
                 if (cType.toLowerCase().indexOf("html") != -1) {
                     // get the response content
-                    String content = new String(hres.getOutput());
+                    String content = new String(hres.getOutput(), "UTF-8");
                     // update the JavaScript with the uniqueId for this session
                     updatedXsrfJS = xsrfJS.replace(XSRF_JS_UNIQUEID, uniqueId);
                     // update the response to contain the JS fragment
