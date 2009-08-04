@@ -234,6 +234,7 @@ if [ ! -x /usr/sbin/$2 ]; then
    echo "$2:2:respawn:/usr/sbin/$2 start">>/etc/inittab
  fi 
  if $osUbuntu; then    
+   ln -sf /usr/sbin/"$2" /etc/init.d/"$2"
    update-rc.d $2 defaults 99 01   
  fi
 else
@@ -256,7 +257,8 @@ else
    rm -fr /etc/rc3.d/S99"$2"
  fi
  if $osUbuntu; then    
-   update-rc.d -f $2 remove   
+   update-rc.d -f $2 remove
+   rm -f /etc/init.d/"$2"   
  fi
  rm -f /usr/sbin/$2
  rm -f "$GSERVICE_NAME" 
