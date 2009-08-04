@@ -491,7 +491,7 @@ public abstract class AbstractHandler extends MultiPageAbstractHandler {
                 configId.setGroupId("console.jms");
                 configId.setArtifactId(data.instanceName);
                 configId.setVersion("1.0");
-                configId.setType("rar");
+                configId.setType("car");
                 if(data.dependency != null && !data.dependency.trim().equals("")) {
                     Artifact artifact = Artifact.create(data.dependency.trim());
                     org.apache.geronimo.deployment.service.jsr88.Artifact dep = new org.apache.geronimo.deployment.service.jsr88.Artifact();
