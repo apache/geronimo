@@ -19,12 +19,14 @@
 
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ taglib uri="http://java.sun.com/jstl/fmt_rt" prefix="fmt"%>
+<fmt:setLocale value="<%=request.getLocale()%>"/>
+<fmt:setBundle basename="plancreator-portlet"/>
 <portlet:defineObjects />
 
-<p><b>WAR - Dependencies</b> -- Select the dependencies your Web Application has on other Modules</p>
+<p><fmt:message key="plancreator.dependency.title"/></p>
 
-<p>All the modules available in the server repository are shown below. Select the ones on which your 
-web-application is dependent. Default selections should be sufficient in most scenarios.</p>
+<p><fmt:message key="plancreator.dependency.desc"/></p>
 
 <!--   FORM TO COLLECT DATA FOR THIS PAGE   -->
 <form name="<portlet:namespace/>DependenciesForm" action="<portlet:actionURL/>" method="POST">
@@ -36,7 +38,7 @@ web-application is dependent. Default selections should be sufficient in most sc
     <th>
     <div align="right"></div>
     </th>
-    <td><input type="submit" value="<fmt:message key="plancreator.common.next"/>" /></td>
+    <td><input type="submit" value="<fmt:message key='plancreator.common.next'/>" /></td>
   </tr>
 
   <!-- Dependencies -->
@@ -59,7 +61,7 @@ web-application is dependent. Default selections should be sufficient in most sc
     <th>
     <div align="right"></div>
     </th>
-    <td><input type="submit" value="<fmt:message key="plancreator.common.next"/>" /></td>
+    <td><input type="submit" value="<fmt:message key='plancreator.common.next'/>" /></td>
   </tr>
 </table>
 </form>
@@ -67,4 +69,4 @@ web-application is dependent. Default selections should be sufficient in most sc
 
 <p><a href="<portlet:actionURL portletMode="view">
               <portlet:param name="mode" value="index-before" />
-            </portlet:actionURL>">Cancel</a></p>
+            </portlet:actionURL>"><fmt:message key="plancreator.common.cancel"/></a></p>
