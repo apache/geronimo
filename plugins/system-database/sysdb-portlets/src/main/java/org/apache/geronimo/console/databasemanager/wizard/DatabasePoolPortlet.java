@@ -860,9 +860,12 @@ public class DatabasePoolPortlet extends BasePortlet {
             for (Artifact artifact : artifacts) {
                 if (dependencyFilters != null) {
                     for (Artifact filter: dependencyFilters) {
-                        if (filter.matches(artifact)) {
-                            list.add(artifact.toString());
-                        }
+                        // It is too strict if using artifact.matches(filter)
+                        if (filter.getGroupId() != null && artifact.getGroupId().indexOf(filter.getGroupId()) == -1) continue;
+                        if (filter.getArtifactId() != null && artifact.getArtifactId().indexOf(filter.getArtifactId()) == -1) continue;
+                        if (filter.getVersion() != null && !artifact.getVersion().equals(filter.getVersion())) continue;
+                        if (filter.getType() != null && !artifact.getType().equals(filter.getType())) continue;
+                        list.add(artifact.toString());
                     }
 
                 } else if (INCLUDE_ARTIFACTIDS.contains(artifact.getArtifactId())
