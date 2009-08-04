@@ -16,15 +16,21 @@
  */
 package org.apache.geronimo.console.filter;
 
+import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Implementation of a HttpServletResponseWrapper to allow us to edit the
@@ -34,6 +40,7 @@ import javax.servlet.http.HttpServletResponseWrapper;
  * @version $Rev$ $Date$
  */
 public final class FilterResponseWrapper extends HttpServletResponseWrapper {
+	private static final Logger log = LoggerFactory.getLogger(FilterResponseWrapper.class);
     private ByteArrayOutputStream output = null;
     private ResponseOutputStream stream = null;
     private PrintWriter writer = null;
@@ -168,7 +175,13 @@ public final class FilterResponseWrapper extends HttpServletResponseWrapper {
         }
         this.output = new ByteArrayOutputStream();
         this.stream = new ResponseOutputStream(output);
-        this.writer = new PrintWriter(stream);
+        try{
+        	this.writer = new PrintWriter(new BufferedWriter(new OutputStreamWriter(stream, "UTF-8")));
+        }
+        catch (UnsupportedEncodingException uee) {
+            // should never happen
+            log.error("new OutputStreamWriter(stream, UTF-8) failed.", uee);
+        }
     }
 
     /* (non-Javadoc)
