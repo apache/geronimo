@@ -139,11 +139,17 @@ public class EngineGBean extends BaseGBean implements GBeanLifecycle, ObjectRetr
             refs.addReferenceCollectionListener(new ReferenceCollectionListener() {
 
                 public void memberAdded(ReferenceCollectionEvent event) {
-                    Object o = event.getMember();
-                    ObjectRetriever objectRetriever = (ObjectRetriever) o;
-                    String hostName = ((Host)objectRetriever.getInternalObject()).getName();
-                    if (!hostName.equals(defaultHostName))
-                        addHost(objectRetriever);
+                    ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
+                    try {
+                        Thread.currentThread().setContextClassLoader(EngineGBean.this.getClass().getClassLoader());
+                        Object o = event.getMember();
+                        ObjectRetriever objectRetriever = (ObjectRetriever) o;
+                        String hostName = ((Host) objectRetriever.getInternalObject()).getName();
+                        if (!hostName.equals(defaultHostName))
+                            addHost(objectRetriever);
+                    } finally {
+                        Thread.currentThread().setContextClassLoader(oldClassLoader);
+                    }
                 }
 
                 public void memberRemoved(ReferenceCollectionEvent event) {
