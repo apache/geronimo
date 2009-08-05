@@ -52,7 +52,7 @@ public class JMSResourcesTest extends TestSupport {
         waitForPageLoad();
         selenium.click("//input[@value='Deploy Now']");
         waitForPageLoad();
-        assertTrue(selenium.isTextPresent("UniqueName (console.jms/UniqueName/1.0/rar)"));
+        assertTrue(selenium.isTextPresent("UniqueName (console.jms/UniqueName/1.0/car)"));
         selenium.click("link=J2EE Connectors");
         waitForPageLoad();
         selenium.click("link=Uninstall"); 
@@ -61,7 +61,7 @@ public class JMSResourcesTest extends TestSupport {
         waitForPageLoad();
         selenium.click("link=JMS Resources");
         waitForPageLoad();
-        assertFalse(selenium.isTextPresent("UniqueName (console.jms/UniqueName/1.0/rar)"));
+        assertFalse(selenium.isTextPresent("UniqueName (console.jms/UniqueName/1.0/car)"));
     }
 
     private boolean waitForButton() throws InterruptedException {
