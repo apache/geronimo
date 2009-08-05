@@ -90,7 +90,7 @@
 
         <connectorSuffix></connectorSuffix>
         <connectorSpec>geronimo-j2ee-connector_1.5_spec</connectorSpec>
-        <txmanagerVersion>2.1.2</txmanagerVersion>
+        <txmanagerVersion>2.1.3-SNAPSHOT</txmanagerVersion>
         <!--<connectorSuffix>-1_6</connectorSuffix>
         <connectorSpec>geronimo-j2ee-connector_1.6_spec</connectorSpec>
         <txmanagerVersion>2.2-SNAPSHOT</txmanagerVersion>-->
@@ -732,45 +732,15 @@
             <dependency>
                 <groupId>org.apache.ws.scout</groupId>
                 <artifactId>scout</artifactId>
-                <version>1.0rc1</version>
-                <!--<version>1.1</version>-->
+                <version>1.1</version>
                 <exclusions>
-                    <exclusion>
-                        <groupId>axis</groupId>
-                        <artifactId>axis-saaj</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>axis</groupId>
-                        <artifactId>axis-jaxrpc</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>xmlbeans</groupId>
-                        <artifactId>xbean</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.ws.scout</groupId>
-                        <artifactId>jaxr-api</artifactId>
-                    </exclusion>
                     <exclusion>
                         <groupId>commons-logging</groupId>
                         <artifactId>commons-logging</artifactId>
                     </exclusion>
                     <exclusion>
-                        <groupId>stax</groupId>
-                        <artifactId>stax-api</artifactId>
-                    </exclusion>
-                    <exclusion>
                         <groupId>xerces</groupId>
                         <artifactId>xercesImpl</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>geronimo-spec</groupId>
-                        <artifactId>geronimo-spec-activation</artifactId>
-                    </exclusion>
-                    <!-- not sure how scout would work without this if its a dependency ?? -->
-                    <exclusion>
-                        <groupId>jdom</groupId>
-                        <artifactId>jdom</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
