@@ -84,6 +84,7 @@ public class JmsSenderBean implements JmsSenderRemote {
             conn = this.connFactory.createConnection();
             sess = conn.createSession(true, Session.SESSION_TRANSACTED);
             prod = sess.createProducer(jmsRequestQueue);
+            conn.start();
 
             for (int i = 0; i < counter; ++i) {
                 SimpleTransferObject to = new SimpleTransferObject(requestName, i);

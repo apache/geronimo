@@ -95,5 +95,27 @@ public class SimpleTransferObject extends TransferObject {
         return created;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
+        SimpleTransferObject that = (SimpleTransferObject) o;
+
+        if (id != that.id) return false;
+        if (created != null ? !created.equals(that.created) : that.created != null) return false;
+        if (name != null ? !name.equals(that.name) : that.name != null) return false;
+        if (processed != null ? !processed.equals(that.processed) : that.processed != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = name != null ? name.hashCode() : 0;
+        result = 31 * result + id;
+        result = 31 * result + (processed != null ? processed.hashCode() : 0);
+        result = 31 * result + (created != null ? created.hashCode() : 0);
+        return result;
+    }
 }

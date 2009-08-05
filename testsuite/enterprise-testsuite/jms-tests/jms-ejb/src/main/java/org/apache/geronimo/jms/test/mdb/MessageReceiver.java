@@ -139,6 +139,7 @@ public abstract class MessageReceiver implements MessageListener {
             conn = this.createConnection();
             sess = this.createSession(conn);
             producer = this.createMessageProducer(sess, replyTo);
+            conn.start();
 
             ObjectMessage msg = this.createMessage(sess);
             msg.setObject(to);

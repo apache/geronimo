@@ -27,5 +27,9 @@
         <packages>
             <package name="org.apache.geronimo.testsuite.enterprise.jms"/>
         </packages>
+        <!-- reverse what is commented out to just run the GERONIMO-4784 failing test -->
+        <!--<classes>-->
+            <!--<class name="org.apache.geronimo.testsuite.enterprise.jms.RollbackTest"/>-->
+        <!--</classes>-->
     </test>
 </suite>

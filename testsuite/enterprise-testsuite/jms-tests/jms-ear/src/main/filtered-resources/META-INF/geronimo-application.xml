@@ -133,6 +133,10 @@
                     <message-destination-name>TestTopic</message-destination-name>
                     <config-property-setting name="PhysicalName">TestTopic</config-property-setting>
                 </adminobject-instance>
+                <adminobject-instance>
+                    <message-destination-name>TxTopic</message-destination-name>
+                    <config-property-setting name="PhysicalName">TxTopic</config-property-setting>
+                </adminobject-instance>
             </adminobject>
             <adminobject>
                 <adminobject-interface>javax.jms.Queue</adminobject-interface>
@@ -141,10 +145,6 @@
                     <message-destination-name>TestQueue</message-destination-name>
                     <config-property-setting name="PhysicalName">TestQueue</config-property-setting>
                 </adminobject-instance>
-            </adminobject>
-            <adminobject>
-                <adminobject-interface>javax.jms.Queue</adminobject-interface>
-                <adminobject-class>org.apache.activemq.command.ActiveMQQueue</adminobject-class>
                 <adminobject-instance>
                     <message-destination-name>MRRequests</message-destination-name>
                     <config-property-setting name="PhysicalName">MRRequests</config-property-setting>
@@ -152,6 +152,10 @@
                 <adminobject-instance>
                     <message-destination-name>MRResponses</message-destination-name>
                     <config-property-setting name="PhysicalName">MRResponses</config-property-setting>
+                </adminobject-instance>
+                <adminobject-instance>
+                    <message-destination-name>TxQueue</message-destination-name>
+                    <config-property-setting name="PhysicalName">TxQueue</config-property-setting>
                 </adminobject-instance>
             </adminobject>
         </connector>
