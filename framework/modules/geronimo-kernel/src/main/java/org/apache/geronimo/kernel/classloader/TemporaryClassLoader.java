@@ -101,7 +101,7 @@ public class TemporaryClassLoader extends URLClassLoader {
 
        // Annotation classes must be loaded by the normal classloader
        if (isAnnotationClass(bytes)) {
-           return Class.forName(name, resolve, getClass().getClassLoader());
+           return super.loadClass(name, resolve);
        }
 
        // define the package
