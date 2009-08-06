@@ -2133,6 +2133,29 @@
                         </optionSets>
                     </configuration>
                 </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>native2ascii-maven-plugin</artifactId>
+                    <version>1.0-alpha-1</version>
+                    <configuration>
+                        <dest>target/classes</dest>
+                        <src>src/main/i18n-resources</src>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>native2ascii-utf8</id>
+                            <goals>
+                                <goal>native2ascii</goal>
+                            </goals>
+                            <configuration>
+                                <encoding>UTF-8</encoding>
+                                <includes>
+                                    *.*
+                                </includes>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
             </plugins>
         </pluginManagement>
 
