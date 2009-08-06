@@ -148,7 +148,7 @@ public class PropertiesFileNoPasswordLoginModule implements LoginModule {
         } catch (UnsupportedCallbackException uce) {
             return false;
         }
-        assert callbacks.length == 2;
+        assert callbacks.length == 1;
         username = ((NameCallback) callbacks[0]).getName();
         if (username == null || username.equals("")) {
             // Clear out the private state
