@@ -77,7 +77,7 @@ public class JAASLoginService implements LoginService {
     }
 
     public boolean validate(UserIdentity user) {
-        return false;
+        return true;
     }
 
     public IdentityService getIdentityService() {
