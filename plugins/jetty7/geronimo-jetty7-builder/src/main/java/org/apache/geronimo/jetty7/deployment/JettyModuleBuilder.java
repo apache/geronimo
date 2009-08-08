@@ -462,6 +462,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
                 Set<String> jspMappings = (Set<String>) jspServletData.getAttribute("servletMappings");
                 jspMappings.addAll(knownServletMappings);
                 jspServletData.setAttribute("servletMappings", jspMappings);
+                module.getSharedContext().put(DEFAULT_JSP_SERVLET_KEY, jspServletData);
             }
 
             // configure login configs.
@@ -597,7 +598,6 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
         Set<String> defaultServletMappings = new HashSet<String>((Collection<String>) servletGBeanData.getAttribute("servletMappings"));
         defaultServletMappings.removeAll(knownServletMappings);
         servletGBeanData.setAttribute("servletMappings", defaultServletMappings);
-        moduleContext.addGBean(servletGBeanData);
         return servletGBeanData;
     }
 

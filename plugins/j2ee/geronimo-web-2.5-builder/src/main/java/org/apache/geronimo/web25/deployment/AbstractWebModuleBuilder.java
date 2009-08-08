@@ -115,6 +115,13 @@ import org.xml.sax.SAXException;
  * @version $Rev$ $Date$
  */
 public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
+
+    public final static NamingBuilder.Key<GBeanData> DEFAULT_JSP_SERVLET_KEY = new NamingBuilder.Key<GBeanData>() {
+        public GBeanData get(Map context) {
+            return (GBeanData) context.get(this);
+        }
+
+    };
     private static final Logger log = LoggerFactory.getLogger(AbstractWebModuleBuilder.class);
 
     private static final QName TAGLIB = new QName(SchemaConversionUtils.JAVAEE_NAMESPACE, "taglib");

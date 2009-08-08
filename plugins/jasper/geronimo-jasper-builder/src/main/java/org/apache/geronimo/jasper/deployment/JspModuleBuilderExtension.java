@@ -61,6 +61,7 @@ import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.schema.SchemaConversionUtils;
+import org.apache.geronimo.web25.deployment.AbstractWebModuleBuilder;
 import org.apache.geronimo.xbeans.javaee.FullyQualifiedClassType;
 import org.apache.geronimo.xbeans.javaee.JspConfigType;
 import org.apache.geronimo.xbeans.javaee.ListenerType;
@@ -125,6 +126,14 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
 
         EARContext moduleContext = module.getEarContext();
         Map sharedContext = module.getSharedContext();
+        GBeanData jspServletData = AbstractWebModuleBuilder.DEFAULT_JSP_SERVLET_KEY.get(sharedContext);
+        if (jspServletData != null) {
+            try {
+                moduleContext.addGBean(jspServletData);
+            } catch (GBeanAlreadyExistsException e) {
+                throw new DeploymentException("jsp servlet already present", e);
+            }
+        }
 
         GBeanData webAppData = (GBeanData) sharedContext.get(WebModule.WEB_APP_DATA);
 
