@@ -2141,16 +2141,17 @@
                         <dest>target/classes</dest>
                         <src>src/main/i18n-resources</src>
                     </configuration>
-                    <dependencies>
-                        <dependency>
-                            <groupId>com.sun</groupId>
-                            <artifactId>tools</artifactId>
+                    <!--<dependencies>-->
+                        <!--<dependency>-->
+                            <!--<groupId>com.sun</groupId>-->
+                            <!--<artifactId>tools</artifactId>-->
                             <!--the real JDK version could be 1.5 or 1.6-->
-                            <version>1.5.0</version>
-                            <scope>system</scope>
-                            <systemPath>${java.home}/../lib/tools.jar</systemPath>
-                        </dependency>
-                    </dependencies>
+                            <!--<version>1.5.0</version>-->
+                            <!--<scope>system</scope>-->
+                            <!--<optional>true</optional>-->
+                            <!--<systemPath>${java.home}/../lib/tools.jar</systemPath>-->
+                        <!--</dependency>-->
+                    <!--</dependencies>-->
                     <executions>
                         <execution>
                             <id>native2ascii-utf8</id>
