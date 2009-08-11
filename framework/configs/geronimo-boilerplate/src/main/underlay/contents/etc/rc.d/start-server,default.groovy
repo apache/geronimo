@@ -22,7 +22,10 @@
 //
 
 // Append some reasonable java flags if none were configured already
-if (command.javaFlags.empty) {
+if (command.profiles.contains('java6')) {
+    command.javaFlags << '-XX:MaxPermSize=512m'
+    command.javaFlags << '-Xmx2048m'
+} else if (command.javaFlags.empty) {
     command.javaFlags << '-Xmx512m'
 }
 
