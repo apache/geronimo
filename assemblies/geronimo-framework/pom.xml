@@ -33,7 +33,7 @@
     <packaging>server-assembly</packaging>
     
     <description>
-        A minimal Geronimo server (Little-G) framework assembly.
+        A minimal Geronimo server framework assembly.
     </description>
     
     <dependencies>
