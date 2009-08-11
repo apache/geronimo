@@ -47,7 +47,6 @@ import org.apache.geronimo.console.jmsmanager.helper.JMSMessageHelper;
 import org.apache.geronimo.console.jmsmanager.helper.JMSMessageHelperFactory;
 import org.apache.geronimo.console.util.PortletManager;
 import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.management.State;
@@ -69,7 +68,7 @@ import org.slf4j.LoggerFactory;
  * @version $Rev$ $Date$
  */
 public class ListScreenHandler extends AbstractHandler {
-    private static final Logger log = LoggerFactory.getLogger(ListScreenHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(ListScreenHandler.class);
 
     public ListScreenHandler() {
         super(LIST_MODE, "/WEB-INF/view/jmswizard/list.jsp");
@@ -123,7 +122,7 @@ public class ListScreenHandler extends AbstractHandler {
             try {
                 helper.purge(renderRequest, brokerName, adminObjType, physicalName);
             } catch (Exception e) {
-                log.error("Fail to purge the messages in [" + brokerName + "." + physicalName + "]", e);
+                logger.error("Fail to purge the messages in [" + brokerName + "." + physicalName + "]", e);
                 throw new PortletException("Fail to purge the messages in [" + brokerName + "." + physicalName + "]",e);
             }
         }                
@@ -147,9 +146,9 @@ public class ListScreenHandler extends AbstractHandler {
                 }                
                 if (target == null) {
                     ResourceAdapter[] adapters = PortletManager.getResourceAdapters(renderRequest, module);
-                    String name = null;                    
-                    if (adapters.length == 1 && adapters[0].getJCAResources().length == 1) {                        
-                        JCAResource[] resource = PortletManager.getJCAResources(renderRequest, adapters[0]);                        
+                    String name = null;
+                    if (adapters.length == 1 && adapters[0].getJCAResources().length == 1) {
+                        JCAResource[] resource = PortletManager.getJCAResources(renderRequest, adapters[0]);
                         if (resource.length == 1 && resource[0].getResourceAdapterInstances().length == 1) {
                             name = ObjectName.getInstance(resource[0].getResourceAdapterInstanceNames()[0]).getKeyProperty(NameFactory.J2EE_NAME);
                         }
@@ -157,7 +156,7 @@ public class ListScreenHandler extends AbstractHandler {
                     if (name == null) {
                         name = ObjectName.getInstance(module.getObjectName()).getKeyProperty(NameFactory.J2EE_NAME);
                     }
-                    String sServerUrl = adapters.length > 0 ? getServerUrl(renderRequest,module) : "";                                        
+                    String sServerUrl = adapters.length > 0 ? getServerUrl(renderRequest, module) : "";
                     target = new JMSResourceSummary(PortletManager.getConfigurationFor(renderRequest, PortletManager.getNameFor(renderRequest, module)).toString(), module.getObjectName(), name,
                             ((GeronimoManagedBean) module).getState(), getBrokerName(renderRequest, sServerUrl, name));
                     resources.add(target);
@@ -213,7 +212,7 @@ public class ListScreenHandler extends AbstractHandler {
                     try {
                         physicalName = (String) admins[j].getConfigProperty("PhysicalName");
                     } catch (Exception e) {
-                        log.warn("PhysicalName undefined, using queueName as PhysicalName");
+                        logger.warn("PhysicalName undefined, using queueName as PhysicalName");
                         physicalName = queueName;
                     }
                     String destType = admins[j].getAdminObjectInterface().indexOf("Queue") > -1 ? "Queue" : "Topic";
@@ -230,7 +229,7 @@ public class ListScreenHandler extends AbstractHandler {
                 }
             }
         } catch (MalformedObjectNameException e) {
-            log.error(e.getMessage(), e);
+            logger.error(e.getMessage(), e);
         }
 
         Collections.sort(resources);
@@ -248,7 +247,7 @@ public class ListScreenHandler extends AbstractHandler {
             }
             return "";
         } catch (Exception e) {
-            log.error("Fail to get server URL of the JMS resource",e);
+            logger.error("Fail to get server URL of the JMS resource",e);
             return "";
         }
     }
@@ -260,7 +259,7 @@ public class ListScreenHandler extends AbstractHandler {
             if (geronimoManagedBeans == null || geronimoManagedBeans.length == 0)
                 throw new PortletException("Could not find the ActiveMQ Manager");
             if (geronimoManagedBeans.length > 1)
-                log.warn("More than one ActiveMQ Manager exist in kernel");            
+                logger.warn("More than one ActiveMQ Manager exist in kernel");            
             JMSManager activeMQManager = (JMSManager) geronimoManagedBeans[0];            
             JMSBroker targetJMSBroker = null;
             URI uri = new URI(serverURL);            
@@ -304,10 +303,11 @@ public class ListScreenHandler extends AbstractHandler {
                 if (targetJMSBroker != null)
                     return ((BrokerServiceGBean) targetJMSBroker).getBrokerName();
             }
-            throw new PortletException("Could not find the broker according to the url [" + serverURL + "]");
+            logger.warn("Could not find the broker according to the url [" + serverURL + "]");
+            return null;
         } catch (URISyntaxException e) {
-            log.error("Unrecognized server URL [" + serverURL + "]", e);
-            throw new PortletException("Unrecognized server URL [" + serverURL + "]", e);
+            logger.error("Unrecognized server URL [" + serverURL + "]", e);
+            return null;
         }
     }
     
