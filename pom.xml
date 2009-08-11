@@ -2141,17 +2141,6 @@
                         <dest>target/classes</dest>
                         <src>src/main/i18n-resources</src>
                     </configuration>
-                    <!--<dependencies>-->
-                        <!--<dependency>-->
-                            <!--<groupId>com.sun</groupId>-->
-                            <!--<artifactId>tools</artifactId>-->
-                            <!--the real JDK version could be 1.5 or 1.6-->
-                            <!--<version>1.5.0</version>-->
-                            <!--<scope>system</scope>-->
-                            <!--<optional>true</optional>-->
-                            <!--<systemPath>${java.home}/../lib/tools.jar</systemPath>-->
-                        <!--</dependency>-->
-                    <!--</dependencies>-->
                     <executions>
                         <execution>
                             <id>native2ascii-utf8</id>
@@ -2384,6 +2373,37 @@
                 <module>plugingroups</module>
                 <module>assemblies</module>
             </modules>
+        </profile>
+
+        <profile>
+            <id>ibmjdk</id>
+            <!-- see GERONIMO-4763.  Apparently the tools.jar needs to be specifically referenced on ibm jdks -->
+            <activation>
+                <file>
+                    <exists>${java.home}/../lib/tools.jar</exists>
+                </file>
+            </activation>
+            <build>
+                <pluginManagement>
+                    <plugins>
+                        <plugin>
+                            <groupId>org.codehaus.mojo</groupId>
+                            <artifactId>native2ascii-maven-plugin</artifactId>
+                            <dependencies>
+                                <dependency>
+                                    <groupId>com.sun</groupId>
+                                    <artifactId>tools</artifactId>
+                                    <!--the real JDK version could be 1.5 or 1.6-->
+                                    <version>1.5.0</version>
+                                    <scope>system</scope>
+                                    <optional>true</optional>
+                                    <systemPath>${java.home}/../lib/tools.jar</systemPath>
+                                </dependency>
+                            </dependencies>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
+            </build>
         </profile>
     </profiles>
 
