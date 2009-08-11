@@ -101,7 +101,7 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
     }
 
     public OpenEjbSystemGBean(@ParamReference(name = "TransactionManager", namingType = NameFactory.JTA_RESOURCE) TransactionManager transactionManager,
-                              @ParamReference(name = "ResourceAdapterWrappers") Collection<ResourceAdapterWrapper> resourceAdapters,
+                              @ParamReference(name = "ResourceAdapterWrappers", namingType = NameFactory.JCA_RESOURCE_ADAPTER) Collection<ResourceAdapterWrapper> resourceAdapters,
                               @ParamReference(name = "PersistenceUnitGBeans", namingType = NameFactory.PERSISTENCE_UNIT) Collection<PersistenceUnitGBean> persistenceUnitGBeans,
                               @ParamReference(name = "OpenEjbContext")DeepBindableContext openejbContext,
                               @ParamSpecial(type = SpecialAttributeType.kernel) Kernel kernel,
