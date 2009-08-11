@@ -40,8 +40,8 @@ public class RollbackTest {
      *
      * @throws Exception if exception occurs
      */
-    @Test
-    public void testRollback() throws Exception {
+//    @Test
+    public void XXtestRollbackQUeueAndTopic() throws Exception {
         InitialContext ctx = new InitialContext();
         String totalShipStr = System.getProperty("total-shipment");
         String msgsPerShipStr = System.getProperty("requests-per-shipment");
@@ -67,14 +67,74 @@ public class RollbackTest {
             if (!pass) {
                 throw new Exception("Failed, see out and logs");
             }
-            //enable is receiveMessage is modified to detect messages on request queue
-/*
-            Thread.sleep(10000);
-            Integer id = jmsSender.receiveMessage();
-            if (id != null) {
-                throw new Exception("received request message: " + id);
+        } else {
+            throw new Exception("Sender is null");
+        }
+    }
+
+    /**
+     * Creates customer instance
+     *
+     * @throws Exception if exception occurs
+     */
+    @Test
+    public void testRollbackQueue() throws Exception {
+        InitialContext ctx = new InitialContext();
+        String totalShipStr = System.getProperty("total-shipment");
+        String msgsPerShipStr = System.getProperty("requests-per-shipment");
+
+        int totalShip = (totalShipStr == null ? 10 : Integer.parseInt(totalShipStr));
+        int msgsPerShip = (msgsPerShipStr == null ? 20 : Integer.parseInt(msgsPerShipStr));
+
+        JmsBmtRemote jmsSender = (JmsBmtRemote) ctx.lookup("JmsBmtRemote");
+        boolean pass = true;
+        if (jmsSender != null) {
+            System.out.println("JmsBmtRemote initialized");
+            for (int i = 0; i < totalShip; ++i) {
+                String messageName = (i + 1) + ".Request";
+
+                System.out.format("Sending (%1$s) request(s) with name %2$s%n", msgsPerShip, messageName);
+                String result = jmsSender.sendMessageQueue(messageName, 0, msgsPerShip);
+                System.out.println("QUeue equests sent, result: " + result);
+                if ("FAIL".equals(result)) pass = false;
             }
-*/
+            if (!pass) {
+                throw new Exception("Failed, see out and logs");
+            }
+        } else {
+            throw new Exception("Sender is null");
+        }
+    }
+
+    /**
+     * Creates customer instance
+     *
+     * @throws Exception if exception occurs
+     */
+    @Test
+    public void testRollbackTopic() throws Exception {
+        InitialContext ctx = new InitialContext();
+        String totalShipStr = System.getProperty("total-shipment");
+        String msgsPerShipStr = System.getProperty("requests-per-shipment");
+
+        int totalShip = (totalShipStr == null ? 10 : Integer.parseInt(totalShipStr));
+        int msgsPerShip = (msgsPerShipStr == null ? 20 : Integer.parseInt(msgsPerShipStr));
+
+        JmsBmtRemote jmsSender = (JmsBmtRemote) ctx.lookup("JmsBmtRemote");
+        boolean pass = true;
+        if (jmsSender != null) {
+            System.out.println("JmsBmtRemote initialized");
+            for (int i = 0; i < totalShip; ++i) {
+                String messageName = (i + 1) + ".Request";
+
+                System.out.format("Sending (%1$s) request(s) with name %2$s%n", msgsPerShip, messageName);
+                String result = jmsSender.sendMessageTopic(messageName, 0, msgsPerShip);
+                System.out.println("Topic requests sent, result: " + result);
+                if ("FAIL".equals(result)) pass = false;
+            }
+            if (!pass) {
+                throw new Exception("Failed, see out and logs");
+            }
         } else {
             throw new Exception("Sender is null");
         }

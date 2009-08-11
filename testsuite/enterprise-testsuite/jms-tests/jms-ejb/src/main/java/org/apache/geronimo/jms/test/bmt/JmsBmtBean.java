@@ -145,7 +145,7 @@ public class JmsBmtBean implements JmsBmtRemote {
             return "OK";
 
         } catch (Exception e) {
-            logger.error("Bad news! Sending failed due to exception: " + e.getMessage());
+            logger.error("Bad news! Sending failed due to exception: " + e.getMessage(), e);
             return "FAIL";
         } finally {
             try {
