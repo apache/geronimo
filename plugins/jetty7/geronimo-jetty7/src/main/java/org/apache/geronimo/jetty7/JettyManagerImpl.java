@@ -386,9 +386,7 @@ public class JettyManagerImpl implements WebManager {
         connectorAttributes.add(new ConnectorAttribute<Integer>("port", 8080, Messages.getString("JettyManagerImpl.32"), Integer.class, true)); //$NON-NLS-1$ //$NON-NLS-2$
         connectorAttributes.add(new ConnectorAttribute<Integer>("maxThreads", 10, Messages.getString("JettyManagerImpl.34"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
         connectorAttributes.add(new ConnectorAttribute<Integer>("bufferSizeBytes", 8096, Messages.getString("JettyManagerImpl.36"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
-        //TODO see https://bugs.eclipse.org/bugs/show_bug.cgi?id=280843
-        //Currently, the new value of headerBufferSizeBytes could not be the same with the default one due to a Jetty Bug
-        connectorAttributes.add(new ConnectorAttribute<Integer>("headerBufferSizeBytes", 8193, Messages.getString("JettyManagerImpl.57"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<Integer>("headerBufferSizeBytes", 8192, Messages.getString("JettyManagerImpl.57"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
         connectorAttributes.add(new ConnectorAttribute<Integer>("acceptQueueSize", 10, Messages.getString("JettyManagerImpl.38"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
         connectorAttributes.add(new ConnectorAttribute<Integer>("lingerMillis", 30000, Messages.getString("JettyManagerImpl.40"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
         //connectorAttributes.add(new ConnectorAttribute<Boolean>("tcpNoDelay", false, "If true then setTcpNoDelay(true) is called on accepted sockets.", Boolean.class));
