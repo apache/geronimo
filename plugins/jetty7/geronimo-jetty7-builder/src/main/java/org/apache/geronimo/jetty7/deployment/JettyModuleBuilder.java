@@ -586,7 +586,8 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
 
     private void addDefaultServletsGBeans(EARContext earContext, EARContext moduleContext, AbstractName moduleName, Set knownServletMappings) throws GBeanNotFoundException, GBeanAlreadyExistsException {
         for (Object defaultServlet : defaultServlets) {
-            configureDefaultServlet(defaultServlet, earContext, moduleName, knownServletMappings, moduleContext);
+            GBeanData servletGBeanData = configureDefaultServlet(defaultServlet, earContext, moduleName, knownServletMappings, moduleContext);
+            moduleContext.addGBean(servletGBeanData);
         }
     }
 
