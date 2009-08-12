@@ -74,11 +74,11 @@ function selectTab(tabID) {
 dojo.addOnLoad(
     function() {
         /* Init LDAP tree */
-        LDAPHelper.getBaseDN(<portlet:namespace/>initLDAPTree);
+        LDAPManagerHelper.getBaseDN(<portlet:namespace/>initLDAPTree);
 
         /* Init LDAP connection info tab */
         if (_baseDN != null) {
-            LDAPHelper.getEnvironment(<portlet:namespace/>initConnectInfoTab);
+            LDAPManagerHelper.getEnvironment(<portlet:namespace/>initConnectInfoTab);
         }
 
         /* Tree click event handler */
@@ -93,7 +93,7 @@ dojo.addOnLoad(
                     if ((selectedNode.state == 'UNCHECKED') && (selectedNode.isExpanded == false)) {
                         // Add children
                         _selectedNode = selectedNode;
-                        LDAPHelper.list(_selectedNode.widgetId, <portlet:namespace/>updateLDAPTree);
+                        LDAPManagerHelper.list(_selectedNode.widgetId, <portlet:namespace/>updateLDAPTree);
                     }
                 }
             },
@@ -106,7 +106,7 @@ dojo.addOnLoad(
             tree.eventNames.titleClick,
             function(message) {
                 var dn = message.source.widgetId;
-                LDAPHelper.getAttributes(dn, <portlet:namespace/>updateAttributesTable);
+                LDAPManagerHelper.getAttributes(dn, <portlet:namespace/>updateAttributesTable);
             }
         );
 
@@ -132,7 +132,7 @@ dojo.addOnLoad(
                     }
                     // Add children
                     _selectedNode = selectedNode;
-                    LDAPHelper.list(_selectedNode.widgetId, <portlet:namespace/>updateLDAPTree);
+                    LDAPManagerHelper.list(_selectedNode.widgetId, <portlet:namespace/>updateLDAPTree);
                 }
             }
         );
@@ -247,7 +247,7 @@ function connectBtnClicked() {
     // alert(connectInfoStr);
     
     // Connect to new LDAP server
-    LDAPHelper.connect(
+    LDAPManagerHelper.connect(
         initialContextFactory,
         host,
         port,
@@ -279,13 +279,13 @@ function searchBtnClicked() {
     } else {
         scope = 'subtree';
     }
-    LDAPHelper.search(searchDN, filter, scope, <portlet:namespace/>updateSearchResultTable);
+    LDAPManagerHelper.search(searchDN, filter, scope, <portlet:namespace/>updateSearchResultTable);
 }
 
 /* Clear result button clicked event handler */
 function clearResultBtnClicked() {
-    DWRUtil.removeAllRows('searchResultTableBody');
-    DWRUtil.setValue('searchResultCount', '');
+	dwr.util.removeAllRows('searchResultTableBody');
+	dwr.util.setValue('searchResultCount', '');
 }
 </script>
 
@@ -308,16 +308,16 @@ span.invalid, span.missing, span.range {
 
 <!-- DWR Stuff -->
 <% String dwrForwarderServlet = "/console/dwr2"; %>
-<script type='text/javascript' src='<%= dwrForwarderServlet %>/interface/LDAPHelper.js'></script>
+<script type='text/javascript' src='<%= dwrForwarderServlet %>/interface/LDAPManagerHelper.js'></script>
 <script type='text/javascript' src='<%= dwrForwarderServlet %>/engine.js'></script>
 <script type='text/javascript' src='<%= dwrForwarderServlet %>/util.js'></script>
 
 <script>
 /* Sync calls */
-DWREngine.setAsync(false);
+dwr.engine.setAsync(false);
 
 /* Generic error handler */
-DWREngine.setErrorHandler(
+dwr.engine.setErrorHandler(
     function (errorString) {
         alert('Error: ' + errorString + '\n** Make sure LDAP server is running and/or connection properties are correct.');
         selectTab('connectInfoTab');
@@ -343,8 +343,8 @@ var tableOption = {
 
 /* Update attributes table */
 function <portlet:namespace/>updateAttributesTable(attributes) {
-    DWRUtil.removeAllRows('attributesTableBody');
-    DWRUtil.addRows(
+	dwr.util.removeAllRows('attributesTableBody');
+	dwr.util.addRows(
         'attributesTableBody', 
         attributes,
         [
@@ -361,8 +361,8 @@ function <portlet:namespace/>updateAttributesTable(attributes) {
 
 /* Update search result table */
 function <portlet:namespace/>updateSearchResultTable(searchResult) {
-    DWRUtil.removeAllRows('searchResultTableBody');
-    DWRUtil.addRows(
+	dwr.util.removeAllRows('searchResultTableBody');
+	dwr.util.addRows(
         'searchResultTableBody',
         searchResult,
         [
@@ -372,7 +372,7 @@ function <portlet:namespace/>updateSearchResultTable(searchResult) {
         ],
         tableOption
     );
-    DWRUtil.setValue('searchResultCount', searchResult.length + ' entries returned...');
+	dwr.util.setValue('searchResultCount', searchResult.length + ' entries returned...');
 }
 
 /* Update LDAP tree */
@@ -405,7 +405,7 @@ function <portlet:namespace/>initLDAPTree(baseDN) {
     var controller = dojo.widget.byId('treeController');
     controller.expand(rootNode);
     _selectedNode = rootNode;
-    LDAPHelper.list(_selectedNode.widgetId, <portlet:namespace/>updateLDAPTree);
+    LDAPManagerHelper.list(_selectedNode.widgetId, <portlet:namespace/>updateLDAPTree);
 
     // Select node
     var treeSelector = dojo.widget.byId("treeSelector");
@@ -419,7 +419,7 @@ function <portlet:namespace/>initLDAPTree(baseDN) {
     
     // Update attributes table
     var dn = rootNode.widgetId;
-    LDAPHelper.getAttributes(dn, <portlet:namespace/>updateAttributesTable);
+    LDAPManagerHelper.getAttributes(dn, <portlet:namespace/>updateAttributesTable);
     
     // Update Search tab's 'Search DN' field
     document.LDAPSearchForm.searchDN.value = baseDN;
@@ -457,7 +457,7 @@ function <portlet:namespace/>initConnectInfoTab(env) {
 
 /* Prints 'LOADING' message while waiting for DWR method calls */
 function init() {
-    DWRUtil.useLoadingMessage();
+	dwr.util.useLoadingMessage();
 }
 
 function callOnLoad(load) {

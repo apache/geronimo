@@ -46,7 +46,7 @@ import uk.ltd.getahead.dwr.WebContextFactory;
 /**
  * The LDAP manager helper
  */
-@RemoteProxy(name="LDAPHelper")
+@RemoteProxy
 public class LDAPManagerHelper {
     private final static String LDAP_VERSION_KEY = "java.naming.ldap.version";
 

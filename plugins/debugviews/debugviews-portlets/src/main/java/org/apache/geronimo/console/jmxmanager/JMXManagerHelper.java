@@ -56,7 +56,7 @@ import org.directwebremoting.annotations.RemoteProxy;
 /**
  * The JMX manager helper
  */
-@RemoteProxy(name="JMXHelper")
+@RemoteProxy
 public class JMXManagerHelper {
     /** Used to return all MBeans */
     private static final String ALL_MBEANS = "AllMBeans";

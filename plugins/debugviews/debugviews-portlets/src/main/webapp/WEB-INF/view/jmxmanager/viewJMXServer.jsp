@@ -201,18 +201,18 @@ tbody.scrollContent tr.selected:hover td {
                             if (id.indexOf('<PATTERN>') != -1) {
                                 // Remove pattern marker
                                 var pattern = id.substring(id.indexOf('<PATTERN>') + '<PATTERN>'.length);  
-                                JMXHelper.listByPattern(pattern, <portlet:namespace/>updateJMXTree);
+                                JMXManagerHelper.listByPattern(pattern, <portlet:namespace/>updateJMXTree);
                             } else if (selectedNode.widgetId.indexOf('<J2EETYPE>') != -1) {
                                 // Remove j2ee type marker
                                 var j2eeType = id.substring(id.indexOf('<J2EETYPE>') + '<J2EETYPE>'.length);  
-                                JMXHelper.listByJ2EEType(j2eeType, <portlet:namespace/>updateJMXTree);
+                                JMXManagerHelper.listByJ2EEType(j2eeType, <portlet:namespace/>updateJMXTree);
                             } else if (selectedNode.widgetId.indexOf('<SVCMODULE>') != -1) {
                                 // Remove service module marker
                                 var svcModule = id.substring(id.indexOf('<SVCMODULE>') + '<SVCMODULE>'.length);  
-                                JMXHelper.listBySubstring(svcModule, <portlet:namespace/>updateJMXTree);
+                                JMXManagerHelper.listBySubstring(svcModule, <portlet:namespace/>updateJMXTree);
                             } else if (selectedNode.widgetId == 'statisticsProviderMBeans') {
                                 // Get statistics provider MBeans
-                                JMXHelper.getStatsProvidersMBeans(<portlet:namespace/>updateJMXTree);
+                                JMXManagerHelper.getStatsProvidersMBeans(<portlet:namespace/>updateJMXTree);
                             } else {
                                 // Marker not recognized
                             }
@@ -241,10 +241,10 @@ tbody.scrollContent tr.selected:hover td {
                 } else {
                     // Remove marker to get abstract name
                     window.aName = window.aName.substring(window.aName.indexOf('::') + 2);
-                    JMXHelper.getMBeanInfo(window.aName, <portlet:namespace/>updateBasicInfoTable);
-                    JMXHelper.getAttributes(window.aName, <portlet:namespace/>updateAttributesTable);
-                    JMXHelper.getOperations(window.aName, <portlet:namespace/>updateOperationsTable);
-                    JMXHelper.getMBeanStats(window.aName, <portlet:namespace/>updateStatsTable);
+                    JMXManagerHelper.getMBeanInfo(window.aName, <portlet:namespace/>updateBasicInfoTable);
+                    JMXManagerHelper.getAttributes(window.aName, <portlet:namespace/>updateAttributesTable);
+                    JMXManagerHelper.getOperations(window.aName, <portlet:namespace/>updateOperationsTable);
+                    JMXManagerHelper.getMBeanStats(window.aName, <portlet:namespace/>updateStatsTable);
                 }
             }
         );
@@ -388,7 +388,7 @@ tbody.scrollContent tr.selected:hover td {
  */
 function searchBtnClicked() {
     var jmxQuery = dojo.widget.byId('jmxQuery').getValue();
-    JMXHelper.listByPattern(jmxQuery, <portlet:namespace/>updateSearchMBeansTreeNode);
+    JMXManagerHelper.listByPattern(jmxQuery, <portlet:namespace/>updateSearchMBeansTreeNode);
 }
 
     /**
@@ -397,7 +397,7 @@ function searchBtnClicked() {
     function refreshStatsBtnClicked() {
         var abstractName = window.aName;
 
-        JMXHelper.getMBeanStats(abstractName, <portlet:namespace/>updateStatsTable);
+        JMXManagerHelper.getMBeanStats(abstractName, <portlet:namespace/>updateStatsTable);
     }
 </script>
 
@@ -406,7 +406,7 @@ function searchBtnClicked() {
 <!----------------------->
 
 <% String dwrForwarderServlet = "/console/dwr2"; %>
-<script type='text/javascript' src='<%= dwrForwarderServlet %>/interface/JMXHelper.js'></script>
+<script type='text/javascript' src='<%= dwrForwarderServlet %>/interface/JMXManagerHelper.js'></script>
 <script type='text/javascript' src='<%= dwrForwarderServlet %>/engine.js'></script>
 <script type='text/javascript' src='<%= dwrForwarderServlet %>/util.js'></script>
 
@@ -414,12 +414,12 @@ function searchBtnClicked() {
 /**
  * Sync calls 
  */
-DWREngine.setAsync(false);
+dwr.engine.setAsync(false);
 
 /**
  * Generic error handler 
  */
-DWREngine.setErrorHandler(
+dwr.engine.setErrorHandler(
     function (errorString) {
         alert('Error: ' + errorString);
     }
@@ -720,7 +720,7 @@ function setAttribFN(abstractName, attribName, attribValue, attribValueID, attri
         }
         _attribValue = newValue;
         // Set attribute
-        JMXHelper.setAttribute(
+        JMXManagerHelper.setAttribute(
             abstractName, attribName, newValue, attribType, /* Arguments */
             function(result) { /* setAttribFN Callback */
                 if (result[1] == '<SUCCESS>') {
@@ -741,7 +741,7 @@ function invokeOperFN(abstractName, opName, paramSize) {
     if (paramSize == 0) {
         // Operation without parameters
         // Invoke operator with no args        
-        JMXHelper.invokeOperNoArgs(
+        JMXManagerHelper.invokeOperNoArgs(
             abstractName, opName, /* Arguments */
             function(result) { /* invokeOperNoArgs Callback */
                 alert(result[0] + ' returned: ' + result[1]);
@@ -758,7 +758,7 @@ function invokeOperFN(abstractName, opName, paramSize) {
             paramTypes[i] = dwr.util.getValue(opParamTypeID);
         }
         // Invoke operator with args
-        JMXHelper.invokeOperWithArgs(
+        JMXManagerHelper.invokeOperWithArgs(
             abstractName, opName, paramValues, paramTypes,
             function(result) { /* invokeOperWithArgs Callback */
                 alert(result[0] + ' returned: ' + result[1]);
