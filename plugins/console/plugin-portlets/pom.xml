@@ -169,7 +169,28 @@
             </executions>
           </plugin>
     -->
-
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <tasks>
+                                <copy overwrite="true" todir="target/classes">
+                                    <fileset dir="src/main/i18n-resources">
+                                        <include name="*_en.properties"/>
+                                    </fileset>
+                                    <mapper type="glob" from="*_en.properties" to="*.properties"/>
+                                </copy>
+                            </tasks>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo.jspc</groupId>
                 <artifactId>jspc-maven-plugin</artifactId>
