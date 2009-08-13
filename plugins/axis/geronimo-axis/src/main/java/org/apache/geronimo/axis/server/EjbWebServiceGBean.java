@@ -47,9 +47,7 @@ public class EjbWebServiceGBean implements GBeanLifecycle {
                               @ParamAttribute(name = "policyContextID") String policyContextID,
                               @ParamReference(name = "ConfigurationFactory") ConfigurationFactory configurationFactory,
                               @ParamAttribute(name = "realmName") String realmName,
-                              @ParamAttribute(name = "transportGuarantee") String transportGuarantee,
                               @ParamAttribute(name = "authMethod") String authMethod,
-                              @ParamAttribute(name = "protectedMethods") String[] protectedMethods,
                               @ParamAttribute(name = "virtualHosts") String[] virtualHosts,
                               @ParamAttribute(name = "properties") Properties properties) throws Exception {
         this.location = location;
@@ -82,9 +80,7 @@ public class EjbWebServiceGBean implements GBeanLifecycle {
                     policyContextID,
                     configurationFactory,
                     realmName,
-                    transportGuarantee,
                     authMethod,
-                    protectedMethods,
                     properties,
                     classLoader);
         }

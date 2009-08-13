@@ -228,15 +228,14 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLif
                               String contextID,
                               ConfigurationFactory configurationFactory,
                               String realmName,
-                              String transportGuarantee,
                               String authMethod,
-                              String[] protectedMethods, //allowed methods?
-                              Properties properties, 
+                              Properties properties,
                               ClassLoader classLoader) throws Exception {
         SecurityHandler securityHandler = null;
         if (configurationFactory != null) {
             BuiltInAuthMethod builtInAuthMethod = BuiltInAuthMethod.getValueOf(authMethod);
             JettySecurityHandlerFactory  factory = new JettySecurityHandlerFactory(builtInAuthMethod, null, null, realmName, configurationFactory);
+            //TODO use actual default subject here.
             securityHandler = factory.buildSecurityHandler(contextID, null, null, false);
         }
         ServletHandler servletHandler = new EJBServletHandler(webServiceContainer);

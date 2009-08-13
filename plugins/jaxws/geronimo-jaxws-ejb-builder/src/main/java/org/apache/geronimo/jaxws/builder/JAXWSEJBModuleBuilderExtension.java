@@ -218,17 +218,10 @@ public class JAXWSEJBModuleBuilderExtension implements ModuleBuilderExtension {
                     ejbWebServiceGBean.setReferencePattern("ConfigurationFactory",
                             new AbstractNameQuery(null, Collections.singletonMap("name", wsSecurity.getSecurityRealmName().trim()),
                             ConfigurationFactory.class.getName()));
-                    ejbWebServiceGBean.setAttribute("transportGuarantee", wsSecurity.getTransportGuarantee().toString());
                     String authMethod = wsSecurity.getAuthMethod().value();
                     ejbWebServiceGBean.setAttribute("authMethod", authMethod);
                     if (wsSecurity.getRealmName() != null) {
                         ejbWebServiceGBean.setAttribute("realmName", wsSecurity.getRealmName().trim());                    
-                    }
-                    List<String> methods = wsSecurity.getHttpMethod();
-                    if (methods != null && !methods.isEmpty()) {
-                        String[] protectedMethods = new String[methods.size()];
-                        protectedMethods = methods.toArray(protectedMethods);                    
-                        ejbWebServiceGBean.setAttribute("protectedMethods", protectedMethods);
                     }
                     String policyContextID = sessionName.toString();
                     ejbWebServiceGBean.setAttribute("policyContextID", policyContextID);

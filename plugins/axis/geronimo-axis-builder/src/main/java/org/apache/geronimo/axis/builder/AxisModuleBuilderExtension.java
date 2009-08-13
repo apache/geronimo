@@ -211,16 +211,9 @@ public class AxisModuleBuilderExtension implements ModuleBuilderExtension {
                     ejbWebServiceGBean.setReferencePattern("ConfigurationFactory",
                             new AbstractNameQuery(null, Collections.singletonMap("name", wsSecurity.getSecurityRealmName().trim()),
                             ConfigurationFactory.class.getName()));
-                    ejbWebServiceGBean.setAttribute("transportGuarantee", wsSecurity.getTransportGuarantee().toString());
                     ejbWebServiceGBean.setAttribute("authMethod", wsSecurity.getAuthMethod().value());
                     if (wsSecurity.getRealmName() != null) {
                         ejbWebServiceGBean.setAttribute("realmName", wsSecurity.getRealmName().trim());                    
-                    }
-                    List<String> methods = wsSecurity.getHttpMethod();
-                    if (methods != null && !methods.isEmpty()) {
-                        String[] protectedMethods = new String[methods.size()];
-                        protectedMethods = methods.toArray(protectedMethods);                    
-                        ejbWebServiceGBean.setAttribute("protectedMethods", protectedMethods);
                     }
                     Properties properties = wsSecurity.getProperties();
                     ejbWebServiceGBean.setAttribute("properties", properties);

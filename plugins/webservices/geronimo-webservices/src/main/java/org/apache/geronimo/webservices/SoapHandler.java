@@ -31,9 +31,7 @@ public interface SoapHandler {
                        String contextID,
                        ConfigurationFactory configurationFactory,
                        String realmName,
-                       String transportGuarantee,
                        String authMethod,
-                       String[] protectedMethods,
                        Properties properties,
                        ClassLoader classLoader) throws Exception;
 

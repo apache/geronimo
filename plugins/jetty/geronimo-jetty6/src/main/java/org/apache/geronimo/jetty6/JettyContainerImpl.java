@@ -216,13 +216,11 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLif
                               String policyContextID,
                               ConfigurationFactory configurationFactory, 
                               String realmName, 
-                              String transportGuarantee, 
-                              String authMethod, 
-                              String[] protectedMethods, 
+                              String authMethod,
                               Properties properties,
                               ClassLoader classLoader) throws Exception {
         InternalJAASJettyRealm internalJAASJettyRealm = configurationFactory == null ? null : new InternalJAASJettyRealm(configurationFactory);
-        JettyEJBWebServiceContext webServiceContext = new JettyEJBWebServiceContext(contextPath, webServiceContainer, internalJAASJettyRealm, realmName, transportGuarantee, authMethod, protectedMethods, classLoader);
+        JettyEJBWebServiceContext webServiceContext = new JettyEJBWebServiceContext(contextPath, webServiceContainer, internalJAASJettyRealm, realmName, authMethod, classLoader, null, policyContextID);
         webServiceContext.setVirtualHosts(virtualHosts);
         addContext(webServiceContext);
         webServiceContext.start();

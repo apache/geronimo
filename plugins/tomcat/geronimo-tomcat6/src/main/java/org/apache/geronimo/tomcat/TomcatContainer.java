@@ -378,9 +378,7 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
                               String policyContextId,
                               ConfigurationFactory configurationFactory, 
                               String realmName, 
-                              String transportGuarantee,
-                              String authMethod, 
-                              String[] protectedMethods, 
+                              String authMethod,
                               Properties properties,
                               ClassLoader classLoader) throws Exception {
 

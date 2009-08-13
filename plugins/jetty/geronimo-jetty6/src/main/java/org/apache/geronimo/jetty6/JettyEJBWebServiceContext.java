@@ -21,17 +21,19 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.security.AccessControlContext;
+import java.security.AccessControlException;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
+import javax.security.auth.Subject;
 import javax.security.jacc.PolicyContext;
+import javax.security.jacc.WebUserDataPermission;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import org.apache.geronimo.security.ContextManager;
+import org.apache.geronimo.security.jacc.PolicyContextHandlerHttpServletRequest;
 import org.apache.geronimo.webservices.WebServiceContainer;
 import org.mortbay.jetty.HttpException;
 import org.mortbay.jetty.Request;
@@ -72,35 +74,17 @@ public class JettyEJBWebServiceContext extends ContextHandler {
     private final WebServiceContainer webServiceContainer;
     private final Authenticator authenticator;
     private final JAASJettyRealm realm;
-    private final boolean isConfidentialTransportGuarantee;
-    private final boolean isIntegralTransportGuarantee;
     private final ClassLoader classLoader;
-    private final Set<String> secureMethods;
+    private final AccessControlContext defaultAcc;
+    private final String policyContextID;
 
-    public JettyEJBWebServiceContext(String contextPath, WebServiceContainer webServiceContainer, InternalJAASJettyRealm internalJAASJettyRealm, String realmName, String transportGuarantee, String authMethod, String[] protectedMethods, ClassLoader classLoader) {
+    public JettyEJBWebServiceContext(String contextPath, WebServiceContainer webServiceContainer, InternalJAASJettyRealm internalJAASJettyRealm, String realmName, String authMethod, ClassLoader classLoader, Subject defaultSubject, String policyContextID) {
         this.contextPath = contextPath;
         this.webServiceContainer = webServiceContainer;
-        this.secureMethods = initSecureMethods(protectedMethods);
         this.setContextPath(contextPath);
-        
+
         if (internalJAASJettyRealm != null) {
             realm = new JAASJettyRealm(realmName, internalJAASJettyRealm);
-            //TODO
-            //not used???
-            //setUserRealm(realm);
-//            this.realm = realm;
-            if ("NONE".equals(transportGuarantee)) {
-                isConfidentialTransportGuarantee = false;
-                isIntegralTransportGuarantee = false;
-            } else if ("INTEGRAL".equals(transportGuarantee)) {
-                isConfidentialTransportGuarantee = false;
-                isIntegralTransportGuarantee = true;
-            } else if ("CONFIDENTIAL".equals(transportGuarantee)) {
-                isConfidentialTransportGuarantee = true;
-                isIntegralTransportGuarantee = false;
-            } else {
-                throw new IllegalArgumentException("Invalid transport-guarantee: " + transportGuarantee);
-            }
             if ("BASIC".equals(authMethod)) {
                 authenticator = new BasicAuthenticator();
             } else if ("DIGEST".equals(authMethod)) {
@@ -115,60 +99,43 @@ public class JettyEJBWebServiceContext extends ContextHandler {
         } else {
             realm = null;
             authenticator = null;
-            isConfidentialTransportGuarantee = false;
-            isIntegralTransportGuarantee = false;
         }
         this.classLoader = classLoader;
+        if (defaultSubject == null) {
+            defaultSubject = ContextManager.EMPTY;
+        }
+        defaultAcc = ContextManager.registerSubjectShort(defaultSubject, null, null);
+        this.policyContextID = policyContextID;
     }
 
-    private Set<String> initSecureMethods(String[] protectedMethods) {
-        if (protectedMethods == null) {
-            return null;
-        }
-        Set<String> methods = null;
-        for (String method : protectedMethods) {
-            if (method == null) {
-                continue;
-            }
-            method = method.trim();
-            if (method.length() == 0) {
-                continue;
-            }
-            method = method.toUpperCase();
-            
-            if (methods == null) {
-                methods = new HashSet<String>();
-            }
-            methods.add(method);
-        }
-        return methods;
-    }
-    
     public String getName() {
         //need a better name
         return contextPath;
     }
 
     public void handle(String target, HttpServletRequest req, HttpServletResponse res, int dispatch)
-            throws IOException, ServletException
-    {
+            throws IOException, ServletException {
         //TODO
         //do we need to check that this request should be handled by this handler?
-        if (! target.startsWith(contextPath)) {
+        if (!target.startsWith(contextPath)) {
             return;
         }
-    
-        PolicyContext.setHandlerData((realm == null) ? null : req);
+
         Thread currentThread = Thread.currentThread();
         ClassLoader oldClassLoader = currentThread.getContextClassLoader();
         currentThread.setContextClassLoader(classLoader);
+        String oldPolicyContextID = PolicyContext.getContextID();
+        PolicyContext.setContextID(policyContextID);
+        HttpServletRequest oldRequest = PolicyContextHandlerHttpServletRequest.pushContextData(req);
         try {
             handle(req, res);
         } finally {
+            PolicyContextHandlerHttpServletRequest.popContextData(oldRequest);
+            PolicyContext.setContextID(oldPolicyContextID);
             currentThread.setContextClassLoader(oldClassLoader);
         }
     }
-    
+
     private void handle(HttpServletRequest req, HttpServletResponse res) throws IOException, ServletException {
         Request jettyRequest = (Request) req;
         Response jettyResponse = (Response) res;
@@ -181,20 +148,17 @@ public class JettyEJBWebServiceContext extends ContextHandler {
         // TODO: add support for context
         request.setAttribute(WebServiceContainer.SERVLET_CONTEXT, null);
 
-        if (secureMethods == null || secureMethods.contains(req.getMethod())) {
-            if (isConfidentialTransportGuarantee) {
-                if (!jettyRequest.isSecure()) {
-                    throw new HttpException(403, null);
-                }
-            } else if (isIntegralTransportGuarantee) {
-                if (!jettyRequest.getConnection().isIntegral(jettyRequest)) {
-                    throw new HttpException(403, null);
-                }
+        WebUserDataPermission udp = new WebUserDataPermission(req);
+        if (realm != null) {
+            try {
+                defaultAcc.checkPermission(udp);
+            } catch (AccessControlException e) {
+                throw new HttpException(HttpServletResponse.SC_FORBIDDEN);
             }
             if (authenticator != null) {
                 String pathInContext = org.mortbay.util.URIUtil.canonicalPath(req.getContextPath());
                 if (authenticator.authenticate(realm, pathInContext, jettyRequest, jettyResponse) == null) {
-                    throw new HttpException(403, null);
+                    throw new HttpException(HttpServletResponse.SC_FORBIDDEN, null);
                 }
             } else {
                 //EJB will figure out correct defaultSubject shortly
@@ -210,24 +174,24 @@ public class JettyEJBWebServiceContext extends ContextHandler {
             } catch (IOException e) {
                 throw e;
             } catch (Exception e) {
-                throw (HttpException) new HttpException(500, "Could not fetch wsdl!").initCause(e);
+                throw (HttpException) new HttpException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Could not fetch wsdl!").initCause(e);
             }
-        } else {            
+        } else {
             try {
                 webServiceContainer.invoke(request, response);
                 jettyRequest.setHandled(true);
             } catch (IOException e) {
                 throw e;
             } catch (Exception e) {
-                throw (HttpException) new HttpException(500, "Could not process message!").initCause(e);
+                throw (HttpException) new HttpException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Could not process message!").initCause(e);
             }
         }
     }
 
     private boolean isWSDLRequest(HttpServletRequest req) {
-        return ("GET".equals(req.getMethod()) && (req.getParameter("wsdl") != null || req.getParameter("xsd") != null));            
+        return ("GET".equals(req.getMethod()) && (req.getParameter("wsdl") != null || req.getParameter("xsd") != null));
     }
-        
+
     public String getContextPath() {
         return contextPath;
     }
@@ -270,8 +234,8 @@ public class JettyEJBWebServiceContext extends ContextHandler {
         }
 
         public int getMethod() {
-            Integer method = (Integer) methods.get(request.getMethod());
-            return method == null ? UNSUPPORTED : method.intValue();
+            Integer method = methods.get(request.getMethod());
+            return method == null ? UNSUPPORTED : method;
         }
 
         public String getParameter(String name) {
@@ -301,17 +265,17 @@ public class JettyEJBWebServiceContext extends ContextHandler {
             return request.getRequestURI();
         }
 
-        private static final Map methods = new HashMap();
+        private static final Map<String, Integer> methods = new HashMap<String, Integer>();
 
         static {
-            methods.put("OPTIONS", new Integer(OPTIONS));
-            methods.put("GET", new Integer(GET));
-            methods.put("HEAD", new Integer(HEAD));
-            methods.put("POST", new Integer(POST));
-            methods.put("PUT", new Integer(PUT));
-            methods.put("DELETE", new Integer(DELETE));
-            methods.put("TRACE", new Integer(TRACE));
-            methods.put("CONNECT", new Integer(CONNECT));
+            methods.put("OPTIONS", OPTIONS);
+            methods.put("GET", GET);
+            methods.put("HEAD", HEAD);
+            methods.put("POST", POST);
+            methods.put("PUT", PUT);
+            methods.put("DELETE", DELETE);
+            methods.put("TRACE", TRACE);
+            methods.put("CONNECT", CONNECT);
         }
 
     }
@@ -345,7 +309,7 @@ public class JettyEJBWebServiceContext extends ContextHandler {
 
         public int getStatusCode() {
             return response.getStatus();
-         }
+        }
 
         public void setContentType(String type) {
             response.setContentType(type);
@@ -359,9 +323,9 @@ public class JettyEJBWebServiceContext extends ContextHandler {
             response.setStatus(response.getStatus(), responseString);
         }
 
-        public void flushBuffer() throws java.io.IOException{
+        public void flushBuffer() throws java.io.IOException {
             response.flushBuffer();
         }
     }
-    
+
 }

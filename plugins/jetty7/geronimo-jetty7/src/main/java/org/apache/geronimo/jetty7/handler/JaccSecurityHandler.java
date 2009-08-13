@@ -108,16 +108,11 @@ public class JaccSecurityHandler extends SecurityHandler {
             } else {
                 transportType = "NONE";
             }
-            String substitutedPathInContext = pathInContext;
-            if (substitutedPathInContext.indexOf("%3A") > -1)
-                substitutedPathInContext = substitutedPathInContext.replaceAll("%3A", "%3A%3A");
-            if (substitutedPathInContext.indexOf(":") > -1)
-                substitutedPathInContext = substitutedPathInContext.replaceAll(":", "%3A");
 
             /**
              * JACC v1.0 section 4.1.1
              */
-            WebUserDataPermission wudp = new WebUserDataPermission(substitutedPathInContext, new String[]{request.getMethod()}, transportType);
+            WebUserDataPermission wudp = new WebUserDataPermission(pathInContext, new String[]{request.getMethod()}, transportType);
             defaultAcc.checkPermission(wudp);
             return true;
         } catch (AccessControlException e) {

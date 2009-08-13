@@ -35,6 +35,7 @@ import org.apache.geronimo.jetty6.JAASJettyRealm;
 import org.apache.geronimo.jetty6.JettyContainer;
 import org.apache.geronimo.security.Callers;
 import org.apache.geronimo.security.ContextManager;
+import org.apache.geronimo.security.jacc.PolicyContextHandlerHttpServletRequest;
 import org.mortbay.jetty.HttpException;
 import org.mortbay.jetty.Request;
 import org.mortbay.jetty.Response;
@@ -101,28 +102,19 @@ public class JettySecurityHandler extends SecurityHandler {
             ServletException {
         String old_policy_id = PolicyContext.getContextID();
         Callers oldCallers = ContextManager.getCallers();
+        PolicyContext.setContextID(policyContextID);
+        HttpServletRequest oldRequest = PolicyContextHandlerHttpServletRequest.pushContextData(request);
 
         try {
-            PolicyContext.setContextID(policyContextID);
-            PolicyContext.setHandlerData(request);
 
             super.handle(target, request, response, dispatch);
         } finally {
             PolicyContext.setContextID(old_policy_id);
-            // Must unset handler data from thread - see GERONIMO-4574
-            PolicyContext.setHandlerData(null);
             ContextManager.popCallers(oldCallers);
+            PolicyContextHandlerHttpServletRequest.popContextData(oldRequest);
         }
     }
 
-//    public static Subject getCurrentRoleDesignate(String role) {
-//        return ((JettySecurityHandler) (WebAppContext.getCurrentWebAppContext()
-//                .getSecurityHandler())).getRoleDesignate(role);
-//    }
-//
-//    private Subject getRoleDesignate(String roleName) {
-//        return (Subject) roleDesignates.get(roleName);
-//    }
 
     /**
      * Check the security constraints using JACC.
@@ -153,12 +145,6 @@ public class JettySecurityHandler extends SecurityHandler {
             } else {
                 transportType = "NONE";
             }
-            String substitutedPathInContext = pathInContext;
-            if (substitutedPathInContext.indexOf("%3A") > -1)
-                substitutedPathInContext = substitutedPathInContext.replaceAll("%3A", "%3A%3A");
-            if (substitutedPathInContext.indexOf(":") > -1)
-                substitutedPathInContext = substitutedPathInContext.replaceAll(":", "%3A");
-
 
             Authenticator authenticator = getAuthenticator();
             boolean isAuthenticated = false;
@@ -194,7 +180,7 @@ public class JettySecurityHandler extends SecurityHandler {
             /**
              * JACC v1.0 section 4.1.1
              */
-            WebUserDataPermission wudp = new WebUserDataPermission(substitutedPathInContext, new String[]{request.getMethod()}, transportType);
+            WebUserDataPermission wudp = new WebUserDataPermission(pathInContext, new String[]{request.getMethod()}, transportType);
             acc.checkPermission(wudp);
 
             WebResourcePermission webResourcePermission = new WebResourcePermission(request);
