@@ -17,11 +17,6 @@
         <type>car</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>jsr88-rar-configurer</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
         <groupId>org.apache.geronimo.framework</groupId>
         <artifactId>geronimo-deploy-jsr88</artifactId>
         <type>jar</type>
