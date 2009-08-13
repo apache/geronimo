@@ -112,6 +112,7 @@
                 <include>NOTICE.txt</include> </includes> <targetPath>META-INF</targetPath> </resource> </configuration> </plugin> bind 'pluto:assemble' goal to 'process-resources' lifecycle <plugin> <groupId>org.apache.pluto</groupId>
                 <artifactId>maven-pluto-plugin</artifactId> <executions> <execution> <phase>generate-resources</phase> <goals> <goal>assemble</goal> </goals> </execution> </executions> </plugin>
             -->
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <executions>
@@ -133,7 +134,6 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
 
             <plugin>
                 <groupId>org.codehaus.mojo.jspc</groupId>
