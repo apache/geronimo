@@ -84,8 +84,12 @@ public class ConfigManagerPortlet extends BasePortlet {
     private PortletRequestDispatcher maximizedView;
 
     private PortletRequestDispatcher helpView;
+    
+    private boolean showDisplayName;
+    
+    private String moduleType;
 
-    private static List loadChildren(Kernel kernel, String configName) {
+    private static List<String> loadChildren(Kernel kernel, String configName) {
         List<String> kids = new ArrayList<String>();
 
         Map<String, String> filter = new HashMap<String, String>();
@@ -201,14 +205,12 @@ public class ConfigManagerPortlet extends BasePortlet {
         }
               
         String cookies = renderRequest.getProperty("cookie");
-        boolean showDependencies = (cookies != null && cookies.indexOf(SHOW_DEPENDENCIES_COOKIE + "=true") > 0);
+        boolean showDependencies = (cookies != null && cookies.indexOf(SHOW_DEPENDENCIES_COOKIE + "=true") > 0);        
         
         List<ModuleDetails> moduleDetails = new ArrayList<ModuleDetails>();
         ConfigurationManager configManager = ConfigurationUtil.getConfigurationManager(kernel);
         List<ConfigurationInfo> infos = configManager.listConfigurations();
-        for (ConfigurationInfo info : infos) {
-
-            String moduleType = getInitParameter(CONFIG_INIT_PARAM);
+        for (ConfigurationInfo info : infos) {           
             if (ConfigurationModuleType.WAR.getName().equalsIgnoreCase(moduleType)) {
 
                 if (info.getType().getValue() == ConfigurationModuleType.WAR.getValue()) {
@@ -217,14 +219,17 @@ public class ConfigManagerPortlet extends BasePortlet {
                         AbstractName configObjName = Configuration.getConfigurationAbstractName(info.getConfigID());
                         boolean loaded = loadModule(configManager, configObjName);
 
-                        WebModule webModule = (WebModule) PortletManager.getModule(renderRequest, info.getConfigID());
+                        WebModule webModule = (WebModule) PortletManager.getModule(renderRequest, info.getConfigID());                        
+
                         if (webModule != null) {
                             details.getContextPaths().add(webModule.getContextPath());
+                            details.setDisplayName(webModule.getDisplayName());
                         }
 
                         if (showDependencies) {
                             addDependencies(details, configObjName);
                         }
+                        
                         if (loaded) {
                             unloadModule(configManager, configObjName);
                         }
@@ -244,9 +249,10 @@ public class ConfigManagerPortlet extends BasePortlet {
                                 if (child.getModuleType().getValue() == ConfigurationModuleType.WAR.getValue()) {
                                     ModuleDetails childDetails = new ModuleDetails(info.getConfigID(), child.getModuleType(), info.getState());
                                     childDetails.setComponentName(child.getId().toString());
-                                    WebModule webModule = getWebModule(config, child);
+                                    WebModule webModule = getWebModule(config, child);                                    
                                     if (webModule != null) {
                                         childDetails.getContextPaths().add(webModule.getContextPath());
+                                        childDetails.setDisplayName(webModule.getDisplayName());
                                     }
                                     if (showDependencies) {
                                         addDependencies(childDetails, configObjName);
@@ -305,6 +311,7 @@ public class ConfigManagerPortlet extends BasePortlet {
         Collections.sort(moduleDetails);
         renderRequest.setAttribute("configurations", moduleDetails);
         renderRequest.setAttribute("showWebInfo", Boolean.valueOf(showWebInfo()));
+        renderRequest.setAttribute("showDisplayName", Boolean.valueOf(showDisplayName));
         renderRequest.setAttribute("showDependencies", Boolean.valueOf(showDependencies));
         if (moduleDetails.size() == 0) {
             addWarningMessage(renderRequest, getLocalizedString(renderRequest, "consolebase.warnMsg02"));
@@ -404,11 +411,10 @@ public class ConfigManagerPortlet extends BasePortlet {
         }        
     }
     
-    private boolean showWebInfo() {
-        String moduleType = getInitParameter(CONFIG_INIT_PARAM);
+    private boolean showWebInfo() {        
         return ConfigurationModuleType.WAR.getName().equalsIgnoreCase(moduleType) ||
                ConfigurationModuleType.EAR.getName().equalsIgnoreCase(moduleType);
-    }
+    }    
     
     protected void doHelp(RenderRequest renderRequest, RenderResponse renderResponse) throws PortletException, IOException {
         helpView.include(renderRequest, renderResponse);
@@ -420,6 +426,9 @@ public class ConfigManagerPortlet extends BasePortlet {
         normalView = portletConfig.getPortletContext().getRequestDispatcher("/WEB-INF/view/configmanager/normal.jsp");
         maximizedView = portletConfig.getPortletContext().getRequestDispatcher("/WEB-INF/view/configmanager/maximized.jsp");
         helpView = portletConfig.getPortletContext().getRequestDispatcher("/WEB-INF/view/configmanager/help.jsp");
+        moduleType = getInitParameter(CONFIG_INIT_PARAM);
+        //Only show the displayNames for the web applications
+        showDisplayName = ConfigurationModuleType.WAR.getName().equalsIgnoreCase(moduleType);
     }
 
     public void destroy() {
@@ -445,6 +454,7 @@ public class ConfigManagerPortlet extends BasePortlet {
         private String componentName;
         //This flag is used to indicate whether it is the client side if the module is a client application
         private boolean clientAppServerSide = false;
+        private String displayName;
 
         public ModuleDetails(Artifact configId, ConfigurationModuleType type, State state) {
             this.configId = configId;
@@ -497,6 +507,14 @@ public class ConfigManagerPortlet extends BasePortlet {
         
         public void setComponentName(String name){
             componentName = name;
+        }       
+        
+        public String getDisplayName(){
+            return displayName;
+        }
+        
+        public void setDisplayName(String name){
+            displayName = name;
         }
         
         public void setClientAppServerSide(boolean clientAppServerSide) {

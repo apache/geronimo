@@ -109,6 +109,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
     private final URL configurationBaseURL;
     private final Holder holder;
     private final RuntimeCustomizer contextCustomizer;
+    private String displayName;
 
     // JSR 77
     private final String j2EEServer;
@@ -144,6 +145,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
             boolean crossContext,
             String workDir,
             boolean disableCookies,
+            String displayName,
             Map webServices,
             Holder holder,
             RuntimeCustomizer contextCustomizer,
@@ -207,6 +209,8 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
             realm = null;
         }
 
+        this.displayName = displayName;
+        
         //Add the valve list
         if (tomcatValveChain != null){
             ArrayList<Valve> chain = new ArrayList<Valve>();
@@ -448,6 +452,14 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
 
         return result;
     }
+    
+    public String getDisplayName(){
+        return displayName;
+    }
+
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;        
+    }
 
     /**
      * ObjectName must match this pattern: <p/>
@@ -586,6 +598,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         infoBuilder.addReference("J2EEServer", J2EEServer.class);
         infoBuilder.addReference("J2EEApplication", J2EEApplication.class);
         infoBuilder.addAttribute("kernel", Kernel.class, false);
+        infoBuilder.addAttribute("displayName", String.class, true);
 
         infoBuilder.addInterface(WebModule.class);
 
@@ -613,12 +626,13 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
                 "crossContext",
                 "workDir",
                 "disableCookies",
+                "displayName",
                 "webServices",
                 "holder",
                 "ContextCustomizer",
                 "J2EEServer",
                 "J2EEApplication",
-                "kernel"
+                "kernel"                
                 }
         );
 

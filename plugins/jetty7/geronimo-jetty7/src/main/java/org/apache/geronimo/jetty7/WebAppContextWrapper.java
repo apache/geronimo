@@ -31,7 +31,6 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.naming.Context;
 import javax.security.auth.Subject;
-import javax.security.auth.login.LoginException;
 import javax.transaction.TransactionManager;
 
 import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
@@ -46,8 +45,8 @@ import org.apache.geronimo.j2ee.annotation.Holder;
 import org.apache.geronimo.j2ee.annotation.LifecycleMethod;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.management.impl.InvalidObjectNameException;
-import org.apache.geronimo.jetty7.handler.IntegrationContext;
 import org.apache.geronimo.jetty7.handler.GeronimoWebAppContext;
+import org.apache.geronimo.jetty7.handler.IntegrationContext;
 import org.apache.geronimo.jetty7.security.SecurityHandlerFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.ObjectNameUtil;
@@ -239,7 +238,7 @@ public class WebAppContextWrapper implements GBeanLifecycle, JettyServletRegistr
         }
 
         //stuff from spec dd
-        webAppContext.setDisplayName(displayName);
+        setDisplayName(displayName);
         webAppContext.setInitParams(contextParamMap);
         setListenerClassNames(listenerClassNames);
         webAppContext.setDistributable(distributable);

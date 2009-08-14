@@ -197,8 +197,11 @@ function toggleShowDependenciesMode() {
 
 <table width="100%" class="TableLine" summary="Config Manager">
     <tr class="DarkBackground">
-        <th scope="col" align="left">&nbsp;<fmt:message key="configmanager.normal.componentName" /></th>
-        <c:if test="${showWebInfo}">
+        <th scope="col" align="left">&nbsp;<fmt:message key="configmanager.normal.componentName" /></th>   
+        <c:if test="${showDisplayName}">    
+               <th scope="col"><fmt:message key="configmanager.normal.displayName" /></th> 
+        </c:if>
+        <c:if test="${showWebInfo}">          
           <th scope="col">URL</th>
         </c:if>
         <th scope="col">&nbsp;<fmt:message key="consolebase.common.state"/></th>
@@ -227,8 +230,20 @@ function toggleShowDependenciesMode() {
             <c:otherwise>
                <td class="${backgroundClass}">&nbsp;${moduleDetails.configId}&nbsp;</td>
             </c:otherwise>   
-        </c:choose>
+        </c:choose>        
         
+        <!-- display id -->
+        <c:if test="${showDisplayName}">
+            <c:choose>
+                <c:when test="${moduleDetails.displayName != null}">
+                    <td class="${backgroundClass}">&nbsp;${moduleDetails.displayName}&nbsp;</td>
+                </c:when>
+                <c:otherwise>
+                    <td class="${backgroundClass}">&nbsp;</td>
+                </c:otherwise> 
+            </c:choose>
+        </c:if>
+                
         <!-- context path -->
         <c:if test="${showWebInfo}">
             <td class="${backgroundClass}">

@@ -47,4 +47,10 @@ public interface WebModule extends org.apache.geronimo.management.WebModule {
      * content or a user would copy updated JSPs to.
      */
     public URL getWARDirectory();
+    
+    /**
+     * Get the first displayName value set in the web.xml
+     * @return
+     */
+    public String getDisplayName();
 }

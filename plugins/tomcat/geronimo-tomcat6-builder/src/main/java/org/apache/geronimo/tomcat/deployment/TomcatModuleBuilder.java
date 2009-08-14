@@ -25,18 +25,14 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
-import java.security.PermissionCollection;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
-import java.util.Collections;
 import java.util.jar.JarFile;
 
 import javax.servlet.Servlet;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
 import org.apache.geronimo.deployment.NamespaceDrivenBuilder;
@@ -50,8 +46,8 @@ import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
@@ -68,8 +64,8 @@ import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.naming.deployment.GBeanResourceEnvironmentBuilder;
 import org.apache.geronimo.naming.deployment.ResourceEnvironmentSetter;
-import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.geronimo.security.jaas.ConfigurationFactory;
+import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.geronimo.tomcat.LifecycleListenerGBean;
 import org.apache.geronimo.tomcat.ManagerGBean;
 import org.apache.geronimo.tomcat.RealmGBean;
@@ -80,15 +76,14 @@ import org.apache.geronimo.tomcat.util.SecurityHolder;
 import org.apache.geronimo.web.deployment.GenericToSpecificPlanConverter;
 import org.apache.geronimo.web25.deployment.AbstractWebModuleBuilder;
 import org.apache.geronimo.web25.deployment.security.AuthenticationWrapper;
-import org.apache.geronimo.xbeans.geronimo.j2ee.GerClusteringDocument;
-import org.apache.geronimo.xbeans.geronimo.web.tomcat.TomcatWebAppDocument;
-import org.apache.geronimo.xbeans.geronimo.web.tomcat.TomcatWebAppType;
-import org.apache.geronimo.xbeans.geronimo.web.tomcat.TomcatAuthenticationType;
-import org.apache.geronimo.xbeans.geronimo.web.tomcat.config.GerTomcatDocument;
+import org.apache.geronimo.xbeans.geronimo.jaspi.JaspiAuthModuleType;
 import org.apache.geronimo.xbeans.geronimo.jaspi.JaspiConfigProviderType;
 import org.apache.geronimo.xbeans.geronimo.jaspi.JaspiServerAuthConfigType;
 import org.apache.geronimo.xbeans.geronimo.jaspi.JaspiServerAuthContextType;
-import org.apache.geronimo.xbeans.geronimo.jaspi.JaspiAuthModuleType;
+import org.apache.geronimo.xbeans.geronimo.web.tomcat.TomcatAuthenticationType;
+import org.apache.geronimo.xbeans.geronimo.web.tomcat.TomcatWebAppDocument;
+import org.apache.geronimo.xbeans.geronimo.web.tomcat.TomcatWebAppType;
+import org.apache.geronimo.xbeans.geronimo.web.tomcat.config.GerTomcatDocument;
 import org.apache.geronimo.xbeans.javaee.EjbLocalRefType;
 import org.apache.geronimo.xbeans.javaee.EjbRefType;
 import org.apache.geronimo.xbeans.javaee.EnvEntryType;
@@ -107,6 +102,8 @@ import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @version $Rev:385659 $ $Date$
@@ -368,6 +365,12 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
             } else {
                 webModuleData.setReferencePattern("Container", tomcatContainerName);
             }
+            
+            //get Tomcat display-name
+            if (webApp.getDisplayNameArray().length > 0) {
+                webModuleData.setAttribute("displayName", webApp.getDisplayNameArray()[0].getStringValue());
+            }
+            
             // Process the Tomcat container-config elements
             if (tomcatWebApp.isSetHost()) {
                 String virtualServer = tomcatWebApp.getHost().trim();
