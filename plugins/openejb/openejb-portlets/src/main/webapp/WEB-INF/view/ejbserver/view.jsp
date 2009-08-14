@@ -98,8 +98,8 @@ table thead td, table thead th {
    function updateEjbInfoTable(ejbInfos){
        var containerId = "";
        var showDialogFlag = false;
-       DWRUtil.removeAllRows('ejbInfoTableBody');
-       DWRUtil.addRows(
+       dwr.util.removeAllRows('ejbInfoTableBody');
+       dwr.util.addRows(
            'ejbInfoTableBody', 
            ejbInfos,
            [ 
@@ -176,7 +176,7 @@ table thead td, table thead th {
 			        EjbHelper.getContainerInfo(ids[0],updateEjbInfoTable);
 			    }
 			} else {
-			    DWRUtil.removeAllRows('ejbInfoTableBody');
+			    dwr.util.removeAllRows('ejbInfoTableBody');
 			}
              
 		</script> 
@@ -184,8 +184,7 @@ table thead td, table thead th {
       </div> 
 	
       <div id="infoTab" dojoType="dijit.layout.ContentPane" title="Ejb Info" label="Info" sizeShare="60" style="background-color:white; overflow: auto;" layoutAlign="right" class="soria" >
-         <table widgetId="ejbsTable" 
-		    headClass: 'fixedHeader',
+         <table id="ejbsTable",
             tbodyClass="scrollContent" 
             enableMultipleSelect="true" 
             enableAlternateRows="true" 
