@@ -137,14 +137,7 @@ public class JettySecurityHandler extends SecurityHandler {
         }
 
         try {
-            String transportType;
-            if (request.isSecure()) {
-                transportType = "CONFIDENTIAL";
-            } else if (request.getConnection().isIntegral(request)) {
-                transportType = "INTEGRAL";
-            } else {
-                transportType = "NONE";
-            }
+            boolean notIntegral = request.isSecure() || !request.getConnection().isIntegral(request);
 
             Authenticator authenticator = getAuthenticator();
             boolean isAuthenticated = false;
@@ -180,7 +173,12 @@ public class JettySecurityHandler extends SecurityHandler {
             /**
              * JACC v1.0 section 4.1.1
              */
-            WebUserDataPermission wudp = new WebUserDataPermission(pathInContext, new String[]{request.getMethod()}, transportType);
+            WebUserDataPermission wudp;
+            if (notIntegral) {
+                wudp = new WebUserDataPermission(request);
+            } else {
+                wudp = new WebUserDataPermission(encodeColons(request), new String[]{request.getMethod()}, "INTEGRAL");
+            }
             acc.checkPermission(wudp);
 
             WebResourcePermission webResourcePermission = new WebResourcePermission(request);
@@ -217,6 +215,15 @@ public class JettySecurityHandler extends SecurityHandler {
         }
         return true;
     }
+
+    private static String encodeColons(HttpServletRequest request) {
+        String result = request.getServletPath() + (request.getPathInfo() == null ? "" : request.getPathInfo());
+
+        if (result.indexOf(":") > -1) result = result.replaceAll(":", "%3A");
+
+        return result;
+    }
+    
 
     /**
      * Generate the default principal from the security config.
