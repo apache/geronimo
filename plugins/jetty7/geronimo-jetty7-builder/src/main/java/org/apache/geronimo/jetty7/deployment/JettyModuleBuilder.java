@@ -455,13 +455,12 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
 
             // configure tag libs.
             Set<String> knownServletMappings = new HashSet<String>();
+            Set<String> knownJspMappings = new HashSet<String>();
             Map<String, Set<String>> servletMappings = new HashMap<String, Set<String>>();
             if (jspServlet != null) {
-                configureTagLibs(module, webApp, webModuleData, servletMappings, knownServletMappings, jspServlet.getServletName());
-                GBeanData jspServletData = configureDefaultServlet(jspServlet, earContext, moduleName, knownServletMappings, moduleContext);
-                Set<String> jspMappings = (Set<String>) jspServletData.getAttribute("servletMappings");
-                jspMappings.addAll(knownServletMappings);
-                jspServletData.setAttribute("servletMappings", jspMappings);
+                configureTagLibs(module, webApp, webModuleData, servletMappings, knownJspMappings, jspServlet.getServletName());
+                GBeanData jspServletData = configureDefaultServlet(jspServlet, earContext, moduleName, knownJspMappings);
+                knownServletMappings.addAll(knownJspMappings);
                 module.getSharedContext().put(DEFAULT_JSP_SERVLET_KEY, jspServletData);
             }
 
@@ -471,6 +470,15 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
             // Make sure that servlet mappings point to available servlets and never add a duplicate pattern.
 
             buildServletMappings(module, webApp, servletMappings, knownServletMappings);
+
+            //be careful that the jsp servlet defaults don't overrride anything configured in the app.
+            if (jspServlet != null) {
+                GBeanData jspServletData = (GBeanData) module.getSharedContext().get(DEFAULT_JSP_SERVLET_KEY);
+                Set<String> jspMappings = (Set<String>) jspServletData.getAttribute("servletMappings");
+                jspMappings.removeAll(knownServletMappings);
+                jspMappings.addAll(knownJspMappings);
+                jspServletData.setAttribute("servletMappings", jspMappings);
+            }
 
             //"previous" filter mapping for linked list to keep dd's ordering.
             AbstractName previous = null;
@@ -586,12 +594,12 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
 
     private void addDefaultServletsGBeans(EARContext earContext, EARContext moduleContext, AbstractName moduleName, Set knownServletMappings) throws GBeanNotFoundException, GBeanAlreadyExistsException {
         for (Object defaultServlet : defaultServlets) {
-            GBeanData servletGBeanData = configureDefaultServlet(defaultServlet, earContext, moduleName, knownServletMappings, moduleContext);
+            GBeanData servletGBeanData = configureDefaultServlet(defaultServlet, earContext, moduleName, knownServletMappings);
             moduleContext.addGBean(servletGBeanData);
         }
     }
 
-    private GBeanData configureDefaultServlet(Object defaultServlet, EARContext earContext, AbstractName moduleName, Set knownServletMappings, EARContext moduleContext) throws GBeanNotFoundException, GBeanAlreadyExistsException {
+    private GBeanData configureDefaultServlet(Object defaultServlet, EARContext earContext, AbstractName moduleName, Set knownServletMappings) throws GBeanNotFoundException, GBeanAlreadyExistsException {
         GBeanData servletGBeanData = getGBeanData(kernel, defaultServlet);
         AbstractName defaultServletObjectName = earContext.getNaming().createChildName(moduleName, (String) servletGBeanData.getAttribute("servletName"), NameFactory.SERVLET);
         servletGBeanData.setAbstractName(defaultServletObjectName);
@@ -715,7 +723,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
         return previous;
     }
 
-    private Map buildServletMappings(Module module, WebAppType webApp, Map<String, Set<String>> servletMappings, Set<String> knownServletMappings) throws DeploymentException {
+    private void buildServletMappings(Module module, WebAppType webApp, Map<String, Set<String>> servletMappings, Set<String> knownServletMappings) throws DeploymentException {
         ServletType[] servletTypes = webApp.getServletArray();
         Set<String> knownServlets = new HashSet<String>();
         for (ServletType type : servletTypes) {
@@ -733,8 +741,6 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
             UrlPatternType[] urlPatterns = servletMappingType.getUrlPatternArray();
             addMappingsForServlet(servletName, urlPatterns, knownServletMappings, servletMappings);
         }
-
-        return servletMappings;
     }
 
     private void addMappingsForServlet(String servletName, UrlPatternType[] urlPatterns, Set<String> knownServletMappings, Map<String, Set<String>> servletMappings) throws DeploymentException {
