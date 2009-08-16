@@ -16,7 +16,7 @@
     limitations under the License.
 -->
 
-<!-- $Rev: 613667 $ $Date: 2008-01-20 12:18:37 -0800 (Sun, 20 Jan 2008) $ -->
+<!-- $Rev$ $Date$ -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
@@ -24,11 +24,11 @@
 
     <parent>
         <groupId>org.apache.geronimo.plugins</groupId>
-        <artifactId>clustering</artifactId>
+        <artifactId>clustering-it</artifactId>
         <version>2.2-SNAPSHOT</version>
     </parent>
 
-    <groupId>org.apache.geronimo.configs</groupId>
+    <groupId>org.apache.geronimo.plugins.it</groupId>
     <artifactId>plugin-farm-it</artifactId>
     <name>Geronimo Plugins, Clustering :: Plugin Farm Integration Tests</name>
     <packaging>car</packaging>

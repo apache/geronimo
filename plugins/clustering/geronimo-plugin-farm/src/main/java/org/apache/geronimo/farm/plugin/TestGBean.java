@@ -61,7 +61,7 @@ public class TestGBean {
         String clusterName = CLUSTER1;
         String pluginListName = PLUGIN_LIST1;
         int clusterSize = 1;
-        JpaPluginInstance pluginInstance = new JpaPluginInstance("org.apache.geronimo.samples/customer-service-jetty/2.2-SNAPSHOT/car");
+        JpaPluginInstance pluginInstance = new JpaPluginInstance("org.apache.geronimo.plugins.it/customer-jetty/2.2-SNAPSHOT/car");
         farmGBean.addPluginToCluster(clusterName, pluginListName, pluginInstance);
 
         checkCluster(clusterName, pluginListName, clusterSize);
