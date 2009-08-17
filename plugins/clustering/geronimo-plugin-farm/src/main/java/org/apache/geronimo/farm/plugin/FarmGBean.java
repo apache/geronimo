@@ -267,11 +267,11 @@ public class FarmGBean implements NodeListener, org.apache.geronimo.system.plugi
     }
 
 
-    static class JpaContext {
+    public static class JpaContext {
         private EntityManager em;
         private EntityTransaction entityTransaction;
 
-        JpaContext(EntityManagerFactory emf) {
+        public JpaContext(EntityManagerFactory emf) {
             em = emf.createEntityManager();
             entityTransaction = em.getTransaction();
             entityTransaction.begin();

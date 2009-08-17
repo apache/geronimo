@@ -18,13 +18,18 @@
  */
 
 
-package org.apache.geronimo.farm.plugin;
+package org.apache.geronimo.farm.plugin.test;
 
 import java.util.List;
 import java.util.Map;
 
 import javax.persistence.EntityManagerFactory;
 
+import org.apache.geronimo.farm.plugin.FarmGBean;
+import org.apache.geronimo.farm.plugin.JpaClusterInfo;
+import org.apache.geronimo.farm.plugin.JpaNodeInfo;
+import org.apache.geronimo.farm.plugin.JpaPluginInstance;
+import org.apache.geronimo.farm.plugin.JpaPluginList;
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;

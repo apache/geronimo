@@ -20,7 +20,7 @@
 
 <module xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
 
-    <gbean name="test" class="org.apache.geronimo.farm.plugin.TestGBean">
+    <gbean name="test" class="org.apache.geronimo.farm.plugin.test.TestGBean">
         <reference name="PersistenceUnit">
             <name>FarmPersistence</name>
         </reference>

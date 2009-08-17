@@ -53,6 +53,19 @@
             <type>car</type>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.geronimo.plugins.it</groupId>
+            <artifactId>clustering-test</artifactId>
+            <version>${version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.plugins.it</groupId>
+            <artifactId>customer-jetty</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+            <scope>provided</scope>
+        </dependency>
+
     </dependencies>
 
     <build>
