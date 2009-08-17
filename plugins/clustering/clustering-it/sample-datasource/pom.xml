@@ -59,28 +59,28 @@
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-gbean-deployer</artifactId>
             <type>car</type>
-            <version>${geronimoVersion}</version>
+            <version>${version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>j2ee-deployer</artifactId>
             <type>car</type>
-            <version>${geronimoVersion}</version>
+            <version>${version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>connector-deployer</artifactId>
             <type>car</type>
-            <version>${geronimoVersion}</version>
+            <version>${version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>system-database</artifactId>
             <type>car</type>
-            <version>${geronimoVersion}</version>
+            <version>${version}</version>
         </dependency>
     </dependencies>
 
