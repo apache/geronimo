@@ -15,7 +15,7 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 -->
-<project>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <parent>
         <groupId>org.apache.geronimo.framework</groupId>
         <artifactId>configs</artifactId>
@@ -63,7 +63,7 @@
                     <deployerName>org.apache.geronimo.framework/geronimo-gbean-deployer-bootstrap/${geronimoVersion}/car?j2eeType=Deployer,name=Deployer</deployerName>
                     <category>Classloaders</category>
                     <instance>
-                        <plugin-artifact></plugin-artifact>
+                        <plugin-artifact />
                     </instance>
                 </configuration>
             </plugin>

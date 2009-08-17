@@ -39,7 +39,7 @@
         Provides a Windows service wrapper with Apache Commons Daemon procrun for Geronimo.
     </description>
 
-    <dependencies/>
+    <dependencies />
 
     <build>
         <plugins>

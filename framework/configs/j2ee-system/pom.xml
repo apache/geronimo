@@ -263,7 +263,7 @@
                     <classpathPrefix>../lib</classpathPrefix>
 
                     <category>Geronimo Core</category>
-                    <config-xml-content load = "false"/>
+                    <config-xml-content load="false" />
                 </configuration>
             </plugin>
         </plugins>

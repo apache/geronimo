@@ -176,13 +176,13 @@
                         </goals>
                         <configuration>
                             <tasks>
-                                <copy todir="${project.build.directory}/var/catalina/conf" file="src/test/data/web.xml"/>
+                                <copy todir="${project.build.directory}/var/catalina/conf" file="src/test/data/web.xml" />
                                 <copy todir="${project.build.directory}/var/catalina/webapps">
                                     <fileset dir="src/test/resources/deployables">
-                                        <include name="war1/**"/>
-                                        <include name="war3/**"/>
-                                        <include name="war4/**"/>
-                                        <include name="war6-jee5/**"/>
+                                        <include name="war1/**" />
+                                        <include name="war3/**" />
+                                        <include name="war4/**" />
+                                        <include name="war6-jee5/**" />
                                     </fileset>
                                 </copy>
                             </tasks>

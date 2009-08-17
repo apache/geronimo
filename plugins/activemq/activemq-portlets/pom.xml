@@ -116,9 +116,9 @@
                             <tasks>
                                 <copy overwrite="true" todir="target/classes">
                                     <fileset dir="src/main/i18n-resources">
-                                        <include name="*_en.properties"/>
+                                        <include name="*_en.properties" />
                                     </fileset>
-                                    <mapper type="glob" from="*_en.properties" to="*.properties"/>
+                                    <mapper type="glob" from="*_en.properties" to="*.properties" />
                                 </copy>
                             </tasks>
                         </configuration>

@@ -70,7 +70,7 @@
                     <category>Jetty</category>
                     <instance>
                         <plugin-artifact>
-                            <config-xml-content load="false"/>
+                            <config-xml-content load="false" />
                         </plugin-artifact>
                     </instance>
                 </configuration>

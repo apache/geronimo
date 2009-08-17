@@ -74,7 +74,7 @@
                     </deploymentConfigs>
                     <deployerName>org.apache.geronimo.framework/geronimo-gbean-deployer-bootstrap/${geronimoVersion}/car?j2eeType=Deployer,name=Deployer</deployerName>
                     <category>Geronimo Core</category>
-                    <config-xml-content load="false"/>
+                    <config-xml-content load="false" />
                 </configuration>
             </plugin>
         </plugins>

@@ -89,17 +89,17 @@
                         </goals>
                         <configuration>
                             <tasks>
-                                <delete dir="${project.build.directory}/tmp"/>
-                                <mkdir dir="${project.build.directory}/tmp"/>
+                                <delete dir="${project.build.directory}/tmp" />
+                                <mkdir dir="${project.build.directory}/tmp" />
                                 
-                                <mkdir dir="${project.build.directory}/m1"/>
+                                <mkdir dir="${project.build.directory}/m1" />
                                 <copy todir="${project.build.directory}/m1">
-                                    <fileset dir="${basedir}/src/test/repo/m1"/>
+                                    <fileset dir="${basedir}/src/test/repo/m1" />
                                 </copy>
                                 
-                                <mkdir dir="${project.build.directory}/m2"/>
+                                <mkdir dir="${project.build.directory}/m2" />
                                 <copy todir="${project.build.directory}/m2">
-                                    <fileset dir="${basedir}/src/test/repo/m2"/>
+                                    <fileset dir="${basedir}/src/test/repo/m2" />
                                 </copy>
                             </tasks>
                         </configuration>

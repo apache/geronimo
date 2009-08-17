@@ -132,7 +132,7 @@
                             <config-substitution key="TmId">71,84,77,73,68</config-substitution>
                             <config-substitution key="ResourceBindingsFormat">{groupId}/{artifactId}/{j2eeType}/{name}</config-substitution>
                             <config-substitution key="ResourceBindingsNameInNamespace">jca:</config-substitution>
-                            <config-substitution key="ResourceBindingsNamePattern"></config-substitution>
+                            <config-substitution key="ResourceBindingsNamePattern" />
                             <config-substitution key="ResourceBindingsQuery">?#org.apache.geronimo.naming.ResourceSource</config-substitution>
                         </plugin-artifact>
                     </instance>

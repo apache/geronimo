@@ -149,19 +149,17 @@
                         <configuration>
                             <tasks>
                                 <tstamp>
-                                    <format property="build.year" pattern="yyyy"/>
+                                    <format property="build.year" pattern="yyyy" />
                                 </tstamp>
 
-                                <mkdir dir="${project.build.outputDirectory}/org/apache/geronimo/system/serverinfo"/>
+                                <mkdir dir="${project.build.outputDirectory}/org/apache/geronimo/system/serverinfo" />
 
-                                <propertyfile
-                                        file="${project.build.outputDirectory}/org/apache/geronimo/system/serverinfo/geronimo-version.properties"
-                                        comment="Geronimo version information (generated, do not modify)">
+                                <propertyfile file="${project.build.outputDirectory}/org/apache/geronimo/system/serverinfo/geronimo-version.properties" comment="Geronimo version information (generated, do not modify)">
 
-                                    <entry key="version" value="${version}"/>
-                                    <entry key="build.date" type="date" value="now" pattern="yyyy.MM.dd"/>
-                                    <entry key="build.time" type="date" value="now" pattern="HH:mm:ss.SSSZ"/>
-                                    <entry key="copyright" value="Copyright (C) 2003-${build.year}, The Apache Software Foundation"/>
+                                    <entry key="version" value="${version}" />
+                                    <entry key="build.date" type="date" value="now" pattern="yyyy.MM.dd" />
+                                    <entry key="build.time" type="date" value="now" pattern="HH:mm:ss.SSSZ" />
+                                    <entry key="copyright" value="Copyright (C) 2003-${build.year}, The Apache Software Foundation" />
                                 </propertyfile>
                             </tasks>
                         </configuration>

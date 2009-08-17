@@ -101,7 +101,7 @@
                         <configuration>
                             <extractors>
                                 <classComponentDescriptorExtractor>
-                                    <gleaner implementation="org.codehaus.plexus.cdc.gleaner.AnnotationComponentGleaner"/>
+                                    <gleaner implementation="org.codehaus.plexus.cdc.gleaner.AnnotationComponentGleaner" />
                                 </classComponentDescriptorExtractor>
                             </extractors>
                         </configuration>

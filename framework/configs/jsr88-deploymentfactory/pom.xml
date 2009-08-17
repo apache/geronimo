@@ -185,7 +185,7 @@
                     <category>Deployment</category>
                     <instance>
                         <plugin-artifact>
-                            <config-xml-content server="jsr88" load="false"/>
+                            <config-xml-content server="jsr88" load="false" />
                         </plugin-artifact>
                     </instance>
                 </configuration>

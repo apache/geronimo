@@ -18,8 +18,7 @@
 
 <!-- $Rev$ $Date$ -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
 
@@ -46,9 +45,9 @@
     </organization>
 
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/geronimo/server/trunk</connection>
-        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/geronimo/server/trunk</developerConnection>
-        <url>http://svn.apache.org/viewvc/geronimo/server/trunk</url>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/geronimo/server/branches/2.2</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/geronimo/server/branches/2.2</developerConnection>
+        <url>http://svn.apache.org/viewvc/geronimo/server/branches/2.2</url>
     </scm>
 
     <properties>
@@ -88,7 +87,7 @@
         <!--<jetty>jetty6</jetty>-->
         <jetty>jetty7</jetty>
 
-        <connectorSuffix></connectorSuffix>
+        <connectorSuffix />
         <connectorSpec>geronimo-j2ee-connector_1.5_spec</connectorSpec>
         <txmanagerVersion>2.1.3-SNAPSHOT</txmanagerVersion>
         <!--<connectorSuffix>-1_6</connectorSuffix>

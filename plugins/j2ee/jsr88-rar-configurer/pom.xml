@@ -79,7 +79,7 @@
                     <category>Deployment</category>
                     <instance>
                         <plugin-artifact>
-                            <config-xml-content server="jsr88"/>
+                            <config-xml-content server="jsr88" />
                         </plugin-artifact>
                     </instance>
                 </configuration>

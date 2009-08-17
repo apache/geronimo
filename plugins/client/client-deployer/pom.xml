@@ -120,8 +120,8 @@
                     </dependencies>
                     <instance>
                         <plugin-artifact>
-                            <config-xml-content server="default"/>
-                            <config-xml-content server="offline"/>
+                            <config-xml-content server="default" />
+                            <config-xml-content server="offline" />
                             <copy-file dest-dir="schema">schema/schemaorg_apache_xmlbeans/src/</copy-file>
                         </plugin-artifact>
                     </instance>

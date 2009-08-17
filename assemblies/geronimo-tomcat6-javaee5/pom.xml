@@ -58,17 +58,15 @@
                         </goals>
                         <configuration>
                             <tasks>
-                                <java classname="org.apache.geronimo.jaxws.builder.GShellCommandRegistration" 
-                                      fork="yes" failonerror="true">
-                                   <classpath refid="maven.runtime.classpath"/>
-                                   <arg value="${project.build.directory}/assembly"/>
-                                   <arg value="gsh-wsgen.properties"/>
+                                <java classname="org.apache.geronimo.jaxws.builder.GShellCommandRegistration" fork="yes" failonerror="true">
+                                   <classpath refid="maven.runtime.classpath" />
+                                   <arg value="${project.build.directory}/assembly" />
+                                   <arg value="gsh-wsgen.properties" />
                                 </java>
-                                <java classname="org.apache.geronimo.jaxws.builder.GShellCommandRegistration" 
-                                      fork="yes" failonerror="true">
-                                   <classpath refid="maven.runtime.classpath"/>
-                                   <arg value="${project.build.directory}/assembly"/>
-                                   <arg value="gsh-cxf-tools.properties"/>
+                                <java classname="org.apache.geronimo.jaxws.builder.GShellCommandRegistration" fork="yes" failonerror="true">
+                                   <classpath refid="maven.runtime.classpath" />
+                                   <arg value="${project.build.directory}/assembly" />
+                                   <arg value="gsh-cxf-tools.properties" />
                                 </java>
                             </tasks>
                         </configuration>

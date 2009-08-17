@@ -58,10 +58,10 @@
                         </goals>
                         <configuration>
                             <tasks>
-                                <mkdir dir="${project.build.outputDirectory}"/>
+                                <mkdir dir="${project.build.outputDirectory}" />
                                 <copy todir="${project.build.outputDirectory}">
                                     <fileset dir="${project.build.directory}/${project.build.finalName}/${project.build.finalName}">
-                                        <include name="**"/>
+                                        <include name="**" />
                                     </fileset>
                                 </copy>
                             </tasks>
@@ -81,7 +81,7 @@
                     <category>Web Services</category>
                     <instance>
                         <plugin-artifact>
-                            <config-xml-content load="false"/>
+                            <config-xml-content load="false" />
                             <copy-file relative-to="geronimo" dest-dir="">contents/</copy-file>
                         </plugin-artifact>
                     </instance>

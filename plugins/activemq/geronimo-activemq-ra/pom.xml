@@ -204,7 +204,7 @@
                             <tasks>
                                 <copy todir="${project.build.outputDirectory}">
                                     <fileset dir="${project.basedir}/src/main/rar">
-                                        <include name="**"/>
+                                        <include name="**" />
                                     </fileset>
                                 </copy>
                             </tasks>

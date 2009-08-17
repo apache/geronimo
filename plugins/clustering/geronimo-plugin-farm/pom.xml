@@ -70,16 +70,11 @@
                         <configuration>
                             <tasks>
                                 <path id="cp">
-                                    <!--<path refid="maven.test.classpath"/>-->
-                                    <path refid="maven.compile.classpath"/>
-                                    <path refid="maven.dependency.classpath"
-                                            />
+                                    <!--<path refid="maven.test.classpath" />-->
+                                    <path refid="maven.compile.classpath" />
+                                    <path refid="maven.dependency.classpath" />
                                 </path>
-                                <java
-
-                                        classname="org.apache.openjpa.enhance.PCEnhancer"
-                                        classpathref="cp"
-                                        dir="target/classes" fork="true">
+                                <java classname="org.apache.openjpa.enhance.PCEnhancer" classpathref="cp" dir="target/classes" fork="true">
                                 </java>
                             </tasks>
                         </configuration>

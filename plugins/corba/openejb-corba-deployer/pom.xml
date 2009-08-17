@@ -84,8 +84,8 @@
                     </dependencies>
                     <instance>
                         <plugin-artifact>
-                            <config-xml-content server="default"/>
-                            <config-xml-content server="offline"/>
+                            <config-xml-content server="default" />
+                            <config-xml-content server="offline" />
                         </plugin-artifact>
                     </instance>
                 </configuration>

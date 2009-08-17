@@ -83,9 +83,9 @@
                         <!--</goals>-->
                         <!--<configuration>-->
                             <!--<tasks>-->
-                                <!--<mkdir dir="${project.build.directory}/assembly"/>-->
+                                <!--<mkdir dir="${project.build.directory}/assembly" />-->
                                 <!--<copy todir="${project.build.directory}/assembly">-->
-                                    <!--<fileset dir="${project.build.directory}/geronimo-framework-${version}"/>-->
+                                    <!--<fileset dir="${project.build.directory}/geronimo-framework-${version}" />-->
                                 <!--</copy>-->
                             <!--</tasks>-->
                         <!--</configuration>-->

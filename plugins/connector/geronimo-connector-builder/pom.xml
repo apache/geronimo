@@ -109,7 +109,7 @@
                         <phase>process-test-resources</phase>
                         <configuration>
                             <tasks>
-                                <ant antfile="${pom.basedir}/src/test/script/test-setup.xml"/>
+                                <ant antfile="${pom.basedir}/src/test/script/test-setup.xml" />
                             </tasks>
                         </configuration>
                         <goals>

@@ -196,7 +196,7 @@
                         <configuration>
                             <tasks>
                                 <echo>Copying README, and RELEASE_NOTES txt files ${project.basedir}/../.. to underlay - ${project.build.outputDirectory}/contents</echo>
-                                <copy todir="${project.build.outputDirectory}/contents" failonerror="true" overwrite="true" >
+                                <copy todir="${project.build.outputDirectory}/contents" failonerror="true" overwrite="true">
                                     <fileset dir="${project.basedir}/../..">
                                         <include name="README.txt" />
                                         <include name="RELEASE_NOTES-${pom.version}.txt" />
@@ -217,10 +217,10 @@
                         </goals>
                         <configuration>
                             <tasks>
-                                <mkdir dir="${project.build.outputDirectory}"/>
+                                <mkdir dir="${project.build.outputDirectory}" />
                                 <copy todir="${project.build.outputDirectory}">
                                     <fileset dir="${project.build.directory}/${project.build.finalName}">
-                                        <include name="**"/>
+                                        <include name="**" />
                                     </fileset>
                                 </copy>
                             </tasks>

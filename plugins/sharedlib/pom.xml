@@ -18,7 +18,7 @@
 
 <!-- $Rev$ $Date$ -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLofcation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLofcation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
 
@@ -66,10 +66,10 @@
                         </goals>
                         <configuration>
                             <tasks>
-                                <mkdir dir="${project.build.outputDirectory}"/>
+                                <mkdir dir="${project.build.outputDirectory}" />
                                 <copy todir="${project.build.outputDirectory}">
                                     <fileset dir="src/main/resources">
-                                        <include name="**"/>
+                                        <include name="**" />
                                     </fileset>
                                 </copy>
                             </tasks>
