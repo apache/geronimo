@@ -25,7 +25,7 @@
     <parent>
         <groupId>org.apache.geronimo.testsuite</groupId>
         <artifactId>testsuite</artifactId>
-        <version>2.2-SNAPSHOT</version>
+        <version>3.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>commands-testsuite</artifactId>
@@ -66,4 +66,16 @@
         </pluginManagement>
     </build>
 
+    <profiles>
+        <profile>
+            <id>all-subprojects</id>
+            <!-- use for things like versions:set and perhaps release when build has to run on all projects -->
+            <modules>
+                <module>deploy</module>
+                <module>gshell</module>
+                <module>jaxws</module>
+                <module>shutdown</module>
+            </modules>
+        </profile>
+    </profiles>
 </project>

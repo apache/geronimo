@@ -27,10 +27,10 @@
     <parent>
         <groupId>org.apache.geronimo.testsuite</groupId>
         <artifactId>enterprise-testsuite</artifactId>
-        <version>2.2-SNAPSHOT</version>
+        <version>3.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>sec-client</artifactId>
+    <artifactId>sec-client-tests</artifactId>
     <name>Geronimo TestSuite :: Enterprise Testsuite :: App Client Security Test</name>
     <packaging>jar</packaging>
 

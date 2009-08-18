@@ -27,7 +27,7 @@
     <parent>
         <groupId>org.apache.geronimo.testsuite</groupId>
         <artifactId>testsuite</artifactId>
-        <version>2.2-SNAPSHOT</version>
+        <version>3.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>webservices-testsuite</artifactId>
@@ -37,5 +37,25 @@
     <description>
         Tests JEE5 WebServices features.
     </description>
-    
+    <profiles>
+        <profile>
+            <id>all-subprojects</id>
+            <!-- use for things like versions:set and perhaps release when build has to run on all projects -->
+            <modules>
+                <module>jaxb-tests</module>
+                <module>jaxr-tests</module>
+                <module>jaxrpc-jaxws-tests</module>
+                <module>jaxrpc-tests</module>
+                <module>jaxws-catalog-tests</module>
+                <module>jaxws-catalog-tests</module>
+                <module>jaxws-mtom-tests</module>
+                <module>jaxws-provider-tests</module>
+                <module>jaxws-tests</module>
+                <module>jaxws-wsa-tests</module>
+                <module>saaj-tests</module>
+                <module>stax-tests</module>
+            </modules>
+        </profile>
+    </profiles>
+
 </project>
