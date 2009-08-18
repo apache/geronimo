@@ -35,6 +35,7 @@ limitations under the License.
         </supports>
         <supported-locale>en</supported-locale>
         <supported-locale>zh</supported-locale>
+        <supported-locale>ja</supported-locale>
         <resource-bundle>portletinfo</resource-bundle>
         <portlet-info>
             <title>DB Info</title>
@@ -56,6 +57,7 @@ limitations under the License.
         </supports>
         <supported-locale>en</supported-locale>
         <supported-locale>zh</supported-locale>
+        <supported-locale>ja</supported-locale>
         <resource-bundle>portletinfo</resource-bundle>
         <portlet-info>
             <title>DB Viewer</title>
@@ -77,6 +79,7 @@ limitations under the License.
         </supports>
         <supported-locale>en</supported-locale>
         <supported-locale>zh</supported-locale>
+        <supported-locale>ja</supported-locale>
         <resource-bundle>portletinfo</resource-bundle>
         <portlet-info>
             <title>Derby Log Viewer</title>
@@ -98,6 +101,7 @@ limitations under the License.
         </supports>
         <supported-locale>en</supported-locale>
         <supported-locale>zh</supported-locale>
+        <supported-locale>ja</supported-locale>
         <resource-bundle>portletinfo</resource-bundle>
         <portlet-info>
             <title>Run SQL</title>
@@ -123,6 +127,7 @@ limitations under the License.
         </supports>
         <supported-locale>en</supported-locale>
         <supported-locale>zh</supported-locale>
+        <supported-locale>ja</supported-locale>
         <resource-bundle>portletinfo</resource-bundle>
         <portlet-info>
             <title>Run SQL</title>
@@ -147,6 +152,7 @@ limitations under the License.
         </supports>
         <supported-locale>en</supported-locale>
         <supported-locale>zh</supported-locale>
+        <supported-locale>ja</supported-locale>
         <resource-bundle>portletinfo</resource-bundle>
         <portlet-info>
             <title>Database Pools</title>

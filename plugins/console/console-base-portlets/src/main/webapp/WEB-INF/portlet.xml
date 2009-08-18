@@ -35,6 +35,7 @@ limitations under the License.
         </supports>
         <supported-locale>en</supported-locale>
         <supported-locale>zh</supported-locale>
+        <supported-locale>ja</supported-locale>
         <resource-bundle>portletinfo</resource-bundle>
         <portlet-info>
             <title>Welcome</title>
@@ -56,6 +57,7 @@ limitations under the License.
         </supports>
         <supported-locale>en</supported-locale>
         <supported-locale>zh</supported-locale>
+        <supported-locale>ja</supported-locale>
         <resource-bundle>portletinfo</resource-bundle>
         <portlet-info>
             <title>Server Info</title>
@@ -77,6 +79,7 @@ limitations under the License.
         </supports>
         <supported-locale>en</supported-locale>
         <supported-locale>zh</supported-locale>
+        <supported-locale>ja</supported-locale>
         <resource-bundle>portletinfo</resource-bundle>
         <portlet-info>
             <title>System Property values for the Server JVM</title>
@@ -98,6 +101,7 @@ limitations under the License.
         </supports>
         <supported-locale>en</supported-locale>
         <supported-locale>zh</supported-locale>
+        <supported-locale>ja</supported-locale>
         <resource-bundle>portletinfo</resource-bundle>
         <portlet-info>
             <title>Log Manager</title>
@@ -119,6 +123,7 @@ limitations under the License.
         </supports>
         <supported-locale>en</supported-locale>
         <supported-locale>zh</supported-locale>
+        <supported-locale>ja</supported-locale>
         <resource-bundle>portletinfo</resource-bundle>
         <portlet-info>
             <title>Server Log Viewer</title>
@@ -140,6 +145,7 @@ limitations under the License.
         </supports>
         <supported-locale>en</supported-locale>
         <supported-locale>zh</supported-locale>
+        <supported-locale>ja</supported-locale>
         <resource-bundle>portletinfo</resource-bundle>
         <portlet-info>
             <title>Web Access Log Viewer</title>
@@ -161,6 +167,7 @@ limitations under the License.
         </supports>
         <supported-locale>en</supported-locale>
         <supported-locale>zh</supported-locale>
+        <supported-locale>ja</supported-locale>
         <resource-bundle>portletinfo</resource-bundle>
         <portlet-info>
             <title>Server Manager</title>
@@ -182,6 +189,7 @@ limitations under the License.
         </supports>
         <supported-locale>en</supported-locale>
         <supported-locale>zh</supported-locale>
+        <supported-locale>ja</supported-locale>
         <resource-bundle>portletinfo</resource-bundle>
         <portlet-info>
             <title>Web Server Manager</title>
@@ -203,6 +211,7 @@ limitations under the License.
         </supports>
         <supported-locale>en</supported-locale>
         <supported-locale>zh</supported-locale>
+        <supported-locale>ja</supported-locale>
         <resource-bundle>portletinfo</resource-bundle>
         <portlet-info>
             <title>Network Listeners</title>
@@ -224,6 +233,7 @@ limitations under the License.
         </supports>
         <supported-locale>en</supported-locale>
         <supported-locale>zh</supported-locale>
+        <supported-locale>ja</supported-locale>
         <resource-bundle>portletinfo</resource-bundle>
         <portlet-info>
             <title>Thread Pool Configuration</title>
@@ -245,6 +255,7 @@ limitations under the License.
         </supports>
         <supported-locale>en</supported-locale>
         <supported-locale>zh</supported-locale>
+        <supported-locale>ja</supported-locale>
         <resource-bundle>portletinfo</resource-bundle>
         <portlet-info>
             <title>Repository Viewer</title>
@@ -265,6 +276,7 @@ limitations under the License.
         </supports>
         <supported-locale>en</supported-locale>
         <supported-locale>zh</supported-locale>
+        <supported-locale>ja</supported-locale>
         <resource-bundle>portletinfo</resource-bundle>
         <portlet-info>
             <title>Apache mod_jk Configuration</title>
@@ -285,6 +297,7 @@ limitations under the License.
         </supports>
         <supported-locale>en</supported-locale>
         <supported-locale>zh</supported-locale>
+        <supported-locale>ja</supported-locale>
         <resource-bundle>portletinfo</resource-bundle>
         <portlet-info>
             <title>Keystore Configuration</title>
@@ -305,6 +318,7 @@ limitations under the License.
         </supports>
         <supported-locale>en</supported-locale>
         <supported-locale>zh</supported-locale>
+        <supported-locale>ja</supported-locale>
         <resource-bundle>portletinfo</resource-bundle>
         <portlet-info>
             <title>Certification Authority</title>
@@ -326,6 +340,7 @@ limitations under the License.
         </supports>
         <supported-locale>en</supported-locale>
         <supported-locale>zh</supported-locale>
+        <supported-locale>ja</supported-locale>
         <resource-bundle>portletinfo</resource-bundle>
         <portlet-info>
             <title>Installed Applications</title>
@@ -347,6 +362,7 @@ limitations under the License.
         </supports>
         <supported-locale>en</supported-locale>
         <supported-locale>zh</supported-locale>
+        <supported-locale>ja</supported-locale>
         <resource-bundle>portletinfo</resource-bundle>
         <portlet-info>
             <title>Installed Web Applications</title>
@@ -372,6 +388,7 @@ limitations under the License.
         </supports>
         <supported-locale>en</supported-locale>
         <supported-locale>zh</supported-locale>
+        <supported-locale>ja</supported-locale>
         <resource-bundle>portletinfo</resource-bundle>
         <portlet-info>
             <title>Installed System Modules</title>
@@ -397,6 +414,7 @@ limitations under the License.
         </supports>
         <supported-locale>en</supported-locale>
         <supported-locale>zh</supported-locale>
+        <supported-locale>ja</supported-locale>
         <resource-bundle>portletinfo</resource-bundle>
         <portlet-info>
             <title>Console Realm Users</title>
@@ -418,6 +436,7 @@ limitations under the License.
         </supports>
         <supported-locale>en</supported-locale>
         <supported-locale>zh</supported-locale>
+        <supported-locale>ja</supported-locale>
         <resource-bundle>portletinfo</resource-bundle>
         <portlet-info>
             <title>Console Realm Groups</title>
@@ -439,6 +458,7 @@ limitations under the License.
         </supports>
         <supported-locale>en</supported-locale>
         <supported-locale>zh</supported-locale>
+        <supported-locale>ja</supported-locale>
         <resource-bundle>portletinfo</resource-bundle>
         <portlet-info>
             <title>Installed Security Realms</title>
@@ -460,6 +480,7 @@ limitations under the License.
         </supports>
         <supported-locale>en</supported-locale>
         <supported-locale>zh</supported-locale>
+        <supported-locale>ja</supported-locale>
         <resource-bundle>portletinfo</resource-bundle>
         <portlet-info>
             <title>Installed Application EARs</title>
@@ -484,6 +505,7 @@ limitations under the License.
         </supports>
         <supported-locale>en</supported-locale>
         <supported-locale>zh</supported-locale>
+        <supported-locale>ja</supported-locale>
         <resource-bundle>portletinfo</resource-bundle>
         <portlet-info>
             <title>Installed EJB JARs</title>
@@ -508,6 +530,7 @@ limitations under the License.
         </supports>
         <supported-locale>en</supported-locale>
         <supported-locale>zh</supported-locale>
+        <supported-locale>ja</supported-locale>
         <resource-bundle>portletinfo</resource-bundle>
         <portlet-info>
             <title>Installed J2EE Connectors</title>
@@ -532,6 +555,7 @@ limitations under the License.
         </supports>
         <supported-locale>en</supported-locale>
         <supported-locale>zh</supported-locale>
+        <supported-locale>ja</supported-locale>
         <resource-bundle>portletinfo</resource-bundle>
         <portlet-info>
             <title>Installed Application Clients</title>
