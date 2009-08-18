@@ -29,7 +29,7 @@
     </parent>
 
     <groupId>org.apache.geronimo.buildsupport.it</groupId>
-    <artifactId>j2ee-system</artifactId>
+    <artifactId>j2ee-system-2</artifactId>
     <name>Geronimo Configs :: J2EE System</name>
     <packaging>car</packaging>
 
