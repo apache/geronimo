@@ -39,7 +39,6 @@
     <modules>
         <module>dojo-jetty</module>
         <module>dojo-tomcat</module>
-        <!--<module>geronimo-dojo</module>-->
     </modules>
 
 </project>

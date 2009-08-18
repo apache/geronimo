@@ -56,6 +56,8 @@
     </dependencies>
     
     <modules>
+        <!-- MNG-4052 modules used as import-scope need to be before anything that uses them -->
+        <module>pluto</module>
         <module>system-database</module>
         <module>activemq</module>
         <module>aspectj</module>
@@ -80,7 +82,6 @@
         <module>openejb</module>
         <module>openjpa</module>
         <module>plancreator</module>
-        <module>pluto</module>
         <module>webservices</module>
         <module>spring</module>
         <module>ca-helper</module>
@@ -182,5 +183,14 @@
                 </pluginManagement>
             </build>
         </profile>
+        <profile>
+            <id>all-subprojects</id>
+            <!-- use for things like versions:set and perhaps release when build has to run on all projects -->
+            <modules>
+                <module>connector</module>
+                <module>connector-1_6</module>
+            </modules>
+        </profile>
+
     </profiles> 
 </project>
