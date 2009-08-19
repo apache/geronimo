@@ -65,7 +65,7 @@
         <module>axis2</module>
         <module>client</module>
         <module>clustering</module>
-        <module>connector${connectorSuffix}</module>
+        <module>connector-1_6</module>
         <module>console</module>
         <module>corba</module>
         <module>cxf</module>
@@ -183,14 +183,5 @@
                 </pluginManagement>
             </build>
         </profile>
-        <profile>
-            <id>all-subprojects</id>
-            <!-- use for things like versions:set and perhaps release when build has to run on all projects -->
-            <modules>
-                <module>connector</module>
-                <module>connector-1_6</module>
-            </modules>
-        </profile>
-
     </profiles> 
 </project>
