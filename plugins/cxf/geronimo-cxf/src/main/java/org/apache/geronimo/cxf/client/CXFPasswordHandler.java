@@ -18,6 +18,8 @@
 package org.apache.geronimo.cxf.client;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
@@ -31,14 +33,17 @@ public class CXFPasswordHandler implements CallbackHandler {
     
     private static final Logger LOG = LoggerFactory.getLogger(CXFPasswordHandler.class);
     
-    private String password;
+    private Map<String, String> passwords = new HashMap<String, String>();
 
-    public CXFPasswordHandler(String password) {
-        this.password = password;
+    public CXFPasswordHandler() {
     }
 
+    public void addPassword(String user, String password) {
+        passwords.put(user, password);
+    }
+    
     public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
         WSPasswordCallback pc = (WSPasswordCallback) callbacks[0];
-        pc.setPassword(this.password);
+        pc.setPassword(passwords.get(pc.getIdentifier()));
     }
 }

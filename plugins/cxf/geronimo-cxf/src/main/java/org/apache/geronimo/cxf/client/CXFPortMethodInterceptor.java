@@ -41,6 +41,10 @@ public class CXFPortMethodInterceptor extends PortMethodInterceptor {
     private static final String IN_PREFIX = "wss4j.in.";
     private static final String OUT_PREFIX = "wss4j.out.";
     
+    private static final String[] ACTIONS = { WSHandlerConstants.USERNAME_TOKEN,
+                                              WSHandlerConstants.SIGNATURE,
+                                              WSHandlerConstants.ENCRYPT };
+    
     public CXFPortMethodInterceptor(Map<Object, EndpointInfo> seiInfoMap) {
         super(seiInfoMap);
     }
@@ -98,20 +102,27 @@ public class CXFPortMethodInterceptor extends PortMethodInterceptor {
 
     private static void updateSecurityProperties(Map<String, Object> properties) {
         String action = (String) properties.get(WSHandlerConstants.ACTION);
-        if (containsValue(action, WSHandlerConstants.USERNAME_TOKEN) && 
+        if (containsValue(action, ACTIONS) && 
             !properties.containsKey(WSHandlerConstants.PW_CALLBACK_CLASS)) {
-            String password = (String) properties.get("password");
-            properties.put(WSHandlerConstants.PW_CALLBACK_REF, 
-                           new CXFPasswordHandler(password));            
+            CXFPasswordHandler handler = new CXFPasswordHandler();
+            handler.addPassword( (String) properties.get("user"),
+                                 (String) properties.get("password") );
+            handler.addPassword( (String) properties.get("signatureUser"),
+                                 (String) properties.get("signaturePassword") );
+            handler.addPassword( (String) properties.get("encryptionUser"),
+                                 (String) properties.get("encryptionPassword") );
+            properties.put(WSHandlerConstants.PW_CALLBACK_REF, handler);
         }
     }
     
-    private static boolean containsValue(String property, String value) {
+    private static boolean containsValue(String property, String[] values) {
         if (property != null) {
             String[] entries = property.split(" ");
-            for (String entry : entries) {
-                if (value.equals(entry)) {
-                    return true;
+            for (String value : values) {
+                for (String entry : entries) {
+                    if (value.equals(entry)) {
+                        return true;
+                    }
                 }
             }
         }
