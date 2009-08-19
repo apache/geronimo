@@ -116,7 +116,11 @@ public class WebAccessLogViewerPortlet extends BasePortlet {
 //      Temporarily disable container and log parameters.  
 //      We don't current enable this in the portlet anyway and at the moment it is just unnecessary data traveling back and forth.
 //      renderRequest.setAttribute("webContainers", products);
-        final String[] logNames = chosenLog.getLogNames();
+        String[] logNames = chosenLog.getLogNames();
+        if (logNames.length == 0) {
+            searchView.include(renderRequest, renderRespose);
+            return;
+        }
 //      renderRequest.setAttribute("webLogs", logNames);
         String logToSearch = null;
 //      String logToSearch = renderRequest.getParameter("selectedLog");

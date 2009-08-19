@@ -16,36 +16,41 @@
  */
 package org.apache.geronimo.tomcat;
 
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.system.serverinfo.ServerInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.apache.catalina.valves.AccessLogValve;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.regex.Pattern;
-import java.util.regex.Matcher;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.text.SimpleDateFormat;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.apache.catalina.Container;
+import org.apache.catalina.Pipeline;
+import org.apache.catalina.Server;
+import org.apache.catalina.Service;
+import org.apache.catalina.Valve;
+import org.apache.catalina.valves.AccessLogValve;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.system.serverinfo.ServerInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Tomcat implementation of the WebAccessLog management interface.
  *
  * @version $Rev$ $Date$
  */
-public class TomcatLogManagerImpl implements TomcatLogManager {
+public class TomcatLogManagerImpl implements TomcatLogManager, GBeanLifecycle {
+
     private static final Logger log = LoggerFactory.getLogger(TomcatLogManagerImpl.class);
 
     // Pattern that matches the date in the logfile name
@@ -72,12 +77,13 @@ public class TomcatLogManagerImpl implements TomcatLogManager {
     private final static int GROUP_RESPONSE_LENGTH = 8;
     private final static String ACCESS_LOG_DATE_FORMAT = "dd/MMM/yyyy:HH:mm:ss ZZZZ";
     private final static String LOG_FILE_NAME_FORMAT = "yyyy-MM-dd";
-    private final Collection<ValveGBean> logGbeans;
+    private List<AccessLogValve> accessLogValves;
     private final ServerInfo serverInfo;
+    private TomcatServerGBean tomcatServer;    
 
-    public TomcatLogManagerImpl(ServerInfo serverInfo, Collection<ValveGBean> logGbeans) {
+    public TomcatLogManagerImpl(ServerInfo serverInfo, TomcatServerGBean tomcatServer) {
         this.serverInfo = serverInfo;
-        this.logGbeans = logGbeans;
+        this.tomcatServer = tomcatServer;        
     }
 
     /**
@@ -89,12 +95,8 @@ public class TomcatLogManagerImpl implements TomcatLogManager {
      */
     public String[] getLogNames() {
         List<String> logNames = new ArrayList<String>();
-        for (Iterator<ValveGBean> it = logGbeans.iterator(); it.hasNext();) {
-            ValveGBean logGBean = (ValveGBean) it.next();
-            AccessLogValve logFile = (AccessLogValve) logGBean.getInternalObject();
-            if(logFile != null) {
-                logNames.add( "var/catalina/logs/"+logFile.getPrefix()+LOG_FILE_NAME_FORMAT+logFile.getSuffix());    
-            }
+        for (AccessLogValve accessLogValve : accessLogValves) {
+            logNames.add("var/catalina/logs/" + accessLogValve.getPrefix() + LOG_FILE_NAME_FORMAT + accessLogValve.getSuffix());
         }
         return (String[]) logNames.toArray(new String[logNames.size()]);
     }
@@ -270,12 +272,11 @@ public class TomcatLogManagerImpl implements TomcatLogManager {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("Tomcat Log Manager", TomcatLogManagerImpl.class);
-        infoFactory.addReference("LogGBeans", ValveGBean.class);
-        infoFactory.addReference("ServerInfo", ServerInfo.class, "GBean");
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("Tomcat Log Manager", TomcatLogManagerImpl.class);        
+        infoFactory.addReference("ServerInfo", ServerInfo.class, "GBean");       
+        infoFactory.addReference("Server", TomcatServerGBean.class);
         infoFactory.addInterface(TomcatLogManager.class);
-
-        infoFactory.setConstructor(new String[]{"ServerInfo","LogGBeans"});
+        infoFactory.setConstructor(new String[] { "ServerInfo", "Server" });
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 
@@ -303,6 +304,45 @@ public class TomcatLogManagerImpl implements TomcatLogManager {
         public boolean accept(File file, String fileName) {
             return pattern.matcher(fileName).matches();
         }
+    }
+    
+    public void doFail() {       
+    }
+
+    public void doStart() throws Exception {        
+        //Find all the access log valves and add them to the list
+        //Valve could be added on Engine/Host/Context
+        Server server = tomcatServer.getServer();
+        accessLogValves = new LinkedList<AccessLogValve>();
+        for(Service service : server.findServices()) {
+            Container container = service.getContainer();
+            searchAccessLogValves(container);
+        }
+    }
+
+    private void searchAccessLogValves(Container container) {
+        Pipeline pipeline = container.getPipeline();
+        if (pipeline == null) {
+            return;
+        }
+        Valve[] valves = pipeline.getValves();
+        if (valves == null || valves.length == 0) {
+            return;
+        }
+        for (Valve valve : valves) {
+            if (valve instanceof AccessLogValve) {
+                accessLogValves.add((AccessLogValve) valve);
+            }
+        }
+        Container[] subContainers = container.findChildren();
+        if (subContainers != null && subContainers.length > 0) {
+            for (Container subContainer : subContainers) {
+                searchAccessLogValves(subContainer);
+            }
+        }
+    }
+
+    public void doStop() throws Exception {        
     }
 
 /*

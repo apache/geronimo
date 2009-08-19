@@ -161,4 +161,8 @@ public class TomcatServerGBean implements GBeanLifecycle {
         }
         return service;
     }
+
+    public Server getServer() {
+        return server;
+    }
 }
