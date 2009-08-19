@@ -99,5 +99,6 @@
     <gbean name="ClientAdminObjectRefBuilder" class="org.apache.geronimo.connector.deployment.AdminObjectRefBuilder">
         <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee,http://java.sun.com/xml/ns/javaee</attribute>
     </gbean>
-
+    
+    <gbean name="RARConfigurer" class="org.apache.geronimo.connector.deployment.RARConfigurer"/>
 </module>
