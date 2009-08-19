@@ -20,7 +20,7 @@
 <fmt:setBundle basename="consolebase"/>
 <portlet:defineObjects/>
 
-<script type='text/javascript' src='/console/dwr/interface/Jsr77Stats.js'></script>
+<script type='text/javascript' src='/console/dwr/interface/Jsr77Lookup.js'></script>
 <script type='text/javascript' src='/console/dwr/engine.js'></script>
 <script type='text/javascript' src='/console/dwr/util.js'></script>
 
@@ -124,7 +124,7 @@ function <portlet:namespace/>callServer() {
     metadata = {};
     metadata.callback=<portlet:namespace/>updateValues;
     metadata.errorHandler=<portlet:namespace/>onError;
-    Jsr77Stats.getJavaVMStatistics(metadata);
+    Jsr77Lookup.getJavaVMStatistics(metadata);
 }
 function <portlet:namespace/>updateValues(serverStats) {
     DWRUtil.setValue("<portlet:namespace/>CurrentMemory", serverStats.memoryCurrent);
