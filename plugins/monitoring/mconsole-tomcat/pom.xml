@@ -119,6 +119,13 @@
             <type>car</type>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.geronimo.plugins.monitoring</groupId>
+            <artifactId>agent-ejb</artifactId>
+            <version>${version}</version>
+            <type>jar</type>
+        </dependency>
+
     </dependencies>
 
     <build>

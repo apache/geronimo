@@ -28,6 +28,16 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.plugins.monitoring</groupId>
+        <artifactId>agent-ejb</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.plugins.monitoring</groupId>
+        <artifactId>agent-jar</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.plugins.monitoring</groupId>
         <artifactId>mconsole-ds</artifactId>
         <type>car</type>
     </dependency>
