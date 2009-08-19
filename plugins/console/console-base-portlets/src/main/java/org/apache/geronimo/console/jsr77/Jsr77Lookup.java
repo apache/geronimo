@@ -16,16 +16,17 @@
  */
 package org.apache.geronimo.console.jsr77;
 
-import javax.servlet.http.HttpSession;
-import javax.management.j2ee.statistics.JVMStats;
 import javax.management.j2ee.statistics.BoundedRangeStatistic;
-import uk.ltd.getahead.dwr.WebContextFactory;
-import org.apache.geronimo.console.util.PortletManager;
+import javax.management.j2ee.statistics.JVMStats;
+import javax.servlet.http.HttpSession;
+
 import org.apache.geronimo.console.util.ManagementHelper;
-import org.apache.geronimo.management.geronimo.J2EEDomain;
+import org.apache.geronimo.console.util.PortletManager;
 import org.apache.geronimo.management.StatisticsProvider;
+import org.apache.geronimo.management.geronimo.J2EEDomain;
 import org.apache.geronimo.management.geronimo.J2EEServer;
 import org.apache.geronimo.management.geronimo.JVM;
+import org.directwebremoting.WebContextFactory;
 import org.directwebremoting.annotations.RemoteProxy;
 
 /**
@@ -33,7 +34,7 @@ import org.directwebremoting.annotations.RemoteProxy;
  *
  * @version $Rev$ $Date$
  */
-@RemoteProxy(name="Jsr77Stats")
+@RemoteProxy
 public class Jsr77Lookup {
     public DynamicServerInfo getJavaVMStatistics() {
         HttpSession session = WebContextFactory.get().getSession(true);
