@@ -29,7 +29,15 @@
             <outputDirectory></outputDirectory>
         </fileSet>
     </fileSets>
-    
+
+    <files>
+        <file>
+            <source>src/main/underlay/contents/etc/gsh-classworlds.conf</source>
+            <outputDirectory>contents/etc/</outputDirectory>
+            <filtered>true</filtered>
+        </file>
+    </files>
+
     <dependencySets>
         <dependencySet>
             <outputDirectory>contents/lib/boot</outputDirectory>
