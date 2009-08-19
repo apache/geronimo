@@ -1885,7 +1885,17 @@
                         <groupId>org.opensaml</groupId>
                         <artifactId>opensaml</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>bouncycastle</groupId>
+                        <artifactId>bcprov-jdk15</artifactId>
+                    </exclusion>
                 </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcprov-jdk15</artifactId>
+                <version>1.43</version>
             </dependency>
 
             <dependency>
