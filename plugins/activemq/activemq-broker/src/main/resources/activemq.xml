@@ -32,7 +32,7 @@
     <!-- Allows us to use system properties as variables in this configuration file-->
     <bean class="org.apache.geronimo.activemq.GeronimoPropertyPlaceholderConfigurer">
          <property name="locations">
-            <!--<value>file://${activemq.base}/conf/credentials.properties</value>-->
+            <!--<value>file://${activemq.home}/conf/credentials.properties</value>-->
             <value>${activemq.geronimo.home.url}/var/config/config-substitutions.properties</value>
          </property>
     </bean>
@@ -109,7 +109,7 @@
             persistence. 
 
         <persistenceAdapter>
-            <journaledJDBC dataDirectory="${activemq.base}/data/${activemq.brokerName}" dataSource="#postgres-ds"/>
+            <journaledJDBC dataDirectory="${activemq.home}/data/${activemq.brokerName}" dataSource="#postgres-ds"/>
         </persistenceAdapter>
         -->
 
@@ -129,9 +129,9 @@
             http://activemq.apache.org/how-do-i-use-ssl.html 
 
         <sslContext>
-            <sslContext keyStore="file:${activemq.base}/conf/${activemq.brokerName}/broker.ks" 
+            <sslContext keyStore="file:${activemq.home}/conf/${activemq.brokerName}/broker.ks" 
                 keyStorePassword="password" 
-                trustStore="file:${activemq.base}/conf/${activemq.brokerName}/broker.ts" 
+                trustStore="file:${activemq.home}/conf/${activemq.brokerName}/broker.ts" 
                 trustStorePassword="password"/>
         </sslContext>
         -->
@@ -238,9 +238,9 @@
         </connectors>
 
         <handlers>
-            <webAppContext contextPath="/admin" resourceBase="${activemq.base}/webapps/admin" logUrlOnStart="true"/>
-            <webAppContext contextPath="/demo" resourceBase="${activemq.base}/webapps/demo" logUrlOnStart="true"/>
-            <webAppContext contextPath="/fileserver" resourceBase="${activemq.base}/webapps/fileserver" logUrlOnStart="true"/>
+            <webAppContext contextPath="/admin" resourceBase="${activemq.home}/webapps/admin" logUrlOnStart="true"/>
+            <webAppContext contextPath="/demo" resourceBase="${activemq.home}/webapps/demo" logUrlOnStart="true"/>
+            <webAppContext contextPath="/fileserver" resourceBase="${activemq.home}/webapps/fileserver" logUrlOnStart="true"/>
         </handlers>
     </jetty>
     -->
