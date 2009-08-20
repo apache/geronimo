@@ -30,7 +30,7 @@
 
     <groupId>org.apache.geronimo.modules</groupId>
     <artifactId>geronimo-transaction-1_6</artifactId>
-    <name>Geronimo Plugins, Connector :: Transaction</name>
+    <name>Geronimo Plugins, Connector 1.6 :: Transaction</name>
 
     <dependencies>
         <dependency>

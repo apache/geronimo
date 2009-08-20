@@ -30,7 +30,7 @@
     
     <groupId>org.apache.geronimo.configs</groupId>
     <artifactId>connector-deployer-1_6</artifactId>
-    <name>Geronimo Plugins, Connector :: Deployer</name>
+    <name>Geronimo Plugins, Connector 1.6 :: Deployer</name>
     <packaging>car</packaging>
 
     <description>

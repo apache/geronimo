@@ -14,7 +14,7 @@
         <gbeanDeployer>org.apache.geronimo.framework/geronimo-gbean-deployer/${geronimoVersion}/car</gbeanDeployer>
         <j2eeDeployer>org.apache.geronimo.configs/j2ee-deployer/${geronimoVersion}/car</j2eeDeployer>
         <clientDeployer>org.apache.geronimo.configs/client-deployer/${geronimoVersion}/car</clientDeployer>
-        <connectorDeployer>org.apache.geronimo.configs/connector-deployer/${geronimoVersion}/car</connectorDeployer>
+        <connectorDeployer>org.apache.geronimo.configs/connector-deployer-1_6/${geronimoVersion}/car</connectorDeployer>
         <openejbDeployer>org.apache.geronimo.configs/openejb-deployer/${geronimoVersion}/car</openejbDeployer>
         <openejbcorbaDeployer>org.apache.geronimo.configs/openejb-corba-deployer/${geronimoVersion}/car</openejbcorbaDeployer>
         <axisDeployer>org.apache.geronimo.configs/axis-deployer/${geronimoVersion}/car</axisDeployer>

@@ -36,7 +36,7 @@
                 <dependencies>
                     <dependency>
                         <groupId>${pom.groupId}</groupId>
-                        <artifactId>transaction</artifactId>
+                        <artifactId>transaction-1_6</artifactId>
                         <type>car</type>
                     </dependency>
                     <dependency>
@@ -78,7 +78,7 @@
                 <dependencies>
                     <dependency>
                         <groupId>${pom.groupId}</groupId>
-                        <artifactId>client-transaction</artifactId>
+                        <artifactId>client-transaction-1_6</artifactId>
                         <type>car</type>
                     </dependency>
                 </dependencies>

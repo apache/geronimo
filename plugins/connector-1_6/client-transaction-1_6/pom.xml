@@ -30,7 +30,7 @@
     
     <groupId>org.apache.geronimo.configs</groupId>
     <artifactId>client-transaction-1_6</artifactId>
-    <name>Geronimo Plugins, Connector :: Client transaction</name>
+    <name>Geronimo Plugins, Connector 1.6 :: Client transaction</name>
     <packaging>car</packaging>
 
     <dependencies>

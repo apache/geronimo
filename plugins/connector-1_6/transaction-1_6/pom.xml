@@ -30,7 +30,7 @@
     
     <groupId>org.apache.geronimo.configs</groupId>
     <artifactId>transaction-1_6</artifactId>
-    <name>Geronimo Plugins, Connector :: Transaction Manager (JTA11)</name>
+    <name>Geronimo Plugins, Connector 1.6 :: Transaction Manager (JTA11)</name>
     <packaging>car</packaging>
 
     <description>Geronimo transaction manager module.</description>

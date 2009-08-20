@@ -103,7 +103,7 @@
         <gbeanDeployer>org.apache.geronimo.framework/geronimo-gbean-deployer/${version}/car</gbeanDeployer>
         <j2eeDeployer>org.apache.geronimo.configs/j2ee-deployer/${version}/car</j2eeDeployer>
         <clientDeployer>org.apache.geronimo.configs/client-deployer/${version}/car</clientDeployer>
-        <connectorDeployer>org.apache.geronimo.configs/connector-deployer/${version}/car</connectorDeployer>
+        <connectorDeployer>org.apache.geronimo.configs/connector-deployer-1_6/${version}/car</connectorDeployer>
         <openejbDeployer>org.apache.geronimo.configs/openejb-deployer/${version}/car</openejbDeployer>
         <openejbcorbaDeployer>org.apache.geronimo.configs/openejb-corba-deployer/${version}/car</openejbcorbaDeployer>
         <axisDeployer>org.apache.geronimo.configs/axis-deployer/${version}/car</axisDeployer>
