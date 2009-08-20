@@ -13,7 +13,7 @@
     </dependency>
     <dependency start="true">
         <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>client-transaction</artifactId>
+        <artifactId>client-transaction-1_6</artifactId>
         <type>car</type>
     </dependency>
     <dependency>
@@ -28,7 +28,7 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>geronimo-connector-builder</artifactId>
+        <artifactId>geronimo-connector-builder-1_6</artifactId>
         <type>jar</type>
     </dependency>
 </plugin-artifact>

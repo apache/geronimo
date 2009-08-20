@@ -13,7 +13,7 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>connector-deployer</artifactId>
+        <artifactId>connector-deployer-1_6</artifactId>
         <type>car</type>
     </dependency>
     <dependency>
