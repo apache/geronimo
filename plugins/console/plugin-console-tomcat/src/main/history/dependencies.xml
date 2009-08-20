@@ -3,7 +3,7 @@
     <module-id>
         <groupId>org.apache.geronimo.plugins</groupId>
         <artifactId>plugin-console-tomcat</artifactId>
-        <version>2.2-SNAPSHOT</version>
+        <version>3.0-SNAPSHOT</version>
         <type>car</type>
     </module-id>
     <dependency>
