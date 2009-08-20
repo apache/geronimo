@@ -49,7 +49,7 @@
         <!--</dependency>-->
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-connector-builder</artifactId>
+            <artifactId>geronimo-connector-builder-1_6</artifactId>
             <version>${version}</version>
         </dependency>
     </dependencies>

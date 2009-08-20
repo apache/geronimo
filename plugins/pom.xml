@@ -94,8 +94,7 @@
         <module>concurrent</module>
         <module>classloaders</module>
         <module>procrun</module>
-
-        <module>jetty</module>
+        <!--<module>jetty</module>-->
         <module>jetty7</module>
         <module>tomcat</module>
     </modules>

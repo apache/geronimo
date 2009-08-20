@@ -42,7 +42,7 @@
         <!-- g-j2ee comes from this -->
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-connector</artifactId>
+            <artifactId>geronimo-connector-1_6</artifactId>
             <version>${version}</version>
         </dependency>
 

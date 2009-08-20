@@ -48,7 +48,7 @@
                 </exclusion>
                 <exclusion>
                     <groupId>org.apache.geronimo.modules</groupId>
-                    <artifactId>geronimo-connector</artifactId>
+                    <artifactId>geronimo-connector-1_6</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>org.apache.geronimo.framework</groupId>
@@ -60,7 +60,7 @@
                 </exclusion>
                 <exclusion>
                     <groupId>org.apache.geronimo.modules</groupId>
-                    <artifactId>geronimo-transaction</artifactId>
+                    <artifactId>geronimo-transaction-1_6</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>org.apache.geronimo.modules</groupId>
@@ -143,7 +143,7 @@
         <!-- g-j2ee, g-kernel come from this via g-management -->
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>transaction</artifactId>
+            <artifactId>transaction-1_6</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>

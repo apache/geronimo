@@ -35,7 +35,7 @@
     <dependencies>
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>connector-deployer</artifactId>
+            <artifactId>connector-deployer-1_6</artifactId>
             <version>${version}</version>
             <type>car</type>
             <scope>provided</scope>
@@ -54,13 +54,6 @@
             <type>rar</type>
             <scope>provided</scope>
         </dependency>
-        
-        <!--<dependency>-->
-            <!--<groupId>org.apache.geronimo.configs</groupId>-->
-            <!--<artifactId>connector-deployer</artifactId>-->
-            <!--<version>${version}</version>-->
-            <!--<type>car</type>-->
-        <!--</dependency>-->
         
         <dependency>
             <groupId>org.apache.geronimo.plugins.monitoring</groupId>

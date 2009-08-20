@@ -51,7 +51,7 @@
 
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>transaction</artifactId>
+            <artifactId>transaction-1_6</artifactId>
             <type>car</type>
             <version>${version}</version>
         </dependency>
@@ -73,7 +73,7 @@
                     <dependencies>
                         <dependency>
                             <groupId>org.apache.geronimo.configs</groupId>
-                            <artifactId>transaction</artifactId>
+                            <artifactId>transaction-1_6</artifactId>
                             <type>car</type>
                             <import>classes</import>
                         </dependency>
