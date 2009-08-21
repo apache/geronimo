@@ -40,7 +40,8 @@ public class TestJMXSecurity extends TestSupport {
         
         MBeanServerConnection conn = getConnection(environment);
         System.out.println(conn.getDefaultDomain());
-        assertEquals("geronimo", conn.getDefaultDomain());        
+//        assertEquals("geronimo", conn.getDefaultDomain());        
+        assertEquals("DefaultDomain", conn.getDefaultDomain());
     }
 
     @Test
