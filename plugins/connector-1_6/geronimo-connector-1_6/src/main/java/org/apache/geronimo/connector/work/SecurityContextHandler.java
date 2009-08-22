@@ -23,7 +23,7 @@ package org.apache.geronimo.connector.work;
 import java.util.Stack;
 
 import javax.resource.spi.work.WorkCompletedException;
-import javax.resource.spi.work.SecurityInflowContext;
+import javax.resource.spi.work.SecurityContext;
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginException;
 
@@ -38,7 +38,7 @@ import org.apache.geronimo.gbean.annotation.ParamReference;
  * @version $Rev$ $Date$
  */
 @GBean
-public class SecurityInflowContextHandler implements InflowContextHandler<SecurityInflowContext> {
+public class SecurityContextHandler implements WorkContextHandler<SecurityContext> {
 
     private final String realm;
     private final Subject defaultSubject;
@@ -51,7 +51,7 @@ public class SecurityInflowContextHandler implements InflowContextHandler<Securi
         }
     };
 
-    public SecurityInflowContextHandler(@ParamAttribute(name="realm") String realm,
+    public SecurityContextHandler(@ParamAttribute(name="realm") String realm,
                                         @ParamAttribute(name="defaultSubjectRealm")String defaultSubjectRealm,
                                         @ParamAttribute(name="defaultSubjectId")String defaultSubjectId,
                                         @ParamReference(name="DefaultCredentialStore") CredentialStore defaultCredentialStore,
@@ -71,28 +71,28 @@ public class SecurityInflowContextHandler implements InflowContextHandler<Securi
         this.realm = realm;
     }
 
-    public void before(SecurityInflowContext securityInflowContext) throws WorkCompletedException {
+    public void before(SecurityContext securityContext) throws WorkCompletedException {
         Subject clientSubject;
-        if (securityInflowContext == null) {
+        if (securityContext == null) {
             clientSubject = defaultSubject;
         } else {
             clientSubject = new Subject();
             ConnectorCallbackHandler callbackHandler = new ConnectorCallbackHandler(realm);
-            securityInflowContext.setupSecurityContext(callbackHandler, clientSubject, serviceSubject);
+            securityContext.setupSecurityContext(callbackHandler, clientSubject, serviceSubject);
             ContextManager.registerSubjectShort(clientSubject, callbackHandler.getCallerPrincipal(), callbackHandler.getGroups());
         }
         callers.get().push(ContextManager.getCallers());
         ContextManager.setCallers(clientSubject, clientSubject);
     }
 
-    public void after(SecurityInflowContext securityInflowContext) throws WorkCompletedException {
+    public void after(SecurityContext securityContext) throws WorkCompletedException {
         Subject clientSubject = ContextManager.getCurrentCaller();
         ContextManager.popCallers(callers.get().pop());
         ContextManager.unregisterSubject(clientSubject);
     }
 
-    public Class<SecurityInflowContext> getHandledClass() {
-        return SecurityInflowContext.class;
+    public Class<SecurityContext> getHandledClass() {
+        return SecurityContext.class;
     }
 
     public boolean required() {

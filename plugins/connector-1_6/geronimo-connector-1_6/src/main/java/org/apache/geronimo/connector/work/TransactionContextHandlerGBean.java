@@ -26,11 +26,11 @@ import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 @GBean
-public class TransactionInflowContextHandlerGBean extends TransactionInflowContextHandler{
-    public TransactionInflowContextHandlerGBean(@ParamReference(name="XAWork", namingType = NameFactory.JTA_RESOURCE)XAWork xaWork) {
+public class TransactionContextHandlerGBean extends TransactionContextHandler{
+    public TransactionContextHandlerGBean(@ParamReference(name="XAWork", namingType = NameFactory.JTA_RESOURCE)XAWork xaWork) {
         super(xaWork);
     }
 }

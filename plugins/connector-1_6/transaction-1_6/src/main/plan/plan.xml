@@ -44,17 +44,17 @@
         <reference name="ScheduledPool">
             <name>ConnectorThreadPool</name>
         </reference>
-        <reference name="InflowContextHandler">
+        <reference name="WorkContextHandler">
         </reference>
     </gbean>
 
-    <gbean name="TransactionInflowContextHandler" class="org.apache.geronimo.connector.work.TransactionInflowContextHandlerGBean">
+    <gbean name="TransactionContextHandler" class="org.apache.geronimo.connector.work.TransactionContextHandlerGBean">
         <reference name="XAWork">
             <name>TransactionManager</name>
         </reference>
     </gbean>
 
-    <gbean name="SecurityInflowContextHandler" class="org.apache.geronimo.connector.work.SecurityInflowContextHandler">
+    <gbean name="SecurityContextHandler" class="org.apache.geronimo.connector.work.SecurityContextHandler">
         <attribute name="realm">geronimo-admin</attribute>
         <!--<attribute name="defaultSubjectRealm">geronimo-admin</attribute>-->
         <!--<attribute name="defaultSubjectId">foo</attribute>-->

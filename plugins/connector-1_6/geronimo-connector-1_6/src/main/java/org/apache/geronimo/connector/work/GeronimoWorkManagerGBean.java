@@ -38,8 +38,8 @@ public class GeronimoWorkManagerGBean extends GeronimoWorkManager implements GBe
     public GeronimoWorkManagerGBean(@ParamReference(name="SyncPool") Executor sync,
                                     @ParamReference(name="StartPool")Executor start,
                                     @ParamReference(name="ScheduledPool") Executor sched,
-                                    @ParamReference(name="InflowContextHandler")Collection<InflowContextHandler> inflowContextHandlers) {
-        super(sync, start, sched, inflowContextHandlers);
+                                    @ParamReference(name="WorkContextHandler")Collection<WorkContextHandler> workContextHandlers) {
+        super(sync, start, sched, workContextHandlers);
     }
 
 }
