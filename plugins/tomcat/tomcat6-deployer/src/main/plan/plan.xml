@@ -63,6 +63,9 @@
             <pattern>
                 <name>SecurityBuilder</name>
             </pattern>
+            <pattern>
+                <name>OpenWebBeansModuleBuilderExtension</name>
+            </pattern>
         </references>
         <reference name="ResourceEnvironmentSetter">
             <name>ResourceRefBuilder</name>
