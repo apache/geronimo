@@ -20,6 +20,7 @@ import java.util.Stack;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.security.jacc.PolicyContext;
 
 import org.apache.catalina.Container;
 import org.apache.catalina.Globals;
