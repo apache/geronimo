@@ -92,7 +92,7 @@ public class DispatchListener implements InstanceListener {
             beforeAfter.after(context, request, response, BeforeAfter.DISPATCHED);
 
             JACCRealm.setRequestWrapperName((String) context[webContext.getContextCount()]);
-            PolicyContext.setContextID((String) context[webContext.getContextCount()] + 1);
+            PolicyContext.setContextID((String) context[webContext.getContextCount() + 1]);
         }
     }
 
