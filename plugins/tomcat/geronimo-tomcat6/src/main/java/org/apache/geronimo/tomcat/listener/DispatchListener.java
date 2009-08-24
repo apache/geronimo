@@ -67,9 +67,12 @@ public class DispatchListener implements InstanceListener {
         BeforeAfter beforeAfter = webContext.getBeforeAfter();
         if (beforeAfter != null) {
             Stack<Object[]> stack = currentContext.get();
-            Object context[] = new Object[webContext.getContextCount() + 1];
+            Object context[] = new Object[webContext.getContextCount() + 2];
             String wrapperName = getWrapperName(request, webContext);
             context[webContext.getContextCount()] = JACCRealm.setRequestWrapperName(wrapperName);
+
+            context[webContext.getContextCount() + 1] = PolicyContext.getContextID();
+            PolicyContext.setContextID(webContext.getPolicyContextId());
 
             beforeAfter.before(context, request, response, BeforeAfter.DISPATCHED);
 
@@ -87,6 +90,7 @@ public class DispatchListener implements InstanceListener {
             beforeAfter.after(context, request, response, BeforeAfter.DISPATCHED);
 
             JACCRealm.setRequestWrapperName((String) context[webContext.getContextCount()]);
+            PolicyContext.setContextID((String) context[webContext.getContextCount() + 1]);
         }
     }
 
