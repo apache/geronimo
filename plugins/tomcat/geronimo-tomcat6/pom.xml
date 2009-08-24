@@ -75,6 +75,11 @@
 
         <dependency>
             <groupId>${tomcatGroupId}</groupId>
+            <artifactId>util</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>${tomcatGroupId}</groupId>
             <artifactId>catalina-ha</artifactId>
         </dependency>
 

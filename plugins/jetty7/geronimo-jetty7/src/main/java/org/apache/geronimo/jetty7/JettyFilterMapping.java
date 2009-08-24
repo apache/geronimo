@@ -19,8 +19,8 @@ package org.apache.geronimo.jetty7;
 import java.util.Collection;
 import java.util.EnumSet;
 
-import org.eclipse.jetty.server.DispatcherType;
 
+import javax.servlet.DispatcherType;
 import org.apache.geronimo.gbean.ReferenceCollection;
 import org.apache.geronimo.gbean.ReferenceCollectionEvent;
 import org.apache.geronimo.gbean.ReferenceCollectionListener;

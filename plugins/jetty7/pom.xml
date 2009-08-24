@@ -37,7 +37,7 @@
     </description>
 
     <properties>
-        <jettyVersion>7.0.0.RC4</jettyVersion>
+        <jettyVersion>8.0.0.M0-SNAPSHOT</jettyVersion>
     </properties>
 
     <dependencyManagement>
@@ -48,7 +48,7 @@
                 <version>${jettyVersion}</version>
                 <exclusions>
                     <exclusion>
-                        <groupId>javax.servlet</groupId>
+                        <groupId>org.mortbay.jetty</groupId>
                         <artifactId>servlet-api</artifactId>
                     </exclusion>
                 </exclusions>
@@ -65,7 +65,7 @@
                 <version>${jettyVersion}</version>
                 <exclusions>
                     <exclusion>
-                        <groupId>javax.servlet</groupId>
+                        <groupId>org.mortbay.jetty</groupId>
                         <artifactId>servlet-api</artifactId>
                     </exclusion>
                 </exclusions>
@@ -100,17 +100,15 @@
             <!--<version>${jettyVersion}</version>-->
             <!--</dependency>-->
 
-            <dependency>
-                <groupId>org.apache.geronimo.components</groupId>
-                <artifactId>geronimo-jaspi</artifactId>
-                <version>1.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.geronimo.components</groupId>
-                <artifactId>geronimo-jaspi</artifactId>
-                <version>1.0-SNAPSHOT</version>
-                <classifier>tests</classifier>
-            </dependency>
+            <!--<dependency>-->
+                <!--<groupId>org.apache.geronimo.components</groupId>-->
+                <!--<artifactId>geronimo-jaspi</artifactId>-->
+            <!--</dependency>-->
+            <!--<dependency>-->
+                <!--<groupId>org.apache.geronimo.components</groupId>-->
+                <!--<artifactId>geronimo-jaspi</artifactId>-->
+                <!--<classifier>tests</classifier>-->
+            <!--</dependency>-->
         </dependencies>
     </dependencyManagement>
 

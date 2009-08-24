@@ -18,7 +18,8 @@
 
 <!-- $Rev$ $Date$ -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
 
@@ -88,7 +89,7 @@
         <connectorSuffix>-1_6</connectorSuffix>
         <connectorSpec>geronimo-j2ee-connector_1.6_spec</connectorSpec>
         <txmanagerVersion>2.2-SNAPSHOT</txmanagerVersion>
-        <servletSpec>geronimo-servlet_2.5_spec</servletSpec>
+        <servletSpec>geronimo-servlet_3.0_spec</servletSpec>
 
         <monitoringConsoleVersion>${version}</monitoringConsoleVersion>
 
@@ -144,14 +145,8 @@
 
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
-                <artifactId>geronimo-ejb_3.0_spec</artifactId>
-                <version>1.0.1</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.openejb</groupId>
-                <artifactId>ejb31-api-experimental</artifactId>
-                <version>${openejbVersion}</version>
+                <artifactId>geronimo-ejb_3.1_spec</artifactId>
+                <version>1.0.0-EA1-SNAPSHOT</version>
             </dependency>
 
             <dependency>
@@ -160,11 +155,6 @@
                 <version>1.0.1</version>
             </dependency>
 
-            <dependency>
-                <groupId>org.apache.geronimo.specs</groupId>
-                <artifactId>geronimo-j2ee-connector_1.5_spec</artifactId>
-                <version>2.0.0</version>
-            </dependency>
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
                 <artifactId>geronimo-j2ee-connector_1.6_spec</artifactId>
@@ -244,19 +234,14 @@
 
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
-                <artifactId>geronimo-servlet_2.5_spec</artifactId>
-                <version>1.2</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.geronimo.specs</groupId>
                 <artifactId>geronimo-servlet_3.0_spec</artifactId>
                 <version>1.0-EA-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
-                <artifactId>geronimo-jpa_3.0_spec</artifactId>
-                <version>1.1.1</version>
+                <artifactId>geronimo-jpa_1.0_spec</artifactId>
+                <version>1.1.2-SNAPSHOT</version>
             </dependency>
 
             <dependency>
@@ -325,23 +310,29 @@
                 <groupId>org.apache.geronimo.components</groupId>
                 <artifactId>geronimo-transaction</artifactId>
                 <version>${txmanagerVersion}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>commons-logging</groupId>
-                        <artifactId>commons-logging</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.apache.geronimo.components</groupId>
                 <artifactId>geronimo-jaspi</artifactId>
                 <version>1.0-SNAPSHOT</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>javax.xml.bind</groupId>
-                        <artifactId>jaxb-api</artifactId>
-                    </exclusion>
-                </exclusions>
+                <!--<exclusions>-->
+                <!--<exclusion>-->
+                <!--<groupId>javax.xml.bind</groupId>-->
+                <!--<artifactId>jaxb-api</artifactId>-->
+                <!--</exclusion>-->
+                <!--</exclusions>-->
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.components</groupId>
+                <artifactId>geronimo-jaspi</artifactId>
+                <version>1.0-SNAPSHOT</version>
+                <classifier>tests</classifier>
+                <!--<exclusions>-->
+                <!--<exclusion>-->
+                <!--<groupId>javax.xml.bind</groupId>-->
+                <!--<artifactId>jaxb-api</artifactId>-->
+                <!--</exclusion>-->
+                <!--</exclusions>-->
             </dependency>
 
             <dependency>
@@ -1041,6 +1032,10 @@
                         <artifactId>javaee-api</artifactId>
                     </exclusion>
                     <exclusion>
+                        <groupId>org.apache.openejb</groupId>
+                        <artifactId>ejb31-api-experimental</artifactId>
+                    </exclusion>
+                    <exclusion>
                         <groupId>log4j</groupId>
                         <artifactId>log4j</artifactId>
                     </exclusion>
@@ -1101,6 +1096,10 @@
                         <artifactId>javaee-api</artifactId>
                     </exclusion>
                     <exclusion>
+                        <groupId>org.apache.openejb</groupId>
+                        <artifactId>ejb31-api-experimental</artifactId>
+                    </exclusion>
+                    <exclusion>
                         <groupId>log4j</groupId>
                         <artifactId>log4j</artifactId>
                     </exclusion>
@@ -1115,6 +1114,10 @@
                     <exclusion>
                         <groupId>org.apache.openejb</groupId>
                         <artifactId>javaee-api</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.openejb</groupId>
+                        <artifactId>ejb31-api-experimental</artifactId>
                     </exclusion>
                     <exclusion>
                         <groupId>log4j</groupId>
@@ -1133,6 +1136,10 @@
                         <artifactId>javaee-api</artifactId>
                     </exclusion>
                     <exclusion>
+                        <groupId>org.apache.openejb</groupId>
+                        <artifactId>ejb31-api-experimental</artifactId>
+                    </exclusion>
+                    <exclusion>
                         <groupId>log4j</groupId>
                         <artifactId>log4j</artifactId>
                     </exclusion>
@@ -1147,6 +1154,10 @@
                     <exclusion>
                         <groupId>org.apache.openejb</groupId>
                         <artifactId>javaee-api</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.openejb</groupId>
+                        <artifactId>ejb31-api-experimental</artifactId>
                     </exclusion>
                     <exclusion>
                         <groupId>org.apache.openejb</groupId>
@@ -1177,6 +1188,10 @@
                         <artifactId>javaee-api</artifactId>
                     </exclusion>
                     <exclusion>
+                        <groupId>org.apache.openejb</groupId>
+                        <artifactId>ejb31-api-experimental</artifactId>
+                    </exclusion>
+                    <exclusion>
                         <groupId>log4j</groupId>
                         <artifactId>log4j</artifactId>
                     </exclusion>
@@ -1191,6 +1206,10 @@
                     <exclusion>
                         <groupId>org.apache.openejb</groupId>
                         <artifactId>javaee-api</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.openejb</groupId>
+                        <artifactId>ejb31-api-experimental</artifactId>
                     </exclusion>
                     <exclusion>
                         <groupId>log4j</groupId>
@@ -1209,6 +1228,10 @@
                         <artifactId>javaee-api</artifactId>
                     </exclusion>
                     <exclusion>
+                        <groupId>org.apache.openejb</groupId>
+                        <artifactId>ejb31-api-experimental</artifactId>
+                    </exclusion>
+                    <exclusion>
                         <groupId>log4j</groupId>
                         <artifactId>log4j</artifactId>
                     </exclusion>
@@ -1220,7 +1243,6 @@
                 <artifactId>openejb-javaagent</artifactId>
                 <version>${openejbVersion}</version>
             </dependency>
-
 
 
             <!--<dependency>-->
@@ -2173,7 +2195,7 @@
             <url>scp://people.apache.org/www/geronimo.apache.org/maven/server</url>
         </site>
     </distributionManagement>
-    
+
     <!--
         Remove this once the genesis 2.0.1 is released or there is a better solution
     -->
@@ -2193,7 +2215,7 @@
             </releases>
         </pluginRepository>
     </pluginRepositories>
-    
+
     <profiles>
         <profile>
             <id>default</id>
@@ -2362,7 +2384,6 @@
 
                 <!--<connectorSuffix></connectorSuffix>-->
                 <connectorSuffix>-1_6</connectorSuffix>
-                <!--<connectorSpec>geronimo-j2ee-connector_1.5_spec</connectorSpec>-->
                 <connectorSpec>geronimo-j2ee-connector_1.6_spec</connectorSpec>
                 <servletSpec>geronimo-servlet_3.0_spec</servletSpec>
                 <!--<txmanagerVersion>2.1.1</txmanagerVersion>-->
@@ -2376,7 +2397,7 @@
                 <module>assemblies</module>
             </modules>
         </profile>
-     
+
     </profiles>
 
 </project>

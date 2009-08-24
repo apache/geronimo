@@ -36,6 +36,12 @@
         <dependency>
             <groupId>${tomcatGroupId}</groupId>
             <artifactId>jasper</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.geronimo.specs</groupId>
+                    <artifactId>geronimo-servlet_3.0_spec</artifactId>
+	         </exclusion>
+            </exclusions>
         </dependency>
 
         <!--<dependency>-->
@@ -64,7 +70,7 @@
         <!-- if our hacked jasper copy gets a pom we won't need these -->
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-servlet_2.5_spec</artifactId>
+            <artifactId>geronimo-servlet_3.0_spec</artifactId>
             <scope>provided</scope>
         </dependency>
 

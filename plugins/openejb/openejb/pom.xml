@@ -74,41 +74,12 @@
 
         <dependency>
             <groupId>org.apache.openejb</groupId>
+            <artifactId>openejb-client</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.openejb</groupId>
             <artifactId>openejb-core</artifactId>
-            <!--<exclusions>-->
-                <!--<exclusion>-->
-                    <!--<groupId>org.apache.geronimo.framework</groupId>-->
-                    <!--<artifactId>geronimo-security</artifactId>-->
-                <!--</exclusion>-->
-                <!--<exclusion>-->
-                    <!--<groupId>org.apache.geronimo.framework</groupId>-->
-                    <!--<artifactId>geronimo-kernel</artifactId>-->
-                <!--</exclusion>-->
-                <!--<exclusion>-->
-                    <!--<groupId>org.apache.geronimo.modules</groupId>-->
-                    <!--<artifactId>geronimo-connector</artifactId>-->
-                <!--</exclusion>-->
-                <!--<exclusion>-->
-                    <!--<groupId>org.apache.geronimo.framework</groupId>-->
-                    <!--<artifactId>geronimo-interceptor</artifactId>-->
-                <!--</exclusion>-->
-                <!--<exclusion>-->
-                    <!--<groupId>org.apache.geronimo.framework</groupId>-->
-                    <!--<artifactId>geronimo-naming</artifactId>-->
-                <!--</exclusion>-->
-                <!--<exclusion>-->
-                    <!--<groupId>org.apache.geronimo.modules</groupId>-->
-                    <!--<artifactId>geronimo-transaction</artifactId>-->
-                <!--</exclusion>-->
-                <!--<exclusion>-->
-                    <!--<groupId>org.apache.geronimo.modules</groupId>-->
-                    <!--<artifactId>geronimo-timer</artifactId>-->
-                <!--</exclusion>-->
-                <!--<exclusion>-->
-                    <!--<groupId>org.apache.geronimo.modules</groupId>-->
-                    <!--<artifactId>geronimo-webservices</artifactId>-->
-                <!--</exclusion>-->
-            <!--</exclusions>-->
         </dependency>
 
         <dependency>

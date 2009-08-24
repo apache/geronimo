@@ -27,6 +27,7 @@ import javax.transaction.UserTransaction;
 import javax.transaction.Status;
 import javax.transaction.SystemException;
 import javax.servlet.ServletException;
+import javax.servlet.DispatcherType;
 import javax.resource.ResourceException;
 
 import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
@@ -34,7 +35,6 @@ import org.apache.geronimo.connector.outbound.connectiontracking.SharedConnector
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectorInstanceContext;
 import org.apache.geronimo.naming.java.RootContext;
 import org.eclipse.jetty.server.Request;
-import org.eclipse.jetty.server.DispatcherType;
 
 /**
  * @version $Rev$ $Date$
