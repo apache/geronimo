@@ -127,17 +127,17 @@ function <portlet:namespace/>callServer() {
     Jsr77Lookup.getJavaVMStatistics(metadata);
 }
 function <portlet:namespace/>updateValues(serverStats) {
-    DWRUtil.setValue("<portlet:namespace/>CurrentMemory", serverStats.memoryCurrent);
-    DWRUtil.setValue("<portlet:namespace/>MostMemory", serverStats.memoryMost);
-    DWRUtil.setValue("<portlet:namespace/>AvailableMemory", serverStats.memoryAllocated);
-    DWRUtil.setValue("<portlet:namespace/>UpTime", serverStats.upTime);
+    dwr.util.setValue("<portlet:namespace/>CurrentMemory", serverStats.memoryCurrent);
+    dwr.util.setValue("<portlet:namespace/>MostMemory", serverStats.memoryMost);
+    dwr.util.setValue("<portlet:namespace/>AvailableMemory", serverStats.memoryAllocated);
+    dwr.util.setValue("<portlet:namespace/>UpTime", serverStats.upTime);
     if(!<portlet:namespace/>stopped) {
         setTimeout("<portlet:namespace/>callServer()", 5000);
     }
 }
 function <portlet:namespace/>onError() {
     <portlet:namespace/>stopped=true;
-    DWRUtil.setValue("<portlet:namespace/>ErrorArea", '<form name="<portlet:namespace/>Refresh" action="<portlet:actionURL/>" method="POST"><input type="submit" value="Refresh"/></form>');
+    dwr.util.setValue("<portlet:namespace/>ErrorArea", '<form name="<portlet:namespace/>Refresh" action="<portlet:actionURL/>" method="POST"><input type="submit" value="<fmt:message key="consolebase.common.refresh"/>"/></form>',{escapeHtml:false});
 }
 <portlet:namespace/>callServer();
 </script>
