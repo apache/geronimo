@@ -231,7 +231,7 @@ if [ ! -x /usr/sbin/$2 ]; then
    ln -sf /usr/sbin/"$2" /etc/rc3.d/S99"$2"
  fi
  if $osAix; then    
-   echo "$2:2:respawn:/usr/sbin/$2 start">>/etc/inittab
+   echo "$2:2:once:/usr/sbin/$2 start">>/etc/inittab
  fi 
  if $osUbuntu; then    
    ln -sf /usr/sbin/"$2" /etc/init.d/"$2"
