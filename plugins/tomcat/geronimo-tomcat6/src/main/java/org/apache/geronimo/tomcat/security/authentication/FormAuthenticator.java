@@ -217,6 +217,7 @@ public class FormAuthenticator implements Authenticator {
     protected void forwardToLoginPage(Request request, Response response) {
         RequestDispatcher disp = request.getRequestDispatcher(loginPage);
         try {
+            disableClientCache(response.getResponse());
             disp.forward(request.getRequest(), response.getResponse());
             response.finishResponse();
         } catch (Throwable t) {
@@ -234,6 +235,7 @@ public class FormAuthenticator implements Authenticator {
     protected void forwardToErrorPage(Request request, Response response) {
         RequestDispatcher disp = request.getRequestDispatcher(erroryPage);
         try {
+            disableClientCache(response.getResponse());
             disp.forward(request.getRequest(), response.getResponse());
             response.finishResponse();
         } catch (Throwable t) {
@@ -351,6 +353,7 @@ public class FormAuthenticator implements Authenticator {
 
         request.getCoyoteRequest().requestURI().setString
                 (saved.getRequestURI());
+        disableClientCache(request.getResponse().getResponse());
         return (true);
 
     }
@@ -434,4 +437,8 @@ public class FormAuthenticator implements Authenticator {
 
     }
 
+    private void disableClientCache(HttpServletResponse response) {
+        response.setHeader("Cache-Control", "No-cache");
+        response.setDateHeader("Expires", 1);
+    }
 }
