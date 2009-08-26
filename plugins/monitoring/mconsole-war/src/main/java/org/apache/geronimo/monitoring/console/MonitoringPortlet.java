@@ -679,13 +679,22 @@ public class MonitoringPortlet extends BasePortlet {
         try {
             userTransaction.begin();
             try {
-            	Node node = entityManager.find(Node.class, server_id);
-            	// check if there is any graph created against the node before delete it.
-            	List<Graph> graphs = entityManager.createNamedQuery("graphsByNode").setParameter("name", node.getName()).getResultList();
-            	if (!(graphs == null || graphs.isEmpty())) {
-            		addErrorMessage(actionRequest, getLocalizedString(actionRequest, "mconsole.errorMsg20"));
-            		return;
-            	} 
+                Node node = entityManager.find(Node.class, server_id);
+                // check if there is any graph created against the node before delete it.
+                List<Graph> graphs = entityManager.createNamedQuery("graphsByNode").setParameter("name", node.getName()).getResultList();
+                if (!(graphs == null || graphs.isEmpty())) {
+                    addErrorMessage(actionRequest, getLocalizedString(actionRequest, "mconsole.errorMsg20"));
+                    return;
+                }
+                // check whether the snapshot query is enabled, if does, close it first
+                MRCConnector mrc = new MRCConnector(node);
+                if (mrc.isSnapshotRunning() == 1) {
+                    if (mrc.stopSnapshotThread()) {
+                        addInfoMessage(actionRequest, getLocalizedString(actionRequest, "mconsole.infoMsg06", server_id));
+                    } else {
+                        addErrorMessage(actionRequest, getLocalizedString(actionRequest, "mconsole.errorMsg09", server_id));
+                    }
+                }
                 entityManager.remove(node);
             } finally {
                 userTransaction.commit();
