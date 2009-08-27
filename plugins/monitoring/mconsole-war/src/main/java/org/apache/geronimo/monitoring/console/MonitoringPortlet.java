@@ -687,13 +687,16 @@ public class MonitoringPortlet extends BasePortlet {
                     return;
                 }
                 // check whether the snapshot query is enabled, if does, close it first
-                MRCConnector mrc = new MRCConnector(node);
-                if (mrc.isSnapshotRunning() == 1) {
-                    if (mrc.stopSnapshotThread()) {
-                        addInfoMessage(actionRequest, getLocalizedString(actionRequest, "mconsole.infoMsg06", server_id));
-                    } else {
-                        addErrorMessage(actionRequest, getLocalizedString(actionRequest, "mconsole.errorMsg09", server_id));
+                try {
+                    MRCConnector mrc = new MRCConnector(node);
+                    if (mrc.isSnapshotRunning() == 1) {
+                        if (mrc.stopSnapshotThread()) {
+                            addInfoMessage(actionRequest, getLocalizedString(actionRequest, "mconsole.infoMsg06", server_id));
+                        } else {
+                            addErrorMessage(actionRequest, getLocalizedString(actionRequest, "mconsole.errorMsg09", server_id));
+                        }
                     }
+                } catch (Exception e) {
                 }
                 entityManager.remove(node);
             } finally {
