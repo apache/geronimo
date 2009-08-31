@@ -590,10 +590,13 @@ public class ConnectorType {
         }
         ObjectRecipe recipe = new ObjectRecipe(className, properties);
         recipe.allow(Option.IGNORE_MISSING_PROPERTIES);
+        recipe.setConstructorArgTypes(new Class[] { String.class });
+        recipe.setConstructorArgNames(new String[] { "protocol" });
         Connector connector = (Connector) recipe.create(cl);
+        boolean executorSupported = !connector.getProtocolHandlerClassName().equals("org.apache.jk.server.JkCoyoteHandler");
         for (Map.Entry<QName, String> entry : otherAttributes.entrySet()) {
             String name = entry.getKey().getLocalPart();
-            if ("executor".equals(name)) {
+            if (executorSupported && "executor".equals(name)) {
                 Executor executor = service.getExecutor(entry.getValue());
                 if (executor == null) {
                     throw new IllegalArgumentException("No executor found in service with name: " + entry.getValue());
