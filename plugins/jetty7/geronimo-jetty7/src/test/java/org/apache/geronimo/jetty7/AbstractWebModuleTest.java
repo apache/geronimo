@@ -175,7 +175,7 @@ public class AbstractWebModuleTest extends TestSupport {
         ApplicationPolicyConfigurationManager jacc = setUpJACC(roleDesignates, principalRoleMap, componentPermissions, policyContextId);
         LoginService loginService = newLoginService();
 //        Authenticator serverAuthentication = new FormAuthenticator("/auth/logon.html?param=test", "/auth/logonError.html?param=test", true);
-        Authenticator serverAuthentication = new FormAuthenticator("/auth/logon.html?param=test", "/auth/logonError.html?param=test");
+        Authenticator serverAuthentication = new FormAuthenticator("/auth/logon.html?param=test", "/auth/logonError.html?param=test", true);
         SecurityHandlerFactory securityHandlerFactory = new ServerAuthenticationGBean(serverAuthentication, loginService);
         return setUpAppContext(
                 securityRealmName,
