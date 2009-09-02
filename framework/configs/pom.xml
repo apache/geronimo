@@ -83,9 +83,9 @@
                             <jvm-version>1.5</jvm-version>
                             <jvm-version>1.6</jvm-version>
                             <!--<source-repository>http://www.geronimoplugins.com/repository/geronimo-2.1</source-repository>-->
-                            <source-repository>~/.m2/repository/</source-repository>
-                            <source-repository>http://repo1.maven.org/maven2/</source-repository>
-                            <source-repository>http://people.apache.org/repo/m2-snapshot-repository/</source-repository>
+                            <source-repository>${PluginSrcRepoLocal}</source-repository>
+                            <source-repository>${PluginSrcRepoCentral}</source-repository>
+                            <source-repository>${PluginSrcRepoApacheSnapshots}</source-repository>
                             <artifact-alias key="${groupId}/${artifactId}//car">${groupId}/${artifactId}/${version}/car</artifact-alias>
                         </plugin-artifact>
                     </commonInstance>
