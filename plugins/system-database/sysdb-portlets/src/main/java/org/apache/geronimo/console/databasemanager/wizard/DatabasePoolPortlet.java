@@ -366,21 +366,20 @@ public class DatabasePoolPortlet extends BasePortlet {
             }
         } else if (mode.equals("process-" + CONFIRM_URL_MODE)) {
             String test = actionRequest.getParameter("test");
-            if (test == null || test.equals("true")) {
-                String result = null;
-                String stack = null;
+            if (test == null || test.equals("true")) {                              
                 try {
-                    result = attemptConnect(actionRequest, data);
+                    String targetDBInfo = attemptConnect(actionRequest, data);
+                    actionResponse.setRenderParameter("targetDBInfo", targetDBInfo);
+                    actionResponse.setRenderParameter("connected", "true");
                 } catch (Exception e) {
                     StringWriter writer = new StringWriter();
                     PrintWriter temp = new PrintWriter(writer);
                     e.printStackTrace(temp);
                     temp.flush();
-                    temp.close();
-                    stack = writer.getBuffer().toString();
-                }
-                if (result != null) actionResponse.setRenderParameter("connectResult", result);
-                actionRequest.getPortletSession(true).setAttribute("connectError", stack);
+                    temp.close();                   
+                    addErrorMessage(actionRequest, getLocalizedString(actionRequest, "dbwizard.testConnection.connectionError"), writer.getBuffer().toString());
+                    actionResponse.setRenderParameter("connected", "false");
+                }                             
                 actionResponse.setRenderParameter(MODE_KEY, TEST_CONNECTION_MODE);
             } else {
                 save(actionRequest, actionResponse, data, false);
@@ -884,8 +883,8 @@ public class DatabasePoolPortlet extends BasePortlet {
 
     private void renderTestConnection(RenderRequest renderRequest, RenderResponse renderResponse) throws IOException, PortletException {
         // Pass on results
-        renderRequest.setAttribute("connectResult", renderRequest.getParameter("connectResult"));
-        renderRequest.setAttribute("connectError", renderRequest.getPortletSession().getAttribute("connectError"));
+        renderRequest.setAttribute("targetDBInfo", renderRequest.getParameter("targetDBInfo"));
+        renderRequest.setAttribute("connected", Boolean.valueOf(renderRequest.getParameter("connected")));
         testConnectionView.include(renderRequest, renderResponse);
     }
 
