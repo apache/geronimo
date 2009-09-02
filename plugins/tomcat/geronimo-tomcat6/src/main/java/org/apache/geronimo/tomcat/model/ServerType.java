@@ -9,27 +9,29 @@
 package org.apache.geronimo.tomcat.model;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAnyAttribute;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
-import javax.xml.bind.annotation.XmlAnyAttribute;
 import javax.xml.namespace.QName;
 
-import org.apache.catalina.Server;
 import org.apache.catalina.Lifecycle;
 import org.apache.catalina.LifecycleListener;
+import org.apache.catalina.Server;
 import org.apache.catalina.Service;
 import org.apache.catalina.core.StandardServer;
 import org.apache.catalina.deploy.NamingResources;
+import org.apache.geronimo.kernel.Kernel;
 import org.apache.xbean.recipe.ObjectRecipe;
 import org.apache.xbean.recipe.Option;
-import org.apache.geronimo.kernel.Kernel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -64,6 +66,8 @@ import org.apache.geronimo.kernel.Kernel;
 })
 public class ServerType {
 
+    private static final Logger logger = LoggerFactory.getLogger(ServerType.class);
+    
     @XmlElement(name = "Listener")
     protected List<ListenerType> listener;
     @XmlElement(name = "GlobalNamingResources")
@@ -276,9 +280,14 @@ public class ServerType {
         }
 
         NamingResources globalNamingResources = new NamingResources();
-        for (NamingResourcesType naming: getGlobalNamingResources()) {
+        if(getGlobalNamingResources().size() > 0) {
+            logger.warn("All the resource settings in the server.xml are ignored, please use Geronimo deployment plan to define those configurations");
+        }
+        /*
+        for (NamingResourcesType naming: getGlobalNamingResources()) {            
             naming.merge(globalNamingResources, cl);
         }
+        */
         instance.setGlobalNamingResources(globalNamingResources);
 
         for (ServiceType serviceType: getService()) {
