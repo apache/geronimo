@@ -23,6 +23,7 @@
     <gbean name="CatalinaSystemProperties" class="org.apache.geronimo.system.properties.SystemProperties">
         <attribute name="systemProperties">
         org.apache.catalina.STRICT_SERVLET_COMPLIANCE=true
+        catalina.useNaming=false
         </attribute>
     </gbean>
 
