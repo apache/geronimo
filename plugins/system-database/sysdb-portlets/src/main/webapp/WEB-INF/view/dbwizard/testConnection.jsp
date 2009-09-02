@@ -21,7 +21,6 @@
 <fmt:setBundle basename="systemdatabase"/>
 <portlet:defineObjects/>
 
-<CommonMsg:commonMsg/>
 
 <p><fmt:message key="dbwizard.testConnection.title"/></p>
 
@@ -37,7 +36,8 @@
     <input type="hidden" name="urlPrototype" value="${pool.urlPrototype}" />
     <c:forEach var="jar" items="${pool.jars}">
      <input type="hidden" name="jars" value="${jar}" />
-    </c:forEach>    <input type="hidden" name="adapterDisplayName" value="${pool.adapterDisplayName}" />
+    </c:forEach>    
+    <input type="hidden" name="adapterDisplayName" value="${pool.adapterDisplayName}" />
     <input type="hidden" name="minSize" value="${pool.minSize}" />
     <input type="hidden" name="maxSize" value="${pool.maxSize}" />
     <input type="hidden" name="idleTimeout" value="${pool.idleTimeout}" />
@@ -46,25 +46,40 @@
     <input type="hidden" name="adapterDescription" value="${pool.adapterDescription}" />
     <input type="hidden" name="rarPath" value="${pool.rarPath}" />
     <input type="hidden" name="transactionType" value="${pool.transactionType}" />
-  <c:forEach var="prop" items="${pool.properties}">
-    <input type="hidden" name="${prop.key}" value="${prop.value}" />
-  </c:forEach>
-  <c:forEach var="prop" items="${pool.urlProperties}">
-    <input type="hidden" name="${prop.key}" value="${prop.value}" />
-  </c:forEach>
+    <c:forEach var="prop" items="${pool.properties}">
+        <input type="hidden" name="${prop.key}" value="${prop.value}" />
+    </c:forEach>
+    <c:forEach var="prop" items="${pool.urlProperties}">
+        <input type="hidden" name="${prop.key}" value="${prop.value}" />
+    </c:forEach>
     <table border="0">
+        <tr>
+            <td style="min-width: 140px"><div align="right"><fmt:message key="dbwizard.testConnection.testResult"/>:</div></td>
+                <td>
+                    <c:choose>
+                        <c:when test="${connected}">
+                            <fmt:message key="dbwizard.testConnection.connectedTo"/> ${targetDBInfo}              
+                        </c:when>
+                        <c:otherwise>
+                            <font color="red"><i><fmt:message key="dbwizard.testConnection.connectionError"/></i></font>
+                            <CommonMsg:commonMsg/>
+                        </c:otherwise>
+                    </c:choose>
+                </td>
+      </tr>
     <!-- SUBMIT BUTTON -->
       <tr>
-        <td></td>
+        <td>&nbsp;</td>
         <td>
           <c:choose>
-            <c:when test="${empty connectResult}">
-<input type="submit" value='<fmt:message key="dbwizard.testConnection.deployAnyway"/>' />
-<input type="button" value='<fmt:message key="dbwizard.common.editSettings"/>' onclick="document.<portlet:namespace/>DatabaseForm.mode.value='edit';document.<portlet:namespace/>DatabaseForm.submit();return false;" />
-<input type="button" value='<fmt:message key="dbwizard.testConnection.testAgain"/>' onclick="document.<portlet:namespace/>DatabaseForm.mode.value='process-url';document.<portlet:namespace/>DatabaseForm.submit();return false;" />
-            </c:when><c:otherwise>
-<input type="submit" value='<fmt:message key="dbwizard.common.deploy"/>' />
-<input type="button" value='<fmt:message key="dbwizard.common.showPlan"/>' onclick="document.<portlet:namespace/>DatabaseForm.mode.value='plan';document.<portlet:namespace/>DatabaseForm.submit();return false;" />
+            <c:when test="${connected}">
+                <input type="submit" value='<fmt:message key="dbwizard.common.deploy"/>' />
+                <input type="button" value='<fmt:message key="dbwizard.common.showPlan"/>' onclick="document.<portlet:namespace/>DatabaseForm.mode.value='plan';document.<portlet:namespace/>DatabaseForm.submit();return false;" />                
+            </c:when>
+            <c:otherwise>               
+                <input type="submit" value='<fmt:message key="dbwizard.testConnection.deployAnyway"/>' />
+                <input type="button" value='<fmt:message key="dbwizard.common.editSettings"/>' onclick="document.<portlet:namespace/>DatabaseForm.mode.value='edit';document.<portlet:namespace/>DatabaseForm.submit();return false;" />
+                <input type="button" value='<fmt:message key="dbwizard.testConnection.testAgain"/>' onclick="document.<portlet:namespace/>DatabaseForm.mode.value='process-url';document.<portlet:namespace/>DatabaseForm.submit();return false;" />
             </c:otherwise>
           </c:choose>
         </td>
