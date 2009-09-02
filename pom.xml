@@ -134,6 +134,11 @@
         <PlanORBSunSSLPort>2001</PlanORBSunSSLPort>
         <PlanJMXPort>9999</PlanJMXPort>
         <PlanJMXSecurePort>9998</PlanJMXSecurePort>
+        
+         <!-- Plugins source-repository list-->
+        <PluginSrcRepoLocal>~/.m2/repository/</PluginSrcRepoLocal>
+        <PluginSrcRepoCentral>http://repo1.maven.org/maven2/</PluginSrcRepoCentral>
+        <PluginSrcRepoApacheSnapshots>http://repository.apache.org/snapshots/</PluginSrcRepoApacheSnapshots>
     </properties>
 
     <dependencyManagement>
