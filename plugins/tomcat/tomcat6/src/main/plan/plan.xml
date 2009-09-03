@@ -30,6 +30,9 @@
     <!-- david jencks is not convinced that this gbean should be in this plan and thinks it might
     belong in the console plan -->
     <gbean name="TomcatWebManager" class="org.apache.geronimo.tomcat.TomcatManagerImpl">
+        <reference name="Server">
+            <name>TomcatServer</name>
+        </reference>
     </gbean>
 
     <!-- The following is the equivalent of the server.xml file, but done with GBeans -->
@@ -83,6 +86,15 @@
             <name>TomcatServer</name>
         </reference>
     </gbean>    
+    
+    <gbean name="connectorWrapperGBeanStarter" class="org.apache.geronimo.tomcat.connector.ConnectorWrapperGBeanStarter">
+        <reference name="Server">
+            <name>TomcatServer</name>
+        </reference>
+        <reference name="TomcatContainer">
+            <name>TomcatWebContainer</name>
+        </reference>
+    </gbean>
 
     <!--
     <gbean name="AprLifecycleListener" class="org.apache.geronimo.tomcat.LifecycleListenerGBean">

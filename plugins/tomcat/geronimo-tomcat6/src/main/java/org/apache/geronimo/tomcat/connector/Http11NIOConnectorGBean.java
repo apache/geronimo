@@ -20,16 +20,26 @@ package org.apache.geronimo.tomcat.connector;
 
 import java.util.Map;
 
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.catalina.connector.Connector;
+import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.ParamAttribute;
+import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.management.geronimo.WebManager;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.tomcat.TomcatContainer;
 
+@GBean(name="Tomcat Connector HTTP NIO")
 public class Http11NIOConnectorGBean extends AbstractHttp11ConnectorGBean implements Http11NIOProtocol{
 
-    public Http11NIOConnectorGBean(String name,  Map initParams, String host, int port, TomcatContainer container, ServerInfo serverInfo) throws Exception {
-        super(name, initParams, "org.apache.coyote.http11.Http11NioProtocol", host, port, container, serverInfo);
+    public Http11NIOConnectorGBean(@ParamAttribute(name = "name") String name,
+                                   @ParamAttribute(name = "initParams") Map<String, String> initParams,
+                                   @ParamAttribute(name = "host") String host,
+                                   @ParamAttribute(name = "port") int port,
+                                   @ParamReference(name = "TomcatContainer") TomcatContainer container,
+                                   @ParamReference(name = "ServerInfo") ServerInfo serverInfo,
+                                   @ParamAttribute(name = "connector") Connector conn)  throws Exception {
+                                   
+        super(name, initParams, "org.apache.coyote.http11.Http11NioProtocol", host, port, container, serverInfo, conn);
     }
     
     public int getDefaultPort() {
@@ -345,91 +355,6 @@ public class Http11NIOConnectorGBean extends AbstractHttp11ConnectorGBean implem
     public void setUseSendfile(boolean useSendfile) {
         connector.setAttribute("useSendfile", new Boolean(useSendfile));
     }
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("Tomcat Connector HTTP NIO", Http11NIOConnectorGBean.class, AbstractHttp11ConnectorGBean.GBEAN_INFO);
-        infoFactory.addInterface(Http11NIOProtocol.class, 
-                new String[] {
-                    "useSendfile", 
-                    "useExecutor", 
-                    "acceptorThreadCount", 
-                    "pollerThreadCount", 
-                    "pollerThreadPriority", 
-                    "acceptorThreadPriority", 
-                    "selectorTimeout", 
-                    "useComet", 
-                    "processCache", 
-                    "socket_directBuffer", 
-                    "socket_rxBufSize", 
-                    "socket_txBufSize", 
-                    "socket_appReadBufSize", 
-                    "socket_appWriteBufSize", 
-                    "socket_processorCache", 
-                    "socket_bufferPool", 
-                    "socket_bufferPoolSize", 
-                    "socket_keyCache", 
-                    "socket_eventCache", 
-                    "socket_tcpNoDelay", 
-                    "socket_soKeepAlive", 
-                    "socket_ooBInline", 
-                    "socket_soReuseAddress", 
-                    "socket_soLingerOn", 
-                    "socket_soLingerTime", 
-                    "socket_soTimeout", 
-                    "socket_soTrafficClass", 
-                    "socket_performanceConnectionTime", 
-                    "socket_performanceLatency", 
-                    "socket_performanceBandwidth", 
-                    "selectorPool_maxSelectors", 
-                    "selectorPool_maxSpareSelectors", 
-                    "command_line_options", 
-                    "oomParachute"
-                },
-                new String[] {
-                    "useSendfile", 
-                    "useExecutor", 
-                    "acceptorThreadCount", 
-                    "pollerThreadCount", 
-                    "pollerThreadPriority", 
-                    "acceptorThreadPriority", 
-                    "selectorTimeout", 
-                    "useComet", 
-                    "processCache", 
-                    "socket_directBuffer", 
-                    "socket_rxBufSize", 
-                    "socket_txBufSize", 
-                    "socket_appReadBufSize", 
-                    "socket_appWriteBufSize", 
-                    "socket_processorCache", 
-                    "socket_bufferPool", 
-                    "socket_bufferPoolSize", 
-                    "socket_keyCache", 
-                    "socket_eventCache", 
-                    "socket_tcpNoDelay", 
-                    "socket_soKeepAlive", 
-                    "socket_ooBInline", 
-                    "socket_soReuseAddress", 
-                    "socket_soLingerOn", 
-                    "socket_soLingerTime", 
-                    "socket_soTimeout", 
-                    "socket_soTrafficClass", 
-                    "socket_performanceConnectionTime", 
-                    "socket_performanceLatency", 
-                    "socket_performanceBandwidth", 
-                    "selectorPool_maxSelectors", 
-                    "selectorPool_maxSpareSelectors", 
-                    "command_line_options", 
-                    "oomParachute",
-
-                }
-        );
-        infoFactory.setConstructor(new String[] { "name", "initParams", "host", "port", "TomcatContainer", "ServerInfo"});
-        GBEAN_INFO = infoFactory.getBeanInfo();
-    }
     
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
 
 }

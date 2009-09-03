@@ -20,32 +20,30 @@ package org.apache.geronimo.tomcat.connector;
 
 import java.util.Map;
 
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.catalina.connector.Connector;
+import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.ParamAttribute;
+import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.tomcat.TomcatContainer;
 
+@GBean(name="Tomcat Connector HTTP BIO")
 public class Http11ConnectorGBean extends AbstractHttp11ConnectorGBean {
     
-    public Http11ConnectorGBean(String name, Map initParams,  String host, int port, TomcatContainer container, ServerInfo serverInfo) throws Exception {
-        super(name, initParams, "org.apache.coyote.http11.Http11Protocol", host, port, container, serverInfo);
+    public Http11ConnectorGBean(@ParamAttribute(name = "name") String name,
+                                @ParamAttribute(name = "initParams") Map<String, String> initParams,
+                                @ParamAttribute(name = "host") String host,
+                                @ParamAttribute(name = "port") int port,
+                                @ParamReference(name = "TomcatContainer") TomcatContainer container,
+                                @ParamReference(name = "ServerInfo") ServerInfo serverInfo,
+                                @ParamAttribute(name = "connector") Connector conn)  throws Exception {
+                                
+        super(name, initParams, "org.apache.coyote.http11.Http11Protocol", host, port, container, serverInfo, conn);
     }
     
     public int getDefaultPort() {
         return 80; 
     }  
-    
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
-    
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("Tomcat Connector HTTP BIO", Http11ConnectorGBean.class, AbstractHttp11ConnectorGBean.GBEAN_INFO);
-        infoFactory.setConstructor(new String[] { "name", "initParams", "host", "port", "TomcatContainer", "ServerInfo"});
-        GBEAN_INFO = infoFactory.getBeanInfo();
-    }
     
     
 }

@@ -24,13 +24,13 @@ import org.apache.tomcat.util.IntrospectionUtils;
 
 public abstract class BaseGBean {
 
-    protected void setParameters(Object object, Map map){
+    protected void setParameters(Object object, Map<String, String> map){
         if (map != null){
-            Set keySet = map.keySet();
-            Iterator iterator = keySet.iterator();
+            Set<String> keySet = map.keySet();
+            Iterator<String> iterator = keySet.iterator();
             while(iterator.hasNext()){
-                String name = (String)iterator.next();
-                String value = (String)map.get(name);
+                String name = iterator.next();
+                String value = map.get(name);
                 
                 IntrospectionUtils.setProperty(object, name, value);                    
             }

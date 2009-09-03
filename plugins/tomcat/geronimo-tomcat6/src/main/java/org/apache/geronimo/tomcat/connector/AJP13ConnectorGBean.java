@@ -25,14 +25,18 @@ import java.util.Map;
 
 import javax.management.j2ee.statistics.Stats;
 
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.catalina.Executor;
+import org.apache.catalina.connector.Connector;
+import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.ParamAttribute;
+import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.management.StatisticsProvider;
 import org.apache.geronimo.management.geronimo.WebManager;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.tomcat.TomcatContainer;
 import org.apache.geronimo.tomcat.stats.ConnectorStats;
 
+@GBean(name="Tomcat Connector AJP")
 public class AJP13ConnectorGBean extends ConnectorGBean implements Ajp13Protocol, StatisticsProvider {
     
     // JSR77 stats
@@ -42,8 +46,16 @@ public class AJP13ConnectorGBean extends ConnectorGBean implements Ajp13Protocol
 
     protected String connectHost;
     
-    public AJP13ConnectorGBean(String name, Map initParams, String host, int port, TomcatContainer container, ServerInfo serverInfo) throws Exception {
-        super(name, initParams, "AJP/1.3", container, serverInfo);
+    public AJP13ConnectorGBean(@ParamAttribute(name = "name") String name,
+                               @ParamAttribute(name = "initParams") Map<String, String> initParams,
+                               @ParamAttribute(name = "host") String host,
+                               @ParamAttribute(name = "port") int port,
+                               @ParamReference(name = "TomcatContainer") TomcatContainer container,
+                               @ParamReference(name = "ServerInfo") ServerInfo serverInfo,
+                               @ParamAttribute(name = "connector") Connector conn)  throws Exception {
+    
+
+        super(name, initParams, "AJP/1.3", container, serverInfo, conn);
         
         // Default the host to listen on all address is one was not specified
         if (host == null) {
@@ -125,7 +137,18 @@ public class AJP13ConnectorGBean extends ConnectorGBean implements Ajp13Protocol
     }
 
     public String getExecutor() {
-        return (String) connector.getAttribute("Executor");
+    	 Object value = connector.getAttribute("executor");
+         if (value == null)
+             return null;
+         
+         if (value instanceof String)
+             return (String)value;
+         
+         if(value instanceof Executor){
+         	return ((Executor) value).getName();
+         }
+         
+         return (String) value.getClass().getName();
     }
     
     public String getHost() {
@@ -241,50 +264,5 @@ public class AJP13ConnectorGBean extends ConnectorGBean implements Ajp13Protocol
         reset = true;
     }
     
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("Tomcat Connector AJP", AJP13ConnectorGBean.class, ConnectorGBean.GBEAN_INFO);
-        infoFactory.addInterface(Ajp13Protocol.class, 
-                new String[] {
-                    //AJP Attributes
-                    "address", 
-                    "backlog", 
-                    "bufferSize", 
-                    "connectionTimeout", 
-                    "executor", 
-                    "host",
-                    "keepAliveTimeout", 
-                    "maxThreads",
-                    "maxSpareThreads",
-                    "minSpareThreads",
-                    "port", 
-                    "tcpNoDelay", 
-                    "tomcatAuthentication", 
-                },
-                new String[] {
-                    //AJP Attributes
-                    "address", 
-                    "backlog", 
-                    "bufferSize", 
-                    "connectionTimeout", 
-                    "executor", 
-                    "host",
-                    "keepAliveTimeout", 
-                    "maxThreads",
-                    "maxSpareThreads",
-                    "minSpareThreads",
-                    "port", 
-                    "tcpNoDelay", 
-                    "tomcatAuthentication", 
-                }
-        );
-        infoFactory.setConstructor(new String[] { "name", "initParams", "host", "port", "TomcatContainer", "ServerInfo"});
-        GBEAN_INFO = infoFactory.getBeanInfo();
-    }
-    
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
-
+   
 }

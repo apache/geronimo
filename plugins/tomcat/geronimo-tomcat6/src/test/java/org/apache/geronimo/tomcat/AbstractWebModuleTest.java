@@ -187,7 +187,7 @@ public abstract class AbstractWebModuleTest extends TestSupport {
         container = new TomcatContainer(cl, new File(BASEDIR, "target/var/catalina").toString(), null, null, null, engine, null, serverInfo, null, null);
         container.doStart();
 
-        connector = new Http11ConnectorGBean("HTTP", null, "localhost", port++, container, serverInfo);
+        connector = new Http11ConnectorGBean("HTTP", null, "localhost", port++, container, serverInfo,null);
         connector.doStart();
 
         TransactionManagerImpl transactionManager = new TransactionManagerImpl();

@@ -22,12 +22,15 @@ import java.util.Map;
 
 import javax.net.ssl.KeyManagerFactory;
 
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.catalina.connector.Connector;
+import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.ParamAttribute;
+import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.management.geronimo.WebManager;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.tomcat.TomcatContainer;
 
+@GBean(name="Tomcat Connector")
 public abstract class AbstractHttp11ConnectorGBean extends BaseHttp11ConnectorGBean implements Http11Protocol {
     private String keystoreFileName;
 
@@ -35,8 +38,16 @@ public abstract class AbstractHttp11ConnectorGBean extends BaseHttp11ConnectorGB
 
     private String algorithm;
     
-    public AbstractHttp11ConnectorGBean(String name, Map initParams, String tomcatProtocol, String host, int port, TomcatContainer container, ServerInfo serverInfo) throws Exception {
-        super(name, initParams, tomcatProtocol, host, port, container, serverInfo);
+    public AbstractHttp11ConnectorGBean(@ParamAttribute(name = "name") String name,
+                                        @ParamAttribute(name = "initParams") Map<String, String> initParams,
+                                        @ParamAttribute(name = "protocol") String tomcatProtocol,
+                                        @ParamAttribute(name = "host") String host,
+                                        @ParamAttribute(name = "port") int port,
+                                        @ParamReference(name = "TomcatContainer") TomcatContainer container,
+                                        @ParamReference(name = "ServerInfo") ServerInfo serverInfo,
+                                        @ParamAttribute(name = "connector") Connector conn)  throws Exception {
+                                        
+        super(name, initParams, tomcatProtocol, host, port, container, serverInfo, conn);
     }
 
     @Override
@@ -167,46 +178,5 @@ public abstract class AbstractHttp11ConnectorGBean extends BaseHttp11ConnectorGB
         connector.setAttribute("truststoreType", truststoreType);
     }
 
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("Tomcat Connector", AbstractHttp11ConnectorGBean.class, BaseHttp11ConnectorGBean.GBEAN_INFO);
-        infoFactory.addInterface(Http11Protocol.class, 
-                new String[] {
-                    //SSL Attributes
-                    "algorithm",
-                    "clientAuth",
-                    "keystoreFile",
-                    "keystorePass",
-                    "keystoreType",
-                    "sslProtocol",
-                    "ciphers",
-                    "keyAlias",
-                    "truststoreFile",
-                    "truststorePass",
-                    "truststoreType"
-                },
-                new String[] {
-                    //SSL Attributes
-                    "algorithm",
-                    "clientAuth",
-                    "keystoreFile",
-                    "keystorePass",
-                    "keystoreType",
-                    "sslProtocol",
-                    "ciphers",
-                    "keyAlias",
-                    "truststoreFile",
-                    "truststorePass",
-                    "truststoreType"
-                }
-        );
-        infoFactory.setConstructor(new String[] { "name", "initParams", "tomcatProtocol", "host", "port", "TomcatContainer", "ServerInfo"});
-        GBEAN_INFO = infoFactory.getBeanInfo();
-    }
-    
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
     
 }

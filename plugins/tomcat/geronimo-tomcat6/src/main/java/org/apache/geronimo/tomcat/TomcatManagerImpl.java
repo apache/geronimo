@@ -22,26 +22,26 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import javax.net.ssl.KeyManagerFactory;
 
 import org.apache.catalina.connector.Connector;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.geronimo.crypto.KeystoreUtil;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.ReferencePatterns;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.gbean.annotation.AnnotationGBeanInfoFactory;
+import org.apache.geronimo.gbean.annotation.ParamReference;
+import org.apache.geronimo.gbean.annotation.ParamSpecial;
+import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
+import org.apache.geronimo.kernel.InternalKernelException;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.config.ConfigurationUtil;
-import org.apache.geronimo.kernel.config.EditableConfigurationManager;
-import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.proxy.ProxyManager;
 import org.apache.geronimo.management.geronimo.NetworkConnector;
 import org.apache.geronimo.management.geronimo.WebAccessLog;
@@ -57,7 +57,8 @@ import org.apache.geronimo.tomcat.connector.Https11APRConnectorGBean;
 import org.apache.geronimo.tomcat.connector.Https11ConnectorGBean;
 import org.apache.geronimo.tomcat.connector.Https11NIOConnectorGBean;
 import org.apache.geronimo.tomcat.connector.TomcatWebConnector;
-import org.apache.geronimo.crypto.KeystoreUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Tomcat implementation of the WebManager management API.  Knows how to
@@ -68,6 +69,7 @@ import org.apache.geronimo.crypto.KeystoreUtil;
 public class TomcatManagerImpl implements WebManager {
     private static final Logger log = LoggerFactory.getLogger(TomcatManagerImpl.class);
     private final Kernel kernel;
+    private TomcatServerConfigManager tomcatServerConfigManager;
     
     private static final ConnectorType HTTP_BIO = new ConnectorType(Messages.getString("TomcatManagerImpl.0")); //$NON-NLS-1$
     private static final ConnectorType HTTPS_BIO = new ConnectorType(Messages.getString("TomcatManagerImpl.1")); //$NON-NLS-1$
@@ -164,6 +166,7 @@ public class TomcatManagerImpl implements WebManager {
         connectorAttributes.add(new ConnectorAttribute<Integer>("backlog", 10, Messages.getString("TomcatManagerImpl.44"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
         connectorAttributes.add(new ConnectorAttribute<Integer>("bufferSize", -1, Messages.getString("TomcatManagerImpl.46"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
         connectorAttributes.add(new ConnectorAttribute<Integer>("connectionTimeout", org.apache.coyote.ajp.Constants.DEFAULT_CONNECTION_TIMEOUT, Messages.getString("TomcatManagerImpl.48"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<String>("executor", "DefaultThreadPool", Messages.getString("TomcatManagerImpl.122"), String.class)); //$NON-NLS-1$ //$NON-NLS-2$
         connectorAttributes.add(new ConnectorAttribute<Integer>("keepAliveTimeout", org.apache.coyote.ajp.Constants.DEFAULT_CONNECTION_TIMEOUT, Messages.getString("TomcatManagerImpl.50"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
         connectorAttributes.add(new ConnectorAttribute<Integer>("maxThreads", 40, Messages.getString("TomcatManagerImpl.52"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
         connectorAttributes.add(new ConnectorAttribute<Integer>("minSpareThreads", 10, Messages.getString("TomcatManagerImpl.54"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
@@ -174,19 +177,34 @@ public class TomcatManagerImpl implements WebManager {
     }
     
     private static Map<ConnectorType, GBeanInfo> CONNECTOR_GBEAN_INFOS = new HashMap<ConnectorType, GBeanInfo>();
+    private static List<String> defaultAttributeNames = new ArrayList<String>();
+    private static AnnotationGBeanInfoFactory annotationGbeanInfoFactory=new AnnotationGBeanInfoFactory();
 
     static {
-        CONNECTOR_GBEAN_INFOS.put(HTTP_BIO, Http11ConnectorGBean.GBEAN_INFO);
-        CONNECTOR_GBEAN_INFOS.put(HTTPS_BIO, Https11ConnectorGBean.GBEAN_INFO);
-        CONNECTOR_GBEAN_INFOS.put(HTTP_NIO, Http11NIOConnectorGBean.GBEAN_INFO);
-        CONNECTOR_GBEAN_INFOS.put(HTTPS_NIO, Https11NIOConnectorGBean.GBEAN_INFO);
-        CONNECTOR_GBEAN_INFOS.put(HTTP_APR, Http11APRConnectorGBean.GBEAN_INFO);
-        CONNECTOR_GBEAN_INFOS.put(HTTPS_APR, Https11APRConnectorGBean.GBEAN_INFO);
-        CONNECTOR_GBEAN_INFOS.put(AJP, AJP13ConnectorGBean.GBEAN_INFO);
+    	
+        CONNECTOR_GBEAN_INFOS.put(HTTP_BIO, annotationGbeanInfoFactory.getGBeanInfo(Http11ConnectorGBean.class));
+        CONNECTOR_GBEAN_INFOS.put(HTTPS_BIO, annotationGbeanInfoFactory.getGBeanInfo(Https11ConnectorGBean.class));
+        CONNECTOR_GBEAN_INFOS.put(HTTP_NIO, annotationGbeanInfoFactory.getGBeanInfo(Http11NIOConnectorGBean.class));
+        CONNECTOR_GBEAN_INFOS.put(HTTPS_NIO, annotationGbeanInfoFactory.getGBeanInfo(Https11NIOConnectorGBean.class));
+        CONNECTOR_GBEAN_INFOS.put(HTTP_APR, annotationGbeanInfoFactory.getGBeanInfo(Http11APRConnectorGBean.class));
+        CONNECTOR_GBEAN_INFOS.put(HTTPS_APR, annotationGbeanInfoFactory.getGBeanInfo(Https11APRConnectorGBean.class));
+        CONNECTOR_GBEAN_INFOS.put(AJP, annotationGbeanInfoFactory.getGBeanInfo(AJP13ConnectorGBean.class));
+        
+        defaultAttributeNames.add("name");
+        defaultAttributeNames.add("protocol");
+        defaultAttributeNames.add("host");
+        defaultAttributeNames.add("port");
+        defaultAttributeNames.add("executor");
+        defaultAttributeNames.add("redirectPort");
+        defaultAttributeNames.add("connectionTimeout");
+        
     }
-    
-    public TomcatManagerImpl(Kernel kernel) {
+
+    public TomcatManagerImpl(
+            @ParamSpecial(type = SpecialAttributeType.kernel) Kernel kernel,
+            @ParamReference(name = "Server") TomcatServerGBean tomcatServerGBean) {
         this.kernel = kernel;
+        this.tomcatServerConfigManager = tomcatServerGBean.getTomcatServerConfigManager();
     }
 
     public String getProductName() {
@@ -221,37 +239,17 @@ public class TomcatManagerImpl implements WebManager {
      * connector that uses this network technology.
      * @param connectorName
      */
-    public void removeConnector(AbstractName connectorName) {
-        try {
-            GBeanInfo info = kernel.getGBeanInfo(connectorName);
-            boolean found = false;
-            Set intfs = info.getInterfaces();
-            for (Iterator it = intfs.iterator(); it.hasNext();) {
-                String intf = (String) it.next();
-                if (intf.equals(TomcatWebConnector.class.getName())) {
-                    found = true;
-                }
+    public void removeConnector(AbstractName connectorAbstractName) {
+      
+            try {
+                kernel.invoke(connectorAbstractName, "doStop");
+                String connectorName=(String)kernel.getGBeanData(connectorAbstractName).getAttribute("name");
+                tomcatServerConfigManager.removeConnector(connectorName);
+                kernel.unloadGBean(connectorAbstractName);
+            } catch (Exception e) {
+                log.error("error when removing connector:"+connectorAbstractName,e);           
             }
-            if (!found) {
-                throw new GBeanNotFoundException(connectorName);
-            }
-            EditableConfigurationManager mgr = ConfigurationUtil.getEditableConfigurationManager(kernel);
-            if(mgr != null) {
-                try {
-                    mgr.removeGBeanFromConfiguration(connectorName.getArtifact(), connectorName);
-                } catch (InvalidConfigException e) {
-                    log.error("Unable to add GBean", e);
-                } finally {
-                    ConfigurationUtil.releaseConfigurationManager(kernel, mgr);
-                }
-            } else {
-                log.warn("The ConfigurationManager in the kernel does not allow editing");
-            }
-        } catch (GBeanNotFoundException e) {
-            log.warn("No such GBean '" + connectorName + "'"); //todo: what if we want to remove a failed GBean?
-        } catch (Exception e) {
-            log.error("Failed to remove connector", e);
-        }
+
     }
 
     /**
@@ -309,27 +307,25 @@ public class TomcatManagerImpl implements WebManager {
         GBeanData gbeanData = new GBeanData(name, gbeanInfo);
         gbeanData.setAttribute("name", uniqueName);
         gbeanData.setReferencePattern(ConnectorGBean.CONNECTOR_CONTAINER_REFERENCE, containerName);
+        Map<String, Object> initParams = new HashMap<String, Object>();
         for (ConnectorAttribute connectorAttribute : connectorAttributes) {
             gbeanData.setAttribute(connectorAttribute.getAttributeName(), connectorAttribute.getValue());
+            initParams.put(connectorAttribute.getAttributeName(), connectorAttribute.getStringValue());
         }
+        
+        gbeanData.setAttribute("initParams", initParams);
+
         AbstractNameQuery query = new AbstractNameQuery(ServerInfo.class.getName());
         Set set = kernel.listGBeans(query);
-        AbstractName serverInfo = (AbstractName)set.iterator().next();
+        
+        AbstractName serverInfo = (AbstractName) set.iterator().next();
         gbeanData.setReferencePattern("ServerInfo", serverInfo);
 
-        EditableConfigurationManager mgr = ConfigurationUtil.getEditableConfigurationManager(kernel);
-        if (mgr != null) {
-            try {
-                mgr.addGBeanToConfiguration(containerName.getArtifact(), gbeanData, false);
-            } catch (InvalidConfigException e) {
-                log.error("Unable to add GBean", e);
-                return null;
-            } finally {
-                ConfigurationUtil.releaseConfigurationManager(kernel, mgr);
-            }
-        } else {
-            log.warn("The ConfigurationManager in the kernel does not allow editing");
-            return null;
+        try {
+            kernel.loadGBean(gbeanData, container.getClass().getClassLoader());
+            kernel.startGBean(name);
+        } catch (Exception e) {
+            log.error("Error when adding new tomcat connector" + uniqueName, e);
         }
         return name;
     }
@@ -425,6 +421,7 @@ public class TomcatManagerImpl implements WebManager {
         connectorAttributes.add(new ConnectorAttribute<Boolean>("useBodyEncodingForURI", false, Messages.getString("TomcatManagerImpl.99"), Boolean.class)); //$NON-NLS-1$ //$NON-NLS-2$
         connectorAttributes.add(new ConnectorAttribute<Boolean>("useIPVHosts", false, Messages.getString("TomcatManagerImpl.101"), Boolean.class)); //$NON-NLS-1$ //$NON-NLS-2$
         connectorAttributes.add(new ConnectorAttribute<Boolean>("xpoweredBy", false, Messages.getString("TomcatManagerImpl.103"), Boolean.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        
     }
     
     // see http://tomcat.apache.org/tomcat-6.0-doc/config/http.html
@@ -436,7 +433,7 @@ public class TomcatManagerImpl implements WebManager {
         connectorAttributes.add(new ConnectorAttribute<String>("compression", "off", Messages.getString("TomcatManagerImpl.116"), String.class)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
         connectorAttributes.add(new ConnectorAttribute<Integer>("connectionLinger", -1, Messages.getString("TomcatManagerImpl.118"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
         connectorAttributes.add(new ConnectorAttribute<Integer>("connectionTimeout", 60000, Messages.getString("TomcatManagerImpl.120"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
-        connectorAttributes.add(new ConnectorAttribute<String>("executor", null, Messages.getString("TomcatManagerImpl.122"), String.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<String>("executor", "DefaultThreadPool", Messages.getString("TomcatManagerImpl.122"), String.class)); //$NON-NLS-1$ //$NON-NLS-2$
         connectorAttributes.add(new ConnectorAttribute<Integer>("keepAliveTimeout", 60000, Messages.getString("TomcatManagerImpl.124"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
         connectorAttributes.add(new ConnectorAttribute<Boolean>("disableUploadTimeout", true, Messages.getString("TomcatManagerImpl.126"), Boolean.class)); //$NON-NLS-1$ //$NON-NLS-2$
         connectorAttributes.add(new ConnectorAttribute<Integer>("maxHttpHeaderSize", 4096, Messages.getString("TomcatManagerImpl.128"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
@@ -554,11 +551,122 @@ public class TomcatManagerImpl implements WebManager {
             
         return connectorType;
     }
+    /*
+     * update server.xml based on changes to connectors
+     * 1, if there's existing <Connector> for connectorName, update it.
+     * 2, if there's no existing <Connector> for connectorName, create it.     * 
+     */
+    @SuppressWarnings("unchecked")
+    public void updateConnectorConfig(AbstractName connectorName) throws Exception {
+
+        
+        //1, getting service name
+        
+        String serviceName;
+ 
+        
+        GBeanData containerGBeanData = null;
+
+        try {
+            GBeanData connectorGBeanData = kernel.getGBeanData(connectorName);
+
+            ReferencePatterns rp = connectorGBeanData.getReferencePatterns("TomcatContainer");
+            containerGBeanData = kernel.getGBeanData(rp.getAbstractName());
+            
+            Object object = containerGBeanData.getAttribute("serviceName");       
+
+            serviceName = (object == null) ? null : object.toString();
+
+        } catch (GBeanNotFoundException e) {
+            
+            throw new Exception("Can't find connector GBean when updating connector config",e);
+
+        } catch (InternalKernelException e) {
+            
+            throw new Exception("error to update conector config",e);
+        }
+        
+        
+        
+        //2, getting connector name
+        
+        Map<String,String> attributesToUpdate=new HashMap<String,String>();
+        
+        String connectorUniqueName = (String) kernel.getAttribute(connectorName, "name");    
+        
+        // 3, populate tomcat protocol attribute.
+        String tomcatProtocol=(String) kernel.getAttribute(connectorName, "tomcatProtocol");       
+        
+        attributesToUpdate.put("protocol", tomcatProtocol);
+        
+        
+        // 4, remove the unchanged attributes, we don't need to store them back to server.xml.
+        
+        ConnectorType connectorType = this.getConnectorType(connectorName);
+
+        List<ConnectorAttribute> defaultAttributes = this.getConnectorAttributes(connectorType);
+
+        
+        for (ConnectorAttribute defaultAttribute : defaultAttributes) {
+
+            String attributeName = defaultAttribute.getAttributeName();
+
+            Object latestAttibuteValue=null;
+            
+            try {
+                latestAttibuteValue=kernel.getAttribute(connectorName, attributeName);
+            } catch (Exception e) {
+                
+                continue;
+            }
+            
+
+            
+            if (null == latestAttibuteValue) {
+                
+                if(defaultAttributeNames.contains(attributeName)){
+                   
+                    //put default value to attributes listed in defaultAttributeNames.
+                    attributesToUpdate.put(attributeName, defaultAttribute.getStringValue());
+                   
+                } else {
+                    
+                      continue;
+               }
+
+            } else if(defaultAttribute.getValue().equals(latestAttibuteValue)){
+               
+                if (defaultAttributeNames.contains(attributeName)) {
+
+                    attributesToUpdate.put(attributeName, defaultAttribute.getStringValue());
+
+                } else {
+                     //don't update the unchanged attributes.
+                    continue;
+                }
+               
+            } else {
+                //adding changed attributes to attributesToUpdate map.
+                attributesToUpdate.put(attributeName, defaultAttribute.getStringValue());  
+            }
+        }
+        
+        
     
+        //5, call tomcatServerConfigManager to update connector info in server.xml
+
+        
+        tomcatServerConfigManager.updateConnector(attributesToUpdate, connectorUniqueName, serviceName);
+
+    }
+    
+
+
+
     private boolean isNativeAPRLibInstalled() {
 
         try {
-        	Connector connector = new Connector("HTTP/1.1");
+            Connector connector = new Connector("HTTP/1.1");
             if (!connector.getProtocolHandlerClassName().equalsIgnoreCase("org.apache.coyote.http11.Http11AprProtocol")) {        
                return false;
             } 
@@ -569,18 +677,8 @@ public class TomcatManagerImpl implements WebManager {
         return true;
     }
     
-    public static final GBeanInfo GBEAN_INFO;
 
-    static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("Tomcat Web Manager", TomcatManagerImpl.class);
-        infoFactory.addAttribute("kernel", Kernel.class, false);
-        infoFactory.addInterface(WebManager.class);
-        infoFactory.setConstructor(new String[] {"kernel"});
-        GBEAN_INFO = infoFactory.getBeanInfo();
-    }
 
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
+
 
 }

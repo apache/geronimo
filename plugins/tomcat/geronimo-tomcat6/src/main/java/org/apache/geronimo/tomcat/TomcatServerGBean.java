@@ -25,7 +25,11 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
@@ -37,19 +41,21 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
 import org.apache.catalina.Lifecycle;
+import org.apache.catalina.LifecycleListener;
 import org.apache.catalina.Server;
 import org.apache.catalina.Service;
+import org.apache.catalina.connector.Connector;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.gbean.annotation.ParamSpecial;
 import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
+import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.system.configuration.PluginAttributeStore;
 import org.apache.geronimo.system.jmx.MBeanServerReference;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.tomcat.model.ServerType;
-import org.apache.geronimo.kernel.Kernel;
 import org.apache.tomcat.util.modeler.Registry;
 import org.xml.sax.SAXException;
 
@@ -62,6 +68,8 @@ public class TomcatServerGBean implements GBeanLifecycle {
     public static final XMLInputFactory XMLINPUT_FACTORY = XMLInputFactory.newInstance();
     public static final JAXBContext SERVER_CONTEXT;
     private static final String DEFAULT_CATALINA_HOME = "var/catalina";
+    public static final Map<Connector,String> ConnectorName=new HashMap<Connector,String>();
+    public static final List<LifecycleListener> LifecycleListeners=new ArrayList<LifecycleListener>();
     static {
         try {
             SERVER_CONTEXT = JAXBContext.newInstance(ServerType.class);
@@ -75,6 +83,7 @@ public class TomcatServerGBean implements GBeanLifecycle {
     private final ClassLoader classLoader;
     private final ServerInfo serverInfo;
     private final Server server;
+    private TomcatServerConfigManager tomcatServerConfigManager;
 
     public TomcatServerGBean(@ParamAttribute(name = "serverConfig") String serverConfig,
                              @ParamAttribute(name = "serverConfigLocation") String serverConfigLocation,
@@ -99,8 +108,9 @@ public class TomcatServerGBean implements GBeanLifecycle {
         System.setProperty("catalina.base", serverInfo.resolveServerPath(catalinaHome));
 
         if (serverConfig == null) {
-            File loc = serverInfo.resolveServer(serverConfigLocation);
-            Reader in = new FileReader(loc);
+            File serverConfigFile = serverInfo.resolveServer(serverConfigLocation);
+            this.tomcatServerConfigManager = new TomcatServerConfigManager(serverConfigFile);
+            Reader in = new FileReader(serverConfigFile);
             StringBuilder b = new StringBuilder();
             char[] buf = new char[1024];
             int i;
@@ -160,6 +170,11 @@ public class TomcatServerGBean implements GBeanLifecycle {
             service = server.findService(serviceName);
         }
         return service;
+    }
+    
+
+    public TomcatServerConfigManager getTomcatServerConfigManager() {
+        return tomcatServerConfigManager;
     }
 
     public Server getServer() {
