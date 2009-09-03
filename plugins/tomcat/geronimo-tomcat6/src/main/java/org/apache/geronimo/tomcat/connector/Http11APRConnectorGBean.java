@@ -20,12 +20,15 @@ package org.apache.geronimo.tomcat.connector;
 
 import java.util.Map;
 
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.catalina.connector.Connector;
+import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.ParamAttribute;
+import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.management.geronimo.WebManager;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.tomcat.TomcatContainer;
 
+@GBean(name="Tomcat Connector HTTP APR")
 public class Http11APRConnectorGBean extends BaseHttp11ConnectorGBean implements Http11APRProtocol {
 
     private String certificateFile;
@@ -36,8 +39,15 @@ public class Http11APRConnectorGBean extends BaseHttp11ConnectorGBean implements
     private String revocationPath;
     private String revocationFile;
     
-    public Http11APRConnectorGBean(String name, Map initParams, String host, int port, TomcatContainer container, ServerInfo serverInfo) throws Exception {
-        super(name, initParams, "org.apache.coyote.http11.Http11AprProtocol", host, port, container, serverInfo);
+    public Http11APRConnectorGBean(@ParamAttribute(name = "name") String name,
+                                   @ParamAttribute(name = "initParams") Map<String, String> initParams,
+                                   @ParamAttribute(name = "host") String host,
+                                   @ParamAttribute(name = "port") int port,
+                                   @ParamReference(name = "TomcatContainer") TomcatContainer container,
+                                   @ParamReference(name = "ServerInfo") ServerInfo serverInfo,
+                                   @ParamAttribute(name = "connector") Connector conn)  throws Exception {
+                                   
+        super(name, initParams, "org.apache.coyote.http11.Http11AprProtocol", host, port, container, serverInfo, conn);
     }
 
     @Override
@@ -228,58 +238,4 @@ public class Http11APRConnectorGBean extends BaseHttp11ConnectorGBean implements
         connector.setAttribute("useSendfile", useSendfile);
     }
     
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("Tomcat Connector HTTP APR", Http11APRConnectorGBean.class, BaseHttp11ConnectorGBean.GBEAN_INFO);
-        infoFactory.addInterface(Http11APRProtocol.class, 
-                new String[] {
-                    //APR Attributes
-                    "pollTime",
-                    "pollerSize",
-                    "useSendfile",
-                    "sendfileSize",
-                    //SSL Attributes
-                    "sslProtocol",
-                    "sslCipherSuite",
-                    "sslCertificateFile",
-                    "sslCertificateKeyFile",
-                    "sslPassword",
-                    "sslVerifyClient",
-                    "sslVerifyDepth",
-                    "sslCACertificateFile",
-                    "sslCACertificatePath",
-                    "sslCertificateChainFile",
-                    "sslCARevocationFile",
-                    "sslCARevocationPath"
-                },
-                new String[] {
-                    //APR Attributes
-                    "pollTime",
-                    "pollerSize",
-                    "useSendfile",
-                    "sendfileSize",
-                    //SSL Attributes
-                    "sslProtocol",
-                    "sslCipherSuite",
-                    "sslCertificateFile",
-                    "sslCertificateKeyFile",
-                    "sslPassword",
-                    "sslVerifyClient",
-                    "sslVerifyDepth",
-                    "sslCACertificateFile",
-                    "sslCACertificatePath",
-                    "sslCertificateChainFile",
-                    "sslCARevocationFile",
-                    "sslCARevocationPath"
-                }
-        );
-        infoFactory.setConstructor(new String[] { "name", "initParams", "host", "port", "TomcatContainer", "ServerInfo"});
-        GBEAN_INFO = infoFactory.getBeanInfo();
-    }
-    
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
-
 }

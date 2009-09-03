@@ -49,6 +49,8 @@ public interface WebManager extends NetworkManager {
     AbstractName getConnectorConfiguration(ConnectorType connectorType, List<ConnectorAttribute> connectorAttributes, WebContainer container, String uniqueName);
 
     ConnectorType getConnectorType(AbstractName connectorName);
+    
+    void updateConnectorConfig(AbstractName connectorName) throws Exception;
 
     public class ConnectorType {
         private final String description;

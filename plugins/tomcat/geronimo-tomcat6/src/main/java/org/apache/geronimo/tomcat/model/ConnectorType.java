@@ -12,7 +12,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
 import java.util.ArrayList;
-import java.lang.reflect.Constructor;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -26,6 +25,7 @@ import org.apache.catalina.connector.Connector;
 import org.apache.catalina.LifecycleListener;
 import org.apache.catalina.Service;
 import org.apache.catalina.Executor;
+import org.apache.geronimo.tomcat.TomcatServerGBean;
 import org.apache.xbean.recipe.ObjectRecipe;
 import org.apache.xbean.recipe.Option;
 import org.apache.tomcat.util.IntrospectionUtils;
@@ -607,7 +607,11 @@ public class ConnectorType {
                         java.util.concurrent.Executor.class.getName(),
                         cl);
 
-            } else {
+            } else if("name".equals(name)){
+                
+                TomcatServerGBean.ConnectorName.put(connector, entry.getValue());
+                
+            } else{
                 connector.setProperty(name, entry.getValue());
             }
         }
@@ -615,6 +619,7 @@ public class ConnectorType {
         for (ListenerType listenerType : getListener()) {
             LifecycleListener listener = listenerType.getLifecycleListener(cl);
             connector.addLifecycleListener(listener);
+            TomcatServerGBean.LifecycleListeners.add(listener);
         }
         return connector;
     }

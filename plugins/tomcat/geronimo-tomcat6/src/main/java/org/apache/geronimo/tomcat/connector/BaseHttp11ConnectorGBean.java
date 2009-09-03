@@ -24,15 +24,18 @@ import java.net.UnknownHostException;
 import java.util.Map;
 
 import javax.management.j2ee.statistics.Stats;
-import javax.net.ssl.KeyManagerFactory;
 
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.catalina.Executor;
+import org.apache.catalina.connector.Connector;
+import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.ParamAttribute;
+import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.management.StatisticsProvider;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.tomcat.TomcatContainer;
 import org.apache.geronimo.tomcat.stats.ConnectorStats;
 
+@GBean(name="Tomcat Connector")
 public abstract class BaseHttp11ConnectorGBean extends ConnectorGBean implements BaseHttp11Protocol, StatisticsProvider {
 
     protected String connectHost;
@@ -42,8 +45,16 @@ public abstract class BaseHttp11ConnectorGBean extends ConnectorGBean implements
 
     private boolean reset = true;
 
-    public BaseHttp11ConnectorGBean(String name, Map initParams, String tomcatProtocol, String host, int port, TomcatContainer container, ServerInfo serverInfo) throws Exception {
-        super(name, initParams, tomcatProtocol, container, serverInfo);
+    public BaseHttp11ConnectorGBean(@ParamAttribute(name = "name") String name,
+                                    @ParamAttribute(name = "initParams") Map<String, String> initParams,
+                                    @ParamAttribute(name = "protocol") String tomcatProtocol,
+                                    @ParamAttribute(name = "host") String host,
+                                    @ParamAttribute(name = "port") int port,
+                                    @ParamReference(name = "TomcatContainer") TomcatContainer container,
+                                    @ParamReference(name = "ServerInfo") ServerInfo serverInfo,
+                                    @ParamAttribute(name = "connector") Connector conn)  throws Exception {
+                                    
+        super(name, initParams, tomcatProtocol, container, serverInfo, conn);
 
         // Default the host to listen on all address is one was not specified
         if (host == null) {
@@ -57,7 +68,7 @@ public abstract class BaseHttp11ConnectorGBean extends ConnectorGBean implements
 
         connector.setAttribute("address", host);
         connector.setPort(port);
-
+        
     }
     
     protected void initProtocol() {}
@@ -143,6 +154,10 @@ public abstract class BaseHttp11ConnectorGBean extends ConnectorGBean implements
         
         if (value instanceof String)
             return (String)value;
+        
+        if(value instanceof Executor){
+            return ((Executor) value).getName();
+        }
         
         return (String) value.getClass().getName();
     }
@@ -329,94 +344,5 @@ public abstract class BaseHttp11ConnectorGBean extends ConnectorGBean implements
         reset = true;
     }
 
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("Tomcat Connector", BaseHttp11ConnectorGBean.class, ConnectorGBean.GBEAN_INFO);
-        infoFactory.addInterface(BaseHttp11Protocol.class, 
-                new String[] {
-                    //HTTP Attributes
-                    "acceptCount", 
-                    "address", 
-                    "bufferSize", 
-                    "compressableMimeType", 
-                    "compression", 
-                    "connectionLinger", 
-                    "connectionTimeout", 
-                    "executor", 
-                    "host",
-                    "keepAliveTimeout", 
-                    "disableUploadTimeout", 
-                    "maxHttpHeaderSize", 
-                    "maxKeepAliveRequests", 
-                    "maxThreads", 
-                    "maxSpareThreads",
-                    "minSpareThreads",
-                    "noCompressionUserAgents", 
-                    "port", 
-                    "restrictedUserAgents", 
-                    "server", 
-                    "socketBuffer", 
-                    "tcpNoDelay", 
-                    "threadPriority",
-                    //SSL Attributes
-                    "algorithm",
-                    "clientAuth",
-                    "keystoreFile",
-                    "keystorePass",
-                    "keystoreType",
-                    "sslProtocol",
-                    "ciphers",
-                    "keyAlias",
-                    "truststoreFile",
-                    "truststorePass",
-                    "truststoreType"
-                },
-                new String[] {
-                    //HTTP Attributes
-                    "acceptCount", 
-                    "address", 
-                    "bufferSize", 
-                    "compressableMimeType", 
-                    "compression", 
-                    "connectionLinger", 
-                    "connectionTimeout", 
-                    "executor", 
-                    "host",
-                    "keepAliveTimeout", 
-                    "disableUploadTimeout", 
-                    "maxHttpHeaderSize", 
-                    "maxKeepAliveRequests", 
-                    "maxThreads", 
-                    "maxSpareThreads",
-                    "minSpareThreads",
-                    "noCompressionUserAgents", 
-                    "port", 
-                    "restrictedUserAgents", 
-                    "server", 
-                    "socketBuffer", 
-                    "tcpNoDelay", 
-                    "threadPriority",
-                    //SSL Attributes
-                    "algorithm",
-                    "clientAuth",
-                    "keystoreFile",
-                    "keystorePass",
-                    "keystoreType",
-                    "sslProtocol",
-                    "ciphers",
-                    "keyAlias",
-                    "truststoreFile",
-                    "truststorePass",
-                    "truststoreType"
-                }
-        );
-        infoFactory.setConstructor(new String[] { "name", "initParams", "protocol", "host", "port", "TomcatContainer", "ServerInfo"});
-        GBEAN_INFO = infoFactory.getBeanInfo();
-    }
     
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
-
 }

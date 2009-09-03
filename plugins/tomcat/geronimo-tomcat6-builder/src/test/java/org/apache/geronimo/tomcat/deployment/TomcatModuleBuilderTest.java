@@ -38,6 +38,7 @@ import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.annotation.AnnotationGBeanInfoFactory;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.NamingBuilderCollection;
@@ -297,7 +298,7 @@ public class TomcatModuleBuilderTest extends TestSupport {
         containerData.setReferencePattern("ServerInfo", serverInfo.getAbstractName());
         AbstractName containerName = containerData.getAbstractName();
 
-        GBeanData connector = bootstrap.addGBean("TomcatConnector", Http11ConnectorGBean.GBEAN_INFO);
+        GBeanData connector = bootstrap.addGBean("TomcatConnector", new AnnotationGBeanInfoFactory().getGBeanInfo(Http11ConnectorGBean.class));
         connector.setAttribute("name", "HTTP");
         connector.setAttribute("port", new Integer(8181));
         connector.setReferencePattern("TomcatContainer", containerName);

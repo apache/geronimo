@@ -150,6 +150,12 @@ public class ConnectorPortlet extends BasePortlet {
             } catch (Exception e) {
                 log.error("Unable to start connector", e); //TODO: get into rendered page
             }
+            
+            try {
+                manager.updateConnectorConfig(newConnectorName);
+            } catch (Exception e) {
+                log.error("Unable to start connector", e); //TODO: get into rendered page
+            }
             actionResponse.setRenderParameter(PARM_MODE, "list");
         } else if(mode.equals("save")) { // User just submitted the form to update a connector
             // Get submitted values
@@ -196,6 +202,11 @@ public class ConnectorPortlet extends BasePortlet {
                 
                 // set the keystore properties if its a secure connector
                 setKeystoreProperties(actionRequest, connectorName);
+                try {
+                    manager.updateConnectorConfig(connectorName);
+                } catch (Exception e) {
+                    log.error("Unable to start connector", e); //TODO: get into rendered page
+                }
             }
             actionResponse.setRenderParameter(PARM_MODE, "list");
         } else if(mode.equals("start")) {

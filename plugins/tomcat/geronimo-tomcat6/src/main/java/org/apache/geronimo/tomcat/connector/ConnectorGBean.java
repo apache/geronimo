@@ -24,19 +24,21 @@ import java.util.Map;
 import javax.management.j2ee.statistics.Stats;
 
 import org.apache.catalina.LifecycleException;
+import org.apache.catalina.LifecycleListener;
 import org.apache.catalina.connector.Connector;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.management.geronimo.NetworkConnector;
+import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.ParamAttribute;
+import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.tomcat.BaseGBean;
 import org.apache.geronimo.tomcat.ObjectRetriever;
 import org.apache.geronimo.tomcat.TomcatContainer;
+import org.apache.geronimo.tomcat.TomcatServerGBean;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+@GBean(name="Tomcat Connector")
 public abstract class ConnectorGBean extends BaseGBean implements CommonProtocol, GBeanLifecycle, ObjectRetriever, TomcatWebConnector {
 
     private static final Logger log = LoggerFactory.getLogger(ConnectorGBean.class);
@@ -50,12 +52,19 @@ public abstract class ConnectorGBean extends BaseGBean implements CommonProtocol
     private final TomcatContainer container;
 
     private String name;
+    
 
-    public ConnectorGBean(String name, Map initParams, String tomcatProtocol, TomcatContainer container, ServerInfo serverInfo) throws Exception {
+	public ConnectorGBean(@ParamAttribute(name = "name") String name,
+						  @ParamAttribute(name = "initParams") Map<String, String> initParams,
+						  @ParamAttribute(name = "protocol") String tomcatProtocol,
+						  @ParamReference(name = "TomcatContainer") TomcatContainer container,
+						  @ParamReference(name = "ServerInfo") ServerInfo serverInfo,
+						  @ParamAttribute(name = "connector") Connector conn)  throws Exception {
         
         //Relief for new Tomcat-only parameters that may come in the future
         if (initParams == null){
-            initParams = new HashMap();
+            initParams = new HashMap<String, String>();
+            
         }
 
         // Do we really need this?? For Tomcat I don't think so...
@@ -80,7 +89,15 @@ public abstract class ConnectorGBean extends BaseGBean implements CommonProtocol
         this.serverInfo = serverInfo;
 
         // Create the Connector object
-        connector = new Connector(tomcatProtocol);
+        if (conn == null) {
+            this.connector= new Connector(tomcatProtocol);
+           
+            for(LifecycleListener listener:TomcatServerGBean.LifecycleListeners){
+                this.connector.addLifecycleListener(listener);
+            }
+        }else{
+            connector=conn;
+        }
         
         setParameters(connector, initParams);
 
@@ -92,21 +109,14 @@ public abstract class ConnectorGBean extends BaseGBean implements CommonProtocol
     }
 
     public void doStart() throws LifecycleException {
-        container.addConnector(connector);
-        connector.start();
-        
+        container.addConnector(this.connector);
         log.debug("{} connector started", name);
+
     }
 
     public void doStop() {
-        try {
-            connector.stop();
-        } catch (LifecycleException e) {
-            log.error("Failed to stop", e);
-        }
 
         container.removeConnector(connector);
-
         log.debug("{} connector stopped", name);
     }
     
@@ -268,66 +278,5 @@ public abstract class ConnectorGBean extends BaseGBean implements CommonProtocol
         return connector.getXpoweredBy();
     }
 
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("Tomcat Connector", ConnectorGBean.class);
-
-        infoFactory.addAttribute("name", String.class, true);
-        infoFactory.addAttribute("initParams", Map.class, true);
-        infoFactory.addAttribute("protocol", String.class, true);
-        infoFactory.addReference(CONNECTOR_CONTAINER_REFERENCE, TomcatContainer.class, GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
-        infoFactory.addReference("ServerInfo", ServerInfo.class, "GBean");
-        infoFactory.addInterface(ObjectRetriever.class);
-        infoFactory.addInterface(TomcatWebConnector.class);
-        infoFactory.addInterface(CommonProtocol.class,
-                
-                new String[]{
-                        "allowTrace",
-                        "emptySessionPath",
-                        "enableLookups",
-                        "maxPostSize",
-                        "maxSavePostSize",
-                        "protocol",
-                        "tomcatProtocol",
-                        "proxyName",
-                        "proxyPort",
-                        "redirectPort",
-                        "scheme",
-                        "secure",
-                        "sslEnabled",
-                        "uriEncoding",
-                        "useBodyEncodingForURI",
-                        "useIPVHosts",
-                        "xpoweredBy"
-                },
-
-                new String[]{
-                        "allowTrace",
-                        "emptySessionPath",
-                        "enableLookups",
-                        "maxPostSize",
-                        "maxSavePostSize",
-                        "protocol",
-                        "tomcatProtocol",
-                        "proxyName",
-                        "proxyPort",
-                        "redirectPort",
-                        "scheme",
-                        "secure",
-                        "sslEnabled",
-                        "uriEncoding",
-                        "useBodyEncodingForURI",
-                        "useIPVHosts",
-                        "xpoweredBy"
-                }
-        );
-        infoFactory.setConstructor(new String[] { "name", "initParams", "protocol", "TomcatContainer", "ServerInfo" });
-        GBEAN_INFO = infoFactory.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
 
 }

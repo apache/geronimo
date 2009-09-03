@@ -413,4 +413,8 @@ public class JettyManagerImpl implements WebManager {
         }
     }
 
+    public void updateConnectorConfig(AbstractName connectorName)  throws Exception {
+        // do nothing for Jetty, only tomcat needs this to update server.xml file.      
+    }
+
 }
