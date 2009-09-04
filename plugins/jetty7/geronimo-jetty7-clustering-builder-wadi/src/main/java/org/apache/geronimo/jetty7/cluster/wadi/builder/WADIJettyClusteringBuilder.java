@@ -42,6 +42,7 @@ import org.apache.geronimo.jetty7.cluster.ClusteredSessionHandlerFactory;
 import org.apache.geronimo.jetty7.cluster.wadi.WADIClusteredPreHandlerFactory;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
+import org.apache.geronimo.kernel.Jsr77Naming;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
@@ -121,12 +122,19 @@ public class WADIJettyClusteringBuilder implements NamespaceDrivenBuilder {
 
     protected GBeanData extractWebModule(DeploymentContext moduleContext) throws DeploymentException {
         Configuration configuration = moduleContext.getConfiguration();
-        AbstractNameQuery webModuleQuery = new AbstractNameQuery(configuration.getId(), Collections.EMPTY_MAP, Collections.singleton(WebAppContextWrapper.class.getName()));
+        AbstractNameQuery webModuleQuery = createJettyWebAppContextNameQuery(moduleContext);
         try {
             return configuration.findGBeanData(webModuleQuery);
         } catch (GBeanNotFoundException e) {
             throw new DeploymentException("Could not locate web module gbean in web app configuration", e);
         }
+    }
+    
+    protected AbstractNameQuery createJettyWebAppContextNameQuery(DeploymentContext moduleContext) {
+        String name = moduleContext.getModuleName().getNameProperty(Jsr77Naming.J2EE_NAME);
+        return new AbstractNameQuery(null,
+            Collections.singletonMap(Jsr77Naming.J2EE_NAME, name),
+            Collections.singleton(WebAppContextWrapper.class.getName()));
     }
 
     public QNameSet getSpecQNameSet() {
