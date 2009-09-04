@@ -95,8 +95,8 @@ public class ExplicitDefaultArtifactResolver extends DefaultArtifactResolver imp
         for (Map.Entry<Object, Object> entry : properties.entrySet()) {
             String key = (String) entry.getKey();
             String resolvedString = (String) entry.getValue();
-            Artifact source = Artifact.createPartial(key);
-            Artifact resolved = Artifact.create(resolvedString);
+            Artifact source = Artifact.createPartial(key.trim());
+            Artifact resolved = Artifact.create(resolvedString.trim());
             explicitResolution.put(source, resolved);
         }
         return explicitResolution;
