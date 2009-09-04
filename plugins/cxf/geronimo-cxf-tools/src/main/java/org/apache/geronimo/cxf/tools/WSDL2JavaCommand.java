@@ -38,7 +38,10 @@ public class WSDL2JavaCommand extends CommandSupport {
     public Object execute(final CommandContext context, final Object... args) throws Exception {
         init(context);
         
-        String[] arguments = toString(args); 
+        String[] arguments = toString(args);
+        if (arguments.length >= 1 && arguments[0].equalsIgnoreCase("--help")) {
+            arguments[0] = "-help";
+        }
         return JAXWSToolsCLI.run(JAXWSToolsCLI.Command.WSDL2JAVA, 
                                  shellInfo.getHomeDir().getAbsolutePath(),
                                  arguments);        
