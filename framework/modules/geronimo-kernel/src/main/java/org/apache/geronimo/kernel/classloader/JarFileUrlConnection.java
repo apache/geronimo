@@ -67,7 +67,11 @@ public class JarFileUrlConnection extends JarURLConnection {
     }
 
     public JarFile getJarFile() throws IOException {
-        return jarFile;
+        if (getUseCaches()) {
+            return jarFile;
+        } else {
+            return new JarFile(jarFile.getName());
+        }
     }
 
     public synchronized void connect() {
@@ -86,7 +90,13 @@ public class JarFileUrlConnection extends JarURLConnection {
     }
 
     public JarEntry getJarEntry() {
-        return jarEntry;
+        if (getUseCaches()) {
+            return jarEntry;
+        } else {
+            //return (JarEntry) jarEntry.clone();
+            // There is a clone method, but the below way might be safer.
+            return jarFile.getJarEntry(jarEntry.getName());
+        }
     }
 
     public Attributes getAttributes() throws IOException {
@@ -122,7 +132,7 @@ public class JarFileUrlConnection extends JarURLConnection {
     }
 
     public Permission getPermission() throws IOException {
-        URL jarFileUrl = new File(jarFile.getName()).toURL();
+        URL jarFileUrl = new File(jarFile.getName()).toURI().toURL();
         return jarFileUrl.openConnection().getPermission();
     }
 
