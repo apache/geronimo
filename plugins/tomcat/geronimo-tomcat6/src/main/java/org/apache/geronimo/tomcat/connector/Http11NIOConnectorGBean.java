@@ -24,6 +24,7 @@ import org.apache.catalina.connector.Connector;
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.gbean.annotation.ParamReference;
+import org.apache.geronimo.gbean.annotation.Persistent;
 import org.apache.geronimo.management.geronimo.WebManager;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.tomcat.TomcatContainer;
@@ -219,139 +220,173 @@ public class Http11NIOConnectorGBean extends AbstractHttp11ConnectorGBean implem
         Object value = connector.getAttribute("useSendfile");
         return value == null ? true : new Boolean(value.toString()).booleanValue();
     }
-
+    
+    @Persistent
     public void setAcceptorThreadCount(int acceptorThreadCount) {
         connector.setAttribute("acceptorThreadCount", new Integer(acceptorThreadCount));
     }
-
+    
+    @Persistent
     public void setAcceptorThreadPriority(int acceptorThreadPriority) {
         connector.setAttribute("acceptorThreadPriority", new Integer(acceptorThreadPriority));
     }
-
+    
+    @Persistent
     public void setCommand_line_options(boolean command_line_options) {
         connector.setAttribute("command-line-options", new Boolean(command_line_options));
     }
-
+    
+    @Persistent
     public void setOomParachute(int oomParachute) {
         connector.setAttribute("oomParachute", new Integer(oomParachute));
     }
-
+    
+    @Persistent
     public void setPollerThreadCount(int pollerThreadCount) {
         connector.setAttribute("pollerThreadCount", new Integer(pollerThreadCount));
     }
     
+    @Persistent   
     public void setPollerThreadPriority(int pollerThreadPriority) {
         connector.setAttribute("pollerThreadPriority", new Integer(pollerThreadPriority));
     }
-
+    
+    @Persistent
     public void setProcessCache(int processCache) {
         connector.setAttribute("processCache", new Integer(processCache));
     }
-
+    
+    @Persistent
     public void setSelectorPool_maxSelectors(int selectorPool_maxSelectors) {
         connector.setAttribute("selectorPool.maxSelectors", new Integer(selectorPool_maxSelectors));
     }
-
+    
+    @Persistent
     public void setSelectorPool_maxSpareSelectors(int selectorPool_maxSpareSelectors) {
         connector.setAttribute("selectorPool.maxSpareSelectors", new Integer(selectorPool_maxSpareSelectors));
     }
-
+    
+    @Persistent
     public void setSelectorTimeout(int selectorTimeout) {
         connector.setAttribute("selectorTimeout", new Integer(selectorTimeout));
     }
-
+    
+    @Persistent
     public void setSocket_appReadBufSize(int socket_appReadBufSize) {
         connector.setAttribute("socket.appReadBufSize", new Integer(socket_appReadBufSize));
     }
-
+    
+    @Persistent
     public void setSocket_appWriteBufSize(int socket_appWriteBufSize) {
         connector.setAttribute("socket.appWriteBufSize", new Integer(socket_appWriteBufSize));
     }
-
+    
+    @Persistent
     public void setSocket_bufferPool(int socket_bufferPool) {
         connector.setAttribute("socket.bufferPool", new Integer(socket_bufferPool));
     }
-
+    
+    @Persistent
     public void setSocket_bufferPoolSize(int socket_bufferPoolSize) {
         connector.setAttribute("socket.bufferPoolSize", new Integer(socket_bufferPoolSize));
     }
-
+    
+    @Persistent
     public void setSocket_directBuffer(boolean socket_directBuffer) {
         connector.setAttribute("socket.directBuffer", new Boolean(socket_directBuffer));
     }
-
+    
+    @Persistent
     public void setSocket_eventCache(int socket_eventCache) {
         connector.setAttribute("socket.eventCache", new Integer(socket_eventCache));
     }
-
+    
+    @Persistent
     public void setSocket_keyCache(int socket_keyCache) {
         connector.setAttribute("socket.keyCache", new Integer(socket_keyCache));
     }
-
+    
+    @Persistent
     public void setSocket_ooBInline(boolean socket_ooBInline) {
         connector.setAttribute("socket.ooBInline", new Boolean(socket_ooBInline));
     }
-
+    
+    @Persistent
     public void setSocket_performanceBandwidth(int socket_performanceBandwidth) {
         connector.setAttribute("socket.performanceBandwidth", new Integer(socket_performanceBandwidth));
     }
-
+    
+    @Persistent
     public void setSocket_performanceConnectionTime(int socket_performanceConnectionTime) {
         connector.setAttribute("socket.performanceConnectionTime", new Integer(socket_performanceConnectionTime));
     }
-
+    
+    @Persistent
     public void setSocket_performanceLatency(int socket_performanceLatency) {
         connector.setAttribute("socket.performanceLatency", new Integer(socket_performanceLatency));
     }
-
+    
+    @Persistent
     public void setSocket_processorCache(int socket_processorCache) {
         connector.setAttribute("socket.processorCache", new Integer(socket_processorCache));
     }
-
+    
+    @Persistent
     public void setSocket_rxBufSize(int socket_rxBufSize) {
         connector.setAttribute("socket.rxBufSize", new Integer(socket_rxBufSize));
     }
-
+    
+    @Persistent
     public void setSocket_soKeepAlive(boolean socket_soKeepAlive) {
         connector.setAttribute("socket.soKeepAlive", new Boolean(socket_soKeepAlive));
     }
-
+    
+    @Persistent
     public void setSocket_soLingerOn(boolean socket_soLingerOn) {
         connector.setAttribute("socket.soLingerOn", new Boolean(socket_soLingerOn));
     }
-
+    
+    @Persistent
     public void setSocket_soLingerTime(int socket_soLingerTime) {
         connector.setAttribute("socket.soLingerTime", new Integer(socket_soLingerTime));
     }
-
+    
+    @Persistent
     public void setSocket_soReuseAddress(boolean socket_soReuseAddress) {
         connector.setAttribute("socket.soReuseAddress", new Boolean(socket_soReuseAddress));
     }
-
+    
+    @Persistent
     public void setSocket_soTimeout(int socket_soTimeout) {
         connector.setAttribute("socket.soTimeout", new Integer(socket_soTimeout));
     }
-
+    
+    @Persistent
     public void setSocket_soTrafficClass(int socket_soTrafficClass) {
         connector.setAttribute("socket.soTrafficClass", new Integer(socket_soTrafficClass));
     }
-
+    
+    @Persistent
     public void setSocket_tcpNoDelay(boolean socket_tcpNoDelay) {
         connector.setAttribute("socket.tcpNoDelay", new Boolean(socket_tcpNoDelay));
     }
-
+    
+    @Persistent
     public void setSocket_txBufSize(int socket_txBufSize) {
         connector.setAttribute("socket.txBufSize", new Integer(socket_txBufSize));
     }
-
+    
+    @Persistent
     public void setUseComet(boolean useComet) {
         connector.setAttribute("useExecutor", new Boolean(useComet));
     }
-
+    
+    @Persistent
     public void setUseExecutor(boolean useExecutor) {
         connector.setAttribute("useExecutor", new Boolean(useExecutor));
     }
-
+    
+    @Persistent
     public void setUseSendfile(boolean useSendfile) {
         connector.setAttribute("useSendfile", new Boolean(useSendfile));
     }

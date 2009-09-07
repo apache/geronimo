@@ -26,6 +26,7 @@ import org.apache.catalina.connector.Connector;
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.gbean.annotation.ParamReference;
+import org.apache.geronimo.gbean.annotation.Persistent;
 import org.apache.geronimo.management.geronimo.WebManager;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.tomcat.TomcatContainer;
@@ -106,6 +107,7 @@ public abstract class AbstractHttp11ConnectorGBean extends BaseHttp11ConnectorGB
         return (String) connector.getAttribute("keystorePass");
     }
     
+    @Persistent
     public void setAlgorithm(String algorithm) {
         this.algorithm = algorithm;
         if ("default".equalsIgnoreCase(algorithm)) {
@@ -114,20 +116,24 @@ public abstract class AbstractHttp11ConnectorGBean extends BaseHttp11ConnectorGB
         connector.setAttribute("algorithm", algorithm);
     }
 
+    @Persistent
     public void setCiphers(String ciphers) {
         connector.setAttribute("ciphers", ciphers);
     }
-
+    
+    @Persistent
     public void setClientAuth(boolean clientAuth) {
         connector.setAttribute("clientAuth", new Boolean(clientAuth));
     }
 
+    @Persistent
     public void setKeyAlias(String keyAlias) {
         if (keyAlias.equals(""))
             keyAlias = null;
         connector.setAttribute("keyAlias", keyAlias);
     }
 
+    @Persistent
     public void setKeystoreFile(String keystoreFile) {
         if (keystoreFile!= null && keystoreFile.equals("")) 
             keystoreFile = null;
@@ -138,24 +144,28 @@ public abstract class AbstractHttp11ConnectorGBean extends BaseHttp11ConnectorGB
             connector.setAttribute("keystoreFile", serverInfo.resolveServerPath(keystoreFileName));
     }
 
+    @Persistent
     public void setKeystorePass(String keystorePass) {
         if (keystorePass!= null && keystorePass.equals("")) 
             keystorePass = null;
         connector.setAttribute("keystorePass", keystorePass);
     }
 
+    @Persistent
     public void setKeystoreType(String keystoreType) {
         if (keystoreType!= null && keystoreType.equals("")) 
             keystoreType = null;
         connector.setAttribute("keystoreType", keystoreType);
     }
 
+    @Persistent
     public void setSslProtocol(String sslProtocol) {
         if (sslProtocol!= null && sslProtocol.equals("")) 
             sslProtocol = null;
         connector.setAttribute("sslProtocol", sslProtocol);
     }
 
+    @Persistent
     public void setTruststoreFile(String truststoreFile) {
         if (truststoreFile!= null && truststoreFile.equals("")) 
             truststoreFile = null;
@@ -165,13 +175,15 @@ public abstract class AbstractHttp11ConnectorGBean extends BaseHttp11ConnectorGB
         else
             connector.setAttribute("truststoreFile", serverInfo.resolveServerPath(truststoreFileName));
     }
-
+    
+    @Persistent
     public void setTruststorePass(String truststorePass) {
         if (truststorePass!= null && truststorePass.equals("")) 
             truststorePass = null;
         connector.setAttribute("truststorePass", truststorePass);
     }
-
+    
+    @Persistent
     public void setTruststoreType(String truststoreType) {
         if (truststoreType!= null && truststoreType.equals("")) 
             truststoreType = null;
