@@ -30,6 +30,7 @@ import org.apache.catalina.connector.Connector;
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.gbean.annotation.ParamReference;
+import org.apache.geronimo.gbean.annotation.Persistent;
 import org.apache.geronimo.management.StatisticsProvider;
 import org.apache.geronimo.management.geronimo.WebManager;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
@@ -188,59 +189,73 @@ public class AJP13ConnectorGBean extends ConnectorGBean implements Ajp13Protocol
         Object value = connector.getAttribute("tomcatAuthentication");
         return value == null ? true : new Boolean(value.toString()).booleanValue();
     }
-
+    
+    @Persistent
     public void setAddress(String address) {
         connector.setAttribute("address", address);
     }
-
+    
+    @Persistent
     public void setBacklog(int backlog) {
         connector.setAttribute("backlog", new Integer(backlog));
     }
-
+    
+    @Persistent
     public void setBufferSize(int bufferSize) {
         connector.setAttribute("bufferSize", new Integer(bufferSize));
     }
-
+    
+    @Persistent
     public void setConnectionTimeout(int connectionTimeout) {
         connector.setAttribute("connectionTimeout", new Integer(connectionTimeout));
     }
-
+    
+    @Persistent
     public void setExecutor(String executor) {
         connector.setAttribute("executor", executor);
     }
     
+    @Persistent
     public void setHost(String host) {
         setAddress(host);
     }
-
+    
+    @Persistent
     public void setKeepAliveTimeout(int keepAliveTimeout) {
         connector.setAttribute("keepAliveTimeout", keepAliveTimeout);        
     }
-
+    
+    @Persistent
     public void setMaxThreads(int maxThreads) {
         connector.setAttribute("maxThreads", maxThreads);        
     }
     
+    @Persistent
     public void setMaxSpareThreads(int maxSpareThreads) {
         connector.setAttribute("maxSpareThreads", new Integer(maxSpareThreads));
     }
     
+    @Persistent 
     public void setMinSpareThreads(int minSpareThreads) {
         connector.setAttribute("minSpareThreads", new Integer(minSpareThreads));
     }
-
+    
+    @Persistent
     public void setNoCompressionUserAgents(String noCompressionUserAgents) {
         connector.setAttribute("noCompressionUserAgents", noCompressionUserAgents);
     }
-
+    
+    @Persistent
     public void setPort(int port) {
         connector.setPort(port);
     }
-
+    
+    @Persistent
     public void setTcpNoDelay(boolean tcpNoDelay) {
         connector.setAttribute("tcpNoDelay", new Boolean(tcpNoDelay));
     }
-
+    
+    @Persistent
     public void setTomcatAuthentication(boolean tomcatAuthentication) {
         connector.setAttribute("tomcatAuthentication", new Boolean(tomcatAuthentication));
     }

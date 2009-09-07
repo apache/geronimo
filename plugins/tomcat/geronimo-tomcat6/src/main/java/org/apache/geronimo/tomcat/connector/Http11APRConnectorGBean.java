@@ -24,6 +24,7 @@ import org.apache.catalina.connector.Connector;
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.gbean.annotation.ParamReference;
+import org.apache.geronimo.gbean.annotation.Persistent;
 import org.apache.geronimo.management.geronimo.WebManager;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.tomcat.TomcatContainer;
@@ -128,19 +129,23 @@ public class Http11APRConnectorGBean extends BaseHttp11ConnectorGBean implements
     public String getSslPassword() {
         return (String) connector.getAttribute("SSLPassword");
     }
-
+    
+    @Persistent
     public void setPollTime(int pollTime) {
         connector.setAttribute("pollTime", pollTime);
     }
-
+    
+    @Persistent
     public void setPollerSize(int pollerSize) {
         connector.setAttribute("pollerSize", pollerSize);
     }
-
+    
+    @Persistent
     public void setSendfileSize(int sendfileSize) {
         connector.setAttribute("sendfileSize", sendfileSize);
     }
-
+    
+    @Persistent
     public void setSslCACertificateFile(String sslCACertificateFile) {
         if (sslCACertificateFile != null && sslCACertificateFile.equals(""))
             sslCACertificateFile = null;
@@ -150,7 +155,8 @@ public class Http11APRConnectorGBean extends BaseHttp11ConnectorGBean implements
         else
             connector.setAttribute("SSLCACertificateFile", serverInfo.resolveServerPath(caCertificateFile));
     }
-
+    
+    @Persistent
     public void setSslCACertificatePath(String sslCACertificatePath) {
         if (sslCACertificatePath != null && sslCACertificatePath.equals(""))
             sslCACertificatePath = null;
@@ -160,7 +166,8 @@ public class Http11APRConnectorGBean extends BaseHttp11ConnectorGBean implements
         else
             connector.setAttribute("SSLCACertificatePath", serverInfo.resolveServerPath(caCertificatePath));
     }
-
+    
+    @Persistent
     public void setSslCertificateChainFile(String sslCertificateChainFile) {
         if (sslCertificateChainFile != null && sslCertificateChainFile.equals(""))
             sslCertificateChainFile = null;
@@ -170,7 +177,8 @@ public class Http11APRConnectorGBean extends BaseHttp11ConnectorGBean implements
         else
             connector.setAttribute("SSLCertificateChainFile", serverInfo.resolveServerPath(certificateChainFile));
     }
-
+    
+    @Persistent
     public void setSslCertificateFile(String sslCertificateFile) {
         if (sslCertificateFile != null && sslCertificateFile.equals(""))
             sslCertificateFile = null;
@@ -180,7 +188,8 @@ public class Http11APRConnectorGBean extends BaseHttp11ConnectorGBean implements
         else
             connector.setAttribute("SSLCertificateFile", serverInfo.resolveServerPath(certificateFile));
     }
-
+    
+    @Persistent
     public void setSslCertificateKeyFile(String sslCertificateKeyFile) {
         if (sslCertificateKeyFile != null && sslCertificateKeyFile.equals(""))
             sslCertificateKeyFile = null;
@@ -190,21 +199,25 @@ public class Http11APRConnectorGBean extends BaseHttp11ConnectorGBean implements
         else
             connector.setAttribute("SSLCertificateKeyFile", serverInfo.resolveServerPath(certificateKeyFile));
     }
-
+    
+    @Persistent
     public void setSslCipherSuite(String sslCipherSuite) {
         connector.setAttribute("SSLCipherSuite", sslCipherSuite);
     }
-
+    
+    @Persistent
     public void setSslPassword(String sslPassword) {
         if (sslPassword != null && sslPassword.equals(""))
             sslPassword = null;
         connector.setAttribute("SSLPassword", sslPassword);
     }
     
+    @Persistent
     public void setSslProtocol(String sslProtocol) {
         connector.setAttribute("SSLProtocol", sslProtocol);
     }
-
+    
+    @Persistent
     public void setSslCARevocationFile(String sslCARevocationFile) {
         if (sslCARevocationFile!= null && sslCARevocationFile.equals("")) 
             sslCARevocationFile = null;
@@ -214,7 +227,8 @@ public class Http11APRConnectorGBean extends BaseHttp11ConnectorGBean implements
         else
             connector.setAttribute("SSLCARevocationFile", serverInfo.resolveServerPath(revocationFile));
     }
-
+    
+    @Persistent
     public void setSslCARevocationPath(String sslCARevocationPath) {
         if (sslCARevocationPath!= null && sslCARevocationPath.equals("")) 
             sslCARevocationPath = null;
@@ -225,15 +239,18 @@ public class Http11APRConnectorGBean extends BaseHttp11ConnectorGBean implements
             connector.setAttribute("SSLCARevocationPath", serverInfo.resolveServerPath(revocationPath));
 
     }
-
+    
+    @Persistent
     public void setSslVerifyClient(String sslVerifyClient) {
         connector.setAttribute("SSLVerifyClient", sslVerifyClient);
     }
-
+    
+    @Persistent
     public void setSslVerifyDepth(int sslVerifyDepth) {
         connector.setAttribute("SSLVerifyDepth", sslVerifyDepth);
     }
-
+    
+    @Persistent
     public void setUseSendfile(boolean useSendfile) {
         connector.setAttribute("useSendfile", useSendfile);
     }

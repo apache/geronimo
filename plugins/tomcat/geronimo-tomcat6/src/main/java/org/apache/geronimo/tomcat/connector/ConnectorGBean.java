@@ -30,6 +30,7 @@ import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.gbean.annotation.ParamReference;
+import org.apache.geronimo.gbean.annotation.Persistent;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.tomcat.BaseGBean;
 import org.apache.geronimo.tomcat.ObjectRetriever;
@@ -54,12 +55,12 @@ public abstract class ConnectorGBean extends BaseGBean implements CommonProtocol
     private String name;
     
 
-	public ConnectorGBean(@ParamAttribute(name = "name") String name,
-						  @ParamAttribute(name = "initParams") Map<String, String> initParams,
-						  @ParamAttribute(name = "protocol") String tomcatProtocol,
-						  @ParamReference(name = "TomcatContainer") TomcatContainer container,
-						  @ParamReference(name = "ServerInfo") ServerInfo serverInfo,
-						  @ParamAttribute(name = "connector") Connector conn)  throws Exception {
+    public ConnectorGBean(@ParamAttribute(name = "name") String name,
+                        @ParamAttribute(name = "initParams") Map<String, String> initParams,
+                        @ParamAttribute(name = "protocol") String tomcatProtocol,
+                        @ParamReference(name = "TomcatContainer") TomcatContainer container,
+                        @ParamReference(name = "ServerInfo") ServerInfo serverInfo,
+                        @ParamAttribute(name = "connector") Connector conn)  throws Exception {
         
         //Relief for new Tomcat-only parameters that may come in the future
         if (initParams == null){
@@ -209,29 +210,35 @@ public abstract class ConnectorGBean extends BaseGBean implements CommonProtocol
     public boolean getUseIPVHosts() {
         return connector.getUseIPVHosts();
     }
-
+    
+    @Persistent
     public void setMaxSavePostSize(int maxSavePostSize) {
         connector.setMaxSavePostSize(maxSavePostSize);
     }
-
+    
+    @Persistent
     public void setProxyName(String proxyName) {
         if (proxyName.equals(""))
             proxyName = null;
         connector.setProxyName(proxyName);
     }
-
+    
+    @Persistent
     public void setProxyPort(int port) {
         connector.setProxyPort(port);
     }
-
+    
+    @Persistent
     public void setRedirectPort(int port) {
         connector.setRedirectPort(port);
     }
-
+    
+    @Persistent
     public void setScheme(String scheme) {
         connector.setScheme(scheme);
     }
-
+    
+    @Persistent
     public void setSecure(boolean secure) {
         connector.setSecure(secure);
     }
@@ -240,23 +247,28 @@ public abstract class ConnectorGBean extends BaseGBean implements CommonProtocol
         Object value = connector.getAttribute("SSLEnabled");
         return value == null ? false : new Boolean(value.toString()).booleanValue();
     }
-
+    
+    @Persistent
     public void setSslEnabled(boolean sslEnabled) {
         connector.setAttribute("SSLEnabled", sslEnabled);
     }
-
+    
+    @Persistent
     public void setUriEncoding(String uriEncoding) {
         connector.setURIEncoding(uriEncoding);
     }
-
+    
+    @Persistent
     public void setUseBodyEncodingForURI(boolean useBodyEncodingForURI) {
         connector.setUseBodyEncodingForURI(useBodyEncodingForURI);
     }
-
+    
+    @Persistent
     public void setUseIPVHosts(boolean useIPVHosts) {
         connector.setUseIPVHosts(useIPVHosts);
     }
-
+    
+    @Persistent
     public void setXpoweredBy(boolean xpoweredBy) {
         connector.setXpoweredBy(xpoweredBy);
     }

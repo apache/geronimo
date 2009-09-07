@@ -30,6 +30,7 @@ import org.apache.catalina.connector.Connector;
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.gbean.annotation.ParamReference;
+import org.apache.geronimo.gbean.annotation.Persistent;
 import org.apache.geronimo.management.StatisticsProvider;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.tomcat.TomcatContainer;
@@ -225,102 +226,124 @@ public abstract class BaseHttp11ConnectorGBean extends ConnectorGBean implements
         Object value = connector.getAttribute("tcpNoDelay");
         return value == null ? true : new Boolean(value.toString()).booleanValue();
     }
+    
 
     public int getThreadPriority() {
         Object value = connector.getAttribute("threadPriority");
         return value == null ? Thread.NORM_PRIORITY : Integer.parseInt(value.toString());
     }
+    
 
     public void setAcceptCount(int acceptCount) {
         connector.setAttribute("acceptCount", new Integer(acceptCount));
     }
-
+    
+    @Persistent
     public void setAddress(String address) {
         connector.setAttribute("address", address);
     }
-
+    
+    @Persistent
     public void setBufferSize(int bufferSize) {
         connector.setAttribute("bufferSize", new Integer(bufferSize));
     }
-
+    
+    @Persistent
     public void setCompressableMimeType(String compressableMimeType) {
         connector.setAttribute("compressableMimeType", compressableMimeType);
     }
-
+    
+    @Persistent
     public void setCompression(String compression) {
         connector.setAttribute("compression", compression);
     }
-
+    
+    @Persistent
     public void setConnectionLinger(int connectionLinger) {
         connector.setAttribute("connectionLinger", new Integer(connectionLinger));
     }
-
+    
+    @Persistent
     public void setConnectionTimeout(int connectionTimeout) {
         connector.setAttribute("connectionTimeout", new Integer(connectionTimeout));
     }
-
+    
+    @Persistent
     public void setDisableUploadTimeout(boolean disableUploadTimeout) {
         connector.setAttribute("disableUploadTimeout", new Boolean(disableUploadTimeout));
     }
-
+    
+    @Persistent
     public void setExecutor(String executor) {
         connector.setAttribute("executor", executor);
     }
     
+    @Persistent
     public void setHost(String host) {
         setAddress(host);
     }
-
+    
+    @Persistent
     public void setKeepAliveTimeout(int keepAliveTimeout) {
         connector.setAttribute("keepAliveTimeout", keepAliveTimeout);
     }
-
+    
+    @Persistent
     public void setMaxHttpHeaderSize(int maxHttpHeaderSize) {
         connector.setAttribute("maxHttpHeaderSize", new Integer(maxHttpHeaderSize));
     }
-
+    
+    @Persistent
     public void setMaxKeepAliveRequests(int maxKeepAliveRequests) {
         connector.setAttribute("maxKeepAliveRequests", new Integer(maxKeepAliveRequests));
     }
-
+    
+    @Persistent
     public void setMaxThreads(int maxThreads) {
         connector.setAttribute("maxThreads", new Integer(maxThreads));
     }
     
+    @Persistent
     public void setMaxSpareThreads(int maxSpareThreads) {
         connector.setAttribute("maxSpareThreads", new Integer(maxSpareThreads));
     }
     
+    @Persistent
     public void setMinSpareThreads(int minSpareThreads) {
         connector.setAttribute("minSpareThreads", new Integer(minSpareThreads));
     }
-
+    
+    @Persistent
     public void setNoCompressionUserAgents(String noCompressionUserAgents) {
         connector.setAttribute("noCompressionUserAgents", noCompressionUserAgents);
     }
-
+    @Persistent
     public void setPort(int port) {
         connector.setPort(port);
     }
-
+    @Persistent
     public void setRestrictedUserAgents(String restrictedUserAgents) {
         connector.setAttribute("restrictedUserAgents", restrictedUserAgents);
     }
-
+    
+    @Persistent
     public void setServer(String server) {
         if (server.equals(""))
             server = null;
         connector.setAttribute("server", server);
     }
-
+    
+    @Persistent
     public void setSocketBuffer(int socketBuffer) {
         connector.setAttribute("socketBuffer", new Integer(socketBuffer));
     }
-
+    
+    @Persistent
     public void setTcpNoDelay(boolean tcpNoDelay) {
         connector.setAttribute("tcpNoDelay", new Boolean(tcpNoDelay));
     }
-
+    
+    @Persistent
     public void setThreadPriority(int threadPriority) {
         connector.setAttribute("threadPriority", new Integer(threadPriority));
     }
