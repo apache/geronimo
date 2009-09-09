@@ -68,18 +68,6 @@
             <groupId>org.apache.geronimo.components</groupId>
             <artifactId>geronimo-jaspi</artifactId>
         </dependency>
-<!--
-        <dependency>
-            <groupId>org.soter.rbac</groupId>
-            <artifactId>rbac-xml-model</artifactId>
-            <version>1.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>org.soter.rbac</groupId>
-            <artifactId>rbac-jacc</artifactId>
-            <version>1.0-SNAPSHOT</version>
-        </dependency>
--->
     </dependencies>
     
     <build>
