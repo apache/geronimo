@@ -31,6 +31,7 @@ import org.apache.catalina.connector.Connector;
 import org.apache.xbean.recipe.ObjectRecipe;
 import org.apache.xbean.recipe.Option;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.tomcat.TomcatServerGBean;
 
 
 /**
@@ -271,6 +272,7 @@ public class ServiceType {
         for (ExecutorType executorType: getExecutor()) {
             Executor executor = executorType.getExecutor(cl, kernel);
             service.addExecutor(executor);
+            TomcatServerGBean.executors.put(executor.getName(), executor);
         }
         for (ConnectorType connectorType: getConnector()) {
             Connector connector = connectorType.getConnector(cl, service);
