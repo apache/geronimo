@@ -55,12 +55,12 @@ public abstract class ConnectorGBean extends BaseGBean implements CommonProtocol
     private String name;
     
 
-    public ConnectorGBean(@ParamAttribute(name = "name") String name,
-                        @ParamAttribute(name = "initParams") Map<String, String> initParams,
-                        @ParamAttribute(name = "protocol") String tomcatProtocol,
+    public ConnectorGBean(@ParamAttribute(manageable=false, name = "name") String name,
+                        @ParamAttribute(manageable=false, name = "initParams") Map<String, String> initParams,
+                        @ParamAttribute(manageable=false, name = "protocol") String tomcatProtocol,
                         @ParamReference(name = "TomcatContainer") TomcatContainer container,
                         @ParamReference(name = "ServerInfo") ServerInfo serverInfo,
-                        @ParamAttribute(name = "connector") Connector conn)  throws Exception {
+                        @ParamAttribute(manageable=false, name = "connector") Connector conn)  throws Exception {
         
         //Relief for new Tomcat-only parameters that may come in the future
         if (initParams == null){
@@ -211,34 +211,34 @@ public abstract class ConnectorGBean extends BaseGBean implements CommonProtocol
         return connector.getUseIPVHosts();
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setMaxSavePostSize(int maxSavePostSize) {
         connector.setMaxSavePostSize(maxSavePostSize);
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setProxyName(String proxyName) {
         if (proxyName.equals(""))
             proxyName = null;
         connector.setProxyName(proxyName);
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setProxyPort(int port) {
         connector.setProxyPort(port);
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setRedirectPort(int port) {
         connector.setRedirectPort(port);
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setScheme(String scheme) {
         connector.setScheme(scheme);
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setSecure(boolean secure) {
         connector.setSecure(secure);
     }
@@ -248,27 +248,27 @@ public abstract class ConnectorGBean extends BaseGBean implements CommonProtocol
         return value == null ? false : new Boolean(value.toString()).booleanValue();
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setSslEnabled(boolean sslEnabled) {
         connector.setAttribute("SSLEnabled", sslEnabled);
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setUriEncoding(String uriEncoding) {
         connector.setURIEncoding(uriEncoding);
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setUseBodyEncodingForURI(boolean useBodyEncodingForURI) {
         connector.setUseBodyEncodingForURI(useBodyEncodingForURI);
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setUseIPVHosts(boolean useIPVHosts) {
         connector.setUseIPVHosts(useIPVHosts);
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setXpoweredBy(boolean xpoweredBy) {
         connector.setXpoweredBy(xpoweredBy);
     }

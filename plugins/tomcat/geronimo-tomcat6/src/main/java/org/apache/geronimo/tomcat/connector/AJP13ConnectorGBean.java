@@ -47,13 +47,13 @@ public class AJP13ConnectorGBean extends ConnectorGBean implements Ajp13Protocol
 
     protected String connectHost;
     
-    public AJP13ConnectorGBean(@ParamAttribute(name = "name") String name,
-                               @ParamAttribute(name = "initParams") Map<String, String> initParams,
-                               @ParamAttribute(name = "host") String host,
-                               @ParamAttribute(name = "port") int port,
+    public AJP13ConnectorGBean(@ParamAttribute(manageable=false, name = "name") String name,
+                               @ParamAttribute(manageable=false, name = "initParams") Map<String, String> initParams,
+                               @ParamAttribute(manageable=false, name = "host") String host,
+                               @ParamAttribute(manageable=false, name = "port") int port,
                                @ParamReference(name = "TomcatContainer") TomcatContainer container,
                                @ParamReference(name = "ServerInfo") ServerInfo serverInfo,
-                               @ParamAttribute(name = "connector") Connector conn)  throws Exception {
+                               @ParamAttribute(manageable=false, name = "connector") Connector conn)  throws Exception {
     
 
         super(name, initParams, "AJP/1.3", container, serverInfo, conn);
@@ -190,72 +190,72 @@ public class AJP13ConnectorGBean extends ConnectorGBean implements Ajp13Protocol
         return value == null ? true : new Boolean(value.toString()).booleanValue();
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setAddress(String address) {
         connector.setAttribute("address", address);
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setBacklog(int backlog) {
         connector.setAttribute("backlog", new Integer(backlog));
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setBufferSize(int bufferSize) {
         connector.setAttribute("bufferSize", new Integer(bufferSize));
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setConnectionTimeout(int connectionTimeout) {
         connector.setAttribute("connectionTimeout", new Integer(connectionTimeout));
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setExecutor(String executor) {
         connector.setAttribute("executor", executor);
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setHost(String host) {
         setAddress(host);
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setKeepAliveTimeout(int keepAliveTimeout) {
         connector.setAttribute("keepAliveTimeout", keepAliveTimeout);        
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setMaxThreads(int maxThreads) {
         connector.setAttribute("maxThreads", maxThreads);        
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setMaxSpareThreads(int maxSpareThreads) {
         connector.setAttribute("maxSpareThreads", new Integer(maxSpareThreads));
     }
     
-    @Persistent 
+    @Persistent(manageable=false) 
     public void setMinSpareThreads(int minSpareThreads) {
         connector.setAttribute("minSpareThreads", new Integer(minSpareThreads));
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setNoCompressionUserAgents(String noCompressionUserAgents) {
         connector.setAttribute("noCompressionUserAgents", noCompressionUserAgents);
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setPort(int port) {
         connector.setPort(port);
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setTcpNoDelay(boolean tcpNoDelay) {
         connector.setAttribute("tcpNoDelay", new Boolean(tcpNoDelay));
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setTomcatAuthentication(boolean tomcatAuthentication) {
         connector.setAttribute("tomcatAuthentication", new Boolean(tomcatAuthentication));
     }
