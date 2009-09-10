@@ -634,7 +634,7 @@ public class TomcatManagerImpl implements WebManager {
                       continue;
                }
 
-            } else if(defaultAttribute.getValue().equals(latestAttibuteValue)){
+            } else if(defaultAttribute.getValue()!=null&&defaultAttribute.getValue().equals(latestAttibuteValue)){
                
                 if (defaultAttributeNames.contains(attributeName)) {
 
@@ -647,7 +647,9 @@ public class TomcatManagerImpl implements WebManager {
                
             } else {
                 //adding changed attributes to attributesToUpdate map.
-                attributesToUpdate.put(attributeName, defaultAttribute.getStringValue());  
+                ConnectorAttribute latestAttibute = new ConnectorAttribute(defaultAttribute);
+                latestAttibute.setValue(latestAttibuteValue);
+                attributesToUpdate.put(attributeName, latestAttibute.getStringValue());  
             }
         }
         
