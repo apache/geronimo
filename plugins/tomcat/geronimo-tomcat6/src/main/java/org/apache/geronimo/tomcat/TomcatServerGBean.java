@@ -40,6 +40,7 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
+import org.apache.catalina.Executor;
 import org.apache.catalina.Lifecycle;
 import org.apache.catalina.LifecycleListener;
 import org.apache.catalina.Server;
@@ -70,6 +71,7 @@ public class TomcatServerGBean implements GBeanLifecycle {
     private static final String DEFAULT_CATALINA_HOME = "var/catalina";
     public static final Map<Connector,String> ConnectorName=new HashMap<Connector,String>();
     public static final List<LifecycleListener> LifecycleListeners=new ArrayList<LifecycleListener>();
+    public static final Map<String,Executor> executors=new HashMap<String,Executor>();
     static {
         try {
             SERVER_CONTEXT = JAXBContext.newInstance(ServerType.class);

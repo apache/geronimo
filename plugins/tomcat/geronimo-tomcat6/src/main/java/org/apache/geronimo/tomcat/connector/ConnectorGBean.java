@@ -23,6 +23,7 @@ import java.util.Map;
 
 import javax.management.j2ee.statistics.Stats;
 
+import org.apache.catalina.Executor;
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.LifecycleListener;
 import org.apache.catalina.connector.Connector;
@@ -36,6 +37,7 @@ import org.apache.geronimo.tomcat.BaseGBean;
 import org.apache.geronimo.tomcat.ObjectRetriever;
 import org.apache.geronimo.tomcat.TomcatContainer;
 import org.apache.geronimo.tomcat.TomcatServerGBean;
+import org.apache.tomcat.util.IntrospectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,7 +52,7 @@ public abstract class ConnectorGBean extends BaseGBean implements CommonProtocol
     
     protected final Connector connector;
 
-    private final TomcatContainer container;
+    protected final TomcatContainer container;
 
     private String name;
     
@@ -110,7 +112,64 @@ public abstract class ConnectorGBean extends BaseGBean implements CommonProtocol
     }
 
     public void doStart() throws LifecycleException {
+        
+        String executorName=null;
+        Executor executor=null;
+        
+        if (this.connector.getAttribute("executor") != null) {
+            
+            Object value = connector.getAttribute("executor");
+            if (value == null)
+                executorName=null;
+            
+            if (value instanceof String)
+                executorName= (String)value;
+            
+            if(value instanceof Executor){
+                executorName= ((Executor) value).getName();
+            }
+            
+            executor = TomcatServerGBean.executors.get(executorName);
+            
+            if (executor == null) { 
+               
+                log.warn("No executor found with name:" + executorName+", trying to get default executor with name 'DefaultThreadPool'");
+                executor = TomcatServerGBean.executors.get("DefaultThreadPool");   
+            }  
+            
+            
+        } else {
+            
+            executor = TomcatServerGBean.executors.get("DefaultThreadPool");  
+            
+            if (executor == null) {
+                
+                log.warn("No executor found in service with name: DefaultThreadPool");
+                
+            } 
+        }
+        
+        
+        if (executor != null)
+
+        {
+            log.info("executor"+executor.getName()+" found, set it to connector:"+this.getName() );     
+
+            try {
+
+                IntrospectionUtils.callMethod1(this.connector.getProtocolHandler(), 
+                                                "setExecutor", 
+                                                executor,
+                                                java.util.concurrent.Executor.class.getName(),
+                                                connector.getClass().getClassLoader());
+            } catch (Exception e) {
+                
+                log.info("connector:"+this.getName()+"does not support executor set, do nothing");
+            }
+        }
+        
         container.addConnector(this.connector);
+        
         log.debug("{} connector started", name);
 
     }
