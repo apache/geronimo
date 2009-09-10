@@ -122,8 +122,8 @@ public class SnapshotThread extends Thread {
         ArrayList<String> retval = new ArrayList<String>();
         for (Iterator it = mbeans.iterator(); it.hasNext();) {
             String name = (String) it.next();
-            if ((name.contains("Connector") || name.contains("Container"))
-                    && (name.contains("Jetty") || name.contains("Tomcat"))) {
+            if (((name.contains("Connector") || name.contains("Container"))
+                    && (name.contains("Jetty") || name.contains("Tomcat"))|| name.contains("JVM"))) {
                 // this is a connector, so add to the list
                 retval.add(name);
                 // update the snapshot-config.xml to include these
