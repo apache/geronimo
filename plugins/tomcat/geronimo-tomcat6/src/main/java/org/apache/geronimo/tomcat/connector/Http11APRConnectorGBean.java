@@ -40,13 +40,13 @@ public class Http11APRConnectorGBean extends BaseHttp11ConnectorGBean implements
     private String revocationPath;
     private String revocationFile;
     
-    public Http11APRConnectorGBean(@ParamAttribute(name = "name") String name,
-                                   @ParamAttribute(name = "initParams") Map<String, String> initParams,
-                                   @ParamAttribute(name = "host") String host,
-                                   @ParamAttribute(name = "port") int port,
+    public Http11APRConnectorGBean(@ParamAttribute(manageable=false, name = "name") String name,
+                                   @ParamAttribute(manageable=false, name = "initParams") Map<String, String> initParams,
+                                   @ParamAttribute(manageable=false, name = "host") String host,
+                                   @ParamAttribute(manageable=false, name = "port") int port,
                                    @ParamReference(name = "TomcatContainer") TomcatContainer container,
                                    @ParamReference(name = "ServerInfo") ServerInfo serverInfo,
-                                   @ParamAttribute(name = "connector") Connector conn)  throws Exception {
+                                   @ParamAttribute(manageable=false, name = "connector") Connector conn)  throws Exception {
                                    
         super(name, initParams, "org.apache.coyote.http11.Http11AprProtocol", host, port, container, serverInfo, conn);
     }
@@ -130,22 +130,22 @@ public class Http11APRConnectorGBean extends BaseHttp11ConnectorGBean implements
         return (String) connector.getAttribute("SSLPassword");
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setPollTime(int pollTime) {
         connector.setAttribute("pollTime", pollTime);
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setPollerSize(int pollerSize) {
         connector.setAttribute("pollerSize", pollerSize);
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setSendfileSize(int sendfileSize) {
         connector.setAttribute("sendfileSize", sendfileSize);
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setSslCACertificateFile(String sslCACertificateFile) {
         if (sslCACertificateFile != null && sslCACertificateFile.equals(""))
             sslCACertificateFile = null;
@@ -156,7 +156,7 @@ public class Http11APRConnectorGBean extends BaseHttp11ConnectorGBean implements
             connector.setAttribute("SSLCACertificateFile", serverInfo.resolveServerPath(caCertificateFile));
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setSslCACertificatePath(String sslCACertificatePath) {
         if (sslCACertificatePath != null && sslCACertificatePath.equals(""))
             sslCACertificatePath = null;
@@ -167,7 +167,7 @@ public class Http11APRConnectorGBean extends BaseHttp11ConnectorGBean implements
             connector.setAttribute("SSLCACertificatePath", serverInfo.resolveServerPath(caCertificatePath));
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setSslCertificateChainFile(String sslCertificateChainFile) {
         if (sslCertificateChainFile != null && sslCertificateChainFile.equals(""))
             sslCertificateChainFile = null;
@@ -178,7 +178,7 @@ public class Http11APRConnectorGBean extends BaseHttp11ConnectorGBean implements
             connector.setAttribute("SSLCertificateChainFile", serverInfo.resolveServerPath(certificateChainFile));
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setSslCertificateFile(String sslCertificateFile) {
         if (sslCertificateFile != null && sslCertificateFile.equals(""))
             sslCertificateFile = null;
@@ -189,7 +189,7 @@ public class Http11APRConnectorGBean extends BaseHttp11ConnectorGBean implements
             connector.setAttribute("SSLCertificateFile", serverInfo.resolveServerPath(certificateFile));
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setSslCertificateKeyFile(String sslCertificateKeyFile) {
         if (sslCertificateKeyFile != null && sslCertificateKeyFile.equals(""))
             sslCertificateKeyFile = null;
@@ -200,24 +200,24 @@ public class Http11APRConnectorGBean extends BaseHttp11ConnectorGBean implements
             connector.setAttribute("SSLCertificateKeyFile", serverInfo.resolveServerPath(certificateKeyFile));
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setSslCipherSuite(String sslCipherSuite) {
         connector.setAttribute("SSLCipherSuite", sslCipherSuite);
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setSslPassword(String sslPassword) {
         if (sslPassword != null && sslPassword.equals(""))
             sslPassword = null;
         connector.setAttribute("SSLPassword", sslPassword);
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setSslProtocol(String sslProtocol) {
         connector.setAttribute("SSLProtocol", sslProtocol);
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setSslCARevocationFile(String sslCARevocationFile) {
         if (sslCARevocationFile!= null && sslCARevocationFile.equals("")) 
             sslCARevocationFile = null;
@@ -228,7 +228,7 @@ public class Http11APRConnectorGBean extends BaseHttp11ConnectorGBean implements
             connector.setAttribute("SSLCARevocationFile", serverInfo.resolveServerPath(revocationFile));
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setSslCARevocationPath(String sslCARevocationPath) {
         if (sslCARevocationPath!= null && sslCARevocationPath.equals("")) 
             sslCARevocationPath = null;
@@ -240,17 +240,17 @@ public class Http11APRConnectorGBean extends BaseHttp11ConnectorGBean implements
 
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setSslVerifyClient(String sslVerifyClient) {
         connector.setAttribute("SSLVerifyClient", sslVerifyClient);
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setSslVerifyDepth(int sslVerifyDepth) {
         connector.setAttribute("SSLVerifyDepth", sslVerifyDepth);
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setUseSendfile(boolean useSendfile) {
         connector.setAttribute("useSendfile", useSendfile);
     }

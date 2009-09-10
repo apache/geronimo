@@ -32,13 +32,13 @@ import org.apache.geronimo.tomcat.TomcatContainer;
 @GBean(name="Tomcat Connector HTTP NIO")
 public class Http11NIOConnectorGBean extends AbstractHttp11ConnectorGBean implements Http11NIOProtocol{
 
-    public Http11NIOConnectorGBean(@ParamAttribute(name = "name") String name,
-                                   @ParamAttribute(name = "initParams") Map<String, String> initParams,
-                                   @ParamAttribute(name = "host") String host,
-                                   @ParamAttribute(name = "port") int port,
+    public Http11NIOConnectorGBean(@ParamAttribute(manageable=false, name = "name") String name,
+                                   @ParamAttribute(manageable=false, name = "initParams") Map<String, String> initParams,
+                                   @ParamAttribute(manageable=false, name = "host") String host,
+                                   @ParamAttribute(manageable=false, name = "port") int port,
                                    @ParamReference(name = "TomcatContainer") TomcatContainer container,
                                    @ParamReference(name = "ServerInfo") ServerInfo serverInfo,
-                                   @ParamAttribute(name = "connector") Connector conn)  throws Exception {
+                                   @ParamAttribute(manageable=false, name = "connector") Connector conn)  throws Exception {
                                    
         super(name, initParams, "org.apache.coyote.http11.Http11NioProtocol", host, port, container, serverInfo, conn);
     }
@@ -221,172 +221,172 @@ public class Http11NIOConnectorGBean extends AbstractHttp11ConnectorGBean implem
         return value == null ? true : new Boolean(value.toString()).booleanValue();
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setAcceptorThreadCount(int acceptorThreadCount) {
         connector.setAttribute("acceptorThreadCount", new Integer(acceptorThreadCount));
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setAcceptorThreadPriority(int acceptorThreadPriority) {
         connector.setAttribute("acceptorThreadPriority", new Integer(acceptorThreadPriority));
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setCommand_line_options(boolean command_line_options) {
         connector.setAttribute("command-line-options", new Boolean(command_line_options));
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setOomParachute(int oomParachute) {
         connector.setAttribute("oomParachute", new Integer(oomParachute));
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setPollerThreadCount(int pollerThreadCount) {
         connector.setAttribute("pollerThreadCount", new Integer(pollerThreadCount));
     }
     
-    @Persistent   
+    @Persistent(manageable=false)   
     public void setPollerThreadPriority(int pollerThreadPriority) {
         connector.setAttribute("pollerThreadPriority", new Integer(pollerThreadPriority));
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setProcessCache(int processCache) {
         connector.setAttribute("processCache", new Integer(processCache));
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setSelectorPool_maxSelectors(int selectorPool_maxSelectors) {
         connector.setAttribute("selectorPool.maxSelectors", new Integer(selectorPool_maxSelectors));
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setSelectorPool_maxSpareSelectors(int selectorPool_maxSpareSelectors) {
         connector.setAttribute("selectorPool.maxSpareSelectors", new Integer(selectorPool_maxSpareSelectors));
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setSelectorTimeout(int selectorTimeout) {
         connector.setAttribute("selectorTimeout", new Integer(selectorTimeout));
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setSocket_appReadBufSize(int socket_appReadBufSize) {
         connector.setAttribute("socket.appReadBufSize", new Integer(socket_appReadBufSize));
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setSocket_appWriteBufSize(int socket_appWriteBufSize) {
         connector.setAttribute("socket.appWriteBufSize", new Integer(socket_appWriteBufSize));
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setSocket_bufferPool(int socket_bufferPool) {
         connector.setAttribute("socket.bufferPool", new Integer(socket_bufferPool));
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setSocket_bufferPoolSize(int socket_bufferPoolSize) {
         connector.setAttribute("socket.bufferPoolSize", new Integer(socket_bufferPoolSize));
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setSocket_directBuffer(boolean socket_directBuffer) {
         connector.setAttribute("socket.directBuffer", new Boolean(socket_directBuffer));
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setSocket_eventCache(int socket_eventCache) {
         connector.setAttribute("socket.eventCache", new Integer(socket_eventCache));
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setSocket_keyCache(int socket_keyCache) {
         connector.setAttribute("socket.keyCache", new Integer(socket_keyCache));
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setSocket_ooBInline(boolean socket_ooBInline) {
         connector.setAttribute("socket.ooBInline", new Boolean(socket_ooBInline));
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setSocket_performanceBandwidth(int socket_performanceBandwidth) {
         connector.setAttribute("socket.performanceBandwidth", new Integer(socket_performanceBandwidth));
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setSocket_performanceConnectionTime(int socket_performanceConnectionTime) {
         connector.setAttribute("socket.performanceConnectionTime", new Integer(socket_performanceConnectionTime));
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setSocket_performanceLatency(int socket_performanceLatency) {
         connector.setAttribute("socket.performanceLatency", new Integer(socket_performanceLatency));
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setSocket_processorCache(int socket_processorCache) {
         connector.setAttribute("socket.processorCache", new Integer(socket_processorCache));
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setSocket_rxBufSize(int socket_rxBufSize) {
         connector.setAttribute("socket.rxBufSize", new Integer(socket_rxBufSize));
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setSocket_soKeepAlive(boolean socket_soKeepAlive) {
         connector.setAttribute("socket.soKeepAlive", new Boolean(socket_soKeepAlive));
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setSocket_soLingerOn(boolean socket_soLingerOn) {
         connector.setAttribute("socket.soLingerOn", new Boolean(socket_soLingerOn));
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setSocket_soLingerTime(int socket_soLingerTime) {
         connector.setAttribute("socket.soLingerTime", new Integer(socket_soLingerTime));
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setSocket_soReuseAddress(boolean socket_soReuseAddress) {
         connector.setAttribute("socket.soReuseAddress", new Boolean(socket_soReuseAddress));
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setSocket_soTimeout(int socket_soTimeout) {
         connector.setAttribute("socket.soTimeout", new Integer(socket_soTimeout));
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setSocket_soTrafficClass(int socket_soTrafficClass) {
         connector.setAttribute("socket.soTrafficClass", new Integer(socket_soTrafficClass));
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setSocket_tcpNoDelay(boolean socket_tcpNoDelay) {
         connector.setAttribute("socket.tcpNoDelay", new Boolean(socket_tcpNoDelay));
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setSocket_txBufSize(int socket_txBufSize) {
         connector.setAttribute("socket.txBufSize", new Integer(socket_txBufSize));
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setUseComet(boolean useComet) {
         connector.setAttribute("useExecutor", new Boolean(useComet));
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setUseExecutor(boolean useExecutor) {
         connector.setAttribute("useExecutor", new Boolean(useExecutor));
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setUseSendfile(boolean useSendfile) {
         connector.setAttribute("useSendfile", new Boolean(useSendfile));
     }

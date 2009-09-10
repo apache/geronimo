@@ -31,13 +31,13 @@ import org.apache.geronimo.tomcat.TomcatContainer;
 @GBean(name="Tomcat Connector HTTPS NIO")
 public class Https11NIOConnectorGBean extends Http11NIOConnectorGBean {
 
-    public Https11NIOConnectorGBean(@ParamAttribute(name = "name") String name,
-                                    @ParamAttribute(name = "initParams") Map<String, String> initParams,
-                                    @ParamAttribute(name = "host") String host,
-                                    @ParamAttribute(name = "port") int port,
+    public Https11NIOConnectorGBean(@ParamAttribute(manageable=false, name = "name") String name,
+                                    @ParamAttribute(manageable=false, name = "initParams") Map<String, String> initParams,
+                                    @ParamAttribute(manageable=false, name = "host") String host,
+                                    @ParamAttribute(manageable=false, name = "port") int port,
                                     @ParamReference(name = "TomcatContainer") TomcatContainer container,
                                     @ParamReference(name = "ServerInfo") ServerInfo serverInfo,
-                                    @ParamAttribute(name = "connector") Connector conn)  throws Exception {
+                                    @ParamAttribute(manageable=false, name = "connector") Connector conn)  throws Exception {
             
         super(name, initParams, host, port, container, serverInfo, conn);
         setSslEnabled(true);

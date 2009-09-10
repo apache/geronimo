@@ -46,14 +46,14 @@ public abstract class BaseHttp11ConnectorGBean extends ConnectorGBean implements
 
     private boolean reset = true;
 
-    public BaseHttp11ConnectorGBean(@ParamAttribute(name = "name") String name,
-                                    @ParamAttribute(name = "initParams") Map<String, String> initParams,
-                                    @ParamAttribute(name = "protocol") String tomcatProtocol,
-                                    @ParamAttribute(name = "host") String host,
-                                    @ParamAttribute(name = "port") int port,
+    public BaseHttp11ConnectorGBean(@ParamAttribute(manageable=false, name = "name") String name,
+                                    @ParamAttribute(manageable=false, name = "initParams") Map<String, String> initParams,
+                                    @ParamAttribute(manageable=false, name = "protocol") String tomcatProtocol,
+                                    @ParamAttribute(manageable=false, name = "host") String host,
+                                    @ParamAttribute(manageable=false, name = "port") int port,
                                     @ParamReference(name = "TomcatContainer") TomcatContainer container,
                                     @ParamReference(name = "ServerInfo") ServerInfo serverInfo,
-                                    @ParamAttribute(name = "connector") Connector conn)  throws Exception {
+                                    @ParamAttribute(manageable=false, name = "connector") Connector conn)  throws Exception {
                                     
         super(name, initParams, tomcatProtocol, container, serverInfo, conn);
 
@@ -238,112 +238,112 @@ public abstract class BaseHttp11ConnectorGBean extends ConnectorGBean implements
         connector.setAttribute("acceptCount", new Integer(acceptCount));
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setAddress(String address) {
         connector.setAttribute("address", address);
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setBufferSize(int bufferSize) {
         connector.setAttribute("bufferSize", new Integer(bufferSize));
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setCompressableMimeType(String compressableMimeType) {
         connector.setAttribute("compressableMimeType", compressableMimeType);
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setCompression(String compression) {
         connector.setAttribute("compression", compression);
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setConnectionLinger(int connectionLinger) {
         connector.setAttribute("connectionLinger", new Integer(connectionLinger));
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setConnectionTimeout(int connectionTimeout) {
         connector.setAttribute("connectionTimeout", new Integer(connectionTimeout));
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setDisableUploadTimeout(boolean disableUploadTimeout) {
         connector.setAttribute("disableUploadTimeout", new Boolean(disableUploadTimeout));
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setExecutor(String executor) {
         connector.setAttribute("executor", executor);
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setHost(String host) {
         setAddress(host);
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setKeepAliveTimeout(int keepAliveTimeout) {
         connector.setAttribute("keepAliveTimeout", keepAliveTimeout);
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setMaxHttpHeaderSize(int maxHttpHeaderSize) {
         connector.setAttribute("maxHttpHeaderSize", new Integer(maxHttpHeaderSize));
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setMaxKeepAliveRequests(int maxKeepAliveRequests) {
         connector.setAttribute("maxKeepAliveRequests", new Integer(maxKeepAliveRequests));
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setMaxThreads(int maxThreads) {
         connector.setAttribute("maxThreads", new Integer(maxThreads));
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setMaxSpareThreads(int maxSpareThreads) {
         connector.setAttribute("maxSpareThreads", new Integer(maxSpareThreads));
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setMinSpareThreads(int minSpareThreads) {
         connector.setAttribute("minSpareThreads", new Integer(minSpareThreads));
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setNoCompressionUserAgents(String noCompressionUserAgents) {
         connector.setAttribute("noCompressionUserAgents", noCompressionUserAgents);
     }
-    @Persistent
+    @Persistent(manageable=false)
     public void setPort(int port) {
         connector.setPort(port);
     }
-    @Persistent
+    @Persistent(manageable=false)
     public void setRestrictedUserAgents(String restrictedUserAgents) {
         connector.setAttribute("restrictedUserAgents", restrictedUserAgents);
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setServer(String server) {
         if (server.equals(""))
             server = null;
         connector.setAttribute("server", server);
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setSocketBuffer(int socketBuffer) {
         connector.setAttribute("socketBuffer", new Integer(socketBuffer));
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setTcpNoDelay(boolean tcpNoDelay) {
         connector.setAttribute("tcpNoDelay", new Boolean(tcpNoDelay));
     }
     
-    @Persistent
+    @Persistent(manageable=false)
     public void setThreadPriority(int threadPriority) {
         connector.setAttribute("threadPriority", new Integer(threadPriority));
     }
