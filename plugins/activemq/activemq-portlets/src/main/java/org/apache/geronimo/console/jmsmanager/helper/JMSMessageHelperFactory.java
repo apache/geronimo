@@ -16,17 +16,18 @@
  */
 package org.apache.geronimo.console.jmsmanager.helper;
 
-import java.util.List;
+import java.net.URI;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.jms.Destination;
+import javax.jms.JMSException;
 import javax.portlet.PortletRequest;
-import javax.portlet.RenderRequest;
 
 import org.apache.geronimo.console.jmsmanager.DestinationStatistics;
+import org.apache.geronimo.console.jmsmanager.JMSDestinationInfo;
 import org.apache.geronimo.console.jmsmanager.JMSMessageInfo;
 import org.apache.geronimo.console.util.PortletManager;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.management.geronimo.ResourceAdapterModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,20 +50,18 @@ public class JMSMessageHelperFactory {
             vendorNameJMSMessageHelperMap.put(DEFAULT_JMS_MESSAGEHELPER, new JMSMessageHelper() {
 
                 @Override
-                public DestinationStatistics getDestinationStatistics(String brokerName, String destType,
-                        String physicalName) {
-                    return null;
+                public DestinationStatistics getDestinationStatistics(PortletRequest portletRequest, JMSDestinationInfo destinationInfo) throws JMSException {
+                    return new DestinationStatistics();
                 }
 
                 @Override
-                protected List<JMSMessageInfo> getMessagesFromTopic(RenderRequest request, Destination destination,
-                        String adapterObjectName, String adminObjName, String physicalName) throws Exception {
-                    return null;
+                protected JMSMessageInfo[] getMessagesFromTopic(PortletRequest portletRequest, JMSDestinationInfo destinationInfo, String selector) throws JMSException {
+                    return new JMSMessageInfo[0];
                 }
 
                 @Override
-                public void purge(PortletRequest request, String adapterObjectName, String adminObjName,
-                        String physicalName) throws Exception {
+                public void purge(PortletRequest portletRequest, JMSDestinationInfo destinationInfo) throws JMSException {
+                    throw new UnsupportedOperationException("purge action is not supported for current vendor");
                 }
             });
         } catch (Exception e) {
@@ -70,18 +69,11 @@ public class JMSMessageHelperFactory {
         }
     }
 
-    public static JMSMessageHelper getMessageHelper(PortletRequest renderRequest, String raName) {
-        ResourceAdapterModule[] modules = PortletManager.getOutboundRAModules(renderRequest, new String[] {
-                "javax.jms.ConnectionFactory",
-                "javax.jms.QueueConnectionFactory",
-                "javax.jms.TopicConnectionFactory" });
+    public static JMSMessageHelper getMessageHelper(PortletRequest renderRequest, String resourceAdapterModuleName) {
         String vendorName = null;
-        for (int i = 0; i < modules.length; i++) {
-            ResourceAdapterModule module = modules[i];
-            String objectNameTemp = module.getObjectName();
-            if (raName != null && raName.equals(objectNameTemp)) {
-                vendorName = module.getVendorName();
-            }
+        ResourceAdapterModule module = (ResourceAdapterModule)PortletManager.getManagementHelper(renderRequest).getObject(new AbstractName(URI.create(resourceAdapterModuleName)));
+        if(module != null) {
+            vendorName = module.getVendorName();
         }
         return getJMSMessageHelper(vendorName);
     }

@@ -48,7 +48,7 @@ function <portlet:namespace/>validateForm(){
           <select name="rar" id="<portlet:namespace/>rar">
             <option></option>
         <c:forEach var="rar" items="${rars}">
-            <option <c:if test="${rar == pool.rar}">selected</c:if>>${rar}</option>
+            <option <c:if test="${rar == pool.rar}">selected</c:if> value="${rar}">${rar}</option>
         </c:forEach>
           </select>
         </td>

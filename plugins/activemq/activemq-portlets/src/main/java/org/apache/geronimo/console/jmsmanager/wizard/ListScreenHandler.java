@@ -18,17 +18,11 @@ package org.apache.geronimo.console.jmsmanager.wizard;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.net.SocketException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Enumeration;
 import java.util.List;
 
+import javax.jms.JMSException;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.portlet.ActionRequest;
@@ -38,25 +32,19 @@ import javax.portlet.PortletRequest;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 
-import org.apache.geronimo.activemq.BrokerServiceGBean;
-import org.apache.geronimo.activemq.management.ActiveMQManagerGBean;
 import org.apache.geronimo.console.BasePortlet;
 import org.apache.geronimo.console.MultiPageModel;
 import org.apache.geronimo.console.jmsmanager.DestinationStatistics;
+import org.apache.geronimo.console.jmsmanager.JMSDestinationInfo;
 import org.apache.geronimo.console.jmsmanager.helper.JMSMessageHelper;
 import org.apache.geronimo.console.jmsmanager.helper.JMSMessageHelperFactory;
 import org.apache.geronimo.console.util.PortletManager;
-import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.proxy.GeronimoManagedBean;
 import org.apache.geronimo.management.geronimo.JCAAdminObject;
 import org.apache.geronimo.management.geronimo.JCAManagedConnectionFactory;
 import org.apache.geronimo.management.geronimo.JCAResource;
-import org.apache.geronimo.management.geronimo.JMSBroker;
-import org.apache.geronimo.management.geronimo.JMSManager;
-import org.apache.geronimo.management.geronimo.NetworkConnector;
 import org.apache.geronimo.management.geronimo.ResourceAdapter;
 import org.apache.geronimo.management.geronimo.ResourceAdapterModule;
 import org.slf4j.Logger;
@@ -78,18 +66,18 @@ public class ListScreenHandler extends AbstractHandler {
         super(LIST_MODE, "/WEB-INF/view/jmswizard/list.jsp", basePortlet);
     }
     
-    public String actionBeforeView(ActionRequest request, ActionResponse response, MultiPageModel model) throws PortletException, IOException {
-        String purgeStr = request.getParameter(PURGE);
+    public String actionBeforeView(ActionRequest actionRequest, ActionResponse response, MultiPageModel model) throws PortletException, IOException {
+        String purgeStr = actionRequest.getParameter(PURGE);
         if (purgeStr != null) {
-            String physicalName = request.getParameter(PHYSICAL_NAME);
-            String adminObjType = request.getParameter(ADMIN_OBJ_TYPE);
-            String adapterObjectName = request.getParameter(RA_ADAPTER_OBJ_NAME);
-            String brokerName = request.getParameter(BROKER_NAME);
-            response.setRenderParameter(ADMIN_OBJ_TYPE, adminObjType);
-            response.setRenderParameter(PHYSICAL_NAME, physicalName);
-            response.setRenderParameter(RA_ADAPTER_OBJ_NAME, adapterObjectName);
-            response.setRenderParameter(BROKER_NAME, brokerName);
-            response.setRenderParameter(PURGE, purgeStr);
+            String physicalName = actionRequest.getParameter(PHYSICAL_NAME);
+            String resourceAdapterModuleName = actionRequest.getParameter(RESOURCE_ADAPTER_MODULE_NAME);
+            JMSMessageHelper helper = JMSMessageHelperFactory.getMessageHelper(actionRequest, resourceAdapterModuleName);
+            try {
+                helper.purge(actionRequest, JMSDestinationInfo.create(actionRequest));
+            } catch (Exception e) {
+                portlet.addErrorMessage(actionRequest, portlet.getLocalizedString(actionRequest, "activemq.errorMsg04", physicalName), e.getMessage());
+                logger.error("Fail to purge message destination " + physicalName, e);
+            }
         }
         return getMode();
     }
@@ -111,22 +99,7 @@ public class ListScreenHandler extends AbstractHandler {
     }
 
 
-    private void populateExistingList(PortletRequest renderRequest) throws PortletException {
-        String purgeStr = renderRequest.getParameter(PURGE);
-        if (purgeStr != null) {
-            String physicalName = renderRequest.getParameter(PHYSICAL_NAME);
-            String adminObjType = renderRequest.getParameter(ADMIN_OBJ_TYPE);
-            String adapterObjectName = renderRequest.getParameter(RA_ADAPTER_OBJ_NAME);
-            String brokerName = renderRequest.getParameter(BROKER_NAME);
-            JMSMessageHelper helper = JMSMessageHelperFactory.getMessageHelper(renderRequest, adapterObjectName);
-            try {
-                helper.purge(renderRequest, brokerName, adminObjType, physicalName);
-            } catch (Exception e) {
-                logger.error("Fail to purge the messages in [" + brokerName + "." + physicalName + "]", e);
-                throw new PortletException("Fail to purge the messages in [" + brokerName + "." + physicalName + "]",e);
-            }
-        }                
-        
+    private void populateExistingList(PortletRequest renderRequest) throws PortletException {       
         // Prepare a list of JMS configurations
         List<JMSResourceSummary> resources = new ArrayList<JMSResourceSummary>();
 
@@ -156,12 +129,11 @@ public class ListScreenHandler extends AbstractHandler {
                     if (name == null) {
                         name = ObjectName.getInstance(module.getObjectName()).getKeyProperty(NameFactory.J2EE_NAME);
                     }
-                    String sServerUrl = adapters.length > 0 ? getServerUrl(renderRequest, module) : "";
-                    target = new JMSResourceSummary(PortletManager.getConfigurationFor(renderRequest, PortletManager.getNameFor(renderRequest, module)).toString(), module.getObjectName(), name,
-                            ((GeronimoManagedBean) module).getState(), getBrokerName(renderRequest, sServerUrl, name));
+                    String configurationName = PortletManager.getConfigurationFor(renderRequest, PortletManager.getNameFor(renderRequest, module)).toString();
+                    String resourceAdapterModuleName = PortletManager.getNameFor(renderRequest, module).toString();
+                    target = new JMSResourceSummary(configurationName, module.getObjectName(), resourceAdapterModuleName, name, ((GeronimoManagedBean) module).getState());
                     resources.add(target);
                 }
-
                 JCAManagedConnectionFactory[] factories = PortletManager.getOutboundFactoriesForRA(renderRequest, module, new String[]{
                         "javax.jms.ConnectionFactory", "javax.jms.QueueConnectionFactory", "javax.jms.TopicConnectionFactory",});
                 for (int j = 0; j < factories.length; j++) {
@@ -169,6 +141,13 @@ public class ListScreenHandler extends AbstractHandler {
                     ObjectName name = ObjectName.getInstance(factory.getObjectName());
                     target.getConnectionFactories().add(new ConnectionFactorySummary(factory.getObjectName(), name.getKeyProperty(NameFactory.J2EE_NAME),
                             ((GeronimoManagedBean) factory).getState()));
+                    String factoryInterface = factory.getConnectionInterface();
+                    if (!target.isQueueConnectionFactoryContained()) {                        
+                        target.setQueueConnectionFactoryContained(factoryInterface.equals("javax.jms.ConnectionFactory") || factoryInterface.equals("javax.jms.QueueConnectionFactory"));
+                    }
+                    if (!target.isTopicConnectionFactoryContained()) {                       
+                        target.setQueueConnectionFactoryContained(factoryInterface.equals("javax.jms.ConnectionFactory") || factoryInterface.equals("javax.jms.TopicConnectionFactory"));
+                    }
                 }
             }
 
@@ -197,11 +176,13 @@ public class ListScreenHandler extends AbstractHandler {
                     if (name == null) {
                         name = ObjectName.getInstance(module.getObjectName()).getKeyProperty(NameFactory.J2EE_NAME);
                     }
-                    String sServerUrl = adapters.length > 0 ? getServerUrl(renderRequest,module) : "";
-                    target = new JMSResourceSummary(PortletManager.getConfigurationFor(renderRequest, PortletManager.getNameFor(renderRequest, module)).toString(), module.getObjectName(), name,
-                            ((GeronimoManagedBean) module).getState(), getBrokerName(renderRequest, sServerUrl, name));
+                    String configurationName = PortletManager.getConfigurationFor(renderRequest, PortletManager.getNameFor(renderRequest, module)).toString();
+                    String resourceAdapterModuleName = PortletManager.getNameFor(renderRequest, module).toString();
+                    target = new JMSResourceSummary(configurationName, module.getObjectName(), resourceAdapterModuleName, name, ((GeronimoManagedBean) module).getState());
                     resources.add(target);
                 }
+                
+                boolean activeMQAdapter = module.getVendorName().equals("activemq.org");                
 
                 JCAAdminObject[] admins = PortletManager.getAdminObjectsForRA(renderRequest, module, new String[]{"javax.jms.Queue", "javax.jms.Topic"});
                 for (int j = 0; j < admins.length; j++) {
@@ -218,14 +199,33 @@ public class ListScreenHandler extends AbstractHandler {
                     String destType = admins[j].getAdminObjectInterface().indexOf("Queue") > -1 ? "Queue" : "Topic";
                     String vendorName = module.getVendorName();
                     DestinationStatistics destinationStat = null;
-                    if (target.getBrokerName() == null || physicalName == null) {
-                        destinationStat = new DestinationStatistics();
-                    } else {
-                        destinationStat = JMSMessageHelperFactory.getJMSMessageHelper(vendorName).getDestinationStatistics(target.getBrokerName(), destType, physicalName);
+                    if (physicalName != null) {                        
+                        try {
+                            JMSDestinationInfo jmsDestinationInfo = new JMSDestinationInfo();
+                            jmsDestinationInfo.setPhysicalName(physicalName);
+                            jmsDestinationInfo.setType(destType);
+                            jmsDestinationInfo.setResourceAdapterModuleAbName(PortletManager.getNameFor(renderRequest, module));
+                            destinationStat = JMSMessageHelperFactory.getJMSMessageHelper(vendorName).getDestinationStatistics(renderRequest, jmsDestinationInfo);
+                        } catch (JMSException e) {
+                            destinationStat = new DestinationStatistics();
+                        }
                     }
-                    target.getAdminObjects().add(
-                            new AdminObjectSummary(bean.getObjectName(), queueName, physicalName,destType , bean
-                                    .getState(),destinationStat));
+                    AdminObjectSummary adminObjectSummary = new AdminObjectSummary(bean.getObjectName(), queueName, physicalName, destType, bean.getState(), destinationStat);                                        
+                    if(activeMQAdapter) {
+                        adminObjectSummary.setBrowserSupported(true);
+                        adminObjectSummary.setSendMessageSupported(true);
+                        if(destType.equals("Queue")) {
+                            adminObjectSummary.setPurgeSupported(true);
+                        }
+                    } else {
+                        if(destType.equals("Queue") && target.isQueueConnectionFactoryContained()) {
+                            adminObjectSummary.setSendMessageSupported(true);
+                            adminObjectSummary.setBrowserSupported(true);
+                        } else if(destType.equals("Topic") && target.isTopicConnectionFactoryContained()) {
+                            adminObjectSummary.setSendMessageSupported(true);                            
+                        }
+                    }
+                    target.getAdminObjects().add(adminObjectSummary);
                 }
             }
         } catch (MalformedObjectNameException e) {
@@ -238,153 +238,26 @@ public class ListScreenHandler extends AbstractHandler {
         renderRequest.setAttribute("providers", JMSProviderData.getAllProviders());
     }
     
-    private String getServerUrl(PortletRequest portletRequest, ResourceAdapterModule resourceAdapterModule) {
-        try {
-            Kernel kernel = PortletManager.getKernel();
-            AbstractName resourceAdapterAbstractName = PortletManager.getNameFor(portletRequest, resourceAdapterModule.getResourceAdapterInstances()[0].getJCAResourceImplementations()[0].getResourceAdapterInstances()[0]);
-            if (kernel.isRunning(resourceAdapterAbstractName)) {
-                return (String) kernel.getAttribute(resourceAdapterAbstractName, "ServerUrl");
-            }
-            return "";
-        } catch (Exception e) {
-            logger.error("Fail to get server URL of the JMS resource",e);
-            return "";
-        }
-    }
     
-    private String getBrokerName(PortletRequest portletRequest, String serverURL, String resourceName) throws PortletException {
-        try {
-            GeronimoManagedBean[] geronimoManagedBeans = PortletManager.getManagedBeans(portletRequest,
-                    ActiveMQManagerGBean.class);
-            if (geronimoManagedBeans == null || geronimoManagedBeans.length == 0)
-                throw new PortletException("Could not find the ActiveMQ Manager");
-            if (geronimoManagedBeans.length > 1)
-                logger.warn("More than one ActiveMQ Manager exist in kernel");            
-            JMSManager activeMQManager = (JMSManager) geronimoManagedBeans[0];            
-            JMSBroker targetJMSBroker = null;
-            URI uri = new URI(serverURL);            
-            String sResourceHostName = uri.getHost();
-            if(!isLocalMachine(sResourceHostName)) {
-                //The resource adapter may connect to the broker running on other servers, let's directly return null
-                portlet.addWarningMessage(portletRequest, portlet.getLocalizedString(portletRequest, "activemq.warnMsg01", resourceName));
-                return null;
-            }               
-            for (JMSBroker jmsBroker : (JMSBroker[]) activeMQManager.getContainers()) {
-                NetworkConnector[] connectors = activeMQManager.getConnectorsForContainer(jmsBroker, uri.getScheme());
-                for (NetworkConnector connector : connectors) {                                       
-                    if(connector.getPort() != uri.getPort()) {
-                        continue;
-                    }
-                    boolean findJMSBroker = false;
-                    String sConnectorHostName = connector.getHost();
-                    /*
-                     * If the broker is binding on all the interfaces, it is the one we want.
-                     * else if the broker is listening on loop back address, the host name of the resource adapter should also be loop back address. 
-                     * else if the host name of resource adapter is local host name, it is the one we want.
-                     * else let us compare whether those two host name are the same textual presentation 
-                     * */
-                    if (isBindOnAllInterfaces(sConnectorHostName)) {
-                        findJMSBroker = true;
-                    } else if (isLoopbackAddress(sConnectorHostName)) {
-                        if (isLoopbackAddress(sResourceHostName)) {
-                            findJMSBroker = true;
-                        } else {
-                            continue;
-                        }
-                    } else if (sResourceHostName.equals(getLocalHostName()) || sResourceHostName.equals(getFullLocalHostName())) {
-                        findJMSBroker = true;
-                    } else if (sResourceHostName.equals(sConnectorHostName)) {
-                        findJMSBroker = true;
-                    }
-                    if (findJMSBroker) {
-                        targetJMSBroker = jmsBroker;
-                    }
-                }
-                if (targetJMSBroker != null)
-                    return ((BrokerServiceGBean) targetJMSBroker).getBrokerName();
-            }
-            logger.warn("Could not find the broker according to the url [" + serverURL + "]");
-            return null;
-        } catch (URISyntaxException e) {
-            logger.error("Unrecognized server URL [" + serverURL + "]", e);
-            return null;
-        }
-    }
-    
-    private boolean isLoopbackAddress(String hostName) {
-        try {
-            return InetAddress.getByName(hostName).isLoopbackAddress();
-        } catch (UnknownHostException e) {
-            return false;
-        }
-    }    
-    
-    private boolean isBindOnAllInterfaces(String hostName) {
-        if (hostName.equals("0.0.0.0") || hostName.equals(getLocalHostName())
-                || hostName.equals(getFullLocalHostName())) {
-            return true;
-        }
-        return false;
-    }
-
-    private String getLocalHostName() {
-        try {
-            return InetAddress.getLocalHost().getHostName();
-        } catch (UnknownHostException e) {
-            return null;
-        }
-    }
-    
-    private String getFullLocalHostName() {
-        try {
-            return InetAddress.getLocalHost().getCanonicalHostName();
-        } catch (UnknownHostException e) {
-            return null;
-        }
-    }
-    
-    private boolean isLocalMachine(String hostName) {
-        try {
-            InetAddress hostAddress = InetAddress.getByName(hostName);
-            if (hostAddress.isAnyLocalAddress() || hostAddress.isLoopbackAddress() || hostName.equals(getLocalHostName()) || hostName.equals(getFullLocalHostName())) {
-                return true;
-            } else {
-                Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces();
-                while (en.hasMoreElements()) {
-                    NetworkInterface iface = en.nextElement();
-                    Enumeration<InetAddress> ien = iface.getInetAddresses();
-                    while (ien.hasMoreElements()) {
-                        InetAddress address = ien.nextElement();
-                        if (address.equals(hostAddress)) {
-                            return true;
-                        }
-                    }
-                }
-                return false;
-            }
-        } catch (SocketException e) {
-            return false;
-        } catch (UnknownHostException e) {
-            return false;
-        }
-    }
     
     public static class JMSResourceSummary implements Serializable, Comparable<JMSResourceSummary> {
         private static final long serialVersionUID = -2788803234448047035L;
         private final String configurationName;
         private final String adapterObjectName;
+        private final String resourceAdapterModuleName;
         private final String name;
         private final String parentName;
         private final int state;
-        private final String brokerName;
         private final List<ConnectionFactorySummary> connectionFactories = new ArrayList<ConnectionFactorySummary>();
         private final List<AdminObjectSummary> adminObjects = new ArrayList<AdminObjectSummary>();
+        private boolean topicConnectionFactoryContained = false;
+        private boolean queueConnectionFactoryContained = false;
 
-        public JMSResourceSummary(String configurationName, String adapterObjectName, String name, int state, String brokerName) {
+        public JMSResourceSummary(String configurationName, String adapterObjectName, String resourceAdapterModuleName, String name, int state) {
             this.configurationName = configurationName;
             this.adapterObjectName = adapterObjectName;
-            this.state = state;
-            this.brokerName = brokerName;
+            this.resourceAdapterModuleName = resourceAdapterModuleName;
+            this.state = state;            
             try {
                 ObjectName objectName = ObjectName.getInstance(adapterObjectName);
                 String parent = objectName.getKeyProperty(NameFactory.J2EE_APPLICATION);
@@ -404,6 +277,10 @@ public class ListScreenHandler extends AbstractHandler {
 
         public String getAdapterObjectName() {
             return adapterObjectName;
+        }
+
+        public String getResourceAdapterModuleName() {
+            return resourceAdapterModuleName;
         }
 
         public String getName() {
@@ -430,10 +307,6 @@ public class ListScreenHandler extends AbstractHandler {
             return State.toString(state);
         }
         
-        public String getBrokerName() {
-            return brokerName;
-        }
-        
         public int compareTo(JMSResourceSummary o) {            
             int names = name.toLowerCase().compareTo(o.name.toLowerCase());
             if (parentName == null) {
@@ -455,6 +328,24 @@ public class ListScreenHandler extends AbstractHandler {
                 }
             }
         }
+
+        public boolean isTopicConnectionFactoryContained() {
+            return topicConnectionFactoryContained;
+        }
+
+        public void setTopicConnectionFactoryContained(boolean topicConnectionFactoryContained) {
+            this.topicConnectionFactoryContained = topicConnectionFactoryContained;
+        }
+
+        public boolean isQueueConnectionFactoryContained() {
+            return queueConnectionFactoryContained;
+        }
+
+        public void setQueueConnectionFactoryContained(boolean queueConnectionFactoryContained) {
+            this.queueConnectionFactoryContained = queueConnectionFactoryContained;
+        }
+        
+        
     }
 
     public static class ConnectionFactorySummary implements Serializable, Comparable<ConnectionFactorySummary> {
@@ -499,6 +390,9 @@ public class ListScreenHandler extends AbstractHandler {
         private final int state;
         private final String physicalName;
         private final DestinationStatistics destinationStat;
+        private boolean browserSupported = false;
+        private boolean sendMessageSupported = false;
+        private boolean purgeSupported = false;
         
         public AdminObjectSummary(String adminObjectName, String name, String physicalName, String type, int state,DestinationStatistics destinationStat) {
             this.adminObjectName = adminObjectName;
@@ -512,6 +406,7 @@ public class ListScreenHandler extends AbstractHandler {
         public DestinationStatistics getdestinationStat(){
             return this.destinationStat;
         }
+
         public String getAdminObjectName() {
             return adminObjectName;
         }
@@ -539,6 +434,30 @@ public class ListScreenHandler extends AbstractHandler {
         public int compareTo(AdminObjectSummary o) {           
             int result = name.compareTo(o.name);
             return result == 0 ? type.compareTo(o.type) : result;
+        }
+
+        public boolean isBrowserSupported() {
+            return browserSupported;
+        }
+
+        public boolean isSendMessageSupported() {
+            return sendMessageSupported;
+        }
+
+        public boolean isPurgeSupported() {
+            return purgeSupported;
+        }
+
+        public void setBrowserSupported(boolean browserSupported) {
+            this.browserSupported = browserSupported;
+        }
+
+        public void setSendMessageSupported(boolean sendMessageSupported) {
+            this.sendMessageSupported = sendMessageSupported;
+        }
+
+        public void setPurgeSupported(boolean purgeSupported) {
+            this.purgeSupported = purgeSupported;
         }
     }
 }

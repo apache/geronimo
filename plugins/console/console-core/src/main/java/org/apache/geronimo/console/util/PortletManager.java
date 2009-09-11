@@ -184,6 +184,11 @@ public class PortletManager {
         ManagementHelper helper = getManagementHelper(request);
         return helper.getOutboundFactories((ResourceAdapterModule) helper.getObject(resourceAdapterModuleName), iface);
     }
+    
+    public static JCAManagedConnectionFactory[] getOutboundFactoriesForRA(PortletRequest request, AbstractName resourceAdapterModuleName, String[] ifaces) {
+        ManagementHelper helper = getManagementHelper(request);
+        return helper.getOutboundFactories((ResourceAdapterModule) helper.getObject(resourceAdapterModuleName), ifaces);
+    }
 
     public static JCAManagedConnectionFactory[] getOutboundFactoriesForRA(PortletRequest request, ResourceAdapterModule module) {
         ManagementHelper helper = getManagementHelper(request);

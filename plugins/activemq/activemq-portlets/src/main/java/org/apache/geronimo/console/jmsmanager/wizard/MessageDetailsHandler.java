@@ -18,18 +18,14 @@
 package org.apache.geronimo.console.jmsmanager.wizard;
 
 import java.io.IOException;
-import java.util.Iterator;
-import java.util.List;
 
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.TextMessage;
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
 import javax.portlet.PortletException;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 
+import org.apache.geronimo.console.BasePortlet;
 import org.apache.geronimo.console.MultiPageModel;
 import org.apache.geronimo.console.jmsmanager.JMSMessageInfo;
 
@@ -40,6 +36,10 @@ public class MessageDetailsHandler extends AbstractHandler {
 
     public MessageDetailsHandler() {
         super(MESSAGE_DETAILS, "/WEB-INF/view/jmsmanager/messageDetails.jsp");
+    }
+
+    public MessageDetailsHandler(BasePortlet basePortlet) {
+        super(MESSAGE_DETAILS, "/WEB-INF/view/jmsmanager/messageDetails.jsp", basePortlet);
     }
 
     @Override
@@ -59,18 +59,14 @@ public class MessageDetailsHandler extends AbstractHandler {
     }
 
     @Override
-    public void renderView(RenderRequest request, RenderResponse response, MultiPageModel model)
-            throws PortletException, IOException {
+    public void renderView(RenderRequest request, RenderResponse response, MultiPageModel model) throws PortletException, IOException {
         String messageId = request.getParameter(MESSAGE_ID);
-        List messages = (List) (request.getPortletSession(true).getAttribute(MESSAGES));
-        Iterator it = messages.iterator();
-        while (it.hasNext()) {
-            JMSMessageInfo message = (JMSMessageInfo) it.next();
+        JMSMessageInfo[] messages = (JMSMessageInfo[]) request.getPortletSession(true).getAttribute(MESSAGES);
+        for (JMSMessageInfo message : messages) {
             if (message.getMessageID().equals(messageId)) {
                 request.setAttribute(MESSAGE_TXT, message.getMessage());
             }
         }
-
     }
 
 }

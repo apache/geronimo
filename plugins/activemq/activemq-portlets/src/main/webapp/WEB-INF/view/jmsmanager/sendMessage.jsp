@@ -31,6 +31,7 @@
     <input type="hidden" name="mode" value="sendmessage-before" />
     <input type="hidden" name="submit" value="submit" />
     <input type="hidden" name="adapterObjectName" value="${adapterObjectName}" />
+    <input type="hidden" name="resourceAdapterModuleName" value="${resourceAdapterModuleName}" />
     <input type="hidden" name="adminObjName" value="${adminObjName}" />
     <input type="hidden" name="adminObjType" value="${adminObjType}" />
     <input type="hidden" name="physicalName" value="${physicalName}" />
