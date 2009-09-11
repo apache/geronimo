@@ -26,14 +26,14 @@ import javax.portlet.PortletException;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.geronimo.console.BasePortlet;
 import org.apache.geronimo.console.MultiPageModel;
+import org.apache.geronimo.console.jmsmanager.JMSDestinationInfo;
 import org.apache.geronimo.console.jmsmanager.JMSMessageInfo;
-import org.apache.geronimo.console.jmsmanager.helper.AmqJMSMessageHelper;
 import org.apache.geronimo.console.jmsmanager.helper.JMSMessageHelper;
 import org.apache.geronimo.console.jmsmanager.helper.JMSMessageHelperFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @version $Rev$ $Date$
@@ -59,11 +59,13 @@ public class SendMessageHandler extends AbstractHandler {
         String adminObjType = request.getParameter(ADMIN_OBJ_TYPE);
         String physicalName = request.getParameter(PHYSICAL_NAME);
         String adapterObjectName = request.getParameter(RA_ADAPTER_OBJ_NAME);
+        String resourceAdapterModuleName = request.getParameter(RESOURCE_ADAPTER_MODULE_NAME);
 
         response.setRenderParameter(ADMIN_OBJ_NAME, adminObjName);
         response.setRenderParameter(ADMIN_OBJ_TYPE, adminObjType);
         response.setRenderParameter(PHYSICAL_NAME, physicalName);
         response.setRenderParameter(RA_ADAPTER_OBJ_NAME, adapterObjectName);
+        response.setRenderParameter(RESOURCE_ADAPTER_MODULE_NAME, resourceAdapterModuleName);
 
         String submit = request.getParameter(SUBMIT);
         if (submit != null) {
@@ -97,11 +99,13 @@ public class SendMessageHandler extends AbstractHandler {
         String physicalName = request.getParameter(PHYSICAL_NAME);
         String adapterObjectName = request.getParameter(RA_ADAPTER_OBJ_NAME);
         String submit = request.getParameter(SUBMIT);
+        String resourceAdapterModuleName = request.getParameter(RESOURCE_ADAPTER_MODULE_NAME);
 
         request.setAttribute(ADMIN_OBJ_NAME, adminObjName);
         request.setAttribute(ADMIN_OBJ_TYPE, adminObjType);
         request.setAttribute(PHYSICAL_NAME, physicalName);
         request.setAttribute(RA_ADAPTER_OBJ_NAME, adapterObjectName);
+        request.setAttribute(RESOURCE_ADAPTER_MODULE_NAME, resourceAdapterModuleName);
 
         if (submit != null) {
             String correlationId = request.getParameter(CORRELATION_ID);
@@ -112,12 +116,7 @@ public class SendMessageHandler extends AbstractHandler {
             String jmsType = request.getParameter(JMS_TYPE);
             String message = request.getParameter(MESSAGE);
 
-            JMSMessageInfo messageInfo = new JMSMessageInfo();
-
-            messageInfo.setAdminObjName(adminObjName);
-            messageInfo.setAdminObjType(adminObjType);
-            messageInfo.setPhysicalName(physicalName);
-            messageInfo.setAdapterObjectName(adapterObjectName);
+            JMSMessageInfo messageInfo = new JMSMessageInfo();            
             messageInfo.setCorrelationId(correlationId);
             messageInfo.setPersistent(isPersistent);
 
@@ -129,9 +128,9 @@ public class SendMessageHandler extends AbstractHandler {
             messageInfo.setJmsType(jmsType);
             messageInfo.setMessage(message);
 
-            JMSMessageHelper helper = JMSMessageHelperFactory.getMessageHelper(request, adapterObjectName);
+            JMSMessageHelper helper = JMSMessageHelperFactory.getMessageHelper(request, resourceAdapterModuleName);
             try {
-                helper.sendMessage(request, messageInfo);
+                helper.sendMessage(request, JMSDestinationInfo.create(request), messageInfo);
                 portlet.addInfoMessage(request, portlet.getLocalizedString(request, "activemq.infoMsg01"));
             } catch (Exception e) {
                 portlet.addErrorMessage(request, portlet.getLocalizedString(request, "activemq.errorMsg01"), e.getMessage());

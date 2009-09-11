@@ -22,10 +22,13 @@
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<%@ taglib uri="/WEB-INF/CommonMsg.tld" prefix="CommonMsg"%>
 <%@page import="org.apache.geronimo.console.jmsmanager.JMSMessageInfo"%>
 <fmt:setBundle basename="activemq"/>
 
-<br>
+<portlet:defineObjects/>
+<CommonMsg:commonMsg/>
+
 <table cellpadding="1" width="100%">     
     <tr>
         <td class="DarkBackground" align="center"><b><fmt:message key="jmsmanager.common.priority" /></b></td>
@@ -41,27 +44,27 @@
         <c:when test="${!empty(messages)}"> 
         <% 
         String[] styles = {"LightBackground","MediumBackground"};
-        List messages = (List)request.getAttribute("messages");
+        JMSMessageInfo[] messages = (JMSMessageInfo[])request.getAttribute("messages");
         int n = 0;
-        for(Iterator i = messages.iterator();i.hasNext();n++){
-            JMSMessageInfo message = (JMSMessageInfo)i.next();
+        for(JMSMessageInfo message : messages){
+            n = (n + 1) % 2; 
         %>
             <tr>
-                <td class="<%=styles[n%2]%>" align="center"><%=message.getPriority()%></td>
-                <td class="<%=styles[n%2]%>" align="center">
+                <td class="<%=styles[n]%>" align="center"><%=message.getPriority()%></td>
+                <td class="<%=styles[n]%>" align="center">
                     <a href="<portlet:actionURL portletMode="view">
                         <portlet:param name="mode" value="messageDetails-before" />
                         <portlet:param name="messageId" value="<%=message.getMessageID()%>"/>
                         </portlet:actionURL>"><%=message.getMessageID()%></a>
                 </td>
-                <td class="<%=styles[n%2]%>" align="center"><%=message.getDestination()%></td>
-                <td class="<%=styles[n%2]%>" align="center"><%=new java.util.Date(message.getTimeStamp())%></td>
-                <td class="<%=styles[n%2]%>" align="center">
+                <td class="<%=styles[n]%>" align="center"><%=message.getDestination()%></td>
+                <td class="<%=styles[n]%>" align="center"><%=new java.util.Date(message.getTimeStamp())%></td>
+                <td class="<%=styles[n]%>" align="center">
                     <%=(message.getExpiration()!=0)?new java.util.Date(message.getExpiration()).toString():"No expiration"%>
                 </td>
-                <td class="<%=styles[n%2]%>" align="center"><%=message.getJmsType()==null?"":message.getJmsType()%></td>
-                <td class="<%=styles[n%2]%>" align="center"><%=message.getReplyTo()==null?"":message.getReplyTo()%></td>
-                <td class="<%=styles[n%2]%>" align="center"><%=message.getCorrelationId()==null?"":message.getCorrelationId()%></td>
+                <td class="<%=styles[n]%>" align="center"><%=message.getJmsType()==null?"":message.getJmsType()%></td>
+                <td class="<%=styles[n]%>" align="center"><%=message.getReplyTo()==null?"":message.getReplyTo()%></td>
+                <td class="<%=styles[n]%>" align="center"><%=message.getCorrelationId()==null?"":message.getCorrelationId()%></td>
             </tr>
         <%}%>
         </c:when>

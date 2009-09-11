@@ -16,16 +16,12 @@
  */
 package org.apache.geronimo.console.jmsmanager;
 
-import java.io.Serializable;
 
 /**
  * @version $Rev$ $Date$
  */
-public class JMSMessageInfo implements Serializable{
-    private String adminObjName;
-    private String adminObjType;
-    private String physicalName;
-    private String adapterObjectName;
+public class JMSMessageInfo{
+
     private String correlationId;
     private boolean isPersistent;
     private String replyTo;
@@ -77,31 +73,7 @@ public class JMSMessageInfo implements Serializable{
     public void setMessage(String message) {
         this.message = message;
     }
-
-    public String getAdapterObjectName() {
-        return adapterObjectName;
-    }
-
-    public void setAdapterObjectName(String adapterObjectName) {
-        this.adapterObjectName = adapterObjectName;
-    }
-
-    public String getAdminObjName() {
-        return adminObjName;
-    }
-
-    public void setAdminObjName(String adminObjName) {
-        this.adminObjName = adminObjName;
-    }
-
-    public String getAdminObjType() {
-        return adminObjType;
-    }
-
-    public void setAdminObjType(String adminObjType) {
-        this.adminObjType = adminObjType;
-    }
-
+   
     public String getCorrelationId() {
         return correlationId;
     }
@@ -124,14 +96,6 @@ public class JMSMessageInfo implements Serializable{
 
     public void setJmsType(String jmsType) {
         this.jmsType = jmsType;
-    }
-
-    public String getPhysicalName() {
-        return physicalName;
-    }
-
-    public void setPhysicalName(String physicalName) {
-        this.physicalName = physicalName;
     }
 
     public int getPriority() {

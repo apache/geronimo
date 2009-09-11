@@ -119,27 +119,27 @@
                           </c:if>
                       </td>
                       <td>
-                      <c:if test="${ admin.type == 'Queue' && !empty(resource.connectionFactories) && resource.brokerName != null}">
+                      <c:if test="${admin.browserSupported}">
                          <a href="<portlet:actionURL portletMode="view">
         	                  <portlet:param name="mode" value="viewMessages-before" />
         	                  <portlet:param name="adminObjName" value="${admin.name}" />
         	                  <portlet:param name="physicalName" value="${admin.physicalName}" />
         	                  <portlet:param name="adminObjType" value="${admin.type}" />
         	                  <portlet:param name="adapterObjectName" value="${resource.adapterObjectName}" />
-            	                  <portlet:param name="brokerName" value="${resource.brokerName}" />
+                              <portlet:param name="resourceAdapterModuleName" value="${resource.resourceAdapterModuleName}" />
         	                </portlet:actionURL>"><fmt:message key="jmswizard.common.Browse" /></a>
         	         </c:if>
-                     <c:if test="${!empty(resource.connectionFactories) && resource.brokerName != null}">
+                     <c:if test="${admin.sendMessageSupported}">
                      <a href="<portlet:actionURL portletMode="view">
                           <portlet:param name="mode" value="sendmessage-before" />
                           <portlet:param name="adminObjName" value="${admin.name}" />
                           <portlet:param name="physicalName" value="${admin.physicalName}" />
                           <portlet:param name="adminObjType" value="${admin.type}" />
                           <portlet:param name="adapterObjectName" value="${resource.adapterObjectName}" />
-                              <portlet:param name="brokerName" value="${resource.brokerName}" />  
+                          <portlet:param name="resourceAdapterModuleName" value="${resource.resourceAdapterModuleName}" />
                         </portlet:actionURL>"><fmt:message key="jmswizard.common.Send" /></a>
                       </c:if>
-                      <c:if test="${ admin.type == 'Queue' && !empty(resource.connectionFactories) && resource.brokerName != null}">
+                      <c:if test="${admin.purgeSupported}">
                         <a href="<portlet:actionURL portletMode="view">
                           <portlet:param name="mode" value="list-before" />
                           <portlet:param name="purge" value="purge" />
@@ -147,7 +147,7 @@
                           <portlet:param name="physicalName" value="${admin.physicalName}" />
                           <portlet:param name="adminObjType" value="${admin.type}" />
                           <portlet:param name="adapterObjectName" value="${resource.adapterObjectName}" />
-                              <portlet:param name="brokerName" value="${resource.brokerName}" />   
+                          <portlet:param name="resourceAdapterModuleName" value="${resource.resourceAdapterModuleName}" />
                         </portlet:actionURL>" onclick="return confirm('Confirm message purge?');"><fmt:message key="jmswizard.common.Purge"/></a>
                       </c:if>
                         <%--

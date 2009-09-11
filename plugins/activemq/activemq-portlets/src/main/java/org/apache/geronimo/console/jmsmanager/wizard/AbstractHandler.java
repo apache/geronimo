@@ -97,6 +97,7 @@ public abstract class AbstractHandler extends MultiPageAbstractHandler {
     protected final static String MESSAGE_ID = "messageId";
     protected final static String MESSAGE_TXT="messageTxt";
     protected final static String BROKER_NAME = "brokerName";
+    protected final static String RESOURCE_ADAPTER_MODULE_NAME = "resourceAdapterModuleName";
 
     protected final static String PROVIDER_PARAMETER="provider";
     protected final static String RAR_FILE_PARAMETER="rar";
