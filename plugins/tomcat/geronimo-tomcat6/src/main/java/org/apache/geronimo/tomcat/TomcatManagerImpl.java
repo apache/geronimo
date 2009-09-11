@@ -197,6 +197,10 @@ public class TomcatManagerImpl implements WebManager {
         defaultAttributeNames.add("executor");
         defaultAttributeNames.add("redirectPort");
         defaultAttributeNames.add("connectionTimeout");
+        defaultAttributeNames.add("scheme");
+        defaultAttributeNames.add("secure");
+        defaultAttributeNames.add("sslProtocol");
+        defaultAttributeNames.add("sslEnabled");
         
     }
 
@@ -444,7 +448,7 @@ public class TomcatManagerImpl implements WebManager {
         connectorAttributes.add(new ConnectorAttribute<String>("noCompressionUserAgents", "", Messages.getString("TomcatManagerImpl.139"), String.class)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
         connectorAttributes.add(new ConnectorAttribute<Integer>("port", 8080, Messages.getString("TomcatManagerImpl.141"), Integer.class, true)); //$NON-NLS-1$ //$NON-NLS-2$
         connectorAttributes.add(new ConnectorAttribute<String>("restrictedUserAgents", "", Messages.getString("TomcatManagerImpl.144"), String.class)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-        connectorAttributes.add(new ConnectorAttribute<String>("server", "", Messages.getString("TomcatManagerImpl.147"), String.class)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        connectorAttributes.add(new ConnectorAttribute<String>("server", null, Messages.getString("TomcatManagerImpl.147"), String.class)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
         connectorAttributes.add(new ConnectorAttribute<Integer>("socketBuffer", 9000, Messages.getString("TomcatManagerImpl.149"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
         connectorAttributes.add(new ConnectorAttribute<Boolean>("tcpNoDelay", true, Messages.getString("TomcatManagerImpl.151"), Boolean.class)); //$NON-NLS-1$ //$NON-NLS-2$
         connectorAttributes.add(new ConnectorAttribute<Integer>("threadPriority", Thread.NORM_PRIORITY, Messages.getString("TomcatManagerImpl.153"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
@@ -463,6 +467,9 @@ public class TomcatManagerImpl implements WebManager {
         connectorAttributes.add(new ConnectorAttribute<String>("truststoreFile", null, Messages.getString("TomcatManagerImpl.175"), String.class)); //$NON-NLS-1$ //$NON-NLS-2$
         connectorAttributes.add(new ConnectorAttribute<String>("truststorePass", null, Messages.getString("TomcatManagerImpl.177"), String.class)); //$NON-NLS-1$ //$NON-NLS-2$
         connectorAttributes.add(new ConnectorAttribute<String>("truststoreType", KeystoreUtil.defaultType, Messages.getString("TomcatManagerImpl.179"), String.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<String>("scheme", "https", Messages.getString("TomcatManagerImpl.169"), String.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<Boolean>("secure", true, Messages.getString("TomcatManagerImpl.170"), Boolean.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<Boolean>("sslEnabled", true, Messages.getString("TomcatManagerImpl.167"), Boolean.class)); //$NON-NLS-1$ //$NON-NLS-2$
     }
     
     // see http://tomcat.apache.org/tomcat-6.0-doc/config/http.html

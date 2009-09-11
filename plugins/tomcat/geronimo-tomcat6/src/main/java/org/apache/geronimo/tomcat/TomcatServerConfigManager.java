@@ -111,11 +111,23 @@ public class TomcatServerConfigManager {
         // set attributes for the connector
 
         for (String attributeName : attributesToUpdate.keySet()) {
-            connector.setAttribute(attributeName, attributesToUpdate.get(attributeName));
+            
+            if(attributesToUpdate.get(attributeName)==null){
+                continue;
+            }
+            
+            // must use "SSLEnabled" instead of "sslEnabled" because attribute is case-sensitive in server.xml
+            if (attributeName.equalsIgnoreCase("SSLEnabled")) {
+                
+                connector.setAttribute("SSLEnabled", attributesToUpdate.get(attributeName));
+                
+            } else {
+
+                connector.setAttribute(attributeName, attributesToUpdate.get(attributeName));
+            }
         }
 
         connector.setAttribute("name", uniqueConnectorName);
-        connector.getAttributes();
 
         persistServerConfig();
 

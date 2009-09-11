@@ -154,7 +154,7 @@ public class ConnectorPortlet extends BasePortlet {
             try {
                 manager.updateConnectorConfig(newConnectorName);
             } catch (Exception e) {
-                log.error("Unable to start connector", e); //TODO: get into rendered page
+                log.error("Unable to update connector in server.xml", e); //TODO: get into rendered page
             }
             actionResponse.setRenderParameter(PARM_MODE, "list");
         } else if(mode.equals("save")) { // User just submitted the form to update a connector
@@ -205,7 +205,7 @@ public class ConnectorPortlet extends BasePortlet {
                 try {
                     manager.updateConnectorConfig(connectorName);
                 } catch (Exception e) {
-                    log.error("Unable to start connector", e); //TODO: get into rendered page
+                    log.error("Unable to update connector in server.xml", e); //TODO: get into rendered page
                 }
             }
             actionResponse.setRenderParameter(PARM_MODE, "list");

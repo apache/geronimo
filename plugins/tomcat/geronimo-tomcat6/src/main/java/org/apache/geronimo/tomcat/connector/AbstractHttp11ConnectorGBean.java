@@ -80,7 +80,14 @@ public abstract class AbstractHttp11ConnectorGBean extends BaseHttp11ConnectorGB
     }
 
     public String getKeystoreFile() {
-        return keystoreFileName;
+
+        String keystore = (String) connector.getAttribute("keystoreFile");
+        
+        if (keystore.indexOf(System.getProperty("catalina.home")) !=-1)
+            return keystore.substring(System.getProperty("catalina.home").length()+1, keystore.length());
+        else
+            return keystore;
+
     }
 
     public String getKeystoreType() {
@@ -135,13 +142,14 @@ public abstract class AbstractHttp11ConnectorGBean extends BaseHttp11ConnectorGB
 
     @Persistent(manageable=false)
     public void setKeystoreFile(String keystoreFile) {
-        if (keystoreFile!= null && keystoreFile.equals("")) 
+       /* if (keystoreFile!= null && keystoreFile.equals("")) 
             keystoreFile = null;
         keystoreFileName = keystoreFile;
         if (keystoreFileName == null)
             connector.setAttribute("keystoreFile", null);
         else
             connector.setAttribute("keystoreFile", serverInfo.resolveServerPath(keystoreFileName));
+        */
     }
 
     @Persistent(manageable=false)
