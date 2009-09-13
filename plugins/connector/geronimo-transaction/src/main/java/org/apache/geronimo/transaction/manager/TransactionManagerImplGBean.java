@@ -42,6 +42,9 @@ public class TransactionManagerImplGBean extends TransactionManagerImpl {
      */
     public TransactionManagerImplGBean(int defaultTransactionTimeoutSeconds, XidFactory xidFactory, TransactionLog transactionLog) throws XAException {
         super(defaultTransactionTimeoutSeconds, xidFactory, transactionLog);
+        // Start the TransactionTimer$CurrentTime thread. This should avoid potential ClassLoader 
+        // memory leaks caused by InheritableThreadLocals on the CurrentTime thread. See GERONIMO-4869 for more info.
+        TransactionTimer.getCurrentTime();
     }
 
     public static final GBeanInfo GBEAN_INFO;
