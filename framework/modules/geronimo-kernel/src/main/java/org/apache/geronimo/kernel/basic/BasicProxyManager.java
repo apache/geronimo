@@ -208,22 +208,24 @@ public class BasicProxyManager implements ProxyManager {
 
             Callback callback = getMethodInterceptor(proxyType, kernel, target);
 
-            Enhancer.registerCallbacks(proxyType, new Callback[]{callback});
             try {
+                Enhancer.registerCallbacks(proxyType, new Callback[]{callback});
                 Object proxy = fastClass.newInstance();
                 interceptors.put(proxy, callback);
                 return proxy;
             } catch (InvocationTargetException e) {
                 Throwable cause = e.getCause();
                 if (cause instanceof RuntimeException) {
-                  throw (RuntimeException) cause;
+                    throw (RuntimeException) cause;
                 } else  if (cause instanceof Error) {
-                  throw (Error) cause;
+                    throw (Error) cause;
                 } else if (cause != null) {
-                  throw new ProxyCreationException(cause);
+                    throw new ProxyCreationException(cause);
                 } else {
-                  throw new ProxyCreationException(e);
+                    throw new ProxyCreationException(e);
                 }
+            } finally {
+                Enhancer.registerCallbacks(proxyType, null);
             }
         }
     }
