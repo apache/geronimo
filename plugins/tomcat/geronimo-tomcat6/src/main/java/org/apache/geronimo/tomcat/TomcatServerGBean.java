@@ -144,6 +144,7 @@ public class TomcatServerGBean implements GBeanLifecycle {
     }
 
     public void doStart() throws Exception {
+        server.initialize();
         ((Lifecycle)server).start();
     }
 
