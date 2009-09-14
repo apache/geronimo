@@ -418,6 +418,7 @@ public class MonitoringPortlet extends BasePortlet {
             request.setAttribute("username", request.getParameter("username"));
             request.setAttribute("password", request.getParameter("password"));
             request.setAttribute("password2", request.getParameter("password2"));
+            request.setAttribute("protocol", request.getParameter("protocol"));
             request.setAttribute("port", request.getParameter("port"));
             addServer.include(request, response);
         } else if (action.equals("testEditServerConnection")) {
