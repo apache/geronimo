@@ -20,297 +20,52 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <fmt:setBundle basename="debugviews"/>
 <portlet:defineObjects/>
-    <script type="text/javascript" src="/dojo/0.4/dojo.js"></script>
 
-    <script type="text/javascript">
-        dojo.require("dojo.lang.*");
-        dojo.require("dojo.widget.*");
-        // Pane includes
-        dojo.require("dojo.widget.ContentPane");
-        dojo.require("dojo.widget.LayoutContainer"); // Before: LayoutPane
-        dojo.require("dojo.widget.SplitContainer"); // Before: SplitPane
-        // Tree includes
-        dojo.require("dojo.widget.Tree");
-        dojo.require("dojo.widget.TreeBasicController");
-        dojo.require("dojo.widget.TreeContextMenu");
-        dojo.require("dojo.widget.TreeSelector");
-        // Tab includes
-        dojo.require("dojo.widget.TabContainer");
-        // Etc includes
-        dojo.require("dojo.widget.SortableTable");
-        dojo.require("dojo.widget.ComboBox");
-        dojo.require("dojo.widget.Tooltip");
-        dojo.require("dojo.widget.validate");
-        // Includes Dojo source for debugging
-        // dojo.hostenv.writeIncludes();
-    </script>
-
-<%
-    // LDAP icon
-    String ldapIconURI = renderResponse.encodeURL(renderRequest.getContextPath() + "/ico_filetree_16x16.gif");
-%>
-
-<!-- DOJO Stuff -->
-<script>
-/* Global vars */
-var _selectedNode = null; // Selected tree node
-var _baseDN = null;       // Base distinguised name
-
-/* Get selected node */
-function getSelectedNode() {
-    var tree = dojo.widget.byId('ldapTree');
-    var selectedNode = tree.selector.selectedNode;
-    return selectedNode;
-}
-
-/* Select tab */
-function selectTab(tabID) {
-    var mainTabContainer = dojo.widget.byId('mainTabContainer');
-    var tab = dojo.widget.byId(tabID);
-    mainTabContainer.selectTab(tab);   
-}
-
-/* Init stuff */
-dojo.addOnLoad(
-    function() {
-        /* Init LDAP tree */
-        LDAPManagerHelper.getBaseDN(<portlet:namespace/>initLDAPTree);
-
-        /* Init LDAP connection info tab */
-        if (_baseDN != null) {
-            LDAPManagerHelper.getEnvironment(<portlet:namespace/>initConnectInfoTab);
-        }
-
-        /* Tree click event handler */
-        var treeController = dojo.widget.manager.getWidgetById('treeController');
-        dojo.event.connect(
-            'before',
-            treeController,
-            'onTreeClick',
-            {
-                beforeTreeClick: function(evt) {
-                    var selectedNode = evt.source;
-                    if ((selectedNode.state == 'UNCHECKED') && (selectedNode.isExpanded == false)) {
-                        // Add children
-                        _selectedNode = selectedNode;
-                        LDAPManagerHelper.list(_selectedNode.widgetId, <portlet:namespace/>updateLDAPTree);
-                    }
-                }
-            },
-            'beforeTreeClick'
-        );
-
-        /* Tree node title click event handler */
-        var tree = dojo.widget.manager.getWidgetById('ldapTree');
-        dojo.event.topic.subscribe(
-            tree.eventNames.titleClick,
-            function(message) {
-                var dn = message.source.widgetId;
-                LDAPManagerHelper.getAttributes(dn, <portlet:namespace/>updateAttributesTable);
-            }
-        );
-
-        /* Tree context menu event handler: 'Refresh' */
-        dojo.event.topic.subscribe(
-            'treeContextMenuRefresh/engage',
-            function (menuItem) {
-                var selectedNode = getSelectedNode();
-                if (selectedNode == null) {
-                    alert('Please select a tree node.');
-                    return;
-                }
-                if ((selectedNode.state == 'UNCHECKED') && (selectedNode.isExpanded == false)) {
-                    // Unchecked tree node, do nothing
-                } else {
-                    // Remove children
-                    var treeController = dojo.widget.byId('treeController');
-                    var children = selectedNode.children;
-                    while (children.length > 0) {
-                        var node = children[0];
-                        treeController.removeNode(node);
-                        node.destroy();
-                    }
-                    // Add children
-                    _selectedNode = selectedNode;
-                    LDAPManagerHelper.list(_selectedNode.widgetId, <portlet:namespace/>updateLDAPTree);
-                }
-            }
-        );
-
-        /* Tree context menu event handler: 'Search...' */
-        dojo.event.topic.subscribe(
-            'treeContextMenuSearch/engage',
-            function (menuItem) {
-                var selectedNode = getSelectedNode();
-                if (selectedNode == null) {
-                    alert('Please select a tree node.');
-                    return;
-                }
-                selectTab('searchTab');
-                // Set Search DN
-                document.LDAPSearchForm.searchDN.value = selectedNode.widgetId;
-            }
-        );
-
-        /* Tree context menu event handler: 'View Entry' */
-        dojo.event.topic.subscribe(
-            'treeContextMenuViewEntry/engage',
-            function (menuItem) {
-                var selectedNode = getSelectedNode();
-                if (selectedNode == null) {
-                    alert('Please select a tree node.');
-                    return;
-                }
-                selectTab('attributesTab');
-            }
-        );
-
-        /* Tree context menu event handler: 'Connect Info' */
-        dojo.event.topic.subscribe(
-            'treeContextMenuConnectInfo/engage',
-            function (menuItem) {
-                var selectedNode = getSelectedNode();
-                if (selectedNode == null) {
-                    alert('Please select a tree node.');
-                    return;
-                }
-                selectTab('connectInfoTab');
-            }
-        );
-    }
-);
-
-/* Anonymous bind checkbox clicked even handler */
-function anonBindChkboxClicked() {
-    var isAnonBind = document.LDAPConnectForm.anonBind.checked;
-    document.LDAPConnectForm.userDN.disabled = isAnonBind;
-    document.LDAPConnectForm.password.disabled = isAnonBind;
-}
-
-/* Restore Default button clicked event handler */
-function restoreDefaultBtnClicked() {
-    // Restore default connection properties (Embedded Apache DS)
-    document.LDAPConnectForm.host.value = 'localhost';
-    document.LDAPConnectForm.port.value = '1389';
-    document.LDAPConnectForm.ldapVersion[0].checked = true;
-    document.LDAPConnectForm.ldapVersion[1].checked = false;
-    document.LDAPConnectForm.baseDN.value = 'ou=system';
-    document.LDAPConnectForm.ssl.checked = false;
-    document.LDAPConnectForm.anonBind.checked = false;
-    document.LDAPConnectForm.userDN.value = 'uid=admin, ou=system';
-    document.LDAPConnectForm.password.value = '';
-    document.LDAPConnectForm.userDN.disabled = false;
-    document.LDAPConnectForm.password.disabled = false;
-}
-
-/* Connect button clicked event handler */
-function connectBtnClicked() {
-    // TODO: Add validation
-    var initialContextFactory = 'com.sun.jndi.ldap.LdapCtxFactory';
-    var host = document.LDAPConnectForm.host.value;
-    var port = document.LDAPConnectForm.port.value;
-    var ldapVersion;
-    if (document.LDAPConnectForm.ldapVersion[0].checked) {
-        ldapVersion = '3';
-    } else {
-        ldapVersion = '2';
-    }
-    var baseDN = document.LDAPConnectForm.baseDN.value;
-    var securityProtocol = '';
-    if (document.LDAPConnectForm.ssl.checked) {
-        securityProtocol = 'ssl';
-    }
-    var securityAuthentication = 'simple';
-    var securityPrincipal;
-    var securityCredentials;
-    if (document.LDAPConnectForm.anonBind.checked) {
-        securityAuthentication = 'none';
-        securityPrincipal = '';
-        securityCredentials = '';
-    } else {
-        securityAuthentication = 'simple';
-        securityPrincipal = document.LDAPConnectForm.userDN.value;
-        securityCredentials = document.LDAPConnectForm.password.value;
-    }
-    
-    // DEBUG: Connect Info
-    var connectInfoStr =
-        'initialContextFactory:' + initialContextFactory +
-        '\nhost:' + host +
-        '\nport:' + port +
-        '\nldapVersion:' + ldapVersion +
-        '\nbaseDN:' + baseDN +
-        '\nsecurityProtocol:' + securityProtocol +
-        '\nsecurityAuthentication:' + securityAuthentication +
-        '\nsecurityPrincipal:' + securityPrincipal +
-        '\nsecurityCredentials:' + securityCredentials;
-    // alert(connectInfoStr);
-    
-    // Connect to new LDAP server
-    LDAPManagerHelper.connect(
-        initialContextFactory,
-        host,
-        port,
-        baseDN,
-        ldapVersion,
-        securityProtocol,
-        securityAuthentication,
-        securityPrincipal,
-        securityCredentials,
-        function(result) {
-            // TODO: Check result
-            if (result == '<SUCCESS>') {
-                window.location = '<portlet:actionURL />';
-            } else {
-                // Display error
-                alert(result + '\n** Make sure LDAP server is running and/or connection properties are correct.');
-            }
-        }
-    );
-}
-
-/* Search button clicked event handler */
-function searchBtnClicked() {
-    var searchDN = document.LDAPSearchForm.searchDN.value;
-    var filter = document.LDAPSearchForm.filter.value;
-    var scope;
-    if (document.LDAPSearchForm.searchScope[0].checked) {
-        scope = 'onelevel';
-    } else {
-        scope = 'subtree';
-    }
-    LDAPManagerHelper.search(searchDN, filter, scope, <portlet:namespace/>updateSearchResultTable);
-}
-
-/* Clear result button clicked event handler */
-function clearResultBtnClicked() {
-	dwr.util.removeAllRows('searchResultTableBody');
-	dwr.util.setValue('searchResultCount', '');
-}
-</script>
-
-<style>
-body .dojoHtmlSplitterPanePanel {
-    background: white;
-    overflow: auto;
-}
-
-span.invalid, span.missing, span.range {
-    display: inline;
-    margin-left: 1em;
-    font-weight: bold;
-    font-style: italic;
-    font-family: Arial, Verdana, sans-serif;
-    color: #f66;
-    font-size: 0.9em;
-}
-</style>
-
-<!-- DWR Stuff -->
+<!----------------------->
+<!--     DWR Stuff     -->
+<!----------------------->
 <% String dwrForwarderServlet = "/console/dwr2"; %>
 <script type='text/javascript' src='<%= dwrForwarderServlet %>/interface/LDAPManagerHelper.js'></script>
 <script type='text/javascript' src='<%= dwrForwarderServlet %>/engine.js'></script>
 <script type='text/javascript' src='<%= dwrForwarderServlet %>/util.js'></script>
+
+
+<!------------------------>
+<!--     DOJO Stuff     -->
+<!------------------------>
+<style type="text/css">
+    @import "/dojo/dojo/resources/dojo.css";
+    @import "/dojo/dijit/themes/soria/soria.css";
+    
+    table thead th { 
+        background: #2581C7; 
+        color: #FFFFFF;    
+        font-weight: bold;
+    }
+</style>
+
+<script type="text/javascript" src="/dojo/dojo/dojo.js" djConfig="parseOnLoad: true"></script>
+
+<script type="text/javascript">
+    // style class
+    document.body.className="soria";
+    
+    // dojo libs import
+    dojo.require("dijit.Tree");
+    dojo.require("dijit.layout.LayoutContainer");
+    dojo.require("dijit.layout.ContentPane");
+    dojo.require("dijit.layout.SplitContainer");
+    dojo.require("dijit.layout.TabContainer");
+    dojo.require("dojo.data.ItemFileWriteStore"); 
+    dojo.require("dijit.TitlePane");
+    dojo.require("dijit.form.ValidationTextBox");
+    dojo.require("dijit.form.TextBox");
+    dojo.require("dijit.form.NumberTextBox");
+    dojo.require("dijit.form.CheckBox");
+    dojo.require("dijit.form.RadioButton");
+    dojo.require("dijit.form.Button");
+</script>
+
 
 <script>
 /* Sync calls */
@@ -320,11 +75,108 @@ dwr.engine.setAsync(false);
 dwr.engine.setErrorHandler(
     function (errorString) {
         alert('Error: ' + errorString + '\n** Make sure LDAP server is running and/or connection properties are correct.');
-        selectTab('connectInfoTab');
     }
 );
 
-/* Table render option */
+/*
+ * create an empty tree
+ */
+var treeStore = new dojo.data.ItemFileWriteStore({data:{identifier:null, label:"name", items:[]}});
+var treeModel = new dijit.tree.ForestStoreModel({
+    store: treeStore,
+    rootId: "LDAP Server",
+    rootLabel: "LDAP Server",
+    childrenAttrs: ["children"]
+});
+
+treeModel.mayHaveChildren = function(item){
+    if (item.id != treeModel.rootId) {
+        if (treeStore.getValue(item, "type") == "folder") return true;
+        else return false;
+    } else {
+        return true;
+    }
+};
+
+
+/*
+ * Global var
+ */
+var _selectItem;
+/*
+ * Call Back: Init LDAP tree. 
+ * Invoked after connect successfully.
+ */
+function initLDAPTree(baseDN) {
+    if (baseDN == null) {
+        return;
+    }
+
+    LDAPManagerHelper.list(baseDN, function(baseDNKids){
+        if (baseDNKids == null || baseDNKids.length==0) {
+            treeStore.newItem({name:baseDN, type:"leaf", values:[baseDN]});
+        }else{
+            var newitem = treeStore.newItem({name:baseDN, type:"folder", values:[baseDN]});
+            treeStore.newItem({name:"null", type:"placeholder"},{parent:newitem, attribute:"children"});
+        }
+    });
+   
+}
+
+/* 
+ * Call back: Update LDAP tree
+ */
+function updateLDAPTree(entries) {
+    for (var i = 0; i < entries.length; i++) {
+        var entry = entries[i];
+        //entry[0]:RDN, entry[1]:DN
+        LDAPManagerHelper.list(entry[1], function(kids){
+            if (kids == null || kids.length==0) {
+                treeStore.newItem({name:entry[0], type:"leaf", values:[entry[1]]},{parent:_selectItem, attribute:"children"});
+            }else{
+                var newitem = treeStore.newItem({name:entry[0], type:"folder", values:[entry[1]]},{parent:_selectItem, attribute:"children"});
+                treeStore.newItem({name:"null", type:"placeholder"},{parent:newitem, attribute:"children"});
+            }
+        });
+    }
+
+}
+
+/*
+ * utility method
+ * when there are more than one child, del the placeholder child
+ */
+function dealPlaceholderChild(/*dojo.data.Item*/item){
+    var kids = item.children;
+    if (kids.length > 1){   //no need to do anything when kids.length == 1
+        for (var i in kids) {
+            var type = treeStore.getValue(kids[i],"type");
+            if (type == "placeholder") {
+                treeStore.deleteItem(kids[i]);
+                break;
+            }
+        }
+    }
+}
+
+/*
+ * utility method
+ */
+function checkPlaceholderChild(/*dojo.data.Item*/ item){
+    var kids = item.children;
+    for (var i in kids) {
+        var type = treeStore.getValue(kids[i],"type");
+        if (type == "placeholder") {
+            return true;
+        }
+    }
+    return false;
+}
+
+
+/* 
+ * Table render option
+ */
 var tableOption = {
     rowCreator: function(options) {
         var row = document.createElement('tr');
@@ -341,10 +193,12 @@ var tableOption = {
     }
 }
 
-/* Update attributes table */
-function <portlet:namespace/>updateAttributesTable(attributes) {
-	dwr.util.removeAllRows('attributesTableBody');
-	dwr.util.addRows(
+/*
+ *  Update attributes table 
+ */
+function updateAttributesTable(attributes) {
+    dwr.util.removeAllRows('attributesTableBody');
+    dwr.util.addRows(
         'attributesTableBody', 
         attributes,
         [
@@ -360,9 +214,9 @@ function <portlet:namespace/>updateAttributesTable(attributes) {
 }
 
 /* Update search result table */
-function <portlet:namespace/>updateSearchResultTable(searchResult) {
-	dwr.util.removeAllRows('searchResultTableBody');
-	dwr.util.addRows(
+function updateSearchResultTable(searchResult) {
+    dwr.util.removeAllRows('searchResultTableBody');
+    dwr.util.addRows(
         'searchResultTableBody',
         searchResult,
         [
@@ -372,92 +226,12 @@ function <portlet:namespace/>updateSearchResultTable(searchResult) {
         ],
         tableOption
     );
-	dwr.util.setValue('searchResultCount', searchResult.length + ' entries returned...');
-}
-
-/* Update LDAP tree */
-function <portlet:namespace/>updateLDAPTree(entries) {
-    for (var i = 0; i < entries.length; i++) {
-        var entry = entries[i];
-        var newNode = dojo.widget.createWidget(
-            'TreeNode', 
-            {title: entry[0], widgetId: entry[1], isFolder: true, childIconSrc:'<%= ldapIconURI %>'}
-        );
-        _selectedNode.addChild(newNode);
-    }
-    _selectedNode.state = 'LOADED';
-}
-
-/* Init LDAP tree */
-function <portlet:namespace/>initLDAPTree(baseDN) {
-    if (baseDN == null) {
-        selectTab('connectInfoTab');
-        return;
-    }
-    _baseDN = baseDN;
-
-    var tree = dojo.widget.byId('ldapTree');
-    var rootNode = dojo.widget.createWidget(
-        'TreeNode', 
-        {title: baseDN, widgetId: baseDN, isFolder: true, childIconSrc:'<%= ldapIconURI %>'}
-    );
-    tree.addChild(rootNode);
-    var controller = dojo.widget.byId('treeController');
-    controller.expand(rootNode);
-    _selectedNode = rootNode;
-    LDAPManagerHelper.list(_selectedNode.widgetId, <portlet:namespace/>updateLDAPTree);
-
-    // Select node
-    var treeSelector = dojo.widget.byId("treeSelector");
-    if (getSelectedNode() != null) {
-        treeSelector.deselect();
-    }
-    treeSelector.doSelect(rootNode);
-    
-    // Select attributes tab
-    selectTab('attributesTab');
-    
-    // Update attributes table
-    var dn = rootNode.widgetId;
-    LDAPManagerHelper.getAttributes(dn, <portlet:namespace/>updateAttributesTable);
-    
-    // Update Search tab's 'Search DN' field
-    document.LDAPSearchForm.searchDN.value = baseDN;
-}
-
-/* Init LDAP connection info tab */
-function <portlet:namespace/>initConnectInfoTab(env) {
-    var host = env['host'];
-    document.LDAPConnectForm.host.value = host;
-    var port = env['port'];
-    document.LDAPConnectForm.port.value = port;
-    var version = env['ldapVersion'];
-    if (version == '3') {
-        document.LDAPConnectForm.ldapVersion[0].checked = true;
-    } else if (version == '2') {
-        document.LDAPConnectForm.ldapVersion[1].checked = true;
-    }
-    var baseDN = env['baseDN'];
-    document.LDAPConnectForm.baseDN.value = baseDN;
-    var securityProtocol = env['securityProtocol'];
-    if ((securityProtocol != null) && (securityProtocol == 'ssl')) {
-        // SSL
-        document.LDAPConnectForm.ssl.checked = true;
-    }
-    var securityAuthentication = env['securityAuthentication'];
-    if ((securityAuthentication != null) && (securityAuthentication == 'none')) {
-        // Anonymous bind
-        document.LDAPConnectForm.anonBind.checked = true;
-        document.LDAPConnectForm.userDN.value = '';
-    } else {
-        var securityPrincipal = env['securityPrincipal'];
-        document.LDAPConnectForm.userDN.value = securityPrincipal;
-    }
+    dwr.util.setValue('searchResultCount', '(' + searchResult.length + ' entries returned..' + ')');
 }
 
 /* Prints 'LOADING' message while waiting for DWR method calls */
 function init() {
-	dwr.util.useLoadingMessage();
+    dwr.util.useLoadingMessage();
 }
 
 function callOnLoad(load) {
@@ -469,210 +243,294 @@ function callOnLoad(load) {
         window.onload = load;
     }
 }
-
 callOnLoad(init);
+
+
+
 </script>
 
-<div dojoType="TreeContextMenu" toggle="explode" contextMenuForWindow="false" widgetId="treeContextMenu">
-    <div dojoType="TreeMenuItem" treeActions="refreshNode" widgetId="treeContextMenuRefresh" caption="<fmt:message key="ldapmanager.viewLDAPServer.refresh"/>" ></div>
-    <div dojoType="TreeMenuItem" treeActions="searchNode" widgetId="treeContextMenuSearch" caption="<fmt:message key="ldapmanager.viewLDAPServer.search"/>..."></div>
-    <div dojoType="TreeMenuItem" treeActions="viewEntry" widgetId="treeContextMenuViewEntry" caption="<fmt:message key="ldapmanager.viewLDAPServer.viewEntry"/>"></div>
-    <div dojoType="TreeMenuItem" treeActions="viewConnectInfo" widgetId="treeContextMenuConnectInfo" caption="<fmt:message key="ldapmanager.viewLDAPServer.connInfo"/>"></div>
-</div>
-
-<div dojoType="TreeSelector" widgetId="treeSelector"></div>
-<div dojoType="TreeBasicController" widgetId="treeController"></div>
-
-<!-- Main layout container -->
-<div dojoType="LayoutContainer"
-    layoutChildPriority='left-right'
-    id="mainLayout"
-    style="height: 500px;">
-
-    <!-- Horizontal split container -->
-    <div dojoType="SplitContainer"
-        orientation="horizontal"
-        sizerWidth="5"
-        activeSizing="1"
-        layoutAlign="client">
-        
-        <!-- LDAP tree -->
-        <div dojoType="Tree"
-            toggle="fade"
-            layoutAlign="flood"
-            sizeMin="60"
-            sizeShare="40"
-            widgetId="ldapTree"
-            selector="treeSelector"
-            controller="treeController"
-            expandLevel="0"
-            menu="treeContextMenu"
-            strictFolders="false">
-            <!-- Nodes will be added programmatically -->
-        </div>
-
-        <!-- Main tab container -->
-        <div id="mainTabContainer" 
-            dojoType="TabContainer" 
-            selectedTab="attributesTab" 
-            style="overflow: hidden" 
-            sizeShare="60">
-            
-            <!-- Attributes tab -->
-            <div id="attributesTab" dojoType="ContentPane" title="LDAP Entry Attributes" label="<fmt:message key="ldapmanager.viewLDAPServer.attributes"/>" style="overflow: auto">
-                <br>
-                <table width="100%">
-                    <tr>
-                        <td class="DarkBackground" align="center" width="40%"><fmt:message key="ldapmanager.viewLDAPServer.name"/></td>
-                        <td class="DarkBackground" align="center" width="60%"><fmt:message key="ldapmanager.viewLDAPServer.value"/></td>
-                    </tr>
-                    <tbody id="attributesTableBody">
-                    </tbody>
-                </table>
-            </div> <!-- Attributes tab -->
-
-            <!-- Search tab -->
-            <div id="searchTab" dojoType="ContentPane" title = "" label='<fmt:message key="ldapmanager.viewLDAPServer.search" />' style="overflow: auto">
-                <br>
-                <form NAME="LDAPSearchForm" method="POST">
-                    <table>
+<!-- Connect Pane START -->
+<div dojoType="dijit.TitlePane" title="Connect">
+       
+    <table style="border:0px">
+        <thead>
+            <tr>
+                <th>Network Parameters</th>
+                <th>Authentication Parameters</th>            
+                <th>Options</th>  
+            </tr>          
+        </thead>
+        <tbody>
+            <tr>
+                <td valign="top">
+                    <table style="border:0px">
                         <tr>
-                            <td nowrap align="right"><label for="<portlet:namespace/>searchDN"><fmt:message key="ldapmanager.viewLDAPServer.searchDN" /></label>:</td>
-                            <td><input type="text" name="searchDN" id="<portlet:namespace/>searchDN" value="" size="45"/></td>
+                            <td><fmt:message key="ldapmanager.viewLDAPServer.host" />:</td>
+                            <td><input type="text" name="host" id="host" jsId="connHost" value="localhost" dojoType="dijit.form.ValidationTextBox" required="true" invalidMessage="Pleas input the host name"/></td>
                         </tr>
                         <tr>
-                            <td nowrap align="right"><label for="<portlet:namespace/>filter"><fmt:message key="ldapmanager.viewLDAPServer.filter" /></label>:</td>
-                            <td><input type="text" name="filter" id="<portlet:namespace/>filter" value="(objectclass=*)" size="45"/></td>
+                            <td><fmt:message key="ldapmanager.viewLDAPServer.port" />:</td>
+                            <td><input type="text" name="port" id="port" jsId="connPort" value="10389" dojoType="dijit.form.ValidationTextBox" required="true" invalidMessage="Pleas input the port number"/></td>
                         </tr>
                         <tr>
-                            <td nowrap align="right">&nbsp;<fmt:message key="ldapmanager.viewLDAPServer.searchScope" />:</td>
+                            <td><fmt:message key="ldapmanager.viewLDAPServer.SSL" />:</td>
+                            <td><input type="checkbox" id="ssl" name="ssl" jsId="connSSL" dojoType="dijit.form.CheckBox"/></td>
+                        </tr>
+                        <tr>
+                            <td><fmt:message key="ldapmanager.viewLDAPServer.version" />:</td>
                             <td>
-                              <INPUT type="radio" name="searchScope" value="onelevel" id="<portlet:namespace/>onelevel" checked> <label for="<portlet:namespace/>onelevel"><fmt:message key="ldapmanager.viewLDAPServer.oneLevel" /></label>
-                                <INPUT type="radio" name="searchScope" value="subtree" id="<portlet:namespace/>subtree"> <label for="<portlet:namespace/>subtree"><fmt:message key="ldapmanager.viewLDAPServer.subTreeLevel" /></label>
+                                <input type="radio" dojoType="dijit.form.RadioButton" name="version" id="version3" jsId="connVersion3" value="3" checked="true" />3
+                                <input type="radio" dojoType="dijit.form.RadioButton" name="version" id="version2" jsId="connVersion2" value="2" />2
+                            </td>
+                        </tr>
+                    </table>                    
+                </td>
+                <td valign="top">
+                    <table style="border:0px">
+                        <tr>
+                            <td><fmt:message key="ldapmanager.viewLDAPServer.anonymousBind" />:</td>
+                            <td><input type="checkbox" id="anonymous" name="anonymous" jsId="connAnonymous" dojoType="dijit.form.CheckBox"/></td>
+                        </tr>
+                        <tr>
+                            <td><fmt:message key="ldapmanager.viewLDAPServer.userDN" />:</td>
+                            <td><input type="text" name="userdn" id="userdn" jsId="connUserDN" value="uid=admin, ou=system" dojoType="dijit.form.ValidationTextBox" required="true" invalidMessage="Pleas input the user name"/></td>
+                        </tr>
+                        <tr>
+                            <td><fmt:message key="ldapmanager.viewLDAPServer.password" />:</td>
+                            <td><input type="password" name="password" id="password" jsId="connPassword" value="" dojoType="dijit.form.ValidationTextBox" required="true" invalidMessage="Pleas input the password"/></td>
+                        </tr>
+                    </table>                    
+                </td>
+                <td valign="top">
+                    <table style="border:0px">
+                        <tr>
+                            <td><fmt:message key="ldapmanager.viewLDAPServer.baseDN" />:</td>
+                            <td><input type="text" name="basedn" id="basedn" jsId="connBaseDN" value="ou=system" dojoType="dijit.form.ValidationTextBox" required="true" invalidMessage="BaseDN required"/></td>
+                        </tr>
+                    </table>                    
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <button dojoType="dijit.form.Button"><fmt:message key="ldapmanager.viewLDAPServer.connect" />
+        <script type="dojo/method" event="onClick" args="btn">
+            document.body.style.cursor = "wait";
+
+            // TODO: Add validation
+            // Context Factory name
+            var initialContextFactory = 'com.sun.jndi.ldap.LdapCtxFactory';
+            
+            // network param
+            var host = connHost.value;
+            var port = connPort.value;
+            var securityProtocol = '';
+            if (connSSL.checked) {
+                securityProtocol = 'ssl';
+            }
+            var ldapVersion;
+            if (connVersion3.checked) {
+                ldapVersion = '3';
+            } else {
+                ldapVersion = '2';
+            }
+            
+            // authentication param
+            var securityAuthentication;
+            var securityPrincipal;
+            var securityCredentials;
+            if (connAnonymous.checked) {
+                securityAuthentication = 'none';
+                securityPrincipal = '';
+                securityCredentials = '';
+            } else {
+                securityAuthentication = 'simple';
+                securityPrincipal = connUserDN.value;
+                securityCredentials = connPassword.value;
+            }
+            
+            // options
+            var baseDN = connBaseDN.value;
+            
+            // DEBUG: Connect Info
+            var connectInfoStr =
+                'initialContextFactory:' + initialContextFactory +
+                '\nhost:' + host +
+                '\nport:' + port +
+                '\nldapVersion:' + ldapVersion +
+                '\nbaseDN:' + baseDN +
+                '\nsecurityProtocol:' + securityProtocol +
+                '\nsecurityAuthentication:' + securityAuthentication +
+                '\nsecurityPrincipal:' + securityPrincipal +
+                '\nsecurityCredentials:' + securityCredentials;
+            //alert(connectInfoStr);
+            
+            // Connect to new LDAP server
+            LDAPManagerHelper.connect(
+                initialContextFactory,
+                host,
+                port,
+                baseDN,
+                ldapVersion,
+                securityProtocol,
+                securityAuthentication,
+                securityPrincipal,
+                securityCredentials,
+                function(result) {
+                    // TODO: Check result
+                    if (result == '<SUCCESS>') {
+                        /* Init LDAP tree */
+                        LDAPManagerHelper.getBaseDN(initLDAPTree);
+
+                        /* Init LDAP connection info tab */
+                        //if (_baseDN != null) {
+                        //    LDAPManagerHelper.getEnvironment(<portlet:namespace/>initConnectInfoTab);
+                        //}
+                        
+                    } else {
+                        // Display error
+                        alert(result + '\n Make sure LDAP server is running and/or connection properties are correct.');
+                    }
+                }
+            );
+            
+            
+            document.body.style.cursor = "";
+        </script>
+    </button>
+</div>
+<!-- Connect Pane END -->
+<br/>
+<!-- Main layout container START -->
+<div dojoType="dijit.layout.LayoutContainer"  id="mainLayout" style="width: 100%; height: 500px;">
+
+    <!-- Horizontal split container START -->
+    <div dojoType="dijit.layout.SplitContainer" orientation="horizontal" sizerWidth="1" activeSizing="true" layoutAlign="client" style="width: 100%; height: 100%;" >
+           
+        <!-- left pane START -->
+        <div dojoType="dijit.layout.ContentPane" sizeShare="40" layoutAlign="left" style="background-color:white; overflow: auto;">       
+            
+            <!-- JMX tree START -->
+            <div dojoType="dijit.Tree" model="treeModel" openOnClick="false">
+                <script type="dojo/method" event="onOpen" args="item">
+                    document.body.style.cursor = "wait";
+                    _selectItem = item;
+
+                    if (item.id != treeModel.rootLabel){
+                        // if the node has place holder, we will try get its children
+                        if (checkPlaceholderChild(item)){
+                            var values = treeStore.getValues(item, "values");  
+                            LDAPManagerHelper.list(values[0], {callback: updateLDAPTree}); //values[0] is DN
+                           } 
+                        // if item has children, del the place holder(actually always has children here)
+                           dealPlaceholderChild(item);
+                    }
+
+                    document.body.style.cursor = "";
+                </script>
+                <script type="dojo/method" event="onClick" args="item">
+                    document.body.style.cursor = "wait";
+                    _selectItem = item;
+
+                    if (item.id != treeModel.rootLabel){
+                        var values = treeStore.getValues(item, "values");  
+                        LDAPManagerHelper.getAttributes(values[0], {callback: updateAttributesTable});
+                    } else {
+                        dwr.util.removeAllRows('attributesTableBody');
+                    }
+
+                    document.body.style.cursor = "";
+                </script>
+            </div>
+            <!-- JMX tree END -->
+            
+        </div> 
+        <!-- left pane END -->
+
+        <!-- right pane START -->
+        <div dojoType="dijit.layout.ContentPane" sizeShare="60" layoutAlign="right" style="background-color:white; overflow: auto;"> 
+            
+            <!-- Main tab container START -->
+            <div dojoType="dijit.layout.TabContainer" style="width: 100%; height: 100px;">
+            
+                <!-- Attributes Tab START -->
+                <div dojoType="dijit.layout.ContentPane" title="<fmt:message key='ldapmanager.viewLDAPServer.attributes'/>" selected="true">
+                       <table width="100%">
+                        <thead>
+                            <tr>
+                                <th width="40%"><fmt:message key="ldapmanager.viewLDAPServer.name"/></th>
+                                <th width="60%"><fmt:message key="ldapmanager.viewLDAPServer.value"/></th>
+                            </tr>
+                        </thead>
+                        <tbody id="attributesTableBody">
+                        </tbody>
+                    </table>
+                </div>
+                <!-- Attributes Tab END -->
+                
+                <!-- Search Tab START -->
+                <div dojoType="dijit.layout.ContentPane" title="<fmt:message key='ldapmanager.viewLDAPServer.search' />">
+                    <table style="border:0px">
+                        <tr>
+                            <td><label for="searchDN"><fmt:message key="ldapmanager.viewLDAPServer.searchDN" /></label>:</td>
+                            <td>
+                                <input type="text" name="searchDN" id="searchDN" jsId="srchSearchDN" value="" dojoType="dijit.form.ValidationTextBox" required="true" invalidMessage="Pleas input the DN" />
                             </td>
                         </tr>
                         <tr>
-                            <td colspan="2">&nbsp;</td>
+                            <td><label for="filter"><fmt:message key="ldapmanager.viewLDAPServer.filter" /></label>:</td>
+                            <td>
+                                <input type="text" name="filter" id="filter" jsId="srchFilter" value="(objectclass=*)" dojoType="dijit.form.TextBox" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><fmt:message key="ldapmanager.viewLDAPServer.searchScope" />:</td>
+                            <td>
+                                <input type="radio" dojoType="dijit.form.RadioButton" name="searchScope" id="onelevel" jsId="srchOneLevel" value="onelevel" checked="true" /><label for="onelevel"><fmt:message key="ldapmanager.viewLDAPServer.oneLevel" /></label>
+                                <input type="radio" dojoType="dijit.form.RadioButton" name="searchScope" id="subtree" jsId="srchSubTree" value="subtree" /><label for="subtree"><fmt:message key="ldapmanager.viewLDAPServer.subTreeLevel" /></label>
+                            </td>
                         </tr>
                         <tr>
                             <td align="left" colspan="2">
-                                &nbsp;<input type="button" value='<fmt:message key="ldapmanager.viewLDAPServer.search" />' name="ldapSearch" onClick="searchBtnClicked()"/>
-                                &nbsp;<input type="button" value='<fmt:message key="ldapmanager.viewLDAPServer.clearResult" />' name="clearResult" onClick="clearResultBtnClicked()"/>
-                                &nbsp;&nbsp;<span id='searchResultCount'></span>
+                                <button dojoType="dijit.form.Button"><fmt:message key="ldapmanager.viewLDAPServer.search" />
+                                    <script type="dojo/method" event="onClick" args="btn">
+                                        var scope;
+                                        if (srchOneLevel.checked.value == true) {
+                                            scope = 'onelevel';
+                                        } else {
+                                            scope = 'subtree';
+                                        }
+                                        LDAPManagerHelper.search(srchSearchDN.value, srchFilter.value, scope, updateSearchResultTable);
+                                    </script>
+                                </button>
+                                <button dojoType="dijit.form.Button"><fmt:message key="ldapmanager.viewLDAPServer.clearResult" />
+                                    <script type="dojo/method" event="onClick" args="btn">
+                                        dwr.util.removeAllRows('searchResultTableBody');
+                                        dwr.util.setValue('searchResultCount', '');
+                                    </script>
+                                </button>
                             </td>
                         </tr>
                     </table>
-                </form>
-                <hr>
-                <table width="100%">
-                  <tr>
-                    <td class="DarkBackground" align="center"><fmt:message key="ldapmanager.viewLDAPServer.DN" /></td>
-                  </tr>
-                  <tbody id="searchResultTableBody">
-                  </tbody>
-                </table>
-            </div> <!-- Search tab -->
-
-            <!-- Connection Info tab -->
-            <div id="connectInfoTab" dojoType="ContentPane" title = "" label="<fmt:message key="ldapmanager.viewLDAPServer.connInfo"/>" style="overflow: auto">
-                <br>
-                <form NAME="LDAPConnectForm" method="POST">
-                    <table>
-                        <tr>
-                            <td nowrap align="right"><label for="<portlet:namespace/>host"><fmt:message key="ldapmanager.viewLDAPServer.host"/></label>:</td>
-                            <td>
-                                <input type="text" name="host" id="<portlet:namespace/>host" value="localhost" size="40"
-                                    dojoType="ValidationTextbox"
-                                    required="true"
-                                    trim="true"
-                                    uppercase: false,
-                                    lowercase: false,
-                                    ucFirst: false,
-                                    digit: false,
-                                    missingMessage="<br>* Host is required." />
-                            </td>
-                        </tr>
-                        <tr>
-                            <td nowrap align="right"><label for="<portlet:namespace/>port"><fmt:message key="ldapmanager.viewLDAPServer.port"/></label>:</td>
-                            <td>
-                                <input type="text" name="port" id="<portlet:namespace/>port" value="1389" size="40"
-                                    dojoType="IntegerTextbox"
-                                    required="true"
-                                    trim="true"
-                                    digit="true"
-                                    min="0"
-                                    max="65535"
-                                    missingMessage="<br>* Port is required." 
-                                    invalidMessage="<br>* The value entered is not valid."
-                                    rangeMessage="<br>* This value is out of range use 0 - 65535." />
-                            </td>
-                        </tr>
-                        <tr>
-                            <td nowrap align="right"><fmt:message key="ldapmanager.viewLDAPServer.version"/>:</td>
-                            <td>
-                                <INPUT type="radio" name="ldapVersion" value="3" title="3" checked> 3
-                                <INPUT type="radio" name="ldapVersion" value="2" title="2"> 2
-                            </td>
-                        </tr>
-                        <tr>
-                            <td nowrap align="right"><label for="<portlet:namespace/>baseDN"><fmt:message key="ldapmanager.viewLDAPServer.baseDN" /></label>:</td>
-                            <td>
-                                <input type="text" name="baseDN" id="<portlet:namespace/>baseDN" value="ou=system" size="40"
-                                    dojoType="ValidationTextbox"
-                                    required="true"
-                                    trim="true"
-                                    missingMessage="<br>* Base DN is required." />
-                            </td>
-                        </tr>
-                        <tr>
-                            <td nowrap align="right"><label for="<portlet:namespace/>ssl"><fmt:message key="ldapmanager.viewLDAPServer.SSL"/></label>:</td>
-                            <td><input type="checkbox" name="ssl" id="<portlet:namespace/>ssl" value="" size="40"></td>
-                        </tr>
-                        <tr>
-                            <td nowrap align="right">&nbsp;<label for="<portlet:namespace/>anonBind"><fmt:message key="ldapmanager.viewLDAPServer.anonymousBind" /></label>:</td>
-                            <td><input type="checkbox" name="anonBind" id="<portlet:namespace/>anonBind" value="" size="40" onclick="javascript:anonBindChkboxClicked()"></td>
-                        </tr>
-                        <tr>
-                            <td nowrap align="right"><label for="<portlet:namespace/>userDN"><fmt:message key="ldapmanager.viewLDAPServer.userDN" /></label>:</td>
-                            <td>
-                                <input type="text" name="userDN" id="<portlet:namespace/>userDN" value="uid=admin, ou=system" size="40"
-                                    dojoType="ValidationTextbox"
-                                    required="true"
-                                    trim="true"
-                                    missingMessage="<br>* User DN is required." />
-                            </td>
-                        </tr>
-                        <tr>
-                            <td nowrap align="right"><label for="<portlet:namespace/>password"><fmt:message key="ldapmanager.viewLDAPServer.password"/></label>:</td>
-                            <td><input type="password" name="password" id="<portlet:namespace/>password" value="" size="40"></td>
-                        </tr>
-                        <tr>
-                            <td align="right" colspan="2">
-                                &nbsp;<input type="button" value='<fmt:message key="ldapmanager.viewLDAPServer.restoreDefault" />' name="defaultLDAP" onClick="restoreDefaultBtnClicked()"/>
-                                &nbsp;<input type="button" value='<fmt:message key="ldapmanager.viewLDAPServer.connect" />' name="connectLDAP" onClick="connectBtnClicked()"/>
-                            </td>
-                        </tr>
+                    <table width="100%">
+                        <thead>
+                            <tr>
+                                <th><fmt:message key="ldapmanager.viewLDAPServer.DN" />&nbsp;<span id='searchResultCount'></span></th>
+                            </tr>
+                        </thead>
+                        <tbody id="searchResultTableBody"></tbody>
                     </table>
-                </form>
-            </div> <!-- Connection Info tab -->
-
-            <!-- Help tab -->
-            <!--
-            <div id="helpTab" dojoType="ContentPane" title="Help Information" label="Help" style="overflow: auto">
-                <br>
-                <p>The LDAP viewer portlet can be used to do the following:
-                <ul>
-                    <li>Connect to any LDAP server and explore its contents (default is the Embedded LDAP server - Apache DS)
-                    <li>View the attributes of an entry
-                    <li>Do an LDAP search on a particular entry
-                    <li>Refresh any entry to get the latest data from the directory server
-                    <li>View the LDAP connection environment data
-                </ul>
-                <p>Note: Right-click to any tree node to view the context menu for performing different actions.
+                </div>
+                <!-- Search Tab END -->
+                
             </div>
-            --> 
-            <!-- Help tab -->
-
-        </div> <!-- Main tab container -->
-    </div>  <!-- Horizontal split container -->
-</div> <!-- Main layout container -->
+            <!-- Main tab container END -->
+            
+        </div>
+        <!-- right pane END -->
+        
+    </div>  
+    <!-- Horizontal split container END -->
+    
+</div>
+<!-- Main layout container END -->

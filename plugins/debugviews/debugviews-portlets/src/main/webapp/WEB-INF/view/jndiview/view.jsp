@@ -21,252 +21,162 @@
 <fmt:setBundle basename="debugviews"/>
 <portlet:defineObjects/>
 
-<%
-    String childs = (String)renderRequest.getPortletSession().getAttribute("jndiTree");     
-    renderRequest.getPortletSession().removeAttribute("jndiTree");
-%>
+<% String dwrForwarderServlet = "/console/dwr2"; %>
+<script type='text/javascript' src='<%= dwrForwarderServlet %>/interface/JNDIViewHelper.js'></script>
+<script type='text/javascript' src='<%= dwrForwarderServlet %>/engine.js'></script>
+<script type='text/javascript' src='<%= dwrForwarderServlet %>/util.js'></script>
+<style type="text/css">
+    @import "/dojo/dojo/resources/dojo.css";
+    @import "/dojo/dijit/themes/soria/soria.css";
+</style>
+<script type="text/javascript" src="/dojo/dojo/dojo.js" djConfig="parseOnLoad:true"></script>
 
-    <script type="text/javascript" src="/dojo/0.4/dojo.js"></script>
+<script type="text/javascript">
+    //style class
+    document.body.className="soria";
 
-    <script type="text/javascript">
-        dojo.require("dojo.lang.*");
-        dojo.require("dojo.widget.*");
-        // Pane includes
-        dojo.require("dojo.widget.ContentPane");
-        dojo.require("dojo.widget.LayoutContainer"); // Before: LayoutPane
-        dojo.require("dojo.widget.SplitContainer"); // Before: SplitPane
-        // Tree includes
-        dojo.require("dojo.widget.Tree");
-        dojo.require("dojo.widget.TreeBasicController");
-        dojo.require("dojo.widget.TreeContextMenu");
-        dojo.require("dojo.widget.TreeSelector");
-        // Tab includes
-        dojo.require("dojo.widget.TabContainer");
-        // Etc includes
-        dojo.require("dojo.widget.SortableTable");
-        dojo.require("dojo.widget.ComboBox");
-        dojo.require("dojo.widget.Tooltip");
-        dojo.require("dojo.widget.validate");
-        // Includes Dojo source for debugging
-        // dojo.hostenv.writeIncludes();
-    </script>
+    //import dojo lib
+    dojo.require("dojo.data.ItemFileWriteStore");
+    dojo.require("dijit.tree.ForestStoreModel");
+    dojo.require("dijit.Tree");
+    dojo.require("dijit.TitlePane");
+    dojo.require("dijit.form.Button");
 
-<script>
-    dojo.require("dojo.widget.*");
-    dojo.require("dojo.widget.TreeV3");
-    dojo.require("dojo.widget.TreeNodeV3");
-    dojo.require("dojo.widget.TreeBasicControllerV3");
-    dojo.require("dojo.widget.TreeSelectorV3");
-    dojo.require("dojo.widget.TreeEmphasizeOnSelect");
-    dojo.require("dojo.widget.TreeToggleOnSelect");
- 
-    dojo.hostenv.writeIncludes();
+</script>
 
-    dojo.addOnLoad(function() {
-        var tree = dojo.widget.manager.getWidgetById('tree');
+<!------------------------>
+<!--     Page Stuff     -->
+<!------------------------>
+<script type="text/javascript">
+    var debugStore = null; 
+    
+    JNDIViewHelper.getTrees({callback:createStore,async:false});
+    function createStore(treeData){    
+    //      var treeData = dojo.fromJson(json);                    
+          debugStore=new dojo.data.ItemFileReadStore({data:treeData});       
+      }
+    var debugModel = new dijit.tree.ForestStoreModel({
+        store:debugStore, rootId:"JNDI", rootLabel:"JNDI", childrenAttrs:["children"]});
 
-        var treeNodes = <%= childs %>;
+    var lastFoundId = -1;
+    var SearchOn = []; //For ignore the fake root it better be a array
+    var caseSensitive = true;
+    function findRecur(items, str, path) 
+    {
+        for (var child = 0; child < items.length; child++) {
 
-        tree.setChildren(treeNodes);
-    });
-
-    var lastFound = '';
-    var doCheck = false;
-    var caseSensitive = false;
-
-    function check(curr,last) {
-        var cr = curr.split(".");
-        var ls = last.split(".");
-
-        for (var i =0; i < cr.length; i++)
-            if(parseInt(cr[i]) < parseInt(ls[i]))
-                return false;
-
-        return true;
+            path.push(items[child]);
+            var label = debugStore.getLabel(items[child]);
+            if (label && debugStore.getIdentity(items[child]) > lastFoundId)
+            {
+                if (caseSensitive && label.indexOf(str) != -1 )
+                    return true;
+                if (!caseSensitive && label.toLowerCase().indexOf(str.toLowerCase()) != -1)
+                    return true;
+            }
+            if (items[child].children && findRecur(items[child].children, str, path))
+                return true;
+            path.pop();
+        }
+        return false;
     }
-
-    function findNext(children, str) {
-        for (var child = 0; child < children.length; child++) {
-            if (doCheck) {
-                if (! check(children[child].widgetId,lastFound))
-                    continue;
-                else
-                    if (children[child].widgetId == lastFound)
-                        doCheck = false;
-            }
-
-            if (caseSensitive) {
-            	if (children[child].title.indexOf(str) != -1 && children[child].widgetId != lastFound && !doCheck)
-            		return children[child].widgetId;
-            } else {
-                if (children[child].title.toLowerCase().indexOf(str.toLowerCase()) != -1 && children[child].widgetId != lastFound && !doCheck)
-                    return children[child].widgetId;
-            }
-
-            if(children[child].children){
-                var ret = findNext(children[child].children, str);
-
-                if(ret)
-                    return ret;
+    function select(path)
+    {
+        var i;
+        function expandParent(node)
+        {
+            if(node && !node.isExpanded)
+            {
+                expandParent(node.getParent());
+                debugTree._expandNode(node);
             }
         }
-       
-        return ;
-    }
-
-    function select(node) {
-        var nodes = node.split(".");
-        var curr = "";
-
-        for (nod in nodes) {
-            if (curr == "")
-                curr = curr + nodes[nod];
-            else
-                curr = curr + "." + nodes[nod];
-
-            if (dojo.widget.byId(curr).state != "LOADED" && dojo.widget.byId(curr).children.length != 0)
-                dojo.widget.byId(curr).setChildren(dojo.widget.byId(curr).children);
-
-            dojo.widget.byId('controller').expandToLevel(dojo.widget.byId(curr), 1);
+        //make sure the ancestor node expanded before
+        expandParent(debugTree._itemNodeMap[debugStore.getIdentity(path[0])].getParent());
+        for (i = 0;;i++) {
+            node  = debugTree._itemNodeMap[debugStore.getIdentity(path[i])];
+            if(i < path.length-1)
+                debugTree._expandNode(node);
+            else 
+            {
+                debugTree.focusNode(node);
+                return node;
+            }
         }
-
-        dojo.widget.byId('selector').select(dojo.widget.byId(node));
     }
-
-    function findInSelected(selectedNodes) {
-        var search = document.getElementById("searchText").value;
-
-        if (search == "") {
-            alert('No Text to search');
+    function findAndSelect(key, scope)
+    {
+        var path = [], node, res = false;
+        document.body.style.cursor = "wait";
+        if(!findRecur(scope, key, path))
+        {
+            lastFoundId = -1;
+        } else {
+            node = select(path);
+            lastFoundId = debugStore.getIdentity(node.item);
+            res = true;
+        }
+        document.body.style.cursor = '';
+        return res;
+    }
+    function search() {
+        lastFoundId = -1;
+        
+        var key = document.getElementById("searchText").value;
+        if (key == "")
+        {
+            alert('<fmt:message key="debugviews.common.noText"/>');
             return;
         }
-
-        var v= findNext(selectedNodes,search);
-
-        if (v) {
-            dojo.widget.byId('selector').deselectAll();
-            select(v);
-            document.getElementById("findNext").disabled=false;
-            lastFound = v;
-            doCheck = true;
-        } else {
-            alert('Nothing found');
-            lastFound =  '';
-            doCheck = false;
-        }
-    }
-
-    function textChange() {
-        document.getElementById("findNext").disabled=true;
-        lastFound = '';
-        doCheck = false;
-    }
-
-    function caseSensitiveChange() {
-        if (caseSensitive) {
-            caseSensitive = false;
-        } else {
-        	caseSensitive = true;
-        }
-    }
-
-    var lastSearchOn = '';
-
-    function search() {
-        document.body.style.cursor = "wait";
-        lastFound = '';
-        doCheck = false;
-        lastSearchOn = [];
-
-        var nodes;
-
+        caseSensitive = document.getElementById("caseSensitiveSelected").checked;
         if (document.getElementById("inSelected").checked) {
-            nodes = dojo.widget.byId('selector').selectedNodes;
-
-            if (nodes == '') {
-                alert('No Node selected to search');
-            } else {
-                for (obj in nodes)
-                    lastSearchOn.push(nodes[obj]);
-
-                findInSelected(nodes);
+            node = debugTree.lastFocused;
+            if (node == '' || node == debugTree.rootNode) {
+                alert('<fmt:message key="debugviews.common.pleaseSelect"/>');
+                return;
             }
+            SearchOn = [node.item];
         } else {
-            nodes = dojo.widget.byId('tree').children;
-            lastSearchOn = dojo.widget.byId('tree').children;
-            findInSelected(nodes);
+            SearchOn = debugTree.rootNode.item.children;
         }
-
-        document.body.style.cursor = '';
+        if(!findAndSelect(key, SearchOn))
+            alert('<fmt:message key="debugviews.common.notFound"/> ' + key);
+        else 
+            findNext.attr("disabled", false);
     }
 
     function searchContinue() {
-        document.body.style.cursor = "wait";
-        findInSelected(lastSearchOn);
-        document.body.style.cursor = '';
+        var key = document.getElementById("searchText").value;
+        if(!findAndSelect(key, SearchOn))
+            alert('<fmt:message key="debugviews.common.notFound"/> ' + key);
+    }
+
+    function searchReset() {
+        findNext.attr("disabled", true);
+        lastFoundId = -1;
+        //The only way to enable "findNext" button is to search() 
     }
 </script>
-<TABLE cellpadding="1" cellspacing="1" border="1">
-<tr><td>
-<b><label for="searchText"><fmt:message key="jndiview.view.searchText"/></label>:</b> <input type="text" id="searchText" onChange="javascript:textChange()"/>
-<input type="button" value='<fmt:message key="debugviews.common.find"/>' onClick="javascript:search()"/>
-<input type="button" id="findNext" value='<fmt:message key="debugviews.common.findNext"/>' onClick="javascript:searchContinue()" disabled=true />
-<label for="inSelected"><fmt:message key="jndiview.view.searchOnlySelected"/></label>:<input type="checkbox" id="inSelected" onChange="javascript:textChange()"/>
-<fmt:message key="jndiview.view.caseSensitive"/>:<input type="checkbox" id="caseSensitiveSelected" onChange="javascript:caseSensitiveChange()"/>
-</td></tr>
-</table>
-<br/>
-<div dojoType="TreeBasicControllerV3" widgetId="controller"></div>      
-<div dojoType="TreeSelectorV3" widgetId="selector"></div>       
-<div dojoType="TreeEmphasizeOnSelect" selector="selector"></div>
-<div dojoType="TreeToggleOnSelect" selector="selector" controller="controller"></div>
-<div dojoType="TreeDocIconExtension"  widgetId="iconcontroller" templateCssString="
-.TreeStateChildrenYes-ExpandOpen .TreeIconContent {
-    background-image : url('../templates/images/TreeV3/i_long.gif');
-    background-repeat : no-repeat;
-    background-position: 18px 9px;
-}
+<div dojoType="dijit.TitlePane" title="<fmt:message key="debugviews.common.find"/>" >
 
-.TreeStateChildrenYes-ExpandClosed .TreeIconContent {
-    background-image : url();
-}
+    <b><label for="searchText"><fmt:message key="jndiview.view.searchText"/></label>:</b> <input type="text" id="searchText" onChange="javascript:searchReset()"/>
+    <button dojoType="dijit.form.Button" jsId="findButton" ><fmt:message key="debugviews.common.find"/>
+        <script type="dojo/method" event="onClick" args="btn">
+            search();
+        </script>
+    </button>
+    <button dojoType="dijit.form.Button" jsId="findNext" disabled="true"><fmt:message key="debugviews.common.findNext"/>
+        <script type="dojo/method" event="onClick" args="btn">
+            searchContinue();
+        </script>
+    </button>
+    <label for="inSelected"><fmt:message key="jndiview.view.searchOnlySelected"/></label>:<input type="checkbox" id="inSelected" onChange="javascript:searchReset()"/>
+    <fmt:message key="jndiview.view.caseSensitive"/>:
+    <input type="checkbox" id="caseSensitiveSelected" checked="true" onChange="javascript:searchReset()"/>
 
-.TreeStateChildrenNo-ExpandLeaf .TreeIconContent {
-    background-image : url();
-}
-
-.TreeStateChildrenNo-ExpandClosed .TreeIconContent {
-    background-image : url();
-}
-
-.TreeStateChildrenNo-ExpandOpen .TreeIconContent {
-    background-image : url();
-}
-
-.TreeIconDocument {
-    background-image: url(<%= renderResponse.encodeURL(renderRequest.getContextPath() + "/ico_filetree_16x16.gif") %>);
-}
-
-.TreeExpandOpen .TreeIconFolder {
-    background-image: url(<%= renderResponse.encodeURL(renderRequest.getContextPath() + "/ico_filetree_16x16.gif") %>);
-}
-
-.TreeExpandClosed .TreeIconFolder {
-    background-image: url(<%= renderResponse.encodeURL(renderRequest.getContextPath() + "/ico_filetree_16x16.gif") %>);
-}
-
-/* generic class for docIcon */
-.TreeIcon {
-    width: 18px;
-    height: 18px;
-    float: left;
-    display: inline;
-    background-repeat : no-repeat;
-}
-
-div.TreeContent {
-    margin-left: 36px;
-}"></div>
-<div dojoType="TreeV3" listeners="controller;selector;iconcontroller" widgetId='tree' allowedMulti='false'></div>
-
+</div>
+<br />
+<div dojoType="dijit.Tree" jsId="debugTree" class="soria" showRoot="false"
+      model="debugModel" openOnClick="true" >
+</div>
 

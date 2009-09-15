@@ -8,7 +8,7 @@
     </module-id>
     <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>dojo-legacy-jetty</artifactId>
+        <artifactId>dojo-jetty</artifactId>
         <type>car</type>
     </dependency>
     <dependency>

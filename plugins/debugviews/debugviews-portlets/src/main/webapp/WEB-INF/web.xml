@@ -27,13 +27,22 @@ limitations under the License.
         <param-name>classes</param-name>
         <param-value>
             org.apache.geronimo.console.jmxmanager.JMXManagerHelper,
-            org.apache.geronimo.console.ldapmanager.LDAPManagerHelper
+            org.apache.geronimo.console.ldapmanager.LDAPManagerHelper,
+			org.apache.geronimo.console.dependencyview.DependencyViewHelper,
+			org.apache.geronimo.console.jndiview.JNDIViewHelper,
+			org.apache.geronimo.console.classloaderview.ClassLoaderViewHelper,
+			org.apache.geronimo.console.util.Tree,
+			org.apache.geronimo.console.util.TreeEntry
         </param-value>
       </init-param>
       <init-param>
           <param-name>activeReverseAjaxEnabled</param-name>
           <param-value>true</param-value>
       </init-param>
+	  <init-param>
+		<param-name>allowScriptTagRemoting</param-name>
+		<param-value>true</param-value>
+		</init-param>
     </servlet>
 
     <servlet>

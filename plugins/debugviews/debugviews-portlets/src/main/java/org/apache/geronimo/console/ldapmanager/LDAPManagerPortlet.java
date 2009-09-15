@@ -46,8 +46,6 @@ public class LDAPManagerPortlet extends BasePortlet {
 
     private PortletRequestDispatcher helpView;
 
-    private static LDAPManagerHelper helper = null /* new LDAPManagerHelper() */;
-
     /**
      * Process an action request
      */

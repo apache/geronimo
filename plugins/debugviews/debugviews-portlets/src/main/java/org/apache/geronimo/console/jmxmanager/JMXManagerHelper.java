@@ -26,7 +26,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -40,6 +42,8 @@ import javax.management.j2ee.statistics.Statistic;
 import javax.management.j2ee.statistics.Stats;
 import javax.management.j2ee.statistics.TimeStatistic;
 
+import org.apache.geronimo.console.util.Tree;
+import org.apache.geronimo.console.util.TreeEntry;
 import org.apache.geronimo.console.util.TimeUtils;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
@@ -58,6 +62,16 @@ import org.directwebremoting.annotations.RemoteProxy;
  */
 @RemoteProxy
 public class JMXManagerHelper {
+    
+    /** Types */
+    public static final String All_TYPE = "All";
+    public static final String JAVAEE_TYPE = "JavaEE";
+    public static final String GERONIMO_TYPE = "Geronimo";
+    public static final String GERONIMO_SERVICE_TYPE = "GeronimoService";
+    public static final String STATS_PROVIDER_TYPE = "StatsProvider";
+    public static final String SEARCHNODE_TYPE = "SearchNode";
+    public static final String PLACEHOLDER_TYPE = "placeholder";
+    
     /** Used to return all MBeans */
     private static final String ALL_MBEANS = "AllMBeans";
     private static final String SERVICEMODULE_KEY = "ServiceModule";
@@ -78,8 +92,8 @@ public class JMXManagerHelper {
     /**
      * List MBeans using a domain
      */
-    public Collection listByDomain(String domain) {
-        Collection result = new ArrayList();
+    public Collection<String[]> listByDomain(String domain) {
+        Collection<String[]> result = new ArrayList<String[]>();
         if ((domain == null) || (domain.trim().length() == 0)) {
             return result;
         }
@@ -91,17 +105,17 @@ public class JMXManagerHelper {
      * List MBeans containing a substring in its object name
      */
     @RemoteMethod
-    public Collection listBySubstring(String substring) {
-        Collection result = new ArrayList();
+    public Collection<String[]> listBySubstring(String substring) {
+        Collection<String[]> result = new ArrayList<String[]>();
         if ((substring == null) || (substring.trim().length() == 0)) {
             return result;
         }
         
-        Collection abstractNames = getAbstractNames(substring);
-        for (Iterator it = abstractNames.iterator(); it.hasNext();) {
-            AbstractName aname = (AbstractName) it.next();
-            ObjectName oname = aname.getObjectName();
-            String[] pair = { aname.toString(), oname.toString() };
+        Collection<AbstractName> abstractNames = getAbstractNames(substring);
+        for (Iterator<AbstractName> it = abstractNames.iterator(); it.hasNext();) {
+            AbstractName abstractName = it.next();
+            ObjectName objectName = abstractName.getObjectName();
+            String[] pair = { abstractName.toString(), objectName.toString() };
             result.add(pair);
         }
         
@@ -112,8 +126,8 @@ public class JMXManagerHelper {
      * List MBeans using a pattern (ObjectName)
      */
     @RemoteMethod
-    public Collection listByPattern(String pattern) {
-        Collection result = new ArrayList();
+    public Collection<String[]> listByPattern(String pattern) {
+        Collection<String[]> result = new ArrayList<String[]>();
         if ((pattern == null) || (pattern.trim().length() == 0)) {
             return result;
         }
@@ -123,13 +137,13 @@ public class JMXManagerHelper {
             // Uses Object names for query pattern to support
             // domain searches. Can't find a way to do it using
             // AbstractNameQuery.
-            Map abstractNames = getAbstractNames();
-            ObjectName onamePattern = new ObjectName(pattern);
-            Set beans = kernel.listGBeans(onamePattern);
-            for (Iterator it = beans.iterator(); it.hasNext();) {
-                ObjectName oname = (ObjectName) it.next();
-                AbstractName aname = (AbstractName) abstractNames.get(oname);
-                String[] pair = { aname.toString(), oname.toString() };
+            //Map<ObjectName, AbstractName> abstractNames = getAbstractNames();
+            ObjectName objnamePattern = new ObjectName(pattern);
+            Set<AbstractName> beans = kernel.listGBeans(objnamePattern);
+            for (Iterator<AbstractName> it = beans.iterator(); it.hasNext();) {
+                AbstractName abstractName = (AbstractName) it.next();
+                ObjectName objectName = abstractName.getObjectName();
+                String[] pair = { abstractName.toString(), objectName.toString() };
                 result.add(pair);
             }
         } catch (Exception e) {
@@ -143,10 +157,10 @@ public class JMXManagerHelper {
      * List MBeans using J2EE type
      */
     @RemoteMethod
-    public Collection listByJ2EEType(String type) {
-        Collection result = new ArrayList();
-        Map m = null;
-
+    public Collection<String[]> listByJ2EEType(String type) {
+        Collection<String[]> result = new ArrayList<String[]>();
+        Map<String, String> m = null;
+        
         if ((type == null) || (type.trim().length() == 0)) {
             return result;
         } else {
@@ -157,10 +171,9 @@ public class JMXManagerHelper {
             }
         }
 
-        AbstractNameQuery query = new AbstractNameQuery(null, m,
-                Collections.EMPTY_SET);
-        Set beans = kernel.listGBeans(query);
-        for (Iterator it = beans.iterator(); it.hasNext();) {
+        AbstractNameQuery query = new AbstractNameQuery(null, m, Collections.EMPTY_SET);
+        Set<AbstractName> beans = kernel.listGBeans(query);
+        for (Iterator<AbstractName> it = beans.iterator(); it.hasNext();) {
             AbstractName abstractName = (AbstractName) it.next();
             ObjectName objectName = abstractName.getObjectName();
             String[] pair = { abstractName.toString(), objectName.toString() };
@@ -173,35 +186,34 @@ public class JMXManagerHelper {
     /**
      * Return all service modules
      */
-    public Collection getServiceModules() {
-        Map svcModules = new TreeMap();
-        Collection svcModuleMBeans = getAbstractNames(SERVICEMODULE_KEY + '=');
-        for (Iterator it = svcModuleMBeans.iterator(); it.hasNext();) {
-            AbstractName aname = (AbstractName) it.next();
-            String svcModule = aname.getNameProperty(SERVICEMODULE_KEY);
-            if (!svcModules.containsKey(svcModule)) {
-                svcModules.put(svcModule, null);
+    public Collection<String> getServiceModules() {
+        Collection<String> serviceModules = new HashSet<String>();
+        Collection<AbstractName> serviceModuleMBeans = this.getAbstractNames(SERVICEMODULE_KEY + "=");
+        for (Iterator<AbstractName> it = serviceModuleMBeans.iterator(); it.hasNext();) {
+            AbstractName abstractName = it.next();
+            String serviceModule = abstractName.getNameProperty(SERVICEMODULE_KEY);
+            if (!serviceModules.contains(serviceModule)) {
+                serviceModules.add(serviceModule);
             }
         }
-
-        return svcModules.keySet();
+        return serviceModules;
     }
 
     /**
      * Return abstract names containing a substring
      */
-    private Collection getAbstractNames(String substring) {
-        Collection result = new ArrayList();
+    private Collection<AbstractName> getAbstractNames(String substring) {
+        Collection<AbstractName> result = new ArrayList<AbstractName>();
         if ((substring == null) || (substring.trim().length() == 0)) {
             return result;
         }
 
-        Map abstractNames = getAbstractNames();
-        for (Iterator it = abstractNames.keySet().iterator(); it.hasNext();) {
-            ObjectName oname = (ObjectName) it.next();
-            if (oname.toString().indexOf(substring) > 0) {
-                AbstractName aname = (AbstractName) abstractNames.get(oname);
-                result.add(aname);
+        Map<ObjectName,AbstractName> abstractNameMap = getAbstractNames();
+        for (Iterator<ObjectName> it = abstractNameMap.keySet().iterator(); it.hasNext();) {
+            ObjectName objectName = it.next();
+            if (objectName.toString().indexOf(substring) > 0) {
+                AbstractName abstractName = abstractNameMap.get(objectName);
+                result.add(abstractName);
             }
         }
         
@@ -211,38 +223,36 @@ public class JMXManagerHelper {
     /**
      * Return all abstract names as a map
      */
-    private Map getAbstractNames() {
-        Map abstractNames = new HashMap();
+    private Map<ObjectName,AbstractName> getAbstractNames() {
+        Map<ObjectName,AbstractName> abstractNameMap = new HashMap<ObjectName,AbstractName>();
         // Create Map (Key = ObjectName, Value = AbstractName)
-        AbstractNameQuery query = new AbstractNameQuery(null,
-                Collections.EMPTY_MAP, Collections.EMPTY_SET);
-        Set allBeans = kernel.listGBeans(query);
-        for (Iterator it = allBeans.iterator(); it.hasNext();) {
-            AbstractName abstractName = (AbstractName) it.next();
+        AbstractNameQuery query = new AbstractNameQuery(null, Collections.EMPTY_MAP, Collections.EMPTY_SET);
+        Set<AbstractName> allBeans = kernel.listGBeans(query);
+        for (Iterator<AbstractName> it = allBeans.iterator(); it.hasNext();) {
+            AbstractName abstractName = it.next();
             ObjectName objectName = abstractName.getObjectName();
-            abstractNames.put(objectName, abstractName);
+            abstractNameMap.put(objectName, abstractName);
         }
 
-        return abstractNames;
+        return abstractNameMap;
     }
 
     /**
      * Return MBean attributes
      */
     @RemoteMethod
-    public Collection getAttributes(String abstractName) {
-        Map attributes = new TreeMap();
+    public Collection<Map<String, String>> getAttributes(String abstractNameString) {
+        Map<String, Map<String, String>> attributes = new TreeMap<String, Map<String, String>>();
         try {
-            AbstractName aname = new AbstractName(URI.create(abstractName));
-            GBeanInfo info = kernel.getGBeanInfo(aname);
-            Set attribs = info.getAttributes();
-            for (Iterator i = attribs.iterator(); i.hasNext();) {
-                GAttributeInfo attribInfo = (GAttributeInfo) i.next();
-                // Don't include 'GBeanInfo' attributes
-                String attribName = attribInfo.getName();
-                if (!GBEANINFO_ATTRIB.equals(attribName)) {
-                    Map attribInfoMap = getAttribInfoAsMap(aname, attribInfo);
-                    attributes.put(attribName, attribInfoMap);
+            AbstractName abstractName = new AbstractName(URI.create(abstractNameString));
+            GBeanInfo gBeanInfo = kernel.getGBeanInfo(abstractName);
+            Set<GAttributeInfo> attrs = gBeanInfo.getAttributes();
+            for (Iterator<GAttributeInfo> i = attrs.iterator(); i.hasNext();) {
+                GAttributeInfo gAttrInfo = i.next();
+                String attrName = gAttrInfo.getName();
+                if (!GBEANINFO_ATTRIB.equals(attrName)) {   // Don't include the 'GBeanInfo' attributes
+                    Map<String, String> attrInfoMap = getAttrInfoAsMap(abstractName, gAttrInfo);
+                    attributes.put(attrName, attrInfoMap);
                 }
             }
         } catch (GBeanNotFoundException e) {
@@ -255,9 +265,9 @@ public class JMXManagerHelper {
     /**
      * Return attribute info as map
      */
-    private Map getAttribInfoAsMap(AbstractName abstractName,
+    private Map<String, String> getAttrInfoAsMap(AbstractName abstractName,
             GAttributeInfo attribInfo) {
-        Map map = new TreeMap();
+        Map<String, String> map = new TreeMap<String, String>();
         String attribName = attribInfo.getName();
         map.put("name", attribName);
         map.put("getterName", attribInfo.getGetterName());
@@ -292,15 +302,15 @@ public class JMXManagerHelper {
      * Return MBean operations
      */
     @RemoteMethod
-    public Collection getOperations(String abstractName) {
-        Map operations = new TreeMap();
+    public Collection<Map<String, Object>> getOperations(String abstractName) {
+        Map<String, Map<String, Object>> operations = new TreeMap<String, Map<String, Object>>();
         try {
             AbstractName aname = new AbstractName(URI.create(abstractName));
-            GBeanInfo info = kernel.getGBeanInfo(aname);
-            Set opers = info.getOperations();
-            for (Iterator i = opers.iterator(); i.hasNext();) {
-                GOperationInfo operInfo = (GOperationInfo) i.next();
-                Map operInfoMap = getOperInfoAsMap(operInfo);
+            GBeanInfo gBeaninfo = kernel.getGBeanInfo(aname);
+            Set<GOperationInfo> opers = gBeaninfo.getOperations();
+            for (Iterator<GOperationInfo> i = opers.iterator(); i.hasNext();) {
+                GOperationInfo operInfo = i.next();
+                Map<String, Object> operInfoMap = getOperInfoAsMap(operInfo);
                 String operName = (String) operInfoMap.get("name");
                 operations.put(operName, operInfoMap);
             }
@@ -314,8 +324,8 @@ public class JMXManagerHelper {
     /**
      * Return operation info as map
      */
-    private Map getOperInfoAsMap(GOperationInfo operInfo) {
-        Map map = new TreeMap();
+    private Map<String, Object> getOperInfoAsMap(GOperationInfo operInfo) {
+        Map<String, Object> map = new TreeMap<String, Object>();
         map.put("methodName", operInfo.getMethodName());
         map.put("name", operInfo.getName());
         map.put("parameterList", operInfo.getParameterList());
@@ -326,8 +336,8 @@ public class JMXManagerHelper {
      * Return MBean basic info
      */
     @RemoteMethod
-    public Collection getMBeanInfo(String abstractName) {
-        Collection info = new ArrayList();
+    public Collection<String[]> getMBeanInfo(String abstractName) {
+        Collection<String[]> info = new ArrayList<String[]>();
         try {
             AbstractName aname = new AbstractName(URI.create(abstractName));
             info.add(new String[] { "abstractName", aname.toString() });
@@ -353,19 +363,17 @@ public class JMXManagerHelper {
      * Return all MBeans that provide stats
      */
     @RemoteMethod
-    public Collection getStatsProvidersMBeans() {
-        Collection result = new ArrayList();
+    public Collection<String[]> getStatsProviderMBeans() {
+        Collection<String[]> result = new ArrayList<String[]>();
 
         Object[] allMBeans = listByPattern("*:*").toArray();
         for (int i = 0; i < allMBeans.length; i++) {
             try {
-                String[] mbean = (String[]) allMBeans[i];
-                AbstractName abstractName = new AbstractName(URI
-                        .create(mbean[0]));
-                Boolean statisticsProvider = (Boolean) kernel.getAttribute(
-                        abstractName, "statisticsProvider");
-                if (Boolean.TRUE.equals(statisticsProvider)) {
-                    result.add(mbean);
+                String[] aPair = (String[]) allMBeans[i];
+                AbstractName abstractName = new AbstractName(URI.create(aPair[0]));
+                boolean isStatisticsProvider = ((Boolean)kernel.getAttribute(abstractName, "statisticsProvider")).booleanValue();
+                if (isStatisticsProvider) {
+                    result.add(aPair);
                 }
             } catch (Exception e) {
                 // ignore
@@ -379,8 +387,8 @@ public class JMXManagerHelper {
      * Return MBean stats
      */
     @RemoteMethod
-    public Collection getMBeanStats(String abstractName) {
-        Map mbeanStats = new TreeMap();
+    public Collection<Collection<String[]>> getMBeanStats(String abstractName) {
+        Map<String, Collection<String[]>> mbeanStats = new TreeMap<String, Collection<String[]>>();
         try {
             AbstractName aname = new AbstractName(URI.create(abstractName));
             Boolean statisticsProvider = (Boolean) kernel.getAttribute(aname,
@@ -391,77 +399,58 @@ public class JMXManagerHelper {
                 for (int i = 0; i < statisticNames.length; i++) {
                     Statistic statistic = stats.getStatistic(statisticNames[i]);
 
-                    Collection mbeanStat = new ArrayList();
+                    Collection<String[]> mbeanStat = new ArrayList<String[]>();
                     String name = statistic.getName();
                     mbeanStat.add(new String[] { "Name", name });
-                    String className = statistic.getClass().getName();
+                    // String className = statistic.getClass().getName();
                     // mbeanStat.add(new String[] { "Type", className });
-                    mbeanStat.add(new String[] { "Description",
-                            statistic.getDescription() });
+                    mbeanStat.add(new String[] { "Description", statistic.getDescription() });
                     mbeanStat.add(new String[] { "Unit", statistic.getUnit() });
                     Date startTime = new Date(statistic.getStartTime());
-                    mbeanStat.add(new String[] { "Start Time",
-                            startTime.toString() });
-                    Date lastSampleTime = new Date(statistic
-                            .getLastSampleTime());
-                    mbeanStat.add(new String[] { "Last Sample Time",
-                            lastSampleTime.toString() });
+                    mbeanStat.add(new String[] { "Start Time", startTime.toString() });
+                    Date lastSampleTime = new Date(statistic.getLastSampleTime());
+                    mbeanStat.add(new String[] { "Last Sample Time", lastSampleTime.toString() });
 
                     if (statistic instanceof CountStatistic) {
                         CountStatistic cStat = (CountStatistic) statistic;
                         long count = cStat.getCount();
-                        mbeanStat.add(new String[] { "Count",
-                                Long.toString(count) });
+                        mbeanStat.add(new String[] { "Count", Long.toString(count) });
                     } else if (statistic instanceof TimeStatistic) {
                         TimeStatistic tStat = (TimeStatistic) statistic;
                         long count = tStat.getCount();
-                        mbeanStat.add(new String[] { "Count",
-                                Long.toString(count) });
+                        mbeanStat.add(new String[] { "Count", Long.toString(count) });
                         String maxTime = TimeUtils.formatDuration(tStat.getMaxTime());
-                        mbeanStat.add(new String[] { "Max Time",
-                                maxTime });
+                        mbeanStat.add(new String[] { "Max Time", maxTime });
                         String minTime = TimeUtils.formatDuration(tStat.getMinTime());
-                        mbeanStat.add(new String[] { "Min Time",
-                                minTime });
+                        mbeanStat.add(new String[] { "Min Time", minTime });
                         long totalTime = tStat.getTotalTime();
-                        mbeanStat.add(new String[] { "Total Time",
-                                Long.toString(totalTime) });
+                        mbeanStat.add(new String[] { "Total Time", Long.toString(totalTime) });
                     } else if (statistic instanceof BoundedRangeStatistic) {
                         BoundedRangeStatistic brStat = (BoundedRangeStatistic) statistic;
                         long upperBound = brStat.getUpperBound();
-                        mbeanStat.add(new String[] { "Upper Bound",
-                                Long.toString(upperBound) });
+                        mbeanStat.add(new String[] { "Upper Bound", Long.toString(upperBound) });
                         long lowerBound = brStat.getLowerBound();
-                        mbeanStat.add(new String[] { "Lower Bound",
-                                Long.toString(lowerBound) });
+                        mbeanStat.add(new String[] { "Lower Bound", Long.toString(lowerBound) });
                         long highWaterMark = brStat.getHighWaterMark();
-                        mbeanStat.add(new String[] { "High Water Mark",
-                                Long.toString(highWaterMark) });
+                        mbeanStat.add(new String[] { "High Water Mark", Long.toString(highWaterMark) });
                         long lowWaterMark = brStat.getLowWaterMark();
-                        mbeanStat.add(new String[] { "Low Water Mark",
-                                Long.toString(lowWaterMark) });
+                        mbeanStat.add(new String[] { "Low Water Mark", Long.toString(lowWaterMark) });
                         long current = brStat.getCurrent();
-                        mbeanStat.add(new String[] { "Current",
-                                Long.toString(current) });
+                        mbeanStat.add(new String[] { "Current", Long.toString(current) });
                     } else if (statistic instanceof BoundaryStatistic) {
                         BoundaryStatistic bStat = (BoundaryStatistic) statistic;
                         long upperBound = bStat.getUpperBound();
-                        mbeanStat.add(new String[] { "Upper Bound",
-                                Long.toString(upperBound) });
+                        mbeanStat.add(new String[] { "Upper Bound", Long.toString(upperBound) });
                         long lowerBound = bStat.getLowerBound();
-                        mbeanStat.add(new String[] { "Lower Bound",
-                                Long.toString(lowerBound) });
+                        mbeanStat.add(new String[] { "Lower Bound", Long.toString(lowerBound) });
                     } else if (statistic instanceof RangeStatistic) {
                         RangeStatistic rStat = (RangeStatistic) statistic;
                         long highWaterMark = rStat.getHighWaterMark();
-                        mbeanStat.add(new String[] { "High Water Mark",
-                                Long.toString(highWaterMark) });
+                        mbeanStat.add(new String[] { "High Water Mark", Long.toString(highWaterMark) });
                         long lowWaterMark = rStat.getLowWaterMark();
-                        mbeanStat.add(new String[] { "Low Water Mark",
-                                Long.toString(lowWaterMark) });
+                        mbeanStat.add(new String[] { "Low Water Mark", Long.toString(lowWaterMark) });
                         long current = rStat.getCurrent();
-                        mbeanStat.add(new String[] { "Current",
-                                Long.toString(current) });
+                        mbeanStat.add(new String[] { "Current", Long.toString(current) });
                     }
 
                     mbeanStats.put(name, mbeanStat);
@@ -602,5 +591,154 @@ public class JMXManagerHelper {
 
         return result;
     }
+    
+    
+    @RemoteMethod
+    public Tree getJMXInformation() {
+        
+        //build "All MBeans" Node
+        TreeEntry allMBeansEntry = new TreeEntry("All MBeans");
+        allMBeansEntry.addChild(new TreeEntry("geronimo", All_TYPE));
+        allMBeansEntry.addChild(new TreeEntry("geronimo.config", All_TYPE));
+        //add place holder
+        this.addPlaceholder(allMBeansEntry.getChildren());
+        
+        
+        //build "JavaEE MBean" Node
+        TreeEntry javaEEMBeansEntry = new TreeEntry("J2EE MBeans");
+        javaEEMBeansEntry.addChild(new TreeEntry("AppClientModule", JAVAEE_TYPE));
+        javaEEMBeansEntry.addChild(new TreeEntry("EJBModule", JAVAEE_TYPE));
+        javaEEMBeansEntry.addChild(new TreeEntry("EntityBean", JAVAEE_TYPE));
+        javaEEMBeansEntry.addChild(new TreeEntry("J2EEApplication", JAVAEE_TYPE));
+        javaEEMBeansEntry.addChild(new TreeEntry("J2EEDomain", JAVAEE_TYPE));
+        javaEEMBeansEntry.addChild(new TreeEntry("J2EEServer", JAVAEE_TYPE));
+        javaEEMBeansEntry.addChild(new TreeEntry("JavaMailResource", JAVAEE_TYPE));
+        javaEEMBeansEntry.addChild(new TreeEntry("JCAConnectionFactory", JAVAEE_TYPE));
+        javaEEMBeansEntry.addChild(new TreeEntry("JCAManagedConnectionFactory", JAVAEE_TYPE));
+        javaEEMBeansEntry.addChild(new TreeEntry("JCAResource", JAVAEE_TYPE));
+        javaEEMBeansEntry.addChild(new TreeEntry("JDBCDataSource", JAVAEE_TYPE));
+        javaEEMBeansEntry.addChild(new TreeEntry("JDBCDriver", JAVAEE_TYPE));
+        javaEEMBeansEntry.addChild(new TreeEntry("JDBCResource", JAVAEE_TYPE));
+        javaEEMBeansEntry.addChild(new TreeEntry("JMSResource", JAVAEE_TYPE));
+        javaEEMBeansEntry.addChild(new TreeEntry("JNDIResource", JAVAEE_TYPE));
+        javaEEMBeansEntry.addChild(new TreeEntry("JTAResource", JAVAEE_TYPE));
+        javaEEMBeansEntry.addChild(new TreeEntry("JVM", JAVAEE_TYPE));
+        javaEEMBeansEntry.addChild(new TreeEntry("MessageDrivenBean", JAVAEE_TYPE));
+        javaEEMBeansEntry.addChild(new TreeEntry("PersistenceUnit", JAVAEE_TYPE));
+        javaEEMBeansEntry.addChild(new TreeEntry("ResourceAdapter", JAVAEE_TYPE));
+        javaEEMBeansEntry.addChild(new TreeEntry("ResourceAdapterModule", JAVAEE_TYPE));
+        javaEEMBeansEntry.addChild(new TreeEntry("RMI_IIOPResource", JAVAEE_TYPE));
+        javaEEMBeansEntry.addChild(new TreeEntry("Servlet", JAVAEE_TYPE));
+        javaEEMBeansEntry.addChild(new TreeEntry("StatefulSessionBean", JAVAEE_TYPE));
+        javaEEMBeansEntry.addChild(new TreeEntry("StatelessSessionBean", JAVAEE_TYPE));
+        javaEEMBeansEntry.addChild(new TreeEntry("URLResource", JAVAEE_TYPE));
+        javaEEMBeansEntry.addChild(new TreeEntry("WebModule", JAVAEE_TYPE));
+        //add place holder
+        this.addPlaceholder(javaEEMBeansEntry.getChildren());
+        
+        //build "Geronimo MBean" Node
+        TreeEntry geronimoMBeansEntry = new TreeEntry("Geronimo MBeans" );
+        geronimoMBeansEntry.addChild(new TreeEntry("AppClient", GERONIMO_TYPE));
+        geronimoMBeansEntry.addChild(new TreeEntry("ArtifactManager", GERONIMO_TYPE));
+        geronimoMBeansEntry.addChild(new TreeEntry("ArtifactResolver", GERONIMO_TYPE));
+        geronimoMBeansEntry.addChild(new TreeEntry("AttributeStore", GERONIMO_TYPE));
+        geronimoMBeansEntry.addChild(new TreeEntry("ConfigBuilder", GERONIMO_TYPE));
+        geronimoMBeansEntry.addChild(new TreeEntry("ConfigurationEntry", GERONIMO_TYPE));
+        geronimoMBeansEntry.addChild(new TreeEntry("ConfigurationManager", GERONIMO_TYPE));
+        geronimoMBeansEntry.addChild(new TreeEntry("ConfigurationStore", GERONIMO_TYPE));
+        geronimoMBeansEntry.addChild(new TreeEntry("CORBABean", GERONIMO_TYPE));
+        geronimoMBeansEntry.addChild(new TreeEntry("CORBACSS", GERONIMO_TYPE));
+        geronimoMBeansEntry.addChild(new TreeEntry("CORBATSS", GERONIMO_TYPE));
+        geronimoMBeansEntry.addChild(new TreeEntry("Deployer", GERONIMO_TYPE));
+        geronimoMBeansEntry.addChild(new TreeEntry("DeploymentConfigurer", GERONIMO_TYPE));
+        geronimoMBeansEntry.addChild(new TreeEntry("GBean", GERONIMO_TYPE));
+        geronimoMBeansEntry.addChild(new TreeEntry("Host", GERONIMO_TYPE));
+        geronimoMBeansEntry.addChild(new TreeEntry("JaasLoginService", GERONIMO_TYPE));
+        geronimoMBeansEntry.addChild(new TreeEntry("JACCManager", GERONIMO_TYPE));
+        geronimoMBeansEntry.addChild(new TreeEntry("JAXRConnectionFactory", GERONIMO_TYPE));
+        geronimoMBeansEntry.addChild(new TreeEntry("JCAActivationSpec", GERONIMO_TYPE));
+        geronimoMBeansEntry.addChild(new TreeEntry("JCAAdminObject", GERONIMO_TYPE));
+        geronimoMBeansEntry.addChild(new TreeEntry("JCAConnectionManager", GERONIMO_TYPE));
+        geronimoMBeansEntry.addChild(new TreeEntry("JCAConnectionTracker", GERONIMO_TYPE));
+        geronimoMBeansEntry.addChild(new TreeEntry("JCAResourceAdapter", GERONIMO_TYPE));
+        geronimoMBeansEntry.addChild(new TreeEntry("JCAWorkManager", GERONIMO_TYPE));
+        geronimoMBeansEntry.addChild(new TreeEntry("JMSConnector", GERONIMO_TYPE));
+        geronimoMBeansEntry.addChild(new TreeEntry("JMSPersistence", GERONIMO_TYPE));
+        geronimoMBeansEntry.addChild(new TreeEntry("JMSServer", GERONIMO_TYPE));
+        geronimoMBeansEntry.addChild(new TreeEntry("KeyGenerator", GERONIMO_TYPE));
+        geronimoMBeansEntry.addChild(new TreeEntry("Keystore", GERONIMO_TYPE));
+        geronimoMBeansEntry.addChild(new TreeEntry("LoginModule", GERONIMO_TYPE));
+        geronimoMBeansEntry.addChild(new TreeEntry("LoginModuleUse", GERONIMO_TYPE));
+        geronimoMBeansEntry.addChild(new TreeEntry("MEJB", GERONIMO_TYPE));
+        geronimoMBeansEntry.addChild(new TreeEntry("ModuleBuilder", GERONIMO_TYPE));
+        geronimoMBeansEntry.addChild(new TreeEntry("PersistentConfigurationList", GERONIMO_TYPE));
+        geronimoMBeansEntry.addChild(new TreeEntry("RealmBridge", GERONIMO_TYPE));
+        geronimoMBeansEntry.addChild(new TreeEntry("Repository", GERONIMO_TYPE));
+        geronimoMBeansEntry.addChild(new TreeEntry("RoleMapper", GERONIMO_TYPE));
+        geronimoMBeansEntry.addChild(new TreeEntry("SecurityRealm", GERONIMO_TYPE));
+        geronimoMBeansEntry.addChild(new TreeEntry("ServiceModule", GERONIMO_TYPE));
+        geronimoMBeansEntry.addChild(new TreeEntry("ServletTemplate", GERONIMO_TYPE));
+        geronimoMBeansEntry.addChild(new TreeEntry("ServletWebFilterMapping", GERONIMO_TYPE));
+        geronimoMBeansEntry.addChild(new TreeEntry("ServletWebServiceTemplate", GERONIMO_TYPE));
+        geronimoMBeansEntry.addChild(new TreeEntry("SystemLog", GERONIMO_TYPE));
+        geronimoMBeansEntry.addChild(new TreeEntry("TomcatValve", GERONIMO_TYPE));
+        geronimoMBeansEntry.addChild(new TreeEntry("TransactionContextManager", GERONIMO_TYPE));
+        geronimoMBeansEntry.addChild(new TreeEntry("TransactionLog", GERONIMO_TYPE));
+        geronimoMBeansEntry.addChild(new TreeEntry("TransactionManager", GERONIMO_TYPE));
+        geronimoMBeansEntry.addChild(new TreeEntry("URLPattern", GERONIMO_TYPE));
+        geronimoMBeansEntry.addChild(new TreeEntry("URLWebFilterMapping", GERONIMO_TYPE));
+        geronimoMBeansEntry.addChild(new TreeEntry("WebFilter", GERONIMO_TYPE));
+        geronimoMBeansEntry.addChild(new TreeEntry("WSLink", GERONIMO_TYPE));
+        geronimoMBeansEntry.addChild(new TreeEntry("XIDFactory", GERONIMO_TYPE));
+        geronimoMBeansEntry.addChild(new TreeEntry("XIDImporter", GERONIMO_TYPE));
+        geronimoMBeansEntry.addChild(new TreeEntry("XmlAttributeBuilder", GERONIMO_TYPE));
+        geronimoMBeansEntry.addChild(new TreeEntry("XmlReferenceBuilder", GERONIMO_TYPE));
+        //add place holder
+        this.addPlaceholder(geronimoMBeansEntry.getChildren());
+            
+        
+        //build "Geronimo Service Module MBeans" node
+        TreeEntry geronimoServiceEntry = new TreeEntry("Geronimo Service Module MBeans" );
+        Collection<String> serviceModules = this.getServiceModules();
+        Iterator<String> it = serviceModules.iterator();
+        while (it.hasNext()){
+            String abstractName = it.next();
+            geronimoServiceEntry.addChild(new TreeEntry(abstractName, GERONIMO_SERVICE_TYPE));
+        }
+        //add place holder
+        this.addPlaceholder(geronimoServiceEntry.getChildren());
+        
+        
+        //build "Stats Provider MBeans" node
+        TreeEntry statsProviderEntry = new TreeEntry("Stats Provider MBeans", STATS_PROVIDER_TYPE);
+        this.addPlaceholder(statsProviderEntry);
+        
+        //build "Search Results" node
+        TreeEntry searchNodeEntry = new TreeEntry("Search Results", SEARCHNODE_TYPE);
+        this.addPlaceholder(searchNodeEntry);
+        
+        //build the tree
+        Tree tree = new Tree(null, "name");     //id = null means the id will be auto-generated
+        tree.addItem(allMBeansEntry);
+        tree.addItem(javaEEMBeansEntry);
+        tree.addItem(geronimoMBeansEntry);    
+        tree.addItem(geronimoServiceEntry);
+        tree.addItem(statsProviderEntry);
+        tree.addItem(searchNodeEntry);
+        return tree;
+    }
+    
+    private void addPlaceholder(TreeEntry entry){
+        entry.addChild(new TreeEntry("null", PLACEHOLDER_TYPE));
+    }
+    
+    private void addPlaceholder(List<TreeEntry> entries){
+        Iterator<TreeEntry> it = entries.iterator();
+        while(it.hasNext()){
+            TreeEntry entry = it.next();
+            this.addPlaceholder(entry);
+        }
+    }
+    
 
 }

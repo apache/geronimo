@@ -56,6 +56,7 @@
             <type>war</type>
             <scope>provided</scope>
         </dependency>
+
 <!--
         <dependency>
             <groupId>org.apache.geronimo.plugins</groupId>
@@ -63,6 +64,7 @@
             <version>${version}</version>
         </dependency>
 -->
+
         <dependency>
             <groupId>org.apache.geronimo.plugins</groupId>
             <artifactId>console-jetty</artifactId>
@@ -80,7 +82,7 @@
 
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>dojo-legacy-jetty</artifactId>
+            <artifactId>dojo-jetty</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>
