@@ -77,23 +77,28 @@ public class Http11APRConnectorGBean extends BaseHttp11ConnectorGBean implements
     }
 
     public String getSslCACertificateFile() {
-        return caCertificateFile;
+        String path = (String) connector.getAttribute("SSLCACertificateFile");
+        return getRelatedPathtoCatalinaHome(path);
     }
 
     public String getSslCACertificatePath() {
-        return caCertificatePath;
+        String path = (String) connector.getAttribute("SSLCACertificatePath");
+        return getRelatedPathtoCatalinaHome(path);
     }
 
     public String getSslCertificateChainFile() {
-        return certificateChainFile; 
+        String path = (String) connector.getAttribute("truststoreFile");
+        return getRelatedPathtoCatalinaHome(path);
     }
 
     public String getSslCertificateFile() {
-        return certificateFile; 
+        String path = (String) connector.getAttribute("SSLCertificateFile");
+        return getRelatedPathtoCatalinaHome(path);
     }
 
     public String getSslCertificateKeyFile() {
-        return certificateKeyFile; 
+        String path = (String) connector.getAttribute("SSLCertificateKeyFile");
+        return getRelatedPathtoCatalinaHome(path);
     }
 
     public String getSslCipherSuite() {
@@ -105,11 +110,13 @@ public class Http11APRConnectorGBean extends BaseHttp11ConnectorGBean implements
     }
 
     public String getSslCARevocationFile() {
-        return revocationFile;
+        String path = (String) connector.getAttribute("SSLCARevocationFile");
+        return getRelatedPathtoCatalinaHome(path);
     }
 
     public String getSslCARevocationPath() {
-        return revocationPath;
+        String path = (String) connector.getAttribute("SSLCARevocationPath");
+        return getRelatedPathtoCatalinaHome(path);
     }
 
     public String getSslVerifyClient() {
@@ -150,10 +157,17 @@ public class Http11APRConnectorGBean extends BaseHttp11ConnectorGBean implements
         if (sslCACertificateFile != null && sslCACertificateFile.equals(""))
             sslCACertificateFile = null;
         caCertificateFile = sslCACertificateFile;
-        if (caCertificateFile == null)
+        
+        if (caCertificateFile == null) {
             connector.setAttribute("SSLCACertificateFile", null);
-        else
-            connector.setAttribute("SSLCACertificateFile", serverInfo.resolveServerPath(caCertificateFile));
+        } else {
+
+            String resovledAbsolutePath = this.getAbsolutePathBasedOnCatalinaHome(caCertificateFile);
+
+            if (resovledAbsolutePath != null)
+                connector.setAttribute("SSLCACertificateFile", resovledAbsolutePath);
+
+        }
     }
     
     @Persistent(manageable=false)
@@ -161,10 +175,17 @@ public class Http11APRConnectorGBean extends BaseHttp11ConnectorGBean implements
         if (sslCACertificatePath != null && sslCACertificatePath.equals(""))
             sslCACertificatePath = null;
         caCertificatePath = sslCACertificatePath;
-        if (caCertificatePath == null)
+        
+        if (caCertificatePath == null) {
             connector.setAttribute("SSLCACertificatePath", null);
-        else
-            connector.setAttribute("SSLCACertificatePath", serverInfo.resolveServerPath(caCertificatePath));
+        } else {
+
+            String resovledAbsolutePath = this.getAbsolutePathBasedOnCatalinaHome(caCertificatePath);
+
+            if (resovledAbsolutePath != null)
+                connector.setAttribute("SSLCACertificatePath", resovledAbsolutePath);
+
+        }
     }
     
     @Persistent(manageable=false)
@@ -172,10 +193,17 @@ public class Http11APRConnectorGBean extends BaseHttp11ConnectorGBean implements
         if (sslCertificateChainFile != null && sslCertificateChainFile.equals(""))
             sslCertificateChainFile = null;
         certificateChainFile = sslCertificateChainFile;
-        if (certificateChainFile == null)
+        
+        if (certificateChainFile == null) {
             connector.setAttribute("SSLCertificateChainFile", null);
-        else
-            connector.setAttribute("SSLCertificateChainFile", serverInfo.resolveServerPath(certificateChainFile));
+        } else {
+
+            String resovledAbsolutePath = this.getAbsolutePathBasedOnCatalinaHome(certificateChainFile);
+
+            if (resovledAbsolutePath != null)
+                connector.setAttribute("SSLCertificateChainFile", resovledAbsolutePath);
+
+        }
     }
     
     @Persistent(manageable=false)
@@ -183,10 +211,17 @@ public class Http11APRConnectorGBean extends BaseHttp11ConnectorGBean implements
         if (sslCertificateFile != null && sslCertificateFile.equals(""))
             sslCertificateFile = null;
         certificateFile = sslCertificateFile;
-        if (certificateFile == null)
+        
+        if (certificateFile == null) {
             connector.setAttribute("SSLCertificateFile", null);
-        else
-            connector.setAttribute("SSLCertificateFile", serverInfo.resolveServerPath(certificateFile));
+        } else {
+
+            String resovledAbsolutePath = this.getAbsolutePathBasedOnCatalinaHome(certificateFile);
+
+            if (resovledAbsolutePath != null)
+                connector.setAttribute("SSLCertificateFile", resovledAbsolutePath);
+
+        }
     }
     
     @Persistent(manageable=false)
@@ -194,10 +229,17 @@ public class Http11APRConnectorGBean extends BaseHttp11ConnectorGBean implements
         if (sslCertificateKeyFile != null && sslCertificateKeyFile.equals(""))
             sslCertificateKeyFile = null;
         certificateKeyFile = sslCertificateKeyFile;
-        if (certificateKeyFile == null)
+        
+        if (certificateKeyFile == null) {
             connector.setAttribute("SSLCertificateKeyFile", null);
-        else
-            connector.setAttribute("SSLCertificateKeyFile", serverInfo.resolveServerPath(certificateKeyFile));
+        } else {
+
+            String resovledAbsolutePath = this.getAbsolutePathBasedOnCatalinaHome(certificateKeyFile);
+
+            if (resovledAbsolutePath != null)
+                connector.setAttribute("SSLCertificateKeyFile", resovledAbsolutePath);
+
+        }
     }
     
     @Persistent(manageable=false)
@@ -222,10 +264,17 @@ public class Http11APRConnectorGBean extends BaseHttp11ConnectorGBean implements
         if (sslCARevocationFile!= null && sslCARevocationFile.equals("")) 
             sslCARevocationFile = null;
         revocationFile = sslCARevocationFile;
-        if (revocationFile == null)
+        
+        if (revocationFile == null) {
             connector.setAttribute("SSLCARevocationFile", null);
-        else
-            connector.setAttribute("SSLCARevocationFile", serverInfo.resolveServerPath(revocationFile));
+        } else {
+
+            String resovledAbsolutePath = this.getAbsolutePathBasedOnCatalinaHome(revocationFile);
+
+            if (resovledAbsolutePath != null)
+                connector.setAttribute("SSLCARevocationFile", resovledAbsolutePath);
+
+        }
     }
     
     @Persistent(manageable=false)
@@ -233,10 +282,17 @@ public class Http11APRConnectorGBean extends BaseHttp11ConnectorGBean implements
         if (sslCARevocationPath!= null && sslCARevocationPath.equals("")) 
             sslCARevocationPath = null;
         revocationPath = sslCARevocationPath;
-        if (revocationPath == null)
+        
+        if (revocationPath == null) {
             connector.setAttribute("SSLCARevocationPath", null);
-        else
-            connector.setAttribute("SSLCARevocationPath", serverInfo.resolveServerPath(revocationPath));
+        } else {
+
+            String resovledAbsolutePath = this.getAbsolutePathBasedOnCatalinaHome(revocationPath);
+
+            if (resovledAbsolutePath != null)
+                connector.setAttribute("SSLCARevocationPath", resovledAbsolutePath);
+
+        }
 
     }
     

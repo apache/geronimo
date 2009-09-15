@@ -18,6 +18,7 @@
  */
 package org.apache.geronimo.tomcat.connector;
 
+import java.io.File;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
@@ -365,6 +366,33 @@ public abstract class BaseHttp11ConnectorGBean extends ConnectorGBean implements
 
     public void resetStats() {
         reset = true;
+    }
+    
+    protected String getRelatedPathtoCatalinaHome(String path) {
+
+        if (null != path && path.indexOf(System.getProperty("catalina.home")) != -1) {
+            return path.substring(System.getProperty("catalina.home").length() + 1, path.length());
+        } else {
+            return path;
+        }
+    }
+
+    protected String getAbsolutePathBasedOnCatalinaHome(String path) {
+
+        if (path == null) {
+            return path;
+        }
+
+        if (new File(path).isAbsolute()) {
+            return path;
+        }
+      
+        
+        File file= new File(new File(System.getProperty("catalina.home")), path);
+
+        return file.getAbsolutePath();
+        
+
     }
 
     
