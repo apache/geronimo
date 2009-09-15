@@ -17,13 +17,13 @@
 package org.apache.geronimo.console.ejbserver;
 
 import java.lang.reflect.Method;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
-import java.text.MessageFormat;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -31,6 +31,8 @@ import org.apache.geronimo.console.BaseRemoteProxy;
 import org.apache.geronimo.console.message.CommonMessage;
 import org.apache.geronimo.console.message.JSCommonMessage;
 import org.apache.geronimo.console.util.KernelManagementHelper;
+import org.apache.geronimo.console.util.Tree;
+import org.apache.geronimo.console.util.TreeEntry;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GAttributeInfo;
@@ -53,7 +55,6 @@ import org.apache.openejb.assembler.classic.ContainerSystemInfo;
 import org.apache.openejb.assembler.classic.OpenEjbConfiguration;
 import org.apache.openejb.loader.SystemInstance;
 import org.apache.openejb.spi.ContainerSystem;
-import org.apache.openejb.util.Duration;
 import org.directwebremoting.annotations.RemoteMethod;
 import org.directwebremoting.annotations.RemoteProxy;
 import org.slf4j.Logger;
@@ -134,23 +135,20 @@ public class EjbHelper extends BaseRemoteProxy {
             container = containerSystem.getContainer(containerInfo.id);
             List<TreeEntry> containers = null;
             if (containerMap.get(container.getContainerType()) != null) {
-                containerTypesEntry = containerMap.get(container
-                        .getContainerType());
+                containerTypesEntry = containerMap.get(container.getContainerType());
                 containers = containerTypesEntry.getChildren();
             } else {
                 containerTypesEntry = new TreeEntry();
-                containerTypesEntry.setName(resolveContainerTypes(container
-                        .getContainerType()));
-                containerTypesEntry.setValue(containerTypesEntry.getName());
+                containerTypesEntry.setName(resolveContainerTypes(container.getContainerType()));
+                containerTypesEntry.setValues(new String[]{containerTypesEntry.getName()});
                 containers = new ArrayList<TreeEntry>();
                 containerTypesEntry.setChildren(containers);
-                containerMap.put(container.getContainerType(),
-                        containerTypesEntry);
+                containerMap.put(container.getContainerType(),containerTypesEntry);
                 entries.add(containerTypesEntry);
             }
             containersEntry = new TreeEntry();
             containersEntry.setName(containerInfo.id);
-            containersEntry.setValue(containerInfo.id);
+            containersEntry.setValues(new String[]{containerInfo.id});
 
             DeploymentInfo[] deployments = container.deployments();
             containersEntry.setChildren(getDeployments(deployments));
@@ -160,15 +158,15 @@ public class EjbHelper extends BaseRemoteProxy {
         return tree;
     }
 
-    public List getDeployments(DeploymentInfo[] deploymentInfos) {
+    public List<TreeEntry> getDeployments(DeploymentInfo[] deploymentInfos) {
         List<TreeEntry> deployments = new ArrayList<TreeEntry>();
         TreeEntry deploymentsEntry = null;
         for (DeploymentInfo deployment : deploymentInfos) {
             deploymentsEntry = new TreeEntry();
             deploymentsEntry.setName(deployment.getEjbName());
-            deploymentsEntry.setValue(deployment.getContainer()
-                    .getContainerID()
-                    + "#^~" + deployment.getDeploymentID());
+            deploymentsEntry.setValues(new String[]{
+                    deployment.getContainer().getContainerID().toString(),
+                    deployment.getDeploymentID().toString()});
             deploymentsEntry.setChildren(new ArrayList<TreeEntry>());
             deployments.add(deploymentsEntry);
         }
@@ -318,9 +316,8 @@ public class EjbHelper extends BaseRemoteProxy {
             OpenEjbSystem openEjbSystem = null;
             AbstractNameQuery absQuery = new AbstractNameQuery(
                     OpenEjbSystem.class.getName());
-            Set systemGBeans = kernel.listGBeans(absQuery);
-            for (Object obj : systemGBeans) {
-            	AbstractName absName = (AbstractName) obj;
+            Set<AbstractName> systemGBeans = kernel.listGBeans(absQuery);
+            for (AbstractName absName : systemGBeans) {
                 openEjbSystem = kernel.getProxyManager()
                         .createProxy(absName, OpenEjbSystem.class);
                 props = openEjbSystem.getProperties();
@@ -335,13 +332,11 @@ public class EjbHelper extends BaseRemoteProxy {
         } else {
             AbstractNameQuery absQuery = new AbstractNameQuery(
                     EjbContainer.class.getName());
-            Set containerGBeans = kernel.listGBeans(absQuery);
-            for (Object obj : containerGBeans) {
+            Set<AbstractName> containerGBeans = kernel.listGBeans(absQuery);
+            for (AbstractName absName : containerGBeans) {
                 try {
-                    String id = (String) kernel.getAttribute(
-                            (AbstractName) obj, "id");
+                    String id = (String) kernel.getAttribute(absName, "id");
                     if (containerId.equals(id)) {
-                        AbstractName absName = (AbstractName) obj;
                         GBeanData gData1  = kernel.getGBeanData(absName);
                         ManageableAttributeStore attributeStore = kernel.getGBean(ManageableAttributeStore.class);                        
                         GBeanData gData  = getGBeanDataFromConfiguration(absName);
@@ -420,11 +415,9 @@ public class EjbHelper extends BaseRemoteProxy {
             information = new EjbInformation();
             Class cls = null;
             try {
-                cls = Class
-                        .forName("org.apache.openejb.assembler.classic.JndiBuilder$Bindings");
+                cls = Class.forName("org.apache.openejb.assembler.classic.JndiBuilder$Bindings");
                 Method method = cls.getMethod("getBindings");
-                List<String> jndiNames = (List) method.invoke(deploymentInfo
-                        .get(cls));
+                List<String> jndiNames = (List) method.invoke(deploymentInfo.get(cls));
                 StringBuffer names = new StringBuffer();
                 for (String jndiName : jndiNames) {
                     if (jndiName.startsWith("openejb/local/")) {
@@ -519,19 +512,19 @@ public class EjbHelper extends BaseRemoteProxy {
     private GBeanData getOpenEJBPropertiesGBean(String containerId, Class query) {
         GBeanData data = null;
         AbstractNameQuery absQuery = new AbstractNameQuery(query.getName());
-        Set containerGBeans = kernel.listGBeans(absQuery);
-        for (Object obj : containerGBeans) {
+        Set<AbstractName> containerGBeans = kernel.listGBeans(absQuery);
+        for (AbstractName absName : containerGBeans) {
             try {
-                data = kernel.getGBeanData((AbstractName) obj);
+                data = kernel.getGBeanData(absName);
             } catch (GBeanNotFoundException e) {
                 log.error(MessageFormat.format("GBeanNotFoundException for GBean Name: {0}"
-                        , (AbstractName) obj), e);
+                        , absName), e);
             } catch (InternalKernelException e) {
                 log.error(MessageFormat.format("InternalKernelException for GBean Name: {0}"
-                        , (AbstractName) obj), e);
+                        , absName), e);
             } catch (IllegalStateException e) {
                 log.error(MessageFormat.format("IllegalStateException for GBean Name: {0}"
-                        , (AbstractName) obj), e);
+                        , absName), e);
             }
             if (containerId.equals(EjbContainer.getId(data.getAbstractName()))
                     || query == OpenEjbSystem.class) {

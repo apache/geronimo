@@ -40,10 +40,10 @@ limitations under the License.
       <init-param>
           <param-name>classes</param-name>
           <param-value>
+              org.apache.geronimo.console.ejbserver.EjbHelper,
               org.apache.geronimo.console.ejbserver.EjbInformation,
-	          org.apache.geronimo.console.ejbserver.TreeEntry,
-	          org.apache.geronimo.console.ejbserver.EjbHelper,
-              org.apache.geronimo.console.ejbserver.Tree,
+              org.apache.geronimo.console.util.Tree,
+              org.apache.geronimo.console.util.TreeEntry,
               org.apache.geronimo.console.message.JSCommonMessage
           </param-value>
       </init-param>
