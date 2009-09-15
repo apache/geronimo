@@ -63,6 +63,10 @@ public abstract class AbstractHttp11ConnectorGBean extends BaseHttp11ConnectorGB
     
     // Generic SSL
     public String getAlgorithm() {
+        
+        if ("default".equalsIgnoreCase(algorithm)) {
+            return KeyManagerFactory.getDefaultAlgorithm();
+        }
         return algorithm;
     }
 
@@ -83,10 +87,7 @@ public abstract class AbstractHttp11ConnectorGBean extends BaseHttp11ConnectorGB
 
         String keystore = (String) connector.getAttribute("keystoreFile");
         
-        if (keystore.indexOf(System.getProperty("catalina.home")) !=-1)
-            return keystore.substring(System.getProperty("catalina.home").length()+1, keystore.length());
-        else
-            return keystore;
+        return getRelatedPathtoCatalinaHome(keystore);
 
     }
 
@@ -99,7 +100,11 @@ public abstract class AbstractHttp11ConnectorGBean extends BaseHttp11ConnectorGB
     }
 
     public String getTruststoreFile() {
-        return truststoreFileName;
+        
+        String truststoreFile = (String) connector.getAttribute("truststoreFile");
+        
+        return getRelatedPathtoCatalinaHome(truststoreFile);
+
     }
 
     public String getTruststoreType() {
@@ -142,15 +147,26 @@ public abstract class AbstractHttp11ConnectorGBean extends BaseHttp11ConnectorGB
 
     @Persistent(manageable=false)
     public void setKeystoreFile(String keystoreFile) {
-       /* if (keystoreFile!= null && keystoreFile.equals("")) 
+        if (keystoreFile!= null && keystoreFile.equals("")) 
             keystoreFile = null;
+        
         keystoreFileName = keystoreFile;
-        if (keystoreFileName == null)
-            connector.setAttribute("keystoreFile", null);
-        else
-            connector.setAttribute("keystoreFile", serverInfo.resolveServerPath(keystoreFileName));
-        */
+        
+        if (keystoreFileName == null) {
+
+            connector.setAttribute("keystoreFile", keystoreFileName);
+
+        } else {
+
+            String resovledAbsolutePath = this.getAbsolutePathBasedOnCatalinaHome(keystoreFileName);
+            
+            if (resovledAbsolutePath != null)
+                connector.setAttribute("keystoreFile", resovledAbsolutePath);
+
+        }
+        
     }
+    
 
     @Persistent(manageable=false)
     public void setKeystorePass(String keystorePass) {
@@ -178,10 +194,19 @@ public abstract class AbstractHttp11ConnectorGBean extends BaseHttp11ConnectorGB
         if (truststoreFile!= null && truststoreFile.equals("")) 
             truststoreFile = null;
         truststoreFileName = truststoreFile;
-        if (truststoreFileName == null)
+        
+        if (truststoreFileName == null) {
             connector.setAttribute("truststoreFile", null);
-        else
-            connector.setAttribute("truststoreFile", serverInfo.resolveServerPath(truststoreFileName));
+        }
+
+        else {
+
+            String resovledAbsolutePath = this.getAbsolutePathBasedOnCatalinaHome(truststoreFile);
+
+            if (resovledAbsolutePath != null)
+                connector.setAttribute("truststoreFile", resovledAbsolutePath);
+        }
+
     }
     
     @Persistent(manageable=false)
