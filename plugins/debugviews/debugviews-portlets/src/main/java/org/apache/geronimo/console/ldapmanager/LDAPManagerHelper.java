@@ -37,6 +37,7 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.servlet.http.HttpSession;
 
+import org.apache.geronimo.console.util.Tree;
 import org.directwebremoting.annotations.RemoteMethod;
 import org.directwebremoting.annotations.RemoteProxy;
 
@@ -218,8 +219,8 @@ public class LDAPManagerHelper {
      * Returns the names bound in the named context
      */
     @RemoteMethod
-    public Collection list(String name) throws Exception {
-        ArrayList result = new ArrayList();
+    public Collection<String[]> list(String name) throws Exception {
+        Collection<String[]> result = new ArrayList<String[]>();
 
         if (dirContext == null) {
             return result;
@@ -246,7 +247,7 @@ public class LDAPManagerHelper {
     /**
      * Returns the names bound in the base DN context
      */
-    public Collection listBaseDN() throws Exception {
+    public Collection<String[]> listBaseDN() throws Exception {
         return list(baseDN);
     }
 
@@ -460,4 +461,5 @@ public class LDAPManagerHelper {
         }
     }
 
+    
 }

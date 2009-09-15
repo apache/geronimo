@@ -8,7 +8,7 @@
     </module-id>
     <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>dojo-legacy-tomcat</artifactId>
+        <artifactId>dojo-tomcat</artifactId>
         <type>car</type>
     </dependency>
     <dependency>
