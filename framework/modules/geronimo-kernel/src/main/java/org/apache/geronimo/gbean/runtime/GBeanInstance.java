@@ -1127,7 +1127,7 @@ public final class GBeanInstance implements StateManageable {
                         } catch (Throwable e) {
                             // There is no reason to create a new Exception sub class as this exception will
                             // simply be caught and logged on GBeanInstanceState
-                            throw new Exception("Problem while updaing the persistent value of attibute: " +
+                            throw new Exception("Problem while updating the persistent value of attibute: " +
                                     "Attribute Name: " + attribute.getName() + ", " +
                                     "Type: " + attribute.getType() + ", " +
                                     "GBeanInstance: " + getName(), e);
