@@ -40,7 +40,7 @@ import org.apache.geronimo.console.MultiPageModel;
  * @version $Rev$ $Date$
  */
 public class SelectProviderHandler extends AbstractHandler {
-    private final static String[] SKIP_RARS_CONTAINING = new String[]{"tranql"};
+    private final static String[] SKIP_RARS_CONTAINING = new String[] { "tranql", "geronimo-activemq-ra" };
 
     public SelectProviderHandler() {
         super(SELECT_PROVIDER_MODE, "/WEB-INF/view/jmswizard/provider.jsp");
