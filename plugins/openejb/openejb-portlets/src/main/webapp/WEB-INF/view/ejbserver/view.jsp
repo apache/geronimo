@@ -157,7 +157,7 @@ table thead td, table thead th {
 
 <div id="<portlet:namespace/>CommonMsgContainer"></div><br>
 
-  <div dojoType="dijit.tree.ForestStoreModel" jsId="storeModel" 
+<div dojoType="dijit.tree.ForestStoreModel" jsId="storeModel" 
 		store="serverStore" 
 		rootId="Ejb Containers" rootLabel="Ejb Containers" childrenAttrs="children"></div>
 
@@ -165,37 +165,33 @@ table thead td, table thead th {
 <div dojoType="dijit.layout.LayoutContainer"  id="mainLayout" style="width: 100%; height: 700px;">
    <!-- Horizontal split container -->
     <div dojoType="dijit.layout.SplitContainer" orientation="horizontal" sizerWidth="1" activeSizing="true" layoutAlign="client" style="width: 100%; height: 100%;" >
-       <div dojoType="dijit.layout.ContentPane" layoutAlign="left" style="background-color:white; overflow: auto;" preload="true" widgetId="ejbcontainerTree" sizeShare="40" onLoad = displayTree >       
-         <div class="soria" dojoType="dijit.Tree"  model="storeModel" openOnClick="false" >
-	   <script type="dojo/method" event="onClick" args="item">
-			if(item.id!="Ejb Containers") {             	        
-		        var ids = serverStore.getValue(item, "value").split('#^~');
+       <div dojoType="dijit.layout.ContentPane" layoutAlign="left" style="background-color:white; overflow: auto;" preload="true" widgetId="ejbcontainerTree" sizeShare="40">       
+         <div class="soria" dojoType="dijit.Tree" model="storeModel" openOnClick="false" >
+	         <script type="dojo/method" event="onClick" args="item">
+			 if(item.id!="Ejb Containers") {             	        
+		        var ids = serverStore.getValues(item, "values");
 			    if(ids[1] != null) {
 		            EjbHelper.getDeploymentInfo(ids[0],ids[1],updateEjbInfoTable);		       
 			    } else {
 			        EjbHelper.getContainerInfo(ids[0],updateEjbInfoTable);
 			    }
-			} else {
+			 } else {
 			    dwr.util.removeAllRows('ejbInfoTableBody');
-			}
+			 }
              
-		</script> 
-	</div>
+		     </script> 
+	      </div>
       </div> 
 	
       <div id="infoTab" dojoType="dijit.layout.ContentPane" title="Ejb Info" label="Info" sizeShare="60" style="background-color:white; overflow: auto;" layoutAlign="right" class="soria" >
          <table id="ejbsTable",
-            tbodyClass="scrollContent" 
-            enableMultipleSelect="true" 
-            enableAlternateRows="true" 
-            rowAlternateClass="alternateRow" 
             cellpadding="0" 
             cellspacing="2" 
             border="0"
             width="100%">
             <thead>                      
-              <th field="Name" dataType="html" width="40%"><B>&nbsp;<fmt:message key="portlet.openejb.view.name" />&nbsp;</B></th>
-              <th dataType="html" width="60%"><B>&nbsp;<fmt:message key="portlet.openejb.view.value" />&nbsp;</B></th>
+              <th width="40%"><B>&nbsp;<fmt:message key="portlet.openejb.view.name" />&nbsp;</B></th>
+              <th width="60%"><B>&nbsp;<fmt:message key="portlet.openejb.view.value" />&nbsp;</B></th>
             </thead>
             <tbody id="ejbInfoTableBody">
             </tbody>
@@ -203,4 +199,4 @@ table thead td, table thead th {
       </div>
    </div>
 </div>   
-</div>
+
