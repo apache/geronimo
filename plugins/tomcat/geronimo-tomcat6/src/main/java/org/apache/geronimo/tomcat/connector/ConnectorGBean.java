@@ -153,7 +153,7 @@ public abstract class ConnectorGBean extends BaseGBean implements CommonProtocol
         if (executor != null)
 
         {
-            log.info("executor"+executor.getName()+" found, set it to connector:"+this.getName() );     
+            log.info("executor:"+executor.getName()+" found, set it to connector:"+this.getName() );     
 
             try {
 
