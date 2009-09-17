@@ -36,12 +36,13 @@ import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import javax.portlet.WindowState;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.geronimo.console.BasePortlet;
 import org.apache.geronimo.console.util.PortletManager;
+import org.apache.geronimo.crypto.KeystoreUtil;
 import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.proxy.GeronimoManagedBean;
 import org.apache.geronimo.management.geronimo.KeystoreException;
 import org.apache.geronimo.management.geronimo.KeystoreInstance;
@@ -52,7 +53,8 @@ import org.apache.geronimo.management.geronimo.WebContainer;
 import org.apache.geronimo.management.geronimo.WebManager;
 import org.apache.geronimo.management.geronimo.WebManager.ConnectorAttribute;
 import org.apache.geronimo.management.geronimo.WebManager.ConnectorType;
-import org.apache.geronimo.crypto.KeystoreUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A portlet that lets you list, add, remove, start, stop, restart and edit web
@@ -163,6 +165,13 @@ public class ConnectorPortlet extends BasePortlet {
             String connectorURI = actionRequest.getParameter(PARM_CONNECTOR_URI);
             // Identify and update the connector
             AbstractName connectorName = new AbstractName(URI.create(connectorURI));
+            GBeanData connectorGBeanData=null;
+            try {
+                connectorGBeanData=PortletManager.getKernel().getGBeanData(connectorName);
+            } catch (Exception e) {
+                log.error("Unable to get connectorGBeanData by abstractName:"+connectorName.toURI(), e);
+            } 
+            
             NetworkConnector connector = PortletManager.getNetworkConnector(actionRequest, connectorName);
             if(connector != null) {
                 WebManager manager = PortletManager.getWebManager(actionRequest, new AbstractName(URI.create(managerURI)));
@@ -186,14 +195,15 @@ public class ConnectorPortlet extends BasePortlet {
                     if (value == null || value.trim().length()<1) {
                         // special case for KeystoreManager gbean
                         if ("trustStore".equals(attribute.getAttributeName())) {
-                            setProperty(connector,name,null);
+                            
+                            connectorGBeanData.setAttribute(name, null);
                         }
                     } else {
                         // set the string value on the ConnectorAttribute so 
                         // it can handle type conversion via getValue()
                         try {
                             attribute.setStringValue(value);
-                            setProperty(connector,name,attribute.getValue());
+                            connectorGBeanData.setAttribute(name, attribute.getValue());
                         } catch (Exception e) {
                             log.error("Unable to set property " + attribute.getAttributeName(), e);
                         }
@@ -202,6 +212,22 @@ public class ConnectorPortlet extends BasePortlet {
                 
                 // set the keystore properties if its a secure connector
                 setKeystoreProperties(actionRequest, connectorName);
+                
+                try {
+                    Kernel kernel=PortletManager.getKernel();
+                    ClassLoader oldCL=connector.getClass().getClassLoader();
+                    kernel.stopGBean(connectorName);
+                    kernel.unloadGBean(connectorName);
+                    
+                    
+                    kernel.loadGBean(connectorGBeanData, oldCL);
+                    kernel.startGBean(connectorName);
+                  
+                } catch (Exception e) {
+                    log.error("Unable to reload updated connector:"+connectorName.toURI(), e);
+                }
+                
+                
                 try {
                     manager.updateConnectorConfig(connectorName);
                 } catch (Exception e) {
