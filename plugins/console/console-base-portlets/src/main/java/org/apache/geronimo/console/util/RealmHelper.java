@@ -17,5 +17,19 @@
 
 package org.apache.geronimo.console.util;
 
-public abstract class RealmHelper extends KernelHelper {
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public abstract class RealmHelper extends KernelHelper {        
+    
+    private static final Logger logger = LoggerFactory.getLogger(RealmHelper.class);
+
+    public static boolean isDefaultLoginModuleAvaiable() {
+        try {
+            return (Boolean) invoke(ObjectNameConstants.SE_REALM_MBEAN_NAME, "isAvailable");
+        } catch (Exception e) {
+            logger.error("Fail to check the status of " + ObjectNameConstants.SE_REALM_MBEAN_NAME, e);
+            return false;
+        }
+    }
 }
