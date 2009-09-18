@@ -47,7 +47,7 @@ public class ClusteredSessionHandler extends SessionHandler {
     @Override
     public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response)
             throws IOException, ServletException {
-        setRequestedId(request);
+        setRequestedId(baseRequest, request);
         try {
             chainedHandler.handle(target, baseRequest, request, response);
         } catch (ServletException e) {

@@ -157,21 +157,6 @@
                     </execution>
                 </executions>
             </plugin>
-            
-            <!--
-            HACK: Copy XmlBeans generated schemas.
-            -->
-            <plugin>
-                <groupId>org.apache.geronimo.buildsupport</groupId>
-                <artifactId>buildsupport-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>copy-xmlbeans-schemas</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

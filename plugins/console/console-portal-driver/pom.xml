@@ -116,7 +116,7 @@
                 <artifactId>maven-war-plugin</artifactId>
                 <configuration>
                     <webXml>${project.build.directory}/jspweb.xml</webXml>
-                    <!--<warSourceExcludes>**/*.jsp</warSourceExcludes>-->
+                    <warSourceExcludes>**/*.jsp</warSourceExcludes>
                     <webResources>
                         <resource>
                             <filtering>true</filtering>
