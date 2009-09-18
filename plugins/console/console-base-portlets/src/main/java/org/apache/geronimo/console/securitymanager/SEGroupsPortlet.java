@@ -45,6 +45,9 @@ public class SEGroupsPortlet extends AbstractSecurityManagerPortlet {
         if (errorMessage != null) {
             renderRequest.setAttribute("errorMessage", errorMessage);
             errorView.include(renderRequest, renderResponse);
+        } else if (!SERealmGroupHelper.isDefaultLoginModuleAvaiable()) {
+            renderRequest.setAttribute("errorMessage", getLocalizedString(renderRequest, "consolebase.errorMsg24"));
+            errorView.include(renderRequest, renderResponse);
         } else {
             String currAction = renderRequest.getParameter("currAction");
             String message = renderRequest.getParameter("message");

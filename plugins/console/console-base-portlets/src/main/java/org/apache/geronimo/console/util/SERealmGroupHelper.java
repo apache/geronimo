@@ -37,6 +37,8 @@ public class SERealmGroupHelper extends RealmHelper {
     private static final String DELETE_GROUP_FUNCTION = "removeGroupPrincipal";
 
     private static final String GET_USERS_FUNCTION = "getGroupMembers";
+    
+    private static final String IS_AVAILABLE = "isAvailable";
 
     private static final String[] STRING = { "java.lang.String" };
 
@@ -115,10 +117,14 @@ public class SERealmGroupHelper extends RealmHelper {
         Collection users = getUsersAsCollection(groupName);
         return (users.contains(username));
     }
-
+    
     private static Collection getUsersAsCollection(String groupName)
             throws Exception {
         return getUsers(groupName);
+    }
+    
+    public static boolean isAvailable() throws Exception {
+        return (Boolean) invoke(ObjectNameConstants.SE_REALM_MBEAN_NAME, IS_AVAILABLE, new Object[0], new String[0]);
     }
 
 }

@@ -28,6 +28,7 @@ import java.net.UnknownServiceException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -41,6 +42,7 @@ import org.apache.geronimo.crypto.encoders.HexTranslator;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.gbean.SingleElementCollection;
 import org.apache.geronimo.security.SecurityNames;
 import org.apache.geronimo.security.jaas.LoginModuleSettings;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
@@ -55,7 +57,7 @@ public class PropertiesLoginModuleManager implements GBeanLifecycle {
 
     private ServerInfo serverInfo;
 
-    private LoginModuleSettings loginModule;
+    private SingleElementCollection<LoginModuleSettings> loginModule;
 
     private Properties users = new Properties();
 
@@ -67,11 +69,15 @@ public class PropertiesLoginModuleManager implements GBeanLifecycle {
 
     private static final String digestKey = "digest";
 
-    private final static String encodingKey = "encoding";
-
-    public PropertiesLoginModuleManager(ServerInfo serverInfo, LoginModuleSettings loginModule) {
+    private final static String encodingKey = "encoding";    
+    
+    public PropertiesLoginModuleManager(ServerInfo serverInfo, Collection<LoginModuleSettings> loginModule) {
         this.serverInfo = serverInfo;
-        this.loginModule = loginModule;
+        this.loginModule = new SingleElementCollection<LoginModuleSettings>(loginModule);
+    }
+
+    public boolean isAvailable() {
+        return loginModule.getElement() != null;
     }
 
     private void refreshUsers() throws GeronimoSecurityException {
@@ -132,7 +138,7 @@ public class PropertiesLoginModuleManager implements GBeanLifecycle {
         return (String[]) groups.keySet().toArray(new String[0]);
     }
 
-    public void addUserPrincipal(Hashtable properties)
+    public void addUserPrincipal(Hashtable<String, String> properties)
             throws GeronimoSecurityException {
 
         refreshUsers();
@@ -170,7 +176,7 @@ public class PropertiesLoginModuleManager implements GBeanLifecycle {
         }
     }
 
-    public void updateUserPrincipal(Hashtable properties)
+    public void updateUserPrincipal(Hashtable<String, String> properties)
             throws GeronimoSecurityException {
         refreshUsers();
         String name = (String) properties.get("UserName");
@@ -195,7 +201,7 @@ public class PropertiesLoginModuleManager implements GBeanLifecycle {
         }
     }
 
-    public void addGroupPrincipal(Hashtable properties)
+    public void addGroupPrincipal(Hashtable<String, String> properties)
             throws GeronimoSecurityException {
         refreshGroups();
         String group = (String) properties.get("GroupName");
@@ -224,7 +230,7 @@ public class PropertiesLoginModuleManager implements GBeanLifecycle {
         }
     }
 
-    public void updateGroupPrincipal(Hashtable properties)
+    public void updateGroupPrincipal(Hashtable<String, String> properties)
             throws GeronimoSecurityException {
         //same as add group principal
         refreshGroups();
@@ -268,9 +274,9 @@ public class PropertiesLoginModuleManager implements GBeanLifecycle {
         return realPassword;
     }
 
-    public Set getGroupMembers(String groupPrincipal)
+    public Set<String> getGroupMembers(String groupPrincipal)
             throws GeronimoSecurityException {
-        Set memberSet = new HashSet();
+        Set<String> memberSet = new HashSet<String>();
         // return nothing when the groupPrincipal is null or empty
         if (groupPrincipal == null || groupPrincipal.equals("")) {
             return memberSet;
@@ -287,19 +293,19 @@ public class PropertiesLoginModuleManager implements GBeanLifecycle {
     }
 
     private String getUsersURI() {
-        return (String) loginModule.getOptions().get(usersKey);
+        return (String) loginModule.getElement().getOptions().get(usersKey);
     }
 
     private String getGroupsURI() {
-        return (String) loginModule.getOptions().get(groupsKey);
+        return (String) loginModule.getElement().getOptions().get(groupsKey);
     }
 
     private String getDigest() {
-        return (String) loginModule.getOptions().get(digestKey);
+        return (String) loginModule.getElement().getOptions().get(digestKey);
     }
 
     private String getEncoding() {
-        return (String) loginModule.getOptions().get(encodingKey);
+        return (String) loginModule.getElement().getOptions().get(encodingKey);
     }
 
     /**
@@ -394,6 +400,10 @@ public class PropertiesLoginModuleManager implements GBeanLifecycle {
 
     public void doStart() throws Exception {
         log.debug("Starting gbean");
+        if (!isAvailable()) {
+            log.warn("Could not find the default properties-login login module");
+            return;
+        }
         encryptAllPasswords();
         log.debug("Started gbean");
     }
@@ -409,23 +419,24 @@ public class PropertiesLoginModuleManager implements GBeanLifecycle {
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("PropertiesLoginModuleManager", PropertiesLoginModuleManager.class);
 
-        infoFactory.addOperation("addUserPrincipal", new Class[]{Hashtable.class});
-        infoFactory.addOperation("removeUserPrincipal", new Class[]{String.class});
-        infoFactory.addOperation("updateUserPrincipal", new Class[]{Hashtable.class});
-        infoFactory.addOperation("getGroups");
-        infoFactory.addOperation("getUsers");
-        infoFactory.addOperation("refreshAll");
+        infoFactory.addOperation("addUserPrincipal", new Class[] { Hashtable.class }, void.class.getName());
+        infoFactory.addOperation("removeUserPrincipal", new Class[] { String.class }, void.class.getName());
+        infoFactory.addOperation("updateUserPrincipal", new Class[] { Hashtable.class }, void.class.getName());
+        infoFactory.addOperation("getGroups", String[].class.getName());
+        infoFactory.addOperation("getUsers", String[].class.getName());
+        infoFactory.addOperation("refreshAll", void.class.getName());
 
-        infoFactory.addOperation("updateUserPrincipal", new Class[]{Hashtable.class});
+        infoFactory.addOperation("updateUserPrincipal", new Class[] { Hashtable.class }, void.class.getName());
 
-        infoFactory.addOperation("getPassword", new Class[]{String.class});
-        infoFactory.addOperation("getGroupMembers", new Class[]{String.class});
-        infoFactory.addOperation("addGroupPrincipal", new Class[]{Hashtable.class});
-        infoFactory.addOperation("removeGroupPrincipal", new Class[]{String.class});
-        infoFactory.addOperation("updateGroupPrincipal", new Class[]{Hashtable.class});
-        infoFactory.addOperation("addToGroup", new Class[]{String.class, String.class});
-        infoFactory.addOperation("removeFromGroup", new Class[]{String.class, String.class});
-
+        infoFactory.addOperation("getPassword", new Class[] { String.class }, void.class.getName());
+        infoFactory.addOperation("getGroupMembers", new Class[] { String.class }, void.class.getName());
+        infoFactory.addOperation("addGroupPrincipal", new Class[] { Hashtable.class }, void.class.getName());
+        infoFactory.addOperation("removeGroupPrincipal", new Class[] { String.class }, void.class.getName());
+        infoFactory.addOperation("updateGroupPrincipal", new Class[] { Hashtable.class }, void.class.getName());
+        infoFactory.addOperation("addToGroup", new Class[] { String.class, String.class }, void.class.getName());
+        infoFactory.addOperation("removeFromGroup", new Class[] { String.class, String.class }, void.class.getName());
+        infoFactory.addOperation("isAvailable", boolean.class.getName());
+        
         infoFactory.addReference("ServerInfo", ServerInfo.class, GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
         infoFactory.addReference("LoginModule", LoginModuleSettings.class, SecurityNames.LOGIN_MODULE);
 
