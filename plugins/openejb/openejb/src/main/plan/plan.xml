@@ -19,7 +19,13 @@
 <!-- $Rev$ $Date$ -->
 
 <module xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
-    
+
+    <gbean name="OpenEJBSystemProperties" class="org.apache.geronimo.system.properties.SystemProperties">
+        <attribute name="systemProperties">
+            openejb.vendor.config=GERONIMO
+        </attribute>
+    </gbean>
+
     <gbean name="OpenEjbContext" class="org.apache.geronimo.openejb.DeepBindableContext">
         <attribute name="nameInNamespace">openejb</attribute>
         <attribute name="cacheReferences">false</attribute>
