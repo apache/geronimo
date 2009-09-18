@@ -134,7 +134,7 @@
         <PlanORBSunSSLPort>2001</PlanORBSunSSLPort>
         <PlanJMXPort>9999</PlanJMXPort>
         <PlanJMXSecurePort>9998</PlanJMXSecurePort>
-        
+
          <!-- Plugins source-repository list-->
         <PluginSrcRepoLocal>~/.m2/repository/</PluginSrcRepoLocal>
         <PluginSrcRepoCentral>http://repo1.maven.org/maven2/</PluginSrcRepoCentral>
@@ -2103,7 +2103,7 @@
             <url>scp://people.apache.org/www/geronimo.apache.org/maven/server</url>
         </site>
     </distributionManagement>
-    
+
     <!--
         Temporary staging repos go here
     -->
@@ -2159,6 +2159,21 @@
     </repositories>
 
     <pluginRepositories>
+        <!-- required for clean build unless you want to bootstrap the car-maven-plugin -->
+        <pluginRepository>
+            <id>apache.snapshots</id>
+            <name>Apache Snapshots Repository</name>
+            <url>http://repository.apache.org/snapshots</url>
+            <layout>default</layout>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+                <checksumPolicy>warn</checksumPolicy>
+                <updatePolicy>daily</updatePolicy>
+            </snapshots>
+        </pluginRepository>
         <pluginRepository>
             <id>xmlbeans-maven-plugin-snapshot</id>
             <url>http://snapshots.repository.codehaus.org/</url>
@@ -2332,7 +2347,7 @@
                 </plugins>
             </build>
         </profile>
-     
+
     </profiles>
 
 </project>
