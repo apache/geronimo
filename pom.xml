@@ -2134,7 +2134,7 @@
         </repository>
         <repository>
             <id>tomcat-fork-staging</id>
-            <url>https://repository.apache.org/content/repositories/geronimo-staging-023/</url>
+            <url>https://repository.apache.org/content/repositories/geronimo-staging-035/</url>
             <releases>
                 <checksumPolicy>fail</checksumPolicy>
                 <enabled>true</enabled>
