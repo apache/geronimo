@@ -42,7 +42,7 @@
         <persistence-unit-ref-name>PersistenceUnit7</persistence-unit-ref-name>
         <persistence-unit-name>unitName7</persistence-unit-name>
         <injection-target>
-            <injection-target-class>org.apache.geronimo.j2ee.deployment.annotation.PersistenceUnitAnnotationTest</injection-target-class>
+            <injection-target-class>org.apache.geronimo.j2ee.deployment.annotation.PersistenceUnitAnnotationExample</injection-target-class>
             <injection-target-name>annotatedMethod1</injection-target-name>
         </injection-target>
     </persistence-unit-ref>
@@ -50,7 +50,7 @@
         <persistence-unit-ref-name>PersistenceUnit8</persistence-unit-ref-name>
         <persistence-unit-name>unitName8</persistence-unit-name>
         <injection-target>
-            <injection-target-class>org.apache.geronimo.j2ee.deployment.annotation.PersistenceUnitAnnotationTest</injection-target-class>
+            <injection-target-class>org.apache.geronimo.j2ee.deployment.annotation.PersistenceUnitAnnotationExample</injection-target-class>
             <injection-target-name>annotatedMethod2</injection-target-name>
         </injection-target>
     </persistence-unit-ref>
@@ -58,14 +58,14 @@
         <persistence-unit-ref-name>PersistenceUnit5</persistence-unit-ref-name>
         <persistence-unit-name>unitName5</persistence-unit-name>
         <injection-target>
-            <injection-target-class>org.apache.geronimo.j2ee.deployment.annotation.PersistenceUnitAnnotationTest</injection-target-class>
+            <injection-target-class>org.apache.geronimo.j2ee.deployment.annotation.PersistenceUnitAnnotationExample</injection-target-class>
             <injection-target-name>annotatedField1</injection-target-name>
         </injection-target>
     </persistence-unit-ref>
     <persistence-unit-ref>
         <persistence-unit-ref-name>org.apache.geronimo.j2ee.deployment.annotation.PersistenceUnitAnnotationTest/annotatedField2</persistence-unit-ref-name>
         <injection-target>
-            <injection-target-class>org.apache.geronimo.j2ee.deployment.annotation.PersistenceUnitAnnotationTest</injection-target-class>
+            <injection-target-class>org.apache.geronimo.j2ee.deployment.annotation.PersistenceUnitAnnotationExample</injection-target-class>
             <injection-target-name>annotatedField2</injection-target-name>
         </injection-target>
     </persistence-unit-ref>

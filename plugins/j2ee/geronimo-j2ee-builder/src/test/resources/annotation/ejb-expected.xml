@@ -64,7 +64,7 @@
         <local>javax.ejb.EJBLocalHome</local>
         <mapped-name>mappedName10</mapped-name>
         <injection-target>
-            <injection-target-class>org.apache.geronimo.j2ee.deployment.annotation.EJBAnnotationTest</injection-target-class>
+            <injection-target-class>org.apache.geronimo.j2ee.deployment.annotation.EJBAnnotationExample</injection-target-class>
             <injection-target-name>AnnotatedMethod1</injection-target-name>
         </injection-target>
     </ejb-local-ref>
@@ -72,11 +72,11 @@
         <ejb-ref-name>myejb1</ejb-ref-name>
         <local>javax.ejb.EJBLocalHome</local>
         <injection-target>
-            <injection-target-class>org.apache.geronimo.j2ee.deployment.annotation.EJBAnnotationTest</injection-target-class>
+            <injection-target-class>org.apache.geronimo.j2ee.deployment.annotation.EJBAnnotationExample</injection-target-class>
             <injection-target-name>annotatedField3</injection-target-name>
         </injection-target>
         <injection-target>
-            <injection-target-class>org.apache.geronimo.j2ee.deployment.annotation.EJBAnnotationTest</injection-target-class>
+            <injection-target-class>org.apache.geronimo.j2ee.deployment.annotation.EJBAnnotationExample</injection-target-class>
             <injection-target-name>annotatedField4</injection-target-name>
         </injection-target>
     </ejb-local-ref>
@@ -84,11 +84,11 @@
         <ejb-ref-name>myejb2</ejb-ref-name>
         <remote>javax.ejb.EJBHome</remote>
         <injection-target>
-            <injection-target-class>org.apache.geronimo.j2ee.deployment.annotation.EJBAnnotationTest</injection-target-class>
+            <injection-target-class>org.apache.geronimo.j2ee.deployment.annotation.EJBAnnotationExample</injection-target-class>
             <injection-target-name>annotatedField5</injection-target-name>
         </injection-target>
         <injection-target>
-            <injection-target-class>org.apache.geronimo.j2ee.deployment.annotation.EJBAnnotationTest</injection-target-class>
+            <injection-target-class>org.apache.geronimo.j2ee.deployment.annotation.EJBAnnotationExample</injection-target-class>
             <injection-target-name>annotatedField6</injection-target-name>
         </injection-target>
     </ejb-ref>

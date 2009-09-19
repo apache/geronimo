@@ -59,7 +59,7 @@ import javax.ejb.EJBs;
                 beanName = "beanName7",
                 mappedName = "mappedName7")
        })
-public class EJBAnnotationTest {
+public class EJBAnnotationExample {
 
     @EJB
     String annotatedField1;

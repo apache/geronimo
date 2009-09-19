@@ -32,7 +32,7 @@ import javax.servlet.http.HttpServletResponse;
 
 @DeclareRoles( {"securityRole1", "securityRole2", "securityRole3"} )
 @RunAs("securityRole4")
-public class SecurityAnnotationTest extends HttpServlet {
+public class SecurityAnnotationExample extends HttpServlet {
 
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
 

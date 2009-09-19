@@ -30,7 +30,7 @@ import javax.persistence.PersistenceUnits;
                        @PersistenceUnit( unitName = "unitName3"),
                        @PersistenceUnit(name = "PersistenceUnit4")
                    })
-public class PersistenceUnitAnnotationTest {
+public class PersistenceUnitAnnotationExample {
 
     @PersistenceUnit(name = "PersistenceUnit5",
                      unitName = "unitName5")

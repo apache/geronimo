@@ -33,7 +33,7 @@ import javax.xml.ws.WebServiceRefs;
                                     wsdlLocation = "WEB-INF/wsdl/WebServiceRef11.wsdl",
                                     mappedName = "mappedName11")
                  })
-public class WebServiceRefAnnotationTest {
+public class WebServiceRefAnnotationExample {
 
     @WebServiceRef(name = "WebServiceRef12",
                    type = javax.xml.ws.Service.class,

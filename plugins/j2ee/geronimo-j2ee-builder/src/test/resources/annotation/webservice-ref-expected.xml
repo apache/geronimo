@@ -51,7 +51,7 @@
         </handler-chains>
         <mapped-name>mappedName</mapped-name>
         <injection-target>
-            <injection-target-class>org.apache.geronimo.j2ee.deployment.annotation.HandlerChainAnnotationTest</injection-target-class>
+            <injection-target-class>org.apache.geronimo.j2ee.deployment.annotation.HandlerChainAnnotationExample</injection-target-class>
             <injection-target-name>annotatedMethod1</injection-target-name>
         </injection-target>
     </service-ref>
@@ -70,7 +70,7 @@
         </handler-chains>
         <mapped-name>mappedName</mapped-name>
         <injection-target>
-            <injection-target-class>org.apache.geronimo.j2ee.deployment.annotation.HandlerChainAnnotationTest</injection-target-class>
+            <injection-target-class>org.apache.geronimo.j2ee.deployment.annotation.HandlerChainAnnotationExample</injection-target-class>
             <injection-target-name>annotatedMethod2</injection-target-name>
         </injection-target>
     </service-ref>
@@ -89,7 +89,7 @@
         </handler-chains>
         <mapped-name>mappedName</mapped-name>
         <injection-target>
-            <injection-target-class>org.apache.geronimo.j2ee.deployment.annotation.HandlerChainAnnotationTest</injection-target-class>
+            <injection-target-class>org.apache.geronimo.j2ee.deployment.annotation.HandlerChainAnnotationExample</injection-target-class>
             <injection-target-name>annotatedMethod3</injection-target-name>
         </injection-target>
     </service-ref>
@@ -100,7 +100,7 @@
         <wsdl-file>WEB-INF/wsdl/WebServiceRef14.wsdl</wsdl-file>
         <mapped-name>mappedName14</mapped-name>
         <injection-target>
-            <injection-target-class>org.apache.geronimo.j2ee.deployment.annotation.WebServiceRefAnnotationTest</injection-target-class>
+            <injection-target-class>org.apache.geronimo.j2ee.deployment.annotation.WebServiceRefAnnotationExample</injection-target-class>
             <injection-target-name>annotatedMethod1</injection-target-name>
         </injection-target>
     </service-ref>
@@ -111,7 +111,7 @@
         <wsdl-file>WEB-INF/wsdl/WebServiceRef15.wsdl</wsdl-file>
         <mapped-name>mappedName15</mapped-name>
         <injection-target>
-            <injection-target-class>org.apache.geronimo.j2ee.deployment.annotation.WebServiceRefAnnotationTest</injection-target-class>
+            <injection-target-class>org.apache.geronimo.j2ee.deployment.annotation.WebServiceRefAnnotationExample</injection-target-class>
             <injection-target-name>annotatedMethod2</injection-target-name>
         </injection-target>
     </service-ref>
@@ -130,7 +130,7 @@
         </handler-chains>
         <mapped-name>mappedName</mapped-name>
         <injection-target>
-            <injection-target-class>org.apache.geronimo.j2ee.deployment.annotation.HandlerChainAnnotationTest</injection-target-class>
+            <injection-target-class>org.apache.geronimo.j2ee.deployment.annotation.HandlerChainAnnotationExample</injection-target-class>
             <injection-target-name>annotatedField1</injection-target-name>
         </injection-target>
     </service-ref>
@@ -149,7 +149,7 @@
         </handler-chains>
         <mapped-name>mappedName</mapped-name>
         <injection-target>
-            <injection-target-class>org.apache.geronimo.j2ee.deployment.annotation.HandlerChainAnnotationTest</injection-target-class>
+            <injection-target-class>org.apache.geronimo.j2ee.deployment.annotation.HandlerChainAnnotationExample</injection-target-class>
             <injection-target-name>annotatedField2</injection-target-name>
         </injection-target>
     </service-ref>
@@ -159,7 +159,7 @@
         <service-ref-type>javax.xml.ws.Service</service-ref-type>
         <mapped-name>mappedName12</mapped-name>
         <injection-target>
-            <injection-target-class>org.apache.geronimo.j2ee.deployment.annotation.WebServiceRefAnnotationTest</injection-target-class>
+            <injection-target-class>org.apache.geronimo.j2ee.deployment.annotation.WebServiceRefAnnotationExample</injection-target-class>
             <injection-target-name>annotatedField1</injection-target-name>
         </injection-target>
     </service-ref>
@@ -168,7 +168,7 @@
         <service-interface>int</service-interface>
         <service-ref-type>int</service-ref-type>
         <injection-target>
-            <injection-target-class>org.apache.geronimo.j2ee.deployment.annotation.WebServiceRefAnnotationTest</injection-target-class>
+            <injection-target-class>org.apache.geronimo.j2ee.deployment.annotation.WebServiceRefAnnotationExample</injection-target-class>
             <injection-target-name>annotatedField2</injection-target-name>
         </injection-target>
     </service-ref>

@@ -22,7 +22,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -39,13 +38,10 @@ import javax.persistence.PersistenceUnits;
 import javax.xml.ws.WebServiceRef;
 import javax.xml.ws.WebServiceRefs;
 
-import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.testsupport.XmlBeansTestSupport;
 import org.apache.geronimo.xbeans.javaee.WebAppDocument;
 import org.apache.geronimo.xbeans.javaee.WebAppType;
 import org.apache.xbean.finder.ClassFinder;
-import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 
@@ -54,9 +50,9 @@ import org.apache.xmlbeans.XmlOptions;
  */
 public class AnnotationHelperTest extends XmlBeansTestSupport {
 
-    private Class[] classes = {EJBAnnotationTest.class, HandlerChainAnnotationTest.class,
-        PersistenceContextAnnotationTest.class, PersistenceUnitAnnotationTest.class,
-        WebServiceRefAnnotationTest.class, SecurityAnnotationTest.class};
+    private Class[] classes = {EJBAnnotationExample.class, HandlerChainAnnotationExample.class,
+        PersistenceContextAnnotationExample.class, PersistenceUnitAnnotationExample.class,
+        WebServiceRefAnnotationExample.class, SecurityAnnotationExample.class};
 
     private ClassFinder classFinder = new TestClassFinder(classes);
     private ClassLoader classLoader = this.getClass().getClassLoader();
@@ -92,23 +88,23 @@ public class AnnotationHelperTest extends XmlBeansTestSupport {
         List<Class> annotatedClasses = classFinder.findAnnotatedClasses(EJBs.class);
         assertNotNull(annotatedClasses);
         assertEquals(1, annotatedClasses.size());
-        assertTrue(annotatedClasses.contains(EJBAnnotationTest.class));
+        assertTrue(annotatedClasses.contains(EJBAnnotationExample.class));
 
         List<Method> annotatedMethods = classFinder.findAnnotatedMethods(EJB.class);
         assertNotNull(annotatedMethods);
         assertEquals(2, annotatedMethods.size());
-        assertTrue(annotatedMethods.contains(EJBAnnotationTest.class.getDeclaredMethod("setAnnotatedMethod1", new Class[]{int.class})));
-        assertTrue(annotatedMethods.contains(EJBAnnotationTest.class.getDeclaredMethod("setAnnotatedMethod2", new Class[]{String.class})));
+        assertTrue(annotatedMethods.contains(EJBAnnotationExample.class.getDeclaredMethod("setAnnotatedMethod1", new Class[]{int.class})));
+        assertTrue(annotatedMethods.contains(EJBAnnotationExample.class.getDeclaredMethod("setAnnotatedMethod2", new Class[]{String.class})));
 
         List<Field> annotatedFields = classFinder.findAnnotatedFields(EJB.class);
         assertNotNull(annotatedFields);
         assertEquals(6, annotatedFields.size());
-        assertTrue(annotatedFields.contains(EJBAnnotationTest.class.getDeclaredField("annotatedField1")));
-        assertTrue(annotatedFields.contains(EJBAnnotationTest.class.getDeclaredField("annotatedField2")));
-        assertTrue(annotatedFields.contains(EJBAnnotationTest.class.getDeclaredField("annotatedField3")));
-        assertTrue(annotatedFields.contains(EJBAnnotationTest.class.getDeclaredField("annotatedField4")));
-        assertTrue(annotatedFields.contains(EJBAnnotationTest.class.getDeclaredField("annotatedField5")));
-        assertTrue(annotatedFields.contains(EJBAnnotationTest.class.getDeclaredField("annotatedField6")));
+        assertTrue(annotatedFields.contains(EJBAnnotationExample.class.getDeclaredField("annotatedField1")));
+        assertTrue(annotatedFields.contains(EJBAnnotationExample.class.getDeclaredField("annotatedField2")));
+        assertTrue(annotatedFields.contains(EJBAnnotationExample.class.getDeclaredField("annotatedField3")));
+        assertTrue(annotatedFields.contains(EJBAnnotationExample.class.getDeclaredField("annotatedField4")));
+        assertTrue(annotatedFields.contains(EJBAnnotationExample.class.getDeclaredField("annotatedField5")));
+        assertTrue(annotatedFields.contains(EJBAnnotationExample.class.getDeclaredField("annotatedField6")));
         
         //-------------------------------------------------
         // Ensure annotations are processed correctly
@@ -137,19 +133,19 @@ public class AnnotationHelperTest extends XmlBeansTestSupport {
         List<Class> annotatedClasses = classFinder.findAnnotatedClasses(HandlerChain.class);
         assertNotNull(annotatedClasses);
         assertEquals(1, annotatedClasses.size());
-        assertTrue(annotatedClasses.contains(HandlerChainAnnotationTest.class));
+        assertTrue(annotatedClasses.contains(HandlerChainAnnotationExample.class));
 
         List<Method> annotatedMethods = classFinder.findAnnotatedMethods(HandlerChain.class);
         assertNotNull(annotatedMethods);
         assertEquals(3, annotatedMethods.size());
-        assertTrue(annotatedMethods.contains(HandlerChainAnnotationTest.class.getDeclaredMethod("setAnnotatedMethod1", new Class[]{String.class})));
-        assertTrue(annotatedMethods.contains(HandlerChainAnnotationTest.class.getDeclaredMethod("setAnnotatedMethod2", new Class[]{int.class})));
+        assertTrue(annotatedMethods.contains(HandlerChainAnnotationExample.class.getDeclaredMethod("setAnnotatedMethod1", new Class[]{String.class})));
+        assertTrue(annotatedMethods.contains(HandlerChainAnnotationExample.class.getDeclaredMethod("setAnnotatedMethod2", new Class[]{int.class})));
 
         List<Field> annotatedFields = classFinder.findAnnotatedFields(HandlerChain.class);
         assertNotNull(annotatedFields);
         assertEquals(2, annotatedFields.size());
-        assertTrue(annotatedFields.contains(HandlerChainAnnotationTest.class.getDeclaredField("annotatedField1")));
-        assertTrue(annotatedFields.contains(HandlerChainAnnotationTest.class.getDeclaredField("annotatedField2")));
+        assertTrue(annotatedFields.contains(HandlerChainAnnotationExample.class.getDeclaredField("annotatedField1")));
+        assertTrue(annotatedFields.contains(HandlerChainAnnotationExample.class.getDeclaredField("annotatedField2")));
 
         //-------------------------------------------------
         // Ensure annotations are processed correctly
@@ -178,19 +174,19 @@ public class AnnotationHelperTest extends XmlBeansTestSupport {
         List<Class> annotatedClasses = classFinder.findAnnotatedClasses(PersistenceContexts.class);
         assertNotNull(annotatedClasses);
         assertEquals(1, annotatedClasses.size());
-        assertTrue(annotatedClasses.contains(PersistenceContextAnnotationTest.class));
+        assertTrue(annotatedClasses.contains(PersistenceContextAnnotationExample.class));
 
         List<Method> annotatedMethods = classFinder.findAnnotatedMethods(PersistenceContext.class);
         assertNotNull(annotatedMethods);
         assertEquals(2, annotatedMethods.size());
-        assertTrue(annotatedMethods.contains(PersistenceContextAnnotationTest.class.getDeclaredMethod("setAnnotatedMethod1", new Class[]{String.class})));
-        assertTrue(annotatedMethods.contains(PersistenceContextAnnotationTest.class.getDeclaredMethod("setAnnotatedMethod2", new Class[]{String.class})));
+        assertTrue(annotatedMethods.contains(PersistenceContextAnnotationExample.class.getDeclaredMethod("setAnnotatedMethod1", new Class[]{String.class})));
+        assertTrue(annotatedMethods.contains(PersistenceContextAnnotationExample.class.getDeclaredMethod("setAnnotatedMethod2", new Class[]{String.class})));
 
         List<Field> annotatedFields = classFinder.findAnnotatedFields(PersistenceContext.class);
         assertNotNull(annotatedFields);
         assertEquals(2, annotatedFields.size());
-        assertTrue(annotatedFields.contains(PersistenceContextAnnotationTest.class.getDeclaredField("annotatedField1")));
-        assertTrue(annotatedFields.contains(PersistenceContextAnnotationTest.class.getDeclaredField("annotatedField2")));
+        assertTrue(annotatedFields.contains(PersistenceContextAnnotationExample.class.getDeclaredField("annotatedField1")));
+        assertTrue(annotatedFields.contains(PersistenceContextAnnotationExample.class.getDeclaredField("annotatedField2")));
 
         //-------------------------------------------------
         // Ensure annotations are processed correctly
@@ -216,19 +212,19 @@ public class AnnotationHelperTest extends XmlBeansTestSupport {
         List<Class> annotatedClasses = classFinder.findAnnotatedClasses(PersistenceUnits.class);
         assertNotNull(annotatedClasses);
         assertEquals(1, annotatedClasses.size());
-        assertTrue(annotatedClasses.contains(PersistenceUnitAnnotationTest.class));
+        assertTrue(annotatedClasses.contains(PersistenceUnitAnnotationExample.class));
 
         List<Method> annotatedMethods = classFinder.findAnnotatedMethods(PersistenceUnit.class);
         assertNotNull(annotatedMethods);
         assertEquals(2, annotatedMethods.size());
-        assertTrue(annotatedMethods.contains(PersistenceUnitAnnotationTest.class.getDeclaredMethod("setAnnotatedMethod1", new Class[]{int.class})));
-        assertTrue(annotatedMethods.contains(PersistenceUnitAnnotationTest.class.getDeclaredMethod("setAnnotatedMethod2", new Class[]{boolean.class})));
+        assertTrue(annotatedMethods.contains(PersistenceUnitAnnotationExample.class.getDeclaredMethod("setAnnotatedMethod1", new Class[]{int.class})));
+        assertTrue(annotatedMethods.contains(PersistenceUnitAnnotationExample.class.getDeclaredMethod("setAnnotatedMethod2", new Class[]{boolean.class})));
 
         List<Field> annotatedFields = classFinder.findAnnotatedFields(PersistenceUnit.class);
         assertNotNull(annotatedFields);
         assertEquals(2, annotatedFields.size());
-        assertTrue(annotatedFields.contains(PersistenceUnitAnnotationTest.class.getDeclaredField("annotatedField1")));
-        assertTrue(annotatedFields.contains(PersistenceUnitAnnotationTest.class.getDeclaredField("annotatedField2")));
+        assertTrue(annotatedFields.contains(PersistenceUnitAnnotationExample.class.getDeclaredField("annotatedField1")));
+        assertTrue(annotatedFields.contains(PersistenceUnitAnnotationExample.class.getDeclaredField("annotatedField2")));
 
         //-------------------------------------------------
         // Ensure annotations are processed correctly
@@ -257,23 +253,23 @@ public class AnnotationHelperTest extends XmlBeansTestSupport {
         List<Class> annotatedClasses = classFinder.findAnnotatedClasses(WebServiceRefs.class);
         assertNotNull(annotatedClasses);
         assertEquals(1, annotatedClasses.size());
-        assertTrue(annotatedClasses.contains(WebServiceRefAnnotationTest.class));
+        assertTrue(annotatedClasses.contains(WebServiceRefAnnotationExample.class));
 
         List<Method> annotatedMethods = classFinder.findAnnotatedMethods(WebServiceRef.class);
         assertNotNull(annotatedMethods);
         assertEquals(5, annotatedMethods.size());
-        assertTrue(annotatedMethods.contains(WebServiceRefAnnotationTest.class.getDeclaredMethod("setAnnotatedMethod1", new Class[]{boolean.class})));
-        assertTrue(annotatedMethods.contains(WebServiceRefAnnotationTest.class.getDeclaredMethod("setAnnotatedMethod2", new Class[]{String.class})));
-        assertTrue(annotatedMethods.contains(HandlerChainAnnotationTest.class.getDeclaredMethod("setAnnotatedMethod1", new Class[]{String.class})));
-        assertTrue(annotatedMethods.contains(HandlerChainAnnotationTest.class.getDeclaredMethod("setAnnotatedMethod2", new Class[]{int.class})));
+        assertTrue(annotatedMethods.contains(WebServiceRefAnnotationExample.class.getDeclaredMethod("setAnnotatedMethod1", new Class[]{boolean.class})));
+        assertTrue(annotatedMethods.contains(WebServiceRefAnnotationExample.class.getDeclaredMethod("setAnnotatedMethod2", new Class[]{String.class})));
+        assertTrue(annotatedMethods.contains(HandlerChainAnnotationExample.class.getDeclaredMethod("setAnnotatedMethod1", new Class[]{String.class})));
+        assertTrue(annotatedMethods.contains(HandlerChainAnnotationExample.class.getDeclaredMethod("setAnnotatedMethod2", new Class[]{int.class})));
 
         List<Field> annotatedFields = classFinder.findAnnotatedFields(WebServiceRef.class);
         assertNotNull(annotatedFields);
         assertEquals(4, annotatedFields.size());
-        assertTrue(annotatedFields.contains(WebServiceRefAnnotationTest.class.getDeclaredField("annotatedField1")));
-        assertTrue(annotatedFields.contains(WebServiceRefAnnotationTest.class.getDeclaredField("annotatedField2")));
-        assertTrue(annotatedFields.contains(HandlerChainAnnotationTest.class.getDeclaredField("annotatedField1")));
-        assertTrue(annotatedFields.contains(HandlerChainAnnotationTest.class.getDeclaredField("annotatedField2")));
+        assertTrue(annotatedFields.contains(WebServiceRefAnnotationExample.class.getDeclaredField("annotatedField1")));
+        assertTrue(annotatedFields.contains(WebServiceRefAnnotationExample.class.getDeclaredField("annotatedField2")));
+        assertTrue(annotatedFields.contains(HandlerChainAnnotationExample.class.getDeclaredField("annotatedField1")));
+        assertTrue(annotatedFields.contains(HandlerChainAnnotationExample.class.getDeclaredField("annotatedField2")));
 
         //-------------------------------------------------
         // Ensure annotations are processed correctly
@@ -302,13 +298,13 @@ public class AnnotationHelperTest extends XmlBeansTestSupport {
         List<Class> annotatedClasses = classFinder.findAnnotatedClasses(DeclareRoles.class);
         assertNotNull(annotatedClasses);
         assertEquals(1, annotatedClasses.size());
-        assertTrue(annotatedClasses.contains(SecurityAnnotationTest.class));
+        assertTrue(annotatedClasses.contains(SecurityAnnotationExample.class));
 
         annotatedClasses.clear();
         annotatedClasses = classFinder.findAnnotatedClasses(RunAs.class);
         assertNotNull(annotatedClasses);
         assertEquals(1, annotatedClasses.size());
-        assertTrue(annotatedClasses.contains(SecurityAnnotationTest.class));
+        assertTrue(annotatedClasses.contains(SecurityAnnotationExample.class));
 
         //-------------------------------------------------
         // Ensure annotations are processed correctly

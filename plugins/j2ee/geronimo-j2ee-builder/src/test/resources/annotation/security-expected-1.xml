@@ -25,7 +25,7 @@
     <description>Empty web application</description>
     <servlet>
         <servlet-name>SecurityAnnotationTest</servlet-name>
-        <servlet-class>org.apache.geronimo.j2ee.deployment.annotation.SecurityAnnotationTest</servlet-class>
+        <servlet-class>org.apache.geronimo.j2ee.deployment.annotation.SecurityAnnotationExample</servlet-class>
         <run-as>
             <role-name>securityRole4</role-name>
         </run-as>

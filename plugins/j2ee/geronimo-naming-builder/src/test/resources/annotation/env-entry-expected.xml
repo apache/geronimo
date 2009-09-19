@@ -33,7 +33,7 @@
         <env-entry-name>org.apache.geronimo.j2ee.deployment.annotation.ResourceAnnotationTest/annotatedMethod2</env-entry-name>
         <env-entry-type>java.lang.String</env-entry-type>
         <injection-target>
-             <injection-target-class>org.apache.geronimo.naming.deployment.annotation.ResourceAnnotationTest</injection-target-class>
+             <injection-target-class>org.apache.geronimo.naming.deployment.annotation.ResourceAnnotationExample</injection-target-class>
              <injection-target-name>annotatedMethod2</injection-target-name>
         </injection-target>
     </env-entry>

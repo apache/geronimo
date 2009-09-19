@@ -23,7 +23,7 @@ import javax.jws.HandlerChain;
 import javax.xml.ws.WebServiceRef;
 
 @HandlerChain(file = "annotation/handlers1.xml")            // Ignored by Geronimo at the class-level
-public class HandlerChainAnnotationTest {
+public class HandlerChainAnnotationExample {
 
     @WebServiceRef(name = "WebServiceRef1",
                    value = javax.xml.ws.Service.class,

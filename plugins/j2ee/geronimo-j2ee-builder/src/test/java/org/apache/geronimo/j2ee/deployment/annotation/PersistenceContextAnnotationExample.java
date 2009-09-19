@@ -35,7 +35,7 @@ import javax.persistence.PersistenceProperty;
                                                   @PersistenceProperty(name="property4", value="value4")},
                                               type = PersistenceContextType.EXTENDED)
                       })
-public class PersistenceContextAnnotationTest {
+public class PersistenceContextAnnotationExample {
 
     @PersistenceContext(name = "PersistenceContext3",
                         properties={@PersistenceProperty(name="property5", value="value5"),

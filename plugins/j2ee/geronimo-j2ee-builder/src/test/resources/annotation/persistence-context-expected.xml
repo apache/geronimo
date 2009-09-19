@@ -61,7 +61,7 @@
             <value>value10</value>
         </persistence-property>
         <injection-target>
-            <injection-target-class>org.apache.geronimo.j2ee.deployment.annotation.PersistenceContextAnnotationTest</injection-target-class>
+            <injection-target-class>org.apache.geronimo.j2ee.deployment.annotation.PersistenceContextAnnotationExample</injection-target-class>
             <injection-target-name>annotatedMethod1</injection-target-name>
         </injection-target>
     </persistence-context-ref>
@@ -69,7 +69,7 @@
         <persistence-context-ref-name>org.apache.geronimo.j2ee.deployment.annotation.PersistenceContextAnnotationTest/annotatedMethod2</persistence-context-ref-name>
         <persistence-context-type>Transaction</persistence-context-type>
         <injection-target>
-            <injection-target-class>org.apache.geronimo.j2ee.deployment.annotation.PersistenceContextAnnotationTest</injection-target-class>
+            <injection-target-class>org.apache.geronimo.j2ee.deployment.annotation.PersistenceContextAnnotationExample</injection-target-class>
             <injection-target-name>annotatedMethod2</injection-target-name>
         </injection-target>
     </persistence-context-ref>
@@ -85,11 +85,11 @@
             <value>value6</value>
         </persistence-property>
         <injection-target>
-            <injection-target-class>org.apache.geronimo.j2ee.deployment.annotation.PersistenceContextAnnotationTest</injection-target-class>
+            <injection-target-class>org.apache.geronimo.j2ee.deployment.annotation.PersistenceContextAnnotationExample</injection-target-class>
             <injection-target-name>annotatedField1</injection-target-name>
         </injection-target>
         <injection-target>
-            <injection-target-class>org.apache.geronimo.j2ee.deployment.annotation.PersistenceContextAnnotationTest</injection-target-class>
+            <injection-target-class>org.apache.geronimo.j2ee.deployment.annotation.PersistenceContextAnnotationExample</injection-target-class>
             <injection-target-name>annotatedField2</injection-target-name>
         </injection-target>
     </persistence-context-ref>
