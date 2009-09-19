@@ -73,7 +73,7 @@
         FIXME: STOP using properties for dependency versions unless you absolutly need them,
                ie. you have a hundred dependencies that all use the same version.
         -->
-        <tomcatVersion>6.0.20-SNAPSHOT</tomcatVersion>
+        <tomcatVersion>6.0.20.0</tomcatVersion>
         <tomcatGroupId>org.apache.geronimo.ext.tomcat</tomcatGroupId>
 
         <openejbVersion>3.1.2-SNAPSHOT</openejbVersion>
@@ -83,7 +83,7 @@
         <axiomVersion>1.2.8</axiomVersion>
         <springVersion>2.5.6</springVersion>
         <openjpaVersion>1.2.1</openjpaVersion>
-        <xbeanVersion>3.6-SNAPSHOT</xbeanVersion>
+        <xbeanVersion>3.6</xbeanVersion>
         <jetty>jetty7</jetty>
 
         <connectorSuffix>-1_6</connectorSuffix>
@@ -175,7 +175,7 @@
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
                 <artifactId>geronimo-jacc_1.1_spec</artifactId>
-                <version>1.0.2-SNAPSHOT</version>
+                <version>1.0.2</version>
             </dependency>
 
             <dependency>
@@ -246,7 +246,7 @@
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
                 <artifactId>geronimo-jpa_1.0_spec</artifactId>
-                <version>1.1.2-SNAPSHOT</version>
+                <version>1.1.2</version>
             </dependency>
 
             <dependency>
@@ -319,7 +319,7 @@
             <dependency>
                 <groupId>org.apache.geronimo.components</groupId>
                 <artifactId>geronimo-jaspi</artifactId>
-                <version>1.0-SNAPSHOT</version>
+                <version>1.0</version>
                 <!--<exclusions>-->
                 <!--<exclusion>-->
                 <!--<groupId>javax.xml.bind</groupId>-->
@@ -330,7 +330,7 @@
             <dependency>
                 <groupId>org.apache.geronimo.components</groupId>
                 <artifactId>geronimo-jaspi</artifactId>
-                <version>1.0-SNAPSHOT</version>
+                <version>1.0</version>
                 <classifier>tests</classifier>
                 <!--<exclusions>-->
                 <!--<exclusion>-->
@@ -833,7 +833,7 @@
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
-                <version>3.8.2</version>
+                <version>4.5</version>
             </dependency>
 
             <dependency>
@@ -1955,7 +1955,7 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>xmlbeans-maven-plugin</artifactId>
-                    <!--<version>2.3.1</version>-->
+                    <version>2.3.3-SNAPSHOT</version>
                     <executions>
                         <execution>
                             <goals>
@@ -2201,10 +2201,58 @@
         </site>
     </distributionManagement>
 
-    <!--
-        Remove this once the genesis 2.0.1 is released or there is a better solution
-    -->
+    <repositories>
+        <repository>
+            <id>amq-staging</id>
+            <url>https://repository.apache.org/content/repositories/activemq-staging-030/</url>
+            <releases>
+                <checksumPolicy>fail</checksumPolicy>
+                <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>amq-protobuf-staging</id>
+            <url>https://repository.apache.org/content/repositories/activemq-staging-026/</url>
+            <releases>
+                <checksumPolicy>fail</checksumPolicy>
+                <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>tomcat-fork-staging</id>
+            <url>https://repository.apache.org/content/repositories/geronimo-staging-035/</url>
+            <releases>
+                <checksumPolicy>fail</checksumPolicy>
+                <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>jpa-spec-staging</id>
+            <url>https://repository.apache.org/content/repositories/geronimo-staging-021/</url>
+            <releases>
+                <checksumPolicy>fail</checksumPolicy>
+                <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
     <pluginRepositories>
+        <!-- required for clean build unless you want to bootstrap the car-maven-plugin -->
         <pluginRepository>
             <id>apache.snapshots</id>
             <name>Apache Snapshots Repository</name>
