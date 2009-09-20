@@ -33,7 +33,7 @@ import javax.annotation.Resources;
                           type = javax.xml.ws.Service.class,
                           authenticationType = Resource.AuthenticationType.APPLICATION)
             })
-public class ResourceAnnotationTest {
+public class ResourceAnnotationExample {
 
     @Resource(name = "Resource3",
               type = java.lang.Object.class,

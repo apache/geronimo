@@ -21,7 +21,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -42,7 +41,7 @@ import org.apache.xmlbeans.XmlOptions;
  */
 public class AnnotationHelperTest extends XmlBeansTestSupport {
 
-    private Class[] classes = {ResourceAnnotationTest.class};
+    private Class[] classes = {ResourceAnnotationExample.class};
 
     private ClassFinder classFinder = new ClassFinder(classes);
     private ClassLoader classLoader = this.getClass().getClassLoader();
@@ -56,19 +55,19 @@ public class AnnotationHelperTest extends XmlBeansTestSupport {
         List<Class> annotatedClasses = classFinder.findAnnotatedClasses(Resources.class);
         assertNotNull(annotatedClasses);
         assertEquals(1, annotatedClasses.size());
-        assertTrue(annotatedClasses.contains(ResourceAnnotationTest.class));
+        assertTrue(annotatedClasses.contains(ResourceAnnotationExample.class));
 
         List<Method> annotatedMethods = classFinder.findAnnotatedMethods(Resource.class);
         assertNotNull(annotatedMethods);
         assertEquals(2, annotatedMethods.size());
-        assertTrue(annotatedMethods.contains(ResourceAnnotationTest.class.getDeclaredMethod("setAnnotatedMethod1", new Class[]{String.class})));
-        assertTrue(annotatedMethods.contains(ResourceAnnotationTest.class.getDeclaredMethod("setAnnotatedMethod2", new Class[]{String.class})));
+        assertTrue(annotatedMethods.contains(ResourceAnnotationExample.class.getDeclaredMethod("setAnnotatedMethod1", new Class[]{String.class})));
+        assertTrue(annotatedMethods.contains(ResourceAnnotationExample.class.getDeclaredMethod("setAnnotatedMethod2", new Class[]{String.class})));
 
         List<Field> annotatedFields = classFinder.findAnnotatedFields(Resource.class);
         assertNotNull(annotatedFields);
         assertEquals(2, annotatedFields.size());
-        assertTrue(annotatedFields.contains(ResourceAnnotationTest.class.getDeclaredField("annotatedField1")));
-        assertTrue(annotatedFields.contains(ResourceAnnotationTest.class.getDeclaredField("annotatedField2")));
+        assertTrue(annotatedFields.contains(ResourceAnnotationExample.class.getDeclaredField("annotatedField1")));
+        assertTrue(annotatedFields.contains(ResourceAnnotationExample.class.getDeclaredField("annotatedField2")));
 
         //-------------------------------------------------
         // Ensure annotations are processed correctly
