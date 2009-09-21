@@ -61,16 +61,16 @@ if(retention == null)   retention = "";
 if(protocol == null)    protocol = "";
 if(protocol.equals("1"))    
 {
-    if(port == null)        port = "4201";
+    if(port == null)        port = "1099";
 }
 else if(protocol.equals("2"))
 {
-    if(port == null)        port = "1099";
+    if(port == null)        port = "4201";
 }
 else
 {
     protocol = "1";
-    if(port == null)        port = "4201";
+    if(port == null)        port = "1099";
 }
 
 DBManager DBase = new DBManager();
@@ -178,9 +178,9 @@ function noAlpha(obj){
  }
 function setPort() {
     if (document.editServer.protocol[0].checked)
-        document.editServer.port.value = "4201";
-    else
         document.editServer.port.value = "1099";
+    else
+        document.editServer.port.value = "4201";
 }
 //-->
 </script>
@@ -233,7 +233,7 @@ function setPort() {
     <tr>
       <td><fmt:message key="monitor.server.protocol"/></td>
       <td>&nbsp;</td>
-      <td align="right"><input type="radio" name="protocol" onchange='setPort()' value="1" <%if (protocol.equals("1")){ %>checked="checked"<%} %>>EJB <input type="radio" name="protocol" onchange='setPort()' value="2" <%if (protocol.equals("2")){ %>checked="checked"<%} %>>JMX</td>
+      <td align="right"><input type="radio" name="protocol" onchange='setPort()' value="1" <%if (protocol.equals("1")){ %>checked="checked"<%} %>>JMX <input type="radio" name="protocol" onchange='setPort()' value="2" <%if (protocol.equals("2")){ %>checked="checked"<%} %>>EJB</td>
       <td></td>
     </tr>
     <tr>

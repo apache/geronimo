@@ -71,7 +71,7 @@ public class MRCConnector {
         password = (String) EncryptionManager.decrypt(password);
         Protocol = protocol;
 
-        if (Protocol == 1) {
+        if (Protocol == 2) {
 
             try {
                 Properties props = new Properties();
@@ -162,7 +162,7 @@ public class MRCConnector {
      *             If the connection to the MRC-Server fails
      */
     public Long getSnapshotDuration() throws Exception {
-        if (Protocol == 1) {
+        if (Protocol == 2) {
 
             return mrc.getSnapshotDuration();
 
@@ -185,7 +185,7 @@ public class MRCConnector {
 
         HashMap<String, ArrayList<String>> DataNameList = new HashMap<String, ArrayList<String>>();
 
-        if (Protocol == 1) {
+        if (Protocol == 2) {
 
             try {
                 DataNameList = mrc.getAllSnapshotStatAttributes();
@@ -227,7 +227,7 @@ public class MRCConnector {
     public ArrayList<HashMap<String, HashMap<String, Object>>> getSnapshots(
             int snapCount, int skipCount) throws Exception {
         ArrayList<HashMap<String, HashMap<String, Object>>> snapshotList = null;
-        if (Protocol == 1) {
+        if (Protocol == 2) {
 
             snapshotList = mrc.fetchSnapshotData(snapCount, skipCount);
 
@@ -376,7 +376,7 @@ public class MRCConnector {
             String statsName, int snapCount, int skipCount, boolean showArchive)
             throws Exception {
         TreeMap<Long, Long> snapshotList = null;
-        if (Protocol == 1) {
+        if (Protocol == 2) {
 
             snapshotList = mrc.getSpecificStatistics(mbeanName, statsName,
                     snapCount, skipCount, showArchive);
@@ -440,7 +440,7 @@ public class MRCConnector {
         int snapCount = 1;
         int skipCount = 1;
         ArrayList<HashMap<String, HashMap<String, Object>>> snapshotList = null;
-        if (Protocol == 1) {
+        if (Protocol == 2) {
 
             snapshotList = mrc.fetchSnapshotData(snapCount, skipCount);
 
@@ -464,7 +464,7 @@ public class MRCConnector {
      *             If the connection to the MRC-Server fails
      */
     public boolean stopSnapshotThread() throws Exception {
-        if (Protocol == 1) {
+        if (Protocol == 2) {
 
             return mrc.stopSnapshot();
 
@@ -480,7 +480,7 @@ public class MRCConnector {
      *             If the connection to the MRC-Server fails
      */
     public boolean startSnapshotThread(long time) throws Exception {
-        if (Protocol == 1) {
+        if (Protocol == 2) {
 
             return mrc.startSnapshot(time);
 
@@ -493,7 +493,7 @@ public class MRCConnector {
 
     public int isSnapshotRunning() {
         Integer running = 0;
-        if (Protocol == 1) {
+        if (Protocol == 2) {
 
             try {
                 if (mrc.isSnapshotRunning())
@@ -516,7 +516,7 @@ public class MRCConnector {
 
     @SuppressWarnings("unchecked")
     public Set<String> getAllMbeanNames() throws Exception {
-        if (Protocol == 1) {
+        if (Protocol == 2) {
 
             return mrc.getAllMBeanNames();
 
@@ -528,7 +528,7 @@ public class MRCConnector {
 
     @SuppressWarnings("unchecked")
     public Set<String> getStatisticsProviderBeanNames() throws Exception {
-        if (Protocol == 1) {
+        if (Protocol == 2) {
 
             return mrc.getStatisticsProviderMBeanNames();
 
@@ -542,7 +542,7 @@ public class MRCConnector {
     @SuppressWarnings("unchecked")
     public HashMap<String, ArrayList<String>> getAllSnapshotStatAttributes()
             throws Exception {
-        if (Protocol == 1) {
+        if (Protocol == 2) {
 
             return mrc.getAllSnapshotStatAttributes();
 
@@ -555,7 +555,7 @@ public class MRCConnector {
 
     @SuppressWarnings("unchecked")
     public Set<String> getTrackedBeans() throws Exception {
-        if (Protocol == 1) {
+        if (Protocol == 2) {
 
             return mrc.getTrackedMBeans();
 
@@ -718,7 +718,7 @@ public class MRCConnector {
 
     @SuppressWarnings("unchecked")
     public boolean stopTrackingMbean(String MBean) throws Exception {
-        if (Protocol == 1) {
+        if (Protocol == 2) {
 
             mrc.removeMBeanForSnapshot(MBean);
 
@@ -734,7 +734,7 @@ public class MRCConnector {
 
     @SuppressWarnings("unchecked")
     public boolean startTrackingMbean(String MBean) throws Exception {
-        if (Protocol == 1) {
+        if (Protocol == 2) {
 
             mrc.addMBeanForSnapshot(MBean);
 
@@ -749,7 +749,7 @@ public class MRCConnector {
 
     @SuppressWarnings("unchecked")
     public HashMap<String, Long> getStats(String MBean) throws Exception {
-        if (Protocol == 1) {
+        if (Protocol == 2) {
 
             return mrc.getStats(MBean);
 
@@ -761,7 +761,7 @@ public class MRCConnector {
     }
 
     public void setSnapshotDuration(long duration) {
-        if (Protocol == 1) {
+        if (Protocol == 2) {
 
             mrc.setSnapshotDuration(new Long(duration));
 
@@ -779,7 +779,7 @@ public class MRCConnector {
     }
 
     public int getSnapshotRetention() {
-        if (Protocol == 1) {
+        if (Protocol == 2) {
 
             return Integer.parseInt(mrc.getSnapshotRetention());
 
@@ -796,7 +796,7 @@ public class MRCConnector {
     }
 
     public void setSnapshotRetention(int duration) {
-        if (Protocol == 1) {
+        if (Protocol == 2) {
 
             mrc.setSnapshotRetention(duration);
 

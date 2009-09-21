@@ -25,7 +25,7 @@
     <ul style="list-style:none">
       <li><fmt:message key="monitor.common.name"/> = localhost</li>
       <li><fmt:message key="monitor.server.ip"/>/<fmt:message key="monitor.server.hostname"/> = 127.0.0.1</li>
-      <li><fmt:message key="monitor.server.port"/> = 4201</li>
+      <li><fmt:message key="monitor.server.port"/> = 1099</li>
       <li><fmt:message key="monitor.server.username"/> = system</li>
       <li><fmt:message key="monitor.server.pwd"/> = manager</li>
     </ul>
