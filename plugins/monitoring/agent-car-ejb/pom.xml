@@ -28,8 +28,8 @@
         <version>3.0-SNAPSHOT</version>
     </parent>
     
-    <artifactId>agent</artifactId>
-    <name>Geronimo Plugins, Monitoring :: Agent</name>
+    <artifactId>agent-car-ejb</artifactId>
+    <name>Geronimo Plugins, Monitoring :: Agent EJB CAR</name>
     <packaging>car</packaging>
 
     <dependencies>
@@ -87,6 +87,11 @@
                         <type>jar</type>
                     </module>
                     <category>Monitoring</category>
+                    <instance>
+                        <plugin-artifact>
+                            <config-xml-content load="false" />
+                        </plugin-artifact>
+                    </instance>
                     <osiApproved>true</osiApproved>
                 </configuration>
             </plugin>

@@ -52,10 +52,10 @@
     </dependencyManagement>
 
     <modules>
-        <module>agent</module>
         <module>agent-ds</module>
         <module>agent-jar</module>
         <module>agent-ejb</module>
+        <module>agent-car-ejb</module>
         <module>agent-jmx</module>
         <module>agent-car-jmx</module>
         <module>agent-sql</module>
