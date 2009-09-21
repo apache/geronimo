@@ -33,14 +33,14 @@ String snapshot = (String) request.getAttribute("snapshot");
 String retention = (String) request.getAttribute("retention");
 if(snapshot == null)    snapshot = "";
 if(retention == null)   retention = "";
-if(node.getProtocol() == null || node.getProtocol().equals("EJB"))
+if(node.getProtocol() == null || node.getProtocol().equals("JMX"))
 {
-    node.setProtocol("EJB");
-    if(node.getPort() == 0)        node.setPort(4201);
+    node.setProtocol("JMX");
+    if(node.getPort() == 0)        node.setPort(1099);
 }
 else
 {
-    if(node.getPort() == 0)        node.setPort(1099);
+    if(node.getPort() == 0)        node.setPort(4201);
 }
 MRCConnector mrc = null;
 boolean isOnline = true;
@@ -53,10 +53,10 @@ if (node != null) {
         try {
             if(retention.equals("") || snapshot.equals("")) {
                 mrc = new MRCConnector(node);
-		        // get the snapshot on the first call or any subsequent valid connections
-		        snapshot = snapshot == "" ?  "" + mrc.getSnapshotDuration() / 1000 / 60 : snapshot;
-		        // get the retention on the first call or any subsequent valid connection
-		        retention = retention == "" ? "" + mrc.getSnapshotRetention() : retention;
+                // get the snapshot on the first call or any subsequent valid connections
+                snapshot = snapshot == "" ?  "" + mrc.getSnapshotDuration() / 1000 / 60 : snapshot;
+                // get the retention on the first call or any subsequent valid connection
+                retention = retention == "" ? "" + mrc.getSnapshotRetention() : retention;
             }
         } catch(Exception ee) {
             // the password in the db does not work
@@ -121,9 +121,9 @@ function noAlpha(obj){
  }
 function setPort() {
     if (document.editServer.protocol[0].checked)
-        document.editServer.port.value = "4201";
-    else
         document.editServer.port.value = "1099";
+    else
+        document.editServer.port.value = "4201";
 }
 //-->
 </script>
@@ -177,8 +177,8 @@ function setPort() {
       <td><fmt:message key="monitor.server.protocol"/></td>
       <td>&nbsp;</td>
       <td align="right">
-      		<input type="radio" name="protocol" id="<portlet:namespace/>protocol1" onchange='setPort()' value="EJB" <%if (node.getProtocol().equals("EJB")){ %>checked="checked"<%} %>><label for="<portlet:namespace/>protocol1">EJB</label>
-      		<input type="radio" name="protocol" id="<portlet:namespace/>protocol2" onchange='setPort()' value="JMX" <%if (node.getProtocol().equals("JMX")){ %>checked="checked"<%} %>><label for="<portlet:namespace/>protocol2">JMX</label>
+              <input type="radio" name="protocol" id="<portlet:namespace/>protocol2" onchange='setPort()' value="JMX" <%if (node.getProtocol().equals("JMX")){ %>checked="checked"<%} %>><label for="<portlet:namespace/>protocol2">JMX</label>
+              <input type="radio" name="protocol" id="<portlet:namespace/>protocol1" onchange='setPort()' value="EJB" <%if (node.getProtocol().equals("EJB")){ %>checked="checked"<%} %>><label for="<portlet:namespace/>protocol1">EJB</label>
       </td>
       <td></td>
     </tr>

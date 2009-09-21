@@ -155,7 +155,14 @@
 
         <dependency>
             <groupId>org.apache.geronimo.plugins.monitoring</groupId>
-            <artifactId>agent</artifactId>
+            <artifactId>agent-car-ejb</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.apache.geronimo.plugins.monitoring</groupId>
+            <artifactId>agent-car-jmx</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>

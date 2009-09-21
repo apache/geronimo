@@ -47,8 +47,8 @@ else if(protocol.equals("JMX"))
 }
 else
 {
-    protocol = "EJB";
-    if(port == null)        port = "4201";
+    protocol = "JMX";
+    if(port == null)        port = "1099";
 }
 
 %>
@@ -66,21 +66,21 @@ function show(x) {
     document.getElementById(x).style.display='';
 }
 function validate() {
-	if (! (document.addServer.name.value 
-		&& document.addServer.ip.value 
-		&& document.addServer.username.value
-		&& document.addServer.password.value
-		&& document.addServer.port.value ))
-	{
-		alert("Name, Address, Protocol, Port, Username, and Password are all required fields");
-		return false;
-	}
-	if (document.addServer.password.value != document.addServer.password2.value)
-	{
-		alert("Passwords do not match");
-		return false;
-	}
-	return true;
+    if (! (document.addServer.name.value 
+        && document.addServer.ip.value 
+        && document.addServer.username.value
+        && document.addServer.password.value
+        && document.addServer.port.value ))
+    {
+        alert("Name, Address, Protocol, Port, Username, and Password are all required fields");
+        return false;
+    }
+    if (document.addServer.password.value != document.addServer.password2.value)
+    {
+        alert("Passwords do not match");
+        return false;
+    }
+    return true;
 }
 function noAlpha(obj) {
     reg = /[^0-9]/g;
@@ -88,9 +88,9 @@ function noAlpha(obj) {
 }
 function setPort() {
     if (document.addServer.protocol[0].checked == true)
-        document.addServer.port.value = "4201";
-    else
         document.addServer.port.value = "1099";
+    else
+        document.addServer.port.value = "4201";
 }
 //-->
 </script>
@@ -126,8 +126,9 @@ function setPort() {
       <td><fmt:message key="monitor.server.protocol"/></td>
       <td>&nbsp;</td>
       <td align="right">
-      	<input type="radio" name="protocol" id="<portlet:namespace/>protocol1" onchange='setPort()' value="EJB" <%if (protocol.equals("EJB")){ %>checked="checked"<%} %>><label for="<portlet:namespace/>protocol1">EJB</label>
-      	<input type="radio" name="protocol" id="<portlet:namespace/>protocol2" onchange='setPort()' value="JMX" <%if (protocol.equals("JMX")){ %>checked="checked"<%} %>><label for="<portlet:namespace/>protocol2">JMX</label></td>
+          <input type="radio" name="protocol" id="<portlet:namespace/>protocol2" onchange='setPort()' value="JMX" <%if (protocol.equals("JMX")){ %>checked="checked"<%} %>><label for="<portlet:namespace/>protocol2">JMX</label>
+          <input type="radio" name="protocol" id="<portlet:namespace/>protocol1" onchange='setPort()' value="EJB" <%if (protocol.equals("EJB")){ %>checked="checked"<%} %>><label for="<portlet:namespace/>protocol1">EJB</label>
+      </td>
       <td></td>
     </tr>
     <tr>
