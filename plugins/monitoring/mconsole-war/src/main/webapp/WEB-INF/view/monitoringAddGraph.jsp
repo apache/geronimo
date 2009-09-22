@@ -57,8 +57,8 @@
 
     <%
 for (Node node: nodes) {
-try {
-String name = node.getName();
+    try {
+    String name = node.getName();
    MRCConnector  mrc = new MRCConnector(node);
     TreeMap <String,String> trackedBeansMap = mrc.getTrackedBeansMap();
     serverIds.add(name);
@@ -69,8 +69,8 @@ String name = node.getName();
     serverPrettyBeans["<%=name%>"] = new Array();
     serverBeanStatAttributes["<%=name%>"] = new Array();
     <%
-int i = 0;
-for(Map.Entry<String, String> entry: trackedBeansMap.entrySet()){
+    int i = 0;
+    for(Map.Entry<String, String> entry: trackedBeansMap.entrySet()){
     String prettyBean = entry.getKey();
     Set<String> statAttributes = mrc.getStatAttributesOnMBean(entry.getValue());
     %>
@@ -90,6 +90,7 @@ for(Map.Entry<String, String> entry: trackedBeansMap.entrySet()){
     %>
 
     <%
+        mrc.dispose();
     }
     catch (Exception e)
     {

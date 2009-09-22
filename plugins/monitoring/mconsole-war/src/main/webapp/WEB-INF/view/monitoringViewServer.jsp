@@ -67,6 +67,7 @@ if (node != null) {
         collecting = 0;
     }
     
+    
 %>
 
 <CommonMsg:commonMsg/><br>
@@ -422,6 +423,8 @@ if (node != null) {
     </tr>
 </table>
 <%
+if(null != mrc)
+    mrc.dispose();
 }
     else
     {%>

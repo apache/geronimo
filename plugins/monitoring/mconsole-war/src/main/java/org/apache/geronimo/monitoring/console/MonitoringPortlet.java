@@ -256,11 +256,16 @@ public class MonitoringPortlet extends BasePortlet {
 
     private void testConnection(String ip, String username,
                                   String password, int port, String protocol, PortletRequest request) {
+        MRCConnector mrc = null;
         try {
-            new MRCConnector(ip, username, password, port, protocol);
+            mrc = new MRCConnector(ip, username, password, port, protocol);
             addInfoMessage(request, getLocalizedString(request, "mconsole.infoMsg01"));
         } catch (Exception e) {
             addInfoMessage(request, getLocalizedString(request, "mconsole.errorMsg01"), e.getMessage());
+        } finally
+        {
+            if(null != mrc)
+                mrc.dispose();
         }
     }
 
@@ -633,7 +638,7 @@ public class MonitoringPortlet extends BasePortlet {
                     MRCConnector connector = new MRCConnector(node);
                     connector.setSnapshotDuration(Long.parseLong(snapshot) * 1000 * 60);
                     connector.setSnapshotRetention(Integer.parseInt(retention));
-                    //close?
+                    connector.dispose();
                 }
             } finally {
                 userTransaction.commit();
@@ -688,8 +693,9 @@ public class MonitoringPortlet extends BasePortlet {
                     return;
                 }
                 // check whether the snapshot query is enabled, if does, close it first
+                MRCConnector mrc = null;
                 try {
-                    MRCConnector mrc = new MRCConnector(node);
+                    mrc = new MRCConnector(node);
                     if (mrc.isSnapshotRunning() == 1) {
                         if (mrc.stopSnapshotThread()) {
                             addInfoMessage(actionRequest, getLocalizedString(actionRequest, "mconsole.infoMsg06", server_id));
@@ -697,7 +703,10 @@ public class MonitoringPortlet extends BasePortlet {
                             addErrorMessage(actionRequest, getLocalizedString(actionRequest, "mconsole.errorMsg09", server_id));
                         }
                     }
+                    
                 } catch (Exception e) {
+                } finally {
+                    if(null != mrc)mrc.dispose();
                 }
                 entityManager.remove(node);
             } finally {
@@ -820,7 +829,7 @@ public class MonitoringPortlet extends BasePortlet {
             addInfoMessage(request, getLocalizedString(request, "mconsole.errorMsg04"), e.getMessage());
             return;
         }
-        MRCConnector mrc;
+        MRCConnector mrc =null;
         try {
             mrc = new MRCConnector(node);
         } catch (Exception e) {
@@ -840,6 +849,7 @@ public class MonitoringPortlet extends BasePortlet {
         } catch (Exception e) {
             addErrorMessage(request, getLocalizedString(request, "mconsole.errorMsg06", mbean, node.getHost()), e.getMessage());
         }
+        mrc.dispose();
     }
 
     private void stopTrackingMbean(String server_id, String mbean, PortletRequest request) {
@@ -870,6 +880,7 @@ public class MonitoringPortlet extends BasePortlet {
         } catch (Exception e) {
             addErrorMessage(request, getLocalizedString(request, "mconsole.errorMsg06", mbean, node.getHost()), e.getMessage());
         }
+        mrc.dispose();
     }
 
     private void stopThread(String server_id, PortletRequest request) {
@@ -881,8 +892,9 @@ public class MonitoringPortlet extends BasePortlet {
             addErrorMessage(request, getLocalizedString(request, "mconsole.errorMsg08", server_id), e.getMessage());
             return;
         }
+        MRCConnector mrc = null;
         try {
-            MRCConnector mrc = new MRCConnector(node);
+            mrc = new MRCConnector(node);
             if (mrc.stopSnapshotThread()) {
                 addInfoMessage(request, getLocalizedString(request, "mconsole.infoMsg06", server_id));
             } else {
@@ -890,6 +902,9 @@ public class MonitoringPortlet extends BasePortlet {
             }
         } catch (Exception e) {
         	addErrorMessage(request, getLocalizedString(request, "mconsole.errorMsg09", server_id), e.getMessage());
+        } finally {
+            if(null != mrc)
+                mrc.dispose();
         }
     }
 
@@ -902,8 +917,9 @@ public class MonitoringPortlet extends BasePortlet {
             addErrorMessage(request, getLocalizedString(request, "mconsole.errorMsg08", server_id), e.getMessage());
             return;
         }
+        MRCConnector mrc = null;
         try {
-            MRCConnector mrc = new MRCConnector(node);
+            mrc = new MRCConnector(node);
             if (mrc.startSnapshotThread(snapshotDuration)) {
                 addInfoMessage(request, getLocalizedString(request, "mconsole.infoMsg07", server_id));
             } else {
@@ -912,6 +928,8 @@ public class MonitoringPortlet extends BasePortlet {
         } catch (Exception e) {
         	addErrorMessage(request, getLocalizedString(request, "mconsole.errorMsg10", server_id), e.getMessage());
 
+        } finally {
+            if(null != mrc)mrc.dispose();
         }
     }
 
