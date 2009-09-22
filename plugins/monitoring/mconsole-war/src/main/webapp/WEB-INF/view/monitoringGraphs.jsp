@@ -126,8 +126,9 @@ border-width: 1px;">
   	<td class="${backgroundClass}" width="20%" align="center"><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showServer" /><portlet:param name="server_id" value="<%=server_id%>" /></portlet:actionURL>"><%=server_name%></a></td>
   	<td class="${backgroundClass}" width="15%" align="center"><%=timeframe%></td>
   	<td class="${backgroundClass}" width="20%" align="center"><%=dataname1%><%if (operation != null && !operation.equals("null")){%><%=operation%><%}%><%if (dataname2 != null && !dataname2.equals("null")){%><%=dataname2%><%}%></td>
+       <%if(request.isUserInRole("admin")){ %>
   	<td class="${backgroundClass}" width="15%" align="center"><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="showEditGraph" /><portlet:param name="graph_id" value="<%=graph_id%>" /></portlet:actionURL>"><img border=0 src="/monitoring/images/edit-b.png"><fmt:message key="monitor.common.edit"/></a></td>
-<%} 
+<%} }
 else
 {
 	%>
@@ -135,16 +136,18 @@ else
   	<td class="${backgroundClass}" width="20%" align="center"><%=server_name%></td>
   	<td class="${backgroundClass}" width="15%" align="center"><%=timeframe%></td>
   	<td class="${backgroundClass}" width="20%" align="center"><%=dataname1%><%if (operation != null && !operation.equals("null")){%><%=operation%><%}%><%if (dataname2 != null && !dataname2.equals("null")){%><%=dataname2%><%}%></td>
+       <%if(request.isUserInRole("admin")){ %>
   	<td class="${backgroundClass}" width="15%" align="center"><img
 					border=0 src="/monitoring/images/edit-b.png"><fmt:message key="monitor.common.edit"/></td>
-	<%
+    <%}
 }%>
  </tr>
  <%}
 %>
 </table>
+ <%if(request.isUserInRole("admin")){ %>
 <div align="right"><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="showAddGraph" /></portlet:actionURL>"><img border=0 src="/monitoring/images/max-b.png"><fmt:message key="monitor.graph.addGraph"/></a></div>
-<%
+<%}
  // close connection
  con.close();
 %>

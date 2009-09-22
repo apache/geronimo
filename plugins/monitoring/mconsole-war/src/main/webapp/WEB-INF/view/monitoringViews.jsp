@@ -69,15 +69,18 @@ border-width: 1px;">
   <td class="${backgroundClass}" width="10%" align="center"><%=rs.getString("graph_count")%></td>
   <td class="${backgroundClass}" width="15%" align="center"><%=rs.getString("added").substring(0,16)%></td>
   <td class="${backgroundClass}" width="15%" align="center"><%=rs.getString("modified").substring(0,16)%></td>
+  <%if(request.isUserInRole("admin")){ %>
   <td class="${backgroundClass}" width="15%" align="center"><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="showEditView" /><portlet:param name="view_id" value='<%=rs.getString("view_id")%>' /></portlet:actionURL>"><img border=0 src="/monitoring/images/edit-b.png"><fmt:message key="monitor.common.edit"/></a></td>
+<%} %> 
  </tr>
  <%
  }
  rs.close();
  %>
 </table>
+<%if(request.isUserInRole("admin")){ %>
 <div align="right"><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="showAddView" /></portlet:actionURL>"><img border=0 src="/monitoring/images/max-b.png"><fmt:message key="monitor.view.create"/></a></div>
-<%
+<%}
  // close connection
  con.close();
 %>

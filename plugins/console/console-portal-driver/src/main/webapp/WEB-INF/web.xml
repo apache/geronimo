@@ -229,12 +229,39 @@ limitations under the License.
     </web-resource-collection>
     <auth-constraint>
       <role-name>admin</role-name>
+      <role-name>monitor</role-name>
     </auth-constraint>
     <user-data-constraint>
       <transport-guarantee>CONFIDENTIAL</transport-guarantee>
     </user-data-constraint>
   </security-constraint>
-
+  
+    <security-constraint>
+    <web-resource-collection>
+      <web-resource-name>console monitor</web-resource-name>
+      <url-pattern>/portal</url-pattern>
+      <url-pattern>/portal/Welcome</url-pattern>
+      <url-pattern>/portal/Welcome/*</url-pattern>
+      <url-pattern>/portal/Server/Information</url-pattern>
+      <url-pattern>/portal/Server/Information/*</url-pattern>
+      <url-pattern>/portal/Server/Java System Info</url-pattern>
+      <url-pattern>/portal/Server/Java System Info/*</url-pattern>
+      <url-pattern>/portal/Server/Thread Pools</url-pattern>
+      <url-pattern>/portal/Server/Thread Pools/*</url-pattern>
+      <url-pattern>/portal/Server/Monitoring</url-pattern>
+      <url-pattern>/portal/Server/Monitoring/*</url-pattern>
+      <url-pattern>/forwards/*</url-pattern>
+      <url-pattern>/dwr/*</url-pattern>
+      <http-method>GET</http-method>
+      <http-method>POST</http-method>
+      <http-method>PUT</http-method>
+    </web-resource-collection>
+    <auth-constraint>
+      <role-name>monitor</role-name>
+      <role-name>admin</role-name>
+    </auth-constraint>
+  </security-constraint>
+  
   <security-constraint>
     <web-resource-collection>
       <web-resource-name>console</web-resource-name>
@@ -253,6 +280,8 @@ limitations under the License.
       <role-name>admin</role-name>
     </auth-constraint>
   </security-constraint>
+  
+
 
   <login-config>
     <auth-method>FORM</auth-method>
@@ -266,6 +295,9 @@ limitations under the License.
   <security-role>
     <role-name>admin</role-name>
   </security-role>
-
+  <security-role>
+    <role-name>monitor</role-name>
+  </security-role>
 </web-app>
+
 

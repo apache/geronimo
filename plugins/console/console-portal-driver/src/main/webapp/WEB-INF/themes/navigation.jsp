@@ -113,6 +113,8 @@ limitations under the License.
     for(int i=0;i<catNames_len;i++){
         String catName = catNames.get(i);
         pageContext.setAttribute("catName",catName);
+        if(request.isUserInRole("admin")||
+                (request.isUserInRole("monitor") &&catName.equals("Server"))){
         %>
         <tr><td><div class="Selection">
             <table width="100%" border="0" cellpadding="1" cellspacing="0">
@@ -127,6 +129,7 @@ limitations under the License.
             </table>
         </div></td></tr>
         <%
+        }
         ArrayList<PageConfig> list = categories.get(catName);
         int list_len = list.size();
         for(int k=0;k<list_len;k++){
@@ -134,6 +137,12 @@ limitations under the License.
             PageConfig pageConfig = list.get(k);
             pageContext.setAttribute("page",pageConfig);
             pageName = shortNames.get(pageConfig.getName());
+
+            if(request.isUserInRole("admin")||
+                (request.isUserInRole("monitor") &&(pageName.equals("Information")
+                                                 ||pageName.equals("Java System Info")
+                                                 ||pageName.equals("Thread Pools")
+                                                 ||pageName.equals("Monitoring")))){
             String icon = pageConfig.getIcon();
             if (icon == null || icon.trim().length() == 0) {
                icon = "/images/ico_doc_16x16.gif";
@@ -158,6 +167,7 @@ limitations under the License.
                 </table>
             </div></td></tr>
             <%
+            }
         }
     }
 %>
@@ -170,4 +180,5 @@ limitations under the License.
         </tr>
     </table></div></td></tr>
 </table>
+
 

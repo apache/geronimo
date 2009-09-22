@@ -58,4 +58,10 @@
         <res-sharing-scope>Shareable</res-sharing-scope>
     </resource-ref>
     
+    <security-role>
+        <role-name>admin</role-name>
+    </security-role>
+    <security-role>
+        <role-name>monitor</role-name>
+    </security-role>
 </web-app>

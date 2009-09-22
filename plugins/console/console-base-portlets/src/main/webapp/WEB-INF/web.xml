@@ -373,6 +373,7 @@ limitations under the License.
         </web-resource-collection>
         <auth-constraint>
             <role-name>admin</role-name>
+             <role-name>monitor</role-name>
         </auth-constraint>
     </security-constraint>
     <login-config>
@@ -381,6 +382,9 @@ limitations under the License.
     </login-config>
     <security-role>
         <role-name>admin</role-name>
+    </security-role>
+        <security-role>
+        <role-name>monitor</role-name>
     </security-role>
 
     <!--

@@ -27,6 +27,7 @@
 <%@ page import="java.sql.SQLException" %>
 <%@ page import="org.apache.geronimo.monitoring.console.MRCConnector" %>
 <%@ page import="org.apache.geronimo.monitoring.console.util.*" %>
+<%@ page import="javax.portlet.PortletRequest" %>
 <fmt:setBundle basename="monitor-portlet"/>
 <portlet:defineObjects/>
 <script type = "text/javascript">
@@ -74,14 +75,18 @@ border-width: 1px;">
   <td class="${backgroundClass}" width="10%" align="center"><%=rs.getString("graph_count")%></td>
   <td class="${backgroundClass}" width="15%" align="center"><%=rs.getString("added").substring(0,16)%></td>
   <td class="${backgroundClass}" width="15%" align="center"><%=rs.getString("modified").substring(0,16)%></td>
+  <%if(request.isUserInRole("admin")){ %>
   <td class="${backgroundClass}" width="15%" align="center"><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="showEditView" /><portlet:param name="view_id" value='<%=rs.getString("view_id")%>' /></portlet:actionURL>"><img border=0 src="/monitoring/images/edit-b.png"><fmt:message key="monitor.common.edit"/></a></td>
+  <%} %>
  </tr>
  <%
  }
  rs.close();
  %>
 </table>
+<% if (request.isUserInRole("admin")) {%>
 <div align="right"><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="showAddView" /></portlet:actionURL>"><img border=0 src="/monitoring/images/max-b.png"><fmt:message key="monitor.view.create"/></a></div>
+<% }%>
 <table width="100%" style="border-style: solid;
 border-width: 1px;">
  <thead align="center"><strong><fmt:message key="monitor.common.server"/></strong></thead>
@@ -198,68 +203,81 @@ if (collecting == 0) {  // not collecting statistics
     <td class="${backgroundClass}" width="15%" align="center"><font color="red">(<fmt:message key="monitor.server.stopped"/>)</font></td>
 <%
     if(enabled) {   // enable the links
+        if(request.isUserInRole("admin")){
 %>
         <td class="${backgroundClass}" width="10%" align="center"><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="startThread" /><portlet:param name="server_id" value="<%=server_id%>" /><portlet:param name="snapshotDuration" value="<%=java.lang.Long.toString(snapshotDuration)%>" /></portlet:actionURL>"><img border=0 src="/monitoring/images/max-b.png"><fmt:message key="monitor.server.enableQuery"/></a></td>
-<%
+<%        }//end admin
     } else {        // do not provide links
+        if(request.isUserInRole("admin")){
 %>
         <td class="${backgroundClass}" width="10%" align="center"><img border=0 src="/monitoring/images/max-b.png"><fmt:message key="monitor.server.enableQuery"/></td>
-<%
+<%        }//end admin
     }
+if(request.isUserInRole("admin")){
 %>
   <td class="${backgroundClass}" width="10%" align="center"><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="showEditServer" /><portlet:param name="server_id" value="<%=server_id%>" /></portlet:actionURL>"><img border=0 src="/monitoring/images/edit-b.png"><fmt:message key="monitor.common.edit"/></a></td>
 <%
+}//end admin
 }
 else if (collecting == -1) {  // not collecting statistics
     %>
         <td class="${backgroundClass}" width="15%" align="center"><font color="red"><fmt:message key="monitor.server.stopping"/></font></td>
     <%
         if(enabled) {   // enable the links
+            if(request.isUserInRole("admin")){
     %>
             <td class="${backgroundClass}" width="10%" align="center"><img border=0 src="/monitoring/images/close-b.png"><fmt:message key="monitor.server.disableQuery"/></td>
-    <%
+    <%        }//end admin
         } else {        // do not provide links
+            if(request.isUserInRole("admin")){
     %>
             <td class="${backgroundClass}" width="10%" align="center"><img border=0 src="/monitoring/images/close-b.png"><fmt:message key="monitor.server.disableQuery"/></td>
-    <%
+    <%        }//end admin
         }
+            if(request.isUserInRole("admin")){
     %>
       <td class="${backgroundClass}" width="10%" align="center"><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="showEditServer" /><portlet:param name="server_id" value="<%=server_id%>" /></portlet:actionURL>"><img border=0 src="/monitoring/images/edit-b.png"><fmt:message key="monitor.common.edit"/></a></td>
-    <%
+    <%    }//end admin
     }
 else {            // collecting statistics
     if (enabled)
     {
 %>
   <td class="${backgroundClass}" width="15%" align="center"><%=snapshotDuration/1000/60%> <fmt:message key="monitor.common.min"/> (<fmt:message key="monitor.server.run"/>)</td>
+  <%if(request.isUserInRole("admin")){ %>
   <td class="${backgroundClass}" width="10%" align="center"><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="stopThread" /><portlet:param name="server_id" value="<%=server_id%>" /></portlet:actionURL>"><img border=0 src="/monitoring/images/close-b.png"><fmt:message key="monitor.server.disableQuery"/></a></td>
   <td class="${backgroundClass}" width="10%" align="center"><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="showEditServer" /><portlet:param name="server_id" value="<%=server_id%>" /></portlet:actionURL>"><img border=0 src="/monitoring/images/edit-b.png"><fmt:message key="monitor.common.edit"/></a></td>
-<%
+<%}//end admin
     }
     else
     {
         %>
         <td class="${backgroundClass}" width="15%" align="center"><fmt:message key="monitor.server.stopped"/></td>
+        <%if(request.isUserInRole("admin")){ %>
         <td class="${backgroundClass}" width="10%" align="center"><img border=0 src="/monitoring/images/close-b.png"><fmt:message key="monitor.server.disableQuery"/></td>
         <td class="${backgroundClass}" width="10%" align="center"><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="showEditServer" /><portlet:param name="server_id" value="<%=server_id%>" /></portlet:actionURL>"><img border=0 src="/monitoring/images/edit-b.png"><fmt:message key="monitor.common.edit"/></a></td>
-      <%        
+      <%    }//end admin   
     }
 }
 if(enabled) {   // enabled server
+    if(request.isUserInRole("admin")){
 %>
   <td class="${backgroundClass}" width="10%" align="center"><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="disableServer" /><portlet:param name="server_id" value="<%=server_id%>" /></portlet:actionURL>"><img border=0 src="/monitoring/images/close-b.png"><fmt:message key="monitor.server.disable"/></a></td>
-<%
+<%}
 } else {        // disabled server
+    if(request.isUserInRole("admin")){
 %>
   <td class="${backgroundClass}" width="10%" align="center"><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="enableServer" /><portlet:param name="server_id" value="<%=server_id%>" /></portlet:actionURL>"><img border=0 src="/monitoring/images/max-b.png"><fmt:message key="monitor.server.enable"/></a></td>
-<%
+<%}
 }
 %>
  </tr>
  <%}
 %>
 </table>
+<% if (!request.isUserInRole("monitor")) {%>
 <div align="right"><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="showAddServer" /></portlet:actionURL>"><img border=0 src="/monitoring/images/max-b.png"><fmt:message key="monitor.server.addServer"/></a></div>
+<%} %>
 <table width="100%" style="border-style: solid;
 border-width: 1px;">
  <thead align="center"><strong><fmt:message key="monitor.common.graph"/></strong></thead>
@@ -343,8 +361,9 @@ border-width: 1px;">
   	<td class="${backgroundClass}" width="20%" align="center"><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showServer" /><portlet:param name="server_id" value="<%=server_id%>" /></portlet:actionURL>"><%=server_name%></a></td>
   	<td class="${backgroundClass}" width="15%" align="center"><%=timeframe%></td>
   	<td class="${backgroundClass}" width="20%" align="center"><%=dataname1%><%if (operation != null && !operation.equals("null")){%><%=operation%><%}%><%if (dataname2 != null && !dataname2.equals("null")){%><%=dataname2%><%}%></td>
+      <%if(request.isUserInRole("admin")){ %>
   	<td class="${backgroundClass}" width="15%" align="center"><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="showEditGraph" /><portlet:param name="graph_id" value="<%=graph_id%>" /></portlet:actionURL>"><img border=0 src="/monitoring/images/edit-b.png"><fmt:message key="monitor.common.edit"/></a></td>
-<%} 
+<%} }
 else
 {
 	%>
@@ -352,11 +371,14 @@ else
   	<td class="${backgroundClass}" width="20%" align="center"><%=server_name%></td>
   	<td class="${backgroundClass}" width="15%" align="center"><%=timeframe%></td>
   	<td class="${backgroundClass}" width="20%" align="center"><%=dataname1%><%if (operation != null && !operation.equals("null")){%><%=operation%><%}%><%if (dataname2 != null && !dataname2.equals("null")){%><%=dataname2%><%}%></td>
+      <%if(request.isUserInRole("admin")){ %>
   	<td class="${backgroundClass}" width="15%" align="center"><img border=0 src="/monitoring/images/edit-b.png"><fmt:message key="monitor.common.edit"/></td>
-	<%
+    <% } %><%
 }%>
  </tr>
  <%}
 %>
 </table>
+<% if (request.isUserInRole("admin")) {%>
 <div align="right"><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="showAddGraph" /></portlet:actionURL>"><img border=0 src="/monitoring/images/max-b.png"><fmt:message key="monitor.graph.addGraph"/></a></div>
+<%}%>

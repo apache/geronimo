@@ -47,5 +47,17 @@
             <name>PlutoPortalServices</name>
         </reference>
     </gbean>
+    <security-realm-name>geronimo_admin</security-realm-name>
+    
+    <security xmlns="http://geronimo.apache.org/xml/ns/security-1.2">
+        <role-mappings>
+            <role role-name="admin">
+                <principal class="org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal" name="admin" />
+            </role>
+            <role role-name="monitor">
+                <principal class="org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal" name="monitor" />
+            </role>
+        </role-mappings>
+    </security>
 
 </web-app>

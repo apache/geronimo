@@ -233,6 +233,9 @@
             <role role-name="admin">
                 <principal class="org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal" name="admin" />
             </role>
+            <role role-name="monitor">
+                <principal class="org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal" name="monitor" />
+            </role>
         </role-mappings>
     </security>
 

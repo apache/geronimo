@@ -56,6 +56,7 @@
 
         <!-- Geronimo Links -->
         <td valign="top">
+        <%if(request.isUserInRole("admin")){ %>
 
             <table width="100%" border="1" cellspacing="0" cellpadding="3" bordercolor="#000000">
                 <tr>
@@ -73,6 +74,7 @@
                     </td>
                 </tr>
             </table>
+        <%} %>
 
             <br />
             <br />
