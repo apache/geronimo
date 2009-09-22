@@ -21,6 +21,7 @@
 <%@ page import="org.apache.geronimo.monitoring.console.Constants" %>
 <%@ page import="org.apache.geronimo.monitoring.console.data.Graph" %>
 <%@ page import="org.apache.geronimo.monitoring.console.data.View" %>
+<%@ page import="java.util.List,java.util.ArrayList"%>
 <fmt:setBundle basename="monitor-portlet"/>
 <portlet:defineObjects/>
 
@@ -106,13 +107,19 @@ function openNewWindow(theURL,winName,features) {
             <th><fmt:message key="monitor.common.edit"/></th>
             </tr>
       <%
-          for (Graph graph: view.getGraphs()) {
+          List<Integer> owned_ids = new ArrayList<Integer>();
+          for(Graph graph : view.getGraphs())
+          {
+             owned_ids.add(graph.getId());
+          }
+          List<Graph> graphs = (List<Graph>) request.getAttribute("graphs");
+          for (Graph graph: graphs) {
               if (graph.getNode() != null)
               {
       %>     
             <tr>
-            <%--<td align="left" width="5%"><input type="checkbox" name="graph_ids" title="<%=graph.getGraphName1()%> - <%=graph.getNode().getName()%>" id="<portlet:namespace/>graph_ids" value='<%=graph.getIdString()%>' <%if (graphsList.contains(rs.getInt("graph_id"))){%> checked<%}%>></td>--%>
-            <td align="left" width="5%"><input type="checkbox" name="graph_ids" title="<%=graph.getGraphName1()%> - <%=graph.getNode().getName()%>" id="<portlet:namespace/>graph_ids" value='<%=graph.getIdString()%>' <%if (true){%> checked<%}%>></td>
+            <td align="left" width="5%"><input type="checkbox" name="graph_ids" title="<%=graph.getGraphName1()%> - <%=graph.getNode().getName()%>" id="<portlet:namespace/>graph_ids" value='<%=graph.getIdString()%>' <%if (owned_ids.contains(graph.getId())){%> checked<%}%>></td>
+        <%--<td align="left" width="5%"><input type="checkbox" name="graph_ids" title="<%=graph.getGraphName1()%> - <%=graph.getNode().getName()%>" id="<portlet:namespace/>graph_ids" value='<%=graph.getIdString()%>' <%if (true){%> checked<%}%>></td>--%>
             <td align="left"><a href="javascript: void(0)" onClick="openNewWindow('/monitoring/popUpGraph?graph_id=<%=graph.getIdString()%>','graph','width=800,height=300','title=<%=graph.getGraphName1() %>')"><%=graph.getGraphName1()%></a></td>
             <td align="left"><%="" + graph.getTimeFrame()%> min.</td>
             <td align="left"><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showServer" /><portlet:param name="server_id" value='<%=graph.getNode().getName()%>' /></portlet:actionURL>"><%=graph.getNode().getName()%></a></td>
