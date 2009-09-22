@@ -16,17 +16,20 @@
  */
 package org.apache.geronimo.jmxremoting;
 
-import java.util.Map;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
+import javax.management.Notification;
+import javax.management.NotificationListener;
 import javax.management.remote.JMXAuthenticator;
 import javax.management.remote.JMXConnectionNotification;
-import javax.management.NotificationListener;
-import javax.management.Notification;
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
+import org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal;
 /**
  * JMX Authenticator that checks the Credentials by logging in via JAAS.
  *
@@ -67,6 +70,18 @@ public class Authenticator implements JMXAuthenticator, NotificationListener {
             LoginContext context = new LoginContext(configName, credentials);
             context.login();
             threadContext.set(context);
+            Subject sub = context.getSubject();
+            Set<GeronimoGroupPrincipal> pricipalsGroup = sub.getPrincipals(GeronimoGroupPrincipal.class);
+            boolean isInAdminGroup = false;
+            for (GeronimoGroupPrincipal principal : pricipalsGroup) {
+                if (principal.getName().equals("admin")) {
+                    isInAdminGroup = true;
+                    break;
+                 }
+            }
+            if(!isInAdminGroup){
+                throw new LoginException("Only users in admin group are allowed");
+            }
             return context.getSubject();
         } catch (LoginException e) {
             // do not propogate cause - we don't know what information is may contain

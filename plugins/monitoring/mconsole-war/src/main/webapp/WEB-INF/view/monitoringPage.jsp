@@ -124,6 +124,7 @@ catch (Exception e)
             </table>
             <br>
             <br>
+            <%if(request.isUserInRole("admin")){ %>
             <table width="100%" style="border-bottom: 1px solid #2581c7;" cellspacing="1" cellpadding="1">
                 <tr>
                     <td class="DarkBackground" align="left" nowrap>
@@ -142,6 +143,7 @@ catch (Exception e)
                     </td>   
                 </tr>
             </table>
+            <%} %>
 
         </td>        
     </tr>
