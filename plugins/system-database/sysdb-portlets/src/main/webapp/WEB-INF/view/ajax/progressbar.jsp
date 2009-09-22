@@ -21,7 +21,7 @@
 <script type='text/javascript' src='/console/dwr3/util.js'></script>
 
 <script type="text/javascript">
-DWREngine.setErrorHandler(<portlet:namespace/>onError);
+dwr.engine.setErrorHandler(<portlet:namespace/>onError);
 function <portlet:namespace/>refreshProgress()
 {
     metadata = {};
