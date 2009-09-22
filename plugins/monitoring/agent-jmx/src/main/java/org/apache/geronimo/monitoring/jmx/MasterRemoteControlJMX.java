@@ -394,7 +394,7 @@ public class MasterRemoteControlJMX implements GBeanLifecycle {
                     } else if(aStat instanceof CountStatistic) {
                         mbeanStatsList.add(stts[i].getName());
                     } else if(aStat instanceof TimeStatistic) {
-                        mbeanStatsList.add(stts[i].getName() + " Count");
+                        mbeanStatsList.add(stts[i].getName() + " CurrentTime");
                         mbeanStatsList.add(stts[i].getName() + " MaxTime");
                         mbeanStatsList.add(stts[i].getName() + " MinTime");
                         mbeanStatsList.add(stts[i].getName() + " TotalTime");

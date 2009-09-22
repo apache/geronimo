@@ -115,11 +115,11 @@ public class MasterRemoteControl {
                 Long current = new Long(((CountStatistic)aStat).getCount());
                 statsMap.put(stts[i].getName(), current);
             } else if(aStat instanceof TimeStatistic) {
-                Long count = new Long(((TimeStatistic)aStat).getCount());
+                Long current = new Long(((TimeStatistic)aStat).getCount());
                 Long max = new Long(((TimeStatistic)aStat).getMaxTime());
                 Long min = new Long(((TimeStatistic)aStat).getMinTime());
                 Long total = new Long(((TimeStatistic)aStat).getTotalTime());
-                statsMap.put(stts[i].getName() + " Count", count);
+                statsMap.put(stts[i].getName() + " CurrentTime", current);
                 statsMap.put(stts[i].getName() + " MaxTime", max);
                 statsMap.put(stts[i].getName() + " MinTime", min);
                 statsMap.put(stts[i].getName() + " TotalTime", total);
@@ -401,7 +401,7 @@ public class MasterRemoteControl {
                     } else if(aStat instanceof CountStatistic) {
                         mbeanStatsList.add(stts[i].getName());
                     } else if(aStat instanceof TimeStatistic) {
-                        mbeanStatsList.add(stts[i].getName() + " Count");
+                        mbeanStatsList.add(stts[i].getName() + " CurrentTime");
                         mbeanStatsList.add(stts[i].getName() + " MaxTime");
                         mbeanStatsList.add(stts[i].getName() + " MinTime");
                         mbeanStatsList.add(stts[i].getName() + " TotalTime");
