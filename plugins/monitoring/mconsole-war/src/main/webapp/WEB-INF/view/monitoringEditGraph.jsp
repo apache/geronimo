@@ -87,6 +87,7 @@ for (Node node: nodes) {
          %>
              
         <%
+        mrc.dispose();
     }
     catch (Exception e)
     {

@@ -84,6 +84,7 @@ public class GraphsBuilder {
             if (hasSecondSeries) {
                 snapshotList2 = mrc.getSpecificStatistics(graph.getMBeanName(), graph.getDataName2(), snapCount, skipCount, graph.isShowArchive());
             }
+            mrc.dispose();
             // Check if snapshotList is empty
             if (snapshotList1.size() == 0) {
                 snapshotList1.put(System.currentTimeMillis(), (long) 0);

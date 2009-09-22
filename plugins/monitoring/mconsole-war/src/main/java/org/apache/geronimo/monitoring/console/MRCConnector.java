@@ -16,6 +16,7 @@
  */
 package org.apache.geronimo.monitoring.console;
 
+import java.io.IOException;
 import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -43,10 +44,10 @@ import org.apache.geronimo.monitoring.console.data.Node;
 public class MRCConnector {
 
     private static String PATH = null;
-    private static MBeanServerConnection mbServerConn;
+    private MBeanServerConnection mbServerConn;
     private MasterRemoteControlRemote mrc = null;
     private String protocol = "EJB";
-
+    private JMXConnector connector = null;
     MRCConnector() {
 
     }
@@ -101,7 +102,7 @@ public class MRCConnector {
                 credentials[0] = userName;
                 credentials[1] = password;
                 env.put(JMXConnector.CREDENTIALS, credentials);
-                JMXConnector connector = JMXConnectorFactory.connect(
+                connector = JMXConnectorFactory.connect(
                         serviceURL, env);
                 mbServerConn = connector.getMBeanServerConnection();
 
@@ -154,7 +155,21 @@ public class MRCConnector {
 //            }
 //        }
     }
-
+    
+    public void dispose()
+    {
+        try{
+            if("JMX".equals(this.protocol) && null != this.connector){
+                connector.close();
+                connector = null;
+            }
+                
+        }
+        catch(IOException ex)
+        {
+        }
+    }
+    
     private boolean isEjbProtocol() {
         return "EJB".equals(protocol);
     }

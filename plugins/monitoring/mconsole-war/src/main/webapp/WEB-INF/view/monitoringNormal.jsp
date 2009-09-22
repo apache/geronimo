@@ -104,6 +104,8 @@ function openNewWindow(theURL,winName,features) {
 	         collecting = 0;
 	         online = false;
 	     }
+         if(null != mrc)
+             mrc.dispose();
      }
  %>
   <c:set var="backgroundClass" value='MediumBackground'/>
