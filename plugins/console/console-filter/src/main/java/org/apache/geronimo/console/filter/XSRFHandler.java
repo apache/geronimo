@@ -25,7 +25,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
-import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -49,8 +48,6 @@ public class XSRFHandler
     private static final String XSRF_UNIQUEID = "formId";
     private static final String XSRF_JS_FILENAME = "/XSRF.js";
     private final static String XSRF_JS_UNIQUEID = "<%XSRF_UNIQUEID%>";
-    private final static String SEARCH_PATTERN = "(?i)</body>";
-    private static final Pattern regexPattern = Pattern.compile(SEARCH_PATTERN);
 
     private Map<String, String> sessionMap = Collections.synchronizedMap(new HashMap<String, String>());
     private String xsrfJS;
@@ -192,53 +189,26 @@ public class XSRFHandler
     }
 
     //----- Response handler routines -----
-
     /**
-     * Main response handler, which appends our XSRF JavaScript with the
-     * unique session token to any HTML response content that includes a
-     * form tag.
+     * Get XSRF JavaScript containing the unique session token.
+     * 
      * @param hreq
-     * @param hres
      */
-    public void updateResponse(HttpServletRequest hreq, FilterResponseWrapper hres) throws IOException {
+    public String getReplacement(HttpServletRequest hreq) throws IOException {
         // get the JavaScript file we're going to append to it
-        String updatedXsrfJS;
         String uniqueId = getSession(hreq);
         if (xsrfJS == null) {
             log.error("No JavaScript to append to the response!");
-        }
-        else if (uniqueId == null) {
-            // this should only happen for user logout or session timeout, so ignore
+            return null;
+        } else if (uniqueId == null) {
+            // this should only happen for user logout or session timeout, so
+            // ignore
             log.debug("HttpSession is null!");
+            return null;
+        } else {
+            // update the JavaScript with the uniqueId for this session
+            return xsrfJS.replace(XSRF_JS_UNIQUEID, uniqueId);
         }
-        else {
-            String cType = hres.getContentType();
-            if (cType != null) {
-                // only update the content if it is HTML
-                if (cType.toLowerCase().indexOf("html") != -1) {
-                    // get the response content
-                    String content = new String(hres.getOutput(), "UTF-8");
-                    // update the JavaScript with the uniqueId for this session
-                    updatedXsrfJS = xsrfJS.replace(XSRF_JS_UNIQUEID, uniqueId);
-                    // update the response to contain the JS fragment
-                    content = regexPattern.matcher(content).replaceAll(updatedXsrfJS);
-                    log.info("Updated HTML content with XSRF JavaScript for requestURI=" + hreq.getRequestURI());
-                    //log.debug("Updated content =" + content);
-                    // update the ResponseOutputStream content
-                    hres.setOutput(content);                                    
-                }
-                else {
-                    // we don't want to try updating non-HTML content with our JavaScript
-                    log.debug("Not updating requestURI=" + hreq.getRequestURI() + " due to ContentType = " + cType);
-                }
-            }
-            else {
-                // no ContentType provided, so ignore this content
-                log.debug("Not updating requestURI=" +  hreq.getRequestURI() + " due to NO ContentType");
-            }
-        }
-        // write out our updated HttpServletResponse
-        hres.writeOutput();
     }
 
     /**
