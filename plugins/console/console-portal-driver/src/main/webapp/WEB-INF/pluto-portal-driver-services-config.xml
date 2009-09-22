@@ -94,7 +94,7 @@ limitations under the License.
     <!-- Portal Services injected into the Configuration  -->
     <!-- ================================================ -->
     <bean id="PortalURLParser"
-          class="org.apache.pluto.driver.url.impl.PortalURLParserImpl"
+          class="org.apache.geronimo.pluto.impl.PortalURLParserImpl"
           factory-method="getParser"
           singleton="true">
     </bean>
