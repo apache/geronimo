@@ -363,11 +363,13 @@ public class MonitoringPortlet extends BasePortlet {
             String view_id = request.getParameter("view_id");
             request.setAttribute("view_id", view_id);
             addViewAttribute(request, false);
+            addAllGraphsAttribute(request);
             editView.include(request, response);
         } else if (action.equals("saveEditView")) {
             String view_id = request.getParameter("view_id");
             request.setAttribute("view_id", view_id);
             addViewAttribute(request, false);
+            addAllGraphsAttribute(request);
             editView.include(request, response);
         } else if (action.equals("showAddView")) {
             addAllGraphsAttribute(request);
@@ -574,6 +576,28 @@ public class MonitoringPortlet extends BasePortlet {
                 View view = entityManager.find(View.class, Integer.parseInt(view_id));
                 view.setName(actionRequest.getParameter("name"));
                 view.setDescription(actionRequest.getParameter("minxss_description"));
+                for(Graph graph: view.getGraphs())
+                {
+                    for(View view_in : graph.getViews())
+                    {
+                        if(view_in.getId() == view.getId())
+                        {//No grantee for that view and view_in have the same reference?
+                            graph.getViews().remove(view_in);
+                            break;
+                        }
+                    }
+                }
+                view.getGraphs().clear();
+                
+                String[] graphsArray = actionRequest.getParameterValues("graph_ids");
+                if (graphsArray != null) {
+                    for (String graphIdString: graphsArray) {
+                        int graphId = Integer.parseInt(graphIdString);
+                        Graph graph = entityManager.find(Graph.class, graphId);
+                        view.getGraphs().add(graph);
+                        graph.getViews().add(view);
+                    }
+                }
             } finally {
                 userTransaction.commit();
             }
