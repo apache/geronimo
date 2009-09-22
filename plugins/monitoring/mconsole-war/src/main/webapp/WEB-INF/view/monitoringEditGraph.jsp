@@ -135,6 +135,11 @@ while (rs.next())
     catch (Exception e)
     {
         
+    }finally{
+        if(null != mrc){
+            mrc.dispose();
+            mrc = null;    
+        }
     }
     %>
     

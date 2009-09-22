@@ -107,6 +107,11 @@ border-width: 1px;">
 	         collecting = 0;
 	         online = false;
 	     }
+        finally{
+            if(null != mrc){
+                mrc.dispose();
+            }
+        }
      }
  %>
   <c:set var="backgroundClass" value='MediumBackground'/>

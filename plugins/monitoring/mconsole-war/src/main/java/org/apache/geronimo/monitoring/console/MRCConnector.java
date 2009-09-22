@@ -16,6 +16,7 @@
  */
 package org.apache.geronimo.monitoring.console;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.Statement;
 import java.text.Format;
@@ -35,19 +36,18 @@ import javax.management.ObjectName;
 import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
-
 import javax.naming.Context;
 import javax.naming.InitialContext;
 
+import org.apache.geronimo.crypto.EncryptionManager;
 import org.apache.geronimo.monitoring.MasterRemoteControlRemote;
 import org.apache.geronimo.monitoring.console.util.DBManager;
-
-import org.apache.geronimo.crypto.EncryptionManager;
 
 public class MRCConnector {
 
     private static String PATH = null;
-    private static MBeanServerConnection mbServerConn;
+    private MBeanServerConnection mbServerConn;
+    private JMXConnector connector = null;
     private MasterRemoteControlRemote mrc = null;
     private int Protocol = 0;
 
@@ -102,7 +102,7 @@ public class MRCConnector {
                 credentials[0] = userName;
                 credentials[1] = password;
                 env.put(JMXConnector.CREDENTIALS, credentials);
-                JMXConnector connector = JMXConnectorFactory.connect(
+                connector = JMXConnectorFactory.connect(
                         serviceURL, env);
                 mbServerConn = connector.getMBeanServerConnection();
 
@@ -154,7 +154,18 @@ public class MRCConnector {
             }
         }
     }
-
+    public void dispose()
+    {
+        try{
+            if(this.Protocol != 1 && null != this.connector){
+                connector.close();
+                connector = null;
+           }
+        }
+        catch(IOException ex)
+        {
+        }
+    }
     /**
      * @return - Returns an Long representing the current snapshot duration set
      *         on the server side

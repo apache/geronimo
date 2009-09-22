@@ -119,6 +119,11 @@ if (rs.next()) {
             // the password in the db does not work
             isOnline = false;
         }
+    }finally{
+        if(null != mrc){
+            mrc.dispose();
+            mrc = null;    
+        }
     }
 %>
 <!-- <head> -->

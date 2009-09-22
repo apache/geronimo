@@ -150,6 +150,10 @@ border-width: 1px;">
 	     } catch (Exception e) {
 	         collecting = 0;
 	         online = false;
+        }finally{
+            if(null != mrc){
+                mrc.dispose();    
+            }
 	     }
      }
  %>

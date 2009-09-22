@@ -451,6 +451,8 @@ document.getElementById(x).style.display='';
     </tr>
 </table>
 <%
+if(null != mrc)
+    mrc.dispose();
 }
     else
     {%>

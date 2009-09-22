@@ -244,11 +244,15 @@ public class MonitoringPortlet extends BasePortlet {
 
     private void testConnection(String ip, String username,
             String password, int port, int protocol, PortletRequest request) {
+        MRCConnector mrc = null;
         try {
-            new MRCConnector(ip, username, password, port, protocol);
+            mrc = new MRCConnector(ip, username, password, port, protocol);
             addInfoMessage(request, getLocalizedString(request, "infoMsg01"));
         } catch (Exception e) {
             addErrorMessage(request, getLocalizedString(request, "errorMsg01"), e.getMessage());
+        }finally{
+            if(null != mrc)
+                mrc.dispose();
         }
     }
 
@@ -549,6 +553,7 @@ public class MonitoringPortlet extends BasePortlet {
         String server_id = actionRequest.getParameter("server_id");
         actionResponse.setRenderParameter("server_id", server_id);
         DBManager DBase = new DBManager();
+        MRCConnector mrc = null;
         Connection con = DBase.getConnection();
         String name = actionRequest.getParameter("name");
         String ip = actionRequest.getParameter("ip");
@@ -615,15 +620,17 @@ public class MonitoringPortlet extends BasePortlet {
             if (snapshot == null || retention == null) {
                 // do not update if we do not know
             } else {
-                    (new MRCConnector(ip, username, password, port, protocol))
-                        .setSnapshotDuration(Long.parseLong(snapshot) * 1000 * 60);
-                    (new MRCConnector(ip, username, password, port, protocol))
-                        .setSnapshotRetention(Integer.parseInt(retention));
+                    mrc = new MRCConnector(ip, username, password, port, protocol);
+                    mrc.setSnapshotDuration(Long.parseLong(snapshot) * 1000 * 60);
+                    mrc.setSnapshotRetention(Integer.parseInt(retention));
             }
             // set success message
             addInfoMessage(actionRequest, getLocalizedString(actionRequest, "infoMsg10"));
         } catch (Exception e) {
             addErrorMessage(actionRequest, getLocalizedString(actionRequest, "errorMsg13"), e.getMessage());
+        }finally{
+            if(null != mrc)
+                mrc.dispose();
         }
     }
 
@@ -949,6 +956,9 @@ public class MonitoringPortlet extends BasePortlet {
         } catch (Exception e) {
             addErrorMessage(request, MessageFormat.format(getLocalizedString(request, "errorMsg06"), mbean, server_ip), e.getMessage());
             return;
+        }finally{
+            if(null != mrc)
+                mrc.dispose();
         }
     }
 
@@ -1003,6 +1013,9 @@ public class MonitoringPortlet extends BasePortlet {
             }
         } catch (Exception e) {
             addErrorMessage(request, MessageFormat.format(getLocalizedString(request, "errorMsg07"), mbean, server_ip), e.getMessage());
+        }finally{
+            if(null != mrc)
+                mrc.dispose();
         }
     }
 
@@ -1057,6 +1070,9 @@ public class MonitoringPortlet extends BasePortlet {
         } catch (Exception e) {
             addErrorMessage(request, MessageFormat.format(getLocalizedString(request, "errorMsg09"), server_ip), e.getMessage());
             return;
+        }finally{
+            if(null != mrc)
+                mrc.dispose();
         }
     }
 
@@ -1110,6 +1126,9 @@ public class MonitoringPortlet extends BasePortlet {
         } catch (Exception e) {
             addErrorMessage(request, MessageFormat.format(getLocalizedString(request, "errorMsg10"), server_ip), e.getMessage());
             return;
+        }finally{
+            if(null != mrc)
+                mrc.dispose();
         }
     }
 

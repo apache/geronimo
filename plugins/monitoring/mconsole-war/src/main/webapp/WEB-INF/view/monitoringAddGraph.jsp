@@ -114,6 +114,11 @@ while (rs.next())
     catch (Exception e)
     {
         e.printStackTrace();
+    }finally{
+        if(null != mrc){
+            mrc.dispose();
+            mrc = null;    
+        }
     }
     %>
     

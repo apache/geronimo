@@ -35,7 +35,7 @@ public class GraphsBuilder {
     private String ip = new String();
     private int timeFrame;
     private int snapCount;
-    private MRCConnector mrc = new MRCConnector();
+    private MRCConnector mrc = null;
     private Connection con;
 
     // constructor
@@ -222,9 +222,10 @@ public class GraphsBuilder {
                     System.out.println("Using Null call.");
                     graph = (new StatsGraph());
                 }
+            
             }
         }
-
+        mrc.dispose();
         // check to see if graph was successfully populated
         if (graph != null) {
             // get the current date
