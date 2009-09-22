@@ -15,7 +15,7 @@
    limitations under the License.
 --%>
 <%@ page contentType="text/javascript" %>
-DWREngine.setErrorHandler(null);
+dwr.engine.setErrorHandler(null);
 var stopped=false;
 function callServer() {
     metadata = {};
@@ -33,5 +33,5 @@ function updateValues(serverStats) {
 }
 function onError() {
     stopped=true;
-//    DWRUtil.setValue("<portlet:namespace/>ErrorArea", '<form name="<portlet:namespace/>Refresh" action="<portlet:actionURL/>"><input type="submit" value="Refresh"/></form>');
+//    dwr.util.setValue("<portlet:namespace/>ErrorArea", '<form name="<portlet:namespace/>Refresh" action="<portlet:actionURL/>"><input type="submit" value="Refresh"/></form>');
 }
