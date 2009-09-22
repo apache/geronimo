@@ -135,6 +135,10 @@ echo '# Default-Start:     2 3 5'>>"$GSERVICE_NAME"
 echo '# Default-Stop:      0 1 2 6'>>"$GSERVICE_NAME"
 echo "# Short-Description: $2 daemon">>"$GSERVICE_NAME"
 echo '### END INIT INFO'>>"$GSERVICE_NAME"
+if $osUbuntu; then
+ echo ". /lib/lsb/init-functions" >>"$GSERVICE_NAME"
+ echo "user=$USER" >>"$GSERVICE_NAME"
+fi
 echo "JAVA_HOME=$JAVA_HOME">>"$GSERVICE_NAME"
 echo "export JAVA_HOME">>"$GSERVICE_NAME"
 echo "GERONIMO_HOME=$GERONIMO_HOME">>"$GSERVICE_NAME"
@@ -155,15 +159,26 @@ echo 'echo "Server is started already on this port"'>>"$GSERVICE_NAME"
 echo '}'>>"$GSERVICE_NAME"
 echo 'else  '>>"$GSERVICE_NAME"
 echo '{'>>"$GSERVICE_NAME"
+if $osUbuntu; then 
+echo 'log_daemon_msg "Starting Server"'>>"$GSERVICE_NAME"
+echo 'JAVA_HOME="$JAVA_HOME" start-stop-daemon --make-pidfile --pidfile /var/run/geronimo-server.pid --background --user $user --exec "$GERONIMO_HOME"/bin/geronimo.sh --start -- run'>>"$GSERVICE_NAME"
+else
 echo 'echo "Start Server on port $RMI_PORT"'>>"$GSERVICE_NAME"
 echo ' "$GERONIMO_HOME"/bin/startup.sh'>>"$GSERVICE_NAME"
+fi
 echo '}'>>"$GSERVICE_NAME"
 echo 'fi'>>"$GSERVICE_NAME"
 echo '}'>>"$GSERVICE_NAME"
 
+
 echo 'stop() {'>>"$GSERVICE_NAME"
+if $osUbuntu; then
+ echo 'log_daemon_msg "Stopping Server"'>>"$GSERVICE_NAME"
+ echo 'killproc -p /var/run/geronimo-server.pid || true'>>"$GSERVICE_NAME"
+else
 echo 'echo "Shutting down server on port ${RMI_PORT}"'>>"$GSERVICE_NAME"
 echo '"$GERONIMO_HOME"/bin/shutdown.sh --user "$ADMIN_USER" --password "$ADMIN_PASS" --port "$RMI_PORT"'>>"$GSERVICE_NAME"
+fi
 echo '}'>>"$GSERVICE_NAME"
 
 echo 'restart() {'>>"$GSERVICE_NAME"
@@ -216,8 +231,13 @@ echo 'esac'>>"$GSERVICE_NAME"
 
 chmod +x "$GSERVICE_NAME"
 if [ ! -x /usr/sbin/$2 ]; then
-  ln -sf "$GSERVICE_NAME" /usr/sbin/"$2"
-  chmod +x /usr/sbin/"$2"
+  if $osUbuntu; then
+   sudo ln -sf "$GSERVICE_NAME" /usr/sbin/"$2"
+   sudo chmod +x /usr/sbin/"$2"
+  else
+   ln -sf "$GSERVICE_NAME" /usr/sbin/"$2"
+   chmod +x /usr/sbin/"$2"
+  fi
  if $osSuse; then  
   ln -sf /usr/sbin/"$2" /etc/init.d/"$2"
   insserv "$2"
@@ -234,8 +254,8 @@ if [ ! -x /usr/sbin/$2 ]; then
    echo "$2:2:once:/usr/sbin/$2 start">>/etc/inittab
  fi 
  if $osUbuntu; then    
-   ln -sf /usr/sbin/"$2" /etc/init.d/"$2"
-   update-rc.d $2 defaults 99 01   
+   sudo ln -sf /usr/sbin/"$2" /etc/init.d/"$2"
+   sudo update-rc.d $2 defaults   
  fi
 else
 echo "$2 already exists"
@@ -254,11 +274,12 @@ else
   rm -f /etc/init.d/"$2"  
  fi
  if $osSolaris; then   
-   rm -fr /etc/rc3.d/S99"$2"
+   rm -fr /etc/rc3.d/S99"$2"   
  fi
  if $osUbuntu; then    
-   update-rc.d -f $2 remove
-   rm -f /etc/init.d/"$2"   
+   sudo update-rc.d -f $2 remove
+   sudo rm -f /etc/init.d/"$2"
+   sudo rm -f /usr/sbin/$2 
  fi
  rm -f /usr/sbin/$2
  rm -f "$GSERVICE_NAME" 
