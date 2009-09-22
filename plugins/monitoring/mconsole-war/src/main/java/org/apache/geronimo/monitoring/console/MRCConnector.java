@@ -16,6 +16,9 @@
  */
 package org.apache.geronimo.monitoring.console;
 
+import java.net.InetAddress;
+import java.sql.Connection;
+import java.sql.Statement;
 import java.io.IOException;
 import java.text.Format;
 import java.text.SimpleDateFormat;
@@ -37,9 +40,11 @@ import javax.management.remote.JMXServiceURL;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 
+import org.apache.geronimo.console.util.PortletManager;
 import org.apache.geronimo.crypto.EncryptionManager;
 import org.apache.geronimo.monitoring.MasterRemoteControlRemote;
 import org.apache.geronimo.monitoring.console.data.Node;
+import org.apache.geronimo.system.jmx.RealMBeanServerReference;
 
 public class MRCConnector {
 
@@ -94,6 +99,12 @@ public class MRCConnector {
 
         } else {
             try {
+                InetAddress host = InetAddress.getLocalHost();//maybe throw a UnknownHostException 
+                if (ip.equals("localhost") || ip.equals(host.getHostAddress())
+                                            || ip.equals(host.getHostName())
+                                            ||ip.equals("127.0.0.1")) {
+                    mbServerConn = ((RealMBeanServerReference)PortletManager.getKernel().getGBean("MBeanServerReference")).getMBeanServer();
+                } else {
                 JMXServiceURL serviceURL = new JMXServiceURL(
                         "service:jmx:rmi:///jndi/rmi://" + ip + ":" + port
                                 + "/JMXConnector");
@@ -105,6 +116,7 @@ public class MRCConnector {
                 connector = JMXConnectorFactory.connect(
                         serviceURL, env);
                 mbServerConn = connector.getMBeanServerConnection();
+                }
 
                 // retrieve the mbean name to the agent-car-jmx plugin
                 if(PATH == null) {

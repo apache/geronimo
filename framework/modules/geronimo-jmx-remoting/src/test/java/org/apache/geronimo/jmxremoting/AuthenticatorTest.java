@@ -18,8 +18,10 @@ package org.apache.geronimo.jmxremoting;
 
 import java.security.Principal;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
@@ -28,11 +30,13 @@ import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.AppConfigurationEntry;
 import javax.security.auth.login.Configuration;
-import javax.security.auth.login.LoginException;
 import javax.security.auth.login.FailedLoginException;
+import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 
 import junit.framework.TestCase;
+
+import org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal;
 
 /**
  * 
@@ -43,6 +47,9 @@ public class AuthenticatorTest extends TestCase {
     private static final String CONFIG_NAME = "testConfig";
     private Configuration oldConfiguration;
     private Authenticator authenticator;
+    public void testMonitorGroupLogin() throws Exception {
+        testFailure("monitor", "monitor");
+    }
 
     public void testLogin() {
         try {
@@ -137,6 +144,16 @@ public class AuthenticatorTest extends TestCase {
         private CallbackHandler handler;
         private Map options;
         private String username;
+        private static Map<String, Set<String>> userGroupsMap = new HashMap<String, Set<String>>();
+        static {
+            Set<String> systemGroupsSet = new HashSet<String>();
+            systemGroupsSet.add("admin");
+            systemGroupsSet.add("monitor");
+            userGroupsMap.put("system", systemGroupsSet);
+            Set<String> monitorGroupsSet = new HashSet<String>();
+            monitorGroupsSet.add("monitor");
+            userGroupsMap.put("monitor", monitorGroupsSet);
+        }
 
         public void initialize(Subject subject, CallbackHandler callbackHandler, Map sharedState, Map options) {
             this.subject = subject;
@@ -167,6 +184,10 @@ public class AuthenticatorTest extends TestCase {
 
         public boolean commit() throws LoginException {
             subject.getPrincipals().add(new MockPrincipal(username));
+            for (String groupName : userGroupsMap.get(username)) {
+                subject.getPrincipals().add(
+                    new GeronimoGroupPrincipal(groupName));
+            }
             return true;
         }
 

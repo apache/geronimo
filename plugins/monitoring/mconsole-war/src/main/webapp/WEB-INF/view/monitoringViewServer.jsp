@@ -194,8 +194,11 @@ if (node != null) {
                     {
                         String dataName = itt.next().toString();
                 %>
+                <%if(request.isUserInRole("admin")){ %>
                         <tr><td><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="showAddGraph" /><portlet:param name="server_id" value="<%=node.getName()%>" /><portlet:param name="mbean" value="<%=trackedBeansMap.get(prettyBean)%>" /><portlet:param name="dataname" value="<%=dataName%>" /></portlet:actionURL>"><%=dataName%></a></td><td><%=beanStats.get(dataName) %></td></tr>
-                <%
+                <% }else{ %>
+                <tr><td><a><%=dataName%></a></td><td><%=beanStats.get(dataName) %></td></tr>
+                <%}//end request.isUserInRole
                     }
                 } else {
                 %>
@@ -254,6 +257,7 @@ if (node != null) {
             </table>
             <br>
             <br>            
+            <%if(request.isUserInRole("admin")){ %>       
             <table width="100%" style="border-bottom: 1px solid #2581c7;" cellspacing="1" cellpadding="1">
                 <tr>
                     <td class="DarkBackground" align="left" nowrap>
@@ -419,6 +423,7 @@ if (node != null) {
                         }
                         %>
             </table>
+         <% } //end admin%>
         </td>        
     </tr>
 </table>

@@ -73,5 +73,11 @@
         <persistence-context-ref-name>jpa/monitoring</persistence-context-ref-name>
         <persistence-unit-name>jpa/monitoring</persistence-unit-name>
     </persistence-context-ref>
+    <security-role>
+        <role-name>admin</role-name>
+    </security-role>
+    <security-role>
+        <role-name>monitor</role-name>
+    </security-role>
     
 </web-app>

@@ -72,8 +72,9 @@ border-width: 1px;">
   	<td class="${backgroundClass}" width="20%" align="center"><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showServer" /><portlet:param name="server_id" value="<%=graph.getNode().getName()%>" /></portlet:actionURL>"><%=graph.getNode().getName()%></a></td>
   	<td class="${backgroundClass}" width="15%" align="center"><%=graph.getTimeFrame()%></td>
   	<td class="${backgroundClass}" width="20%" align="center"><%=graph.getDataName1()%><%if (graph.getOperation() != null && !graph.getOperation().equals("null")){%><%=graph.getOperation()%><%}%><%if (graph.getDataName2() != null && !graph.getDataName2().equals("null")){%><%=graph.getDataName2()%><%}%></td>
+       <%if(request.isUserInRole("admin")){ %>
   	<td class="${backgroundClass}" width="15%" align="center"><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="showEditGraph" /><portlet:param name="graph_id" value="<%=graph.getIdString()%>" /></portlet:actionURL>"><img border=0 src="/monitoring/images/edit-b.png" alt="Edit"><fmt:message key="monitor.common.edit"/></a></td>
-<%} 
+<%} }
 else
 {
 	%>
@@ -81,14 +82,20 @@ else
   	<td class="${backgroundClass}" width="20%" align="center"><%=graph.getNode().getName()%></td>
   	<td class="${backgroundClass}" width="15%" align="center"><%=graph.getTimeFrame()%></td>
   	<td class="${backgroundClass}" width="20%" align="center"><%=graph.getDataName1()%><%if (graph.getOperation() != null && !graph.getOperation().equals("null")){%><%=graph.getOperation()%><%}%><%if (graph.getDataName2() != null && !graph.getDataName2().equals("null")){%><%=graph.getDataName2()%><%}%></td>
+       <%if(request.isUserInRole("admin")){ %>
   	<td class="${backgroundClass}" width="15%" align="center"><img
 					border=0 src="/monitoring/images/edit-b.png" alt="edit"><fmt:message key="monitor.common.edit"/></td>
 	<%
 }
         }%>
  </tr>
+ <%}
+%>
 </table>
+ <%if(request.isUserInRole("admin")){ %>
 <div align="right"><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="showAddGraph" /></portlet:actionURL>"><img border=0 src="/monitoring/images/max-b.png" alt="Add Graph"><fmt:message key="monitor.graph.addGraph"/></a></div>
+<%}
+%>
         </td>
      
          <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
