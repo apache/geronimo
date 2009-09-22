@@ -41,10 +41,10 @@ function openNewWindow(theURL,winName,features) {
 <table width="100%" class="TableLine" summary="Monitoring - Views">
  <tr>
   <th scope="col" class="DarkBackground" width="30%"><fmt:message key="monitor.common.name"/></th>
-  <th scope="col" class="DarkBackground" width="10%"><fmt:message key="monitor.view.element"/></th>
-  <th scope="col" class="DarkBackground" width="10%"><fmt:message key="monitor.view.created"/></th>
-  <th scope="col" class="DarkBackground" width="10%"><fmt:message key="monitor.view.modified"/></th>
-  <th scope="col" class="DarkBackground" width="30%" colspan="2"><fmt:message key="monitor.common.action"/></th>
+  <th scope="col" class="DarkBackground" width="30%"><fmt:message key="monitor.view.element"/></th>
+  <%--<th scope="col" class="DarkBackground" width="10%"><fmt:message key="monitor.view.created"/></th>--%>
+  <%--<th scope="col" class="DarkBackground" width="10%"><fmt:message key="monitor.view.modified"/></th>--%>
+  <th scope="col" class="DarkBackground" width="40%"><fmt:message key="monitor.common.action"/></th>
  </tr>
  <%
 
@@ -62,10 +62,10 @@ function openNewWindow(theURL,winName,features) {
   </c:choose>
  <tr>
   <td class="${backgroundClass}" width="30%" align="center"><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showView" /><portlet:param name="view_id" value='<%=view.getIdString()%>' /></portlet:actionURL>"><%=view.getName()%></a></td>
-  <td class="${backgroundClass}" width="10%" align="center"><%="" + view.getGraphs().size()%></td>
+  <td class="${backgroundClass}" width="30%" align="center"><%="" + view.getGraphs().size()%></td>
   <%--<td class="${backgroundClass}" width="15%" align="center"><%=rs.getString("added").substring(0,16)%></td>--%>
   <%--<td class="${backgroundClass}" width="15%" align="center"><%=rs.getString("modified").substring(0,16)%></td>--%>
-  <td class="${backgroundClass}" width="15%" align="center"><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="showEditView" /><portlet:param name="view_id" value='<%=view.getIdString()%>' /></portlet:actionURL>"><img border=0 src="/monitoring/images/edit-b.png" alt="Edit"><fmt:message key="monitor.common.edit"/></a></td>
+  <td class="${backgroundClass}" width="40%" align="center"><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="showEditView" /><portlet:param name="view_id" value='<%=view.getIdString()%>' /></portlet:actionURL>"><img border=0 src="/monitoring/images/edit-b.png" alt="Edit"><fmt:message key="monitor.common.edit"/></a></td>
  </tr>
  <%
  }
