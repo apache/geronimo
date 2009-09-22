@@ -120,14 +120,14 @@ public class XSSXSRFFilter implements Filter, HttpSessionListener
             }
             //-----------------------------------------------
             // Call other filters and eventually the Servlet
+            // Update the response with our XSRF FORM protection code
             //-----------------------------------------------
-            FilterResponseWrapper whres = new FilterResponseWrapper((HttpServletResponse)response);
+            String replacement = xsrf.getReplacement(hreq);
+            ServletResponse whres = response;
+            if (replacement != null ) {
+                whres = new SubstituteResponseWrapper((HttpServletResponse)response, replacement);
+            }
             chain.doFilter(hreq, whres);
-
-            //-------------------------------------------------------------------
-            // Update and commit the response with our XSRF FORM protection code
-            //-------------------------------------------------------------------
-            xsrf.updateResponse(hreq, whres);
         }
         else {
             log.debug("Request not HttpServletRequest and/or Response not HttpServletResponse");
