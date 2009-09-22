@@ -63,7 +63,7 @@ public class ValveGBean extends BaseGBean implements GBeanLifecycle, ObjectRetri
             //Legacy configuration
             @ParamAttribute(name="className") String className, 
             @ParamAttribute(name = "initParams") Map<String,String> initParams, 
-            @ParamReference(name="NextValve") ValveGBean nextValve, 
+            @ParamReference(name="NextValve",namingType="TomcatValve") ValveGBean nextValve, 
             @ParamSpecial(type=SpecialAttributeType.classLoader) ClassLoader classLoader) throws Exception{
         
         if (server != null) {

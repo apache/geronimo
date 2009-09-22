@@ -60,7 +60,6 @@
             org.apache.catalina.authenticator.SingleSignOn
         </attribute>
         <reference name="NextValve">
-            <type>TomcatValve</type>
             <name>SecondValve</name> 
         </reference>
     </gbean>

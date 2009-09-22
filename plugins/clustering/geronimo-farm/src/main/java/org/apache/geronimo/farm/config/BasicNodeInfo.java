@@ -20,24 +20,20 @@
 package org.apache.geronimo.farm.config;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
-import javax.management.MBeanServerConnection;
 import javax.management.remote.JMXConnector;
-import javax.management.remote.JMXConnectorFactory;
-import javax.management.remote.JMXServiceURL;
 
+import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.gbean.annotation.ParamSpecial;
 import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.system.jmx.KernelDelegate;
 
 /**
  *
  * @version $Rev:$ $Date:$
  */
+@GBean(j2eeType="NodeInfo")
 public class BasicNodeInfo implements NodeInfo {
     private final String name;
     private final ExtendedJMXConnectorInfo connectorInfo;
