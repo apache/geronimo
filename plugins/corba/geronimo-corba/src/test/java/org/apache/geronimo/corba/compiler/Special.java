@@ -39,7 +39,7 @@ public interface Special extends Remote {
     public void $dollar() throws RemoteException;
 
     // this doesn't work in rmic either although the spec says it's legal
-//    public void unicode_øçœ¥πåßƒΩçµ() throws RemoteException;
+//    public void unicode_çåçµ() throws RemoteException;
 
     // innerclass
     public void innerClass(Generic$Interface.Generic$InnerClass x, int y) throws RemoteException;
