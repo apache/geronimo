@@ -29,6 +29,16 @@ function <portlet:namespace/>validateForm(){
         addErrorMessage("<portlet:namespace/>", '<fmt:message key="jmswizard.common.emptyText"/>');
         return false;    
     }
+    var jmsForm = document.getElementById(<portlet:namespace/>formName); 
+    var index = 0;
+    while(jmsForm.elements["destination.${data.currentDestinationID}.instance-config-" + index]){
+        var currentElement = jmsForm.elements["destination.${data.currentDestinationID}.instance-config-" + index];
+        if(currentElement.title == "PhysicalName" && isEmptyString(currentElement.value)){
+            currentElement.value = jmsForm.elements["destination.${data.currentDestinationID}.name"].value;
+            break;             
+        }
+        index++;
+    }
     return true;
 }
 </script>
