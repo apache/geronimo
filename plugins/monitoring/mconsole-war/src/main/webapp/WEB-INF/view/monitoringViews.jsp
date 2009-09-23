@@ -36,8 +36,6 @@ border-width: 1px;">
  <tr>
   <th class="DarkBackground" width="30%"><fmt:message key="monitor.common.name"/></th>
   <th class="DarkBackground" width="10%"><fmt:message key="monitor.view.element"/></th>
-  <th class="DarkBackground" width="10%"><fmt:message key="monitor.view.created"/></th>
-  <th class="DarkBackground" width="10%"><fmt:message key="monitor.view.modified"/></th>
   <th class="DarkBackground" width="30%" colspan="2"><fmt:message key="monitor.common.action"/></th>
  </tr>
  <%
@@ -56,8 +54,6 @@ border-width: 1px;">
  <tr>
   <td class="${backgroundClass}" width="30%" align="center"><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="showView" /><portlet:param name="view_id" value='<%=view.getIdString()%>' /></portlet:actionURL>"><%=view.getName()%></a></td>
   <td class="${backgroundClass}" width="10%" align="center"><%=view.getGraphs().size()%></td>
-  <%--<td class="${backgroundClass}" width="15%" align="center"><%=rs.getString("added").substring(0,16)%></td>--%>
-  <%--<td class="${backgroundClass}" width="15%" align="center"><%=rs.getString("modified").substring(0,16)%></td>--%>
   <%if(request.isUserInRole("admin")){ %>
   <td class="${backgroundClass}" width="15%" align="center"><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="showEditView" /><portlet:param name="view_id" value='<%=view.getIdString()%>' /></portlet:actionURL>"><img border=0 src="/monitoring/images/edit-b.png" alt="Edit"><fmt:message key="monitor.common.edit"/></a></td>
 <%} %> 
