@@ -246,7 +246,7 @@ public class WSDLQueryHandler {
             it.setOutputProperty(OutputKeys.METHOD, "xml");
             it.setOutputProperty(OutputKeys.INDENT, "yes");
             it.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
-            it.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "false");
+            it.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "no");
             it.setOutputProperty(OutputKeys.ENCODING, "utf-8");
             it.transform(src, new StreamResult(os));
         } catch (TransformerException e) {
