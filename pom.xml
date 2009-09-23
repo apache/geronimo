@@ -320,31 +320,19 @@
                 <groupId>org.apache.geronimo.components</groupId>
                 <artifactId>geronimo-jaspi</artifactId>
                 <version>1.0</version>
-                <!--<exclusions>-->
-                <!--<exclusion>-->
-                <!--<groupId>javax.xml.bind</groupId>-->
-                <!--<artifactId>jaxb-api</artifactId>-->
-                <!--</exclusion>-->
-                <!--</exclusions>-->
             </dependency>
             <dependency>
                 <groupId>org.apache.geronimo.components</groupId>
                 <artifactId>geronimo-jaspi</artifactId>
                 <version>1.0</version>
                 <classifier>tests</classifier>
-                <!--<exclusions>-->
-                <!--<exclusion>-->
-                <!--<groupId>javax.xml.bind</groupId>-->
-                <!--<artifactId>jaxb-api</artifactId>-->
-                <!--</exclusion>-->
-                <!--</exclusions>-->
             </dependency>
 
             <dependency>
                 <groupId>org.apache.openjpa</groupId>
                 <artifactId>openjpa</artifactId>
                 <version>${openjpaVersion}</version>
-                <!-- already listed as provided in openjpa 1.1.0 -->
+                <!-- already listed as provided in openjpa 1.2.x -->
                 <exclusions>
                     <exclusion>
                         <groupId>org.apache.openjpa</groupId>
@@ -1248,64 +1236,6 @@
                 <artifactId>openejb-javaagent</artifactId>
                 <version>${openejbVersion}</version>
             </dependency>
-
-
-            <!--<dependency>-->
-            <!--<groupId>org.apache.tomcat</groupId>-->
-            <!--<artifactId>jasper</artifactId>-->
-            <!--<version>${tomcatPatchedVersion}</version>-->
-            <!--<exclusions>-->
-            <!--<exclusion>-->
-            <!--<groupId>$[tomcatGroupId}</groupId>-->
-            <!--<artifactId>servlet-api</artifactId>-->
-            <!--</exclusion>-->
-            <!--<exclusion>-->
-            <!--<groupId>$[tomcatGroupId}</groupId>-->
-            <!--<artifactId>juli</artifactId>-->
-            <!--</exclusion>-->
-            <!--<exclusion>-->
-            <!--<groupId>$[tomcatGroupId}</groupId>-->
-            <!--<artifactId>jsp-api</artifactId>-->
-            <!--</exclusion>-->
-            <!--<exclusion>-->
-            <!--<groupId>$[tomcatGroupId}</groupId>-->
-            <!--<artifactId>el-api</artifactId>-->
-            <!--</exclusion>-->
-            <!--<exclusion>-->
-            <!--<groupId>$[tomcatGroupId}</groupId>-->
-            <!--<artifactId>catalina</artifactId>-->
-            <!--</exclusion>-->
-            <!--<exclusion>-->
-            <!--<groupId>$[tomcatGroupId}</groupId>-->
-            <!--<artifactId>annotations-api</artifactId>-->
-            <!--</exclusion>-->
-            <!--</exclusions>-->
-            <!--</dependency>-->
-            <!--<dependency>-->
-            <!--<groupId>org.apache.tomcat</groupId>-->
-            <!--<artifactId>jasper-el</artifactId>-->
-            <!--<version>${tomcatPatchedVersion}</version>-->
-            <!--<exclusions>-->
-            <!--<exclusion>-->
-            <!--<groupId>org.apache.tomcat</groupId>-->
-            <!--<artifactId>el-api</artifactId>-->
-            <!--</exclusion>-->
-            <!--</exclusions>-->
-            <!--</dependency>-->
-
-            <!--<dependency>-->
-            <!--<groupId>org.apache.tomcat</groupId>-->
-            <!--<artifactId>jasper-jdt</artifactId>-->
-            <!--<version>${tomcatVersion}</version>-->
-            <!--</dependency>-->
-
-            <!--<dependency>-->
-            <!-- used in wadi.  How does this differ from o.a.t.extras:juli, which is a larger jar? -->
-            <!--<groupId>org.apache.tomcat</groupId>-->
-            <!--<artifactId>juli</artifactId>-->
-            <!--<version>${tomcatVersion}</version>-->
-            <!--</dependency>-->
-
 
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
@@ -2403,28 +2333,6 @@
                     </plugin>
                 </plugins>
             </build>
-        </profile>
-
-        <profile>
-            <id>ee6</id>
-            <properties>
-                <!--<jetty>jetty6</jetty>-->
-                <!--<jetty>jetty7</jetty>-->
-
-                <!--<connectorSuffix></connectorSuffix>-->
-                <connectorSuffix>-1_6</connectorSuffix>
-                <connectorSpec>geronimo-j2ee-connector_1.6_spec</connectorSpec>
-                <servletSpec>geronimo-servlet_3.0_spec</servletSpec>
-                <!--<txmanagerVersion>2.1.1</txmanagerVersion>-->
-                <txmanagerVersion>2.2-SNAPSHOT</txmanagerVersion>
-            </properties>
-            <modules>
-                <module>testsupport</module>
-                <module>framework</module>
-                <module>plugins</module>
-                <module>plugingroups</module>
-                <module>assemblies</module>
-            </modules>
         </profile>
 
     </profiles>

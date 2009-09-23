@@ -94,29 +94,10 @@
         <module>concurrent</module>
         <module>classloaders</module>
         <module>procrun</module>
-        <!--<module>jetty</module>-->
         <module>jetty7</module>
         <module>tomcat</module>
     </modules>
 
-    <!--<profiles>-->
-        <!--<profile>-->
-            <!--<id>default</id>-->
-            <!--<activation>-->
-                <!--<activeByDefault>true</activeByDefault>-->
-            <!--</activation>-->
-            <!--<modules>-->
-                <!--<module>jetty</module>-->
-                <!--<module>tomcat</module>-->
-            <!--</modules>-->
-        <!--</profile>-->
-
-        <!--<profile>-->
-            <!--<id>ee6</id>-->
-            <!-- put jetty7 etc here -->
-        <!--</profile>-->
-    <!--</profiles>-->
-    
     <build>
         <plugins>
             <plugin>
