@@ -62,7 +62,7 @@
     <!-- STATUS FIELD: Deployment Plan -->
       <tr>
         <th valign="top" style="min-width: 140px"><div align="right"><label for="<portlet:namespace/>deploymentPlan"><fmt:message key="jmswizard.plan.deploymentPlan" />:</label></div></th>
-        <td><textarea rows="30" cols="60" id="<portlet:namespace/>deploymentPlan" readonly>${deploymentPlan}</textarea></td>
+        <td><textarea rows="40" cols="120" id="<portlet:namespace/>deploymentPlan" readonly>${deploymentPlan}</textarea></td>
       </tr>
     <!-- SUBMIT BUTTON -->
       <tr>
