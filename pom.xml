@@ -2146,7 +2146,7 @@
         </repository>
         <repository>
             <id>amq-protobuf-staging</id>
-            <url>https://repository.apache.org/content/repositories/activemq-staging-036/</url>
+            <url>https://repository.apache.org/content/repositories/releases/</url>
             <releases>
                 <checksumPolicy>fail</checksumPolicy>
                 <enabled>true</enabled>
