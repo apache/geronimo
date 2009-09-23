@@ -13,8 +13,8 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>geronimo-jmx-remoting</artifactId>
-        <type>jar</type>
+        <artifactId>jmx-security</artifactId>
+        <type>car</type>
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.framework</groupId>
