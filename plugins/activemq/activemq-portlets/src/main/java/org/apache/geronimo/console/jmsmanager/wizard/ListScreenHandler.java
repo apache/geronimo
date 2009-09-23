@@ -211,16 +211,16 @@ public class ListScreenHandler extends AbstractHandler {
                         }
                     }
                     AdminObjectSummary adminObjectSummary = new AdminObjectSummary(bean.getObjectName(), queueName, physicalName, destType, bean.getState(), destinationStat);                                        
-                    if(activeMQAdapter) {
-                        adminObjectSummary.setBrowserSupported(true);
+                    adminObjectSummary.setQueueBrowserSupported(true);
+                    adminObjectSummary.setTopicHistoryBrowserSupported(false);
+                    if(activeMQAdapter) {                        
                         adminObjectSummary.setSendMessageSupported(true);
                         if(destType.equals("Queue")) {
                             adminObjectSummary.setPurgeSupported(true);
                         }
                     } else {
                         if(destType.equals("Queue") && target.isQueueConnectionFactoryContained()) {
-                            adminObjectSummary.setSendMessageSupported(true);
-                            adminObjectSummary.setBrowserSupported(true);
+                            adminObjectSummary.setSendMessageSupported(true);                            
                         } else if(destType.equals("Topic") && target.isTopicConnectionFactoryContained()) {
                             adminObjectSummary.setSendMessageSupported(true);                            
                         }
@@ -390,7 +390,8 @@ public class ListScreenHandler extends AbstractHandler {
         private final int state;
         private final String physicalName;
         private final DestinationStatistics destinationStat;
-        private boolean browserSupported = false;
+        private boolean queueBrowserSupported = false;
+        private boolean topicHistoryBrowserSupported = false;
         private boolean sendMessageSupported = false;
         private boolean purgeSupported = false;
         
@@ -401,8 +402,17 @@ public class ListScreenHandler extends AbstractHandler {
             this.type = type;
             this.state = state;
             this.destinationStat = destinationStat;
-        }
+        }        
         
+        public boolean isTopicHistoryBrowserSupported() {
+            return topicHistoryBrowserSupported;
+        }
+
+        
+        public void setTopicHistoryBrowserSupported(boolean topicHistoryBrowserSupported) {
+            this.topicHistoryBrowserSupported = topicHistoryBrowserSupported;
+        }
+
         public DestinationStatistics getdestinationStat(){
             return this.destinationStat;
         }
@@ -436,8 +446,8 @@ public class ListScreenHandler extends AbstractHandler {
             return result == 0 ? type.compareTo(o.type) : result;
         }
 
-        public boolean isBrowserSupported() {
-            return browserSupported;
+        public boolean isQueueBrowserSupported() {
+            return queueBrowserSupported;
         }
 
         public boolean isSendMessageSupported() {
@@ -448,8 +458,8 @@ public class ListScreenHandler extends AbstractHandler {
             return purgeSupported;
         }
 
-        public void setBrowserSupported(boolean browserSupported) {
-            this.browserSupported = browserSupported;
+        public void setQueueBrowserSupported(boolean queueBrowserSupported) {
+            this.queueBrowserSupported = queueBrowserSupported;
         }
 
         public void setSendMessageSupported(boolean sendMessageSupported) {
