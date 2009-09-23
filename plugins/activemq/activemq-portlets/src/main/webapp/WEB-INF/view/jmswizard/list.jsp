@@ -119,7 +119,7 @@
                           </c:if>
                       </td>
                       <td>
-                      <c:if test="${admin.browserSupported}">
+                      <c:if test="${admin.type == 'Queue' ? admin.queueBrowserSupported : admin.topicHistoryBrowserSupported}">
                          <a href="<portlet:actionURL portletMode="view">
         	                  <portlet:param name="mode" value="viewMessages-before" />
         	                  <portlet:param name="adminObjName" value="${admin.name}" />
