@@ -56,7 +56,8 @@ public abstract class ConnectorGBean extends BaseGBean implements CommonProtocol
 
     private String name;
     
-
+    private boolean wrappedConnector;
+    
     public ConnectorGBean(@ParamAttribute(manageable=false, name = "name") String name,
                         @ParamAttribute(manageable=false, name = "initParams") Map<String, String> initParams,
                         @ParamAttribute(manageable=false, name = "protocol") String tomcatProtocol,
@@ -93,13 +94,14 @@ public abstract class ConnectorGBean extends BaseGBean implements CommonProtocol
 
         // Create the Connector object
         if (conn == null) {
-            this.connector= new Connector(tomcatProtocol);
-           
-            for(LifecycleListener listener:TomcatServerGBean.LifecycleListeners){
+            this.connector = new Connector(tomcatProtocol);
+            for (LifecycleListener listener : TomcatServerGBean.LifecycleListeners) {
                 this.connector.addLifecycleListener(listener);
             }
-        }else{
-            connector=conn;
+            wrappedConnector = false;
+        } else {
+            connector = conn;
+            wrappedConnector = true;
         }
         
         setParameters(connector, initParams);
@@ -112,7 +114,11 @@ public abstract class ConnectorGBean extends BaseGBean implements CommonProtocol
     }
 
     public void doStart() throws LifecycleException {
-        
+
+        if (wrappedConnector) {
+            return;
+        }
+
         String executorName=null;
         Executor executor=null;
         
@@ -174,12 +180,13 @@ public abstract class ConnectorGBean extends BaseGBean implements CommonProtocol
 
     }
 
-    public void doStop() {
-
-        container.removeConnector(connector);
+    public void doStop() {        
+        if (!wrappedConnector) {
+            container.removeConnector(connector);
+        }
         log.debug("{} connector stopped", name);
     }
-    
+
     /**
      * Ensures that this implementation can handle the requested protocol.
      * @param protocol
