@@ -31,7 +31,7 @@ import org.apache.geronimo.monitoring.snapshot.SnapshotConfigXMLBuilder;
  */
 public class SnapshotThread extends Thread {
 
-    private long SNAPSHOT_DURATION;
+    volatile private long SNAPSHOT_DURATION;
     private MBeanServer mbServer = null;
     int threadStatus = 1;
     // list of mbean names that we will be taking snapshots of
@@ -83,9 +83,9 @@ public class SnapshotThread extends Thread {
      * @param snapshotDuration
      */
     public void setSnapshotDuration(long snapshot_length) {
-        SNAPSHOT_DURATION = snapshot_length;
         if (snapshot_length == Long.MAX_VALUE)
             threadStatus = -1;
+        SNAPSHOT_DURATION = snapshot_length;
     }
 
     public void run() {
@@ -96,13 +96,19 @@ public class SnapshotThread extends Thread {
             mbeanNames = getDefaultMBeanList();
         }
         // pause the thread from running every SNAPSHOT_DURATION seconds
-        while (true && SNAPSHOT_DURATION != Long.MAX_VALUE) {
+        loop: while (true) {
             try {
                 // store the data
                 SnapshotProcessor.takeSnapshot();
                 // wait for next snapshot
-                Thread.sleep(SNAPSHOT_DURATION);
-            } catch (Exception e) {
+                for(long nSleep = SNAPSHOT_DURATION/1000; nSleep>0; nSleep--)
+                {
+                   Thread.sleep(1000);
+                   if(SNAPSHOT_DURATION == Long.MAX_VALUE)
+                       break loop;
+                }
+                
+            } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
