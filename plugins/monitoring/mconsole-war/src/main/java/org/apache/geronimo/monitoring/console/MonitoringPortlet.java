@@ -475,6 +475,8 @@ public class MonitoringPortlet extends BasePortlet {
                     GraphsBuilder builder = new GraphsBuilder();
                     List<StatsGraph> statsGraphs = new ArrayList<StatsGraph>();
                     for (Graph graph: graphs) {
+                       if(!graph.getNode().isEnabled())
+                           continue;
                         StatsGraph statsGraph = builder.getStatsGraph(graph);
                         if (statsGraph != null) {
                             statsGraphs.add(statsGraph);
