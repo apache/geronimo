@@ -72,7 +72,7 @@
         -->
         <openejbVersion>3.0.1</openejbVersion>
         <derbyVersion>10.4.2.0</derbyVersion>
-        <externalTomcatVersion>6.0.20-SNAPSHOT</externalTomcatVersion>
+        <externalTomcatVersion>6.0.20.0</externalTomcatVersion>
         <tomcatVersion>6.0.20</tomcatVersion>
         <eclipseVersion>3.3.0-v_771</eclipseVersion>
         <tranqlVendorsVersion>1.4</tranqlVendorsVersion>
@@ -84,7 +84,7 @@
         <springVersion>2.5.6</springVersion>
         <plutoVersion>1.1.6-G643117</plutoVersion>
         <openjpaVersion>1.2.1</openjpaVersion>
-        <xbeanVersion>3.6-SNAPSHOT</xbeanVersion>
+        <xbeanVersion>3.6</xbeanVersion>
         <wadiVersion>2.0</wadiVersion>
 
         <!-- Deployers -->
