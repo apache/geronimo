@@ -27,11 +27,15 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class DBManager
 {
-    private static Connection con         = null;
+    private Connection con         = null;
     private static boolean    initialized = false;
-
+    private static final Logger logger = LoggerFactory.getLogger(DBManager.class);
+    
     public DBManager()
     {
         con = createConnection();
@@ -40,27 +44,18 @@ public class DBManager
                 initialized = true;
     }
 
-    public static Connection createConnection()
-    {
-
-        try
-        {
+    public static Connection createConnection() {
+        try {
             Context context = new InitialContext();
-            DataSource ds = (DataSource) context
-                    .lookup("java:comp/env/MonitoringClientDS");
-            con = ds.getConnection();
+            DataSource ds = (DataSource) context.lookup("java:comp/env/MonitoringClientDS");
+            return ds.getConnection();
+        } catch (NamingException e) {
+            logger.error("Fail to get connection from MonitoringClientDS", e);
+            return null;
+        } catch (SQLException e) {
+            logger.error("Fail to get connection from MonitoringClientDS", e);
+            return null;
         }
-        catch (NamingException e)
-        {
-            e.printStackTrace();
-        }
-        catch (SQLException e)
-        {
-            System.err.println("SQL state: " + e.getSQLState());
-            System.err.println("SQL error: " + e.getErrorCode());
-            e.printStackTrace();
-        }
-        return con;
     }
 
     public Connection getConnection()

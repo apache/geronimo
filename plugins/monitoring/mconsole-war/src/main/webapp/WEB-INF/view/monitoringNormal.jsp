@@ -33,9 +33,20 @@ function openNewWindow(theURL,winName,features) {
 }
 //-->
 </script>
-
+<script type = "text/javascript">
+<!--
+function confirm_del() {
+    var msg = "All the changes you made to default servers/views/graphs will be lost.\nAre you sure you want to proceed?";
+    return confirm(msg);
+}
+//-->
+</script>
 <CommonMsg:commonMsg/>
-
+<%if (request.isUserInRole("admin")){ %>
+<div align="left">
+<a><strong>Note:&nbsp</strong>To reset default servers/views/graphs, please click this link:</a>&nbsp&nbsp
+<a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="restoreData" /></portlet:actionURL>" onclick="return confirm_del()"><fmt:message key="monitor.common.restore"/></a></div>
+<%} %>
 <br>
 <b><fmt:message key="monitor.common.view"/>:</b>
 <table width="100%" class="TableLine" summary="Monitoring - Views">
@@ -76,8 +87,8 @@ function openNewWindow(theURL,winName,features) {
 </table>
 <% if (request.isUserInRole("admin")) {%>
 <div align="right"><a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="showAddView" /></portlet:actionURL>"><img border=0 src="/monitoring/images/max-b.png" alt="Create View"><fmt:message key="monitor.view.create"/></a></div>
-<b><fmt:message key="monitor.common.server"/>:</b>
 <% }%>
+<b><fmt:message key="monitor.common.server"/>:</b>
 <table width="100%" class="TableLine" summary="Monitoring - Servers">
  <tr>
   <th scope="col" class="DarkBackground" width="30%"><fmt:message key="monitor.common.name"/></th>

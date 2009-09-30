@@ -26,18 +26,20 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.portlet.PortletRequest;
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
 import javax.portlet.PortletConfig;
 import javax.portlet.PortletException;
+import javax.portlet.PortletRequest;
 import javax.portlet.PortletRequestDispatcher;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import javax.transaction.UserTransaction;
 
 import org.apache.geronimo.console.BasePortlet;
+import org.apache.geronimo.console.util.PortletManager;
 import org.apache.geronimo.crypto.EncryptionManager;
+import org.apache.geronimo.management.geronimo.WebContainer;
 import org.apache.geronimo.monitoring.console.data.Graph;
 import org.apache.geronimo.monitoring.console.data.Node;
 import org.apache.geronimo.monitoring.console.data.View;
@@ -105,6 +107,8 @@ public class MonitoringPortlet extends BasePortlet {
     private PortletRequestDispatcher helpView;
 
     private PortletRequestDispatcher editNormalView;
+    
+    private String server;        
 
     //annotations don't work in portlets yet, see init method for initialization
     @Resource
@@ -252,6 +256,9 @@ public class MonitoringPortlet extends BasePortlet {
             actionResponse.setRenderParameter("port", "" + port);
             actionResponse.setRenderParameter("protocol", "" + protocol);
         }
+        else if(action.equals("restoreData")){
+            restoreData(actionRequest,actionResponse);
+        }
     }
 
     private void testConnection(String ip, String username,
@@ -359,6 +366,7 @@ public class MonitoringPortlet extends BasePortlet {
         String action = request.getParameter("action");
         if (action == null)
             action = "showNormal";
+        if(request.isUserInRole("admin")){
         if (action.equals("showEditView")) {
             String view_id = request.getParameter("view_id");
             request.setAttribute("view_id", view_id);
@@ -453,6 +461,7 @@ public class MonitoringPortlet extends BasePortlet {
             //TODO may need to avoid setting message
             normalView(request, response);
         }
+        }//end request.isUserInRole("admin")
     }
 
     private void normalView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
@@ -842,10 +851,25 @@ public class MonitoringPortlet extends BasePortlet {
             }
 
         } catch (Exception e) {
-            log.info("error deleting graph", e);
+            log.error("error deleting graph", e);
             addErrorMessage(actionRequest, getLocalizedString(actionRequest, "mconsole.errorMsg19"), e.getMessage());
         }
     }
+    
+    private void restoreData(ActionRequest actionRequest, ActionResponse actionResponse) {
+        try {
+            if (server == null) {
+                server = getWebServerType(PortletManager.getKernel().getGBean(WebContainer.class).getClass());
+            }
+            deleteDefaultServerView(actionRequest, actionResponse);
+            initializeDefaultServerView(server);
+            addInfoMessage(actionRequest, getLocalizedString(actionRequest, "mconsole.infoMsg17"));
+        } catch (Exception e) {
+            log.error("error deleting graph", e);
+            addErrorMessage(actionRequest, getLocalizedString(actionRequest, "mconsole.errorMsg21"), e.getMessage());
+        }
+    }
+
 
     private void startTrackingMbean(String server_id, String mbean, PortletRequest request) {
         Node node;
@@ -976,12 +1000,17 @@ public class MonitoringPortlet extends BasePortlet {
         addServer = portletConfig.getPortletContext().getRequestDispatcher(ADDSERVER_JSP);
         helpView = portletConfig.getPortletContext().getRequestDispatcher(HELPVIEW_JSP);
         editNormalView = portletConfig.getPortletContext().getRequestDispatcher(EDITNORMALVIEW_JSP);
-
         try {
             Context ctx = new InitialContext();
             userTransaction = (UserTransaction) ctx.lookup("java:comp/UserTransaction");
             entityManager = (EntityManager) ctx.lookup("java:comp/env/jpa/monitoring");
+            server= getWebServerType(PortletManager.getKernel().getGBean(WebContainer.class).getClass());
+            if (!isPredefinedServerViewExist()) {
+                initializeDefaultServerView(server);
+            }
         } catch (NamingException e) {
+            throw new PortletException(e);
+        }catch (Exception e) {
             throw new PortletException(e);
         }
     }
@@ -1004,4 +1033,211 @@ public class MonitoringPortlet extends BasePortlet {
         editNormalView = null;
         super.destroy();
     }
+
+    private void initializeDefaultServerView(String server) throws Exception {
+        if (server == null) {
+            throw new Exception("Unrecognized web server type");
+        } else if (server.equalsIgnoreCase("tomcat")) {
+            initializeDefaultTomatServerView();
+        } else if (server.equalsIgnoreCase("jetty")) {
+            initializeDefaultJettyServerView();
+        }
+    }
+    
+    private String getObjectNameByShortName(String shortName) {
+        try {
+            Object targetGBean = PortletManager.getKernel().getGBean(shortName);
+            return PortletManager.getKernel().getAbstractNameFor(targetGBean).getObjectName().getCanonicalName();
+        } catch (Exception e) {
+            log.error("Fail to find the gbean object for the short name " + shortName);
+            return null;
+        }
+    }
+
+    private void initializeDefaultTomatServerView() throws Exception {
+        String tomcatWebConnectorObjectName = getObjectNameByShortName("TomcatWebConnector");
+        String tomcatWebSSLConnectorObjectName = getObjectNameByShortName("TomcatWebSSLConnector");
+        try {
+            userTransaction.begin();
+            Node node = persistDefaultServer();
+            if (tomcatWebConnectorObjectName != null) {
+                Graph[] webConnectorGraphs = new Graph[15];
+                webConnectorGraphs[0] = createGraph(node, "JVM Heap Size Current", "JVM Heap Size Current", "60", getObjectNameByShortName("JVM"), "JVM Heap Size Current", "JVM Heap Size Current", "Time", "A", "", "A", null, null);
+                webConnectorGraphs[1] = createGraph(node, "Active Request Count", "Active Request Count", "60", tomcatWebConnectorObjectName, "Active Request Count", "Active Request Count", "Time", "A", "", "A", null, null);
+                webConnectorGraphs[2] = createGraph(node, "Busy Threads Max", "Busy Threads Max", "60", tomcatWebConnectorObjectName, "Busy Threads Max", "Busy Threads Max", "Time", "A", "", "A", null, null);
+                webConnectorGraphs[3] = createGraph(node, "Busy Threads Current", "Busy Threads Current", "60", tomcatWebConnectorObjectName, "Busy Threads Current", "Busy Threads Current", "Time", "A", "", "A", null, null);
+                webConnectorGraphs[4] = createGraph(node, "Busy Threads Min", "Busy Threads Min", "60", tomcatWebConnectorObjectName, "Busy Threads Min", "Busy Threads Min", "Time", "A", "", "A", null, null);
+                webConnectorGraphs[5] = createGraph(node, "Bytes Received", "Bytes Received", "60", tomcatWebConnectorObjectName, "Bytes Received", "Bytes Received", "Time", "A", "", "A", null, null);
+                webConnectorGraphs[6] = createGraph(node, "Bytes Sent", "Bytes Sent", "60", tomcatWebConnectorObjectName, "Bytes Sent", "Bytes Sent", "Time", "A", "", "A", null, null);
+                webConnectorGraphs[7] = createGraph(node, "Error Count", "Error Count", "60", tomcatWebConnectorObjectName, "Error Count", "Error Count", "Time", "A", "", "A", null, null);
+                webConnectorGraphs[8] = createGraph(node, "Open Connections Current", "Open Connections Current", "60", tomcatWebConnectorObjectName, "Open Connections Current", "Open Connections Current", "Time", "A", "", "A", null, null);
+                webConnectorGraphs[9] = createGraph(node, "Open Connections Max", "Open Connections Max", "60", tomcatWebConnectorObjectName, "Open Connections Max", "Open Connections Max", "Time", "A", "", "A", null, null);
+                webConnectorGraphs[10] = createGraph(node, "Open Connections Min", "Open Connections Min", "60", tomcatWebConnectorObjectName, "Open Connections Min", "Open Connections Min", "Time", "A", "", "A", null, null);
+                webConnectorGraphs[11] = createGraph(node, "Request Time CurrentTime", "Request Time CurrentTime", "60", tomcatWebConnectorObjectName, "Request Time CurrentTime", "Request Time CurrentTime", "Time", "A", "", "A", null, null);
+                webConnectorGraphs[12] = createGraph(node, "Request Time MaxTime", "Request Time MaxTime", "60", tomcatWebConnectorObjectName, "Request Time MaxTime", "Request Time MaxTime", "Time", "A", "", "A", null, null);
+                webConnectorGraphs[13] = createGraph(node, "Request Time MinTime", "Request Time MinTime", "60", tomcatWebConnectorObjectName, "Request Time MinTime", "Request Time MinTime", "Time", "A", "", "A", null, null);
+                webConnectorGraphs[14] = createGraph(node, "Request Time TotalTime", "Request Time TotalTime", "60", tomcatWebConnectorObjectName, "Request Time TotalTime", "Request Time TotalTime", "Time", "A", "", "A", null, null);
+                persistView("TomcatWebConnector View", "TomcatWebConnector View", webConnectorGraphs);
+            }
+            if (tomcatWebSSLConnectorObjectName != null) {
+                Graph[] webSSLConnectorGraphs = new Graph[15];               
+                webSSLConnectorGraphs[0] = createGraph(node, "JVM Heap Size Current", "JVM Heap Size Current", "60", getObjectNameByShortName("JVM"), "JVM Heap Size Current", "JVM Heap Size Current", "Time", "A", "", "A", "", null);
+                webSSLConnectorGraphs[1] = createGraph(node, "SSL Active Request Count", "Active Request Count", "60", tomcatWebSSLConnectorObjectName, "Active Request Count", "Active Request Count", "Time", "A", "", "A", "", null);
+                webSSLConnectorGraphs[2] = createGraph(node, "SSL Busy Threads Current", "Busy Threads Current", "60", tomcatWebSSLConnectorObjectName, "Busy Threads Current", "Busy Threads Current", "Time", "A", "", "A", "", null);
+                webSSLConnectorGraphs[3] = createGraph(node, "SSL Busy Threads Max", "Busy Threads Max", "60", tomcatWebSSLConnectorObjectName, "Busy Threads Max", "Busy Threads Max", "Time", "A", "", "A", "", null);
+                webSSLConnectorGraphs[4] = createGraph(node, "SSL Busy Threads Min", "Busy Threads Min", "60", tomcatWebSSLConnectorObjectName, "Busy Threads Min", "Busy Threads Min", "Time", "A", "", "A", "", null);
+                webSSLConnectorGraphs[5] = createGraph(node, "SSL Bytes Received", "Bytes Received", "60", tomcatWebSSLConnectorObjectName, "Bytes Received", "Bytes Received", "Time", "A", "", "A", "", null);
+                webSSLConnectorGraphs[6] = createGraph(node, "SSL Bytes Sent", "Bytes Sent", "60", tomcatWebSSLConnectorObjectName, "Bytes Sent", "Bytes Sent", "Time", "A", "", "A", "", null);
+                webSSLConnectorGraphs[7] = createGraph(node, "SSL Error Count", "Error Count", "60", tomcatWebSSLConnectorObjectName, "Error Count", "Error Count", "Time", "A", "", "A", "", null);
+                webSSLConnectorGraphs[8] = createGraph(node, "SSL Open Connections Current", "Open Connections Current", "60", tomcatWebSSLConnectorObjectName, "Open Connections Current", "Open Connections Current", "Time", "A", "", "A", "", null);
+                webSSLConnectorGraphs[9] = createGraph(node, "SSL Open Connections Max", "Open Connections Max", "60", tomcatWebSSLConnectorObjectName, "Open Connections Max", "Open Connections Max", "Time", "A", "", "A", "", null);
+                webSSLConnectorGraphs[10] = createGraph(node, "SSL Open Connections Min", "Open Connections Min", "60", tomcatWebSSLConnectorObjectName, "Open Connections Min", "Open Connections Min", "Time", "A", "", "A", "", null);
+                webSSLConnectorGraphs[11] = createGraph(node, "SSL Request Time CurrentTime", "Request Time CurrentTime", "60", tomcatWebSSLConnectorObjectName, "Request Time CurrentTime", "Request Time CurrentTime", "Time", "A", "", "A", "", null);
+                webSSLConnectorGraphs[12] = createGraph(node, "SSL Request Time MaxTime", "Request Time MaxTime", "60", tomcatWebSSLConnectorObjectName, "Request Time MaxTime", "Request Time MaxTime", "Time", "A", "", "A", "", null);
+                webSSLConnectorGraphs[13] = createGraph(node, "SSL Request Time MinTime", "Request Time MinTime", "60", tomcatWebSSLConnectorObjectName, "Request Time MinTime", "Request Time MinTime", "Time", "A", "", "A", "", null);
+                webSSLConnectorGraphs[14] = createGraph(node, "SSL Request Time TotalTime", "Request Time TotalTime", "60", tomcatWebSSLConnectorObjectName, "Request Time TotalTime", "Request Time TotalTime", "Time", "A", "", "A", "", null);               
+                persistView("TomcatWebSSLConnector View", "TomcatWebSSLConnector View", webSSLConnectorGraphs);
+            }
+        } catch (Exception e) {
+            userTransaction.rollback();
+            throw e;
+        } finally {
+            userTransaction.commit();
+        }
+    }
+    
+    private void initializeDefaultJettyServerView() throws Exception {
+        String jettyWebConnectorObjectName = getObjectNameByShortName("JettyWebConnector");
+        String jettyWebSSLConnectorObjectName = getObjectNameByShortName("JettySSLConnector");
+        try {
+            userTransaction.begin();
+            Node node = persistDefaultServer();
+            if (jettyWebConnectorObjectName != null) {
+                Graph[] webConnectorGraphs = new Graph[12];
+                webConnectorGraphs[0] = createGraph(node, "JVM Heap Size Current", "JVM Heap Size Current", "60", getObjectNameByShortName("JVM"), "JVM Heap Size Current", "JVM Heap Size Current", "Time", "A", "", "A", "", null);
+                webConnectorGraphs[1] = createGraph(node, "Connections Duration Count", "Connections Duration Count", "60", jettyWebConnectorObjectName, "Connections Duration Count", "Connections Duration Count", "Time", "A", "", "A", "", null);
+                webConnectorGraphs[2] = createGraph(node, "Connections Duration MaxTime", "Connections Duration MaxTime", "60", jettyWebConnectorObjectName, "Connections Duration MaxTime", "Connections Duration MaxTime", "Time", "A", "", "A", "", null);
+                webConnectorGraphs[3] = createGraph(node, "Connections Duration MinTime", "Connections Duration MinTime", "60", jettyWebConnectorObjectName, "Connections Duration MinTime", "Connections Duration MinTime", "Time", "A", "", "A", "", null);
+                webConnectorGraphs[4] = createGraph(node, "Connections Duration TotalTime", "Connections Duration TotalTime", "60", jettyWebConnectorObjectName, "Connections Duration TotalTime", "Connections Duration TotalTime", "Time", "A", "", "A", "", null);
+                webConnectorGraphs[5] = createGraph(node, "Connections Request Current", "Connections Request Current", "60", jettyWebConnectorObjectName, "Connections Request Current", "Connections Request Current", "Time", "A", "", "A", "", null);
+                webConnectorGraphs[6] = createGraph(node, "Connections Request Max", "Connections Request Max", "60", jettyWebConnectorObjectName, "Connections Request Max", "Connections Request Max", "Time", "A", "", "A", "", null);
+                webConnectorGraphs[7] = createGraph(node, "Connections Request Min", "Connections Request Min", "60", jettyWebConnectorObjectName, "Connections Request Min", "Connections Request Min", "Time", "A", "", "A", "", null);
+                webConnectorGraphs[8] = createGraph(node, "Open Connections Current", "Open Connections Current", "60", jettyWebConnectorObjectName, "Open Connections Current", "Open Connections Current", "Time", "A", "", "A", "", null);
+                webConnectorGraphs[9] = createGraph(node, "Open Connections Max", "Open Connections Max", "60", jettyWebConnectorObjectName, "Open Connections Max", "Open Connections Max", "Time", "A", "", "A", "", null);
+                webConnectorGraphs[10] = createGraph(node, "Open Connections Min", "Open Connections Min", "60", jettyWebConnectorObjectName, "Open Connections Min", "Open Connections Min", "Time", "A", "", "A", "", null);
+                webConnectorGraphs[11] = createGraph(node, "Request Time CurrentTime", "Request Time CurrentTime", "60", jettyWebConnectorObjectName, "Request Time CurrentTime", "Request Time CurrentTime", "Time", "A", "", "A", "", null);
+                persistView("JettyWebConnector View", "JettyWebConnector View", webConnectorGraphs);
+            }
+            if (jettyWebSSLConnectorObjectName != null) {
+                Graph[] webSSLConnectorGraphs = new Graph[12];
+                webSSLConnectorGraphs[0] = createGraph(node, "JVM Heap Size Current", "JVM Heap Size Current", "60", getObjectNameByShortName("JVM"), "JVM Heap Size Current", "JVM Heap Size Current", "Time", "A", "", "A", "", null);
+                webSSLConnectorGraphs[1] = createGraph(node, "Connections Duration Count", "Connections Duration Count", "60", jettyWebSSLConnectorObjectName, "Connections Duration Count", "Connections Duration Count", "Time", "A", "", "A", "", null);
+                webSSLConnectorGraphs[2] = createGraph(node, "Connections Duration MaxTime", "Connections Duration MaxTime", "60", jettyWebSSLConnectorObjectName, "Connections Duration MaxTime", "Connections Duration MaxTime", "Time", "A", "", "A", "", null);
+                webSSLConnectorGraphs[3] = createGraph(node, "Connections Duration MinTime", "Connections Duration MinTime", "60", jettyWebSSLConnectorObjectName, "Connections Duration MinTime", "Connections Duration MinTime", "Time", "A", "", "A", "", null);
+                webSSLConnectorGraphs[4] = createGraph(node, "Connections Duration TotalTime", "Connections Duration TotalTime", "60", jettyWebSSLConnectorObjectName, "Connections Duration TotalTime", "Connections Duration TotalTime", "Time", "A", "", "A", "", null);
+                webSSLConnectorGraphs[5] = createGraph(node, "Connections Request Current", "Connections Request Current", "60", jettyWebSSLConnectorObjectName, "Connections Request Current", "Connections Request Current", "Time", "A", "", "A", "", null);
+                webSSLConnectorGraphs[6] = createGraph(node, "Connections Request Max", "Connections Request Max", "60", jettyWebSSLConnectorObjectName, "Connections Request Max", "Connections Request Max", "Time", "A", "", "A", "", null);
+                webSSLConnectorGraphs[7] = createGraph(node, "Connections Request Min", "Connections Request Min", "60", jettyWebSSLConnectorObjectName, "Connections Request Min", "Connections Request Min", "Time", "A", "", "A", "", null);
+                webSSLConnectorGraphs[8] = createGraph(node, "Open Connections Current", "Open Connections Current", "60", jettyWebSSLConnectorObjectName, "Open Connections Current", "Open Connections Current", "Time", "A", "", "A", "", null);
+                webSSLConnectorGraphs[9] = createGraph(node, "Open Connections Max", "Open Connections Max", "60", jettyWebSSLConnectorObjectName, "Open Connections Max", "Open Connections Max", "Time", "A", "", "A", "", null);
+                webSSLConnectorGraphs[10] = createGraph(node, "Open Connections Min", "Open Connections Min", "60", jettyWebSSLConnectorObjectName, "Open Connections Min", "Open Connections Min", "Time", "A", "", "A", "", null);
+                webSSLConnectorGraphs[11] = createGraph(node, "Request Time CurrentTime", "Request Time CurrentTime", "60", jettyWebSSLConnectorObjectName, "Request Time CurrentTime", "Request Time CurrentTime", "Time", "A", "", "A", "", null);
+                persistView("JettySSLConnector View", "JettySSLConnector View", webSSLConnectorGraphs);
+            }
+        } catch (Exception e) {
+            userTransaction.rollback();
+            throw e;
+        } finally {
+            userTransaction.commit();
+        }
+    }
+    
+    private Node persistDefaultServer() throws Exception {
+        Node node = new Node();
+        node.setName("Default Server");
+        node.setHost("localhost");
+        node.setUserName("");
+        node.setPassword("");
+        node.setPort(1099);
+        node.setProtocol("jmx");
+        entityManager.persist(node);
+        return node;
+    }
+    
+    private Graph createGraph(Node node, String name, String description, String timeframe, String mbean, String dataname1, String xlabel, String ylabel, String data1operation, String operation,
+            String data2operation, String dataname2, String showArchive) throws Exception {
+        Graph graph = new Graph();
+        graph.setNode(node);
+        graph.setGraphName1(name);
+        graph.setDescription(description);
+        graph.setXlabel(xlabel);
+        graph.setYlabel(ylabel);
+        graph.setTimeFrame(Integer.parseInt(timeframe));
+        graph.setMBeanName(mbean);
+        graph.setDataName1(dataname1);
+        graph.setData1operation(data1operation.charAt(0));
+        graph.setOperation(operation);
+        graph.setShowArchive(showArchive != null && showArchive.equals("on"));
+        graph.setDataName2(dataname2);
+        graph.setData2operation(data2operation == null ? 'A' : data2operation.charAt(0));
+        return graph;
+    }
+    
+    private View persistView(String name, String description, Graph[] graphsArray) throws Exception {
+        View view = new View();
+        view.setName(name);
+        view.setDescription(description);
+        if (graphsArray != null) {
+            for (Graph graph : graphsArray) {
+                view.getGraphs().add(graph);
+                graph.getViews().add(view);
+            }
+        }
+        entityManager.persist(view);
+        return view;
+    }
+    
+    private boolean isPredefinedServerViewExist() {
+        Node node = entityManager.find(Node.class, "Default Server");
+        return node != null;
+    }
+    
+    private void deleteDefaultServerView(ActionRequest actionRequest, ActionResponse actionResponse) throws Exception {
+        try {
+            userTransaction.begin();
+            Node node = entityManager.find(Node.class, "Default Server");
+            if (node != null) {
+                List<Graph> graphs = entityManager.createNamedQuery("graphsByNode").setParameter("name", node.getName()).getResultList();
+                if (!(graphs == null || graphs.isEmpty())) {
+                    for (Graph graph : graphs) {
+                        List<View> views = graph.getViews();
+                        for (View view : views) {
+                            entityManager.remove(view);
+                        }
+                        entityManager.remove(graph);
+                    }
+                }
+                MRCConnector mrc = null;
+                try {
+                    mrc = new MRCConnector(node);
+                    if (mrc.isSnapshotRunning() == 1) {
+                        if (!mrc.stopSnapshotThread()) {
+                            addInfoMessage(actionRequest, getLocalizedString(actionRequest, "mconsole.infoMsg06", node));
+                        }
+                    }
+                } finally {
+                    if (null != mrc)
+                        mrc.dispose();
+                }
+                entityManager.remove(node);
+            }
+            userTransaction.commit();
+        } catch (Exception e) {
+            userTransaction.rollback();
+            throw e;
+        }
+    }
+
+    
+    
 }
