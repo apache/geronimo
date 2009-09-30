@@ -20,7 +20,7 @@
 <%@ taglib uri="/WEB-INF/CommonMsg.tld" prefix="CommonMsg"%>
 <%@ page import="org.apache.geronimo.monitoring.console.StatsGraph" %>
 <%@ page import="org.apache.geronimo.monitoring.console.GraphsBuilder" %>
-<%@ page import="java.util.ArrayList" %>
+<%@ page import="java.util.ArrayList,java.util.List" %>
 <%@ page import="java.util.Set" %>
 <%@ page import="java.sql.Connection" %>
 <%@ page import="java.sql.DatabaseMetaData" %>
@@ -33,49 +33,53 @@
 
 <%
 
-String view_id = (String) request.getAttribute("view_id"); 
-
-DBManager DBase = new DBManager();
-Connection con = DBase.getConnection();
-
-PreparedStatement pStmt = con.prepareStatement("SELECT view_id, name, description, graph_count, added, modified FROM views WHERE enabled=1 AND view_id="+view_id);
-ResultSet rs = pStmt.executeQuery();
-GraphsBuilder run = new GraphsBuilder(con);
-
-if (rs.next())
+String view_id = (String) request.getAttribute("view_id");
+Connection con = null;
+List <StatsGraph> graphs = new ArrayList<StatsGraph>();
+String name = null;
+String description = null;
+try
 {
-    String name = rs.getString("name");
-    String description = rs.getString("description");
-    pStmt = con.prepareStatement("SELECT * FROM views_graphs WHERE view_id="+view_id);
-    ResultSet rs2 = pStmt.executeQuery();
-    ArrayList<Integer> ids = new ArrayList<Integer>();
-    while(rs2.next()) {
-        ids.add( new Integer(rs2.getInt("graph_id")) );
-    }
-    
-    rs.close();
-    rs2.close();
+	con = DBManager.createConnection();	
+	PreparedStatement pStmt = con.prepareStatement("SELECT view_id, name, description, graph_count, added, modified FROM views WHERE enabled=1 AND view_id="+view_id);
+	ResultSet rs = pStmt.executeQuery();
+	GraphsBuilder run = new GraphsBuilder(con);
 
-    try {
-        if(con != null) {
-            con.close();
-        }
+	if (rs.next())
+	{
+    	name = rs.getString("name");
+    	description = rs.getString("description");
+    	pStmt = con.prepareStatement("SELECT * FROM views_graphs WHERE view_id="+view_id);
+    	ResultSet rs2 = pStmt.executeQuery();
+    	ArrayList<Integer> ids = new ArrayList<Integer>();
+    	while(rs2.next()) {
+        	ids.add( new Integer(rs2.getInt("graph_id")) );
+    	}
+    
+    	rs.close();
+    	rs2.close();    	
+    
+    	
+    	for(int i = 0 ; i < ids.size(); i++) {
+        	try {
+            	StatsGraph graph = run.buildOneDB( ids.get(i).intValue() );
+            	if(graph != null) {
+                	graphs.add( graph );
+            	}
+        	} catch (Exception e) {            
+        	}
+    	}
+	} 	
+} finally {
+	try {
+        	if(con != null) {
+            	con.close();
+        	}
     } catch(Exception e) {
-        
     }
-    
-    ArrayList <StatsGraph> graphs = new ArrayList<StatsGraph>();
-    for(int i = 0 ; i < ids.size(); i++) {
-        try {
-            StatsGraph graph = run.buildOneDB( ids.get(i).intValue() );
-            if(graph != null) {
-                graphs.add( graph );
-            }
-        } catch (Exception e) {
-            
-        }
-    }
-    
+}
+
+if( name != null) {
 %>
 <!-- <head> -->
     <script type='text/javascript' src='/dojo/dojo/dojo.js' djConfig='isDebug: false, parseOnLoad: true'>
@@ -128,20 +132,18 @@ timerID = setTimeout("refreshPeriodic()",300000);
 <% 
 try
 {
-for (StatsGraph graph : graphs) 
-{
+	for (StatsGraph graph : graphs) 
+	{
 %>
 <p>
 <div id="<%=graph.getDivName()%>Head" style="background-color: #f2f2f2; border-top: 1px solid #2581c7; margin: 0px; width: 100%; height: 16px;"><div align="left" style="background-color: #f2f2f2; float:left; text-align:left; width:75%; height: 20px;"><%=graph.getName() %></div><div align=right style="background-color: #f2f2f2; float:left; width:25%; text-align:right;"><a href="#" onClick="hide('<%=graph.getDivName()%>');hide('<%=graph.getDivName()%>Sub');"><img border=0 src="/monitoring/images/min-b.png"></a>&nbsp;<a href="#" onClick="show('<%=graph.getDivName()%>');show('<%=graph.getDivName()%>Sub');"><img border=0 src="/monitoring/images/max-b.png"></a></div></div>
 <%=graph.getDivImplement()%>
 </p>
 <%
-}
+	}
 }
 catch (Exception e)
-{
-    
-}
+{}
 %>
 
         </td>

@@ -23,6 +23,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
@@ -33,14 +35,20 @@ import javax.portlet.PortletRequestDispatcher;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.console.BasePortlet;
-import org.apache.geronimo.monitoring.console.util.DBManager;
+import org.apache.geronimo.console.util.PortletManager;
 import org.apache.geronimo.crypto.EncryptionManager;
+import org.apache.geronimo.management.geronimo.WebContainer;
+import org.apache.geronimo.monitoring.console.util.DBManager;
 
 /**
  * STATS
  */
 public class MonitoringPortlet extends BasePortlet {
+    
+    private static final Log log = LogFactory.getLog(MonitoringPortlet.class);
 
     private static final String NORMALVIEW_JSP = "/WEB-INF/view/monitoringNormal.jsp";
 
@@ -97,6 +105,8 @@ public class MonitoringPortlet extends BasePortlet {
     private PortletRequestDispatcher helpView;
 
     private PortletRequestDispatcher editNormalView;
+    
+    private String serverType;
 
     @Override
     public void processAction(ActionRequest actionRequest,
@@ -240,6 +250,9 @@ public class MonitoringPortlet extends BasePortlet {
             actionResponse.setRenderParameter("port", "" + port);
             actionResponse.setRenderParameter("protocol", "" + protocol);
         }
+        else if(action.equals("restoreData")){
+            restoreData(actionRequest);
+        }
     }
 
     private void testConnection(String ip, String username,
@@ -369,6 +382,7 @@ public class MonitoringPortlet extends BasePortlet {
     protected void doEdit(RenderRequest request, RenderResponse response)
             throws PortletException, IOException {
         String action = request.getParameter("action");
+        if(request.isUserInRole("admin")){
         if (action == null)
             action = "showNormal";
         if (action.equals("showEditView")) {
@@ -460,6 +474,7 @@ public class MonitoringPortlet extends BasePortlet {
         } else {
             normalView.include(request, response);
         }
+        }//end admin
     }
 
     private void updateView(ActionRequest actionRequest,
@@ -1132,6 +1147,269 @@ public class MonitoringPortlet extends BasePortlet {
         }
     }
 
+    private void restoreData(PortletRequest request) {
+        Connection conn = null;
+        try {
+            conn = DBManager.createConnection();
+            deleteDefaultServerView(conn);
+            initializeDefaultServerView(conn);
+            addInfoMessage(request, getLocalizedString(request, "infoMsg17"));
+        } catch (Exception e) {
+            addErrorMessage(request, getLocalizedString(request, "errorMsg20"), e.getMessage());
+        } finally {
+            if (conn != null)
+                try {
+                    conn.close();
+                } catch (Exception e) {
+                }
+        }
+    }
+    
+    private String getObjectNameByShortName(String shortName) {
+        try {
+            Object targetGBean = PortletManager.getKernel().getGBean(shortName);
+            return PortletManager.getKernel().getAbstractNameFor(targetGBean).getObjectName().getCanonicalName();
+        } catch (Exception e) {
+            log.error("Fail to find the gbean object for the short name " + shortName);
+            return null;
+        }
+    }
+
+    private void initializeDefaultServerView(Connection conn) throws PortletException {
+        PreparedStatement preparedStmt = null;
+        try {
+            preparedStmt = conn.prepareStatement("select server_id from servers where ip='localhost' and protocol=1");
+            ResultSet rs = preparedStmt.executeQuery();
+            if (rs.next()) {
+                return;
+            }
+            if (serverType.equals(WEB_SERVER_TOMCAT)) {
+                initializeDefaultTomatServerView(conn);
+            } else if (serverType.equals(WEB_SERVER_JETTY)) {
+                initializeDefaultJettyServerView(conn);
+            }
+        } catch (SQLException e) {
+            throw new PortletException(e);
+        } finally {
+            if (preparedStmt != null)
+                try {
+                    preparedStmt.close();
+                } catch (Exception e) {
+                }
+        }
+    }
+    
+    private void initializeDefaultTomatServerView(Connection conn) throws SQLException {
+        int serverId = insertServer(conn, "Default Server", "localhost", "", "", "1099", "1");
+        PreparedStatement preparedStmt = null;
+        try {
+            preparedStmt = conn.prepareStatement(
+                    "INSERT INTO graphs (server_id, name, description, timeframe, mbean, dataname1, xlabel, ylabel, data1operation, operation, data2operation, dataname2, warninglevel1, warninglevel2, added, modified, last_seen, archive,enabled) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,0,0,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP,0,0)",
+                    Statement.RETURN_GENERATED_KEYS);
+            int jvmGraphId = insertGraph(preparedStmt, "JVM Heap Size Current", serverId, "JVM Heap Size Current", 60, getObjectNameByShortName("JVM"), "JVM Heap Size Current", "JVM Heap Size Current", "Time", "A", "", "A", "");
+            String tomcatWebConnectorObjectName = getObjectNameByShortName("TomcatWebConnector");
+            if (tomcatWebConnectorObjectName != null) {
+                List<Integer> graphIdList = new ArrayList<Integer>(15);
+                graphIdList.add(jvmGraphId);
+                graphIdList.add(insertGraph(preparedStmt, "Active Request Count", serverId, "Active Request Count", 60, tomcatWebConnectorObjectName, "Active Request Count", "Active Request Count", "Time", "A", "", "A", ""));
+                graphIdList.add(insertGraph(preparedStmt, "Busy Threads Max", serverId, "Busy Threads Max", 60, tomcatWebConnectorObjectName, "Busy Threads Max", "Busy Threads Max", "Time", "A", "", "A", ""));
+                graphIdList.add(insertGraph(preparedStmt, "Busy Threads Current", serverId, "Busy Threads Current", 60, tomcatWebConnectorObjectName, "Busy Threads Current", "Busy Threads Current", "Time", "A", "", "A", ""));
+                graphIdList.add(insertGraph(preparedStmt, "Busy Threads Min", serverId, "Busy Threads Min", 60, tomcatWebConnectorObjectName, "Busy Threads Min", "Busy Threads Min", "Time", "A", "", "A", ""));
+                graphIdList.add(insertGraph(preparedStmt, "Bytes Received", serverId, "Bytes Received", 60, tomcatWebConnectorObjectName, "Bytes Received", "Bytes Received", "Time", "A", "", "A", ""));
+                graphIdList.add(insertGraph(preparedStmt, "Bytes Sent", serverId, "Bytes Sent", 60, tomcatWebConnectorObjectName, "Bytes Sent", "Bytes Sent", "Time", "A", "", "A", ""));
+                graphIdList.add(insertGraph(preparedStmt, "Error Count", serverId, "Error Count", 60, tomcatWebConnectorObjectName, "Error Count", "Error Count", "Time", "A", "", "A", ""));
+                graphIdList.add(insertGraph(preparedStmt, "Open Connections Current", serverId, "Open Connections Current", 60, tomcatWebConnectorObjectName, "Open Connections Current", "Open Connections Current", "Time", "A", "", "A", ""));
+                graphIdList.add(insertGraph(preparedStmt, "Open Connections Max", serverId, "Open Connections Max", 60, tomcatWebConnectorObjectName, "Open Connections Max", "Open Connections Max", "Time", "A", "", "A", ""));
+                graphIdList.add(insertGraph(preparedStmt, "Open Connections Min", serverId, "Open Connections Min", 60, tomcatWebConnectorObjectName, "Open Connections Min", "Open Connections Min", "Time", "A", "", "A", ""));
+                graphIdList.add(insertGraph(preparedStmt, "Request Time CurrentTime", serverId, "Request Time CurrentTime", 60, tomcatWebConnectorObjectName, "Request Time CurrentTime", "Request Time CurrentTime", "Time", "A", "", "A", ""));
+                graphIdList.add(insertGraph(preparedStmt, "Request Time MaxTime", serverId, "Request Time MaxTime", 60, tomcatWebConnectorObjectName, "Request Time MaxTime", "Request Time MaxTime", "Time", "A", "", "A", ""));
+                graphIdList.add(insertGraph(preparedStmt, "Request Time MinTime", serverId, "Request Time MinTime", 60, tomcatWebConnectorObjectName, "Request Time MinTime", "Request Time MinTime", "Time", "A", "", "A", ""));
+                graphIdList.add(insertGraph(preparedStmt, "Request Time TotalTime", serverId, "Request Time TotalTime", 60, tomcatWebConnectorObjectName, "Request Time TotalTime", "Request Time TotalTime", "Time", "A", "", "A", ""));
+                insertView(conn, graphIdList.toArray(new Integer[0]), "TomcatWebConnector View", "TomcatWebConnector View");
+            }
+            String tomcatWebSSLConnectorObjectName = getObjectNameByShortName("TomcatWebSSLConnector");
+            if (tomcatWebSSLConnectorObjectName != null) {
+                List<Integer> graphIdList = new ArrayList<Integer>(15);
+                graphIdList.add(jvmGraphId);
+                graphIdList.add(insertGraph(preparedStmt, "SSL Active Request Count", serverId, "Active Request Count", 60, tomcatWebSSLConnectorObjectName, "Active Request Count", "Active Request Count", "Time", "A", "", "A", ""));
+                graphIdList.add(insertGraph(preparedStmt, "SSL Busy Threads Current", serverId, "Busy Threads Current", 60, tomcatWebSSLConnectorObjectName, "Busy Threads Current", "Busy Threads Current", "Time", "A", "", "A", ""));
+                graphIdList.add(insertGraph(preparedStmt, "SSL Busy Threads Max", serverId, "Busy Threads Max", 60, tomcatWebSSLConnectorObjectName, "Busy Threads Max", "Busy Threads Max", "Time", "A", "", "A", ""));
+                graphIdList.add(insertGraph(preparedStmt, "SSL Busy Threads Min", serverId, "Busy Threads Min", 60, tomcatWebSSLConnectorObjectName, "Busy Threads Min", "Busy Threads Min", "Time", "A", "", "A", ""));
+                graphIdList.add(insertGraph(preparedStmt, "SSL Bytes Received", serverId, "Bytes Received", 60, tomcatWebSSLConnectorObjectName, "Bytes Received", "Bytes Received", "Time", "A", "", "A", ""));
+                graphIdList.add(insertGraph(preparedStmt, "SSL Bytes Sent", serverId, "Bytes Sent", 60, tomcatWebSSLConnectorObjectName, "Bytes Sent", "Bytes Sent", "Time", "A", "", "A", ""));
+                graphIdList.add(insertGraph(preparedStmt, "SSL Error Count", serverId, "Error Count", 60, tomcatWebSSLConnectorObjectName, "Error Count", "Error Count", "Time", "A", "", "A", ""));
+                graphIdList.add(insertGraph(preparedStmt, "SSL Open Connections Current", serverId, "Open Connections Current", 60, tomcatWebSSLConnectorObjectName, "Open Connections Current", "Open Connections Current", "Time", "A", "", "A", ""));
+                graphIdList.add(insertGraph(preparedStmt, "SSL Open Connections Max", serverId, "Open Connections Max", 60, tomcatWebSSLConnectorObjectName, "Open Connections Max", "Open Connections Max", "Time", "A", "", "A", ""));
+                graphIdList.add(insertGraph(preparedStmt, "SSL Open Connections Min", serverId, "Open Connections Min", 60, tomcatWebSSLConnectorObjectName, "Open Connections Min", "Open Connections Min", "Time", "A", "", "A", ""));
+                graphIdList.add(insertGraph(preparedStmt, "SSL Request Time CurrentTime", serverId, "Request Time CurrentTime", 60, tomcatWebSSLConnectorObjectName, "Request Time CurrentTime", "Request Time CurrentTime", "Time", "A", "", "A", ""));
+                graphIdList.add(insertGraph(preparedStmt, "SSL Request Time MaxTime", serverId, "Request Time MaxTime", 60, tomcatWebSSLConnectorObjectName, "Request Time MaxTime", "Request Time MaxTime", "Time", "A", "", "A", ""));
+                graphIdList.add(insertGraph(preparedStmt, "SSL Request Time MinTime", serverId, "Request Time MinTime", 60, tomcatWebSSLConnectorObjectName, "Request Time MinTime", "Request Time MinTime", "Time", "A", "", "A", ""));
+                graphIdList.add(insertGraph(preparedStmt, "SSL Request Time TotalTime", serverId, "Request Time TotalTime", 60, tomcatWebSSLConnectorObjectName, "Request Time TotalTime", "Request Time TotalTime", "Time", "A", "", "A", ""));
+                insertView(conn, graphIdList.toArray(new Integer[0]), "TomcatWebSSLConnector View", "TomcatWebSSLConnector View");
+            }
+        } finally {
+            if (preparedStmt != null)
+                try {
+                    preparedStmt.close();
+                } catch (Exception e) {
+                }
+        }
+    }
+
+    private void initializeDefaultJettyServerView(Connection conn) throws SQLException {
+        int serverId = insertServer(conn, "Default Server", "localhost", "", "", "1099", "1");
+        PreparedStatement preparedStmt = null;
+        try {
+            preparedStmt = conn.prepareStatement(
+                    "INSERT INTO graphs (server_id, name, description, timeframe, mbean, dataname1, xlabel, ylabel, data1operation, operation, data2operation, dataname2, warninglevel1, warninglevel2, added, modified, last_seen, archive,enabled) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,0,0,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP,0,0)",
+                    Statement.RETURN_GENERATED_KEYS);
+            int jvmGraphId = insertGraph(preparedStmt, "JVM Heap Size Current", serverId, "JVM Heap Size Current", 60, getObjectNameByShortName("JVM"), "JVM Heap Size Current", "JVM Heap Size Current", "Time", "A", "", "A", "");
+            String jettyWebConnectorObjectName = getObjectNameByShortName("JettyWebConnector");
+            if (jettyWebConnectorObjectName != null) {
+                List<Integer> graphIdList = new ArrayList<Integer>();
+                graphIdList.add(jvmGraphId);
+                graphIdList.add(insertGraph(preparedStmt, "Connections Duration Count", serverId, "Connections Duration Count", 60, jettyWebConnectorObjectName, "Connections Duration Count", "Connections Duration Count", "Time", "A", "", "A", ""));
+                graphIdList.add(insertGraph(preparedStmt, "Connections Duration MaxTime", serverId, "Connections Duration MaxTime", 60, jettyWebConnectorObjectName, "Connections Duration MaxTime", "Connections Duration MaxTime", "Time", "A", "", "A", ""));
+                graphIdList.add(insertGraph(preparedStmt, "Connections Duration MinTime", serverId, "Connections Duration MinTime", 60, jettyWebConnectorObjectName, "Connections Duration MinTime", "Connections Duration MinTime", "Time", "A", "", "A", ""));
+                graphIdList.add(insertGraph(preparedStmt, "Connections Duration TotalTime", serverId, "Connections Duration TotalTime", 60, jettyWebConnectorObjectName, "Connections Duration TotalTime", "Connections Duration TotalTime", "Time", "A", "", "A", ""));
+                graphIdList.add(insertGraph(preparedStmt, "Connections Request Current", serverId, "Connections Request Current", 60, jettyWebConnectorObjectName, "Connections Request Current", "Connections Request Current", "Time", "A", "", "A", ""));
+                graphIdList.add(insertGraph(preparedStmt, "Connections Request Max", serverId, "Connections Request Max", 60, jettyWebConnectorObjectName, "Connections Request Max", "Connections Request Max", "Time", "A", "", "A", ""));
+                graphIdList.add(insertGraph(preparedStmt, "Connections Request Min", serverId, "Connections Request Min", 60, jettyWebConnectorObjectName, "Connections Request Min", "Connections Request Min", "Time", "A", "", "A", ""));
+                graphIdList.add(insertGraph(preparedStmt, "Open Connections Current", serverId, "Open Connections Current", 60, jettyWebConnectorObjectName, "Open Connections Current", "Open Connections Current", "Time", "A", "", "A", ""));
+                graphIdList.add(insertGraph(preparedStmt, "Open Connections Max", serverId, "Open Connections Max", 60, jettyWebConnectorObjectName, "Open Connections Max", "Open Connections Max", "Time", "A", "", "A", ""));
+                graphIdList.add(insertGraph(preparedStmt, "Open Connections Min", serverId, "Open Connections Min", 60, jettyWebConnectorObjectName, "Open Connections Min", "Open Connections Min", "Time", "A", "", "A", ""));
+                graphIdList.add(insertGraph(preparedStmt, "Request Time CurrentTime", serverId, "Request Time CurrentTime", 60, jettyWebConnectorObjectName, "Request Time CurrentTime", "Request Time CurrentTime", "Time", "A", "", "A", ""));
+                insertView(conn, graphIdList.toArray(new Integer[0]), "JettyWebConnector View", "JettyWebConnector View");
+            }
+            String jettyWebSSLConnectorObjectName = getObjectNameByShortName("JettySSLConnector");
+            if (jettyWebSSLConnectorObjectName != null) {
+                List<Integer> graphIdList = new ArrayList<Integer>();
+                graphIdList.add(jvmGraphId);
+                graphIdList.add(insertGraph(preparedStmt, "SSL Connections Duration Count", serverId, "Connections Duration Count", 60, jettyWebSSLConnectorObjectName, "Connections Duration Count", "Connections Duration Count", "Time", "A", "", "A", ""));
+                graphIdList.add(insertGraph(preparedStmt, "SSL Connections Duration MaxTime", serverId, "Connections Duration MaxTime", 60, jettyWebSSLConnectorObjectName, "Connections Duration MaxTime", "Connections Duration MaxTime", "Time", "A", "", "A", ""));
+                graphIdList.add(insertGraph(preparedStmt, "SSL Connections Duration MinTime", serverId, "Connections Duration MinTime", 60, jettyWebSSLConnectorObjectName, "Connections Duration MinTime", "Connections Duration MinTime", "Time", "A", "", "A", ""));
+                graphIdList.add(insertGraph(preparedStmt, "SSL Connections Duration TotalTime", serverId, "Connections Duration TotalTime", 60, jettyWebSSLConnectorObjectName, "Connections Duration TotalTime", "Connections Duration TotalTime", "Time", "A", "", "A", ""));
+                graphIdList.add(insertGraph(preparedStmt, "SSL Connections Request Current", serverId, "Connections Request Current", 60, jettyWebSSLConnectorObjectName, "Connections Request Current", "Connections Request Current", "Time", "A", "", "A", ""));
+                graphIdList.add(insertGraph(preparedStmt, "SSL Connections Request Max", serverId, "Connections Request Max", 60, jettyWebSSLConnectorObjectName, "Connections Request Max", "Connections Request Max", "Time", "A", "", "A", ""));
+                graphIdList.add(insertGraph(preparedStmt, "SSL Connections Request Min", serverId, "Connections Request Min", 60, jettyWebSSLConnectorObjectName, "Connections Request Min", "Connections Request Min", "Time", "A", "", "A", ""));
+                graphIdList.add(insertGraph(preparedStmt, "SSL Open Connections Current", serverId, "Open Connections Current", 60, jettyWebSSLConnectorObjectName, "Open Connections Current", "Open Connections Current", "Time", "A", "", "A", ""));
+                graphIdList.add(insertGraph(preparedStmt, "SSL Open Connections Max", serverId, "Open Connections Max", 60, jettyWebSSLConnectorObjectName, "Open Connections Max", "Open Connections Max", "Time", "A", "", "A", ""));
+                graphIdList.add(insertGraph(preparedStmt, "SSL Open Connections Min", serverId, "Open Connections Min", 60, jettyWebSSLConnectorObjectName, "Open Connections Min", "Open Connections Min", "Time", "A", "", "A", ""));
+                graphIdList.add(insertGraph(preparedStmt, "SSL Request Time CurrentTime", serverId, "Request Time CurrentTime", 60, jettyWebSSLConnectorObjectName, "Request Time CurrentTime", "Request Time CurrentTime", "Time", "A", "", "A", ""));
+                insertView(conn, graphIdList.toArray(new Integer[0]), "JettyWebSSLConnector View", "JettyWebSSLConnector View");
+            }
+        } finally {
+            if (preparedStmt != null)
+                try {
+                    preparedStmt.close();
+                } catch (Exception e) {
+                }
+        }                      
+    }
+
+    private int insertServer(Connection conn, String name, String ip, String username, String password, String port, String protocol) throws SQLException {
+        Statement stmt = null;
+        try {
+            stmt = conn.createStatement();
+            stmt.execute("INSERT INTO servers (enabled ,name, ip, username, password, modified, last_seen, added, port, protocol) VALUES (" + "0" + ",'" + name + "','" + ip + "','" + username + "','" + password + "',CURRENT_TIMESTAMP,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP," + port + "," + protocol + ")", Statement.RETURN_GENERATED_KEYS);
+            ResultSet rs = stmt.getGeneratedKeys();
+            if (rs.next()) {
+                return rs.getInt(1);
+            } else {
+                throw new SQLException("Fail to insert the new server " + name);
+            }
+        } finally {
+            if (stmt != null)
+                try {
+                    stmt.close();
+                } catch (Exception e) {
+                }
+        }
+    }
+
+    private int insertGraph(PreparedStatement stmt, String name, int server_id, String description, int timeframe, String mbean, String dataname1, String xlabel, String ylabel, String data1operation, String operation, String data2operation, String dataname2) throws SQLException {
+        stmt.setInt(1, server_id);
+        stmt.setString(2, name);
+        stmt.setString(3, description);
+        stmt.setInt(4, timeframe);
+        stmt.setString(5, mbean);
+        stmt.setString(6, dataname1);
+        stmt.setString(7, xlabel);
+        stmt.setString(8, ylabel);
+        stmt.setString(9, data1operation);
+        stmt.setString(10, operation);
+        stmt.setString(11, data2operation);
+        stmt.setString(12, dataname2);
+        if (stmt.executeUpdate() == 1) {
+            ResultSet rs = stmt.getGeneratedKeys();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        }
+        throw new SQLException("Fail to insert the graph " + name);
+    }
+
+    private void insertView(Connection conn, Integer[] graphIds, String name, String description) throws SQLException {
+        Statement viewStmt = null;
+        PreparedStatement preparedStmt = null;
+        try {
+            viewStmt = conn.createStatement();
+            viewStmt.executeUpdate("INSERT INTO views (name, description, graph_count, modified, added) VALUES ('" + name + "','" + description + "'," + graphIds.length + ",CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)", Statement.RETURN_GENERATED_KEYS);
+            ResultSet rs = viewStmt.getGeneratedKeys();
+            if (rs.next()) {
+                int viewId = rs.getInt(1);
+                preparedStmt = conn.prepareStatement("INSERT INTO views_graphs VALUES(?,?)");
+                for (int i = 0; i < graphIds.length; i++) {
+                    preparedStmt.setInt(1, viewId);
+                    preparedStmt.setInt(2, graphIds[i]);
+                    preparedStmt.executeUpdate();
+                }
+            }
+        } finally {
+            if (viewStmt != null)
+                try {
+                    viewStmt.close();
+                } catch (Exception e) {
+                }
+            if (preparedStmt != null)
+                try {
+                    preparedStmt.close();
+                } catch (Exception e) {
+                }
+        }
+    }
+
+    public void deleteDefaultServerView(Connection con) throws SQLException {       
+        Statement stmt = null;
+        try {
+            stmt = con.createStatement();
+            ResultSet rs = stmt.executeQuery("select server_id from servers where ip='localhost' and protocol=1");
+            int server_id;
+            if (rs.next()) {
+                server_id = rs.getInt("server_id");
+            } else {
+                return;
+            }
+            rs.close();
+            /**
+             * 1. Delete all the relation records in the view_graphs
+             * 2. Delete all empty view from views
+             * 3. Delete all the graphs of the target server
+             * 4. Delete the target server record
+             */
+            stmt.execute("delete from views_graphs where exists (select * from graphs where views_graphs.graph_id = graphs.graph_id and graphs.server_id=" + server_id + ")");
+            stmt.execute("delete from views where not exists (select * from views_graphs where views_graphs.view_id=views.view_id)");
+            stmt.execute("delete from graphs where server_id=" + server_id);
+            stmt.execute("delete from servers where server_id=" + server_id);
+        } finally {
+            if (stmt != null)
+                try {
+                    stmt.close();
+                } catch (Exception e) {
+                }
+        }
+    }
+
     @Override
     public void init(PortletConfig portletConfig) throws PortletException {
         super.init(portletConfig);
@@ -1163,6 +1441,22 @@ public class MonitoringPortlet extends BasePortlet {
                 HELPVIEW_JSP);
         editNormalView = portletConfig.getPortletContext()
                 .getRequestDispatcher(EDITNORMALVIEW_JSP);
+        
+        Connection conn = null;
+        try {
+            serverType = getWebServerType(PortletManager.getKernel().getGBean(WebContainer.class).getClass());
+            conn = new DBManager().getConnection();
+            initializeDefaultServerView(conn);
+        } catch (Exception e) {
+            log.error("Initialization failed",e);
+        } finally {
+            if (conn != null)
+                try {
+                    conn.close();
+                } catch (Exception e) {
+                }
+        }
+        
     }
 
     @Override

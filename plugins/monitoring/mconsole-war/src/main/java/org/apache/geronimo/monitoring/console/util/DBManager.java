@@ -27,10 +27,14 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 public class DBManager
 {
-    private static Connection con         = null;
+    private Connection con         = null;
     private static boolean    initialized = false;
+    private static final Log log = LogFactory.getLog(DBManager.class);
 
     public DBManager()
     {
@@ -40,27 +44,16 @@ public class DBManager
                 initialized = true;
     }
 
-    public static Connection createConnection()
-    {
-
-        try
-        {
+    public static Connection createConnection() {
+        try {
             Context context = new InitialContext();
-            DataSource ds = (DataSource) context
-                    .lookup("java:comp/env/MonitoringClientDS");
-            con = ds.getConnection();
+            DataSource ds = (DataSource) context.lookup("java:comp/env/MonitoringClientDS");
+            return ds.getConnection();
+        } catch (NamingException e) {
+            return null;
+        } catch (SQLException e) {
+            return null;
         }
-        catch (NamingException e)
-        {
-            e.printStackTrace();
-        }
-        catch (SQLException e)
-        {
-            System.err.println("SQL state: " + e.getSQLState());
-            System.err.println("SQL error: " + e.getErrorCode());
-            e.printStackTrace();
-        }
-        return con;
     }
 
     public Connection getConnection()
@@ -73,29 +66,26 @@ public class DBManager
         return initialized;
     }
 
-    private boolean checkTables()
-    {
-        try
-        {
+    private boolean checkTables() {
+        ResultSet tableNames = null;
+        try {
             DatabaseMetaData metadata = null;
             metadata = con.getMetaData();
             String[] names = { "TABLE" };
-            ResultSet tableNames = metadata.getTables(null, null, null, names);
-
-            if (tableNames.next())
-            {
+            tableNames = metadata.getTables(null, null, null, names);
+            if (tableNames.next()) {
                 return true;
-            }
-            else
-            {
+            } else {
                 return false;
             }
-        }
-        catch (SQLException e)
-        {
-            System.err.println("SQL state: " + e.getSQLState());
-            System.err.println("SQL error: " + e.getErrorCode());
-            e.printStackTrace();
+        } catch (SQLException e) {
+            log.error("Fail to check tables", e);
+        } finally {
+            if (tableNames != null)
+                try {
+                    tableNames.close();
+                } catch (Exception e) {
+                }
         }
         return false;
     }
@@ -105,9 +95,10 @@ public class DBManager
         boolean success = false;
         if (checkTables())
             return true;
+        PreparedStatement pStmt = null;
         try
         {
-            PreparedStatement pStmt = con
+            pStmt = con
                     .prepareStatement("CREATE TABLE servers("
                             + "server_id   INTEGER PRIMARY KEY NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 0, INCREMENT BY 1),"
                             + "enabled     SMALLINT DEFAULT 1 NOT NULL,"
@@ -123,6 +114,7 @@ public class DBManager
                             + "CONSTRAINT  UNQ_IP_PORT UNIQUE(ip,port)"
                             + ")");
             pStmt.executeUpdate();
+            pStmt.close();
             pStmt = con
                     .prepareStatement("CREATE TABLE graphs("
                             + "graph_id    INTEGER PRIMARY KEY NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 0, INCREMENT BY 1),"
@@ -148,6 +140,7 @@ public class DBManager
                             + "archive     SMALLINT NOT NULL DEFAULT 0,"
                             + "last_seen   TIMESTAMP NOT NULL" + ")");
             pStmt.executeUpdate();
+            pStmt.close();
             pStmt = con
                     .prepareStatement("CREATE TABLE views("
                             + "view_id     INTEGER PRIMARY KEY NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 0, INCREMENT BY 1),"
@@ -158,17 +151,23 @@ public class DBManager
                             + "added       TIMESTAMP NOT NULL,"
                             + "modified    TIMESTAMP NOT NULL)");
             pStmt.executeUpdate();
+            pStmt.close();
             pStmt = con.prepareStatement("CREATE TABLE views_graphs("
                     + "view_id     INTEGER NOT NULL,"
                     + "graph_id     INTEGER NOT NULL)");
             pStmt.executeUpdate();
+            pStmt.close();
             success = true;
         }
-        catch (SQLException e)
+        catch (SQLException e) {
+            log.error("Fail to initialize DB", e);
+        } finally
         {
-            System.err.println("SQL state: " + e.getSQLState());
-            System.err.println("SQL error: " + e.getErrorCode());
-            e.printStackTrace();
+            if (pStmt != null)
+                try {
+                    pStmt.close();
+                } catch (Exception e) {
+                }
         }
         return success;
     }

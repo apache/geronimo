@@ -38,7 +38,20 @@ function openNewWindow(theURL,winName,features) {
 //-->
 </script>
 
+<script type = "text/javascript">
+<!--
+function confirm_del() {
+    var msg = "All the changes you made to default servers/views/graphs will be lost.\nAre you sure you want to proceed?";
+    return confirm(msg);
+}
+//-->
+</script>
 <CommonMsg:commonMsg/>
+<%if (request.isUserInRole("admin")){ %>
+<div align="left">
+<a><strong>Note:&nbsp</strong>To reset default servers/views/graphs, please click this link:</a>&nbsp&nbsp
+<a href="<portlet:actionURL portletMode="edit"><portlet:param name="action" value="restoreData" /></portlet:actionURL>" onclick="return confirm_del()"><fmt:message key="monitor.common.restore"/></a></div>
+<%} %>
 
 <br>
 <table width="100%" style="border-style: solid;
