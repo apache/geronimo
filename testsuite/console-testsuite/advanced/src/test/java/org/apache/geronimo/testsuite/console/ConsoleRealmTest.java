@@ -39,7 +39,7 @@ public class ConsoleRealmTest extends ConsoleTestSupport {
             selenium.click("//input[@value='Add']");
             selenium.waitForPageToLoad("30000");
             assertTrue(selenium.isTextPresent("myuser"));
-            selenium.click("link=Delete");
+            selenium.click("//a[@onclick=\"return confirm('Confirm Delete user myuser?');\"]");
             selenium.waitForPageToLoad("30000");
             assertTrue(selenium.getConfirmation().matches("^Confirm Delete user myuser[\\s\\S]$"));
             selenium.waitForPageToLoad("30000");
