@@ -58,7 +58,7 @@
     </profiles>
 
     <properties>
-        <activemqVersion>5.3-SNAPSHOT</activemqVersion>
+        <activemqVersion>5.3.0</activemqVersion>
     </properties>
 
     <dependencyManagement>
