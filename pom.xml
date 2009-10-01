@@ -2134,7 +2134,7 @@
     <repositories>
         <repository>
             <id>amq-staging</id>
-            <url>https://repository.apache.org/content/repositories/activemq-staging-012/</url>
+            <url>https://repository.apache.org/content/repositories/activemq-staging-016/</url>
             <releases>
                 <checksumPolicy>fail</checksumPolicy>
                 <enabled>true</enabled>
