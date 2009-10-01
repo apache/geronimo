@@ -2118,18 +2118,18 @@
         Temporary staging repos go here
     -->
     <repositories>
-        <!--<repository>-->
-            <!--<id>amq-staging</id>-->
-            <!--<url>https://repository.apache.org/content/repositories/activemq-staging-030/</url>-->
-            <!--<releases>-->
-                <!--<checksumPolicy>fail</checksumPolicy>-->
-                <!--<enabled>true</enabled>-->
-                <!--<updatePolicy>always</updatePolicy>-->
-            <!--</releases>-->
-            <!--<snapshots>-->
-                <!--<enabled>false</enabled>-->
-            <!--</snapshots>-->
-        <!--</repository>-->
+        <repository>
+            <id>amq-staging</id>
+            <url>https://repository.apache.org/content/repositories/activemq-staging-012/</url>
+            <releases>
+                <checksumPolicy>fail</checksumPolicy>
+                <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
     </repositories>
 
     <pluginRepositories>
