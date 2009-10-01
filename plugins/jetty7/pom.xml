@@ -37,7 +37,7 @@
     </description>
 
     <properties>
-        <jettyVersion>7.0.0.RC6</jettyVersion>
+        <jettyVersion>7.0.0.v20091001</jettyVersion>
     </properties>
 
     <dependencyManagement>

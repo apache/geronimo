@@ -2130,6 +2130,18 @@
                 <enabled>false</enabled>
             </snapshots>
         </repository>
+        <repository>
+            <id>jetty-staging</id>
+            <url>http://oss.sonatype.org/content/repositories/jetty-stage-018/</url>
+            <releases>
+                <checksumPolicy>fail</checksumPolicy>
+                <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
     </repositories>
 
     <pluginRepositories>
