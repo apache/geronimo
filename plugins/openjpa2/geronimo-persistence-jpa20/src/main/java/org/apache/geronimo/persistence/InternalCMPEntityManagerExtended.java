@@ -17,10 +17,14 @@
 
 package org.apache.geronimo.persistence;
 
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.ejb.EJBException;
 import javax.persistence.*;
+import javax.persistence.criteria.*;
+import javax.persistence.metamodel.*;
 import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
 
 /**
@@ -58,90 +62,112 @@ public class InternalCMPEntityManagerExtended implements EntityManager, EntityMa
 
     }
 
+    @Override
     public EntityManager getEntityManager() {
         return entityManager;
     }
 
+    @Override
     public void persist(Object o) {
         entityManager.persist(o);
     }
 
+    @Override
     public <T> T merge(T t) {
         return entityManager.merge(t);
     }
 
+    @Override
     public void remove(Object o) {
         entityManager.remove(o);
     }
 
+    @Override
     public <T> T find(Class<T> aClass, Object o) {
         return entityManager.find(aClass, o);
     }
 
+    @Override
     public <T> T getReference(Class<T> aClass, Object o) {
         return entityManager.getReference(aClass, o);
     }
 
+    @Override
     public void flush() {
         entityManager.flush();
     }
 
+    @Override
     public void setFlushMode(FlushModeType flushModeType) {
         entityManager.setFlushMode(flushModeType);
     }
 
+    @Override
     public FlushModeType getFlushMode() {
         return entityManager.getFlushMode();
     }
 
+    @Override
     public void lock(Object o, LockModeType lockModeType) {
         entityManager.lock(o, lockModeType);
     }
 
+    @Override
     public void refresh(Object o) {
         entityManager.refresh(o);
     }
 
+    @Override
     public void clear() {
         entityManager.clear();
     }
 
+    @Override
     public boolean contains(Object o) {
         return entityManager.contains(o);
     }
 
+    @Override
     public Query createQuery(String s) {
         return entityManager.createQuery(s);
     }
 
+    @Override
     public Query createNamedQuery(String s) {
         return entityManager.createNamedQuery(s);
     }
 
+    @Override
     public Query createNativeQuery(String s) {
         return entityManager.createNativeQuery(s);
     }
 
+    @Override
     public Query createNativeQuery(String s, Class aClass) {
         return entityManager.createNativeQuery(s, aClass);
     }
 
+    @Override
     public Query createNativeQuery(String s, String s1) {
         return entityManager.createNativeQuery(s, s1);
     }
 
+    @Override
     public void close() {
         //a no-op
     }
 
+    @Override
     public boolean isOpen() {
         return true;
     }
 
+    @Override
     public EntityTransaction getTransaction() {
         throw new IllegalStateException("You cannot call getTransaction on a container managed EntityManager");
     }
 
+    @Override
     public void joinTransaction() {
         //This checks section 5.6.3.1, throwing an EJBException if there is already a PersistenceContext.
         if (transactionManager.getResource(persistenceUnit) != null) {
@@ -151,14 +177,138 @@ public class InternalCMPEntityManagerExtended implements EntityManager, EntityMa
         entityManager.joinTransaction();
     }
 
+    @Override
     public Object getDelegate() {
         return entityManager.getDelegate();
     }
 
+    @Override
     public void beforeCompletion() {
     }
 
+    @Override
     public void afterCompletion(int i) {
         //close is a no-op
     }
+
+    /**
+     * JPA2 added methods
+     */
+    @Override
+    public Metamodel getMetamodel() {
+        return entityManager.getMetamodel();
+    }
+
+    @Override
+    public QueryBuilder getQueryBuilder() {
+        return entityManager.getQueryBuilder();
+    }
+
+    @Override
+    public EntityManagerFactory getEntityManagerFactory() {
+        return entityManager.getEntityManagerFactory();
+    }
+
+    @Override
+    public <T> TypedQuery<T> createNamedQuery(String name, Class<T> resultClass) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public <T> TypedQuery<T> createQuery(CriteriaQuery<T> criteriaQuery) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public <T> TypedQuery<T> createQuery(String qlString, Class<T> resultClass) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public void detach(Object entity) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public <T> T find(Class<T> entityClass, Object primaryKey,
+        Map<String, Object> properties) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public <T> T find(Class<T> entityClass, Object primaryKey,
+        LockModeType lockMode) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public <T> T find(Class<T> entityClass, Object primaryKey,
+        LockModeType lockMode, Map<String, Object> properties) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public LockModeType getLockMode(Object entity) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public Map<String, Object> getProperties() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public Set<String> getSupportedProperties() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public void lock(Object entity, LockModeType lockMode,
+        Map<String, Object> properties) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void refresh(Object entity, Map<String, Object> properties) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void refresh(Object entity, LockModeType lockMode) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void refresh(Object entity, LockModeType lockMode,
+        Map<String, Object> properties) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void setProperty(String propertyName, Object value) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public <T> T unwrap(Class<T> cls) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
 }
+

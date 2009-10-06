@@ -36,6 +36,8 @@ import javax.persistence.spi.ClassTransformer;
 import javax.persistence.spi.PersistenceProvider;
 import javax.persistence.spi.PersistenceUnitInfo;
 import javax.persistence.spi.PersistenceUnitTransactionType;
+import javax.persistence.spi.SharedCacheMode;
+import javax.persistence.spi.ValidationMode;
 import javax.resource.ResourceException;
 import javax.sql.DataSource;
 
@@ -265,60 +267,74 @@ public class PersistenceUnitGBean implements GBeanLifecycle {
             this.tempClassLoader = new TemporaryClassLoader(classLoader); 
         }
 
+        @Override
         public String getPersistenceUnitName() {
             return persistenceUnitName;
         }
 
+        @Override
         public String getPersistenceProviderClassName() {
             return persistenceProviderClassName;
         }
 
+        @Override
         public PersistenceUnitTransactionType getTransactionType() {
             return persistenceUnitTransactionType;
         }
 
+        @Override
         public DataSource getJtaDataSource() {
             return jtaDataSource;
         }
 
+        @Override
         public DataSource getNonJtaDataSource() {
             return nonJtaDataSource;
         }
 
+        @Override
         public List<String> getMappingFileNames() {
             return mappingFileNames;
         }
 
+        @Override
         public List<URL> getJarFileUrls() {
             return jarFileUrls;
         }
 
+        @Override
         public URL getPersistenceUnitRootUrl() {
             return persistenceUnitRootUrl;
         }
 
+        @Override
         public List<String> getManagedClassNames() {
             return managedClassNames;
         }
 
+        @Override
         public boolean excludeUnlistedClasses() {
             return excludeUnlistedClassesValue;
         }
 
+        @Override
         public Properties getProperties() {
             return properties;
         }
 
+        @Override
         public ClassLoader getClassLoader() {
             return classLoader;
         }
 
+        @Override
         public void addTransformer(ClassTransformer classTransformer) {
             TransformerWrapper transformer = new TransformerWrapper(classTransformer, classLoader);
             transformers.add(transformer);
             TransformerAgent.addTransformer(transformer);
         }
 
+        @Override
         public ClassLoader getNewTempClassLoader() {
             return tempClassLoader;
         }
@@ -327,6 +343,27 @@ public class PersistenceUnitGBean implements GBeanLifecycle {
             for (TransformerWrapper t : transformers) {
                 TransformerAgent.removeTransformer(t);
             }
+        }
+
+        /**
+         * JPA2 added methods
+         */
+        @Override
+        public String getPersistenceXMLSchemaVersion() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public SharedCacheMode getSharedCacheMode() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public ValidationMode getValidationMode() {
+            // TODO Auto-generated method stub
+            return null;
         }
 
     }

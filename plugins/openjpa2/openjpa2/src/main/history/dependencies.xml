@@ -2,7 +2,7 @@
 <plugin-artifact xmlns:ns2="http://geronimo.apache.org/xml/ns/attributes-1.2" xmlns="http://geronimo.apache.org/xml/ns/plugins-1.3">
     <module-id>
         <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>openjpa</artifactId>
+        <artifactId>openjpa2</artifactId>
         <version>3.0-SNAPSHOT</version>
         <type>car</type>
     </module-id>
@@ -28,7 +28,7 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>geronimo-openjpa</artifactId>
+        <artifactId>geronimo-openjpa2</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>

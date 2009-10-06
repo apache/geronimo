@@ -2,7 +2,7 @@
 <plugin-artifact xmlns:ns2="http://geronimo.apache.org/xml/ns/attributes-1.2" xmlns="http://geronimo.apache.org/xml/ns/plugins-1.3">
     <module-id>
         <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>persistence-jpa10-deployer</artifactId>
+        <artifactId>persistence-jpa20-deployer</artifactId>
         <version>3.0-SNAPSHOT</version>
         <type>car</type>
     </module-id>
@@ -18,7 +18,12 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>geronimo-persistence-jpa10-builder</artifactId>
+        <artifactId>geronimo-persistence-jpa20-builder</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.modules</groupId>
+        <artifactId>geronimo-persistence-jpa20</artifactId>
         <type>jar</type>
     </dependency>
 </plugin-artifact>

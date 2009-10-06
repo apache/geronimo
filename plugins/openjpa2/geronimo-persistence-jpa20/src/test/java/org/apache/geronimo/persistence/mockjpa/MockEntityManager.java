@@ -18,12 +18,18 @@
 package org.apache.geronimo.persistence.mockjpa;
 
 import java.util.Map;
+import java.util.Set;
 
 import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
 import javax.persistence.FlushModeType;
 import javax.persistence.LockModeType;
 import javax.persistence.Query;
 import javax.persistence.EntityTransaction;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.QueryBuilder;
+import javax.persistence.metamodel.Metamodel;
 
 /**
  * @version $Rev$ $Date$
@@ -145,5 +151,113 @@ public class MockEntityManager implements EntityManager {
 
     public boolean isJoined() {
         return joined;
+    }
+
+    /**
+     * JPA2 added methods
+     */
+    @Override
+    public <T> TypedQuery<T> createNamedQuery(String name, Class<T> resultClass) {
+        return null;
+    }
+
+    @Override
+    public <T> TypedQuery<T> createQuery(CriteriaQuery<T> criteriaQuery) {
+        return null;
+    }
+
+    @Override
+    public <T> TypedQuery<T> createQuery(String qlString, Class<T> resultClass) {
+        return null;
+    }
+
+    @Override
+    public void detach(Object entity) {
+    }
+
+    @Override
+    public <T> T find(Class<T> entityClass, Object primaryKey, Map<String, Object> properties) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public <T> T find(Class<T> entityClass, Object primaryKey, LockModeType lockMode) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public <T> T find(Class<T> entityClass, Object primaryKey, LockModeType lockMode, Map<String, Object> properties) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public EntityManagerFactory getEntityManagerFactory() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public LockModeType getLockMode(Object entity) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public Metamodel getMetamodel() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public QueryBuilder getQueryBuilder() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public Set<String> getSupportedProperties() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public void lock(Object entity, LockModeType lockMode,
+        Map<String, Object> properties) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void refresh(Object entity, Map<String, Object> properties) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void refresh(Object entity, LockModeType lockMode) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void refresh(Object entity, LockModeType lockMode,
+        Map<String, Object> properties) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void setProperty(String propertyName, Object value) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public <T> T unwrap(Class<T> cls) {
+        // TODO Auto-generated method stub
+        return null;
     }
 }
