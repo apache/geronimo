@@ -117,24 +117,12 @@
 
     <repositories>
         <repository>
-            <id>jetty-snapshots.oss.sonatype.org</id>
-            <name>Jetty Snapshot Repository</name>
+            <id>jetty.oss.sonatype.org</id>
+            <name>Jetty Repository</name>
             <layout>default</layout>
-            <url>http://oss.sonatype.org/content/repositories/jetty-snapshots/</url>
+            <url>http://oss.sonatype.org/content/repositories/jetty/</url>
             <snapshots>
                 <enabled>true</enabled>
-            </snapshots>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-        </repository>
-        <repository>
-            <id>jetty-releases.oss.sonatype.org</id>
-            <name>Jetty-Releases Repository</name>
-            <layout>default</layout>
-            <url>http://oss.sonatype.org/content/repositories/jetty-releases/</url>
-            <snapshots>
-                <enabled>false</enabled>
             </snapshots>
             <releases>
                 <enabled>true</enabled>

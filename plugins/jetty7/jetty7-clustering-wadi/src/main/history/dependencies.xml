@@ -53,11 +53,6 @@
     </dependency>
     <dependency>
         <groupId>org.eclipse.jetty</groupId>
-        <artifactId>jetty-webapp-verifier</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.eclipse.jetty</groupId>
         <artifactId>jetty-xml</artifactId>
         <type>jar</type>
     </dependency>
