@@ -30,7 +30,7 @@
     
     <groupId>org.apache.geronimo.modules</groupId>
     <artifactId>geronimo-persistence-jpa10</artifactId>
-    <name>Geronimo Plugins, OpenJPA :: Persistence 3.0</name>
+    <name>Geronimo Plugins, OpenJPA :: Persistence 1.0</name>
 
     <dependencies>
         <!-- g-transaction, g-system come from this -->

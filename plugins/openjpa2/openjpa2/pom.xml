@@ -24,17 +24,17 @@
     
     <parent>
         <groupId>org.apache.geronimo.plugins</groupId>
-        <artifactId>openjpa</artifactId>
+        <artifactId>openjpa2</artifactId>
         <version>3.0-SNAPSHOT</version>
     </parent>
     
     <groupId>org.apache.geronimo.configs</groupId>
-    <artifactId>openjpa</artifactId>
-    <name>Geronimo Plugins, OpenJPA :: OpenJPA</name>
+    <artifactId>openjpa2</artifactId>
+    <name>Geronimo Plugins, OpenJPA2 :: CAR</name>
     <packaging>car</packaging>
     
     <description>
-        This module provides OpenJPA together with all its dependencies.
+        This module provides OpenJPA2 together with all its dependencies.
     </description>
     
     <dependencies>
@@ -48,7 +48,7 @@
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-openjpa</artifactId>
+            <artifactId>geronimo-openjpa2</artifactId>
             <version>${version}</version>
         </dependency>
 

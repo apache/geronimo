@@ -24,13 +24,13 @@
     
     <parent>
         <groupId>org.apache.geronimo.plugins</groupId>
-        <artifactId>openjpa</artifactId>
+        <artifactId>openjpa2</artifactId>
         <version>3.0-SNAPSHOT</version>
     </parent>
     
     <groupId>org.apache.geronimo.modules</groupId>
-    <artifactId>geronimo-persistence-jpa10</artifactId>
-    <name>Geronimo Plugins, OpenJPA :: Persistence 3.0</name>
+    <artifactId>geronimo-persistence-jpa20</artifactId>
+    <name>Geronimo Plugins, OpenJPA2 :: Persistence 2.0</name>
 
     <dependencies>
         <!-- g-transaction, g-system come from this -->
@@ -55,34 +55,40 @@
 
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-jpa_1.0_spec</artifactId>
+            <artifactId>geronimo-jpa_2.0_spec</artifactId>
             <scope>provided</scope>
         </dependency>
+
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-ejb_3.1_spec</artifactId>
             <scope>provided</scope>
         </dependency>
+
         <dependency>
             <groupId>org.apache.openjpa</groupId>
             <artifactId>openjpa</artifactId>
             <scope>test</scope>
         </dependency>
+
         <dependency>
             <groupId>commons-collections</groupId>
             <artifactId>commons-collections</artifactId>
             <scope>test</scope>
         </dependency>
+
         <dependency>
             <groupId>commons-lang</groupId>
             <artifactId>commons-lang</artifactId>
             <scope>test</scope>
         </dependency>
+
         <dependency>
             <groupId>net.sourceforge.serp</groupId>
             <artifactId>serp</artifactId>
             <scope>test</scope>
         </dependency>
+
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>jcl-over-slf4j</artifactId>

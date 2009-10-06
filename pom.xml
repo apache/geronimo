@@ -82,7 +82,6 @@
         <axis2Version>1.5</axis2Version>
         <axiomVersion>1.2.8</axiomVersion>
         <springVersion>2.5.6</springVersion>
-        <openjpaVersion>1.2.1</openjpaVersion>
         <xbeanVersion>3.6</xbeanVersion>
         <jetty>jetty7</jetty>
 
@@ -248,6 +247,11 @@
                 <artifactId>geronimo-jpa_1.0_spec</artifactId>
                 <version>1.1.2</version>
             </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.specs</groupId>
+                <artifactId>geronimo-jpa_2.0_spec</artifactId>
+                <version>1.0-PFD2-SNAPSHOT</version>
+            </dependency>
 
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
@@ -328,11 +332,11 @@
                 <classifier>tests</classifier>
             </dependency>
 
+            <!--
             <dependency>
                 <groupId>org.apache.openjpa</groupId>
                 <artifactId>openjpa</artifactId>
                 <version>${openjpaVersion}</version>
-                <!-- already listed as provided in openjpa 1.2.x -->
                 <exclusions>
                     <exclusion>
                         <groupId>org.apache.openjpa</groupId>
@@ -388,6 +392,10 @@
                     </exclusion>
                     <exclusion>
                         <groupId>org.apache.geronimo.specs</groupId>
+                        <artifactId>geronimo-jpa_1.0_spec</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.geronimo.specs</groupId>
                         <artifactId>geronimo-jpa_3.0_spec</artifactId>
                     </exclusion>
                 </exclusions>
@@ -397,6 +405,7 @@
                 <artifactId>openjpa-persistence-jdbc</artifactId>
                 <version>${openjpaVersion}</version>
             </dependency>
+            -->
 
             <dependency>
                 <groupId>net.sourceforge.serp</groupId>
