@@ -2132,7 +2132,7 @@
         </repository>
         <repository>
             <id>jetty-staging</id>
-            <url>http://oss.sonatype.org/content/repositories/jetty-stage-018/</url>
+            <url>http://oss.sonatype.org/content/repositories/jetty-with-staging/</url>
             <releases>
                 <checksumPolicy>fail</checksumPolicy>
                 <enabled>true</enabled>
