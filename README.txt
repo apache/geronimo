@@ -20,10 +20,10 @@ Documentation
  This README serves as quick introduction to Geronimo. More complete documentation 
  can be found here:
  
-   -  http://cwiki.apache.org/GMOxDOC22/documentation.html
+   -  http://cwiki.apache.org/GMOxDOC30/documentation.html
    OR
    -  http://cwiki.apache.org/GMOxDOC21/documentation.html
-   (Geronimo 2.1 documentation until Geronimo @VERSION@ documentation is created)
+   (Geronimo 2.2 documentation until Geronimo @VERSION@ documentation is created)
 
 
 ______________________
