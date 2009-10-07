@@ -2042,7 +2042,7 @@
                             <assembly>
                                 <id>jetty</id>
                                 <groupId>org.apache.geronimo.assemblies</groupId>
-                                <artifactId>geronimo-jetty7-javaee5</artifactId>
+                                <artifactId>geronimo-jetty8-javaee6</artifactId>
                                 <version>${version}</version>
                                 <classifier>bin</classifier>
                                 <type>zip</type>
@@ -2051,7 +2051,7 @@
                             <assembly>
                                 <id>jetty-minimal</id>
                                 <groupId>org.apache.geronimo.assemblies</groupId>
-                                <artifactId>geronimo-jetty7-minimal</artifactId>
+                                <artifactId>geronimo-jetty8-minimal</artifactId>
                                 <version>${version}</version>
                                 <classifier>bin</classifier>
                                 <type>zip</type>
@@ -2092,7 +2092,7 @@
                                 <id>morememory</id>
                                 <options>
                                     <option>-Xmx512m</option>
-                                    <option>-XX:MaxPermSize=128m</option>
+                                    <option>-XX:MaxPermSize=256m</option>
                                 </options>
                             </optionSet>
 

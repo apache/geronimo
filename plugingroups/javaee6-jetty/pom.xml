@@ -29,12 +29,12 @@
         <version>3.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>javaee5-jetty</artifactId>
+    <artifactId>javaee6-jetty</artifactId>
     <packaging>car</packaging>
-    <name>Geronimo Plugin Group :: Java EE 5 Jetty</name>
+    <name>Geronimo Plugin Group :: Java EE 6 Jetty</name>
 
     <description>
-        This plugin group provides Java EE 5 Jetty functionality.
+        This plugin group provides Java EE 6 Jetty functionality.
     </description>
 
     <dependencies>

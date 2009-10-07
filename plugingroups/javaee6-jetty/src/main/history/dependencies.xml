@@ -2,7 +2,7 @@
 <plugin-artifact xmlns:ns2="http://geronimo.apache.org/xml/ns/attributes-1.2" xmlns="http://geronimo.apache.org/xml/ns/plugins-1.3">
     <module-id>
         <groupId>org.apache.geronimo.plugingroups</groupId>
-        <artifactId>javaee5-jetty</artifactId>
+        <artifactId>javaee6-jetty</artifactId>
         <version>3.0-SNAPSHOT</version>
         <type>car</type>
     </module-id>
