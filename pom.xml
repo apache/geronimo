@@ -107,7 +107,7 @@
         <tomcatDeployer>org.apache.geronimo.configs/tomcat6-deployer/${version}/car</tomcatDeployer>
         <jettyDeployer>org.apache.geronimo.configs/${jetty}-deployer/${version}/car</jettyDeployer>
         <jasperDeployer>org.apache.geronimo.configs/jasper-deployer/${version}/car</jasperDeployer>
-        <jpaDeployer>org.apache.geronimo.configs/persistence-jpa10-deployer/${version}/car</jpaDeployer>
+        <jpaDeployer>org.apache.geronimo.configs/persistence-jpa20-deployer/${version}/car</jpaDeployer>
 
         <!-- Common plan properties -->
         <PlanServerHostname>0.0.0.0</PlanServerHostname>
