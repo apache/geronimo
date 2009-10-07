@@ -89,7 +89,7 @@
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-persistence-jpa10</artifactId>
+            <artifactId>geronimo-persistence-jpa20</artifactId>
             <version>${version}</version>
         </dependency>
 

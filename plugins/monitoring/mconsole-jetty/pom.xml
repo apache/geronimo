@@ -62,7 +62,7 @@
         
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>persistence-jpa10-deployer</artifactId>
+            <artifactId>persistence-jpa20-deployer</artifactId>
             <version>${version}</version>
             <type>car</type>
             <scope>provided</scope>
@@ -107,7 +107,7 @@
 
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>openjpa</artifactId>
+            <artifactId>openjpa2</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>

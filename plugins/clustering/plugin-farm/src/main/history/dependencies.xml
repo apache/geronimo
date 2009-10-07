@@ -8,7 +8,7 @@
     </module-id>
     <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>openjpa</artifactId>
+        <artifactId>openjpa2</artifactId>
         <type>car</type>
     </dependency>
     <dependency>
