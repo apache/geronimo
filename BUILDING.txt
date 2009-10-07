@@ -21,7 +21,7 @@ Welcome to Apache Geronimo
 To build you will need:
 
  * JDK 5.0+ (J2SE 1.5.0+) (http://java.sun.com/j2se/1.5.0)
- * Maven 2.0.9+ (http://maven.apache.org)
+ * Maven 2.0.10+ (http://maven.apache.org)
 
 For detailed instructions please see:
 
@@ -67,10 +67,10 @@ And then:
     mvn site -Denv=site
 
 If you attempt to run `mvn clean install site` strange errors are bound to occur
-which will drive you crazy and you may start pulling your hairout... so its not
+which will drive you crazy and you may start pulling your hair out... so its not
 recommended.
 
-It is important to specify `-Denv=site` to limit the modules which are processed,
-as many of the configs modules will freak-out.
+It is important to specify `-Denv=site` to limit the modules which are
+processed, as many of the configs modules will freak-out.
 
 

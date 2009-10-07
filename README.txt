@@ -17,25 +17,25 @@ ______________________
 Documentation
 ======================
  
- This README serves as quick introduction to Geronimo. More complete documentation 
- can be found here:
+ This README serves as quick introduction to Geronimo. More complete
+ documentation can be found here:
  
    -  http://cwiki.apache.org/GMOxDOC22/documentation.html
    OR
    -  http://cwiki.apache.org/GMOxDOC21/documentation.html
-   (Geronimo 2.1 documentation until Geronimo @VERSION@ documentation is created)
 
 
 ______________________
 Installing Geronimo
 ======================
 
- To install Geronimo, simply unpack the .zip (Windows) or tar.gz (Unix) file containing
- Geronimo.
+ To install Geronimo, simply unpack the .zip (Windows) or tar.gz (Unix) file
+ containing Geronimo.
 
  Note for Windows platforms:
  The maximum path length for a directory path is 255 characters. Installing
- Geronimo into a long directory path may cause the installation or server start up to fail. 
+ Geronimo into a long directory path may cause the installation or server
+ startup to fail. 
  It is recommended that you use a short directory name, such as "c:\g\".
 
 
@@ -43,13 +43,12 @@ ______________________
 Starting Geronimo 
 ======================
 
- There are three general techniques for starting Geronimo (assuming the current directory
- is <geronimo_home>):
+ There are three general techniques for starting Geronimo (assuming the current
+ directory is <geronimo_home>):
 
  1. GShell -- "./bin/gsh geronimo/start-server"
  2. Script -- "./bin/geronimo.sh run"
  3. Java   -- "java -Djava.endorsed.dirs=$JRE_HOME/lib/endorsed:lib/endorsed -Djava.ext.dirs=$JRE_HOME/lib/ext:lib/ext -javaagent:bin/jpa.jar -jar bin/server.jar"
-
 
 Additional information on command environments can be found below.
 
@@ -60,29 +59,31 @@ Application Deployment
 
  Applications can be deployed to a Geronimo server in several ways:
 
- 1. Administrative command scripts -- "./bin/gsh deploy/deploy MyApp.war MyDeploymentPlan.xml"
- 2. Administrative console -- login to the admin console and click "Deploy New" under Applications
- 3. Hot deploy -- copy your archive(s) into the "<geronimo-home>/deploy" directory. The
-    hot deploy service will automatically deploy these artifacts.
- 4. Maven -- applications can be installed as part of a maven build
+ 1. Administrative command scripts -
+      ./bin/gsh deploy/deploy MyApp.war MyDeploymentPlan.xml"
+ 2. Administrative console -
+      Login to the admin console and click "Deploy New" under Applications
+ 3. Hot deploy -
+      Copy your archive(s) into the "<geronimo-home>/deploy" directory.
+      The hot deploy service will automatically deploy these artifacts.
+ 4. Maven -
+      Applications can be installed as part of a maven build
 
  When you deploy an application using an administrative command, you will need
- to supply an administrator's username/password. If you do not specify the username
- and password, you will be prompted for them.
+ to supply an administrator's username/password. If you do not specify the
+ username and password, you will be prompted for them.
 
 
 ______________________
 Configuration
 ======================
 
- Commonly modified configuration parameters, such as port numbers, can be set by 
- editing the file:
-
- <geronimo_home>/var/config/config-substitutions.properties
+ Commonly modified configuration parameters, such as port numbers, can be set
+ by editing the file:
+     <geronimo_home>/var/config/config-substitutions.properties
  
  Additional configuration attributes can be updated in the file:
-
- <geronimo_home>/var/config/config.xml
+     <geronimo_home>/var/config/config.xml
 
  Note: The server must not be running when these files are modified.
 
@@ -95,22 +96,24 @@ ______________________
 Security Configuration
 ======================
 
- The default administration user/password for the Geronimo Administration Console
- and command line deployment tool is system/manager.  You can change these defaults
- directly from the Geronimo Administration Console by accessing Security -> Users 
- and Groups and change the user name and password from the Console Realm Users portlet.
+ The default administration user/password for the Geronimo Administration
+ Console and command line deployment tool is system/manager.  You can change
+ these defaults directly from the Geronimo Administration Console by accessing
+ Security -> Users and Groups and change the user name and password from the
+ Console Realm Users portlet.
 
- As an alternative, you can make the same changes by editing the
- <geronimo_home>/var/security/users.properties and
- <geronimo_home>/var/security/groups.properties files.
+ As an alternative, the same changes can be made by editing the following files:
+     <geronimo_home>/var/security/users.properties
+     <geronimo_home>/var/security/groups.properties
 
- Access to the var/security directory should be appropriately secured on systems where
- you install Geronimo.
+ Access to the var/security directory should be appropriately secured on
+ systems where you install Geronimo.
 
- Passwords in users.properties are encrypted by the server. Passwords can be changed 
- using the Geronimo Administration Console. They can also be changed using a text
- editor. While the server is stopped, simply edit the users.properties file. The 
- password(s) will be encrypted the next time the server is started. 
+ Passwords in users.properties are encrypted by the server. Passwords can be
+ changed using the Geronimo Administration Console. They can also be changed
+ using a text editor. While the server is stopped, simply edit the
+ users.properties file. The password(s) will be encrypted the next time the
+ server is started. 
 
  To prevent potential security exposures, we strongly recommend you update the 
  default user names and passwords on your system.
@@ -120,13 +123,14 @@ ______________________
 GShell
 ======================
 
- Geronimo provides a command shell environment for executing commands, called GShell. 
+ Geronimo provides a command shell environment for executing commands,
+ called GShell. 
 
- To start a GShell environment, from the <geronimo_home> directory, execute "./bin/gsh" (unix)
- or "bin\gsh" (windows). This will start a GShell command environment. From here,
- you can execute Geronimo administrative commands as well as general GShell commands.
- Alternatively, you can invoke a GShell command at the same time that you invoke gsh, for
- example:
+ To start a GShell environment, from the <geronimo_home> directory, execute 
+ "./bin/gsh" (Unix) or "bin\gsh" (Windows). This will start a GShell command
+ environment. From here, you can execute Geronimo administrative commands as
+ well as general GShell commands.  Alternatively, you can invoke a GShell
+ command at the same time that you invoke gsh, for example:
   
    ./bin/gsh geronimo/stop-server
 
@@ -141,19 +145,21 @@ GShell
    deploy/install-plugin
    deploy/assemble
 
- Usage information for any command can be obtained by using the --help option. For example:
+ Usage information for any command can be obtained by using the --help option.
+ For example:
 
    geronimo/start-server --help 
 
- For more information on GShell and GShell commands, see the Geronimo @VERSION@ documentation.
+ For more information on GShell and GShell commands, see the
+ Geronimo @VERSION@ documentation.
 
 ______________________
 Script
 ======================
 
- Geronimo provides a number of .sh or .bat scripts that can be used to administer Geronimo
- servers. To use most of these scripts, you must first set either the JAVA_HOME 
- or JRE_HOME environment variable:
+ Geronimo provides a number of .sh or .bat scripts that can be used to
+ administer Geronimo servers. To use most of these scripts, you must first set
+ either the JAVA_HOME or JRE_HOME environment variable:
 
    export JAVA_HOME=<path-to-JDK>
   or
@@ -161,7 +167,7 @@ Script
 
  Unix scripts provided by Geronimo (there are .bat equivalents):
 
-   geronimo.sh -- used to start and stop servers; either as a foreground or background process.
+   geronimo.sh -- used to start and stop servers in foreground or background
    startup.sh -- start a Geronimo server running as a background process
    shutdown.sh -- stop a running Geronimo server
    client.sh -- start a Geronimo application client
@@ -170,32 +176,33 @@ Script
 
  For example, "./bin/deploy.sh list-modules"
 
- The geronimo.sh and shutdown.sh scripts have multiple sub-commands. Executing the scripts without
- any arguments will generate usage information. Executing "help <sub-command>" will generate
- usage information for that particular command.
+ The geronimo.sh and shutdown.sh scripts have multiple sub-commands. Executing
+ the scripts without any arguments will generate usage information. Executing
+ "help <sub-command>" will generate usage information for that particular
+ command.
 
 
 ______________________
 Support
 ======================
  
- Any problems with this release can be reported to the Geronimo user mailing list 
- or Jira issue tracker.
+ Any problems with this release can be reported to the Geronimo user mailing
+ list or Jira issue tracker.
 
  Mailing list archive:
- http://mail-archives.apache.org/mod_mbox/geronimo-user/
+     http://mail-archives.apache.org/mod_mbox/geronimo-user/
 
  User mailing list:
- user@geronimo.apache.org
+     user@geronimo.apache.org
 
  User mailing list subscription:
- user-subscribe@geronimo.apache.org
+     user-subscribe@geronimo.apache.org
 
  Jira:
- https://issues.apache.org/jira/browse/GERONIMO
+     https://issues.apache.org/jira/browse/GERONIMO
 
  Information concerning security issues and reporting security concerns: 
- http://geronimo.apache.org/security-reports.html
+     http://geronimo.apache.org/security-reports.html
 
  _______________________________________
  Notice Regarding Cryptographic Software
@@ -230,3 +237,4 @@ Support
    
    The URL above is a reference to the Apache Geronimo Server source
    tree for all development (and released) source trees.
+
