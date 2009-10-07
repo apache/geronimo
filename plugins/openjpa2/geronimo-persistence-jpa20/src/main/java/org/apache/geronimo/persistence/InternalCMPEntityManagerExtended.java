@@ -211,103 +211,82 @@ public class InternalCMPEntityManagerExtended implements EntityManager, EntityMa
 
     @Override
     public <T> TypedQuery<T> createNamedQuery(String name, Class<T> resultClass) {
-        // TODO Auto-generated method stub
-        return null;
+        return entityManager.createNamedQuery(name, resultClass);
     }
 
     @Override
     public <T> TypedQuery<T> createQuery(CriteriaQuery<T> criteriaQuery) {
-        // TODO Auto-generated method stub
-        return null;
+        return entityManager.createQuery(criteriaQuery);
     }
 
     @Override
     public <T> TypedQuery<T> createQuery(String qlString, Class<T> resultClass) {
-        // TODO Auto-generated method stub
-        return null;
+        return entityManager.createQuery(qlString, resultClass);
     }
 
     @Override
     public void detach(Object entity) {
-        // TODO Auto-generated method stub
-        
+        entityManager.detach(entity);
     }
 
     @Override
-    public <T> T find(Class<T> entityClass, Object primaryKey,
-        Map<String, Object> properties) {
-        // TODO Auto-generated method stub
-        return null;
+    public <T> T find(Class<T> entityClass, Object primaryKey, Map<String, Object> properties) {
+        return entityManager.find(entityClass, primaryKey, properties);
     }
 
     @Override
-    public <T> T find(Class<T> entityClass, Object primaryKey,
-        LockModeType lockMode) {
-        // TODO Auto-generated method stub
-        return null;
+    public <T> T find(Class<T> entityClass, Object primaryKey, LockModeType lockMode) {
+        return entityManager.find(entityClass, primaryKey, lockMode);
     }
 
     @Override
-    public <T> T find(Class<T> entityClass, Object primaryKey,
-        LockModeType lockMode, Map<String, Object> properties) {
-        // TODO Auto-generated method stub
-        return null;
+    public <T> T find(Class<T> entityClass, Object primaryKey, LockModeType lockMode, Map<String, Object> properties) {
+        return entityManager.find(entityClass, primaryKey, lockMode, properties);
     }
 
     @Override
     public LockModeType getLockMode(Object entity) {
-        // TODO Auto-generated method stub
-        return null;
+        return entityManager.getLockMode(entity);
     }
 
     @Override
     public Map<String, Object> getProperties() {
-        // TODO Auto-generated method stub
-        return null;
+        return entityManager.getProperties();
     }
 
     @Override
     public Set<String> getSupportedProperties() {
-        // TODO Auto-generated method stub
-        return null;
+        return entityManager.getSupportedProperties();
     }
 
     @Override
-    public void lock(Object entity, LockModeType lockMode,
-        Map<String, Object> properties) {
-        // TODO Auto-generated method stub
-        
+    public void lock(Object entity, LockModeType lockMode, Map<String, Object> properties) {
+        entityManager.lock(entity, lockMode, properties);
     }
 
     @Override
     public void refresh(Object entity, Map<String, Object> properties) {
-        // TODO Auto-generated method stub
-        
+        entityManager.refresh(entity, properties);
     }
 
     @Override
     public void refresh(Object entity, LockModeType lockMode) {
-        // TODO Auto-generated method stub
-        
+        entityManager.refresh(entity, lockMode);
     }
 
     @Override
-    public void refresh(Object entity, LockModeType lockMode,
-        Map<String, Object> properties) {
-        // TODO Auto-generated method stub
-        
+    public void refresh(Object entity, LockModeType lockMode, Map<String, Object> properties) {
+        entityManager.refresh(entity, lockMode, properties);
     }
 
     @Override
     public void setProperty(String propertyName, Object value) {
-        // TODO Auto-generated method stub
-        
+        entityManager.setProperty(propertyName, value);
     }
 
     @Override
     public <T> T unwrap(Class<T> cls) {
-        // TODO Auto-generated method stub
-        return null;
+        return entityManager.unwrap(cls);
     }
 
 }

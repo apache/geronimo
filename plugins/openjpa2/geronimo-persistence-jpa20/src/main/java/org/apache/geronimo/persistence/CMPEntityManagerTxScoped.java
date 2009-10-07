@@ -416,102 +416,241 @@ public class CMPEntityManagerTxScoped implements EntityManager {
 
     @Override
     public <T> TypedQuery<T> createNamedQuery(String name, Class<T> resultClass) {
-        // TODO Auto-generated method stub
-        return null;
+        EntityManager entityManager = getEntityManager(false);
+        if (entityManager != null) {
+            return entityManager.createNamedQuery(name, resultClass);
+        } else {
+            entityManager = createEntityManager();
+            try {
+                return entityManager.createNamedQuery(name, resultClass);
+            } finally {
+                entityManager.close();
+            }
+        }
     }
 
     @Override
     public <T> TypedQuery<T> createQuery(CriteriaQuery<T> criteriaQuery) {
-        // TODO Auto-generated method stub
-        return null;
+        EntityManager entityManager = getEntityManager(false);
+        if (entityManager != null) {
+            return entityManager.createQuery(criteriaQuery);
+        } else {
+            entityManager = createEntityManager();
+            try {
+                return entityManager.createQuery(criteriaQuery);
+            } finally {
+                entityManager.close();
+            }
+        }
     }
 
     @Override
     public <T> TypedQuery<T> createQuery(String qlString, Class<T> resultClass) {
-        // TODO Auto-generated method stub
-        return null;
+        EntityManager entityManager = getEntityManager(false);
+        if (entityManager != null) {
+            return entityManager.createQuery(qlString, resultClass);
+        } else {
+            entityManager = createEntityManager();
+            try {
+                return entityManager.createQuery(qlString, resultClass);
+            } finally {
+                entityManager.close();
+            }
+        }
     }
 
     @Override
     public void detach(Object entity) {
-        // TODO Auto-generated method stub
-        
+        EntityManager entityManager = getEntityManager(false);
+        if (entityManager != null) {
+            entityManager.detach(entity);
+        } else {
+            entityManager = createEntityManager();
+            try {
+                entityManager.detach(entity);
+            } finally {
+                entityManager.close();
+            }
+        }
     }
 
     @Override
-    public <T> T find(Class<T> entityClass, Object primaryKey,
-        Map<String, Object> properties) {
-        // TODO Auto-generated method stub
-        return null;
+    public <T> T find(Class<T> entityClass, Object primaryKey, Map<String, Object> properties) {
+        EntityManager entityManager = getEntityManager(false);
+        if (entityManager != null) {
+            return entityManager.find(entityClass, primaryKey, properties);
+        } else {
+            entityManager = createEntityManager();
+            try {
+                return entityManager.find(entityClass, primaryKey, properties);
+            } finally {
+                entityManager.close();
+            }
+        }
     }
 
     @Override
-    public <T> T find(Class<T> entityClass, Object primaryKey,
-        LockModeType lockMode) {
-        // TODO Auto-generated method stub
-        return null;
+    public <T> T find(Class<T> entityClass, Object primaryKey, LockModeType lockMode) {
+        EntityManager entityManager = getEntityManager(false);
+        if (entityManager != null) {
+            return entityManager.find(entityClass, primaryKey, lockMode);
+        } else {
+            entityManager = createEntityManager();
+            try {
+                return entityManager.find(entityClass, primaryKey, lockMode);
+            } finally {
+                entityManager.close();
+            }
+        }
     }
 
     @Override
-    public <T> T find(Class<T> entityClass, Object primaryKey,
-        LockModeType lockMode, Map<String, Object> properties) {
-        // TODO Auto-generated method stub
-        return null;
+    public <T> T find(Class<T> entityClass, Object primaryKey, LockModeType lockMode, Map<String, Object> properties) {
+        EntityManager entityManager = getEntityManager(false);
+        if (entityManager != null) {
+            return entityManager.find(entityClass, primaryKey, lockMode, properties);
+        } else {
+            entityManager = createEntityManager();
+            try {
+                return entityManager.find(entityClass, primaryKey, lockMode, properties);
+            } finally {
+                entityManager.close();
+            }
+        }
     }
 
     @Override
     public LockModeType getLockMode(Object entity) {
-        // TODO Auto-generated method stub
-        return null;
+        EntityManager entityManager = getEntityManager(false);
+        if (entityManager != null) {
+            return entityManager.getLockMode(entity);
+        } else {
+            entityManager = createEntityManager();
+            try {
+                return entityManager.getLockMode(entity);
+            } finally {
+                entityManager.close();
+            }
+        }
     }
 
     @Override
     public Map<String, Object> getProperties() {
-        // TODO Auto-generated method stub
-        return null;
+        EntityManager entityManager = getEntityManager(false);
+        if (entityManager != null) {
+            return entityManager.getProperties();
+        } else {
+            entityManager = createEntityManager();
+            try {
+                return entityManager.getProperties();
+            } finally {
+                entityManager.close();
+            }
+        }
     }
 
     @Override
     public Set<String> getSupportedProperties() {
-        // TODO Auto-generated method stub
-        return null;
+        EntityManager entityManager = getEntityManager(false);
+        if (entityManager != null) {
+            return entityManager.getSupportedProperties();
+        } else {
+            entityManager = createEntityManager();
+            try {
+                return entityManager.getSupportedProperties();
+            } finally {
+                entityManager.close();
+            }
+        }
     }
 
     @Override
-    public void lock(Object entity, LockModeType lockMode,
-        Map<String, Object> properties) {
-        // TODO Auto-generated method stub
-        
+    public void lock(Object entity, LockModeType lockMode, Map<String, Object> properties) {
+        EntityManager entityManager = getEntityManager(false);
+        if (entityManager != null) {
+            entityManager.lock(entity, lockMode, properties);
+        } else {
+            entityManager = createEntityManager();
+            try {
+                entityManager.lock(entity, lockMode, properties);
+            } finally {
+                entityManager.close();
+            }
+        }
     }
 
     @Override
     public void refresh(Object entity, Map<String, Object> properties) {
-        // TODO Auto-generated method stub
-        
+        EntityManager entityManager = getEntityManager(false);
+        if (entityManager != null) {
+            entityManager.refresh(entity, properties);
+        } else {
+            entityManager = createEntityManager();
+            try {
+                entityManager.refresh(entity, properties);
+            } finally {
+                entityManager.close();
+            }
+        }
     }
 
     @Override
     public void refresh(Object entity, LockModeType lockMode) {
-        // TODO Auto-generated method stub
-        
+        EntityManager entityManager = getEntityManager(false);
+        if (entityManager != null) {
+            entityManager.refresh(entity, lockMode);
+        } else {
+            entityManager = createEntityManager();
+            try {
+                entityManager.refresh(entity, lockMode);
+            } finally {
+                entityManager.close();
+            }
+        }
     }
 
     @Override
-    public void refresh(Object entity, LockModeType lockMode,
-        Map<String, Object> properties) {
-        // TODO Auto-generated method stub
-        
+    public void refresh(Object entity, LockModeType lockMode, Map<String, Object> properties) {
+        EntityManager entityManager = getEntityManager(false);
+        if (entityManager != null) {
+            entityManager.refresh(entity, lockMode, properties);
+        } else {
+            entityManager = createEntityManager();
+            try {
+                entityManager.refresh(entity, lockMode, properties);
+            } finally {
+                entityManager.close();
+            }
+        }
     }
 
     @Override
     public void setProperty(String propertyName, Object value) {
-        // TODO Auto-generated method stub
-        
+        EntityManager entityManager = getEntityManager(false);
+        if (entityManager != null) {
+            entityManager.setProperty(propertyName, value);
+        } else {
+            entityManager = createEntityManager();
+            try {
+                entityManager.setProperty(propertyName, value);
+            } finally {
+                entityManager.close();
+            }
+        }
     }
 
     @Override
     public <T> T unwrap(Class<T> cls) {
-        // TODO Auto-generated method stub
-        return null;
+        EntityManager entityManager = getEntityManager(false);
+        if (entityManager != null) {
+            return entityManager.unwrap(cls);
+        } else {
+            entityManager = createEntityManager();
+            try {
+                return entityManager.unwrap(cls);
+            } finally {
+                entityManager.close();
+            }
+        }
     }
 }

@@ -86,6 +86,9 @@ public class PersistenceUnitGBean implements GBeanLifecycle {
             TransactionManagerImpl transactionManager,
             Collection<ExtendedEntityManagerRegistry > entityManagerRegistry,
             URL configurationBaseURL,
+            String persistenceXMLSchemaVersion,
+            SharedCacheMode sharedCacheMode,
+            ValidationMode validationMode,
             ClassLoader classLoader) throws URISyntaxException, MalformedURLException, ResourceException {
         List<String> mappingFileNames = mappingFileNamesUntyped == null? NO_STRINGS: new ArrayList<String>(mappingFileNamesUntyped);
         this.persistenceUnitRoot = persistenceUnitRoot;
@@ -122,6 +125,9 @@ public class PersistenceUnitGBean implements GBeanLifecycle {
                 managedClassNames,
                 excludeUnlistedClassesValue,
                 properties,
+                persistenceXMLSchemaVersion,
+                sharedCacheMode,
+                validationMode,
                 classLoader);
         try {
             Class clazz = classLoader.loadClass(persistenceProviderClassName);
@@ -245,9 +251,18 @@ public class PersistenceUnitGBean implements GBeanLifecycle {
         private final ClassLoader classLoader;
         private final TemporaryClassLoader tempClassLoader;
         private final List<TransformerWrapper> transformers;
+        private final String persistenceXMLSchemaVersion;
+        private final SharedCacheMode sharedCacheMode;
+        private final ValidationMode validationMode;
 
 
-        public PersistenceUnitInfoImpl(String persistenceUnitName, String persistenceProviderClassName, PersistenceUnitTransactionType persistenceUnitTransactionType, DataSource jtaDataSource, DataSource nonJtaDataSource, List<String> mappingFileNames, List<URL> jarFileUrls, URL persistenceUnitRootUrl, List<String> managedClassNames, boolean excludeUnlistedClassesValue, Properties properties, ClassLoader classLoader) {
+        public PersistenceUnitInfoImpl(String persistenceUnitName, String persistenceProviderClassName,
+                PersistenceUnitTransactionType persistenceUnitTransactionType, DataSource jtaDataSource,
+                DataSource nonJtaDataSource, List<String> mappingFileNames, List<URL> jarFileUrls,
+                URL persistenceUnitRootUrl, List<String> managedClassNames, boolean excludeUnlistedClassesValue,
+                Properties properties, String persistenceXMLSchemaVersion, SharedCacheMode sharedCacheMode,
+                ValidationMode validationMode, ClassLoader classLoader) {
+            
             this.persistenceUnitName = persistenceUnitName;
             this.persistenceProviderClassName = persistenceProviderClassName;
             this.persistenceUnitTransactionType = persistenceUnitTransactionType;
@@ -259,6 +274,10 @@ public class PersistenceUnitGBean implements GBeanLifecycle {
             this.managedClassNames = managedClassNames;
             this.excludeUnlistedClassesValue = excludeUnlistedClassesValue;
             this.properties = properties;
+            this.persistenceXMLSchemaVersion = persistenceXMLSchemaVersion;
+            this.sharedCacheMode = sharedCacheMode;
+            this.validationMode = validationMode;
+
             this.classLoader = classLoader;
             this.transformers = new ArrayList<TransformerWrapper>();
             
@@ -350,20 +369,17 @@ public class PersistenceUnitGBean implements GBeanLifecycle {
          */
         @Override
         public String getPersistenceXMLSchemaVersion() {
-            // TODO Auto-generated method stub
-            return null;
+            return persistenceXMLSchemaVersion;
         }
 
         @Override
         public SharedCacheMode getSharedCacheMode() {
-            // TODO Auto-generated method stub
-            return null;
+            return sharedCacheMode;
         }
 
         @Override
         public ValidationMode getValidationMode() {
-            // TODO Auto-generated method stub
-            return null;
+            return validationMode;
         }
 
     }
@@ -385,6 +401,10 @@ public class PersistenceUnitGBean implements GBeanLifecycle {
         infoBuilder.addAttribute("properties", Properties.class, true, true);
         infoBuilder.addAttribute("configurationBaseUrl", URL.class, true);
 
+        infoBuilder.addAttribute("persistenceXMLSchemaVersion", String.class, true, true);
+        infoBuilder.addAttribute("sharedCacheMode", SharedCacheMode.class, true, true);
+        infoBuilder.addAttribute("validationMode", ValidationMode.class, true, true);
+
         infoBuilder.addReference("TransactionManager", TransactionManagerImpl.class, NameFactory.JTA_RESOURCE);
         infoBuilder.addReference("JtaDataSourceWrapper", ResourceSource.class, NameFactory.JCA_MANAGED_CONNECTION_FACTORY);
         infoBuilder.addReference("NonJtaDataSourceWrapper", ResourceSource.class, NameFactory.JCA_MANAGED_CONNECTION_FACTORY);
@@ -405,6 +425,9 @@ public class PersistenceUnitGBean implements GBeanLifecycle {
                 "TransactionManager",
                 "EntityManagerRegistry",
                 "configurationBaseUrl",
+                "persistenceXMLSchemaVersion",
+                "sharedCacheMode",
+                "validationMode",
                 "classLoader"
         });
 

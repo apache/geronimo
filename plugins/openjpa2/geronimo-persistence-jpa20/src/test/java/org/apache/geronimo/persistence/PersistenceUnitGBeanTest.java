@@ -20,6 +20,8 @@ package org.apache.geronimo.persistence;
 import java.io.File;
 
 import javax.persistence.spi.PersistenceUnitInfo;
+import javax.persistence.spi.SharedCacheMode;
+import javax.persistence.spi.ValidationMode;
 
 import junit.framework.TestCase;
 
@@ -47,6 +49,9 @@ public class PersistenceUnitGBeanTest extends TestCase {
                 null,
                 null,
                 new File("/foo/bar/Root").toURL(),
+                "2.0",
+                SharedCacheMode.NONE,
+                ValidationMode.AUTO,
                 getClass().getClassLoader());
         assertNotNull(gbean.getManagedClassNames());
         assertNotNull(gbean.getProperties());

@@ -180,104 +180,82 @@ public class CMPEntityManagerExtended implements EntityManager {
 
     @Override
     public <T> TypedQuery<T> createNamedQuery(String name, Class<T> resultClass) {
-        // TODO Auto-generated method stub
-        return null;
+        return getEntityManager().createNamedQuery(name, resultClass);
     }
 
     @Override
     public <T> TypedQuery<T> createQuery(CriteriaQuery<T> criteriaQuery) {
-        // TODO Auto-generated method stub
-        return null;
+        return getEntityManager().createQuery(criteriaQuery);
     }
 
     @Override
     public <T> TypedQuery<T> createQuery(String qlString, Class<T> resultClass) {
-        // TODO Auto-generated method stub
-        return null;
+        return getEntityManager().createQuery(qlString, resultClass);
     }
 
     @Override
     public void detach(Object entity) {
-        // TODO Auto-generated method stub
-        
+        getEntityManager().detach(entity);
     }
 
     @Override
-    public <T> T find(Class<T> entityClass, Object primaryKey,
-        Map<String, Object> properties) {
-        // TODO Auto-generated method stub
-        return null;
+    public <T> T find(Class<T> entityClass, Object primaryKey, Map<String, Object> properties) {
+        return getEntityManager().find(entityClass, primaryKey, properties);
     }
 
     @Override
-    public <T> T find(Class<T> entityClass, Object primaryKey,
-        LockModeType lockMode) {
-        // TODO Auto-generated method stub
-        return null;
+    public <T> T find(Class<T> entityClass, Object primaryKey, LockModeType lockMode) {
+        return getEntityManager().find(entityClass, primaryKey, lockMode);
     }
 
     @Override
-    public <T> T find(Class<T> entityClass, Object primaryKey,
-        LockModeType lockMode, Map<String, Object> properties) {
-        // TODO Auto-generated method stub
-        return null;
+    public <T> T find(Class<T> entityClass, Object primaryKey, LockModeType lockMode, Map<String, Object> properties) {
+        return getEntityManager().find(entityClass, primaryKey, lockMode, properties);
     }
 
     @Override
     public LockModeType getLockMode(Object entity) {
-        // TODO Auto-generated method stub
-        return null;
+        return getEntityManager().getLockMode(entity);
     }
 
     @Override
     public Map<String, Object> getProperties() {
-        // TODO Auto-generated method stub
-        return null;
+        return getEntityManager().getProperties();
     }
 
     @Override
     public Set<String> getSupportedProperties() {
-        // TODO Auto-generated method stub
-        return null;
+        return getEntityManager().getSupportedProperties();
     }
 
     @Override
-    public void lock(Object entity, LockModeType lockMode,
-        Map<String, Object> properties) {
-        // TODO Auto-generated method stub
-        
+    public void lock(Object entity, LockModeType lockMode, Map<String, Object> properties) {
+        getEntityManager().lock(entity, lockMode, properties);
     }
 
     @Override
     public void refresh(Object entity, Map<String, Object> properties) {
-        // TODO Auto-generated method stub
-        
+        getEntityManager().refresh(entity, properties);
     }
 
     @Override
     public void refresh(Object entity, LockModeType lockMode) {
-        // TODO Auto-generated method stub
-        
+        getEntityManager().refresh(entity, lockMode);
     }
 
     @Override
-    public void refresh(Object entity, LockModeType lockMode,
-        Map<String, Object> properties) {
-        // TODO Auto-generated method stub
-        
+    public void refresh(Object entity, LockModeType lockMode, Map<String, Object> properties) {
+        getEntityManager().refresh(entity, lockMode, properties);
     }
 
     @Override
     public void setProperty(String propertyName, Object value) {
-        // TODO Auto-generated method stub
-        
+        getEntityManager().setProperty(propertyName, value);
     }
 
     @Override
     public <T> T unwrap(Class<T> cls) {
-        // TODO Auto-generated method stub
-        return null;
+        return getEntityManager().unwrap(cls);
     }
 
 }
-
