@@ -23,11 +23,6 @@
     </dependency>
     <dependency>
         <groupId>jivesoftware</groupId>
-        <artifactId>smack</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>jivesoftware</groupId>
         <artifactId>smackx</artifactId>
         <type>jar</type>
     </dependency>
