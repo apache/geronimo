@@ -115,19 +115,4 @@
         <module>jetty7-clustering-wadi</module>
     </modules>
 
-    <repositories>
-        <repository>
-            <id>jetty.oss.sonatype.org</id>
-            <name>Jetty Repository</name>
-            <layout>default</layout>
-            <url>http://oss.sonatype.org/content/repositories/jetty/</url>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </repository>
-    </repositories>
-
 </project>

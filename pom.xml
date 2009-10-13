@@ -83,8 +83,6 @@
         <springVersion>2.5.6</springVersion>
         <openjpaVersion>1.2.1</openjpaVersion>
         <xbeanVersion>3.6</xbeanVersion>
-        <!-- switch using  -Pee6 -->
-        <!--<jetty>jetty6</jetty>-->
         <jetty>jetty7</jetty>
 
         <connectorSuffix />
@@ -2061,7 +2059,7 @@
                                 <id>morememory</id>
                                 <options>
                                     <option>-Xmx512m</option>
-                                    <option>-XX:MaxPermSize=128m</option>
+                                    <option>-XX:MaxPermSize=256m</option>
                                 </options>
                             </optionSet>
 
@@ -2113,36 +2111,6 @@
             <url>scp://people.apache.org/www/geronimo.apache.org/maven/server</url>
         </site>
     </distributionManagement>
-
-    <!--
-        Temporary staging repos go here
-    -->
-    <repositories>
-        <repository>
-            <id>amq-staging</id>
-            <url>https://repository.apache.org/content/repositories/releases/</url>
-            <releases>
-                <checksumPolicy>fail</checksumPolicy>
-                <enabled>true</enabled>
-                <updatePolicy>always</updatePolicy>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>jetty-staging</id>
-            <url>http://oss.sonatype.org/content/repositories/jetty-with-staging/</url>
-            <releases>
-                <checksumPolicy>fail</checksumPolicy>
-                <enabled>true</enabled>
-                <updatePolicy>always</updatePolicy>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
 
     <pluginRepositories>
         <!-- required for clean build unless you want to bootstrap the car-maven-plugin -->
