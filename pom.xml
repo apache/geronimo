@@ -197,7 +197,7 @@
             <dependency>
                 <groupId>org.apache.geronimo.javamail</groupId>
                 <artifactId>geronimo-javamail_1.4_mail</artifactId>
-                <version>1.7</version>
+                <version>1.8-SNAPSHOT</version>
             </dependency>
 
             <dependency>
@@ -2145,20 +2145,6 @@
         </site>
     </distributionManagement>
 
-    <repositories>
-        <repository>
-            <id>amq-staging</id>
-            <url>https://repository.apache.org/content/repositories/releases/</url>
-            <releases>
-                <checksumPolicy>fail</checksumPolicy>
-                <enabled>true</enabled>
-                <updatePolicy>always</updatePolicy>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
     <pluginRepositories>
         <!-- required for clean build unless you want to bootstrap the car-maven-plugin -->
         <pluginRepository>
