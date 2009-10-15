@@ -76,7 +76,8 @@
         <tomcatVersion>6.0.20.0</tomcatVersion>
         <tomcatGroupId>org.apache.geronimo.ext.tomcat</tomcatGroupId>
 
-        <openejbVersion>3.1.2-SNAPSHOT</openejbVersion>
+        <openejbVersion>3.1.2</openejbVersion>
+        <openjpaVersion>2.0.0-M3</openjpaVersion>
         <derbyVersion>10.4.2.0</derbyVersion>
         <cxfVersion>2.1.4</cxfVersion>
         <axis2Version>1.5</axis2Version>
@@ -337,7 +338,6 @@
                 <classifier>tests</classifier>
             </dependency>
 
-            <!--
             <dependency>
                 <groupId>org.apache.openjpa</groupId>
                 <artifactId>openjpa</artifactId>
@@ -362,6 +362,10 @@
                     <exclusion>
                         <groupId>org.apache.openjpa</groupId>
                         <artifactId>openjpa-persistence-jdbc</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.openjpa</groupId>
+                        <artifactId>openjpa-slice</artifactId>
                     </exclusion>
                     <exclusion>
                         <groupId>org.apache.openjpa</groupId>
@@ -397,11 +401,7 @@
                     </exclusion>
                     <exclusion>
                         <groupId>org.apache.geronimo.specs</groupId>
-                        <artifactId>geronimo-jpa_1.0_spec</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.geronimo.specs</groupId>
-                        <artifactId>geronimo-jpa_3.0_spec</artifactId>
+                        <artifactId>geronimo-jpa_2.0_spec</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -410,7 +410,6 @@
                 <artifactId>openjpa-persistence-jdbc</artifactId>
                 <version>${openjpaVersion}</version>
             </dependency>
-            -->
 
             <dependency>
                 <groupId>net.sourceforge.serp</groupId>
