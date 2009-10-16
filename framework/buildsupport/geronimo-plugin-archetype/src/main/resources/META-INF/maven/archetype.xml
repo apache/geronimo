@@ -1,7 +1,0 @@
-<archetype>
-  <id>geronimo-plugin-archetype</id>
-  <resources>
-    <resource>src/main/plan/plan.xml</resource>
-    <resource>pom.sample.xml</resource>
-  </resources>
-</archetype>

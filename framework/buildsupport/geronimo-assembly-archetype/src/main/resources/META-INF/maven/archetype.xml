@@ -1,6 +1,0 @@
-<archetype>
-  <id>geronimo-assembly-archetype</id>
-    <resources>
-      <resource>pom.sample.xml</resource>
-    </resources>
-</archetype>
