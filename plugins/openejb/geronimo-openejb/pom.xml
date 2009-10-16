@@ -30,6 +30,7 @@
     
     <groupId>org.apache.geronimo.modules</groupId>
     <artifactId>geronimo-openejb</artifactId>
+    <packaging>bundle</packaging>
     <name>Geronimo Plugins, OpenEJB :: Core</name>
 
     <dependencies>

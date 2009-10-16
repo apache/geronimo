@@ -30,6 +30,7 @@
     
     <groupId>org.apache.geronimo.modules</groupId>
     <artifactId>geronimo-jaxws</artifactId>
+    <packaging>bundle</packaging>
     <name>Geronimo Plugins, JAXWS :: Core</name>
     
     <dependencies>

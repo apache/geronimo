@@ -30,6 +30,7 @@
     
     <groupId>org.apache.geronimo.modules</groupId>
     <artifactId>geronimo-axis-builder</artifactId>
+    <packaging>bundle</packaging>
     <name>Geronimo Plugins, AXIS :: Builder</name>
 
     <dependencies>

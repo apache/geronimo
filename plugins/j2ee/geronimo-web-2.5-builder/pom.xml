@@ -30,6 +30,7 @@
     
     <groupId>org.apache.geronimo.modules</groupId>
     <artifactId>geronimo-web-2.5-builder</artifactId>
+    <packaging>bundle</packaging>
     <name>Geronimo Plugins, J2EE :: Web 2.5 Builder</name>
 
     <dependencies>

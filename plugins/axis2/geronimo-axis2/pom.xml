@@ -30,6 +30,7 @@
 
     <groupId>org.apache.geronimo.modules</groupId>
     <artifactId>geronimo-axis2</artifactId>
+    <packaging>bundle</packaging>
     <name>Geronimo Plugins, AXIS2 :: Core</name>
     
     <dependencies>

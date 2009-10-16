@@ -30,6 +30,7 @@
     
     <groupId>org.apache.geronimo.modules</groupId>
     <artifactId>geronimo-connector-1_6</artifactId>
+    <packaging>bundle</packaging>
     <name>Geronimo Plugins, Connector 1.6 :: Core</name>
 
     <dependencies>

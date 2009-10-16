@@ -30,6 +30,7 @@
     
     <groupId>org.apache.geronimo.modules</groupId>
     <artifactId>geronimo-cxf-builder</artifactId>
+    <packaging>bundle</packaging>
     <name>Geronimo Plugins, CXF :: Builder</name>
     
     <dependencies>

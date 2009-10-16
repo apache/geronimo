@@ -30,6 +30,7 @@
     
     <groupId>org.apache.geronimo.modules</groupId>
     <artifactId>geronimo-farm</artifactId>
+    <packaging>bundle</packaging>
     <name>Geronimo Plugins, Clustering :: Farm core</name>
     
     <dependencies>

@@ -30,6 +30,7 @@
     
     <groupId>org.apache.geronimo.modules</groupId>
     <artifactId>geronimo-jetty7-clustering-builder-wadi</artifactId>
+    <packaging>bundle</packaging>
     <name>Geronimo Plugins, Jetty :: Clustering Builder for WADI Core</name>
     
     <dependencies>

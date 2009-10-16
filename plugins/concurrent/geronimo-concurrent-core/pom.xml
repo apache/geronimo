@@ -32,6 +32,7 @@
 
     <groupId>org.apache.geronimo.modules</groupId>
     <artifactId>geronimo-concurrent-core</artifactId>
+    <packaging>bundle</packaging>
     <name>Geronimo Plugins, Concurrency Utilities :: Core</name>
 
     <dependencies>

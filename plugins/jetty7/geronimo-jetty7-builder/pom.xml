@@ -30,6 +30,7 @@
     
     <groupId>org.apache.geronimo.modules</groupId>
     <artifactId>geronimo-jetty7-builder</artifactId>
+    <packaging>bundle</packaging>
     <name>Geronimo Plugins, Jetty :: Builder</name>
     
     <dependencies>

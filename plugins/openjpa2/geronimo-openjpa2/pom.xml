@@ -30,6 +30,7 @@
     
     <groupId>org.apache.geronimo.modules</groupId>
     <artifactId>geronimo-openjpa2</artifactId>
+    <packaging>bundle</packaging>
     <name>Geronimo Plugins, OpenJPA2 :: Core</name>
     
     <dependencies>

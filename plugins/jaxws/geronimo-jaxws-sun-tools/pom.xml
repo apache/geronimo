@@ -30,6 +30,7 @@
     
     <groupId>org.apache.geronimo.modules</groupId>
     <artifactId>geronimo-jaxws-sun-tools</artifactId>
+    <packaging>bundle</packaging>
     <name>Geronimo Plugins, JAXWS :: Sun JAX-WS Tools</name>
     
     <dependencies>

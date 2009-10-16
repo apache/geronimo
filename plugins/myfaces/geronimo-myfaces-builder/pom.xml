@@ -30,6 +30,7 @@
     
     <groupId>org.apache.geronimo.modules</groupId>
     <artifactId>geronimo-myfaces-builder</artifactId>
+    <packaging>bundle</packaging>
     <name>Geronimo Plugins, MyFaces :: Builder</name>
     
     <dependencies>

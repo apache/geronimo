@@ -30,6 +30,7 @@
     
     <groupId>org.apache.geronimo.modules</groupId>
     <artifactId>geronimo-derby</artifactId>
+    <packaging>bundle</packaging>
     <name>Geronimo Plugins, System Database :: Derby</name>
     
     <description>Wrapper for using Apache Derby as a bundled database.</description>

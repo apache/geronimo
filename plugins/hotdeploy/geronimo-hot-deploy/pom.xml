@@ -30,6 +30,7 @@
     
     <groupId>org.apache.geronimo.modules</groupId>
     <artifactId>geronimo-hot-deploy</artifactId>
+    <packaging>bundle</packaging>
     <name>Geronimo Plugins, Hot Deploy :: Core</name>
     
     <description>Provides hot deployment for Geronimo.</description>

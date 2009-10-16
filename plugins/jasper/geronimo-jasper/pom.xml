@@ -30,6 +30,7 @@
 
     <groupId>org.apache.geronimo.modules</groupId>
     <artifactId>geronimo-jasper</artifactId>
+    <packaging>bundle</packaging>
     <name>Geronimo Plugins, Jasper :: Core</name>
 
     <dependencies>

@@ -30,6 +30,7 @@
     
     <groupId>org.apache.geronimo.modules</groupId>
     <artifactId>geronimo-persistence-jpa10</artifactId>
+    <packaging>bundle</packaging>
     <name>Geronimo Plugins, OpenJPA :: Persistence 1.0</name>
 
     <dependencies>

@@ -30,6 +30,7 @@
 
     <groupId>org.apache.geronimo.modules</groupId>
     <artifactId>geronimo-axis2-ejb</artifactId>
+    <packaging>bundle</packaging>
     <name>Geronimo Plugins, AXIS2 :: EJB Core</name>
     
     <dependencies>

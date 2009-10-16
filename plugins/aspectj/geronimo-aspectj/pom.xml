@@ -30,6 +30,7 @@
     
     <groupId>org.apache.geronimo.modules</groupId>
     <artifactId>geronimo-aspectj</artifactId>
+    <packaging>bundle</packaging>
     <name>Geronimo Plugins, AspectJ :: AspectJ</name>
     
     <dependencies>

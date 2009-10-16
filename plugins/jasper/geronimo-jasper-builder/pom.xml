@@ -30,6 +30,7 @@
 
     <groupId>org.apache.geronimo.modules</groupId>
     <artifactId>geronimo-jasper-builder</artifactId>
+    <packaging>bundle</packaging>
     <name>Geronimo Plugins, Jasper :: Builder</name>
     
     <dependencies>

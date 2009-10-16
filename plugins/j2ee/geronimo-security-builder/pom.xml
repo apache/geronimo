@@ -30,6 +30,7 @@
     
     <groupId>org.apache.geronimo.modules</groupId>
     <artifactId>geronimo-security-builder</artifactId>
+    <packaging>bundle</packaging>
     <name>Geronimo Plugins, J2EE :: Security Builder</name>
 
     <dependencies>

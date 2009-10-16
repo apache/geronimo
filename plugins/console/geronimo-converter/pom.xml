@@ -30,6 +30,7 @@
 
     <groupId>org.apache.geronimo.modules</groupId>
     <artifactId>geronimo-converter</artifactId>
+    <packaging>bundle</packaging>
     <name>Geronimo Plugins, Console :: Configuration Converter</name>
     
     <dependencies>

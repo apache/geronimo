@@ -30,6 +30,7 @@
     
     <groupId>org.apache.geronimo.modules</groupId>
     <name>Geronimo Plugins, Corba :: Core</name>
+    <packaging>bundle</packaging>
     <artifactId>geronimo-corba</artifactId>
 
     <dependencies>

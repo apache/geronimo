@@ -28,6 +28,7 @@
 
     <groupId>org.apache.geronimo.modules</groupId>
     <artifactId>geronimo-openejb-clustering-wadi</artifactId>
+    <packaging>bundle</packaging>
     <name>Geronimo Plugins, OpenEJB :: Clustering over WADI</name>
 
     <dependencies>
