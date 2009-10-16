@@ -1,0 +1,285 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Licensed to the Apache Software Foundation (ASF) under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The ASF licenses this file to You under the Apache License, Version 2.0
+    (the "License"); you may not use this file except in compliance with
+    the License.  You may obtain a copy of the License at
+    
+        http://www.apache.org/licenses/LICENSE-2.0
+    
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+
+<!-- $Rev$ $Date$ -->
+
+<xsd:schema targetNamespace="http://geronimo.apache.org/xml/ns/attributes-1.2"
+    xmlns:atts="http://geronimo.apache.org/xml/ns/attributes-1.2"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified"
+    attributeFormDefault="unqualified">
+
+    <xsd:annotation>
+        <xsd:documentation>
+            This is an XML Schema Definition for storing manageable attribute
+            values. All the schema's or plans using elements of this schema must
+            specify the top level element with one of the namespace specified as
+            "http://geronimo.apache.org/xml/ns/attributes-1.2". The default
+            location for this document is:
+            http://geronimo.apache.org/xml/ns/attributes-1.2
+
+            The definition of the XML format for storing manageable attribute
+            values. Should look like this:
+            <![CDATA[
+            <attributes>
+                <comment>Comment for the whole attribute</comment>
+                <module name="mygroup/mycomponent/1.1/jar">
+                    <comment>Comment specific to the module</comment>
+                    <gbean name="MyNetworkService">
+                        <comment>Comment for the gbean</comment>
+                        <attribute name="host">0.0.0.0</attribute>
+                        <attribute name="port">1234</attribute>
+                    </gbean>
+                </module>
+            </attributes>
+            ]]>
+        </xsd:documentation>
+    </xsd:annotation>
+
+    <!-- Main element for the manageable attribute store configuration -->
+    <xsd:element name="attributes" type="atts:attributesType">
+        <xsd:annotation>
+            <xsd:documentation>
+                Provides the definition of named attributes. Attributes are
+                mixed type and can include simple text and elements.
+            </xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+    <xsd:element name="gbean" type="atts:gbeanType">
+        <xsd:annotation>
+            <xsd:documentation>
+                Element used by the plugin system to list individual GBeans.
+                Note that the name attribute for a gbean element may hold either
+                the full GBeanName, or only the value for the "name=" portion of
+                the GBeanName. If there are multiple GBeans in the module with
+                manageable attributes and the same "name=" portion of the
+                GBeanName, then all must be listed and all must be listed with a
+                full GBeanName.
+            </xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+    <xsd:element name="attribute" type="atts:attributeType">
+        <xsd:annotation>
+            <xsd:documentation>
+                gbean attribute as an element for ease in jaxb serialization to string.
+            </xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+    <xsd:element name="comment" type="xsd:string"/>
+
+    <xsd:complexType name="attributesType">
+        <xsd:sequence>
+            <xsd:element name="comment" type="xsd:string" minOccurs="0"
+                maxOccurs="1" />
+            <xsd:choice>
+                <xsd:element name="module" type="atts:moduleType" minOccurs="0"
+                    maxOccurs="unbounded" />
+
+                <!-- The config.xml file in 1.0 use configuration instead of module -->
+                <xsd:element name="configuration" type="atts:moduleType"
+                   minOccurs="0" maxOccurs="unbounded" />
+            </xsd:choice>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="moduleType">
+        <xsd:sequence>
+            <xsd:element name="comment" type="xsd:string" minOccurs="0"
+                maxOccurs="1" />
+            <xsd:element name="gbean" type="atts:gbeanType" minOccurs="0"
+                maxOccurs="unbounded" />
+        </xsd:sequence>
+        <xsd:attribute name="name" type="xsd:string" use="required" />
+        <xsd:attribute name="load" type="xsd:boolean" use="optional"
+            default="true" />
+        <xsd:attribute name="condition" type="xsd:string" use="optional" />
+    </xsd:complexType>
+
+    <xsd:complexType name="gbeanType">
+        <xsd:annotation>
+            <xsd:documentation>
+                Element used by the plugin system to list individual GBeans.
+                Note that the name attribute for a gbean element may hold either
+                the full GBeanName, or only the value for the "name=" portion of
+                the GBeanName. If there are multiple GBeans in the module with
+                manageable attributes and the same "name=" portion of the
+                GBeanName, then all must be listed and all must be listed with a
+                full GBeanName.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:sequence>
+            <xsd:element name="comment" type="xsd:string" minOccurs="0"
+                maxOccurs="1" />
+            <xsd:choice minOccurs="0" maxOccurs="unbounded">
+                <xsd:element ref="atts:attribute" />
+                <xsd:element name="reference" type="atts:referenceType" />
+            </xsd:choice>
+        </xsd:sequence>
+        <xsd:attribute name="name" type="xsd:string" use="required">
+            <xsd:annotation>
+                <xsd:documentation>
+                    The name attribute specifies the name portion of the
+                    GBeanName.
+                </xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="gbeanInfo" type="xsd:string" use="optional">
+            <xsd:annotation>
+                <xsd:documentation>
+                    The gbeanInfo attribute provide the gbean infomation for
+                    specified GBean.
+                </xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="load" type="xsd:boolean" use="optional"
+            default="true">
+            <xsd:annotation>
+                <xsd:documentation>
+                    The load attribute specifies if the gbean is to be loaded or
+                    not.
+                </xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+    </xsd:complexType>
+
+    <xsd:complexType name="attributeType">
+        <xsd:annotation>
+            <xsd:documentation>
+                Provides the definition of a single named attribute. Attributes
+                are mixed type and can include simple text and elements.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexContent mixed="true">
+            <xsd:restriction base="xsd:anyType">
+                <xsd:sequence>
+                    <xsd:any minOccurs="0" maxOccurs="unbounded"
+                        processContents="lax" />
+                </xsd:sequence>
+                <xsd:attribute name="name" use="required">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            The name attribute provides the name of single
+                            attribute.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="null" use="optional" type="xsd:boolean" default="false">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            The null attribute defines if this atribute is null
+                            or not.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="propertyEditor" use="optional" type="xsd:string">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            The propertyEditor attribute defines the property editor class
+                            to be used to get the value of this attribute based on its
+                            string representation.
+                            
+                            If no editor is specified, then the type of the attribute, as
+                            declared by GBeanAttribute, is used to find a propertyEditor
+                            through the standard JavaBean search strategy.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <!--<xsd:attribute name="value" use="optional">-->
+                    <!--<xsd:annotation>-->
+                        <!--<xsd:documentation>-->
+                            <!--The value attribute is the value of specified-->
+                            <!--attribute.-->
+                        <!--</xsd:documentation>-->
+                    <!--</xsd:annotation>-->
+                <!--</xsd:attribute>-->
+            </xsd:restriction>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="referenceType">
+        <xsd:sequence>
+            <xsd:element name="pattern" minOccurs="0" maxOccurs="unbounded">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element name="groupId" type="xsd:string"
+                            minOccurs="0">
+                            <xsd:annotation>
+                                <xsd:documentation>
+                                    The name for group containing module to
+                                    match. By default is set to wild card '*'.
+                                </xsd:documentation>
+                            </xsd:annotation>
+                        </xsd:element>
+                        <xsd:element name="artifactId" type="xsd:string"
+                            minOccurs="0">
+                            <xsd:annotation>
+                                <xsd:documentation>
+                                    The name for module in a specified group to
+                                    be matched. All the artifactId's should be
+                                    unique within a group. If no articfactId is
+                                    provided it will be defaulted to file name
+                                    of the module file.
+                                </xsd:documentation>
+                            </xsd:annotation>
+                        </xsd:element>
+                        <xsd:element name="version" type="xsd:string"
+                            minOccurs="0">
+                            <xsd:annotation>
+                                <xsd:documentation>
+                                    The version number for the module formatted
+                                    by dot separated numbers. If no version is
+                                    provided it will be defaulted to latest
+                                    available version matching other criterions.
+                                </xsd:documentation>
+                            </xsd:annotation>
+                        </xsd:element>
+                        <xsd:element name="type" type="xsd:string"
+                            minOccurs="0">
+                            <xsd:annotation>
+                                <xsd:documentation>
+                                    This element defines the type of the module.
+                                    The type could be 'CAR', 'JAR', EAR', 'WAR'
+                                    etc. If no type is provided it will be
+                                    defaulted appropriately by the deployer
+                                    depending upon type of deployed module.
+                                </xsd:documentation>
+                            </xsd:annotation>
+                        </xsd:element>
+                        <xsd:element name="module" type="xsd:string"
+                            minOccurs="0">
+                            <xsd:annotation>
+                                <xsd:documentation>
+                                    The value specified here should match the
+                                    file name of the module referenced.
+                                </xsd:documentation>
+                            </xsd:annotation>
+                        </xsd:element>
+                        <xsd:element name="name" type="xsd:string">
+                            <xsd:annotation>
+                                <xsd:documentation>
+                                    The name element to identify the referenced
+                                    GBean by name.
+                                </xsd:documentation>
+                            </xsd:annotation>
+                        </xsd:element>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+        </xsd:sequence>
+        <xsd:attribute name="name" type="xsd:string" />
+    </xsd:complexType>
+</xsd:schema>

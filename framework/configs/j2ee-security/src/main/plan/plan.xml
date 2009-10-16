@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Licensed to the Apache Software Foundation (ASF) under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The ASF licenses this file to You under the Apache License, Version 2.0
+    (the "License"); you may not use this file except in compliance with
+    the License.  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+
+<!-- $Rev$ $Date$ -->
+
+<module xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
+
+    <!--runtime dependencies-->
+    <gbean name="SecurityService" class="org.apache.geronimo.security.SecurityServiceImpl">
+        <reference name="ServerInfo"><name>ServerInfo</name></reference>
+        <attribute name="policyConfigurationFactory">org.apache.geronimo.security.jacc.mappingprovider.GeronimoPolicyConfigurationFactory</attribute>
+        <attribute name="policyProvider">org.apache.geronimo.security.jacc.mappingprovider.GeronimoPolicy</attribute>
+    </gbean>
+
+    <!-- Register GeronimoLoginConfiguration as the LoginConfiguration handler -->
+    <gbean name="LoginConfiguration" class="org.apache.geronimo.security.jaas.GeronimoLoginConfiguration">
+        <references name="Configurations">
+            <pattern><type>SecurityRealm</type></pattern>
+            <pattern><type>ConfigurationEntry</type></pattern>
+        </references>
+    </gbean>
+
+    <!-- JMX Remoting -->
+    <gbean name="JMXService" class="org.apache.geronimo.jmxremoting.JMXConnector">
+        <attribute name="protocol">rmi</attribute>
+        <attribute name="host">${PlanServerHostname}</attribute>
+        <attribute name="port">${PlanJMXPort}</attribute>
+        <attribute name="urlPath">/jndi/rmi://${PlanServerHostname}:${PlanNamingPort}/JMXConnector</attribute>
+        <attribute name="applicationConfigName">geronimo-admin</attribute>
+        <reference name="MBeanServerReference">
+            <name>MBeanServerReference</name>
+        </reference>
+    </gbean>
+
+    <gbean name="KeystoreManager" class="org.apache.geronimo.security.keystore.FileKeystoreManager">
+        <attribute name="keystoreDir">var/security/keystores</attribute>
+        <reference name="ServerInfo"><name>ServerInfo</name></reference>
+        <references name="KeystoreInstances">
+          <pattern>
+            <type>Keystore</type>
+          </pattern>
+        </references>
+    </gbean>
+
+</module>

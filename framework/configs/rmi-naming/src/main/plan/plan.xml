@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Licensed to the Apache Software Foundation (ASF) under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The ASF licenses this file to You under the Apache License, Version 2.0
+    (the "License"); you may not use this file except in compliance with
+    the License.  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+
+<!-- $Rev$ $Date$ -->
+
+<module xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
+
+    <gbean name="RMIRegistry" class="org.apache.geronimo.kernel.rmi.RMIRegistryService">
+        <attribute name="port">${PlanNamingPort}</attribute>
+        <attribute name="host">${ServerHostname}</attribute>
+    </gbean>
+
+    <gbean name="NamingProperties" class="org.apache.geronimo.system.properties.NamingProperties">
+        <attribute name="namingFactoryInitial">org.apache.xbean.naming.global.GlobalContextManager</attribute>
+        <attribute name="namingFactoryUrlPkgs">org.apache.xbean.naming</attribute>
+        <attribute name="namingProviderUrl">rmi://localhost:1099</attribute>
+    </gbean>
+
+    <gbean name="GlobalContext" class="org.apache.geronimo.gjndi.GlobalContextGBean"/>
+
+    <gbean name="JavaCompContext" class="org.apache.geronimo.gjndi.JavaCompContextGBean"/>
+
+    <gbean name="JavaContext" class="org.apache.geronimo.gjndi.WritableContextGBean">
+        <attribute name="nameInNamespace">java:</attribute>
+    </gbean>
+
+    <gbean name="GeronimoContext" class="org.apache.geronimo.gjndi.WritableContextGBean">
+        <attribute name="nameInNamespace">ger:</attribute>
+    </gbean>
+
+    <gbean name="MBeanServerReference" class="org.apache.geronimo.system.jmx.RealMBeanServerReference">
+        <attribute name="usePlatformMBeanServer">true</attribute>
+    </gbean>
+
+
+    <!-- MBean server service -->
+    <gbean name="MBeanServerKernelBridge" class="org.apache.geronimo.system.jmx.MBeanServerKernelBridge">
+        <reference name="MBeanServerReference">
+            <name>MBeanServerReference</name>
+        </reference>
+    </gbean>
+
+    <gbean name="DefaultThreadPool" class="org.apache.geronimo.pool.ThreadPool">
+        <attribute name="keepAliveTime">30000</attribute>
+        <attribute name="minPoolSize">200</attribute>
+        <attribute name="maxPoolSize">500</attribute>
+        <attribute name="poolName">DefaultThreadPool</attribute>
+    </gbean>
+
+</module>

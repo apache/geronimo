@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+  
+       http://www.apache.org/licenses/LICENSE-2.0
+  
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+  
+<ejb-jar xmlns="http://java.sun.com/xml/ns/j2ee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns:ger="http://geronimo.apache.org/xml/schema/j2ee"
+         xsi:schemaLocation="http://geronimo.apache.org/xml/schema/j2ee http://geronimo.apache.org/xml/schema/1.0/j2ee14/geronimo-ejb-jar.xsd"
+         version="2.1">
+    <class-space name="geronimo.system:role=ClassSpace,name=Test" parent="geronimo.system:role=ClassSpace,name=System"/>
+    <security>
+        <default-principal>
+            <principal class="org.apache.geronimo.security.DefaultPrincipal" name="default"/>
+        </default-principal>
+        <role-mappings>
+            <role role-name="ONE">
+                <principal class="org.apache.geronimo.security.realm.providers.PropertiesFileUserPrincipal" name="alan"/>
+                <principal class="org.apache.geronimo.security.realm.providers.PropertiesFileUserPrincipal" name="izumi"/>
+            </role>
+        </role-mappings>
+    </security>
+    <enterprise-beans>
+        <entity>
+            <ejb-name>EJB1</ejb-name>
+            <security-identity>
+                <run-as>ONE</run-as>
+            </security-identity>
+            <bean-security use-identity="true"/>
+        </entity>
+
+        <entity>
+            <ejb-name>EJB2</ejb-name>
+            <security-role-ref>
+                <role-name>RoleCheck</role-name>
+                <role-link>ONE</role-link>
+            </security-role-ref>
+            <bean-security use-identity="true"/>
+        </entity>
+
+        <entity>
+            <ejb-name>EJB3</ejb-name>
+            <bean-security use-identity="true"/>
+        </entity>
+
+        <entity>
+            <ejb-name>EJB4</ejb-name>
+            <bean-security use-identity="true"/>
+        </entity>
+    </enterprise-beans>
+
+    <assembly-descriptor>
+        <security-role><role-name>ONE</role-name></security-role>
+        <security-role><role-name>TWO</role-name></security-role>
+        <security-role><role-name>THREE</role-name></security-role>
+
+        <method-permission>
+            <method>
+                <ejb-name>EJB1</ejb-name>
+                <method-intf>LocalHome</method-intf>
+                <method-name>EJBmethod1</method-name>
+                <method-params>
+                    <method-param>int</method-param>
+                </method-params>
+            </method>
+            <role-name>ONE</role-name>
+        </method-permission>
+
+        <method-permission>
+            <method>
+                <ejb-name>EJB2</ejb-name>
+                <method-intf>LocalHome</method-intf>
+                <method-name>EJBmethod2</method-name>
+                <method-params></method-params>
+            </method>
+            <unchecked/>
+        </method-permission>
+
+        <method-permission>
+            <method>
+                <ejb-name>EJB3</ejb-name>
+                <method-intf>LocalHome</method-intf>
+                <method-name>EJBmethod2</method-name>
+            </method>
+            <unchecked/>
+        </method-permission>
+
+        <exclude-list>
+            <method>
+                <ejb-name>EJB4</ejb-name>
+                <method-intf>LocalHome</method-intf>
+                <method-name>Secret</method-name>
+
+            </method>
+        </exclude-list>
+    </assembly-descriptor>
+</ejb-jar>

@@ -1,0 +1,202 @@
+ ------
+ Module Goals Usage :: Geronimo Plugin for Maven 2
+ ------
+ ------
+ $Rev$ $Date$
+
+~~ 
+~~ Licensed to the Apache Software Foundation (ASF) under one
+~~ or more contributor license agreements.  See the NOTICE file
+~~ distributed with this work for additional information
+~~ regarding copyright ownership.  The ASF licenses this file
+~~ to you under the Apache License, Version 2.0 (the
+~~ "License"); you may not use this file except in compliance
+~~ with the License.  You may obtain a copy of the License at
+~~
+~~  http://www.apache.org/licenses/LICENSE-2.0
+~~
+~~ Unless required by applicable law or agreed to in writing,
+~~ software distributed under the License is distributed on an
+~~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+~~ KIND, either express or implied.  See the License for the
+~~ specific language governing permissions and limitations
+~~ under the License.
+~~ 
+
+Module Goals Usage
+
+* <deploy-module> configuration
+
+ <<<JavaEE>>> modules can be deployed into a running Geronimo server using the <deploy-module> goal.
+ Multiple modules can be specified as maven artifacts in which case they will be retrieved from
+ the local maven repository or a single module can be specified by it's absolute file location.
+
+ <<NOTE:>> Archive files <<MUST>> be a valid <<<JavaEE>>> artifact of the type <<<jar>>>, <<<war>>>, <<<rar>>> or <<<ear>>>.
+
+ This example shows one module from an absolute file location which will be deployed by setting
+ the <<<moduleArchive>>> parameter.
+
++----------+
+<plugin>
+    <groupId>org.apache.geronimo.plugins</groupId>
+    <artifactId>geronimo-maven-plugin</artifactId>
+    <execution>
+        <id>deploy-ears</id>
+        <goals>
+            <goal>deploy-module</goal>
+        </goals>
+        <configuration>
+             <moduleArchive>/path/to/file/foo.ear</moduleArchive>
+             <modulePlan>/path/to/plan.xml</modulePlan>
+        </configuration>
+    </execution>
+</plugin>
++----------+
+
+ This example shows one module from the repository which will be deployed by setting the <<<modules>>>
+ parameter.
+
++----------+
+<plugin>
+    <groupId>org.apache.geronimo.plugins</groupId>
+    <artifactId>geronimo-maven-plugin</artifactId>
+    <execution>
+        <id>deploy-ears</id>
+        <goals>
+            <goal>deploy-module</goal>
+        </goals>
+        <configuration>
+             <modules>
+                 <module>
+                     <groupId>org.apache.geronimo.testsupport</groupId>
+                     <artifactId>test-ear-j2ee_1.3</artifactId>
+                     <version>1.2</version>
+                     <type>ear</type>
+                     <plan>/path/to/plan.xml</plan>
+                 </module>
+              </modules>
+        </configuration>
+    </execution>
+</plugin>
++----------+
+
+ Both the parameters, <<<modules>>> and <<<moduleArchive>>> can be specified in the same configuration.
+
+ <<NOTE:>> After all the modules are deployed, they will be started by default. This can be prevented
+ by setting the <<<startModules>>> parameter to <<<false>>>. This will affect all modules in the same
+ configuration. 
+
+* Deployment plan
+
+ An optional plan can be specified using the <<<plan>>> parameter (shown in the example above). 
+ The application module may already have included in the package a deployment plan 
+ or the application is so simple that it may not require any deployment plan. However a basic plan is 
+ recommended to set the desired moduleID for the module being deployed. In the absence of a plan, the 
+ moduleId is generated which maybe quite difficult to obtain and use for 
+ other goals of this plugin like start, stop, and undeploy.
+
+ Here's an example of a basic plan. The file is <<<geronimo-application.xml>>> for the <<<ear>>>
+ module deployed in the example above.
+ 
++------------+
+<?xml version="1.0" encoding="UTF-8"?>
+<application xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-1.1">
+    <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
+        <moduleId>
+            <groupId>org.apache.geronimo.testsupport</groupId>
+            <artifactId>test-ear-j2ee_1.3</artifactId>
+            <version>1.2</version>
+            <type>ear</type>
+        </moduleId>
+    </environment>
+</application>
++------------+
+
+ This deployment plan will now ensure that the moduleID of the above deployed module will be 
+ <<<org.apache.geronimo.testsupport/test-ear-j2ee_1.3/1.2/ear>>>
+
+* <start-module>, <stop-module>, <undeploy-module> configuration
+
+ The configuration parameters for these goals are the same. The goals can be executed on multiple
+ modules or a single module. Multiple modules can be specified using the <<<modules>>> parameter
+ or a single module can be specified using the <<<moduleId>>> parameter. The reference for
+ constructing both these parameters can be found in the deployment plan for the module we deployed earlier.
+
+ This example shows a module being undeployed by using the <<<modules>>> parameter
+
++----------+
+<plugin>
+    <groupId>org.apache.geronimo.plugins</groupId>
+    <artifactId>geronimo-maven-plugin</artifactId>
+    <execution>
+        <id>undeploy-ear-as-modules</id>
+        <goals>
+            <goal>undeploy-module</goal>
+        </goals>
+        <configuration>
+            <modules>
+                 <module>
+                     <groupId>org.apache.geronimo.testsupport</groupId>
+                     <artifactId>test-ear-j2ee_1.3</artifactId>
+                     <version>1.2</version>
+                     <type>ear</type>
+                 </module>
+              </modules>
+        </configuration>
+    </execution>
+</plugin>
++----------+
+
+ This example shows a single module being started by using the <<<moduleId>>> parameter. 
+ It is of the format <<<groupId/artifactId/version/type>>>.
+
++----------+
+<plugin>
+    <groupId>org.apache.geronimo.plugins</groupId>
+    <artifactId>geronimo-maven-plugin</artifactId>
+    <execution>
+        <id>undeploy-ear-as-moduleId</id>
+        <goals>
+            <goal>start-module</goal>
+        </goals>
+        <configuration>
+            <logOutput>true</logOutput>
+            <moduleId>org.apache.geronimo.testsupport/test-ear-j2ee_1.3/1.2/ear</moduleId>
+        </configuration>
+    </execution>
+</plugin>
++----------+
+
+ Both the parameters, <<<modules>>> and <<<moduleId>>> can be specified in the same configuration.
+
+* Logging the output
+ 
+ Setting the <<<logOutput>>> parameter  to <<<true>>> for all these goals will ensure that the output and errors
+ from the goal executions will be captured in a file. The file is located at
+ <<<$\{project.build.directory\}/surefire-reports/<goalName>.txt>>>.
+ 
+ Setting this parameter will also generate an xml file in the surefire format for reporting. The file will be generated at
+ <<<$\{project.build.directory\}/surefire-reports/<goalName>.xml>>>.
+
+* <install-library> configuration
+
+ Arbitrary libraries can be installed into a running Geronimo server using the <install-library> goal.
+
+ This example shows a library being installed using the <<<libraryFile>>> parameter.
+
++----------+
+<plugin>
+    <groupId>org.apache.geronimo.plugins</groupId>
+    <artifactId>geronimo-maven-plugin</artifactId>
+    <execution>
+        <id>install-library</id>
+        <goals>
+            <goal>install-library</goal>
+        </goals>
+        <configuration>
+            <libraryFile>path/to/library.jar</libraryFile>
+            <groupId>optional-groupId</groupId>
+        </configuration>
+    </execution>
+</plugin>
++----------+

@@ -1,0 +1,775 @@
+/**
+ *  Licensed to the Apache Software Foundation (ASF) under one
+ *  or more contributor license agreements.  See the NOTICE file
+ *  distributed with this work for additional information
+ *  regarding copyright ownership.  The ASF licenses this file
+ *  to you under the Apache License, Version 2.0 (the
+ *  "License"); you may not use this file except in compliance
+ *  with the License.  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
+
+package org.apache.geronimo.mavenplugins.car;
+
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.LinkedHashMap;
+import java.util.ArrayList;
+
+import org.apache.geronimo.system.plugin.model.ArtifactType;
+import org.apache.geronimo.system.plugin.model.DependencyType;
+import org.apache.geronimo.system.plugin.model.ImportType;
+import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.factory.ArtifactFactory;
+import org.apache.maven.artifact.metadata.ArtifactMetadataSource;
+import org.apache.maven.artifact.repository.ArtifactRepository;
+import org.apache.maven.artifact.resolver.ArtifactCollector;
+import org.apache.maven.artifact.resolver.ArtifactResolutionException;
+import org.apache.maven.artifact.resolver.ArtifactResolutionResult;
+import org.apache.maven.execution.MavenSession;
+import org.apache.maven.plugin.Mojo;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugin.logging.Log;
+import org.apache.maven.plugin.logging.SystemStreamLog;
+import org.apache.maven.project.MavenProject;
+import org.apache.maven.project.ProjectBuildingException;
+import org.apache.maven.project.MavenProjectHelper;
+import org.apache.maven.project.artifact.InvalidDependencyVersionException;
+import org.apache.maven.shared.dependency.tree.DependencyNode;
+import org.apache.maven.shared.dependency.tree.DependencyTreeResolutionListener;
+import org.apache.maven.shared.filtering.MavenFileFilter;
+import org.apache.maven.shared.filtering.MavenFilteringException;
+import org.apache.maven.shared.filtering.MavenResourcesFiltering;
+import org.apache.felix.framework.FrameworkFactory;
+import org.apache.felix.framework.cache.BundleCache;
+import org.apache.felix.framework.util.FelixConstants;
+import org.codehaus.plexus.logging.AbstractLogEnabled;
+import org.codehaus.plexus.util.ReaderFactory;
+import org.codehaus.plexus.util.StringUtils;
+import org.osgi.framework.launch.Framework;
+import org.osgi.framework.BundleException;
+import org.osgi.framework.Constants;
+
+/**
+ * Support for <em>packaging</em> Mojos.
+ *
+ * @version $Rev$ $Date$
+ */
+public abstract class AbstractCarMojo
+        extends AbstractLogEnabled implements Mojo {
+
+    private Log log;
+
+    /**
+     * The maven project.
+     *
+     * @parameter expression="${project}"
+     * @required
+     * @readonly
+     */
+    protected MavenProject project;
+
+    /**
+     * The maven project's helper.
+     *
+     * @component
+     * @required
+     * @readonly
+     */
+    protected MavenProjectHelper projectHelper;
+
+    /**
+     * The basedir of the project.
+     *
+     * @parameter expression="${basedir}"
+     * @required
+     * @readonly
+     */
+    protected File basedir;
+
+    protected Set<Artifact> dependencyArtifacts;
+    protected Map<Artifact, Set<Artifact>> localDependencies;
+
+
+    /**
+     * The artifact repository to use.
+     *
+     * @parameter expression="${localRepository}"
+     * @required
+     * @readonly
+     */
+    private ArtifactRepository localRepository;
+
+    /**
+     * The artifact factory to use.
+     *
+     * @component
+     * @required
+     * @readonly
+     */
+    protected ArtifactFactory artifactFactory;
+
+    /**
+     * The artifact metadata source to use.
+     *
+     * @component
+     * @required
+     * @readonly
+     */
+    private ArtifactMetadataSource artifactMetadataSource;
+
+    /**
+     * The artifact collector to use.
+     *
+     * @component
+     * @required
+     * @readonly
+     */
+    private ArtifactCollector artifactCollector;
+
+    protected String treeListing;
+
+    //filtering support
+    /**
+     * The character encoding scheme to be applied when filtering resources.
+     *
+     * @parameter expression="${encoding}" default-value="${project.build.sourceEncoding}"
+     */
+    protected String encoding;
+
+    /**
+     * @component role="org.apache.maven.shared.filtering.MavenResourcesFiltering" role-hint="default"
+     * @required
+     */
+    protected MavenResourcesFiltering mavenResourcesFiltering;
+
+    /**
+     * @parameter expression="${session}"
+     * @readonly
+     * @required
+     */
+    protected MavenSession session;
+
+    /**
+     * Expression preceded with the String won't be interpolated
+     * \${foo} will be replaced with ${foo}
+     *
+     * @parameter expression="${maven.resources.escapeString}"
+     * @since 2.3
+     */
+    protected String escapeString = "\\";
+
+    /**
+     * @plexus.requirement role-hint="default"
+     * @component
+     * @required
+     */
+    protected MavenFileFilter mavenFileFilter;
+
+    //
+    // MojoSupport Hooks
+    //
+
+    protected MavenProject getProject() {
+        return project;
+    }
+
+    /**
+     * @parameter expression="${localRepository}"
+     * @readonly
+     * @required
+     */
+    protected ArtifactRepository artifactRepository = null;
+
+    protected ArtifactRepository getArtifactRepository() {
+        return artifactRepository;
+    }
+
+    protected void init() throws MojoExecutionException, MojoFailureException {
+//        super.init();
+    }
+
+    /**
+     * Generates a properties file with explicit versions of artifacts of the current project transitivly.
+     */
+    protected void generateExplicitVersionProperties(final File outputFile, Set<org.apache.maven.artifact.Artifact> dependencies) throws MojoExecutionException, IOException {
+        getLog().debug("Generating explicit version properties: " + outputFile);
+
+        // Generate explicit_versions for all our dependencies...
+        Properties props = new Properties();
+
+        for (org.apache.maven.artifact.Artifact artifact : dependencies) {
+            String name = artifact.getGroupId() + "/" + artifact.getArtifactId() + "//" + artifact.getType();
+            String value = artifact.getGroupId() + "/" + artifact.getArtifactId() + "/" + artifact.getVersion() + "/" + artifact.getType();
+
+            if (getLog().isDebugEnabled()) {
+                getLog().debug("Setting " + name + "=" + value);
+            }
+            props.setProperty(name, value);
+        }
+        BufferedOutputStream output = new BufferedOutputStream(new FileOutputStream(outputFile));
+        props.store(output, null);
+        output.flush();
+        output.close();
+    }
+
+    protected static File getArchiveFile(final File basedir, final String finalName, String classifier) {
+        if (classifier == null) {
+            classifier = "";
+        } else if (classifier.trim().length() > 0 && !classifier.startsWith("-")) {
+            classifier = "-" + classifier;
+        }
+
+        return new File(basedir, finalName + classifier + ".car");
+    }
+
+    //
+    // Geronimo/Maven Artifact Interop
+    //
+
+    protected org.apache.geronimo.kernel.repository.Artifact mavenToGeronimoArtifact(final org.apache.maven.artifact.Artifact artifact) {
+        assert artifact != null;
+
+        return new org.apache.geronimo.kernel.repository.Artifact(artifact.getGroupId(), artifact.getArtifactId(), artifact.getVersion(), artifact.getType());
+    }
+
+    protected org.apache.geronimo.kernel.repository.Artifact mavenToGeronimoArtifact(final org.apache.maven.model.Dependency artifact) {
+        assert artifact != null;
+
+        return new org.apache.geronimo.kernel.repository.Artifact(artifact.getGroupId(), artifact.getArtifactId(), artifact.getVersion(), artifact.getType());
+    }
+
+    protected org.apache.maven.artifact.Artifact geronimoToMavenArtifact(final org.apache.geronimo.kernel.repository.Artifact artifact) throws MojoExecutionException {
+        assert artifact != null;
+        return artifactFactory.createArtifactWithClassifier(artifact.getGroupId(), artifact.getArtifactId(), artifact.getVersion().toString(), artifact.getType(), null);
+    }
+
+    /**
+     * Determine if the given artifact is a Geronimo module.
+     *
+     * @param artifact The artifact to check; must not be null.
+     * @return True if the artifact is a Geronimo module.
+     */
+    protected boolean isModuleArtifact(final org.apache.geronimo.kernel.repository.Artifact artifact) {
+        assert artifact != null;
+
+        return "car".equals(artifact.getType());
+    }
+
+    protected boolean includeDependency(org.apache.maven.model.Dependency dependency) {
+        if (dependency.getGroupId().startsWith("org.apache.geronimo.genesis")) {
+            return false;
+        }
+        String scope = dependency.getScope();
+        return scope == null || "runtime".equalsIgnoreCase(scope) || "compile".equalsIgnoreCase(scope);
+    }
+
+    protected org.apache.maven.model.Dependency resolveDependency(org.apache.maven.model.Dependency dependency, List<org.apache.maven.model.Dependency> artifacts) {
+        for (org.apache.maven.model.Dependency match : artifacts) {
+            if (matches(dependency, match)) {
+                return match;
+            }
+        }
+        throw new IllegalStateException("Dependency " + dependency + " is not resolved in project");
+    }
+
+    private boolean matches(org.apache.maven.model.Dependency dependency, org.apache.maven.model.Dependency match) {
+        if (dependency.getGroupId() != null && !dependency.getGroupId().equals(match.getGroupId())) {
+            return false;
+        }
+        if (dependency.getArtifactId() != null && !dependency.getArtifactId().equals(match.getArtifactId())) {
+            return false;
+        }
+        if (dependency.getType() != null && !dependency.getType().equals(match.getType())) {
+            return false;
+        }
+        return true;
+    }
+
+    protected void getDependencies(MavenProject project, boolean useTransitiveDependencies) throws MojoExecutionException {
+
+        DependencyTreeResolutionListener listener = new DependencyTreeResolutionListener(getLogger());
+
+        DependencyNode rootNode;
+        try {
+            Map managedVersions = project.getManagedVersionMap();
+
+            Set dependencyArtifacts = project.getDependencyArtifacts();
+
+            if (dependencyArtifacts == null) {
+                dependencyArtifacts = project.createArtifacts(artifactFactory, null, null);
+            }
+            ArtifactResolutionResult result = artifactCollector.collect(dependencyArtifacts, project.getArtifact(), managedVersions, localRepository,
+                    project.getRemoteArtifactRepositories(), artifactMetadataSource, null,
+                    Collections.singletonList(listener));
+
+            this.dependencyArtifacts = result.getArtifacts();
+            rootNode = listener.getRootNode();
+        }
+        catch (ArtifactResolutionException exception) {
+            throw new MojoExecutionException("Cannot build project dependency tree", exception);
+        }
+        catch (InvalidDependencyVersionException e) {
+            throw new MojoExecutionException("Invalid dependency version for artifact "
+                    + project.getArtifact());
+        }
+
+        Scanner scanner = new Scanner();
+        scanner.scan(rootNode, useTransitiveDependencies);
+        localDependencies = scanner.localDependencies;
+        treeListing = scanner.getLog();
+    }
+
+    public void setLog(Log log) {
+        this.log = log;
+    }
+
+    public Log getLog() {
+        if (log == null) {
+            setLog(new SystemStreamLog());
+        }
+        return log;
+    }
+
+    protected static org.apache.geronimo.kernel.repository.Dependency toGeronimoDependency(final Artifact dependency, boolean includeVersion) {
+        org.apache.geronimo.kernel.repository.Artifact artifact = toGeronimoArtifact(dependency, includeVersion);
+        return new org.apache.geronimo.kernel.repository.Dependency(artifact, org.apache.geronimo.kernel.repository.ImportType.ALL);
+    }
+
+    private static org.apache.geronimo.kernel.repository.Artifact toGeronimoArtifact(final Artifact dependency, boolean includeVersion) {
+        String groupId = dependency.getGroupId();
+        String artifactId = dependency.getArtifactId();
+        String version = includeVersion ? dependency.getVersion() : null;
+        String type = dependency.getType();
+
+        return new org.apache.geronimo.kernel.repository.Artifact(groupId, artifactId, version, type);
+    }
+
+    protected LinkedHashSet<DependencyType> toDependencies(List<Dependency> explicitDependencies, UseMavenDependencies useMavenDependencies, boolean includeImport) throws InvalidDependencyVersionException, ArtifactResolutionException, ProjectBuildingException, MojoExecutionException {
+        List<DependencyType> dependencyTypes = new ArrayList<DependencyType>();
+        for (Dependency dependency : explicitDependencies) {
+            dependencyTypes.add(dependency.toDependencyType());
+        }
+        LinkedHashSet<DependencyType> dependencies = new LinkedHashSet<DependencyType>();
+
+        if (useMavenDependencies == null || !useMavenDependencies.isValue()) {
+            dependencies.addAll(dependencyTypes);
+        } else {
+            Map<String, DependencyType> explicitDependencyMap = new HashMap<String, DependencyType>();
+            for (DependencyType dependency : dependencyTypes) {
+                explicitDependencyMap.put(getKey(dependency), dependency);
+            }
+
+
+            getDependencies(project, useMavenDependencies.isUseTransitiveDependencies());
+            for (Map.Entry<Artifact, Set<Artifact>> entry : localDependencies.entrySet()) {
+                toDependencyType(entry.getKey(), explicitDependencyMap, localDependencies, useMavenDependencies.isIncludeVersion(), includeImport, dependencies);
+//                Artifact artifact = entry.getKey();
+//                DependencyType explicitDependency = explicitDependencyMap.get(getKey(artifact));
+//                DependencyType dependency = toDependencyType(artifact, useMavenDependencies.isIncludeVersion(), explicitDependency, includeImport);
+//                for (Artifact parent : entry.getValue()) {
+//                    dependency.getDependency().add(toDependencyType(parent, true, null, false));
+//                }
+//                dependencies.add(dependency);
+//            for (Artifact artifact : localDependencies) {
+//                Dependency explicitDependency = explicitDependencyMap.get(getKey(artifact));
+//                dependencies.add(toDependency(artifact, useMavenDependencies.isIncludeVersion(), explicitDependency, includeImport));
+            }
+        }
+
+        return dependencies;
+    }
+
+    DependencyType toDependencyType(Artifact artifact, Map<String, DependencyType> explicitDependencyMap, Map<Artifact, Set<Artifact>> localDependencies, boolean includeVersion, boolean includeImport, LinkedHashSet<DependencyType> dependencies) {
+        DependencyType explicitDependency = explicitDependencyMap.get(getKey(artifact));
+        DependencyType dependency = toDependencyType(artifact, includeVersion, explicitDependency, includeImport);
+        Set<Artifact> artifactSet = localDependencies.get(artifact);
+        if (artifactSet != null) {
+            for (Artifact parent : artifactSet) {
+                dependency.getDependency().add(toDependencyType(parent, explicitDependencyMap, localDependencies, includeVersion, includeImport, dependencies));
+            }
+        }
+        dependencies.add(dependency);
+        return dependency;
+    }
+
+    DependencyType toDependencyType(Artifact artifact, boolean includeVersion, DependencyType explicitDependency, boolean includeImport) {
+        DependencyType dependency = new DependencyType();
+        dependency.setGroupId(artifact.getGroupId());
+        dependency.setArtifactId(artifact.getArtifactId());
+        dependency.setVersion(includeVersion ? artifact.getVersionRange().getRecommendedVersion().toString() : null);
+        dependency.setType(artifact.getType());
+        if (includeImport) {
+            ImportType importType = ImportType.ALL;
+            if (explicitDependency != null && explicitDependency.getImport() != null) {
+                importType = explicitDependency.getImport();
+            }
+            dependency.setImport(importType);
+        }
+        if (explicitDependency != null) {
+            dependency.setStart(explicitDependency.isStart());
+            dependency.getDependency().addAll(explicitDependency.getDependency());
+        }
+        return dependency;
+    }
+
+    private static String getKey(DependencyType dependency) {
+        return dependency.getGroupId() + "/" + dependency.getArtifactId() + "/" + dependency.getType();
+    }
+
+    private static String getKey(Artifact dependency) {
+        return dependency.getGroupId() + "/" + dependency.getArtifactId() + "/" + dependency.getType();
+    }
+
+    protected ArtifactType getModuleId() {
+        ArtifactType artifactType = new ArtifactType();
+        artifactType.setGroupId(project.getGroupId());
+        artifactType.setArtifactId(project.getArtifactId());
+        artifactType.setVersion(project.getVersion());
+        artifactType.setType(project.getArtifact().getType());
+        return artifactType;
+    }
+
+
+    private static class Scanner {
+        private static enum Accept {
+            ACCEPT(true, true),
+            PROVIDED(true, false),
+            STOP(false, false);
+
+            private final boolean more;
+            private final boolean local;
+
+            private Accept(boolean more, boolean local) {
+                this.more = more;
+                this.local = local;
+            }
+
+            public boolean isContinue() {
+                return more;
+            }
+
+            public boolean isLocal() {
+                return local;
+            }
+        }
+
+        //all the dependencies needed for this car, with provided dependencies removed
+        private final Map<Artifact, Set<Artifact>> localDependencies = new LinkedHashMap<Artifact, Set<Artifact>>();
+        //dependencies from ancestor cars, to be removed from localDependencies.
+        private final Set<Artifact> carDependencies = new LinkedHashSet<Artifact>();
+
+        private final StringBuilder log = new StringBuilder();
+
+        public void scan(DependencyNode rootNode, boolean useTransitiveDependencies) {
+            Set<Artifact> children = new LinkedHashSet<Artifact>();
+            for (DependencyNode child : (List<DependencyNode>) rootNode.getChildren()) {
+                scan(child, Accept.ACCEPT, useTransitiveDependencies, false, "", children);
+            }
+            if (useTransitiveDependencies) {
+                localDependencies.keySet().removeAll(carDependencies);
+            }
+        }
+
+        private void scan(DependencyNode rootNode, Accept parentAccept, boolean useTransitiveDependencies, boolean isFromCar, String indent, Set<Artifact> parentsChildren) {
+            Artifact artifact = getArtifact(rootNode);
+
+            Accept accept = accept(artifact, parentAccept);
+            if (accept.isContinue()) {
+                Set<Artifact> children = localDependencies.get(artifact);
+                if (isFromCar) {
+                    if (!artifact.getType().equals("car")) {
+                        log.append(indent).append("from car:").append(artifact).append("\n");
+                        carDependencies.add(artifact);
+                    } else {
+                        log.append(indent).append("is car:").append(artifact).append("\n");
+                    }
+                } else {
+                    log.append(indent).append("local:").append(artifact).append("\n");
+                    if (carDependencies.contains(artifact)) {
+                        log.append(indent).append("already in car, returning:").append(artifact).append("\n");
+                        parentsChildren.add(artifact);
+                        return;
+                    }
+                    parentsChildren.add(artifact);
+                    if (children == null) {
+                        children = new LinkedHashSet<Artifact>();
+                        localDependencies.put(artifact, children);
+                    }
+                    if (artifact.getType().equals("car") || !useTransitiveDependencies) {
+                        isFromCar = true;
+                    }
+                }
+                for (DependencyNode child : (List<DependencyNode>) rootNode.getChildren()) {
+                    scan(child, accept, useTransitiveDependencies, isFromCar, indent + "  ", children);
+                }
+            }
+        }
+
+        public String getLog() {
+            return log.toString();
+        }
+
+        private Artifact getArtifact(DependencyNode rootNode) {
+            Artifact artifact = rootNode.getArtifact();
+            if (rootNode.getRelatedArtifact() != null) {
+                artifact = rootNode.getRelatedArtifact();
+            }
+            return artifact;
+        }
+
+        private Accept accept(Artifact dependency, Accept previous) {
+            if (dependency.getGroupId().startsWith("org.apache.geronimo.genesis")) {
+                return Accept.STOP;
+            }
+            String scope = dependency.getScope();
+            if (scope == null || "runtime".equalsIgnoreCase(scope) || "compile".equalsIgnoreCase(scope)) {
+                return previous;
+            }
+            return Accept.STOP;
+        }
+
+    }
+
+    protected class ArtifactLookupImpl
+            implements Maven2RepositoryAdapter.ArtifactLookup {
+
+        public File getBasedir() {
+            String path = getArtifactRepository().getBasedir();
+            return new File(path);
+        }
+
+        private boolean isProjectArtifact(final org.apache.geronimo.kernel.repository.Artifact artifact) {
+            MavenProject project = getProject();
+
+            return artifact.getGroupId().equals(project.getGroupId()) &&
+                    artifact.getArtifactId().equals(project.getArtifactId());
+        }
+
+        public File getLocation(final org.apache.geronimo.kernel.repository.Artifact artifact) {
+            assert artifact != null;
+            Artifact mavenArtifact;
+
+            // Do not attempt to resolve an artifact that is the same as the project
+            if (isProjectArtifact(artifact) && artifact.getVersion() == null) {
+                throw new IllegalStateException("WTF? project has no version??");
+            }
+
+            if (artifact.getVersion() == null) {
+                if (log.isDebugEnabled()) {
+                    getLog().debug("Resolving artifact: " + artifact);
+                }
+                mavenArtifact = resolveArtifact(artifact.getGroupId(), artifact.getArtifactId(), artifact.getType());
+
+            } else {
+                mavenArtifact = artifactFactory.createArtifactWithClassifier(
+                        artifact.getGroupId(),
+                        artifact.getArtifactId(),
+                        artifact.getVersion().toString(),
+                        artifact.getType(),
+                        null);
+            }
+
+            String path = getArtifactRepository().pathOf(mavenArtifact);
+            return new File(getBasedir(), path);
+        }
+    }
+
+    protected Artifact resolveArtifact(String groupId, String artifactId, String type) {
+        for (Artifact artifact : dependencyArtifacts) {
+            if (matches(groupId, artifactId, type, artifact)) {
+                return artifact;
+            }
+        }
+        return null;
+    }
+
+    private boolean matches(String groupId, String artifactId, String type, Artifact artifact) {
+        if (!groupId.equals(artifact.getGroupId())) return false;
+        if (!artifactId.equals(artifact.getArtifactId())) return false;
+        if (!type.equals(artifact.getType())) return false;
+
+        return true;
+    }
+
+
+    protected void filter(File sourceFile, File targetFile)
+            throws MojoExecutionException {
+        try {
+
+            if (StringUtils.isEmpty(encoding)) {
+                getLog().warn(
+                        "File encoding has not been set, using platform encoding " + ReaderFactory.FILE_ENCODING
+                                + ", i.e. build is platform dependent!");
+            }
+            targetFile.getParentFile().mkdirs();
+            List filters = mavenFileFilter.getDefaultFilterWrappers(project, null, true, session, null);
+            mavenFileFilter.copyFile(sourceFile, targetFile, true, filters, encoding, true);
+        }
+        catch (MavenFilteringException e) {
+            throw new MojoExecutionException(e.getMessage(), e);
+        }
+    }
+
+    protected Framework getFramework() throws BundleException {
+        Map<String, String> properties = new HashMap<String, String>();
+//        properties.put(FelixConstants.EMBEDDED_EXECUTION_PROP, "true");
+        properties.put(Constants.FRAMEWORK_SYSTEMPACKAGES_EXTRA,
+                        "net.sf.cglib.asm," +
+                        "net.sf.cglib.core," +
+                        "net.sf.cglib.proxy," +
+                        "net.sf.cglib.reflect," +
+                        "org.apache.commons.jexl;version=\"1.1\"," +
+                        "org.apache.commons.jexl.context;version=\"1.1\"," +
+                        "org.apache.commons.jexl.resolver;version=\"1.1\"," +
+                        "org.apache.commons.logging;version=\"1.1.1\"," +
+                        "org.apache.geronimo.cli," +
+                        "org.apache.geronimo.cli.client," +
+                        "org.apache.geronimo.cli.daemon," +
+                        "org.apache.geronimo.common," +
+                        "org.apache.geronimo.common.propertyeditor," +
+                        "org.apache.geronimo.crypto," +
+                        "org.apache.geronimo.gbean," +
+                        "org.apache.geronimo.gbean.annotation," +
+                        "org.apache.geronimo.gbean.runtime," +
+
+                        "org.apache.geronimo.kernel," +
+                        "org.apache.geronimo.kernel.basic," +
+                        "org.apache.geronimo.kernel.classloader," +
+                        "org.apache.geronimo.kernel.config," +
+                        "org.apache.geronimo.kernel.config.classloading," +
+                        "org.apache.geronimo.kernel.config.xstream," +
+                        "org.apache.geronimo.kernel.lifecycle," +
+                        "org.apache.geronimo.kernel.management," +
+                        "org.apache.geronimo.kernel.osgi," +
+                        "org.apache.geronimo.kernel.proxy," +
+                        "org.apache.geronimo.kernel.repository," +
+                        "org.apache.geronimo.kernel.rmi," +
+                        "org.apache.geronimo.kernel.util," +
+
+                        "org.apache.geronimo.system.configuration," +
+                        "org.apache.geronimo.system.configuration.cli," +
+                        "org.apache.geronimo.system.configuration.condition," +
+                        "org.apache.geronimo.system.jmx," +
+                        "org.apache.geronimo.system.logging," +
+                        "org.apache.geronimo.system.logging.jul," +
+                        "org.apache.geronimo.system.logging.log4j," +
+                        "org.apache.geronimo.system.main," +
+                        "org.apache.geronimo.system.plugin," +
+                        "org.apache.geronimo.system.plugin.model," +
+                        "org.apache.geronimo.system.properties," +
+                        "org.apache.geronimo.system.repository," +
+                        "org.apache.geronimo.system.resolver," +
+                        "org.apache.geronimo.system.serverinfo," +
+                        "org.apache.geronimo.system.sharedlib," +
+                        "org.apache.geronimo.system.threads," +
+                        "org.apache.geronimo.system.util," +
+                        "org.apache.log4j;version=\"1.2.12\"," +
+                        "org.apache.log4j.helpers;version=\"1.2.12\"," +
+                        "org.apache.log4j.spi;version=\"1.2.12\"," +
+                        "org.apache.log4j.xml;version=\"1.2.12\"," +
+                        "org.apache.geronimo.mavenplugins.car," +
+
+                        "org.codehaus.classworlds," +
+                        "org.codehaus.classworlds.realm," +
+
+                        "org.codehaus.plexus," +
+                        "org.codehaus.plexus.archiver," +
+                        "org.codehaus.plexus.archiver.jar," +
+                        "org.codehaus.plexus.archiver.tar," +
+                        "org.codehaus.plexus.archiver.util," +
+                        "org.codehaus.plexus.archiver.zip," +
+                        "org.codehaus.plexus.component," +
+                        "org.codehaus.plexus.component.annotations," +
+                        "org.codehaus.plexus.component.composition," +
+                        "org.codehaus.plexus.component.configurator," +
+                        "org.codehaus.plexus.component.configurator.converters," +
+                        "org.codehaus.plexus.component.configurator.expression," +
+                        "org.codehaus.plexus.component.discovery," +
+                        "org.codehaus.plexus.component.factory," +
+                        "org.codehaus.plexus.component.manager," +
+                        "org.codehaus.plexus.component.repository," +
+                        "org.codehaus.plexus.component.repository.exception," +
+                        "org.codehaus.plexus.component.repository.io," +
+                        "org.codehaus.plexus.configuration," +
+                        "org.codehaus.plexus.configuration.processor," +
+                        "org.codehaus.plexus.configuration.xml," +
+                        "org.codehaus.plexus.context," +
+                        "org.codehaus.plexus.embed," +
+                        "org.codehaus.plexus.lifecycle," +
+                        "org.codehaus.plexus.lifecycle.phase," +
+                        "org.codehaus.plexus.logging," +
+                        "org.codehaus.plexus.logging.console," +
+                        "org.codehaus.plexus.personality," +
+                        "org.codehaus.plexus.personality.plexus," +
+                        "org.codehaus.plexus.personality.plexus.lifecycle," +
+                        "org.codehaus.plexus.personality.plexus.lifecycle.phase," +
+                        "org.codehaus.plexus.util," +
+                        "org.codehaus.plexus.util.xml," +
+
+                        "org.apache.maven," +
+                        "org.apache.maven.plugin," +
+                        "org.apache.maven.lifecyle," +
+                        "org.apache.maven.shared," +
+                        "org.apache.maven.shared.filtering," +
+
+                        "com.thoughtworks.xstream," +
+                        "com.thoughtworks.xstream.alias," +
+                        "com.thoughtworks.xstream.converters," +
+                        "com.thoughtworks.xstream.converters.basic," +
+                        "com.thoughtworks.xstream.converters.reflection," +
+                        "com.thoughtworks.xstream.core," +
+                        "com.thoughtworks.xstream.io," +
+                        "com.thoughtworks.xstream.io.xml," +
+                        "com.thoughtworks.xstream.mapper," +
+                        "javax.management," +
+                        "javax.rmi.ssl," +
+                        "javax.xml.parsers," +
+                        "javax.xml.transform," +
+                        "net.sf.cglib.asm," +
+                        "net.sf.cglib.core," +
+                        "net.sf.cglib.proxy," +
+                        "net.sf.cglib.reflect," +
+                        "org.apache.xbean.recipe;version=\"3.6\"," +
+                        "org.objectweb.asm," +
+                        "org.objectweb.asm.commons," +
+                        "org.osgi.framework;version=\"1.4\"," +
+                                "org.slf4j;version=\"1.5.6\"," +
+                                "org.slf4j.impl;version=\"1.5.6\"," +
+                                "org.slf4j.bridge;version=\"1.5.6\"," +
+                        "org.w3c.dom," +
+                        "org.xml.sax," +
+                        "org.xml.sax.helpers," +
+                        "sun.misc," +
+                        "org.apache.xmlbeans," +
+                        "org.apache.xml.resolver," +
+                        "org.apache.commons.cli," +
+                        "javax.enterprise.deploy," +
+                        "javax.enterprise.deploy.model," +
+                        "javax.enterprise.deploy.shared," +
+                        "javax.enterprise.deploy.spi");
+        properties.put(BundleCache.CACHE_ROOTDIR_PROP, basedir + "/target");
+        Framework framework = new FrameworkFactory().newFramework(properties);
+        framework.start();
+        return framework;
+    }
+
+}

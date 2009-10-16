@@ -1,0 +1,66 @@
+<?xml version="1.0" ?>
+<!--
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+
+<application xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-2.0">
+  <dep:environment xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.2">
+    <dep:moduleId>
+      <dep:groupId>default</dep:groupId>
+      <dep:artifactId>hello</dep:artifactId>
+      <dep:version>1-default</dep:version>
+      <dep:type>car</dep:type>
+    </dep:moduleId>
+    <dep:dependencies>
+      <dep:dependency>
+        <dep:groupId>geronimo</dep:groupId>
+        <dep:artifactId>j2ee-security</dep:artifactId>
+        <dep:version>3.0-SNAPSHOT</dep:version>
+        <dep:type>car</dep:type>
+      </dep:dependency>
+    </dep:dependencies>
+    <dep:hidden-classes/>
+    <dep:non-overridable-classes/>
+    <dep:private-classes/>
+  </dep:environment>
+  <gbean name="hello-realm" class="org.apache.geronimo.security.realm.GenericSecurityRealm">
+    <attribute name="realmName">hello-realm</attribute>
+    <reference name="LoginModuleConfiguration">
+      <name>hello-login-chain</name>
+    </reference>
+    <reference name="ServerInfo">
+      <!--CHECK THAT THE TARGET GBEAN IS IN THE ANCESTOR SET OF THIS MODULE AND THAT THE NAME UNIQUELY IDENTIFIES IT-->
+      <dep:name xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.2">ServerInfo</dep:name>
+    </reference>
+    <reference name="LoginService">
+      <!--CHECK THAT THE TARGET GBEAN IS IN THE ANCESTOR SET OF THIS MODULE AND THAT THE NAME UNIQUELY IDENTIFIES IT-->
+      <dep:name xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.2">JaasLoginService</dep:name>
+    </reference>
+  </gbean>
+  <gbean name="hello-login-chain" class="org.apache.geronimo.security.jaas.JaasLoginModuleUse">
+    <attribute name="controlFlag">REQUIRED</attribute>
+    <reference name="LoginModule">
+      <name>hello-login</name>
+    </reference>
+  </gbean>
+  <gbean name="hello-login" class="org.apache.geronimo.security.jaas.LoginModuleGBean">
+    <attribute name="loginModuleClass">foo.auth.LoginModule</attribute>
+    <attribute name="serverSide">true</attribute>
+    <attribute name="options">usersURI=var/security/demo_users.properties
+            groupsURI=var/security/demo_groups.properties</attribute>
+    <attribute name="loginDomainName">hello-realm</attribute>
+  </gbean>
+</application>

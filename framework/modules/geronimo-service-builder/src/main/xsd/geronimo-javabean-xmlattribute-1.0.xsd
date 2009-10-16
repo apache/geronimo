@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Licensed to the Apache Software Foundation (ASF) under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The ASF licenses this file to You under the Apache License, Version 2.0
+    (the "License"); you may not use this file except in compliance with
+    the License.  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+
+<xs:schema
+    targetNamespace="http://geronimo.apache.org/xml/ns/deployment/javabean-1.0"
+    xmlns:javabean="http://geronimo.apache.org/xml/ns/deployment/javabean-1.0"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    elementFormDefault="qualified"
+    attributeFormDefault="unqualified"
+    >
+    <xs:annotation>
+        <xs:documentation>
+            Schema for javabean xml attributes
+
+            &gt;gbeans xmlns="http://geronimo.apache.org/xml/ns/deployment/javabean-1.0"&lt;
+        </xs:documentation>
+    </xs:annotation>
+
+    <xs:element name="javabean" type="javabean:javabeanType"/>
+
+    <xs:complexType name="javabeanType">
+        <xs:sequence>
+            <xs:element name="property" type="javabean:propertyType" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="bean-property" type="javabean:bean-propertyType" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="class" type="xs:string" use="optional"/>
+    </xs:complexType>
+
+    <xs:complexType name="propertyType">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="name" type="xs:string"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:complexType name="bean-propertyType">
+        <xs:sequence>
+            <xs:element ref="javabean:javabean"/>
+        </xs:sequence>
+        <xs:attribute name="name" type="xs:string"/>
+    </xs:complexType>
+
+</xs:schema>

@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--
+    Licensed to the Apache Software Foundation (ASF) under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The ASF licenses this file to You under the Apache License, Version 2.0
+    (the "License"); you may not use this file except in compliance with
+    the License.  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+
+<!-- $Rev: 617770 $ $Date: 2008-02-02 03:30:00 -0500 (Sat, 02 Feb 2008) $ -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+    
+    <parent>
+        <groupId>org.apache.geronimo.framework</groupId>
+        <artifactId>configs</artifactId>
+        <version>3.0-SNAPSHOT</version>
+    </parent>
+    
+    <artifactId>jmx-security</artifactId>
+    <name>Geronimo Framework, Configs :: JMX Security Configuration</name>
+    <packaging>car</packaging>
+
+    <description>Secure (SSL/TSL) JMX Connector.</description>
+    
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>geronimo-gbean-deployer</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+            <scope>provided</scope>
+        </dependency>
+        
+        <!-- parent -->
+        <dependency>
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>server-security-config</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+    </dependencies>
+    
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.geronimo.buildsupport</groupId>
+                <artifactId>car-maven-plugin</artifactId>
+                <configuration>
+                    <deploymentConfigs>
+                        <deploymentConfig>${gbeanDeployer}</deploymentConfig>
+                    </deploymentConfigs>
+                    <category>Security</category>
+                    <instance>
+                        <plugin-artifact>
+                            <config-xml-content load="false">
+                                <gbean name="JMXSecureConnector">
+                                    <attribute name="protocol">rmi</attribute>
+                                    <attribute name="host">#{ServerHostname}</attribute>
+                                    <attribute name="port">#{JMXSecurePort + PortOffset}</attribute>
+                                    <attribute name="urlPath">/jndi/rmi://#{ServerHostname}:#{NamingPort + PortOffset}/JMXSecureConnector</attribute>
+                                </gbean>
+                             </config-xml-content>
+                            <config-substitution key="JMXSecurePort">9998</config-substitution>
+                        </plugin-artifact>
+                    </instance>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

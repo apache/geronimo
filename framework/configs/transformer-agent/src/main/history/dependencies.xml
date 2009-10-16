@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<plugin-artifact xmlns:ns2="http://geronimo.apache.org/xml/ns/attributes-1.2" xmlns="http://geronimo.apache.org/xml/ns/plugins-1.3">
+    <module-id>
+        <groupId>org.apache.geronimo.framework</groupId>
+        <artifactId>transformer-agent</artifactId>
+        <version>3.0-SNAPSHOT</version>
+        <type>car</type>
+    </module-id>
+</plugin-artifact>

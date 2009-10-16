@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<!--
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+
+<application xmlns="http://geronimo.apache.org/xml/ns/j2ee/application"
+             xmlns:j2ee="http://java.sun.com/xml/ns/j2ee"
+             xmlns:pk="http://tranql.codehaus.org/xml/ns/pkgen"
+             configId="ejb_unknownpk"
+             parentId="${pom.groupId}/jms/${version}/car">
+  <module>
+    <ejb>ejb_unknownpk_ejb.jar</ejb>
+    <openejb-jar xmlns="http://www.openejb.org/xml/ns/openejb-jar" configId="ejb">
+      <cmp-connection-factory>
+        <resource-link>jdbc/DB1</resource-link>
+      </cmp-connection-factory>
+      <enterprise-beans>
+        <entity>
+          <ejb-name>TestBeanEJB</ejb-name>
+          <table-name>UNKNOWNPK_TABLE1</table-name>
+          <cmp-field-mapping>
+            <cmp-field-name>accountNumber</cmp-field-name>
+            <table-column>ACCOUNTNUMBER</table-column>
+          </cmp-field-mapping>
+          <primkey-field>abc</primkey-field>
+          <key-generator xmlns="http://www.openejb.org/xml/ns/pkgen">
+            <custom-generator>
+              <generator-name>geronimo.server:name=CMPPKGenerator</generator-name>
+              <primary-key-class>java.lang.Integer</primary-key-class>
+            </custom-generator>
+          </key-generator>
+        </entity>
+      </enterprise-beans>
+
+      <gbean gbeanName="geronimo.server:name=CMPPKGenerator" class="org.apache.openejb.entity.cmp.pkgenerator.SequenceTablePrimaryKeyGeneratorWrapper">
+        <reference name="TransactionManager">
+            <gbean-name>*:name=TransactionManager,*</gbean-name>
+        </reference>
+        <reference name="ManagedConnectionFactoryWrapper"><gbean-name>geronimo.server:J2EEApplication=null,J2EEServer=geronimo,JCAResource=geronimo-cts/database/${version}/car,j2eeType=JCAManagedConnectionFactory,name=jdbc/DB1</gbean-name></reference>
+        <attribute name="tableName">CUSTOM_UNKNOWNPK_TABLE1</attribute>
+        <attribute name="sequenceName">ABC_SEQ</attribute>
+        <attribute name="batchSize">10</attribute>
+      </gbean>
+
+    </openejb-jar>
+  </module>
+</application>

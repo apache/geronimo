@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--
+    Licensed to the Apache Software Foundation (ASF) under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The ASF licenses this file to You under the Apache License, Version 2.0
+    (the "License"); you may not use this file except in compliance with
+    the License.  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+
+<!-- $Rev$ $Date$ -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.apache.geronimo.framework</groupId>
+        <artifactId>configs</artifactId>
+        <version>3.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>online-deployer</artifactId>
+    <name>Geronimo Framework, Configs :: Online Deployer</name>
+    <packaging>car</packaging>
+
+    <description>Geronimo Online Deployer</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>geronimo-gbean-deployer</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+            <scope>provided</scope>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>geronimo-common</artifactId>
+            <version>${version}</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>geronimo-system</artifactId>
+            <version>${version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>geronimo-crypto</artifactId>
+            <version>${version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.bundles</groupId>
+            <artifactId>commons-cli</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.servicemix.bundles</groupId>
+            <artifactId>org.apache.servicemix.bundles.jline</artifactId>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.apache.servicemix.bundles</groupId>
+            <artifactId>org.apache.servicemix.bundles.commons-jexl</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.servicemix.bundles</groupId>
+            <artifactId>org.apache.servicemix.bundles.commons-lang</artifactId>
+        </dependency>
+
+        <!-- used by plugin installer -->
+        <dependency>
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>geronimo-plugin</artifactId>
+            <version>${version}</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.apache.servicemix.specs</groupId>
+            <artifactId>org.apache.servicemix.specs.jaxb-api-2.1</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.servicemix.bundles</groupId>
+            <artifactId>org.apache.servicemix.bundles.jaxb-impl</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.servicemix.specs</groupId>
+            <artifactId>org.apache.servicemix.specs.stax-api-1.0</artifactId>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.apache.servicemix.bundles</groupId>
+            <artifactId>org.apache.servicemix.bundles.woodstox</artifactId>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.apache.servicemix.specs</groupId>
+            <artifactId>org.apache.servicemix.specs.activation-api-1.1</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.geronimo.buildsupport</groupId>
+                <artifactId>car-maven-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifestEntries>
+                            <Endorsed-Dirs>lib/endorsed</Endorsed-Dirs>
+                            <Extension-Dirs>lib/ext</Extension-Dirs>
+                        </manifestEntries>
+                        <manifest>
+                            <mainClass>org.apache.geronimo.cli.deployer.DeployerCLI</mainClass>
+                        </manifest>
+                    </archive>
+
+                    <!--
+                    NOTE: This list of dependencies is non-transitive.
+                    -->
+                    <classpath>
+                        <element>
+                            <groupId>org.apache.geronimo.framework</groupId>
+                            <artifactId>geronimo-cli</artifactId>
+                            <version>${version}</version>
+                        </element>
+                        <element>
+                            <groupId>org.apache.geronimo.framework</groupId>
+                            <artifactId>geronimo-crypto</artifactId>
+                            <version>${version}</version>
+                        </element>
+                        <element>
+                            <groupId>org.apache.geronimo.framework</groupId>
+                            <artifactId>geronimo-kernel</artifactId>
+                            <version>${version}</version>
+                        </element>
+                        <element>
+                            <groupId>commons-cli</groupId>
+                            <artifactId>commons-cli</artifactId>
+                        </element>
+                        <element>
+                            <groupId>asm</groupId>
+                            <artifactId>asm</artifactId>
+                        </element>
+                        <element>
+                            <groupId>asm</groupId>
+                            <artifactId>asm-commons</artifactId>
+                        </element>
+                        <element>
+                            <groupId>cglib</groupId>
+                            <artifactId>cglib-nodep</artifactId>
+                        </element>
+                        <!--<element>-->
+                            <!--<groupId>org.slf4j</groupId>-->
+                            <!--<artifactId>slf4j-api</artifactId>-->
+                        <!--</element>-->
+                        <!--<element>-->
+                            <!--<groupId>org.slf4j</groupId>-->
+                            <!--<artifactId>slf4j-log4j12</artifactId>-->
+                        <!--</element>-->
+                        <!--<element>-->
+                            <!--<groupId>org.slf4j</groupId>-->
+                            <!--<artifactId>jcl-over-slf4j</artifactId>-->
+                        <!--</element>-->
+                        <!--<element>-->
+                            <!--<groupId>log4j</groupId>-->
+                            <!--<artifactId>log4j</artifactId>-->
+                        <!--</element>-->
+                        <element>
+                            <groupId>xpp3</groupId>
+                            <artifactId>xpp3_min</artifactId>
+                        </element>
+                        <element>
+                            <groupId>org.apache.xbean</groupId>
+                            <artifactId>xbean-reflect</artifactId>
+                        </element>
+                        <element>
+                            <groupId>com.thoughtworks.xstream</groupId>
+                            <artifactId>xstream</artifactId>
+                        </element>
+                        <element>
+                            <groupId>org.codehaus.plexus</groupId>
+                            <artifactId>plexus-archiver</artifactId>
+                        </element>
+                    </classpath>
+                    <classpathPrefix>../lib</classpathPrefix>
+                    <category>Deployment</category>
+                    <instance>
+                        <plugin-artifact>
+                            <config-xml-content load="false" />
+                        </plugin-artifact>
+                    </instance>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

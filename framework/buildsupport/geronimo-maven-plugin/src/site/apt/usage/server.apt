@@ -1,0 +1,273 @@
+ ------
+ Server Goals Usage :: Geronimo Plugin for Maven 2
+ ------
+ ------
+ $Rev$ $Date$
+
+~~ 
+~~ Licensed to the Apache Software Foundation (ASF) under one
+~~ or more contributor license agreements.  See the NOTICE file
+~~ distributed with this work for additional information
+~~ regarding copyright ownership.  The ASF licenses this file
+~~ to you under the Apache License, Version 2.0 (the
+~~ "License"); you may not use this file except in compliance
+~~ with the License.  You may obtain a copy of the License at
+~~
+~~  http://www.apache.org/licenses/LICENSE-2.0
+~~
+~~ Unless required by applicable law or agreed to in writing,
+~~ software distributed under the License is distributed on an
+~~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+~~ KIND, either express or implied.  See the License for the
+~~ specific language governing permissions and limitations
+~~ under the License.
+~~
+
+Server Goals Usage
+
+* Assembly Artifact Configuration
+
+ Before the plugin can start or stop a server, it needs to know about the
+ assembly (or assemblies) which it will install.
+ 
+ This example shows one assembly, which will be used to install unless the
+ <<<assemblyArchive>>> parameter has been set (see below section on <Installing an Assembly>).
+
+ <<NOTE:>> Archive files <<MUST>> be a <<<ZIP>>> files (or be in the same format, like a <<<JAR>>>).
+
++----------+
+<plugin>
+    <groupId>org.apache.geronimo.plugins</groupId>
+    <artifactId>geronimo-maven-plugin</artifactId>
+    
+    <configuration>
+        <assemblies>
+            <assembly>
+                <groupId>org.apache.geronimo.assemblies</groupId>
+                <artifactId>geronimo-jetty-jee5</artifactId>
+                <version>${pom.version}</version>
+                <classifier>bin</classifier>
+                <type>zip</type>
+            </assembly>
+        </assemblies>
+    </configuration>
+</plugin>
++----------+
+
+ Multiple assemblies may be specified.  Each must have a unique id, and either
+ <<<defaultAssemblyId>>> or <<<assemblyId>>> must be configured to inform the
+ plugin which assembly to use.
+ 
++----------+
+<plugin>
+    <groupId>org.apache.geronimo.plugins</groupId>
+    <artifactId>geronimo-maven-plugin</artifactId>
+    
+    <configuration>
+        <assemblies>
+            <assembly>
+                <id>jetty</id>
+                <groupId>org.apache.geronimo.assemblies</groupId>
+                <artifactId>geronimo-jetty6-jee5</artifactId>
+                <version>${pom.version}</version>
+                <classifier>bin</classifier>
+                <type>zip</type>
+            </assembly>
+            
+            <assembly>
+                <id>jetty-minimal</id>
+                <groupId>org.apache.geronimo.assemblies</groupId>
+                <artifactId>geronimo-jetty6-minimal</artifactId>
+                <version>${pom.version}</version>
+                <classifier>bin</classifier>
+                <type>zip</type>
+            </assembly>
+            
+            <assembly>
+                <id>tomcat</id>
+                <groupId>org.apache.geronimo.assemblies</groupId>
+                <artifactId>geronimo-tomcat6-jee5</artifactId>
+                <version>${pom.version}</version>
+                <classifier>bin</classifier>
+                <type>zip</type>
+            </assembly>
+            
+            <assembly>
+                <id>tomcat-minimal</id>
+                <groupId>org.apache.geronimo.assemblies</groupId>
+                <artifactId>geronimo-tomcat6-minimal</artifactId>
+                <version>${pom.version}</version>
+                <classifier>bin</classifier>
+                <type>zip</type>
+            </assembly>
+        </assemblies>
+        
+        <defaultAssemblyId>jetty</defaultAssemblyId>
+    </configuration>
+</plugin>
++----------+
+
+* Starting Geronimo Server
+
+ Once you have configured an assembly (or assemblies with a default), then you can simply start the server.
+
+ The assembly archive will be installed if it does not already exist, or if
+ the plugin detects that the current archive is newer than the last installation.
+
++----------+
+mvn geronimo:start
++----------+
+
+ If you have a pre-existing assembly installed and you want to use that, you can set <<<geronimoHome>>>
+ this will bypass any installation logic completely.
+
++----------+
+mvn geronimo:start -DgeronimoHome=/path/to/assembly
++----------+
+
+ Some additional flags may be passed in to alter the startup behavior.  For example
+ to enable verbose mode:
+
++----------+
+mvn geronimo:start -Dverbose=true
++----------+
+
+ Optional JVM options and/or system properties can be set by configuring a set of options
+ and selecting the options to be enabled.
+
++----------+
+<plugin>
+    <groupId>org.apache.geronimo.plugins</groupId>
+    <artifactId>geronimo-maven-plugin</artifactId>
+
+    <configuration>
+        <optionSets>
+            <optionSet>
+                <id>debug</id>
+                <options>
+                    <option>-Xdebug</option>
+                    <option>-Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n</option>
+                </options>
+            </optionSet>
+
+            <optionSet>
+                <id>other</id>
+                <properties>
+                    <property>
+                        <name>foo</name>
+                        <value>bar</value>
+                    </property>
+                </properties>
+            </optionSet>
+        </optionSets>
+    </configuration>
+</plugin>
++----------+
+
+ Option sets may be selected by configuring the <<<options>>> parameter with a comma seperated
+ list of <<<optionSet>>> ids.  To enable a set of options to be enabled by default, then
+ configure an <<<optionSet>>> with the id of <<<default>>> and omit the <<<options>>> parameter.
+ 
++----------+
+mvn geronimo:start -Doptions=debug,other
++----------+
+
+* Waiting for a Geronimo Server
+
+ If you already have a server started and just need to wait until the server has started:
+
++----------+
+mvn geronimo:wait-for-server
++----------+
+
+ To only wait for a specific period you can sepcify a timeout in sections:
+
++----------+
+mvn geronimo:wait-for-server -Dtimeout=60
++----------+
+
+* Stopping Geronimo Server
+
+ To stop a server using the defaults, which is probably fine in most cases, just invoke the {{stop}} goal.
+
+ Stopping a server does not require an assembly to be installed.
+
++----------+
+mvn geronimo:stop
++----------+
+
+ Additional parameters may be passed in on the command-line:
+
++----------+
+mvn geronimo:stop -Dusername=system -Dpassword=manager -Dport=1099
++----------+
+
+* Selecting an Assembly
+
+ Once you have a set of assemblies configured with unique ids, you can specify
+ the id of the assembly you wish to use on the command-line:
+
++----------+
+mvn geronimo:start -DassemblyId=tomcat
++----------+
+
+* Start/Stop for Integration Testing
+
+ For inline integration testing, you can set the <<<background>>> parameter
+ on the <<<start>>> goal to start the server, wait for it to load and then
+ return control to Maven so that it can execute integration tests.
+
++----------+
+<plugin>
+    <groupId>org.apache.geronimo.plugins</groupId>
+    <artifactId>geronimo-maven-plugin</artifactId>
+    <executions>
+        <execution>
+            <id>start-server</id>
+            <phase>pre-integration-test</phase>
+            <goals>
+                <goal>start</goal>
+            </goals>
+            <configuration>
+                <background>true</background>
+            </configuration>
+        </execution>
+        
+        <execution>
+            <id>stop-server</id>
+            <phase>post-integration-test</phase>
+            <goals>
+                <goal>stop</goal>
+            </goals>
+        </execution>
+    </executions>
+</plugin>
++----------+
+
+* Installing an Assembly
+
+ To just run the installation of the assembly:
+
++----------+
+mvn geronimo:install -DassemblyId=tomcat
++----------+
+
+ To install a specific assembly archive, which need not be in the repository:
+
++----------+
+mvn geronimo:install -DassemblyArchive=/path/to/assembly.zip
++----------+
+
+ For this to work, the file <<MUST>> be a <<<ZIP>>> (or be in the same format, like a <<<JAR>>>)
+ and the archive should contain a full server assembly, specifically it needs to have a
+ <<<bin/server.jar>>> entry.   This entry is used to discover <<<geronimoHome>>>.
+
+ You can also change the base directory where the assembly is extracted to by setting
+ the <<<installDirectory>>> parameter.  This is useful for a certain operating system
+ that has a horribly small limit on the maximum size of a path name.
+
+ <<NOTE:>> The directory structure of the archive is still preserved when it is extracted.
+
++----------+
+mvn geronimo:install -DinstallDirectory=c:\
++----------+

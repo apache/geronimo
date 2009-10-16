@@ -1,0 +1,628 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <!--
+
+        Licensed to the Apache Software Foundation (ASF) under one or more
+        contributor license agreements.  See the NOTICE file distributed with
+        this work for additional information regarding copyright ownership.
+        The ASF licenses this file to You under the Apache License, Version 2.0
+        (the "License"); you may not use this file except in compliance with
+        the License.  You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+        Unless required by applicable law or agreed to in writing, software
+        distributed under the License is distributed on an "AS IS" BASIS,
+        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+        See the License for the specific language governing permissions and
+        limitations under the License.
+    -->
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.apache.geronimo.framework</groupId>
+        <artifactId>configs</artifactId>
+        <version>3.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>karaf-framework</artifactId>
+    <packaging>car</packaging>
+    <name>Geronimo Assemblies :: Karaf Boilerplate Framework</name>
+
+    <properties>
+        <felix.karaf.version>1.1.0-SNAPSHOT</felix.karaf.version>
+
+        <!-- from karaf root pom -->
+        <aopalliance.version>1.0_1</aopalliance.version>
+        <cglib.version>2.1_3_2</cglib.version>
+        <commons.logging.version>1.1.1</commons.logging.version>
+        <depends.maven.plugin.version>1.0</depends.maven.plugin.version>
+        <easymock.version>2.4</easymock.version>
+        <equinox.version>3.5.0.v20090520</equinox.version>
+        <felix.bundlerepository.version>1.4.0</felix.bundlerepository.version>
+        <felix.compendium.version>1.2.0</felix.compendium.version>
+        <felix.configadmin.version>1.2.4</felix.configadmin.version>
+        <felix.fileinstall.version>2.0.1-SNAPSHOT</felix.fileinstall.version>
+        <felix.framework.version>2.0.0</felix.framework.version>
+        <felix.gogo.version>0.2.0</felix.gogo.version>
+        <felix.osgi.version>1.4.0</felix.osgi.version>
+        <felix.plugin.version>2.0.0</felix.plugin.version>
+        <felix.prefs.version>1.0.2</felix.prefs.version>
+        <felix.webconsole.version>1.2.10</felix.webconsole.version>
+        <felix.metatype.version>1.0.2</felix.metatype.version>
+        <geronimo.blueprint.version>1.0.0</geronimo.blueprint.version>
+        <geronimo.servlet.version>1.0-EA-SNAPSHOT</geronimo.servlet.version>
+        <jansi.version>1.0</jansi.version>
+        <jetty.bundle.version>6.1.14_1</jetty.bundle.version>
+        <junit.version>3.8.2_1</junit.version>
+        <jline.version>0.9.95.200909100109</jline.version>
+        <log4j.version>1.2.14</log4j.version>
+        <maven.version>2.0.9</maven.version>
+        <mina.version>2.0.0-M6</mina.version>
+        <pax.exam.version>1.0.0</pax.exam.version>
+        <pax.logging.version>1.4</pax.logging.version>
+        <pax.runner.version>1.1.1</pax.runner.version>
+        <pax.url.version>1.0.0</pax.url.version>
+        <pax.web.version>0.6.0</pax.web.version>
+        <servlet.api.version>3.0</servlet.api.version>
+        <!--<spring.osgi.version>1.2.0</spring.osgi.version>-->
+        <!--<spring.version>2.5.6.SEC01</spring.version>-->
+        <sshd.version>0.2.0</sshd.version>
+        <osgi.jmx.version>4.2.0.200907080519</osgi.jmx.version>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- use versions direct from karaf -->
+            <dependency>
+                <groupId>org.apache.felix.karaf</groupId>
+                <artifactId>karaf</artifactId>
+                <type>pom</type>
+                <version>${felix.karaf.version}</version>
+                <scope>import</scope>
+            </dependency>
+
+            <!--WTF?? should be specified by import above -->
+            <dependency>
+                <groupId>org.apache.mina</groupId>
+                <artifactId>mina-core</artifactId>
+                <version>${mina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>org.apache.felix.configadmin</artifactId>
+                <version>${felix.configadmin.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.geronimo.framework</groupId>
+                <artifactId>geronimo-rmi-loader</artifactId>
+                <version>${version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.felix.karaf</groupId>
+            <artifactId>org.apache.felix.karaf.main</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.felix.karaf</groupId>
+            <artifactId>org.apache.felix.karaf.client</artifactId>
+        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.felix.karaf.deployer</groupId>-->
+            <!--<artifactId>org.apache.felix.karaf.deployer.spring</artifactId>-->
+        <!--</dependency>-->
+        <dependency>
+            <groupId>org.apache.felix.karaf.deployer</groupId>
+            <artifactId>org.apache.felix.karaf.deployer.blueprint</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.felix.karaf.deployer</groupId>
+            <artifactId>org.apache.felix.karaf.deployer.features</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.felix.karaf.features</groupId>
+            <artifactId>org.apache.felix.karaf.features.core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.felix.karaf.features</groupId>
+            <artifactId>org.apache.felix.karaf.features.command</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.felix.karaf.features</groupId>
+            <artifactId>org.apache.felix.karaf.features.management</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.felix.karaf.shell</groupId>
+            <artifactId>org.apache.felix.karaf.shell.console</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.felix.karaf.shell</groupId>
+            <artifactId>org.apache.felix.karaf.shell.admin</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.felix.karaf.shell</groupId>
+            <artifactId>org.apache.felix.karaf.shell.obr</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.felix.karaf.shell</groupId>
+            <artifactId>org.apache.felix.karaf.shell.osgi</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.felix.karaf.shell</groupId>
+            <artifactId>org.apache.felix.karaf.shell.log</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.felix.karaf.shell</groupId>
+            <artifactId>org.apache.felix.karaf.shell.config</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.felix.karaf.shell</groupId>
+            <artifactId>org.apache.felix.karaf.shell.packages</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.felix.karaf.shell</groupId>
+            <artifactId>org.apache.felix.karaf.shell.commands</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.felix.karaf.shell</groupId>
+            <artifactId>org.apache.felix.karaf.shell.ssh</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.felix.karaf.jaas</groupId>
+            <artifactId>org.apache.felix.karaf.jaas.boot</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.felix.karaf.jaas</groupId>
+            <artifactId>org.apache.felix.karaf.jaas.config</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.felix.karaf.jaas</groupId>
+            <artifactId>org.apache.felix.karaf.jaas.modules</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.felix.karaf</groupId>
+            <artifactId>org.apache.felix.karaf.management</artifactId>
+        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.springframework.osgi</groupId>-->
+            <!--<artifactId>spring-osgi-extender</artifactId>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>org.springframework.osgi</groupId>-->
+            <!--<artifactId>spring-osgi-core</artifactId>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>org.springframework.osgi</groupId>-->
+            <!--<artifactId>spring-osgi-io</artifactId>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>org.springframework.osgi</groupId>-->
+            <!--<artifactId>spring-osgi-annotation</artifactId>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>org.springframework</groupId>-->
+            <!--<artifactId>spring-context</artifactId>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>org.springframework</groupId>-->
+            <!--<artifactId>spring-beans</artifactId>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>org.springframework</groupId>-->
+            <!--<artifactId>spring-core</artifactId>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>org.springframework</groupId>-->
+            <!--<artifactId>spring-aop</artifactId>-->
+        <!--</dependency>-->
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.bundlerepository</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.fileinstall</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.mina</groupId>
+            <artifactId>mina-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>jline</groupId>
+            <artifactId>jline</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.osgi.compendium</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.configadmin</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.metatype</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.prefs</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ops4j.pax.logging</groupId>
+            <artifactId>pax-logging-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ops4j.pax.logging</groupId>
+            <artifactId>pax-logging-service</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ops4j.pax.url</groupId>
+            <artifactId>pax-url-mvn</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ops4j.pax.url</groupId>
+            <artifactId>pax-url-wrap</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-servlet_3.0_spec</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.sshd</groupId>
+            <artifactId>sshd-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.impl.bundle.jmx</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse</groupId>
+            <artifactId>osgi</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.framework</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.blueprint</groupId>
+            <artifactId>geronimo-blueprint</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.bundles</groupId>
+            <artifactId>log4j</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jcl-over-slf4j</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jul-to-slf4j</artifactId>
+        </dependency>
+    </dependencies>
+    <build>
+        <!--<resources>-->
+            <!--<resource>-->
+                <!--<directory>${pom.basedir}/src/main/filtered-resources</directory>-->
+                <!--<filtering>true</filtering>-->
+                <!--<includes>-->
+                    <!--<include>**/*</include>-->
+                <!--</includes>-->
+            <!--</resource>-->
+        <!--</resources>-->
+        <filters>
+            <filter>target/filter.txt</filter>
+        </filters>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-antrun-plugin</artifactId>
+                    <version>1.2</version>
+                    <dependencies>
+                        <dependency>
+                            <groupId>ant-contrib</groupId>
+                            <artifactId>ant-contrib</artifactId>
+                            <version>1.0b3</version>
+                        </dependency>
+                        <dependency>
+                            <groupId>ant</groupId>
+                            <artifactId>ant-optional</artifactId>
+                            <version>1.5.3-1</version>
+                        </dependency>
+                    </dependencies>
+                </plugin>
+
+            </plugins>
+        </pluginManagement>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>create-prop</id>
+                        <phase>generate-resources</phase>
+                        <configuration>
+                            <tasks>
+                                <taskdef resource="net/sf/antcontrib/antcontrib.properties" classpathref="maven.plugin.classpath" />
+                                <property name="ant.regexp.regexpimpl" value="org.apache.tools.ant.util.regexp.Jdk14RegexpRegexp" />
+                                <property name="mv" value="${project.version}" />
+                                <echo message="Maven version: ${mv}" />
+                                <propertyregex property="ov.p1" input="${mv}" regexp="(\d+)(?:\.(\d+)(?:\.(\d+))?)?(?:[^a-zA-Z0-9](.*))?" replace="\1" defaultValue="0" />
+                                <propertyregex property="ov.p2" input="${mv}" regexp="(\d+)(?:\.(\d+)(?:\.(\d+))?)?(?:[^a-zA-Z0-9](.*))?" replace=".\2" defaultValue=".0" />
+                                <propertyregex property="ov.p3" input="${mv}" regexp="(\d+)(?:\.(\d+)(?:\.(\d+))?)?(?:[^a-zA-Z0-9](.*))?" replace=".\3" defaultValue=".0" />
+                                <propertyregex property="ov.p4" input="${mv}" regexp="(\d+)(?:\.(\d+)(?:\.(\d+))?)?(?:[^a-zA-Z0-9](.*))?" replace=".\4" defaultValue="" />
+                                <propertyregex property="ov.p1a" input="${ov.p1}" regexp="(.+)" replace="\1" defaultValue="0" />
+                                <propertyregex property="ov.p2a" input="${ov.p2}" regexp="(\..+)" replace="\1" defaultValue=".0" />
+                                <propertyregex property="ov.p3a" input="${ov.p3}" regexp="(\..+)" replace="\1" defaultValue=".0" />
+                                <propertyregex property="ov.p4a" input="${ov.p4}" regexp="(\..+)" replace="\1" defaultValue="" />
+                                <property name="ov" value="${ov.p1a}${ov.p2a}${ov.p3a}${ov.p4a}" />
+                                <echo message="OSGi version: ${ov}" />
+                                <mkdir dir="target" />
+                                <echo message="karaf.osgi.version = ${ov}" file="target/filter.txt" />
+                            </tasks>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>install-underlay</id>
+                        <phase>process-classes</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <tasks>
+                                <mkdir dir="${project.build.outputDirectory}" />
+                                <copy todir="${project.build.outputDirectory}">
+                                    <fileset dir="${project.build.directory}/${project.build.finalName}">
+                                        <include name="**" />
+                                    </fileset>
+                                </copy>
+                            </tasks>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <!--<plugin>-->
+                <!--<groupId>org.apache.maven.plugins</groupId>-->
+                <!--<artifactId>maven-resources-plugin</artifactId>-->
+                <!--<executions>-->
+                    <!--<execution>-->
+                        <!--<id>filter</id>-->
+                        <!--<phase>generate-resources</phase>-->
+                        <!--<goals>-->
+                            <!--<goal>resources</goal>-->
+                        <!--</goals>-->
+                    <!--</execution>-->
+                <!--</executions>-->
+            <!--</plugin>-->
+
+            <!-- these might be the "bootstrap" jars? -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.apache.felix.karaf</groupId>
+                                    <artifactId>org.apache.felix.karaf.main</artifactId>
+                                    <outputDirectory>target/dependencies</outputDirectory>
+                                    <destFileName>karaf.jar</destFileName>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.apache.felix.karaf</groupId>
+                                    <artifactId>org.apache.felix.karaf.client</artifactId>
+                                    <outputDirectory>target/dependencies</outputDirectory>
+                                    <destFileName>karaf-client.jar</destFileName>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.apache.felix.karaf.jaas</groupId>
+                                    <artifactId>org.apache.felix.karaf.jaas.boot</artifactId>
+                                    <outputDirectory>target/dependencies</outputDirectory>
+                                    <destFileName>karaf-jaas-boot.jar</destFileName>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.apache.geronimo.framework</groupId>
+                                    <artifactId>geronimo-rmi-loader</artifactId>
+                                    <outputDirectory>target/dependencies</outputDirectory>
+                                    <destFileName>geronimo-rmi-loader.jar</destFileName>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- very likely we need this? -->
+            <!--<plugin>-->
+                <!--<groupId>org.codehaus.mojo</groupId>-->
+                <!--<artifactId>build-helper-maven-plugin</artifactId>-->
+                <!--<executions>-->
+                    <!--<execution>-->
+                        <!--<id>attach-artifacts</id>-->
+                        <!--<phase>package</phase>-->
+                        <!--<goals>-->
+                            <!--<goal>attach-artifact</goal>-->
+                        <!--</goals>-->
+                        <!--<configuration>-->
+                            <!--<artifacts>-->
+                                <!--<artifact>-->
+                                    <!--<file>target/classes/features.xml</file>-->
+                                    <!--<type>xml</type>-->
+                                    <!--<classifier>features</classifier>-->
+                                <!--</artifact>-->
+                            <!--</artifacts>-->
+                        <!--</configuration>-->
+                    <!--</execution>-->
+                <!--</executions>-->
+            <!--</plugin>-->
+            <!--<plugin>-->
+                <!--<groupId>org.apache.maven.plugins</groupId>-->
+                <!--<artifactId>maven-assembly-plugin</artifactId>-->
+                <!--<executions>-->
+                    <!--<execution>-->
+                        <!--<id>make-assembly</id>-->
+                        <!--<phase>none</phase>-->
+                    <!--</execution>-->
+                    <!--<execution>-->
+                        <!--<id>unix-bin</id>-->
+                        <!--<phase>package</phase>-->
+                        <!--<goals>-->
+                            <!--<goal>single</goal>-->
+                        <!--</goals>-->
+                        <!--<configuration>-->
+                            <!--<descriptors>-->
+                                <!--<descriptor>src/main/descriptors/unix-bin.xml</descriptor>-->
+                            <!--</descriptors>-->
+                            <!--<finalName>${pom.artifactId}-${pom.version}</finalName>-->
+                            <!--<tarLongFileMode>gnu</tarLongFileMode>-->
+                        <!--</configuration>-->
+                    <!--</execution>-->
+                    <!--<execution>-->
+                        <!--<id>windows-bin</id>-->
+                        <!--<phase>package</phase>-->
+                        <!--<goals>-->
+                            <!--<goal>single</goal>-->
+                        <!--</goals>-->
+                        <!--<configuration>-->
+                            <!--<descriptors>-->
+                                <!--<descriptor>src/main/descriptors/windows-bin.xml</descriptor>-->
+                            <!--</descriptors>-->
+                            <!--<finalName>${pom.artifactId}-${pom.version}</finalName>-->
+                            <!--<appendAssemblyId>true</appendAssemblyId>-->
+                            <!--<assemblyId />-->
+                        <!--</configuration>-->
+                    <!--</execution>-->
+                    <!--<execution>-->
+                        <!--<id>unix-src</id>-->
+                        <!--<phase>package</phase>-->
+                        <!--<goals>-->
+                            <!--<goal>single</goal>-->
+                        <!--</goals>-->
+                        <!--<configuration>-->
+                            <!--<descriptors>-->
+                                <!--<descriptor>src/main/descriptors/unix-src.xml</descriptor>-->
+                            <!--</descriptors>-->
+                            <!--<tarLongFileMode>gnu</tarLongFileMode>-->
+                        <!--</configuration>-->
+                    <!--</execution>-->
+                    <!--<execution>-->
+                        <!--<id>windows-src</id>-->
+                        <!--<phase>package</phase>-->
+                        <!--<goals>-->
+                            <!--<goal>single</goal>-->
+                        <!--</goals>-->
+                        <!--<configuration>-->
+                            <!--<descriptors>-->
+                                <!--<descriptor>src/main/descriptors/windows-src.xml</descriptor>-->
+                            <!--</descriptors>-->
+                        <!--</configuration>-->
+                    <!--</execution>-->
+                <!--</executions>-->
+            <!--</plugin>-->
+
+            <!-- our stuff -->
+            <plugin>
+                <groupId>org.apache.geronimo.buildsupport</groupId>
+                <artifactId>car-maven-plugin</artifactId>
+                <configuration>
+                    <useMavenDependencies>
+                        <value>true</value>
+                        <includeVersion>true</includeVersion>
+                    </useMavenDependencies>
+                    <category>Geronimo Core</category>
+                    <instance>
+                        <plugin-artifact>
+                            <copy-file relative-to="geronimo" dest-dir="">contents/</copy-file>
+                            <copy-file relative-to="server" dest-dir="">instance/</copy-file>
+                        </plugin-artifact>
+                    </instance>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>boilerplate</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>directory-single</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}</outputDirectory>
+                            <appendAssemblyId>false</appendAssemblyId>
+                            <descriptors>
+                                <descriptor>${project.basedir}/src/main/descriptors/unix-bin.xml</descriptor>
+                            </descriptors>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <!--<profiles>-->
+        <!--<profile>-->
+            <!--<id>assembly-src</id>-->
+            <!--<build>-->
+                <!--<plugins>-->
+                    <!--<plugin>-->
+                        <!--<groupId>org.apache.maven.plugins</groupId>-->
+                        <!--<artifactId>maven-assembly-plugin</artifactId>-->
+                        <!--<executions>-->
+                            <!--<execution>-->
+                                <!--<id>unix-src</id>-->
+                                <!--<phase>package</phase>-->
+                                <!--<goals>-->
+                                    <!--<goal>attached</goal>-->
+                                <!--</goals>-->
+                                <!--<configuration>-->
+                                    <!--<descriptors>-->
+                                        <!--<descriptor>src/main/descriptors/unix-src.xml</descriptor>-->
+                                    <!--</descriptors>-->
+                                <!--</configuration>-->
+                            <!--</execution>-->
+                            <!--<execution>-->
+                                <!--<id>windows-src</id>-->
+                                <!--<phase>package</phase>-->
+                                <!--<goals>-->
+                                    <!--<goal>attached</goal>-->
+                                <!--</goals>-->
+                                <!--<configuration>-->
+                                    <!--<descriptors>-->
+                                        <!--<descriptor>src/main/descriptors/windows-src.xml</descriptor>-->
+                                    <!--</descriptors>-->
+                                <!--</configuration>-->
+                            <!--</execution>-->
+                        <!--</executions>-->
+                    <!--</plugin>-->
+                <!--</plugins>-->
+            <!--</build>-->
+        <!--</profile>-->
+    <!--</profiles>-->
+</project>
