@@ -74,6 +74,7 @@
                 <module>geronimo-common</module>
                 <module>geronimo-system</module>
                 <!--<module>geronimo-logging</module>-->
+                <module>geronimo-rmi-loader</module>
                 <module>geronimo-kernel</module>
                 <module>geronimo-plugin</module>
                 <module>geronimo-deploy-tool</module>
