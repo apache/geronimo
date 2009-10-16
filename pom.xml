@@ -2056,6 +2056,7 @@
                                 <type>zip</type>
                             </assembly>
 
+<!--
                             <assembly>
                                 <id>tomcat</id>
                                 <groupId>org.apache.geronimo.assemblies</groupId>
@@ -2073,7 +2074,7 @@
                                 <classifier>bin</classifier>
                                 <type>zip</type>
                             </assembly>
-
+-->
                             <assembly>
                                 <id>framework</id>
                                 <groupId>org.apache.geronimo.assemblies</groupId>

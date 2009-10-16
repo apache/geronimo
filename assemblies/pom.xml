@@ -41,8 +41,8 @@
     <modules>
         <module>geronimo-jetty8-minimal</module>
         <module>geronimo-jetty8-javaee6</module>
-        <module>geronimo-tomcat6-minimal</module>
-        <module>geronimo-tomcat6-javaee5</module>
+        <!--<module>geronimo-tomcat6-minimal</module>-->
+        <!--<module>geronimo-tomcat6-javaee5</module>-->
     </modules>
 
     <build>

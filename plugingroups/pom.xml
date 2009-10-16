@@ -32,12 +32,12 @@
     <modules>
         <module>client</module>
         <module>clustering-jetty</module>
-        <module>clustering-tomcat</module>
+        <!--<module>clustering-tomcat</module>-->
         <module>ejb</module>
         <module>javaee6-jetty</module>
-        <module>javaee5-tomcat</module>
+        <!--<module>javaee5-tomcat</module>-->
         <module>persistence</module>
-        <module>web-tomcat</module>
+        <!--<module>web-tomcat</module>-->
         <module>web-jetty</module>
         <module>webservices-axis2</module>
         <module>webservices-cxf</module>

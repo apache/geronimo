@@ -132,12 +132,14 @@
             <type>car</type>
         </dependency>
 
+<!--
         <dependency>
             <groupId>org.apache.geronimo.plugins</groupId>
             <artifactId>debugviews-console-jetty</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>
+-->
 
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
@@ -161,6 +163,7 @@
             <type>car</type>
         </dependency>
 
+<!--
         <dependency>
             <groupId>org.apache.geronimo.plugins.monitoring</groupId>
             <artifactId>agent-car-ejb</artifactId>
@@ -181,6 +184,7 @@
             <version>${version}</version>
             <type>car</type>
         </dependency>
+-->
 
         <dependency>
             <groupId>org.apache.geronimo.plugins</groupId>
@@ -189,6 +193,7 @@
             <type>car</type>
         </dependency>
 
+<!--
         <dependency>
             <groupId>org.apache.geronimo.plugins</groupId>
             <artifactId>debugviews-console-jetty</artifactId>
@@ -202,6 +207,7 @@
             <version>${version}</version>
             <type>car</type>
         </dependency>
+-->
 
         <dependency>
             <groupId>org.apache.geronimo.plugins</groupId>
