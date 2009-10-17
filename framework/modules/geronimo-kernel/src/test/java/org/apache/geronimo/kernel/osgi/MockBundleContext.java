@@ -38,6 +38,7 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.framework.Filter;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.Jsr77Naming;
+import org.apache.geronimo.kernel.mock.MockConfigurationManager;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
@@ -51,7 +52,7 @@ public class MockBundleContext implements BundleContext {
     protected static final Naming naming = new Jsr77Naming();
 
 
-    private ConfigurationManager configurationManager;
+    private ConfigurationManager configurationManager = new MockConfigurationManager();
     private final Bundle bundle;
     private final ClassLoader classLoader;
     private final Map<Artifact, ConfigurationData> configurationDatas;

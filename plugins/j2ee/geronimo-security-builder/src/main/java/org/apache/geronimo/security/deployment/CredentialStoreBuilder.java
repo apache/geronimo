@@ -33,6 +33,7 @@ import org.apache.geronimo.xbeans.geronimo.credentialstore.CredentialType;
 import org.apache.geronimo.xbeans.geronimo.credentialstore.RealmType;
 import org.apache.geronimo.xbeans.geronimo.credentialstore.SubjectType;
 import org.apache.xmlbeans.XmlObject;
+import org.osgi.framework.Bundle;
 
 /**
  * @version $Rev$ $Date$
@@ -45,7 +46,7 @@ public class CredentialStoreBuilder implements XmlAttributeBuilder {
         return NAMESPACE;
     }
 
-    public Object getValue(XmlObject xmlObject, String type, ClassLoader cl) throws DeploymentException {
+    public Object getValue(XmlObject xmlObject, String type, Bundle bundle) throws DeploymentException {
         Map<String, Map<String, Map<String, String>>> credentialStore = new HashMap<String, Map<String, Map<String, String>>>();
         CredentialStoreType cst = (CredentialStoreType) xmlObject.copy().changeType(CredentialStoreType.type);
         for (RealmType realmType: cst.getRealmArray()) {

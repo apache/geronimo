@@ -78,6 +78,7 @@ import org.apache.geronimo.xbeans.geronimo.security.GerSubjectInfoType;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
+import org.osgi.framework.Bundle;
 
 /**
  * @version $Rev$ $Date$
@@ -164,14 +165,14 @@ public class GeronimoSecurityBuilderImpl implements NamespaceDrivenBuilder, Modu
             } catch (XmlException e) {
                 throw new DeploymentException("Could not validate security element", e);
             }
-            ClassLoader classLoader = applicationContext.getClassLoader();
+            Bundle bundle = applicationContext.getBundle();
 
             if (applicationContext instanceof EARContext) {
                 SecurityConfiguration securityConfiguration = buildSecurityConfig(securityType);
                 ((EARContext)applicationContext).setSecurityConfiguration(securityConfiguration);
             }
 
-            AbstractNameQuery roleMapperDataName = configureRoleMapper(applicationContext, securityType, classLoader);
+            AbstractNameQuery roleMapperDataName = configureRoleMapper(applicationContext, securityType, bundle);
             if (applicationContext instanceof EARContext) {
                 setRoleMapperName(applicationContext, roleMapperDataName);
             }
@@ -258,16 +259,16 @@ public class GeronimoSecurityBuilderImpl implements NamespaceDrivenBuilder, Modu
         return new SubjectInfo(realmName, id);
     }
 
-    private static Principal buildRealmPrincipal(GerRealmPrincipalType realmPrincipalType, ClassLoader classLoader) {
-        return ConfigurationUtil.generateRealmPrincipal(realmPrincipalType.getRealmName().trim(), realmPrincipalType.getDomainName().trim(), realmPrincipalType.getClass1().trim(), realmPrincipalType.getName().trim(), classLoader);
+    private static Principal buildRealmPrincipal(GerRealmPrincipalType realmPrincipalType, Bundle bundle) {
+        return ConfigurationUtil.generateRealmPrincipal(realmPrincipalType.getRealmName().trim(), realmPrincipalType.getDomainName().trim(), realmPrincipalType.getClass1().trim(), realmPrincipalType.getName().trim(), bundle);
     }
 
-    private static Principal buildDomainPrincipal(GerLoginDomainPrincipalType domainPrincipalType, ClassLoader classLoader) {
-        return ConfigurationUtil.generateDomainPrincipal(domainPrincipalType.getDomainName().trim(), domainPrincipalType.getClass1().trim(), domainPrincipalType.getName().trim(), classLoader);
+    private static Principal buildDomainPrincipal(GerLoginDomainPrincipalType domainPrincipalType, Bundle bundle) {
+        return ConfigurationUtil.generateDomainPrincipal(domainPrincipalType.getDomainName().trim(), domainPrincipalType.getClass1().trim(), domainPrincipalType.getName().trim(), bundle);
     }
 
-    private static Principal buildPrincipal(GerPrincipalType principalType, ClassLoader classLoader) {
-        return ConfigurationUtil.generatePrincipal(principalType.getClass1().trim(), principalType.getName().trim(), classLoader);
+    private static Principal buildPrincipal(GerPrincipalType principalType, Bundle bundle) {
+        return ConfigurationUtil.generatePrincipal(principalType.getClass1().trim(), principalType.getName().trim(), bundle);
     }
 
     //used from TSSConfigEditor
@@ -276,7 +277,7 @@ public class GeronimoSecurityBuilderImpl implements NamespaceDrivenBuilder, Modu
         return new PrincipalInfo(principalType.getClass1().trim(), principalType.getName().trim());
     }
 
-    protected AbstractNameQuery configureRoleMapper(DeploymentContext deploymentContext, GerSecurityType securityType, ClassLoader classLoader) throws DeploymentException {
+    protected AbstractNameQuery configureRoleMapper(DeploymentContext deploymentContext, GerSecurityType securityType, Bundle bundle) throws DeploymentException {
         Map<String, SubjectInfo> roleDesignates = new HashMap<String, SubjectInfo>();
         Map<Principal, Set<String>> principalRoleMap = new HashMap<Principal, Set<String>>();
         if (securityType.isSetRoleMappings()) {
@@ -291,17 +292,17 @@ public class GeronimoSecurityBuilderImpl implements NamespaceDrivenBuilder, Modu
                 }
 
                 for (int j = 0; j < roleType.sizeOfRealmPrincipalArray(); j++) {
-                    Principal principal = buildRealmPrincipal(roleType.getRealmPrincipalArray(j), classLoader);
+                    Principal principal = buildRealmPrincipal(roleType.getRealmPrincipalArray(j), bundle);
                     add(roleName, principal, principalRoleMap);
                 }
 
                 for (int j = 0; j < roleType.sizeOfLoginDomainPrincipalArray(); j++) {
-                    Principal principal = buildDomainPrincipal(roleType.getLoginDomainPrincipalArray(j), classLoader);
+                    Principal principal = buildDomainPrincipal(roleType.getLoginDomainPrincipalArray(j), bundle);
                     add(roleName, principal, principalRoleMap);
                 }
 
                 for (int j = 0; j < roleType.sizeOfPrincipalArray(); j++) {
-                    Principal principal = buildPrincipal(roleType.getPrincipalArray(j), classLoader);
+                    Principal principal = buildPrincipal(roleType.getPrincipalArray(j), bundle);
                     add(roleName, principal, principalRoleMap);
                 }
 

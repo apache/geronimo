@@ -58,6 +58,7 @@ import org.apache.geronimo.xbeans.geronimo.loginconfig.GerOptionType;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
+import org.osgi.framework.Bundle;
 
 
 /**
@@ -94,7 +95,7 @@ public class LoginConfigBuilder implements XmlReferenceBuilder {
         return LOGIN_CONFIG_NAMESPACE;
     }
 
-    public ReferencePatterns getReferences(XmlObject xmlObject, DeploymentContext context, AbstractName parentName, ClassLoader classLoader) throws DeploymentException {
+    public ReferencePatterns getReferences(XmlObject xmlObject, DeploymentContext context, AbstractName parentName, Bundle bundle) throws DeploymentException {
         List<GBeanData> uses = new ArrayList<GBeanData>();
         GerLoginConfigType loginConfig = (GerLoginConfigType) xmlObject.copy().changeType(GerLoginConfigType.type);
         XmlCursor xmlCursor = loginConfig.newCursor();
@@ -182,7 +183,7 @@ public class LoginConfigBuilder implements XmlReferenceBuilder {
                             if (builder == null) {
                                 throw new DeploymentException("No attribute builder deployed for namespace: " + namespace);
                             }
-                            Object value = builder.getValue(xmlObject, null, classLoader);
+                            Object value = builder.getValue(xmlObject, null, bundle);
                             options.put(key, value);
                         }
                     }

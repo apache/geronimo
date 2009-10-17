@@ -23,6 +23,7 @@ package org.apache.geronimo.security.deployment;
 import java.io.File;
 import java.net.URI;
 import java.util.Collections;
+import java.util.HashMap;
 
 import junit.framework.TestCase;
 import org.apache.geronimo.common.DeploymentException;
@@ -30,13 +31,17 @@ import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.kernel.Jsr77Naming;
+import org.apache.geronimo.kernel.osgi.MockBundleContext;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
+import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.mock.MockConfigurationManager;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
+import org.osgi.framework.BundleContext;
 
 /**
  * @version $Rev$ $Date$
@@ -117,9 +122,13 @@ public class LoginConfigBuilderTest extends TestCase {
         XmlCursor cursor = xmlObject.newCursor();
         cursor.toFirstContentToken();
         xmlObject = cursor.getObject();
-        DeploymentContext context = new DeploymentContext(new File("."), null, new Environment(Artifact.create("test/foo/1.0/car")), null, ConfigurationModuleType.SERVICE, new Jsr77Naming(), new MockConfigurationManager(), Collections.emptySet());
+        HashMap<String, Artifact> locations = new HashMap<String, Artifact>();
+        locations.put(null, Artifact.create("test/foo/1.0/car"));
+        BundleContext bundleContext = new MockBundleContext(getClass().getClassLoader(), "", new HashMap<Artifact, ConfigurationData>(), locations);
+        DeploymentContext context = new DeploymentContext(new File("."), null, new Environment(Artifact.create("test/foo/1.0/car")), null, ConfigurationModuleType.SERVICE, new Jsr77Naming(), new MockConfigurationManager(), Collections.<Repository>emptySet(), bundleContext);
+        context.initializeConfiguration();
         AbstractName parentName = new AbstractName(URI.create("test/foo/1.0/car?name=parent,j2eeType=foo"));
-        builder.getReferences(xmlObject, context, parentName, getClass().getClassLoader());
+        builder.getReferences(xmlObject, context, parentName, bundleContext.getBundle());
         secBuilder.doStop();
     }
 
