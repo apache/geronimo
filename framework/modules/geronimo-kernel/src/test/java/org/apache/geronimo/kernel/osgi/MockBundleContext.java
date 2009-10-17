@@ -103,6 +103,9 @@ public class MockBundleContext implements BundleContext {
         //activate it.
         Artifact configId = locations.get(location);
         if (configId == null) {
+            configId = locations.get(null);
+        }
+        if (configId == null) {
             configId = Artifact.create(location);
         }
         ConfigurationData configurationData = configurationDatas.get(configId);
