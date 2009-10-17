@@ -17,6 +17,7 @@
 package org.apache.geronimo.j2ee.deployment;
 
 import org.apache.geronimo.deployment.util.DeploymentUtil;
+import org.apache.geronimo.kernel.repository.Artifact;
 
 /**
  * EAR config builder tests for JAVAEE 5.
@@ -30,6 +31,7 @@ public class EARConfigBuilder5Test
         super.setUp();
 
         earFile = DeploymentUtil.createJarFile(resolveFile("target/test-ear-javaee_5.ear"));
+        locations.put(null, new Artifact("org.apache.geronimo.testsupport", "test-ear-javaee_5", "3.0-SNAPSHOT", "ear"));
         ejbConfigBuilder.ejbModule = new EJBModule(false, ejbModuleName, null, null, "ejb.jar", null, null, null, null);
         webConfigBuilder.contextRoot = contextRoot;
         webConfigBuilder.webModule = new WebModule(false, webModuleName, null, null, "war.war", null, null, null, contextRoot, WEB_NAMESPACE, null);

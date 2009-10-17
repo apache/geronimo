@@ -49,6 +49,7 @@ import org.apache.geronimo.xbeans.javaee.ServiceRefType;
 import org.apache.geronimo.xbeans.javaee.XsdStringType;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlObject;
+import org.osgi.framework.Bundle;
 
 public class SwitchingServiceRefBuilder extends AbstractNamingBuilder {
 
@@ -97,9 +98,9 @@ public class SwitchingServiceRefBuilder extends AbstractNamingBuilder {
             processAnnotations(module);
         }
 
-        ClassLoader cl = module.getEarContext().getClassLoader();
-        Class jaxrpcClass = loadClass("javax.xml.rpc.Service", cl);
-        Class jaxwsClass = loadClass("javax.xml.ws.Service", cl);
+        Bundle bundle = module.getEarContext().getBundle();
+        Class jaxrpcClass = loadClass("javax.xml.rpc.Service", bundle);
+        Class jaxwsClass = loadClass("javax.xml.ws.Service", bundle);
 
         XmlObject[] serviceRefs = specDD.selectChildren(serviceRefQNameSet);
 
@@ -117,7 +118,7 @@ public class SwitchingServiceRefBuilder extends AbstractNamingBuilder {
 
             String serviceInterfaceName = getStringValue(serviceRefType
                     .getServiceInterface());
-            Class serviceInterfaceClass = loadClass(serviceInterfaceName, cl);
+            Class serviceInterfaceClass = loadClass(serviceInterfaceName, bundle);
 
             InjectionTargetType[] injections = serviceRefType.getInjectionTargetArray();
             addInjections(name, injections, componentContext);
@@ -176,10 +177,10 @@ public class SwitchingServiceRefBuilder extends AbstractNamingBuilder {
         }
     }
 
-    private Class loadClass(String name, ClassLoader cl)
+    private Class loadClass(String name, Bundle bundle)
             throws DeploymentException {
         try {
-            return cl.loadClass(name);
+            return bundle.loadClass(name);
         } catch (ClassNotFoundException e) {
             throw new DeploymentException("Could not load service class "
                     + name, e);

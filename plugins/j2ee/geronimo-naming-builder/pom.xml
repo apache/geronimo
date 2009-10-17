@@ -41,6 +41,11 @@
             <artifactId>geronimo-j2ee-builder</artifactId>
             <version>${version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>geronimo-service-builder</artifactId>
+            <version>${version}</version>
+        </dependency>
 
         <!-- g-jta_1.1_spec comes from this -->
         <dependency>

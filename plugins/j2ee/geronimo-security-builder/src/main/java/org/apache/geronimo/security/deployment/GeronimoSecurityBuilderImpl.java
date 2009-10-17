@@ -143,7 +143,7 @@ public class GeronimoSecurityBuilderImpl implements NamespaceDrivenBuilder, Modu
     public void installModule(JarFile earFile, EARContext earContext, Module module, Collection configurationStores, ConfigurationStore targetConfigurationStore, Collection repository) throws DeploymentException {
     }
 
-    public void initContext(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException {
+    public void initContext(EARContext earContext, Module module, Bundle bundle) throws DeploymentException {
     }
 
     public void addGBeans(EARContext earContext, Module module, ClassLoader cl, Collection repository) throws DeploymentException {

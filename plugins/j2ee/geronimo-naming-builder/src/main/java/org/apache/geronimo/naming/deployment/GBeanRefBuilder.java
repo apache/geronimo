@@ -40,6 +40,7 @@ import org.apache.geronimo.xbeans.geronimo.naming.GerGbeanRefType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerPatternType;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlObject;
+import org.osgi.framework.Bundle;
 
 /**
  * @version $Rev$ $Date$
@@ -78,10 +79,10 @@ public class GBeanRefBuilder extends AbstractNamingBuilder {
             if (interfaceTypes.isEmpty()) {
                 interfaceTypes.add(gBeanData.getGBeanInfo().getClassName());
             }
-            ClassLoader cl = module.getEarContext().getClassLoader();
+            Bundle bundle = module.getEarContext().getBundle();
             Class gBeanType;
             try {
-                gBeanType = ClassLoading.loadClass(gBeanData.getGBeanInfo().getClassName(), cl);
+                gBeanType = ClassLoading.loadClass(gBeanData.getGBeanInfo().getClassName(), bundle);
             } catch (ClassNotFoundException e) {
                 throw new DeploymentException("Cannot load GBean class", e);
             }

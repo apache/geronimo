@@ -32,6 +32,7 @@ import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
+import org.osgi.framework.Bundle;
 
 import java.io.File;
 import java.io.IOException;
@@ -153,16 +154,16 @@ public class SwitchingModuleBuilder implements ModuleBuilder {
         builder.installModule(earFile, earContext, module, configurationStores, targetConfigurationStore, repositories);
     }
 
-    public void initContext(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException {
+    public void initContext(EARContext earContext, Module module, Bundle bundle) throws DeploymentException {
         String namespace = module.getNamespace();
         ModuleBuilder builder = getBuilderFromNamespace(namespace);
-        builder.initContext(earContext, module, cl);
+        builder.initContext(earContext, module, bundle);
     }
 
-    public void addGBeans(EARContext earContext, Module module, ClassLoader cl, Collection repositories) throws DeploymentException {
+    public void addGBeans(EARContext earContext, Module module, Bundle bundle, Collection repositories) throws DeploymentException {
         String namespace = module.getNamespace();
         ModuleBuilder builder = getBuilderFromNamespace(namespace);
-        builder.addGBeans(earContext, module, cl, repositories);
+        builder.addGBeans(earContext, module, bundle, repositories);
     }
 
     public String getSchemaNamespace() {

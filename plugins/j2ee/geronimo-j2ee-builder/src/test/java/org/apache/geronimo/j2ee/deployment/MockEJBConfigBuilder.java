@@ -25,6 +25,7 @@ import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
+import org.osgi.framework.Bundle;
 
 import java.io.File;
 import java.net.URL;
@@ -37,7 +38,7 @@ import java.util.Collection;
  */
 public class MockEJBConfigBuilder extends Assert implements ModuleBuilder {
     private EARContext earContext;
-    private ClassLoader cl;
+    private Bundle bundle;
     public EJBModule ejbModule;
 
     public Module createModule(File plan, JarFile moduleFile, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
@@ -55,6 +56,7 @@ public class MockEJBConfigBuilder extends Assert implements ModuleBuilder {
         assertNotNull(earFile);
         assertNotNull(earContext);
         this.earContext = earContext;
+        ejbModule.setEarContext(earContext);
 //        assertEquals(this.ejbModule, ejbModule);
 //        if ( null != this.ejbModule.getAltSpecDD() ) {
 //            assertEquals(this.ejbModule.getAltSpecDD(), ejbModule.getAltSpecDD());
@@ -64,17 +66,17 @@ public class MockEJBConfigBuilder extends Assert implements ModuleBuilder {
 //        }
     }
 
-    public void initContext(EARContext earContext, Module ejbModule, ClassLoader cl) {
+    public void initContext(EARContext earContext, Module ejbModule, Bundle bundle) {
         assertEquals(this.earContext, earContext);
 //        assertEquals(this.ejbModule, ejbModule);
-        assertNotNull(cl);
-        this.cl = cl;
+        assertNotNull(bundle);
+        this.bundle = bundle;
     }
 
-    public void addGBeans(EARContext earContext, Module ejbModule, ClassLoader cl, Collection repository) {
+    public void addGBeans(EARContext earContext, Module ejbModule, Bundle bundle, Collection repository) {
         assertEquals(this.earContext, earContext);
 //        assertEquals(this.ejbModule, ejbModule);
-        assertEquals(this.cl, cl);
+        assertEquals(this.bundle, bundle);
     }
 
     public String getSchemaNamespace() {

@@ -40,7 +40,6 @@ import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 
 import javax.xml.namespace.QName;
-
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.ClassPathList;
 import org.apache.geronimo.deployment.ConfigurationBuilder;
@@ -59,15 +58,19 @@ import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.gbean.SingleElementCollection;
+import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.ParamAttribute;
+import org.apache.geronimo.gbean.annotation.ParamReference;
+import org.apache.geronimo.gbean.annotation.ParamSpecial;
+import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 import org.apache.geronimo.j2ee.ApplicationInfo;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.management.impl.J2EEApplicationImpl;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.ConfigurationAlreadyExistsException;
@@ -95,12 +98,15 @@ import org.apache.geronimo.xbeans.javaee.ModuleType;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * @version $Rev$ $Date$
  */
+@GBean(j2eeType = NameFactory.CONFIG_BUILDER)
 public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSource, GBeanLifecycle {
 
     private static final Logger log = LoggerFactory.getLogger(EARConfigBuilder.class);
@@ -108,6 +114,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
 
     private final static QName APPLICATION_QNAME = GerApplicationDocument.type.getDocumentElementName();
     private static final Map<String, String> NAMESPACE_UPDATES = new HashMap<String, String>();
+
     static {
         NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/j2ee/application", "http://geronimo.apache.org/xml/ns/j2ee/application-2.0");
         NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/j2ee/application-1.1", "http://geronimo.apache.org/xml/ns/j2ee/application-2.0");
@@ -131,6 +138,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
     private final AbstractNameQuery corbaGBeanObjectName;
     private final Naming naming;
     private final Collection<? extends ArtifactResolver> artifactResolvers;
+    private final BundleContext bundleContext;
 
     public static ThreadLocal<Boolean> createPlanMode = new ThreadLocal<Boolean>() {
         @Override
@@ -146,21 +154,62 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
         }
     };
 
-    public EARConfigBuilder(Environment defaultEnvironment,
-                            AbstractNameQuery transactionManagerAbstractName,
-                            AbstractNameQuery connectionTrackerAbstractName,
-                            AbstractNameQuery corbaGBeanAbstractName,
-                            AbstractNameQuery serverName,
-                            Collection<? extends Repository> repositories,
-                            Collection<ModuleBuilder> ejbConfigBuilder,
-                            Collection<ModuleBuilder> webConfigBuilder,
-                            Collection<ModuleBuilder> connectorConfigBuilder,
-                            Collection<ModuleBuilder> resourceReferenceBuilder,
-                            Collection<ModuleBuilder> appClientConfigBuilder,
-                            Collection<NamespaceDrivenBuilder> serviceBuilders,
-                            Collection<ModuleBuilderExtension> persistenceUnitBuilders,
-                            Collection<? extends ArtifactResolver> artifactResolvers,
-                            Kernel kernel) {
+//    static {
+//        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(EARConfigBuilder.class, NameFactory.CONFIG_BUILDER);
+//        infoBuilder.addAttribute("defaultEnvironment", Environment.class, true, true);
+//        infoBuilder.addAttribute("transactionManagerAbstractName", AbstractNameQuery.class, true);
+//        infoBuilder.addAttribute("connectionTrackerAbstractName", AbstractNameQuery.class, true);
+//        infoBuilder.addAttribute("corbaGBeanAbstractName", AbstractNameQuery.class, true);
+//        infoBuilder.addAttribute("serverName", AbstractNameQuery.class, true);
+//
+//        infoBuilder.addReference("Repositories", Repository.class, "Repository");
+//        infoBuilder.addReference("EJBConfigBuilder", ModuleBuilder.class, NameFactory.MODULE_BUILDER);
+//        infoBuilder.addReference("WebConfigBuilder", ModuleBuilder.class, NameFactory.MODULE_BUILDER);
+//        infoBuilder.addReference("ConnectorConfigBuilder", ModuleBuilder.class, NameFactory.MODULE_BUILDER);
+//        infoBuilder.addReference("ActivationSpecInfoLocator", ActivationSpecInfoLocator.class, NameFactory.MODULE_BUILDER);
+//        infoBuilder.addReference("AppClientConfigBuilder", ModuleBuilder.class, NameFactory.MODULE_BUILDER);
+//        infoBuilder.addReference("ServiceBuilders", NamespaceDrivenBuilder.class, NameFactory.MODULE_BUILDER);
+//        infoBuilder.addReference("PersistenceUnitBuilders", ModuleBuilderExtension.class, NameFactory.MODULE_BUILDER);
+//        infoBuilder.addReference("ArtifactResolvers", ArtifactResolver.class, "ArtifactResolver");
+//
+//        infoBuilder.addAttribute("kernel", Kernel.class, false);
+//
+//        infoBuilder.setConstructor(new String[]{
+//                "defaultEnvironment",
+//                "transactionManagerAbstractName",
+//                "connectionTrackerAbstractName",
+//                "corbaGBeanAbstractName",
+//                "serverName",
+//                "Repositories",
+//                "EJBConfigBuilder",
+//                "WebConfigBuilder",
+//                "ConnectorConfigBuilder",
+//                "ActivationSpecInfoLocator",
+//                "AppClientConfigBuilder",
+//                "ServiceBuilders",
+//                "PersistenceUnitBuilders",
+//                "ArtifactResolvers",
+//                "kernel"
+//        });
+//
+//    }
+
+    public EARConfigBuilder(@ParamAttribute(name = "defaultEnvironment") Environment defaultEnvironment,
+                            @ParamAttribute(name = "transactionManagerAbstractName") AbstractNameQuery transactionManagerAbstractName,
+                            @ParamAttribute(name = "connectionTrackerAbstractName") AbstractNameQuery connectionTrackerAbstractName,
+                            @ParamAttribute(name = "corbaGBeanAbstractName") AbstractNameQuery corbaGBeanAbstractName,
+                            @ParamAttribute(name = "serverName") AbstractNameQuery serverName,
+                            @ParamReference(name = "Repositories", namingType = "Repository")Collection<? extends Repository> repositories,
+                            @ParamReference(name = "EJBConfigBuilder", namingType = NameFactory.MODULE_BUILDER)Collection<ModuleBuilder> ejbConfigBuilder,
+                            @ParamReference(name = "WebConfigBuilder", namingType = NameFactory.MODULE_BUILDER)Collection<ModuleBuilder> webConfigBuilder,
+                            @ParamReference(name = "ConnectorConfigBuilder", namingType = NameFactory.MODULE_BUILDER)Collection<ModuleBuilder> connectorConfigBuilder,
+                            @ParamReference(name = "ActivationSpecInfoLocator", namingType = NameFactory.MODULE_BUILDER)Collection<ModuleBuilder> resourceReferenceBuilder,
+                            @ParamReference(name = "AppClientConfigBuilder", namingType = NameFactory.MODULE_BUILDER)Collection<ModuleBuilder> appClientConfigBuilder,
+                            @ParamReference(name = "ServiceBuilders", namingType = NameFactory.MODULE_BUILDER)Collection<NamespaceDrivenBuilder> serviceBuilders,
+                            @ParamReference(name = "PersistenceUnitBuilders", namingType = NameFactory.MODULE_BUILDER)Collection<ModuleBuilderExtension> persistenceUnitBuilders,
+                            @ParamReference(name = "ArtifactResolvers", namingType = "ArtifactResolver")Collection<? extends ArtifactResolver> artifactResolvers,
+                            @ParamSpecial(type = SpecialAttributeType.kernel) Kernel kernel,
+                            @ParamSpecial(type = SpecialAttributeType.bundleContext) BundleContext bundleContext) throws GBeanNotFoundException {
         this(defaultEnvironment,
                 transactionManagerAbstractName,
                 connectionTrackerAbstractName,
@@ -175,7 +224,8 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                 new SingleElementCollection<ModuleBuilder>(appClientConfigBuilder),
                 serviceBuilders,
                 persistenceUnitBuilders,
-                kernel.getNaming(), artifactResolvers);
+                kernel.getNaming(), artifactResolvers,
+                bundleContext);
     }
 
     public EARConfigBuilder(Environment defaultEnvironment,
@@ -192,7 +242,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                             NamespaceDrivenBuilder serviceBuilder,
                             ModuleBuilderExtension persistenceUnitBuilder,
                             Naming naming,
-                            Collection<? extends ArtifactResolver> artifactResolvers) {
+                            Collection<? extends ArtifactResolver> artifactResolvers, BundleContext bundleContext) {
         this(defaultEnvironment,
                 transactionManagerAbstractName,
                 connectionTrackerAbstractName,
@@ -208,7 +258,8 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                 serviceBuilder == null ? Collections.<NamespaceDrivenBuilder>emptySet() : Collections.singleton(serviceBuilder),
                 persistenceUnitBuilder == null ? Collections.<ModuleBuilderExtension>emptySet() : Collections.singleton(persistenceUnitBuilder),
                 naming,
-                artifactResolvers);
+                artifactResolvers,
+                bundleContext);
     }
 
     private EARConfigBuilder(Environment defaultEnvironment,
@@ -226,7 +277,8 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                              Collection<NamespaceDrivenBuilder> serviceBuilders,
                              Collection<ModuleBuilderExtension> persistenceUnitBuilders,
                              Naming naming,
-                             Collection<? extends ArtifactResolver> artifactResolvers) {
+                             Collection<? extends ArtifactResolver> artifactResolvers,
+                             BundleContext bundleContext) {
         this.configurationManager = configurationManager;
         this.repositories = repositories;
         this.defaultEnvironment = defaultEnvironment;
@@ -238,13 +290,14 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
         this.appClientConfigBuilder = appClientConfigBuilder;
         this.serviceBuilders = new NamespaceDrivenBuilderCollection(serviceBuilders);
         this.persistenceUnitBuilders = persistenceUnitBuilders;
-        
+
         this.transactionManagerObjectName = transactionManagerAbstractName;
         this.connectionTrackerObjectName = connectionTrackerAbstractName;
         this.corbaGBeanObjectName = corbaGBeanAbstractName;
         this.serverName = serverName;
         this.naming = naming;
         this.artifactResolvers = artifactResolvers;
+        this.bundleContext = bundleContext;
     }
 
     public void doStart() throws Exception {
@@ -313,7 +366,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
         if (module instanceof ApplicationInfo) {
             return module;
         }
-        
+
         return new ApplicationInfo(module.getType(),
                 module.getEnvironment(),
                 module.getModuleName(),
@@ -514,7 +567,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
 
             ConfigurationManager configurationManager = this.configurationManager;
             if (configurationManager == null) {
-                configurationManager = new SimpleConfigurationManager(configurationStores, artifactResolver, repositories);
+                configurationManager = new SimpleConfigurationManager(configurationStores, artifactResolver, repositories, bundleContext);
             }
 
             // Create the output ear context
@@ -524,7 +577,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                     applicationType,
                     naming,
                     configurationManager,
-                    repositories,
+                    bundleContext,
                     serverName,
                     applicationInfo.getModuleName(),
                     transactionManagerObjectName,
@@ -569,27 +622,30 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
             GerApplicationType geronimoApplication = (GerApplicationType) applicationInfo.getVendorDD();
 
             // each module installs it's files into the output context.. this is different for each module type
-            LinkedHashSet modules = applicationInfo.getModules();
-            for (Object module2 : modules) {
-                Module module = (Module) module2;
+            for (Module module : applicationInfo.getModules()) {
                 getBuilder(module).installModule(earFile, earContext, module, configurationStores, targetConfigurationStore, repositories);
             }
 
             earContext.flush();
+            earContext.initializeConfiguration();
+            for (Module module : applicationInfo.getModules()) {
+                if (earContext != module.getEarContext()) {
+                    module.getEarContext().initializeConfiguration();
+                }
+            }
 
             // give each module a chance to populate the earContext now that a classloader is available
-            ClassLoader cl = earContext.getClassLoader();
-            for (Object module3 : modules) {
-                Module module = (Module) module3;
+            Bundle bundle = earContext.getBundle();
+            for (Module module : applicationInfo.getModules()) {
                 if (createPlanMode.get()) {
                     try {
-                        getBuilder(module).initContext(earContext, module, cl);
+                        getBuilder(module).initContext(earContext, module, bundle);
                     } catch (Exception e) {
                         // ignore any exceptions to continue processing with the rest of the modules;
                         System.out.println("Exception during initContext() phase");
                     }
                 } else {
-                    getBuilder(module).initContext(earContext, module, cl);
+                    getBuilder(module).initContext(earContext, module, bundle);
                 }
             }
 
@@ -597,14 +653,14 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
             if (geronimoApplication != null) {
                 serviceBuilders.build(geronimoApplication, earContext, earContext);
             }
-            
+
             if (ConfigurationModuleType.EAR == applicationType) {
                 // process persistence unit in EAR library directory
                 earContext.getGeneralData().put(ClassPathList.class, libClasspath);
-                for (ModuleBuilderExtension mbe: persistenceUnitBuilders) {
-                    mbe.initContext(earContext, applicationInfo, earContext.getClassLoader());
+                for (ModuleBuilderExtension mbe : persistenceUnitBuilders) {
+                    mbe.initContext(earContext, applicationInfo, earContext.getBundle());
                 }
-                
+
                 // Create the J2EEApplication managed object
                 GBeanData gbeanData = new GBeanData(earContext.getModuleName(), J2EEApplicationImpl.GBEAN_INFO);
                 try {
@@ -639,17 +695,16 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
             }
 
             // each module can now add it's GBeans
-            for (Object module1 : modules) {
-                Module module = (Module) module1;
+            for (Module module : applicationInfo.getModules()) {
                 if (createPlanMode.get()) {
                     try {
-                        getBuilder(module).addGBeans(earContext, module, cl, repositories);
+                        getBuilder(module).addGBeans(earContext, module, bundle, repositories);
                     } catch (DeploymentException e) {
                         // ignore any exceptions to continue processing with the rest of the modules;
                         System.out.println("Exception during addGBeans() phase");
                     }
                 } else {
-                    getBuilder(module).addGBeans(earContext, module, cl, repositories);
+                    getBuilder(module).addGBeans(earContext, module, bundle, repositories);
                 }
             }
 
@@ -1103,53 +1158,6 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
             return getAppClientConfigBuilder();
         }
         throw new IllegalArgumentException("Unknown module type: " + module.getClass().getName());
-    }
-
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(EARConfigBuilder.class, NameFactory.CONFIG_BUILDER);
-        infoBuilder.addAttribute("defaultEnvironment", Environment.class, true, true);
-        infoBuilder.addAttribute("transactionManagerAbstractName", AbstractNameQuery.class, true);
-        infoBuilder.addAttribute("connectionTrackerAbstractName", AbstractNameQuery.class, true);
-        infoBuilder.addAttribute("corbaGBeanAbstractName", AbstractNameQuery.class, true);
-        infoBuilder.addAttribute("serverName", AbstractNameQuery.class, true);
-
-        infoBuilder.addReference("Repositories", Repository.class, "Repository");
-        infoBuilder.addReference("EJBConfigBuilder", ModuleBuilder.class, NameFactory.MODULE_BUILDER);
-        infoBuilder.addReference("WebConfigBuilder", ModuleBuilder.class, NameFactory.MODULE_BUILDER);
-        infoBuilder.addReference("ConnectorConfigBuilder", ModuleBuilder.class, NameFactory.MODULE_BUILDER);
-        infoBuilder.addReference("ActivationSpecInfoLocator", ActivationSpecInfoLocator.class, NameFactory.MODULE_BUILDER);
-        infoBuilder.addReference("AppClientConfigBuilder", ModuleBuilder.class, NameFactory.MODULE_BUILDER);
-        infoBuilder.addReference("ServiceBuilders", NamespaceDrivenBuilder.class, NameFactory.MODULE_BUILDER);
-        infoBuilder.addReference("PersistenceUnitBuilders", ModuleBuilderExtension.class, NameFactory.MODULE_BUILDER);
-        infoBuilder.addReference("ArtifactResolvers", ArtifactResolver.class, "ArtifactResolver");
-
-        infoBuilder.addAttribute("kernel", Kernel.class, false);
-
-        infoBuilder.setConstructor(new String[]{
-                "defaultEnvironment",
-                "transactionManagerAbstractName",
-                "connectionTrackerAbstractName",
-                "corbaGBeanAbstractName",
-                "serverName",
-                "Repositories",
-                "EJBConfigBuilder",
-                "WebConfigBuilder",
-                "ConnectorConfigBuilder",
-                "ActivationSpecInfoLocator",
-                "AppClientConfigBuilder",
-                "ServiceBuilders",
-                "PersistenceUnitBuilders",
-                "ArtifactResolvers",
-                "kernel"
-        });
-
-        GBEAN_INFO = infoBuilder.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
     }
 
 }

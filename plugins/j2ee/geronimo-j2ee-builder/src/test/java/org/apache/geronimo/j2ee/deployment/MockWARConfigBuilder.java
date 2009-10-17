@@ -25,6 +25,7 @@ import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
+import org.osgi.framework.Bundle;
 
 import java.io.File;
 import java.net.URL;
@@ -37,7 +38,7 @@ import java.util.jar.JarFile;
  */
 public class MockWARConfigBuilder extends Assert implements ModuleBuilder {
     private EARContext earContext;
-    private ClassLoader cl;
+    private Bundle bundle;
     private Map portMap = null;
     private String namespace = "foo";
     public WebModule webModule;
@@ -58,6 +59,7 @@ public class MockWARConfigBuilder extends Assert implements ModuleBuilder {
         assertNotNull(earFile);
         assertNotNull(earContext);
         this.earContext = earContext;
+        webModule.setEarContext(earContext);
 //        assertEquals(this.webModule, webModule);
 //        if ( null != this.webModule.getAltSpecDD() ) {
 //            assertEquals(this.webModule.getAltSpecDD(), webModule.getAltSpecDD());
@@ -67,17 +69,17 @@ public class MockWARConfigBuilder extends Assert implements ModuleBuilder {
 //        }
     }
 
-    public void initContext(EARContext earContext, Module webModule, ClassLoader cl) {
+    public void initContext(EARContext earContext, Module webModule, Bundle bundle) {
         assertEquals(this.earContext, earContext);
 //        assertEquals(this.webModule, webModule);
-        assertNotNull(cl);
-        this.cl = cl;
+        assertNotNull(bundle);
+        this.bundle = bundle;
     }
 
-    public void addGBeans(EARContext earContext, Module webModule, ClassLoader cl, Collection repository) throws DeploymentException {
+    public void addGBeans(EARContext earContext, Module webModule, Bundle bundle, Collection repository) throws DeploymentException {
         assertEquals(this.earContext, earContext);
 //        assertEquals(this.webModule, webModule);
-        assertEquals(this.cl, cl);
+        assertEquals(this.bundle, bundle);
         assertNotNull(contextRoot);
         this.contextRoot = ((WebModule) webModule).getContextRoot();
     }

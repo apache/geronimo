@@ -42,9 +42,9 @@ public class EJBModule extends Module {
         return ConfigurationModuleType.EJB;
     }
 
-    public void addClass(URI location, String fqcn, byte[] bytes, DeploymentContext context) throws IOException, URISyntaxException {
-        context.addClass(location, fqcn, bytes);
-    }
+//    public void addClass(URI location, String fqcn, byte[] bytes, DeploymentContext context) throws IOException, URISyntaxException {
+//        context.addClass(location, fqcn, bytes);
+//    }
 
     public AbstractName getModuleCmpEngineName() {
         return moduleCmpEngineName;

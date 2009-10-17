@@ -17,7 +17,7 @@
 package org.apache.geronimo.naming.deployment.jsr88;
 
 import javax.xml.namespace.QName;
-import org.apache.geronimo.deployment.plugin.XmlBeanSupport;
+import org.apache.geronimo.deployment.dconfigbean.XmlBeanSupport;
 import org.apache.geronimo.xbeans.geronimo.naming.GerPatternType;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.impl.values.XmlObjectBase;

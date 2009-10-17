@@ -17,6 +17,7 @@
 package org.apache.geronimo.j2ee.deployment;
 
 import org.apache.geronimo.deployment.util.DeploymentUtil;
+import org.apache.geronimo.kernel.repository.Artifact;
 
 /**
  * EAR config builder tests for J2EE 1.4 using alt-dd unpacked..
@@ -27,17 +28,20 @@ public class EARConfigBuilder14AltDDUnpackedTest
     extends EARConfigBuilderTestSupport
 {
     protected void setUp() throws Exception {
+        super.setUp();
         earFile = DeploymentUtil.createJarFile(resolveFile("target/test-ear-j2ee_1.4-unpacked.ear"));
+        locations.put(null, new Artifact("org.apache.geronimo.testsupport", "test-ear-javaee_5", "3.0-SNAPSHOT", "ear"));
         ejbConfigBuilder.ejbModule = new EJBModule(false, ejbModuleName, null, null, "ejb.jar/", null, null, null, null);
         webConfigBuilder.contextRoot = contextRoot;
         webConfigBuilder.webModule = new WebModule(false, webModuleName, null, null, "war.war/", null, null, null, contextRoot, WEB_NAMESPACE, null);
         connectorConfigBuilder.connectorModule = new ConnectorModule(false, raModuleName, null, null, "rar.rar/", null, null, null, null);
     }
 
-    protected void tearDown() {
+    protected void tearDown() throws Exception {
         DeploymentUtil.close(earFile);
         close(ejbConfigBuilder.ejbModule);
         close(webConfigBuilder.webModule);
         close(connectorConfigBuilder.connectorModule);
+        super.tearDown();
     }
 }

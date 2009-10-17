@@ -30,6 +30,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
+import org.osgi.framework.Bundle;
 
 /**
  * @version $Rev$ $Date$
@@ -48,11 +49,11 @@ public class UnavailableModuleBuilder implements ModuleBuilder {
         throw new DeploymentException("Module type unavailable");
     }
 
-    public void initContext(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException {
+    public void initContext(EARContext earContext, Module module, Bundle bundle) throws DeploymentException {
         throw new DeploymentException("Module type unavailable");
     }
 
-    public void addGBeans(EARContext earContext, Module module, ClassLoader cl, Collection repository) throws DeploymentException {
+    public void addGBeans(EARContext earContext, Module module, Bundle bundle, Collection repository) throws DeploymentException {
         throw new DeploymentException("Module type unavailable");
     }
 

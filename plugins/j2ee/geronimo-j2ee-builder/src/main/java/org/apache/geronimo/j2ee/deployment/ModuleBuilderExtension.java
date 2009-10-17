@@ -26,6 +26,7 @@ import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.osgi.framework.Bundle;
 
 /**
  * @version $Rev$ $Date$
@@ -35,7 +36,7 @@ public interface ModuleBuilderExtension {
 
     void installModule(JarFile earFile, EARContext earContext, Module module, Collection configurationStores, ConfigurationStore targetConfigurationStore, Collection repository) throws DeploymentException;
 
-    void initContext(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException;
+    void initContext(EARContext earContext, Module module, Bundle bundle) throws DeploymentException;
 
     void addGBeans(EARContext earContext, Module module, ClassLoader cl, Collection repository) throws DeploymentException;
 }

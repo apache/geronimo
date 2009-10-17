@@ -40,8 +40,8 @@ public class ConnectorModule extends Module {
         return ConfigurationModuleType.RAR;
     }
 
-    public void addClass(URI location, String fqcn, byte[] bytes, DeploymentContext context) throws IOException, URISyntaxException {
-        context.addClass(location, fqcn, bytes);
-    }
+//    public void addClass(URI location, String fqcn, byte[] bytes, DeploymentContext context) throws IOException, URISyntaxException {
+//        context.addClass(location, fqcn, bytes);
+//    }
 }
 

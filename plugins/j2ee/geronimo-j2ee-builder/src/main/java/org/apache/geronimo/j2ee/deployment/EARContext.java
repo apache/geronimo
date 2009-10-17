@@ -17,7 +17,6 @@
 package org.apache.geronimo.j2ee.deployment;
 
 import java.io.File;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,6 +28,7 @@ import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.osgi.framework.BundleContext;
 
 /**
  * @version $Rev:386276 $ $Date$
@@ -54,14 +54,14 @@ public class EARContext extends DeploymentContext {
                       ConfigurationModuleType moduleType,
                       Naming naming,
                       ConfigurationManager configurationManager,
-                      Collection repositories,
+                      BundleContext bundleContext,
                       AbstractNameQuery serverName,
                       AbstractName baseName,
                       AbstractNameQuery transactionManagerObjectName,
                       AbstractNameQuery connectionTrackerObjectName,
                       AbstractNameQuery corbaGBeanObjectName
     ) throws DeploymentException {
-        super(baseDir, inPlaceConfigurationDir, environment, baseName, moduleType, naming, configurationManager, repositories);
+        super(baseDir, inPlaceConfigurationDir, environment, baseName, moduleType, naming, configurationManager, bundleContext);
 
         this.serverName = serverName;
         this.transactionManagerObjectName = transactionManagerObjectName;
@@ -70,30 +70,30 @@ public class EARContext extends DeploymentContext {
         this.messageDestinations = new HashMap();
     }
 
-    public EARContext(File baseDir,
-                      File inPlaceConfigurationDir,
-                      Environment environment,
-                      ConfigurationModuleType moduleType,
-                      Naming naming,
-                      ConfigurationManager configurationManager,
-                      AbstractNameQuery serverName,
-                      AbstractName baseName,
-                      AbstractNameQuery transactionManagerObjectName,
-                      AbstractNameQuery connectionTrackerObjectName,
-                      AbstractNameQuery corbaGBeanObjectName,
-                      Map messageDestinations) throws DeploymentException {
-        super(baseDir, inPlaceConfigurationDir, environment, baseName, moduleType, naming, configurationManager);
-
-        this.serverName = serverName;
-
-        this.transactionManagerObjectName = transactionManagerObjectName;
-        this.connectionTrackerObjectName = connectionTrackerObjectName;
-        this.corbaGBeanObjectName = corbaGBeanObjectName;
-        this.messageDestinations = messageDestinations;
-    }
+//    public EARContext(File baseDir,
+//                      File inPlaceConfigurationDir,
+//                      Environment environment,
+//                      ConfigurationModuleType moduleType,
+//                      Naming naming,
+//                      ConfigurationManager configurationManager,
+//                      AbstractNameQuery serverName,
+//                      AbstractName baseName,
+//                      AbstractNameQuery transactionManagerObjectName,
+//                      AbstractNameQuery connectionTrackerObjectName,
+//                      AbstractNameQuery corbaGBeanObjectName,
+//                      Map messageDestinations) throws DeploymentException {
+//        super(baseDir, inPlaceConfigurationDir, environment, baseName, moduleType, naming, configurationManager);
+//
+//        this.serverName = serverName;
+//
+//        this.transactionManagerObjectName = transactionManagerObjectName;
+//        this.connectionTrackerObjectName = connectionTrackerObjectName;
+//        this.corbaGBeanObjectName = corbaGBeanObjectName;
+//        this.messageDestinations = messageDestinations;
+//    }
 
     public EARContext(File baseDir, File inPlaceConfigurationDir, Environment environment, ConfigurationModuleType moduleType, AbstractName baseName, EARContext parent) throws DeploymentException {
-        super(baseDir, inPlaceConfigurationDir, environment, baseName, moduleType, parent.getNaming(), parent.getConfigurationManager());
+        super(baseDir, inPlaceConfigurationDir, environment, baseName, moduleType, parent.getNaming(), parent.getConfigurationManager(), parent.getBundle().getBundleContext());
         this.serverName = parent.getServerName();
 
         this.transactionManagerObjectName = parent.getTransactionManagerName();

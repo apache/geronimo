@@ -19,14 +19,14 @@ package org.apache.geronimo.j2ee.jsr88;
 
 import javax.enterprise.deploy.model.DeployableObject;
 
-import org.apache.geronimo.deployment.plugin.DeploymentConfigurationSupport;
+import org.apache.geronimo.deployment.dconfigbean.DeploymentConfigurationSupport;
 
 /**
  *
  *
  * @version $Rev$ $Date$
  */
-public class EARConfiguration extends DeploymentConfigurationSupport{
+public class EARConfiguration extends DeploymentConfigurationSupport {
     public EARConfiguration(DeployableObject deployable) {
         super(deployable, null);
     }

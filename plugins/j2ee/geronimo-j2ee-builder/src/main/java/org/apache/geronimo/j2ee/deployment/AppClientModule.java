@@ -74,9 +74,9 @@ public class AppClientModule extends Module {
         return mainClassName;
     }
 
-    public void addClass(URI location, String fqcn, byte[] bytes, DeploymentContext context) throws IOException, URISyntaxException {
-        context.addClass(location, fqcn, bytes);
-    }
+//    public void addClass(URI location, String fqcn, byte[] bytes, DeploymentContext context) throws IOException, URISyntaxException {
+//        context.addClass(location, fqcn, bytes);
+//    }
 
     public Collection<ConnectorModule> getResourceModules() {
         return resourceModules;

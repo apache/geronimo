@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.HashSet;
+import java.util.HashMap;
 import java.util.jar.JarFile;
 
 import org.apache.geronimo.common.DeploymentException;
@@ -34,9 +35,11 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.management.impl.J2EEServerImpl;
 import org.apache.geronimo.kernel.Jsr77Naming;
 import org.apache.geronimo.kernel.Naming;
+import org.apache.geronimo.kernel.osgi.MockBundleContext;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.mock.MockConfigStore;
 import org.apache.geronimo.kernel.mock.MockRepository;
+import org.apache.geronimo.kernel.mock.MockConfigurationManager;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ArtifactManager;
 import org.apache.geronimo.kernel.repository.ArtifactResolver;
@@ -103,6 +106,9 @@ public abstract class EARConfigBuilderTestSupport
     
     protected static final AbstractName raModuleName = naming.createChildName(earName, "rar", NameFactory.RESOURCE_ADAPTER_MODULE);
 
+
+    protected Map<String, Artifact> locations = new HashMap<String, Artifact>();
+
     protected Environment defaultParentId;
     
     protected static String contextRoot = "test";
@@ -116,11 +122,13 @@ public abstract class EARConfigBuilderTestSupport
     protected final AbstractNameQuery corbaGBeanAbstractNameQuery = new AbstractNameQuery(serverName, null);
 
     private ListableRepository repository;
-    protected ArtifactResolver artifactResolver = new DefaultArtifactResolver(artifactManager, Collections.singleton(repository), null);
+    protected ArtifactResolver artifactResolver = new DefaultArtifactResolver(artifactManager, repository);
     protected Collection<? extends ArtifactResolver> artifactResolvers = Collections.singleton(new DefaultArtifactResolver(artifactManager, repository));
 
     protected void setUp() throws Exception {
         super.setUp();
+        bundleContext = new MockBundleContext(getClass().getClassLoader(), "", new HashMap<Artifact, ConfigurationData>(), locations);
+        ((MockBundleContext)bundleContext).setConfigurationManager(new MockConfigurationManager());
         Set<Artifact> repo = new HashSet<Artifact>();
         repo.add(Artifact.create("org.apache.geronimo.tests/test/1/car"));
         repository = new MockRepository(repo);
@@ -145,7 +153,9 @@ public abstract class EARConfigBuilderTestSupport
                     appClientConfigBuilder,
                     serviceBuilder,
                     persistenceUnitBuilder,
-                    naming, artifactResolvers);
+                    naming,
+                    artifactResolvers,
+                    bundleContext);
 
             Object plan = configBuilder.getDeploymentPlan(null, earFile, idBuilder);
             context = configBuilder.buildConfiguration(false, configBuilder.getConfigurationID(plan, earFile, idBuilder), plan, earFile, Collections.singleton(configStore), artifactResolver, configStore);
@@ -174,7 +184,7 @@ public abstract class EARConfigBuilderTestSupport
                 appClientConfigBuilder,
                 serviceBuilder,
                 persistenceUnitBuilder,
-                naming, artifactResolvers);
+                naming, artifactResolvers, bundleContext);
 
         ConfigurationData configurationData = null;
         DeploymentContext context = null;
@@ -209,7 +219,7 @@ public abstract class EARConfigBuilderTestSupport
                 appClientConfigBuilder,
                 serviceBuilder,
                 persistenceUnitBuilder,
-                naming, artifactResolvers);
+                naming, artifactResolvers, bundleContext);
 
         ConfigurationData configurationData = null;
         DeploymentContext context = null;
@@ -244,7 +254,7 @@ public abstract class EARConfigBuilderTestSupport
                 appClientConfigBuilder,
                 serviceBuilder,
                 persistenceUnitBuilder,
-                naming, artifactResolvers);
+                naming, artifactResolvers, bundleContext);
 
         ConfigurationData configurationData = null;
         DeploymentContext context = null;
@@ -279,7 +289,7 @@ public abstract class EARConfigBuilderTestSupport
                 appClientConfigBuilder,
                 serviceBuilder,
                 persistenceUnitBuilder,
-                naming, artifactResolvers);
+                naming, artifactResolvers, bundleContext);
 
         ConfigurationData configurationData = null;
         DeploymentContext context = null;
@@ -314,7 +324,7 @@ public abstract class EARConfigBuilderTestSupport
                 appClientConfigBuilder,
                 serviceBuilder,
                 persistenceUnitBuilder,
-                naming, artifactResolvers);
+                naming, artifactResolvers, bundleContext);
 
 
         ConfigurationData configurationData = null;
@@ -350,7 +360,7 @@ public abstract class EARConfigBuilderTestSupport
                 appClientConfigBuilder,
                 serviceBuilder,
                 persistenceUnitBuilder,
-                naming, artifactResolvers);
+                naming, artifactResolvers, bundleContext);
 
         ConfigurationData configurationData = null;
         DeploymentContext context = null;
@@ -385,7 +395,7 @@ public abstract class EARConfigBuilderTestSupport
                 appClientConfigBuilder,
                 serviceBuilder,
                 persistenceUnitBuilder,
-                naming, artifactResolvers);
+                naming, artifactResolvers, bundleContext);
 
         ConfigurationData configurationData = null;
         DeploymentContext context = null;

@@ -35,6 +35,7 @@ import org.apache.geronimo.common.DeploymentException;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlOptions;
+import org.osgi.framework.Bundle;
 
 /**
  * @version $Rev$ $Date$
@@ -135,10 +136,10 @@ public class SchemaConversionTest extends XmlBeansTestSupport {
             return null;
         }
 
-        public void initContext(EARContext earContext, Module module, ClassLoader classLoader) throws DeploymentException {
+        public void initContext(EARContext earContext, Module module, Bundle classLoader) throws DeploymentException {
         }
 
-        public void addGBeans(EARContext earContext, Module module, ClassLoader classLoader, Collection repositories) throws DeploymentException {
+        public void addGBeans(EARContext earContext, Module module, Bundle classLoader, Collection repositories) throws DeploymentException {
         }
 
         public String getSchemaNamespace() {

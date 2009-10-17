@@ -19,7 +19,7 @@ package org.apache.geronimo.naming.deployment;
 
 import javax.enterprise.deploy.model.DDBean;
 
-import org.apache.geronimo.deployment.plugin.DConfigBeanSupport;
+import org.apache.geronimo.deployment.dconfigbean.DConfigBeanSupport;
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlObject;
 

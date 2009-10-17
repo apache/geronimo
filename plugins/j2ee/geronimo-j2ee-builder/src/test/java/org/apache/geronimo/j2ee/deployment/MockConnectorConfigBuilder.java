@@ -28,6 +28,7 @@ import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
+import org.osgi.framework.Bundle;
 
 import javax.management.ObjectName;
 import javax.naming.Reference;
@@ -41,7 +42,7 @@ import java.util.Collection;
  */
 public class MockConnectorConfigBuilder extends Assert implements ModuleBuilder, ActivationSpecInfoLocator {
     private EARContext earContext;
-    private ClassLoader cl;
+    private Bundle bundle;
     public Module connectorModule;
 
     public Module createModule(File plan, JarFile moduleFile, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
@@ -59,6 +60,7 @@ public class MockConnectorConfigBuilder extends Assert implements ModuleBuilder,
         assertNotNull(earFile);
         assertNotNull(earContext);
         this.earContext = earContext;
+        connectorModule.setEarContext(earContext);
 //        assertEquals(this.connectorModule, connectorModule);
 //        if ( null != this.connectorModule.getAltSpecDD() ) {
 //            assertEquals(this.connectorModule.getAltSpecDD(), connectorModule.getAltSpecDD());
@@ -68,17 +70,17 @@ public class MockConnectorConfigBuilder extends Assert implements ModuleBuilder,
 //        }
     }
 
-    public void initContext(EARContext earContext, Module connectorModule, ClassLoader cl) {
+    public void initContext(EARContext earContext, Module connectorModule, Bundle bundle) {
         assertEquals(this.earContext, earContext);
 //        assertEquals(this.connectorModule, connectorModule);
-        assertNotNull(cl);
-        this.cl = cl;
+        assertNotNull(bundle);
+        this.bundle = bundle;
     }
 
-    public void addGBeans(EARContext earContext, Module connectorModule, ClassLoader cl, Collection repository) {
+    public void addGBeans(EARContext earContext, Module connectorModule, Bundle bundle, Collection repository) {
         assertEquals(this.earContext, earContext);
 //        assertEquals(this.connectorModule, connectorModule);
-        assertEquals(this.cl, cl);
+        assertEquals(this.bundle, bundle);
     }
 
     public String getSchemaNamespace() {

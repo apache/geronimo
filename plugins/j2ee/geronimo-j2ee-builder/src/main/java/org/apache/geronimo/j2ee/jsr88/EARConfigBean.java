@@ -19,13 +19,13 @@ package org.apache.geronimo.j2ee.jsr88;
 
 import javax.enterprise.deploy.model.DDBean;
 
-import org.apache.geronimo.deployment.plugin.DConfigBeanSupport;
+import org.apache.geronimo.deployment.dconfigbean.DConfigBeanSupport;
 import org.apache.xmlbeans.SchemaTypeLoader;
 
 /**
  *
  *
- * @version $Rev$ $Date$
+ * @version $Rev$ $Date$                                                   
  */
 public class EARConfigBean extends DConfigBeanSupport {
     public EARConfigBean(DDBean ddBean) {

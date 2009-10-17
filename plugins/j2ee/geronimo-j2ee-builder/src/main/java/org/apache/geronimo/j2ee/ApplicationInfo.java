@@ -31,7 +31,7 @@ import org.apache.xmlbeans.XmlObject;
  */
 public class ApplicationInfo extends Module {
     private ConfigurationModuleType type;
-    private LinkedHashSet modules;
+    private LinkedHashSet<Module> modules;
     private ModuleList moduleLocations;
 
 
@@ -51,11 +51,11 @@ public class ApplicationInfo extends Module {
         return type;
     }
 
-    public LinkedHashSet getModules() {
+    public LinkedHashSet<Module> getModules() {
         return modules;
     }
 
-    public void setModules(LinkedHashSet modules) {
+    public void setModules(LinkedHashSet<Module> modules) {
         this.modules = modules;
     }
 
