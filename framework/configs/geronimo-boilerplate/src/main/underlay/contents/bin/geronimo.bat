@@ -177,6 +177,11 @@ set BASEDIR=%GERONIMO_HOME%
 call "%GERONIMO_HOME%\bin\setJavaEnv.bat"
 if not %errorlevel% == 0 goto end
 
+@REM Using default JAVA_OPTS if it's not set
+if not "%JAVA_OPTS%" == "" goto skipDefaultJavaOpts
+set JAVA_OPTS=-Xmx256m -XX:MaxPermSize=128m
+:skipDefaultJavaOpts
+
 if not "%GERONIMO_TMPDIR%" == "" goto gotTmpdir
 @REM A relative value will be resolved relative to each instance 
 set GERONIMO_TMPDIR=var\temp

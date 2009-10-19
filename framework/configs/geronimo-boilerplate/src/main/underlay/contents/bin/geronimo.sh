@@ -201,6 +201,11 @@ else
   fi
 fi
 
+# Use a default JAVA_OPTS if it's not set
+if [ -z "$JAVA_OPTS" ]; then
+  JAVA_OPTS="-Xmx256m -XX:MaxPermSize=128m"
+fi
+
 if [ -z "$GERONIMO_TMPDIR" ] ; then
   # Define the java.io.tmpdir to use for Geronimo
   # A relative value will be resolved relative to each instance

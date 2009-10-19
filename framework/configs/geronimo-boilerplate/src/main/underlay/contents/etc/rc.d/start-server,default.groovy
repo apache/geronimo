@@ -22,12 +22,17 @@
 //
 
 // Append some reasonable java flags if none were configured already
-if (command.profiles.contains('java6')) {
-    command.javaFlags << '-XX:MaxPermSize=512m'
-    command.javaFlags << '-Xmx2048m'
-} else if (command.javaFlags.empty) {
-    command.javaFlags << '-Xmx512m'
+if (command.javaFlags.empty) {
+    command.javaFlags << '-Xmx256m'
+    command.javaFlags << '-XX:MaxPermSize=128m'
 }
+
+// If java version specific configuration were needed, it could take the following
+// form
+// 
+// if (command.profiles.contains('java6')) {
+//    command.javaFlags << '-Xmx2048m'
+// }
 
 // If the debug profile was selected, then append some debugging flags
 if (command.profiles.contains('debug')) {
