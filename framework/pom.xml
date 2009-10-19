@@ -112,33 +112,33 @@
             </dependency>
 
             <!-- overridden dependencies -->
-            <dependency>
-                <groupId>org.apache.geronimo.components</groupId>
-                <artifactId>geronimo-jaspi</artifactId>
-                <version>1.1-SNAPSHOT</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.apache.geronimo.specs</groupId>
-                        <artifactId>geronimo-jaxb_2.1_spec</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.geronimo.specs</groupId>
-                        <artifactId>geronimo-stax-api_1.0_spec</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>com.envoisolutions.sxc</groupId>
-                        <artifactId>sxc-jaxb</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.codehaus.woodstox</groupId>
-                        <artifactId>wstx-asl</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>com.sun.xml.bind</groupId>
-                        <artifactId>jaxb-impl</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
+            <!--<dependency>-->
+                <!--<groupId>org.apache.geronimo.components</groupId>-->
+                <!--<artifactId>geronimo-jaspi</artifactId>-->
+                <!--<version>1.1-SNAPSHOT</version>-->
+                <!--<exclusions>-->
+                    <!--<exclusion>-->
+                        <!--<groupId>org.apache.geronimo.specs</groupId>-->
+                        <!--<artifactId>geronimo-jaxb_2.1_spec</artifactId>-->
+                    <!--</exclusion>-->
+                    <!--<exclusion>-->
+                        <!--<groupId>org.apache.geronimo.specs</groupId>-->
+                        <!--<artifactId>geronimo-stax-api_1.0_spec</artifactId>-->
+                    <!--</exclusion>-->
+                    <!--<exclusion>-->
+                        <!--<groupId>com.envoisolutions.sxc</groupId>-->
+                        <!--<artifactId>sxc-jaxb</artifactId>-->
+                    <!--</exclusion>-->
+                    <!--<exclusion>-->
+                        <!--<groupId>org.codehaus.woodstox</groupId>-->
+                        <!--<artifactId>wstx-asl</artifactId>-->
+                    <!--</exclusion>-->
+                    <!--<exclusion>-->
+                        <!--<groupId>com.sun.xml.bind</groupId>-->
+                        <!--<artifactId>jaxb-impl</artifactId>-->
+                    <!--</exclusion>-->
+                <!--</exclusions>-->
+            <!--</dependency>-->
 
             <!-- bundleized jars -->
             <dependency>
@@ -280,7 +280,7 @@
             <dependency>
                 <groupId>org.apache.servicemix.bundles</groupId>
                 <artifactId>org.apache.servicemix.bundles.xmlbeans</artifactId>
-                <version>2.4.0_3-SNAPSHOT</version>
+                <version>2.4.0_2</version>
                 <exclusions>
                     <exclusion>
                         <groupId>javax.xml.stream</groupId>

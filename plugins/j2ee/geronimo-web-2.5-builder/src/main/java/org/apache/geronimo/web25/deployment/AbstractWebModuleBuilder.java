@@ -110,6 +110,7 @@ import org.apache.xmlbeans.XmlObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
+import org.osgi.framework.Bundle;
 
 /**
  * @version $Rev$ $Date$
@@ -312,7 +313,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
             // always add WEB-INF/classes to the classpath regardless of whether
             // any classes exist.  This must be searched BEFORE the WEB-INF/lib jar files,
             // per the servlet specifications.
-            moduleContext.getConfiguration().addToClassPath("WEB-INF/classes/");
+            moduleContext.addToClassPath("WEB-INF/classes/");
             manifestcp.add("WEB-INF/classes/");
 
             // install the libs
@@ -632,11 +633,11 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
 
     protected ClassFinder createWebAppClassFinder(WebAppType webApp, WebModule webModule) throws DeploymentException {
         // Get the classloader from the module's EARContext
-        ClassLoader classLoader = webModule.getEarContext().getClassLoader();
-        return createWebAppClassFinder(webApp, classLoader);
+        Bundle bundle = webModule.getEarContext().getBundle();
+        return createWebAppClassFinder(webApp, bundle);
     }
 
-    public static ClassFinder createWebAppClassFinder(WebAppType webApp, ClassLoader classLoader) throws DeploymentException {
+    public static ClassFinder createWebAppClassFinder(WebAppType webApp, Bundle bundle) throws DeploymentException {
         //------------------------------------------------------------------------------------
         // Find the list of classes from the web.xml we want to search for annotations in
         //------------------------------------------------------------------------------------
@@ -649,7 +650,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
             if (cls != null) {                              // Don't try this for JSPs
                 Class<?> clas;
                 try {
-                    clas = classLoader.loadClass(cls.getStringValue());
+                    clas = bundle.loadClass(cls.getStringValue());
                 } catch (ClassNotFoundException e) {
                     throw new DeploymentException("AbstractWebModuleBuilder: Could not load servlet class: " + cls.getStringValue(), e);
                 }
@@ -663,7 +664,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
             FullyQualifiedClassType cls = listener.getListenerClass();
             Class<?> clas;
             try {
-                clas = classLoader.loadClass(cls.getStringValue());
+                clas = bundle.loadClass(cls.getStringValue());
             } catch (ClassNotFoundException e) {
                 throw new DeploymentException("AbstractWebModuleBuilder: Could not load listener class: " + cls.getStringValue(), e);
             }
@@ -676,7 +677,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
             FullyQualifiedClassType cls = filter.getFilterClass();
             Class<?> clas;
             try {
-                clas = classLoader.loadClass(cls.getStringValue());
+                clas = bundle.loadClass(cls.getStringValue());
             } catch (ClassNotFoundException e) {
                 throw new DeploymentException("AbstractWebModuleBuilder: Could not load filter class: " + cls.getStringValue(), e);
             }

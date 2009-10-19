@@ -17,19 +17,16 @@
 
 package org.apache.geronimo.deployment.tools.loader;
 
-import java.io.BufferedInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
+
 import javax.enterprise.deploy.model.DDBean;
 import javax.enterprise.deploy.model.DDBeanRoot;
 import javax.enterprise.deploy.model.DeployableObject;
@@ -37,47 +34,29 @@ import javax.enterprise.deploy.model.exceptions.DDBeanCreateException;
 import javax.enterprise.deploy.shared.ModuleType;
 
 import org.apache.geronimo.deployment.tools.DDBeanRootImpl;
-import org.apache.geronimo.kernel.classloader.UrlResourceFinder;
-import org.apache.geronimo.kernel.config.MultiParentClassLoader;
+import org.osgi.framework.Bundle;
 
 /**
- * 
- * 
  * @version $Rev$ $Date$
  */
 public abstract class AbstractDeployable implements DeployableObject {
-    private final URL moduleURL;
+    private final Bundle bundle;
     private final ModuleType type;
     private final DDBeanRoot root;
-    private final ClassLoader rootCL;
-    private final List entries;
+    private final List<String> entries;
 
-    protected AbstractDeployable(ModuleType type, URL moduleURL, String rootDD) throws DDBeanCreateException {
+    protected AbstractDeployable(ModuleType type, Bundle bundle, String rootDD) throws DDBeanCreateException {
         this.type = type;
-        this.moduleURL = moduleURL;
-        rootCL = new URLClassLoader(new URL[] {moduleURL}, Thread.currentThread().getContextClassLoader());
-        UrlResourceFinder resourceFinder = new UrlResourceFinder(new URL[] {moduleURL});
-        root = new DDBeanRootImpl(this, resourceFinder.findResource(rootDD));                 
+        this.bundle = bundle;
+        URL dd = bundle.getResource(rootDD);
+        root = new DDBeanRootImpl(this, dd);
 
-        // @todo make this work with unpacked
-        entries = new ArrayList();
-        InputStream is = null;
-        try {
-            is = moduleURL.openStream();
-            ZipInputStream zis = new ZipInputStream(new BufferedInputStream(is));
-            ZipEntry entry;
-            while ((entry = zis.getNextEntry()) != null) {
-                entries.add(entry.getName());
-            }
-        } catch (IOException e) {
-            throw (DDBeanCreateException) new DDBeanCreateException("Unable to create list of entries").initCause(e);
-        } finally {
-            if (is != null) {
-                try {
-                    is.close();
-                } catch (IOException e1) {
-                    // ignore
-                }
+        entries = new ArrayList<String>();
+        Enumeration<String> paths = bundle.getEntryPaths("/");
+        //TODO WTF?? if statement seems to be required????
+        if (paths.hasMoreElements()) {
+            for (String entry = paths.nextElement(); paths.hasMoreElements();) {
+                entries.add(entry);
             }
         }
     }
@@ -91,11 +70,11 @@ public abstract class AbstractDeployable implements DeployableObject {
     }
 
     public DDBeanRoot getDDBeanRoot(String filename) throws FileNotFoundException, DDBeanCreateException {
-        try {
-            return new DDBeanRootImpl(null, new URL(moduleURL, filename));
-        } catch (MalformedURLException e) {
-            throw (DDBeanCreateException) new DDBeanCreateException("Unable to construct URL for "+filename).initCause(e);
+        URL resource = bundle.getResource(filename);
+        if (resource == null) {
+            throw new DDBeanCreateException("Unable to construct URL for " + filename);
         }
+        return new DDBeanRootImpl(null, resource);
     }
 
     public DDBean[] getChildBean(String xpath) {
@@ -111,16 +90,25 @@ public abstract class AbstractDeployable implements DeployableObject {
     }
 
     public InputStream getEntry(String name) {
-        return rootCL.getResourceAsStream(name);
+        try {
+            URL resource = bundle.getResource(name);
+            if (resource == null) {
+                return null;
+            }
+            return resource.openStream();
+        } catch (IOException e) {
+            return null;
+//            throw new IllegalStateException("Could not open straem to entry: " + name);
+        }
     }
 
-    protected ClassLoader getModuleLoader() {
-        return rootCL;
+    protected Bundle getModuleBundle() {
+        return bundle;
     }
 
     public Class getClassFromScope(String className) {
         try {
-            return getModuleLoader().loadClass(className);
+            return bundle.loadClass(className);
         } catch (ClassNotFoundException e) {
             // spec does not allow an Exception
             return null;

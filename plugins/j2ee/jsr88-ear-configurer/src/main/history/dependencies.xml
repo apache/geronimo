@@ -8,6 +8,11 @@
     </module-id>
     <dependency>
         <groupId>org.apache.geronimo.framework</groupId>
+        <artifactId>geronimo-deploy-config</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.framework</groupId>
         <artifactId>geronimo-deployment</artifactId>
         <type>jar</type>
     </dependency>
@@ -16,14 +21,19 @@
         <artifactId>geronimo-management</artifactId>
         <type>jar</type>
     </dependency>
-    <dependency start="true">
+    <dependency>
         <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>jsr88-cli</artifactId>
-        <type>car</type>
+        <artifactId>geronimo-service-builder</artifactId>
+        <type>jar</type>
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>xmlbeans</artifactId>
+        <artifactId>geronimo-system</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.framework</groupId>
+        <artifactId>jsr88-cli</artifactId>
         <type>car</type>
     </dependency>
     <dependency>
@@ -53,7 +63,47 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.specs</groupId>
+        <artifactId>geronimo-annotation_1.0_spec</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.specs</groupId>
+        <artifactId>geronimo-ejb_3.1_spec</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.specs</groupId>
         <artifactId>geronimo-j2ee-management_1.1_spec</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.specs</groupId>
+        <artifactId>geronimo-javaee-deployment_1.1MR3_spec</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.specs</groupId>
+        <artifactId>geronimo-jpa_2.0_spec</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.specs</groupId>
+        <artifactId>geronimo-servlet_3.0_spec</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.servicemix.bundles</groupId>
+        <artifactId>org.apache.servicemix.bundles.xmlbeans</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.servicemix.bundles</groupId>
+        <artifactId>org.apache.servicemix.bundles.xmlresolver</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.servicemix.specs</groupId>
+        <artifactId>org.apache.servicemix.specs.stax-api-1.0</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -62,8 +112,8 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>xml-resolver</groupId>
-        <artifactId>xml-resolver</artifactId>
+        <groupId>org.apache.xmlbeans</groupId>
+        <artifactId>xmlbeans</artifactId>
         <type>jar</type>
     </dependency>
 </plugin-artifact>

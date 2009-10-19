@@ -45,8 +45,8 @@
         <module>geronimo-web-2.5-builder</module>
         <module>j2ee-server</module>
         <module>jsr88-ear-configurer</module>
-        <module>jsr88-jar-configurer</module>
-        <module>jsr88-rar-configurer</module>
+        <!--<module>jsr88-jar-configurer</module>-->
+        <!--<module>jsr88-rar-configurer</module>-->
         <module>jsr88-war-configurer</module>
     </modules>
 

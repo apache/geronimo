@@ -24,6 +24,7 @@ import java.util.Enumeration;
 import java.util.List;
 import javax.enterprise.deploy.model.exceptions.DDBeanCreateException;
 import javax.enterprise.deploy.shared.ModuleType;
+import org.osgi.framework.Bundle;
 
 /**
  *
@@ -31,23 +32,9 @@ import javax.enterprise.deploy.shared.ModuleType;
  * @version $Rev$ $Date$
  */
 public class ConnectorDeployable extends AbstractDeployable {
-    private final ClassLoader rarLoader;
 
-    public ConnectorDeployable(URL moduleURL) throws DDBeanCreateException {
-        super(ModuleType.RAR, moduleURL, "META-INF/ra.xml");
-        ClassLoader parent = super.getModuleLoader();
-        List path = new ArrayList();
-        Enumeration e = entries();
-        while (e.hasMoreElements()) {
-            String entry = (String) e.nextElement();
-            if (entry.endsWith(".jar")) {
-                path.add(parent.getResource(entry));
-            }
-        }
-        rarLoader = new URLClassLoader((URL[]) path.toArray(new URL[path.size()]), parent);
+    public ConnectorDeployable(Bundle bundle) throws DDBeanCreateException {
+        super(ModuleType.RAR, bundle, "META-INF/ra.xml");
     }
 
-    protected ClassLoader getModuleLoader() {
-        return rarLoader;
-    }
 }

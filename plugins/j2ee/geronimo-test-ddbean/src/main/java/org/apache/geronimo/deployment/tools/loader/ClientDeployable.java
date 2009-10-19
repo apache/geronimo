@@ -20,6 +20,7 @@ package org.apache.geronimo.deployment.tools.loader;
 import java.net.URL;
 import javax.enterprise.deploy.model.exceptions.DDBeanCreateException;
 import javax.enterprise.deploy.shared.ModuleType;
+import org.osgi.framework.Bundle;
 
 
 /**
@@ -28,7 +29,7 @@ import javax.enterprise.deploy.shared.ModuleType;
  * @version $Rev$ $Date$
  */
 public class ClientDeployable extends AbstractDeployable  {
-    public ClientDeployable(URL moduleURL) throws DDBeanCreateException {
-        super(ModuleType.CAR, moduleURL, "META-INF/application-client.xml");
+    public ClientDeployable(Bundle bundle) throws DDBeanCreateException {
+        super(ModuleType.CAR, bundle, "META-INF/application-client.xml");
     }
 }

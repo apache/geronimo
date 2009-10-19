@@ -18,8 +18,11 @@
 package org.apache.geronimo.deployment.tools;
 
 import java.net.URL;
+import java.net.URLClassLoader;
 
 import org.apache.geronimo.deployment.tools.loader.WebDeployable;
+import org.apache.geronimo.kernel.osgi.MockBundle;
+import org.osgi.framework.Bundle;
 import junit.framework.TestCase;
 
 /**
@@ -32,7 +35,9 @@ public class WebDeployableTest extends TestCase {
 
     public void testWebClasspath() throws Exception {
         URL resource = classLoader.getResource("deployables/war1.war");
-        WebDeployable deployable = new WebDeployable(resource);
+        ClassLoader cl = new URLClassLoader(new URL[] {resource});
+        Bundle bundle = new MockBundle(cl, resource.toString(), 0L);
+        WebDeployable deployable = new WebDeployable(bundle);
     }
 
     protected void setUp() throws Exception {

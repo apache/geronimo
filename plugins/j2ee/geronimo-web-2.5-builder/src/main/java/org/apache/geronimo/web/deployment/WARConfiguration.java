@@ -19,7 +19,7 @@ package org.apache.geronimo.web.deployment;
 
 import javax.enterprise.deploy.model.DeployableObject;
 
-import org.apache.geronimo.deployment.plugin.DeploymentConfigurationSupport;
+import org.apache.geronimo.deployment.dconfigbean.DeploymentConfigurationSupport;
 
 /**
  * @version $Rev$ $Date$

@@ -18,6 +18,7 @@
 package org.apache.geronimo.web.deployment;
 
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.Arrays;
 
 import javax.enterprise.deploy.model.DDBean;
@@ -26,6 +27,8 @@ import javax.enterprise.deploy.spi.DeploymentConfiguration;
 
 import junit.framework.TestCase;
 import org.apache.geronimo.deployment.tools.loader.WebDeployable;
+import org.apache.geronimo.kernel.osgi.MockBundle;
+import org.osgi.framework.Bundle;
 
 /**
  * @version $Rev$ $Date$
@@ -104,7 +107,9 @@ public class WebAppDConfigTest extends TestCase {
         super.setUp();
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         URL warDir = classLoader.getResource("deployables/war1/");
-        deployable = new WebDeployable(warDir);
+        ClassLoader cl = new URLClassLoader(new URL[] {warDir});
+        Bundle bundle = new MockBundle(cl, warDir.toString(), 0L);
+        deployable = new WebDeployable(bundle);
         config = new WARConfiguration(deployable);
 
         ddBeanRoot = deployable.getDDBeanRoot();

@@ -25,6 +25,7 @@ import javax.enterprise.deploy.model.J2eeApplicationObject;
 import javax.enterprise.deploy.model.XpathListener;
 import javax.enterprise.deploy.model.exceptions.DDBeanCreateException;
 import javax.enterprise.deploy.shared.ModuleType;
+import org.osgi.framework.Bundle;
 
 /**
  * 
@@ -33,8 +34,8 @@ import javax.enterprise.deploy.shared.ModuleType;
  */
 public abstract class ApplicationDeployable extends AbstractDeployable implements J2eeApplicationObject {
     private final Map uriMap;
-    public ApplicationDeployable(URL moduleURL) throws DDBeanCreateException {
-        super(ModuleType.EAR, moduleURL, "META-INF/application.xml");
+    public ApplicationDeployable(Bundle bundle) throws DDBeanCreateException {
+        super(ModuleType.EAR, bundle, "META-INF/application.xml");
         DDBean[] moduleBeans = getChildBean("/application/module");
         uriMap = new HashMap(moduleBeans.length);
         for (int i = 0; i < moduleBeans.length; i++) {

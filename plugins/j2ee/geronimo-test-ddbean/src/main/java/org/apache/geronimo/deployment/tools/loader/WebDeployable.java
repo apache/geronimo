@@ -17,15 +17,11 @@
 
 package org.apache.geronimo.deployment.tools.loader;
 
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.List;
+
 import javax.enterprise.deploy.model.exceptions.DDBeanCreateException;
 import javax.enterprise.deploy.shared.ModuleType;
-
-import org.apache.geronimo.kernel.config.MultiParentClassLoader;
+import org.osgi.framework.Bundle;
 
 /**
  *
@@ -33,41 +29,40 @@ import org.apache.geronimo.kernel.config.MultiParentClassLoader;
  * @version $Rev$ $Date$
  */
 public class WebDeployable extends AbstractDeployable {
-    private final ClassLoader webLoader;
 
-    public WebDeployable(URL moduleURL) throws DDBeanCreateException{
-        this(moduleURL, null);
+    public WebDeployable(Bundle bundle) throws DDBeanCreateException{
+        this(bundle, null);
     }
     
-    public WebDeployable(URL moduleURL, List parentClassLoaders) throws DDBeanCreateException {
-        super(ModuleType.WAR, moduleURL, "WEB-INF/web.xml");
-        ClassLoader parent = super.getModuleLoader();
-        List path = new ArrayList();
-        URL url = parent.getResource("WEB-INF/classes/");
-        if (url != null) {
-            path.add(url);
-        }
-        Enumeration e = entries();
-        while (e.hasMoreElements()) {
-            String entry = (String) e.nextElement();
-            if (entry.startsWith("WEB-INF/lib/")) {
-                String jarName = entry.substring(12);
-                if (jarName.indexOf('/') == -1 && (jarName.endsWith(".jar") || jarName.endsWith(".zip"))) {
-                    path.add(parent.getResource(entry));
-                }
-            }
-        }
-        URL[] urls = (URL[]) path.toArray(new URL[path.size()]);
-        if (parentClassLoaders != null) {
-            parentClassLoaders.add(parent);
-            ClassLoader[] parents = (ClassLoader[]) parentClassLoaders.toArray(new ClassLoader[parentClassLoaders.size()]);
-            webLoader = new MultiParentClassLoader(null, urls, parents);
-        } else {
-            webLoader = new URLClassLoader(urls, parent);
-        }
+    public WebDeployable(Bundle bundle, List parentClassLoaders) throws DDBeanCreateException {
+        super(ModuleType.WAR, bundle, "WEB-INF/web.xml");
+//        ClassLoader parent = super.getModuleBundle();
+//        List path = new ArrayList();
+//        URL url = parent.getResource("WEB-INF/classes/");
+//        if (url != null) {
+//            path.add(url);
+//        }
+//        Enumeration e = entries();
+//        while (e.hasMoreElements()) {
+//            String entry = (String) e.nextElement();
+//            if (entry.startsWith("WEB-INF/lib/")) {
+//                String jarName = entry.substring(12);
+//                if (jarName.indexOf('/') == -1 && (jarName.endsWith(".jar") || jarName.endsWith(".zip"))) {
+//                    path.add(parent.getResource(entry));
+//                }
+//            }
+//        }
+//        URL[] urls = (URL[]) path.toArray(new URL[path.size()]);
+//        if (parentClassLoaders != null) {
+//            parentClassLoaders.add(parent);
+//            ClassLoader[] parents = (ClassLoader[]) parentClassLoaders.toArray(new ClassLoader[parentClassLoaders.size()]);
+//            webLoader = new MultiParentClassLoader(null, urls, parents);
+//        } else {
+//            webLoader = new URLClassLoader(urls, parent);
+//        }
     }
 
-    public ClassLoader getModuleLoader() {
-        return webLoader;
-    }
+//    public ClassLoader getModuleBundle() {
+//        return webLoader;
+//    }
 }

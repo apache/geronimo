@@ -42,11 +42,8 @@
             <type>car</type>
         </dependency>
         <dependency>
-            <groupId>org.apache.geronimo.framework</groupId>
-            <artifactId>xmlbeans</artifactId>
-            <version>${version}</version>
-            <scope>runtime</scope>
-            <type>car</type>
+            <groupId>org.apache.servicemix.bundles</groupId>
+            <artifactId>org.apache.servicemix.bundles.xmlbeans</artifactId>
         </dependency>
 
         <dependency>

@@ -75,9 +75,9 @@
     </gbean>
 
     <gbean name="JVM" class="org.apache.geronimo.j2ee.management.impl.JVMImpl">
-        <reference name="SystemLog">
-            <name>Logger</name>
-        </reference>
+        <!--<reference name="SystemLog">-->
+            <!--<name>Logger</name>-->
+        <!--</reference>-->
     </gbean>
 
     <gbean name="ServerSystemProperties"

@@ -18,10 +18,11 @@
 
 <!-- $Rev$ $Date$ -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-    
+
     <parent>
         <groupId>org.apache.geronimo.plugins</groupId>
         <artifactId>j2ee</artifactId>
@@ -32,14 +33,14 @@
     <artifactId>geronimo-j2ee</artifactId>
     <packaging>bundle</packaging>
     <name>Geronimo Framework, Modules :: J2EE</name>
-    
+
     <dependencies>
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-system</artifactId>
             <version>${version}</version>
         </dependency>
-        
+
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-management</artifactId>
@@ -52,8 +53,25 @@
             <classifier>tests</classifier>
             <scope>test</scope>
         </dependency>
-        
+
     </dependencies>
-    
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <configuration>
+                    <instructions>
+                        <!--packages containing "impl" or "internal" are excluded by default -->
+                        <Export-Package>
+                            org.apache.geronimo.j2ee,org.apache.geronimo.j2ee.annotation,org.apache.geronimo.j2ee.j2eeobjectnames,org.apache.geronimo.j2ee.management.impl
+                        </Export-Package>
+                        <!--<_versionpolicy>[$(version;==;$(@)),$(version;+;$(@)))</_versionpolicy>-->
+                    </instructions>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>
 

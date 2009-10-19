@@ -21,6 +21,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import javax.enterprise.deploy.model.DeployableObject;
 import javax.enterprise.deploy.model.exceptions.DDBeanCreateException;
+import org.osgi.framework.Bundle;
 
 /**
  *
@@ -28,26 +29,25 @@ import javax.enterprise.deploy.model.exceptions.DDBeanCreateException;
  * @version $Rev$ $Date$
  */
 public class DeployableFactory {
-    public static DeployableObject createDeployable(URL moduleURL) throws DDBeanCreateException {
-        ClassLoader cl = new URLClassLoader(new URL[] {moduleURL}, ClassLoader.getSystemClassLoader());
-        if (cl.getResource("META-INF/application.xml") != null) {
+    public static DeployableObject createDeployable(Bundle bundle) throws DDBeanCreateException {
+        if (bundle.getResource("META-INF/application.xml") != null) {
             // EAR file
 //            return new ApplicationDeployable(moduleFile.toURL());
             throw new UnsupportedOperationException();
-        } else if (cl.getResource("META-INF/application-client.xml") != null) {
+        } else if (bundle.getResource("META-INF/application-client.xml") != null) {
             // Application Client
-            return new ClientDeployable(moduleURL);
-        } else if (cl.getResource("WEB-INF/web.xml") != null) {
+            return new ClientDeployable(bundle);
+        } else if (bundle.getResource("WEB-INF/web.xml") != null) {
             // WAR
-            return new WebDeployable(moduleURL);
-        } else if (cl.getResource("META-INF/ejb-jar.xml") != null) {
+            return new WebDeployable(bundle);
+        } else if (bundle.getResource("META-INF/ejb-jar.xml") != null) {
             // EJB Jar
             throw new UnsupportedOperationException();
-        } else if (cl.getResource("META-INF/ra.xml") != null) {
+        } else if (bundle.getResource("META-INF/ra.xml") != null) {
             // Connector
-            return new ConnectorDeployable(moduleURL);
+            return new ConnectorDeployable(bundle);
         } else {
-            throw new DDBeanCreateException("Unrecognized archive: " + moduleURL);
+            throw new DDBeanCreateException("Unrecognized archive: " + bundle);
         }
     }
 }

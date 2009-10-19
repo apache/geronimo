@@ -66,10 +66,8 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.plugins.classloaders</groupId>
-            <artifactId>geronimo-schema-jee_5</artifactId>
-            <version>${version}</version>
-            <type>car</type>
+          <groupId>org.apache.geronimo.schema</groupId>
+          <artifactId>geronimo-schema-jee_5</artifactId>
         </dependency>
 
         <dependency>
@@ -115,10 +113,8 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.plugins.classloaders</groupId>
+            <groupId>org.apache.xbean</groupId>
             <artifactId>xbean-finder</artifactId>
-            <version>${version}</version>
-            <type>car</type>
         </dependency>
     </dependencies>
 

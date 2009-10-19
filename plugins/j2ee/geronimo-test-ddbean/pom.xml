@@ -51,6 +51,13 @@
             <artifactId>geronimo-javaee-deployment_1.1MR3_spec</artifactId>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>geronimo-kernel</artifactId>
+            <version>${version}</version>
+            <classifier>tests</classifier>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
     
 </project>

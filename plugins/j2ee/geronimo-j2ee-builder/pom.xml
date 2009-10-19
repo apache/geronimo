@@ -50,23 +50,30 @@
             <artifactId>geronimo-j2ee</artifactId>
             <version>${version}</version>
         </dependency>
-        <!--<dependency>-->
-            <!--<groupId>org.apache.geronimo.framework</groupId>-->
-            <!--<artifactId>geronimo-deploy-config</artifactId>-->
-            <!--<version>${version}</version>-->
-        <!--</dependency>-->
-        <dependency>
-            <groupId>org.apache.geronimo.plugins.classloaders</groupId>
-            <artifactId>geronimo-javaee-deployment_1.1MR3_spec</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
-            <artifactId>jee-specs</artifactId>
+            <artifactId>geronimo-deploy-config</artifactId>
             <version>${version}</version>
-            <type>car</type>
-            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-annotation_1.0_spec</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-ejb_3.1_spec</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-jpa_2.0_spec</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-javaee-deployment_1.1MR3_spec</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-servlet_3.0_spec</artifactId>
         </dependency>
 
         <dependency>
@@ -85,6 +92,24 @@
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <configuration>
+                    <instructions>
+                        <!--packages containing "impl" or "internal" are excluded by default -->
+                        <Export-Package>org.apache.geronimo.xbeans.geronimo.j2ee,
+                            org.apache.geronimo.xbeans.geronimo.j2ee.impl,
+                            org.apache.geronimo.j2ee.deployment,
+                            org.apache.geronimo.j2ee.deployment.annotation,
+                            org.apache.geronimo.j2ee.jsr88,
+                        </Export-Package>
+                        <Import-Package>org.apache.xmlbeans.impl.schema;version="2.4",*</Import-Package>
+                        <!--<_versionpolicy>[$(version;==;$(@)),$(version;+;$(@)))</_versionpolicy>-->
+                    </instructions>
+                </configuration>
+            </plugin>
+            
             <!--<plugin>-->
                 <!--<groupId>org.apache.maven.plugins</groupId>-->
                 <!--<artifactId>maven-surefire-plugin</artifactId>-->

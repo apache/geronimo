@@ -20,17 +20,18 @@
 
 package org.apache.geronimo.kernel.osgi;
 
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.Map;
-import java.net.URL;
+import java.util.Vector;
 
 import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.ServiceReference;
-import org.osgi.framework.BundleContext;
 import org.osgi.framework.Version;
 
 /**
@@ -119,7 +120,7 @@ public class MockBundle implements Bundle {
     }
 
     public Enumeration getEntryPaths(String s) {
-        return null;
+        return new Vector<String>().elements();
     }
 
     public URL getEntry(String s) {
