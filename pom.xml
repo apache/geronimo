@@ -616,9 +616,9 @@
             </dependency>
 
             <dependency>
-                <groupId>cglib</groupId>
-                <artifactId>cglib-nodep</artifactId>
-                <version>2.1_3</version>
+                <groupId>org.apache.servicemix.bundles</groupId>
+                <artifactId>org.apache.servicemix.bundles.cglib</artifactId>
+                <version>2.1_3_3-SNAPSHOT</version>
             </dependency>
 
             <dependency>
