@@ -88,9 +88,8 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-persistence-jpa20</artifactId>
-            <version>${version}</version>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-jpa_2.0_spec</artifactId>
         </dependency>
 
         <dependency>

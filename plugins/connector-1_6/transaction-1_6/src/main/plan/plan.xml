@@ -20,7 +20,7 @@
 
 <module xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
 
-    <gbean name="ConnectionTracker" class="org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinatorGBean">
+    <gbean name="ConnectionTracker" class="org.apache.geronimo.connector.wrapper.outbound.connectiontracking.ConnectionTrackingCoordinatorGBean">
         <attribute name="lazyConnect">true</attribute>
         <reference name="TransactionManager">
             <name>TransactionManager</name>
@@ -34,7 +34,7 @@
         <attribute name="poolName">ConnectorThreadPool</attribute>
     </gbean>
 
-    <gbean name="DefaultWorkManager" class="org.apache.geronimo.connector.work.GeronimoWorkManagerGBean">
+    <gbean name="DefaultWorkManager" class="org.apache.geronimo.connector.wrapper.work.GeronimoWorkManagerGBean">
         <reference name="SyncPool">
             <name>ConnectorThreadPool</name>
         </reference>
@@ -48,13 +48,13 @@
         </reference>
     </gbean>
 
-    <gbean name="TransactionContextHandler" class="org.apache.geronimo.connector.work.TransactionContextHandlerGBean">
+    <gbean name="TransactionContextHandler" class="org.apache.geronimo.connector.wrapper.work.TransactionContextHandlerGBean">
         <reference name="XAWork">
             <name>TransactionManager</name>
         </reference>
     </gbean>
 
-    <gbean name="SecurityContextHandler" class="org.apache.geronimo.connector.work.SecurityContextHandler">
+    <gbean name="SecurityContextHandler" class="org.apache.geronimo.connector.wrapper.work.SecurityContextHandler">
         <attribute name="realm">geronimo-admin</attribute>
         <!--<attribute name="defaultSubjectRealm">geronimo-admin</attribute>-->
         <!--<attribute name="defaultSubjectId">foo</attribute>-->
@@ -72,7 +72,7 @@
         Maximum log file size is 2 Megs (4K * 512). Buffer size can't be changed once the files
         have been created. 
     -->
-    <gbean name="HOWLTransactionLog" class="org.apache.geronimo.transaction.log.HOWLLogGBean">
+    <gbean name="HOWLTransactionLog" class="org.apache.geronimo.transaction.wrapper.log.HOWLLogGBean">
         <attribute name="bufferClassName">org.objectweb.howl.log.BlockLogBuffer</attribute>
         <attribute name="bufferSizeKBytes">4</attribute>
         <attribute name="maxBlocksPerFile">512</attribute>
@@ -94,11 +94,11 @@
         </reference>
     </gbean>
 
-    <gbean name="XidFactory" class="org.apache.geronimo.transaction.manager.XidFactoryImplGBean">
+    <gbean name="XidFactory" class="org.apache.geronimo.transaction.wrapper.manager.XidFactoryImplGBean">
         <attribute name="tmId">71,84,77,73,68</attribute>
     </gbean>
 
-    <gbean name="TransactionManager" class="org.apache.geronimo.transaction.manager.GeronimoTransactionManagerGBean">
+    <gbean name="TransactionManager" class="org.apache.geronimo.transaction.wrapper.manager.GeronimoTransactionManagerGBean">
         <attribute name="defaultTransactionTimeoutSeconds">600</attribute>
         <reference name="XidFactory">
             <name>XidFactory</name>

@@ -71,7 +71,7 @@ import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.ImportType;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 import org.apache.geronimo.testsupport.TestSupport;
-import org.apache.geronimo.transaction.manager.GeronimoTransactionManagerGBean;
+import org.apache.geronimo.transaction.wrapper.manager.GeronimoTransactionManagerGBean;
 
 /**
  * @version $Rev:385232 $ $Date$

@@ -21,7 +21,7 @@
 <module xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
 
     <!--client connector support-->
-    <gbean name="ConnectionTracker" class="org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinatorGBean">
+    <gbean name="ConnectionTracker" class="org.apache.geronimo.connector.wrapper.outbound.connectiontracking.ConnectionTrackingCoordinatorGBean">
         <!-- Turn off lazyConnect, it leaks connections. May need to revert the function -->
         <attribute name="lazyConnect">false</attribute>
         <reference name="TransactionManager">
@@ -29,7 +29,7 @@
         </reference>
     </gbean>
 
-    <gbean name="DefaultWorkManager" class="org.apache.geronimo.connector.work.GeronimoWorkManagerGBean">
+    <gbean name="DefaultWorkManager" class="org.apache.geronimo.connector.wrapper.work.GeronimoWorkManagerGBean">
         <reference name="SyncPool">
             <name>DefaultThreadPool</name>
         </reference>
@@ -43,17 +43,17 @@
         </reference>
     </gbean>
 
-    <gbean name="TransactionContextHandler" class="org.apache.geronimo.connector.work.TransactionContextHandlerGBean">
+    <gbean name="TransactionContextHandler" class="org.apache.geronimo.connector.wrapper.work.TransactionContextHandlerGBean">
         <reference name="XAWork">
             <name>TransactionManager</name>
         </reference>
     </gbean>
  
-    <gbean name="XidFactory" class="org.apache.geronimo.transaction.manager.XidFactoryImplGBean">
+    <gbean name="XidFactory" class="org.apache.geronimo.transaction.wrapper.manager.XidFactoryImplGBean">
         <attribute name="tmId">71,84,77,73,68</attribute>
     </gbean>
 
-    <gbean name="TransactionManager" class="org.apache.geronimo.transaction.manager.GeronimoTransactionManagerGBean">
+    <gbean name="TransactionManager" class="org.apache.geronimo.transaction.wrapper.manager.GeronimoTransactionManagerGBean">
         <!--no transaction log on the client-->
         <attribute name="defaultTransactionTimeoutSeconds">600</attribute>
         <reference name="XidFactory">

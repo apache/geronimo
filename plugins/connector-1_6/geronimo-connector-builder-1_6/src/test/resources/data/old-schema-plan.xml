@@ -108,7 +108,7 @@
     </adminobject>
 
     <!--normally this is in the j2ee-server-plan.xml.  It is included here so the gbeans can start in unit tests-->
-    <gbean name="ConnectionTracker" class="org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinatorGBean">
+    <gbean name="ConnectionTracker" class="org.apache.geronimo.connector.wrapper.outbound.connectiontracking.ConnectionTrackingCoordinatorGBean">
         <reference name="TransactionManager">
             <name>TransactionManager</name>
         </reference>
@@ -120,7 +120,7 @@
         <attribute name="poolName">DefaultThreadPool</attribute>
     </gbean>
 
-    <gbean name="DefaultWorkManager" class="org.apache.geronimo.connector.work.GeronimoWorkManagerGBean">
+    <gbean name="DefaultWorkManager" class="org.apache.geronimo.connector.wrapper.work.GeronimoWorkManagerGBean">
         <reference name="SyncPool">
             <name>DefaultThreadPool</name>
         </reference>
@@ -135,7 +135,7 @@
         </reference>
     </gbean>
 
-    <gbean name="TransactionManager" class="org.apache.geronimo.transaction.manager.GeronimoTransactionManagerGBean">
+    <gbean name="TransactionManager" class="org.apache.geronimo.transaction.wrapper.manager.GeronimoTransactionManagerGBean">
         <attribute name="defaultTransactionTimeoutSeconds">10</attribute>
         <references name="ResourceManagers">
             <pattern><name>JCAManagedConnectionFactory</name></pattern>

@@ -42,16 +42,16 @@ import javax.xml.namespace.QName;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.common.propertyeditor.PropertyEditors;
-import org.apache.geronimo.connector.ActivationSpecWrapperGBean;
-import org.apache.geronimo.connector.AdminObjectWrapper;
-import org.apache.geronimo.connector.AdminObjectWrapperGBean;
-import org.apache.geronimo.connector.JCAResourceImplGBean;
-import org.apache.geronimo.connector.ResourceAdapterImplGBean;
-import org.apache.geronimo.connector.ResourceAdapterModuleImplGBean;
-import org.apache.geronimo.connector.ResourceAdapterWrapperGBean;
-import org.apache.geronimo.connector.outbound.JCAConnectionFactoryImplGBean;
-import org.apache.geronimo.connector.outbound.ManagedConnectionFactoryWrapper;
-import org.apache.geronimo.connector.outbound.ManagedConnectionFactoryWrapperGBean;
+import org.apache.geronimo.connector.wrapper.ActivationSpecWrapperGBean;
+import org.apache.geronimo.connector.wrapper.AdminObjectWrapper;
+import org.apache.geronimo.connector.wrapper.AdminObjectWrapperGBean;
+import org.apache.geronimo.connector.wrapper.JCAResourceImplGBean;
+import org.apache.geronimo.connector.wrapper.ResourceAdapterImplGBean;
+import org.apache.geronimo.connector.wrapper.ResourceAdapterModuleImplGBean;
+import org.apache.geronimo.connector.wrapper.ResourceAdapterWrapperGBean;
+import org.apache.geronimo.connector.wrapper.outbound.ManagedConnectionFactoryWrapper;
+import org.apache.geronimo.connector.wrapper.outbound.JCAConnectionFactoryImplGBean;
+import org.apache.geronimo.connector.wrapper.outbound.ManagedConnectionFactoryWrapperGBean;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.LocalTransactions;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.NoPool;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.NoTransactions;
@@ -841,7 +841,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
         // create the data holder for our connection manager
         GBeanInfo gbeanInfo;
         try {
-            gbeanInfo = GBeanInfo.getGBeanInfo("org.apache.geronimo.connector.outbound.GenericConnectionManagerGBean", cl);
+            gbeanInfo = GBeanInfo.getGBeanInfo("org.apache.geronimo.connector.wrapper.outbound.GenericConnectionManagerGBean", cl);
         } catch (InvalidConfigurationException e) {
             throw new DeploymentException("Unable to create GMBean", e);
         }

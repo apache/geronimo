@@ -84,7 +84,7 @@
     </resourceadapter>
 
     <!--normally this is in the j2ee-server-plan.xml.  It is included here so the gbeans can start in unit tests-->
-    <gbean name="ConnectionTracker" class="org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinatorGBean">
+    <gbean name="ConnectionTracker" class="org.apache.geronimo.connector.wrapper.outbound.connectiontracking.ConnectionTrackingCoordinatorGBean">
         <reference name="TransactionManager">
             <name>TransactionManager</name>
         </reference>

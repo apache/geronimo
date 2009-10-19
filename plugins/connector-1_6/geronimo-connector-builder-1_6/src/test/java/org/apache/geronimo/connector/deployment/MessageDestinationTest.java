@@ -24,7 +24,7 @@ import java.util.Map;
 
 import junit.framework.TestCase;
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.connector.AdminObjectWrapperGBean;
+import org.apache.geronimo.connector.wrapper.AdminObjectWrapperGBean;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.j2ee.deployment.ConnectorModule;
