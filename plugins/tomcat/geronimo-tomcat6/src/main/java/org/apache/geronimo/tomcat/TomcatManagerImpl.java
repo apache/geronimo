@@ -70,7 +70,7 @@ public class TomcatManagerImpl implements WebManager {
     private static final Logger log = LoggerFactory.getLogger(TomcatManagerImpl.class);
     private final Kernel kernel;
     private TomcatServerConfigManager tomcatServerConfigManager;
-    
+
     private static final ConnectorType HTTP_BIO = new ConnectorType(Messages.getString("TomcatManagerImpl.0")); //$NON-NLS-1$
     private static final ConnectorType HTTPS_BIO = new ConnectorType(Messages.getString("TomcatManagerImpl.1")); //$NON-NLS-1$
     private static final ConnectorType HTTP_NIO = new ConnectorType(Messages.getString("TomcatManagerImpl.2")); //$NON-NLS-1$
@@ -87,7 +87,7 @@ public class TomcatManagerImpl implements WebManager {
             HTTPS_APR,
             AJP
     );
-    
+
     private static List<ConnectorType> NON_APR_CONNECTOR_TYPES = Arrays.asList(
             HTTP_BIO,
             HTTPS_BIO,
@@ -95,7 +95,7 @@ public class TomcatManagerImpl implements WebManager {
             HTTPS_NIO,
             AJP
     );
-    
+
     private static Map<ConnectorType, List<ConnectorAttribute>> CONNECTOR_ATTRIBUTES = new HashMap<ConnectorType, List<ConnectorAttribute>>();
 
     static {
@@ -104,7 +104,7 @@ public class TomcatManagerImpl implements WebManager {
         addCommonConnectorAttributes(connectorAttributes);
         addHttpConnectorAttributes(connectorAttributes);
         CONNECTOR_ATTRIBUTES.put(HTTP_BIO, connectorAttributes);
-        
+
         //******************* HTTPS - BIO CONNECTOR
         connectorAttributes = new ArrayList<ConnectorAttribute>();
         addCommonConnectorAttributes(connectorAttributes);
@@ -112,14 +112,14 @@ public class TomcatManagerImpl implements WebManager {
         addSslConnectorAttributes(connectorAttributes);
         setAttribute(connectorAttributes, "port", 8443); // SSL port
         CONNECTOR_ATTRIBUTES.put(HTTPS_BIO, connectorAttributes);
-        
+
         //******************* HTTP - NIO CONNECTOR
         connectorAttributes = new ArrayList<ConnectorAttribute>();
         addCommonConnectorAttributes(connectorAttributes);
         addHttpConnectorAttributes(connectorAttributes);
         addNioConnectorAttributes(connectorAttributes);
         CONNECTOR_ATTRIBUTES.put(HTTP_NIO, connectorAttributes);
-        
+
         //******************* HTTPS - NIO CONNECTOR
         connectorAttributes = new ArrayList<ConnectorAttribute>();
         addCommonConnectorAttributes(connectorAttributes);
@@ -128,14 +128,14 @@ public class TomcatManagerImpl implements WebManager {
         addNioConnectorAttributes(connectorAttributes);
         setAttribute(connectorAttributes, "port", 8443); // SSL port
         CONNECTOR_ATTRIBUTES.put(HTTPS_NIO, connectorAttributes);
-        
+
         //******************* HTTP - APR CONNECTOR
-        connectorAttributes = new ArrayList<ConnectorAttribute>();        
+        connectorAttributes = new ArrayList<ConnectorAttribute>();
         addCommonConnectorAttributes(connectorAttributes);
         addHttpConnectorAttributes(connectorAttributes);
         addAprConnectorAttributes(connectorAttributes);
         CONNECTOR_ATTRIBUTES.put(HTTP_APR, connectorAttributes);
-        
+
         //******************* HTTPS - APR CONNECTOR
         connectorAttributes = new ArrayList<ConnectorAttribute>();
         addCommonConnectorAttributes(connectorAttributes);
@@ -156,7 +156,7 @@ public class TomcatManagerImpl implements WebManager {
         connectorAttributes.add(new ConnectorAttribute<String>("sslCARevocationPath", null, Messages.getString("TomcatManagerImpl.36"), String.class)); //$NON-NLS-1$ //$NON-NLS-2$
         setAttribute(connectorAttributes, "port", 8443); // SSL port
         CONNECTOR_ATTRIBUTES.put(HTTPS_APR, connectorAttributes);
-        
+
         //******************* AJP CONNECTOR
         connectorAttributes = new ArrayList<ConnectorAttribute>();
         addCommonConnectorAttributes(connectorAttributes);
@@ -175,13 +175,13 @@ public class TomcatManagerImpl implements WebManager {
         connectorAttributes.add(new ConnectorAttribute<Boolean>("tomcatAuthentication", true, Messages.getString("TomcatManagerImpl.60"), Boolean.class)); //$NON-NLS-1$ //$NON-NLS-2$
         CONNECTOR_ATTRIBUTES.put(AJP, connectorAttributes);
     }
-    
+
     private static Map<ConnectorType, GBeanInfo> CONNECTOR_GBEAN_INFOS = new HashMap<ConnectorType, GBeanInfo>();
     private static List<String> defaultAttributeNames = new ArrayList<String>();
     private static AnnotationGBeanInfoFactory annotationGbeanInfoFactory=new AnnotationGBeanInfoFactory();
 
     static {
-    	
+
         CONNECTOR_GBEAN_INFOS.put(HTTP_BIO, annotationGbeanInfoFactory.getGBeanInfo(Http11ConnectorGBean.class));
         CONNECTOR_GBEAN_INFOS.put(HTTPS_BIO, annotationGbeanInfoFactory.getGBeanInfo(Https11ConnectorGBean.class));
         CONNECTOR_GBEAN_INFOS.put(HTTP_NIO, annotationGbeanInfoFactory.getGBeanInfo(Http11NIOConnectorGBean.class));
@@ -189,7 +189,7 @@ public class TomcatManagerImpl implements WebManager {
         CONNECTOR_GBEAN_INFOS.put(HTTP_APR, annotationGbeanInfoFactory.getGBeanInfo(Http11APRConnectorGBean.class));
         CONNECTOR_GBEAN_INFOS.put(HTTPS_APR, annotationGbeanInfoFactory.getGBeanInfo(Https11APRConnectorGBean.class));
         CONNECTOR_GBEAN_INFOS.put(AJP, annotationGbeanInfoFactory.getGBeanInfo(AJP13ConnectorGBean.class));
-        
+
         defaultAttributeNames.add("name");
         defaultAttributeNames.add("protocol");
         defaultAttributeNames.add("host");
@@ -201,7 +201,7 @@ public class TomcatManagerImpl implements WebManager {
         defaultAttributeNames.add("secure");
         defaultAttributeNames.add("sslProtocol");
         defaultAttributeNames.add("sslEnabled");
-        
+
     }
 
     public TomcatManagerImpl(
@@ -244,14 +244,14 @@ public class TomcatManagerImpl implements WebManager {
      * @param connectorName
      */
     public void removeConnector(AbstractName connectorAbstractName) {
-      
+
             try {
                 kernel.invoke(connectorAbstractName, "doStop");
                 String connectorName=(String)kernel.getGBeanData(connectorAbstractName).getAttribute("name");
                 tomcatServerConfigManager.removeConnector(connectorName);
                 kernel.unloadGBean(connectorAbstractName);
             } catch (Exception e) {
-                log.error("error when removing connector:"+connectorAbstractName,e);           
+                log.error("error when removing connector:"+connectorAbstractName,e);
             }
 
     }
@@ -316,17 +316,17 @@ public class TomcatManagerImpl implements WebManager {
             gbeanData.setAttribute(connectorAttribute.getAttributeName(), connectorAttribute.getValue());
             initParams.put(connectorAttribute.getAttributeName(), connectorAttribute.getStringValue());
         }
-        
+
         gbeanData.setAttribute("initParams", initParams);
 
         AbstractNameQuery query = new AbstractNameQuery(ServerInfo.class.getName());
         Set set = kernel.listGBeans(query);
-        
+
         AbstractName serverInfo = (AbstractName) set.iterator().next();
         gbeanData.setReferencePattern("ServerInfo", serverInfo);
 
         try {
-            kernel.loadGBean(gbeanData, container.getClass().getClassLoader());
+            kernel.loadGBean(gbeanData, container.getBundleContext());
             kernel.startGBean(name);
         } catch (Exception e) {
             log.error("Error when adding new tomcat connector" + uniqueName, e);
@@ -411,7 +411,7 @@ public class TomcatManagerImpl implements WebManager {
         }
     }
 
-    // see http://tomcat.apache.org/tomcat-6.0-doc/config/http.html    
+    // see http://tomcat.apache.org/tomcat-6.0-doc/config/http.html
     private static void addCommonConnectorAttributes(List<ConnectorAttribute> connectorAttributes) {
         connectorAttributes.add(new ConnectorAttribute<Boolean>("allowTrace", false, Messages.getString("TomcatManagerImpl.80"), Boolean.class)); //$NON-NLS-1$ //$NON-NLS-2$
         connectorAttributes.add(new ConnectorAttribute<Boolean>("emptySessionPath", false, Messages.getString("TomcatManagerImpl.82"), Boolean.class)); //$NON-NLS-1$ //$NON-NLS-2$
@@ -425,9 +425,9 @@ public class TomcatManagerImpl implements WebManager {
         connectorAttributes.add(new ConnectorAttribute<Boolean>("useBodyEncodingForURI", false, Messages.getString("TomcatManagerImpl.99"), Boolean.class)); //$NON-NLS-1$ //$NON-NLS-2$
         connectorAttributes.add(new ConnectorAttribute<Boolean>("useIPVHosts", false, Messages.getString("TomcatManagerImpl.101"), Boolean.class)); //$NON-NLS-1$ //$NON-NLS-2$
         connectorAttributes.add(new ConnectorAttribute<Boolean>("xpoweredBy", false, Messages.getString("TomcatManagerImpl.103"), Boolean.class)); //$NON-NLS-1$ //$NON-NLS-2$
-        
+
     }
-    
+
     // see http://tomcat.apache.org/tomcat-6.0-doc/config/http.html
     private static void addHttpConnectorAttributes(List<ConnectorAttribute> connectorAttributes) {
         connectorAttributes.add(new ConnectorAttribute<Integer>("acceptCount", 10, Messages.getString("TomcatManagerImpl.105"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
@@ -453,7 +453,7 @@ public class TomcatManagerImpl implements WebManager {
         connectorAttributes.add(new ConnectorAttribute<Boolean>("tcpNoDelay", true, Messages.getString("TomcatManagerImpl.151"), Boolean.class)); //$NON-NLS-1$ //$NON-NLS-2$
         connectorAttributes.add(new ConnectorAttribute<Integer>("threadPriority", Thread.NORM_PRIORITY, Messages.getString("TomcatManagerImpl.153"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
     }
-    
+
     // see http://tomcat.apache.org/tomcat-6.0-doc/config/http.html
     private static void addSslConnectorAttributes(List<ConnectorAttribute> connectorAttributes) {
         connectorAttributes.add(new ConnectorAttribute<String>("algorithm", KeyManagerFactory.getDefaultAlgorithm(), Messages.getString("TomcatManagerImpl.155"), String.class)); //$NON-NLS-1$ //$NON-NLS-2$
@@ -471,7 +471,7 @@ public class TomcatManagerImpl implements WebManager {
         connectorAttributes.add(new ConnectorAttribute<Boolean>("secure", true, Messages.getString("TomcatManagerImpl.170"), Boolean.class)); //$NON-NLS-1$ //$NON-NLS-2$
         connectorAttributes.add(new ConnectorAttribute<Boolean>("sslEnabled", true, Messages.getString("TomcatManagerImpl.167"), Boolean.class)); //$NON-NLS-1$ //$NON-NLS-2$
     }
-    
+
     // see http://tomcat.apache.org/tomcat-6.0-doc/config/http.html
     private static void addNioConnectorAttributes(List<ConnectorAttribute> connectorAttributes) {
         connectorAttributes.add(new ConnectorAttribute<Boolean>("useSendfile", true, Messages.getString("TomcatManagerImpl.181"), Boolean.class)); //$NON-NLS-1$ //$NON-NLS-2$
@@ -517,7 +517,7 @@ public class TomcatManagerImpl implements WebManager {
         connectorAttributes.add(new ConnectorAttribute<Boolean>("useSendfile", true, Messages.getString("TomcatManagerImpl.253"), Boolean.class, true)); //$NON-NLS-1$ //$NON-NLS-2$
         connectorAttributes.add(new ConnectorAttribute<Integer>("sendfileSize", 1024, Messages.getString("TomcatManagerImpl.255"), Integer.class, true)); //$NON-NLS-1$ //$NON-NLS-2$
     }
-       
+
     private static <T> void setAttribute (List<ConnectorAttribute> connectorAttributes, String attributeName, T value) {
         for (ConnectorAttribute connectorAttribute : connectorAttributes) {
             if (connectorAttribute.getAttributeName().equals(attributeName)) {
@@ -526,10 +526,10 @@ public class TomcatManagerImpl implements WebManager {
             }
         }
     }
-    
+
 
     public ConnectorType getConnectorType(AbstractName connectorName) {
-        ConnectorType connectorType = null; 
+        ConnectorType connectorType = null;
         try {
             GBeanInfo info = kernel.getGBeanInfo(connectorName);
             boolean found = false;
@@ -555,23 +555,23 @@ public class TomcatManagerImpl implements WebManager {
         } catch (Exception e) {
             log.error("Failed to get connector type", e);
         }
-            
+
         return connectorType;
     }
     /*
      * update server.xml based on changes to connectors
      * 1, if there's existing <Connector> for connectorName, update it.
-     * 2, if there's no existing <Connector> for connectorName, create it.     * 
+     * 2, if there's no existing <Connector> for connectorName, create it.     *
      */
     @SuppressWarnings("unchecked")
     public void updateConnectorConfig(AbstractName connectorName) throws Exception {
 
-        
+
         //1, getting service name
-        
+
         String serviceName;
- 
-        
+
+
         GBeanData containerGBeanData = null;
 
         try {
@@ -579,70 +579,70 @@ public class TomcatManagerImpl implements WebManager {
 
             ReferencePatterns rp = connectorGBeanData.getReferencePatterns("TomcatContainer");
             containerGBeanData = kernel.getGBeanData(rp.getAbstractName());
-            
-            Object object = containerGBeanData.getAttribute("serviceName");       
+
+            Object object = containerGBeanData.getAttribute("serviceName");
 
             serviceName = (object == null) ? null : object.toString();
 
         } catch (GBeanNotFoundException e) {
-            
+
             throw new Exception("Can't find connector GBean when updating connector config",e);
 
         } catch (InternalKernelException e) {
-            
+
             throw new Exception("error to update conector config",e);
         }
-        
-        
-        
+
+
+
         //2, getting connector name
-        
+
         Map<String,String> attributesToUpdate=new HashMap<String,String>();
-        
-        String connectorUniqueName = (String) kernel.getAttribute(connectorName, "name");    
-        
+
+        String connectorUniqueName = (String) kernel.getAttribute(connectorName, "name");
+
         // 3, populate tomcat protocol attribute.
-        String tomcatProtocol=(String) kernel.getAttribute(connectorName, "tomcatProtocol");       
-        
+        String tomcatProtocol=(String) kernel.getAttribute(connectorName, "tomcatProtocol");
+
         attributesToUpdate.put("protocol", tomcatProtocol);
-        
-        
+
+
         // 4, remove the unchanged attributes, we don't need to store them back to server.xml.
-        
+
         ConnectorType connectorType = this.getConnectorType(connectorName);
 
         List<ConnectorAttribute> defaultAttributes = this.getConnectorAttributes(connectorType);
 
-        
+
         for (ConnectorAttribute defaultAttribute : defaultAttributes) {
 
             String attributeName = defaultAttribute.getAttributeName();
 
             Object latestAttibuteValue=null;
-            
+
             try {
                 latestAttibuteValue=kernel.getAttribute(connectorName, attributeName);
             } catch (Exception e) {
-                
+
                 continue;
             }
-            
 
-            
+
+
             if (null == latestAttibuteValue) {
-                
+
                 if(defaultAttributeNames.contains(attributeName)){
-                   
+
                     //put default value to attributes listed in defaultAttributeNames.
                     attributesToUpdate.put(attributeName, defaultAttribute.getStringValue());
-                   
+
                 } else {
-                    
+
                       continue;
                }
 
             } else if(defaultAttribute.getValue()!=null&&defaultAttribute.getValue().equals(latestAttibuteValue)){
-               
+
                 if (defaultAttributeNames.contains(attributeName)) {
 
                     attributesToUpdate.put(attributeName, defaultAttribute.getStringValue());
@@ -651,24 +651,24 @@ public class TomcatManagerImpl implements WebManager {
                      //don't update the unchanged attributes.
                     continue;
                 }
-               
+
             } else {
                 //adding changed attributes to attributesToUpdate map.
                 ConnectorAttribute latestAttibute = new ConnectorAttribute(defaultAttribute);
                 latestAttibute.setValue(latestAttibuteValue);
-                attributesToUpdate.put(attributeName, latestAttibute.getStringValue());  
+                attributesToUpdate.put(attributeName, latestAttibute.getStringValue());
             }
         }
-        
-        
-    
+
+
+
         //5, call tomcatServerConfigManager to update connector info in server.xml
 
-        
+
         tomcatServerConfigManager.updateConnector(attributesToUpdate, connectorUniqueName, serviceName);
 
     }
-    
+
 
 
 
@@ -676,16 +676,16 @@ public class TomcatManagerImpl implements WebManager {
 
         try {
             Connector connector = new Connector("HTTP/1.1");
-            if (!connector.getProtocolHandlerClassName().equalsIgnoreCase("org.apache.coyote.http11.Http11AprProtocol")) {        
+            if (!connector.getProtocolHandlerClassName().equalsIgnoreCase("org.apache.coyote.http11.Http11AprProtocol")) {
                return false;
-            } 
+            }
         } catch (Exception e) {
-           
+
            return false;
         }
         return true;
     }
-    
+
 
 
 

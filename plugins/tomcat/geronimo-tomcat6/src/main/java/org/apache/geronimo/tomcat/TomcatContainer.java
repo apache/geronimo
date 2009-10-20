@@ -53,6 +53,7 @@ import org.apache.geronimo.tomcat.util.SecurityHolder;
 import org.apache.geronimo.webservices.SoapHandler;
 import org.apache.geronimo.webservices.WebServiceContainer;
 import org.apache.naming.resources.DirContextURLStreamHandlerFactory;
+import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -89,12 +90,14 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
     private final String[] applicationListeners;
     private final WebManager manager;
     private static boolean first = true;
+    private final BundleContext bundleContext;
 
     /**
      * GBean constructor (invoked dynamically when the gbean is declared in a plan)
      */
     public TomcatContainer(
             @ParamSpecial(type= SpecialAttributeType.classLoader)ClassLoader classLoader,
+            @ParamSpecial(type= SpecialAttributeType.bundleContext)BundleContext bundleContext,
             @ParamAttribute(name="catalinaHome")String catalinaHome,
             @ParamAttribute(name="applicationListeners")String[] applicationListeners,
 
@@ -108,7 +111,10 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
             @ParamReference(name="WebManager")WebManager manager) throws MalformedObjectNameException, LifecycleException {
 
         if (classLoader == null) throw new IllegalArgumentException("classLoader cannot be null.");
+        if (bundleContext == null) throw new IllegalArgumentException("bundleContext cannot be null.");
         if (engineGBean == null && server == null) throw new IllegalArgumentException("Server and EngineGBean cannot both be null.");
+
+        this.bundleContext = bundleContext;
 
         // Register a stream handler factory for the JNDI protocol
         URLStreamHandlerFactory streamHandlerFactory =
@@ -327,14 +333,14 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
 //                //anotherCtxObj.setRealm(realm);
 //            }
 //        }
-        
+
         // add application listeners to the new context
         if (applicationListeners != null) {
             for (String listener : applicationListeners) {
                 context.addApplicationListener(listener);
             }
         }
-        
+
         try {
             host.addChild(context);
         } catch (IllegalArgumentException ex) {
@@ -349,7 +355,7 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
         if (context != null) {
             if (context instanceof GeronimoStandardContext) {
                 GeronimoStandardContext stdctx = (GeronimoStandardContext) context;
-                
+
                 try {
                     stdctx.kill();
                 } catch (Exception e) {
@@ -372,12 +378,12 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
         embedded.removeConnector(connector);
     }
 
-    public void addWebService(String contextPath, 
-                              String[] virtualHosts, 
+    public void addWebService(String contextPath,
+                              String[] virtualHosts,
                               WebServiceContainer webServiceContainer,
                               String policyContextId,
-                              ConfigurationFactory configurationFactory, 
-                              String realmName, 
+                              ConfigurationFactory configurationFactory,
+                              String realmName,
                               String authMethod,
                               Properties properties,
                               ClassLoader classLoader) throws Exception {
@@ -442,4 +448,13 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
 
     }
 
+    /**
+     * Returns the configuration BundleContext associated with
+     * this network container.
+     *
+     * @return The BundleContext instance for the container's configuration.
+     */
+    public BundleContext getBundleContext() {
+        return bundleContext;
+    }
 }

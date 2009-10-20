@@ -117,6 +117,15 @@
             <artifactId>jcl-over-slf4j</artifactId>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>geronimo-kernel</artifactId>
+            <version>${version}</version>
+            <classifier>tests</classifier>
+            <scope>test</scope>
+        </dependency>
+
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>j2ee-deployer</artifactId>

@@ -18,6 +18,9 @@ package org.apache.geronimo.tomcat;
 
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
 import org.apache.geronimo.connector.outbound.connectiontracking.GeronimoTransactionListener;
+import org.apache.geronimo.kernel.config.ConfigurationData;
+import org.apache.geronimo.kernel.osgi.MockBundleContext;
+import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.security.SecurityServiceImpl;
 import org.apache.geronimo.security.deploy.PrincipalInfo;
 import org.apache.geronimo.security.deploy.SubjectInfo;
@@ -55,7 +58,7 @@ import java.util.Set;
  * @version $Rev$ $Date$
  */
 public abstract class AbstractWebModuleTest extends TestSupport {
-    
+
     protected ClassLoader cl = this.getClass().getClassLoader();
     protected final static String securityRealmName = "demo-properties-realm";
     protected ConnectorGBean connector;
@@ -184,7 +187,9 @@ public abstract class AbstractWebModuleTest extends TestSupport {
         engine.doStart();
 
         ServerInfo serverInfo = new BasicServerInfo(".");
-        container = new TomcatContainer(cl, new File(BASEDIR, "target/var/catalina").toString(), null, null, null, engine, null, serverInfo, null, null);
+        container = new TomcatContainer(cl,
+            new MockBundleContext(getClass().getClassLoader(), "", new HashMap<Artifact, ConfigurationData>(), null),
+            new File(BASEDIR, "target/var/catalina").toString(), null, null, null, engine, null, serverInfo, null, null);
         container.doStart();
 
         connector = new Http11ConnectorGBean("HTTP", null, "localhost", port++, container, serverInfo,null);
