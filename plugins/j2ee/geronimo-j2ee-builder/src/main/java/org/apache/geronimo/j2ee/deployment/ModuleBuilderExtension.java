@@ -38,5 +38,5 @@ public interface ModuleBuilderExtension {
 
     void initContext(EARContext earContext, Module module, Bundle bundle) throws DeploymentException;
 
-    void addGBeans(EARContext earContext, Module module, ClassLoader cl, Collection repository) throws DeploymentException;
+    void addGBeans(EARContext earContext, Module module, Bundle bundle, Collection repository) throws DeploymentException;
 }
