@@ -63,7 +63,7 @@
         <pax.exam.version>1.0.0</pax.exam.version>
         <pax.logging.version>1.4</pax.logging.version>
         <pax.runner.version>1.1.1</pax.runner.version>
-        <pax.url.version>1.0.0</pax.url.version>
+        <pax.url.version>1.1.2</pax.url.version>
         <pax.web.version>0.6.0</pax.web.version>
         <servlet.api.version>3.0</servlet.api.version>
         <!--<spring.osgi.version>1.2.0</spring.osgi.version>-->
@@ -100,6 +100,55 @@
                 <artifactId>geronimo-rmi-loader</artifactId>
                 <version>${version}</version>
             </dependency>
+
+            <dependency>
+                <groupId>org.apache.felix.karaf.deployer</groupId>
+                <artifactId>org.apache.felix.karaf.deployer.blueprint</artifactId>
+                <version>${felix.karaf.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+               </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.felix.karaf.deployer</groupId>
+                <artifactId>org.apache.felix.karaf.deployer.features</artifactId>
+                <version>${felix.karaf.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+               </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.felix.karaf.jaas</groupId>
+                <artifactId>org.apache.felix.karaf.jaas.config</artifactId>
+                <version>${felix.karaf.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+               </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.felix.karaf.jaas</groupId>
+                <artifactId>org.apache.felix.karaf.jaas.modules</artifactId>
+                <version>${felix.karaf.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+               </exclusions>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
