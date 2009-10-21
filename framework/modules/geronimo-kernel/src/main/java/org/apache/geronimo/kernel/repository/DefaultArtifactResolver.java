@@ -162,13 +162,8 @@ public class DefaultArtifactResolver implements ArtifactResolver {
                 list.addAll(repository.list(working));
             }
 
-            //TODO WTF???
             if (list.isEmpty()) {
-                if ("xbean-naming".equals(working.getArtifactId())) {
-                    return new Artifact("org.apache.xbean", "xbean-naming", "2.8", "jar");
-                } else {
-                    return null;
-                }
+                return null;
             }
             return list.last();
         }
