@@ -38,12 +38,27 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.ext.tomcat</groupId>
+        <artifactId>juli</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.ext.tomcat</groupId>
+        <artifactId>shared</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.ext.tomcat</groupId>
         <artifactId>tribes</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.ext.tomcat</groupId>
         <artifactId>util</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.framework</groupId>
+        <artifactId>geronimo-security</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -63,7 +78,22 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.specs</groupId>
+        <artifactId>geronimo-activation_1.1_spec</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.specs</groupId>
+        <artifactId>geronimo-annotation_1.0_spec</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.specs</groupId>
         <artifactId>geronimo-javamail_1.4_spec</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.specs</groupId>
+        <artifactId>geronimo-jaxws_2.1_spec</artifactId>
         <type>jar</type>
     </dependency>
 </plugin-artifact>

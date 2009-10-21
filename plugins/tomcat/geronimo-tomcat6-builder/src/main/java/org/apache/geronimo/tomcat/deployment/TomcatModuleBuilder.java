@@ -102,6 +102,7 @@ import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
+import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -219,7 +220,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
         if (TRUE == distributable) {
             clusteringBuilders.buildEnvironment(tomcatWebApp, environment);
         }
-        
+
         // Note: logic elsewhere depends on the default artifact ID being the file name less extension (ConfigIDExtractor)
         String warName = "";
         File temp = new File(moduleFile.getName());
@@ -329,18 +330,18 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
     }
 
 
-    public void initContext(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException {
+    public void initContext(EARContext earContext, Module module, Bundle bundle) throws DeploymentException {
         TomcatWebAppType gerWebApp = (TomcatWebAppType) module.getVendorDD();
         boolean hasSecurityRealmName = gerWebApp.isSetSecurityRealmName();
         basicInitContext(earContext, module, gerWebApp, hasSecurityRealmName);
         for (ModuleBuilderExtension mbe : moduleBuilderExtensions) {
-            mbe.initContext(earContext, module, cl);
+            mbe.initContext(earContext, module, bundle);
         }
     }
 
-    public void addGBeans(EARContext earContext, Module module, ClassLoader cl, Collection repository) throws DeploymentException {
+    public void addGBeans(EARContext earContext, Module module, Bundle bundle, Collection repository) throws DeploymentException {
         EARContext moduleContext = module.getEarContext();
-        ClassLoader webClassLoader = moduleContext.getClassLoader();
+        Bundle webBundle = moduleContext.getBundle();
         AbstractName moduleName = moduleContext.getModuleName();
         WebModule webModule = (WebModule) module;
 
@@ -365,12 +366,12 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
             } else {
                 webModuleData.setReferencePattern("Container", tomcatContainerName);
             }
-            
+
             //get Tomcat display-name
             if (webApp.getDisplayNameArray().length > 0) {
                 webModuleData.setAttribute("displayName", webApp.getDisplayNameArray()[0].getStringValue());
             }
-            
+
             // Process the Tomcat container-config elements
             if (tomcatWebApp.isSetHost()) {
                 String virtualServer = tomcatWebApp.getHost().trim();
@@ -396,7 +397,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
                 AbstractName valveName = earContext.getNaming().createChildName(moduleName, valveChain, ValveGBean.J2EE_TYPE);
                 webModuleData.setReferencePattern("TomcatValveChain", valveName);
             }
-            
+
             if (tomcatWebApp.isSetListenerChain()) {
                 String listenerChain = tomcatWebApp.getListenerChain().trim();
                 AbstractName listenerName = earContext.getNaming().createChildName(moduleName, listenerChain, LifecycleListenerGBean.J2EE_TYPE);
@@ -414,7 +415,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
                 AbstractName managerName = earContext.getNaming().createChildName(moduleName, manager, ManagerGBean.J2EE_TYPE);
                 webModuleData.setReferencePattern(TomcatWebAppContext.GBEAN_REF_MANAGER_RETRIEVER, managerName);
             }
-            
+
             Boolean distributable = webApp.getDistributableArray().length == 1 ? TRUE : FALSE;
             if (TRUE == distributable) {
                 clusteringBuilders.build(tomcatWebApp, earContext, moduleContext);
@@ -428,9 +429,9 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
             Map<String, AbstractName> webServices = new HashMap<String, AbstractName>();
             Class baseServletClass;
             try {
-                baseServletClass = webClassLoader.loadClass(Servlet.class.getName());
+                baseServletClass = webBundle.loadClass(Servlet.class.getName());
             } catch (ClassNotFoundException e) {
-                throw new DeploymentException("Could not load javax.servlet.Servlet in web classloader", e); // TODO identify web app in message
+                throw new DeploymentException("Could not load javax.servlet.Servlet in bundle " + bundle, e);
             }
             for (ServletType servletType : servletTypes) {
 
@@ -439,9 +440,9 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
                     String servletClassName = servletType.getServletClass().getStringValue().trim();
                     Class servletClass;
                     try {
-                        servletClass = webClassLoader.loadClass(servletClassName);
+                        servletClass = webBundle.loadClass(servletClassName);
                     } catch (ClassNotFoundException e) {
-                        throw new DeploymentException("Could not load servlet class " + servletClassName, e); // TODO identify web app in message
+                        throw new DeploymentException("Could not load servlet class " + servletClassName + " from bundle " + bundle, e);
                     }
                     if (!baseServletClass.isAssignableFrom(servletClass)) {
                         //fake servletData
@@ -507,7 +508,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
             //listeners added directly to the StandardContext will get loaded by the tomcat classloader, not the app classloader!
             //TODO this may definitely not be the best place for this!
             for (ModuleBuilderExtension mbe : moduleBuilderExtensions) {
-                mbe.addGBeans(earContext, module, cl, repository);
+                mbe.addGBeans(earContext, module, bundle, repository);
             }
             //not truly metadata complete until MBEs have run
             if (!webApp.getMetadataComplete()) {
