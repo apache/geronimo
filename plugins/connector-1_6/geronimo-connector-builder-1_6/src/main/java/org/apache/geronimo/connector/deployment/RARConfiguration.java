@@ -19,8 +19,8 @@ package org.apache.geronimo.connector.deployment;
 
 import javax.enterprise.deploy.model.DeployableObject;
 
-import org.apache.geronimo.deployment.plugin.DConfigBeanRootSupport;
-import org.apache.geronimo.deployment.plugin.DeploymentConfigurationSupport;
+import org.apache.geronimo.deployment.dconfigbean.DeploymentConfigurationSupport;
+import org.apache.geronimo.deployment.dconfigbean.DConfigBeanRootSupport;
 
 /**
  *

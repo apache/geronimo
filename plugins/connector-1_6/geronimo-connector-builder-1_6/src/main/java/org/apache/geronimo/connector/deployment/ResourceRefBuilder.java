@@ -72,6 +72,7 @@ import org.apache.geronimo.deployment.service.EnvironmentBuilder;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlObject;
 import org.omg.CORBA.ORB;
+import org.osgi.framework.Bundle;
 
 /**
  * @version $Rev$ $Date$
@@ -120,7 +121,7 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
         XmlObject[] gerResourceRefsUntyped = plan == null ? NO_REFS : plan.selectChildren(GER_RESOURCE_REF_QNAME_SET);
         Map refMap = mapResourceRefs(gerResourceRefsUntyped);
         List unresolvedRefs = new ArrayList();
-        ClassLoader cl = module.getEarContext().getClassLoader();                
+        Bundle bundle = module.getEarContext().getBundle();                
         for (ResourceRefType resourceRef : resourceRefsUntyped) {
             String name = resourceRef.getResRefName().getStringValue().trim();
             if (lookupJndiContextMap(componentContext, ENV + name) != null) {
@@ -136,7 +137,7 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
             } 
             Class iface;
             try {
-                iface = cl.loadClass(type);
+                iface = bundle.loadClass(type);
             } catch (ClassNotFoundException e) {
                 throw new DeploymentException("could not load class " + type, e);
             }

@@ -22,7 +22,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.HashMap;
 import javax.enterprise.deploy.model.DDBean;
-import org.apache.geronimo.deployment.plugin.XmlBeanSupport;
+import org.apache.geronimo.deployment.dconfigbean.XmlBeanSupport;
 import org.apache.geronimo.xbeans.geronimo.GerConnectionDefinitionType;
 import org.apache.geronimo.xbeans.geronimo.GerConnectiondefinitionInstanceType;
 import org.apache.xmlbeans.SchemaTypeLoader;

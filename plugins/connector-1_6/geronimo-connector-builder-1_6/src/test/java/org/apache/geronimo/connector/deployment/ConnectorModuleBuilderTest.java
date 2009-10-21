@@ -20,18 +20,17 @@ package org.apache.geronimo.connector.deployment;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.sql.Connection;
 import java.sql.Statement;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.HashMap;
 import java.util.jar.JarFile;
 
 import javax.naming.Reference;
 import javax.sql.DataSource;
-
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
@@ -55,13 +54,15 @@ import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationData;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
-import org.apache.geronimo.kernel.config.EditableConfigurationManager;
 import org.apache.geronimo.kernel.config.EditableKernelConfigurationManager;
+import org.apache.geronimo.kernel.config.KernelConfigurationManager;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.mock.MockConfigStore;
 import org.apache.geronimo.kernel.mock.MockRepository;
+import org.apache.geronimo.kernel.osgi.MockBundleContext;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ArtifactManager;
 import org.apache.geronimo.kernel.repository.ArtifactResolver;
@@ -72,6 +73,7 @@ import org.apache.geronimo.kernel.repository.ImportType;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 import org.apache.geronimo.testsupport.TestSupport;
 import org.apache.geronimo.transaction.wrapper.manager.GeronimoTransactionManagerGBean;
+import org.osgi.framework.Bundle;
 
 /**
  * @version $Rev:385232 $ $Date$
@@ -105,7 +107,7 @@ public class ConnectorModuleBuilderTest extends TestSupport {
     };
 
     private Kernel kernel;
-    private EditableConfigurationManager configurationManager;
+    private ConfigurationManager configurationManager;
     private static final Naming naming = new Jsr77Naming();
     private static final Artifact bootId = new Artifact("test", "test", "42", "car");
 
@@ -134,19 +136,19 @@ public class ConnectorModuleBuilderTest extends TestSupport {
                     serviceBuilder,
                     null,
                     kernel.getNaming(),
-                    null);
+                    null,
+                    bundleContext);
             configBuilder.doStart();
             ConfigurationData configData = null;
             DeploymentContext context = null;
             ArtifactManager artifactManager = new DefaultArtifactManager();
-            ArtifactResolver artifactResolver = new DefaultArtifactResolver(artifactManager, Collections.singleton(repository), null);
+            ArtifactResolver artifactResolver = new DefaultArtifactResolver(artifactManager, repository);
 
             try {
                 File planFile = new File(BASEDIR, "src/test/resources/data/external-application-plan.xml");
                 ModuleIDBuilder idBuilder = new ModuleIDBuilder();
                 Object plan = configBuilder.getDeploymentPlan(planFile, rarFile, idBuilder);
                 context = configBuilder.buildConfiguration(false, configBuilder.getConfigurationID(plan, rarFile, idBuilder), plan, rarFile, Collections.singleton(configurationStore), artifactResolver, configurationStore);
-
                 // add the a j2ee server so the application context reference can be resolved
                 context.addGBean("geronimo", J2EEServerImpl.GBEAN_INFO);
 
@@ -314,9 +316,9 @@ public class ConnectorModuleBuilderTest extends TestSupport {
             File rarFile = action.getRARFile();
 
             ClassLoader oldCl = Thread.currentThread().getContextClassLoader();
-            ClassLoader cl = new URLClassLoader(new URL[]{rarFile.toURL()}, oldCl);
+//            ClassLoader cl = new URLClassLoader(new URL[]{rarFile.toURL()}, oldCl);
 
-            Thread.currentThread().setContextClassLoader(cl);
+//            Thread.currentThread().setContextClassLoader(cl);
 
             JarFile rarJarFile = DeploymentUtil.createJarFile(rarFile);
             AbstractName earName = null;
@@ -336,18 +338,19 @@ public class ConnectorModuleBuilderTest extends TestSupport {
                         module.getType(),
                         naming,
                         configurationManager,
-                        Collections.EMPTY_SET,
+                        bundleContext,
                         new AbstractNameQuery(serverName, J2EEServerImpl.GBEAN_INFO.getInterfaces()),
                         module.getModuleName(), //hardcode standalone here.
                         transactionManagerName,
                         connectionTrackerName,
                         null
                 );
-
+                earContext.initializeConfiguration();
                 action.install(moduleBuilder, earContext, module, configurationStore);
-                earContext.getClassLoader();
-                moduleBuilder.initContext(earContext, module, cl);
-                moduleBuilder.addGBeans(earContext, module, cl, Collections.singleton(repository));
+                earContext.initializeConfiguration();
+                Bundle bundle = earContext.getBundle();
+                moduleBuilder.initContext(earContext, module, bundle);
+                moduleBuilder.addGBeans(earContext, module, bundle, Collections.singleton(repository));
 
                 ConfigurationData configurationData = earContext.getConfigurationData();
                 AbstractName moduleAbstractName = earContext.getModuleName();
@@ -501,7 +504,11 @@ public class ConnectorModuleBuilderTest extends TestSupport {
 
     protected void setUp() throws Exception {
         super.setUp();
-        kernel = KernelFactory.newInstance().createKernel("test");
+        Artifact artifact = new Artifact("foo", "bar", "1.0", "car");
+        Map<String, Artifact> locations = new HashMap<String, Artifact>();
+        locations.put(null, artifact);
+        bundleContext = new MockBundleContext(getClass().getClassLoader(), "", null, locations);
+        kernel = KernelFactory.newInstance(bundleContext).createKernel("test");
         kernel.boot();
 
         ConfigurationData bootstrap = new ConfigurationData(bootId, naming);
@@ -515,7 +522,7 @@ public class ConnectorModuleBuilderTest extends TestSupport {
 //        configurationManagerData.setReferencePattern("ArtifactManager", artifactManagerData.getAbstractName());
 //        configurationManagerData.setReferencePattern("ArtifactResolver", artifactResolverData.getAbstractName());
 //        bootstrap.addGBean(configurationManagerData);
-        bootstrap.addGBean("ServerInfo", BasicServerInfo.GBEAN_INFO).setAttribute("baseDirectory", ".");
+        bootstrap.addGBean("ServerInfo", BasicServerInfo.class).setAttribute("baseDirectory", ".");
 
         AbstractName repositoryName = bootstrap.addGBean("Repository", MockRepository.GBEAN_INFO).getAbstractName();
 
@@ -523,10 +530,10 @@ public class ConnectorModuleBuilderTest extends TestSupport {
 
         GBeanData artifactManagerData = bootstrap.addGBean("ArtifactManager", DefaultArtifactManager.GBEAN_INFO);
 
-        GBeanData artifactResolverData = bootstrap.addGBean("ArtifactResolver", DefaultArtifactResolver.GBEAN_INFO);
+        GBeanData artifactResolverData = bootstrap.addGBean("ArtifactResolver", DefaultArtifactResolver.class);
         artifactResolverData.setReferencePattern("ArtifactManager", artifactManagerData.getAbstractName());
 
-        GBeanData configurationManagerData = bootstrap.addGBean("ConfigurationManager", EditableKernelConfigurationManager.GBEAN_INFO);
+        GBeanData configurationManagerData = bootstrap.addGBean("ConfigurationManager", KernelConfigurationManager.class);
         configurationManagerData.setReferencePattern("ArtifactManager", artifactManagerData.getAbstractName());
         configurationManagerData.setReferencePattern("ArtifactResolver", artifactResolverData.getAbstractName());
         configurationManagerData.setReferencePattern("Stores", configStoreName);
@@ -542,15 +549,15 @@ public class ConnectorModuleBuilderTest extends TestSupport {
         GBeanData tm = bootstrap.addGBean("TransactionManager", GeronimoTransactionManagerGBean.GBEAN_INFO);
         tm.setAttribute("defaultTransactionTimeoutSeconds", 10);
 
-        ConfigurationUtil.loadBootstrapConfiguration(kernel, bootstrap, getClass().getClassLoader());
+        ConfigurationUtil.loadBootstrapConfiguration(kernel, bootstrap, bundleContext);
 
         repository = (MockRepository) kernel.getGBean(repositoryName);
-        Set<Artifact> repo = repository.getRepo();
-        repo.add(Artifact.create("org.apache.geronimo.tests/test/1/car"));
-        repo.add(bootId);
+        Map<Artifact, File> repo = repository.getRepo();
+        repo.put(Artifact.create("org.apache.geronimo.tests/test/1/car"), null);
+        repo.put(bootId, null);
 
 
-        configurationManager = ConfigurationUtil.getEditableConfigurationManager(kernel);
+        configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
 //        configurationManager.getConfiguration(bootstrap.getId());
         ConfigurationStore configStore = (ConfigurationStore) kernel.getGBean(configStoreName);
         configStore.install(bootstrap);

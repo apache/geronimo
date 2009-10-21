@@ -70,6 +70,11 @@
             <groupId>org.apache.servicemix.specs</groupId>
             <artifactId>org.apache.servicemix.specs.activation-api-1.1</artifactId>
         </dependency>
+        <!-- try to make javax.transaction classes loadable during build -->
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-jta_1.1_spec</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>

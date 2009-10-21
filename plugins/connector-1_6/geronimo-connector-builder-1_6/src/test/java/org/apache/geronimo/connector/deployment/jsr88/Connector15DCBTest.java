@@ -35,6 +35,8 @@ import org.apache.geronimo.deployment.service.jsr88.Artifact;
 import org.apache.geronimo.naming.deployment.jsr88.GBeanLocator;
 import org.apache.geronimo.xbeans.geronimo.GerConfigPropertySettingType;
 import org.apache.geronimo.xbeans.geronimo.GerConnectorDocument;
+import org.apache.geronimo.kernel.osgi.MockBundle;
+import org.osgi.framework.Bundle;
 
 /**
  * @version $Rev$ $Date$
@@ -43,10 +45,11 @@ public class Connector15DCBTest extends TestCase {
     private ClassLoader classLoader;
 
     public void testCreateDatabase() throws Exception {
+        Bundle bundle = new MockBundle(classLoader, "", 0L);
         // Create and test the DDBeanRoot
         URL resource = classLoader.getResource("database.rar");
         assertNotNull(resource);
-        ConnectorDeployable deployable = new ConnectorDeployable(resource);
+        ConnectorDeployable deployable = new ConnectorDeployable(bundle);
         assertEquals(ModuleType.RAR, deployable.getType());
         Set entrySet = new HashSet(Collections.list(deployable.entries()));
         Set resultSet = new HashSet();
@@ -179,10 +182,11 @@ public class Connector15DCBTest extends TestCase {
     public void testWriteWithNulls() throws Exception {
         InputStream in = classLoader.getResource("plan-with-nulls.xml").openStream();
 
+        Bundle bundle = new MockBundle(classLoader, "", 0L);
         // Create and test the DDBeanRoot
         URL resource = classLoader.getResource("database.rar");
         assertNotNull(resource);
-        ConnectorDeployable deployable = new ConnectorDeployable(resource);
+        ConnectorDeployable deployable = new ConnectorDeployable(bundle);
         assertEquals(ModuleType.RAR, deployable.getType());
         DDBeanRoot root = deployable.getDDBeanRoot();
         assertNotNull(root);
@@ -299,7 +303,8 @@ public class Connector15DCBTest extends TestCase {
         // Create and test the DDBeanRoot
         URL resource = classLoader.getResource("jms.rar");
         assertNotNull(resource);
-        ConnectorDeployable deployable = new ConnectorDeployable(resource);
+        Bundle bundle = new MockBundle(classLoader, "", 0L);
+        ConnectorDeployable deployable = new ConnectorDeployable(bundle);
         assertEquals(ModuleType.RAR, deployable.getType());
         Set entrySet = new HashSet(Collections.list(deployable.entries()));
         assertTrue(entrySet.contains("META-INF/ra.xml"));
@@ -451,7 +456,8 @@ public class Connector15DCBTest extends TestCase {
         // Create and test the DDBeanRoot
         URL resource = classLoader.getResource("jms.rar");
         assertNotNull(resource);
-        ConnectorDeployable deployable = new ConnectorDeployable(resource);
+        Bundle bundle = new MockBundle(classLoader, "", 0L);
+        ConnectorDeployable deployable = new ConnectorDeployable(bundle);
         assertEquals(ModuleType.RAR, deployable.getType());
         Set entrySet = new HashSet(Collections.list(deployable.entries()));
         assertTrue(entrySet.contains("META-INF/ra.xml"));

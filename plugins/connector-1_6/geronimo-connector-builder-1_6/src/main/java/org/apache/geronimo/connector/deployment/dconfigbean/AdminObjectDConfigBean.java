@@ -19,7 +19,7 @@ package org.apache.geronimo.connector.deployment.dconfigbean;
 
 import javax.enterprise.deploy.model.DDBean;
 
-import org.apache.geronimo.deployment.plugin.DConfigBeanSupport;
+import org.apache.geronimo.deployment.dconfigbean.DConfigBeanSupport;
 import org.apache.geronimo.xbeans.geronimo.GerAdminobjectInstanceType;
 import org.apache.geronimo.xbeans.geronimo.GerAdminobjectType;
 import org.apache.xmlbeans.SchemaTypeLoader;

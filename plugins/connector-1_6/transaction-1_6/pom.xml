@@ -99,7 +99,7 @@
         </dependency>
 
         <dependency>
-            <groupId>org.objectweb.howl</groupId>
+            <groupId>org.apache.geronimo.bundles</groupId>
             <artifactId>howl</artifactId>
         </dependency>
     </dependencies>

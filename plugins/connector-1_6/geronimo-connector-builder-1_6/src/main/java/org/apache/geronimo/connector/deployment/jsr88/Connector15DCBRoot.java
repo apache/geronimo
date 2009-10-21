@@ -29,7 +29,7 @@ import javax.enterprise.deploy.model.DDBeanRoot;
 import javax.enterprise.deploy.model.DDBean;
 import javax.enterprise.deploy.spi.DConfigBean;
 import javax.enterprise.deploy.spi.exceptions.ConfigurationException;
-import org.apache.geronimo.deployment.plugin.DConfigBeanRootSupport;
+import org.apache.geronimo.deployment.dconfigbean.DConfigBeanRootSupport;
 import org.apache.geronimo.xbeans.geronimo.GerConnectorDocument;
 import org.apache.geronimo.xbeans.geronimo.GerAdminobjectInstanceType;
 import org.apache.geronimo.xbeans.geronimo.GerConnectiondefinitionInstanceType;

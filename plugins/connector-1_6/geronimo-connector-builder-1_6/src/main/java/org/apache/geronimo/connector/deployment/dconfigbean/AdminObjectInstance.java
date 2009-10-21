@@ -20,7 +20,7 @@ package org.apache.geronimo.connector.deployment.dconfigbean;
 import javax.enterprise.deploy.model.DDBean;
 import javax.enterprise.deploy.model.XpathListener;
 
-import org.apache.geronimo.deployment.plugin.XmlBeanSupport;
+import org.apache.geronimo.deployment.dconfigbean.XmlBeanSupport;
 import org.apache.geronimo.xbeans.geronimo.GerAdminobjectInstanceType;
 import org.apache.geronimo.xbeans.geronimo.GerConfigPropertySettingType;
 import org.apache.xmlbeans.SchemaTypeLoader;

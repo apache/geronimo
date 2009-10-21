@@ -16,7 +16,7 @@
  */
 package org.apache.geronimo.connector.deployment.jsr88;
 
-import org.apache.geronimo.deployment.plugin.XmlBeanSupport;
+import org.apache.geronimo.deployment.dconfigbean.XmlBeanSupport;
 import org.apache.geronimo.xbeans.geronimo.GerConfigPropertySettingType;
 import org.apache.xmlbeans.XmlObject;
 
@@ -36,7 +36,7 @@ import java.util.Iterator;
  *
  * @version $Rev$ $Date$
  */
-public abstract class ConfigHolder extends XmlBeanSupport  {
+public abstract class ConfigHolder extends XmlBeanSupport {
     final XpathListener xpathListener = new XpathListener() {
                     public void fireXpathEvent(XpathEvent event) {
                         if(event.isAddEvent()) {

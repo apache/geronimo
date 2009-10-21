@@ -61,6 +61,7 @@ import org.apache.geronimo.xbeans.javaee.ResourceEnvRefType;
 import org.apache.geronimo.xbeans.javaee.XsdStringType;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlObject;
+import org.osgi.framework.Bundle;
 
 /**
  * @version $Rev$ $Date$
@@ -130,7 +131,7 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
 
         List<ResourceEnvRefType> resourceEnvRefsUntyped = convert(specDD.selectChildren(adminOjbectRefQNameSet), JEE_CONVERTER, ResourceEnvRefType.class, ResourceEnvRefType.type);
         int unresolvedRefSize = resourceEnvRefsUntyped.size();
-        ClassLoader cl = module.getEarContext().getClassLoader();
+        Bundle bundle = module.getEarContext().getBundle();
         for (ResourceEnvRefType resourceEnvRef : resourceEnvRefsUntyped) {
             String name = resourceEnvRef.getResourceEnvRefName().getStringValue().trim();
             if (lookupJndiContextMap(componentContext, ENV + name) != null) {
@@ -141,7 +142,7 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
             String type = resourceEnvRef.getResourceEnvRefType().getStringValue().trim();
             Class iface;
             try {
-                iface = cl.loadClass(type);
+                iface = bundle.loadClass(type);
             } catch (ClassNotFoundException e) {
                 throw new DeploymentException("could not load class " + type, e);
             }
@@ -195,7 +196,7 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
             }
             Class iface;
             try {
-                iface = cl.loadClass(type);
+                iface = bundle.loadClass(type);
             } catch (ClassNotFoundException e) {
                 throw new DeploymentException("could not load class " + type, e);
             }

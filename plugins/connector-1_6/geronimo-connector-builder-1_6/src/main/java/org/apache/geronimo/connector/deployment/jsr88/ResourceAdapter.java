@@ -20,7 +20,7 @@ import java.util.Set;
 import java.util.HashSet;
 import java.util.Iterator;
 import javax.enterprise.deploy.model.DDBean;
-import org.apache.geronimo.deployment.plugin.XmlBeanSupport;
+import org.apache.geronimo.deployment.dconfigbean.XmlBeanSupport;
 import org.apache.geronimo.xbeans.geronimo.GerResourceadapterType;
 import org.apache.geronimo.xbeans.geronimo.GerOutboundResourceadapterType;
 import org.apache.geronimo.xbeans.geronimo.GerConnectionDefinitionType;

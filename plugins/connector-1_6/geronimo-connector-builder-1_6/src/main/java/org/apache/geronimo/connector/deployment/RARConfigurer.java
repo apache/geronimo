@@ -20,11 +20,9 @@ package org.apache.geronimo.connector.deployment;
 import javax.enterprise.deploy.model.DeployableObject;
 import javax.enterprise.deploy.shared.ModuleType;
 import javax.enterprise.deploy.spi.DeploymentConfiguration;
-
-import org.apache.geronimo.connector.deployment.dconfigbean.ResourceAdapterDConfigRoot;
 import org.apache.geronimo.connector.deployment.dconfigbean.ResourceAdapter_1_0DConfigRoot;
 import org.apache.geronimo.connector.deployment.jsr88.Connector15DCBRoot;
-import org.apache.geronimo.deployment.ModuleConfigurer;
+import org.apache.geronimo.deployment.spi.ModuleConfigurer;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;

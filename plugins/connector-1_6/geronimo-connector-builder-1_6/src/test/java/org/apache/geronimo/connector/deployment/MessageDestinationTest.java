@@ -17,10 +17,10 @@
 package org.apache.geronimo.connector.deployment;
 
 import java.io.File;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.HashSet;
 
 import junit.framework.TestCase;
 import org.apache.geronimo.common.DeploymentException;
@@ -34,16 +34,27 @@ import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Jsr77Naming;
 import org.apache.geronimo.kernel.Naming;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.basic.BasicKernel;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
+import org.apache.geronimo.kernel.config.KernelConfigurationManager;
+import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.mock.MockConfigurationManager;
+import org.apache.geronimo.kernel.mock.MockConfigStore;
+import org.apache.geronimo.kernel.osgi.MockBundleContext;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.kernel.repository.ArtifactManager;
+import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
+import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
+import org.apache.geronimo.kernel.repository.ListableRepository;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
+import org.osgi.framework.BundleContext;
 
 /**
  * @version $Rev:390932 $ $Date$
@@ -51,6 +62,10 @@ import org.apache.xmlbeans.XmlObject;
 public class MessageDestinationTest extends TestCase {
 
     private static final Naming naming = new Jsr77Naming();
+    protected static MockConfigStore configStore = new MockConfigStore();
+
+    protected static ArtifactManager artifactManager = new DefaultArtifactManager();
+
     Configuration configuration;
     AbstractName baseName;
     AdminObjectRefBuilder adminObjectRefBuilder = new AdminObjectRefBuilder(null, new String[] {SchemaConversionUtils.J2EE_NAMESPACE});
@@ -60,21 +75,35 @@ public class MessageDestinationTest extends TestCase {
 
     protected void setUp() throws Exception {
         super.setUp();
+        Artifact artifact = new Artifact("foo", "bar", "1.0", "car");
+        Map<String, Artifact> locations = new HashMap<String, Artifact>();
+        locations.put(null, artifact);
+        BundleContext bundleContext = new MockBundleContext(getClass().getClassLoader(), "", null, locations);
+        Kernel kernel = new BasicKernel("test", bundleContext);
         Artifact id = new Artifact("test", "test", "", "car");
         module  = new ConnectorModule(false, new AbstractName(id, Collections.singletonMap("name", "test")), null, null, "foo", null, null, null, null);
-        ConfigurationManager configurationManager = new MockConfigurationManager();
+        ConfigurationManager configurationManager = new KernelConfigurationManager(kernel,
+                Collections.<ConfigurationStore>singleton(configStore),
+                null,
+                null,
+                artifactManager,
+                new DefaultArtifactResolver(artifactManager, null), 
+                new HashSet<ListableRepository>(),
+                null,
+                bundleContext);
         EARContext earContext = new EARContext(new File("foo"),
             null,
-            new Environment(new Artifact("foo", "bar", "1.0", "car")),
+            new Environment(artifact),
             ConfigurationModuleType.EAR,
             naming,
             configurationManager,
-            (Collection) null,
+            bundleContext,
             null,
             null,
             null,
             null,
             null);
+        earContext.initializeConfiguration();
         module.setEarContext(earContext);
         module.setRootEarContext(earContext);
         configuration = earContext.getConfiguration();
