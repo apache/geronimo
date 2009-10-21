@@ -622,9 +622,9 @@
             </dependency>
 
             <dependency>
-                <groupId>org.apache.geronimo.bundles</groupId>
-                <artifactId>howl</artifactId>
-                <version>1.0.1_1-SNAPSHOT</version>
+                <groupId>org.apache.servicemix.bundles</groupId>
+                <artifactId>org.apache.servicemix.bundles.howl</artifactId>
+                <version>1.0.1-1_1</version>
                 <exclusions>
                     <exclusion>
                         <groupId>org.objectweb.howl</groupId>

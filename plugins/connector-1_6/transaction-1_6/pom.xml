@@ -99,8 +99,8 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.bundles</groupId>
-            <artifactId>howl</artifactId>
+            <groupId>org.apache.servicemix.bundles</groupId>
+            <artifactId>org.apache.servicemix.bundles.howl</artifactId>
         </dependency>
     </dependencies>
 
