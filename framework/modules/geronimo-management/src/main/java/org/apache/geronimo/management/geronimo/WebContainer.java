@@ -16,6 +16,8 @@
  */
 package org.apache.geronimo.management.geronimo;
 
+import org.osgi.framework.BundleContext;
+
 /**
  * The common configuration settings for a web container (currently, Tomcat or
  * Jetty).
@@ -23,4 +25,11 @@ package org.apache.geronimo.management.geronimo;
  * @version $Rev$ $Date$
  */
 public interface WebContainer extends NetworkContainer {
+    /**
+     * Returns the configuration BundleContext associated with
+     * this network container.
+     *
+     * @return The BundleContext instance for the container's configuration.
+     */
+    public BundleContext getBundleContext();
 }

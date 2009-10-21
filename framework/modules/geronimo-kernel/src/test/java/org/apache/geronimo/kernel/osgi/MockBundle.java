@@ -25,9 +25,12 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.Dictionary;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
 
+import org.apache.geronimo.kernel.config.ConfigurationData;
+import org.apache.geronimo.kernel.repository.Artifact;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
@@ -136,6 +139,10 @@ public class MockBundle implements Bundle {
     }
 
     public BundleContext getBundleContext() {
+        // if no bundle context was provided, just give an empty Mock one
+        if (bundleContext == null) {
+            bundleContext = new MockBundleContext(classLoader, location, new HashMap<Artifact, ConfigurationData>(), null);
+        }
         return bundleContext;
     }
 
