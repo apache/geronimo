@@ -38,12 +38,20 @@ public class BundleClassLoader extends ClassLoader {
         this.bundle = bundle;
     }
 
-
     @Override
-    public Class<?> loadClass(String s) throws ClassNotFoundException {
-        return bundle.loadClass(s);
+    public Class<?> loadClass(String name) throws ClassNotFoundException {
+        return loadClass(name, false);
     }
-
+    
+    @Override
+    protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {    
+        Class clazz = bundle.loadClass(name);
+        if (resolve) {
+            resolveClass(clazz);
+        }
+        return clazz;
+    }
+    
     @Override
     public String toString() {
         return "[BundleClassLoader] " + bundle;
