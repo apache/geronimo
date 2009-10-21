@@ -97,6 +97,7 @@ import org.apache.geronimo.xbeans.javaee.WebAppType;
 import org.apache.geronimo.xbeans.javaee.WelcomeFileListType;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
+import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -361,16 +362,16 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
         return JettyWebAppType.Factory.newInstance();
     }
 
-    public void initContext(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException {
+    public void initContext(EARContext earContext, Module module, Bundle bundle) throws DeploymentException {
         JettyWebAppType gerWebApp = (JettyWebAppType) module.getVendorDD();
         boolean hasSecurityRealmName = gerWebApp.isSetSecurityRealmName();
         basicInitContext(earContext, module, gerWebApp, hasSecurityRealmName);
         for (ModuleBuilderExtension mbe : moduleBuilderExtensions) {
-            mbe.initContext(earContext, module, cl);
+            mbe.initContext(earContext, module, bundle);
         }
     }
 
-    public void addGBeans(EARContext earContext, Module module, ClassLoader cl, Collection repository) throws DeploymentException {
+    public void addGBeans(EARContext earContext, Module module, Bundle bundle, Collection repository) throws DeploymentException {
         EARContext moduleContext = module.getEarContext();
         AbstractName moduleName = moduleContext.getModuleName();
         WebModule webModule = (WebModule) module;
@@ -539,7 +540,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
 
             //TODO this may definitely not be the best place for this!
             for (ModuleBuilderExtension mbe : moduleBuilderExtensions) {
-                mbe.addGBeans(earContext, module, cl, repository);
+                mbe.addGBeans(earContext, module, bundle, repository);
             }
 
             //not truly metadata complete until MBEs have run
@@ -1046,19 +1047,19 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
         GBeanData servletData;
         Map<String, String> initParams = new HashMap<String, String>();
         if (servletType.isSetServletClass()) {
-            ClassLoader webClassLoader = moduleContext.getClassLoader();
+            Bundle webBundle = moduleContext.getBundle();
             String servletClassName = servletType.getServletClass().getStringValue().trim();
             Class servletClass;
             try {
-                servletClass = webClassLoader.loadClass(servletClassName);
+                servletClass = webBundle.loadClass(servletClassName);
             } catch (ClassNotFoundException e) {
-                throw new DeploymentException("Could not load servlet class " + servletClassName, e); // TODO identify web app in message
+                throw new DeploymentException("Could not load servlet class " + servletClassName + " from bundle " + webBundle, e);
             }
             Class baseServletClass;
             try {
-                baseServletClass = webClassLoader.loadClass(Servlet.class.getName());
+                baseServletClass = webBundle.loadClass(Servlet.class.getName());
             } catch (ClassNotFoundException e) {
-                throw new DeploymentException("Could not load javax.servlet.Servlet in web classloader", e); // TODO identify web app in message
+                throw new DeploymentException("Could not load javax.servlet.Servlet in bundle " + webBundle, e);
             }
             if (baseServletClass.isAssignableFrom(servletClass)) {
                 servletData = new GBeanData(servletAbstractName, ServletHolderWrapper.class);

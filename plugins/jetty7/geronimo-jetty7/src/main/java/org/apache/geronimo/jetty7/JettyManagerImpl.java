@@ -259,13 +259,13 @@ public class JettyManagerImpl implements WebManager {
                 gbeanData.setAttribute(connectorAttribute.getAttributeName(), connectorAttribute.getValue());
             }
         }
-        
+
         // provide a reference to KeystoreManager gbean for HTTPS connectors
         if (connectorType.equals(HTTPS_NIO) || connectorType.equals(HTTPS_BIO)) {
             AbstractNameQuery query = new AbstractNameQuery(KeystoreManager.class.getName());
             gbeanData.setReferencePattern("KeystoreManager", query);
         }
-        
+
         try {
             ConfigurationManager mgr = ConfigurationUtil.getConfigurationManager(kernel);
             if (mgr != null && mgr instanceof EditableConfigurationManager) {
@@ -277,12 +277,15 @@ public class JettyManagerImpl implements WebManager {
         } catch (InvalidConfigException e) {
             log.error("Unable to add GBean", e);
             return null;
+        } catch (GBeanNotFoundException e) {
+            log.error("Unable to add GBean", e);
+            return null;
         }
         return name;
     }
-    
+
     public ConnectorType getConnectorType(AbstractName connectorName) {
-        ConnectorType connectorType = null; 
+        ConnectorType connectorType = null;
         try {
             GBeanInfo info = kernel.getGBeanInfo(connectorName);
             boolean found = false;
@@ -308,7 +311,7 @@ public class JettyManagerImpl implements WebManager {
         } catch (Exception e) {
             log.error("Failed to get connector type", e);
         }
-            
+
         return connectorType;
     }
 
@@ -380,7 +383,7 @@ public class JettyManagerImpl implements WebManager {
             throw (IllegalArgumentException) new IllegalArgumentException("Unable to look up connectors for Jetty container '" + containerName + "'").initCause(e);
         }
     }
-    
+
     private static void addCommonConnectorAttributes(List<ConnectorAttribute> connectorAttributes) {
         connectorAttributes.add(new ConnectorAttribute<String>("host", "0.0.0.0", Messages.getString("JettyManagerImpl.30"), String.class, true)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
         connectorAttributes.add(new ConnectorAttribute<Integer>("port", 8080, Messages.getString("JettyManagerImpl.32"), Integer.class, true)); //$NON-NLS-1$ //$NON-NLS-2$
@@ -393,7 +396,7 @@ public class JettyManagerImpl implements WebManager {
         connectorAttributes.add(new ConnectorAttribute<Integer>("redirectPort", 8443, Messages.getString("JettyManagerImpl.42"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
         //connectorAttributes.add(new ConnectorAttribute<Integer>("maxIdleTimeMs", 30000, " The time in milliseconds that a connection can be idle before being closed.", Integer.class));
     }
-    
+
     private static void addSslConnectorAttributes(List<ConnectorAttribute> connectorAttributes) {
         //connectorAttributes.add(new ConnectorAttribute<Boolean>("clientAuthRequested", false, "clientAuthRequested", Boolean.class));
         connectorAttributes.add(new ConnectorAttribute<Boolean>("clientAuthRequired", false, Messages.getString("JettyManagerImpl.44"), Boolean.class)); //$NON-NLS-1$ //$NON-NLS-2$
@@ -414,7 +417,7 @@ public class JettyManagerImpl implements WebManager {
     }
 
     public void updateConnectorConfig(AbstractName connectorName)  throws Exception {
-        // do nothing for Jetty, only tomcat needs this to update server.xml file.      
+        // do nothing for Jetty, only tomcat needs this to update server.xml file.
     }
 
 }

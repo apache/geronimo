@@ -58,6 +58,8 @@ import org.eclipse.jetty.server.handler.StatisticsHandler;
 import org.eclipse.jetty.servlet.ServletHandler;
 import org.eclipse.jetty.security.SecurityHandler;
 
+import org.osgi.framework.BundleContext;
+
 /**
  * @version $Rev$ $Date$
  */
@@ -71,6 +73,7 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLif
     private final Server server;
     private final Map<String, EJBWebServiceContext> webServices = new HashMap<String, EJBWebServiceContext>();
     private final String objectName;
+    private final BundleContext bundleContext;
     private final WebManager manager;
     private final String jettyHome;
     private final ServerInfo serverInfo;
@@ -84,10 +87,12 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLif
     private boolean statsOn = false;
 
     public JettyContainerImpl(@ParamSpecial(type = SpecialAttributeType.objectName) String objectName,
+                              @ParamSpecial(type = SpecialAttributeType.bundleContext) BundleContext bundleContext,
                               @ParamReference(name = "WebManager") WebManager manager,
                               @ParamAttribute(name = "jettyHome") String jettyHome,
                               @ParamReference(name = "ServerInfo") ServerInfo serverInfo) {
         this.objectName = objectName;
+        this.bundleContext = bundleContext;
         this.jettyHome = jettyHome;
         this.serverInfo = serverInfo;
 
@@ -294,4 +299,13 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLif
         }
     }
 
+    /**
+     * Returns the configuration BundleContext associated with
+     * this network container.
+     *
+     * @return The BundleContext instance for the container's configuration.
+     */
+    public BundleContext getBundleContext() {
+        return bundleContext;
+    }
 }

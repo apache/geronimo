@@ -51,6 +51,14 @@
         </dependency>
 
         <dependency>
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>geronimo-kernel</artifactId>
+            <version>${version}</version>
+            <classifier>tests</classifier>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>transaction-1_6</artifactId>
             <version>${version}</version>
@@ -96,7 +104,7 @@
             <artifactId>jetty-servlet</artifactId>
         </dependency>
     </dependencies>
-    
+
     <build>
         <plugins>
             <plugin>
@@ -114,6 +122,6 @@
             </plugin>
         </plugins>
     </build>
-    
+
 </project>
 

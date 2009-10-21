@@ -36,6 +36,6 @@ public class GBeanInfoTest extends TestCase {
     public void testJettyContainerImpl() throws Exception {
         new AnnotationGBeanInfoFactory().getGBeanInfo(JettyContainerImpl.class);
         ServerInfo serverInfo = new BasicServerInfo(".");
-        new JettyContainerImpl(null, null, null, serverInfo);
+        new JettyContainerImpl(null, null, null, null, serverInfo);
     }
 }

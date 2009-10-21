@@ -58,6 +58,7 @@ import org.apache.geronimo.kernel.config.LifecycleException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.mock.MockConfigStore;
+import org.apache.geronimo.kernel.osgi.MockBundle;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ArtifactManager;
 import org.apache.geronimo.kernel.repository.ArtifactResolver;
@@ -89,7 +90,7 @@ public class JettyModuleBuilderTest extends TestSupport {
     protected Kernel kernel;
     private AbstractName tmName;
     private AbstractName ctcName;
-    private ClassLoader cl;
+    private Bundle bundle;
     private JettyModuleBuilder builder;
     private Artifact webModuleArtifact = new Artifact("foo", "bar", "1", "car");
     private Environment defaultEnvironment = new Environment();
@@ -162,9 +163,9 @@ public class JettyModuleBuilderTest extends TestSupport {
             EARContext earContext = createEARContext(outputPath, defaultEnvironment, repository, configStore, moduleName);
             module.setEarContext(earContext);
             module.setRootEarContext(earContext);
-            builder.initContext(earContext, module, cl);
+            builder.initContext(earContext, module, bundle);
 //            earContext.initializeConfiguration();
-            builder.addGBeans(earContext, module, cl, Collections.EMPTY_SET);
+            builder.addGBeans(earContext, module, bundle, Collections.EMPTY_SET);
             ConfigurationData configurationData = earContext.getConfigurationData();
             earContext.close();
             module.close();
@@ -187,7 +188,7 @@ public class JettyModuleBuilderTest extends TestSupport {
                 ConfigurationModuleType.WAR,
                 naming,
                 configurationManager,
-                repositories,
+                bundle.getBundleContext(),
                 new AbstractNameQuery(serverName),
                 moduleName,
                 new AbstractNameQuery(tmName),
@@ -217,28 +218,27 @@ public class JettyModuleBuilderTest extends TestSupport {
 
     protected void setUp() throws Exception {
         super.setUp();
-        cl = this.getClass().getClassLoader();
+        bundle = new MockBundle(getClass().getClassLoader(), "test", 100);
         setUpSecurityService();
 
         ((SchemaTypeImpl) GerSecurityDocument.type).addSubstitutionGroupMember(org.apache.geronimo.xbeans.geronimo.security.GerSecurityDocument.type.getDocumentElementName());
 
-        kernel = KernelFactory.newInstance().createKernel("test");
+        kernel = KernelFactory.newInstance(bundle.getBundleContext()).createKernel("test");
         kernel.boot();
 
         ConfigurationData bootstrap = new ConfigurationData(baseId, naming);
 
-        GBeanData serverInfo = bootstrap.addGBean("ServerInfo", BasicServerInfo.GBEAN_INFO);
+        GBeanData serverInfo = bootstrap.addGBean("ServerInfo", BasicServerInfo.class);
         serverInfo.setAttribute("baseDirectory", ".");
 
         AbstractName configStoreName = bootstrap.addGBean("MockConfigurationStore", MockConfigStore.GBEAN_INFO).getAbstractName();
 
         GBeanData artifactManagerData = bootstrap.addGBean("ArtifactManager", DefaultArtifactManager.GBEAN_INFO);
 
-//        GBeanData artifactResolverData = bootstrap.addGBean("ArtifactResolver", DefaultArtifactResolver.class);
-        GBeanData artifactResolverData = bootstrap.addGBean("ArtifactResolver", DefaultArtifactResolver.GBEAN_INFO);
+        GBeanData artifactResolverData = bootstrap.addGBean("ArtifactResolver", DefaultArtifactResolver.class);
         artifactResolverData.setReferencePattern("ArtifactManager", artifactManagerData.getAbstractName());
 
-        GBeanData configurationManagerData = bootstrap.addGBean("ConfigurationManager", KernelConfigurationManager.GBEAN_INFO);
+        GBeanData configurationManagerData = bootstrap.addGBean("ConfigurationManager", KernelConfigurationManager.class);
         configurationManagerData.setReferencePattern("ArtifactManager", artifactManagerData.getAbstractName());
         configurationManagerData.setReferencePattern("ArtifactResolver", artifactResolverData.getAbstractName());
         configurationManagerData.setReferencePattern("Stores", configStoreName);

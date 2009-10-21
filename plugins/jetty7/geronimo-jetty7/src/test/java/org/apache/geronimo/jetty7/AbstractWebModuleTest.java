@@ -41,6 +41,9 @@ import org.apache.geronimo.jetty7.connector.HTTPSocketConnector;
 import org.apache.geronimo.jetty7.security.SecurityHandlerFactory;
 import org.apache.geronimo.jetty7.security.ServerAuthenticationGBean;
 import org.apache.geronimo.jetty7.handler.GeronimoUserIdentity;
+import org.apache.geronimo.kernel.config.ConfigurationData;
+import org.apache.geronimo.kernel.osgi.MockBundleContext;
+import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.security.SecurityServiceImpl;
 import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.deploy.SubjectInfo;
@@ -223,7 +226,9 @@ public class AbstractWebModuleTest extends TestSupport {
         configurationBaseURL = cl.getResource("deployables/");
 
         ServerInfo serverInfo = new BasicServerInfo(".");
-        container = new JettyContainerImpl("test:name=JettyContainer", null, new File(BASEDIR, "target/var/jetty").toString(), serverInfo);
+        container = new JettyContainerImpl("test:name=JettyContainer",
+            new MockBundleContext(getClass().getClassLoader(), "", new HashMap<Artifact, ConfigurationData>(), null),
+            null, new File(BASEDIR, "target/var/jetty").toString(), serverInfo);
         container.doStart();
         connector = new HTTPSocketConnector(container, null);
         connector.setPort(5678);
