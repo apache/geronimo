@@ -49,8 +49,8 @@
             <artifactId>yoko-spec-corba</artifactId>
         </dependency>
         <dependency>
-            <groupId>cglib</groupId>
-            <artifactId>cglib-nodep</artifactId>
+            <groupId>org.apache.servicemix.bundles</groupId>
+            <artifactId>org.apache.servicemix.bundles.cglib</artifactId>
             <scope>provided</scope>
         </dependency>
     </dependencies>

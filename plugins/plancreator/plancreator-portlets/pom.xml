@@ -133,8 +133,8 @@
         </dependency>
         
         <dependency>
-            <groupId>org.apache.xmlbeans</groupId>
-            <artifactId>xmlbeans</artifactId>
+            <groupId>org.apache.servicemix.bundles</groupId>
+            <artifactId>org.apache.servicemix.bundles.xmlbeans</artifactId>
             <scope>provided</scope>
         </dependency>
 
