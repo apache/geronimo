@@ -31,7 +31,9 @@ specific services - those should be provided by children.
     <!--<gbean name="EmbeddedDaemon" class="org.apache.geronimo.system.main.EmbeddedDaemon"/>-->
 
     <!-- ServerInfo service -->
-    <gbean name="ServerInfo" class="org.apache.geronimo.system.serverinfo.BasicServerInfo"/>
+    <gbean name="ServerInfo" class="org.apache.geronimo.system.serverinfo.BasicServerInfo">
+        <attribute name="useSystemProperties">true</attribute>
+    </gbean>
 
     <!--Repository-->
     <gbean name="Repository" class="org.apache.geronimo.system.repository.Maven2Repository">
