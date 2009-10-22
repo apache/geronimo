@@ -32,15 +32,13 @@
     <artifactId>remote-deploy-tomcat</artifactId>
     <name>Geronimo Plugins, Remote Deploy :: Tomcat</name>
     <packaging>car</packaging>
-    
+
     <description>Geronimo remote deploy upload servlet (Tomcat)</description>
 
     <dependencies>
         <dependency>
-            <groupId>org.apache.geronimo.framework</groupId>
-            <artifactId>xmlbeans</artifactId>
-            <version>${version}</version>
-            <type>car</type>
+            <groupId>org.apache.servicemix.bundles</groupId>
+            <artifactId>org.apache.servicemix.bundles.xmlbeans</artifactId>
         </dependency>
 
         <dependency>
@@ -64,7 +62,7 @@
             <type>car</type>
             <scope>provided</scope>
         </dependency>
-        
+
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>jasper-deployer</artifactId>
@@ -73,7 +71,7 @@
             <scope>provided</scope>
         </dependency>
     </dependencies>
-    
+
     <build>
         <plugins>
             <plugin>
@@ -102,5 +100,5 @@
             </plugin>
         </plugins>
     </build>
-    
+
 </project>

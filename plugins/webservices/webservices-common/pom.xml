@@ -80,9 +80,10 @@
             <artifactId>geronimo-schema-jee_5</artifactId>
         </dependency>
 -->
+
         <dependency>
-            <groupId>wsdl4j</groupId>
-            <artifactId>wsdl4j</artifactId>
+            <groupId>org.apache.servicemix.bundles</groupId>
+            <artifactId>org.apache.servicemix.bundles.wsdl4j</artifactId>
         </dependency>
 
         <!-- StAX implementation -->

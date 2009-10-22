@@ -30,7 +30,7 @@ import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinatorGBean;
+import org.apache.geronimo.connector.wrapper.outbound.connectiontracking.ConnectionTrackingCoordinatorGBean;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
 import org.apache.geronimo.deployment.service.GBeanBuilder;
 import org.apache.geronimo.deployment.util.UnpackedJarFile;
@@ -82,7 +82,7 @@ import org.apache.geronimo.tomcat.EngineGBean;
 import org.apache.geronimo.tomcat.HostGBean;
 import org.apache.geronimo.tomcat.TomcatContainer;
 import org.apache.geronimo.tomcat.connector.Http11ConnectorGBean;
-import org.apache.geronimo.transaction.manager.GeronimoTransactionManagerGBean;
+import org.apache.geronimo.transaction.wrapper.manager.GeronimoTransactionManagerGBean;
 import org.osgi.framework.Bundle;
 
 /**

@@ -27,7 +27,7 @@
         <artifactId>webservices</artifactId>
         <version>3.0-SNAPSHOT</version>
     </parent>
-    
+
     <groupId>org.apache.geronimo.modules</groupId>
     <artifactId>geronimo-webservices-builder</artifactId>
     <packaging>bundle</packaging>
@@ -46,7 +46,7 @@
             <artifactId>geronimo-naming-builder</artifactId>
             <version>${version}</version>
         </dependency>
-        
+
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-jaxrpc_1.1_spec</artifactId>
@@ -56,18 +56,18 @@
             <!--<groupId>org.apache.geronimo.specs</groupId>-->
             <!--<artifactId>geronimo-saaj_1.3_spec</artifactId>-->
         <!--</dependency>-->
-        
+
         <!--<dependency>-->
             <!--<groupId>asm</groupId>-->
             <!--<artifactId>asm</artifactId>-->
         <!--</dependency>-->
 
         <dependency>
-            <groupId>wsdl4j</groupId>
-            <artifactId>wsdl4j</artifactId>
+            <groupId>org.apache.servicemix.bundles</groupId>
+            <artifactId>org.apache.servicemix.bundles.wsdl4j</artifactId>
         </dependency>
     </dependencies>
-    
+
     <build>
         <plugins>
             <plugin>
