@@ -75,6 +75,8 @@ import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 
+import org.osgi.framework.Bundle;
+
 /**
  * This JSP module builder extension is meant to find all the TLD descriptor files associated with a
  * deployable artifact, search those TLD files for listeners, search those listeners for
@@ -110,10 +112,10 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
     public void installModule(JarFile earFile, EARContext earContext, Module module, Collection configurationStores, ConfigurationStore targetConfigurationStore, Collection repository) throws DeploymentException {
     }
 
-    public void initContext(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException {
+    public void initContext(EARContext earContext, Module module, Bundle bundle) throws DeploymentException {
     }
 
-    public void addGBeans(EARContext earContext, Module module, ClassLoader cl, Collection repository) throws DeploymentException {
+    public void addGBeans(EARContext earContext, Module module, Bundle bundle, Collection repository) throws DeploymentException {
         if (!(module instanceof WebModule)) {
             //not a web module, nothing to do
             return;
@@ -252,14 +254,16 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
         // 4. All TLD files in all META-INF(s)
         tempURLs.clear();
         try {
-            Enumeration<URL> enumURLs = webModule.getEarContext().getClassLoader().getResources("META-INF");
-            while (enumURLs.hasMoreElements()) {
-                URL enumURL = enumURLs.nextElement();
-                tempURLs = scanDirectory(enumURL);
-                for (URL metaInfURL : tempURLs) {
-                    tldURLs.add(metaInfURL);
+            Enumeration<URL> enumURLs = webModule.getEarContext().getBundle().getResources("META-INF");
+            if (enumURLs != null) {
+                while (enumURLs.hasMoreElements()) {
+                    URL enumURL = enumURLs.nextElement();
+                    tempURLs = scanDirectory(enumURL);
+                    for (URL metaInfURL : tempURLs) {
+                        tldURLs.add(metaInfURL);
+                    }
+                    tempURLs.clear();
                 }
-                tempURLs.clear();
             }
         }
         catch (IOException ioe) {
@@ -426,11 +430,11 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
         }
 
         // Get the classloader from the module's EARContext
-        ClassLoader classLoader = webModule.getEarContext().getClassLoader();
+        Bundle bundle = webModule.getEarContext().getBundle();
         List<Class> classes = new ArrayList<Class>();
 
         for (URL url : urls) {
-            parseTldFile(url, classLoader, classes, listenerNames);
+            parseTldFile(url, bundle, classes, listenerNames);
         }
 
         if (log.isDebugEnabled()) {
@@ -440,7 +444,7 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
     }
 
 
-    private void parseTldFile(URL url, ClassLoader classLoader, List<Class> classes, Set<String> listenerNames) throws DeploymentException {
+    private void parseTldFile(URL url, Bundle bundle, List<Class> classes, Set<String> listenerNames) throws DeploymentException {
         log.debug("parseTLDFile( " + url.toString() + " ): Entry");
 
         try {
@@ -455,7 +459,7 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
                 String className = cls.getStringValue().trim();
                 listenerNames.add(className);
                 try {
-                    Class clas = classLoader.loadClass(className);
+                    Class clas = bundle.loadClass(className);
                     classes.add(clas);
                 }
                 catch (ClassNotFoundException e) {
@@ -469,7 +473,7 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
                 FullyQualifiedClassType cls = tag.getTagClass();
                 String className = cls.getStringValue().trim();
                 try {
-                    Class clas = classLoader.loadClass(className);
+                    Class clas = bundle.loadClass(className);
                     classes.add(clas);
                 }
                 catch (ClassNotFoundException e) {
@@ -684,7 +688,7 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
             } catch (XmlException e) {
                 log.warn("Invalid transformed taglib", e);
             }
-            if (log.isDebugEnabled()) { 
+            if (log.isDebugEnabled()) {
                 log.debug("convertToTaglibSchema( " + result.toString() + " ): Exit 1");
             }
             return (TaglibDocument) result;
@@ -694,7 +698,7 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
         } catch (XmlException e) {
             log.warn("Invalid transformed taglib", e);
         }
-        if (log.isDebugEnabled()) { 
+        if (log.isDebugEnabled()) {
             log.debug("convertToTaglibSchema( " + xmlObject.toString() + " ): Exit 2");
         }
         return (TaglibDocument) xmlObject;

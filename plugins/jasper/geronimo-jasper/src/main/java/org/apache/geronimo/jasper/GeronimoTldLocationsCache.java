@@ -5,9 +5,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -36,8 +36,8 @@ import org.xml.sax.InputSource;
 
 import javax.servlet.ServletContext;
 
-import org.apache.geronimo.kernel.config.MultiParentClassLoader;
-import org.apache.geronimo.kernel.config.ChildrenConfigurationClassLoader;
+// import org.apache.geronimo.kernel.config.MultiParentClassLoader;
+// import org.apache.geronimo.kernel.config.ChildrenConfigurationClassLoader;
 import org.apache.jasper.Constants;
 import org.apache.jasper.JasperException;
 import org.apache.jasper.compiler.TldLocationsCache;
@@ -49,7 +49,7 @@ import org.slf4j.LoggerFactory;
 /**
  * A container for all tag libraries that are defined "globally"
  * for the web application.
- * 
+ *
  * Tag Libraries can be defined globally in one of two ways:
  *   1. Via <taglib> elements in web.xml:
  *      the uri and location of the tag-library are specified in
@@ -74,7 +74,7 @@ import org.slf4j.LoggerFactory;
  * If no mapping is found, then the uri specified
  * in the taglib directive is to be interpreted as the location for
  * the TLD of this tag library.
- * 
+ *
  * This class was copied from tomcat to allow Geronimo
  * to override Jasper's default TldLocationsCache which does not work
  * with Geronimo's MultiParentClassLoader.  Copying was necessary because
@@ -100,10 +100,10 @@ public class GeronimoTldLocationsCache extends TldLocationsCache {
 
     // Names of JARs that are known not to contain any TLDs
     private static HashSet<String> noTldJars;
-    
+
     // Names of JARs that have already been scanned
     ArrayList<String> scannedJars;
-    
+
     /**
      * The mapping of the 'global' tag library URI to the location (resource
      * path) of the TLD associated with that tag library. The location is
@@ -147,16 +147,16 @@ public class GeronimoTldLocationsCache extends TldLocationsCache {
         noTldJars.add("tools.jar");
         noTldJars.add("sunpkcs11.jar");
     }
-    
+
     public GeronimoTldLocationsCache(ServletContext ctxt) {
         this(ctxt, true);
     }
 
-    /** Constructor. 
+    /** Constructor.
      *
-     * @param ctxt the servlet context of the web application in which Jasper 
+     * @param ctxt the servlet context of the web application in which Jasper
      * is running
-     * @param redeployMode if true, then the compiler will allow redeploying 
+     * @param redeployMode if true, then the compiler will allow redeploying
      * a tag library from the same jar, at the expense of slowing down the
      * server a bit. Note that this may only work on JDK 1.3.1_01a and later,
      * because of JDK bug 4211817 fixed in this release.
@@ -168,14 +168,14 @@ public class GeronimoTldLocationsCache extends TldLocationsCache {
         this.ctxt = ctxt;
         this.redeployMode = redeployMode;
         mappings = new Hashtable<String,String[]>();
-        initialized = false;        
+        initialized = false;
     }
 
     /**
      * Sets the list of JARs that are known not to contain any TLDs.
      *
-     * @param jarNames List of comma-separated names of JAR files that are 
-     * known not to contain any TLDs 
+     * @param jarNames List of comma-separated names of JAR files that are
+     * known not to contain any TLDs
      */
     public static void setNoTldJars(String jarNames) {
         if (jarNames != null) {
@@ -194,7 +194,7 @@ public class GeronimoTldLocationsCache extends TldLocationsCache {
      * in the web application. A tag library is 'exposed' either explicitly in
      * web.xml or implicitly via the uri tag in the TLD of a taglib deployed
      * in a jar file (WEB-INF/lib).
-     * 
+     *
      * @param uri The taglib uri
      *
      * @return An array of two Strings: The first element denotes the real
@@ -224,7 +224,7 @@ public class GeronimoTldLocationsCache extends TldLocationsCache {
 
     /*
      * Populates taglib map described in web.xml.
-     */    
+     */
     private void processWebDotXml() throws Exception {
 
         InputStream is = null;
@@ -254,7 +254,7 @@ public class GeronimoTldLocationsCache extends TldLocationsCache {
             }
             is = uri.openStream();
             InputSource ip = new InputSource(is);
-            ip.setSystemId(uri.toExternalForm()); 
+            ip.setSystemId(uri.toExternalForm());
 
             // Parse the web application deployment descriptor
             TreeNode webtld = null;
@@ -421,7 +421,7 @@ public class GeronimoTldLocationsCache extends TldLocationsCache {
      * Returns the value of the uri element of the given TLD, or null if the
      * given TLD does not contain any such element.
      */
-    private String getUriFromTld(String resourcePath, InputStream in) 
+    private String getUriFromTld(String resourcePath, InputStream in)
         throws JasperException
     {
         // Parse the tag library descriptor at the specified resource path
@@ -439,7 +439,7 @@ public class GeronimoTldLocationsCache extends TldLocationsCache {
     /*
      * Scans all JARs accessible to the webapp's classloader and its
      * parent classloaders for TLDs.
-     * 
+     *
      * The list of JARs always includes the JARs under WEB-INF/lib, as well as
      * all shared JARs in the classloader delegation chain of the webapp's
      * classloader.
@@ -449,19 +449,19 @@ public class GeronimoTldLocationsCache extends TldLocationsCache {
      * that are known not to contain any TLDs.
      */
     private void scanJars(ClassLoader loader) throws Exception {
-        
-        if (loader instanceof MultiParentClassLoader) {
-            MultiParentClassLoader mutliLoader = (MultiParentClassLoader) loader;
-            for (ClassLoader parent : mutliLoader.getParents()) {
-                scanJars(parent);
-            }
-        }
 
-        if (loader instanceof ChildrenConfigurationClassLoader) {
-            ChildrenConfigurationClassLoader childLoader = (ChildrenConfigurationClassLoader) loader;
-            ClassLoader parent = childLoader.getParent();
-            scanJars(parent);
-        }
+//        if (loader instanceof MultiParentClassLoader) {
+//            MultiParentClassLoader mutliLoader = (MultiParentClassLoader) loader;
+//            for (ClassLoader parent : mutliLoader.getParents()) {
+//                scanJars(parent);
+//            }
+//        }
+
+//        if (loader instanceof ChildrenConfigurationClassLoader) {
+//            ChildrenConfigurationClassLoader childLoader = (ChildrenConfigurationClassLoader) loader;
+//            ClassLoader parent = childLoader.getParent();
+//            scanJars(parent);
+//        }
 
         if (loader instanceof URLClassLoader) {
             URL[] urls = ((URLClassLoader) loader).getURLs();
