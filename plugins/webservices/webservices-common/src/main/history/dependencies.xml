@@ -12,9 +12,34 @@
         <type>jar</type>
     </dependency>
     <dependency>
+        <groupId>log4j</groupId>
+        <artifactId>log4j</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>j2ee-server</artifactId>
         <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.framework</groupId>
+        <artifactId>geronimo-core</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.framework</groupId>
+        <artifactId>geronimo-interceptor</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.framework</groupId>
+        <artifactId>geronimo-naming</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.framework</groupId>
+        <artifactId>geronimo-security</artifactId>
+        <type>jar</type>
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.framework</groupId>
@@ -22,9 +47,9 @@
         <type>car</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>xmlbeans</artifactId>
-        <type>car</type>
+        <groupId>org.apache.geronimo.modules</groupId>
+        <artifactId>geronimo-j2ee</artifactId>
+        <type>jar</type>
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.modules</groupId>
@@ -37,9 +62,14 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.plugins.classloaders</groupId>
-        <artifactId>geronimo-schema-jee_5</artifactId>
-        <type>car</type>
+        <groupId>org.apache.geronimo.specs</groupId>
+        <artifactId>geronimo-saaj_1.3_spec</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.servicemix.bundles</groupId>
+        <artifactId>org.apache.servicemix.bundles.xmlbeans</artifactId>
+        <type>jar</type>
     </dependency>
     <dependency>
         <groupId>org.codehaus.castor</groupId>
@@ -49,11 +79,6 @@
     <dependency>
         <groupId>wsdl4j</groupId>
         <artifactId>wsdl4j</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>xml-resolver</groupId>
-        <artifactId>xml-resolver</artifactId>
         <type>jar</type>
     </dependency>
 </plugin-artifact>

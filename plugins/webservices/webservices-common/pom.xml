@@ -27,14 +27,14 @@
         <artifactId>webservices</artifactId>
         <version>3.0-SNAPSHOT</version>
     </parent>
-    
+
     <groupId>org.apache.geronimo.configs</groupId>
     <artifactId>webservices-common</artifactId>
     <name>Geronimo Plugins, Web Services :: Common</name>
     <packaging>car</packaging>
 
     <description>Common classes for all web services provider integrations.</description>
-    
+
     <dependencies>
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
@@ -58,11 +58,9 @@
             <type>car</type>
         </dependency>
 
-         <dependency>
-            <groupId>org.apache.geronimo.framework</groupId>
-            <artifactId>xmlbeans</artifactId>
-            <version>${version}</version>
-            <type>car</type>
+        <dependency>
+            <groupId>org.apache.servicemix.bundles</groupId>
+            <artifactId>org.apache.servicemix.bundles.xmlbeans</artifactId>
         </dependency>
 
         <dependency>
