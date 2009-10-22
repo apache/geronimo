@@ -338,6 +338,8 @@ public class PackageMojo extends AbstractCarMojo {
         //use a fresh kernel for each module
         kernel.shutdown();
         kernel = null;
+        bundleContext.getBundle().stop();
+        bundleContext = null;
     }
 
     /**

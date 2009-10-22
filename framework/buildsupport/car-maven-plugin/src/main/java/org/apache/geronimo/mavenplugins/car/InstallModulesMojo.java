@@ -191,7 +191,12 @@ public class InstallModulesMojo extends AbstractCarMojo {
         } catch (Exception e) {
             throw new MojoExecutionException("Could not use plugin installer bean", e);
         } finally {
-            kernel.shutdown();
+            kernel.shutdown();            
+            try {
+                bundleContext.getBundle().stop();
+            } catch (BundleException e) {
+                // ignore
+            }
         }
         getLog().info("Installed plugins: ");
         for (Artifact artifact: downloadPoller.getInstalledConfigIDs()) {
