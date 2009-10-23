@@ -79,18 +79,9 @@ public class MessageDestinationTest extends TestCase {
         Map<String, Artifact> locations = new HashMap<String, Artifact>();
         locations.put(null, artifact);
         BundleContext bundleContext = new MockBundleContext(getClass().getClassLoader(), "", null, locations);
-        Kernel kernel = new BasicKernel("test", bundleContext);
         Artifact id = new Artifact("test", "test", "", "car");
         module  = new ConnectorModule(false, new AbstractName(id, Collections.singletonMap("name", "test")), null, null, "foo", null, null, null, null);
-        ConfigurationManager configurationManager = new KernelConfigurationManager(kernel,
-                Collections.<ConfigurationStore>singleton(configStore),
-                null,
-                null,
-                artifactManager,
-                new DefaultArtifactResolver(artifactManager, null), 
-                new HashSet<ListableRepository>(),
-                null,
-                bundleContext);
+        ConfigurationManager configurationManager = new MockConfigurationManager();
         EARContext earContext = new EARContext(new File("foo"),
             null,
             new Environment(artifact),

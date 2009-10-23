@@ -24,6 +24,8 @@ import java.util.List;
 import java.util.Collections;
 import java.util.Collection;
 import java.util.LinkedHashSet;
+import java.util.HashMap;
+import java.util.Map;
 import java.io.IOException;
 
 import org.apache.geronimo.kernel.config.ConfigurationManager;
@@ -37,6 +39,7 @@ import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.LifecycleMonitor;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.ConfigurationResolver;
+import org.apache.geronimo.kernel.config.DependencyNode;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Version;
 import org.apache.geronimo.kernel.repository.ArtifactResolver;
@@ -49,6 +52,8 @@ import org.osgi.framework.Bundle;
  * @version $Rev$ $Date$
  */
 public class MockConfigurationManager implements ConfigurationManager {
+
+    private final Map<Artifact, Configuration> configurations = new HashMap<Artifact, Configuration>();
 
     public boolean isInstalled(Artifact configurationId) {
         return false;
@@ -95,11 +100,11 @@ public class MockConfigurationManager implements ConfigurationManager {
     }
 
     public boolean isConfiguration(Artifact artifact) {
-        return false;
+        return configurations.containsKey(artifact);
     }
 
     public Configuration getConfiguration(Artifact configurationId) {
-        return null;
+        return configurations.get(configurationId);
     }
 
     public LifecycleResults loadConfiguration(Artifact configurationId) throws NoSuchConfigException, LifecycleException {
@@ -107,7 +112,7 @@ public class MockConfigurationManager implements ConfigurationManager {
     }
 
     public LifecycleResults loadConfiguration(ConfigurationData configurationData) throws NoSuchConfigException, LifecycleException {
-        return null;
+        return loadConfiguration(configurationData, null);
     }
 
     public LifecycleResults loadConfiguration(Artifact configurationId, LifecycleMonitor monitor) throws NoSuchConfigException, LifecycleException {
@@ -115,6 +120,13 @@ public class MockConfigurationManager implements ConfigurationManager {
     }
 
     public LifecycleResults loadConfiguration(ConfigurationData configurationData, LifecycleMonitor monitor) throws NoSuchConfigException, LifecycleException {
+        try {
+            Artifact configId = configurationData.getEnvironment().getConfigId();
+            Configuration configuration = new Configuration(configurationData, new DependencyNode(configId, null, null), null, null, null);
+            configurations.put(configId, configuration);
+        } catch (InvalidConfigException e) {
+
+        }
         return null;
     }
 

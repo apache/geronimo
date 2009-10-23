@@ -367,6 +367,7 @@ public class ConnectorModuleBuilderTest extends TestSupport {
     }
 
     private void verifyDeployment(ConfigurationData configurationData, ClassLoader cl, AbstractName moduleAbstractName, String resourceAdapterName, boolean is15, String moduleName) throws Exception {
+        configurationData.setBundleContext(bundleContext);
         DataSource ds = null;
         try {
 

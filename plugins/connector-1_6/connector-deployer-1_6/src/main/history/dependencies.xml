@@ -6,19 +6,34 @@
         <version>3.0-SNAPSHOT</version>
         <type>car</type>
     </module-id>
-    <dependency start="true">
+    <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>j2ee-deployer</artifactId>
         <type>car</type>
     </dependency>
-    <dependency start="true">
+    <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>transaction-1_6</artifactId>
         <type>car</type>
     </dependency>
-    <dependency start="true">
+    <dependency>
+        <groupId>org.apache.geronimo.modules</groupId>
+        <artifactId>geronimo-connector-1_6</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
         <groupId>org.apache.geronimo.modules</groupId>
         <artifactId>geronimo-connector-builder-1_6</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.modules</groupId>
+        <artifactId>geronimo-naming-builder</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.schema</groupId>
+        <artifactId>geronimo-schema-j2ee_1.4</artifactId>
         <type>jar</type>
     </dependency>
 </plugin-artifact>

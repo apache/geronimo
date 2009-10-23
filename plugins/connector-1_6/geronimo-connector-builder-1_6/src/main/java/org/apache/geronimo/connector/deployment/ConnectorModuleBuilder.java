@@ -385,6 +385,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
     }
 
     public void installModule(JarFile earFile, EARContext earContext, Module module, Collection configurationStores, ConfigurationStore targetConfigurationStore, Collection repository) throws DeploymentException {
+        module.setEarContext(earContext);
         try {
             JarFile moduleFile = module.getModuleFile();
 
