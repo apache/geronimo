@@ -12,11 +12,6 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.bundles</groupId>
-        <artifactId>log4j</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
         <groupId>org.apache.geronimo.framework</groupId>
         <artifactId>geronimo-gbean-deployer</artifactId>
         <type>car</type>

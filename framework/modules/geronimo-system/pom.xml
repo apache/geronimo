@@ -34,6 +34,12 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.apache.geronimo.bundles</groupId>
+            <artifactId>log4j</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-cli</artifactId>
             <version>${version}</version>
@@ -73,39 +79,7 @@
             <groupId>org.apache.servicemix.bundles</groupId>
             <artifactId>org.apache.servicemix.bundles.commons-lang</artifactId>
         </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.bundles</groupId>
-            <artifactId>log4j</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <!--<dependency>-->
-            <!--<groupId>org.ops4j.pax.logging</groupId>-->
-            <!--<artifactId>pax-logging-service</artifactId>-->
-        <!--</dependency>-->
-
-        <!-- todo move jul logging install gbean to where it's needed such as tomcat and/or jasper plugins -->
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>jul-to-slf4j</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <!-- for jexl -->
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>jcl-over-slf4j</artifactId>
-        </dependency>
-
-        <!--<dependency>-->
-            <!--<groupId>org.slf4j</groupId>-->
-            <!--<artifactId>slf4j-api</artifactId>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.slf4j</groupId>-->
-            <!--<artifactId>slf4j-log4j12</artifactId>-->
-            <!--<scope>provided</scope>-->
-        <!--</dependency>-->
-
+        
         <!-- plugin management -->
         <dependency>
             <groupId>org.apache.servicemix.specs</groupId>
@@ -130,14 +104,6 @@
         <dependency>
             <groupId>org.apache.servicemix.bundles</groupId>
             <artifactId>org.apache.servicemix.bundles.woodstox</artifactId>
-        </dependency>
-        <!--
-        Some dependencies require JCL, so use this adapter to force them into SLF4J.
-        -->
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>jcl-over-slf4j</artifactId>
-            <scope>test</scope>
         </dependency>
 
         <dependency>
@@ -204,7 +170,7 @@
                 <configuration>
                     <instructions>
                         <!--<_versionpolicy>[$(version;==;$(@)),$(version;+;$(@)))</_versionpolicy>-->
-                        <Import-Package>org.slf4j.bridge;resolution:=optional,org.apache.log4j.helpers;resolution:=optional,*</Import-Package>
+                        <Import-Package>org.apache.log4j.helpers;resolution:=optional,*</Import-Package>
                     </instructions>
                 </configuration>
             </plugin>

@@ -85,6 +85,7 @@
     </gbean>
 
     <!-- Logging service -->
+    <!--
     <gbean name="Logger" class="org.apache.geronimo.system.logging.log4j.Log4jService">
         <attribute name="configFileName">var/log/deployer-log4j.properties</attribute>
         <attribute name="refreshPeriodSeconds">60</attribute>
@@ -92,5 +93,6 @@
             <name>ServerInfo</name>
         </reference>
     </gbean>
+    -->
 
 </module>

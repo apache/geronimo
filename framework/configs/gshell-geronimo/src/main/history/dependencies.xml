@@ -201,4 +201,9 @@
         <artifactId>groovy-all-minimal</artifactId>
         <type>jar</type>
     </dependency>
+    <dependency>
+        <groupId>org.ops4j.pax.logging</groupId>
+        <artifactId>pax-logging-api</artifactId>
+        <type>jar</type>
+    </dependency>
 </plugin-artifact>

@@ -115,15 +115,14 @@ specific services - those should be provided by children.
     </gbean>
 
     <!-- Logging service -->
-    <!--<gbean name="Logger" class="org.apache.geronimo.system.logging.log4j.Log4jService">-->
-        <!--<attribute name="configFileName">var/log/server-log4j.properties</attribute>-->
-        <!--<attribute name="refreshPeriodSeconds">60</attribute>-->
-        <!--<reference name="ServerInfo">-->
-            <!--<name>ServerInfo</name>-->
-        <!--</reference>-->
-    <!--</gbean>-->
-
-    <!-- JUL-to-SLF4j bridge -->
-    <!--<gbean name="JULBridge" class="org.apache.geronimo.system.logging.jul.JULBridgeGBean"/>-->
+    <!--
+    <gbean name="Logger" class="org.apache.geronimo.osgi.logging.log4j.Log4jService">
+        <attribute name="configFileName">var/log/server-log4j.properties</attribute>
+        <attribute name="refreshPeriodSeconds">60</attribute>
+        <reference name="ServerInfo">
+            <name>ServerInfo</name>
+        </reference>
+    </gbean>
+    -->
 
 </module>

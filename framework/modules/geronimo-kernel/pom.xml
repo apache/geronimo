@@ -44,10 +44,10 @@
             <artifactId>org.osgi.core</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <scope>provided</scope>
+            <groupId>org.ops4j.pax.logging</groupId>
+            <artifactId>pax-logging-api</artifactId>
         </dependency>
+
         <!--<dependency>-->
             <!--<groupId>org.apache.geronimo.framework</groupId>-->
             <!--<artifactId>geronimo-logging</artifactId>-->

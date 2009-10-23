@@ -17,11 +17,6 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>log4j</groupId>
-        <artifactId>log4j</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
         <groupId>net.sf.kxml</groupId>
         <artifactId>kxml2</artifactId>
         <type>jar</type>
@@ -182,11 +177,6 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.bundles</groupId>
-        <artifactId>log4j</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
         <groupId>org.apache.geronimo.specs</groupId>
         <artifactId>geronimo-servlet_3.0_spec</artifactId>
         <type>jar</type>
@@ -253,22 +243,7 @@
     </dependency>
     <dependency>
         <groupId>org.slf4j</groupId>
-        <artifactId>jcl-over-slf4j</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>jul-to-slf4j</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.slf4j</groupId>
         <artifactId>slf4j-api</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-log4j12</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>

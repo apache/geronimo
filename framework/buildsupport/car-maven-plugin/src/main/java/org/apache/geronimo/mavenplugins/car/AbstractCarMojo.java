@@ -629,7 +629,15 @@ public abstract class AbstractCarMojo
         }
     }
 
+    private void setLoggingLevel() {
+        if (System.getProperty("org.ops4j.pax.logging.DefaultServiceLog.level") == null) {
+            System.setProperty("org.ops4j.pax.logging.DefaultServiceLog.level", "ERROR");
+        }
+    }
+    
     protected Framework getFramework() throws BundleException {
+        setLoggingLevel();
+        
         Map<String, String> properties = new HashMap<String, String>();
 //        properties.put(FelixConstants.EMBEDDED_EXECUTION_PROP, "true");
         properties.put(Constants.FRAMEWORK_SYSTEMPACKAGES_EXTRA,
