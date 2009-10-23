@@ -12,8 +12,8 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>jline</groupId>
-        <artifactId>jline</artifactId>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -188,6 +188,11 @@
     </dependency>
     <dependency>
         <groupId>org.apache.servicemix.bundles</groupId>
+        <artifactId>org.apache.servicemix.bundles.jline</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.servicemix.bundles</groupId>
         <artifactId>org.apache.servicemix.bundles.junit</artifactId>
         <type>jar</type>
     </dependency>
@@ -239,21 +244,6 @@
     <dependency>
         <groupId>org.osgi</groupId>
         <artifactId>org.osgi.impl.bundle.jmx</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-api</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.springframework.osgi</groupId>
-        <artifactId>spring-osgi-core</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.springframework.osgi</groupId>
-        <artifactId>spring-osgi-io</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>

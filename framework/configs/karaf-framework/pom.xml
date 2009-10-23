@@ -102,6 +102,30 @@
             </dependency>
 
             <dependency>
+                <groupId>org.apache.felix.karaf</groupId>
+                <artifactId>org.apache.felix.karaf.client</artifactId>
+                <version>${felix.karaf.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>jline</groupId>
+                        <artifactId>jline</artifactId>
+                    </exclusion>
+               </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.felix.karaf.shell</groupId>
+                <artifactId>org.apache.felix.karaf.shell.console</artifactId>
+                <version>${felix.karaf.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>jline</groupId>
+                        <artifactId>jline</artifactId>
+                    </exclusion>
+               </exclusions>
+            </dependency>
+
+            <dependency>
                 <groupId>org.apache.felix.karaf.deployer</groupId>
                 <artifactId>org.apache.felix.karaf.deployer.blueprint</artifactId>
                 <version>${felix.karaf.version}</version>
@@ -109,6 +133,10 @@
                     <exclusion>
                         <groupId>commons-logging</groupId>
                         <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.springframework.osgi</groupId>
+                        <artifactId>spring-osgi-core</artifactId>
                     </exclusion>
                </exclusions>
             </dependency>
@@ -122,6 +150,10 @@
                         <groupId>commons-logging</groupId>
                         <artifactId>commons-logging</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>org.springframework.osgi</groupId>
+                        <artifactId>spring-osgi-core</artifactId>
+                    </exclusion>
                </exclusions>
             </dependency>
 
@@ -134,6 +166,10 @@
                         <groupId>commons-logging</groupId>
                         <artifactId>commons-logging</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>org.springframework.osgi</groupId>
+                        <artifactId>spring-osgi-core</artifactId>
+                    </exclusion>
                </exclusions>
             </dependency>
 
@@ -145,6 +181,34 @@
                     <exclusion>
                         <groupId>commons-logging</groupId>
                         <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.springframework.osgi</groupId>
+                        <artifactId>spring-osgi-core</artifactId>
+                    </exclusion>
+               </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.mina</groupId>
+                <artifactId>mina-core</artifactId>
+                <version>${mina.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-api</artifactId>
+                    </exclusion>
+               </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.geronimo.blueprint</groupId>
+                <artifactId>geronimo-blueprint</artifactId>
+                <version>${geronimo.blueprint.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-api</artifactId>
                     </exclusion>
                </exclusions>
             </dependency>
@@ -282,8 +346,8 @@
             <artifactId>mina-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>jline</groupId>
-            <artifactId>jline</artifactId>
+            <groupId>org.apache.servicemix.bundles</groupId>
+            <artifactId>org.apache.servicemix.bundles.jline</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.felix</groupId>
