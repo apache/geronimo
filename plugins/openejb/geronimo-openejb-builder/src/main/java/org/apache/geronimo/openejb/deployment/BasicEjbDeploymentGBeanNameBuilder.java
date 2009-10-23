@@ -45,6 +45,9 @@ public class BasicEjbDeploymentGBeanNameBuilder implements EjbDeploymentGBeanNam
                 case STATEFUL:
                     type = NameFactory.STATEFUL_SESSION_BEAN;
                     break;
+                case SINGLETON:
+                    type = NameFactory.SINGLETON_SESSION_BEAN;
+                    break;
             }
         } else if (enterpriseBean instanceof EntityBean) {
             type = NameFactory.ENTITY_BEAN;

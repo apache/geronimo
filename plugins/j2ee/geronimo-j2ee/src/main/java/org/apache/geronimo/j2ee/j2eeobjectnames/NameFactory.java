@@ -39,6 +39,7 @@ public class NameFactory {
     public static final String ENTITY_BEAN = "EntityBean";
     public static final String STATEFUL_SESSION_BEAN = "StatefulSessionBean";
     public static final String STATELESS_SESSION_BEAN = "StatelessSessionBean";
+    public static final String SINGLETON_SESSION_BEAN = "SingletonSessionBean";
     public static final String MESSAGE_DRIVEN_BEAN = "MessageDrivenBean";
     public static final String SERVLET = "Servlet";
     public static final String RESOURCE_ADAPTER = "ResourceAdapter";
