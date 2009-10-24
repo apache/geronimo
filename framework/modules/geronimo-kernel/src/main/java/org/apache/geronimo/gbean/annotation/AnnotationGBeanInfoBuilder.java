@@ -25,6 +25,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.lang.reflect.WildcardType;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -207,7 +208,17 @@ public class AnnotationGBeanInfoBuilder {
         if (Collection.class.isAssignableFrom(parameterType)) {
             if (genericType instanceof ParameterizedType) {
                 ParameterizedType parameterizedType = (ParameterizedType) genericType;
-                return (Class) parameterizedType.getActualTypeArguments()[0];
+                Type componentType = parameterizedType.getActualTypeArguments()[0];
+                if (componentType instanceof Class) {
+                    return (Class) componentType;
+                }
+                if (componentType instanceof WildcardType) {
+                    Type[] upper = ((WildcardType)componentType).getUpperBounds();
+                    if (upper.length == 1 && upper[0] instanceof Class) {
+                        return (Class) upper[0];
+                    }
+                }
+                throw new GBeanAnnotationException("Generic type is not a class: " + componentType);
             } else {
                 throw new GBeanAnnotationException(Collection.class + " parameter must be generified");
             }
