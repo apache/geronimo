@@ -7,17 +7,15 @@
     <packaging>server-assembly</packaging>
 
     <properties>
-        <!-- This property is required by the car:package mojo -->
         <geronimoVersion>3.0-SNAPSHOT</geronimoVersion>
-
     </properties>
 
 
     <dependencies>
         <!-- You will need the boilerplate to get a runnable server -->
         <dependency>
-            <groupId>org.apache.geronimo.assemblies</groupId>
-            <artifactId>geronimo-boilerplate</artifactId>
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>karaf-framework</artifactId>
             <version>${geronimoVersion}</version>
             <type>car</type>
         </dependency>
