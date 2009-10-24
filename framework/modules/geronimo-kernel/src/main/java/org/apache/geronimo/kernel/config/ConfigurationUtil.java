@@ -342,23 +342,23 @@ public final class ConfigurationUtil {
      * @return The EdtiableConfigurationManager, or none if there is not one available.
      * @throws IllegalStateException Occurs if there are multiple EditableConfigurationManagers in the kernel.
      */
-//    public static EditableConfigurationManager getEditableConfigurationManager(Kernel kernel) {
-//        Set names = kernel.listGBeans(new AbstractNameQuery(EditableConfigurationManager.class.getName()));
-//        for (Iterator iterator = names.iterator(); iterator.hasNext();) {
-//            AbstractName abstractName = (AbstractName) iterator.next();
-//            if (!kernel.isRunning(abstractName)) {
-//                iterator.remove();
-//            }
-//        }
-//        if (names.isEmpty()) {
-//            return null; // may be one, just not editable
-//        }
-//        if (names.size() > 1) {
-//            throw new IllegalStateException("More than one Configuration Manager was found in the kernel");
-//        }
-//        AbstractName configurationManagerName = (AbstractName) names.iterator().next();
-//        return (EditableConfigurationManager) kernel.getProxyManager().createProxy(configurationManagerName, EditableConfigurationManager.class);
-//    }
+    public static EditableConfigurationManager getEditableConfigurationManager(Kernel kernel) {
+        Set names = kernel.listGBeans(new AbstractNameQuery(EditableConfigurationManager.class.getName()));
+        for (Iterator iterator = names.iterator(); iterator.hasNext();) {
+            AbstractName abstractName = (AbstractName) iterator.next();
+            if (!kernel.isRunning(abstractName)) {
+                iterator.remove();
+            }
+        }
+        if (names.isEmpty()) {
+            return null; // may be one, just not editable
+        }
+        if (names.size() > 1) {
+            throw new IllegalStateException("More than one Configuration Manager was found in the kernel");
+        }
+        AbstractName configurationManagerName = (AbstractName) names.iterator().next();
+        return (EditableConfigurationManager) kernel.getProxyManager().createProxy(configurationManagerName, EditableConfigurationManager.class);
+    }
 
     public static void releaseConfigurationManager(Kernel kernel, ConfigurationManager configurationManager) {
 //        kernel.getProxyManager().destroyProxy(configurationManager);

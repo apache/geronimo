@@ -89,9 +89,9 @@ specific services - those should be provided by children.
     </gbean>
 
     <!--Configuration Manager service-->
-    <gbean name="ConfigurationManager" class="org.apache.geronimo.kernel.config.KernelConfigurationManager">
+    <gbean name="ConfigurationManager" class="org.apache.geronimo.kernel.config.EditableKernelConfigurationManager">
         <!--<attribute name="defaultStoreNameQuery">?name=MasterConfigurationStore</attribute>-->
-        <!--<attribute name="defaultStoreNameQuery">?name=Local</attribute>-->
+        <attribute name="defaultStoreNameQuery">?name=Local</attribute>
         <reference name="Repositories"></reference>
         <reference name="Stores"></reference>
         <reference name="Watchers"></reference>
