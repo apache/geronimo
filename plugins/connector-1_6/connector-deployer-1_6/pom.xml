@@ -89,9 +89,6 @@
                 <groupId>org.apache.geronimo.buildsupport</groupId>
                 <artifactId>car-maven-plugin</artifactId>
                 <configuration>
-                    <useMavenDependencies>
-                        <value>false</value>
-                    </useMavenDependencies>
                     <category>Connector</category>
                     <dependencies>
                         <dependency>
