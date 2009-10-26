@@ -118,7 +118,7 @@ public class DependencyManager implements SynchronousBundleListener {
     }
 
     private String locateBundle(Artifact configurationId) throws NoSuchConfigException, IOException, InvalidConfigException {
-        if (System.getProperty("geronimo.build.car") == null) {
+        if (Boolean.valueOf(System.getProperty("geronimo.build.car"))) {
             return "mvn:" + configurationId.getGroupId() + "/" + configurationId.getArtifactId() + "/" + configurationId.getVersion() + ("jar".equals(configurationId.getType())?  "": "/" + configurationId.getType());
         }
         for (Repository repo : repositories) {
