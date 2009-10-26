@@ -309,8 +309,6 @@ public class PersistenceUnitBuilder implements ModuleBuilderExtension {
 
         if (excludeUnlistedClasses) {
             gbeanData.clearAttribute("jarFileUrls");
-        } else {
-            gbeanData.clearAttribute("managedClassNames");
         }
     }
 
