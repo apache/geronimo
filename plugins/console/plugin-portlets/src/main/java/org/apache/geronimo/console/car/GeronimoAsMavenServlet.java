@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.util.Iterator;
 import java.util.Set;
 
 import javax.servlet.ServletException;
@@ -42,10 +41,9 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelRegistry;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
@@ -58,8 +56,10 @@ import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.repository.Version;
 import org.apache.geronimo.kernel.util.XmlUtil;
 import org.apache.geronimo.system.plugin.PluginInstaller;
-import org.apache.geronimo.system.plugin.PluginXmlUtil;
 import org.apache.geronimo.system.plugin.model.PluginListType;
+import org.apache.geronimo.system.plugin.model.PluginXmlUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Text;
@@ -70,6 +70,9 @@ import org.w3c.dom.Text;
  * @version $Rev$ $Date$
  */
 public class GeronimoAsMavenServlet extends HttpServlet {
+    
+    private static final long serialVersionUID = -2106697871964363101L;
+
     private static final Logger log = LoggerFactory.getLogger(GeronimoAsMavenServlet.class);
 
     protected void doHead(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws ServletException, IOException {
@@ -160,7 +163,12 @@ public class GeronimoAsMavenServlet extends HttpServlet {
     private boolean produceDownloadFile(Kernel kernel, Artifact configId, HttpServletResponse response, boolean reply) throws IOException {
         //todo: replace kernel mumbo jumbo with JSR-77 navigation
         // Step 1: check if it's in a configuration store
-        ConfigurationManager mgr = ConfigurationUtil.getConfigurationManager(kernel);
+        ConfigurationManager mgr;
+        try {
+            mgr = ConfigurationUtil.getConfigurationManager(kernel);
+        } catch (GBeanNotFoundException e) {
+            throw new IOException(e.getMessage());
+        }
         if(mgr.isConfiguration(configId)) {
             ConfigurationStore store = mgr.getStoreForConfiguration(configId);
             response.setContentType("application/zip");
@@ -176,9 +184,8 @@ public class GeronimoAsMavenServlet extends HttpServlet {
             }
         }
         // Step 2: check if it's in a repository
-        Set repos = kernel.listGBeans(new AbstractNameQuery(Repository.class.getName()));
-        for (Iterator it = repos.iterator(); it.hasNext();) {
-            AbstractName name = (AbstractName) it.next();
+        Set<AbstractName> repos = kernel.listGBeans(new AbstractNameQuery(Repository.class.getName()));
+        for (AbstractName name : repos) {
             Repository repo = (Repository) kernel.getProxyManager().createProxy(name, Repository.class);
             if(repo.contains(configId)) {
                 File path = repo.getLocation(configId);
@@ -204,9 +211,10 @@ public class GeronimoAsMavenServlet extends HttpServlet {
     }
 
     private void generateConfigFile(HttpServletRequest request, Kernel kernel, PrintWriter out) throws NoSuchStoreException, JAXBException, XMLStreamException {
-        String repo = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+request.getContextPath()+request.getServletPath();
-        if(!repo.endsWith("/")) repo += "/";
-        ConfigurationManager mgr = ConfigurationUtil.getConfigurationManager(kernel);
+        String repo = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath() + request.getServletPath();
+        if (!repo.endsWith("/")) {
+            repo += "/";
+        }
         PluginInstaller installer = getInstaller(kernel);
         PluginListType pluginList = installer.createPluginListForRepositories(repo);
         PluginXmlUtil.writePluginList(pluginList, out);
@@ -214,7 +222,7 @@ public class GeronimoAsMavenServlet extends HttpServlet {
 
 
     private PluginInstaller getInstaller(Kernel kernel) {
-        Set names = kernel.listGBeans(new AbstractNameQuery(PluginInstaller.class.getName()));
+        Set<AbstractName> names = kernel.listGBeans(new AbstractNameQuery(PluginInstaller.class.getName()));
         if(names.size() == 0) {
             return null;
         }
@@ -222,7 +230,12 @@ public class GeronimoAsMavenServlet extends HttpServlet {
     }
 
     private void generateMavenFile(Kernel kernel, PrintWriter writer, String groupId, String artifactId, boolean reply) throws ParserConfigurationException, TransformerException {
-        ConfigurationManager mgr = ConfigurationUtil.getConfigurationManager(kernel);
+        ConfigurationManager mgr = null;
+        try {
+            mgr = ConfigurationUtil.getConfigurationManager(kernel);
+        } catch (GBeanNotFoundException e) {
+            //Should Not Happen
+        }
         Artifact[] artifacts = mgr.getArtifactResolver().queryArtifacts(new Artifact(groupId, artifactId, (Version)null, null));
         if(!reply) {
             return;

@@ -51,6 +51,7 @@ import org.apache.geronimo.kernel.config.EditableConfigurationManager;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.NoSuchStoreException;
 import org.apache.geronimo.kernel.management.State;
+import org.apache.geronimo.kernel.osgi.BundleClassLoader;
 import org.apache.geronimo.kernel.proxy.GeronimoManagedBean;
 import org.apache.geronimo.kernel.proxy.ProxyManager;
 import org.apache.geronimo.kernel.repository.Artifact;
@@ -355,7 +356,7 @@ public class KernelManagementHelper implements ManagementHelper {
     public Object getObject(AbstractName objectName) {
         ClassLoader cl = null;
         try {
-            cl = kernel.getClassLoaderFor(objectName);
+            cl = new BundleClassLoader(kernel.getBundleFor(objectName));
         } catch(GBeanNotFoundException e) {
             cl = KernelManagementHelper.class.getClassLoader();
         }
@@ -429,7 +430,12 @@ public class KernelManagementHelper implements ManagementHelper {
     }
 
     public ConfigurationData[] getConfigurations(ConfigurationModuleType type, boolean includeChildModules) {
-        ConfigurationManager mgr = ConfigurationUtil.getConfigurationManager(kernel);
+        ConfigurationManager mgr = null;
+        try {
+            mgr = ConfigurationUtil.getConfigurationManager(kernel);
+        } catch (GBeanNotFoundException e) {
+            return null;
+        }
         List<AbstractName> stores = mgr.listStores();
         List<ConfigurationData> results = new ArrayList<ConfigurationData>();
         for (AbstractName storeName : stores) {
@@ -499,7 +505,12 @@ public class KernelManagementHelper implements ManagementHelper {
      * @return The Module, or null if the configuration is not running.
      */
     public J2EEDeployedObject getModuleForConfiguration(Artifact configuration) {
-        ConfigurationManager manager = ConfigurationUtil.getConfigurationManager(kernel);
+        ConfigurationManager manager = null;
+        try {
+            manager = ConfigurationUtil.getConfigurationManager(kernel);
+        } catch (GBeanNotFoundException e) {
+            return null;
+        }
         Configuration config = manager.getConfiguration(configuration);
         if (config == null || !manager.isRunning(configuration)) {
             return null; // The configuration is not running, so we can't get its contents
@@ -520,7 +531,7 @@ public class KernelManagementHelper implements ManagementHelper {
             } else {
                 return null;
             }
-            ClassLoader classLoader = kernel.getClassLoaderFor(result);
+            ClassLoader classLoader = new BundleClassLoader(kernel.getBundleFor(result));
             return (J2EEDeployedObject) kernel.getProxyManager().createProxy(result, classLoader);
         } catch (GBeanNotFoundException e) {
             throw new IllegalStateException("Bad config ID: " + e.getMessage(), e);

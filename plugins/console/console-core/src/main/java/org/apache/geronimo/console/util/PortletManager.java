@@ -28,10 +28,9 @@ import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 import javax.servlet.http.HttpSession;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelRegistry;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
@@ -57,6 +56,8 @@ import org.apache.geronimo.management.geronimo.WebAccessLog;
 import org.apache.geronimo.management.geronimo.WebContainer;
 import org.apache.geronimo.management.geronimo.WebManager;
 import org.apache.geronimo.system.logging.SystemLog;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @version $Rev$ $Date$
@@ -93,7 +94,11 @@ public class PortletManager {
     }
 
     public static ConfigurationManager getConfigurationManager() {
-        return ConfigurationUtil.getConfigurationManager(getKernel());
+        try {
+            return ConfigurationUtil.getConfigurationManager(getKernel());
+        } catch (GBeanNotFoundException e) {
+            return null;
+        }
     }
 
     public static ManagementHelper getManagementHelper(PortletRequest request) {

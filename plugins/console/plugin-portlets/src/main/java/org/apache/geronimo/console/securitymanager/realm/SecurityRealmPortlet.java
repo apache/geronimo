@@ -189,7 +189,7 @@ public class SecurityRealmPortlet extends BasePortlet {
             if (data.getName() != null && !data.getName().trim().equals("")) {
                 // Check if realm with the same name already exists
                 Artifact artifact = new Artifact("console.realm", getArtifactId(data.getName()), "1.0", "car");
-                ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(PortletManager.getKernel());
+                ConfigurationManager configurationManager = PortletManager.getConfigurationManager();
                 if (configurationManager.isInstalled(artifact)) {
                     actionResponse.setRenderParameter(MODE_KEY, SELECT_TYPE_MODE);
                     String error = getLocalizedString(actionRequest, "plugin.errorMsg03");
@@ -597,7 +597,7 @@ public class SecurityRealmPortlet extends BasePortlet {
         ConfigurationManager configMgr = null;
         if(results.length > 0) {
             // Needed only when there are any SecurityRealms
-            configMgr = ConfigurationUtil.getConfigurationManager(kernel);
+            configMgr = PortletManager.getConfigurationManager();
         }
         for (int i = 0; i < results.length; i++) {
             AbstractName abstractName = PortletManager.getNameFor(request, realms[i]);

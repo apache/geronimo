@@ -53,6 +53,7 @@ import org.apache.geronimo.management.geronimo.WebContainer;
 import org.apache.geronimo.management.geronimo.WebManager;
 import org.apache.geronimo.management.geronimo.WebManager.ConnectorAttribute;
 import org.apache.geronimo.management.geronimo.WebManager.ConnectorType;
+import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -214,17 +215,14 @@ public class ConnectorPortlet extends BasePortlet {
                 setKeystoreProperties(actionRequest, connectorName);
                 
                 try {
-                    Kernel kernel=PortletManager.getKernel();
-                    ClassLoader oldCL=connector.getClass().getClassLoader();
+                    Kernel kernel = PortletManager.getKernel();
+                    BundleContext bundleContext = kernel.getBundleFor(connector.getClass()).getBundleContext();
                     kernel.stopGBean(connectorName);
                     kernel.unloadGBean(connectorName);
-                    
-                    
-                    kernel.loadGBean(connectorGBeanData, oldCL);
+                    kernel.loadGBean(connectorGBeanData, bundleContext);
                     kernel.startGBean(connectorName);
-                  
                 } catch (Exception e) {
-                    log.error("Unable to reload updated connector:"+connectorName.toURI(), e);
+                    log.error("Unable to reload updated connector:" + connectorName.toURI(), e);
                 }
                 
                 

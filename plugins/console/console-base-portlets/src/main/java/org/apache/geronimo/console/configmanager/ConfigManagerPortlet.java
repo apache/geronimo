@@ -208,7 +208,7 @@ public class ConfigManagerPortlet extends BasePortlet {
         boolean showDependencies = (cookies != null && cookies.indexOf(SHOW_DEPENDENCIES_COOKIE + "=true") > 0);        
         
         List<ModuleDetails> moduleDetails = new ArrayList<ModuleDetails>();
-        ConfigurationManager configManager = ConfigurationUtil.getConfigurationManager(kernel);
+        ConfigurationManager configManager = PortletManager.getConfigurationManager();
         List<ConfigurationInfo> infos = configManager.listConfigurations();
         for (ConfigurationInfo info : infos) {           
             if (ConfigurationModuleType.WAR.getName().equalsIgnoreCase(moduleType)) {

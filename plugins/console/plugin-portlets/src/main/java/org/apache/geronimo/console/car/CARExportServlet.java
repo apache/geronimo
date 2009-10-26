@@ -16,21 +16,21 @@
  */
 package org.apache.geronimo.console.car;
 
+import java.io.IOException;
 import java.net.URLEncoder;
-
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.KernelRegistry;
-import org.apache.geronimo.kernel.config.ConfigurationManager;
-import org.apache.geronimo.kernel.config.ConfigurationStore;
-import org.apache.geronimo.kernel.config.ConfigurationUtil;
-import org.apache.geronimo.kernel.config.NoSuchConfigException;
-import org.apache.geronimo.kernel.repository.Artifact;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
+
+import org.apache.geronimo.console.util.PortletManager;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.KernelRegistry;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
+import org.apache.geronimo.kernel.config.ConfigurationStore;
+import org.apache.geronimo.kernel.config.NoSuchConfigException;
+import org.apache.geronimo.kernel.repository.Artifact;
 
 /**
  * Servlet that lets you download a CAR from the repository
@@ -45,7 +45,7 @@ public class CARExportServlet extends HttpServlet {
         }
         Artifact artifact = Artifact.create(configId);
         Kernel kernel = KernelRegistry.getSingleKernel();
-        ConfigurationManager mgr = ConfigurationUtil.getConfigurationManager(kernel);
+        ConfigurationManager mgr = PortletManager.getConfigurationManager();
         ConfigurationStore store = mgr.getStoreForConfiguration(artifact);
         try {
             response.setContentType("application/zip");
