@@ -28,9 +28,6 @@ import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
 import javax.portlet.PortletException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.apache.geronimo.console.core.jms.TopicBrowserGBean;
 import org.apache.geronimo.console.jmsmanager.AbstractJMSManager;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
@@ -41,6 +38,8 @@ import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Dependency;
 import org.apache.geronimo.kernel.repository.ImportType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CreateDestinationHandler extends AbstractJMSManager implements PortletResponseHandler {
     protected final Logger log = LoggerFactory.getLogger(getClass());
@@ -90,6 +89,7 @@ public class CreateDestinationHandler extends AbstractJMSManager implements Port
                 adminObjectData = getTopicGBeanData();
                 // If we are adding a topic we have to add a browser so we can view
                 // its messages later.
+                /*
                 AbstractName browserName = kernel.getNaming().createChildName(adminObjectName, destinationName, "TopicBrowser");
                 GBeanData tBrowserBeanData = new GBeanData(browserName, TopicBrowserGBean.GBEAN_INFO);
                 tBrowserBeanData.setAttribute("subscriberName", destinationName);
@@ -98,6 +98,7 @@ public class CreateDestinationHandler extends AbstractJMSManager implements Port
                         adminObjectName);
 
                 configurationData.addGBean(tBrowserBeanData);
+                */
             } else if (Queue.class.getName().equals(destinationType)) {
                 adminObjectData = getQueueGBeanData();
             } else {

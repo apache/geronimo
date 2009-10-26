@@ -17,6 +17,7 @@
 package org.apache.geronimo.console.util;
 
 import java.io.File;
+import java.util.Collections;
 import java.util.Map;
 
 import javax.naming.InitialContext;
@@ -56,6 +57,7 @@ import org.apache.geronimo.management.geronimo.WebAccessLog;
 import org.apache.geronimo.management.geronimo.WebContainer;
 import org.apache.geronimo.management.geronimo.WebManager;
 import org.apache.geronimo.system.logging.SystemLog;
+import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -371,6 +373,21 @@ public class PortletManager {
             }
         }
         return null;
+    }
+    
+    public static Bundle getRepositoryEntryBundle(PortletRequest request, String repositoryURI) {
+        J2EEServer server = getCurrentServer(request);
+        Repository[] repos = server.getRepositories();
+        Artifact uri = Artifact.create(repositoryURI);
+        if (!uri.isResolved()) {
+            Artifact[] all = server.getConfigurationManager().getArtifactResolver().queryArtifacts(uri);
+            if (all.length == 0) {
+                return null;
+            } else {
+                uri = all[all.length - 1];
+            }
+        }
+        return getConfigurationManager().getBundle(uri);
     }
 
     public static J2EEDeployedObject getModule(PortletRequest request, Artifact configuration) {

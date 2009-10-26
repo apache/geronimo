@@ -40,10 +40,20 @@ public abstract class AbstractJMSManager {
     protected static final Artifact ACTIVEMQ_ARTIFACT = new Artifact("geronimo", "activemq", org.apache.geronimo.system.serverinfo.ServerConstants.getVersion(), "car");
     protected static final Kernel kernel = KernelRegistry.getSingleKernel();
 
-    protected static final ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
-    protected final Configuration BROKER_CONFIGURATION = configurationManager.getConfiguration(ACTIVEMQ_BROKER_ARTIFACT);
-    protected final Configuration CONNECTOR_CONFIGURATION = configurationManager.getConfiguration(ACTIVEMQ_ARTIFACT);
+    protected static final ConfigurationManager configurationManager;
+    static {
+        try {
+            configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
+        } catch (GBeanNotFoundException e) {
+            throw new IllegalStateException(e);
+        }
+    }
 
+    protected final Configuration BROKER_CONFIGURATION = configurationManager.getConfiguration(ACTIVEMQ_BROKER_ARTIFACT);
+
+    protected final Configuration CONNECTOR_CONFIGURATION = configurationManager.getConfiguration(ACTIVEMQ_ARTIFACT);
+    
+    
     private static final AbstractName earName = kernel.getNaming().createRootName(ACTIVEMQ_ARTIFACT, NameFactory.NULL, NameFactory.J2EE_APPLICATION);
     protected static final AbstractName RESOURCE_ADAPTER_MODULE_NAME = kernel.getNaming().createChildName(earName, ACTIVEMQ_ARTIFACT.toString(), NameFactory.RESOURCE_ADAPTER_MODULE);
     protected static final AbstractName RESOURCE_ADAPTER_NAME = kernel.getNaming().createChildName(RESOURCE_ADAPTER_MODULE_NAME, ACTIVEMQ_ARTIFACT.toString(), NameFactory.RESOURCE_ADAPTER);

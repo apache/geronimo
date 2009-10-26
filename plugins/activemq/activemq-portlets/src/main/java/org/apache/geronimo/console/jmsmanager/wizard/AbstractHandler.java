@@ -56,6 +56,7 @@ import org.apache.geronimo.deployment.service.jsr88.EnvironmentData;
 import org.apache.geronimo.deployment.tools.loader.ConnectorDeployable;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.naming.deployment.jsr88.GBeanLocator;
+import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -495,7 +496,8 @@ public abstract class AbstractHandler extends MultiPageAbstractHandler {
             DeploymentManager mgr = ManagementHelper.getManagementHelper(request).getDeploymentManager();
             try {
                 File rarFile = PortletManager.getRepositoryEntry(request, data.getRarURI());
-                ConnectorDeployable deployable = new ConnectorDeployable(rarFile.toURL());
+                Bundle rarBundle = PortletManager.getRepositoryEntryBundle(request, data.getRarURI());
+                ConnectorDeployable deployable = new ConnectorDeployable(rarBundle);
                 DeploymentConfiguration config = mgr.createConfiguration(deployable);
                 final DDBeanRoot ddBeanRoot = deployable.getDDBeanRoot();
                 Connector15DCBRoot root = (Connector15DCBRoot) config.getDConfigBeanRoot(ddBeanRoot);
