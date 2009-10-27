@@ -16,40 +16,61 @@
  */
 package org.apache.geronimo.openejb;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Hashtable;
-import java.util.List;
-import javax.management.ObjectName;
-
+import org.apache.geronimo.gbean.ReferenceCollection;
+import org.apache.geronimo.gbean.ReferenceCollectionEvent;
+import org.apache.geronimo.gbean.ReferenceCollectionListener;
+import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.gbean.annotation.ParamAttribute;
+import org.apache.geronimo.gbean.annotation.ParamReference;
+import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
+import org.apache.geronimo.gbean.annotation.ParamSpecial;
+import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.j2ee.management.impl.InvalidObjectNameException;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.ObjectNameUtil;
 import org.apache.geronimo.management.EJB;
 import org.apache.geronimo.management.EJBModule;
 import org.apache.geronimo.management.J2EEApplication;
 import org.apache.geronimo.management.J2EEServer;
-import org.apache.openejb.assembler.classic.EjbJarInfo;
-import org.apache.openejb.UndeployException;
 import org.apache.openejb.NoSuchApplicationException;
-import org.slf4j.LoggerFactory;
+import org.apache.openejb.UndeployException;
+import org.apache.openejb.assembler.classic.EjbJarInfo;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.management.ObjectName;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @version $Revision$ $Date$
  */
-public class EjbModuleImpl implements EJBModule {
+
+@GBean(j2eeType = NameFactory.EJB_MODULE)
+public class EjbModuleImpl implements EJBModule, GBeanLifecycle {
     private static final Logger log = LoggerFactory.getLogger(EjbModuleImpl.class);
     private final J2EEServer server;
     private final J2EEApplication application;
     private final String deploymentDescriptor;
     private final String objectName;
-    private final Collection<? extends EJB> ejbs;
+    private final Map<String, EjbDeployment> ejbs = new HashMap<String, EjbDeployment>();
     private final ClassLoader classLoader;
 
     private final OpenEjbSystem openEjbSystem;
     private final EjbJarInfo ejbJarInfo;
 
-    public EjbModuleImpl(String objectName, J2EEServer server, J2EEApplication application, String deploymentDescriptor, Collection<? extends EJB> ejbs, ClassLoader classLoader, OpenEjbSystem openEjbSystem, EjbJarInfo ejbJarInfo) {
+    public EjbModuleImpl(@ParamSpecial(type = SpecialAttributeType.objectName) String objectName,
+                         @ParamReference(name = "J2EEServer") J2EEServer server,
+                         @ParamReference(name = "J2EEApplication") J2EEApplication application,
+                         @ParamAttribute(name = "deploymentDescriptor") String deploymentDescriptor,
+                         @ParamReference(name = "EJBCollection") Collection<? extends EjbDeployment> ejbs,
+                         @ParamSpecial(type = SpecialAttributeType.classLoader) ClassLoader classLoader,
+                         @ParamReference(name = "OpenEjbSystem") OpenEjbSystem openEjbSystem,
+                         @ParamAttribute(name = "ejbJarInfo") EjbJarInfo ejbJarInfo) {
         this.objectName = objectName;
         ObjectName myObjectName = ObjectNameUtil.getObjectName(objectName);
         verifyObjectName(myObjectName);
@@ -57,12 +78,36 @@ public class EjbModuleImpl implements EJBModule {
         this.server = server;
         this.application = application;
         this.deploymentDescriptor = deploymentDescriptor;
-        this.ejbs = ejbs;
+        ((ReferenceCollection) ejbs).addReferenceCollectionListener(new ReferenceCollectionListener() {
+
+            public void memberAdded(ReferenceCollectionEvent event) {
+                EjbDeployment ejb = (EjbDeployment) event.getMember();
+                addEjb(ejb);
+            }
+
+            public void memberRemoved(ReferenceCollectionEvent event) {
+                EjbDeployment ejb = (EjbDeployment) event.getMember();
+                removeEjb(ejb);
+            }
+        });
+        for (EjbDeployment ejb : ejbs) {
+            addEjb(ejb);
+        }
 
         this.classLoader = classLoader;
 
         this.openEjbSystem = openEjbSystem;
         this.ejbJarInfo = ejbJarInfo;
+    }
+
+    private void removeEjb(EjbDeployment ejb) {
+        GeronimoThreadContextListener.get().removeEjb(ejb.getDeploymentId());
+        ejbs.remove(ejb.getDeploymentId());
+    }
+
+    private void addEjb(EjbDeployment ejb) {
+        ejbs.put(ejb.getDeploymentId(), ejb);
+        GeronimoThreadContextListener.get().addEjb(ejb);
     }
 
     public String getObjectName() {
@@ -107,7 +152,7 @@ public class EjbModuleImpl implements EJBModule {
 
         ArrayList<EJB> copy;
         synchronized (ejbs) {
-            copy = new ArrayList<EJB>(ejbs);
+            copy = new ArrayList<EJB>(ejbs.values());
         }
 
         String[] result = new String[copy.size()];
@@ -118,22 +163,26 @@ public class EjbModuleImpl implements EJBModule {
     }
 
 
-    protected void start() throws Exception {
+    public void doStart() throws Exception {
         openEjbSystem.createEjbJar(ejbJarInfo, classLoader);
     }
 
-    protected void stop() {
+    public void doStop() {
         try {
             openEjbSystem.removeEjbJar(ejbJarInfo, classLoader);
         } catch (NoSuchApplicationException e) {
             log.error("Module does not exist.", e);
         } catch (UndeployException e) {
             List<Throwable> causes = e.getCauses();
-            log.error(e.getMessage()+": Encountered "+causes.size()+" failures.");
+            log.error(e.getMessage() + ": Encountered " + causes.size() + " failures.");
             for (Throwable throwable : causes) {
                 log.info(throwable.toString(), throwable);
             }
         }
+    }
+
+    public void doFail() {
+        doStop();
     }
 
     /**

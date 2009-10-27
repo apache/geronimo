@@ -170,9 +170,9 @@ public class EjbDeploymentBuilder {
     }
 
 
-    public void addEjbModuleDependency(AbstractName ejbModuleName) {
+    public void addEjbModuleDependency(GBeanData ejbModule) {
         for (GBeanData gbean : gbeans.values()) {
-            gbean.addDependency(ejbModuleName);
+            ejbModule.addDependency(gbean.getAbstractName());
         }
     }
 

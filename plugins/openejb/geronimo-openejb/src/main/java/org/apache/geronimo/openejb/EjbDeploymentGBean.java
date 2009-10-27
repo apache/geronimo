@@ -79,11 +79,11 @@ public class EjbDeploymentGBean extends EjbDeployment implements GBeanLifecycle 
     }
 
     public void doStop() throws Exception {
-        stop();
+        destroy();
     }
 
     public void doFail() {
-        stop();
+        destroy();
     }
 
     // do not use this gbean info, instead use StatelessDeploymentGBean, StatefulDeploymentGBean, EntityDeploymentGBean, or MessageDrivenDeploymentGBean

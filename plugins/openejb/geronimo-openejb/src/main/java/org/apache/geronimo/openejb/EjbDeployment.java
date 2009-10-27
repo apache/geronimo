@@ -19,11 +19,13 @@ package org.apache.geronimo.openejb;
 
 import java.lang.reflect.Method;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 
 import javax.ejb.EJBHome;
 import javax.ejb.EJBLocalHome;
 import javax.ejb.EJBObject;
 import javax.naming.Context;
+import javax.naming.NamingException;
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginException;
 
@@ -63,7 +65,7 @@ public class EjbDeployment implements EJB, EjbDeploymentIdAccessor {
 
     protected final OpenEjbSystem openEjbSystem;
 
-    protected CoreDeploymentInfo deploymentInfo;
+    protected AtomicReference<CoreDeploymentInfo> deploymentInfo = new AtomicReference<CoreDeploymentInfo>();
 
     private Context javaCompSubContext;
 
@@ -115,7 +117,7 @@ public class EjbDeployment implements EJB, EjbDeploymentIdAccessor {
     }
 
     public CoreDeploymentInfo getDeploymentInfo() {
-        return deploymentInfo;
+        return deploymentInfo.get();
     }
 
     public String getDeploymentId() {
@@ -183,75 +185,75 @@ public class EjbDeployment implements EJB, EjbDeploymentIdAccessor {
     }
 
     public EJBHome getEJBHome() {
-        return deploymentInfo.getEJBHome();
+        return getDeploymentInfo().getEJBHome();
     }
 
     public EJBLocalHome getEJBLocalHome() {
-        return deploymentInfo.getEJBLocalHome();
+        return getDeploymentInfo().getEJBLocalHome();
     }
 
     public Object getBusinessLocalHome() {
-        return deploymentInfo.getBusinessLocalHome();
+        return getDeploymentInfo().getBusinessLocalHome();
     }
 
     public Object getBusinessRemoteHome() {
-        return deploymentInfo.getBusinessRemoteHome();
+        return getDeploymentInfo().getBusinessRemoteHome();
     }
 
     public EJBObject getEjbObject(Object primaryKey) {
-        return (EJBObject) EjbObjectProxyHandler.createProxy(deploymentInfo, primaryKey, InterfaceType.EJB_HOME);
+        return (EJBObject) EjbObjectProxyHandler.createProxy(getDeploymentInfo(), primaryKey, InterfaceType.EJB_HOME);
     }
 
     public Class getHomeInterface() {
-        return deploymentInfo.getHomeInterface();
+        return getDeploymentInfo().getHomeInterface();
     }
 
     public Class getRemoteInterface() {
-        return deploymentInfo.getRemoteInterface();
+        return getDeploymentInfo().getRemoteInterface();
     }
 
     public Class getLocalHomeInterface() {
-        return deploymentInfo.getLocalHomeInterface();
+        return getDeploymentInfo().getLocalHomeInterface();
     }
 
     public Class getLocalInterface() {
-        return deploymentInfo.getLocalInterface();
+        return getDeploymentInfo().getLocalInterface();
     }
 
     public Class getBeanClass() {
-        return deploymentInfo.getBeanClass();
+        return getDeploymentInfo().getBeanClass();
     }
 
     public Class getBusinessLocalInterface() {
-        return deploymentInfo.getBusinessLocalInterface();
+        return getDeploymentInfo().getBusinessLocalInterface();
     }
 
     public Class getBusinessRemoteInterface() {
-        return deploymentInfo.getBusinessRemoteInterface();
+        return getDeploymentInfo().getBusinessRemoteInterface();
     }
 
     public Class getMdbInterface() {
-        return deploymentInfo.getMdbInterface();
+        return getDeploymentInfo().getMdbInterface();
     }
 
     public Class getServiceEndpointInterface() {
-        return deploymentInfo.getServiceEndpointInterface();
+        return getDeploymentInfo().getServiceEndpointInterface();
     }
 
     public BeanType getComponentType() {
-        return deploymentInfo.getComponentType();
+        return getDeploymentInfo().getComponentType();
     }
 
     public Container getContainer() {
-        return deploymentInfo.getContainer();
+        return getDeploymentInfo().getContainer();
     }
 
     public boolean isBeanManagedTransaction() {
-        return deploymentInfo.isBeanManagedTransaction();
+        return getDeploymentInfo().isBeanManagedTransaction();
     }
 
     public TransactionType getTransactionType(Method method) {
-          return deploymentInfo.getTransactionType(method);
+          return getDeploymentInfo().getTransactionType(method);
     }
     
     public String getObjectName() {
@@ -270,27 +272,27 @@ public class EjbDeployment implements EJB, EjbDeploymentIdAccessor {
         return true;
     }
 
-    protected void start() throws Exception {
-        deploymentInfo = (CoreDeploymentInfo) openEjbSystem.getDeploymentInfo(deploymentId);
-        if (deploymentInfo == null) {
-            throw new IllegalStateException("Ejb does not exist " + deploymentId);
-        }
+    EjbDeployment initialize(CoreDeploymentInfo deploymentInfo) {
+        try {
+            javaCompSubContext = (Context) deploymentInfo.getJndiEnc().lookup("java:comp");
+            if (componentContext != null) {
+                javaCompSubContext.bind("geronimo", componentContext);
+            }
 
-        javaCompSubContext = (Context) deploymentInfo.getJndiEnc().lookup("java:comp");
-        if (componentContext != null) {
-            javaCompSubContext.bind("geronimo", componentContext);
-        }
-        synchronized(deploymentInfo){
             deploymentInfo.set(EjbDeployment.class, this);
-       	    deploymentInfo.notifyAll();
+
+            this.deploymentInfo.set(deploymentInfo);
+
+            return this;
+        } catch (NamingException e) {
+            throw new IllegalStateException("Unable to complete EjbDeployment initialization", e);
         }
     }
 
-    protected void stop() {
-        if (deploymentInfo != null) {
-	    deploymentInfo.setDestroyed(true);
-	    deploymentInfo.set(EjbDeployment.class, null);
-	    deploymentInfo = null;
-	}	
+    void destroy() {
+        CoreDeploymentInfo info = deploymentInfo.getAndSet(null);
+        if (info != null) {
+            info.set(EjbDeployment.class, null);
+        }
     }
 }

@@ -28,7 +28,7 @@ public class GBeanTest extends TestCase {
     }
 
     public void testEjbModuleImplGBean() {
-        GBeanInfo.getGBeanInfo(EjbModuleImplGBean.class.getName(), getClass().getClassLoader());
+        GBeanInfo.getGBeanInfo(EjbModuleImpl.class.getName(), getClass().getClassLoader());
     }
 
     public void testEntityDeploymentGBean() {

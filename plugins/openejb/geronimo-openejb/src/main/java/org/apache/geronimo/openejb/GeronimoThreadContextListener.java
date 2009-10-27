@@ -34,6 +34,14 @@ import org.apache.openejb.core.CoreDeploymentInfo;
 import org.apache.openejb.core.ThreadContext;
 import org.apache.openejb.core.ThreadContextListener;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicReference;
+
 /**
  * @version $Rev$ $Date$
  */
@@ -51,26 +59,38 @@ public class GeronimoThreadContextListener implements ThreadContextListener {
         // do nothing.. the goal here is to kick off the onetime init above
     }
 
+    private final Map<String, Deployment> ejbs = new ConcurrentHashMap<String, Deployment>();
+
     private GeronimoThreadContextListener() {
     }
+
+    public static GeronimoThreadContextListener get() {
+        return instance;
+    }
+
+    public void addEjb(EjbDeployment ejbDeployment) {
+        this.ejbs.put(ejbDeployment.getDeploymentId(), new Deployment(ejbDeployment));
+    }
+
+    public void removeEjb(String id) {
+        this.ejbs.remove(id);
+    }
+
+    private EjbDeployment getEjbDeployment(CoreDeploymentInfo deploymentInfo) {
+        Deployment deployment = ejbs.get(deploymentInfo.getDeploymentID());
+
+        if (deployment == null) return null;
+
+        return deployment.get(deploymentInfo);
+    }
+
 
     public void contextEntered(ThreadContext oldContext, ThreadContext newContext) {
         CoreDeploymentInfo deploymentInfo = newContext.getDeploymentInfo();
         if (deploymentInfo == null) return;
-        if (deploymentInfo.get(EjbDeployment.class) == null) {
-	    synchronized (deploymentInfo) {
-                if (deploymentInfo.get(EjbDeployment.class) == null) {
-                    if (!deploymentInfo.isDestroyed()) {
-                        try {
-                            deploymentInfo.wait();
-                        } catch (InterruptedException e) {
-                        log.warn("Wait on deploymentInfo interrupted unexpectedly");
-                        }
-                    }
-                }
-            }
-        } 
-        EjbDeployment ejbDeployment = deploymentInfo.get(EjbDeployment.class);
+
+        EjbDeployment ejbDeployment = getEjbDeployment(deploymentInfo);
+
         if (ejbDeployment == null) return;
 
         // Geronimo call context is used to track old state that must be restored
@@ -156,6 +176,59 @@ public class GeronimoThreadContextListener implements ThreadContextListener {
         }
     }
 
+    private static final class Deployment {
+        private final EjbDeployment geronimoDeployment;
+        private final AtomicReference<Future<EjbDeployment>> initialized = new AtomicReference<Future<EjbDeployment>>();
+
+        private Deployment(EjbDeployment geronimoDeployment) {
+            this.geronimoDeployment = geronimoDeployment;
+        }
+
+        public EjbDeployment get(final CoreDeploymentInfo openejbDeployment) {
+            try {
+                // Has the deployment been initialized yet?
+
+                // If there is a Future object in the AtomicReference, then
+                // it's either been initialized or is being initialized now.
+                Future<EjbDeployment> initializedRef = initialized.get();
+                if (initializedRef != null) return initializedRef.get();
+
+                // The deployment has not been initialized nor is being initialized
+
+                // We will construct this FutureTask and compete with the
+                // other threads for the right to initialize the deployment
+                FutureTask<EjbDeployment> initializer = new FutureTask<EjbDeployment>(new Callable<EjbDeployment>() {
+                    public EjbDeployment call() throws Exception {
+                        return geronimoDeployment.initialize(openejbDeployment);
+                    }
+                });
+
+
+                do {
+                    // If our FutureTask was the one to win the slot
+                    // than we are the ones responsisble for initializing
+                    // the deployment while the others wait.
+                    if (initialized.compareAndSet(null, initializer)) {
+                        initializer.run();
+                    }
+
+                    // If we didn't win the slot and no other FutureTask
+                    // has been set by a different thread, than we need
+                    // to try again.
+                } while ((initializedRef = initialized.get()) == null);
+
+
+                // At this point we can safely return the initialized deployment
+                return initializedRef.get();
+            } catch (InterruptedException e) {
+                Thread.interrupted();
+                throw new IllegalStateException("EjbDeployment.initialize() interrupted", e);
+            } catch (ExecutionException e) {
+                throw new IllegalStateException("EjbDeployment.initialize() failed", e.getCause());
+            }
+        }
+    }
+    
     private static final class GeronimoCallContext {
         private Context oldJndiContext;
         private ConnectorInstanceContext oldConnectorContext;

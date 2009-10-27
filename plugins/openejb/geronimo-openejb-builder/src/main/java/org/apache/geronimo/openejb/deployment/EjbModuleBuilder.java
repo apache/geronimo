@@ -39,9 +39,6 @@ import javax.ejb.SessionContext;
 import javax.ejb.TimerService;
 import javax.xml.namespace.QName;
 import javax.xml.ws.WebServiceContext;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.connector.ResourceAdapterWrapperGBean;
 import org.apache.geronimo.deployment.ClassPathList;
@@ -50,7 +47,6 @@ import org.apache.geronimo.deployment.ModuleList;
 import org.apache.geronimo.deployment.NamespaceDrivenBuilder;
 import org.apache.geronimo.deployment.NamespaceDrivenBuilderCollection;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
-import org.apache.geronimo.deployment.service.GBeanBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.gbean.AbstractName;
@@ -58,8 +54,8 @@ import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
@@ -78,15 +74,13 @@ import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.naming.deployment.ResourceEnvironmentSetter;
 import org.apache.geronimo.openejb.EjbContainer;
 import org.apache.geronimo.openejb.EjbDeployment;
-import org.apache.geronimo.openejb.EjbModuleImplGBean;
+import org.apache.geronimo.openejb.EjbModuleImpl;
 import org.apache.geronimo.openejb.OpenEjbSystem;
 import org.apache.geronimo.openejb.xbeans.ejbjar.OpenejbGeronimoEjbJarType;
-import org.apache.geronimo.security.jacc.ComponentPermissions;
-import org.apache.geronimo.xbeans.geronimo.j2ee.GerSecurityDocument;
-import org.apache.geronimo.xbeans.javaee.EjbJarType;
 import org.apache.geronimo.persistence.PersistenceUnitGBean;
+import org.apache.geronimo.security.jacc.ComponentPermissions;
+import org.apache.geronimo.xbeans.javaee.EjbJarType;
 import org.apache.openejb.OpenEJBException;
-import org.apache.openejb.util.LinkResolver;
 import org.apache.openejb.assembler.classic.AppInfo;
 import org.apache.openejb.assembler.classic.CmpJarBuilder;
 import org.apache.openejb.assembler.classic.ContainerInfo;
@@ -97,14 +91,8 @@ import org.apache.openejb.assembler.classic.FacilitiesInfo;
 import org.apache.openejb.assembler.classic.MdbContainerInfo;
 import org.apache.openejb.assembler.classic.MessageDrivenBeanInfo;
 import org.apache.openejb.assembler.classic.OpenEjbConfiguration;
-import org.apache.openejb.assembler.classic.StatefulBeanInfo;
 import org.apache.openejb.assembler.classic.PersistenceContextReferenceInfo;
-import org.apache.openejb.assembler.classic.StatelessSessionContainerInfo;
-import org.apache.openejb.assembler.classic.StatefulSessionContainerInfo;
-import org.apache.openejb.assembler.classic.SingletonSessionContainerInfo;
-import org.apache.openejb.assembler.classic.BmpEntityContainerInfo;
-import org.apache.openejb.assembler.classic.CmpEntityContainerInfo;
-import org.apache.openejb.util.UniqueDefaultLinkResolver;
+import org.apache.openejb.assembler.classic.StatefulBeanInfo;
 import org.apache.openejb.config.AppModule;
 import org.apache.openejb.config.ConfigurationFactory;
 import org.apache.openejb.config.DeploymentLoader;
@@ -114,7 +102,6 @@ import org.apache.openejb.config.UnsupportedModuleTypeException;
 import org.apache.openejb.config.ValidationError;
 import org.apache.openejb.config.ValidationFailedException;
 import org.apache.openejb.config.ValidationFailure;
-import org.apache.openejb.config.ConfigurationFactory.Chain;
 import org.apache.openejb.jee.EjbJar;
 import org.apache.openejb.jee.EjbRef;
 import org.apache.openejb.jee.EnterpriseBean;
@@ -134,8 +121,12 @@ import org.apache.openejb.jee.oejb2.OpenejbJarType;
 import org.apache.openejb.jee.oejb2.PatternType;
 import org.apache.openejb.jee.oejb2.ResourceLocatorType;
 import org.apache.openejb.loader.SystemInstance;
+import org.apache.openejb.util.LinkResolver;
+import org.apache.openejb.util.UniqueDefaultLinkResolver;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Master builder for processing EJB JAR deployments and creating the
@@ -789,7 +780,7 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle {
             }
         }
         // Add JSR77 EJBModule GBean
-        GBeanData ejbModuleGBeanData = new GBeanData(ejbModule.getModuleName(), EjbModuleImplGBean.GBEAN_INFO);
+        GBeanData ejbModuleGBeanData = new GBeanData(ejbModule.getModuleName(), EjbModuleImpl.class);
         try {
             ejbModuleGBeanData.setReferencePattern("J2EEServer", earContext.getServerName());
             if (!ejbModule.isStandAlone()) {
@@ -812,7 +803,7 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle {
         }
 
         // add a depdendency on the ejb module object
-        ejbDeploymentBuilder.addEjbModuleDependency(ejbModuleGBeanData.getAbstractName());
+        ejbDeploymentBuilder.addEjbModuleDependency(ejbModuleGBeanData);
 
         // add the Jacc permissions to the ear
         ComponentPermissions componentPermissions = ejbDeploymentBuilder.buildComponentPermissions();
