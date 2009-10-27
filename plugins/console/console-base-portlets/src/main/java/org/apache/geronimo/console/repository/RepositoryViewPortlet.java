@@ -25,12 +25,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.geronimo.console.BasePortlet;
 import org.apache.geronimo.console.util.PortletManager;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
+import org.apache.geronimo.kernel.InternalKernelException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelRegistry;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.FileWriteMonitor;
 import org.apache.geronimo.kernel.repository.ListableRepository;
 import org.apache.geronimo.kernel.repository.WriteableRepository;
+import org.apache.geronimo.system.resolver.ExplicitDefaultArtifactResolver;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
@@ -48,6 +51,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Properties;
 import java.util.SortedSet;
 
 /**
@@ -104,6 +108,7 @@ public class RepositoryViewPortlet extends BasePortlet {
             String artifact = null;
             String version = null;
             String group = null;
+            String jarName = null;
 
             PortletFileUpload uploader = new PortletFileUpload(new DiskFileItemFactory());
             try {
@@ -161,11 +166,17 @@ public class RepositoryViewPortlet extends BasePortlet {
                             version = item.getString().trim();
                         } else if ("fileType".equals(fieldName)) {
                             fileType = item.getString().trim();
+                        } else if ("jarName".equals(fieldName)) {
+                            jarName = item.getString().trim();
                         }
                     }
                 }
-
-
+                if (jarName != null) {
+                    ExplicitDefaultArtifactResolver instance = KernelRegistry.getSingleKernel().getGBean(ExplicitDefaultArtifactResolver.class);
+                    Properties set = new Properties();
+                    set.put(jarName, group + "/" + artifact + "/" + version + "/" + fileType);
+                    instance.addAliases(set);
+                }
                 repo.copyToRepository(file, new Artifact(group, artifact, version, fileType), new FileWriteMonitor() {
                     public void writeStarted(String fileDescription, int fileSize) {
                         log.info("Copying into repository " + fileDescription + "...");
@@ -179,6 +190,12 @@ public class RepositoryViewPortlet extends BasePortlet {
                     }
                 });
             } catch (FileUploadException e) {
+                throw new PortletException(e);
+            } catch (GBeanNotFoundException e) {
+                throw new PortletException(e);
+            } catch (InternalKernelException e) {
+                throw new PortletException(e);
+            } catch (IllegalStateException e) {
                 throw new PortletException(e);
             }
         } catch (PortletException e) {
@@ -201,7 +218,7 @@ public class RepositoryViewPortlet extends BasePortlet {
             request.setAttribute("groupId", parts[0]);
             request.setAttribute("artifactId", parts[1]);
             request.setAttribute("version", parts[2]);
-            request.setAttribute("type", parts[3]);
+            request.setAttribute("type", parts[3]);        
             usageView.include(request, response);
             return;
         }

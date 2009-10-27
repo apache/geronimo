@@ -252,6 +252,15 @@ limitations under the License.
         </init-param>
         <load-on-startup>1</load-on-startup>
     </servlet>
+        <servlet>
+        <servlet-name>Artifact</servlet-name>
+        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <init-param>
+            <param-name>portlet-name</param-name>
+            <param-value>Artifact</param-value>
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
 
     <servlet-mapping>
         <servlet-name>dwr-invoker</servlet-name>
@@ -352,6 +361,10 @@ limitations under the License.
     <servlet-mapping>
         <servlet-name>ClientModules</servlet-name>
         <url-pattern>/PlutoInvoker/ClientModules</url-pattern>
+    </servlet-mapping>    
+    <servlet-mapping>
+        <servlet-name>Artifact</servlet-name>
+        <url-pattern>/PlutoInvoker/Artifact</url-pattern>
     </servlet-mapping>
 
     <security-constraint>
