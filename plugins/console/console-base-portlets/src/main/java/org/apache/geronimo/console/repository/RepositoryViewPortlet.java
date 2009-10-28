@@ -33,6 +33,7 @@ import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.FileWriteMonitor;
 import org.apache.geronimo.kernel.repository.ListableRepository;
 import org.apache.geronimo.kernel.repository.WriteableRepository;
+import org.apache.geronimo.kernel.repository.Maven2Repository;
 import org.apache.geronimo.system.resolver.ExplicitDefaultArtifactResolver;
 
 import javax.portlet.ActionRequest;
@@ -92,12 +93,36 @@ public class RepositoryViewPortlet extends BasePortlet {
             actionResponse.setRenderParameter("mode", "usage");
             actionResponse.setRenderParameter("res", res);
             return;
+        }        
+        
+        if(action != null && action.equals("remove")) {
+            // User clicked on a repository remove
+            String res = actionRequest.getParameter("res");
+            actionResponse.setRenderParameter("mode", "remove");
+            actionResponse.setRenderParameter("res", res);
+            Maven2Repository repo = (Maven2Repository) PortletManager.getCurrentServer(actionRequest).getRepositories()[0];
+            Artifact artifact = Artifact.create(res);
+            File location = repo.getLocation(artifact);
+            if (location == null) {
+                return;//??
+            }
+            if (location.isDirectory()) {
+                //don't use this to uninstall plugins
+                return;//??
+            }
+            while (true) {
+                location.delete();
+                location = location.getParentFile();
+                File[] contents = location.listFiles();
+                if (contents == null || contents.length == 0) {
+                    return;
+                }
+            }
         }
 
         try {
 
 
-            List list = new ArrayList();
             WriteableRepository repo = PortletManager.getCurrentServer(actionRequest).getWritableRepositories()[0];
 
             File uploadFile = null;

@@ -163,7 +163,29 @@ function <portlet:namespace/>parse(localFile) {
 <b><fmt:message key="repository.normal.currentRepositoryEntries"/></b>
 <p><fmt:message key="repository.normal.toViewUsage"/></p>
 <ul>
-<c:forEach items="${reslist}" var="res">
-<li><a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="usage"/><portlet:param name="res" value="${res}"/></portlet:actionURL>"><c:out value="${res}"/></a></li>
-</c:forEach>
+<table width="100%" class="TableLine" summary="Repository Manager">
+    <tr class="DarkBackground">
+        <th scope="col" align="left">&nbsp;<fmt:message key="configmanager.normal.componentName" /></th>   
+        <th scope="col" align="left">&nbsp;<fmt:message key="consolebase.common.commands"/></th>
+    </tr>
+    <c:set var="backgroundClass" value='MediumBackground'/>
+	  <c:forEach items="${reslist}" var="res">
+	      <c:choose>
+          <c:when test="${backgroundClass == 'MediumBackground'}" >
+              <c:set var="backgroundClass" value='LightBackground'/>
+          </c:when>
+          <c:otherwise>
+              <c:set var="backgroundClass" value='MediumBackground'/>
+          </c:otherwise>
+      </c:choose>
+      <tr>
+        <td class="${backgroundClass}">
+	      <a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="usage"/><portlet:param name="res" value="${res}"/></portlet:actionURL>"><c:out value="${res}"/></a>
+	    </td>
+	    <td class="${backgroundClass}">
+	      <a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="remove"/><portlet:param name="res" value="${res}"/></portlet:actionURL>"><fmt:message key="consolebase.common.remove"/></a>
+	    </td>
+	  </tr>
+	</c:forEach>
+</table>
 </ul>
