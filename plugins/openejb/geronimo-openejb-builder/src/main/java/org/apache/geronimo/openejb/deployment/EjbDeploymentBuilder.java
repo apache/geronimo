@@ -47,6 +47,7 @@ import org.apache.geronimo.openejb.MessageDrivenDeploymentGBean;
 import org.apache.geronimo.openejb.OpenEjbSystem;
 import org.apache.geronimo.openejb.StatefulDeploymentGBean;
 import org.apache.geronimo.openejb.StatelessDeploymentGBean;
+import org.apache.geronimo.openejb.SingletonDeploymentGBean;
 import org.apache.geronimo.openejb.xbeans.ejbjar.OpenejbGeronimoEjbJarType;
 import org.apache.geronimo.security.deployment.SecurityConfiguration;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
@@ -104,6 +105,9 @@ public class EjbDeploymentBuilder {
                         break;
                     case STATEFUL:
                         gbean = new GBeanData(abstractName, StatefulDeploymentGBean.GBEAN_INFO);
+                        break;
+                    case SINGLETON:
+                        gbean = new GBeanData(abstractName, SingletonDeploymentGBean.GBEAN_INFO);
                         break;
                 }
             } else if (enterpriseBean instanceof EntityBean) {
