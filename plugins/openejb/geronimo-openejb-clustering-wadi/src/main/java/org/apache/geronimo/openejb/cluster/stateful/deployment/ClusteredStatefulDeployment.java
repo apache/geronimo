@@ -40,12 +40,13 @@ import org.apache.geronimo.openejb.cluster.infra.SessionManagerTracker;
 import org.apache.geronimo.security.jacc.RunAsSource;
 import org.apache.geronimo.transaction.manager.GeronimoTransactionManager;
 import org.apache.openejb.Container;
+import org.apache.openejb.core.CoreDeploymentInfo;
 
 /**
  *
  * @version $Rev:$ $Date:$
  */
-public class ClusteredStatefulDeployment extends EjbDeployment implements GBeanLifecycle {
+public class ClusteredStatefulDeployment extends EjbDeployment {
 
     private final SessionManager sessionManager;
 
@@ -145,20 +146,9 @@ public class ClusteredStatefulDeployment extends EjbDeployment implements GBeanL
         this.sessionManager = sessionManager;
     }
 
-    public void doStart() throws Exception {
-        start();
-    }
-
-    public void doStop() throws Exception {
-        stop();
-    }
-
-    public void doFail() {
-        stop();
-    }
-
-    protected void start() throws Exception {
-        super.start();
+    @Override
+    protected EjbDeployment initialize(CoreDeploymentInfo deploymentInfo) {
+        super.initialize(deploymentInfo);
 
         Container container = deploymentInfo.getContainer();
         if (null == container) {
@@ -170,18 +160,22 @@ public class ClusteredStatefulDeployment extends EjbDeployment implements GBeanL
         }
         SessionManagerTracker sessionManagerTracker = (SessionManagerTracker) container;
         sessionManagerTracker.addSessionManager(deploymentId, sessionManager);
+
+        return this;
     }
 
-    protected void stop() {
-        if (null != deploymentInfo) {
-            Container container = deploymentInfo.getContainer();
+    @Override
+    protected void destroy() {
+        CoreDeploymentInfo info = deploymentInfo.get();
+        if (null != info) {
+            Container container = info.getContainer();
             if (null != container) {
                 SessionManagerTracker sessionManagerTracker = (SessionManagerTracker) container;
                 sessionManagerTracker.removeSessionManager(deploymentId, sessionManager);
             }
         }
 
-        super.stop();
+        super.destroy();
     }
 
     public static final GBeanInfo GBEAN_INFO;

@@ -272,7 +272,7 @@ public class EjbDeployment implements EJB, EjbDeploymentIdAccessor {
         return true;
     }
 
-    EjbDeployment initialize(CoreDeploymentInfo deploymentInfo) {
+    protected EjbDeployment initialize(CoreDeploymentInfo deploymentInfo) {
         try {
             javaCompSubContext = (Context) deploymentInfo.getJndiEnc().lookup("java:comp");
             if (componentContext != null) {
@@ -289,7 +289,7 @@ public class EjbDeployment implements EJB, EjbDeploymentIdAccessor {
         }
     }
 
-    void destroy() {
+    protected void destroy() {
         CoreDeploymentInfo info = deploymentInfo.getAndSet(null);
         if (info != null) {
             info.set(EjbDeployment.class, null);
