@@ -31,7 +31,7 @@ import org.apache.geronimo.transaction.manager.GeronimoTransactionManager;
 import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
 import org.apache.geronimo.kernel.Kernel;
 
-public class EjbDeploymentGBean extends EjbDeployment implements GBeanLifecycle {
+public class EjbDeploymentGBean extends EjbDeployment {
     public EjbDeploymentGBean(String objectName,
             String deploymentId,
             String ejbName,
@@ -72,18 +72,6 @@ public class EjbDeploymentGBean extends EjbDeployment implements GBeanLifecycle 
                 applicationManagedSecurityResources,
                 trackedConnectionAssociator,
                 openEjbSystem);
-    }
-
-    public void doStart() throws Exception {
-        start();
-    }
-
-    public void doStop() throws Exception {
-        destroy();
-    }
-
-    public void doFail() {
-        destroy();
     }
 
     // do not use this gbean info, instead use StatelessDeploymentGBean, StatefulDeploymentGBean, EntityDeploymentGBean, or MessageDrivenDeploymentGBean
