@@ -258,6 +258,9 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
                 return null;
             }
             //else ignore as jee5 allows optional spec dd for .war's
+            if (e instanceof FileNotFoundException) {
+                log.warn("Web application " + targetPath + " does not contain a WEB-INF/web.xml. This may indicate a mis-assembled web app.");
+            }
         }
 
         if (webApp == null) {

@@ -201,8 +201,11 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
                 //not for us
                 return null;
             }
-            isJavaee = true;
             //else ignore as jee5 allows optional spec dd for .war's
+            if (e instanceof FileNotFoundException) {
+                log.warn("Web application " + targetPath + " does not contain a WEB-INF/web.xml. This may indicate a mis-assembled web app.");
+            }
+            isJavaee = true;
         }
 
         if (webApp == null)
