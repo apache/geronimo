@@ -135,6 +135,15 @@
                     <name>PlutoPortalServices</name>
                 </reference>
             </gbean>
+            <gbean name="Aliases" class="org.apache.geronimo.pluto.AdminConsoleExtensionGBean">
+                <attribute name="pageTitle">Server/JAR Aliases</attribute>
+                <attribute name="portletContext">/console-base</attribute>
+                <attribute name="portletList">[Artifact]</attribute>
+                <attribute name="icon">/images/ico_connect_16x16.gif</attribute>
+                <reference name="PortalContainerServices">
+                    <name>PlutoPortalServices</name>
+                </reference>
+            </gbean>
             <gbean name="RepositoryViewer" class="org.apache.geronimo.pluto.AdminConsoleExtensionGBean">
                 <attribute name="pageTitle">Services/Repository</attribute>
                 <attribute name="portletContext">/console-base</attribute>

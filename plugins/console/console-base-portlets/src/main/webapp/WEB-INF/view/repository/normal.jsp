@@ -67,7 +67,7 @@ function <portlet:namespace/>validate() {
             fileType.focus(); 
             addErrorMessage("<portlet:namespace/>", '<fmt:message key="repository.normal.invalidChar"/>');
             return false;
-        } 
+        }
     }
 
     return true;
@@ -145,6 +145,10 @@ function <portlet:namespace/>parse(localFile) {
     <tr>
       <td><label for="<portlet:namespace/>fileType"><fmt:message key="consolebase.common.type"/></label>:</td>
       <td><input type="text" name="fileType" id="<portlet:namespace/>fileType" value="${fileType}"/></td>
+    </tr>
+    <tr>
+      <td><label for="<portlet:namespace/>jarName"><fmt:message key="consolebase.common.name"/></label>:</td>
+      <td><input type="text" name="jarName" id="<portlet:namespace/>jarName" value="${jarName}"/></td>
     </tr>
     <tr><td colspan="2"><font size="-2">&nbsp;</font></td></tr>
     <tr>

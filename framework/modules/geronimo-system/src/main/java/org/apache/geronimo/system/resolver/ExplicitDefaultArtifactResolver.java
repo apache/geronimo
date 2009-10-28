@@ -149,5 +149,17 @@ public class ExplicitDefaultArtifactResolver extends DefaultArtifactResolver imp
         getExplicitResolution().putAll(explicitResolutions);
         saveExplicitResolution(getExplicitResolution(), artifactAliasesFile, serverInfo);
     }
-
+    
+    public synchronized void removeAliases(Properties properties) throws IOException {
+        Map<Artifact, Artifact> explicitResolutions = propertiesToArtifactMap(properties);
+        for (Map.Entry<Artifact, Artifact> entry : explicitResolutions.entrySet()) {
+            getExplicitResolution().remove(entry.getKey());
+        }
+        saveExplicitResolution(getExplicitResolution(), artifactAliasesFile, serverInfo);
+    }
+    
+    public synchronized Properties getProperties() {
+        return artifactMapToProperties(getExplicitResolution());
+    }
+    
 }
