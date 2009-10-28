@@ -11,14 +11,34 @@
         <artifactId>j2ee-deployer</artifactId>
         <type>car</type>
     </dependency>
-    <dependency start="true">
+    <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>transaction-1_6</artifactId>
         <type>car</type>
     </dependency>
     <dependency>
+        <groupId>org.apache.geronimo.framework</groupId>
+        <artifactId>geronimo-transformer</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.modules</groupId>
+        <artifactId>geronimo-naming-builder</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.modules</groupId>
+        <artifactId>geronimo-persistence-jpa20</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
         <groupId>org.apache.geronimo.modules</groupId>
         <artifactId>geronimo-persistence-jpa20-builder</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.servicemix.bundles</groupId>
+        <artifactId>org.apache.servicemix.bundles.xmlbeans</artifactId>
         <type>jar</type>
     </dependency>
 </plugin-artifact>

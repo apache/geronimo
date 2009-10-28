@@ -21,6 +21,7 @@ package org.apache.geronimo.farm.deployment;
 
 import org.apache.geronimo.deployment.service.JavaBeanXmlAttributeEditor;
 import org.apache.geronimo.farm.config.BasicExtendedJMXConnectorInfo;
+import org.osgi.framework.Bundle;
 
 /**
  *
@@ -28,8 +29,8 @@ import org.apache.geronimo.farm.config.BasicExtendedJMXConnectorInfo;
  */
 public class DeploymentExtendedJMXConnectorInfoEditor extends JavaBeanXmlAttributeEditor {
 
-    public DeploymentExtendedJMXConnectorInfoEditor() {
-        super(DeploymentExtendedJMXConnectorInfo.class);
+    public DeploymentExtendedJMXConnectorInfoEditor(Bundle bundle) {
+        super(DeploymentExtendedJMXConnectorInfo.class, bundle);
     }
 
 }

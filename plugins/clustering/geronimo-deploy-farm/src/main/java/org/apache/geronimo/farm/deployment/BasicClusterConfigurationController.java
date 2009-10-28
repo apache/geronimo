@@ -27,6 +27,7 @@ import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.gbean.annotation.ParamReference;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
@@ -39,7 +40,7 @@ import org.apache.geronimo.kernel.repository.Artifact;
 @GBean(j2eeType=BasicClusterConfigurationController.GBEAN_J2EE_TYPE)
 public class BasicClusterConfigurationController implements GBeanLifecycle, ClusterConfigurationController {
     private static final Logger log = LoggerFactory.getLogger(BasicClusterConfigurationController.class);
-    
+
     private final ClusterInfo clusterInfo;
     private final String nodeName;
     private final Artifact artifact;
@@ -80,7 +81,7 @@ public class BasicClusterConfigurationController implements GBeanLifecycle, Clus
             }
         }
     }
-    
+
     public void doFail() {
         try {
             stopConfiguration();
@@ -103,9 +104,9 @@ public class BasicClusterConfigurationController implements GBeanLifecycle, Clus
             if (!nodeInfo.getName().equals(nodeName)) {
                 continue;
             }
-            
+
             Kernel kernel = nodeInfo.newKernel();
-            
+
             ConfigurationManager configurationManager = newConfigurationManager(kernel);
             if (!configurationManager.isLoaded(artifact)) {
                 configurationManager.loadConfiguration(artifact);
@@ -119,15 +120,15 @@ public class BasicClusterConfigurationController implements GBeanLifecycle, Clus
             if (!nodeInfo.getName().equals(nodeName)) {
                 continue;
             }
-            
+
             Kernel kernel = nodeInfo.newKernel();
-            
+
             ConfigurationManager configurationManager = newConfigurationManager(kernel);
             configurationManager.stopConfiguration(artifact);
         }
     }
-    
-    protected ConfigurationManager newConfigurationManager(Kernel kernel) {
+
+    protected ConfigurationManager newConfigurationManager(Kernel kernel) throws GBeanNotFoundException {
         return ConfigurationUtil.getConfigurationManager(kernel);
     }
 

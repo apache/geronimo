@@ -27,12 +27,12 @@
         <artifactId>clustering</artifactId>
         <version>3.0-SNAPSHOT</version>
     </parent>
-    
+
     <groupId>org.apache.geronimo.modules</groupId>
     <artifactId>geronimo-deploy-farm</artifactId>
     <packaging>bundle</packaging>
     <name>Geronimo Plugins, Clustering :: Farm using Deployment</name>
-    
+
     <dependencies>
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
@@ -62,7 +62,15 @@
             <artifactId>geronimo-service-builder</artifactId>
             <version>${version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>geronimo-kernel</artifactId>
+            <version>${version}</version>
+            <classifier>tests</classifier>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
-    
+
 </project>
 

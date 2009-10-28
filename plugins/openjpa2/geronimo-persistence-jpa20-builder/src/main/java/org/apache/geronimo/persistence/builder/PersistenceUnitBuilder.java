@@ -48,6 +48,7 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
+import org.apache.geronimo.kernel.osgi.BundleClassLoader;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.naming.ResourceSource;
 import org.apache.geronimo.persistence.PersistenceUnitGBean;
@@ -56,6 +57,7 @@ import org.apache.xbean.finder.ResourceFinder;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
+import org.osgi.framework.Bundle;
 
 /**
  * @version $Rev$ $Date$
@@ -91,7 +93,7 @@ public class PersistenceUnitBuilder implements ModuleBuilderExtension {
     public void installModule(JarFile earFile, EARContext earContext, Module module, Collection configurationStores, ConfigurationStore targetConfigurationStore, Collection repository) throws DeploymentException {
     }
 
-    public void initContext(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException {
+    public void initContext(EARContext earContext, Module module, Bundle bundle) throws DeploymentException {
         XmlObject container = module.getVendorDD();
         EARContext moduleContext = module.getEarContext();
         XmlObject[] raws = container.selectChildren(PERSISTENCE_QNAME);
@@ -158,7 +160,7 @@ public class PersistenceUnitBuilder implements ModuleBuilderExtension {
                     relative = module.getRelativePath(relative);
                     PersistenceDocument persistenceDocument;
                     try {
-                        XmlObject xmlObject = XmlBeansUtil.parse(persistenceUrl, moduleContext.getClassLoader());
+                        XmlObject xmlObject = XmlBeansUtil.parse(persistenceUrl, new BundleClassLoader(moduleContext.getBundle()));
                         persistenceDocument = (PersistenceDocument) xmlObject.changeType(PersistenceDocument.type);
                     } catch (XmlException e) {
                         throw new DeploymentException("Could not parse persistence.xml file: " + persistenceUrl, e);
@@ -180,7 +182,7 @@ public class PersistenceUnitBuilder implements ModuleBuilderExtension {
         }
     }
 
-    public void addGBeans(EARContext earContext, Module module, ClassLoader cl, Collection repository) throws DeploymentException {
+    public void addGBeans(EARContext earContext, Module module, Bundle bundle, Collection repository) throws DeploymentException {
     }
 
     private void buildPersistenceUnits(PersistenceDocument.Persistence persistence, Map<String, PersistenceDocument.Persistence.PersistenceUnit> overrides, Module module, String persistenceModulePath) throws DeploymentException {

@@ -27,12 +27,12 @@
         <artifactId>clustering</artifactId>
         <version>3.0-SNAPSHOT</version>
     </parent>
-    
+
     <groupId>org.apache.geronimo.modules</groupId>
     <artifactId>geronimo-farm</artifactId>
     <packaging>bundle</packaging>
     <name>Geronimo Plugins, Clustering :: Farm core</name>
-    
+
     <dependencies>
 
         <dependency>
@@ -40,7 +40,7 @@
             <artifactId>geronimo-jmx-remoting</artifactId>
             <version>${version}</version>
         </dependency>
-        
+
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-service-builder</artifactId>
@@ -48,6 +48,6 @@
         </dependency>
 
     </dependencies>
-    
+
 </project>
 

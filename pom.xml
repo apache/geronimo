@@ -291,6 +291,12 @@
                 <groupId>org.apache.geronimo.schema</groupId>
                 <artifactId>geronimo-schema-jee_5</artifactId>
                 <version>1.2-SNAPSHOT</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.xmlbeans</groupId>
+                        <artifactId>xmlbeans</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <!--
@@ -404,14 +410,6 @@
                     <exclusion>
                         <groupId>commons-lang</groupId>
                         <artifactId>commons-lang</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>commons-collections</groupId>
-                        <artifactId>commons-collections</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>commons-pool</groupId>
-                        <artifactId>commons-pool</artifactId>
                     </exclusion>
                     <exclusion>
                         <groupId>org.apache.geronimo.specs</groupId>
@@ -921,7 +919,7 @@
             <dependency>
                 <groupId>commons-collections</groupId>
                 <artifactId>commons-collections</artifactId>
-                <version>3.2</version>
+                <version>3.2.1</version>
             </dependency>
 
             <dependency>

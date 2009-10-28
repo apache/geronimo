@@ -42,6 +42,7 @@ import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
+import org.apache.geronimo.kernel.osgi.MockBundle;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.WritableListableRepository;
@@ -75,7 +76,7 @@ public class MasterConfigurationStoreTest extends RMockTestCase {
         configId = new Artifact("groupId", "artifactId", "2.0", "car");
         clusterInfoName = new AbstractName(configId, Collections.singletonMap("name", "ClusterInfo"));
         modify().returnValue(clusterInfoName);
-        
+
         delegate = (ConfigurationStore) mock(ConfigurationStore.class);
         nameBuilder = (ConfigurationNameBuilder) mock(ConfigurationNameBuilder.class);
     }
@@ -101,26 +102,26 @@ public class MasterConfigurationStoreTest extends RMockTestCase {
             }
         };
     }
-    
+
     public void testContainsConfigurationOK() throws Exception {
         nameBuilder.isMasterConfigurationName(configId);
         modify().returnValue(true);
 
         delegate.containsConfiguration(configId);
         modify().returnValue(true);
-        
+
         startVerification();
-        
+
         MasterConfigurationStore store = newMasterConfigurationStore();
         assertTrue(store.containsConfiguration(configId));
     }
-    
+
     public void testContainsConfigurationFailsWhenNotMasterConfigId() throws Exception {
         nameBuilder.isMasterConfigurationName(configId);
         modify().returnValue(false);
 
         startVerification();
-        
+
         MasterConfigurationStore store = newMasterConfigurationStore();
         assertFalse(store.containsConfiguration(configId));
     }
@@ -129,19 +130,19 @@ public class MasterConfigurationStoreTest extends RMockTestCase {
         delegate.createNewConfigurationDir(configId);
         File expectedFile = new File("confDir");
         modify().returnValue(expectedFile);
-        
+
         startVerification();
-        
+
         MasterConfigurationStore store = newMasterConfigurationStore();
         assertSame(expectedFile, store.createNewConfigurationDir(configId));
     }
-    
+
     public void testExportFailsWhenNotMasterConfigId() throws Exception {
         nameBuilder.isMasterConfigurationName(configId);
         modify().returnValue(false);
 
         startVerification();
-        
+
         MasterConfigurationStore store = newMasterConfigurationStore();
         try {
             store.exportConfiguration(configId, null);
@@ -149,17 +150,17 @@ public class MasterConfigurationStoreTest extends RMockTestCase {
         } catch (NoSuchConfigException e) {
         }
     }
-    
+
     public void testDelegateExport() throws Exception {
         OutputStream out = new ByteArrayOutputStream();
-        
+
         nameBuilder.isMasterConfigurationName(configId);
         modify().returnValue(true);
-        
+
         delegate.exportConfiguration(configId, out);
-        
+
         startVerification();
-        
+
         MasterConfigurationStore store = newMasterConfigurationStore();
         store.exportConfiguration(configId, out);
     }
@@ -167,30 +168,30 @@ public class MasterConfigurationStoreTest extends RMockTestCase {
     public void testDelegateGetAbstractName() throws Exception {
         delegate.getAbstractName();
         modify().returnValue(clusterInfoName);
-        
+
         startVerification();
-        
+
         MasterConfigurationStore store = newMasterConfigurationStore();
         assertSame(clusterInfoName, store.getAbstractName());
     }
-    
+
     public void testDelegateGetObjectName() throws Exception {
         String expectedName = "name";
         delegate.getObjectName();
         modify().returnValue(expectedName);
-        
+
         startVerification();
-        
+
         MasterConfigurationStore store = newMasterConfigurationStore();
         assertSame(expectedName, store.getObjectName());
     }
-    
+
     public void testIsInPlaceConfigurationWhenNotMasterConfigId() throws Exception {
         nameBuilder.isMasterConfigurationName(configId);
         modify().returnValue(false);
 
         startVerification();
-        
+
         MasterConfigurationStore store = newMasterConfigurationStore();
         try {
             store.isInPlaceConfiguration(configId);
@@ -202,34 +203,34 @@ public class MasterConfigurationStoreTest extends RMockTestCase {
     public void testIsInPlaceConfigurationReturnsFalse() throws Exception {
         nameBuilder.isMasterConfigurationName(configId);
         modify().returnValue(true);
-        
+
         startVerification();
-        
+
         MasterConfigurationStore store = newMasterConfigurationStore();
         assertFalse(store.isInPlaceConfiguration(configId));
     }
-    
+
     public void testListConfigurationFilterNoneMasterConfigIds() throws Exception {
         List<ConfigurationInfo> configurationInfos = new ArrayList<ConfigurationInfo>();
 
         ConfigurationInfo configurationInfo =  newConfigurationInfo(configId);
         configurationInfos.add(configurationInfo);
-        
+
         Artifact configId2 = new Artifact("groupId", "artifactId2", "2.0", "car");
         ConfigurationInfo configurationInfo2 =  newConfigurationInfo(configId2);
         configurationInfos.add(configurationInfo2);
-        
+
         delegate.listConfigurations();
         modify().returnValue(configurationInfos);
-        
+
         nameBuilder.isMasterConfigurationName(configId);
         modify().returnValue(true);
-        
+
         nameBuilder.isMasterConfigurationName(configId2);
         modify().returnValue(false);
-        
+
         startVerification();
-        
+
         MasterConfigurationStore store = newMasterConfigurationStore();
         List<ConfigurationInfo> listedConfigurations = store.listConfigurations();
         assertEquals(1, listedConfigurations.size());
@@ -241,7 +242,7 @@ public class MasterConfigurationStoreTest extends RMockTestCase {
         modify().returnValue(false);
 
         startVerification();
-        
+
         MasterConfigurationStore store = newMasterConfigurationStore();
         try {
             store.loadConfiguration(configId);
@@ -253,11 +254,11 @@ public class MasterConfigurationStoreTest extends RMockTestCase {
     public void testDelegateLoadConfiguration() throws Exception {
         nameBuilder.isMasterConfigurationName(configId);
         modify().returnValue(true);
-        
+
         delegate.loadConfiguration(configId);
-        
+
         startVerification();
-        
+
         MasterConfigurationStore store = newMasterConfigurationStore();
         store.loadConfiguration(configId);
     }
@@ -265,9 +266,9 @@ public class MasterConfigurationStoreTest extends RMockTestCase {
     public void testResolveWhenNotMasterConfigId() throws Exception {
         nameBuilder.isMasterConfigurationName(configId);
         modify().returnValue(false);
-        
+
         startVerification();
-        
+
         MasterConfigurationStore store = newMasterConfigurationStore();
         try {
             store.resolve(configId, null, null);
@@ -275,44 +276,44 @@ public class MasterConfigurationStoreTest extends RMockTestCase {
         } catch (NoSuchConfigException e) {
         }
     }
-    
+
     public void testDelegateResolve() throws Exception {
         nameBuilder.isMasterConfigurationName(configId);
         modify().returnValue(true);
-        
+
         delegate.resolve(configId, null, null);
-        
+
         startVerification();
-        
+
         MasterConfigurationStore store = newMasterConfigurationStore();
         store.resolve(configId, null, null);
     }
-    
+
     public void testUninstall() throws Exception {
         nameBuilder.isMasterConfigurationName(configId);
         modify().returnValue(true);
-        
+
         nameBuilder.buildSlaveConfigurationName(configId);
         Artifact slaveId = new Artifact("groupId", "slaveId", "2.0", "car");
         modify().returnValue(slaveId);
 
         storeClient.uninstall(clusterInfo, slaveId);
-        
+
         delegate.uninstall(slaveId);
         delegate.uninstall(configId);
-        
+
         startVerification();
-        
+
         MasterConfigurationStore store = newMasterConfigurationStore();
         store.uninstall(configId);
     }
-    
+
     public void testUninstallWhenNotMasterConfigId() throws Exception {
         nameBuilder.isMasterConfigurationName(configId);
         modify().returnValue(false);
-        
+
         startVerification();
-        
+
         MasterConfigurationStore store = newMasterConfigurationStore();
         try {
             store.uninstall(configId);
@@ -320,7 +321,7 @@ public class MasterConfigurationStoreTest extends RMockTestCase {
         } catch (NoSuchConfigException e) {
         }
     }
-    
+
     public void testInstallOK() throws Exception {
         final ConfigurationData configurationData = new ConfigurationData(ConfigurationModuleType.CAR,
             new LinkedHashSet(),
@@ -330,11 +331,11 @@ public class MasterConfigurationStoreTest extends RMockTestCase {
             new File("configurationDir"),
             null,
             new Jsr77Naming());
-        
+
         AbstractExpression assertConfigurationData = new AbstractExpression() {
             public void describeWith(ExpressionDescriber arg) throws IOException {
             }
-            
+
             public boolean passes(Object arg) {
                 assertSame(configurationData, arg);
                 return true;
@@ -343,12 +344,12 @@ public class MasterConfigurationStoreTest extends RMockTestCase {
 
         storeClient.install(clusterInfo, configurationData);
         modify().args(is.AS_RECORDED, assertConfigurationData);
-        
+
         delegate.install(configurationData);
         modify().args(assertConfigurationData);
-        
+
         recordInstallMasterConfiguration();
-        
+
         startVerification();
 
         MasterConfigurationStore store = newMasterConfigurationStore();
@@ -359,18 +360,18 @@ public class MasterConfigurationStoreTest extends RMockTestCase {
         final Artifact masterId = new Artifact("groupId", "masterId", "2.0", "car");
         nameBuilder.buildMasterConfigurationName(configId);
         modify().returnValue(masterId);
-        
+
         NodeInfo nodeInfo = (NodeInfo) mock(NodeInfo.class);
         nodeInfo.getName();
         final String nodeName = "nodeName";
         modify().multiplicity(expect.from(0)).returnValue(nodeName);
         clusterInfo.getNodeInfos();
         modify().returnValue(Collections.singleton(nodeInfo));
-        
+
         delegate.createNewConfigurationDir(masterId);
         final File masterDir = new File("masterDir");
         modify().returnValue(masterDir);
-        
+
         delegate.install(null);
         modify().args(new AbstractExpression() {
             public void describeWith(ExpressionDescriber arg) throws IOException {
@@ -380,10 +381,10 @@ public class MasterConfigurationStoreTest extends RMockTestCase {
                 ConfigurationData configurationData = (ConfigurationData) arg;
                 assertSame(masterId, configurationData.getId());
                 assertSame(masterDir, configurationData.getConfigurationDir());
-                
+
                 List<GBeanData> gbeans;
                 try {
-                    gbeans = configurationData.getGBeans(getClass().getClassLoader());
+                    gbeans = configurationData.getGBeans(new MockBundle(getClass().getClassLoader(), "", 0L));
                 } catch (InvalidConfigException e) {
                     throw new AssertionFailedError();
                 }
@@ -396,17 +397,17 @@ public class MasterConfigurationStoreTest extends RMockTestCase {
             }
         });
     }
-    
+
     private ConfigurationInfo newConfigurationInfo(Artifact configId) {
         return new ConfigurationInfo(
-            clusterInfoName, 
+            clusterInfoName,
             configId,
             ConfigurationModuleType.CAR,
-            1l, 
-            Collections.EMPTY_SET, 
+            1l,
+            Collections.EMPTY_SET,
             Collections.EMPTY_SET,
             null);
     }
-    
-    
+
+
 }

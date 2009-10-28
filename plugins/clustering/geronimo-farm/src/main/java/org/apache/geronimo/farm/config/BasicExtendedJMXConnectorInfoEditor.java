@@ -21,14 +21,16 @@ package org.apache.geronimo.farm.config;
 
 import org.apache.geronimo.deployment.service.JavaBeanXmlAttributeEditor;
 
+import org.osgi.framework.Bundle;
+
 /**
  *
  * @version $Rev:$ $Date:$
  */
 public class BasicExtendedJMXConnectorInfoEditor extends JavaBeanXmlAttributeEditor {
 
-    public BasicExtendedJMXConnectorInfoEditor() {
-        super(BasicExtendedJMXConnectorInfo.class);
+    public BasicExtendedJMXConnectorInfoEditor(Bundle bundle) {
+        super(BasicExtendedJMXConnectorInfo.class, bundle);
     }
 
 }

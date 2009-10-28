@@ -41,12 +41,12 @@ import org.apache.openjpa.enhance.PCRegistry;
 
 /**
  * Monitor configuration lifecycle events. Whenever a configuration is stopped, inform OpenJPA that the ClassLoader is no longer needed.
- * 
+ *
  * @version $Rev$ $Date$
  */
 public class ConfigurationMonitorGBean implements GBeanLifecycle {
     private static final Logger log = LoggerFactory.getLogger(ConfigurationMonitorGBean.class);
-    
+
     private final Kernel kernel;
     private final LifecycleListener listener;
     private HashMap<AbstractName,ClassLoader> classLoaderMap = new HashMap<AbstractName,ClassLoader>();
@@ -84,19 +84,20 @@ public class ConfigurationMonitorGBean implements GBeanLifecycle {
     }
 
     /**
-     * Cache the ClassLoader for a newly started Configuration.  
+     * Cache the ClassLoader for a newly started Configuration.
      */
     private void configurationRunning(AbstractName name) {
         try {
             Configuration config = (Configuration)kernel.getGBean(name);
-            classLoaderMap.put(name, config.getConfigurationClassLoader());
+// TODO:  This needs to be resolved as to what class loader should be registered
+//          classLoaderMap.put(name, config.getConfigurationClassLoader());
         } catch (GBeanNotFoundException gnfe) {
             log.warn("Could not retrieve GBean for artifact: " + name.toString(), gnfe);
         }
     }
 
     /**
-     * Notify OpenJPA that the ClassLoader will no longer be used. This allows OpenJPA to free up 
+     * Notify OpenJPA that the ClassLoader will no longer be used. This allows OpenJPA to free up
      * HARD references that would otherwise prevent Geronimo ClassLoaders from being GCed.
      */
     private void configurationStopped(AbstractName name) {

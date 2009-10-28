@@ -36,6 +36,13 @@
         OpenJPA2 plugin
     </description>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.servicemix.bundles</groupId>
+            <artifactId>org.apache.servicemix.bundles.xmlbeans</artifactId>
+        </dependency>
+    </dependencies>
+
 <!-- These are in the geronimo-parent PM for now
     <properties>
         <openjpaVersion>2.0.0-M3</openjpaVersion>
