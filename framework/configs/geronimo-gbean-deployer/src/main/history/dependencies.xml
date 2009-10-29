@@ -17,11 +17,6 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.bundles</groupId>
-        <artifactId>commons-cli</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
         <groupId>org.apache.geronimo.framework</groupId>
         <artifactId>geronimo-cli</artifactId>
         <type>jar</type>
@@ -33,28 +28,13 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>geronimo-kernel</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.framework</groupId>
         <artifactId>geronimo-service-builder</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>geronimo-system</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.framework</groupId>
         <artifactId>plugin</artifactId>
         <type>car</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.specs</groupId>
-        <artifactId>geronimo-javaee-deployment_1.1MR3_spec</artifactId>
-        <type>jar</type>
     </dependency>
     <dependency>
         <groupId>org.apache.servicemix.bundles</groupId>
@@ -69,11 +49,6 @@
     <dependency>
         <groupId>org.apache.servicemix.bundles</groupId>
         <artifactId>org.apache.servicemix.bundles.xpp3</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.servicemix.specs</groupId>
-        <artifactId>org.apache.servicemix.specs.stax-api-1.0</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>

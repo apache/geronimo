@@ -381,7 +381,7 @@ public abstract class AbstractCarMojo
 
             getDependencies(project, useMavenDependencies.isUseTransitiveDependencies());
             for (Map.Entry<Artifact, Set<Artifact>> entry : localDependencies.entrySet()) {
-                toDependencyType(entry.getKey(), explicitDependencyMap, localDependencies, useMavenDependencies.isIncludeVersion(), includeImport, dependencies);
+                dependencies.add(toDependencyType(entry.getKey(), explicitDependencyMap, localDependencies, useMavenDependencies.isIncludeVersion(), includeImport));
 //                Artifact artifact = entry.getKey();
 //                DependencyType explicitDependency = explicitDependencyMap.get(getKey(artifact));
 //                DependencyType dependency = toDependencyType(artifact, useMavenDependencies.isIncludeVersion(), explicitDependency, includeImport);
@@ -398,16 +398,15 @@ public abstract class AbstractCarMojo
         return dependencies;
     }
 
-    DependencyType toDependencyType(Artifact artifact, Map<String, DependencyType> explicitDependencyMap, Map<Artifact, Set<Artifact>> localDependencies, boolean includeVersion, boolean includeImport, LinkedHashSet<DependencyType> dependencies) {
+    DependencyType toDependencyType(Artifact artifact, Map<String, DependencyType> explicitDependencyMap, Map<Artifact, Set<Artifact>> localDependencies, boolean includeVersion, boolean includeImport) {
         DependencyType explicitDependency = explicitDependencyMap.get(getKey(artifact));
         DependencyType dependency = toDependencyType(artifact, includeVersion, explicitDependency, includeImport);
         Set<Artifact> artifactSet = localDependencies.get(artifact);
         if (artifactSet != null) {
             for (Artifact parent : artifactSet) {
-                dependency.getDependency().add(toDependencyType(parent, explicitDependencyMap, localDependencies, includeVersion, includeImport, dependencies));
+                dependency.getDependency().add(toDependencyType(parent, explicitDependencyMap, localDependencies, includeVersion, includeImport));
             }
         }
-        dependencies.add(dependency);
         return dependency;
     }
 
@@ -640,6 +639,7 @@ public abstract class AbstractCarMojo
         
         Map<String, String> properties = new HashMap<String, String>();
 //        properties.put(FelixConstants.EMBEDDED_EXECUTION_PROP, "true");
+
         properties.put(Constants.FRAMEWORK_SYSTEMPACKAGES_EXTRA,
                         "net.sf.cglib.asm," +
                         "net.sf.cglib.core," +
@@ -690,11 +690,14 @@ public abstract class AbstractCarMojo
                         "org.apache.geronimo.system.sharedlib," +
                         "org.apache.geronimo.system.threads," +
                         "org.apache.geronimo.system.util," +
+                        "org.apache.geronimo.mavenplugins.car," +
+                       "");
+                        /*
+
                         "org.apache.log4j;version=\"1.2.12\"," +
                         "org.apache.log4j.helpers;version=\"1.2.12\"," +
                         "org.apache.log4j.spi;version=\"1.2.12\"," +
                         "org.apache.log4j.xml;version=\"1.2.12\"," +
-                        "org.apache.geronimo.mavenplugins.car," +
 
                         "org.codehaus.classworlds," +
                         "org.codehaus.classworlds.realm," +
@@ -774,6 +777,7 @@ public abstract class AbstractCarMojo
                         "javax.enterprise.deploy.model," +
                         "javax.enterprise.deploy.shared," +
                         "javax.enterprise.deploy.spi");
+*/
         properties.put(BundleCache.CACHE_ROOTDIR_PROP, basedir + "/target");
         Framework framework = new FrameworkFactory().newFramework(properties);
         framework.start();

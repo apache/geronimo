@@ -107,16 +107,6 @@
         <type>car</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.gshell</groupId>
-        <artifactId>gshell-command-api</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.gshell</groupId>
-        <artifactId>gshell-core</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
         <groupId>org.apache.geronimo.specs</groupId>
         <artifactId>geronimo-javaee-deployment_1.1MR3_spec</artifactId>
         <type>jar</type>

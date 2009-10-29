@@ -18,17 +18,7 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>geronimo-management</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.framework</groupId>
         <artifactId>geronimo-security</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>geronimo-system</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -59,11 +49,6 @@
     <dependency>
         <groupId>org.apache.servicemix.specs</groupId>
         <artifactId>org.apache.servicemix.specs.saaj-api-1.3</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.xbean</groupId>
-        <artifactId>xbean-reflect</artifactId>
         <type>jar</type>
     </dependency>
 </plugin-artifact>
