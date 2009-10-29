@@ -8,27 +8,12 @@
     </module-id>
     <dependency>
         <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>geronimo-deploy-config</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.framework</groupId>
         <artifactId>geronimo-deployment</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.framework</groupId>
         <artifactId>geronimo-management</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>geronimo-service-builder</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>geronimo-system</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -78,11 +63,6 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.specs</groupId>
-        <artifactId>geronimo-javaee-deployment_1.1MR3_spec</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.specs</groupId>
         <artifactId>geronimo-jpa_2.0_spec</artifactId>
         <type>jar</type>
     </dependency>
@@ -102,18 +82,8 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.servicemix.specs</groupId>
-        <artifactId>org.apache.servicemix.specs.stax-api-1.0</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
         <groupId>org.apache.xbean</groupId>
         <artifactId>xbean-finder</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.xmlbeans</groupId>
-        <artifactId>xmlbeans</artifactId>
         <type>jar</type>
     </dependency>
 </plugin-artifact>

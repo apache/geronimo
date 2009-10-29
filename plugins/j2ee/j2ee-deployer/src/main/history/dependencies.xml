@@ -18,38 +18,13 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>geronimo-deployment</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.framework</groupId>
         <artifactId>geronimo-gbean-deployer</artifactId>
         <type>car</type>
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>geronimo-naming</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>geronimo-security</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>geronimo-service-builder</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.framework</groupId>
         <artifactId>server-security-config</artifactId>
         <type>car</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>geronimo-j2ee</artifactId>
-        <type>jar</type>
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.modules</groupId>
@@ -93,42 +68,12 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.specs</groupId>
-        <artifactId>geronimo-ejb_3.1_spec</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.specs</groupId>
-        <artifactId>geronimo-javaee-deployment_1.1MR3_spec</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.specs</groupId>
         <artifactId>geronimo-jpa_2.0_spec</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.specs</groupId>
-        <artifactId>geronimo-servlet_3.0_spec</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.servicemix.bundles</groupId>
-        <artifactId>org.apache.servicemix.bundles.xmlbeans</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
         <groupId>org.apache.xbean</groupId>
         <artifactId>xbean-finder</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.xmlbeans</groupId>
-        <artifactId>xmlbeans</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>stax</groupId>
-        <artifactId>stax-api</artifactId>
         <type>jar</type>
     </dependency>
 </plugin-artifact>

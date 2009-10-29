@@ -63,6 +63,11 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.framework</groupId>
+        <artifactId>geronimo-main</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.framework</groupId>
         <artifactId>geronimo-management</artifactId>
         <type>jar</type>
     </dependency>
@@ -252,8 +257,8 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.xmlbeans</groupId>
-        <artifactId>xmlbeans</artifactId>
+        <groupId>org.ops4j.pax.logging</groupId>
+        <artifactId>pax-logging-api</artifactId>
         <type>jar</type>
     </dependency>
 </plugin-artifact>
