@@ -57,6 +57,7 @@ import org.apache.geronimo.kernel.management.StateManageable;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.xbean.recipe.ConstructionException;
 import org.apache.xbean.recipe.ObjectRecipe;
+import org.apache.xbean.recipe.Option;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 
@@ -308,18 +309,19 @@ public final class GBeanInstance implements StateManageable
         List<String> cstrNames = beanInfo.getConstructor().getAttributeNames();
         Class[] cstrTypes = new Class[cstrNames.size()];
         for (int i = 0; i < cstrTypes.length; i++) {
-            String argumentName = (String) cstrNames.get(i);
+            String argumentName = cstrNames.get(i);
             if (referenceIndex.containsKey(argumentName)) {
-                Integer index = (Integer) referenceIndex.get(argumentName);
-                GBeanReference reference = references[index.intValue()];
+                Integer index = referenceIndex.get(argumentName);
+                GBeanReference reference = references[index];
                 cstrTypes[i] = reference.getProxyType();
             } else if (attributeIndex.containsKey(argumentName)) {
-                Integer index = (Integer) attributeIndex.get(argumentName);
-                GBeanAttribute attribute = attributes[index.intValue()];
+                Integer index = attributeIndex.get(argumentName);
+                GBeanAttribute attribute = attributes[index];
                 cstrTypes[i] = attribute.getType();
             }
         }
         ObjectRecipe objectRecipe = new ObjectRecipe(type, cstrNames.toArray(new String[0]), cstrTypes);
+        objectRecipe.allow(Option.IGNORE_MISSING_PROPERTIES);
 
         // set the initial attribute values
         Map<String, Object> dataAttributes = gbeanData.getAttributes();
@@ -924,6 +926,10 @@ public final class GBeanInstance implements StateManageable
                 }
                 stateReason = "the service constructor threw an exception. \n" + printException(e);
                 throw e;
+            }
+            Map<String, Object> unsetProperties = objectRecipe.getUnsetProperties();
+            if (unsetProperties.size() > 0) {
+                throw new ConstructionException("Error creating gbean of class: " + gbeanInfo.getClassName() + ", attempting to set nonexistent properties: " + unsetProperties.keySet());
             }
             
             // write the target variable in a synchronized block so it is available to all threads
