@@ -39,13 +39,16 @@
     <modules>
         <module>testsupport-common</module>
         <module>geronimo-common</module>
+        <module>geronimo-main</module>
+        <module>geronimo-rmi-loader</module>
         <module>geronimo-system</module>
         <!--<module>geronimo-logging</module>-->
         <module>geronimo-kernel</module>
         <module>geronimo-plugin</module>
         <module>geronimo-deploy-tool</module>
-    <module>geronimo-shell-base</module>
-  </modules>
+        <module>geronimo-shell-base</module>
+    </modules>
+
     <profiles>
         <profile>
             <id>default</id>
@@ -57,9 +60,9 @@
                 <module>testsupport-common</module>
                 <module>geronimo-common</module>
                 <module>geronimo-main</module>
+                <module>geronimo-rmi-loader</module>
                 <module>geronimo-system</module>
                 <!--<module>geronimo-logging</module>-->
-                <module>geronimo-rmi-loader</module>
                 <module>geronimo-kernel</module>
                 <module>geronimo-plugin</module>
                 <module>geronimo-deploy-tool</module>
@@ -99,6 +102,8 @@
             <modules>
                 <module>testsupport-common</module>
                 <module>geronimo-common</module>
+                <module>geronimo-main</module>
+                <module>geronimo-rmi-loader</module>
                 <module>geronimo-system</module>
                 <!--<module>geronimo-logging</module>-->
                 <module>geronimo-kernel</module>
