@@ -629,8 +629,9 @@ public abstract class AbstractCarMojo
     }
 
     private void setLoggingLevel() {
-        if (System.getProperty("org.ops4j.pax.logging.DefaultServiceLog.level") == null) {
-            System.setProperty("org.ops4j.pax.logging.DefaultServiceLog.level", "ERROR");
+        if (System.getProperty("org.ops4j.pax.logging.DefaultServiceLog.level") == null) {            
+            System.setProperty("org.ops4j.pax.logging.DefaultServiceLog.level", 
+                               log.isDebugEnabled() ? "DEBUG" : "ERROR");
         }
     }
     
