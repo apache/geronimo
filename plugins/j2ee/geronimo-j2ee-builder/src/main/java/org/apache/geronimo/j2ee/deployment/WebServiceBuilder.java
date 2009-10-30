@@ -22,6 +22,7 @@ import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.osgi.framework.Bundle;
 
 /**
  * @version $Rev$ $Date$
@@ -67,6 +68,6 @@ public interface WebServiceBuilder {
      * @param classLoader
      * @throws DeploymentException
      */
-    boolean configureEJB(GBeanData targetGBean, String ejbName, Module module, Map sharedContext, ClassLoader classLoader) throws DeploymentException;
+    boolean configureEJB(GBeanData targetGBean, String ejbName, Module module, Map sharedContext, Bundle bundle) throws DeploymentException;
 
 }

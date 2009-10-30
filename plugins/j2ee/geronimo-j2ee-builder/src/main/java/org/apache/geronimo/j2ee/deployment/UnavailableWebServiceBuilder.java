@@ -26,6 +26,8 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.kernel.repository.Environment;
 
+import org.osgi.framework.Bundle;
+
 /**
  * @version $Rev$ $Date$
  */
@@ -38,7 +40,7 @@ public class UnavailableWebServiceBuilder implements WebServiceBuilder {
         throw new DeploymentException("Web services are not available in this configuration");
     }
 
-    public boolean configureEJB(GBeanData targetGBean, String ejbName, Module module, Map portInfoObject, ClassLoader classLoader) throws DeploymentException {
+    public boolean configureEJB(GBeanData targetGBean, String ejbName, Module module, Map portInfoObject, Bundle bundle) throws DeploymentException {
         throw new DeploymentException("Web services are not available in this configuration");
     }
 
