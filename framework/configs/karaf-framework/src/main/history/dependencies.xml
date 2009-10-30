@@ -248,16 +248,6 @@
     </dependency>
     <dependency>
         <groupId>org.osgi</groupId>
-        <artifactId>org.osgi.compendium</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.osgi</groupId>
-        <artifactId>org.osgi.core</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.osgi</groupId>
         <artifactId>org.osgi.impl.bundle.jmx</artifactId>
         <type>jar</type>
     </dependency>
