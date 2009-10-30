@@ -34,6 +34,8 @@ import org.apache.geronimo.kernel.osgi.ConfigurationActivator;
 import org.apache.geronimo.system.osgi.BootActivator;
 import org.codehaus.plexus.archiver.jar.JarArchiver;
 
+import org.osgi.framework.Constants;
+
 /**
  * Jar up a packaged plugin
  *
@@ -224,24 +226,25 @@ public class ArchiveCarMojo
             if (configFile.exists()) {
                 StringBuilder imports = new StringBuilder("org.apache.geronimo.kernel.osgi,");
                 if (boot) {
-                    archive.addManifestEntry("Bundle-Activator", BootActivator.class.getName());
+                    archive.addManifestEntry(Constants.BUNDLE_ACTIVATOR, BootActivator.class.getName());
                     imports.append("org.apache.geronimo.system.osgi,");
                 } else {
-                    archive.addManifestEntry("Bundle-Activator", ConfigurationActivator.class.getName());
+                    archive.addManifestEntry(Constants.BUNDLE_ACTIVATOR, ConfigurationActivator.class.getName());
                 }
-                archive.addManifestEntry("Bundle-Name", project.getName());
-                archive.addManifestEntry("Bundle-Vendor", project.getOrganization().getName());
+                archive.addManifestEntry(Constants.BUNDLE_NAME, project.getName());
+                archive.addManifestEntry(Constants.BUNDLE_VENDOR, project.getOrganization().getName());
                 ArtifactVersion version = project.getArtifact().getSelectedVersion();
                 String versionString =  "" + version.getMajorVersion() + "." + version.getMinorVersion() + "." + version.getIncrementalVersion();
                 if (version.getQualifier() != null) {
                     versionString += "." + version.getQualifier();
                 }
-                archive.addManifestEntry("Bundle-Version", versionString);
-                archive.addManifestEntry("Bundle-ManifestVersion", "2");
-                archive.addManifestEntry("Bundle-Description", project.getDescription());
+                archive.addManifestEntry(Constants.BUNDLE_VERSION, versionString);
+                archive.addManifestEntry(Constants.BUNDLE_MANIFESTVERSION, "2");
+                archive.addManifestEntry(Constants.BUNDLE_DESCRIPTION, project.getDescription());
+                // NB, no constant for this one
                 archive.addManifestEntry("Bundle-License", ((License)project.getLicenses().get(0)).getUrl());
-                archive.addManifestEntry("Bundle-DocURL", project.getUrl());
-                archive.addManifestEntry("Bundle-SymbolicName", project.getGroupId() + "." + project.getArtifactId());
+                archive.addManifestEntry(Constants.BUNDLE_DOCURL, project.getUrl());
+                archive.addManifestEntry(Constants.BUNDLE_SYMBOLICNAME, project.getGroupId() + "." + project.getArtifactId());
                 Reader in = new FileReader(configFile);
                 char[] buf = new char[1024];
                 try {
@@ -252,8 +255,8 @@ public class ArchiveCarMojo
                 } finally {
                     in.close();
                 }
-                archive.addManifestEntry("Import-Package", imports.toString());
-                archive.addManifestEntry("DynamicImport-Package", "*");
+                archive.addManifestEntry(Constants.IMPORT_PACKAGE, imports.toString());
+                archive.addManifestEntry(Constants.DYNAMICIMPORT_PACKAGE, "*");
             }
 
             archiver.createArchive(project, archive);
