@@ -16,40 +16,54 @@
     limitations under the License.
 -->
 
-<!-- $Rev: 613699 $ $Date: 2008-01-20 14:50:35 -0800 (Sun, 20 Jan 2008) $ -->
+<!-- $Rev$ $Date$ -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-    
+
     <parent>
         <groupId>org.apache.geronimo.framework</groupId>
         <artifactId>modules</artifactId>
         <version>3.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>geronimo-cli</artifactId>
+    <artifactId>geronimo-main</artifactId>
     <packaging>bundle</packaging>
-    <name>Geronimo Framework, Modules :: CLI</name>
+    <name>Geronimo Framework, Modules :: Main</name>
 
     <dependencies>
         <dependency>
-            <groupId>org.apache.geronimo.framework</groupId>
-            <artifactId>geronimo-main</artifactId>
-            <version>${version}</version>
-        </dependency>
-
+            <groupId>org.apache.felix.karaf</groupId>
+            <artifactId>org.apache.felix.karaf.main</artifactId>
+            <scope>provided</scope>
+        </dependency>                
         <dependency>
-            <groupId>org.apache.geronimo.bundles</groupId>
-            <artifactId>commons-cli</artifactId>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.osgi.core</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.apache.geronimo.testsupport</groupId>
-            <artifactId>testsupport-common</artifactId>
-            <version>${version}</version>
-            <scope>test</scope>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.osgi.compendium</artifactId>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
+
+     <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <configuration>
+                    <instructions>
+                        <!--<_versionpolicy>[$(version;==;$(@)),$(version;+;$(@)))</_versionpolicy>-->
+                        <Import-Package>!org.apache.felix.karaf.main,*</Import-Package>
+                    </instructions>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>
 

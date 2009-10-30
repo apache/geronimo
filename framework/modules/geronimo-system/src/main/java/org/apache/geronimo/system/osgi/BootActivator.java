@@ -87,6 +87,7 @@ public class BootActivator implements BundleActivator {
                 in.close();
             }
 
+            /*
             List<Artifact> configs = new ArrayList<Artifact>();
             AbstractNameQuery query = new AbstractNameQuery(PersistentConfigurationList.class.getName());
 
@@ -157,6 +158,7 @@ public class BootActivator implements BundleActivator {
 
             // Startup sequence is finished
             monitor.startupFinished();
+            */
         } else {
             configurationActivator = new ConfigurationActivator();
             configurationActivator.start(bundleContext);

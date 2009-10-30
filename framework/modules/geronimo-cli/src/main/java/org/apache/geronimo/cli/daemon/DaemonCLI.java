@@ -16,9 +16,11 @@
  */
 package org.apache.geronimo.cli.daemon;
 
+import java.util.Arrays;
+
 import org.apache.geronimo.cli.AbstractCLI;
 import org.apache.geronimo.cli.CLParser;
-import org.apache.geronimo.kernel.util.MainConfigurationBootstrapper;
+import org.apache.geronimo.main.Bootstrapper;
 
 
 /**
@@ -41,8 +43,10 @@ public class DaemonCLI extends AbstractCLI {
     }
 
     @Override
-    protected MainConfigurationBootstrapper newMainConfigurationBootstrapper() {
-        return new MainConfigurationBootstrapper();
+    protected Bootstrapper createBootstrapper() {
+        Bootstrapper boot = super.createBootstrapper();
+        boot.setWaitForStop(true);
+        boot.setStartBundles(Arrays.asList("org.apache.geronimo.framework/j2ee-system/3.0-SNAPSHOT/car"));
+        return boot;
     }
-
 }

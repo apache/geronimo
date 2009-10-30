@@ -18,9 +18,6 @@ package org.apache.geronimo.cli.deployer;
 
 import org.apache.geronimo.cli.AbstractCLI;
 import org.apache.geronimo.cli.CLParser;
-import org.apache.geronimo.kernel.util.MainBootstrapper;
-import org.apache.geronimo.kernel.util.MainConfigurationBootstrapper;
-
 
 /**
  * @version $Rev: 476049 $ $Date: 2006-11-17 15:35:17 +1100 (Fri, 17 Nov 2006) $
@@ -50,11 +47,6 @@ public class DeployerCLI extends AbstractCLI {
     @Override
     protected CLParser getCLParser() {
         return new DeployerCLParser(System.out);
-    }
-
-    @Override
-    protected MainConfigurationBootstrapper newMainConfigurationBootstrapper() {
-        return new MainBootstrapper();
     }
 
 }

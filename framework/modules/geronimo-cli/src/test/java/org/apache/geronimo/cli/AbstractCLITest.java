@@ -19,8 +19,6 @@ package org.apache.geronimo.cli;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 
-import org.apache.geronimo.kernel.util.MainConfigurationBootstrapper;
-
 import com.agical.rmock.extension.junit.RMockTestCase;
 
 /**
@@ -84,11 +82,6 @@ public class AbstractCLITest extends RMockTestCase {
         @Override
         protected CLParser getCLParser() {
             return parser;
-        }
-
-        @Override
-        protected MainConfigurationBootstrapper newMainConfigurationBootstrapper() {
-            throw new UnsupportedOperationException();
         }
         
         @Override

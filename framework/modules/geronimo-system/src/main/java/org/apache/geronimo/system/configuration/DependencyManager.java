@@ -99,7 +99,7 @@ public class DependencyManager implements SynchronousBundleListener {
                     }
                     for (Bundle b : bundles) {
                         try {
-                            b.start();
+                            b.start(Bundle.START_TRANSIENT);
                         } catch (BundleException e) {
                             log.warn("Could not start bundle: " + b, e);
                         }

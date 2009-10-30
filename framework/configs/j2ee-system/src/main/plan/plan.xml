@@ -28,8 +28,6 @@ specific services - those should be provided by children.
 
 <module xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
 
-    <!--<gbean name="EmbeddedDaemon" class="org.apache.geronimo.system.main.EmbeddedDaemon"/>-->
-
     <!-- ServerInfo service -->
     <gbean name="ServerInfo" class="org.apache.geronimo.system.serverinfo.BasicServerInfo">
         <attribute name="useSystemProperties">true</attribute>
@@ -124,5 +122,7 @@ specific services - those should be provided by children.
         </reference>
     </gbean>
     -->
+
+    <gbean name="EmbeddedDaemon" class="org.apache.geronimo.system.main.EmbeddedDaemon"/>
 
 </module>

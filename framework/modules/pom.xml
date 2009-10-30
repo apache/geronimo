@@ -56,6 +56,7 @@
                 <!-- needed for car-maven-plugin -->
                 <module>testsupport-common</module>
                 <module>geronimo-common</module>
+                <module>geronimo-main</module>
                 <module>geronimo-system</module>
                 <!--<module>geronimo-logging</module>-->
                 <module>geronimo-rmi-loader</module>

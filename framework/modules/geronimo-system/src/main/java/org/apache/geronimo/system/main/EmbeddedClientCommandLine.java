@@ -16,29 +16,35 @@
  */
 package org.apache.geronimo.system.main;
 
+import java.util.Hashtable;
+
 import org.apache.geronimo.cli.client.ClientCLParser;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.util.Main;
+import org.apache.geronimo.main.Main;
+import org.osgi.framework.Bundle;
 
 /**
  * @version $Revision: 476049 $ $Date: 2006-11-17 15:35:17 +1100 (Fri, 17 Nov 2006) $
  */
-public class EmbeddedClientCommandLine extends ClientCommandLine implements Main {
+public class EmbeddedClientCommandLine extends ClientCommandLine implements Main, GBeanLifecycle {
     
     private final Kernel kernel;
+    private final Bundle bundle;
 
-    public EmbeddedClientCommandLine(Kernel kernel) {
+    public EmbeddedClientCommandLine(Kernel kernel, Bundle bundle) {
         if (null == kernel) {
             throw new IllegalArgumentException("kernel is required");
         }
         this.kernel = kernel;
+        this.bundle = bundle;
     }
 
     public int execute(Object opaque) {
         if (! (opaque instanceof ClientCLParser)) {
-            throw new IllegalArgumentException("Argument type is [" + opaque.getClass() + "]; expected [" + String[].class + "]");
+            throw new IllegalArgumentException("Argument type is [" + opaque.getClass() + "]; expected [" + ClientCLParser.class + "]");
         }
         return super.execute((ClientCLParser) opaque);
     }
@@ -57,12 +63,26 @@ public class EmbeddedClientCommandLine extends ClientCommandLine implements Main
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(EmbeddedClientCommandLine.class, "EmbeddedClientCommandLine");
         infoFactory.addAttribute("kernel", Kernel.class, false);
-        infoFactory.setConstructor(new String[]{"kernel"});
+        infoFactory.addAttribute("bundle", Bundle.class, false);
+        infoFactory.setConstructor(new String[]{"kernel", "bundle"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 
     public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
+    }
+
+    @Override
+    public void doFail() {
+    }
+
+    @Override
+    public void doStart() throws Exception {
+        bundle.getBundleContext().registerService(Main.class.getName(), this, new Hashtable());
+    }
+
+    @Override
+    public void doStop() throws Exception {
     }
     
 }

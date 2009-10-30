@@ -19,9 +19,7 @@ package org.apache.geronimo.cli;
 import java.io.PrintStream;
 
 import org.apache.geronimo.cli.CLParserException;
-import org.apache.geronimo.kernel.util.MainConfigurationBootstrapper;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
+import org.apache.geronimo.main.Bootstrapper;
 
 /**
  * @version $Rev: 476049 $ $Date: 2006-11-17 15:35:17 +1100 (Fri, 17 Nov 2006) $
@@ -63,11 +61,14 @@ public abstract class AbstractCLI {
         
         initializeLogging(parser);
         
-        MainConfigurationBootstrapper mainConfigurationBootstrapper = newMainConfigurationBootstrapper();
-        BundleContext bundleContext = null;
-        return MainConfigurationBootstrapper.main(mainConfigurationBootstrapper, parser, bundleContext);
+        Bootstrapper boot = createBootstrapper();
+        return boot.execute(parser);
     }
 
+    protected Bootstrapper createBootstrapper() {
+        return new Bootstrapper();
+    }
+    
     protected boolean executeCommand(CLParser parser) {
         return false;
     }
@@ -87,8 +88,6 @@ public abstract class AbstractCLI {
         
         System.setProperty("org.apache.geronimo.log.ConsoleLogLevel", level);
     }
-
-    protected abstract MainConfigurationBootstrapper newMainConfigurationBootstrapper();
 
     protected abstract CLParser getCLParser();
 

@@ -406,6 +406,17 @@
             <groupId>org.apache.geronimo.blueprint</groupId>
             <artifactId>geronimo-blueprint</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>geronimo-main</artifactId>
+            <version>${version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>geronimo-cli</artifactId>
+            <version>${version}</version>
+        </dependency>
     </dependencies>
     <build>
         <!--<resources>-->
@@ -543,6 +554,24 @@
                                     <artifactId>geronimo-rmi-loader</artifactId>
                                     <outputDirectory>target/dependencies</outputDirectory>
                                     <destFileName>geronimo-rmi-loader.jar</destFileName>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.apache.geronimo.framework</groupId>
+                                    <artifactId>geronimo-main</artifactId>
+                                    <outputDirectory>target/dependencies</outputDirectory>
+                                    <destFileName>geronimo-main.jar</destFileName>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.apache.geronimo.framework</groupId>
+                                    <artifactId>geronimo-cli</artifactId>
+                                    <outputDirectory>target/dependencies</outputDirectory>
+                                    <destFileName>geronimo-cli.jar</destFileName>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.apache.geronimo.bundles</groupId>
+                                    <artifactId>commons-cli</artifactId>
+                                    <outputDirectory>target/dependencies</outputDirectory>
+                                    <destFileName>commons-cli.jar</destFileName>
                                 </artifactItem>
                             </artifactItems>
                         </configuration>

@@ -20,6 +20,7 @@ package org.apache.geronimo.system.main;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -30,6 +31,7 @@ import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
@@ -38,24 +40,27 @@ import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.LifecycleMonitor;
 import org.apache.geronimo.kernel.config.PersistentConfigurationList;
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.util.Main;
+import org.apache.geronimo.main.Main;
 import org.apache.geronimo.system.serverinfo.DirectoryUtils;
+import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * @version $Rev:385659 $ $Date: 2007-03-07 14:40:07 +1100 (Wed, 07 Mar 2007) $
  */
-public class EmbeddedDaemon implements Main {
+public class EmbeddedDaemon implements Main, GBeanLifecycle {
     private static final Logger log = LoggerFactory.getLogger(EmbeddedDaemon.class);
 
     protected final Kernel kernel;
+    private Bundle bundle;
     private StartupMonitor monitor;
     private LifecycleMonitor lifecycleMonitor;
     private List<Artifact> configs = new ArrayList<Artifact>();
 
-    public EmbeddedDaemon(Kernel kernel) {
+    public EmbeddedDaemon(Kernel kernel, Bundle bundle) {
         this.kernel = kernel;
+        this.bundle = bundle;
     }
 
     public int execute(Object opaque) {
@@ -63,6 +68,7 @@ public class EmbeddedDaemon implements Main {
             throw new IllegalArgumentException("Argument type is [" + opaque.getClass() + "]; expected [" + DaemonCLParser.class + "]");
         }
         DaemonCLParser parser = (DaemonCLParser) opaque;
+
         initializeMonitor(parser);
         initializeOverride(parser);
 
@@ -70,12 +76,12 @@ public class EmbeddedDaemon implements Main {
 
         System.out.println("Booting Geronimo Kernel (in Java " + System.getProperty("java.version") + ")...");
         System.out.flush();
-
+        
         // Perform initialization tasks common with the various Geronimo environments
-        GeronimoEnvironment.init();
+        //GeronimoEnvironment.init();
 
         monitor.systemStarting(start);
-        return doStartup();
+        return doStartup();       
     }
 
     protected void initializeOverride(DaemonCLParser parser) {
@@ -111,13 +117,15 @@ public class EmbeddedDaemon implements Main {
                 return 1;
             }
 
+            /*
             // Determine the geronimo installation directory
             File geronimoInstallDirectory = DirectoryUtils.getGeronimoInstallDirectory();
             if (geronimoInstallDirectory == null) {
                 System.err.println("Could not determine geronimo installation directory");
                 return 1;
             }
-
+            */
+            
             int exitCode = initializeKernel();
             if (0 != exitCode) {
                 return exitCode;
@@ -148,7 +156,7 @@ public class EmbeddedDaemon implements Main {
             try {
                 ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
                 try {
-                    List<Artifact> unloadedConfigs = new ArrayList(configs);
+                    List<Artifact> unloadedConfigs = new ArrayList<Artifact>(configs);
                     int unloadedConfigsCount;
                     do {
                         unloadedConfigsCount = unloadedConfigs.size();
@@ -156,6 +164,7 @@ public class EmbeddedDaemon implements Main {
                         for (Artifact configID : sorted) {
                             monitor.moduleLoading(configID);
                             configurationManager.loadConfiguration(configID, lifecycleMonitor);
+                            unloadedConfigs.remove(configID);
                             monitor.moduleLoaded(configID);
                             monitor.moduleStarting(configID);
                             configurationManager.startConfiguration(configID, lifecycleMonitor);
@@ -194,6 +203,7 @@ public class EmbeddedDaemon implements Main {
             monitor.startupFinished();
             monitor = null;
 
+            /*
             // capture this thread until the kernel is ready to exit
             while (kernel.isRunning()) {
                 try {
@@ -204,6 +214,7 @@ public class EmbeddedDaemon implements Main {
                     // continue
                 }
             }
+            */
         } catch (Exception e) {
             if (monitor != null) {
                 monitor.serverStartFailed(e);
@@ -232,12 +243,27 @@ public class EmbeddedDaemon implements Main {
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(EmbeddedDaemon.class, "EmbeddedDaemon");
         infoFactory.addAttribute("kernel", Kernel.class, false);
-        infoFactory.setConstructor(new String[]{"kernel"});
+        infoFactory.addAttribute("bundle", Bundle.class, false);
+        infoFactory.setConstructor(new String[]{"kernel", "bundle"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 
     public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
+    }
+
+    @Override
+    public void doFail() {
+    }
+
+    @Override
+    public void doStart() throws Exception {
+        bundle.getBundleContext().registerService(Main.class.getName(), this, new Hashtable());
+    }
+
+    @Override
+    public void doStop() throws Exception {
+
     }
 
 }

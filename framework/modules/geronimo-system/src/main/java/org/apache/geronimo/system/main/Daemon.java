@@ -34,7 +34,7 @@ public class Daemon extends EmbeddedDaemon {
 
     private Daemon() {
         //TODO osgi bundleContext == null
-        super(KernelFactory.newInstance(null).createKernel("geronimo"));
+        super(KernelFactory.newInstance(null).createKernel("geronimo"), null);
     }
 
     @Override

@@ -16,9 +16,11 @@
  */
 package org.apache.geronimo.cli.client;
 
+import java.util.Arrays;
+
 import org.apache.geronimo.cli.AbstractCLI;
 import org.apache.geronimo.cli.CLParser;
-import org.apache.geronimo.kernel.util.MainConfigurationBootstrapper;
+import org.apache.geronimo.main.Bootstrapper;
 
 
 /**
@@ -39,10 +41,14 @@ public class ClientCLI extends AbstractCLI {
     protected CLParser getCLParser() {
         return new ClientCLParser(System.out);
     }
-
+    
     @Override
-    protected MainConfigurationBootstrapper newMainConfigurationBootstrapper() {
-        return new MainConfigurationBootstrapper();
+    protected Bootstrapper createBootstrapper() {
+        Bootstrapper boot = super.createBootstrapper();
+        boot.setWaitForStop(false);
+        boot.setUniqueStorage(true);
+        boot.setStartBundles(Arrays.asList("org.apache.geronimo.framework/client-system/3.0-SNAPSHOT/car"));
+        return boot;
     }
 
 }
