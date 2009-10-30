@@ -80,7 +80,7 @@ public class SnapshotThread extends Thread {
     /**
      * Sets the elapsed time in milliseconds between each snapshot.
      * 
-     * @param snapshotDuration
+     * @param snapshot_length
      */
     public void setSnapshotDuration(long snapshot_length) {
         if (snapshot_length == Long.MAX_VALUE)
