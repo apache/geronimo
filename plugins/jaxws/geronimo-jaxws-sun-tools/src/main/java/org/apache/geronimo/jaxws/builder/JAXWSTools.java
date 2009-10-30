@@ -28,7 +28,7 @@ import java.util.SortedSet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.geronimo.kernel.classloader.JarFileClassLoader;
+import org.apache.geronimo.kernel.classloader.TemporaryClassLoader;
 import org.apache.geronimo.kernel.config.Os;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ListableRepository;
@@ -40,7 +40,7 @@ public class JAXWSTools {
     private static final Logger LOG = LoggerFactory.getLogger(JAXWSTools.class);
 
     private final static String [][] LIBS =
-    { 
+    {
         { "org.apache.geronimo.specs", "geronimo-jaxws_2.1_spec" },
         { "org.apache.geronimo.specs", "geronimo-saaj_1.3_spec" },
         { "org.apache.geronimo.specs", "geronimo-jaxb_2.1_spec" },
@@ -65,7 +65,7 @@ public class JAXWSTools {
         { "org.codehaus.woodstox",        "wstx-asl" },
         { "org.apache.geronimo.modules",  "geronimo-webservices" },
     };
-    
+
     private final static Artifact SUN_SAAJ_IMPL_ARTIFACT = new Artifact("com.sun.xml.messaging.saaj","saaj-impl", (Version)null, "jar");
     private final static Artifact AXIS2_SAAJ_IMPL_ARTIFACT = new Artifact("org.apache.axis2","axis2-saaj", (Version)null, "jar");
     private final static String TOOLS = "tools.jar";
@@ -73,34 +73,34 @@ public class JAXWSTools {
     private Artifact saajImpl;
     private boolean overrideContextClassLoader;
     private ClassLoader parentClassLoader;
-    
+
     public JAXWSTools() {
     }
-    
+
     public void setUseSunSAAJ() {
         this.saajImpl = SUN_SAAJ_IMPL_ARTIFACT;
     }
-    
+
     public void setUseAxis2SAAJ() {
         this.saajImpl = AXIS2_SAAJ_IMPL_ARTIFACT;
     }
-    
+
     public void setOverrideContextClassLoader(boolean overrideContextClassLoader) {
         this.overrideContextClassLoader = overrideContextClassLoader;
     }
-    
+
     public boolean getOverrideContextClassLoader() {
         return this.overrideContextClassLoader;
     }
-       
+
     public void setParentClassLoader(ClassLoader parentClassLoader) {
-        this.parentClassLoader = parentClassLoader;    
+        this.parentClassLoader = parentClassLoader;
     }
-    
+
     public ClassLoader getParentClassLoader() {
         return this.parentClassLoader;
     }
-    
+
     public static URL[] toURL(File[] jars) throws MalformedURLException {
         URL [] urls = new URL[jars.length];
         for (int i = 0; i < jars.length; i++) {
@@ -108,7 +108,7 @@ public class JAXWSTools {
         }
         return urls;
     }
-    
+
     public static String toString(File [] jars) {
         StringBuffer buf = new StringBuffer();
         for (int i = 0; i < jars.length; i++) {
@@ -119,7 +119,7 @@ public class JAXWSTools {
         }
         return buf.toString();
     }
-    
+
     public File[] getClasspath(Collection<? extends Repository> repositories) throws Exception {
         ArrayList<File> jars = new ArrayList<File>();
         for (String[] lib : LIBS) {
@@ -134,13 +134,13 @@ public class JAXWSTools {
         if (!Os.isFamily(Os.FAMILY_MAC)) {
             addToolsJarLocation(jars);
         }
-        
+
         return jars.toArray(new File[jars.size()]);
     }
-       
+
     private static File getLocation(Collection<? extends Repository> repositories, Artifact artifactQuery) throws Exception {
         File file = null;
-        
+
         for (Repository arepository : repositories) {
             if (arepository instanceof ListableRepository) {
                 ListableRepository repository = (ListableRepository) arepository;
@@ -155,10 +155,10 @@ public class JAXWSTools {
                 }
             }
         }
-        
+
         throw new Exception("Missing artifact in repositories: " + artifactQuery.toString());
     }
-    
+
     private static void addToolsJarLocation(ArrayList<File> jars) {
         //create a new File then check exists()
         String jreHomePath = System.getProperty("java.home");
@@ -180,20 +180,20 @@ public class JAXWSTools {
                         + ". This may be required for wsgen to run. ");
             } else {
                 jars.add(tools.getAbsoluteFile());
-            }               
+            }
         }
     }
-                           
+
     public boolean invokeWsgen(URL[] jars, OutputStream os, String[] arguments) throws Exception {
         return invoke("wsgen", jars, os, arguments);
-    
+
     }
     public boolean invokeWsimport(URL[] jars, OutputStream os, String[] arguments) throws Exception {
         return invoke("wsimport", jars, os, arguments);
     }
-    
+
     private boolean invoke(String toolName, URL[] jars, OutputStream os, String[] arguments) throws Exception {
-        JarFileClassLoader loader = new JarFileClassLoader(null, jars, ClassLoader.getSystemClassLoader());
+        TemporaryClassLoader loader = new TemporaryClassLoader(jars, ClassLoader.getSystemClassLoader());
         if (this.overrideContextClassLoader) {
             ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
             Thread.currentThread().setContextClassLoader(loader);
@@ -201,27 +201,22 @@ public class JAXWSTools {
                 return invoke(toolName, loader, os, arguments);
             } finally {
                 Thread.currentThread().setContextClassLoader(oldClassLoader);
-                loader.destroy();
-            }            
-        } else {
-            try {
-                return invoke(toolName, loader, os, arguments);
-            } finally {
-                loader.destroy();
             }
+        } else {
+             return invoke(toolName, loader, os, arguments);
         }
     }
-    
+
     private boolean invoke(String toolName, ClassLoader loader, OutputStream os, String[] arguments) throws Exception {
         LOG.debug("Invoking " + toolName);
         Class clazz = loader.loadClass("com.sun.tools.ws.spi.WSToolsObjectFactory");
         Method method = clazz.getMethod("newInstance");
         Object factory = method.invoke(null);
         Method method2 = clazz.getMethod(toolName, OutputStream.class, String[].class);
-        
+
         Boolean result = (Boolean) method2.invoke(factory, os, arguments);
-        
+
         return result;
     }
-    
+
 }

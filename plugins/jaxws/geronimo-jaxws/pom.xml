@@ -109,6 +109,11 @@
             <type>car</type>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.servicemix.bundles</groupId>
+            <artifactId>org.apache.servicemix.bundles.xmlbeans</artifactId>
+        </dependency>
+
     </dependencies>
 
 </project>

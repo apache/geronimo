@@ -60,6 +60,12 @@
         </dependency>
 
         <dependency>
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>geronimo-service-builder</artifactId>
+            <version>${version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.apache.geronimo.schema</groupId>
             <artifactId>geronimo-schema-j2ee_1.4</artifactId>
         </dependency>
@@ -93,7 +99,7 @@
                 <configuration>
                     <instructions>
                         <!--packages containing "impl" or "internal" are excluded by default -->
-                        <Import-Package>org.apache.xmlbeans.impl.schema;version="2.4",*</Import-Package>
+                        <Import-Package>org.apache.xmlbeans.impl.schema;version="2.4",org.apache.geronimo.deployment.xbeans.impl,org.apache.geronimo.deployment.javabean.xbeans.impl,*</Import-Package>
                         <!--<_versionpolicy>[$(version;==;$(@)),$(version;+;$(@)))</_versionpolicy>-->
                     </instructions>
                 </configuration>

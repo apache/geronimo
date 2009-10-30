@@ -28,12 +28,13 @@ import org.apache.geronimo.jaxws.JAXWSUtils;
 import org.apache.geronimo.jaxws.PortInfo;
 import org.apache.geronimo.openejb.deployment.EjbModule;
 import org.apache.openejb.assembler.classic.EnterpriseBeanInfo;
+import org.osgi.framework.Bundle;
 
 public class EJBWebServiceFinder implements WebServiceFinder {
 
     private static final Logger LOG = LoggerFactory.getLogger(EJBWebServiceFinder.class);
-    
-    public Map<String, PortInfo> discoverWebServices(Module module, 
+
+    public Map<String, PortInfo> discoverWebServices(Module module,
                                                      boolean isEJB,
                                                      Map correctedPortLocations)
             throws DeploymentException {
@@ -44,16 +45,16 @@ public class EJBWebServiceFinder implements WebServiceFinder {
 
     private void discoverEJBWebServices(Module module,
                                         Map correctedPortLocations,
-                                        Map<String, PortInfo> map) 
+                                        Map<String, PortInfo> map)
         throws DeploymentException {
-        ClassLoader classLoader = module.getEarContext().getClassLoader();
+        Bundle bundle = module.getEarContext().getBundle();
         EjbModule ejbModule = (EjbModule) module;
         for (EnterpriseBeanInfo bean : ejbModule.getEjbJarInfo().enterpriseBeans) {
             if (bean.type != EnterpriseBeanInfo.STATELESS) {
                 continue;
-            }            
+            }
             try {
-                Class ejbClass = classLoader.loadClass(bean.ejbClass);
+                Class ejbClass = bundle.loadClass(bean.ejbClass);
                 if (JAXWSUtils.isWebService(ejbClass)) {
                     LOG.debug("Found EJB Web Service: " + bean.ejbName);
                     PortInfo portInfo = new PortInfo();

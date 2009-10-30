@@ -19,6 +19,8 @@
 
 package org.apache.geronimo.gbean.annotation;
 
+import java.util.Dictionary;
+
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GBeanInfoFactoryException;
@@ -37,9 +39,9 @@ public class AnnotationGBeanInfoFactory implements GBeanInfoFactory {
         try {
             clazz = bundle.loadClass(className);
         } catch (ClassNotFoundException e) {
-            throw new InvalidConfigurationException("Could not load class " + className, e);
+            throw new InvalidConfigurationException("Could not load class " + className + " from bundle " + bundle + " at location " + bundle.getLocation(), e);
         } catch (NoClassDefFoundError e) {
-            throw new InvalidConfigurationException("Could not load class " + className, e);
+            throw new InvalidConfigurationException("Could not load class " + className + " from bundle " + bundle + " at location " + bundle.getLocation(), e);
         }
         return getGBeanInfo(clazz);
     }
@@ -52,5 +54,5 @@ public class AnnotationGBeanInfoFactory implements GBeanInfoFactory {
             throw new GBeanInfoFactoryException(e);
         }
     }
-    
+
 }

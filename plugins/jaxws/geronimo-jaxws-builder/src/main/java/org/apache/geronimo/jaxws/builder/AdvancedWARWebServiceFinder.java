@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.kernel.osgi.BundleClassLoader;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.WebModule;
 import org.apache.geronimo.jaxws.JAXWSUtils;
@@ -32,12 +33,13 @@ import org.apache.geronimo.xbeans.javaee.ServletType;
 import org.apache.geronimo.xbeans.javaee.WebAppType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.osgi.framework.Bundle;
 
 public class AdvancedWARWebServiceFinder implements WebServiceFinder {
 
     private static final Logger LOG = LoggerFactory.getLogger(AdvancedWARWebServiceFinder.class);
-    
-    public Map<String, PortInfo> discoverWebServices(Module module, 
+
+    public Map<String, PortInfo> discoverWebServices(Module module,
                                                      boolean isEJB,
                                                      Map correctedPortLocations)
             throws DeploymentException {
@@ -48,29 +50,29 @@ public class AdvancedWARWebServiceFinder implements WebServiceFinder {
 
     private void discoverPOJOWebServices(Module module,
                                          Map portLocations,
-                                         Map<String, PortInfo> map) 
+                                         Map<String, PortInfo> map)
         throws DeploymentException {
-        ClassLoader classLoader = module.getEarContext().getClassLoader();
+        Bundle bundle = module.getEarContext().getBundle();
         WebAppType webApp = (WebAppType) module.getSpecDD();
 
         if (webApp.isSetMetadataComplete()) {
             // full web.xml, just examine all servlet entries for web services
-            
+
             ServletType[] servletTypes = webApp.getServletArray();
             for (ServletType servletType : servletTypes) {
                 String servletName = servletType.getServletName().getStringValue().trim();
-                PortInfo portInfo = getPortInfo(servletType, classLoader, portLocations);
+                PortInfo portInfo = getPortInfo(servletType, bundle, portLocations);
                 if (portInfo != null) {
                     LOG.debug("Found POJO Web Service: {}", servletName);
                     map.put(servletName, portInfo);
                 }
             }
-            
+
         } else {
-            // partial web.xml, discover all web service classes 
-            
+            // partial web.xml, discover all web service classes
+
             Map<String, List<String>> classServletMap = createClassServetMap(webApp);
-            List<Class> services = WARWebServiceFinder.discoverWebServices(module.getModuleFile(), false, classLoader);
+            List<Class> services = WARWebServiceFinder.discoverWebServices(module.getModuleFile(), false, new BundleClassLoader(bundle));
             String contextRoot = ((WebModule) module).getContextRoot();
             for (Class service : services) {
                 // skip interfaces and such
@@ -79,17 +81,17 @@ public class AdvancedWARWebServiceFinder implements WebServiceFinder {
                 }
 
                 LOG.debug("Discovered POJO Web Service class: {}", service.getName());
-                
+
                 List<String> mappedServlets = classServletMap.get(service.getName());
                 if (mappedServlets == null) {
                     // no <servlet/> entry, add one
-                    
+
                     LOG.debug("POJO Web Service class {} is not mapped to any servlet", service.getName());
-                    
+
                     ServletType servlet = webApp.addNewServlet();
                     servlet.addNewServletName().setStringValue(service.getName());
                     servlet.addNewServletClass().setStringValue(service.getName());
-                    
+
                     String location = (String)portLocations.get(service.getName());
                     if (location == null) {
                         // add new <servlet-mapping/> element
@@ -98,7 +100,7 @@ public class AdvancedWARWebServiceFinder implements WebServiceFinder {
                         servletMapping.addNewServletName().setStringValue(service.getName());
                         servletMapping.addNewUrlPattern().setStringValue(location);
                     } else {
-                        // weird, there was no servlet entry for this class but 
+                        // weird, there was no servlet entry for this class but
                         // servlet-mapping exists
                         LOG.warn("Found <servlet-mapping> but corresponding <servlet> was not defined");
                     }
@@ -114,33 +116,33 @@ public class AdvancedWARWebServiceFinder implements WebServiceFinder {
                         PortInfo portInfo = createPortInfo(servlet, portLocations);
                         map.put(servlet, portInfo);
                     }
-                }                
+                }
             }
-            
+
             // double check servlets in case we missed something
             ServletType[] servletTypes = webApp.getServletArray();
             for (ServletType servletType : servletTypes) {
                 String servletName = servletType.getServletName().getStringValue().trim();
                 if (map.get(servletName) == null) {
-                    PortInfo portInfo = getPortInfo(servletType, classLoader, portLocations);
+                    PortInfo portInfo = getPortInfo(servletType, bundle, portLocations);
                     if (portInfo != null) {
                         LOG.debug("Found POJO Web Service: {}", servletName);
                         map.put(servletName, portInfo);
                     }
                 }
             }
-        }               
-    } 
-        
-    private PortInfo getPortInfo(ServletType servletType, 
-                                 ClassLoader classLoader, 
+        }
+    }
+
+    private PortInfo getPortInfo(ServletType servletType,
+                                 Bundle bundle,
                                  Map portLocations) throws DeploymentException {
         PortInfo portInfo = null;
         if (servletType.isSetServletClass()) {
             String servletClassName = servletType.getServletClass().getStringValue().trim();
             try {
-                Class servletClass = classLoader.loadClass(servletClassName);
-                if (JAXWSUtils.isWebService(servletClass)) {      
+                Class servletClass = bundle.loadClass(servletClassName);
+                if (JAXWSUtils.isWebService(servletClass)) {
                     String servletName = servletType.getServletName().getStringValue().trim();
                     portInfo = createPortInfo(servletName, portLocations);
                 }
@@ -151,22 +153,22 @@ public class AdvancedWARWebServiceFinder implements WebServiceFinder {
         }
         return portInfo;
     }
-    
-    private PortInfo createPortInfo(String servlet, Map portLocations) { 
-        PortInfo portInfo = new PortInfo();            
+
+    private PortInfo createPortInfo(String servlet, Map portLocations) {
+        PortInfo portInfo = new PortInfo();
         String location = (String)portLocations.get(servlet);
         if (location != null) {
             portInfo.setLocation(location);
-        }        
+        }
         return portInfo;
     }
-    
+
     /*
      * Create servlet-class to servlet-names mapping
      */
     private Map<String, List<String>> createClassServetMap(WebAppType webApp) {
         Map<String, List<String>> map = new HashMap<String, List<String>>();
-        
+
         ServletType[] servletTypes = webApp.getServletArray();
         if (servletTypes != null) {
             for (ServletType servletType : servletTypes) {
@@ -182,8 +184,8 @@ public class AdvancedWARWebServiceFinder implements WebServiceFinder {
                 }
             }
         }
-        
+
         return map;
     }
-    
+
 }

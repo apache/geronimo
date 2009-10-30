@@ -27,7 +27,7 @@
         <artifactId>system-database</artifactId>
         <version>3.0-SNAPSHOT</version>
     </parent>
-    
+
     <groupId>org.apache.geronimo.configs</groupId>
     <artifactId>system-database</artifactId>
     <name>Geronimo Plugins, System Database :: System Database</name>
@@ -36,7 +36,7 @@
     <description>
         System database plugin for geronimo. This provides system databse together with its dependencies as one dependency.
     </description>
-    
+
     <dependencies>
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
@@ -87,9 +87,14 @@
             <artifactId>tranql-connector-derby-embed-xa</artifactId>
             <type>rar</type>
         </dependency>
-        
+
+        <dependency>
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>geronimo-service-builder</artifactId>
+        </dependency>
+
     </dependencies>
-    
+
     <build>
         <plugins>
             <plugin>
@@ -124,7 +129,19 @@
                      </instance>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <configuration>
+                    <instructions>
+                        <!--packages containing "impl" or "internal" are excluded by default -->
+                        <Import-Package>org.apache.xmlbeans.impl.schema;version="2.4",org.apache.geronimo.deployment.xbeans.impl,*</Import-Package>
+                        <!--<_versionpolicy>[$(version;==;$(@)),$(version;+;$(@)))</_versionpolicy>-->
+                    </instructions>
+                </configuration>
+            </plugin>
+
         </plugins>
     </build>
-    
+
 </project>

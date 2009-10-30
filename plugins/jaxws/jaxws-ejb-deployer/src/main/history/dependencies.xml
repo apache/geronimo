@@ -18,7 +18,17 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.modules</groupId>
+        <artifactId>geronimo-jaxws-builder</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.modules</groupId>
         <artifactId>geronimo-jaxws-ejb-builder</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.modules</groupId>
+        <artifactId>geronimo-openejb-builder</artifactId>
         <type>jar</type>
     </dependency>
 </plugin-artifact>

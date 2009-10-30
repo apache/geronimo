@@ -343,7 +343,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
     public Bundle getBundle() {
         return configurationData.getBundleContext().getBundle();
     }
-    
+
     public BundleContext getBundleContext() {
         return configurationData.getBundleContext();
     }

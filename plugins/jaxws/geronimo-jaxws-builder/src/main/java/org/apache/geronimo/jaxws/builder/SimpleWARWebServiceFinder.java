@@ -29,14 +29,15 @@ import org.apache.geronimo.jaxws.PortInfo;
 import org.apache.geronimo.xbeans.javaee.ServletMappingType;
 import org.apache.geronimo.xbeans.javaee.ServletType;
 import org.apache.geronimo.xbeans.javaee.WebAppType;
+import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SimpleWARWebServiceFinder implements WebServiceFinder {
 
     private static final Logger LOG = LoggerFactory.getLogger(SimpleWARWebServiceFinder.class);
-    
-    public Map<String, PortInfo> discoverWebServices(Module module, 
+
+    public Map<String, PortInfo> discoverWebServices(Module module,
                                                      boolean isEJB,
                                                      Map correctedPortLocations)
             throws DeploymentException {
@@ -47,9 +48,9 @@ public class SimpleWARWebServiceFinder implements WebServiceFinder {
 
     private void discoverPOJOWebServices(Module module,
                                          Map correctedPortLocations,
-                                         Map<String, PortInfo> map) 
+                                         Map<String, PortInfo> map)
         throws DeploymentException {
-        ClassLoader classLoader = module.getEarContext().getClassLoader();
+        Bundle bundle = module.getEarContext().getBundle();
         WebAppType webApp = (WebAppType) module.getSpecDD();
 
         // find web services
@@ -67,7 +68,7 @@ public class SimpleWARWebServiceFinder implements WebServiceFinder {
                 }
 
                 LOG.debug("Discovered POJO Web Service: " + service.getName());
-                
+
                 // add new <servlet/> element
                 ServletType servlet = webApp.addNewServlet();
                 servlet.addNewServletName().setStringValue(service.getName());
@@ -92,7 +93,7 @@ public class SimpleWARWebServiceFinder implements WebServiceFinder {
                 if (servletType.isSetServletClass()) {
                     String servletClassName = servletType.getServletClass().getStringValue().trim();
                     try {
-                        Class servletClass = classLoader.loadClass(servletClassName);
+                        Class servletClass = bundle.loadClass(servletClassName);
                         if (JAXWSUtils.isWebService(servletClass)) {
                             LOG.debug("Found POJO Web Service: " + servletName);
                             PortInfo portInfo = new PortInfo();
@@ -100,7 +101,7 @@ public class SimpleWARWebServiceFinder implements WebServiceFinder {
                         }
                     } catch (Exception e) {
                         throw new DeploymentException("Failed to load servlet class "
-                                                      + servletClassName, e);
+                                                      + servletClassName + " from bundle " +  bundle, e);
                     }
                 }
             }
@@ -116,6 +117,6 @@ public class SimpleWARWebServiceFinder implements WebServiceFinder {
                 }
             }
         }
-    } 
+    }
 
 }

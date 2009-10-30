@@ -31,7 +31,7 @@
     <!--wipes out xmlbeans classes-->
     <packaging>bundle</packaging>
     <name>Geronimo Framework, Modules :: Service Builder</name>
-    
+
     <dependencies>
         <!-- g-kernel, g-common is coming from this via geronimo-system -->
         <dependency>
@@ -55,7 +55,7 @@
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-javaee-deployment_1.1MR3_spec</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-kernel</artifactId>
@@ -70,7 +70,7 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-    
+
     <build>
         <plugins>
             <plugin>
@@ -85,6 +85,11 @@
                     <instructions>
                         <!--<_versionpolicy>[$(version;==;$(@)),$(version;+;$(@)))</_versionpolicy>-->
                         <Import-Package>org.apache.xmlbeans.impl.schema,*</Import-Package>
+                        <Export-Package>
+                        org.apache.geronimo.deployment.xbeans.impl,
+                        org.apache.geronimo.deployment.javabean.xbeans.impl,
+                        org.apache.geronimo.deployment*
+                        </Export-Package>
                     </instructions>
                 </configuration>
             </plugin>

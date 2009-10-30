@@ -18,32 +18,33 @@ package org.apache.geronimo.openejb;
 
 import junit.framework.TestCase;
 import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.kernel.osgi.MockBundle;
 
 /**
  * @version $Rev$ $Date$
  */
 public class GBeanTest extends TestCase {
     public void testOpenEjbSystemGBean() {
-        GBeanInfo.getGBeanInfo(OpenEjbSystemGBean.class.getName(), getClass().getClassLoader());
+        GBeanInfo.getGBeanInfo(OpenEjbSystemGBean.class.getName(), new MockBundle(getClass().getClassLoader(), "test", 0L));
     }
 
     public void testEjbModuleImplGBean() {
-        GBeanInfo.getGBeanInfo(EjbModuleImplGBean.class.getName(), getClass().getClassLoader());
+        GBeanInfo.getGBeanInfo(EjbModuleImplGBean.class.getName(), new MockBundle(getClass().getClassLoader(), "test", 0L));
     }
 
     public void testEntityDeploymentGBean() {
-        GBeanInfo.getGBeanInfo(EntityDeploymentGBean.class.getName(), getClass().getClassLoader());
+        GBeanInfo.getGBeanInfo(EntityDeploymentGBean.class.getName(), new MockBundle(getClass().getClassLoader(), "test", 0L));
     }
 
     public void testMessageDrivenDeploymentGBean() {
-        GBeanInfo.getGBeanInfo(MessageDrivenDeploymentGBean.class.getName(), getClass().getClassLoader());
+        GBeanInfo.getGBeanInfo(MessageDrivenDeploymentGBean.class.getName(), new MockBundle(getClass().getClassLoader(), "test", 0L));
     }
 
     public void testStatefulDeploymentGBean() {
-        GBeanInfo.getGBeanInfo(StatefulDeploymentGBean.class.getName(), getClass().getClassLoader());
+        GBeanInfo.getGBeanInfo(StatefulDeploymentGBean.class.getName(), new MockBundle(getClass().getClassLoader(), "test", 0L));
     }
 
     public void testStatelessDeploymentGBean() {
-        GBeanInfo.getGBeanInfo(StatelessDeploymentGBean.class.getName(), getClass().getClassLoader());
+        GBeanInfo.getGBeanInfo(StatelessDeploymentGBean.class.getName(), new MockBundle(getClass().getClassLoader(), "test", 0L));
     }
 }

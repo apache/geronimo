@@ -270,7 +270,7 @@ public class GBeanInstanceState
                 // instance is not ready to start... this is normally caused by references
                 // not being available, but could be because someone already started the gbean.
                 // in another thread.  The reference will log a debug message about why
-                // it could not start
+                // it could not startf
                 return;
             }
         } catch (Throwable t) {
@@ -439,9 +439,9 @@ public class GBeanInstanceState
                 }
                 break;
         }
-        
+
         log.debug("{} State changed from {} to {}", new Object[] { toString(), state, newState });
-        
+
         state = newState;
     }
 

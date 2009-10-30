@@ -38,7 +38,7 @@ import org.apache.geronimo.deployment.util.NestedJarFile;
 import org.apache.geronimo.deployment.util.UnpackedJarFile;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.jaxws.PortInfo;
-import org.apache.geronimo.kernel.classloader.JarFileClassLoader;
+import org.apache.geronimo.kernel.classloader.TemporaryClassLoader;
 import org.apache.xbean.finder.ClassFinder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,28 +46,28 @@ import org.slf4j.LoggerFactory;
 public class WARWebServiceFinder implements WebServiceFinder {
 
     private static final Logger LOG = LoggerFactory.getLogger(WARWebServiceFinder.class);
-    
+
     private static final WebServiceFinder webServiceFinder = getWebServiceFinder();
-                
+
     private static WebServiceFinder getWebServiceFinder() {
-        boolean useSimpleFinder = 
+        boolean useSimpleFinder =
             Boolean.getBoolean("org.apache.geronimo.jaxws.builder.useSimpleFinder");
-        
+
         WebServiceFinder webServiceFinder = null;
-        
+
         if (useSimpleFinder) {
             webServiceFinder = new SimpleWARWebServiceFinder();
         } else {
             webServiceFinder = new AdvancedWARWebServiceFinder();
         }
-        
+
         return webServiceFinder;
     }
-    
-    public Map<String, PortInfo> discoverWebServices(Module module, 
+
+    public Map<String, PortInfo> discoverWebServices(Module module,
                                                      boolean isEJB,
                                                      Map correctedPortLocations)
-            throws DeploymentException {                
+            throws DeploymentException {
         return webServiceFinder.discoverWebServices(module, isEJB, correctedPortLocations);
     }
 
@@ -77,7 +77,7 @@ public class WARWebServiceFinder implements WebServiceFinder {
      */
     static List<Class> discoverWebServices(JarFile moduleFile,
                                            boolean isEJB,
-                                           ClassLoader parentClassLoader)                                                      
+                                           ClassLoader parentClassLoader)
             throws DeploymentException {
         LOG.debug("Discovering web service classes");
 
@@ -93,15 +93,15 @@ public class WARWebServiceFinder implements WebServiceFinder {
             }
         } else {
             File baseDir = null;
-            
+
             if (moduleFile instanceof UnpackedJarFile) {
                 // war directory is being deployed (--inPlace)
                 baseDir = ((UnpackedJarFile)moduleFile).getBaseDir();
             } else if (moduleFile instanceof NestedJarFile && ((NestedJarFile)moduleFile).isUnpacked()) {
                 // ear directory is being deployed (--inPlace)
-                baseDir = new File(moduleFile.getName());                
+                baseDir = new File(moduleFile.getName());
             } else {
-                // war file or ear file is being deployed                
+                // war file or ear file is being deployed
                 /*
                  * Can't get ClassLoader to load nested Jar files, so
                  * unpack the module Jar file and discover all nested Jar files
@@ -121,7 +121,7 @@ public class WARWebServiceFinder implements WebServiceFinder {
                     }
                     throw new DeploymentException("Failed to expand the module archive", e);
                 }
-                
+
                 baseDir = tmpDir;
             }
 
@@ -149,11 +149,11 @@ public class WARWebServiceFinder implements WebServiceFinder {
                 }
             }
         }
-        
+
         URL[] urls = urlList.toArray(new URL[] {});
-        JarFileClassLoader tempClassLoader = null;
+        TemporaryClassLoader tempClassLoader = null;
         try {
-            tempClassLoader = new JarFileClassLoader(null, urls, parentClassLoader);
+            tempClassLoader = new TemporaryClassLoader(urls, parentClassLoader);
             List<Class> classes = new ArrayList<Class>();
             for (URL url : urlList) {
                 try {
@@ -166,11 +166,6 @@ public class WARWebServiceFinder implements WebServiceFinder {
             }
             return classes;
         } finally {
-            if (tempClassLoader != null)
-                try {
-                    tempClassLoader.destroy();
-                } catch (Exception e) {
-                }
             if (tmpDir != null) {
                 DeploymentUtil.recursiveDelete(tmpDir);
             }

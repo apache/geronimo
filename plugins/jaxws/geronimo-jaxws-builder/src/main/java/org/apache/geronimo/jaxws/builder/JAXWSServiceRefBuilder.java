@@ -48,17 +48,19 @@ import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 
+import org.osgi.framework.Bundle;
+
 public abstract class JAXWSServiceRefBuilder extends AbstractNamingBuilder implements ServiceRefBuilder {
     private static final Logger log = LoggerFactory.getLogger(JAXWSServiceRefBuilder.class);
 
-    private static final QName GER_SERVICE_REF_QNAME = 
+    private static final QName GER_SERVICE_REF_QNAME =
         GerServiceRefDocument.type.getDocumentElementName();
 
-    private static final QNameSet GER_SERVICE_REF_QNAME_SET = 
+    private static final QNameSet GER_SERVICE_REF_QNAME_SET =
         QNameSet.singleton(GER_SERVICE_REF_QNAME);
 
     private final QNameSet serviceRefQNameSet;
-    
+
     public JAXWSServiceRefBuilder(Environment defaultEnvironment, String[] eeNamespaces) {
         super(defaultEnvironment);
         serviceRefQNameSet = buildQNameSet(eeNamespaces, "service-ref");
@@ -75,9 +77,9 @@ public abstract class JAXWSServiceRefBuilder extends AbstractNamingBuilder imple
         List<ServiceRefType> serviceRefsUntyped = convert(specDD.selectChildren(serviceRefQNameSet), JEE_CONVERTER, ServiceRefType.class, ServiceRefType.type);
         XmlObject[] gerServiceRefsUntyped = plan == null ? NO_REFS : plan.selectChildren(GER_SERVICE_REF_QNAME_SET);
         Map serviceRefMap = mapServiceRefs(gerServiceRefsUntyped);
-        
+
         for (ServiceRefType serviceRef : serviceRefsUntyped) {
-            String name = getStringValue(serviceRef.getServiceRefName());            
+            String name = getStringValue(serviceRef.getServiceRefName());
             addInjections(name, serviceRef.getInjectionTargetArray(), componentContext);
             GerServiceRefType serviceRefType = (GerServiceRefType) serviceRefMap.get(name);
             serviceRefMap.remove(name);
@@ -89,35 +91,35 @@ public abstract class JAXWSServiceRefBuilder extends AbstractNamingBuilder imple
         }
     }
 
-    private Class loadClass(String className, ClassLoader cl, String classDescription) throws DeploymentException {
+    private Class loadClass(String className, Bundle bundle, String classDescription) throws DeploymentException {
         try {
-            return cl.loadClass(className);
+            return bundle.loadClass(className);
         } catch (ClassNotFoundException e) {
             throw new DeploymentException("Could not load " + classDescription + " class " + className, e);
         }
     }
-    
+
     public void buildNaming(XmlObject serviceRef, GerServiceRefType gerServiceRefType, Module module, Map componentContext) throws DeploymentException {
-        ServiceRefType serviceRefType = 
+        ServiceRefType serviceRefType =
             (ServiceRefType)convert(serviceRef, JEE_CONVERTER, ServiceRefType.type);
         buildNaming(serviceRefType, gerServiceRefType, module, componentContext);
     }
-    
+
     public void buildNaming(ServiceRefType serviceRef, GerServiceRefType gerServiceRef, Module module, Map componentContext) throws DeploymentException {
-        ClassLoader cl = module.getEarContext().getClassLoader();        
+        Bundle bundle = module.getEarContext().getBundle();
         String name = getStringValue(serviceRef.getServiceRefName());
-        
+
         String serviceInterfaceName = getStringValue(serviceRef.getServiceInterface());
-        Class serviceInterfaceClass = loadClass(serviceInterfaceName, cl, "service");
+        Class serviceInterfaceClass = loadClass(serviceInterfaceName, bundle, "service");
         if (!Service.class.isAssignableFrom(serviceInterfaceClass)) {
             throw new DeploymentException(serviceInterfaceName + " service class does not extend " + Service.class.getName());
         }
-        
+
         QName serviceQName = null;
         if (serviceRef.isSetServiceQname()) {
             serviceQName = serviceRef.getServiceQname().getQNameValue();
         }
-        
+
         URI wsdlURI = null;
         if (serviceRef.isSetWsdlFile()) {
             String wsdlLocation = serviceRef.getWsdlFile().getStringValue().trim();
@@ -127,51 +129,51 @@ public abstract class JAXWSServiceRefBuilder extends AbstractNamingBuilder imple
                 throw new DeploymentException("Could not construct WSDL URI from " + wsdlLocation, e);
             }
         }
-        
+
         Class serviceReferenceType = null;
         if (serviceRef.isSetServiceRefType()) {
             String referenceClassName = getStringValue(serviceRef.getServiceRefType());
-            serviceReferenceType = loadClass(referenceClassName, cl, "service reference");
+            serviceReferenceType = loadClass(referenceClassName, bundle, "service reference");
         }
-  
-        if (serviceRef.isSetHandlerChains()) {                   
+
+        if (serviceRef.isSetHandlerChains()) {
             ServiceRefHandlerChainsType handlerChains = serviceRef.getHandlerChains();
             for (ServiceRefHandlerChainType handlerChain : handlerChains.getHandlerChainArray()) {
                 for (ServiceRefHandlerType handler : handlerChain.getHandlerArray()) {
                     String handlerClassName = getStringValue(handler.getHandlerClass());
-                    Class handlerClass = loadClass(handlerClassName, cl, "handler");
+                    Class handlerClass = loadClass(handlerClassName, bundle, "handler");
                     if (!Handler.class.isAssignableFrom(handlerClass)) {
                         throw new DeploymentException(handlerClassName + " handler class does not extend " + Handler.class.getName());
                     }
                 }
             }
         }
-                       
+
         Map<Class, PortComponentRefType> portComponentRefMap = new HashMap<Class, PortComponentRefType>();
         PortComponentRefType[] portComponentRefs = serviceRef.getPortComponentRefArray();
         if (portComponentRefs != null) {
             for (int j = 0; j < portComponentRefs.length; j++) {
                 PortComponentRefType portComponentRef = portComponentRefs[j];
                 String serviceEndpointInterfaceType = getStringValue(portComponentRef.getServiceEndpointInterface());
-                Class serviceEndpointClass = loadClass(serviceEndpointInterfaceType, cl, "service endpoint");
-                
+                Class serviceEndpointClass = loadClass(serviceEndpointInterfaceType, bundle, "service endpoint");
+
                 // TODO: check if it is annotated?
-                
+
                 portComponentRefMap.put(serviceEndpointClass, portComponentRef);
             }
         }
-        
-        Object ref = createService(serviceRef, gerServiceRef, module, cl,
-                                   serviceInterfaceClass, serviceQName, 
+
+        Object ref = createService(serviceRef, gerServiceRef, module, bundle,
+                                   serviceInterfaceClass, serviceQName,
                                    wsdlURI, serviceReferenceType, portComponentRefMap);
         getJndiContextMap(componentContext).put(ENV + name, ref);
     }
 
-    public abstract Object createService(ServiceRefType serviceRef, GerServiceRefType gerServiceRef, 
-                                         Module module, ClassLoader cl, Class serviceInterfaceClass, 
-                                         QName serviceQName, URI wsdlURI, Class serviceReferenceType, 
+    public abstract Object createService(ServiceRefType serviceRef, GerServiceRefType gerServiceRef,
+                                         Module module, Bundle bundle, Class serviceInterfaceClass,
+                                         QName serviceQName, URI wsdlURI, Class serviceReferenceType,
                                          Map<Class, PortComponentRefType> portComponentRefMap) throws DeploymentException;
-       
+
     private static Map mapServiceRefs(XmlObject[] refs) {
         Map refMap = new HashMap();
         if (refs != null) {
@@ -192,7 +194,7 @@ public abstract class JAXWSServiceRefBuilder extends AbstractNamingBuilder imple
     public QNameSet getPlanQNameSet() {
         return GER_SERVICE_REF_QNAME_SET;
     }
-    
+
     public static String getHandlerChainAsString(ServiceRefHandlerChainsType handlerChains)
         throws IOException {
         String xml = null;

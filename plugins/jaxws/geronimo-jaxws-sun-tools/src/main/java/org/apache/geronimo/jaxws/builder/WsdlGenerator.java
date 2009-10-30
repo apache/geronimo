@@ -42,39 +42,39 @@ import org.slf4j.LoggerFactory;
 public class WsdlGenerator {
 
     private static final Logger LOG = LoggerFactory.getLogger(WsdlGenerator.class);
-    
+
     private JAXWSTools jaxwsTools;
     private WsdlGeneratorOptions options;
-    
+
     public WsdlGenerator(WsdlGeneratorOptions options) {
         this.options = options;
         this.jaxwsTools = new JAXWSTools();
         this.jaxwsTools.setOverrideContextClassLoader(true);
-        
+
         if (options.getSAAJ() == WsdlGeneratorOptions.SAAJ.SUN) {
             this.jaxwsTools.setUseSunSAAJ();
         } else if (options.getSAAJ() == WsdlGeneratorOptions.SAAJ.Axis2) {
             this.jaxwsTools.setUseAxis2SAAJ();
         }
     }
-                
+
     private URL[] getWsgenClasspath(DeploymentContext context) throws Exception {
         DeploymentConfigurationManager cm = (DeploymentConfigurationManager)context.getConfigurationManager();
         Collection<? extends Repository> repositories = cm.getRepositories();
         File[] jars = this.jaxwsTools.getClasspath(repositories);
         return JAXWSTools.toURL(jars);
     }
-    
+
     private String[] buildArguments(String sei, String classPath, File moduleBaseDir, PortInfo portInfo) {
         List<String> arguments = new ArrayList<String>();
-        
+
         arguments.add("-cp");
         arguments.add(classPath);
         arguments.add("-keep");
         arguments.add("-wsdl");
         arguments.add("-d");
         arguments.add(moduleBaseDir.getAbsolutePath());
-        
+
         QName serviceName = this.options.getWsdlService();
         if (serviceName != null) {
             arguments.add("-servicename");
@@ -86,31 +86,31 @@ public class WsdlGenerator {
             arguments.add("-portname");
             arguments.add(portName.toString());
         }
-        
+
         arguments.add(sei);
-        
+
         return arguments.toArray(new String[]{});
     }
-        
+
     private File findWsdlFile(File baseDir, PortInfo portInfo) {
         QName serviceQName = this.options.getWsdlService();
         String serviceName = (serviceQName == null) ? null : serviceQName.getLocalPart();
         return WsdlGeneratorUtils.findWsdlFile(baseDir, serviceName);
     }
-           
-    public String generateWsdl(Module module, 
-                               String serviceClass, 
-                               DeploymentContext context, 
+
+    public String generateWsdl(Module module,
+                               String serviceClass,
+                               DeploymentContext context,
                                PortInfo portInfo) throws DeploymentException {
         //call wsgen tool to generate the wsdl file based on the bindingtype.
         //let's set the outputDir as the module base directory in server repository.
         File moduleBase = module.getEarContext().getInPlaceConfigurationDir();
-        if (moduleBase == null) {      
+        if (moduleBase == null) {
             moduleBase = module.getEarContext().getBaseDir();
         }
         File moduleBaseDir = (moduleBase.isFile()) ? moduleBase.getParentFile() : moduleBase;
         File baseDir;
-        
+
         try {
             baseDir = WsdlGeneratorUtils.createTempDirectory(moduleBaseDir);
         } catch (IOException e) {
@@ -124,7 +124,7 @@ public class WsdlGenerator {
              urls = getWsgenClasspath(context);
         } catch (Exception e) {
             throw new DeploymentException("Failed to generate the wsdl file using wsgen: unable to get the location of the required artifact(s).", e);
-        } 
+        }
         //let's figure out the classpath string for the module and wsgen tools.
         if (urls != null && urls.length > 0) {
             for (URL url : urls) {
@@ -139,16 +139,16 @@ public class WsdlGenerator {
 
         //create arguments;
         String[] arguments = buildArguments(serviceClass, classPath.toString(), baseDir, portInfo);
-        
+
         try {
             boolean result = false;
-            
+
             if (this.options.getFork()) {
                 result = forkWsgen(classPath, arguments);
             } else {
                 result = invokeWsgen(urls, arguments);
             }
-            
+
             if (result) {
                 //check to see if the file is created.
                 File wsdlFile = findWsdlFile(baseDir, portInfo);
@@ -156,13 +156,14 @@ public class WsdlGenerator {
                     throw new DeploymentException("Unable to find the service wsdl file");
                 }
                 if (this.options.getAddToClassPath()) {
-                    context.getConfiguration().addToClassPath(baseDir.getName());
+// TODO:  This isn't available on configuraitons any more...need to figure out if/how this gets replaced.
+//                    context.getConfiguration().addToClassPath(baseDir.getName());
                 }
                 return WsdlGeneratorUtils.getRelativeNameOrURL(moduleBase, wsdlFile);
             } else {
                 throw new DeploymentException("WSDL generation failed");
-            }            
-                                 
+            }
+
         } catch (DeploymentException e) {
             throw e;
         } catch (Exception e) {
@@ -174,28 +175,28 @@ public class WsdlGenerator {
         ByteArrayOutputStream os = new ByteArrayOutputStream();
         boolean rs = this.jaxwsTools.invokeWsgen(jars, os, arguments);
         os.close();
-        
+
         if (!rs) {
             LOG.error("WSDL generator failed: {}", getOutput(os));
         } else if (LOG.isDebugEnabled()) {
             LOG.debug("WSDL generator output: {}", getOutput(os));
         }
-        
+
         return rs;
     }
-    
+
     private static String getOutput(ByteArrayOutputStream os) {
         byte [] arr = os.toByteArray();
         return new String(arr, 0, arr.length);
     }
-    
+
     private boolean forkWsgen(StringBuilder classPath, String[] arguments) throws Exception {
-        List<String> cmd = new ArrayList<String>();    
+        List<String> cmd = new ArrayList<String>();
         cmd.add("-classpath");
         cmd.add(classPath.toString());
         cmd.add("com.sun.tools.ws.WsGen");
         cmd.addAll(Arrays.asList(arguments));
-        
+
         try {
             return WsdlGeneratorUtils.execJava(cmd, this.options.getForkTimeout());
         } catch (Exception e) {

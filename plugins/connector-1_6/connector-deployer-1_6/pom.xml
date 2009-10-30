@@ -27,7 +27,7 @@
         <artifactId>connector-1_6</artifactId>
         <version>3.0-SNAPSHOT</version>
     </parent>
-    
+
     <groupId>org.apache.geronimo.configs</groupId>
     <artifactId>connector-deployer-1_6</artifactId>
     <name>Geronimo Plugins, Connector 1.6 :: Deployer</name>
@@ -36,8 +36,14 @@
     <description>
         Deployer for J2CA connectors
     </description>
-    
+
     <dependencies>
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-connector-builder-1_6</artifactId>
+            <version>${version}</version>
+        </dependency>
+
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>j2ee-deployer</artifactId>
@@ -59,7 +65,7 @@
             <version>${version}</version>
         </dependency>
     </dependencies>
-    
+
     <build>
         <plugins>
             <plugin>

@@ -237,6 +237,7 @@ public class DeploymentContext {
 
     private void createTempManifest() throws DeploymentException, IOException {
         Manifest manifest = new Manifest();
+        manifest.addConfiguredAttribute(new Manifest.Attribute(Constants.BUNDLE_MANIFESTVERSION, "2"));
         manifest.addConfiguredAttribute(new Manifest.Attribute(Constants.BUNDLE_SYMBOLICNAME, getBundleSymbolicName()));
         manifest.addConfiguredAttribute(new Manifest.Attribute(Constants.BUNDLE_VERSION, "0.0.0.0"));
         manifest.addConfiguredAttribute(new Manifest.Attribute(Constants.BUNDLE_CLASSPATH, getBundleClassPath()));
