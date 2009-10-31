@@ -1,0 +1,113 @@
+
+package org.apache.geronimo.activemq;
+
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
+import org.apache.activemq.broker.BrokerService;
+import org.apache.activemq.broker.TransportConnector;
+import org.apache.geronimo.activemq.management.ActiveMQTransportConnector;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.gbean.annotation.AnnotationGBeanInfoFactory;
+import org.apache.geronimo.gbean.annotation.ParamSpecial;
+import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.lifecycle.LifecycleListener;
+
+public class ActiveMQBrokerServiceMonitorGBean implements GBeanLifecycle, LifecycleListener {
+
+    private Kernel kernel;
+
+    private Map<AbstractName, List<AbstractName>> brokerNameConnectorNamesMap = new ConcurrentHashMap<AbstractName, List<AbstractName>>();
+
+    private ClassLoader classLoader;
+
+    public ActiveMQBrokerServiceMonitorGBean(@ParamSpecial(type = SpecialAttributeType.kernel) Kernel kernel, @ParamSpecial(type = SpecialAttributeType.classLoader) ClassLoader classLoader) {
+        this.kernel = kernel;
+        this.classLoader = classLoader;
+    }
+
+    public void doFail() {
+        kernel.getLifecycleMonitor().removeLifecycleListener(this);
+    }
+
+    public void doStart() throws Exception {
+        AbstractNameQuery brokerServiceQuery = new AbstractNameQuery(new URI("?#org.apache.geronimo.activemq.BrokerServiceGBean"));
+        kernel.getLifecycleMonitor().addLifecycleListener(this, brokerServiceQuery);
+        Set<AbstractName> brokerServiceNames = kernel.listGBeans(brokerServiceQuery);
+        for (AbstractName brokerServiceName : brokerServiceNames) {
+            if (kernel.isRunning(brokerServiceName)) {
+                startConnectorWrapperGBeans(brokerServiceName);
+            }
+        }
+    }
+
+    public void doStop() throws Exception {
+        kernel.getLifecycleMonitor().removeLifecycleListener(this);
+    }
+
+    public void failed(AbstractName abstractName) {
+        stopConnectorWrapperGBeans(abstractName);
+    }
+
+    public void loaded(AbstractName abstractName) {
+    }
+
+    public void running(AbstractName abstractName) {
+        startConnectorWrapperGBeans(abstractName);
+    }
+
+    public void starting(AbstractName abstractName) {
+    }
+
+    public void stopped(AbstractName abstractName) {
+        stopConnectorWrapperGBeans(abstractName);
+    }
+
+    public void stopping(AbstractName abstractName) {
+    }
+
+    public void unloaded(AbstractName abstractName) {
+    }
+
+    protected void startConnectorWrapperGBeans(AbstractName brokerAbstractName) {
+        try {
+            BrokerService brokerService = ((BrokerServiceGBean) kernel.getGBean(brokerAbstractName)).getBrokerContainer();
+            List<AbstractName> connectorNames = new ArrayList<AbstractName>();
+            GBeanInfo gBeanInfo = new AnnotationGBeanInfoFactory().getGBeanInfo(ActiveMQTransportConnector.class);
+            for (TransportConnector transportConnector : brokerService.getTransportConnectors()) {
+                AbstractName connectorAbName = kernel.getNaming().createSiblingName(brokerAbstractName, transportConnector.getUri().toString().replace(':', '_'), GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
+                GBeanData gbeanData = new GBeanData(connectorAbName, gBeanInfo);
+                gbeanData.setAttribute("transportConnector", transportConnector);
+                kernel.loadGBean(gbeanData, classLoader);
+                kernel.startGBean(connectorAbName);
+                connectorNames.add(connectorAbName);
+            }
+            brokerNameConnectorNamesMap.put(brokerAbstractName, connectorNames);
+        } catch (Exception e) {
+        }
+    }
+
+    protected void stopConnectorWrapperGBeans(AbstractName brokerAbstractName) {
+        List<AbstractName> connectorNames = brokerNameConnectorNamesMap.remove(brokerAbstractName);
+        if (connectorNames == null) {
+            return;
+        }
+        for (AbstractName connectorName : connectorNames) {
+            try {
+                kernel.stopGBean(connectorName);
+                kernel.unloadGBean(connectorName);
+            } catch (Exception e) {
+            }
+        }
+    }
+}
