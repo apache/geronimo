@@ -28,6 +28,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 import org.apache.geronimo.common.DeploymentException;
@@ -38,6 +39,7 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedEjbJar;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.naming.deployment.AbstractNamingBuilder;
 import org.apache.geronimo.naming.deployment.GBeanResourceEnvironmentBuilder;
@@ -45,9 +47,9 @@ import org.apache.geronimo.naming.deployment.ResourceEnvironmentSetter;
 import org.apache.geronimo.openejb.EntityDeploymentGBean;
 import org.apache.geronimo.openejb.MessageDrivenDeploymentGBean;
 import org.apache.geronimo.openejb.OpenEjbSystem;
+import org.apache.geronimo.openejb.SingletonDeploymentGBean;
 import org.apache.geronimo.openejb.StatefulDeploymentGBean;
 import org.apache.geronimo.openejb.StatelessDeploymentGBean;
-import org.apache.geronimo.openejb.SingletonDeploymentGBean;
 import org.apache.geronimo.openejb.xbeans.ejbjar.OpenejbGeronimoEjbJarType;
 import org.apache.geronimo.security.deployment.SecurityConfiguration;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
@@ -173,10 +175,22 @@ public class EjbDeploymentBuilder {
         }
     }
 
+    private static Set<AbstractName> getResourceDependencies(EARContext earContext) {
+        AbstractNameQuery cfNameQuery = new AbstractNameQuery(earContext.getConfigID(), Collections.singletonMap(NameFactory.J2EE_TYPE, NameFactory.JCA_MANAGED_CONNECTION_FACTORY));
+        AbstractNameQuery aoNameQuery = new AbstractNameQuery(earContext.getConfigID(), Collections.singletonMap(NameFactory.J2EE_TYPE, NameFactory.JCA_ADMIN_OBJECT));
+        AbstractNameQuery raNameQuery = new AbstractNameQuery(earContext.getConfigID(), Collections.singletonMap(NameFactory.J2EE_TYPE, NameFactory.JCA_RESOURCE_ADAPTER));
+        Set<AbstractName> dependencies = new HashSet<AbstractName>();
+        dependencies.addAll(earContext.findGBeans(cfNameQuery));
+        dependencies.addAll(earContext.findGBeans(aoNameQuery));
+        dependencies.addAll(earContext.findGBeans(raNameQuery));
+        return dependencies;
+    }
 
     public void addEjbModuleDependency(GBeanData ejbModule) {
+        Set<AbstractName> resourceDependencies = getResourceDependencies(earContext);
         for (GBeanData gbean : gbeans.values()) {
             ejbModule.addDependency(gbean.getAbstractName());
+            gbean.addDependencies(resourceDependencies);
         }
     }
 

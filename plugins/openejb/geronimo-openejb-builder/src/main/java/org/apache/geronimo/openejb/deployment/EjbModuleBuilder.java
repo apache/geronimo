@@ -866,6 +866,8 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle {
 
             // add a dependency from the module to the ra so we can be assured the mdb
             // container exists when this app is started
+            //TODO we are now useing a sledgehammer in EjbDeploymentBuilder and adding any possibly relevant
+            // dependency to every ejb gbean.
             ejbModuleGBeanData.addDependency(resourceAdapterAbstractName);
         }
         //check that all the mdbs have resource adapters identified.
