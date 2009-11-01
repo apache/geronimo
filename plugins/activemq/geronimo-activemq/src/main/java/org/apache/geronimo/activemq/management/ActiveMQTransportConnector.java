@@ -17,36 +17,36 @@
  * under the License.
  */
 
-
 package org.apache.geronimo.activemq.management;
 
-import java.net.UnknownHostException;
 import java.net.InetSocketAddress;
-import java.net.URISyntaxException;
-import java.io.IOException;
+import java.net.UnknownHostException;
 
-import org.apache.geronimo.activemq.ActiveMQConnector;
 import org.apache.activemq.broker.TransportConnector;
+import org.apache.geronimo.activemq.ActiveMQConnector;
+import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
+@GBean(name="ActiveMQ Transport Connector")
 public class ActiveMQTransportConnector implements ActiveMQConnector {
 
     private static final Logger log = LoggerFactory.getLogger(ActiveMQTransportConnector.class);
 
     private final TransportConnector transportConnector;
 
-    public ActiveMQTransportConnector(TransportConnector transportConnector) {
+    public ActiveMQTransportConnector(@ParamAttribute(manageable = false, name = "transportConnector") TransportConnector transportConnector) {
         this.transportConnector = transportConnector;
     }
 
     // Additional stuff you can add to an ActiveMQ connector URI
     public String getPath() {
         try {
-            return transportConnector.getConnectUri().toString();
+            return transportConnector.getUri().toString();
         } catch (Exception e) {
             log.warn("error", e);
             return "Error: " + e.getMessage();
@@ -60,7 +60,7 @@ public class ActiveMQTransportConnector implements ActiveMQConnector {
     //????
     public String getQuery() {
         try {
-            return transportConnector.getConnectUri().getQuery();
+            return transportConnector.getUri().getQuery();
         } catch (Exception e) {
             log.warn("error", e);
             return "Error: " + e.getMessage();
@@ -76,7 +76,7 @@ public class ActiveMQTransportConnector implements ActiveMQConnector {
      */
     public String getProtocol() {
         try {
-            return transportConnector.getConnectUri().getScheme();
+            return transportConnector.getUri().getScheme();
         } catch (Exception e) {
             log.warn("error", e);
             return "Error: " + e.getMessage();
@@ -88,7 +88,7 @@ public class ActiveMQTransportConnector implements ActiveMQConnector {
      */
     public int getPort() {
         try {
-            return transportConnector.getConnectUri().getPort();
+            return transportConnector.getUri().getPort();
         } catch (Exception e) {
             log.warn("error", e);
             return -1;
@@ -107,7 +107,7 @@ public class ActiveMQTransportConnector implements ActiveMQConnector {
      */
     public String getHost() {
         try {
-            return transportConnector.getConnectUri().getHost();
+            return transportConnector.getUri().getHost();
         } catch (Exception e) {
             log.warn("error", e);
             return "Error: " + e.getMessage();
