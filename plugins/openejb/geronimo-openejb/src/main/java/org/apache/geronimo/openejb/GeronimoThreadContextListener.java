@@ -76,7 +76,7 @@ public class GeronimoThreadContextListener implements ThreadContextListener {
         this.ejbs.remove(id);
     }
 
-    private EjbDeployment getEjbDeployment(CoreDeploymentInfo deploymentInfo) {
+    EjbDeployment getEjbDeployment(CoreDeploymentInfo deploymentInfo) {
         Deployment deployment = ejbs.get(deploymentInfo.getDeploymentID());
 
         if (deployment == null) return null;

@@ -34,6 +34,8 @@ import org.apache.geronimo.management.J2EEApplication;
 import org.apache.geronimo.management.J2EEServer;
 import org.apache.openejb.NoSuchApplicationException;
 import org.apache.openejb.UndeployException;
+import org.apache.openejb.DeploymentInfo;
+import org.apache.openejb.core.CoreDeploymentInfo;
 import org.apache.openejb.assembler.classic.EjbJarInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -165,6 +167,10 @@ public class EjbModuleImpl implements EJBModule, GBeanLifecycle {
 
     public void doStart() throws Exception {
         openEjbSystem.createEjbJar(ejbJarInfo, classLoader);
+        for (String deploymentId: ejbs.keySet()) {
+            DeploymentInfo deploymentInfo = openEjbSystem.getDeploymentInfo(deploymentId);
+            GeronimoThreadContextListener.get().getEjbDeployment((CoreDeploymentInfo) deploymentInfo);
+        }
     }
 
     public void doStop() {
