@@ -178,6 +178,7 @@ public class AxisModuleBuilderExtension implements ModuleBuilderExtension {
         
         Map<String, WebServiceBinding> wsBindingMap = createWebServiceBindingMap(ejbModule);
 
+        AbstractNameQuery ejbModuleName = new AbstractNameQuery(module.getEarContext().getConfigID(), Collections.singletonMap(NameFactory.J2EE_TYPE, NameFactory.EJB_MODULE));
         for (EnterpriseBeanInfo bean : ejbModule.getEjbJarInfo().enterpriseBeans) {
             if (bean.type != EnterpriseBeanInfo.STATELESS) {
                 continue;
@@ -222,6 +223,7 @@ public class AxisModuleBuilderExtension implements ModuleBuilderExtension {
                 }
             }
             
+            ejbWebServiceGBean.addDependency(ejbModuleName);
             if (axisBuilder.configureEJB(ejbWebServiceGBean, ejbName, ejbModule,
                                          ejbModule.getSharedContext(), cl)) {
                 
