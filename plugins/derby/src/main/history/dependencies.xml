@@ -26,4 +26,14 @@
         <artifactId>derbytools</artifactId>
         <type>jar</type>
     </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.bundles</groupId>
+        <artifactId>derbynet</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.bundles</groupId>
+        <artifactId>derbytools</artifactId>
+        <type>jar</type>
+    </dependency>
 </plugin-artifact>

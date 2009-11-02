@@ -42,11 +42,6 @@
         <type>car</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.specs</groupId>
-        <artifactId>geronimo-jms_1.1_spec</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
         <groupId>org.directwebremoting</groupId>
         <artifactId>dwr</artifactId>
         <type>jar</type>

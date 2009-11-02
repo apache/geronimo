@@ -735,9 +735,9 @@
             </dependency>
 
             <dependency>
-                <groupId>org.apache.derby</groupId>
+                <groupId>org.apache.geronimo.bundles</groupId>
                 <artifactId>derbynet</artifactId>
-                <version>${derbyVersion}</version>
+                <version>${derbyVersion}-SNAPSHOT</version>
             </dependency>
 
             <dependency>

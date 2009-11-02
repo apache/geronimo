@@ -27,7 +27,7 @@
         <artifactId>plugins</artifactId>
         <version>3.0-SNAPSHOT</version>
     </parent>
-    
+
     <groupId>org.apache.geronimo.configs</groupId>
     <artifactId>derby</artifactId>
     <name>Geronimo Plugins, Derby</name>
@@ -45,7 +45,7 @@
             <type>car</type>
             <scope>provided</scope>
         </dependency>
-        
+
         <dependency>
             <groupId>org.apache.derby</groupId>
             <artifactId>derby</artifactId>
@@ -57,13 +57,15 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.derby</groupId>
+            <groupId>org.apache.geronimo.bundles</groupId>
             <artifactId>derbynet</artifactId>
+            <version>${derbyVersion}-SNAPSHOT</version>
         </dependency>
 
         <dependency>
-            <groupId>org.apache.derby</groupId>
+            <groupId>org.apache.geronimo.bundles</groupId>
             <artifactId>derbytools</artifactId>
+            <version>${derbyVersion}-SNAPSHOT</version>
         </dependency>
     </dependencies>
 

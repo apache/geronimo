@@ -47,6 +47,11 @@
         <type>car</type>
     </dependency>
     <dependency>
+        <groupId>org.apache.servicemix.bundles</groupId>
+        <artifactId>org.apache.servicemix.bundles.ant</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
         <groupId>org.tranql</groupId>
         <artifactId>tranql-connector-db2-xa</artifactId>
         <type>rar</type>

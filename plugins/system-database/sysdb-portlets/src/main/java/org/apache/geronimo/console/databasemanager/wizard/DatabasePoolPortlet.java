@@ -366,7 +366,7 @@ public class DatabasePoolPortlet extends BasePortlet {
             }
         } else if (mode.equals("process-" + CONFIRM_URL_MODE)) {
             String test = actionRequest.getParameter("test");
-            if (test == null || test.equals("true")) {                              
+            if (test == null || test.equals("true")) {
                 try {
                     String targetDBInfo = attemptConnect(actionRequest, data);
                     actionResponse.setRenderParameter("targetDBInfo", targetDBInfo);
@@ -376,10 +376,10 @@ public class DatabasePoolPortlet extends BasePortlet {
                     PrintWriter temp = new PrintWriter(writer);
                     e.printStackTrace(temp);
                     temp.flush();
-                    temp.close();                   
+                    temp.close();
                     addErrorMessage(actionRequest, getLocalizedString(actionRequest, "dbwizard.testConnection.connectionError"), writer.getBuffer().toString());
                     actionResponse.setRenderParameter("connected", "false");
-                }                             
+                }
                 actionResponse.setRenderParameter(MODE_KEY, TEST_CONNECTION_MODE);
             } else {
                 save(actionRequest, actionResponse, data, false);
@@ -561,8 +561,8 @@ public class DatabasePoolPortlet extends BasePortlet {
     private ResourceAdapterParams loadConfigPropertiesByPath(PortletRequest request, String rarPath) {
         DeploymentManager mgr = ManagementHelper.getManagementHelper(request).getDeploymentManager();
         try {
-            URL url = getRAR(request, rarPath).toURL();
-            ConnectorDeployable deployable = new ConnectorDeployable(url);
+            URI uri = getRAR(request, rarPath).toURI();
+            ConnectorDeployable deployable = new ConnectorDeployable(PortletManager.getRepositoryEntryBundle(request, uri.toString()));
             final DDBeanRoot ddBeanRoot = deployable.getDDBeanRoot();
             String adapterName = null, adapterDesc = null;
             String[] test = ddBeanRoot.getText("connector/display-name");
@@ -983,7 +983,8 @@ public class DatabasePoolPortlet extends BasePortlet {
             DeploymentManager mgr = ManagementHelper.getManagementHelper(request).getDeploymentManager();
             try {
                 File rarFile = getRAR(request, data.getRarPath());
-                ConnectorDeployable deployable = new ConnectorDeployable(rarFile.toURL());
+                URI uri = getRAR(request, data.getRarPath()).toURI();
+                ConnectorDeployable deployable = new ConnectorDeployable(PortletManager.getRepositoryEntryBundle(request, uri.toString()));
                 DeploymentConfiguration config = mgr.createConfiguration(deployable);
                 final DDBeanRoot ddBeanRoot = deployable.getDDBeanRoot();
                 Connector15DCBRoot root = (Connector15DCBRoot) config.getDConfigBeanRoot(ddBeanRoot);
@@ -997,7 +998,7 @@ public class DatabasePoolPortlet extends BasePortlet {
                 configId.setGroupId("console.dbpool");
                 configId.setVersion("1.0");
                 configId.setType("car");
-                
+
                 String artifactId = data.name;
                 // simply replace / with _ if / exists within the artifactId
                 // this is needed because we don't allow / within the artifactId
@@ -1065,9 +1066,9 @@ public class DatabasePoolPortlet extends BasePortlet {
                 SinglePool pool = new SinglePool();
                 manager.setPoolSingle(pool);
                 pool.setMatchOne(true);
-                // Max Size needs to be set before the minimum.  This is because 
-                // the connection manager will constrain the minimum based on the 
-                // current maximum value in the pool.  We might consider adding a  
+                // Max Size needs to be set before the minimum.  This is because
+                // the connection manager will constrain the minimum based on the
+                // current maximum value in the pool.  We might consider adding a
                 // setPoolConstraints method to allow specifying both at the same time.
                 if (data.maxSize != null && !data.maxSize.equals("")) {
                     pool.setMaxSize(new Integer(data.maxSize));
@@ -1100,7 +1101,7 @@ public class DatabasePoolPortlet extends BasePortlet {
                         throw new IllegalStateException("No target to distribute to");
                     }
                     targets = new Target[] {targets[0]};
-                    
+
                     ProgressObject po = mgr.distribute(targets, rarFile, tempFile);
                     waitForProgress(po);
                     if (po.getDeploymentStatus().isCompleted()) {
@@ -1607,7 +1608,7 @@ public class DatabasePoolPortlet extends BasePortlet {
         public String getDeployError() {
             return deployError;
         }
-        
+
         public String getTransactionType() {
             return transactionType;
         }
@@ -1615,7 +1616,7 @@ public class DatabasePoolPortlet extends BasePortlet {
         public void setTransactionType(String transactionType) {
             this.transactionType = transactionType;
         }
-        
+
     }
 
     public static class ConnectionPool implements Serializable, Comparable {
@@ -1706,7 +1707,7 @@ public class DatabasePoolPortlet extends BasePortlet {
         public String getDescription() {
             return description;
         }
-        
+
         public String getRarPath() {
             return rarPath;
         }
