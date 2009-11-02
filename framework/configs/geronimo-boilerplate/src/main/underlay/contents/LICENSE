@@ -665,6 +665,7 @@ The following artifacts are covered by the Apache License Version 2.0:
 ./repository/org/apache/pluto/pluto-portal-driver/1.1.6/pluto-portal-driver-1.1.6.jar
 ./repository/org/apache/pluto/pluto-portal-driver-impl/1.1.6/pluto-portal-driver-impl-1.1.6.jar
 ./repository/org/apache/pluto/pluto-taglib/1.1.6/pluto-taglib-1.1.6.jar
+./repository/org/apache/portals/portlet-api_1.0_spec/1.0/portlet-api_1.0_spec-1.0.jar
 ./repository/org/apache/santuario/xmlsec/1.4.2/xmlsec-1.4.2.jar
 ./repository/org/apache/velocity/velocity/1.5/velocity-1.5.jar
 ./repository/org/apache/woden/woden-api/1.0M8/woden-api-1.0M8.jar
@@ -1623,7 +1624,6 @@ Distribution License:
 ./repository/com/sun/xml/stream/buffer/streambuffer/0.8/streambuffer-0.8.jar
 ./repository/com/sun/xml/ws/jaxws-rt/2.1.4/jaxws-rt-2.1.4.jar
 ./repository/com/sun/xml/ws/jaxws-tools/2.1.4/jaxws-tools-2.1.4.jar
-./repository/javax/portlet/portlet-api/1.0/portlet-api-1.0.jar
 ./repository/javax/servlet/jstl/1.2/jstl-1.2.jar
 ./repository/org/jvnet/staxex/stax-ex/1.0/stax-ex-1.0.jar
 

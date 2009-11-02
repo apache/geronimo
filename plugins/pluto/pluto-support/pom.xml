@@ -54,6 +54,12 @@
         <dependency>
             <groupId>org.apache.pluto</groupId>
             <artifactId>pluto-container</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>javax.portlet</groupId>
+                    <artifactId>portlet-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
@@ -77,8 +83,9 @@
         </dependency>
 
         <dependency>
-            <groupId>javax.portlet</groupId>
-            <artifactId>portlet-api</artifactId>
+          <groupId>org.apache.portals</groupId>
+          <artifactId>portlet-api_1.0_spec</artifactId>
+          <version>1.0</version>
         </dependency>
 
         <dependency>
