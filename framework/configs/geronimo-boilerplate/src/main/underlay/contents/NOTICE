@@ -136,3 +136,22 @@ software also includes:
 
  - JSR-173 Streaming API for XML from http://sourceforge.net/projects/xmlpullparser/,
    Copyright 2005 BEA under the terms of the Apache Software License 2.0
+
+This product includes software developed by the Simple XML Compiler (SXC) 
+project (http://sxc.codehaus.org/project-info.html)
+
+This product includes software developed for the JAXB Reference 
+Implementation project. (https://jaxb.dev.java.net/)
+
+This product includes software developed for SOAP with Attachments
+API for Java (SAAJ). The software is available from the GlassFish project 
+(https://saaj.dev.java.net/)
+
+This product includes software developed for Java API for XML Web Services
+project (JAX-WS) (https://jax-ws.dev.java.net/)
+
+This product includes software developed for the Java Server Pages Tag 
+Library project (https://jstl.dev.java.net/)
+
+This product includes software developed for the StAX-Ex project 
+(https://stax-ex.dev.java.net/)
