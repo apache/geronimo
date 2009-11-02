@@ -22,18 +22,18 @@ package org.apache.geronimo.mavenplugins.car;
 import java.io.File;
 import java.io.FileReader;
 import java.io.Reader;
+import java.util.Map;
 
+import org.apache.geronimo.kernel.osgi.ConfigurationActivator;
+import org.apache.geronimo.system.osgi.BootActivator;
 import org.apache.maven.archiver.MavenArchiveConfiguration;
 import org.apache.maven.archiver.MavenArchiver;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.versioning.ArtifactVersion;
+import org.apache.maven.model.License;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.model.License;
-import org.apache.geronimo.kernel.osgi.ConfigurationActivator;
-import org.apache.geronimo.system.osgi.BootActivator;
 import org.codehaus.plexus.archiver.jar.JarArchiver;
-
 import org.osgi.framework.Constants;
 
 /**
@@ -150,6 +150,13 @@ public class ArchiveCarMojo
      */
     private boolean boot;
 
+    /**
+     * Additional instructions that will get processed to adjust the manifest header.  Currently,
+     * only the Import-Package instruction is recognized.
+     * @parameter
+     */
+    private Map instructions;
+
     //
     // Mojo
     //
@@ -255,6 +262,26 @@ public class ArchiveCarMojo
                 } finally {
                     in.close();
                 }
+
+                // do we have any additional processing directives?
+                if (instructions != null) {
+                    String explicitImports = (String)instructions.get(Constants.IMPORT_PACKAGE);
+                    // if there is an Import-Package instructions, then add these imports to the
+                    // list
+                    if (explicitImports != null) {
+                        // if specified on multiple lines, remove the line-ends.
+                        explicitImports = explicitImports.replaceAll( "[\r\n]", "" );
+                        imports.append(',');
+                        imports.append(explicitImports);
+                    }
+
+                    String requiredBundles = (String)instructions.get(Constants.REQUIRE_BUNDLE);
+                    if (requiredBundles != null) {
+                        requiredBundles = requiredBundles.replaceAll( "[\r\n]", "" );
+                        archive.addManifestEntry(Constants.REQUIRE_BUNDLE, requiredBundles);
+                    }
+                }
+
                 archive.addManifestEntry(Constants.IMPORT_PACKAGE, imports.toString());
                 archive.addManifestEntry(Constants.DYNAMICIMPORT_PACKAGE, "*");
             }

@@ -65,7 +65,7 @@ import org.osgi.framework.BundleContext;
  * installed Configurations (providing a local filesystem based classpath) and
  * used hold the persistent state of each Configuration. This allows
  * Configurations to restart in the event of system failure.
- * 
+ *
  * TODO: Describe the order of method invocation (e.g. if loadGbean may be before boot)
  *
  * @version $Rev:386276 $ $Date$
@@ -73,13 +73,13 @@ import org.osgi.framework.BundleContext;
 public class BasicKernel implements Kernel
 {
     private static final Logger log = LoggerFactory.getLogger(BasicKernel.class);
-    
+
     /**
      * Helper objects for invoke and getAttribute
      */
     private static final String[] NO_TYPES = new String[0];
     private static final Object[] NO_ARGS = new Object[0];
-    
+
     /**
      * Name of this kernel
      */
@@ -359,7 +359,7 @@ public class BasicKernel implements Kernel
         LifecycleBroadcaster lifecycleBroadcaster = lifecycleMonitor.createLifecycleBroadcaster(abstractName, interfaces);
         GBeanInstance gbeanInstance = new GBeanInstance(gbeanData, this, dependencyManager, lifecycleBroadcaster, bundleContext);
         registry.register(gbeanInstance);
-        lifecycleBroadcaster.fireLoadedEvent();        
+        lifecycleBroadcaster.fireLoadedEvent();
     }
 
     public void startGBean(AbstractName name) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {

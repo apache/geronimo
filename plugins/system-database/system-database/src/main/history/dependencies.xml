@@ -8,7 +8,17 @@
     </module-id>
     <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>connector-deployer-1_6</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>derby</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>j2ee-deployer</artifactId>
         <type>car</type>
     </dependency>
     <dependency>
@@ -18,13 +28,8 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>geronimo-management</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>geronimo-system</artifactId>
-        <type>jar</type>
+        <artifactId>geronimo-gbean-deployer</artifactId>
+        <type>car</type>
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.modules</groupId>

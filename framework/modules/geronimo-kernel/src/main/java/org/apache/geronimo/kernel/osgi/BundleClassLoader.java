@@ -42,16 +42,16 @@ public class BundleClassLoader extends ClassLoader {
     public Class<?> loadClass(String name) throws ClassNotFoundException {
         return loadClass(name, false);
     }
-    
+
     @Override
-    protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {    
+    protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
         Class clazz = bundle.loadClass(name);
         if (resolve) {
             resolveClass(clazz);
         }
         return clazz;
     }
-    
+
     @Override
     public String toString() {
         return "[BundleClassLoader] " + bundle;
@@ -70,6 +70,6 @@ public class BundleClassLoader extends ClassLoader {
 	        return Collections.enumeration(Collections.EMPTY_LIST);
 	    } else {
 	        return e;
-	    }	    
+	    }
 	}
 }
