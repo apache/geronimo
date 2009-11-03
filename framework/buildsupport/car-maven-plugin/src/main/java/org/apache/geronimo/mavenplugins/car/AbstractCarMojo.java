@@ -629,15 +629,15 @@ public abstract class AbstractCarMojo
     }
 
     private void setLoggingLevel() {
-        if (System.getProperty("org.ops4j.pax.logging.DefaultServiceLog.level") == null) {            
-            System.setProperty("org.ops4j.pax.logging.DefaultServiceLog.level", 
+        if (System.getProperty("org.ops4j.pax.logging.DefaultServiceLog.level") == null) {
+            System.setProperty("org.ops4j.pax.logging.DefaultServiceLog.level",
                                log.isDebugEnabled() ? "DEBUG" : "ERROR");
         }
     }
-    
+
     protected Framework getFramework() throws BundleException {
         setLoggingLevel();
-        
+
         Map<String, String> properties = new HashMap<String, String>();
 //        properties.put(FelixConstants.EMBEDDED_EXECUTION_PROP, "true");
 
@@ -646,6 +646,7 @@ public abstract class AbstractCarMojo
                         "net.sf.cglib.core," +
                         "net.sf.cglib.proxy," +
                         "net.sf.cglib.reflect," +
+                        "sun.misc," +
                         "org.apache.commons.jexl;version=\"1.1\"," +
                         "org.apache.commons.jexl.context;version=\"1.1\"," +
                         "org.apache.commons.jexl.resolver;version=\"1.1\"," +

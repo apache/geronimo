@@ -68,6 +68,11 @@
     </dependency>
     <dependency>
         <groupId>org.apache.openejb</groupId>
+        <artifactId>javaee-api</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.openejb</groupId>
         <artifactId>openejb-api</artifactId>
         <type>jar</type>
     </dependency>

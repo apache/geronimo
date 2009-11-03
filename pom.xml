@@ -76,7 +76,7 @@
         <tomcatVersion>6.0.20.0</tomcatVersion>
         <tomcatGroupId>org.apache.geronimo.ext.tomcat</tomcatGroupId>
 
-        <openejbVersion>3.1.2</openejbVersion>
+        <openejbVersion>3.1.2-SNAPSHOT</openejbVersion>
         <openjpaVersion>2.0.0-M3</openjpaVersion>
         <derbyVersion>10.4.2.0</derbyVersion>
         <cxfVersion>2.1.4</cxfVersion>
@@ -1179,14 +1179,6 @@
                 <artifactId>openejb-ejbd</artifactId>
                 <version>${openejbVersion}</version>
                 <exclusions>
-                    <exclusion>
-                        <groupId>org.apache.openejb</groupId>
-                        <artifactId>javaee-api</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.openejb</groupId>
-                        <artifactId>ejb31-api-experimental</artifactId>
-                    </exclusion>
                     <exclusion>
                         <groupId>log4j</groupId>
                         <artifactId>log4j</artifactId>
