@@ -31,8 +31,8 @@
     </parent>
 
     <groupId>org.apache.geronimo.buildsupport.it</groupId>
-    <artifactId>metadatageneration</artifactId>
-    <name>Metadata generation test</name>
+    <artifactId>metadatageneration-it3</artifactId>
+    <name>Metadata generation test it3</name>
     <packaging>jar</packaging>
 
     <dependencies>
@@ -159,6 +159,13 @@
                             <config-substitution key="key1">value1</config-substitution>
                         </plugin-artifact>
                     </instance>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
                 </configuration>
             </plugin>
         </plugins>

@@ -20,7 +20,8 @@
 
 <!-- $Rev$ $Date$ -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
 
@@ -38,7 +39,7 @@
     <description>
         Geronimo integration testsuite.
     </description>
-    
+
     <properties>
         <!--
         NOTE: The default assembly is jetty, so exclude any tomcat tests by
@@ -55,7 +56,7 @@
         -->
         <shittyTestIncludes>*/*/pom.xml</shittyTestIncludes>
     </properties>
-    
+
     <dependencies>
         <dependency>
             <groupId>org.apache.geronimo.testsupport</groupId>
@@ -63,14 +64,14 @@
             <version>${version}</version>
             <scope>test</scope>
         </dependency>
-        
+
         <dependency>
             <groupId>org.codehaus.groovy.maven.support</groupId>
             <artifactId>slf4j-gossip</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
-    
+
     <build>
         <!--
         <extensions>
@@ -80,7 +81,7 @@
                 <version>${version}</version>
             </extension>
         </extensions>
-        -->  
+        -->
 
         <pluginManagement>
             <plugins>
@@ -108,40 +109,14 @@
                         </webResources>
                     </configuration>
                 </plugin>
-                
-                <!--
-                NOTE: This horrible looking configuration sets up the surefire plugin to
-                      not run tests durring the 'test' phase, but instead during the
-                      'integration-test' phase.
-                -->
+
+                <!-- turn off tests unless 'it' profile active-->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
                     <configuration>
                         <skip>true</skip>
                     </configuration>
-                    <executions>
-                        <execution>
-                            <id>test</id>
-                            <phase>test</phase>
-                            <goals>
-                                <goal>test</goal>
-                            </goals>
-                            <configuration>
-                                <skip>true</skip>
-                            </configuration>
-                        </execution>
-                        <execution>
-                            <id>integration</id>
-                            <phase>integration-test</phase>
-                            <goals>
-                                <goal>test</goal>
-                            </goals>
-                            <configuration>
-                                <skip>false</skip>
-                            </configuration>
-                        </execution>
-                    </executions>
                 </plugin>
 
                 <plugin>
@@ -149,7 +124,8 @@
                     <artifactId>geronimo-maven-plugin</artifactId>
                     <configuration>
                         <reporters>
-                            <reporter implementation="org.apache.geronimo.mavenplugins.geronimo.reporting.SurefireReporter">
+                            <reporter
+                                    implementation="org.apache.geronimo.mavenplugins.geronimo.reporting.SurefireReporter">
                                 <reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory>
                             </reporter>
                         </reporters>
@@ -167,101 +143,13 @@
                     <skip>true</skip>
                 </configuration>
             </plugin>
-            
+
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>selenium-maven-plugin</artifactId>
-                <inherited>false</inherited>
-                <executions>
-                    <execution>
-                        <id>start</id>
-                        <phase>pre-integration-test</phase>
-                        <goals>
-                            <goal>start-server</goal>
-                        </goals>
-                        <configuration>
-                            <logOutput>true</logOutput>
-                            <background>true</background>
-                            <systemProperties>
-                                <property>
-                                    <name>browser</name>
-                                    <value>${browser}</value>
-                                </property>
-                            </systemProperties>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>stop</id>
-                        <phase>post-integration-test</phase>
-                        <goals>
-                            <goal>stop-server</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            
-            <plugin>
-                <groupId>org.apache.geronimo.buildsupport</groupId>
-                <artifactId>geronimo-maven-plugin</artifactId>
-                <inherited>false</inherited>
-                <executions>
-                    <execution>
-                        <id>start</id>
-                        <phase>pre-integration-test</phase>
-                        <goals>
-                            <goal>start-server</goal>
-                        </goals>
-                        <configuration>
-                            <logOutput>true</logOutput>
-                            <background>true</background>
-                            <verifyTimeout>300</verifyTimeout>
-                            <refresh>true</refresh>
-                            <optionSets>
-                                <optionSet>
-                                    <id>default</id>
-                                    <options>
-                                       <option>-XX:MaxPermSize=160m</option>
-                                    </options>
-                                </optionSet>
-                            </optionSets>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>stop</id>
-                        <phase>install</phase>
-                        <goals>
-                            <goal>stop-server</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>shitty-maven-plugin</artifactId>
-                <inherited>false</inherited>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
                 <configuration>
-                    <projects>
-                        <fileset>
-                            <directory>${project.basedir}</directory>
-                            <includes>
-                                <include>${shittyTestIncludes}</include>
-                            </includes>
-                            <excludes>
-                                <exclude>${shittyTestExcludes}</exclude>
-                            </excludes>
-                        </fileset>
-                    </projects>
+                    <skip>true</skip>
                 </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>clean</goal>
-                            <goal>install</goal>
-                            <goal>test</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>
@@ -274,21 +162,160 @@
     </distributionManagement>
 
     <!--<pluginRepositories>-->
-        <!--<pluginRepository>-->
-            <!--<id>codehaus</id>-->
-            <!--<name>Codehaus Release Repository</name>-->
-            <!--<url>http://repository.codehaus.org</url>-->
-            <!--<layout>default</layout>-->
-            <!--<snapshots>-->
-                <!--<enabled>false</enabled>-->
-            <!--</snapshots>-->
-            <!--<releases>-->
-                <!--<enabled>true</enabled>-->
-            <!--</releases>-->
-        <!--</pluginRepository>-->
+    <!--<pluginRepository>-->
+    <!--<id>codehaus</id>-->
+    <!--<name>Codehaus Release Repository</name>-->
+    <!--<url>http://repository.codehaus.org</url>-->
+    <!--<layout>default</layout>-->
+    <!--<snapshots>-->
+    <!--<enabled>false</enabled>-->
+    <!--</snapshots>-->
+    <!--<releases>-->
+    <!--<enabled>true</enabled>-->
+    <!--</releases>-->
+    <!--</pluginRepository>-->
     <!--</pluginRepositories>-->
-    
+
     <profiles>
+        <profile>
+            <id>it</id>
+            <build>
+                <pluginManagement>
+                    <plugins>
+                        <plugin>
+                            <groupId>org.codehaus.mojo</groupId>
+                            <artifactId>shitty-maven-plugin</artifactId>
+                            <inherited>false</inherited>
+                            <configuration>
+                                <projects>
+                                    <fileset>
+                                        <directory>${project.basedir}</directory>
+                                        <includes>
+                                            <include>${shittyTestIncludes}</include>
+                                        </includes>
+                                        <excludes>
+                                            <exclude>${shittyTestExcludes}</exclude>
+                                        </excludes>
+                                    </fileset>
+                                </projects>
+                            </configuration>
+                            <executions>
+                                <execution>
+                                    <goals>
+                                        <goal>clean</goal>
+                                        <goal>install</goal>
+                                        <goal>test</goal>
+                                    </goals>
+                                </execution>
+                            </executions>
+                        </plugin>
+                        <plugin>
+                            <groupId>org.codehaus.mojo</groupId>
+                            <artifactId>selenium-maven-plugin</artifactId>
+                            <inherited>false</inherited>
+                            <executions>
+                                <execution>
+                                    <id>start</id>
+                                    <phase>pre-integration-test</phase>
+                                    <goals>
+                                        <goal>start-server</goal>
+                                    </goals>
+                                    <configuration>
+                                        <logOutput>true</logOutput>
+                                        <background>true</background>
+                                        <systemProperties>
+                                            <property>
+                                                <name>browser</name>
+                                                <value>${browser}</value>
+                                            </property>
+                                        </systemProperties>
+                                    </configuration>
+                                </execution>
+                                <execution>
+                                    <id>stop</id>
+                                    <phase>post-integration-test</phase>
+                                    <goals>
+                                        <goal>stop-server</goal>
+                                    </goals>
+                                </execution>
+                            </executions>
+                        </plugin>
+
+                        <!--
+                        NOTE: This horrible looking configuration sets up the surefire plugin to
+                              not run tests durring the 'test' phase, but instead during the
+                              'integration-test' phase.
+                        -->
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-surefire-plugin</artifactId>
+                            <configuration>
+                                <skip>true</skip>
+                            </configuration>
+                            <executions>
+                                <execution>
+                                    <id>test</id>
+                                    <phase>test</phase>
+                                    <goals>
+                                        <goal>test</goal>
+                                    </goals>
+                                    <configuration>
+                                        <skip>true</skip>
+                                    </configuration>
+                                </execution>
+                                <execution>
+                                    <id>integration</id>
+                                    <phase>integration-test</phase>
+                                    <goals>
+                                        <goal>test</goal>
+                                    </goals>
+                                    <configuration>
+                                        <skip>false</skip>
+                                    </configuration>
+                                </execution>
+                            </executions>
+                        </plugin>
+                        <plugin>
+                            <groupId>org.apache.geronimo.buildsupport</groupId>
+                            <artifactId>geronimo-maven-plugin</artifactId>
+                            <inherited>false</inherited>
+                            <executions>
+                                <execution>
+                                    <id>start</id>
+                                    <phase>pre-integration-test</phase>
+                                    <goals>
+                                        <goal>start-server</goal>
+                                    </goals>
+                                    <configuration>
+                                        <logOutput>true</logOutput>
+                                        <background>true</background>
+                                        <verifyTimeout>300</verifyTimeout>
+                                        <refresh>true</refresh>
+                                        <optionSets>
+                                            <optionSet>
+                                                <id>default</id>
+                                                <options>
+                                                    <option>-XX:MaxPermSize=160m</option>
+                                                </options>
+                                            </optionSet>
+                                        </optionSets>
+                                    </configuration>
+                                </execution>
+                                <execution>
+                                    <id>stop</id>
+                                    <phase>install</phase>
+                                    <goals>
+                                        <goal>stop-server</goal>
+                                    </goals>
+                                </execution>
+                            </executions>
+                        </plugin>
+
+                    </plugins>
+                </pluginManagement>
+            </build>
+        </profile>
+
         <profile>
             <id>testsuite-with-jetty</id>
             <activation>
@@ -301,7 +328,7 @@
                 <shittyTestExcludes>**/*tomcat*/pom.xml</shittyTestExcludes>
             </properties>
         </profile>
-        
+
         <profile>
             <id>testsuite-with-tomcat</id>
             <activation>
@@ -314,7 +341,7 @@
                 <shittyTestExcludes>**/*jetty*/pom.xml</shittyTestExcludes>
             </properties>
         </profile>
-        
+
         <profile>
             <id>headless</id>
             <build>

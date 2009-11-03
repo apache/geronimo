@@ -84,76 +84,85 @@
                 </configuration>
             </plugin>
 
-            <!-- Deploy the ear and invoke the imbedded CORBA app client -->
-            <plugin>
-                <groupId>org.apache.geronimo.buildsupport</groupId>
-                <artifactId>geronimo-maven-plugin</artifactId>
-
-                <executions>
-                    <!-- These modules must be running before deploying a CORBA module can be deployed -->
-                    <execution>
-                        <id>start-j2ee-corba-yoko</id>
-                        <phase>pre-integration-test</phase>
-                        <goals>
-                            <goal>start-module</goal>
-                        </goals>
-                        <configuration>
-                            <moduleId>org.apache.geronimo.configs/j2ee-corba-yoko/${version}/car</moduleId>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>openejb-corba-deployer</id>
-                        <phase>pre-integration-test</phase>
-                        <goals>
-                            <goal>start-module</goal>
-                        </goals>
-                        <configuration>
-                            <moduleId>org.apache.geronimo.configs/openejb-corba-deployer/${version}/car</moduleId>
-                        </configuration>
-                    </execution>
-
-                    <!-- Deploy the CORBA module -->
-                    <execution>
-                        <id>deploy-ear</id>
-                        <phase>pre-integration-test</phase>
-                        <goals>
-                            <goal>deploy-module</goal>
-                        </goals>
-                        <configuration>
-                            <moduleArchive>${project.build.directory}/${artifactId}-${version}.ear</moduleArchive>
-                        </configuration>
-                    </execution>
-
-                    <!-- Invoke the CORBA app client -->
-                    <execution>
-                        <phase>pre-integration-test</phase>
-                        <id>run-client</id>
-                        <goals>
-                            <goal>run-client</goal>
-                        </goals>
-                        <configuration>
-                            <moduleId>org.apache.geronimo.testsuite/corba-marshal-client/${version}/car</moduleId>
-                            <!--
-                            <logOutput>true</logOutput>
-                            <logFile>${clientLogFile}</logFile>
-                            -->
-                        </configuration>
-                    </execution>
-
-                    <!-- Undeploy the CORBA module -->
-                    <execution>
-                        <id>undeploy-ear</id>
-                        <phase>post-integration-test</phase>
-                        <goals>
-                            <goal>undeploy-module</goal>
-                        </goals>
-                        <configuration>
-                            <moduleId>${groupId}/${artifactId}/${version}/car</moduleId>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
         </plugins>
     </build>
+    <profiles>
+        <profile>
+            <id>it</id>
+            <build>
+                <plugins>
+                    <!-- Deploy the ear and invoke the imbedded CORBA app client -->
+                    <plugin>
+                        <groupId>org.apache.geronimo.buildsupport</groupId>
+                        <artifactId>geronimo-maven-plugin</artifactId>
+
+                        <executions>
+                            <!-- These modules must be running before deploying a CORBA module can be deployed -->
+                            <execution>
+                                <id>start-j2ee-corba-yoko</id>
+                                <phase>pre-integration-test</phase>
+                                <goals>
+                                    <goal>start-module</goal>
+                                </goals>
+                                <configuration>
+                                    <moduleId>org.apache.geronimo.configs/j2ee-corba-yoko/${version}/car</moduleId>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>openejb-corba-deployer</id>
+                                <phase>pre-integration-test</phase>
+                                <goals>
+                                    <goal>start-module</goal>
+                                </goals>
+                                <configuration>
+                                    <moduleId>org.apache.geronimo.configs/openejb-corba-deployer/${version}/car</moduleId>
+                                </configuration>
+                            </execution>
+
+                            <!-- Deploy the CORBA module -->
+                            <execution>
+                                <id>deploy-ear</id>
+                                <phase>pre-integration-test</phase>
+                                <goals>
+                                    <goal>deploy-module</goal>
+                                </goals>
+                                <configuration>
+                                    <moduleArchive>${project.build.directory}/${artifactId}-${version}.ear</moduleArchive>
+                                </configuration>
+                            </execution>
+
+                            <!-- Invoke the CORBA app client -->
+                            <execution>
+                                <phase>pre-integration-test</phase>
+                                <id>run-client</id>
+                                <goals>
+                                    <goal>run-client</goal>
+                                </goals>
+                                <configuration>
+                                    <moduleId>org.apache.geronimo.testsuite/corba-marshal-client/${version}/car</moduleId>
+                                    <!--
+                                    <logOutput>true</logOutput>
+                                    <logFile>${clientLogFile}</logFile>
+                                    -->
+                                </configuration>
+                            </execution>
+
+                            <!-- Undeploy the CORBA module -->
+                            <execution>
+                                <id>undeploy-ear</id>
+                                <phase>post-integration-test</phase>
+                                <goals>
+                                    <goal>undeploy-module</goal>
+                                </goals>
+                                <configuration>
+                                    <moduleId>${groupId}/${artifactId}/${version}/car</moduleId>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
 </project>

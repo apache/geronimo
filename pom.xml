@@ -2160,6 +2160,19 @@
             </modules>
         </profile>
 
+        <profile>
+            <id>all-subprojects</id>
+
+            <modules>
+                <module>testsupport</module>
+                <module>framework</module>
+                <module>plugins</module>
+                <module>plugingroups</module>
+                <module>assemblies</module>
+                <module>testsuite</module>
+            </modules>
+        </profile>
+
         <!--
         NOTE: This profile is used to enable plugin prefixes for easy command-line usage, as in:
 

@@ -29,8 +29,8 @@
     </parent>
 
     <groupId>org.apache.geronimo.buildsupport.it</groupId>
-    <artifactId>j2ee-system-2</artifactId>
-    <name>Geronimo Configs :: J2EE System</name>
+    <artifactId>j2ee-system-it2</artifactId>
+    <name>Geronimo Configs :: J2EE System IT2</name>
     <packaging>car</packaging>
 
     <dependencies>
@@ -204,6 +204,13 @@
                     <classpathPrefix>../lib</classpathPrefix>
                     <category>Geronimo Core</category>
                     <config-xml-content load = "false"/>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
                 </configuration>
             </plugin>
         </plugins>

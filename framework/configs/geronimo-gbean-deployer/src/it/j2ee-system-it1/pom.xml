@@ -29,8 +29,8 @@
     </parent>
 
     <groupId>org.apache.geronimo.buildsupport.it</groupId>
-    <artifactId>j2ee-system</artifactId>
-    <name>Geronimo Configs :: J2EE System</name>
+    <artifactId>j2ee-system-it1</artifactId>
+    <name>Geronimo Configs :: J2EE System IT1</name>
     <packaging>car</packaging>
 
     <dependencies>
@@ -207,6 +207,13 @@
                     <osiApproved>true</osiApproved>
                     <geronimoVersion>${version}</geronimoVersion>
 
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
                 </configuration>
             </plugin>
         </plugins>

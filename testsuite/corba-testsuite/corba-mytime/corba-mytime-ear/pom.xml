@@ -20,7 +20,8 @@
 
 <!-- $Rev$ $Date$ -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
 
@@ -33,13 +34,13 @@
     <artifactId>corba-mytime-ear</artifactId>
     <name>Geronimo TestSuite :: CORBA TestSuite :: My Time EAR</name>
     <packaging>ear</packaging>
-    
+
     <description>Example using CORBA to access a stateless EJB</description>
-    
+
     <!--
     FIXME: Split this module up... one to build the ear, one to run the tests.
     -->
-    
+
     <properties>
         <container>jetty7</container>
     </properties>
@@ -51,24 +52,24 @@
             <version>${version}</version>
             <type>ejb</type>
         </dependency>
-        
+
         <dependency>
             <groupId>org.apache.geronimo.testsuite</groupId>
             <artifactId>corba-mytime-war</artifactId>
             <version>${version}</version>
             <type>war</type>
         </dependency>
-        
+
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-ejb_3.0_spec</artifactId>
             <type>jar</type>
         </dependency>
         <dependency>
-          <groupId>org.apache.openejb</groupId>
-          <artifactId>ejb31-api-experimental</artifactId>
-          <type>jar</type>
-       </dependency>
+            <groupId>org.apache.openejb</groupId>
+            <artifactId>ejb31-api-experimental</artifactId>
+            <type>jar</type>
+        </dependency>
     </dependencies>
 
     <build>
@@ -96,71 +97,6 @@
                 </configuration>
             </plugin>
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <configuration>
-                    <suiteXmlFiles>
-                        <suiteXmlFile>${project.build.testOutputDirectory}/testng.xml</suiteXmlFile>
-                    </suiteXmlFiles>
-                </configuration>
-            </plugin>
-
-            <!-- Start the Geronimo server in the pre-integration-test and
-                 stop  the Geronimo server in the post-integration-test phase -->
-            <plugin>
-                <groupId>org.apache.geronimo.buildsupport</groupId>
-                <artifactId>geronimo-maven-plugin</artifactId>
-                <executions>
-
-                    <!-- These two modules must be running before a CORBA module can be deployed -->
-                    <execution>
-                        <id>start-j2ee-corba-yoko</id>
-                        <phase>pre-integration-test</phase>
-                        <goals>
-                            <goal>start-module</goal>
-                        </goals>
-                        <configuration>
-                            <moduleId>org.apache.geronimo.configs/j2ee-corba-yoko/${version}/car</moduleId>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>openejb-corba-deployer</id>
-                        <phase>pre-integration-test</phase>
-                        <goals>
-                            <goal>start-module</goal>
-                        </goals>
-                        <configuration>
-                            <moduleId>org.apache.geronimo.configs/openejb-corba-deployer/${version}/car</moduleId>
-                        </configuration>
-                    </execution>
-
-                    <!-- Deploy the CORBA module -->
-                    <execution>
-                        <id>deploy-ear</id>
-                        <phase>pre-integration-test</phase>
-                        <goals>
-                            <goal>deploy-module</goal>
-                        </goals>
-                        <configuration>
-                            <moduleArchive>${project.build.directory}/${artifactId}-${version}.ear</moduleArchive>
-                        </configuration>
-                    </execution>
-
-                    <!-- Undeploy the CORBA module -->
-                    <execution>
-                        <id>undeploy-ear</id>
-                        <phase>post-integration-test</phase>
-                        <goals>
-                            <goal>undeploy-module</goal>
-                        </goals>
-                        <configuration>
-                            <moduleId>${groupId}/${artifactId}/${version}/car</moduleId>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
             <!-- Compile the test class(es), which is not done by default for an "ear" package -->
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -184,7 +120,84 @@
                     </execution>
                 </executions>
             </plugin>
+            
         </plugins>
     </build>
+    <profiles>
+        <profile>
+            <id>it</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <suiteXmlFiles>
+                                <suiteXmlFile>${project.build.testOutputDirectory}/testng.xml</suiteXmlFile>
+                            </suiteXmlFiles>
+                        </configuration>
+                    </plugin>
+
+                    <!-- Start the Geronimo server in the pre-integration-test and
+                         stop  the Geronimo server in the post-integration-test phase -->
+                    <plugin>
+                        <groupId>org.apache.geronimo.buildsupport</groupId>
+                        <artifactId>geronimo-maven-plugin</artifactId>
+                        <executions>
+
+                            <!-- These two modules must be running before a CORBA module can be deployed -->
+                            <execution>
+                                <id>start-j2ee-corba-yoko</id>
+                                <phase>pre-integration-test</phase>
+                                <goals>
+                                    <goal>start-module</goal>
+                                </goals>
+                                <configuration>
+                                    <moduleId>org.apache.geronimo.configs/j2ee-corba-yoko/${version}/car</moduleId>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>openejb-corba-deployer</id>
+                                <phase>pre-integration-test</phase>
+                                <goals>
+                                    <goal>start-module</goal>
+                                </goals>
+                                <configuration>
+                                    <moduleId>org.apache.geronimo.configs/openejb-corba-deployer/${version}/car
+                                    </moduleId>
+                                </configuration>
+                            </execution>
+
+                            <!-- Deploy the CORBA module -->
+                            <execution>
+                                <id>deploy-ear</id>
+                                <phase>pre-integration-test</phase>
+                                <goals>
+                                    <goal>deploy-module</goal>
+                                </goals>
+                                <configuration>
+                                    <moduleArchive>${project.build.directory}/${artifactId}-${version}.ear
+                                    </moduleArchive>
+                                </configuration>
+                            </execution>
+
+                            <!-- Undeploy the CORBA module -->
+                            <execution>
+                                <id>undeploy-ear</id>
+                                <phase>post-integration-test</phase>
+                                <goals>
+                                    <goal>undeploy-module</goal>
+                                </goals>
+                                <configuration>
+                                    <moduleId>${groupId}/${artifactId}/${version}/car</moduleId>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
 </project>
