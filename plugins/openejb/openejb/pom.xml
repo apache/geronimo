@@ -108,16 +108,15 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.plugins.classloaders</groupId>
+            <groupId>org.apache.xbean</groupId>
             <artifactId>xbean-finder</artifactId>
-            <version>${version}</version>
-            <type>car</type>
         </dependency>
 
         <dependency>
             <groupId>org.codehaus.swizzle</groupId>
             <artifactId>swizzle-stream</artifactId>
         </dependency>
+
     </dependencies>
 
     <build>
@@ -152,7 +151,7 @@
                                     <attribute name="timeout">${StatelessTimeout}</attribute>
                                     <attribute name="poolSize">${StatelessPoolSize}</attribute>
                                     <attribute name="strictPooling">${StrictPooling}</attribute>
-				</gbean>
+                                </gbean>
                             </config-xml-content>
                             <config-substitution key="OpenEJBPort">4201</config-substitution>
                             <config-substitution key="StatefulTimeout">20</config-substitution>

@@ -92,7 +92,6 @@
         <module>sharedlib</module>
         <module>welcome</module>
         <module>concurrent</module>
-        <module>classloaders</module>
         <module>procrun</module>
         <module>jetty7</module>
         <module>tomcat</module>

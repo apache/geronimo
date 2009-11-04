@@ -103,12 +103,10 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.plugins.classloaders</groupId>
-            <artifactId>geronimo-schema-jee_5</artifactId>
-            <version>${version}</version>
-            <type>car</type>
+          <groupId>org.apache.geronimo.schema</groupId>
+          <artifactId>geronimo-schema-jee_5</artifactId>
         </dependency>
-
+        
         <dependency>
             <groupId>org.apache.servicemix.bundles</groupId>
             <artifactId>org.apache.servicemix.bundles.xmlbeans</artifactId>
