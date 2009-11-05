@@ -64,7 +64,7 @@ import org.slf4j.LoggerFactory;
 public class EjbHelper extends BaseRemoteProxy {
 
     private static final Logger log = LoggerFactory.getLogger(EjbHelper.class);
-    
+
     private static final String POOLSIZE = "PoolSize";
     private static final String BULKPASSIVATE = "BulkPassivate";
     private static final String CAPACITY = "Capacity";
@@ -98,7 +98,7 @@ public class EjbHelper extends BaseRemoteProxy {
     private static final String CI_KEY="portlet.openejb.view.containerid";
     private static final String CD_KEY="portlet.openejb.view.containerdescription";
     private static final String DN_KEY="portlet.openejb.view.displayname";
-    
+
     private ContainerSystem containerSystem;
     private OpenEjbConfiguration configuration;
     private Kernel kernel;
@@ -172,12 +172,12 @@ public class EjbHelper extends BaseRemoteProxy {
         }
         return deployments;
     }
-    
+
     @RemoteMethod
     public String getCurrentContainerProperty(String containerId, String propertyKey){
         ContainerSystemInfo systemInfo = configuration.containerSystem;
-        List<ContainerInfo> containerInfos = systemInfo.containers;        
-        
+        List<ContainerInfo> containerInfos = systemInfo.containers;
+
         for (ContainerInfo containerInfo : containerInfos) {
         	containerId = replaceEscapes(containerId);
             if (containerInfo.id.equals(containerId)) {
@@ -189,7 +189,7 @@ public class EjbHelper extends BaseRemoteProxy {
 
     @RemoteMethod
     public List<EjbInformation> getContainerInfo(String containerId, HttpServletRequest request) {
-    	containerId = replaceEscapes(containerId); 
+    	containerId = replaceEscapes(containerId);
         Container container = containerSystem.getContainer(containerId);
         if (container == null)
             return null;
@@ -236,7 +236,7 @@ public class EjbHelper extends BaseRemoteProxy {
                 editableProperties.add(ACCESSTIMEOUT);
                 editableProperties.add(CAPACITY);
                 editableProperties.add(STRICTPOOLING);
-                editableProperties.add(INSTANCELIMIT);                
+                editableProperties.add(INSTANCELIMIT);
 
                 for (Map.Entry entry : containerInfo.properties.entrySet()) {
                     information = new EjbInformation();
@@ -280,17 +280,17 @@ public class EjbHelper extends BaseRemoteProxy {
             String propertyValue, HttpServletRequest request) {
         propertyKey = propertyKey.trim();
         propertyValue = propertyValue.trim();
-        
+
         containerId = replaceEscapes(containerId);
-        
+
         List<String> numericProperties = new ArrayList<String>();
         numericProperties.add(POOLSIZE);
         numericProperties.add(BULKPASSIVATE);
         numericProperties.add(TIMEOUT);
-        numericProperties.add(INSTANCELIMIT); 
+        numericProperties.add(INSTANCELIMIT);
         numericProperties.add(CAPACITY);
         numericProperties.add(ACCESSTIMEOUT);
-        
+
         if (numericProperties.contains(propertyKey)) {
             try {
                 Integer.parseInt(propertyValue);
@@ -301,7 +301,7 @@ public class EjbHelper extends BaseRemoteProxy {
             if (!propertyValue.equalsIgnoreCase(TRUE)
                     && !propertyValue.equalsIgnoreCase(FALSE)) {
                 return new JSCommonMessage(CommonMessage.Type.Error, getLocalizedString(request, BUNDLE_NAME, "portlet.openejb.view.boolean", propertyKey), null);
-            }        
+            }
         } else {
             try {
                 EjbHelper.class.getClassLoader().loadClass(propertyValue);
@@ -338,7 +338,7 @@ public class EjbHelper extends BaseRemoteProxy {
                     String id = (String) kernel.getAttribute(absName, "id");
                     if (containerId.equals(id)) {
                         GBeanData gData1  = kernel.getGBeanData(absName);
-                        ManageableAttributeStore attributeStore = kernel.getGBean(ManageableAttributeStore.class);                        
+                        ManageableAttributeStore attributeStore = kernel.getGBean(ManageableAttributeStore.class);
                         GBeanData gData  = getGBeanDataFromConfiguration(absName);
                         for(String attributeName : gData.getAttributeNames()){
                             if(attributeName.equalsIgnoreCase(propertyKey)){
@@ -347,29 +347,34 @@ public class EjbHelper extends BaseRemoteProxy {
                                 Properties gbeanProps = (Properties)gData1.getAttribute("properties");
                                 gbeanProps.setProperty(propertyKey, propertyValue);
                                 GAttributeInfo gAttributeInfo = gData.getGBeanInfo().getAttribute(attributeName);
-                                attributeStore.setValue(absName.getArtifact(), absName, gAttributeInfo, propertyValue, Thread.currentThread().getContextClassLoader());
+// TODO:  This needs to be solved and re-enabled.
+//                                 attributeStore.setValue(absName.getArtifact(), absName, gAttributeInfo, propertyValue, Thread.currentThread().getContextClassLoader());
                             }
                         }
                     }
                 } catch (GBeanNotFoundException e) {
-                    return new JSCommonMessage(CommonMessage.Type.Error, 
+                    return new JSCommonMessage(CommonMessage.Type.Error,
                             getLocalizedString(request, BUNDLE_NAME, "portlet.openejb.view.unchanged", propertyKey), null);
                 } catch (NoSuchAttributeException e) {
-                    return new JSCommonMessage(CommonMessage.Type.Error, 
+                    return new JSCommonMessage(CommonMessage.Type.Error,
                             getLocalizedString(request, BUNDLE_NAME, "portlet.openejb.view.unchanged", propertyKey), null);
                 } catch (Exception e) {
-                    return new JSCommonMessage(CommonMessage.Type.Error, 
+                    return new JSCommonMessage(CommonMessage.Type.Error,
                             getLocalizedString(request, BUNDLE_NAME, "portlet.openejb.view.unchanged", propertyKey), null);
                 }
             }
         }
         return new JSCommonMessage(CommonMessage.Type.Warn, getLocalizedString(request, BUNDLE_NAME, "portlet.openejb.view.restart"), null);
     }
-    
+
     private GBeanData getGBeanDataFromConfiguration(AbstractName absName){
-        Configuration configuration = ConfigurationUtil.getConfigurationManager(kernel).getConfiguration(absName.getArtifact());
-        GBeanData gData  = configuration.getGBeans().get(absName);
-        return gData;    	
+        try {
+            Configuration configuration = ConfigurationUtil.getConfigurationManager(kernel).getConfiguration(absName.getArtifact());
+            GBeanData gData  = configuration.getGBeans().get(absName);
+            return gData;
+        } catch (GBeanNotFoundException e) {
+            return null;
+        }
     }
     @RemoteMethod
     public List<EjbInformation> getDeploymentInfo(String containerId,
@@ -379,7 +384,7 @@ public class EjbHelper extends BaseRemoteProxy {
                 .getDeploymentInfo(deploymentId);
         List<EjbInformation> informations = new ArrayList<EjbInformation>();
         EjbInformation information = new EjbInformation();
-        information.setName(getLocalizedString(request, BUNDLE_NAME, BEANCLASSNAME_KEY));        
+        information.setName(getLocalizedString(request, BUNDLE_NAME, BEANCLASSNAME_KEY));
         information.setValue(deploymentInfo.getBeanClass().getName());
         informations.add(information);
 
@@ -534,11 +539,11 @@ public class EjbHelper extends BaseRemoteProxy {
         }
         return data;
     }
-    
+
     private String replaceEscapes(String escaped){
     	if (escaped.indexOf("%20") != -1) {
     	    return escaped.replaceAll("%20"," ");
-    	} 
+    	}
     	return escaped;
     }
 

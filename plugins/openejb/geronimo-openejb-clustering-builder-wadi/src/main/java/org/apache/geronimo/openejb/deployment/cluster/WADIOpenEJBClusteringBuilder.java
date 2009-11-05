@@ -73,6 +73,8 @@ import org.apache.openejb.jee.oejb2.GeronimoEjbJarType;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlObject;
 
+import org.osgi.framework.Bundle;
+
 /**
  *
  * @version $Rev:$ $Date:$
@@ -81,7 +83,7 @@ public class WADIOpenEJBClusteringBuilder implements ModuleBuilderExtension {
     private static final QName BASE_CLUSTERING_QNAME = GerClusteringDocument.type.getDocumentElementName();
     private static final QName CLUSTERING_WADI_QNAME = GerOpenejbClusteringWadiDocument.type.getDocumentElementName();
     private static final QNameSet CLUSTERING_WADI_QNAME_SET = QNameSet.singleton(CLUSTERING_WADI_QNAME);
-    
+
     static {
         SchemaConversionUtils.registerNamespaceConversions(
             Collections.singletonMap(CLUSTERING_WADI_QNAME.getLocalPart(),
@@ -104,7 +106,7 @@ public class WADIOpenEJBClusteringBuilder implements ModuleBuilderExtension {
         int defaultNumPartitions,
         AbstractNameQuery defaultBackingStrategyFactoryName,
         AbstractNameQuery defaultClusterName,
-        AbstractNameQuery defaultNetworkConnectorName,        
+        AbstractNameQuery defaultNetworkConnectorName,
         Environment defaultEnvironment) {
         if (null == defaultClusteredStatefulContainerId) {
             throw new IllegalArgumentException("defaultClusteredStatefulContainerId is required");
@@ -131,9 +133,9 @@ public class WADIOpenEJBClusteringBuilder implements ModuleBuilderExtension {
         this.defaultClusterName = defaultClusterName;
         this.defaultNetworkConnectorName = defaultNetworkConnectorName;
         this.defaultEnvironment = defaultEnvironment;
-        
+
         beanNameBuilder = new BasicEjbDeploymentGBeanNameBuilder();
-        
+
         new NamespaceDrivenBuilderCollection(Collections.<NamespaceDrivenBuilder>singleton(new NamespaceDrivenBuilder() {
             public void build(XmlObject container, DeploymentContext applicationContext, DeploymentContext moduleContext)
                     throws DeploymentException {
@@ -156,11 +158,11 @@ public class WADIOpenEJBClusteringBuilder implements ModuleBuilderExtension {
 
          }));
     }
-    
-    public void addGBeans(EARContext earContext, Module module, ClassLoader cl, Collection repository)
+
+    public void addGBeans(EARContext earContext, Module module, Bundle bundle, Collection repository)
             throws DeploymentException {
         EjbModule ejbModule = (EjbModule) module;
-        
+
         OpenejbGeronimoEjbJarType geronimoEjbJarType = ejbModule.getVendorDD();
         GerOpenejbClusteringWadiType clusteringWadiType = getWadiClusterConfig(geronimoEjbJarType);
         if (clusteringWadiType != null) {
@@ -229,9 +231,9 @@ public class WADIOpenEJBClusteringBuilder implements ModuleBuilderExtension {
         ejbModule.getPreAutoConfigDeployer().add(new MapSFSBToContainerIDDeployer(defaultClusteredStatefulContainerId));
     }
 
-    public void initContext(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException {
+    public void initContext(EARContext earContext, Module module, Bundle bundle) throws DeploymentException {
     }
-    
+
     public void installModule(JarFile earFile,
         EARContext earContext,
         Module module,
@@ -256,14 +258,14 @@ public class WADIOpenEJBClusteringBuilder implements ModuleBuilderExtension {
 
         return name;
     }
-    
+
     protected void setClusteredServiceHolders(DeploymentContext moduleContext, GBeanData beanData)
             throws DeploymentException {
         AbstractName name = newGBeanName(moduleContext, "NetworkConnectorTrackerHolder");
 
         GBeanData serviceHolder = new GBeanData(name, BasicNetworkConnectorTrackerServiceHolder.GBEAN_INFO);
         addGBean(moduleContext, serviceHolder);
-        
+
         beanData.setReferencePattern(BasicWADISessionManager.GBEAN_REF_SERVICE_HOLDERS, name);
     }
 
@@ -278,7 +280,7 @@ public class WADIOpenEJBClusteringBuilder implements ModuleBuilderExtension {
             new AbstractNameQuery(ClusteredStatefulDeployment.class.getName()));
         networkConnectorMonitor.setReferencePattern(NetworkConnectorMonitor.GBEAN_REF_WADI_SESSION_MANAGER,
             sessionManagerName);
-        
+
         addGBean(moduleContext, networkConnectorMonitor);
     }
 
@@ -327,7 +329,7 @@ public class WADIOpenEJBClusteringBuilder implements ModuleBuilderExtension {
         Integer sessionTimeout = getSessionTimeout();
         boolean disableReplication = isDisableReplication(clustering);
         boolean deltaReplication = isDeltaReplication(clustering);
-        
+
         String ejbModuleName = ejbModule.getName();
         URI serviceSpaceName;
         try {
@@ -336,7 +338,7 @@ public class WADIOpenEJBClusteringBuilder implements ModuleBuilderExtension {
             AssertionError error = new AssertionError("contextPath [" + ejbModuleName + "] cannot be parsed as an URI.");
             throw (AssertionError) error.initCause(e);
         }
-        
+
         WADISessionManagerConfigInfo configInfo = new WADISessionManagerConfigInfo(serviceSpaceName,
                 sweepInterval,
                 numPartitions,
@@ -377,7 +379,7 @@ public class WADIOpenEJBClusteringBuilder implements ModuleBuilderExtension {
         }
         return defaultNumPartitions;
     }
-    
+
     protected GerOpenejbClusteringWadiType getWadiClusterConfig(XmlObject container) throws DeploymentException {
         XmlObject[] items = container.selectChildren(CLUSTERING_WADI_QNAME_SET);
         if (items.length > 1) {
