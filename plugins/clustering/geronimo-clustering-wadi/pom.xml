@@ -47,22 +47,22 @@
         </dependency>
 
         <dependency>
-            <groupId>org.codehaus.wadi</groupId>
+            <groupId>org.apache.geronimo.bundles</groupId>
             <artifactId>wadi-core</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>org.codehaus.wadi</groupId>
+            <groupId>org.apache.geronimo.bundles</groupId>
             <artifactId>wadi-aop</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>org.codehaus.wadi</groupId>
+            <groupId>org.apache.geronimo.bundles</groupId>
             <artifactId>wadi-group</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>org.codehaus.wadi</groupId>
+            <groupId>org.apache.geronimo.bundles</groupId>
             <artifactId>wadi-tribes</artifactId>
         </dependency>
 

@@ -534,15 +534,15 @@
             </dependency>
 
             <dependency>
-                <groupId>org.aspectj</groupId>
+                <groupId>org.apache.geronimo.bundles</groupId>
                 <artifactId>aspectjrt</artifactId>
-                <version>1.6.2</version>
+                <version>1.6.2-SNAPSHOT</version>
             </dependency>
 
             <dependency>
-                <groupId>org.aspectj</groupId>
+                <groupId>org.apache.geronimo.bundles</groupId>
                 <artifactId>aspectjweaver</artifactId>
-                <version>1.6.2</version>
+                <version>1.6.2-SNAPSHOT</version>
             </dependency>
 
             <!--

@@ -13,13 +13,13 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>jmx-security</artifactId>
-        <type>car</type>
+        <artifactId>geronimo-service-builder</artifactId>
+        <type>jar</type>
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>geronimo-service-builder</artifactId>
-        <type>jar</type>
+        <artifactId>jmx-security</artifactId>
+        <type>car</type>
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.framework</groupId>
@@ -32,13 +32,13 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.xmlbeans</groupId>
-        <artifactId>xmlbeans</artifactId>
+        <groupId>org.apache.servicemix.bundles</groupId>
+        <artifactId>org.apache.servicemix.bundles.xmlbeans</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>xml-resolver</groupId>
-        <artifactId>xml-resolver</artifactId>
+        <groupId>org.apache.servicemix.bundles</groupId>
+        <artifactId>org.apache.servicemix.bundles.xmlresolver</artifactId>
         <type>jar</type>
     </dependency>
 </plugin-artifact>

@@ -27,20 +27,20 @@
         <artifactId>aspectj</artifactId>
         <version>3.0-SNAPSHOT</version>
     </parent>
-    
+
     <groupId>org.apache.geronimo.modules</groupId>
     <artifactId>geronimo-aspectj</artifactId>
     <packaging>bundle</packaging>
     <name>Geronimo Plugins, AspectJ :: AspectJ</name>
-    
+
     <dependencies>
         <dependency>
-            <groupId>org.aspectj</groupId>
+            <groupId>org.apache.geronimo.bundles</groupId>
             <artifactId>aspectjrt</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>org.aspectj</groupId>
+            <groupId>org.apache.geronimo.bundles</groupId>
             <artifactId>aspectjweaver</artifactId>
         </dependency>
 
@@ -62,6 +62,6 @@
             <version>${version}</version>
         </dependency>
     </dependencies>
-    
+
 </project>
 

@@ -7,6 +7,16 @@
         <type>car</type>
     </module-id>
     <dependency>
+        <groupId>org.apache.geronimo.bundles</groupId>
+        <artifactId>aspectjrt</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.bundles</groupId>
+        <artifactId>aspectjweaver</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>j2ee-server</artifactId>
         <type>car</type>

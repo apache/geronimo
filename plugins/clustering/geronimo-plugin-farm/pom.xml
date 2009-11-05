@@ -48,6 +48,12 @@
         </dependency>
 
         <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-persistence-jpa20</artifactId>
+            <version>${version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-plugin</artifactId>
             <version>${version}</version>
