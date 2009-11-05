@@ -86,10 +86,13 @@
                         <!--<_versionpolicy>[$(version;==;$(@)),$(version;+;$(@)))</_versionpolicy>-->
                         <Import-Package>org.apache.xmlbeans.impl.schema,*</Import-Package>
                         <Export-Package>
-org.apache.geronimo.deployment.xbeans.impl,
-org.apache.geronimo.deployment.javabean.xbeans.impl,
-schemaorg_apache_xmlbeans*,
-org.apache.geronimo.deployment*
+                            org.apache.geronimo.deployment.xbeans.impl,
+                            org.apache.geronimo.deployment.javabean.xbeans.impl,
+                            org.apache.geronimo.deployment.xbeans*,
+                            org.apache.geronimo.deployment.javabean.xbeans*,
+                            schemaorg_apache_xmlbeans*,
+                            org.apache.geronimo.deployment.dconfigbean,
+                            org.apache.geronimo.deployment.service*
                         </Export-Package>
                     </instructions>
                 </configuration>

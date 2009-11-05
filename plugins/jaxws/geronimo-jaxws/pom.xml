@@ -82,10 +82,13 @@
             <!--<version>${version}</version>-->
         <!--</dependency>-->
 
+<!--    part of java 6 now.  Can cause bundle contstraint violations if
+        loaded because the framework has same classes.
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-jaxws_2.1_spec</artifactId>
-        </dependency>
+            <scope>provided</scope>
+        </dependency>-->
 
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
@@ -106,7 +109,7 @@
           <groupId>org.apache.geronimo.schema</groupId>
           <artifactId>geronimo-schema-jee_5</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>org.apache.servicemix.bundles</groupId>
             <artifactId>org.apache.servicemix.bundles.xmlbeans</artifactId>

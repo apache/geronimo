@@ -49,7 +49,6 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
-import org.apache.geronimo.kernel.osgi.BundleClassLoader;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.openejb.deployment.EjbModule;
 import org.apache.geronimo.security.jaas.ConfigurationFactory;
@@ -233,7 +232,7 @@ public class JAXWSEJBModuleBuilderExtension implements ModuleBuilderExtension {
             }
 
             if (jaxwsBuilder.configureEJB(ejbWebServiceGBean, bean.ejbName, ejbModule,
-                                          ejbModule.getSharedContext(), new BundleClassLoader(bundle))) {
+                                          ejbModule.getSharedContext(), bundle)) {
 
                 try {
                     earContext.addGBean(ejbWebServiceGBean);

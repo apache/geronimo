@@ -70,6 +70,8 @@ import org.apache.openejb.jee.oejb3.EjbDeployment;
 import org.apache.xbean.finder.ClassFinder;
 import org.apache.xmlbeans.XmlObject;
 
+import org.osgi.framework.Bundle;
+
 /**
  * Handles building ejb deployment gbeans.
  */
@@ -88,7 +90,7 @@ public class EjbDeploymentBuilder {
         this.ejbModule = ejbModule;
         this.namingBuilder = namingBuilder;
         this.resourceEnvironmentSetter = resourceEnvironmentSetter;
-        
+
         beanNameBuilder = new BasicEjbDeploymentGBeanNameBuilder();
     }
 
@@ -422,7 +424,7 @@ public class EjbDeploymentBuilder {
 
         try {
             // Get the classloader from the module's EARContext
-            ClassLoader classLoader = ejbModule.getEarContext().getClassLoader();
+            Bundle bundle = ejbModule.getEarContext().getBundle();
 
             //----------------------------------------------------------------------------------------
             // Find the list of classes from the ejb-jar.xml we want to search for annotations in
@@ -430,7 +432,7 @@ public class EjbDeploymentBuilder {
             List<Class> classes = new ArrayList<Class>();
 
             for (EnterpriseBean bean : ejbModule.getEjbJar().getEnterpriseBeans()) {
-                classes.add(classLoader.loadClass(bean.getEjbClass()));
+                classes.add(bundle.loadClass(bean.getEjbClass()));
             }
 
             return new ClassFinder(classes);

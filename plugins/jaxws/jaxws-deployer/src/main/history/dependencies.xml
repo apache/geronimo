@@ -18,22 +18,7 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>geronimo-jaxws</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.modules</groupId>
         <artifactId>geronimo-jaxws-builder</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>geronimo-naming-builder</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.servicemix.bundles</groupId>
-        <artifactId>org.apache.servicemix.bundles.wsdl4j</artifactId>
         <type>jar</type>
     </dependency>
 </plugin-artifact>

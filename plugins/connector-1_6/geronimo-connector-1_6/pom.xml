@@ -27,7 +27,7 @@
         <artifactId>connector-1_6</artifactId>
         <version>3.0-SNAPSHOT</version>
     </parent>
-    
+
     <groupId>org.apache.geronimo.modules</groupId>
     <artifactId>geronimo-connector-1_6</artifactId>
     <packaging>bundle</packaging>

@@ -20,17 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.jar.JarFile;
 
 import javax.ejb.EntityContext;
@@ -40,10 +30,8 @@ import javax.ejb.TimerService;
 import javax.xml.namespace.QName;
 import javax.xml.ws.WebServiceContext;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.connector.ResourceAdapterWrapperGBean;
+import org.apache.geronimo.connector.wrapper.ResourceAdapterWrapperGBean;
 import org.apache.geronimo.deployment.ClassPathList;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
 import org.apache.geronimo.deployment.ModuleList;
@@ -58,8 +46,8 @@ import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
@@ -73,6 +61,7 @@ import org.apache.geronimo.kernel.classloader.TemporaryClassLoader;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
+import org.apache.geronimo.kernel.osgi.BundleClassLoader;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.naming.deployment.ResourceEnvironmentSetter;
@@ -81,32 +70,15 @@ import org.apache.geronimo.openejb.EjbDeployment;
 import org.apache.geronimo.openejb.EjbModuleImplGBean;
 import org.apache.geronimo.openejb.OpenEjbSystem;
 import org.apache.geronimo.openejb.xbeans.ejbjar.OpenejbGeronimoEjbJarType;
+import org.apache.geronimo.persistence.PersistenceUnitGBean;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.geronimo.xbeans.geronimo.j2ee.GerSecurityDocument;
 import org.apache.geronimo.xbeans.javaee.EjbJarType;
-import org.apache.geronimo.persistence.PersistenceUnitGBean;
 import org.apache.openejb.OpenEJBException;
-import org.apache.openejb.util.LinkResolver;
-import org.apache.openejb.assembler.classic.AppInfo;
-import org.apache.openejb.assembler.classic.CmpJarBuilder;
-import org.apache.openejb.assembler.classic.ContainerInfo;
-import org.apache.openejb.assembler.classic.ContainerSystemInfo;
-import org.apache.openejb.assembler.classic.EjbJarInfo;
-import org.apache.openejb.assembler.classic.EnterpriseBeanInfo;
-import org.apache.openejb.assembler.classic.FacilitiesInfo;
-import org.apache.openejb.assembler.classic.MdbContainerInfo;
-import org.apache.openejb.assembler.classic.MessageDrivenBeanInfo;
-import org.apache.openejb.assembler.classic.OpenEjbConfiguration;
-import org.apache.openejb.assembler.classic.StatefulBeanInfo;
-import org.apache.openejb.assembler.classic.PersistenceContextReferenceInfo;
-import org.apache.openejb.assembler.classic.StatelessSessionContainerInfo;
-import org.apache.openejb.assembler.classic.StatefulSessionContainerInfo;
-import org.apache.openejb.assembler.classic.SingletonSessionContainerInfo;
-import org.apache.openejb.assembler.classic.BmpEntityContainerInfo;
-import org.apache.openejb.assembler.classic.CmpEntityContainerInfo;
-import org.apache.openejb.util.UniqueDefaultLinkResolver;
+import org.apache.openejb.assembler.classic.*;
 import org.apache.openejb.config.AppModule;
 import org.apache.openejb.config.ConfigurationFactory;
+import org.apache.openejb.config.ConfigurationFactory.Chain;
 import org.apache.openejb.config.DeploymentLoader;
 import org.apache.openejb.config.ReadDescriptors;
 import org.apache.openejb.config.UnknownModuleTypeException;
@@ -114,7 +86,6 @@ import org.apache.openejb.config.UnsupportedModuleTypeException;
 import org.apache.openejb.config.ValidationError;
 import org.apache.openejb.config.ValidationFailedException;
 import org.apache.openejb.config.ValidationFailure;
-import org.apache.openejb.config.ConfigurationFactory.Chain;
 import org.apache.openejb.jee.EjbJar;
 import org.apache.openejb.jee.EjbRef;
 import org.apache.openejb.jee.EnterpriseBean;
@@ -134,8 +105,13 @@ import org.apache.openejb.jee.oejb2.OpenejbJarType;
 import org.apache.openejb.jee.oejb2.PatternType;
 import org.apache.openejb.jee.oejb2.ResourceLocatorType;
 import org.apache.openejb.loader.SystemInstance;
+import org.apache.openejb.util.LinkResolver;
+import org.apache.openejb.util.UniqueDefaultLinkResolver;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
+import org.osgi.framework.Bundle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Master builder for processing EJB JAR deployments and creating the
@@ -403,7 +379,7 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle {
                 } else if (ref.getType().equals(MessageDrivenContext.class.getName())) {
                     iterator.remove();
                 } else if (ref.getType().equals(TimerService.class.getName())) {
-                    iterator.remove();   
+                    iterator.remove();
                 } else if (ref.getType().equals(WebServiceContext.class.getName())) {
                     iterator.remove();
                 } else {
@@ -496,10 +472,10 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle {
         return true;
     }
 
-    public void initContext(EARContext earContext, Module module, ClassLoader classLoader) throws DeploymentException {
+    public void initContext(EARContext earContext, Module module, Bundle bundle) throws DeploymentException {
         EjbModule ejbModule = (EjbModule) module;
 
-        EjbJarInfo ejbJarInfo = getEjbJarInfo(earContext, ejbModule, classLoader);
+        EjbJarInfo ejbJarInfo = getEjbJarInfo(earContext, ejbModule, bundle);
 
         ejbModule.setEjbJarInfo(ejbJarInfo);
 
@@ -547,7 +523,7 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle {
 
         for (ModuleBuilderExtension builder : moduleBuilderExtensions) {
             try {
-                builder.initContext(earContext, module, classLoader);
+                builder.initContext(earContext, module, bundle);
             } catch (Throwable t) {
                 String builderName = builder.getClass().getSimpleName();
                 log.error(builderName + ".initContext() failed: " + t.getMessage(), t);
@@ -555,15 +531,17 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle {
         }
     }
 
-    private EjbJarInfo getEjbJarInfo(EARContext earContext, EjbModule ejbModule, ClassLoader classLoader) throws DeploymentException {
+    private EjbJarInfo getEjbJarInfo(EARContext earContext, EjbModule ejbModule, Bundle bundle) throws DeploymentException {
         EarData earData = (EarData) earContext.getGeneralData().get(EarData.class);
         if (earData.getEjbJars().isEmpty()) {
 
+            ClassLoader bundleLoader = new BundleClassLoader(bundle);
+
             // temporary classloader is used for processing ejb annotations and byte code manipulation during ejb load
-            TemporaryClassLoader temporaryClassLoader = new TemporaryClassLoader(new URL[0], classLoader);
+            TemporaryClassLoader temporaryClassLoader = new TemporaryClassLoader(new URL[0], bundleLoader);
 
             // create an openejb app module for the ear containing all ejb modules
-            AppModule appModule = new AppModule(classLoader, earContext.getConfigID().toString());
+            AppModule appModule = new AppModule(bundleLoader, earContext.getConfigID().toString());
             for (EjbModule module : earData.getEjbModuels()) {
                 module.setClassLoader(temporaryClassLoader);
                 appModule.getEjbModules().add(module.getEjbModule());
@@ -598,7 +576,7 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle {
             }
 
             // add the cmp jar
-            CmpJarBuilder cmp2Builder = new CmpJarBuilder(appInfo, classLoader);
+            CmpJarBuilder cmp2Builder = new CmpJarBuilder(appInfo, bundleLoader);
             try {
                 File generatedJar = cmp2Builder.getJarFile();
                 if (generatedJar != null) {
@@ -630,7 +608,7 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle {
         openEjbConfiguration.containerSystem = new ContainerSystemInfo();
         openEjbConfiguration.facilities = new FacilitiesInfo();
         boolean offline = true;
-        
+
         ConfigurationFactory configurationFactory = new ConfigurationFactory(offline,
             ejbModule.getPreAutoConfigDeployer(),
             openEjbConfiguration);
@@ -687,15 +665,15 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle {
 
                 try {
                     containerInfo.properties.put("MessageListenerInterface",
-                        configuration.getConfigurationClassLoader().loadClass(messageListenerInterface));
+                        configuration.getBundle().loadClass(messageListenerInterface));
                 } catch (ClassNotFoundException e) {
-                    throw new OpenEJBException("Could not load MessageListenerInterface " + messageListenerInterface + " in classloader: " + configuration.getConfigurationClassLoader(), e);
+                    throw new OpenEJBException("Could not load MessageListenerInterface " + messageListenerInterface + " in bundle: " + configuration.getBundle(), e);
                 }
                 try {
                     containerInfo.properties.put("ActivationSpecClass",
-                        configuration.getConfigurationClassLoader().loadClass(activationSpecClass));
+                        configuration.getBundle().loadClass(activationSpecClass));
                 } catch (ClassNotFoundException e) {
-                    throw new OpenEJBException("Could not load ActivationSpecClass " + activationSpecClass + " in classloader: " + configuration.getConfigurationClassLoader(), e);
+                    throw new OpenEJBException("Could not load ActivationSpecClass " + activationSpecClass + " in bundle: " + configuration.getBundle(), e);
                 }
                 containerInfo.properties.put("TxRecovery", true);
                 //TODO is this necessary????
@@ -760,7 +738,7 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle {
      * Does the meaty work of processing the deployment information and
      * creating GBeans for all the EJBs in the JAR, etc.
      */
-    public void addGBeans(EARContext earContext, Module module, ClassLoader cl, Collection repositories) throws DeploymentException {
+    public void addGBeans(EARContext earContext, Module module, Bundle bundle, Collection repositories) throws DeploymentException {
         EjbModule ejbModule = (EjbModule) module;
         EjbDeploymentBuilder ejbDeploymentBuilder = ejbModule.getEjbBuilder();
 
@@ -822,7 +800,7 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle {
 
         for (ModuleBuilderExtension builder : moduleBuilderExtensions) {
             try {
-                builder.addGBeans(earContext, module, cl, repositories);
+                builder.addGBeans(earContext, module, bundle, repositories);
             } catch (Throwable t) {
                 String builderName = builder.getClass().getSimpleName();
                 log.error(builderName + ".addGBeans() failed: " + t.getMessage(), t);

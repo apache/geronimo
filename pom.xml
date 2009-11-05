@@ -1183,6 +1183,10 @@
                         <groupId>log4j</groupId>
                         <artifactId>log4j</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.openejb</groupId>
+                        <artifactId>javaee-api</artifactId>
+                    </exclusion>
                 </exclusions>
             </dependency>
 
