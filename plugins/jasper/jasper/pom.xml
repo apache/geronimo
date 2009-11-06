@@ -91,11 +91,6 @@
         <!--<groupId>${tomcatGroupId}</groupId>-->
         <!--<artifactId>juli-adapters</artifactId>-->
         <!--</dependency>-->
-
-        <dependency>
-            <groupId>${tomcatGroupId}</groupId>
-            <artifactId>juli</artifactId>
-        </dependency>
     </dependencies>
 
     <build>

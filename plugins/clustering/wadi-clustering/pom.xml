@@ -60,11 +60,6 @@
 
         <dependency>
             <groupId>${tomcatGroupId}</groupId>
-            <artifactId>juli</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>${tomcatGroupId}</groupId>
             <artifactId>tribes</artifactId>
         </dependency>
 

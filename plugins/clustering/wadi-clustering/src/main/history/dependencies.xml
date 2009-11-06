@@ -43,11 +43,6 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.ext.tomcat</groupId>
-        <artifactId>juli</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.ext.tomcat</groupId>
         <artifactId>tribes</artifactId>
         <type>jar</type>
     </dependency>

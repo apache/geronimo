@@ -18,22 +18,7 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>geronimo-j2ee-builder</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>geronimo-jasper</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.modules</groupId>
         <artifactId>geronimo-jasper-builder</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>geronimo-web-2.5-builder</artifactId>
         <type>jar</type>
     </dependency>
 </plugin-artifact>

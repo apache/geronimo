@@ -64,11 +64,6 @@
         <dependencies>
             <dependency>
                 <groupId>${tomcatGroupId}</groupId>
-                <artifactId>juli</artifactId>
-                <version>${tomcatVersion}</version>
-            </dependency>
-            <dependency>
-                <groupId>${tomcatGroupId}</groupId>
                 <artifactId>tribes</artifactId>
                 <version>${tomcatVersion}</version>
                 <exclusions>
@@ -148,12 +143,12 @@
                 <groupId>${tomcatGroupId}</groupId>
                 <artifactId>tribes</artifactId>
                 <version>${tomcatVersion}</version>
-                <!--<exclusions>-->
-                <!--<exclusion>-->
-                <!--<groupId>${tomcatGroupId}</groupId>-->
-                <!--<artifactId>juli</artifactId>-->
-                <!--</exclusion>-->
-                <!--</exclusions>-->
+                <exclusions>
+                    <exclusion>
+                    <groupId>${tomcatGroupId}</groupId>
+                    <artifactId>juli</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
         </dependencies>

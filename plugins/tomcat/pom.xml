@@ -115,11 +115,13 @@
                 </exclusions>
             </dependency>
 
+<!-- should never be used, use pax logging version instead
             <dependency>
                 <groupId>${tomcatGroupId}</groupId>
                 <artifactId>juli</artifactId>
                 <version>${tomcatVersion}</version>
             </dependency>
+  -->
             <dependency>
                 <groupId>${tomcatGroupId}</groupId>
                 <artifactId>catalina</artifactId>

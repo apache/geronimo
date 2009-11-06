@@ -38,28 +38,13 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.ext.tomcat</groupId>
-        <artifactId>juli</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.ext.tomcat</groupId>
         <artifactId>shared</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>geronimo-kernel</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.framework</groupId>
         <artifactId>server-security-config</artifactId>
         <type>car</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>geronimo-j2ee</artifactId>
-        <type>jar</type>
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.modules</groupId>

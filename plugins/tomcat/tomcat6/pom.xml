@@ -98,16 +98,6 @@
         <!--<groupId>${tomcatGroupId}</groupId>-->
         <!--<artifactId>coyote</artifactId>-->
         <!--</dependency>-->
-
-        <dependency>
-            <groupId>${tomcatGroupId}</groupId>
-            <artifactId>juli</artifactId>
-        </dependency>
-
-        <!--<dependency>-->
-        <!--<groupId>${tomcatGroupId}</groupId>-->
-        <!--<artifactId>juli-adapters</artifactId>-->
-        <!--</dependency>-->
     </dependencies>
 
     <build>

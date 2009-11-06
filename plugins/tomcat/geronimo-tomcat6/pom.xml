@@ -103,19 +103,9 @@
         <!--</dependency>-->
 
         <dependency>
-            <groupId>${tomcatGroupId}</groupId>
-            <artifactId>juli</artifactId>
-        </dependency>
-
-        <!--<dependency>-->
-        <!--<groupId>${tomcatGroupId}/groupId>-->
-        <!--<artifactId>juli-adapters</artifactId>-->
-        <!--</dependency>-->
-
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>jcl-over-slf4j</artifactId>
-            <scope>test</scope>
+            <groupId>org.ops4j.pax.logging</groupId>
+            <artifactId>pax-logging-api</artifactId>
+            <version>1.4</version>
         </dependency>
 
         <dependency>

@@ -54,10 +54,10 @@
                     <!--<groupId>${tomcatGroupId}</groupId>-->
                     <!--<artifactId>servlet-api</artifactId>-->
                     <!--</exclusion>-->
-                    <!--<exclusion>-->
-                    <!--<groupId>${tomcatGroupId}</groupId>-->
-                    <!--<artifactId>juli</artifactId>-->
-                    <!--</exclusion>-->
+                    <exclusion>
+                        <groupId>${tomcatGroupId}</groupId>
+                        <artifactId>juli</artifactId>
+                    </exclusion>
                     <!--<exclusion>-->
                     <!--<groupId>${tomcatGroupId}</groupId>-->
                     <!--<artifactId>jsp-api</artifactId>-->
@@ -94,11 +94,6 @@
                     <!--<artifactId>el-api</artifactId>-->
                     <!--</exclusion>-->
                 </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>${tomcatGroupId}</groupId>
-                <artifactId>juli</artifactId>
-                <version>${tomcatVersion}</version>
             </dependency>
 
             <!--<dependency>-->
