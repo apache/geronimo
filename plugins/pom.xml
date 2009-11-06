@@ -80,6 +80,7 @@
         <module>myfaces</module>
         <module>openejb</module>
         <module>openjpa</module>
+        <module>openjpa2</module>
         <module>plancreator</module>
         <module>webservices</module>
         <module>spring</module>
