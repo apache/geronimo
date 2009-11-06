@@ -73,8 +73,14 @@
                 <artifactId>maven-bundle-plugin</artifactId>
                 <configuration>
                     <instructions>
-                        <Import-Package>org.apache.xmlbeans.impl.schema;version="2.4",*</Import-Package>
                         <!--<_versionpolicy>[$(version;==;$(@)),$(version;+;$(@)))</_versionpolicy>-->
+                        <Import-Package>org.apache.xmlbeans.impl.schema,*</Import-Package>
+                        <Export-Package>
+                            schemaorg_apache_xmlbeans*,
+                            org.apache.geronimo.xbeans.geronimo.naming*,
+                            org.apache.geronimo.xbeans.geronimo.naming.impl,
+                            org.apache.geronimo.naming.deployment*
+                        </Export-Package>
                     </instructions>
                 </configuration>
             </plugin>
