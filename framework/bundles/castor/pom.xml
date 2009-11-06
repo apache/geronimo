@@ -51,11 +51,6 @@
         </dependency>
         <dependency>
             <groupId>org.apache.geronimo.bundles</groupId>
-            <artifactId>ehcache</artifactId>
-            <version>1.2.3-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.bundles</groupId>
             <artifactId>ldapsdk</artifactId>
             <version>4.1-SNAPSHOT</version>
         </dependency>
@@ -70,7 +65,7 @@
                 <configuration>
                     <instructions>
                         <Export-Package>org.exolab*;version="1.0.5",org.castor*;version="1.0.5"</Export-Package>
-                        <Import-Package>org*;resolution:=optional,weblogic*;resolution:=optional,javax*;resolution:=optional,*</Import-Package>
+                        <Import-Package>net.sf.ehcache*org;resolution:=optional,*;resolution:=optional,weblogic*;resolution:=optional,javax*;resolution:=optional,*</Import-Package>
                         <!--<_versionpolicy>[$(version;==;$(@)),$(version;+;$(@)))</_versionpolicy>-->
                     </instructions>
                 </configuration>

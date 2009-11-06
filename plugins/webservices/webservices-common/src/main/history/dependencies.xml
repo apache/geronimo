@@ -18,11 +18,6 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.bundles</groupId>
-        <artifactId>ehcache</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.bundles</groupId>
         <artifactId>ldapsdk</artifactId>
         <type>jar</type>
     </dependency>
