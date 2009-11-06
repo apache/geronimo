@@ -131,6 +131,7 @@
                                 <artifactId>persistence-jpa10-deployer</artifactId>
                             </obsoletes>
                             <artifact-alias key="org.apache.geronimo.configs/persistence-jpa10-deployer//car">org.apache.geronimo.configs/persistence-jpa20-deployer/${version}/car</artifact-alias>
+                            <artifact-alias key="org.apache.geronimo.configs/persistence-jpa10-deployer/${version}/car">org.apache.geronimo.configs/persistence-jpa20-deployer/${version}/car</artifact-alias>
                         </plugin-artifact>
                     </instance>
                 </configuration>

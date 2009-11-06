@@ -92,6 +92,7 @@
                                 <artifactId>openjpa</artifactId>
                             </obsoletes>
                             <artifact-alias key="org.apache.geronimo.configs/openjpa//car">org.apache.geronimo.configs/openjpa2/${version}/car</artifact-alias>
+                            <artifact-alias key="org.apache.geronimo.configs/openjpa/${version}/car">org.apache.geronimo.configs/openjpa2/${version}/car</artifact-alias>
                         </plugin-artifact>
                     </instance>
                 </configuration>
