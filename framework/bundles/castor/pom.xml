@@ -65,7 +65,7 @@
                 <configuration>
                     <instructions>
                         <Export-Package>org.exolab*;version="1.0.5",org.castor*;version="1.0.5"</Export-Package>
-                        <Import-Package>net.sf.ehcache*org;resolution:=optional,*;resolution:=optional,weblogic*;resolution:=optional,javax*;resolution:=optional,*</Import-Package>
+                        <Import-Package>net.sf.ehcache*;resolution:=optional,org*;resolution:=optional,weblogic*;resolution:=optional,javax*;resolution:=optional,*</Import-Package>
                         <!--<_versionpolicy>[$(version;==;$(@)),$(version;+;$(@)))</_versionpolicy>-->
                     </instructions>
                 </configuration>
