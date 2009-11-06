@@ -30,6 +30,8 @@ import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.webservices.SerializableWebServiceContainerFactoryGBean;
 
+import org.osgi.framework.Bundle;
+
 /**
  * @version $Rev$ $Date$
  */
@@ -50,7 +52,7 @@ public class MockWebServiceBuilder implements WebServiceBuilder {
         return true;
     }
 
-    public boolean configureEJB(GBeanData targetGBean, String ejbName, Module module, Map sharedContext, ClassLoader classLoader) throws DeploymentException {
+    public boolean configureEJB(GBeanData targetGBean, String ejbName, Module module, Map sharedContext, Bundle bundle) throws DeploymentException {
         return true;
     }
 }
