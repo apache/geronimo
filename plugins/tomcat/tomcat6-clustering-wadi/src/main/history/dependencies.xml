@@ -18,11 +18,6 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>geronimo-clustering-wadi</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.modules</groupId>
         <artifactId>geronimo-tomcat6-clustering-wadi</artifactId>
         <type>jar</type>
     </dependency>
