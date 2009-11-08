@@ -37,11 +37,27 @@
     
     <dependencies>
         <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
+            <groupId>org.apache.derby</groupId>
             <artifactId>derby</artifactId>
-            <version>${version}</version>
-            <type>car</type>
         </dependency>
+
+        <dependency>
+            <groupId>org.apache.derby</groupId>
+            <artifactId>derbyclient</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.bundles</groupId>
+            <artifactId>derbynet</artifactId>
+            <version>${derbyVersion}-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.bundles</groupId>
+            <artifactId>derbytools</artifactId>
+            <version>${derbyVersion}-SNAPSHOT</version>
+        </dependency>
+
 
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>

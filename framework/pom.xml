@@ -415,6 +415,7 @@
             </activation>
 
             <modules>
+                <module>bundles</module>
                 <module>modules</module>
                 <module>buildsupport</module>
                 <module>configs</module>

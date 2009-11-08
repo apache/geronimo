@@ -38,16 +38,17 @@
     </description>
 
     <dependencies>
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-interceptor_3.0_spec</artifactId>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.specs</groupId>-->
+            <!--<artifactId>geronimo-interceptor_3.0_spec</artifactId>-->
+        <!--</dependency>-->
 
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-gbean-deployer</artifactId>
             <version>${version}</version>
             <type>car</type>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
@@ -55,6 +56,7 @@
             <artifactId>j2ee-deployer</artifactId>
             <version>${version}</version>
             <type>car</type>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
@@ -62,13 +64,7 @@
             <artifactId>connector-deployer-1_6</artifactId>
             <version>${version}</version>
             <type>car</type>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>derby</artifactId>
-            <version>${version}</version>
-            <type>car</type>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
@@ -88,13 +84,14 @@
             <groupId>org.tranql</groupId>
             <artifactId>tranql-connector-derby-embed-xa</artifactId>
             <type>rar</type>
+            <scope>provided</scope>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.geronimo.framework</groupId>
-            <artifactId>geronimo-service-builder</artifactId>
-            <version>${version}</version>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.framework</groupId>-->
+            <!--<artifactId>geronimo-service-builder</artifactId>-->
+            <!--<version>${version}</version>-->
+        <!--</dependency>-->
 
     </dependencies>
 
