@@ -40,7 +40,6 @@
         <module>aspectjrt</module>
         <module>aspectjweaver</module>
         <module>castor</module>
-        <module>commons-cli</module>
         <module>derbynet</module>
         <module>derbytools</module>
         <module>ldapsdk</module>

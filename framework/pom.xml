@@ -182,11 +182,6 @@
                 <version>3.1_1-SNAPSHOT</version>
             </dependency>
             <dependency>
-                <groupId>org.apache.geronimo.bundles</groupId>
-                <artifactId>commons-cli</artifactId>
-                <version>1.0_1-SNAPSHOT</version>
-            </dependency>
-            <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
                 <version>1.5.6</version>

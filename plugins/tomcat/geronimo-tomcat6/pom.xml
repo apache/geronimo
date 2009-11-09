@@ -56,9 +56,8 @@
         <!--</dependency>-->
 
         <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>webservices-common</artifactId>
-            <type>car</type>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-webservices</artifactId>
             <version>${version}</version>
         </dependency>
 

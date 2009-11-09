@@ -118,7 +118,7 @@
         <!--<module>openjpa2</module>-->
 <!--        <module>openwebbeans</module>-->
         <!--<module>plancreator</module>-->
-        <!--<module>webservices</module>-->
+        <module>webservices</module>
         <!--<module>spring</module>-->
         <!--<module>ca-helper</module>-->
         <!--<module>uddi</module>-->
