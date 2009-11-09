@@ -52,7 +52,7 @@
               testsuite buckets.  To only run console-testsuite/advanced -
                 mvn -DshittyTestIncludes=console-testsuite/advanced/pom.xml
               or
-                mvn install -Dtests=console-testsuite/advanced
+                mvn install -Dtests=console-testsuite/advanced -Pit,all-subprojects
         -->
         <shittyTestIncludes>*/*/pom.xml</shittyTestIncludes>
     </properties>
