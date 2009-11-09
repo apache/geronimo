@@ -17,18 +17,18 @@
 --><!-- $Rev$ $Date$ --><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-    
+
     <parent>
         <groupId>org.apache.geronimo</groupId>
         <artifactId>geronimo</artifactId>
         <version>3.0-SNAPSHOT</version>
     </parent>
-    
+
     <groupId>org.apache.geronimo.plugins</groupId>
     <artifactId>plugins</artifactId>
     <name>Geronimo Plugins</name>
     <packaging>pom</packaging>
-    
+
     <properties>
         <!-- This property is required by the car:package mojo -->
 <!-- bug in release plugin may be worked-around by copying it here
@@ -41,20 +41,20 @@
             <version>${version}</version>
             <scope>test</scope>
         </dependency>
-        
+
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
             <scope>provided</scope>
         </dependency>
-        
+
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
-    
+
 
     <build>
         <plugins>
@@ -94,28 +94,28 @@
     <modules>
         <!-- MNG-4052 modules used as import-scope need to be before anything that uses them -->
         <!--<module>pluto</module>-->
-        <!--<module>system-database</module>-->
+        <module>system-database</module>
         <!--<module>activemq</module>-->
-        <!--<module>aspectj</module>-->
+        <module>aspectj</module>
         <!--<module>axis</module>-->
         <!--<module>axis2</module>-->
         <!--<module>client</module>-->
-        <!--<module>clustering</module>-->
+        <module>clustering</module>
         <module>connector-1_6</module>
         <!--<module>console</module>-->
         <!--<module>corba</module>-->
         <!--<module>cxf</module>-->
-        <!--<module>derby</module>-->
+        <module>derby</module>
         <!--<module>dojo</module>-->
         <!--<module>debugviews</module>-->
         <!--<module>hotdeploy</module>-->
         <module>j2ee</module>
-        <!--<module>jasper</module>-->
-        <!--<module>javamail</module>-->
-        <!--<module>jaxws</module>-->
+        <module>jasper</module>
+        <module>javamail</module>
+        <module>jaxws</module>
         <!--<module>myfaces</module>-->
-        <!--<module>openejb</module>-->
-        <!--<module>openjpa2</module>-->
+        <module>openejb</module>
+        <module>openjpa2</module>
 <!--        <module>openwebbeans</module>-->
         <!--<module>plancreator</module>-->
         <module>webservices</module>

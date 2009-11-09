@@ -92,6 +92,7 @@
         <servletSpec>geronimo-servlet_3.0_spec</servletSpec>
 
         <monitoringConsoleVersion>${version}</monitoringConsoleVersion>
+        <pax.logging.version>1.4</pax.logging.version>
 
         <!-- Deployers -->
         <gbeanDeployerBootstrap>org.apache.geronimo.framework/geronimo-gbean-deployer-bootstrap/${version}/car
@@ -702,6 +703,12 @@
                 <groupId>org.slf4j</groupId>
                 <artifactId>jul-to-slf4j</artifactId>
                 <version>1.5.5</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.ops4j.pax.logging</groupId>
+                <artifactId>pax-logging-api</artifactId>
+                <version>${pax.logging.version}</version>
             </dependency>
 
             <dependency>

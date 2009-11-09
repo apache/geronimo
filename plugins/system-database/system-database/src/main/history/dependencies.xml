@@ -7,19 +7,34 @@
         <type>car</type>
     </module-id>
     <dependency>
-        <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>connector-deployer-1_6</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.configs</groupId>
+        <groupId>org.apache.derby</groupId>
         <artifactId>derby</artifactId>
-        <type>car</type>
+        <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>j2ee-deployer</artifactId>
-        <type>car</type>
+        <groupId>org.apache.derby</groupId>
+        <artifactId>derbyclient</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.derby</groupId>
+        <artifactId>derbynet</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.derby</groupId>
+        <artifactId>derbytools</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.bundles</groupId>
+        <artifactId>derbynet</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.bundles</groupId>
+        <artifactId>derbytools</artifactId>
+        <type>jar</type>
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
@@ -27,23 +42,8 @@
         <type>car</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>geronimo-gbean-deployer</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
         <groupId>org.apache.geronimo.modules</groupId>
         <artifactId>geronimo-derby</artifactId>
         <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.specs</groupId>
-        <artifactId>geronimo-interceptor_3.0_spec</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.tranql</groupId>
-        <artifactId>tranql-connector-derby-embed-xa</artifactId>
-        <type>rar</type>
     </dependency>
 </plugin-artifact>

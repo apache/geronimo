@@ -99,7 +99,16 @@
                 <configuration>
                     <instructions>
                         <!--packages containing "impl" or "internal" are excluded by default -->
-                        <Import-Package>org.apache.xmlbeans.impl.schema;version="2.4",org.apache.geronimo.deployment.xbeans.impl,org.apache.geronimo.deployment.javabean.xbeans.impl,*</Import-Package>
+                        <Import-Package>
+                              org.apache.xmlbeans.impl.schema;version="2.4",
+                              org.apache.geronimo.deployment.xbeans.impl,
+                              org.apache.geronimo.deployment.javabean.xbeans.impl,
+                              org.apache.geronimo.xbeans.javaee.impl,
+                              org.apache.geronimo.xbeans.javaee,
+                              org.apache.geronimo.xbeans.persistence.impl,
+                              org.apache.geronimo.xbeans.persistence,
+                              *
+                              </Import-Package>
                         <DynamicImport-Package>schemaorg_apache_xmlbeans.*</DynamicImport-Package>
                         <!--<_versionpolicy>[$(version;==;$(@)),$(version;+;$(@)))</_versionpolicy>-->
                     </instructions>

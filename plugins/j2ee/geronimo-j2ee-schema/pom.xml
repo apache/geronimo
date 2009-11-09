@@ -57,5 +57,34 @@
         </dependency>
     </dependencies>
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <configuration>
+                    <instructions>
+                        <!--packages containing "impl" or "internal" are excluded by default -->
+                        <Import-Package>
+                            org.apache.xmlbeans.impl.schema;version="2.4",
+                            org.apache.geronimo.deployment.xbeans.impl,
+                            org.apache.geronimo.xbeans.j2ee.impl,
+                            org.apache.geronimo.xbeans.j2ee,
+                            org.w3.xml.x1998.namespace.impl,
+                            org.w3.xml.x1998.namespace,
+                            org.apache.geronimo.xbeans.javaee.impl,
+                            org.apache.geronimo.xbeans.javaee,
+                            org.apache.geronimo.xbeans.persistence.impl,
+                            org.apache.geronimo.xbeans.persistence,
+                            *
+                        </Import-Package>
+                        <DynamicImport-Package>schemaorg_apache_xmlbeans.*</DynamicImport-Package>
+                        <!--<_versionpolicy>[$(version;==;$(@)),$(version;+;$(@)))</_versionpolicy>-->
+                    </instructions>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>
 

@@ -118,10 +118,21 @@
             <artifactId>geronimo-activation_1.1_spec</artifactId>
             <scope>test</scope>
         </dependency>
+
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>jcl-over-slf4j</artifactId>
-            <scope>test</scope>
+            <groupId>org.ops4j.pax.logging</groupId>
+            <artifactId>pax-logging-api</artifactId>
+        </dependency>
+
+        <!-- Use org.apache.geronimo.javamail/geronimo-javamail_1.4_mail
+          uber jar containing both the spec and the providers in order that
+          users can actually use mail without advanced degrees in geronimo
+          classloading.  DO NOT add or replace this with
+          org.apache.geronimo.specs/geronimo-javamail_1.4_spec -->
+        <dependency>
+            <groupId>org.apache.geronimo.javamail</groupId>
+            <artifactId>geronimo-javamail_1.4_mail</artifactId>
+            <version>1.8-SNAPSHOT</version>
         </dependency>
     </dependencies>
 
