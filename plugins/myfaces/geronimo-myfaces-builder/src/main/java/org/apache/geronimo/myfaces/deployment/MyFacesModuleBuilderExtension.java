@@ -30,8 +30,6 @@ import java.util.jar.JarFile;
 
 import javax.faces.webapp.FacesServlet;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
@@ -60,15 +58,18 @@ import org.apache.geronimo.xbeans.javaee.FacesConfigDocument;
 import org.apache.geronimo.xbeans.javaee.FacesConfigManagedBeanType;
 import org.apache.geronimo.xbeans.javaee.FacesConfigType;
 import org.apache.geronimo.xbeans.javaee.FullyQualifiedClassType;
+import org.apache.geronimo.xbeans.javaee.ListenerType;
 import org.apache.geronimo.xbeans.javaee.ParamValueType;
 import org.apache.geronimo.xbeans.javaee.ServletType;
 import org.apache.geronimo.xbeans.javaee.WebAppType;
-import org.apache.geronimo.xbeans.javaee.ListenerType;
 import org.apache.myfaces.webapp.StartupServletContextListener;
 import org.apache.xbean.finder.ClassFinder;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
+import org.osgi.framework.Bundle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @version $Rev $Date
@@ -109,10 +110,10 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
     public void installModule(JarFile earFile, EARContext earContext, Module module, Collection configurationStores, ConfigurationStore targetConfigurationStore, Collection repository) throws DeploymentException {
     }
 
-    public void initContext(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException {
+    public void initContext(EARContext earContext, Module module, Bundle bundle) throws DeploymentException {
     }
 
-    public void addGBeans(EARContext earContext, Module module, ClassLoader cl, Collection repository) throws DeploymentException {
+    public void addGBeans(EARContext earContext, Module module, Bundle bundle, Collection repository) throws DeploymentException {
         if (!(module instanceof WebModule)) {
             //not a web module, nothing to do
             return;
@@ -215,15 +216,14 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
     private List<Class> getFacesClasses(WebAppType webApp, WebModule webModule) throws DeploymentException {
         log.debug("getFacesClasses( " + webApp.toString() + "," + '\n' +
                            (webModule != null ? webModule.getName() : null) + " ): Entry");
-
-        // Get the classloader from the module's EARContext
-        ClassLoader classLoader = webModule.getEarContext().getClassLoader();
+        
+        Bundle bundle = webModule.getEarContext().getBundle();
 
         // 1. META-INF/faces-config.xml
         List<Class> classes = new ArrayList<Class>();
         try {
             URL url = DeploymentUtil.createJarURL(webModule.getModuleFile(), "META-INF/faces-config.xml");
-            parseConfigFile(url, classLoader, classes);
+            parseConfigFile(url, bundle, classes);
         } catch (MalformedURLException mfe) {
             throw new DeploymentException("Could not locate META-INF/faces-config.xml" + mfe.getMessage(), mfe);
         }
@@ -231,7 +231,7 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
         // 2. WEB-INF/faces-config.xml
         try {
             URL url = DeploymentUtil.createJarURL(webModule.getModuleFile(), "WEB-INF/faces-config.xml");
-            parseConfigFile(url, classLoader, classes);
+            parseConfigFile(url, bundle, classes);
         } catch (MalformedURLException mfe) {
             throw new DeploymentException("Could not locate WEB-INF/faces-config.xml" + mfe.getMessage(), mfe);
         }
@@ -250,7 +250,7 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
                         }
                         try {
                             URL url = DeploymentUtil.createJarURL(webModule.getModuleFile(), configfile);
-                            parseConfigFile(url, classLoader, classes);
+                            parseConfigFile(url, bundle, classes);
                         } catch (MalformedURLException mfe) {
                             throw new DeploymentException("Could not locate config file " + configfile + ", " + mfe.getMessage(), mfe);
                         }
@@ -264,7 +264,7 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
         return classes;
     }
 
-    private void parseConfigFile(URL url, ClassLoader classLoader, List<Class> classes) throws DeploymentException {
+    private void parseConfigFile(URL url,  Bundle bundle, List<Class> classes) throws DeploymentException {
         log.debug("parseConfigFile( " + url.toString() + " ): Entry");
 
         try {
@@ -279,7 +279,7 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
                 String className = cls.getStringValue().trim();
                 Class<?> clas;
                 try {
-                    clas = classLoader.loadClass(className);
+                    clas = bundle.loadClass(className);
                     classes.add(clas);
                 }
                 catch (ClassNotFoundException e) {
