@@ -105,9 +105,10 @@
                             org.apache.geronimo.j2ee.deployment.annotation,
                             org.apache.geronimo.j2ee.jsr88,
                             org.apache.geronimo.xbeans.j2ee.impl,
-                            org.apache.geronimo.xbeans.j2ee,
-                            schemaorg_apache_xmlbeans*,
+                            org.apache.geronimo.xbeans.j2ee
                         </Export-Package>
+                        <_exportcontents>schemaorg_apache_xmlbeans*</_exportcontents>
+                        <DynamicImport-Package>schemaorg_apache_xmlbeans.*</DynamicImport-Package>
                         <Import-Package>org.apache.xmlbeans.impl.schema;version="2.4",*</Import-Package>
                         <!--<_versionpolicy>[$(version;==;$(@)),$(version;+;$(@)))</_versionpolicy>-->
                     </instructions>

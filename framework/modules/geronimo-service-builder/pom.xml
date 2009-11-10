@@ -90,10 +90,11 @@
                             org.apache.geronimo.deployment.javabean.xbeans.impl,
                             org.apache.geronimo.deployment.xbeans*,
                             org.apache.geronimo.deployment.javabean.xbeans*,
-                            schemaorg_apache_xmlbeans*,
                             org.apache.geronimo.deployment.dconfigbean,
                             org.apache.geronimo.deployment.service*
                         </Export-Package>
+                        <_exportcontents>schemaorg_apache_xmlbeans*</_exportcontents>
+                        <DynamicImport-Package>schemaorg_apache_xmlbeans.*</DynamicImport-Package>
                     </instructions>
                 </configuration>
             </plugin>
