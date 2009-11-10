@@ -2187,27 +2187,6 @@
         </plugins>
 
     </build>
-    
-    <repositories>
-        <!--
-        NOTE: The default repositories are picked up by Genesis.
-              We only need to include apache-snapshots for Genesis SNAPSHOTs. -->
-        <repository>
-            <id>servicemix-snapshots</id>
-            <name>Servicemix Snapshots Repository</name>
-            <url>http://svn.apache.org/repos/asf/servicemix/m2-repo</url>
-            <layout>default</layout>
-            <snapshots>
-                <enabled>true</enabled>
-                <updatePolicy>daily</updatePolicy>
-                <checksumPolicy>ignore</checksumPolicy>
-            </snapshots>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </repository>
-        
-    </repositories>
 
     <distributionManagement>
         <!--
