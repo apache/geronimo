@@ -35,11 +35,11 @@ import org.apache.geronimo.testsupport.TestSupport;
 import org.apache.geronimo.connector.deployment.dconfigbean.ConfigPropertySettings;
 import org.apache.geronimo.connector.deployment.dconfigbean.ConnectionDefinitionDConfigBean;
 import org.apache.geronimo.connector.deployment.dconfigbean.ConnectionDefinitionInstance;
-import org.apache.geronimo.xbeans.geronimo.GerConnectionDefinitionType;
-import org.apache.geronimo.xbeans.geronimo.GerConnectiondefinitionInstanceType;
-import org.apache.geronimo.xbeans.geronimo.GerConnectionmanagerType;
-import org.apache.geronimo.xbeans.geronimo.GerConnectorDocument;
-import org.apache.geronimo.xbeans.geronimo.GerResourceadapterType;
+import org.apache.geronimo.xbeans.connector.GerConnectionDefinitionType;
+import org.apache.geronimo.xbeans.connector.GerConnectiondefinitionInstanceType;
+import org.apache.geronimo.xbeans.connector.GerConnectionmanagerType;
+import org.apache.geronimo.xbeans.connector.GerConnectorDocument;
+import org.apache.geronimo.xbeans.connector.GerResourceadapterType;
 import org.apache.xmlbeans.XmlOptions;
 
 /**

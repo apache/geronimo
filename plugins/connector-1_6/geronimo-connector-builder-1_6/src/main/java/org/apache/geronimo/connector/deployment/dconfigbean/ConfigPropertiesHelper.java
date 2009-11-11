@@ -27,7 +27,7 @@ import javax.enterprise.deploy.model.DDBean;
 import javax.enterprise.deploy.model.XpathEvent;
 import javax.enterprise.deploy.model.XpathListener;
 
-import org.apache.geronimo.xbeans.geronimo.GerConfigPropertySettingType;
+import org.apache.geronimo.xbeans.connector.GerConfigPropertySettingType;
 
 /**
  *

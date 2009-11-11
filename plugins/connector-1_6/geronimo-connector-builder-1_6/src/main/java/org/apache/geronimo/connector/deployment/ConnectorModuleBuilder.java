@@ -97,18 +97,18 @@ import org.apache.geronimo.management.geronimo.JCAResourceAdapter;
 import org.apache.geronimo.management.geronimo.ResourceAdapterModule;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.schema.SchemaConversionUtils;
-import org.apache.geronimo.xbeans.geronimo.GerAdminobjectInstanceType;
-import org.apache.geronimo.xbeans.geronimo.GerAdminobjectType;
-import org.apache.geronimo.xbeans.geronimo.GerConfigPropertySettingType;
-import org.apache.geronimo.xbeans.geronimo.GerConnectionDefinitionType;
-import org.apache.geronimo.xbeans.geronimo.GerConnectiondefinitionInstanceType;
-import org.apache.geronimo.xbeans.geronimo.GerConnectionmanagerType;
-import org.apache.geronimo.xbeans.geronimo.GerConnectorDocument;
-import org.apache.geronimo.xbeans.geronimo.GerConnectorType;
-import org.apache.geronimo.xbeans.geronimo.GerPartitionedpoolType;
-import org.apache.geronimo.xbeans.geronimo.GerResourceadapterInstanceType;
-import org.apache.geronimo.xbeans.geronimo.GerResourceadapterType;
-import org.apache.geronimo.xbeans.geronimo.GerSinglepoolType;
+import org.apache.geronimo.xbeans.connector.GerAdminobjectInstanceType;
+import org.apache.geronimo.xbeans.connector.GerAdminobjectType;
+import org.apache.geronimo.xbeans.connector.GerConfigPropertySettingType;
+import org.apache.geronimo.xbeans.connector.GerConnectionDefinitionType;
+import org.apache.geronimo.xbeans.connector.GerConnectiondefinitionInstanceType;
+import org.apache.geronimo.xbeans.connector.GerConnectionmanagerType;
+import org.apache.geronimo.xbeans.connector.GerConnectorDocument;
+import org.apache.geronimo.xbeans.connector.GerConnectorType;
+import org.apache.geronimo.xbeans.connector.GerPartitionedpoolType;
+import org.apache.geronimo.xbeans.connector.GerResourceadapterInstanceType;
+import org.apache.geronimo.xbeans.connector.GerResourceadapterType;
+import org.apache.geronimo.xbeans.connector.GerSinglepoolType;
 import org.apache.geronimo.xbeans.j2ee.ActivationspecType;
 import org.apache.geronimo.xbeans.j2ee.AdminobjectType;
 import org.apache.geronimo.xbeans.j2ee.ConfigPropertyType;
@@ -161,7 +161,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
         TYPE_LOOKUP.put(Character.class.getName(), Character.class);
         TYPE_LOOKUP.put(String.class.getName(), String.class);
     }
-    
+
     private final int defaultMaxSize;
     private final int defaultMinSize;
     private final int defaultBlockingTimeoutMilliseconds;
@@ -171,7 +171,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
     private final Environment defaultEnvironment;
     private final NamespaceDrivenBuilderCollection serviceBuilders;
     private final String defaultWorkManagerName;
-    
+
     public ConnectorModuleBuilder(Environment defaultEnvironment,
             int defaultMaxSize,
             int defaultMinSize,
@@ -548,18 +548,18 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
                 GBeanData resourceAdapterInstanceGBeanData = new GBeanData(resourceAdapterGBeanData);
 
                 String resourceAdapterName;
-                AbstractNameQuery workManagerName;                
-                if (geronimoResourceAdapter.isSetResourceadapterInstance()) {                    
+                AbstractNameQuery workManagerName;
+                if (geronimoResourceAdapter.isSetResourceadapterInstance()) {
                     GerResourceadapterInstanceType resourceAdapterInstance = geronimoResourceAdapter.getResourceadapterInstance();
                     setDynamicGBeanDataAttributes(resourceAdapterInstanceGBeanData, resourceAdapterInstance.getConfigPropertySettingArray(), bundle);
                     workManagerName = ENCConfigBuilder.getGBeanQuery(NameFactory.JCA_WORK_MANAGER, resourceAdapterInstance.getWorkmanager());
                     resourceAdapterName = resourceAdapterInstance.getResourceadapterName();
-                } else {                 
+                } else {
                     workManagerName = ENCConfigBuilder.buildAbstractNameQuery(null, null, defaultWorkManagerName, NameFactory.JCA_WORK_MANAGER, null);
                     resourceAdapterName = "ResourceAdapterInstance-" + System.currentTimeMillis();
                     log.warn("Resource adapter instance information was not specified in Geronimo plan. Using defaults.");
                 }
-                    
+
                 // set the work manager name
                 resourceAdapterInstanceGBeanData.setReferencePattern("WorkManager", workManagerName);
 
@@ -692,7 +692,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
             return attributeName;
         }
     }
-    
+
     private static String switchCase(String name) {
         if (name == null || name.length() == 0) {
             return name;
@@ -705,7 +705,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
             char chars[] = name.toCharArray();
             chars[0] = Character.toUpperCase(chars[0]);
             return new String(chars);
-        } else{ 
+        } else{
             return name;
         }
     }
@@ -772,7 +772,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
         }
         return gbeanData;
     }
-    
+
     private void setDynamicGBeanDataAttributes(GBeanData gbeanData, GerConfigPropertySettingType[] configProperties, Bundle bundle) throws DeploymentException {
         List<String> unknownNames = new ArrayList<String>();
         for (GerConfigPropertySettingType configProperty : configProperties) {
@@ -1068,7 +1068,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
                 "defaultIdleTimeoutMinutes",
                 "defaultXATransactionCaching",
                 "defaultXAThreadCaching",
-                "defaultWorkManagerName", 
+                "defaultWorkManagerName",
                 "ServiceBuilders"});
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }

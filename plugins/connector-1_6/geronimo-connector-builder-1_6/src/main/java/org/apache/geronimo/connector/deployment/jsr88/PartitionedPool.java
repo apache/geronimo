@@ -16,8 +16,8 @@
  */
 package org.apache.geronimo.connector.deployment.jsr88;
 
-import org.apache.geronimo.xbeans.geronimo.GerPartitionedpoolType;
-import org.apache.geronimo.xbeans.geronimo.GerSinglepoolType;
+import org.apache.geronimo.xbeans.connector.GerPartitionedpoolType;
+import org.apache.geronimo.xbeans.connector.GerSinglepoolType;
 
 /**
  * Settings for connectionmanager/partitioned-pool

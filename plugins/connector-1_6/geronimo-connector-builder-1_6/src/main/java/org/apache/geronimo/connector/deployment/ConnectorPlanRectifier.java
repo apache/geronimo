@@ -18,10 +18,10 @@ package org.apache.geronimo.connector.deployment;
 
 import javax.xml.namespace.QName;
 
-import org.apache.geronimo.xbeans.geronimo.GerConnectorType;
-import org.apache.geronimo.xbeans.geronimo.GerResourceadapterType;
-import org.apache.geronimo.xbeans.geronimo.GerConnectionDefinitionType;
-import org.apache.geronimo.xbeans.geronimo.GerConnectiondefinitionInstanceType;
+import org.apache.geronimo.xbeans.connector.GerConnectorType;
+import org.apache.geronimo.xbeans.connector.GerResourceadapterType;
+import org.apache.geronimo.xbeans.connector.GerConnectionDefinitionType;
+import org.apache.geronimo.xbeans.connector.GerConnectiondefinitionInstanceType;
 import org.apache.xmlbeans.XmlCursor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

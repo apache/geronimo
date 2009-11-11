@@ -22,7 +22,7 @@ import javax.enterprise.deploy.model.XpathEvent;
 import javax.enterprise.deploy.model.XpathListener;
 
 import org.apache.geronimo.deployment.dconfigbean.XmlBeanSupport;
-import org.apache.geronimo.xbeans.geronimo.GerConfigPropertySettingType;
+import org.apache.geronimo.xbeans.connector.GerConfigPropertySettingType;
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlBeans;
 

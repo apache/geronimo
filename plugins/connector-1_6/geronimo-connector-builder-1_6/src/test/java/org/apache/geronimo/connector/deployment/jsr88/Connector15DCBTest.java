@@ -33,8 +33,8 @@ import org.apache.geronimo.deployment.tools.loader.ConnectorDeployable;
 import org.apache.geronimo.deployment.service.jsr88.EnvironmentData;
 import org.apache.geronimo.deployment.service.jsr88.Artifact;
 import org.apache.geronimo.naming.deployment.jsr88.GBeanLocator;
-import org.apache.geronimo.xbeans.geronimo.GerConfigPropertySettingType;
-import org.apache.geronimo.xbeans.geronimo.GerConnectorDocument;
+import org.apache.geronimo.xbeans.connector.GerConfigPropertySettingType;
+import org.apache.geronimo.xbeans.connector.GerConnectorDocument;
 import org.apache.geronimo.kernel.osgi.MockBundle;
 import org.osgi.framework.Bundle;
 

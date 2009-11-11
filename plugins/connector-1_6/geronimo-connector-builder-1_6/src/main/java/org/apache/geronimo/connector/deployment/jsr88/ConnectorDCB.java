@@ -32,10 +32,10 @@ import javax.enterprise.deploy.spi.DConfigBean;
 import javax.enterprise.deploy.spi.exceptions.ConfigurationException;
 import org.apache.geronimo.deployment.dconfigbean.DConfigBeanSupport;
 import org.apache.geronimo.deployment.service.jsr88.EnvironmentData;
-import org.apache.geronimo.xbeans.geronimo.GerAdminobjectInstanceType;
-import org.apache.geronimo.xbeans.geronimo.GerAdminobjectType;
-import org.apache.geronimo.xbeans.geronimo.GerConnectorType;
-import org.apache.geronimo.xbeans.geronimo.GerResourceadapterType;
+import org.apache.geronimo.xbeans.connector.GerAdminobjectInstanceType;
+import org.apache.geronimo.xbeans.connector.GerAdminobjectType;
+import org.apache.geronimo.xbeans.connector.GerConnectorType;
+import org.apache.geronimo.xbeans.connector.GerResourceadapterType;
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlCursor;
 

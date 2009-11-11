@@ -16,8 +16,8 @@
  */
 package org.apache.geronimo.connector.deployment.jsr88;
 
-import org.apache.geronimo.xbeans.geronimo.GerAdminobjectInstanceType;
-import org.apache.geronimo.xbeans.geronimo.GerConfigPropertySettingType;
+import org.apache.geronimo.xbeans.connector.GerAdminobjectInstanceType;
+import org.apache.geronimo.xbeans.connector.GerConfigPropertySettingType;
 import org.apache.xmlbeans.SchemaTypeLoader;
 import javax.enterprise.deploy.model.DDBean;
 

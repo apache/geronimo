@@ -111,8 +111,19 @@
                               org.apache.geronimo.xbeans.j2ee,
                               org.w3.xml.x1998.namespace.impl,
                               org.w3.xml.x1998.namespace,
+                              org.apache.geronimo.xbeans.geronimo.naming,
+                              org.apache.geronimo.xbeans.geronimo.naming.impl,
+                              org.apache.geronimo.naming.deployment,
+                              org.apache.geronimo.naming.deployment.jsr88,
                               *
                         </Import-Package>
+                        <Export-Package>
+                            org.apache.geronimo.connector.deployment,
+                            org.apache.geronimo.connector.deployment.dconfigbean,
+                            org.apache.geronimo.connector.deployment.jsr88,
+                            org.apache.geronimo.xbeans.connector,
+                            org.apache.geronimo.xbeans.connector.impl
+                        </Export-Package>
                         <DynamicImport-Package>schemaorg_apache_xmlbeans.*</DynamicImport-Package>
                         <!--<_versionpolicy>[$(version;==;$(@)),$(version;+;$(@)))</_versionpolicy>-->
                     </instructions>

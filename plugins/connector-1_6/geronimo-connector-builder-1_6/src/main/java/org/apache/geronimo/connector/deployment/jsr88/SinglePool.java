@@ -17,7 +17,7 @@
 package org.apache.geronimo.connector.deployment.jsr88;
 
 import org.apache.geronimo.deployment.dconfigbean.XmlBeanSupport;
-import org.apache.geronimo.xbeans.geronimo.GerSinglepoolType;
+import org.apache.geronimo.xbeans.connector.GerSinglepoolType;
 import org.apache.xmlbeans.SchemaTypeLoader;
 
 /**

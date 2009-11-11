@@ -38,15 +38,15 @@ import org.apache.geronimo.connector.deployment.dconfigbean.ConfigPropertySettin
 import org.apache.geronimo.connector.deployment.dconfigbean.ConnectionDefinitionDConfigBean;
 import org.apache.geronimo.connector.deployment.dconfigbean.ConnectionDefinitionInstance;
 import org.apache.geronimo.connector.deployment.dconfigbean.ResourceAdapterDConfigBean;
-import org.apache.geronimo.xbeans.geronimo.GerAdminobjectInstanceType;
-import org.apache.geronimo.xbeans.geronimo.GerAdminobjectType;
-import org.apache.geronimo.xbeans.geronimo.GerConfigPropertySettingType;
-import org.apache.geronimo.xbeans.geronimo.GerConnectionDefinitionType;
-import org.apache.geronimo.xbeans.geronimo.GerConnectiondefinitionInstanceType;
-import org.apache.geronimo.xbeans.geronimo.GerConnectionmanagerType;
-import org.apache.geronimo.xbeans.geronimo.GerConnectorDocument;
-import org.apache.geronimo.xbeans.geronimo.GerResourceadapterInstanceType;
-import org.apache.geronimo.xbeans.geronimo.GerResourceadapterType;
+import org.apache.geronimo.xbeans.connector.GerAdminobjectInstanceType;
+import org.apache.geronimo.xbeans.connector.GerAdminobjectType;
+import org.apache.geronimo.xbeans.connector.GerConfigPropertySettingType;
+import org.apache.geronimo.xbeans.connector.GerConnectionDefinitionType;
+import org.apache.geronimo.xbeans.connector.GerConnectiondefinitionInstanceType;
+import org.apache.geronimo.xbeans.connector.GerConnectionmanagerType;
+import org.apache.geronimo.xbeans.connector.GerConnectorDocument;
+import org.apache.geronimo.xbeans.connector.GerResourceadapterInstanceType;
+import org.apache.geronimo.xbeans.connector.GerResourceadapterType;
 import org.apache.xmlbeans.XmlOptions;
 
 /**

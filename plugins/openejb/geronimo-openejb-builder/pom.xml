@@ -113,6 +113,10 @@
                             org.apache.geronimo.deployment.dconfigbean,
                             org.apache.geronimo.deployment.service,
                             org.apache.geronimo.deployment.service.jsr88,
+                            org.apache.geronimo.connector.deployment.dconfigbean,
+                            org.apache.geronimo.connector.deployment.jsr88,
+                            org.apache.geronimo.xbeans.connector,
+                            org.apache.geronimo.xbeans.connector.impl,
                             org.apache.xmlbeans.impl.schema;version="2.4",
                             *
                         </Import-Package>

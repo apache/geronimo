@@ -18,7 +18,7 @@ package org.apache.geronimo.connector.deployment.jsr88;
 
 import javax.enterprise.deploy.model.DDBean;
 import org.apache.geronimo.deployment.dconfigbean.XmlBeanSupport;
-import org.apache.geronimo.xbeans.geronimo.GerConnectionmanagerType;
+import org.apache.geronimo.xbeans.connector.GerConnectionmanagerType;
 import org.apache.xmlbeans.SchemaTypeLoader;
 
 /**

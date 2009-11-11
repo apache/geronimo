@@ -21,9 +21,9 @@ import javax.enterprise.deploy.model.DDBean;
 import javax.enterprise.deploy.model.XpathListener;
 
 import org.apache.geronimo.deployment.dconfigbean.XmlBeanSupport;
-import org.apache.geronimo.xbeans.geronimo.GerConfigPropertySettingType;
-import org.apache.geronimo.xbeans.geronimo.GerConnectiondefinitionInstanceType;
-import org.apache.geronimo.xbeans.geronimo.GerConnectionmanagerType;
+import org.apache.geronimo.xbeans.connector.GerConfigPropertySettingType;
+import org.apache.geronimo.xbeans.connector.GerConnectiondefinitionInstanceType;
+import org.apache.geronimo.xbeans.connector.GerConnectionmanagerType;
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlBeans;
 

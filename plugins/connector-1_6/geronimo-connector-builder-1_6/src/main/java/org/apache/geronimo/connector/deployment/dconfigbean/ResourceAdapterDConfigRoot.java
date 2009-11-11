@@ -26,8 +26,8 @@ import javax.enterprise.deploy.spi.DConfigBean;
 import javax.enterprise.deploy.spi.exceptions.ConfigurationException;
 
 import org.apache.geronimo.deployment.dconfigbean.DConfigBeanRootSupport;
-import org.apache.geronimo.xbeans.geronimo.GerConnectorDocument;
-import org.apache.geronimo.xbeans.geronimo.GerResourceadapterType;
+import org.apache.geronimo.xbeans.connector.GerConnectorDocument;
+import org.apache.geronimo.xbeans.connector.GerResourceadapterType;
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlException;

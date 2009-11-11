@@ -17,7 +17,7 @@
 package org.apache.geronimo.connector.deployment.jsr88;
 
 import org.apache.geronimo.deployment.dconfigbean.XmlBeanSupport;
-import org.apache.geronimo.xbeans.geronimo.GerConfigPropertySettingType;
+import org.apache.geronimo.xbeans.connector.GerConfigPropertySettingType;
 import org.apache.xmlbeans.XmlObject;
 
 import javax.enterprise.deploy.model.XpathListener;

@@ -21,9 +21,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import javax.enterprise.deploy.model.DDBean;
 import org.apache.geronimo.deployment.dconfigbean.XmlBeanSupport;
-import org.apache.geronimo.xbeans.geronimo.GerResourceadapterType;
-import org.apache.geronimo.xbeans.geronimo.GerOutboundResourceadapterType;
-import org.apache.geronimo.xbeans.geronimo.GerConnectionDefinitionType;
+import org.apache.geronimo.xbeans.connector.GerResourceadapterType;
+import org.apache.geronimo.xbeans.connector.GerOutboundResourceadapterType;
+import org.apache.geronimo.xbeans.connector.GerConnectionDefinitionType;
 import org.apache.xmlbeans.SchemaTypeLoader;
 
 /**

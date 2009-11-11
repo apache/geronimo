@@ -24,11 +24,11 @@ import javax.enterprise.deploy.spi.DConfigBean;
 import javax.enterprise.deploy.spi.exceptions.ConfigurationException;
 
 import org.apache.geronimo.deployment.dconfigbean.DConfigBeanSupport;
-import org.apache.geronimo.xbeans.geronimo.GerConfigPropertySettingType;
-import org.apache.geronimo.xbeans.geronimo.GerConnectionDefinitionType;
-import org.apache.geronimo.xbeans.geronimo.GerOutboundResourceadapterType;
-import org.apache.geronimo.xbeans.geronimo.GerResourceadapterInstanceType;
-import org.apache.geronimo.xbeans.geronimo.GerResourceadapterType;
+import org.apache.geronimo.xbeans.connector.GerConfigPropertySettingType;
+import org.apache.geronimo.xbeans.connector.GerConnectionDefinitionType;
+import org.apache.geronimo.xbeans.connector.GerOutboundResourceadapterType;
+import org.apache.geronimo.xbeans.connector.GerResourceadapterInstanceType;
+import org.apache.geronimo.xbeans.connector.GerResourceadapterType;
 import org.apache.xmlbeans.SchemaTypeLoader;
 
 /**
