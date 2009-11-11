@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.system.logging.log4j;
+package org.apache.geronimo.logging.impl;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -30,19 +30,15 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Properties;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.system.logging.SystemLog;
-import org.apache.geronimo.system.properties.JvmVendor;
-import org.apache.geronimo.system.serverinfo.DirectoryUtils;
-import org.apache.geronimo.system.serverinfo.ServerInfo;
+import org.apache.geronimo.logging.SystemLog;
+import org.apache.geronimo.main.ServerInfo;
 import org.apache.log4j.FileAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
@@ -53,7 +49,7 @@ import org.apache.log4j.Logger;
  *
  * @version $Rev$ $Date$
  */
-public class Log4jService implements GBeanLifecycle, SystemLog {
+public abstract class Log4jService implements SystemLog {
     // A substitution variable in the file path in the config file
     private final static Pattern VARIABLE_PATTERN = Pattern.compile("\\$\\{.*?\\}");
     // Next 6 are patterns that identify log messages in our default format
@@ -73,7 +69,7 @@ public class Log4jService implements GBeanLifecycle, SystemLog {
 
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(Log4jService.class);
 
-    private static final String LOG4JSERVICE_CONFIG_PROPERTY = "org.apache.geronimo.log4jservice.configuration";
+    public static final String LOG4JSERVICE_CONFIG_PROPERTY = "org.apache.geronimo.log4jservice.configuration";
 
     /**
      * The URL to the configuration file.
@@ -109,14 +105,14 @@ public class Log4jService implements GBeanLifecycle, SystemLog {
      * Is this service running?
      */
     private boolean running = false;
-
+    
     /**
      * Construct a <code>Log4jService</code>.
      *
      * @param configurationFile The log4j configuration file.
      * @param refreshPeriod The refresh refreshPeriod (in seconds).
      */
-    public Log4jService(final String configurationFile, final int refreshPeriod, ServerInfo serverInfo) {
+    public Log4jService(String configurationFile, int refreshPeriod, ServerInfo serverInfo) {
         this.refreshPeriod = refreshPeriod;
         this.configurationFile = configurationFile;
         this.serverInfo = serverInfo;
@@ -523,12 +519,22 @@ public class Log4jService implements GBeanLifecycle, SystemLog {
         }
 
         try {
-            URLConfigurator.configure(file.toURI().toURL());
-        } catch (MalformedURLException e) {
+            FileInputStream in = new FileInputStream(file);
+            Properties props = new Properties();
+            try {
+                props.load(in);
+            } finally {
+                try { in.close(); } catch (IOException ignore) {}
+            }
+            
+            update(props);                        
+        } catch (Exception e) {
             e.printStackTrace();
-        }
+        }   
     }
 
+    abstract protected void update(Properties properties) throws Exception;      
+    
     private synchronized void schedule() {
         if (timer != null) {
             // kill the old monitor
@@ -544,32 +550,23 @@ public class Log4jService implements GBeanLifecycle, SystemLog {
         }
     }
 
-    public void doStart() {
-        // Allow users to override the configurationFile which is hardcoded
-        // in config.ser and cannot be updated by config.xml, as the
-        // AttrbiuteManager comes up after this GBean
-        String cfgFile = System.getProperty(LOG4JSERVICE_CONFIG_PROPERTY);
-        if ((cfgFile != null) && (!cfgFile.equals(""))) {
-            this.configurationFile = cfgFile;
-        }
+    public synchronized void start() {
+        reconfigure();
 
-        synchronized (this) {
-            reconfigure();
+        timer = new Timer(true);
 
-            timer = new Timer(true);
+        // Periodically check the configuration file
+        schedule();
 
-            // Periodically check the configuration file
-            schedule();
-        }
-
-        logEnvInfo();
+        log.info("----------------------------------------------");
+        log.info("Started Logging Service");
         
-        synchronized (this) {
-            running = true;
-        }
+        log.debug("Log4jService created with configFileName={}, refreshPeriodSeconds={}", configurationFile, refreshPeriod);
+        
+        running = true;
     }
 
-    public synchronized void doStop() {
+    public synchronized void stop() {
         running = false;
         if (monitor != null) {
             monitor.cancel();
@@ -590,53 +587,12 @@ public class Log4jService implements GBeanLifecycle, SystemLog {
         }
     }
 
-    public void doFail() {
-        doStop();
-    }
-
     private synchronized File resolveConfigurationFile() {
         try {
             return serverInfo.resolveServer(configurationFile);
         } catch (Exception e) {
             return null;
         }
-    }
-
-    private void logEnvInfo() {
-       try {
-          log.info("----------------------------------------------");
-          log.info("Started Logging Service");
-          
-          log.debug("Log4jService created with configFileName={}, refreshPeriodSeconds={}", configurationFile, refreshPeriod);
-          
-          log.info("Runtime Information:");
-          log.info("  Install Directory = " + DirectoryUtils.getGeronimoInstallDirectory());
-          log.info("  JVM in use        = " + JvmVendor.getJvmInfo());
-          log.info("Java Information:");
-          log.info("  System property [java.runtime.name]     = " + System.getProperty("java.runtime.name"));
-          log.info("  System property [java.runtime.version]  = " + System.getProperty("java.runtime.version"));
-          log.info("  System property [os.name]               = " + System.getProperty("os.name"));
-          log.info("  System property [os.version]            = " + System.getProperty("os.version"));
-          log.info("  System property [sun.os.patch.level]    = " + System.getProperty("sun.os.patch.level"));
-          log.info("  System property [os.arch]               = " + System.getProperty("os.arch"));
-          log.info("  System property [java.class.version]    = " + System.getProperty("java.class.version"));
-          log.info("  System property [locale]                = " + System.getProperty("user.language") + "_" + System.getProperty("user.country"));
-          log.info("  System property [unicode.encoding]      = " + System.getProperty("sun.io.unicode.encoding"));
-          log.info("  System property [file.encoding]         = " + System.getProperty("file.encoding"));
-          log.info("  System property [java.vm.name]          = " + System.getProperty("java.vm.name"));
-          log.info("  System property [java.vm.vendor]        = " + System.getProperty("java.vm.vendor"));
-          log.info("  System property [java.vm.version]       = " + System.getProperty("java.vm.version"));
-          log.info("  System property [java.vm.info]          = " + System.getProperty("java.vm.info"));
-          log.info("  System property [java.home]             = " + System.getProperty("java.home"));
-          log.info("  System property [java.classpath]        = " + System.getProperty("java.classpath"));
-          log.info("  System property [java.library.path]     = " + System.getProperty("java.library.path"));
-          log.info("  System property [java.endorsed.dirs]    = " + System.getProperty("java.endorsed.dirs"));
-          log.info("  System property [java.ext.dirs]         = " + System.getProperty("java.ext.dirs"));
-          log.info("  System property [sun.boot.class.path]   = " + System.getProperty("sun.boot.class.path"));
-          log.info("----------------------------------------------");
-       } catch (Exception e) {
-          System.err.println("Exception caught during logging of Runtime Information.  Exception=" + e.toString());
-       }
     }
 
     private class URLMonitorTask extends TimerTask {
@@ -665,30 +621,4 @@ public class Log4jService implements GBeanLifecycle, SystemLog {
         }
     }
     
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(Log4jService.class, "SystemLog");
-
-        infoFactory.addAttribute("configFileName", String.class, true);
-        infoFactory.addAttribute("refreshPeriodSeconds", int.class, true);
-        infoFactory.addAttribute("configuration", String.class, false);
-        infoFactory.addAttribute("rootLoggerLevel", String.class, false);
-
-        infoFactory.addReference("ServerInfo", ServerInfo.class, "GBean");
-
-//        infoFactory.addOperation("reconfigure");
-//        infoFactory.addOperation("setLoggerLevel", new Class[]{String.class, String.class});
-//        infoFactory.addOperation("getLoggerLevel", new Class[]{String.class});
-//        infoFactory.addOperation("getLoggerEffectiveLevel", new Class[]{String.class});
-        infoFactory.addInterface(SystemLog.class);
-
-        infoFactory.setConstructor(new String[]{"configFileName", "refreshPeriodSeconds", "ServerInfo"});
-
-        GBEAN_INFO = infoFactory.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
 }

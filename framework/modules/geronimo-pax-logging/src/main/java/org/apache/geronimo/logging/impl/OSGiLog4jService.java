@@ -15,33 +15,25 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.management.geronimo;
+package org.apache.geronimo.logging.impl;
 
-import java.util.Date;
 import java.util.Properties;
 
-import org.apache.geronimo.logging.SystemLog;
+import org.apache.geronimo.main.ServerInfo;
+import org.osgi.service.cm.Configuration;
 
-/**
- * Geronimo extensions to the standard JSR-77 JVM type.
- *
- * @version $Rev$ $Date$
- */
-public interface JVM extends org.apache.geronimo.management.JVM {
-    int getAvailableProcessors();
+public class OSGiLog4jService extends Log4jService {
 
-    /**
-     * Gets the date at which the kernel was most recently started in this JVM
-     */
-    Date getKernelBootTime();
-    /**
-     * Gets the system properties for this JVM
-     */
-    Properties getSystemProperties();
+    private Configuration configuration;
 
-    /**
-     * Gets the system log instance
-     */
-    SystemLog getSystemLog();
+    public OSGiLog4jService(String configurationFile, int refreshPeriod, ServerInfo serverInfo, Configuration configuration) {
+        super(configurationFile, refreshPeriod, serverInfo);
+        this.configuration = configuration;
+    }
 
+    @Override
+    protected void update(Properties properties) throws Exception {
+        configuration.update(properties);
+    }
+ 
 }

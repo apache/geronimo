@@ -30,12 +30,14 @@ import org.osgi.util.tracker.ServiceTracker;
  * @version $Rev$ $Date$
  */
 public class Bootstrapper {
-
+    
     private org.apache.felix.karaf.main.Main main;
     private boolean waitForStop = true;    
     private List<String> bundles;
     private int defaultStartLevel = 100;
-    private boolean uniqueStorage = false;
+    private boolean uniqueStorage = false;   
+    private ServerInfo serverInfo;
+    private String log4jFile;
 
     public Bootstrapper() {
         main = new org.apache.felix.karaf.main.Main(null);
@@ -53,6 +55,10 @@ public class Bootstrapper {
         this.uniqueStorage = uniqueStorage;
     }
     
+    public void setLog4jConfigFile(String log4jFile) {
+        this.log4jFile = log4jFile;
+    }
+    
     public int execute(Object opaque) {
         int exitCode;
         
@@ -60,6 +66,8 @@ public class Bootstrapper {
         if (exitCode != 0) {
             return exitCode;
         }
+        
+        main.getFramework().getBundleContext().registerService(ServerInfo.class.getName(), serverInfo, null);
         
         if (bundles != null) {
             StartLevelListener listener = new StartLevelListener(this);
@@ -102,15 +110,46 @@ public class Bootstrapper {
         return main;
     }
     
-    public int launch() {        
+    public int launch() {      
         try {
-            System.setProperty(Constants.FRAMEWORK_BEGINNING_STARTLEVEL, String.valueOf(defaultStartLevel));
-            System.setProperty(Constants.FRAMEWORK_STORAGE, getStorageDirectory());
+            File geronimoHome = Utils.getGeronimoHome();
+            File geronimoBase = Utils.getGeronimoBase(geronimoHome);
+            File temporaryDir = Utils.getTempDirectory(geronimoBase);
+            File log4jConfigFile = Utils.getLog4jConfigurationFile(geronimoBase, log4jFile);
             
+            System.setProperty(Utils.HOME_DIR_SYS_PROP, 
+                               geronimoHome.getAbsolutePath());
+            
+            System.setProperty(Utils.SERVER_DIR_SYS_PROP,
+                                geronimoBase.getAbsolutePath());
+            
+            System.setProperty("java.io.tmpdir", 
+                               temporaryDir.getAbsolutePath());
+            
+            if (log4jConfigFile != null) {
+                System.setProperty("org.apache.geronimo.log4jservice.configuration",
+                                   log4jConfigFile.getAbsolutePath());
+            }
+            
+            serverInfo = new ServerInfo(geronimoHome, geronimoBase);
+                        
+            System.setProperty(Constants.FRAMEWORK_STORAGE, 
+                               getStorageDirectory());
+            
+            System.setProperty(Constants.FRAMEWORK_BEGINNING_STARTLEVEL, 
+                               String.valueOf(defaultStartLevel));            
+            
+        } catch (IOException e) {
+            e.printStackTrace();
+            return -1;
+        }
+        
+        try {           
             main.launch();
         } catch (Exception e) {
             e.printStackTrace();           
         }
+        
         return main.getExitCode();
     }
     
@@ -173,12 +212,12 @@ public class Bootstrapper {
     private String getStorageDirectory() throws IOException {
         File storage;
         if (uniqueStorage) {
-            File var = new File(getHome(), "var");
+            File var = new File(getServer(), "var");
             File tmpFile = File.createTempFile("appclient-", "", var);
             storage = new File(var, tmpFile.getName() + "-cache");
             tmpFile.delete();
         } else {
-            storage = new File(getHome(), "var/cache");
+            storage = new File(getServer(), "var/cache");
         }
                 
         storage.mkdirs();
@@ -186,7 +225,11 @@ public class Bootstrapper {
     }
     
     private String getHome() {
-        return System.getProperty(org.apache.felix.karaf.main.Main.PROP_KARAF_HOME);
+        return serverInfo.getBase().getAbsolutePath();
+    }
+    
+    private String getServer() {
+        return serverInfo.getBaseServer().getAbsolutePath();
     }
     
     private static boolean recursiveDelete(File root) {

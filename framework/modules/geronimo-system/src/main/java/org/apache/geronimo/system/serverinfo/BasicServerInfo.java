@@ -29,7 +29,10 @@ import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.gbean.annotation.ParamSpecial;
 import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
+import org.apache.geronimo.system.properties.JvmVendor;
 import org.osgi.framework.BundleContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Contains information about the server and functions for resolving
@@ -40,6 +43,9 @@ import org.osgi.framework.BundleContext;
 
 @GBean
 public class BasicServerInfo implements ServerInfo {
+    
+    private static final Logger LOG = LoggerFactory.getLogger(BasicServerInfo.class);
+    
     public static final String SERVER_NAME_SYS_PROP = "org.apache.geronimo.server.name";
     public static final String SERVER_DIR_SYS_PROP = "org.apache.geronimo.server.dir";
     public static final String HOME_DIR_SYS_PROP = "org.apache.geronimo.home.dir";
@@ -83,50 +89,6 @@ public class BasicServerInfo implements ServerInfo {
                 throw new IllegalStateException("NO karaf.home specified");
             }
             this.base = new File(karafHome);
-//            if (bundleContext == null) {
-//                throw new IllegalArgumentException("No bundleContext, and no way to determine server location from system properties or explicitly");
-//            }
-//            URL url = bundleContext.getBundle().getResource("META-INF/config.ser");
-//            if (url != null) {
-//                try {
-//                    JarURLConnection jarConnection = (JarURLConnection) url.openConnection();
-//                    url = jarConnection.getJarFileURL();
-//
-//                    URI baseURI = url.toURI();
-//                    while (!baseURI.getPath().endsWith("respository")) {
-//                        baseURI = baseURI.resolve("..");
-//                    }
-//                    base = new File(baseURI);
-//                } catch (Exception ignored) {
-//                    throw new RuntimeException("Error while determining the installation directory of Apache Geronimo", ignored);
-//                }
-//            } else {
-////                log.error("Cound not determine the installation directory of Apache Geronimo, because the startup jar could not be found in the current class loader.");
-//                base = new File(".");
-//            }
-//            File b = null;
-//            try {
-//                String bundleLocation = bundleContext.getBundle().getLocation();
-//                URI uri = new URI(bundleLocation);
-//                while(!"file".equalsIgnoreCase(uri.getScheme()) && uri.getScheme() != null) {
-//                    uri = new URI(uri.getSchemeSpecificPart());
-//                }
-////            bundleLocation = bundleLocation.substring(bundleLocation.lastIndexOf("file://") + 7);
-//                b = new File(uri);
-//                boolean foundRepoString = false;
-//                while (!foundRepoString) {
-//                    foundRepoString = b.getPath().endsWith("repository");
-//                    b = b.getParentFile();
-//                }
-//            } catch (Throwable e) {
-//                e.printStackTrace();
-//                b = new File(".").getAbsoluteFile();
-//            }
-//            base = b;
-//            base = DirectoryUtils.getGeronimoInstallDirectory();
-//            if (base == null) {
-//                throw new IllegalArgumentException("Could not determine geronimo installation directory");
-//            }
         } else {
             base = new File(baseDirectory);
         }
@@ -144,6 +106,8 @@ public class BasicServerInfo implements ServerInfo {
         }
         String tmpDir = resolveServerPath(System.getProperty("java.io.tmpdir"));       
         System.setProperty("java.io.tmpdir", tmpDir);
+        
+        logEnvInfo();
     }
 
     public BasicServerInfo(String baseDirectory, String serverName) {
@@ -152,6 +116,8 @@ public class BasicServerInfo implements ServerInfo {
         this.baseURI = base.toURI();
         this.baseServerURI = baseURI.resolve(serverName);
         this.baseServer = new File(baseServerURI);
+        
+        logEnvInfo();
     }
 
     /**
@@ -259,5 +225,38 @@ public class BasicServerInfo implements ServerInfo {
         
         return baseServerDir;
     }
+    
+    private void logEnvInfo() {
+        try {
+           LOG.info("Runtime Information:");
+           LOG.info("  Install directory = " + base);
+           LOG.info("  Server directory  = " + baseServer);
+           LOG.info("  JVM in use        = " + JvmVendor.getJvmInfo());
+           LOG.info("Java Information:");
+           LOG.info("  System property [java.runtime.name]     = " + System.getProperty("java.runtime.name"));
+           LOG.info("  System property [java.runtime.version]  = " + System.getProperty("java.runtime.version"));
+           LOG.info("  System property [os.name]               = " + System.getProperty("os.name"));
+           LOG.info("  System property [os.version]            = " + System.getProperty("os.version"));
+           LOG.info("  System property [sun.os.patch.level]    = " + System.getProperty("sun.os.patch.level"));
+           LOG.info("  System property [os.arch]               = " + System.getProperty("os.arch"));
+           LOG.info("  System property [java.class.version]    = " + System.getProperty("java.class.version"));
+           LOG.info("  System property [locale]                = " + System.getProperty("user.language") + "_" + System.getProperty("user.country"));
+           LOG.info("  System property [unicode.encoding]      = " + System.getProperty("sun.io.unicode.encoding"));
+           LOG.info("  System property [file.encoding]         = " + System.getProperty("file.encoding"));
+           LOG.info("  System property [java.vm.name]          = " + System.getProperty("java.vm.name"));
+           LOG.info("  System property [java.vm.vendor]        = " + System.getProperty("java.vm.vendor"));
+           LOG.info("  System property [java.vm.version]       = " + System.getProperty("java.vm.version"));
+           LOG.info("  System property [java.vm.info]          = " + System.getProperty("java.vm.info"));
+           LOG.info("  System property [java.home]             = " + System.getProperty("java.home"));
+           LOG.info("  System property [java.classpath]        = " + System.getProperty("java.classpath"));
+           LOG.info("  System property [java.library.path]     = " + System.getProperty("java.library.path"));
+           LOG.info("  System property [java.endorsed.dirs]    = " + System.getProperty("java.endorsed.dirs"));
+           LOG.info("  System property [java.ext.dirs]         = " + System.getProperty("java.ext.dirs"));
+           LOG.info("  System property [sun.boot.class.path]   = " + System.getProperty("sun.boot.class.path"));
+           LOG.info("----------------------------------------------");
+        } catch (Exception e) {
+           System.err.println("Exception caught during logging of Runtime Information.  Exception=" + e.toString());
+        }
+     }
     
 }

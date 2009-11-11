@@ -134,6 +134,18 @@
             </dependency>
 
             <dependency>
+                <groupId>org.apache.felix.karaf.shell</groupId>
+                <artifactId>org.apache.felix.karaf.shell.log</artifactId>
+                <version>${felix.karaf.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.ops4j.pax.logging</groupId>
+                        <artifactId>pax-logging-service</artifactId>
+                    </exclusion>
+               </exclusions>
+            </dependency>
+
+            <dependency>
                 <groupId>org.apache.felix.karaf.deployer</groupId>
                 <artifactId>org.apache.felix.karaf.deployer.blueprint</artifactId>
                 <version>${felix.karaf.version}</version>
@@ -379,8 +391,9 @@
             <artifactId>pax-logging-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.ops4j.pax.logging</groupId>
-            <artifactId>pax-logging-service</artifactId>
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>geronimo-pax-logging</artifactId>
+            <version>${version}</version>
         </dependency>
         <dependency>
             <groupId>org.ops4j.pax.url</groupId>

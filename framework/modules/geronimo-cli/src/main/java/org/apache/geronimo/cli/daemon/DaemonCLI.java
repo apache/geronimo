@@ -47,6 +47,7 @@ public class DaemonCLI extends AbstractCLI {
         Bootstrapper boot = super.createBootstrapper();
         boot.setWaitForStop(true);
         boot.setStartBundles(Arrays.asList("org.apache.geronimo.framework/j2ee-system/3.0-SNAPSHOT/car"));
+        boot.setLog4jConfigFile("var/log/server-log4j.properties");
         return boot;
     }
 }

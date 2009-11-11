@@ -48,6 +48,7 @@ public class ClientCLI extends AbstractCLI {
         boot.setWaitForStop(false);
         boot.setUniqueStorage(true);
         boot.setStartBundles(Arrays.asList("org.apache.geronimo.framework/client-system/3.0-SNAPSHOT/car"));
+        boot.setLog4jConfigFile("var/log/client-log4j.properties");
         return boot;
     }
 

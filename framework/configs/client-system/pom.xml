@@ -111,8 +111,9 @@
         </dependency>
 
         <dependency>
-            <groupId>org.ops4j.pax.logging</groupId>
-            <artifactId>pax-logging-service</artifactId>
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>geronimo-pax-logging</artifactId>
+            <version>${version}</version>
         </dependency>
 
         <dependency>

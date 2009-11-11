@@ -192,6 +192,11 @@
         <type>jar</type>
     </dependency>
     <dependency>
+        <groupId>org.apache.geronimo.framework</groupId>
+        <artifactId>geronimo-pax-logging</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
         <groupId>org.apache.geronimo.specs</groupId>
         <artifactId>geronimo-servlet_3.0_spec</artifactId>
         <type>jar</type>
@@ -229,11 +234,6 @@
     <dependency>
         <groupId>org.ops4j.pax.logging</groupId>
         <artifactId>pax-logging-api</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.ops4j.pax.logging</groupId>
-        <artifactId>pax-logging-service</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>

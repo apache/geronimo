@@ -17,7 +17,6 @@
 
 package org.apache.geronimo.system.main;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -26,7 +25,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.geronimo.cli.daemon.DaemonCLParser;
-import org.apache.geronimo.common.GeronimoEnvironment;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -41,7 +39,6 @@ import org.apache.geronimo.kernel.config.LifecycleMonitor;
 import org.apache.geronimo.kernel.config.PersistentConfigurationList;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.main.Main;
-import org.apache.geronimo.system.serverinfo.DirectoryUtils;
 import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -107,25 +104,7 @@ public class EmbeddedDaemon implements Main, GBeanLifecycle {
     }
 
     protected int doStartup() {
-        try {
-            // Check that the tmpdir exists - if not give friendly msg and exit
-            // since we allow it to be configured in geronimo.bat and geronimo.sh
-            // (since 1.0 release) the same way Tomcat allows it to be configured.
-            String tmpDir = System.getProperty("java.io.tmpdir");
-            if (tmpDir == null || (!(new File(tmpDir)).exists()) || (!(new File(tmpDir)).isDirectory())) {
-                System.err.println("The java.io.tmpdir system property specifies a non-existent directory: " + tmpDir);
-                return 1;
-            }
-
-            /*
-            // Determine the geronimo installation directory
-            File geronimoInstallDirectory = DirectoryUtils.getGeronimoInstallDirectory();
-            if (geronimoInstallDirectory == null) {
-                System.err.println("Could not determine geronimo installation directory");
-                return 1;
-            }
-            */
-            
+        try {            
             int exitCode = initializeKernel();
             if (0 != exitCode) {
                 return exitCode;
