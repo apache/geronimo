@@ -18,7 +18,7 @@
     >
 
     <xb:namespace uri="http://geronimo.apache.org/xml/ns/clustering-wadi-1.2">
-        <xb:package>org.apache.geronimo.xbeans.geronimo</xb:package>
+        <xb:package>org.apache.geronimo.xbeans.jetty7.cluster.wadi</xb:package>
         <xb:prefix>Ger</xb:prefix>
     </xb:namespace>
 

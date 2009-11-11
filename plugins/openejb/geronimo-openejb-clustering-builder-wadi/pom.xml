@@ -83,8 +83,8 @@
                         </Import-Package>
                         <Export-Package>
                             org.apache.geronimo.openejb.deployment.cluster,
-                            org.apache.geronimo.openejb.cluster.xbeans,
-                            org.apache.geronimo.openejb.cluster.xbeans.impl
+                            org.apache.geronimo.xbeans.openejb.cluster.wadi,
+                            org.apache.geronimo.xbeans.openejb.cluster.wadi.impl
                         </Export-Package>
                         <_exportcontents>schemaorg_apache_xmlbeans*</_exportcontents>
                         <DynamicImport-Package>schemaorg_apache_xmlbeans.*</DynamicImport-Package>

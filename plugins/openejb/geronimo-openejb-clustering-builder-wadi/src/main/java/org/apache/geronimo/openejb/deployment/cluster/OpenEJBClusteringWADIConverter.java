@@ -22,7 +22,7 @@ package org.apache.geronimo.openejb.deployment.cluster;
 import javax.xml.namespace.QName;
 
 import org.apache.geronimo.schema.ElementConverter;
-import org.apache.geronimo.openejb.cluster.xbeans.GerOpenejbClusteringWadiDocument;
+import org.apache.geronimo.xbeans.openejb.cluster.wadi.GerOpenejbClusteringWadiDocument;
 import org.apache.geronimo.xbeans.geronimo.naming.GerPatternType;
 import org.apache.xmlbeans.XmlCursor;
 

@@ -55,8 +55,8 @@ import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.tomcat.TomcatWebAppContext;
 import org.apache.geronimo.tomcat.cluster.ClusteredManagerRetriever;
 import org.apache.geronimo.tomcat.cluster.wadi.WADIClusteredValveRetriever;
-import org.apache.geronimo.xbeans.geronimo.GerTomcatClusteringWadiDocument;
-import org.apache.geronimo.xbeans.geronimo.GerTomcatClusteringWadiType;
+import org.apache.geronimo.xbeans.tomcat.cluster.wadi.GerTomcatClusteringWadiDocument;
+import org.apache.geronimo.xbeans.tomcat.cluster.wadi.GerTomcatClusteringWadiType;
 import org.apache.geronimo.xbeans.geronimo.j2ee.GerClusteringDocument;
 import org.apache.geronimo.xbeans.geronimo.naming.GerPatternType;
 import org.apache.xmlbeans.QNameSet;
@@ -77,7 +77,7 @@ public class WADITomcatClusteringBuilder implements NamespaceDrivenBuilder {
             Collections.singletonMap(CLUSTERING_WADI_QNAME.getLocalPart(),
             new TomcatClusteringWADIConverter()));
     }
-    
+
     private final int defaultSweepInterval;
     private final int defaultSessionTimeout;
     private final int defaultNumPartitions;
@@ -85,7 +85,7 @@ public class WADITomcatClusteringBuilder implements NamespaceDrivenBuilder {
     private final AbstractNameQuery defaultClusterName;
     private final Artifact artifactToRemoveFromEnvironment;
     private final Environment defaultEnvironment;
-    
+
     public WADITomcatClusteringBuilder(@ParamAttribute(name=GBEAN_ATTR_DFT_SWEEP_INTERVAL) int defaultSweepInterval,
         @ParamAttribute(name=GBEAN_ATTR_DFT_SESSION_TIMEOUT) int defaultSessionTimeout,
         @ParamAttribute(name=GBEAN_ATTR_DFT_NUM_PARTITIONS) int defaultNumPartitions,
@@ -215,7 +215,7 @@ public class WADITomcatClusteringBuilder implements NamespaceDrivenBuilder {
         Integer sessionTimeout = getSessionTimeout(webModuleData);
         boolean disableReplication = isDisableReplication(clustering);
         boolean deltaReplication = isDeltaReplication(clustering);
-        
+
         String contextPath = (String) webModuleData.getAttribute("contextPath");
         URI serviceSpaceName;
         try {
@@ -224,7 +224,7 @@ public class WADITomcatClusteringBuilder implements NamespaceDrivenBuilder {
             AssertionError error = new AssertionError("contextPath [" + contextPath + "] cannot be parsed as an URI.");
             throw (AssertionError) error.initCause(e);
         }
-        
+
         WADISessionManagerConfigInfo configInfo = new WADISessionManagerConfigInfo(serviceSpaceName,
                 sweepInterval,
                 numPartitions,
@@ -315,7 +315,7 @@ public class WADITomcatClusteringBuilder implements NamespaceDrivenBuilder {
 
         return name;
     }
-    
+
     protected void addGBean(DeploymentContext moduleContext, GBeanData beanData) throws GBeanAlreadyExistsException {
         moduleContext.addGBean(beanData);
     }

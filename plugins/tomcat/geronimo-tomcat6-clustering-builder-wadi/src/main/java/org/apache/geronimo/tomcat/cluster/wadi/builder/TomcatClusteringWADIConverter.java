@@ -22,7 +22,7 @@ package org.apache.geronimo.tomcat.cluster.wadi.builder;
 import javax.xml.namespace.QName;
 
 import org.apache.geronimo.schema.ElementConverter;
-import org.apache.geronimo.xbeans.geronimo.GerTomcatClusteringWadiDocument;
+import org.apache.geronimo.xbeans.tomcat.cluster.wadi.GerTomcatClusteringWadiDocument;
 import org.apache.geronimo.xbeans.geronimo.naming.GerPatternType;
 import org.apache.xmlbeans.XmlCursor;
 
