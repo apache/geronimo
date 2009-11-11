@@ -27,15 +27,21 @@
         <artifactId>jaxws</artifactId>
         <version>3.0-SNAPSHOT</version>
     </parent>
-    
+
     <groupId>org.apache.geronimo.configs</groupId>
     <artifactId>jaxws-deployer</artifactId>
     <name>Geronimo Plugins, JAXWS :: Deployer</name>
     <packaging>car</packaging>
 
     <description>Base configuration for JAX-WS Web services.</description>
-    
+
     <dependencies>
+
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-ws-metadata_2.0_spec</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>j2ee-deployer</artifactId>
@@ -56,7 +62,7 @@
             <version>${version}</version>
         </dependency>
     </dependencies>
-    
+
     <build>
         <plugins>
             <plugin>

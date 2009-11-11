@@ -57,8 +57,8 @@
         <module>geronimo-jaxws-sun-tools</module>
         <module>jaxws-deployer</module>
         <module>jaxws-ejb-deployer</module>
-        <module>jaxws-sun-tools</module>
-        <module>jaxws-tools</module>
+        <!--<module>jaxws-sun-tools</module>-->
+        <!--<module>jaxws-tools</module>-->
     </modules>
 
 </project>

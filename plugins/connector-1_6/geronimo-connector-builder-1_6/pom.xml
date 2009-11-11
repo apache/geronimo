@@ -107,8 +107,12 @@
                               org.apache.geronimo.xbeans.javaee,
                               org.apache.geronimo.xbeans.persistence.impl,
                               org.apache.geronimo.xbeans.persistence,
+                              org.apache.geronimo.xbeans.j2ee.impl,
+                              org.apache.geronimo.xbeans.j2ee,
+                              org.w3.xml.x1998.namespace.impl,
+                              org.w3.xml.x1998.namespace,
                               *
-                              </Import-Package>
+                        </Import-Package>
                         <DynamicImport-Package>schemaorg_apache_xmlbeans.*</DynamicImport-Package>
                         <!--<_versionpolicy>[$(version;==;$(@)),$(version;+;$(@)))</_versionpolicy>-->
                     </instructions>

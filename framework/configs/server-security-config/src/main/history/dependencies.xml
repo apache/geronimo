@@ -8,6 +8,11 @@
     </module-id>
     <dependency>
         <groupId>org.apache.geronimo.framework</groupId>
+        <artifactId>geronimo-gbean-deployer</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.framework</groupId>
         <artifactId>j2ee-security</artifactId>
         <type>car</type>
     </dependency>

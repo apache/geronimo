@@ -109,7 +109,18 @@
                         </Export-Package>
                         <_exportcontents>schemaorg_apache_xmlbeans*</_exportcontents>
                         <DynamicImport-Package>schemaorg_apache_xmlbeans.*</DynamicImport-Package>
-                        <Import-Package>org.apache.xmlbeans.impl.schema;version="2.4",*</Import-Package>
+                        <Import-Package>
+                            org.apache.geronimo.xbeans.javaee.impl,
+                            org.apache.geronimo.xbeans.javaee,
+                            org.apache.geronimo.xbeans.persistence.impl,
+                            org.apache.geronimo.xbeans.persistence,
+                            org.apache.geronimo.xbeans.j2ee.impl,
+                            org.apache.geronimo.xbeans.j2ee,
+                            org.w3.xml.x1998.namespace.impl,
+                            org.w3.xml.x1998.namespace,
+                            org.apache.xmlbeans.impl.schema;version="2.4",
+                            *
+                        </Import-Package>
                         <!--<_versionpolicy>[$(version;==;$(@)),$(version;+;$(@)))</_versionpolicy>-->
                     </instructions>
                 </configuration>

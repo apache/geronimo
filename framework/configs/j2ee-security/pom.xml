@@ -21,13 +21,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-    
+
     <parent>
         <groupId>org.apache.geronimo.framework</groupId>
         <artifactId>configs</artifactId>
         <version>3.0-SNAPSHOT</version>
     </parent>
-    
+
     <!-- change this to server-security -->
     <artifactId>j2ee-security</artifactId>
     <name>Geronimo Framework, Configs :: J2EE Security</name>
@@ -41,9 +41,8 @@
             <artifactId>geronimo-gbean-deployer</artifactId>
             <version>${version}</version>
             <type>car</type>
-            <scope>provided</scope>
         </dependency>
-        
+
         <!-- parent -->
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
@@ -51,7 +50,7 @@
             <version>${version}</version>
             <type>car</type>
         </dependency>
-        
+
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-security</artifactId>
@@ -81,7 +80,7 @@
         </dependency>
 -->
     </dependencies>
-    
+
     <build>
         <plugins>
             <plugin>

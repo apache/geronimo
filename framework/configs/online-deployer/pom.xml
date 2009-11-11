@@ -40,15 +40,14 @@
             <artifactId>geronimo-gbean-deployer</artifactId>
             <version>${version}</version>
             <type>car</type>
-            <scope>provided</scope>
         </dependency>
-        
+
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-common</artifactId>
             <version>${version}</version>
         </dependency>
-        
+
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-system</artifactId>
@@ -70,7 +69,7 @@
             <groupId>org.apache.servicemix.bundles</groupId>
             <artifactId>org.apache.servicemix.bundles.jline</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>org.apache.servicemix.bundles</groupId>
             <artifactId>org.apache.servicemix.bundles.commons-jexl</artifactId>
@@ -86,7 +85,7 @@
             <artifactId>geronimo-plugin</artifactId>
             <version>${version}</version>
         </dependency>
-        
+
         <dependency>
             <groupId>org.apache.servicemix.specs</groupId>
             <artifactId>org.apache.servicemix.specs.jaxb-api-2.1</artifactId>
@@ -101,12 +100,12 @@
             <groupId>org.apache.servicemix.specs</groupId>
             <artifactId>org.apache.servicemix.specs.stax-api-1.0</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>org.apache.servicemix.bundles</groupId>
             <artifactId>org.apache.servicemix.bundles.woodstox</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>org.apache.servicemix.specs</groupId>
             <artifactId>org.apache.servicemix.specs.activation-api-1.1</artifactId>

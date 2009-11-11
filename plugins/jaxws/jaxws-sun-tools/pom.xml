@@ -27,15 +27,21 @@
         <artifactId>jaxws</artifactId>
         <version>3.0-SNAPSHOT</version>
     </parent>
-    
+
     <groupId>org.apache.geronimo.configs</groupId>
     <artifactId>jaxws-sun-tools</artifactId>
     <name>Geronimo Plugins, JAXWS :: Sun Tools</name>
     <packaging>car</packaging>
 
     <description>JAX-WS command line tools</description>
-    
+
     <dependencies>
+
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-ws-metadata_2.0_spec</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>jaxws-deployer</artifactId>
@@ -54,7 +60,7 @@
             <groupId>com.sun.xml.ws</groupId>
             <artifactId>jaxws-tools</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>com.sun.xml.ws</groupId>
             <artifactId>jaxws-rt</artifactId>
@@ -69,13 +75,13 @@
             <groupId>org.jvnet.staxex</groupId>
             <artifactId>stax-ex</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>com.sun.xml.bind</groupId>
             <artifactId>jaxb-xjc</artifactId>
         </dependency>
     </dependencies>
-    
+
     <build>
         <plugins>
             <plugin>

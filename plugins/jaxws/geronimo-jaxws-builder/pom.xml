@@ -34,6 +34,12 @@
     <name>Geronimo Plugins, JAXWS :: Builder</name>
 
     <dependencies>
+
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-ws-metadata_2.0_spec</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-jaxws</artifactId>

@@ -27,23 +27,22 @@
         <artifactId>j2ee</artifactId>
         <version>3.0-SNAPSHOT</version>
     </parent>
-    
+
     <groupId>org.apache.geronimo.configs</groupId>
     <artifactId>j2ee-server</artifactId>
     <name>Geronimo Plugins, J2EE :: Server</name>
     <packaging>car</packaging>
 
     <description>Basic geronimo JavaEE support components including the transaction manager and connector framework.</description>
-    
+
     <dependencies>
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-gbean-deployer</artifactId>
             <version>${version}</version>
             <type>car</type>
-            <scope>provided</scope>
         </dependency>
-        
+
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>rmi-naming</artifactId>
@@ -57,7 +56,7 @@
             <artifactId>geronimo-core</artifactId>
             <version>${version}</version>
         </dependency>
-        
+
         <!-- ?????? -->
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
@@ -98,7 +97,7 @@
             <!--<artifactId>asm-commons</artifactId>-->
         <!--</dependency>-->
     </dependencies>
-    
+
     <build>
         <plugins>
             <plugin>

@@ -27,7 +27,7 @@
         <artifactId>axis</artifactId>
         <version>3.0-SNAPSHOT</version>
     </parent>
-    
+
     <groupId>org.apache.geronimo.configs</groupId>
     <artifactId>axis</artifactId>
     <name>Geronimo Plugins, AXIS :: AXIS</name>
@@ -41,7 +41,6 @@
             <artifactId>geronimo-gbean-deployer</artifactId>
             <version>${version}</version>
             <type>car</type>
-            <scope>provided</scope>
         </dependency>
 
         <!-- parent -->

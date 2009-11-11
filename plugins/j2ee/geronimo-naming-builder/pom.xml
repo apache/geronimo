@@ -74,7 +74,18 @@
                 <configuration>
                     <instructions>
                         <!--<_versionpolicy>[$(version;==;$(@)),$(version;+;$(@)))</_versionpolicy>-->
-                        <Import-Package>org.apache.xmlbeans.impl.schema,*</Import-Package>
+                        <Import-Package>
+                            org.apache.geronimo.xbeans.javaee.impl,
+                            org.apache.geronimo.xbeans.javaee,
+                            org.apache.geronimo.xbeans.persistence.impl,
+                            org.apache.geronimo.xbeans.persistence,
+                            org.apache.geronimo.xbeans.j2ee.impl,
+                            org.apache.geronimo.xbeans.j2ee,
+                            org.w3.xml.x1998.namespace.impl,
+                            org.w3.xml.x1998.namespace,
+                            org.apache.xmlbeans.impl.schema;version="2.4",
+                            *
+                        </Import-Package>
                         <Export-Package>
                             org.apache.geronimo.xbeans.geronimo.naming*,
                             org.apache.geronimo.xbeans.geronimo.naming.impl,
