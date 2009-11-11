@@ -96,9 +96,33 @@
                 <artifactId>maven-bundle-plugin</artifactId>
                 <configuration>
                     <instructions>
-                        <!--packages containing "impl" or "internal" are excluded by default -->
-                        <Import-Package>org.apache.xmlbeans.impl.schema;version="2.4",*</Import-Package>
                         <!--<_versionpolicy>[$(version;==;$(@)),$(version;+;$(@)))</_versionpolicy>-->
+                        <Import-Package>
+                            org.apache.geronimo.xbeans.javaee.impl,
+                            org.apache.geronimo.xbeans.javaee,
+                            org.apache.geronimo.xbeans.persistence.impl,
+                            org.apache.geronimo.xbeans.persistence,
+                            org.apache.geronimo.xbeans.j2ee.impl,
+                            org.apache.geronimo.xbeans.j2ee,
+                            org.w3.xml.x1998.namespace.impl,
+                            org.w3.xml.x1998.namespace,
+                            org.apache.geronimo.deployment.xbeans.impl,
+                            org.apache.geronimo.deployment.javabean.xbeans.impl,
+                            org.apache.geronimo.deployment.xbeans,
+                            org.apache.geronimo.deployment.javabean.xbeans,
+                            org.apache.geronimo.deployment.dconfigbean,
+                            org.apache.geronimo.deployment.service,
+                            org.apache.geronimo.deployment.service.jsr88,
+                            org.apache.xmlbeans.impl.schema;version="2.4",
+                            *
+                        </Import-Package>
+                        <Export-Package>
+                            org.apache.geronimo.openejb.deployment,
+                            org.apache.geronimo.openejb.xbeans.ejbjar,
+                            org.apache.geronimo.openejb.xbeans.ejbjar.impl,
+                        </Export-Package>
+                        <_exportcontents>schemaorg_apache_xmlbeans*</_exportcontents>
+                        <DynamicImport-Package>schemaorg_apache_xmlbeans.*</DynamicImport-Package>
                     </instructions>
                 </configuration>
             </plugin>

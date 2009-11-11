@@ -14,8 +14,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 -->
-<xb:config xmlns:xb="http://www.bea.com/2002/09/xbean/config"
-    >
+<xb:config xmlns:xb="http://www.bea.com/2002/09/xbean/config">
 
     <xb:namespace uri="http://geronimo.apache.org/xml/ns/j2ee/connector-1.2">
         <xb:package>org.apache.geronimo.xbeans.geronimo</xb:package>
