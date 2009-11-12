@@ -40,7 +40,7 @@ import org.apache.geronimo.management.geronimo.JVM;
 import org.apache.geronimo.management.stats.BoundedRangeStatisticImpl;
 import org.apache.geronimo.management.stats.CountStatisticImpl;
 import org.apache.geronimo.management.stats.JVMStatsImpl;
-import org.apache.geronimo.system.logging.SystemLog;
+import org.apache.geronimo.logging.SystemLog;
 
 /**
  *
@@ -161,7 +161,7 @@ public class JVMImpl implements JVM, StatisticsProvider {
         MemoryUsage memUsage = memmxbean.getHeapMemoryUsage();
         CountStatisticImpl upTime;
         BoundedRangeStatisticImpl heapSize;
-        
+
         if (stats == null) {
             stats = new JVMStatsImpl();
             // setup UpTime CountStatistic
