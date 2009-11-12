@@ -32,7 +32,7 @@
     <artifactId>geronimo-jasper-builder</artifactId>
     <packaging>bundle</packaging>
     <name>Geronimo Plugins, Jasper :: Builder</name>
-    
+
     <dependencies>
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
@@ -50,11 +50,10 @@
             <artifactId>geronimo-jasper</artifactId>
             <version>${version}</version>
         </dependency>
-        
+
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-servlet_3.0_spec</artifactId>
-            <scope>test</scope>
         </dependency>
     </dependencies>
 
