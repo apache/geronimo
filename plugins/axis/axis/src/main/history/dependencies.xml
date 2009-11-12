@@ -7,6 +7,11 @@
         <type>car</type>
     </module-id>
     <dependency>
+        <groupId>asm</groupId>
+        <artifactId>asm</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
         <groupId>axis</groupId>
         <artifactId>axis</artifactId>
         <type>jar</type>
@@ -16,7 +21,7 @@
         <artifactId>commons-discovery</artifactId>
         <type>jar</type>
     </dependency>
-    <dependency start="true">
+    <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>openejb</artifactId>
         <type>car</type>
@@ -28,12 +33,32 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.framework</groupId>
+        <artifactId>geronimo-gbean-deployer</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.framework</groupId>
         <artifactId>server-security-config</artifactId>
         <type>car</type>
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.modules</groupId>
         <artifactId>geronimo-axis</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.specs</groupId>
+        <artifactId>geronimo-activation_1.1_spec</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.specs</groupId>
+        <artifactId>geronimo-jaxb_2.1_spec</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.specs</groupId>
+        <artifactId>geronimo-stax-api_1.0_spec</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>

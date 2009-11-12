@@ -55,6 +55,9 @@ import org.apache.geronimo.xbeans.javaee.PortComponentRefType;
 import org.apache.xml.resolver.Catalog;
 import org.apache.xml.resolver.CatalogManager;
 import org.apache.xml.resolver.tools.CatalogResolver;
+
+import org.osgi.framework.Bundle;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,8 +66,8 @@ public class EndpointInfoBuilder {
     private static final Logger LOG = LoggerFactory.getLogger(EndpointInfoBuilder.class);
 
     private Module module;
-    
-    private ClassLoader classLoader;
+
+    private Bundle bundle;
 
     private URI wsdlURI;
 
@@ -82,14 +85,14 @@ public class EndpointInfoBuilder {
                                GerServiceRefType serviceRefType,
                                Map<Class, PortComponentRefType> portComponentRefMap,
                                Module module,
-                               ClassLoader classLoader, 
+                               Bundle bundle,
                                URI wsdlURI,
                                QName serviceQName) {
         this.serviceClass = serviceClass;
         this.serviceRefType = serviceRefType;
         this.portComponentRefMap = portComponentRefMap;
         this.module = module;
-        this.classLoader = classLoader;
+        this.bundle = bundle;
         this.wsdlURI = wsdlURI;
         this.serviceQName = serviceQName;
     }
@@ -97,7 +100,7 @@ public class EndpointInfoBuilder {
     public URI getWsdlURI() {
         return this.wsdlURI;
     }
-    
+
     public QName getServiceQName() {
         return this.serviceQName;
     }
@@ -105,15 +108,15 @@ public class EndpointInfoBuilder {
     public Map<Object, EndpointInfo> getEndpointInfo() {
         return this.portInfoMap;
     }
-    
+
     public void build() throws DeploymentException {
         if (this.wsdlURI == null) {
-            // wsdl was not explicitly specified            
+            // wsdl was not explicitly specified
             if (javax.xml.ws.Service.class.equals(this.serviceClass)) {
-                // Generic Service class specified. 
+                // Generic Service class specified.
                 // Service API requires a service qname so create a dummy one
                 this.serviceQName = new QName("http://noservice", "noservice");
-                
+
                 if (serviceRefType != null) {
                     for (GerPortType gerPort : serviceRefType.getPortArray()) {
                         String portName = gerPort.getPortName().trim();
@@ -125,13 +128,13 @@ public class EndpointInfoBuilder {
                         this.portInfoMap.put(portName, info);
                     }
                 }
-                
+
                 return;
             } else {
                 // Generated Service class specified.
-                // Get the wsdl and service qname from the WebServiceClient annotation 
+                // Get the wsdl and service qname from the WebServiceClient annotation
                 // of the generated Service class
-                WebServiceClient webServiceClient = 
+                WebServiceClient webServiceClient =
                     (WebServiceClient) this.serviceClass.getAnnotation(WebServiceClient.class);
                 if (webServiceClient != null) {
                     this.wsdlURI = getWSDLLocation(webServiceClient);
@@ -144,16 +147,16 @@ public class EndpointInfoBuilder {
                 }
             }
         }
-        
+
         Catalog catalog = loadCatalog();
-        
+
         WSDLLocator wsdlLocator = null;
         if (isURL(this.wsdlURI.toString())) {
             wsdlLocator = new CatalogWSDLLocator(this.wsdlURI.toString(), catalog);
         } else {
             wsdlLocator = new CatalogJarWSDLLocator(this.module.getModuleFile(), this.wsdlURI, catalog);
         }
-        
+
         Definition definition;
         WSDLFactory wsdlFactory;
         try {
@@ -173,7 +176,7 @@ public class EndpointInfoBuilder {
         }
 
         verifyPortComponentList(definition);
-        
+
         Map services = definition.getServices();
         if (services.size() == 0) {
             // partial wsdl, return as is
@@ -187,7 +190,7 @@ public class EndpointInfoBuilder {
             if (this.serviceRefType != null && this.serviceRefType.isSetServiceCompletion()) {
                 throw new DeploymentException("Full wsdl, but service completion supplied");
             }
-            
+
             Service service = null;
             if (this.serviceQName != null) {
                 service = definition.getService(this.serviceQName);
@@ -230,21 +233,21 @@ public class EndpointInfoBuilder {
                     continue;
                 }
                 String credentialsName = (gerPort == null) ? null : getCredentialsName(gerPort);
-                
+
                 Binding binding = port.getBinding();
                 if (binding == null) {
                     throw new DeploymentException("No binding for port: " + portName);
                 }
-                
+
                 PortType portType = binding.getPortType();
                 if (portType == null) {
                     throw new DeploymentException("No portType for binding: " + binding.getQName());
                 }
 
                 boolean mtomEnabled = isMTOMEnabled(portType.getQName());
-                
+
                 Map<String, Object> props = getProperties(gerPort);
-                
+
                 EndpointInfo info = new EndpointInfo(location, credentialsName, mtomEnabled, props);
                 this.portInfoMap.put(portName, info);
                 // prefer first binding listed in wsdl
@@ -262,10 +265,10 @@ public class EndpointInfoBuilder {
             return null;
         }
     }
-    
+
     private URI getWSDLLocation(WebServiceClient webServiceClient) throws DeploymentException {
         String wsdlLocation = webServiceClient.wsdlLocation();
-        if (wsdlLocation != null && wsdlLocation.trim().length() > 0) {            
+        if (wsdlLocation != null && wsdlLocation.trim().length() > 0) {
             try {
                 return new URI(wsdlLocation.trim());
             } catch (URISyntaxException e) {
@@ -286,12 +289,12 @@ public class EndpointInfoBuilder {
         }
         return props;
     }
-    
+
     private String getCredentialsName(GerPortType port) {
         String credentialsName = port.getCredentialsName();
-        return (credentialsName == null) ? null : credentialsName.trim();        
+        return (credentialsName == null) ? null : credentialsName.trim();
     }
-    
+
     private URL getLocation(GerPortType port) throws DeploymentException {
         String protocol = port.getProtocol().trim();
         String host = port.getHost().trim();
@@ -303,7 +306,7 @@ public class EndpointInfoBuilder {
     }
 
     private URL getAddressLocation(Port port) throws DeploymentException {
-        SOAPAddress soapAddress = 
+        SOAPAddress soapAddress =
             (SOAPAddress) getExtensibilityElement(SOAPAddress.class, port.getExtensibilityElements());
         URL location = null;
         if (soapAddress != null) {
@@ -322,7 +325,7 @@ public class EndpointInfoBuilder {
                             + locationURIString, e);
         }
     }
-    
+
     public static ExtensibilityElement getExtensibilityElement(Class clazz,
                                                                List extensibilityElements) {
         for (Iterator iterator = extensibilityElements.iterator(); iterator
@@ -335,7 +338,7 @@ public class EndpointInfoBuilder {
         }
         return null;
     }
-    
+
     private void verifyPortComponentList(Definition wsdl) throws DeploymentException {
         if (this.portComponentRefMap == null) {
             return;
@@ -347,10 +350,10 @@ public class EndpointInfoBuilder {
             }
             if (wsdl.getPortType(portType) == null) {
                 throw new DeploymentException("No portType found in WSDL for SEI: " + sei.getName());
-            }            
-        }        
+            }
+        }
     }
-    
+
     private boolean isMTOMEnabled(QName portType) {
         boolean mtomEnabled = false;
         PortComponentRefType portRef = getPortComponentRef(portType);
@@ -359,7 +362,7 @@ public class EndpointInfoBuilder {
         }
         return mtomEnabled;
     }
-    
+
     private PortComponentRefType getPortComponentRef(QName portType) {
         if (this.portComponentRefMap == null) {
             return null;
@@ -371,11 +374,11 @@ public class EndpointInfoBuilder {
             }
             if (portType.equals(seiPortType)) {
                 return this.portComponentRefMap.get(sei);
-            }        
+            }
         }
         return null;
     }
-    
+
     private boolean isMTOMEnabled(String portName) {
         boolean mtomEnabled = false;
         PortComponentRefType portRef = getPortComponentRef(portName);
@@ -384,7 +387,7 @@ public class EndpointInfoBuilder {
         }
         return mtomEnabled;
     }
-    
+
     private PortComponentRefType getPortComponentRef(String portName) {
         if (this.portComponentRefMap == null) {
             return null;
@@ -396,11 +399,11 @@ public class EndpointInfoBuilder {
             }
             if (portName.equals(seiPortType.getLocalPart())) {
                 return this.portComponentRefMap.get(sei);
-            }        
+            }
         }
         return null;
     }
-    
+
     private boolean isURL(String name) {
         try {
             new URL(name);
@@ -409,8 +412,8 @@ public class EndpointInfoBuilder {
             return false;
         }
     }
-    
-    private Catalog loadCatalog() {        
+
+    private Catalog loadCatalog() {
         URL catalogURI = null;
         try {
             catalogURI = getCatalog(JAXWSUtils.DEFAULT_CATALOG_WEB);
@@ -420,13 +423,13 @@ public class EndpointInfoBuilder {
         } catch (IOException e) {
             LOG.warn("Failed to open OASIS catalog", e);
         }
-        
+
         CatalogManager catalogManager = new CatalogManager();
         catalogManager.setUseStaticCatalog(false);
         catalogManager.setIgnoreMissingProperties(true);
         CatalogResolver catalogResolver = new CatalogResolver(catalogManager);
         Catalog catalog = catalogResolver.getCatalog();
-        
+
         if (catalogURI != null) {
             LOG.debug("Found OASIS catalog {} ", catalogURI);
             try {
@@ -435,12 +438,12 @@ public class EndpointInfoBuilder {
                 LOG.warn("Failed to read OASIS catalog", e);
             }
         }
-        
+
         return catalog;
     }
-        
+
     private URL getCatalog(String name) throws IOException {
-        URL catalogURL = this.classLoader.getResource(name);
+        URL catalogURL = this.bundle.getResource(name);
         if (catalogURL == null) {
             File f = this.module.getEarContext().getTargetFile(URI.create(name));
             if (f.exists()) {
@@ -449,5 +452,5 @@ public class EndpointInfoBuilder {
         }
         return catalogURL;
     }
-       
+
 }

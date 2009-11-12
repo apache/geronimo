@@ -46,22 +46,24 @@ import org.apache.geronimo.xbeans.javaee.ServiceRefType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.osgi.framework.Bundle;
+
 public class Axis2ServiceRefBuilder extends JAXWSServiceRefBuilder {
 
     private static final Logger log = LoggerFactory.getLogger(Axis2ServiceRefBuilder.class);
-    
+
     public Axis2ServiceRefBuilder(Environment defaultEnvironment,
                                  String[] eeNamespaces) {
         super(defaultEnvironment, eeNamespaces);
     }
 
     public Object createService(ServiceRefType serviceRef, GerServiceRefType gerServiceRef,
-                                Module module, ClassLoader cl, Class serviceInterfaceClass,
+                                Module module, Bundle bundle, Class serviceInterfaceClass,
                                 QName serviceQName, URI wsdlURI, Class serviceReferenceType,
                                 Map<Class, PortComponentRefType> portComponentRefMap) throws DeploymentException {
         registerConfigGBean(module);
         EndpointInfoBuilder builder = new EndpointInfoBuilder(serviceInterfaceClass,
-                gerServiceRef, portComponentRefMap, module, cl, 
+                gerServiceRef, portComponentRefMap, module, bundle,
                 wsdlURI, serviceQName);
         builder.build();
 
@@ -81,7 +83,7 @@ public class Axis2ServiceRefBuilder extends JAXWSServiceRefBuilder {
         return new Axis2ServiceReference(serviceInterfaceClass.getName(), serviceReferenceName,  wsdlURI,
                 serviceQName, module.getModuleName(), handlerChainsXML, seiInfoMap);
     }
-    
+
     private void registerConfigGBean(Module module) throws DeploymentException {
         EARContext context = module.getEarContext();
         AbstractName containerFactoryName = context.getNaming().createChildName(
@@ -93,7 +95,7 @@ public class Axis2ServiceRefBuilder extends JAXWSServiceRefBuilder {
         } catch (GBeanNotFoundException e1) {
             GBeanData configGBeanData = new GBeanData(containerFactoryName, Axis2ConfigGBean.GBEAN_INFO);
             configGBeanData.setAttribute("moduleName", module.getModuleName());
-            
+
             try {
                 context.addGBean(configGBeanData);
             } catch (GBeanAlreadyExistsException e) {
@@ -101,7 +103,7 @@ public class Axis2ServiceRefBuilder extends JAXWSServiceRefBuilder {
             }
         }
     }
-    
+
     public static final GBeanInfo GBEAN_INFO;
 
     static {

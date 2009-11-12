@@ -41,11 +41,11 @@
         <module>geronimo-activemq</module>
         <module>geronimo-activemq-management</module>
         <module>activemq-portlets</module>
-        <module>activemq-console-jetty</module>
-        <module>activemq-console-tomcat</module>
-        <module>activemq-webconsole-jetty</module>
-        <module>activemq-webconsole-tomcat</module>
-        <module>activemq-webconsole</module>
+        <!--<module>activemq-console-jetty</module>-->
+        <!--<module>activemq-console-tomcat</module>-->
+        <!--<module>activemq-webconsole-jetty</module>-->
+        <!--<module>activemq-webconsole-tomcat</module>-->
+        <!--<module>activemq-webconsole</module>-->
     </modules>
 
     <profiles>

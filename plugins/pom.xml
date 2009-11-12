@@ -95,7 +95,7 @@
         <!-- MNG-4052 modules used as import-scope need to be before anything that uses them -->
         <!--<module>pluto</module>-->
         <module>system-database</module>
-        <!--<module>activemq</module>-->
+        <module>activemq</module>
         <module>aspectj</module>
         <!--<module>axis</module>-->
         <!--<module>axis2</module>-->

@@ -47,6 +47,12 @@
         </dependency>
 
         <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-jaxws</artifactId>
+            <version>${version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>j2ee-server</artifactId>
             <type>car</type>
