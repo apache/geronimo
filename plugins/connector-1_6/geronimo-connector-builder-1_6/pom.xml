@@ -101,8 +101,6 @@
                         <!--packages containing "impl" or "internal" are excluded by default -->
                         <Import-Package>
                               org.apache.xmlbeans.impl.schema;version="2.4",
-                              org.apache.geronimo.deployment.xbeans.impl,
-                              org.apache.geronimo.deployment.javabean.xbeans.impl,
                               org.apache.geronimo.xbeans.javaee.impl,
                               org.apache.geronimo.xbeans.javaee,
                               org.apache.geronimo.xbeans.persistence.impl,
@@ -111,6 +109,13 @@
                               org.apache.geronimo.xbeans.j2ee,
                               org.w3.xml.x1998.namespace.impl,
                               org.w3.xml.x1998.namespace,
+                              org.apache.geronimo.deployment.xbeans.impl,
+                              org.apache.geronimo.deployment.javabean.xbeans.impl,
+                              org.apache.geronimo.deployment.xbeans,
+                              org.apache.geronimo.deployment.javabean.xbeans,
+                              org.apache.geronimo.deployment.dconfigbean,
+                              org.apache.geronimo.deployment.service,
+                              org.apache.geronimo.deployment.service.jsr88,
                               org.apache.geronimo.xbeans.geronimo.naming,
                               org.apache.geronimo.xbeans.geronimo.naming.impl,
                               org.apache.geronimo.naming.deployment,

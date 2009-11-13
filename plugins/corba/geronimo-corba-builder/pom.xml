@@ -27,7 +27,7 @@
         <artifactId>corba</artifactId>
         <version>3.0-SNAPSHOT</version>
     </parent>
-    
+
     <groupId>org.apache.geronimo.modules</groupId>
     <name>Geronimo Plugins, Corba :: Builder</name>
     <packaging>bundle</packaging>
@@ -40,7 +40,7 @@
             <version>${version}</version>
         </dependency>
 
-        <!-- g-security-builder, g-naming-builder comes from this --> 
+        <!-- g-security-builder, g-naming-builder comes from this -->
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-openejb-builder</artifactId>
@@ -55,6 +55,32 @@
                 <artifactId>xmlbeans-maven-plugin</artifactId>
             </plugin>
         </plugins>
+        <plugin>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>maven-bundle-plugin</artifactId>
+            <configuration>
+                <instructions>
+                    <!--<_versionpolicy>[$(version;==;$(@)),$(version;+;$(@)))</_versionpolicy>-->
+                    <Import-Package>
+                        org.w3.xml.x1998.namespace.impl,
+                        org.w3.xml.x1998.namespace,
+                        org.apache.xmlbeans.impl.schema;version="2.4",
+                        *
+                    </Import-Package>
+                    <Export-Package>
+                        org.apache.geronimo.corba.deployment,
+                        org.apache.geronimo.corba.security.config.css,
+                        org.apache.geronimo.corba.security.config.tss,
+                        org.apache.geronimo.corba.xbeans.csiv2.tss,
+                        org.apache.geronimo.corba.xbeans.csiv2.tss.impl,
+                        org.apache.geronimo.corba.xbeans.csiv2.css,
+                        org.apache.geronimo.corba.xbeans.csiv2.css.impl
+                    </Export-Package>
+                    <_exportcontents>schemaorg_apache_xmlbeans*</_exportcontents>
+                    <DynamicImport-Package>schemaorg_apache_xmlbeans.*</DynamicImport-Package>
+                </instructions>
+            </configuration>
+        </plugin>
     </build>
 
 </project>

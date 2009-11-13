@@ -78,6 +78,15 @@
                             org.apache.geronimo.openejb.deployment,
                             org.apache.geronimo.openejb.xbeans.ejbjar,
                             org.apache.geronimo.openejb.xbeans.ejbjar.impl,
+                            org.apache.geronimo.xbeans.geronimo.j2ee,
+                            org.apache.geronimo.xbeans.geronimo.j2ee.impl,
+                            org.apache.geronimo.j2ee.deployment,
+                            org.apache.geronimo.j2ee.deployment.annotation,
+                            org.apache.geronimo.j2ee.jsr88,
+                            org.apache.geronimo.xbeans.geronimo.naming,
+                            org.apache.geronimo.xbeans.geronimo.naming.impl,
+                            org.apache.geronimo.naming.deployment,
+                            org.apache.geronimo.naming.deployment.jsr88,
                             org.apache.xmlbeans.impl.schema;version="2.4",
                             *
                         </Import-Package>

@@ -81,32 +81,15 @@
                     <instructions>
                         <!--<_versionpolicy>[$(version;==;$(@)),$(version;+;$(@)))</_versionpolicy>-->
                         <Import-Package>
-                            org.apache.geronimo.xbeans.javaee.impl,
-                            org.apache.geronimo.xbeans.javaee,
-                            org.apache.geronimo.xbeans.persistence.impl,
-                            org.apache.geronimo.xbeans.persistence,
-                            org.apache.geronimo.xbeans.j2ee.impl,
-                            org.apache.geronimo.xbeans.j2ee,
                             org.w3.xml.x1998.namespace.impl,
                             org.w3.xml.x1998.namespace,
-                            org.apache.geronimo.deployment.xbeans.impl,
-                            org.apache.geronimo.deployment.javabean.xbeans.impl,
-                            org.apache.geronimo.deployment.xbeans,
-                            org.apache.geronimo.deployment.javabean.xbeans,
-                            org.apache.geronimo.deployment.dconfigbean,
-                            org.apache.geronimo.deployment.service,
-                            org.apache.geronimo.deployment.service.jsr88,
-                            org.apache.geronimo.xbeans.geronimo.naming,
-                            org.apache.geronimo.xbeans.geronimo.naming.impl,
-                            org.apache.geronimo.naming.deployment,
-                            org.apache.geronimo.naming.deployment.jsr88,
                             org.apache.xmlbeans.impl.schema;version="2.4",
                             *
                         </Import-Package>
                         <Export-Package>
                             org.apache.geronimo.webservices.builder,
                             org.apache.geronimo.xbeans.wsdl,
-                            org.apache.geronimo.xbeans.wsdl.impl,
+                            org.apache.geronimo.xbeans.wsdl.impl
                         </Export-Package>
                         <_exportcontents>schemaorg_apache_xmlbeans*</_exportcontents>
                         <DynamicImport-Package>schemaorg_apache_xmlbeans.*</DynamicImport-Package>

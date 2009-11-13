@@ -27,7 +27,7 @@
         <artifactId>j2ee</artifactId>
         <version>3.0-SNAPSHOT</version>
     </parent>
-    
+
     <groupId>org.apache.geronimo.modules</groupId>
     <artifactId>geronimo-security-builder</artifactId>
     <packaging>bundle</packaging>
@@ -56,7 +56,7 @@
         </dependency>
 
     </dependencies>
-    
+
     <build>
         <plugins>
             <plugin>
@@ -68,7 +68,48 @@
                 <artifactId>maven-bundle-plugin</artifactId>
                 <configuration>
                     <instructions>
-                        <Import-Package>org.apache.xmlbeans.impl.schema;version="2.4",*</Import-Package>
+                        <!--packages containing "impl" or "internal" are excluded by default -->
+                        <Export-Package>
+                            org.apache.geronimo.security.deployment,
+                            org.apache.geronimo.xml.ns.security12,
+                            org.apache.geronimo.xml.ns.security12.impl,
+                            org.apache.geronimo.xbeans.geronimo.credentialstore,
+                            org.apache.geronimo.xbeans.geronimo.credentialstore.impl,
+                            org.apache.geronimo.xbeans.geronimo.jaspi,
+                            org.apache.geronimo.xbeans.geronimo.jaspi.impl,
+                            org.apache.geronimo.xbeans.geronimo.loginconfig,
+                            org.apache.geronimo.xbeans.geronimo.loginconfig.impl,
+                            org.apache.geronimo.xbeans.geronimo.security,
+                            org.apache.geronimo.xbeans.geronimo.security.impl,
+                            org.apache.geronimo.xbeans.geronimo.security.subjectinfo,
+                            org.apache.geronimo.xbeans.geronimo.security.subjectinfo.impl
+                        </Export-Package>
+                        <_exportcontents>schemaorg_apache_xmlbeans*</_exportcontents>
+                        <DynamicImport-Package>schemaorg_apache_xmlbeans.*</DynamicImport-Package>
+                        <Import-Package>
+                            org.apache.geronimo.xbeans.javaee.impl,
+                            org.apache.geronimo.xbeans.javaee,
+                            org.apache.geronimo.xbeans.persistence.impl,
+                            org.apache.geronimo.xbeans.persistence,
+                            org.apache.geronimo.xbeans.j2ee.impl,
+                            org.apache.geronimo.xbeans.j2ee,
+                            org.w3.xml.x1998.namespace.impl,
+                            org.w3.xml.x1998.namespace,
+                            org.apache.geronimo.deployment.xbeans.impl,
+                            org.apache.geronimo.deployment.javabean.xbeans.impl,
+                            org.apache.geronimo.deployment.xbeans,
+                            org.apache.geronimo.deployment.javabean.xbeans,
+                            org.apache.geronimo.deployment.dconfigbean,
+                            org.apache.geronimo.deployment.service,
+                            org.apache.geronimo.deployment.service.jsr88,
+                            org.apache.xmlbeans.impl.schema;version="2.4",
+                            org.apache.geronimo.xbeans.geronimo.j2ee,
+                            org.apache.geronimo.xbeans.geronimo.j2ee.impl,
+                            org.apache.geronimo.j2ee.deployment,
+                            org.apache.geronimo.j2ee.deployment.annotation,
+                            org.apache.geronimo.j2ee.jsr88,
+                            *
+                        </Import-Package>
                         <!--<_versionpolicy>[$(version;==;$(@)),$(version;+;$(@)))</_versionpolicy>-->
                     </instructions>
                 </configuration>

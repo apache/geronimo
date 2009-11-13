@@ -108,9 +108,7 @@
                             org.apache.geronimo.xbeans.geronimo.j2ee.impl,
                             org.apache.geronimo.j2ee.deployment,
                             org.apache.geronimo.j2ee.deployment.annotation,
-                            org.apache.geronimo.j2ee.jsr88,
-                            org.apache.geronimo.xbeans.j2ee.impl,
-                            org.apache.geronimo.xbeans.j2ee
+                            org.apache.geronimo.j2ee.jsr88
                         </Export-Package>
                         <_exportcontents>schemaorg_apache_xmlbeans*</_exportcontents>
                         <DynamicImport-Package>schemaorg_apache_xmlbeans.*</DynamicImport-Package>
@@ -123,6 +121,13 @@
                             org.apache.geronimo.xbeans.j2ee,
                             org.w3.xml.x1998.namespace.impl,
                             org.w3.xml.x1998.namespace,
+                            org.apache.geronimo.deployment.xbeans.impl,
+                            org.apache.geronimo.deployment.javabean.xbeans.impl,
+                            org.apache.geronimo.deployment.xbeans,
+                            org.apache.geronimo.deployment.javabean.xbeans,
+                            org.apache.geronimo.deployment.dconfigbean,
+                            org.apache.geronimo.deployment.service,
+                            org.apache.geronimo.deployment.service.jsr88,
                             org.apache.xmlbeans.impl.schema;version="2.4",
                             *
                         </Import-Package>
