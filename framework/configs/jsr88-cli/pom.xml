@@ -38,7 +38,7 @@
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-gbean-deployer</artifactId>
             <type>car</type>
-            <!--<scope>runtime</scope>-->
+            <scope>provided</scope>
             <version>${version}</version>
         </dependency>
 

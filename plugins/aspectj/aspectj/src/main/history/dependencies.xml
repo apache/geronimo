@@ -22,11 +22,6 @@
         <type>car</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>geronimo-gbean-deployer</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
         <groupId>org.apache.geronimo.modules</groupId>
         <artifactId>geronimo-aspectj</artifactId>
         <type>jar</type>

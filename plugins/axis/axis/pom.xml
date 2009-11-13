@@ -41,6 +41,7 @@
             <artifactId>geronimo-gbean-deployer</artifactId>
             <version>${version}</version>
             <type>car</type>
+            <scope>provided</scope>
         </dependency>
 
         <!-- parent -->
