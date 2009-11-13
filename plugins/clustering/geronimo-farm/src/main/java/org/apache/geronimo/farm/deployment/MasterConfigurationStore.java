@@ -38,6 +38,7 @@ import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationAlreadyExistsException;
 import org.apache.geronimo.kernel.config.ConfigurationData;
@@ -50,12 +51,14 @@ import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.WritableListableRepository;
 import org.apache.geronimo.system.configuration.RepositoryConfigurationStore;
+import org.apache.geronimo.gbean.GBeanInfo;
 
 /**
  *
  * @version $Rev:$ $Date:$
  */
-public class MasterConfigurationStore implements ConfigurationStore {
+//@GBean(j2eeType=MasterConfigurationStore.GBEAN_J2EE_TYPE)
+public class MasterConfigurationStore implements ConfigurationStore, GBeanLifecycle  {
     private static final Log log = LogFactory.getLog(MasterConfigurationStore.class);
     
     private final ConfigurationStore delegate;
@@ -63,16 +66,17 @@ public class MasterConfigurationStore implements ConfigurationStore {
     private final ClusterInfo clusterInfo;
     private final AbstractName clusterInfoName;
     private final ClusterConfigurationStoreClient storeDelegate;
-    private final SlaveConfigurationNameBuilder slaveConfigNameBuilder;
+    private final ConfigurationNameBuilder configNameBuilder;
+    public static final GBeanInfo GBEAN_INFO;
+    public static final String GBEAN_J2EE_TYPE = "ConfigurationStore";
+    public static final String GBEAN_ATTR_DEFAULT_ENV = "defaultEnvironment";
+    public static final String GBEAN_REF_REPOSITORY = "Repository";
+    public static final String GBEAN_REF_CLUSTER_INFO = "ClusterInfo";
+    public static final String GBEAN_REF_CLUSTER_CONF_STORE_CLIENT = "ClusterConfigurationStoreClient";
     
-    public MasterConfigurationStore(Kernel kernel,
-            String objectName,
-            AbstractName abstractName,
-            WritableListableRepository repository,
-            Environment defaultEnvironment,
-            ClusterInfo clusterInfo,
-            ClusterConfigurationStoreClient storeDelegate) {
-        if (null == kernel) {
+    public MasterConfigurationStore(Kernel kernel,String objectName,AbstractName abstractName,WritableListableRepository repository,Environment defaultEnvironment,ClusterInfo clusterInfo,ClusterConfigurationStoreClient storeDelegate)
+    {
+    	if (null == kernel) {
             throw new IllegalArgumentException("kernel is required");
         } else if (null == objectName) {
             throw new IllegalArgumentException("objectName is required");
@@ -89,21 +93,23 @@ public class MasterConfigurationStore implements ConfigurationStore {
         this.clusterInfo = clusterInfo;
         this.storeDelegate = storeDelegate;
 
-        slaveConfigNameBuilder = newSlaveConfigurationNameBuilder();
+        configNameBuilder = newMasterConfigurationNameBuilder();
         clusterInfoName = kernel.getAbstractNameFor(clusterInfo);
         delegate = newConfigurationStore(kernel, objectName, abstractName, repository);
+
     }
+   
+       
 
     public boolean containsConfiguration(Artifact configId) {
-        if (slaveConfigNameBuilder.isSlaveConfigurationName(configId)) {
+        if (!configNameBuilder.isMasterConfigurationName(configId)) {
             return false;
         }
         return delegate.containsConfiguration(configId);
     }
 
     public File createNewConfigurationDir(Artifact configId) throws ConfigurationAlreadyExistsException {
-        Artifact slaveConfigId = slaveConfigNameBuilder.buildSlaveConfigurationName(configId);
-        return delegate.createNewConfigurationDir(slaveConfigId);
+        return delegate.createNewConfigurationDir(configId);
     }
 
     public void exportConfiguration(Artifact configId, OutputStream output) throws IOException, NoSuchConfigException {
@@ -120,16 +126,14 @@ public class MasterConfigurationStore implements ConfigurationStore {
     }
 
     public void install(ConfigurationData configurationData) throws IOException, InvalidConfigException {
-        Environment environment = configurationData.getEnvironment();
-        Artifact actualConfigId = environment.getConfigId();
-        Artifact slaveConfigId = slaveConfigNameBuilder.buildSlaveConfigurationName(actualConfigId);
-        environment.setConfigId(slaveConfigId);
-
         storeDelegate.install(clusterInfo, configurationData);
+
         installSlaveConfiguration(configurationData);
 
-        environment.setConfigId(actualConfigId);
-
+        Environment environment = configurationData.getEnvironment();
+        Artifact slaveConfigId = environment.getConfigId();
+        Artifact masterConfigId = configNameBuilder.buildMasterConfigurationName(slaveConfigId);
+        environment.setConfigId(masterConfigId);
         installMasterConfiguration(configurationData, slaveConfigId);
     }
 
@@ -143,7 +147,7 @@ public class MasterConfigurationStore implements ConfigurationStore {
         
         List<ConfigurationInfo> filteredConfigurationInfos = new ArrayList<ConfigurationInfo>();
         for (ConfigurationInfo configurationInfo : configurationInfos) {
-            if (!slaveConfigNameBuilder.isSlaveConfigurationName(configurationInfo.getConfigID())) {
+            if (configNameBuilder.isMasterConfigurationName(configurationInfo.getConfigID())) {
                 filteredConfigurationInfos.add(configurationInfo);
             }
         }
@@ -166,7 +170,7 @@ public class MasterConfigurationStore implements ConfigurationStore {
     public void uninstall(Artifact configId) throws NoSuchConfigException, IOException {
         ensureArtifactForMasterConfiguration(configId);
         
-        Artifact slaveConfigId = slaveConfigNameBuilder.buildSlaveConfigurationName(configId);
+        Artifact slaveConfigId = configNameBuilder.buildSlaveConfigurationName(configId);
         storeDelegate.uninstall(clusterInfo, slaveConfigId);
 
         try {
@@ -178,7 +182,7 @@ public class MasterConfigurationStore implements ConfigurationStore {
     }
 
     protected void ensureArtifactForMasterConfiguration(Artifact configId) throws NoSuchConfigException {
-        if (slaveConfigNameBuilder.isSlaveConfigurationName(configId)) {
+        if (!configNameBuilder.isMasterConfigurationName(configId)) {
             throw new NoSuchConfigException(configId);
         }
     }
@@ -190,8 +194,8 @@ public class MasterConfigurationStore implements ConfigurationStore {
         return new RepositoryConfigurationStore(kernel, objectName, abstractName, repository);
     }
 
-    protected SlaveConfigurationNameBuilder newSlaveConfigurationNameBuilder() {
-        return new BasicSlaveConfigurationNameBuilder();
+    protected ConfigurationNameBuilder newMasterConfigurationNameBuilder() {
+        return new BasicConfigurationNameBuilder();
     }
 
     protected void installMasterConfiguration(ConfigurationData configurationData, Artifact slaveConfigId)
@@ -263,11 +267,23 @@ public class MasterConfigurationStore implements ConfigurationStore {
         }
         return gbeans;
     }
+    
+    public void doFail() {
+        log.warn("Failed");
+    }
+
+    public void doStart() throws Exception {
+        //log.debug("Started host name '" + host.getName() + "'");
+    }
+
+    public void doStop() throws Exception {
+        //log.debug("Stopped host '" + host.getName() + "'");
+    }
 
     protected GBeanData buildControllerGBean(Artifact configId, NodeInfo nodeInfo, Artifact slaveConfigId) {
         AbstractName controllerName = buildControllerName(configId, nodeInfo);
         
-        GBeanData gbean = new GBeanData(controllerName, BasicClusterConfigurationController.GBEAN_INFO);
+        GBeanData gbean = new GBeanData(controllerName,BasicClusterConfigurationController.GBEAN_INFO);
         gbean.setAttribute(BasicClusterConfigurationController.GBEAN_ATTR_ARTIFACT, slaveConfigId);
         gbean.setAttribute(BasicClusterConfigurationController.GBEAN_ATTR_IGNORE_START_CONF_FAIL_UPON_START,
             Boolean.TRUE);
@@ -281,44 +297,28 @@ public class MasterConfigurationStore implements ConfigurationStore {
             NodeInfo nodeInfo) {
         return new AbstractName(configId, Collections.singletonMap("nodeName", nodeInfo.getName()));
     }
-
-    public static final GBeanInfo GBEAN_INFO;
-
-    public static final String GBEAN_J2EE_TYPE = "ConfigurationStore";
-    public static final String GBEAN_ATTR_KERNEL = "kernel";
-    public static final String GBEAN_ATTR_OBJECT_NAME = "objectName";
-    public static final String GBEAN_ATTR_DEFAULT_ENV = "defaultEnvironment";
-    public static final String GBEAN_REF_REPOSITORY = "Repository";
-    public static final String GBEAN_REF_CLUSTER_INFO = "ClusterInfo";
-    public static final String GBEAN_REF_CLUSTER_CONF_STORE_CLIENT = "ClusterConfigurationStoreClient";
-
+    
+   
+   
+    
+    
     static {
-        GBeanInfoBuilder builder = GBeanInfoBuilder.createStatic(MasterConfigurationStore.class, GBEAN_J2EE_TYPE);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(MasterConfigurationStore.class);//,ConfigurationStore.class);
+        infoFactory.addAttribute("kernel", Kernel.class, false);
+        infoFactory.addAttribute("objectName", String.class, false);
+        infoFactory.addAttribute("abstractName", AbstractName.class, true);
+        infoFactory.addReference(GBEAN_REF_REPOSITORY, WritableListableRepository.class, "Repository");
+        infoFactory.addAttribute("defaultEnvironment",Environment.class, false);
+        infoFactory.addReference(GBEAN_REF_CLUSTER_INFO,ClusterInfo.class);
+        infoFactory.addReference(GBEAN_REF_CLUSTER_CONF_STORE_CLIENT, ClusterConfigurationStoreClient.class);
+        infoFactory.setConstructor(new String[] { "kernel","objectName","abstractName",GBEAN_REF_REPOSITORY,"defaultEnvironment",GBEAN_REF_CLUSTER_INFO,GBEAN_REF_CLUSTER_CONF_STORE_CLIENT});
         
-        builder.addAttribute(GBEAN_ATTR_KERNEL, Kernel.class, false);
-        builder.addAttribute(GBEAN_ATTR_OBJECT_NAME, String.class, false);
-        builder.addAttribute("abstractName", AbstractName.class, false);
-        builder.addAttribute(GBEAN_ATTR_DEFAULT_ENV, Environment.class, true, true);
-        
-        builder.addReference(GBEAN_REF_REPOSITORY, WritableListableRepository.class, "Repository");
-        builder.addReference(GBEAN_REF_CLUSTER_INFO, ClusterInfo.class);
-        builder.addReference(GBEAN_REF_CLUSTER_CONF_STORE_CLIENT, ClusterConfigurationStoreClient.class);
-        
-        builder.addInterface(ConfigurationStore.class);
-        
-        builder.setConstructor(new String[]{GBEAN_ATTR_KERNEL,
-            GBEAN_ATTR_OBJECT_NAME,
-                "abstractName",
-            GBEAN_REF_REPOSITORY,
-            GBEAN_ATTR_DEFAULT_ENV,
-            GBEAN_REF_CLUSTER_INFO,
-            GBEAN_REF_CLUSTER_CONF_STORE_CLIENT});
-        
-        GBEAN_INFO = builder.getBeanInfo();
+        GBEAN_INFO = infoFactory.getBeanInfo();
     }
 
     public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
     }
-
+    
+   
 }

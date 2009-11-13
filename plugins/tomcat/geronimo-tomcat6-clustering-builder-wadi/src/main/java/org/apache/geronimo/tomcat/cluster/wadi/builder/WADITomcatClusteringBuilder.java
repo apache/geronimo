@@ -149,11 +149,10 @@ public class WADITomcatClusteringBuilder implements NamespaceDrivenBuilder {
     }
 
     protected GBeanData extractWebModule(DeploymentContext moduleContext) throws DeploymentException {
-        AbstractNameQuery webModuleQuery = createTomcatWebAppContextNameQuery(moduleContext);
         Configuration configuration = moduleContext.getConfiguration();
         try {
-            return configuration.findGBeanData(webModuleQuery);
-        } catch (GBeanNotFoundException e) {
+            return configuration.getGBeans().get(moduleContext.getModuleName());
+        } catch (Exception e) {
             throw new DeploymentException("Could not locate web module gbean in web app configuration", e);
         }
     }
