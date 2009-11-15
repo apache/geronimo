@@ -39,29 +39,22 @@
             <version>${version}</version>
             <scope>provided</scope>
         </dependency>
+
         <dependency>
             <groupId>org.apache.felix</groupId>
             <artifactId>org.osgi.core</artifactId>
         </dependency>
+
         <dependency>
             <groupId>org.ops4j.pax.logging</groupId>
             <artifactId>pax-logging-api</artifactId>
         </dependency>
 
-        <!--<dependency>-->
-            <!--<groupId>org.apache.geronimo.framework</groupId>-->
-            <!--<artifactId>geronimo-logging</artifactId>-->
-            <!--<version>${version}</version>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>asm</groupId>-->
-            <!--<artifactId>asm</artifactId>-->
-        <!--</dependency>-->
-
         <dependency>
             <groupId>org.apache.geronimo.bundles</groupId>
             <artifactId>asm</artifactId>
         </dependency>
+
         <dependency>
             <groupId>org.apache.geronimo.bundles</groupId>
             <artifactId>asm-commons</artifactId>
@@ -86,6 +79,12 @@
             <groupId>org.apache.servicemix.bundles</groupId>
             <artifactId>org.apache.servicemix.bundles.xpp3</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>org.apache.servicemix.specs</groupId>
+            <artifactId>org.apache.servicemix.specs.stax-api-1.0</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>org.apache.geronimo.testsupport</groupId>
             <artifactId>testsupport-common</artifactId>

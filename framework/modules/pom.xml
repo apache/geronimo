@@ -135,12 +135,32 @@
                     </instructions>
                   </configuration>
                 </plugin>
+                <plugin>
+                    <groupId>org.apache.geronimo.buildsupport</groupId>
+                    <artifactId>geronimo-osgi-plugin</artifactId>
+                    <configuration> 
+                        <failOnError>false</failOnError>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>verify-manifest</id>
+                            <phase>package</phase>
+                            <goals>
+                                <goal>verify-manifest</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
             <plugin>
               <groupId>org.apache.felix</groupId>
               <artifactId>maven-bundle-plugin</artifactId>
+            </plugin>
+            <plugin>
+              <groupId>org.apache.geronimo.buildsupport</groupId>
+              <artifactId>geronimo-osgi-plugin</artifactId>
             </plugin>
         </plugins>
     </build>

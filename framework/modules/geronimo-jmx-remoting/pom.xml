@@ -66,7 +66,6 @@
                   <Implementation-Title>${project.name}</Implementation-Title>
                   <Implementation-Version>${project.version}</Implementation-Version>
                   <Bundle-DocURL>${project.url}</Bundle-DocURL>
-                    <Import-Package>org.apache.xbean.naming.context,org.apache.xbean.naming.global;version=3.6,*</Import-Package>
                 </instructions>
               </configuration>
             </plugin>

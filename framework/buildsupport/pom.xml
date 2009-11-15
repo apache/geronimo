@@ -48,13 +48,14 @@
     </dependencyManagement>
 
     <dependencies>
+<!--
         <dependency>
             <groupId>org.apache.geronimo.testsupport</groupId>
             <artifactId>testsupport-common</artifactId>
             <version>${version}</version>
             <scope>test</scope>
         </dependency>
-
+-->
     </dependencies>
 
     <modules>
@@ -64,6 +65,7 @@
         <module>testsuite-maven-plugin</module>
         <module>geronimo-plugin-archetype</module>
         <module>geronimo-assembly-archetype</module>
+        <module>geronimo-osgi-plugin</module>
     </modules>
 
     <reporting>

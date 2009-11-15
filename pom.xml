@@ -712,6 +712,18 @@
             </dependency>
 
             <dependency>
+                <groupId>org.ops4j.pax.logging</groupId>
+                <artifactId>pax-logging-service</artifactId>
+                <version>${pax.logging.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>log4j</groupId>
+                        <artifactId>log4j</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
                 <groupId>mockobjects</groupId>
                 <artifactId>mockobjects-jdk1.4-j2ee1.3</artifactId>
                 <version>0.09</version>
