@@ -29,6 +29,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.LinkedHashMap;
 import java.util.ArrayList;
@@ -58,13 +59,11 @@ import org.apache.maven.shared.dependency.tree.DependencyTreeResolutionListener;
 import org.apache.maven.shared.filtering.MavenFileFilter;
 import org.apache.maven.shared.filtering.MavenFilteringException;
 import org.apache.maven.shared.filtering.MavenResourcesFiltering;
-import org.apache.felix.framework.FrameworkFactory;
-import org.apache.felix.framework.cache.BundleCache;
-import org.apache.felix.framework.util.FelixConstants;
 import org.codehaus.plexus.logging.AbstractLogEnabled;
 import org.codehaus.plexus.util.ReaderFactory;
 import org.codehaus.plexus.util.StringUtils;
 import org.osgi.framework.launch.Framework;
+import org.osgi.framework.launch.FrameworkFactory;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
 
@@ -952,8 +951,10 @@ public abstract class AbstractCarMojo
                         "javax.enterprise.deploy.shared," +
                         "javax.enterprise.deploy.spi");
 */
-        properties.put(BundleCache.CACHE_ROOTDIR_PROP, basedir + "/target");
-        Framework framework = new FrameworkFactory().newFramework(properties);
+        File storageDir = new File(basedir, "target/bundle-cache");
+        properties.put(Constants.FRAMEWORK_STORAGE, storageDir.getAbsolutePath());
+        ServiceLoader<FrameworkFactory> loader = ServiceLoader.load(FrameworkFactory.class);
+        Framework framework = loader.iterator().next().newFramework(properties);
         framework.start();
         return framework;
     }
