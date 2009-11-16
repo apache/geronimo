@@ -20,6 +20,9 @@
 package org.apache.geronimo.mavenplugins.osgi;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import org.apache.geronimo.mavenplugins.osgi.utils.BundleResolver;
 import org.apache.maven.plugin.Mojo;
@@ -38,6 +41,8 @@ import org.osgi.framework.BundleException;
  * @goal display-manifest
  */
 public class DisplayManifestMojo extends AbstractLogEnabled implements Mojo {
+    
+    private final String TAB = "  ";
 
     private Log log;
 
@@ -80,23 +85,52 @@ public class DisplayManifestMojo extends AbstractLogEnabled implements Mojo {
 
     private void displayImportExports(BundleDescription b) {
         System.out.println("Bundle: " + b.getSymbolicName());
-        System.out.println();
-        System.out.println("Imports:");
+        displayImports(b, ImportPackageSpecification.RESOLUTION_STATIC, "Imports:");
+        displayImports(b, ImportPackageSpecification.RESOLUTION_OPTIONAL, "Optional Imports:");
+        displayImports(b, ImportPackageSpecification.RESOLUTION_DYNAMIC, "Dynamic Imports:");
+                    
+        displayExports(b);
+    }
+    
+    
+    private void displayExports(BundleDescription b) {
+        ExportPackageDescription[] exportPackages = b.getExportPackages();
+        if (exportPackages != null && exportPackages.length > 0) {
+            System.out.println("Exports:");
+            for (ExportPackageDescription exportPackage : exportPackages) {
+                System.out.println(TAB + exportPackage); 
+                String [] list = (String[])exportPackage.getDirective("uses");
+                if (list != null) {
+                    System.out.println(TAB + TAB + "Uses: " + Arrays.asList(list));
+                }
+            }
+            System.out.println();
+        }
+    }
+    
+    private void displayImports(BundleDescription b, String resolution, String header) {
+        List<ImportPackageSpecification> imports = getImports(b, resolution);        
+        if (!imports.isEmpty()) {
+            System.out.println(header);
+            for (ImportPackageSpecification importPackage : imports) {
+                System.out.println(TAB + importPackage);
+            }
+            System.out.println();
+        }
+    }
+    
+    private List<ImportPackageSpecification> getImports(BundleDescription b, String resolution) {
+        List<ImportPackageSpecification> imports = new ArrayList<ImportPackageSpecification>();       
         ImportPackageSpecification[] importPackages = b.getImportPackages();
         if (importPackages != null) {
             for (ImportPackageSpecification importPackage : importPackages) {
-                System.out.println(importPackage);
+                String res = (String) importPackage.getDirective("resolution");
+                if (resolution.equals(res)) {
+                    imports.add(importPackage);
+                }
             }
         }
-                    
-        System.out.println();       
-        System.out.println("Exports:");
-        ExportPackageDescription[] exportPackages = b.getExportPackages();
-        if (exportPackages != null) {
-            for (ExportPackageDescription exportPackage : exportPackages) {
-                System.out.println(exportPackage);
-            }
-        }
+        return imports;
     }
     
     public void setLog(Log log) {
