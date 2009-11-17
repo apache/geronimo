@@ -6,17 +6,17 @@
         <version>3.0-SNAPSHOT</version>
         <type>car</type>
     </module-id>
-    <dependency start="true">
+    <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>jetty7-clustering-wadi</artifactId>
         <type>car</type>
     </dependency>
-    <dependency start="true">
+    <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>jetty7-deployer</artifactId>
         <type>car</type>
     </dependency>
-    <dependency start="true">
+    <dependency>
         <groupId>org.apache.geronimo.modules</groupId>
         <artifactId>geronimo-jetty7-clustering-builder-wadi</artifactId>
         <type>jar</type>

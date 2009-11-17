@@ -84,7 +84,7 @@
         <axiomVersion>1.2.8</axiomVersion>
         <springVersion>2.5.6</springVersion>
         <xbeanVersion>3.6</xbeanVersion>
-        <jetty>jetty7</jetty>
+        <jetty>jetty8</jetty>
 
         <connectorSuffix>-1_6</connectorSuffix>
         <connectorSpec>geronimo-j2ee-connector_1.6_spec</connectorSpec>

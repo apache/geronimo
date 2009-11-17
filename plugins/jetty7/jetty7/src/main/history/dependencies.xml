@@ -91,4 +91,9 @@
         <artifactId>jetty-xml</artifactId>
         <type>jar</type>
     </dependency>
+    <dependency>
+        <groupId>org.mortbay.jetty</groupId>
+        <artifactId>jetty-util</artifactId>
+        <type>jar</type>
+    </dependency>
 </plugin-artifact>

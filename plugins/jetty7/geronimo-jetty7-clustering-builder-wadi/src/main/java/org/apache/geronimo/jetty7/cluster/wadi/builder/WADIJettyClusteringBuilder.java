@@ -48,8 +48,8 @@ import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.schema.NamespaceElementConverter;
 import org.apache.geronimo.schema.SchemaConversionUtils;
-import org.apache.geronimo.xbeans.geronimo.GerClusteringWadiDocument;
-import org.apache.geronimo.xbeans.geronimo.GerClusteringWadiType;
+import org.apache.geronimo.xbeans.jetty7.cluster.wadi.GerClusteringWadiDocument;
+import org.apache.geronimo.xbeans.jetty7.cluster.wadi.GerClusteringWadiType;
 import org.apache.geronimo.xbeans.geronimo.j2ee.GerClusteringDocument;
 import org.apache.geronimo.xbeans.geronimo.naming.GerPatternType;
 import org.apache.xmlbeans.QNameSet;
@@ -70,7 +70,7 @@ public class WADIJettyClusteringBuilder implements NamespaceDrivenBuilder {
             Collections.singletonMap(CLUSTERING_WADI_QNAME.getLocalPart(),
             new NamespaceElementConverter(CLUSTERING_WADI_QNAME.getNamespaceURI())));
     }
-    
+
     private final int defaultSweepInterval;
     private final int defaultNumPartitions;
     private final AbstractNameQuery defaultBackingStrategyFactoryName;
@@ -129,7 +129,7 @@ public class WADIJettyClusteringBuilder implements NamespaceDrivenBuilder {
             throw new DeploymentException("Could not locate web module gbean in web app configuration", e);
         }
     }
-    
+
     protected AbstractNameQuery createJettyWebAppContextNameQuery(DeploymentContext moduleContext) {
         String name = moduleContext.getModuleName().getNameProperty(Jsr77Naming.J2EE_NAME);
         return new AbstractNameQuery(null,
@@ -176,14 +176,14 @@ public class WADIJettyClusteringBuilder implements NamespaceDrivenBuilder {
 
         return name;
     }
-    
+
     protected void setConfigInfo(GerClusteringWadiType clustering, GBeanData webModuleData, GBeanData beanData) {
         int sweepInterval = getSweepInterval(clustering);
         int numPartitions = getNumberOfPartitions(clustering);
         Integer sessionTimeout = getSessionTimeout(webModuleData);
         boolean disableReplication = isDisableReplication(clustering);
         boolean deltaReplication = isDeltaReplication(clustering);
-        
+
         String contextPath = (String) webModuleData.getAttribute("contextPath");
         URI serviceSpaceName;
         try {
@@ -191,7 +191,7 @@ public class WADIJettyClusteringBuilder implements NamespaceDrivenBuilder {
         } catch (URISyntaxException e) {
             throw (AssertionError) new AssertionError("contextPath [" + contextPath + "] cannot be parsed as an URI.").initCause(e);
         }
-        
+
         WADISessionManagerConfigInfo configInfo = new WADISessionManagerConfigInfo(serviceSpaceName,
                 sweepInterval,
                 numPartitions,
