@@ -22,6 +22,7 @@ import org.apache.catalina.Valve;
 import org.apache.catalina.ha.CatalinaCluster;
 import org.apache.catalina.ha.ClusterDeployer;
 import org.apache.catalina.ha.ClusterListener;
+import org.apache.catalina.ha.ClusterManager;
 import org.apache.catalina.tribes.Channel;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -52,7 +53,8 @@ public class CatalinaClusterGBean extends BaseGBean implements GBeanLifecycle, O
            ClusterListenerGBean clusterListenerChain,
            ValveGBean tomcatValveChain,
            ClusterDeployerGBean deployer,
-           ChannelGBean channel) throws Exception {
+           ChannelGBean channel,
+           ClusterManagerGBean manager) throws Exception {
        
        super(); // TODO: make it an attribute
        
@@ -94,6 +96,11 @@ public class CatalinaClusterGBean extends BaseGBean implements GBeanLifecycle, O
        if (channel != null){
            cluster.setChannel((Channel)channel.getInternalObject());
        }
+
+        //Add manager
+        if (manager != null) {
+            cluster.registerManager((ClusterManager) manager.getInternalObject());
+        }
    }
 
    public Object getInternalObject() {
@@ -122,6 +129,7 @@ public class CatalinaClusterGBean extends BaseGBean implements GBeanLifecycle, O
        infoFactory.addReference("TomcatValveChain", ValveGBean.class, ValveGBean.J2EE_TYPE);
        infoFactory.addReference("ClusterDeployer", ClusterDeployerGBean.class, ClusterDeployerGBean.J2EE_TYPE);
        infoFactory.addReference("Channel", ChannelGBean.class, ChannelGBean.J2EE_TYPE);
+       infoFactory.addReference("ClusterManager", ClusterManagerGBean.class, ClusterManagerGBean.J2EE_TYPE);
        infoFactory.addOperation("getInternalObject", "Object");
        infoFactory.setConstructor(new String[] { 
                "className", 
@@ -129,7 +137,8 @@ public class CatalinaClusterGBean extends BaseGBean implements GBeanLifecycle, O
                "ClusterListenerChain",
                "TomcatValveChain",
                "ClusterDeployer",
-               "Channel"});
+               "Channel",
+               "ClusterManager"});
        GBEAN_INFO = infoFactory.getBeanInfo();
    }
 
