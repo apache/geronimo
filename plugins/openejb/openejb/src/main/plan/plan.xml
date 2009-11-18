@@ -93,7 +93,7 @@
         <attribute name="multicastHost">${PlanOpenEJBMulticastHostname}</attribute>
         <attribute name="clusterName">cluster1</attribute>
         <attribute name="enableMulticast">true</attribute>
-        <attribute name="discoveryURI">ejb:ejbd://${PlanServerHostname}:${PlanServerPort}</attribute>
+        <attribute name="discoveryURI">ejb:ejbd://${PlanServerHostname}:${PlanOpenEJBPort}</attribute>
         <attribute name="secure">false</attribute>
         <dependency>
             <name>OpenEjbSystem</name>
