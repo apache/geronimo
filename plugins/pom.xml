@@ -108,7 +108,7 @@
         <module>derby</module>
         <!--<module>dojo</module>-->
         <!--<module>debugviews</module>-->
-        <!--<module>hotdeploy</module>-->
+        <module>hotdeploy</module>
         <module>j2ee</module>
         <module>jasper</module>
         <module>javamail</module>

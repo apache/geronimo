@@ -164,6 +164,7 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle {
         System.setProperty("duct tape", "");
         System.setProperty("admin.disabled", "true");
         System.setProperty("openejb.logger.external", "true");
+        System.setProperty("openejb.log.factory", "org.apache.openejb.util.PaxLogStreamFactory");
 
         setDefaultProperty("openejb.deploymentId.format", "{moduleId}/{ejbName}");
         setDefaultProperty("openejb.jndiname.strategy.class", "org.apache.openejb.assembler.classic.JndiBuilder$TemplatedStrategy");
@@ -171,7 +172,6 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle {
         setDefaultProperty("openejb.jndiname.failoncollision", "false");
 
         System.setProperty("openejb.naming", "xbean");
-
     }
 
     public void doStart() throws Exception {

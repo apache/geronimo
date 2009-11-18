@@ -76,7 +76,7 @@
         <tomcatVersion>6.0.20.0</tomcatVersion>
         <tomcatGroupId>org.apache.geronimo.ext.tomcat</tomcatGroupId>
 
-        <openejbVersion>3.1.2-SNAPSHOT</openejbVersion>
+        <openejbVersion>3.1.3-SNAPSHOT</openejbVersion>
         <openjpaVersion>2.0.0-M3</openjpaVersion>
         <derbyVersion>10.4.2.0</derbyVersion>
         <cxfVersion>2.1.4</cxfVersion>
