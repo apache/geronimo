@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.Enumeration;
 
 import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleReference;
 
 /**
  * @version $Rev$ $Date$
@@ -72,4 +73,13 @@ public class BundleClassLoader extends ClassLoader {
 	        return e;
 	    }
 	}
+
+    /**
+     * Return the bundle instance backing this classloader.
+     *
+     * @return The bundle used to source the classloader.
+     */
+    public Bundle getBundle() {
+        return bundle;
+    }
 }

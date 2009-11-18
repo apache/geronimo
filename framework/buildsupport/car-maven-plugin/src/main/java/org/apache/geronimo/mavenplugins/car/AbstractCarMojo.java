@@ -734,6 +734,8 @@ public abstract class AbstractCarMojo
                        "javax.swing.undo," +
                        "javax.tools," +
                        "javax.transaction;javax.transaction.xa;version=1.1;partial=true;mandatory:=partial," +
+                       "javax.util.concurrent;version=1.0," +
+                       "javax.util.concurrent.locks;version=1.0," +
                        "javax.xml," +
                        "javax.xml.bind;version=2.1," +
                        "javax.xml.bind.annotation;version=2.1," +
