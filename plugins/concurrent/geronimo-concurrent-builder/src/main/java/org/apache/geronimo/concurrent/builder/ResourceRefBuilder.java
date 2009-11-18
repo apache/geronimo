@@ -61,19 +61,20 @@ import org.apache.geronimo.xbeans.javaee.ResourceEnvRefType;
 import org.apache.geronimo.xbeans.javaee.XsdStringType;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlObject;
+import org.osgi.framework.Bundle;
 
 /**
  * @version $Rev: 587764 $ $Date: 2008/03/06 22:05:03 $
  */
 public class ResourceRefBuilder extends AbstractNamingBuilder {
     private final static Log log = LogFactory.getLog(ResourceRefBuilder.class);
-      
+
     private static final QName GER_MANAGED_OBJECT_REF_QNAME = GerResourceEnvRefDocument.type.getDocumentElementName();
     private static final QNameSet GER_MANAGED_OBJECT_REF_QNAME_SET = QNameSet.singleton(GER_MANAGED_OBJECT_REF_QNAME);
 
     private final QNameSet resourceRefQNameSet;
     private final Kernel kernel;
-    
+
     public ResourceRefBuilder(Kernel kernel, Environment defaultEnvironment, String[] eeNamespaces) {
         super(defaultEnvironment);
         this.kernel = kernel;
@@ -86,7 +87,7 @@ public class ResourceRefBuilder extends AbstractNamingBuilder {
 
     static Key<Map<String, GerResourceEnvRefType>> DEFAULT_MAPPINGS_KEY = new Key<Map<String, GerResourceEnvRefType>>() {
         public Map<String, GerResourceEnvRefType> get(Map context) {
-            Map<String, GerResourceEnvRefType> result = 
+            Map<String, GerResourceEnvRefType> result =
                 (Map<String, GerResourceEnvRefType>) context.get(this);
             if (result == null) {
                 result = new HashMap<String, GerResourceEnvRefType>();
@@ -95,11 +96,11 @@ public class ResourceRefBuilder extends AbstractNamingBuilder {
             return result;
         }
     };
-    
+
     public void buildNaming(XmlObject specDD, XmlObject plan, Module module, Map componentContext) throws DeploymentException {
         XmlObject[] gerResourceEnvRefsUntyped = plan == null ? NO_REFS : plan.selectChildren(GER_MANAGED_OBJECT_REF_QNAME_SET);
         Map<String, GerResourceEnvRefType> refMap = mapResourceEnvRefs(gerResourceEnvRefsUntyped);
-        
+
         // Discover and process any @Resource annotations (if !metadata-complete)
         if (module.getClassFinder() != null) {
             // Process all the annotations for this naming builder type
@@ -109,31 +110,31 @@ public class ResourceRefBuilder extends AbstractNamingBuilder {
             } catch (Exception e) {
                 log.warn("Unable to process @Resource annotations for module " + module.getName(), e);
             }
-        }        
-                
+        }
+
         Map<String, GerResourceEnvRefType> defaultMappings = DEFAULT_MAPPINGS_KEY.get(module.getSharedContext());
         refMap.putAll(defaultMappings);
-        
+
         List<ResourceEnvRefType> resourceEnvRefsUntyped = convert(specDD.selectChildren(resourceRefQNameSet), JEE_CONVERTER, ResourceEnvRefType.class, ResourceEnvRefType.type);
-        ClassLoader cl = module.getEarContext().getClassLoader();
+        Bundle bundle = module.getEarContext().getBundle();
         for (ResourceEnvRefType resourceEnvRef : resourceEnvRefsUntyped) {
             String name = getStringValue(resourceEnvRef.getResourceEnvRefName());
             String type = getStringValue(resourceEnvRef.getResourceEnvRefType());
-            
+
             addInjections(name, resourceEnvRef.getInjectionTargetArray(), componentContext);
-            
+
             Class iface;
             try {
-                iface = cl.loadClass(type);
+                iface = bundle.loadClass(type);
             } catch (ClassNotFoundException e) {
                 throw new DeploymentException("could not load class " + type, e);
             }
-            
+
             GerResourceEnvRefType gerResourceEnvRef = refMap.remove(name);
-            
+
             String j2eeType = null;
             if (iface == ContextService.class) {
-                
+
             } else if (iface == ManagedThreadFactory.class) {
                 j2eeType = ManagedConstants.MANAGED_THREAD_FACTORY;
             } else if (iface == ManagedExecutorService.class) {
@@ -144,7 +145,7 @@ public class ResourceRefBuilder extends AbstractNamingBuilder {
                 log.debug("Ignoring non-managed resource reference type: " + iface);
                 continue;
             }
-            
+
             try {
                 // TODO: should we also pass interfaces to discover the right gbeans?
                 AbstractNameQuery containerId = getAdminObjectContainerId(name, j2eeType, gerResourceEnvRef);
@@ -158,7 +159,7 @@ public class ResourceRefBuilder extends AbstractNamingBuilder {
                                 + (e.isMultiple() ? "found multiple matching resources"
                                         : "no matching resources found") + ")", e);
             }
-        }              
+        }
     }
 
     private ResourceReferenceFactory buildManagedObjectReference(Module module, AbstractNameQuery containerId, Class iface) throws DeploymentException {
@@ -205,51 +206,51 @@ public class ResourceRefBuilder extends AbstractNamingBuilder {
     public int getPriority() {
         return NORMAL_PRIORITY - 5;
     }
-    
+
     public QNameSet getSpecQNameSet() {
         return QNameSet.EMPTY;
     }
 
     public QNameSet getPlanQNameSet() {
-        return QNameSet.EMPTY;       
+        return QNameSet.EMPTY;
     }
 
     private static class ManagedResourceRefProcessor extends ResourceAnnotationHelper.ResourceProcessor {
 
         private Map<String, GerResourceEnvRefType> refMap;
         private Map sharedContext;
-        
+
         public ManagedResourceRefProcessor(Map<String, GerResourceEnvRefType> refMap,
-                                           Map sharedContext) {    
+                                           Map sharedContext) {
             this.refMap = refMap;
-            this.sharedContext = sharedContext;        
+            this.sharedContext = sharedContext;
         }
-        
+
         private static String getDefaultServiceMapping(String resourceType) {
             if (resourceType.equals(ContextService.class.getName())) {
                 return "DefaultContextService";
             } else if (resourceType.equals(ManagedThreadFactory.class.getName())) {
                 return "DefaultManagedThreadFactory";
             } else if (resourceType.equals(ManagedExecutorService.class.getName())) {
-                return "DefaultManagedExecutorService";                
+                return "DefaultManagedExecutorService";
             } else if (resourceType.equals(ManagedScheduledExecutorService.class.getName())) {
                 return "DefaultManagedScheduledExecutorService";
             } else {
                 throw new IllegalArgumentException("Invalid resource type: " + resourceType);
-            }            
+            }
         }
-        
+
         public boolean processResource(AnnotatedApp annotatedApp, Resource annotation, Class cls, Method method, Field field) throws DeploymentException {
             String resourceName = getResourceName(annotation, method, field);
             String resourceType = getResourceType(annotation, method, field);
-                        
+
             if (resourceType.equals(ContextService.class.getName()) ||
                 resourceType.equals(ManagedThreadFactory.class.getName()) ||
                 resourceType.equals(ManagedExecutorService.class.getName()) ||
                 resourceType.equals(ManagedScheduledExecutorService.class.getName())) {
-                
+
                 ResourceEnvRefType resourceEnvRef = null;
-                
+
                 ResourceEnvRefType[] ResourceEnvRefs = annotatedApp.getResourceEnvRefArray();
                 for (ResourceEnvRefType resourceEnvRefType : ResourceEnvRefs) {
                     if (resourceEnvRefType.getResourceEnvRefName().getStringValue().trim().equals(resourceName)) {
@@ -257,40 +258,40 @@ public class ResourceRefBuilder extends AbstractNamingBuilder {
                         break;
                     }
                 }
-                
+
                 if (resourceEnvRef == null) {
                     resourceEnvRef = annotatedApp.addNewResourceEnvRef();
-                    
+
                     // resource-env-ref-name
                     JndiNameType resourceEnvRefName = resourceEnvRef.addNewResourceEnvRefName();
                     resourceEnvRefName.setStringValue(resourceName);
                     resourceEnvRef.setResourceEnvRefName(resourceEnvRefName);
                 }
-                
+
                 // resource-env-ref-type
                 if (!resourceEnvRef.isSetResourceEnvRefType() && !resourceType.equals("")) {
                     FullyQualifiedClassType qualifiedClass = resourceEnvRef.addNewResourceEnvRefType();
                     qualifiedClass.setStringValue(resourceType);
                     resourceEnvRef.setResourceEnvRefType(qualifiedClass);
                 }
-                
+
                 // description
-                if ((resourceEnvRef.getDescriptionArray() == null || 
+                if ((resourceEnvRef.getDescriptionArray() == null ||
                      resourceEnvRef.getDescriptionArray().length == 0) &&
                      annotation.description().trim().length() > 0) {
                     DescriptionType description = resourceEnvRef.addNewDescription();
                     String descriptionAnnotation = annotation.description();
                     description.setStringValue(descriptionAnnotation);
-                    
+
                 }
-                
+
                 // mapped-name
                 if (!resourceEnvRef.isSetMappedName() && annotation.mappedName().trim().length() > 0) {
                     XsdStringType mappedName = resourceEnvRef.addNewMappedName();
                     mappedName.setStringValue(annotation.mappedName().trim());
                     resourceEnvRef.setMappedName(mappedName);
                 }
-                    
+
                 // injection target
                 if (method != null || field != null) {
                     InjectionTargetType[] targets = resourceEnvRef.getInjectionTargetArray();
@@ -298,24 +299,24 @@ public class ResourceRefBuilder extends AbstractNamingBuilder {
                         configureInjectionTarget(resourceEnvRef.addNewInjectionTarget(), method, field);
                     }
                 }
-                    
+
                 // automatically map to default services
                 if (annotation.name().trim().length() == 0 && !refMap.containsKey(resourceName)) {
                     GerResourceEnvRefType gerResourceEnvRefType = GerResourceEnvRefType.Factory.newInstance();
                     gerResourceEnvRefType.setRefName(resourceName);
- 
+
                     GerPatternType patternType = gerResourceEnvRefType.addNewPattern();
-                    
+
                     patternType.setName(getDefaultServiceMapping(resourceType));
-                    
+
                     DEFAULT_MAPPINGS_KEY.get(sharedContext).put(resourceName, gerResourceEnvRefType);
                 }
-            }                     
-            
+            }
+
             return true;
         }
     }
-    
+
     public static final GBeanInfo GBEAN_INFO;
 
     static {
@@ -324,8 +325,8 @@ public class ResourceRefBuilder extends AbstractNamingBuilder {
         infoBuilder.addAttribute("eeNamespaces", String[].class, true, true);
         infoBuilder.addAttribute("defaultEnvironment", Environment.class, true, true);
 
-        infoBuilder.setConstructor(new String[]{ "kernel", 
-                                                 "defaultEnvironment", 
+        infoBuilder.setConstructor(new String[]{ "kernel",
+                                                 "defaultEnvironment",
                                                  "eeNamespaces" });
 
         GBEAN_INFO = infoBuilder.getBeanInfo();

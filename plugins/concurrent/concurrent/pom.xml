@@ -40,6 +40,11 @@
     <dependencies>
 
         <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-concurrent_1.0_spec</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>transaction-1_6</artifactId>
             <type>car</type>

@@ -33,6 +33,8 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.management.ManagedConstants;
+import org.osgi.framework.Bundle;
+
 
 public class ComponentManagedScheduledExecutorServiceGBean implements GBeanLifecycle, ModuleAwareResourceSource {
 
@@ -41,35 +43,35 @@ public class ComponentManagedScheduledExecutorServiceGBean implements GBeanLifec
     protected ManagedScheduledExecutorService executor;
 
     protected int corePoolSize;
-    protected ManagedThreadFactory threadFactory;    
+    protected ManagedThreadFactory threadFactory;
     protected ManagedContextHandlerChain contextHandler;
-   
-    public ComponentManagedScheduledExecutorServiceGBean(ClassLoader classLoader,
+
+    public ComponentManagedScheduledExecutorServiceGBean(Bundle bundle,
                                                          int corePoolSize,
                                                          GeronimoManagedThreadFactorySource threadFactorySource,
                                                          String[] contextHandlerClasses) {
         this.corePoolSize = corePoolSize;
         this.threadFactory = threadFactorySource.getManagedThreadFactory();
-        List<ManagedContextHandler> handlers = 
-            ContextHandlerUtils.loadHandlers(classLoader, contextHandlerClasses);
+        List<ManagedContextHandler> handlers =
+            ContextHandlerUtils.loadHandlers(bundle, contextHandlerClasses);
         this.contextHandler = new ManagedContextHandlerChain(handlers);
     }
 
     protected synchronized ManagedScheduledExecutorService getManagedScheduledExecutorService() {
         if (this.executor == null) {
-            this.executor = new ComponentManagedScheduledExecutorService(this.corePoolSize, 
+            this.executor = new ComponentManagedScheduledExecutorService(this.corePoolSize,
                                                                          this.threadFactory,
                                                                          this.contextHandler);
         }
-        return this.executor;        
+        return this.executor;
     }
-    
+
     protected synchronized void shutdownExecutor() {
         if (this.executor != null) {
             this.executor.shutdown();
         }
     }
-    
+
     public Object $getResource(AbstractName moduleID) {
         return new ManagedScheduledExecutorServiceFacade(getManagedScheduledExecutorService(), false);
     }
@@ -80,25 +82,25 @@ public class ComponentManagedScheduledExecutorServiceGBean implements GBeanLifec
     public void doFail() {
         shutdownExecutor();
     }
-    
+
     public void doStop() throws Exception {
         doFail();
     }
 
     static {
-        GBeanInfoBuilder infoFactory = 
-            GBeanInfoBuilder.createStatic(ComponentManagedScheduledExecutorServiceGBean.class, 
+        GBeanInfoBuilder infoFactory =
+            GBeanInfoBuilder.createStatic(ComponentManagedScheduledExecutorServiceGBean.class,
                                           ManagedConstants.MANAGED_EXECUTOR_SERVICE);
 
-        infoFactory.addAttribute("classLoader", ClassLoader.class, false);
-        
+        infoFactory.addAttribute("bundle", Bundle.class, false);
+
         infoFactory.addAttribute("corePoolSize", int.class, true);
         infoFactory.addAttribute("contextHandlers", String[].class, true);
 
         infoFactory.addReference("threadFactory", GeronimoManagedThreadFactorySource.class);
 
-        infoFactory.setConstructor(new String[] { "classLoader",
-                                                  "corePoolSize", 
+        infoFactory.setConstructor(new String[] { "bundle",
+                                                  "corePoolSize",
                                                   "threadFactory",
                                                   "contextHandlers" });
 

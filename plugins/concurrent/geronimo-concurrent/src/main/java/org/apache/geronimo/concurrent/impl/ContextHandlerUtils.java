@@ -22,18 +22,19 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.concurrent.ManagedContextHandler;
+import org.osgi.framework.Bundle;
 
 public class ContextHandlerUtils {
-        
+
     private final static Log LOG = LogFactory.getLog(ContextHandlerUtils.class);
-    
-    public static List<ManagedContextHandler> loadHandlers(ClassLoader classLoader,
+
+    public static List<ManagedContextHandler> loadHandlers(Bundle bundle,
                                                            String[] handlerClasses) {
         List<ManagedContextHandler> handlers = new ArrayList<ManagedContextHandler>();
         if (handlerClasses != null) {
             for (String handlerClass : handlerClasses) {
                 try {
-                    handlers.add(loadHandler(classLoader, handlerClass.trim()));
+                    handlers.add(loadHandler(bundle, handlerClass.trim()));
                 } catch (Exception e) {
                     LOG.warn("Failed to load context handler class " + handlerClass, e);
                 }
@@ -41,15 +42,15 @@ public class ContextHandlerUtils {
         }
         return handlers;
     }
-    
-    public static ManagedContextHandler loadHandler(ClassLoader classLoader, 
+
+    public static ManagedContextHandler loadHandler(Bundle bundle,
                                                     String className)
         throws Exception {
-        Class clazz = classLoader.loadClass(className);
+        Class clazz = bundle.loadClass(className);
         if (!ManagedContextHandler.class.isAssignableFrom(clazz)) {
             throw new Exception("Class " + className + " is not a ManagedContextHandler class");
         }
         return (ManagedContextHandler) clazz.newInstance();
     }
-               
+
 }

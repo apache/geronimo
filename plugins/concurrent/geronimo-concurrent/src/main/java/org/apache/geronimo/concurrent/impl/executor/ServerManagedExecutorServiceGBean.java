@@ -33,38 +33,39 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.management.EventProvider;
 import org.apache.geronimo.management.ManagedConstants;
+import org.osgi.framework.Bundle;
 
 public class ServerManagedExecutorServiceGBean extends ComponentManagedExecutorServiceGBean implements EventProvider, org.apache.geronimo.management.ManagedExecutorService {
 
     public static final GBeanInfo GBEAN_INFO;
 
     private AbstractName name;
-    
+
     private ServerManagedThreadFactory threadFactory;
-    
-    public ServerManagedExecutorServiceGBean(Kernel kernel,                                              
-                                             AbstractName name, 
-                                             ClassLoader classLoader, 
+
+    public ServerManagedExecutorServiceGBean(Kernel kernel,
+                                             AbstractName name,
+                                             Bundle bundle,
                                              int minPoolSize,
                                              int maxPoolSize,
                                              long keepAliveTime,
                                              int queueCapacity,
                                              GeronimoManagedThreadFactorySource threadFactorySource,
                                              String[] contextHandlerClasses) {
-        super(classLoader, minPoolSize, maxPoolSize, keepAliveTime, queueCapacity, threadFactorySource, contextHandlerClasses);               
-        this.name = name;    
-        
+        super(bundle, minPoolSize, maxPoolSize, keepAliveTime, queueCapacity, threadFactorySource, contextHandlerClasses);
+        this.name = name;
+
         NotificationHelper notificationHelper = new NotificationHelper(kernel, name);
         this.threadFactory = new ServerManagedThreadFactory(threadFactorySource.getManagedThreadFactory(), notificationHelper);
     }
-          
+
     protected synchronized ManagedExecutorService getManagedExecutorService() {
         if (this.executor == null) {
             BlockingQueue<Runnable> queue = null;
             if (this.queueCapacity <= 0) {
                 queue = new LinkedBlockingQueue<Runnable>();
             } else {
-                queue = new ArrayBlockingQueue<Runnable>(this.queueCapacity); 
+                queue = new ArrayBlockingQueue<Runnable>(this.queueCapacity);
             }
             this.executor = new ServerManagedExecutorService(this.minPoolSize,
                                                              this.maxPoolSize,
@@ -74,22 +75,22 @@ public class ServerManagedExecutorServiceGBean extends ComponentManagedExecutorS
                                                              this.threadFactory,
                                                              this.contextHandler);
         }
-        return this.executor;        
+        return this.executor;
     }
-        
+
     @Override
     public Object $getResource(AbstractName moduleID) {
         return new ManagedExecutorServiceModuleFacade(getManagedExecutorService(), moduleID);
     }
-       
+
     public AbstractName getName() {
         return this.name;
     }
-    
+
     public String getObjectName() {
         return this.name.getObjectName().getCanonicalName();
     }
-    
+
     public String[] getEventTypes() {
         return this.threadFactory.getEventTypes();
     }
@@ -101,7 +102,7 @@ public class ServerManagedExecutorServiceGBean extends ComponentManagedExecutorS
     public String[] getThreads() {
         return this.threadFactory.getThreads();
     }
-    
+
     public boolean isEventProvider() {
         return true;
     }
@@ -113,19 +114,19 @@ public class ServerManagedExecutorServiceGBean extends ComponentManagedExecutorS
     public boolean isStatisticsProvider() {
         return false;
     }
-    
+
     protected void verifyObjectName() {
-        GBeanBuilder.verifyObjectName(getObjectName(),  
+        GBeanBuilder.verifyObjectName(getObjectName(),
                                       ManagedConstants.MANAGED_EXECUTOR_SERVICE,
                                       ManagedConstants.MANAGED_EXECUTOR_SERVICE);
     }
-    
+
     static {
-        GBeanInfoBuilder infoFactory = 
-            GBeanInfoBuilder.createStatic(ServerManagedExecutorServiceGBean.class, 
+        GBeanInfoBuilder infoFactory =
+            GBeanInfoBuilder.createStatic(ServerManagedExecutorServiceGBean.class,
                                           ManagedConstants.MANAGED_EXECUTOR_SERVICE);
 
-        infoFactory.addAttribute("classLoader", ClassLoader.class, false);
+        infoFactory.addAttribute("bundle", Bundle.class, false);
         infoFactory.addAttribute("abstractName", AbstractName.class, false);
         infoFactory.addAttribute("kernel", Kernel.class, false);
 
@@ -134,14 +135,14 @@ public class ServerManagedExecutorServiceGBean extends ComponentManagedExecutorS
         infoFactory.addAttribute("keepAliveTime", long.class, true);
         infoFactory.addAttribute("queueCapacity", int.class, true);
         infoFactory.addAttribute("contextHandlers", String[].class, true);
-        
+
         infoFactory.addReference("threadFactory", GeronimoManagedThreadFactorySource.class);
-        
+
         infoFactory.addInterface(org.apache.geronimo.management.ManagedExecutorService.class);
 
-        infoFactory.setConstructor(new String[] { "kernel",  
-                                                  "abstractName", 
-                                                  "classLoader",
+        infoFactory.setConstructor(new String[] { "kernel",
+                                                  "abstractName",
+                                                  "bundle",
                                                   "minPoolSize",
                                                   "maxPoolSize",
                                                   "keepAliveTime",
@@ -155,5 +156,5 @@ public class ServerManagedExecutorServiceGBean extends ComponentManagedExecutorS
     public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
     }
-      
+
 }

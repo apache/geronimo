@@ -37,6 +37,8 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.management.ManagedConstants;
+import org.osgi.framework.Bundle;
+
 
 public class ComponentManagedExecutorServiceGBean implements GBeanLifecycle, ModuleAwareResourceSource {
 
@@ -48,10 +50,10 @@ public class ComponentManagedExecutorServiceGBean implements GBeanLifecycle, Mod
     protected int maxPoolSize;
     protected long keepAliveTime;
     protected int queueCapacity;
-    protected ManagedThreadFactory threadFactory;    
+    protected ManagedThreadFactory threadFactory;
     protected ManagedContextHandlerChain contextHandler;
-   
-    public ComponentManagedExecutorServiceGBean(ClassLoader classLoader,
+
+    public ComponentManagedExecutorServiceGBean(Bundle bundle,
                                                 int minPoolSize,
                                                 int maxPoolSize,
                                                 long keepAliveTime,
@@ -63,8 +65,8 @@ public class ComponentManagedExecutorServiceGBean implements GBeanLifecycle, Mod
         this.keepAliveTime = keepAliveTime;
         this.queueCapacity = queueCapacity;
         this.threadFactory = threadFactorySource.getManagedThreadFactory();
-        List<ManagedContextHandler> handlers = 
-            ContextHandlerUtils.loadHandlers(classLoader, contextHandlerClasses);
+        List<ManagedContextHandler> handlers =
+            ContextHandlerUtils.loadHandlers(bundle, contextHandlerClasses);
         this.contextHandler = new ManagedContextHandlerChain(handlers);
     }
 
@@ -74,25 +76,25 @@ public class ComponentManagedExecutorServiceGBean implements GBeanLifecycle, Mod
             if (this.queueCapacity <= 0) {
                 queue = new LinkedBlockingQueue<Runnable>();
             } else {
-                queue = new ArrayBlockingQueue<Runnable>(this.queueCapacity); 
+                queue = new ArrayBlockingQueue<Runnable>(this.queueCapacity);
             }
             this.executor = new ComponentManagedExecutorService(this.minPoolSize,
                                                                 this.maxPoolSize,
                                                                 this.keepAliveTime,
                                                                 TimeUnit.MILLISECONDS,
-                                                                queue, 
+                                                                queue,
                                                                 this.threadFactory,
                                                                 this.contextHandler);
         }
-        return this.executor;        
+        return this.executor;
     }
-    
+
     protected synchronized void shutdownExecutor() {
         if (this.executor != null) {
             this.executor.shutdown();
         }
     }
-    
+
     public Object $getResource(AbstractName moduleID) {
         return new ManagedExecutorServiceFacade(getManagedExecutorService(), false);
     }
@@ -103,18 +105,18 @@ public class ComponentManagedExecutorServiceGBean implements GBeanLifecycle, Mod
     public void doFail() {
         shutdownExecutor();
     }
-    
+
     public void doStop() throws Exception {
         doFail();
     }
 
     static {
-        GBeanInfoBuilder infoFactory = 
-            GBeanInfoBuilder.createStatic(ComponentManagedExecutorServiceGBean.class, 
+        GBeanInfoBuilder infoFactory =
+            GBeanInfoBuilder.createStatic(ComponentManagedExecutorServiceGBean.class,
                                           ManagedConstants.MANAGED_EXECUTOR_SERVICE);
 
-        infoFactory.addAttribute("classLoader", ClassLoader.class, false);
-        
+        infoFactory.addAttribute("bundle", Bundle.class, false);
+
         infoFactory.addAttribute("minPoolSize", int.class, true);
         infoFactory.addAttribute("maxPoolSize", int.class, true);
         infoFactory.addAttribute("keepAliveTime", long.class, true);
@@ -123,10 +125,10 @@ public class ComponentManagedExecutorServiceGBean implements GBeanLifecycle, Mod
 
         infoFactory.addReference("threadFactory", GeronimoManagedThreadFactorySource.class);
 
-        infoFactory.setConstructor(new String[] { "classLoader",
-                                                  "minPoolSize", 
-                                                  "maxPoolSize", 
-                                                  "keepAliveTime", 
+        infoFactory.setConstructor(new String[] { "bundle",
+                                                  "minPoolSize",
+                                                  "maxPoolSize",
+                                                  "keepAliveTime",
                                                   "queueCapacity",
                                                   "threadFactory",
                                                   "contextHandlers" });

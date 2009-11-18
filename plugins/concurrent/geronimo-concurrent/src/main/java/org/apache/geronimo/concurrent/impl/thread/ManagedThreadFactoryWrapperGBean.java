@@ -26,43 +26,44 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.management.ManagedConstants;
+import org.osgi.framework.Bundle;
 
 /**
- * Deploys ManagedThreadFactoryGBean under the right JMX object name. 
+ * Deploys ManagedThreadFactoryGBean under the right JMX object name.
  */
-public class ManagedThreadFactoryWrapperGBean 
+public class ManagedThreadFactoryWrapperGBean
     extends GBeanBuilder
-    implements GBeanLifecycle, 
+    implements GBeanLifecycle,
                GeronimoManagedThreadFactorySource {
 
     private final static Log LOG = LogFactory.getLog(ManagedThreadFactoryWrapperGBean.class);
-    
+
     public static final GBeanInfo GBEAN_INFO;
 
     private AbstractName name;
-   
+
     private String groupName;
     private boolean daemonThread;
     private int threadPriority;
     private long hungTaskThreshold;
     private long hungTaskMonitorFrequency;
     private String[] contextHandlerClasses;
-    
+
     private AbstractName threadFactoryName;
     private ManagedThreadFactoryGBean threadFactoryGBean;
-        
-    public ManagedThreadFactoryWrapperGBean(Kernel kernel, 
-                                            ClassLoader classLoader, 
-                                            AbstractName name, 
+
+    public ManagedThreadFactoryWrapperGBean(Kernel kernel,
+                                            Bundle bundle,
+                                            AbstractName name,
                                             String[] contextHandlerClasses,
                                             String groupName,
                                             int threadPriority,
                                             boolean daemonThread,
                                             long hungTaskThreshold,
-                                            long hungTaskMonitorFrequency) {    
-        super(kernel, classLoader);
+                                            long hungTaskMonitorFrequency) {
+        super(kernel, bundle);
         this.name = name;
-                
+
         this.contextHandlerClasses = contextHandlerClasses;
         this.groupName = groupName;
         this.daemonThread = daemonThread;
@@ -70,12 +71,12 @@ public class ManagedThreadFactoryWrapperGBean
         this.hungTaskThreshold = hungTaskThreshold;
         this.hungTaskMonitorFrequency = hungTaskMonitorFrequency;
     }
-            
+
     public GeronimoManagedThreadFactory getManagedThreadFactory() {
         return (this.threadFactoryGBean == null) ? null : this.threadFactoryGBean.getManagedThreadFactory();
     }
-        
-    public void doStart() throws Exception {   
+
+    public void doStart() throws Exception {
         String threadName =  (String)this.name.getName().get("name");
         this.threadFactoryName = kernel.getNaming().createRootName(name.getArtifact(), threadName, ManagedConstants.MANAGED_THREAD_FACTORY);
         GBeanData threadFactoryData = new GBeanData(this.threadFactoryName, ManagedThreadFactoryGBean.getGBeanInfo());
@@ -85,13 +86,13 @@ public class ManagedThreadFactoryWrapperGBean
         threadFactoryData.setAttribute("daemon", this.daemonThread);
         threadFactoryData.setAttribute("hungTaskThreshold", this.hungTaskThreshold);
         threadFactoryData.setAttribute("hungTaskMonitorFrequency", this.hungTaskMonitorFrequency);
-        
+
         addGBeanKernel(this.threadFactoryName, threadFactoryData);
 
         this.threadFactoryGBean = (ManagedThreadFactoryGBean)kernel.getGBean(this.threadFactoryName);
         this.threadFactoryGBean.verifyObjectName();
     }
-                
+
     public void doFail() {
         try {
             doStop();
@@ -99,34 +100,34 @@ public class ManagedThreadFactoryWrapperGBean
             // ignore
         }
     }
-    
+
     public void doStop() throws Exception {
         this.threadFactoryGBean = null;
         if (this.threadFactoryName != null) {
             removeGBeanKernel(this.threadFactoryName);
         }
     }
-    
+
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(ManagedThreadFactoryWrapperGBean.class, ManagedConstants.MANAGED_THREAD_FACTORY + "Builder");
 
-        infoFactory.addAttribute("classLoader", ClassLoader.class, false, false);
+        infoFactory.addAttribute("bundle", Bundle.class, false, false);
         infoFactory.addAttribute("abstractName", AbstractName.class, false, false);
         infoFactory.addAttribute("kernel", Kernel.class, false, false);
-                
+
         infoFactory.addAttribute("contextHandlers", String[].class, true, false);
-        
+
         infoFactory.addAttribute("groupName", String.class, true);
         infoFactory.addAttribute("priority", int.class, true);
-        infoFactory.addAttribute("daemon", boolean.class, true);  
+        infoFactory.addAttribute("daemon", boolean.class, true);
         infoFactory.addAttribute("hungTaskThreshold", long.class, true);
         infoFactory.addAttribute("hungTaskMonitorFrequency", long.class, true);
 
         infoFactory.addInterface(GeronimoManagedThreadFactorySource.class);
-        
-        infoFactory.setConstructor(new String[]{"kernel", 
-                                                "classLoader", 
-                                                "abstractName", 
+
+        infoFactory.setConstructor(new String[]{"kernel",
+                                                "bundle",
+                                                "abstractName",
                                                 "contextHandlers",
                                                 "groupName",
                                                 "priority",

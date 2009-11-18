@@ -30,22 +30,24 @@ import org.apache.geronimo.kernel.KernelException;
 import org.apache.geronimo.kernel.ObjectNameUtil;
 import org.apache.geronimo.kernel.management.State;
 
-public class GBeanBuilder {
-    
-    protected Kernel kernel;
-    protected ClassLoader classLoader;
+import org.osgi.framework.Bundle;
 
-    public GBeanBuilder(Kernel kernel, ClassLoader classLoader) {
+public class GBeanBuilder {
+
+    protected Kernel kernel;
+    protected Bundle bundle;
+
+    public GBeanBuilder(Kernel kernel, Bundle bundle) {
         this.kernel = kernel;
-        this.classLoader = classLoader;        
+        this.bundle = bundle;
     }
-    
+
     /* in memory */
     protected void addGBeanKernel(AbstractName gbeanName, GBeanData threadData) throws KernelException {
-        kernel.loadGBean(threadData, this.classLoader);           
+        kernel.loadGBean(threadData, this.bundle.getBundleContext());
         kernel.startRecursiveGBean(gbeanName);
     }
-    
+
     /* in memory */
     protected void removeGBeanKernel(AbstractName gbeanName) {
         try {
@@ -57,9 +59,9 @@ public class GBeanBuilder {
             // Bean is no longer loaded
         }
     }
-    
+
     /**
-     * ObjectName must match this pattern: 
+     * ObjectName must match this pattern:
      * domain:j2eeType=&lt;j2eeType&gt;,name=MyName,J2EEServer=MyServer
      */
     public static void verifyObjectName(String objectNameStr, String j2eeType, String name) {
@@ -76,7 +78,7 @@ public class GBeanBuilder {
         }
         if (!keyPropertyList.containsKey(NameFactory.J2EE_NAME)) {
             throw new InvalidObjectNameException(
-                    name + " object must contain a name property", 
+                    name + " object must contain a name property",
                     objectName);
         }
         if (!keyPropertyList.containsKey(NameFactory.J2EE_SERVER)) {

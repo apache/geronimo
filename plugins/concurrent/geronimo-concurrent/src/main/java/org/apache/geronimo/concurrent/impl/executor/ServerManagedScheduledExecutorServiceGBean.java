@@ -28,50 +28,51 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.management.EventProvider;
 import org.apache.geronimo.management.ManagedConstants;
+import org.osgi.framework.Bundle;
 
 public class ServerManagedScheduledExecutorServiceGBean extends ComponentManagedScheduledExecutorServiceGBean implements EventProvider, org.apache.geronimo.management.ManagedExecutorService {
 
     public static final GBeanInfo GBEAN_INFO;
 
     private AbstractName name;
-    
+
     private ServerManagedThreadFactory threadFactory;
-    
-    public ServerManagedScheduledExecutorServiceGBean(Kernel kernel,                                              
-                                                      AbstractName name, 
-                                                      ClassLoader classLoader, 
+
+    public ServerManagedScheduledExecutorServiceGBean(Kernel kernel,
+                                                      AbstractName name,
+                                                      Bundle bundle,
                                                       int corePoolSize,
                                                       GeronimoManagedThreadFactorySource threadFactorySource,
                                                       String[] contextHandlerClasses) {
-        super(classLoader, corePoolSize, threadFactorySource, contextHandlerClasses);               
-        this.name = name;      
-        
+        super(bundle, corePoolSize, threadFactorySource, contextHandlerClasses);
+        this.name = name;
+
         NotificationHelper notificationHelper = new NotificationHelper(kernel, name);
         this.threadFactory = new ServerManagedThreadFactory(threadFactorySource.getManagedThreadFactory(), notificationHelper);
     }
-          
+
     protected synchronized ManagedScheduledExecutorService getManagedScheduledExecutorService() {
         if (this.executor == null) {
             this.executor = new ServerManagedScheduledExecutorService(this.corePoolSize,
                                                                       this.threadFactory,
                                                                       this.contextHandler);
         }
-        return this.executor;        
+        return this.executor;
     }
-        
+
     @Override
     public Object $getResource(AbstractName moduleID) {
         return new ManagedScheduledExecutorServiceModuleFacade(getManagedScheduledExecutorService(), moduleID);
     }
-       
+
     public AbstractName getName() {
         return this.name;
     }
-    
+
     public String getObjectName() {
         return this.name.getObjectName().getCanonicalName();
     }
-    
+
     public String[] getEventTypes() {
         return this.threadFactory.getEventTypes();
     }
@@ -83,7 +84,7 @@ public class ServerManagedScheduledExecutorServiceGBean extends ComponentManaged
     public String[] getThreads() {
         return this.threadFactory.getThreads();
     }
-    
+
     public boolean isEventProvider() {
         return true;
     }
@@ -95,32 +96,32 @@ public class ServerManagedScheduledExecutorServiceGBean extends ComponentManaged
     public boolean isStatisticsProvider() {
         return false;
     }
-    
+
     protected void verifyObjectName() {
-        GBeanBuilder.verifyObjectName(getObjectName(),  
+        GBeanBuilder.verifyObjectName(getObjectName(),
                                       ManagedConstants.MANAGED_EXECUTOR_SERVICE,
                                       ManagedConstants.MANAGED_EXECUTOR_SERVICE);
     }
-    
+
     static {
-        GBeanInfoBuilder infoFactory = 
-            GBeanInfoBuilder.createStatic(ServerManagedScheduledExecutorServiceGBean.class, 
+        GBeanInfoBuilder infoFactory =
+            GBeanInfoBuilder.createStatic(ServerManagedScheduledExecutorServiceGBean.class,
                                           ManagedConstants.MANAGED_EXECUTOR_SERVICE);
 
-        infoFactory.addAttribute("classLoader", ClassLoader.class, false);
+        infoFactory.addAttribute("bundle", Bundle.class, false);
         infoFactory.addAttribute("abstractName", AbstractName.class, false);
         infoFactory.addAttribute("kernel", Kernel.class, false);
 
         infoFactory.addAttribute("corePoolSize", int.class, true);
         infoFactory.addAttribute("contextHandlers", String[].class, true);
-        
+
         infoFactory.addReference("threadFactory", GeronimoManagedThreadFactorySource.class);
-        
+
         infoFactory.addInterface(org.apache.geronimo.management.ManagedExecutorService.class);
 
-        infoFactory.setConstructor(new String[] { "kernel",  
-                                                  "abstractName", 
-                                                  "classLoader",
+        infoFactory.setConstructor(new String[] { "kernel",
+                                                  "abstractName",
+                                                  "bundle",
                                                   "corePoolSize",
                                                   "threadFactory",
                                                   "contextHandlers" });
@@ -131,5 +132,5 @@ public class ServerManagedScheduledExecutorServiceGBean extends ComponentManaged
     public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
     }
-      
+
 }

@@ -27,53 +27,54 @@ import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.kernel.Kernel;
+import org.osgi.framework.Bundle;
 
 public class ContextServiceGBean implements ModuleAwareResourceSource {
 
     public static final GBeanInfo GBEAN_INFO;
-    
+
     private ManagedContextHandlerChain mainContextHandler;
     private BasicContextService contextService;
 
-    public ContextServiceGBean(Kernel kernel, 
-                               ClassLoader classLoader,
+    public ContextServiceGBean(Kernel kernel,
+                               Bundle bundle,
                                AbstractName name,
                                String[] contextHandlerClasses) {
-        List<ManagedContextHandler> handlers = 
-            ContextHandlerUtils.loadHandlers(classLoader, contextHandlerClasses);
+        List<ManagedContextHandler> handlers =
+            ContextHandlerUtils.loadHandlers(bundle, contextHandlerClasses);
         this.mainContextHandler = new ManagedContextHandlerChain(handlers);
     }
-    
+
     private synchronized BasicContextService getContextService() {
         if (this.contextService == null) {
-            this.contextService = new BasicContextService(this.mainContextHandler);            
+            this.contextService = new BasicContextService(this.mainContextHandler);
         }
         return this.contextService;
     }
-    
+
     public Object $getResource(AbstractName moduleID) {
         return new ContextServiceModuleFacade(getContextService(), moduleID);
     }
-    
+
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(ContextServiceGBean.class, "ContextService");
 
-        infoFactory.addAttribute("classLoader", ClassLoader.class, false, false);
+        infoFactory.addAttribute("bundle", ClassLoader.class, false, false);
         infoFactory.addAttribute("abstractName", AbstractName.class, false, false);
         infoFactory.addAttribute("kernel", Kernel.class, false, false);
-        
+
         infoFactory.addAttribute("contextHandlers", String[].class, true);
 
-        infoFactory.setConstructor(new String[] {"kernel", 
-                                                 "classLoader", 
+        infoFactory.setConstructor(new String[] {"kernel",
+                                                 "bundle",
                                                  "abstractName",
                                                  "contextHandlers"} );
-        
+
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 
     public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
     }
-         
+
 }
