@@ -469,9 +469,11 @@ public class GBeanOverride implements Serializable {
                 nullAttributes.remove(name);
                 clearAttributes.remove(name);
 
-                if (name.toLowerCase().indexOf("password") > -1) {
+                if ((name.toLowerCase().indexOf("password") > -1) ||
+                    (name.toLowerCase().equals("keystorepass"))) {
                     value = EncryptionManager.encrypt(value);
                 }
+
 /**
  * if there was a value such as jdbc url with &amp; then when that value was oulled
  * from the config.xml the &amp; would have been replaced/converted to '&', we need to check
