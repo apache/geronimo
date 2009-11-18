@@ -35,6 +35,8 @@ public class EjbDaemonGBean implements NetworkConnector, GBeanLifecycle {
     private int threads;
     private ServiceManager serviceManager;
 
+    private boolean secure;
+    private String discoveryURI = "ejb:ejbd://{bind}:{port}";
     private String multicastHost;
     private String clusterName;
     private int multicastPort;
@@ -109,6 +111,22 @@ public class EjbDaemonGBean implements NetworkConnector, GBeanLifecycle {
         return new InetSocketAddress(host, port);
     }
 
+    public String getDiscoveryURI() {
+        return discoveryURI;
+    }
+
+    public void setDiscoveryURI(String discoveryURI) {
+        this.discoveryURI = discoveryURI;
+    }
+
+    public boolean isSecure() {
+        return secure;
+    }
+
+    public void setSecure(boolean secure) {
+        this.secure = secure;
+    }
+
     public void doStart() throws Exception {
         Properties properties = SystemInstance.get().getProperties();
         properties.setProperty("ejbd.bind", host);
@@ -117,6 +135,8 @@ public class EjbDaemonGBean implements NetworkConnector, GBeanLifecycle {
         properties.setProperty("multicast.port", Integer.toString(multicastPort));
         properties.setProperty("multicast.disabled", Boolean.toString(!enableMulticast));
         properties.setProperty("multicast.group", clusterName);
+        properties.setProperty("ejbd.discovery", discoveryURI);
+        properties.setProperty("ejbd.secure", secure + "");
         if (threads > 0) {
             properties.setProperty("ejbd.threads", Integer.toString(threads));
         }

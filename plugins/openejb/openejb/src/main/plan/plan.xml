@@ -88,11 +88,13 @@
     <gbean name="EJBNetworkService" class="org.apache.geronimo.openejb.EjbDaemonGBean">
         <attribute name="port">${PlanOpenEJBPort}</attribute>
         <attribute name="host">${PlanServerHostname}</attribute>
-        <attribute name="threads">20</attribute>
+        <attribute name="threads">200</attribute>
         <attribute name="multicastPort">${PlanOpenEJBMulticastPort}</attribute>
         <attribute name="multicastHost">${PlanOpenEJBMulticastHostname}</attribute>
         <attribute name="clusterName">cluster1</attribute>
         <attribute name="enableMulticast">true</attribute>
+        <attribute name="discoveryURI">ejb:ejbd://${PlanServerHostname}:${PlanServerPort}</attribute>
+        <attribute name="secure">false</attribute>
         <dependency>
             <name>OpenEjbSystem</name>
         </dependency>
