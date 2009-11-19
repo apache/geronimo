@@ -21,6 +21,7 @@ package org.apache.geronimo.mavenplugins.osgi;
 
 import java.io.File;
 import java.util.List;
+import java.util.jar.JarFile;
 
 import org.apache.geronimo.mavenplugins.osgi.utils.BundleResolver;
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
@@ -59,16 +60,28 @@ public class VerifyManifestMojo extends AbstractLogEnabled implements Mojo {
     protected File targetDir = null;
     
     /**
+     * Profile name.
+     * 
+     * @parameter      
+     */
+    protected String profileName = null;
+    
+    /**
      * @parameter   
      */
     protected boolean failOnError = true;
 
     public void execute() throws MojoExecutionException, MojoFailureException {
         
-        if (!targetDir.exists()) {
+        File manifest = new File(targetDir, JarFile.MANIFEST_NAME);
+        if (!manifest.exists()) {
             return;
         }
-                
+        
+        if (profileName != null) {
+            System.setProperty("osgi.java.profile", profileName);
+        }
+        
         BundleResolver stateController = new BundleResolver(getLogger());
         
         List<String> classpath;
@@ -100,17 +113,14 @@ public class VerifyManifestMojo extends AbstractLogEnabled implements Mojo {
                 stateController.assertResolved(b);
                 log.info("OSGi bundle is resolved: " + b.getSymbolicName());
             } catch (BundleException e) {
-               // stateController.analyzeErrors(b);
+                stateController.analyzeErrors(b);
                 if (failOnError) {
-                    log.error(stateController.reportErrors(b));
                     throw new MojoExecutionException("OSGi bundle resolution failed");
-                } else {
-                    log.warn(stateController.reportErrors(b));
                 }
             }
         }    
     }
-
+    
     public void setLog(Log log) {
         this.log = log;
     }

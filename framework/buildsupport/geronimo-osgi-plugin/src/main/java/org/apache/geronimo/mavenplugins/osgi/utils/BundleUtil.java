@@ -62,7 +62,9 @@ public final class BundleUtil {
         } else {
             JarFile jar = new JarFile(file, false);
             manifest = jar.getManifest();
-            bundleName = manifest.getMainAttributes().getValue(BUNDLE_SYMBOLICNAME);
+            if (manifest != null) {
+                bundleName = manifest.getMainAttributes().getValue(BUNDLE_SYMBOLICNAME);
+            }
             jar.close();
         }
         if (bundleName != null) {

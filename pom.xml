@@ -2189,6 +2189,24 @@
                         </execution>
                     </executions>
                 </plugin>
+
+                <plugin>
+                    <groupId>org.apache.geronimo.buildsupport</groupId>
+                    <artifactId>geronimo-osgi-plugin</artifactId>
+                    <configuration> 
+                        <failOnError>false</failOnError>
+                        <profileName>Geronimo-1.6.profile</profileName>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>verify-manifest</id>
+                            <phase>package</phase>
+                            <goals>
+                                <goal>verify-manifest</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
             </plugins>
         </pluginManagement>
         <plugins>

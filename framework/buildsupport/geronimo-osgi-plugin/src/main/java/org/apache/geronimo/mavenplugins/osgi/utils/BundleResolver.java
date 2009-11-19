@@ -124,8 +124,7 @@ public class BundleResolver {
             throw new IllegalArgumentException("bundleLocation not found: " + bundleLocation);
         Dictionary manifest = loadManifestAttributes(bundleLocation);
         if (manifest == null) {
-            // throw new BundleException("manifest not found in " + bundleLocation);
-            return null;
+            throw new BundleException("Manifest not found in " + bundleLocation);
         }
         return addBundle(manifest, bundleLocation, override);
     }
@@ -136,7 +135,7 @@ public class BundleResolver {
             throw new IllegalArgumentException("bundleLocation not found: " + bundleLocation);
         Dictionary manifest = loadManifestAttributes(manifestLocation);
         if (manifest == null)
-            throw new IllegalArgumentException("manifest not found in " + manifestLocation);
+            throw new IllegalArgumentException("Manifest not found in " + manifestLocation);
         return addBundle(manifest, bundleLocation, override);
     }
 
@@ -312,9 +311,18 @@ public class BundleResolver {
                     }
                     break;
                 case IMPORT_PACKAGE_USES_CONFLICT:
+                    ImportPackageSpecification importPackage = (ImportPackageSpecification)constraint;
+                    for (BundleDescription b : getBundles()) {
+                        for (ExportPackageDescription pkg : b.getExportPackages()) {
+                            if (pkg.getName().equals(importPackage.getName())) {
+                                logError(pkg.getExporter(), level + 1, pkg.toString());
+                            }
+                        }
+                    }
+                    break;
                 case REQUIRE_BUNDLE_USES_CONFLICT:
-                default: 
-                    logger.error(reportErrors(bundle));
+                default:   
+                    // error is already logged
                     break;
             }
         }
@@ -456,7 +464,7 @@ public class BundleResolver {
         }
         return msg.toString();
     }
-
+    
     public String getManifestAttribute(BundleDescription desc, String attr) {
         Dictionary mf = (Dictionary)getUserProperty(desc, PROP_MANIFEST);
         if (mf != null) {
@@ -473,18 +481,4 @@ public class BundleResolver {
             return new File(filename);
         }
     }
-
-    /*
-    public static void main(String[] args) throws Exception {
-        BundleResolver resolver = new BundleResolver(new ConsoleLogger(Logger.LEVEL_INFO, "tuscany"));
-
-        String home = System.getProperty("user.home");
-        File jar =
-            new File(new File(home),
-                     ".m2/repository/org/apache/tuscany/sca/tuscany-sca-api/1.4-EQUINOX-SNAPSHOT/tuscany-sca-api-1.4-EQUINOX-SNAPSHOT.jar");
-        BundleDescription bundle = resolver.addBundle(jar);
-        resolver.resolveState();
-        resolver.assertResolved(bundle);
-    }
-    */
 }

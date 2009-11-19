@@ -88,6 +88,10 @@
                     </commonInstance>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.geronimo.buildsupport</groupId>
+                <artifactId>geronimo-osgi-plugin</artifactId>
+            </plugin>
         </plugins>
     </build>
 
@@ -119,7 +123,7 @@
 <!--        <module>openwebbeans</module>-->
         <!--<module>plancreator</module>-->
         <module>webservices</module>
-        <!--<module>spring</module>-->
+        <module>spring</module>
         <!--<module>ca-helper</module>-->
         <!--<module>uddi</module>-->
         <!--<module>mejb</module>-->
