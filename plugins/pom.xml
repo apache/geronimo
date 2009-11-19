@@ -133,7 +133,7 @@
         <!--<module>welcome</module>-->
         <!--<module>concurrent</module>-->
         <!--<module>procrun</module>-->
-        <module>jetty7</module>
+        <module>jetty8</module>
         <module>tomcat</module>
     </modules>
 
@@ -208,7 +208,7 @@
                 <module>welcome</module>
                 <module>concurrent</module>
                 <module>procrun</module>
-                <module>jetty7</module>
+                <module>jetty8</module>
                 <module>tomcat</module>
             </modules>
         </profile>

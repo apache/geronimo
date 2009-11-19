@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--
+    Licensed to the Apache Software Foundation (ASF) under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The ASF licenses this file to You under the Apache License, Version 2.0
+    (the "License"); you may not use this file except in compliance with
+    the License.  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+
+<!-- $Rev$ $Date$ -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.apache.geronimo.plugins</groupId>
+        <artifactId>jetty8</artifactId>
+        <version>3.0-SNAPSHOT</version>
+    </parent>
+
+    <groupId>org.apache.geronimo.configs</groupId>
+    <artifactId>jetty8</artifactId>
+    <name>Geronimo Plugins, Jetty :: Jetty 8</name>
+    <packaging>car</packaging>
+
+    <description>Geronimo Jetty Web Server integration.</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>geronimo-gbean-deployer</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>j2ee-server</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>server-security-config</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.configs</groupId>-->
+            <!--<artifactId>transaction</artifactId>-->
+            <!--<version>${version}</version>-->
+            <!--<type>car</type>-->
+        <!--</dependency>-->
+
+        <!-- This dependency should be retrieved by transitivity -->
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-jetty8</artifactId>
+            <version>${version}</version>
+        </dependency>
+
+        <!--<dependency>-->
+        <!--<groupId>org.apache.geronimo.configs</groupId>-->
+        <!--<artifactId>jasper</artifactId>-->
+        <!--<type>car</type>-->
+        <!--<version>${version}</version>-->
+        <!--</dependency>-->
+
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-server</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-ajp</artifactId>
+        </dependency>
+
+        <!--<dependency>-->
+            <!--<groupId>org.eclipse.jetty</groupId>-->
+            <!--<artifactId>jetty-ssl</artifactId>-->
+        <!--</dependency>-->
+
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-util</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>webservices-common</artifactId>
+            <type>car</type>
+            <version>${version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.components</groupId>
+            <artifactId>geronimo-jaspi</artifactId>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.geronimo.buildsupport</groupId>
+                <artifactId>car-maven-plugin</artifactId>
+                <configuration>
+                    <category>Jetty</category>
+                    <instance>
+                        <plugin-artifact>
+                            <config-xml-content>
+                                <gbean name="JettyWebConnector">
+                                    <attribute name="host">#{ServerHostname}</attribute>
+                                    <attribute name="port">#{HTTPPort + PortOffset}</attribute>
+                                    <attribute name="redirectPort">#{HTTPSPortPrimary + PortOffset}</attribute>
+                                </gbean>
+                                <gbean name="JettyAJP13Connector">
+                                    <attribute name="host">#{ServerHostname}</attribute>
+                                    <attribute name="port">#{AJPPort + PortOffset}</attribute>
+                                    <attribute name="redirectPort">#{HTTPSPortPrimary + PortOffset}</attribute>
+                                </gbean>
+                                <gbean name="JettySSLConnector">
+                                    <attribute name="host">#{ServerHostname}</attribute>
+                                    <attribute name="port">#{HTTPSPort + PortOffset}</attribute>
+                                </gbean>
+                            </config-xml-content>
+                            <config-substitution key="HTTPPort">8080</config-substitution>
+                            <config-substitution key="AJPPort">8009</config-substitution>
+                            <config-substitution key="HTTPSPort">8443</config-substitution>
+                            <config-substitution key="ServerHostname">0.0.0.0</config-substitution>
+                            <config-substitution key="webcontainer">JettyWebContainer</config-substitution>
+                            <config-substitution key="webcontainerName">jetty8</config-substitution>
+                        </plugin-artifact>
+                    </instance>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
