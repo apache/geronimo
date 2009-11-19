@@ -196,7 +196,7 @@
             <dependency>
                 <groupId>org.apache.servicemix.bundles</groupId>
                 <artifactId>org.apache.servicemix.bundles.commons-jexl</artifactId>
-                <version>1.1_2-SNAPSHOT</version>
+                <version>1.1_1</version>
                 <exclusions>
                     <exclusion>
                         <groupId>commons-logging</groupId>
@@ -235,7 +235,7 @@
             <dependency>
                 <groupId>org.apache.servicemix.bundles</groupId>
                 <artifactId>org.apache.servicemix.bundles.jline</artifactId>
-                <version>0.9.94_2-SNAPSHOT</version>
+                <version>0.9.94_1</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.servicemix.bundles</groupId>
@@ -245,17 +245,17 @@
             <dependency>
                 <groupId>org.apache.servicemix.bundles</groupId>
                 <artifactId>org.apache.servicemix.bundles.xmlresolver</artifactId>
-                <version>1.2_2-SNAPSHOT</version>
+                <version>1.2_1</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.servicemix.bundles</groupId>
                 <artifactId>org.apache.servicemix.bundles.xpp3</artifactId>
-                <version>1.1.4c_2-SNAPSHOT</version>
+                <version>1.1.4c_1</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.servicemix.bundles</groupId>
                 <artifactId>org.apache.servicemix.bundles.xstream</artifactId>
-                <version>1.3_2-SNAPSHOT</version>
+                <version>1.3_1</version>
                 <exclusions>
                     <exclusion>
                         <groupId>xpp3</groupId>

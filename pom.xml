@@ -92,7 +92,7 @@
         <servletSpec>geronimo-servlet_3.0_spec</servletSpec>
 
         <monitoringConsoleVersion>${version}</monitoringConsoleVersion>
-        <pax.logging.version>1.4</pax.logging.version>
+        <pax.logging.version>1.4.1-SNAPSHOT</pax.logging.version>
 
         <!-- Deployers -->
         <gbeanDeployerBootstrap>org.apache.geronimo.framework/geronimo-gbean-deployer-bootstrap/${version}/car
@@ -2211,6 +2211,23 @@
         </site>
     </distributionManagement>
 
+    <repositories>
+        <repository>
+            <id>ops4j.snapshots</id>
+            <name>OPS4J Snapshots Repository</name>
+            <layout>default</layout>
+            <url>http://repository.ops4j.org/mvn-snapshots/</url>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
+                <checksumPolicy>warn</checksumPolicy>
+            </snapshots>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+        </repository>
+    </repositories>
+    
     <pluginRepositories>
         <!-- required for clean build unless you want to bootstrap the car-maven-plugin -->
         <pluginRepository>

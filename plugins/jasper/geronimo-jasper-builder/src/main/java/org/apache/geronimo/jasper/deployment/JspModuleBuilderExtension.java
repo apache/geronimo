@@ -47,6 +47,9 @@ import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.ParamAttribute;
+import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.j2ee.annotation.Holder;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
@@ -85,6 +88,7 @@ import org.osgi.framework.Bundle;
  *
  * @version $Rev $Date
  */
+@GBean(j2eeType = NameFactory.MODULE_BUILDER)
 public class JspModuleBuilderExtension implements ModuleBuilderExtension {
 
     private static final Logger log = LoggerFactory.getLogger(JspModuleBuilderExtension.class);
@@ -101,7 +105,8 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
     private static final String SCHEMA_LOCATION_URL = "http://java.sun.com/xml/ns/javaee/web-jsptaglibrary_2_1.xsd";
     private static final String VERSION = "2.1";
 
-    public JspModuleBuilderExtension(Environment defaultEnvironment, NamingBuilder namingBuilders) {
+    public JspModuleBuilderExtension(@ParamAttribute(name="defaultEnvironment")Environment defaultEnvironment,
+                                     @ParamReference(name="NamingBuilders", namingType = NameFactory.MODULE_BUILDER)NamingBuilder namingBuilders) {
         this.defaultEnvironment = defaultEnvironment;
         this.namingBuilders = namingBuilders;
     }
@@ -710,20 +715,4 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
         return new URI(path);
     }
 
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(JspModuleBuilderExtension.class, NameFactory.MODULE_BUILDER);
-        infoBuilder.addAttribute("defaultEnvironment", Environment.class, true, true);
-        infoBuilder.addReference("NamingBuilders", NamingBuilder.class, NameFactory.MODULE_BUILDER);
-
-        infoBuilder.setConstructor(new String[]{
-                "defaultEnvironment",
-                "NamingBuilders"});
-        GBEAN_INFO = infoBuilder.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
 }

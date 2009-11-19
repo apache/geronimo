@@ -37,12 +37,6 @@
         <dependency>
             <groupId>${tomcatGroupId}</groupId>
             <artifactId>jasper</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.apache.geronimo.specs</groupId>
-                    <artifactId>geronimo-servlet_3.0_spec</artifactId>
-	         </exclusion>
-            </exclusions>
         </dependency>
 
         <!--<dependency>-->
@@ -53,18 +47,11 @@
         <dependency>
             <groupId>${tomcatGroupId}</groupId>
             <artifactId>jasper-el</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.eclipse.jdt</groupId>
-                    <artifactId>core</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
 
         <dependency>
             <groupId>org.apache.servicemix.bundles</groupId>
             <artifactId>org.apache.servicemix.bundles.jdt-core</artifactId>
-            <version>3.2.3_2-SNAPSHOT</version>
         </dependency>
 
         <dependency>
