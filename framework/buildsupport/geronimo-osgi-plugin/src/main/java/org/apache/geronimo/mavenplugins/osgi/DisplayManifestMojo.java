@@ -58,26 +58,26 @@ public class DisplayManifestMojo extends AbstractLogEnabled implements Mojo {
     /**
      * Output directory.
      *
-     * @parameter expression="${project.build.directory}/classes"
+     * @parameter expression="${target}" default-value="${project.build.directory}/classes"
      * @required
      */
-    protected File targetDir = null;
+    protected File target = null;
     
     public void execute() throws MojoExecutionException, MojoFailureException {
         
-        if (!targetDir.exists()) {
+        if (!target.exists()) {
             return;
         }
                 
         BundleResolver stateController = new BundleResolver(getLogger());
                 
         try {
-            stateController.addBundle(targetDir);
+            stateController.addBundle(target);
         } catch (BundleException e) {
             log.error(e.getMessage(), e);
         }        
         stateController.resolveState();
-        BundleDescription b = stateController.getBundleDescription(targetDir);                
+        BundleDescription b = stateController.getBundleDescription(target);                
         if (b != null) {
             displayImportExports(b);
         }    
