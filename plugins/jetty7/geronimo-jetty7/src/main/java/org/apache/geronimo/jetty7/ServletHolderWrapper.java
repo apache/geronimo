@@ -68,7 +68,7 @@ public class ServletHolderWrapper implements ServletNameSource, Servlet, GBeanLi
         servletHolder = new GeronimoServletHolder(context == null ? null : context.getIntegrationContext(), servletRegistration);
         servletHolder.setName(servletName);
         servletHolder.setClassName(servletClassName);
-        servletHolder.setRunAsRole(runAsRole);
+        servletHolder.getRegistration().setRunAsRole(runAsRole);
         //context will be null only for use as "default servlet info holder" in deployer.
 
         if (context != null) {

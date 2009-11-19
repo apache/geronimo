@@ -75,7 +75,7 @@ public class POJOWebServiceHolderWrapper implements ServletNameSource, GBeanLife
         if (context != null) {
             servletHolder.setName(servletName);
             servletHolder.setClassName(POJOWebServiceServlet.class.getName());
-            servletHolder.setRunAsRole(runAsRole);
+            servletHolder.getRegistration().setRunAsRole(runAsRole);
             servletHolder.setInitParameters(initParams);
             if (loadOnStartup != null) {
                 servletHolder.setInitOrder(loadOnStartup);

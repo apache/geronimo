@@ -129,7 +129,7 @@
         <!--<module>welcome</module>-->
         <!--<module>concurrent</module>-->
         <!--<module>procrun</module>-->
-        <!--<module>jetty7</module>-->
+        <module>jetty7</module>
         <module>tomcat</module>
     </modules>
 
