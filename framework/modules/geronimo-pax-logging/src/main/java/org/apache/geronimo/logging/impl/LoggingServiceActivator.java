@@ -19,7 +19,7 @@ package org.apache.geronimo.logging.impl;
 
 import org.apache.geronimo.logging.SystemLog;
 import org.apache.geronimo.main.ServerInfo;
-import org.ops4j.pax.logging.internal.Activator;
+import org.ops4j.pax.logging.service.internal.Activator;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
