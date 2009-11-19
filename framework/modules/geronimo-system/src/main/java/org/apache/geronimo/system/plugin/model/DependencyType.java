@@ -34,7 +34,6 @@ import org.apache.geronimo.kernel.repository.Dependency;
  *     &lt;extension base="{http://geronimo.apache.org/xml/ns/plugins-1.3}artifactType">
  *       &lt;sequence>
  *         &lt;element name="import" type="{http://geronimo.apache.org/xml/ns/plugins-1.3}importType" minOccurs="0"/>
- *         &lt;element name="dependency" type="{http://geronimo.apache.org/xml/ns/plugins-1.3}artifactType" maxOccurs="unbounded" minOccurs="0"/>
  *       &lt;/sequence>
  *       &lt;attribute name="start" type="{http://www.w3.org/2001/XMLSchema}boolean" default="true" />
  *     &lt;/extension>
@@ -46,9 +45,7 @@ import org.apache.geronimo.kernel.repository.Dependency;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "dependencyType", propOrder = {
-    "_import",
-    "dependency"
-})
+    "_import"})
 public class DependencyType
     extends ArtifactType
     implements Serializable
@@ -57,7 +54,6 @@ public class DependencyType
     private final static long serialVersionUID = 12343L;
     @XmlElement(name = "import")
     protected ImportType _import;
-    protected List<ArtifactType> dependency;
     @XmlAttribute
     protected Boolean start;
 
@@ -83,35 +79,6 @@ public class DependencyType
      */
     public void setImport(ImportType value) {
         this._import = value;
-    }
-
-    /**
-     * Gets the value of the dependency property.
-     * 
-     * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the dependency property.
-     * 
-     * <p>
-     * For example, to add a new item, do as follows:
-     * <pre>
-     *    getDependency().add(newItem);
-     * </pre>
-     * 
-     * 
-     * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link ArtifactType }
-     * 
-     * 
-     */
-    public List<ArtifactType> getDependency() {
-        if (dependency == null) {
-            dependency = new ArrayList<ArtifactType>();
-        }
-        return this.dependency;
     }
 
     /**
@@ -151,7 +118,6 @@ public class DependencyType
         DependencyType that = (DependencyType) o;
 
         if (_import != that._import) return false;
-        if ((dependency != null && !dependency.isEmpty())? !dependency.equals(that.dependency) : (that.dependency != null && !that.dependency.isEmpty())) return false;
         if (start != null ? !start.equals(that.start) : that.start != null) return false;
 
         return true;
@@ -161,7 +127,6 @@ public class DependencyType
     public int hashCode() {
         int result = super.hashCode();
         result = 31 * result + (_import != null ? _import.hashCode() : 0);
-        result = 31 * result + (dependency != null && !dependency.isEmpty()? dependency.hashCode() : 0);
         result = 31 * result + (start != null ? start.hashCode() : 0);
         return result;
     }

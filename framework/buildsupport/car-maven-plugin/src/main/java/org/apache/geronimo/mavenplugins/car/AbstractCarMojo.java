@@ -400,12 +400,6 @@ public abstract class AbstractCarMojo
     DependencyType toDependencyType(Artifact artifact, Map<String, DependencyType> explicitDependencyMap, Map<Artifact, Set<Artifact>> localDependencies, boolean includeVersion, boolean includeImport) {
         DependencyType explicitDependency = explicitDependencyMap.get(getKey(artifact));
         DependencyType dependency = toDependencyType(artifact, includeVersion, explicitDependency, includeImport);
-        Set<Artifact> artifactSet = localDependencies.get(artifact);
-        if (artifactSet != null) {
-            for (Artifact parent : artifactSet) {
-                dependency.getDependency().add(toDependencyType(parent, explicitDependencyMap, localDependencies, includeVersion, includeImport));
-            }
-        }
         return dependency;
     }
 
@@ -424,7 +418,6 @@ public abstract class AbstractCarMojo
         }
         if (explicitDependency != null) {
             dependency.setStart(explicitDependency.isStart());
-            dependency.getDependency().addAll(explicitDependency.getDependency());
         }
         return dependency;
     }
@@ -630,7 +623,7 @@ public abstract class AbstractCarMojo
     private void setLoggingLevel() {
         if (System.getProperty("org.ops4j.pax.logging.DefaultServiceLog.level") == null) {
             System.setProperty("org.ops4j.pax.logging.DefaultServiceLog.level",
-                               log.isDebugEnabled() ? "DEBUG" : "ERROR");
+                               log.isDebugEnabled() ? "DEBUG" : "INFO");
         }
     }
 

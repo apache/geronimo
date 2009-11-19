@@ -20,12 +20,9 @@
 
 package org.apache.geronimo.mavenplugins.car;
 
-import java.util.List;
-import java.util.ArrayList;
-
 import org.apache.geronimo.kernel.repository.ImportType;
-import org.apache.geronimo.system.plugin.model.DependencyType;
 import org.apache.geronimo.system.plugin.model.ArtifactType;
+import org.apache.geronimo.system.plugin.model.DependencyType;
 
 /**
  * @version $Rev$ $Date$
@@ -36,11 +33,6 @@ public class Dependency extends ModuleId {
      * @parameter
      */
     private Boolean start;
-
-    /**
-     * @parameter
-     */
-    private List<Dependency> dependencies = new ArrayList<Dependency>();
 
     public Boolean isStart() {
         if (start == null) {
@@ -53,14 +45,6 @@ public class Dependency extends ModuleId {
         this.start = start;
     }
 
-    public List<Dependency> getDependencies() {
-        return dependencies;
-    }
-
-    public void setDependencies(List<Dependency> dependencies) {
-        this.dependencies = dependencies;
-    }
-
     public DependencyType toDependencyType() {
         DependencyType dependency = new DependencyType();
         dependency.setGroupId(groupId);
@@ -71,9 +55,6 @@ public class Dependency extends ModuleId {
         dependency.setImport(getImport() == null? org.apache.geronimo.system.plugin.model.ImportType.ALL:
                 org.apache.geronimo.system.plugin.model.ImportType.fromValue(getImport()));
 
-        for (Dependency artifact: this.dependencies) {
-            dependency.getDependency().add(artifact.toArtifact());
-        }
         return dependency;
     }
 
@@ -111,8 +92,7 @@ public class Dependency extends ModuleId {
 
         Dependency that = (Dependency) o;
         if (!super.equals(that)) return false;
-        if (!isStart().equals(that.isStart())) return false;
-        return getDependencies().equals(that.getDependencies());
+        return isStart().equals(that.isStart());
     }
     //rely on super.hashcode();
 

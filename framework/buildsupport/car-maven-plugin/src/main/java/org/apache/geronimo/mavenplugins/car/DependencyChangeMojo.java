@@ -98,7 +98,6 @@ public class DependencyChangeMojo extends AbstractCarMojo {
         try {
             Collection<DependencyType> dependencies = toDependencies(this.dependencies, useMavenDependencies, false);
             for (DependencyType test: dependencies) {
-                test.getDependency().clear();
                 test.setStart(null);
                 test.setImport(null);
             }

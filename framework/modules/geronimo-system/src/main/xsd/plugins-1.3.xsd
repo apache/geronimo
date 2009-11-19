@@ -478,7 +478,6 @@
                             </xs:documentation>
                         </xs:annotation>
                     </xs:element>
-                    <xs:element name="dependency" type="list:artifactType" minOccurs="0" maxOccurs="unbounded"/>
                 </xs:sequence>
                 <xs:attribute name="start" use="optional" type="xs:boolean" default="true">
                     <xs:annotation>
