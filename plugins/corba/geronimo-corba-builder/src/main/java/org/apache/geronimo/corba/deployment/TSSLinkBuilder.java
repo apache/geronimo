@@ -82,7 +82,7 @@ public class TSSLinkBuilder extends AbstractNamingBuilder {
         String[] tssLinks = toStringArray(plan.selectChildren(TSS_LINK_QNAME));
         XmlObject[] tsss = plan.selectChildren(TSS_QNAME);
         String[] jndiNames = toStringArray(plan.selectChildren(JNDI_NAME_QNAME));
-        AbstractNameQuery ejbModuleName = new AbstractNameQuery(module.getEarContext().getConfigID(), Collections.singletonMap(NameFactory.J2EE_TYPE, NameFactory.EJB_MODULE));
+        AbstractNameQuery ejbModuleName = NameFactory.newTypeNameQuery(module.getEarContext().getConfigID(), NameFactory.EJB_MODULE, module.getName());
         for (int i = 0; i < tssLinks.length; i++) {
             String tssLink = tssLinks[i];
             URI moduleURI = module.getModuleURI();

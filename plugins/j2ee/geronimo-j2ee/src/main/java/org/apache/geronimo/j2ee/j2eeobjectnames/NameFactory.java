@@ -16,6 +16,12 @@
  */
 package org.apache.geronimo.j2ee.j2eeobjectnames;
 
+import java.util.Map;
+import java.util.HashMap;
+
+import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.kernel.repository.Artifact;
+
 /**
  * @version $Rev:385692 $ $Date$
  */
@@ -113,4 +119,11 @@ public class NameFactory {
     public static final String WEB_SERVICE_LINK = "WSLink";
     public static final String CORBA_TSS_LINK = "TSSLink";
 
+
+    public static AbstractNameQuery newTypeNameQuery(Artifact artifactId, String jeeType, String name) {
+        Map<String, String> names = new HashMap<String, String>(2);
+        names.put(J2EE_TYPE, jeeType);
+        names.put(J2EE_NAME, name);
+        return new AbstractNameQuery(artifactId, names);
+    }
 }
