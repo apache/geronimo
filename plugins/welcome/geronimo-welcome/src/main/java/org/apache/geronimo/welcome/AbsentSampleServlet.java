@@ -89,7 +89,12 @@ public class AbsentSampleServlet extends HttpServlet {
         if (results.isFailed()) {
             throw new ServletException("Unable to install sample application", results.getFailure());
         }
-        ConfigurationManager mgr = ConfigurationUtil.getConfigurationManager(kernel);
+        ConfigurationManager mgr = null;
+        try {
+            mgr = ConfigurationUtil.getConfigurationManager(kernel);
+        } catch (GBeanNotFoundException e) {
+            throw new ServletException("Unable to locate configuration manager", e);
+        }
         for (Artifact artifact: results.getInstalledConfigIDs()) {
             if (mgr.isConfiguration(artifact)) {
                 try {
