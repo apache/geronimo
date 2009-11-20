@@ -134,6 +134,30 @@
             <Host name="${ServerHostname}" appBase=""
                   unpackWARs="true" autoDeploy="true"
                   xmlValidation="false" xmlNamespaceAware="false">
+                
+                <!--
+                <Cluster className="org.apache.catalina.ha.tcp.SimpleTcpCluster" channelSendOptions="8">
+                    <Manager className="org.apache.catalina.ha.session.DeltaManager" expireSessionsOnShutdown="false" notifyListenersOnReplication="true" name="${clusterName}" channelSendOptions="6" mapSendOptions="6"/>
+                    <Channel className="org.apache.catalina.tribes.group.GroupChannel">
+                        <Membership className="org.apache.catalina.tribes.membership.McastService" address="228.0.0.4" port="45564" frequency="500" dropTime="3000" />
+                        <Receiver className="org.apache.catalina.tribes.transport.nio.NioReceiver" address="auto" port="4000" autoBind="100" selectorTimeout="5000" maxThreads="6" />
+                        <Sender className="org.apache.catalina.tribes.transport.ReplicationTransmitter">
+                            <Transport className="org.apache.catalina.tribes.transport.nio.PooledParallelSender" />
+                        </Sender>
+                        <Interceptor className="org.apache.geronimo.tomcat.interceptor.DisableMcastInterceptor" />
+                        <Interceptor className="org.apache.catalina.tribes.group.interceptors.TcpFailureDetector" interval="60"/>
+                        <Interceptor className="org.apache.catalina.tribes.group.interceptors.StaticMembershipInterceptor">
+                            <Member port="5002" securePort="-1" host="9.186.10.60" domain="test-domain" UniqueId="{1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}" />
+                        </Interceptor>
+                        <Interceptor className="org.apache.catalina.tribes.group.interceptors.MessageDispatch15Interceptor" />
+                        <Interceptor className="org.apache.catalina.tribes.group.interceptors.ThroughputInterceptor" />
+                    </Channel>
+                    <Valve className="org.apache.catalina.ha.tcp.ReplicationValve" filter=".*\.gif;.*\.js;.*\.jpg;.*\.png;.*\.htm;.*\.html;.*\.css;.*\.txt;" />
+                    <Valve className="org.apache.catalina.ha.session.JvmRouteBinderValve" />
+                    <ClusterListener className="org.apache.catalina.ha.session.JvmRouteSessionIDBinderListener" />
+                    <ClusterListener className="org.apache.catalina.ha.session.ClusterSessionListener" />
+                </Cluster>
+                -->
 
                 <Valve className="org.apache.catalina.valves.AccessLogValve" directory="logs"
                        prefix="${ServerHostname}_access_log." suffix=".txt" pattern="common" resolveHosts="false"/>
@@ -149,7 +173,6 @@
                 <Valve className="org.apache.catalina.valves.AccessLogValve" directory="logs"
                        prefix="localhost_access_log." suffix=".txt" pattern="common" resolveHosts="false"/>
                 -->
-
             </Host>
         </Engine>
     </Service>
