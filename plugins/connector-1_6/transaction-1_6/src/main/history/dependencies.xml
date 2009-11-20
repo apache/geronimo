@@ -51,9 +51,4 @@
         <artifactId>org.apache.servicemix.bundles.howl</artifactId>
         <type>jar</type>
     </dependency>
-    <dependency>
-        <groupId>org.objectweb.howl</groupId>
-        <artifactId>howl</artifactId>
-        <type>jar</type>
-    </dependency>
 </plugin-artifact>
