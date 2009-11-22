@@ -52,25 +52,21 @@
         <dependency>
             <groupId>org.apache.servicemix.bundles</groupId>
             <artifactId>org.apache.servicemix.bundles.jaxb-impl</artifactId>
-            <version>2.1.6_2-SNAPSHOT</version>
             <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.apache.servicemix.specs</groupId>
             <artifactId>org.apache.servicemix.specs.activation-api-1.1</artifactId>
-            <version>1.4-SNAPSHOT</version>
             <!--<optional>true</optional>-->
         </dependency>
         <dependency>
             <groupId>org.apache.servicemix.specs</groupId>
             <artifactId>org.apache.servicemix.specs.jaxb-api-2.1</artifactId>
-            <version>1.4-SNAPSHOT</version>
             <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.apache.servicemix.specs</groupId>
             <artifactId>org.apache.servicemix.specs.stax-api-1.0</artifactId>
-            <version>1.4-SNAPSHOT</version>
             <optional>true</optional>
         </dependency>
     </dependencies>
@@ -80,7 +76,6 @@
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
-                <!--<version>2.0.1-SNAPSHOT</version>-->
                 <configuration>
                     <instructions>
                         <Export-Package>com.envoisolutions.sxc*;version="0.7.2"</Export-Package>
