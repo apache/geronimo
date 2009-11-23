@@ -31,7 +31,7 @@ import org.osgi.util.tracker.ServiceTracker;
  */
 public class Bootstrapper {
     
-    private org.apache.felix.karaf.main.Main main;
+    private org.apache.felix.karaf.main.Main karaf_main;
     private boolean waitForStop = true;    
     private List<String> bundles;
     private int defaultStartLevel = 100;
@@ -40,7 +40,7 @@ public class Bootstrapper {
     private String log4jFile;
 
     public Bootstrapper() {
-        main = new org.apache.felix.karaf.main.Main(null);
+        karaf_main = new org.apache.felix.karaf.main.Main(null);
     }
     
     public void setWaitForStop(boolean waitForStop) {
@@ -67,15 +67,16 @@ public class Bootstrapper {
             return exitCode;
         }
         
-        main.getFramework().getBundleContext().registerService(ServerInfo.class.getName(), serverInfo, null);
+        karaf_main.getFramework().getBundleContext().registerService(ServerInfo.class.getName(), serverInfo, null);
         
         if (bundles != null) {
             StartLevelListener listener = new StartLevelListener(this);
             listener.start();            
         }
         
-        Main main = getMain();
-        if (main == null) {
+        Main geronimo_main = getMain();
+        
+        if (geronimo_main == null) {
             System.err.println("Main not found");
             stop(false);
             return -1;
@@ -83,9 +84,9 @@ public class Bootstrapper {
 
         ClassLoader oldTCCL = Thread.currentThread().getContextClassLoader();
         try {
-            ClassLoader newTCCL = main.getClass().getClassLoader();
+            ClassLoader newTCCL = geronimo_main.getClass().getClassLoader();
             Thread.currentThread().setContextClassLoader(newTCCL);
-            exitCode = main.execute(opaque);
+            exitCode = geronimo_main.execute(opaque);
             stop(waitForStop);
         } catch (Throwable e) {
             e.printStackTrace();
@@ -97,17 +98,17 @@ public class Bootstrapper {
     }
 
     public Main getMain() {
-        ServiceTracker tracker = new ServiceTracker(main.getFramework().getBundleContext(), Main.class.getName(), null);
+        ServiceTracker tracker = new ServiceTracker(karaf_main.getFramework().getBundleContext(), Main.class.getName(), null);
         tracker.open();
         
-        Main main = null;
+        Main geronimo_main = null;
         try {
-            main = (Main) tracker.waitForService(1000 * 60);
+            geronimo_main = (Main) tracker.waitForService(1000 * 60);
             tracker.close();
         } catch (Exception e) {            
             e.printStackTrace();            
         }
-        return main;
+        return geronimo_main;
     }
     
     public int launch() {      
@@ -145,17 +146,17 @@ public class Bootstrapper {
         }
         
         try {           
-            main.launch();
+            karaf_main.launch();
         } catch (Exception e) {
             e.printStackTrace();           
         }
         
-        return main.getExitCode();
+        return karaf_main.getExitCode();
     }
     
     public void stop(boolean await) {
         try {
-            main.destroy(await);
+            karaf_main.destroy(await);
         } catch (Exception e) {
             e.printStackTrace();           
         } finally {
@@ -167,7 +168,7 @@ public class Bootstrapper {
     }
             
     protected BundleContext getBundleContext() {
-        return main.getFramework().getBundleContext();
+        return karaf_main.getFramework().getBundleContext();
     }
             
     public void startLevelChanged(int startLevel) {
