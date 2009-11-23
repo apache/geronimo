@@ -16,8 +16,11 @@
  */
 package org.apache.geronimo.cli.deployer;
 
+import java.util.Arrays;
+
 import org.apache.geronimo.cli.AbstractCLI;
 import org.apache.geronimo.cli.CLParser;
+import org.apache.geronimo.main.Bootstrapper;
 
 /**
  * @version $Rev: 476049 $ $Date: 2006-11-17 15:35:17 +1100 (Fri, 17 Nov 2006) $
@@ -47,6 +50,16 @@ public class DeployerCLI extends AbstractCLI {
     @Override
     protected CLParser getCLParser() {
         return new DeployerCLParser(System.out);
+    }
+    
+    @Override
+    protected Bootstrapper createBootstrapper() {
+        Bootstrapper boot = super.createBootstrapper();
+        boot.setWaitForStop(false);
+        boot.setUniqueStorage(true);
+        boot.setStartBundles(Arrays.asList("org.apache.geronimo.framework/online-deployer/3.0-SNAPSHOT/car"));
+        boot.setLog4jConfigFile("var/log/deployer-log4j.properties");
+        return boot;
     }
 
 }

@@ -119,6 +119,7 @@
                 <groupId>org.apache.geronimo.buildsupport</groupId>
                 <artifactId>car-maven-plugin</artifactId>
                 <configuration>
+                    <boot>true</boot>
                     <archive>
                         <manifestEntries>
                             <Endorsed-Dirs>lib/endorsed</Endorsed-Dirs>

@@ -103,6 +103,10 @@
         </attribute>
     </gbean>
 
+    <gbean name="DependencyManager" class="org.apache.geronimo.system.configuration.DependencyManager">
+        <reference name="Repositories"></reference>
+    </gbean>
+
     <!-- Logging service -->
     <!--
     <gbean name="Logger" class="org.apache.geronimo.system.logging.log4j.Log4jService">
@@ -113,5 +117,7 @@
         </reference>
     </gbean>
     -->
+
+    <gbean name="DeployerBridge" class="org.apache.geronimo.system.main.MainBridge"/>
 
 </module>

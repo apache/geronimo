@@ -127,7 +127,7 @@ if "%KARAF_PROFILER%" == "" goto :RUN
     call %KARAF_PROFILER_SCRIPT%
 
 :RUN
-    SET OPTS=-Dkaraf.startLocalConsole=true -Dkaraf.startRemoteShell=true
+    SET OPTS=-Dkaraf.startLocalConsole=false -Dkaraf.startRemoteShell=true
     SET SHIFT=false
     if "%1" == "console" goto :EXECUTE_CONSOLE
     if "%1" == "server" goto :EXECUTE_SERVER

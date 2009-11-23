@@ -31,7 +31,7 @@ import org.osgi.util.tracker.ServiceTracker;
  */
 public class Bootstrapper {
     
-    private org.apache.felix.karaf.main.Main karaf_main;
+    private org.apache.felix.karaf.main.Main karafMain;
     private boolean waitForStop = true;    
     private List<String> bundles;
     private int defaultStartLevel = 100;
@@ -40,7 +40,6 @@ public class Bootstrapper {
     private String log4jFile;
 
     public Bootstrapper() {
-        karaf_main = new org.apache.felix.karaf.main.Main(null);
     }
     
     public void setWaitForStop(boolean waitForStop) {
@@ -67,7 +66,7 @@ public class Bootstrapper {
             return exitCode;
         }
         
-        karaf_main.getFramework().getBundleContext().registerService(ServerInfo.class.getName(), serverInfo, null);
+        karafMain.getFramework().getBundleContext().registerService(ServerInfo.class.getName(), serverInfo, null);
         
         if (bundles != null) {
             StartLevelListener listener = new StartLevelListener(this);
@@ -98,17 +97,17 @@ public class Bootstrapper {
     }
 
     public Main getMain() {
-        ServiceTracker tracker = new ServiceTracker(karaf_main.getFramework().getBundleContext(), Main.class.getName(), null);
+        ServiceTracker tracker = new ServiceTracker(karafMain.getFramework().getBundleContext(), Main.class.getName(), null);
         tracker.open();
         
-        Main geronimo_main = null;
+        Main geronimoMain = null;
         try {
-            geronimo_main = (Main) tracker.waitForService(1000 * 60);
+            geronimoMain = (Main) tracker.waitForService(1000 * 60);
             tracker.close();
         } catch (Exception e) {            
             e.printStackTrace();            
         }
-        return geronimo_main;
+        return geronimoMain;
     }
     
     public int launch() {      
@@ -138,25 +137,30 @@ public class Bootstrapper {
                                getStorageDirectory());
             
             System.setProperty(Constants.FRAMEWORK_BEGINNING_STARTLEVEL, 
-                               String.valueOf(defaultStartLevel));            
+                               String.valueOf(defaultStartLevel));       
+                      
+            System.setProperty(org.apache.felix.karaf.main.Main.PROPERTY_USE_LOCK, 
+                               (uniqueStorage) ? "false" : "true");
             
         } catch (IOException e) {
             e.printStackTrace();
             return -1;
         }
         
+        karafMain = new org.apache.felix.karaf.main.Main(null);
+        
         try {           
-            karaf_main.launch();
+            karafMain.launch();
         } catch (Exception e) {
             e.printStackTrace();           
         }
         
-        return karaf_main.getExitCode();
+        return karafMain.getExitCode();
     }
     
     public void stop(boolean await) {
         try {
-            karaf_main.destroy(await);
+            karafMain.destroy(await);
         } catch (Exception e) {
             e.printStackTrace();           
         } finally {
@@ -166,9 +170,9 @@ public class Bootstrapper {
             }
         }
     }
-            
+                
     protected BundleContext getBundleContext() {
-        return karaf_main.getFramework().getBundleContext();
+        return karafMain.getFramework().getBundleContext();
     }
             
     public void startLevelChanged(int startLevel) {
@@ -258,5 +262,5 @@ public class Bootstrapper {
         
         return ok;
     }
-
+   
 }

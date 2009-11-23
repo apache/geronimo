@@ -126,6 +126,13 @@
             <version>${version}</version>
             <type>car</type>
         </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>online-deployer</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
     </dependencies>
 
     <build>

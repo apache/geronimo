@@ -434,20 +434,11 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
         List<ConfigurationInfo> configs= new ArrayList<ConfigurationInfo>();
         synchronized (this) {
             for (Artifact configId : artifacts) {
-                File dir = repository.getLocation(configId);
-                File meta = new File(dir, "META-INF");
-                if (!meta.isDirectory() || !meta.canRead()) {
-                    continue;
-                }
-                File ser = new File(meta, "config.ser");
-                if (!ser.isFile() || !ser.canRead() || ser.length() == 0) {
-                    continue;
-                }
                 try {
                     ConfigurationInfo configurationInfo = loadConfigurationInfo(configId);
                     configs.add(configurationInfo);
                 } catch (NoSuchConfigException e) {
-                    log.error("Unexpected error: found META-INF/config.ser for " + configId + " but couldn't load ConfigurationInfo", e);
+                    continue;
                 } catch (IOException e) {
                     log.error("Unable to load ConfigurationInfo for " + configId, e);
                 }
@@ -469,7 +460,9 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
         if (location.isDirectory()) {
             File infoFile = new File(location, "META-INF");
             infoFile = new File(infoFile, "config.info");
-
+            if (!infoFile.exists() || !infoFile.canRead()) {
+                throw new NoSuchConfigException(configId);
+            }
             InputStream in = new FileInputStream(infoFile);
             try {
                 configurationInfo = ConfigurationUtil.readConfigurationInfo(in, getAbstractName(), inPlaceLocation);
@@ -481,6 +474,9 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
             InputStream in = null;
             try {
                 ZipEntry entry = jarFile.getEntry("META-INF/config.info");
+                if (entry == null) {
+                    throw new NoSuchConfigException(configId);
+                }
                 in = jarFile.getInputStream(entry);
                 configurationInfo = ConfigurationUtil.readConfigurationInfo(in, getAbstractName(), inPlaceLocation);
             } finally {
