@@ -29,29 +29,42 @@
     </parent>
 
     <groupId>org.apache.geronimo.bundles</groupId>
-    <artifactId>derbynet</artifactId>
+    <artifactId>derby-all</artifactId>
     <version>${derbyVersion}-SNAPSHOT</version>
     <packaging>bundle</packaging>
-    <name>Apache Geronimo Bundles: ${pkgArtifactId}-${pkgVersion}</name>
+    <name>Apache Geronimo Bundles: Derby-${derbyVersion}</name>
     <description>
-        This bundle simply wraps ${pkgArtifactId}-${pkgVersion}.jar.
+        This bundle simply wraps Derby
     </description>
 
-    <properties>
-        <pkgGroupId>org.apache.derby</pkgGroupId>
-        <pkgArtifactId>derbynet</pkgArtifactId>
-        <pkgVersion>${derbyVersion}</pkgVersion>
-    </properties>
     <dependencies>
         <dependency>
             <groupId>org.apache.derby</groupId>
             <artifactId>derby</artifactId>
             <version>${derbyVersion}</version>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.apache.derby</groupId>
             <artifactId>derbynet</artifactId>
             <version>${derbyVersion}</version>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.derby</groupId>
+            <artifactId>derbytools</artifactId>
+            <version>${derbyVersion}</version>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.derby</groupId>
+            <artifactId>derbyclient</artifactId>
+            <version>${derbyVersion}</version>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-jta_1.1_spec</artifactId>
         </dependency>
     </dependencies>
 
@@ -60,11 +73,10 @@
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
-                <!--<version>2.0.1-SNAPSHOT</version>-->
                 <configuration>
                     <instructions>
                         <Export-Package>org.apache.derby*;version="10.4.2.0"</Export-Package>
-                        <Import-Package>org*;resolution:=optional,javax*;resolution:=optional,*</Import-Package>
+                        <Import-Package>javax.servlet*;resolution:=optional,org.apache.xpath*;resolution:=optional,org.apache.xalan*;resolution:=optional,org.apache.xml*;resolution:=optional,*</Import-Package>
                         <!--<_versionpolicy>[$(version;==;$(@)),$(version;+;$(@)))</_versionpolicy>-->
                     </instructions>
                 </configuration>

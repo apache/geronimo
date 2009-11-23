@@ -40,8 +40,7 @@
         <module>aspectjrt</module>
         <module>aspectjweaver</module>
         <module>castor</module>
-        <module>derbynet</module>
-        <module>derbytools</module>
+        <module>derby-all</module>
         <module>ldapsdk</module>
         <!-- todo remove -->
         <module>log4j</module>

@@ -38,11 +38,6 @@
     </description>
 
     <dependencies>
-        <!--<dependency>-->
-            <!--<groupId>org.apache.geronimo.specs</groupId>-->
-            <!--<artifactId>geronimo-interceptor_3.0_spec</artifactId>-->
-        <!--</dependency>-->
-
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-gbean-deployer</artifactId>
@@ -81,17 +76,17 @@
         </dependency>
 
         <dependency>
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>geronimo-jdbc</artifactId>
+            <version>${version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.tranql</groupId>
             <artifactId>tranql-connector-derby-embed-xa</artifactId>
             <type>rar</type>
             <scope>provided</scope>
         </dependency>
-
-        <!--<dependency>-->
-            <!--<groupId>org.apache.geronimo.framework</groupId>-->
-            <!--<artifactId>geronimo-service-builder</artifactId>-->
-            <!--<version>${version}</version>-->
-        <!--</dependency>-->
 
     </dependencies>
 
@@ -129,18 +124,6 @@
                      </instance>
                 </configuration>
             </plugin>
-            <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-bundle-plugin</artifactId>
-                <configuration>
-                    <instructions>
-                        <!--packages containing "impl" or "internal" are excluded by default -->
-                        <Import-Package>org.apache.xmlbeans.impl.schema;version="2.4",org.apache.geronimo.deployment.xbeans.impl,*</Import-Package>
-                        <!--<_versionpolicy>[$(version;==;$(@)),$(version;+;$(@)))</_versionpolicy>-->
-                    </instructions>
-                </configuration>
-            </plugin>
-
         </plugins>
     </build>
 

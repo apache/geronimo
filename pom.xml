@@ -760,9 +760,9 @@
             </dependency>
 
             <dependency>
-                <groupId>org.apache.geronimo.bundles</groupId>
+                <groupId>org.apache.derby</groupId>
                 <artifactId>derbynet</artifactId>
-                <version>${derbyVersion}-SNAPSHOT</version>
+                <version>${derbyVersion}</version>
             </dependency>
 
             <dependency>
@@ -775,6 +775,12 @@
                 <groupId>org.apache.derby</groupId>
                 <artifactId>derbytools</artifactId>
                 <version>${derbyVersion}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.geronimo.bundles</groupId>
+                <artifactId>derby-all</artifactId>
+                <version>${derbyVersion}-SNAPSHOT</version>
             </dependency>
 
             <dependency>

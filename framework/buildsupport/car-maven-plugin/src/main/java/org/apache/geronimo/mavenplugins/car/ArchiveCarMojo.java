@@ -20,9 +20,14 @@
 package org.apache.geronimo.mavenplugins.car;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
+import java.io.IOException;
 import java.io.Reader;
 import java.util.Map;
+import java.util.jar.Attributes;
+import java.util.jar.JarFile;
+import java.util.jar.Manifest;
 
 import org.apache.geronimo.kernel.osgi.ConfigurationActivator;
 import org.apache.geronimo.system.osgi.BootActivator;
@@ -282,6 +287,10 @@ public class ArchiveCarMojo
                     }
                 }
 
+                String classpath = getBundleClassPath();
+                if (classpath != null) {
+                    archive.addManifestEntry(Constants.BUNDLE_CLASSPATH, classpath);
+                }
                 archive.addManifestEntry(Constants.IMPORT_PACKAGE, imports.toString());
                 archive.addManifestEntry(Constants.DYNAMICIMPORT_PACKAGE, "*");
             }
@@ -337,6 +346,24 @@ public class ArchiveCarMojo
         getLog().debug("Using classpath: " + buff);
 
         return buff.toString();
+    }
+    
+    public String getBundleClassPath() throws IOException {
+        String classpath = null;
+        File mfFile = new File(getArtifactInRepositoryDir(), JarFile.MANIFEST_NAME);
+        if (mfFile.exists()) {
+            FileInputStream in = new FileInputStream(mfFile);
+            try {
+                Manifest mf = new Manifest(in);
+                Attributes attrs = mf.getMainAttributes();
+                if (attrs != null) {
+                    classpath = attrs.getValue(Constants.BUNDLE_CLASSPATH);
+                }
+            } finally {
+                try { in.close(); } catch (IOException e) {}
+            }
+        }
+        return classpath;
     }
 
 }

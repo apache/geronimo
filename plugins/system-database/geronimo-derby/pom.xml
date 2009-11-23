@@ -37,27 +37,9 @@
     
     <dependencies>
         <dependency>
-            <groupId>org.apache.derby</groupId>
-            <artifactId>derby</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.derby</groupId>
-            <artifactId>derbyclient</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>org.apache.geronimo.bundles</groupId>
-            <artifactId>derbynet</artifactId>
-            <version>${derbyVersion}-SNAPSHOT</version>
+            <artifactId>derby-all</artifactId>
         </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.bundles</groupId>
-            <artifactId>derbytools</artifactId>
-            <version>${derbyVersion}-SNAPSHOT</version>
-        </dependency>
-
 
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
