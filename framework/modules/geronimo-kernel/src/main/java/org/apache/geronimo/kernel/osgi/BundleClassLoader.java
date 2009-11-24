@@ -17,7 +17,6 @@
  * under the License.
  */
 
-
 package org.apache.geronimo.kernel.osgi;
 
 import java.io.IOException;
@@ -31,7 +30,7 @@ import org.osgi.framework.BundleReference;
 /**
  * @version $Rev$ $Date$
  */
-public class BundleClassLoader extends ClassLoader {
+public class BundleClassLoader extends ClassLoader implements BundleReference {
 
     private final Bundle bundle;
 
@@ -59,20 +58,20 @@ public class BundleClassLoader extends ClassLoader {
     }
 
     @Override
-	public URL getResource(String name) {
+    public URL getResource(String name) {
         return bundle.getResource(name);
-	}
+    }
 
-	@SuppressWarnings("unchecked")
+    @SuppressWarnings("unchecked")
     @Override
-	public Enumeration<URL> getResources(String name) throws IOException {
-	    Enumeration<URL> e = (Enumeration<URL>)bundle.getResources(name);
-	    if (e == null) {
-	        return Collections.enumeration(Collections.EMPTY_LIST);
-	    } else {
-	        return e;
-	    }
-	}
+    public Enumeration<URL> getResources(String name) throws IOException {
+        Enumeration<URL> e = (Enumeration<URL>)bundle.getResources(name);
+        if (e == null) {
+            return Collections.enumeration(Collections.EMPTY_LIST);
+        } else {
+            return e;
+        }
+    }
 
     /**
      * Return the bundle instance backing this classloader.
