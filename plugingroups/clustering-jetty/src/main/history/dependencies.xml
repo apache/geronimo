@@ -13,7 +13,7 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>jetty7-clustering-builder-wadi</artifactId>
+        <artifactId>jetty8-clustering-builder-wadi</artifactId>
         <type>car</type>
     </dependency>
     <dependency>

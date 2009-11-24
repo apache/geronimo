@@ -18,7 +18,7 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>jetty7-deployer</artifactId>
+        <artifactId>jetty8-deployer</artifactId>
         <type>car</type>
     </dependency>
     <dependency>
