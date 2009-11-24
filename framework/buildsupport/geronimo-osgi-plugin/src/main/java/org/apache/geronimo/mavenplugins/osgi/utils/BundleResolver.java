@@ -300,6 +300,13 @@ public class BundleResolver {
                         if (b == bundle) {
                             continue;
                         }
+                        if (b.getSymbolicName() == null) {
+                            logError(b, level, "No SymbolicName " );
+                            continue;
+                        }
+                        if (constraint.getName() == null) {
+                            logError(bundle, level, "no constraint name: " + constraint);
+                        }
                         if (b.getSymbolicName().equals(constraint.getName())) {
                             if (constraint.getVersionRange().isIncluded(b.getVersion())) {
                                 // There must be something wrong in the bundle
