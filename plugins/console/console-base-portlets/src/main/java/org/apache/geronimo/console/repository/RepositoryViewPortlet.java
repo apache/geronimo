@@ -171,7 +171,7 @@ public class RepositoryViewPortlet extends BasePortlet {
                         }
                     }
                 }
-                if (jarName != null) {
+                if (jarName != null && jarName.length() > 0) {
                     ExplicitDefaultArtifactResolver instance = KernelRegistry.getSingleKernel().getGBean(ExplicitDefaultArtifactResolver.class);
                     Properties set = new Properties();
                     set.put(jarName, group + "/" + artifact + "/" + version + "/" + fileType);

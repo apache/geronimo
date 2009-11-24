@@ -122,34 +122,38 @@ function <portlet:namespace/>parse(localFile) {
   <td align="center">
   <form onsubmit="return <portlet:namespace/>validateForm();" enctype="multipart/form-data" name="<portlet:namespace/>fileSelect" method="POST" action="<portlet:actionURL/>">
   <input type="hidden" value="deploy" name="action"/>
-  <table>
+  <table width="80%">
     <tr>
-      <th colspan="2"><fmt:message key="repository.normal.addArchiveToRepository"/></th>
+      <th colspan="2" align="center"><fmt:message key="repository.normal.addArchiveToRepository"/></th>
     </tr>
     <tr>
-      <td><label for="<portlet:namespace/>local"><fmt:message key="consolebase.common.file"/></label></td>
-      <td><input name="local" id="<portlet:namespace/>local" onchange="<portlet:namespace/>parse(value);" type="file">&nbsp;&nbsp;&nbsp;</td>
+      <td align="right" width="40%"><label for="<portlet:namespace/>local"><fmt:message key="consolebase.common.file"/></label></td>
+      <td align="left" width="60%"><input name="local" id="<portlet:namespace/>local" onchange="<portlet:namespace/>parse(value);" type="file">&nbsp;&nbsp;&nbsp;</td>
     </tr>
     <tr>
-      <td><label for="<portlet:namespace/>group"><fmt:message key="consolebase.common.group"/></label>:</td>
-      <td><input type="text" name="group" id="<portlet:namespace/>group" value="${group}"/></td>
+      <td align="right" width="40%"><label for="<portlet:namespace/>group"><fmt:message key="consolebase.common.group"/></label>:</td>
+      <td align="left" width="60%"><input type="text" name="group" id="<portlet:namespace/>group" value="${group}"/></td>
     </tr>
     <tr>
-      <td><label for="<portlet:namespace/>artifact"><fmt:message key="repository.normal.artifact"/></label>:</td>
-      <td><input type="text" name="artifact" id="<portlet:namespace/>artifact" value="${artifact}"/></td>
+      <td align="right" width="40%"><label for="<portlet:namespace/>artifact"><fmt:message key="repository.normal.artifact"/></label>:</td>
+      <td align="left" width="60%"><input type="text" name="artifact" id="<portlet:namespace/>artifact" value="${artifact}"/></td>
     </tr>
     <tr>
-      <td><label for="<portlet:namespace/>version"><fmt:message key="consolebase.common.version"/></label>:</td>
-      <td><input type="text" name="version" id="<portlet:namespace/>version" value="${version}"/></td>
+      <td align="right" width="40%"><label for="<portlet:namespace/>version"><fmt:message key="consolebase.common.version"/></label>:</td>
+      <td align="left" width="60%"><input type="text" name="version" id="<portlet:namespace/>version" value="${version}"/></td>
     </tr>
     <tr>
-      <td><label for="<portlet:namespace/>fileType"><fmt:message key="consolebase.common.type"/></label>:</td>
-      <td><input type="text" name="fileType" id="<portlet:namespace/>fileType" value="${fileType}"/></td>
+      <td align="right" width="40%"><label for="<portlet:namespace/>fileType"><fmt:message key="consolebase.common.type"/></label>:</td>
+      <td align="left" width="60%"><input type="text" name="fileType" id="<portlet:namespace/>fileType" value="${fileType}"/></td>
     </tr>
     <tr>
-      <td><label for="<portlet:namespace/>jarName"><fmt:message key="consolebase.common.name"/></label>:</td>
-      <td><input type="text" name="jarName" id="<portlet:namespace/>jarName" value="${jarName}"/></td>
+      <td align="right" width="40%"><label for="<portlet:namespace/>jarName"><fmt:message key="repository.normal.replacedName"/></label>:</td>
+      <td align="left" width="60%"><input type="text" name="jarName" id="<portlet:namespace/>jarName" value="${jarName}"/></td>
     </tr>
+    <tr>
+      <td align="right" width="40%">&nbsp;</td>
+      <td align="left" width="60%"><fmt:message key="repository.normal.replacedNameDescription"/></td>
+    </tr>    
     <tr><td colspan="2"><font size="-2">&nbsp;</font></td></tr>
     <tr>
       <td colspan="2" align="center"><input type="submit" value='<fmt:message key="consolebase.common.install"/>' /></td>
