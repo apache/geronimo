@@ -41,6 +41,7 @@ import java.util.zip.ZipEntry;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
+import org.apache.geronimo.kernel.config.ManifestException;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GAttributeInfo;
@@ -53,11 +54,11 @@ public final class ExecutableConfigurationUtil {
     private static final String META_INF = "META-INF";
     private static final String CONFIG_SER = "config.ser";
     private static final String CONFIG_INFO = "config.info";
-    //hopefully temporary hack
-    private static final String IMPORT_PACKAGES = "imports.txt";
+
+    private static final String MANIFEST_MF = "MANIFEST.MF";
+    private static final String META_INF_MANIFEST = META_INF + "/" + MANIFEST_MF;
     private static final String META_INF_STARTUP_JAR = META_INF + "/startup-jar";
     private static final String META_INF_CONFIG_SER = META_INF + "/" + CONFIG_SER;
-    private static final String META_INF_IMPORT_PACKAGES = META_INF + "/" + IMPORT_PACKAGES;
     private static final String META_INF_CONFIG_SER_SHA1 = META_INF_CONFIG_SER + ".sha1";
     private static final String META_INF_CONFIG_INFO = META_INF + "/" + CONFIG_INFO;
 
@@ -123,18 +124,16 @@ public final class ExecutableConfigurationUtil {
     }
 
     public static void writeConfiguration(ConfigurationData configurationData, JarOutputStream out) throws IOException {
-        out.putNextEntry(new ZipEntry(META_INF_IMPORT_PACKAGES));
+        out.putNextEntry(new ZipEntry(META_INF_MANIFEST));
         try {
-            OutputStreamWriter writer = new OutputStreamWriter(out);
-            List<GBeanData> gbeans = configurationData.getGbeanState().getGBeans(null);
-            String imports = getImportString(gbeans);
-            writer.append(imports);
-        } catch (InvalidConfigException e) {
-            throw (IOException)new IOException("Could not get gbean datas").initCause(e);
+            PrintWriter writer = new PrintWriter(new OutputStreamWriter(out));
+            configurationData.getManifest().write(writer);
+            writer.flush();
+        } catch (ManifestException e) {
+            throw new IOException("Could not write manifest", e);
         } finally {
             out.closeEntry();
         }
-
         // save the persisted form in the source directory
         out.putNextEntry(new ZipEntry(META_INF_CONFIG_SER));
         ConfigurationStoreUtil.ChecksumOutputStream sumOut = null;
@@ -173,18 +172,16 @@ public final class ExecutableConfigurationUtil {
 
         PrintWriter writer = null;
 
+        writer = new PrintWriter(new FileWriter(new File(metaInf, MANIFEST_MF)));
         try {
-            writer = new PrintWriter(new FileWriter(new File(metaInf, IMPORT_PACKAGES)));
-            List<GBeanData> gbeans = configurationData.getGbeanState().getGBeans(null);
-            String imports = getImportString(gbeans);
-            writer.append(imports);
-        } catch (InvalidConfigException e) {
-            throw (IOException)new IOException("Could not get gbean datas").initCause(e);
+            configurationData.getManifest().write(writer);
+            writer.flush();
+        } catch (ManifestException e) {
+            throw new IOException("Could not write manifest", e);
         } finally {
-            flush(writer);
-            close(writer);
+            writer.close();
         }
-
+        
         File configSer = new File(metaInf, CONFIG_SER);
 
         OutputStream out = new FileOutputStream(configSer);
@@ -207,48 +204,6 @@ public final class ExecutableConfigurationUtil {
             close(writer);
         }
 
-    }
-
-    public static String getImportString(List<GBeanData> gbeans) {
-        LinkedHashSet<String> imports = getImports(gbeans);
-        StringBuilder builder = new StringBuilder();
-        for (String importPackage: imports) {
-            if (builder.length() > 0) {
-                builder.append(",");
-            }
-            builder.append(importPackage);
-        }
-        return builder.toString();
-    }
-
-    public static LinkedHashSet<String> getImports(List<GBeanData> gbeans) {
-        LinkedHashSet<String> imports = new LinkedHashSet<String>();
-        for (GBeanData data: gbeans) {
-            GBeanInfo info = data.getGBeanInfo();
-            addImport(imports, info.getClassName());
-            for (GAttributeInfo attInfo: info.getAttributes()) {
-                addImport(imports, attInfo.getType());
-            }
-            for (GReferenceInfo refInfo: info.getReferences()) {
-                addImport(imports, refInfo.getReferenceType());
-            }
-        }
-        return imports;
-    }
-
-    private static void addImport(LinkedHashSet<String> imports, String className) {
-        int pos = className.lastIndexOf('.');
-        if (pos < 0 ) return;
-        int count = 0;
-        while (className.charAt(count) == '[') {
-            count++;
-        }
-        if (className.charAt(count) == 'L') {
-            count++;
-        }
-        className = className.substring(count, pos);
-        if (className.startsWith("java.")) return;
-        imports.add(className);
     }
 
     private static Collection listRecursiveFiles(File file) {

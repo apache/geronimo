@@ -40,8 +40,7 @@ public class InPlaceConfigurationUtilTest extends TestCase {
 
 	public void testWriteReadInPlaceLocation() throws Exception {
 		ConfigurationData configurationData = new ConfigurationData(null,
-				null,
-				Collections.EMPTY_LIST,
+                Collections.EMPTY_LIST,
 				Collections.EMPTY_MAP,
 				new Environment(new Artifact("groupId", "artifactId", "version", "type")),
 				configDir,
@@ -63,7 +62,6 @@ public class InPlaceConfigurationUtilTest extends TestCase {
         assertFalse(inPlaceConfUtil.isInPlaceConfiguration(configDir));
         
         ConfigurationData configurationData = new ConfigurationData(null,
-                null,
                 Collections.EMPTY_LIST,
                 Collections.EMPTY_MAP,
                 new Environment(new Artifact("groupId", "artifactId", "version", "type")),

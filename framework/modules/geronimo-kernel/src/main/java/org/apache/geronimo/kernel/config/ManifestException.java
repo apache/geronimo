@@ -15,9 +15,8 @@
  *  limitations under the License.
  *
  */
-package org.apache.geronimo.deployment;
+package org.apache.geronimo.kernel.config;
 
-import org.apache.geronimo.common.DeploymentException;
 
 /**
  *
@@ -26,7 +25,7 @@ import org.apache.geronimo.common.DeploymentException;
  *
  * @since Ant 1.4
  */
-public class ManifestException extends DeploymentException {
+public class ManifestException extends InvalidConfigException {
 
     private static final long serialVersionUID = 7685634200457515207L;
 
@@ -36,5 +35,13 @@ public class ManifestException extends DeploymentException {
      */
     public ManifestException(String msg) {
         super(msg);
+    }
+
+    public ManifestException(Throwable cause) {
+        super(cause);
+    }
+
+    public ManifestException(String message, Throwable cause) {
+        super(message, cause);
     }
 }

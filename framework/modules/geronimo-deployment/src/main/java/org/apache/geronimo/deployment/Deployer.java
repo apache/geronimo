@@ -242,15 +242,6 @@ public class Deployer implements GBeanLifecycle {
 
             Artifact configID = getConfigID(module, idBuilder, plan, builder);
 
-            // create the manifest
-            Manifest manifest = createManifest(mainClass,
-                mainGBean,
-                mainMethod,
-                manifestConfigurations,
-                classPath,
-                endorsedDirs,
-                extensionDirs);
-
             ConfigurationStore store = getConfigurationStore(targetConfigurationStore);
 
             // It's our responsibility to close this context, once we're done with it...
@@ -260,6 +251,15 @@ public class Deployer implements GBeanLifecycle {
                 context.addFile(PLAN_LOCATION, planFile);
             }
             // install the configuration
+            // create the manifest
+            Manifest manifest = createManifest(mainClass,
+                mainGBean,
+                mainMethod,
+                manifestConfigurations,
+                classPath,
+                endorsedDirs,
+                extensionDirs);
+
             return install(targetFile, install, manifest, store, context);
         } catch (Throwable e) {
             //TODO not clear all errors will result in total cleanup
@@ -341,7 +341,7 @@ public class Deployer implements GBeanLifecycle {
             } catch (DeploymentException e) {
                 Configuration configuration = context.getConfiguration(); 
                 if (configuration != null) {
-                    ConfigurationData dumbConfigurationData = new ConfigurationData(null, null, null, null,
+                    ConfigurationData dumbConfigurationData = new ConfigurationData(null, null, null,
                             configuration.getEnvironment(), context.getBaseDir(), null, context.getNaming());
                     configurationDatas.add(dumbConfigurationData);
                 }

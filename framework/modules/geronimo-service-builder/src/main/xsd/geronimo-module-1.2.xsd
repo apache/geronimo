@@ -160,6 +160,11 @@
                     </xs:documentation>
                 </xs:annotation>
             </xs:element>
+            <xs:element name="bundle-activator" type="xs:string" minOccurs="0"/>
+            <xs:element name="bundle-classPath" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="import-package" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="export-package" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+
             <xs:element name="hidden-classes" type="sys:classFilterType"
                 minOccurs="0">
                 <xs:annotation>

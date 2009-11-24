@@ -324,7 +324,6 @@ public class MasterConfigurationStoreTest extends RMockTestCase {
 
     public void testInstallOK() throws Exception {
         final ConfigurationData configurationData = new ConfigurationData(ConfigurationModuleType.CAR,
-            new LinkedHashSet(),
             new ArrayList(),
             Collections.EMPTY_MAP,
             new Environment(configId),

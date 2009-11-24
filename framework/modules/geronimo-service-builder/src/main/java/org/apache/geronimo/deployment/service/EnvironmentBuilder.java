@@ -66,6 +66,17 @@ public class EnvironmentBuilder extends PropertyEditorSupport implements XmlAttr
                 LinkedHashSet dependencies = toDependencies(dependencyArray);
                 environment.setDependencies(dependencies);
             }
+            if (environmentType.isSetBundleActivator()) {
+                environment.setBundleActivator(trim(environmentType.getBundleActivator()));
+            }
+            for (String importPackage: environmentType.getImportPackageArray()) {
+                environment.addImportPackage(trim(importPackage));
+            }
+            for (String exportPackage: environmentType.getExportPackageArray()) {
+                environment.addExportPackage(trim(exportPackage));
+            }
+            
+            
             environment.setSuppressDefaultEnvironment(environmentType.isSetSuppressDefaultEnvironment());
             
             ClassLoadingRulesUtil.configureRules(environment.getClassLoadingRules(), environmentType);
@@ -81,6 +92,13 @@ public class EnvironmentBuilder extends PropertyEditorSupport implements XmlAttr
                 environment.setConfigId(additionalEnvironment.getConfigId());
             }
             environment.addDependencies(additionalEnvironment.getDependencies());
+            environment.addToBundleClassPath(additionalEnvironment.getBundleClassPath());
+            environment.addImportPackages(additionalEnvironment.getImportPackages());
+            environment.addExportPackages(additionalEnvironment.getExportPackages());
+            if (environment.getBundleActivator() == null && additionalEnvironment.getBundleActivator() != null) {
+                environment.setBundleActivator(additionalEnvironment.getBundleActivator());
+            }
+            
             environment.setSuppressDefaultEnvironment(environment.isSuppressDefaultEnvironment() || additionalEnvironment.isSuppressDefaultEnvironment());
             
             ClassLoadingRules classLoadingRules = environment.getClassLoadingRules();
@@ -104,10 +122,23 @@ public class EnvironmentBuilder extends PropertyEditorSupport implements XmlAttr
             environmentType.setModuleId(configId);
         }
 
-        List dependencies = toDependencyTypes(environment.getDependencies());
-        DependencyType[] dependencyTypes = (DependencyType[]) dependencies.toArray(new DependencyType[dependencies.size()]);
+        List<DependencyType> dependencies = toDependencyTypes(environment.getDependencies());
+        DependencyType[] dependencyTypes = dependencies.toArray(new DependencyType[dependencies.size()]);
         DependenciesType dependenciesType = environmentType.addNewDependencies();
         dependenciesType.setDependencyArray(dependencyTypes);
+        
+        if (environment.getBundleActivator() != null) {
+            environmentType.setBundleActivator(environment.getBundleActivator());
+        }
+        for (String bundleClassPath: environment.getBundleClassPath()) {
+            environmentType.addBundleClassPath(bundleClassPath);
+        }
+        for (String importPackage: environment.getImportPackages()) {
+            environmentType.addImportPackage(importPackage);
+        }
+        for (String exportPackage: environment.getExportPackages()) {
+            environmentType.addExportPackage(exportPackage);
+        }
         
         ClassLoadingRules classLoadingRules = environment.getClassLoadingRules();
         if (classLoadingRules.isInverseClassLoading()) {
@@ -137,11 +168,11 @@ public class EnvironmentBuilder extends PropertyEditorSupport implements XmlAttr
         return classFilter;
     }
 
-    private static List toDependencyTypes(Collection artifacts) {
-        List dependencies = new ArrayList();
+    private static List<DependencyType> toDependencyTypes(Collection artifacts) {
+        List<DependencyType> dependencies = new ArrayList<DependencyType>();
         for (Iterator iterator = artifacts.iterator(); iterator.hasNext();) {
             Dependency dependency = (Dependency) iterator.next();
-            ArtifactType artifactType = toDependencyType(dependency);
+            DependencyType artifactType = toDependencyType(dependency);
             dependencies.add(artifactType);
         }
         return dependencies;
@@ -205,8 +236,8 @@ public class EnvironmentBuilder extends PropertyEditorSupport implements XmlAttr
         return artifacts;
     }
 
-    private static LinkedHashSet toDependencies(DependencyType[] dependencyArray) {
-        LinkedHashSet dependencies = new LinkedHashSet();
+    private static LinkedHashSet<Dependency> toDependencies(DependencyType[] dependencyArray) {
+        LinkedHashSet<Dependency> dependencies = new LinkedHashSet<Dependency>();
         for (int i = 0; i < dependencyArray.length; i++) {
             DependencyType artifactType = dependencyArray[i];
             Dependency dependency = toDependency(artifactType);

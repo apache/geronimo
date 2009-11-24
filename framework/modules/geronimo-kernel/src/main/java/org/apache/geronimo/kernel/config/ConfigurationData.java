@@ -19,7 +19,6 @@ package org.apache.geronimo.kernel.config;
 
 import java.io.File;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -59,7 +58,7 @@ public class ConfigurationData implements Serializable {
     /**
      * List of URIs in this configuration's classpath.  These are for the classes directly included in the configuration
      */
-    private final LinkedHashSet<String> classPath = new LinkedHashSet<String>();
+//    private final LinkedHashSet<String> classPath = new LinkedHashSet<String>();
 
     /**
      * The gbeans contained in this configuration
@@ -100,9 +99,9 @@ public class ConfigurationData implements Serializable {
      * The configuration store from which this configuration was loaded, or null if it was not loaded from a configuration store.
      */
     private transient ConfigurationStore configurationStore;
-    
+
     /**
-     * A transformer to transform the GBeans of this configuration. 
+     * A transformer to transform the GBeans of this configuration.
      */
     private transient ConfigurationDataTransformer configurationDataTransformer;
 
@@ -129,27 +128,31 @@ public class ConfigurationData implements Serializable {
     }
 
     public ConfigurationData(Environment environment, Naming naming) {
-        this(null, null, null, null, environment, null, null, naming);
+        this(null, null, null, environment, null, null, naming);
     }
 
-    public ConfigurationData(ConfigurationModuleType moduleType, LinkedHashSet<String> classPath, List<GBeanData> gbeans, Map<String, ConfigurationData> childConfigurations, Environment environment, File configurationDir, File inPlaceConfigurationDir, Naming naming) {
+    public ConfigurationData(ConfigurationModuleType moduleType,
+                             List<GBeanData> gbeans,
+                             Map<String, ConfigurationData> childConfigurations,
+                             Environment environment,
+                             File configurationDir,
+                             File inPlaceConfigurationDir,
+                             Naming naming
+    ) {
         if (naming == null) throw new NullPointerException("naming is null");
+        if (environment == null) throw new NullPointerException("environment is null");
+        if (environment.getConfigId() == null) throw new NullPointerException("environment.configId is null");
         this.naming = naming;
         if (moduleType != null) {
             this.moduleType = moduleType;
         } else {
             this.moduleType = ConfigurationModuleType.CAR;
         }
-        if (classPath != null) {
-            this.classPath.addAll(classPath);
-        }
         gbeanState = ConfigurationUtil.newGBeanState(gbeans);
         if (childConfigurations != null) {
             this.childConfigurations.putAll(childConfigurations);
         }
 
-        if (environment == null) throw new NullPointerException("environment is null");
-        if (environment.getConfigId() == null) throw new NullPointerException("environment.configId is null");
         this.environment = environment;
         this.configurationDir = configurationDir;
         this.inPlaceConfigurationDir = inPlaceConfigurationDir;
@@ -172,8 +175,8 @@ public class ConfigurationData implements Serializable {
         return moduleType;
     }
 
-    public List<String> getClassPath() {
-        return Collections.unmodifiableList(new ArrayList<String>(classPath));
+    public Manifest getManifest() throws ManifestException {
+        return environment.getManifest();
     }
 
     public List<GBeanData> getGBeans(Bundle bundle) throws InvalidConfigException {
@@ -197,7 +200,7 @@ public class ConfigurationData implements Serializable {
         if (gbeanInfo == null) throw new NullPointerException("gbeanInfo is null");
         return gbeanState.addGBean(name, gbeanInfo, naming, environment);
     }
-    
+
     public GBeanData addGBean(String name, Class gbeanClass) {
         if (name == null) throw new NullPointerException("name is null");
         if (gbeanClass == null) throw new NullPointerException("gbeanInfo is null");
@@ -223,6 +226,7 @@ public class ConfigurationData implements Serializable {
      * Gets a map of module name to ConfigurationData for nested
      * configurations (as in, a WAR within an EAR, not dependencies between
      * totally separate configurations).
+     *
      * @return map of child configuration name to ConfigurationData for that child
      */
     public Map<String, ConfigurationData> getChildConfigurations() {
@@ -291,7 +295,7 @@ public class ConfigurationData implements Serializable {
         if (configurationStore == null) throw new NullPointerException("configurationStore is null");
         this.configurationStore = configurationStore;
     }
-    
+
     public ConfigurationDataTransformer getConfigurationDataTransformer() {
         return configurationDataTransformer;
     }

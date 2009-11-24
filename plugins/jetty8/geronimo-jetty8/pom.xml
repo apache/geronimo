@@ -66,12 +66,16 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.framework</groupId>
-            <artifactId>jee-specs</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-            <scope>provided</scope>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-servlet_3.0_spec</artifactId>
         </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.framework</groupId>-->
+            <!--<artifactId>jee-specs</artifactId>-->
+            <!--<version>${version}</version>-->
+            <!--<type>car</type>-->
+            <!--<scope>provided</scope>-->
+        <!--</dependency>-->
 
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>

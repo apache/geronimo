@@ -33,6 +33,7 @@ import org.apache.geronimo.deployment.xbeans.EnvironmentType;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.system.plugin.model.DependencyType;
+import org.apache.geronimo.system.osgi.BootActivator;
 import org.apache.maven.artifact.resolver.ArtifactResolutionException;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -106,6 +107,12 @@ public class PlanProcessorMojo
      */
     protected File filteredPlanFile;
 
+    /**
+     * whether this is a boot bundle (starts kernel, and the config) or a normal plugin bundle.
+     * @parameter
+     */
+    private boolean boot;
+
 
     public void execute() throws MojoExecutionException, MojoFailureException {
         if (!sourceFile.exists()) {
@@ -171,6 +178,9 @@ public class PlanProcessorMojo
         Environment newEnvironment = new Environment();
         newEnvironment.setConfigId(configId);
         newEnvironment.setDependencies(dependencies);
+        if (boot) {
+            newEnvironment.setBundleActivator(BootActivator.class.getName());
+        }
 
         EnvironmentBuilder.mergeEnvironments(oldEnvironment, newEnvironment);
         EnvironmentType environmentType = EnvironmentBuilder.buildEnvironmentType(oldEnvironment);

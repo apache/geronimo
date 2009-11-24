@@ -226,8 +226,11 @@ public class WebAppContextWrapper implements GBeanLifecycle, JettyServletRegistr
         //DONT install the jetty TLD configuration as we find and create all the listeners ourselves
         webAppContext.setConfigurationClasses(new String[]{});
 
-        String webAppRoot = configurationBaseUrl.toString();
-        webAppContext.setResourceBase(webAppRoot);
+        String webAppRoot = null;
+        if (configurationBaseUrl != null) {
+            webAppRoot = configurationBaseUrl.toString();
+            webAppContext.setResourceBase(webAppRoot);
+        }
         webAppContext.setWar(webAppRoot);
         webClassLoader = classLoader;
         webAppContext.setClassLoader(webClassLoader);

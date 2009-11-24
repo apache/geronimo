@@ -242,7 +242,6 @@ public class MasterConfigurationStore implements ConfigurationStore {
         File configurationDir = delegate.createNewConfigurationDir(configId);
         
         return new ConfigurationData(ConfigurationModuleType.CAR,
-            new LinkedHashSet(),
             gbeans,
             Collections.EMPTY_MAP,
             environment,

@@ -406,6 +406,8 @@ public final class ConfigurationUtil {
 
         // If the GBean has a configurationBaseUrl attribute, set it
         // todo Even though this is not used by the classloader, web apps and persistence units still need this.  WHY???
+        //this doesn't work in osgi
+        /*
         GAttributeInfo attribute = gbeanData.getGBeanInfo().getAttribute("configurationBaseUrl");
         if (attribute != null && attribute.getType().equals("java.net.URL")) {
             try {
@@ -419,7 +421,7 @@ public final class ConfigurationUtil {
                 throw new InvalidConfigException("Unable to set attribute named " + "configurationBaseUrl" + " in gbean " + gbeanData.getAbstractName(), e);
             }
         }
-
+        */
         // add a dependency from the gbean to the configuration
         gbeanData.addDependency(configurationName);
     }

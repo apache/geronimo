@@ -50,19 +50,21 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.ReferencePatterns;
+import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Naming;
+import org.apache.geronimo.kernel.osgi.ConfigurationActivator;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
-import org.apache.geronimo.kernel.config.ConfigurationResolver;
+import org.apache.geronimo.kernel.config.Manifest;
+import org.apache.geronimo.kernel.config.ManifestException;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.Repository;
-import org.apache.geronimo.kernel.repository.ClassLoadingRules;
 import org.apache.geronimo.kernel.repository.Dependency;
 import org.apache.geronimo.system.plugin.model.PluginType;
 import org.apache.geronimo.system.plugin.model.PluginArtifactType;
@@ -126,6 +128,8 @@ public class DeploymentContext {
     //this is the temporary bundle we set up for this deployment
     private Bundle bundle;
     private Configuration configuration;
+    //TODO OSGI set this
+    private boolean boot;
 
 
     public DeploymentContext(File baseDir, File inPlaceConfigurationDir, Environment environment, AbstractName moduleName, ConfigurationModuleType moduleType, Naming naming, ConfigurationManager configurationManager, Collection<Repository> repositories, BundleContext bundleContext) throws DeploymentException {
@@ -177,7 +181,7 @@ public class DeploymentContext {
     private Configuration createTempConfiguration() throws DeploymentException {
         LinkedHashSet<Artifact> resolvedParentIds = null;
         try {
-            ConfigurationData configurationData = new ConfigurationData(moduleType, classPath, null, childConfigurationDatas, environment, baseDir, inPlaceConfigurationDir, naming);
+            ConfigurationData configurationData = new ConfigurationData(moduleType, null, childConfigurationDatas, environment, baseDir, inPlaceConfigurationDir, naming);
 //            ConfigurationResolver configurationResolver = configurationManager.newConfigurationResolver(configurationData);
 //            List<URL> urls = new ArrayList<URL>();
 //            for (String path: classPath) {
@@ -237,11 +241,15 @@ public class DeploymentContext {
 
     private void createTempManifest() throws DeploymentException, IOException {
         Manifest manifest = new Manifest();
-        manifest.addConfiguredAttribute(new Manifest.Attribute(Constants.BUNDLE_MANIFESTVERSION, "2"));
-        manifest.addConfiguredAttribute(new Manifest.Attribute(Constants.BUNDLE_SYMBOLICNAME, getBundleSymbolicName()));
-        manifest.addConfiguredAttribute(new Manifest.Attribute(Constants.BUNDLE_VERSION, "0.0.0.0"));
-        manifest.addConfiguredAttribute(new Manifest.Attribute(Constants.BUNDLE_CLASSPATH, getBundleClassPath()));
-        manifest.addConfiguredAttribute(new Manifest.Attribute(Constants.DYNAMICIMPORT_PACKAGE, "*"));
+        try {
+            manifest.addConfiguredAttribute(new Manifest.Attribute(Constants.BUNDLE_MANIFESTVERSION, "2"));
+            manifest.addConfiguredAttribute(new Manifest.Attribute(Constants.BUNDLE_SYMBOLICNAME, getBundleSymbolicName()));
+            manifest.addConfiguredAttribute(new Manifest.Attribute(Constants.BUNDLE_VERSION, "0.0.0.0"));
+            manifest.addConfiguredAttribute(new Manifest.Attribute(Constants.BUNDLE_CLASSPATH, getBundleClassPath()));
+            manifest.addConfiguredAttribute(new Manifest.Attribute(Constants.DYNAMICIMPORT_PACKAGE, "*"));
+        } catch (ManifestException e) {
+            throw new DeploymentException(e);
+        }
         File metaInf = new File(baseDir, "META-INF");
         metaInf.mkdirs();
         FileWriter fw = new FileWriter(new File(metaInf, "MANIFEST.MF"));
@@ -786,14 +794,21 @@ public class DeploymentContext {
 
         List<GBeanData> gbeans = new ArrayList<GBeanData>(configuration.getGBeans().values());
         Collections.sort(gbeans, new GBeanData.PriorityComparator());
+        // TODO OSGI figure out exports
+        environment.addImportPackages(getImports(gbeans));
+        environment.addToBundleClassPath(classPath);
+        //TODO OSGI leave out if we use a extender mechanism
+        if (environment.getBundleActivator() == null) {
+            environment.setBundleActivator(ConfigurationActivator.class.getName());
+        }
         ConfigurationData configurationData = new ConfigurationData(configuration.getModuleType(),
-                classPath,
                 gbeans,
                 childConfigurationDatas,
                 configuration.getEnvironment(),
                 baseDir,
                 inPlaceConfigurationDir,
-                naming);
+                naming
+        );
 
         for (ConfigurationData ownedConfiguration : additionalDeployment) {
             configurationData.addOwnedConfigurations(ownedConfiguration.getId());
@@ -801,6 +816,37 @@ public class DeploymentContext {
 
         return configurationData;
     }
+
+    public static LinkedHashSet<String> getImports(List<GBeanData> gbeans) {
+        LinkedHashSet<String> imports = new LinkedHashSet<String>();
+        for (GBeanData data: gbeans) {
+            GBeanInfo info = data.getGBeanInfo();
+            addImport(imports, info.getClassName());
+            for (GAttributeInfo attInfo: info.getAttributes()) {
+                addImport(imports, attInfo.getType());
+            }
+            for (GReferenceInfo refInfo: info.getReferences()) {
+                addImport(imports, refInfo.getReferenceType());
+            }
+        }
+        return imports;
+    }
+
+    private static void addImport(LinkedHashSet<String> imports, String className) {
+        int pos = className.lastIndexOf('.');
+        if (pos < 0 ) return;
+        int count = 0;
+        while (className.charAt(count) == '[') {
+            count++;
+        }
+        if (className.charAt(count) == 'L') {
+            count++;
+        }
+        className = className.substring(count, pos);
+        if (className.startsWith("java.")) return;
+        imports.add(className);
+    }
+
 
     public void addAdditionalDeployment(ConfigurationData configurationData) {
         additionalDeployment.add(configurationData);
