@@ -14,7 +14,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.cli.client;
+package org.apache.geronimo.cli.shutdown;
 
 import java.util.Arrays;
 
@@ -24,22 +24,22 @@ import org.apache.geronimo.main.Bootstrapper;
 
 
 /**
- * @version $Rev: 476049 $ $Date: 2006-11-17 15:35:17 +1100 (Fri, 17 Nov 2006) $
+ * @version $Rev$ $Date$
  */
-public class ClientCLI extends AbstractCLI {
+public class ShutdownCLI extends AbstractCLI {
 
     public static void main(String[] args) {
-        int status = new ClientCLI(args).executeMain();
+        int status = new ShutdownCLI(args).executeMain();
         System.exit(status);
     }
 
-    protected ClientCLI(String[] args) {
+    protected ShutdownCLI(String[] args) {
         super(args, System.err);
     }
     
     @Override
     protected CLParser getCLParser() {
-        return new ClientCLParser(System.out);
+        return new ShutdownCLParser(System.out);
     }
     
     @Override
@@ -47,8 +47,16 @@ public class ClientCLI extends AbstractCLI {
         Bootstrapper boot = super.createBootstrapper();
         boot.setWaitForStop(false);
         boot.setUniqueStorage(true);
-        boot.setStartBundles(Arrays.asList("org.apache.geronimo.framework/client-system//car"));
-        boot.setLog4jConfigFile("var/log/client-log4j.properties");
+        boot.setStartBundles(Arrays.asList(
+                "org.apache.servicemix.bundles/org.apache.servicemix.bundles.jline//jar",
+                "org.apache.servicemix.bundles/org.apache.servicemix.bundles.ant//jar",
+                "org.apache.geronimo.specs/geronimo-javaee-deployment_1.1MR3_spec//jar",
+                "org.apache.geronimo.framework/geronimo-deploy-config//jar",
+                "org.apache.geronimo.framework/geronimo-plugin//jar",
+                "org.apache.geronimo.framework/geronimo-deploy-jsr88//jar",
+                "org.apache.geronimo.framework/geronimo-deploy-tool//jar",                                
+                "org.apache.geronimo.framework/shutdown//car"));
+        boot.setLog4jConfigFile("var/log/server-log4j.properties");
         return boot;
     }
 

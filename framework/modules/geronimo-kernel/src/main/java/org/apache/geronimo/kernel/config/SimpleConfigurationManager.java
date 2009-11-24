@@ -296,7 +296,9 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         try {
             String location = locateBundle(configurationId, monitor);
             Bundle bundle = bundleContext.installBundle(location);
-            bundle.start(Bundle.START_TRANSIENT);
+            if (bundle.getState() != Bundle.STARTING) {
+                bundle.start(Bundle.START_TRANSIENT);
+            }
             bundles.put(configurationId, bundle);
         } catch (Exception e) {
             monitor.finished();

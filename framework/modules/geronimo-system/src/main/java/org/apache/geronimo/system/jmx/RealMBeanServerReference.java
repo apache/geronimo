@@ -22,8 +22,12 @@ import java.util.ArrayList;
 import javax.management.MBeanServer;
 import javax.management.MBeanServerFactory;
 
+import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
+import org.apache.geronimo.gbean.annotation.ParamSpecial;
+import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
+import org.osgi.framework.BundleContext;
 
 /**
  * Creates a real mbean server of finds an existing one with the specified mbeanServerId
@@ -31,13 +35,16 @@ import org.apache.geronimo.gbean.annotation.ParamAttribute;
  * @version $Rev$ $Date$
  */
 @GBean
-public class RealMBeanServerReference implements MBeanServerReference {
+public class RealMBeanServerReference implements MBeanServerReference, GBeanLifecycle {
     private static final String GERONIMO_DEFAULT_DOMAIN = "geronimo";
 
+    private BundleContext bundleContext;
     private MBeanServer mbeanServer;
 
-    public RealMBeanServerReference(@ParamAttribute(name="usePlatformMBeanServer") boolean usePlatformMBeanServer,
+    public RealMBeanServerReference(@ParamSpecial(type = SpecialAttributeType.bundleContext) BundleContext bundleContext,
+                                    @ParamAttribute(name="usePlatformMBeanServer") boolean usePlatformMBeanServer,
                                     @ParamAttribute(name="mbeanServerId")String mbeanServerId) throws MBeanServerNotFound {
+        this.bundleContext = bundleContext;
         if (usePlatformMBeanServer) {
             mbeanServer = ManagementFactory.getPlatformMBeanServer();
         } else {
@@ -74,6 +81,19 @@ public class RealMBeanServerReference implements MBeanServerReference {
 
     public MBeanServer getMBeanServer() {
         return mbeanServer;
+    }
+
+    public void doFail() {
+    }
+
+    public void doStart() throws Exception {
+        if (mbeanServer != null) {
+            bundleContext.registerService(MBeanServer.class.getName(), mbeanServer, null);
+        }       
+    }
+
+    public void doStop() throws Exception {
+        // TODO: unregister MBeanServer service?
     }
 
 }

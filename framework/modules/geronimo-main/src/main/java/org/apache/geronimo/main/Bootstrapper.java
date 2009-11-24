@@ -19,9 +19,12 @@ package org.apache.geronimo.main;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
 import org.osgi.util.tracker.ServiceTracker;
 
@@ -38,6 +41,9 @@ public class Bootstrapper {
     private boolean uniqueStorage = false;   
     private ServerInfo serverInfo;
     private String log4jFile;
+    
+    private Semaphore startSemaphore;
+    private Throwable startException;
 
     public Bootstrapper() {
     }
@@ -69,10 +75,25 @@ public class Bootstrapper {
         karafMain.getFramework().getBundleContext().registerService(ServerInfo.class.getName(), serverInfo, null);
         
         if (bundles != null) {
+            startSemaphore = new Semaphore(0);
             StartLevelListener listener = new StartLevelListener(this);
-            listener.start();            
+            listener.start();    
+            
+            try {
+                if (!startSemaphore.tryAcquire(60, TimeUnit.SECONDS)) {
+                    return -1;
+                }
+            } catch (InterruptedException e) {
+                return -1;
+            }
+
+            if (startException != null) {
+                System.err.println("Error starting bundles: " + startException.getMessage());
+                startException.printStackTrace();
+                return -1;
+            }
         }
-        
+                
         Main geronimo_main = getMain();
         
         if (geronimo_main == null) {
@@ -177,41 +198,77 @@ public class Bootstrapper {
             
     public void startLevelChanged(int startLevel) {
         if (startLevel == defaultStartLevel) {
-            startBundles();
+            try {
+                startBundles();
+                startException = null;
+            } catch (Throwable e) {
+                startException = e;
+            } finally {
+                startSemaphore.release();
+            }
         }        
     }
     
-    public void startBundles() {
+    public void startBundles() throws BundleException, IOException {
         BundleContext context = getBundleContext();
         for (String location : bundles) {
-            String mvnLocation = "mvn:" + location;
-            File fileLocation = getBundleLocation(location);
-            try {
-                Bundle b = context.installBundle(mvnLocation, fileLocation.toURL().openStream());
-                if (b != null) {
-                    b.start(Bundle.START_TRANSIENT);
-                }
-            } catch (Exception ex) {
-                System.err.println("Error starting: " + location + " " + fileLocation + " " + ex);
-            }            
+            String[] parts = location.split("/");
+            
+            File fileLocation = getBundleLocation(parts);
+            if (location == null) {
+                System.err.println("Artifact " + location + " not found");
+                continue;
+            }
+            parts[2] = fileLocation.getParentFile().getName();
+            parts[3] = fileLocation.getName().substring(fileLocation.getName().lastIndexOf('.') + 1);
+            
+            String mvnLocation = getMvnLocation(parts);
+            Bundle b = context.installBundle(mvnLocation, fileLocation.toURL().openStream());
+            if (b != null) {
+                b.start(Bundle.START_TRANSIENT);
+            }
         }
     }
     
-    private File getBundleLocation(String name) {
-        String[] parts = name.split("/");
-        String group = parts[0].replace('.', '/');
-        String artifactId = parts[1];
-        String version = parts[2];
-        String type = parts[3];
-        
-        String fileName = group + "/" + artifactId + "/" + version + "/" + artifactId + "-" + version + "." + type;
-                
+    private String getMvnLocation(String[] parts) {
+        return "mvn:" + parts[0] + "/" + parts[1] + "/" + parts[2] + "/" + parts[3]; 
+    }
+    
+    private File getBundleLocation(String[] parts) {
+        String group = parts[0].replace('.', '/').trim();
+        String artifactId = parts[1].trim();
+        String version = parts[2].trim();
+        String type = parts[3].trim();
+                        
         String defaultRepo = System.getProperty(org.apache.felix.karaf.main.Main.DEFAULT_REPO);
         
         File repo = new File(getHome(), defaultRepo);
-        File bundleLocation = new File(repo, fileName);
         
-        return bundleLocation;
+        File base = new File(repo, group + "/" + artifactId);
+        if (base.exists()) {
+            File versionFile = findFile(base, version);
+            if (versionFile != null) {
+                String artifactName = "";
+                if (type.length() != 0) {                        
+                    artifactName = artifactId + "-" + versionFile.getName() + "." + type;
+                }
+                return findFile(versionFile, artifactName);               
+            }
+        }
+        return null;
+    }
+    
+    private File findFile(File base, String name) {
+        File[] files = base.listFiles();
+        if (name.length() == 0) {
+            return (files.length > 0) ? files[0] : null;
+        }
+        for (File file : files) {
+            if (name.equals(file.getName())) {
+                return file;
+            }
+        }
+        return null;
     }
     
     private String getStorageDirectory() throws IOException {

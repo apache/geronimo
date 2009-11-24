@@ -18,80 +18,70 @@
 package org.apache.geronimo.deployment.cli;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Map;
+import java.util.Set;
 
 import javax.management.MBeanServerConnection;
+import javax.management.ObjectName;
 import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 import javax.management.remote.rmi.RMIConnectorServer;
 import javax.rmi.ssl.SslRMIClientSocketFactory;
 
+import org.apache.geronimo.cli.shutdown.ShutdownCLParser;
 import org.apache.geronimo.deployment.cli.DeployUtils.SavedAuthentication;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.util.Main;
-import org.apache.geronimo.system.jmx.KernelDelegate;
+import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.main.Main;
+import org.osgi.framework.Bundle;
 
 /**
  * @version $Rev$ $Date$
  */
-public class StopServer implements Main {
-
-	public static final String RMI_NAMING_CONFG_ID = "org/apache/geronimo/RMINaming";
+public class StopServer implements Main, GBeanLifecycle {
 
 	public static final String DEFAULT_PORT = "1099"; // 1099 is used by java.rmi.registry.Registry
 
-	String host;
-	
-	String port;
+	private String host;	
+	private Integer port;
+	private String user;
+	private String password;	
+	private boolean secure;
 
-	String user;
+    private final Bundle bundle;
 
-	String password;
-	
-	boolean secure = false;
-
-	private String[] args;
-
-	public static void main(String[] args) throws Exception {
-		StopServer cmd = new StopServer();
-		cmd.execute(args);
-	}
+    public StopServer(Bundle bundle) {
+        this.bundle = bundle;
+    }
     
     public int execute(Object opaque) {
-        if (! (opaque instanceof String[])) {
-            throw new IllegalArgumentException("Argument type is [" + opaque.getClass() + "]; expected [" + String[].class + "]");
+        if (! (opaque instanceof ShutdownCLParser)) {
+            throw new IllegalArgumentException("Argument type is [" + opaque.getClass() + "]; expected [" + ShutdownCLParser.class + "]");
         }
-        this.args = (String[]) opaque;
+        ShutdownCLParser parser = (ShutdownCLParser) opaque;
 
-        int i = 0;
-        while (i < args.length && args[i].startsWith("--")) {
-            if (setParam(i++)) {
-                i++;
-            }
+        port = parser.getPort();
+        if (port == null) {
+            port = new Integer(DEFAULT_PORT);
         }
-
-        if (i < args.length) {
-            // There was an argument error somewhere.
-            printUsage();
+        
+        host = parser.getHost();
+        if (host == null) {
+            host = "localhost";
         }
 
-        Integer portI = null;        
-        if (port != null) {
-            try {
-                portI = new Integer(port);
-            } catch (NumberFormatException e) {
-                System.out.println("Invalid port number specified.");
-                return 1;
-            }
-        }
-
+        secure = parser.isSecure();
+        
+        user = parser.getUser();
+        
+        password = parser.getPassword();
+        
         if (user == null && password == null) {
-            String uri = DeployUtils.getConnectionURI(host, portI, secure);
+            String uri = DeployUtils.getConnectionURI(host, port, secure);
             try {
                 SavedAuthentication savedAuthentication = DeployUtils.readSavedCredentials(uri);
                 if (savedAuthentication != null) {
@@ -117,105 +107,65 @@ public class StopServer implements Main {
                 return 1;
             }
         }
-
+        
+        System.out.print("Locating server on " + host + ":" + port + "... ");
+        MBeanServerConnection conn = null;
         try {
-            if (port == null) {
-                port = DEFAULT_PORT;
-            }
-            if (host == null) {
-                host = "localhost";
-            }
-            System.out.print("Locating server on " + host + ":" + port + "... ");
-            Kernel kernel = null;
-            try {
-                kernel = getRunningKernel();
-            } catch (IOException e) {
-                System.out.println();
-                System.out.println("Could not communicate with the server.  The server may not be running or the port number may be incorrect (" + e.getMessage() + ")");
-            }
-            if (kernel != null) {
-                System.out.println("Server found.");
-                System.out.println("Server shutdown started");
-                kernel.shutdown();
-                System.out.println("Server shutdown completed");
-            }
+            conn = getMBeanServerConnection();
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("Could not communicate with the server.  The server may not be running or the port number may be incorrect (" + e.getMessage() + ")");
             return 1;
+        }
+        if (conn != null) {
+            System.out.println("Server found.");            
+            try {
+                shutdown(conn);
+            } catch (Exception e) {
+                System.err.println("Error shutting down the server");
+                e.printStackTrace();
+                return 2;
+            }            
         }
         return 0;
     }
 
-	private boolean argumentHasValue(int i) {
-		return i + 1 < args.length && !args[i + 1].startsWith("--");
-	}
-
-	private boolean setParam(int i) {
-		if (argumentHasValue(i)) {
-			if (args[i].equals("--user")) {
-				user = args[++i];
-			} else if (args[i].equals("--password")) {
-				password = args[++i];
-			} else if (args[i].equals("--port")) {
-				port = args[++i];
-            } else if (args[i].equals("--host")) {
-                host = args[++i];
-			} else {
-				printUsage();
-			}
-			return true;
-		} else if (args[i].equals("--secure")) {
-		    secure = true;
-		} else {
-			printUsage();
-		}
-		return false;
-	}
-
-	public Kernel getRunningKernel() throws IOException {
-		Map map = new HashMap();
-		map.put(JMXConnector.CREDENTIALS, new String[] { user, password });
+    public MBeanServerConnection getMBeanServerConnection() throws Exception {
+        Map map = new HashMap();
+        map.put(JMXConnector.CREDENTIALS, new String[] { user, password });
         String connectorName = "/JMXConnector";
         if (secure) {
             connectorName = "/JMXSecureConnector";
             SslRMIClientSocketFactory csf = new SslRMIClientSocketFactory();
             map.put(RMIConnectorServer.RMI_CLIENT_SOCKET_FACTORY_ATTRIBUTE, csf);
         }
-		Kernel kernel = null;
-		try {
-			JMXServiceURL address = new JMXServiceURL(
-					"service:jmx:rmi:///jndi/rmi://" + host + ":" + port + connectorName);
-			JMXConnector jmxConnector = JMXConnectorFactory.connect(address, map);
-			MBeanServerConnection mbServerConnection = jmxConnector.getMBeanServerConnection();
-			kernel = new KernelDelegate(mbServerConnection);
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
-		}
-		return kernel;
-	}
-
-	public void printUsage() {
-		System.out.println();
-		System.out.println("Command-line shutdown syntax:");
-		System.out.println("    shutdown [options]");
-		System.out.println();
-		System.out.println("The available options are:");
-		System.out.println("    --user <username>");
-		System.out.println("    --password <password>");
-		System.out.println("    --host <hostname>");
-		System.out.println("    --port <port>");
-		System.out.println("    --secure");
-		System.exit(1);
-	}
+        JMXServiceURL address = new JMXServiceURL(
+                "service:jmx:rmi:///jndi/rmi://" + host + ":" + port + connectorName);
+        JMXConnector jmxConnector = JMXConnectorFactory.connect(address, map);
+        return jmxConnector.getMBeanServerConnection();       
+    }
+    
+    public void shutdown(MBeanServerConnection mbServerConnection) throws Exception {			
+        Set<ObjectName> objectNameSet = 
+            mbServerConnection.queryNames(new ObjectName("osgi.core:type=framework,*"), null);
+        if (objectNameSet.isEmpty()) {
+            throw new Exception("Framework mbean not found");
+        } else if (objectNameSet.size() == 1) {
+            System.out.println("Server shutdown started");
+            mbServerConnection.invoke(objectNameSet.iterator().next(), "stopBundle", 
+                                      new Object[] { 0 }, new String[] { long.class.getName() });
+            System.out.println("Server shutdown completed");
+        } else {
+            throw new Exception("Found multiple framework mbeans");
+        }
+    }
 
     public static final GBeanInfo GBEAN_INFO;
 
     static {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(StopServer.class, "StopServer");
-
+        infoBuilder.addAttribute("bundle", Bundle.class, false);
+        infoBuilder.setConstructor(new String[]{"bundle"});
         infoBuilder.addInterface(Main.class);
-
-//        infoBuilder.setConstructor(new String[0]);
 
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }
@@ -224,4 +174,15 @@ public class StopServer implements Main {
         return GBEAN_INFO;
     }
 
+    public void doFail() {
+    }
+
+    public void doStart() throws Exception {
+        bundle.getBundleContext().registerService(Main.class.getName(), this, new Hashtable());
+    }
+
+    public void doStop() throws Exception {
+        // TODO: unregister Main service?
+    }
+    
 }

@@ -114,18 +114,15 @@ public class MainBridge implements Main, GBeanLifecycle {
         return GBEAN_INFO;
     }
 
-    @Override
     public void doFail() {
     }
 
-    @Override
     public void doStart() throws Exception {
         bundle.getBundleContext().registerService(Main.class.getName(), this, new Hashtable());
     }
 
-    @Override
     public void doStop() throws Exception {
-
+        // TODO: unregister Main service?
     }
 
 }

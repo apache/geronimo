@@ -22,6 +22,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.GnuParser;
 import org.apache.commons.cli.Option;
+import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.OptionGroup;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
@@ -132,4 +133,11 @@ public class BaseCLParser implements CLParser {
         options.addOptionGroup(optionGroup);
     }
 
+    protected void addOptionWithParam(String longOption, String shortOption, String argName, String desc) {
+        OptionBuilder optionBuilder = OptionBuilder.hasArg().withArgName(argName);
+        optionBuilder = optionBuilder.withLongOpt(longOption);
+        optionBuilder = optionBuilder.withDescription(desc);
+        Option option = optionBuilder.create(shortOption);
+        options.addOption(option);
+    }
 }

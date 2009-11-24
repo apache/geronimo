@@ -363,12 +363,4 @@ public class DeployerCLParser extends BaseCLParser implements ConnectionParams {
                         + "deployer:geronimo:jmx[://host[:port]] (though you could also just use --host and --port instead).");
     }
 
-    protected void addOptionWithParam(String longOption, String shortOption, String argName, String desc) {
-        OptionBuilder optionBuilder = OptionBuilder.hasArg().withArgName(argName);
-        optionBuilder = optionBuilder.withLongOpt(longOption);
-        optionBuilder = optionBuilder.withDescription(desc);
-        Option option = optionBuilder.create(shortOption);
-        options.addOption(option);
-    }
-
 }

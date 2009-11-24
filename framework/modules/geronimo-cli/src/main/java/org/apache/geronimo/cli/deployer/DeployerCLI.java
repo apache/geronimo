@@ -57,7 +57,7 @@ public class DeployerCLI extends AbstractCLI {
         Bootstrapper boot = super.createBootstrapper();
         boot.setWaitForStop(false);
         boot.setUniqueStorage(true);
-        boot.setStartBundles(Arrays.asList("org.apache.geronimo.framework/online-deployer/3.0-SNAPSHOT/car"));
+        boot.setStartBundles(Arrays.asList("org.apache.geronimo.framework/online-deployer//car"));
         boot.setLog4jConfigFile("var/log/deployer-log4j.properties");
         return boot;
     }
