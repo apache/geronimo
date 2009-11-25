@@ -35,25 +35,11 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.apache.geronimo.plugins</groupId>
-            <artifactId>clustering</artifactId>
-            <version>${version}</version>
-            <type>pom</type>
-            <scope>import</scope>
-        </dependency>
-        <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>transaction-1_6</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>
-
-        <!--<dependency>-->
-        <!--<groupId>org.apache.geronimo.framework</groupId>-->
-        <!--<artifactId>rmi-naming</artifactId>-->
-        <!--<version>${version}</version>-->
-        <!--<type>car</type>-->
-        <!--</dependency>-->
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>

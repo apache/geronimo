@@ -72,11 +72,6 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.plugins</groupId>
-        <artifactId>clustering</artifactId>
-        <type>pom</type>
-    </dependency>
-    <dependency>
         <groupId>org.apache.geronimo.specs</groupId>
         <artifactId>geronimo-activation_1.1_spec</artifactId>
         <type>jar</type>
