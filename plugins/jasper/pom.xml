@@ -116,11 +116,6 @@
                 <artifactId>org.apache.servicemix.bundles.jdt-core</artifactId>
                 <version>3.2.3_3-SNAPSHOT</version>
             </dependency>
-            <dependency>
-                <groupId>org.apache.servicemix.bundles</groupId>
-                <artifactId>org.apache.servicemix.bundles.ant</artifactId>
-                <version>1.7.0_1</version>
-            </dependency>
         </dependencies>
     </dependencyManagement>
 
