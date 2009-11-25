@@ -49,6 +49,7 @@ import org.apache.geronimo.tomcat.interceptor.ComponentContextBeforeAfter;
 import org.apache.geronimo.tomcat.interceptor.InstanceContextBeforeAfter;
 import org.apache.geronimo.tomcat.interceptor.PolicyContextBeforeAfter;
 import org.apache.geronimo.tomcat.interceptor.UserTransactionBeforeAfter;
+import org.apache.geronimo.tomcat.listener.DispatchListener;
 import org.apache.geronimo.tomcat.listener.RunAsInstanceListener;
 import org.apache.geronimo.tomcat.util.SecurityHolder;
 import org.apache.geronimo.tomcat.valve.DefaultSubjectValve;
@@ -205,7 +206,7 @@ public class GeronimoStandardContext extends StandardContext {
         this.setCookies(!ctx.isDisableCookies());
 
         //Set the Dispatch listener
-        this.addInstanceListener("org.apache.geronimo.tomcat.listener.DispatchListener");
+        this.addInstanceListener(DispatchListener.class.getName());
         
         //Set the run-as listener. listeners must be added before start() is called
         if (runAsSource != null) {
