@@ -40,7 +40,10 @@
         <module>aspectjrt</module>
         <module>aspectjweaver</module>
         <module>castor</module>
+        <module>commons-digester</module>
+        <module>commons-discovery</module>
         <module>derby-all</module>
+        <module>jstl</module>
         <module>ldapsdk</module>
         <!-- todo remove -->
         <module>log4j</module>

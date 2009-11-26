@@ -67,8 +67,8 @@
         </dependency>
 
         <dependency>
-            <groupId>commons-beanutils</groupId>
-            <artifactId>commons-beanutils</artifactId>
+            <groupId>org.apache.servicemix.bundles</groupId>
+            <artifactId>org.apache.servicemix.bundles.commons-beanutils</artifactId>
         </dependency>
 
         <dependency>
@@ -118,7 +118,7 @@
         </dependency>
 
         <dependency>
-            <groupId>commons-digester</groupId>
+            <groupId>org.apache.geronimo.bundles</groupId>
             <artifactId>commons-digester</artifactId>
         </dependency>
     </dependencies>

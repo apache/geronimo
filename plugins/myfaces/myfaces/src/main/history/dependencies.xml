@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<plugin-artifact xmlns:ns2="http://geronimo.apache.org/xml/ns/attributes-1.2" xmlns="http://geronimo.apache.org/xml/ns/plugins-1.3">
+<plugin-artifact xmlns="http://geronimo.apache.org/xml/ns/plugins-1.3" xmlns:ns2="http://geronimo.apache.org/xml/ns/attributes-1.2">
     <module-id>
         <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>myfaces</artifactId>
@@ -7,28 +7,23 @@
         <type>car</type>
     </module-id>
     <dependency>
-        <groupId>commons-beanutils</groupId>
-        <artifactId>commons-beanutils</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>commons-codec</groupId>
-        <artifactId>commons-codec</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
         <groupId>commons-collections</groupId>
         <artifactId>commons-collections</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>commons-digester</groupId>
+        <groupId>org.apache.geronimo.bundles</groupId>
         <artifactId>commons-digester</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>commons-discovery</groupId>
+        <groupId>org.apache.geronimo.bundles</groupId>
         <artifactId>commons-discovery</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.bundles</groupId>
+        <artifactId>jstl</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -37,13 +32,48 @@
         <type>car</type>
     </dependency>
     <dependency>
+        <groupId>org.apache.geronimo.framework</groupId>
+        <artifactId>geronimo-gbean-deployer</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
         <groupId>org.apache.geronimo.modules</groupId>
         <artifactId>geronimo-myfaces</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
+        <groupId>org.apache.geronimo.specs</groupId>
+        <artifactId>geronimo-el_1.0_spec</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.specs</groupId>
+        <artifactId>geronimo-jsp_2.1_spec</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.specs</groupId>
+        <artifactId>geronimo-servlet_3.0_spec</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.myfaces.core</groupId>
+        <artifactId>myfaces-api</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
         <groupId>org.apache.myfaces.core</groupId>
         <artifactId>myfaces-impl</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.servicemix.bundles</groupId>
+        <artifactId>org.apache.servicemix.bundles.commons-beanutils</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.servicemix.bundles</groupId>
+        <artifactId>org.apache.servicemix.bundles.commons-codec</artifactId>
         <type>jar</type>
     </dependency>
 </plugin-artifact>

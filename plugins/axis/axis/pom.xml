@@ -83,7 +83,7 @@
         </dependency>
 
         <dependency>
-            <groupId>commons-discovery</groupId>
+            <groupId>org.apache.geronimo.bundles</groupId>
             <artifactId>commons-discovery</artifactId>
         </dependency>
 
