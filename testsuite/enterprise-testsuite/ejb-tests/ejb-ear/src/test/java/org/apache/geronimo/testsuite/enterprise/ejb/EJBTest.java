@@ -32,6 +32,7 @@ import org.apache.geronimo.testsupport.TestSupport;
 import org.testng.annotations.Test;
 
 import org.apache.geronimo.test.hello.ejb.HelloRemote;
+import org.apache.geronimo.test.singleton.ejb.SingletonRemote;
 
 public class EJBTest extends TestSupport {
 
@@ -60,6 +61,46 @@ public class EJBTest extends TestSupport {
     }
 
     @Test
+    public void testClientSingletonInvocation() throws Exception {
+        Properties p = new Properties();
+    
+        p.put("java.naming.factory.initial", 
+              "org.apache.openejb.client.RemoteInitialContextFactory");
+        p.put("java.naming.provider.url", 
+              "127.0.0.1:4201");   
+        
+        InitialContext ctx = new InitialContext(p);
+        
+	SingletonRemote bean = (SingletonRemote)ctx.lookup("/SingletonBeanRemote");
+	
+	String response = bean.sayHi("foo bar");
+
+	System.out.println(response);
+
+	assertEquals("Singleton Hello foo bar", response);
+    }
+
+    @Test
+    public void testSingletonStartup() throws Exception {
+        Properties p = new Properties();
+    
+        p.put("java.naming.factory.initial", 
+              "org.apache.openejb.client.RemoteInitialContextFactory");
+        p.put("java.naming.provider.url", 
+              "127.0.0.1:4201");   
+        
+        InitialContext ctx = new InitialContext(p);
+        
+	SingletonRemote bean = (SingletonRemote)ctx.lookup("/SingletonBeanRemote");
+	
+	boolean startupInvoked = bean.isStartupInvoked();
+
+	System.out.println("Singleton Startup Invoked: " + startupInvoked);
+
+	assertTrue(startupInvoked);
+    }
+
+    @Test
     public void testInvocation1() throws Exception {
         testInvocation("/servlet1", "Hello foo");
     }
@@ -67,6 +108,16 @@ public class EJBTest extends TestSupport {
     @Test
     public void testInvocation2() throws Exception {
         testInvocation("/servlet2", "Hello bar");
+    }
+
+    @Test
+    public void testSingletonInvocation1() throws Exception {
+        testInvocation("/singleton-servlet1", "Hello foo");
+    }
+
+    @Test
+    public void testSingletonInvocation2() throws Exception {
+        testInvocation("/singleton-servlet2", "Hello bar");
     }
 
     private void testInvocation(String servlet, String expectedOutput) throws Exception {

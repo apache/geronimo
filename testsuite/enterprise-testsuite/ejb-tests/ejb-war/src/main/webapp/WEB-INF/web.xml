@@ -34,6 +34,18 @@
 		<servlet-class>org.apache.geronimo.test.hello.web.Servlet2</servlet-class>
 	</servlet>
   	
+	<servlet>
+		<display-name>SingletonServlet1</display-name>
+		<servlet-name>SingletonServlet1</servlet-name>
+		<servlet-class>org.apache.geronimo.test.singleton.web.Servlet1</servlet-class>
+	</servlet>
+	
+	<servlet>
+		<display-name>SingletonServlet2</display-name>
+		<servlet-name>SingletonServlet2</servlet-name>
+		<servlet-class>org.apache.geronimo.test.singleton.web.Servlet2</servlet-class>
+	</servlet>
+  	
 	<servlet-mapping>
 		<servlet-name>Servlet1</servlet-name>
 		<url-pattern>/servlet1</url-pattern>
@@ -42,5 +54,15 @@
 	<servlet-mapping>
 		<servlet-name>Servlet2</servlet-name>
 		<url-pattern>/servlet2</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>SingletonServlet1</servlet-name>
+		<url-pattern>/singleton-servlet1</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+		<servlet-name>SingletonServlet2</servlet-name>
+		<url-pattern>/singleton-servlet2</url-pattern>
 	</servlet-mapping>
 </web-app>
