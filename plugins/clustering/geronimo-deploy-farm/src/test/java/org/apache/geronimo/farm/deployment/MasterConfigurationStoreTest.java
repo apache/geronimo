@@ -25,8 +25,10 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Hashtable;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 
 import junit.framework.AssertionFailedError;
 
@@ -73,7 +75,11 @@ public class MasterConfigurationStoreTest extends RMockTestCase {
         storeClient = (ClusterConfigurationStoreClient) mock(ClusterConfigurationStoreClient.class);
         kernel.getAbstractNameFor(clusterInfo);
         configId = new Artifact("groupId", "artifactId", "2.0", "car");
-        clusterInfoName = new AbstractName(configId, Collections.singletonMap("name", "ClusterInfo"));
+        Map nameMap= new Hashtable();
+    	nameMap.put("name", "ClusterInfo");
+    	nameMap.put("appName", configId.getArtifactId());
+        clusterInfoName= new AbstractName(configId,nameMap);
+       // clusterInfoName = new AbstractName(configId, Collections.singletonMap("name", "ClusterInfo"));
         modify().returnValue(clusterInfoName);
         
         delegate = (ConfigurationStore) mock(ConfigurationStore.class);

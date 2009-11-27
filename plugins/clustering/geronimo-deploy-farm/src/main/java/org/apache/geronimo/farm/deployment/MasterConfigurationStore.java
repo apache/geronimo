@@ -26,8 +26,10 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Hashtable;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.geronimo.farm.config.ClusterInfo;
@@ -281,7 +283,11 @@ public class MasterConfigurationStore implements ConfigurationStore {
 
     protected AbstractName buildControllerName(Artifact configId,
             NodeInfo nodeInfo) {
-        return new AbstractName(configId, Collections.singletonMap("nodeName", nodeInfo.getName()));
+    	Map nameMap= new Hashtable();
+    	nameMap.put("nodeName", nodeInfo.getName());
+    	nameMap.put("appName", configId.getArtifactId());
+    	return new AbstractName(configId, nameMap);
+       // return new AbstractName(configId, Collections.singletonMap("nodeName", nodeInfo.getName()));
     }
 
     public static final String GBEAN_J2EE_TYPE = "ConfigurationStore";
