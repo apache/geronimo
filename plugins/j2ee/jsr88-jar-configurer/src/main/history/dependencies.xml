@@ -7,6 +7,16 @@
         <type>car</type>
     </module-id>
     <dependency>
+        <groupId>cglib</groupId>
+        <artifactId>cglib-nodep</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>com.thoughtworks.xstream</groupId>
+        <artifactId>xstream</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
         <groupId>org.apache.geronimo.components</groupId>
         <artifactId>geronimo-connector</artifactId>
         <type>jar</type>
@@ -19,6 +29,11 @@
     <dependency>
         <groupId>org.apache.geronimo.framework</groupId>
         <artifactId>geronimo-core</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.framework</groupId>
+        <artifactId>geronimo-deployment</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -38,12 +53,12 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>jee-specs</artifactId>
-        <type>car</type>
+        <artifactId>geronimo-service-builder</artifactId>
+        <type>jar</type>
     </dependency>
-    <dependency start="true">
+    <dependency>
         <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>jsr88-cli</artifactId>
+        <artifactId>jee-specs</artifactId>
         <type>car</type>
     </dependency>
     <dependency>
@@ -97,6 +112,11 @@
         <type>jar</type>
     </dependency>
     <dependency>
+        <groupId>org.apache.geronimo.plugins.classloaders</groupId>
+        <artifactId>geronimo-javaee-deployment_1.1MR3_spec</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
         <groupId>org.apache.geronimo.schema</groupId>
         <artifactId>geronimo-schema-j2ee_1.4</artifactId>
         <type>jar</type>
@@ -117,8 +137,28 @@
         <type>jar</type>
     </dependency>
     <dependency>
+        <groupId>org.apache.xbean</groupId>
+        <artifactId>xbean-reflect</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.xmlbeans</groupId>
+        <artifactId>xmlbeans</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
         <groupId>org.objectweb.howl</groupId>
         <artifactId>howl</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>xml-resolver</groupId>
+        <artifactId>xml-resolver</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>xpp3</groupId>
+        <artifactId>xpp3_min</artifactId>
         <type>jar</type>
     </dependency>
 </plugin-artifact>

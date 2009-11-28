@@ -162,5 +162,11 @@
                 </pluginManagement>
             </build>
         </profile>
+        <profile>
+            <id>all-subprojects</id>
+            <modules>
+                <module>jetty</module>
+            </modules>
+        </profile>
     </profiles> 
 </project>

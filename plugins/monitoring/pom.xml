@@ -73,7 +73,7 @@
             </modules>
         </profile>
         <profile>
-            <id>all-submodules</id>
+            <id>all-subprojects</id>
             <modules>
                 <module>mconsole-jetty-server</module>
                 <module>mconsole-jetty-server/mconsole-itest-simple</module>

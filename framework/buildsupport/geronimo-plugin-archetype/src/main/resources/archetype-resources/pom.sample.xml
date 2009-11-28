@@ -23,8 +23,8 @@
     <packaging>car</packaging>
 
     <properties>
-        <!-- This property is required by the car:package mojo -->
-        <geronimoVersion>2.2-SNAPSHOT</geronimoVersion>
+        <!-- This may be helpful in selecting the desired geronimo version -->
+        <geronimoVersion>2.2</geronimoVersion>
 
         <gbeanDeployerBootstrap>org.apache.geronimo.framework/geronimo-gbean-deployer-bootstrap/${geronimoVersion}/car</gbeanDeployerBootstrap>
         <gbeanDeployer>org.apache.geronimo.framework/geronimo-gbean-deployer/${geronimoVersion}/car</gbeanDeployer>
