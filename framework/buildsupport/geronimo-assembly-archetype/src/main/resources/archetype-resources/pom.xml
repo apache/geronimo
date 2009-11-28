@@ -7,8 +7,8 @@
     <packaging>server-assembly</packaging>
 
     <properties>
-        <!-- This property is required by the car:package mojo -->
-        <geronimoVersion>2.2-SNAPSHOT</geronimoVersion>
+        <!-- This may be helpful in selecting the desired geronimo version -->
+        <geronimoVersion>2.2</geronimoVersion>
 
     </properties>
 
