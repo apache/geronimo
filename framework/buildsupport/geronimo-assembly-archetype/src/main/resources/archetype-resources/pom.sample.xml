@@ -7,7 +7,7 @@
     <packaging>application-assembly</packaging>
 
     <properties>
-        <!-- This property is required by the car:package mojo -->
+        <!-- This may be helpful in selecting the desired geronimo version -->
         <geronimoVersion>3.0-SNAPSHOT</geronimoVersion>
 
     </properties>

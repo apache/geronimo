@@ -72,6 +72,13 @@
                 <module>mconsole-jetty-server</module>
             </modules>
         </profile>
+        <profile>
+            <id>all-subprojects</id>
+            <modules>
+                <module>mconsole-jetty-server</module>
+                <module>mconsole-jetty-server/mconsole-itest-simple</module>
+            </modules>
+        </profile>
     </profiles>
 
     <build>        

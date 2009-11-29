@@ -7,7 +7,9 @@
     <packaging>server-assembly</packaging>
 
     <properties>
+        <!-- This may be helpful in selecting the desired geronimo version -->
         <geronimoVersion>3.0-SNAPSHOT</geronimoVersion>
+
     </properties>
 
 

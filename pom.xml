@@ -54,16 +54,6 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <!--
-        NOTE: Project version, to be used instead of ${pom.version} since that
-              value magically changes when using SNAPSHOT versions.
-
-              This value *must* be kept in sync with the value of the <version>
-              element, and it will need to be changed manually before a release,
-              as the maven-release-plugin will not update this value.
-        -->
-        <!--        <version>3.0-SNAPSHOT</version>-->
-
         <!-- This property is required by the car:package mojo -->
         <geronimoVersion>${version}</geronimoVersion>
 
@@ -2317,6 +2307,19 @@
 
         <profile>
             <id>it</id>
+
+            <modules>
+                <module>testsupport</module>
+                <module>framework</module>
+                <module>plugins</module>
+                <module>plugingroups</module>
+                <module>assemblies</module>
+                <module>testsuite</module>
+            </modules>
+        </profile>
+
+        <profile>
+            <id>all-subprojects</id>
 
             <modules>
                 <module>testsupport</module>
