@@ -94,10 +94,6 @@
             <artifactId>tribes</artifactId>
         </dependency>
 
-        <!--<dependency>-->
-        <!--<groupId>${tomcatGroupId}</groupId>-->
-        <!--<artifactId>coyote</artifactId>-->
-        <!--</dependency>-->
     </dependencies>
 
     <build>
