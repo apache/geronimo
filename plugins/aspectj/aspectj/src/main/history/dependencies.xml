@@ -26,14 +26,4 @@
         <artifactId>geronimo-aspectj</artifactId>
         <type>jar</type>
     </dependency>
-    <dependency>
-        <groupId>org.aspectj</groupId>
-        <artifactId>aspectjrt</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.aspectj</groupId>
-        <artifactId>aspectjweaver</artifactId>
-        <type>jar</type>
-    </dependency>
 </plugin-artifact>
