@@ -79,12 +79,6 @@
         <!--</dependency>-->
 
         <dependency>
-            <!-- TODO remove this WTF??? why isn't this picked up from geronimo-web-2.5-builder? -->
-            <groupId>asm</groupId>
-            <artifactId>asm</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-kernel</artifactId>
             <version>${version}</version>
