@@ -70,7 +70,7 @@
                 <artifactId>car-maven-plugin</artifactId>
                 <configuration>
                     <useMavenDependencies>
-                        <value>false</value>
+                        <value>true</value>
                     </useMavenDependencies>
                     <category>Web Services</category>
                     <dependencies>
