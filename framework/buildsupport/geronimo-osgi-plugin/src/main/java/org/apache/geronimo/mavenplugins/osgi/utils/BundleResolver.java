@@ -301,7 +301,7 @@ public class BundleResolver {
                             continue;
                         }
                         if (b.getSymbolicName() == null) {
-                            logError(b, level, "No SymbolicName " );
+                            logError(b, level, "No SymbolicName for " + b.getLocation());
                             continue;
                         }
                         if (constraint.getName() == null) {
