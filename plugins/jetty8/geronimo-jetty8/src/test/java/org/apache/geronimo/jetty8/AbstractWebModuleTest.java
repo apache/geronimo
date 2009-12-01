@@ -18,6 +18,7 @@ package org.apache.geronimo.jetty8;
 
 import java.io.File;
 import java.net.URL;
+import java.net.URI;
 import java.security.PermissionCollection;
 import java.security.Permissions;
 import java.security.Principal;
@@ -68,6 +69,7 @@ import org.eclipse.jetty.security.Authenticator;
 import org.eclipse.jetty.security.IdentityService;
 import org.eclipse.jetty.security.UserAuthentication;
 import org.eclipse.jetty.security.authentication.FormAuthenticator;
+import org.osgi.framework.Bundle;
 
 
 /**
@@ -83,6 +85,8 @@ public class AbstractWebModuleTest extends TestSupport {
     private URL configurationBaseURL;
     protected PreHandlerFactory preHandlerFactory = null;
     protected SessionHandlerFactory sessionHandlerFactory = null;
+    private Bundle bundle;
+    protected String appPath;
 
     protected void setUpStaticContentServlet(JettyServletRegistration webModule) throws Exception {
         Map<String, String> staticContentServletInitParams = new HashMap<String, String>();
@@ -141,6 +145,7 @@ public class AbstractWebModuleTest extends TestSupport {
                 null,
                 Collections.<String, Object>emptyMap(),
                 cl,
+                bundle,
                 new URL(configurationBaseURL, uriString),
                 null, null,
                 null,
@@ -226,8 +231,14 @@ public class AbstractWebModuleTest extends TestSupport {
         configurationBaseURL = cl.getResource("deployables/");
 
         ServerInfo serverInfo = new BasicServerInfo(".");
+        String location = configurationBaseURL.toString();
+        if (appPath != null) {
+            location = configurationBaseURL.toURI().resolve(appPath).toString();
+        }
+        MockBundleContext bundleContext = new MockBundleContext(cl, location, new HashMap<Artifact, ConfigurationData>(), null);
+        bundle = bundleContext.getBundle();
         container = new JettyContainerImpl("test:name=JettyContainer",
-            new MockBundleContext(getClass().getClassLoader(), "", new HashMap<Artifact, ConfigurationData>(), null),
+                bundleContext,
             null, new File(BASEDIR, "target/var/jetty").toString(), serverInfo);
         container.doStart();
         connector = new HTTPSocketConnector(container, null);

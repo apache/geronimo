@@ -35,6 +35,7 @@ import org.apache.geronimo.connector.outbound.connectiontracking.SharedConnector
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectorInstanceContext;
 import org.apache.geronimo.naming.java.RootContext;
 import org.eclipse.jetty.server.Request;
+import org.osgi.framework.Bundle;
 
 /**
  * @version $Rev$ $Date$
@@ -46,13 +47,15 @@ public class IntegrationContext {
     private final Set<String> applicationManagedSecurityResources;
     private final TrackedConnectionAssociator trackedConnectionAssociator;
     private final UserTransaction userTransaction;
+    private final Bundle bundle;
 
-    public IntegrationContext(Context componentContext, Set<String> unshareableResources, Set<String> applicationManagedSecurityResources, TrackedConnectionAssociator trackedConnectionAssociator, UserTransaction userTransaction) {
+    public IntegrationContext(Context componentContext, Set<String> unshareableResources, Set<String> applicationManagedSecurityResources, TrackedConnectionAssociator trackedConnectionAssociator, UserTransaction userTransaction, Bundle bundle) {
         this.componentContext = componentContext;
         this.unshareableResources = unshareableResources;
         this.applicationManagedSecurityResources = applicationManagedSecurityResources;
         this.trackedConnectionAssociator = trackedConnectionAssociator;
         this.userTransaction = userTransaction;
+        this.bundle = bundle;
     }
 
     public Context getComponentContext() {
@@ -74,7 +77,11 @@ public class IntegrationContext {
     public UserTransaction getUserTransaction() {
         return userTransaction;
     }
-    
+
+    public Bundle getBundle() {
+        return bundle;
+    }
+
     public SharedConnectorInstanceContext newConnectorInstanceContext(Request baseRequest) {
         return new SharedConnectorInstanceContext(getUnshareableResources(),
                 getApplicationManagedSecurityResources(),

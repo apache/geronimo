@@ -66,6 +66,7 @@ import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.servlet.ServletMapping;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.osgi.framework.Bundle;
 
 /**
  * Wrapper for a WebApplicationContext that sets up its J2EE environment.
@@ -107,6 +108,7 @@ public class WebAppContextWrapper implements GBeanLifecycle, JettyServletRegistr
                               @ParamAttribute(name = "deploymentDescriptor") String originalSpecDD,
                               @ParamAttribute(name = "componentContext") Map<String, Object> componentContext,
                               @ParamSpecial(type = SpecialAttributeType.classLoader) ClassLoader classLoader,
+                              @ParamSpecial(type = SpecialAttributeType.bundle) Bundle bundle,
                               @ParamAttribute(name = "configurationBaseUrl") URL configurationBaseUrl,
                               @ParamAttribute(name = "workDir") String workDir,
                               @ParamAttribute(name = "unshareableResources") Set<String> unshareableResources,
@@ -184,7 +186,7 @@ public class WebAppContextWrapper implements GBeanLifecycle, JettyServletRegistr
         //wrap the web app context with the jndi handler
         GeronimoUserTransaction userTransaction = new GeronimoUserTransaction(transactionManager);
         this.componentContext = EnterpriseNamingContext.createEnterpriseNamingContext(componentContext, userTransaction, kernel, classLoader);
-        integrationContext = new IntegrationContext(this.componentContext, unshareableResources, applicationManagedSecurityResources, trackedConnectionAssociator, userTransaction);
+        integrationContext = new IntegrationContext(this.componentContext, unshareableResources, applicationManagedSecurityResources, trackedConnectionAssociator, userTransaction, bundle);
         webAppContext = new GeronimoWebAppContext(securityHandler, sessionHandler, servletHandler, null, integrationContext, classLoader);
         webAppContext.setContextPath(contextPath);
         //See Jetty-386.  Setting this to true can expose secured content.

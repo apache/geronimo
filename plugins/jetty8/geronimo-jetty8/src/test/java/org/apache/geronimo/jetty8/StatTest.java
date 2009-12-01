@@ -82,6 +82,7 @@ public class StatTest extends AbstractWebModuleTest {
     }
 
     protected void setUp() throws Exception {
+        appPath = "war1";
         super.setUp();
         WebAppContextWrapper app;
         app = setUpAppContext(null, null, "policyContextID", null, "war1/");

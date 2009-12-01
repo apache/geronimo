@@ -36,6 +36,12 @@ import org.eclipse.jetty.server.Request;
  */
 public class ApplicationTest extends AbstractWebModuleTest {
 
+    @Override
+    protected void setUp() throws Exception {
+        appPath = "war1";
+        super.setUp();
+    }
+
     public void testApplication() throws Exception {
         WebAppContextWrapper app = setUpAppContext(null, null, "policyContextID", null, "war1/");
 

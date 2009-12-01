@@ -23,6 +23,7 @@ package org.apache.geronimo.kernel.osgi;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.net.MalformedURLException;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -127,7 +128,11 @@ public class MockBundle implements Bundle {
     }
 
     public URL getEntry(String s) {
-        return null;
+        try {
+            return new URL(location + s);
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public long getLastModified() {

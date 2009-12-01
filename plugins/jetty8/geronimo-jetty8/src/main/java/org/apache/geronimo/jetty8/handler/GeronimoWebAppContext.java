@@ -21,6 +21,9 @@
 package org.apache.geronimo.jetty8.handler;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -34,6 +37,8 @@ import org.eclipse.jetty.security.SecurityHandler;
 import org.eclipse.jetty.servlet.ServletHandler;
 import org.eclipse.jetty.server.session.SessionHandler;
 import org.eclipse.jetty.webapp.WebAppContext;
+import org.eclipse.jetty.util.resource.Resource;
+import org.eclipse.jetty.util.resource.URLResource;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectorInstanceContext;
 import org.apache.geronimo.connector.outbound.connectiontracking.SharedConnectorInstanceContext;
 
@@ -42,7 +47,6 @@ import org.apache.geronimo.connector.outbound.connectiontracking.SharedConnector
  */
 public class GeronimoWebAppContext extends WebAppContext {
 
-    private Handler handler;
     protected final IntegrationContext integrationContext;
 
 
@@ -50,14 +54,6 @@ public class GeronimoWebAppContext extends WebAppContext {
         super(sessionHandler, securityHandler, servletHandler, errorHandler);
         this.integrationContext = integrationContext;
         setClassLoader(classLoader);
-    }
-
-    public void setTwistyHandler(Handler handler) {
-        this.handler = handler;
-    }
-
-    public Handler newTwistyHandler() {
-        return new TwistyHandler();
     }
 
     @Override
@@ -114,67 +110,19 @@ public class GeronimoWebAppContext extends WebAppContext {
         }
     }
 
-
-//    @Override
-//    public void doHandle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-//        handler.handle(target, baseRequest, request, response);
-//    }
-
-    private class TwistyHandler implements Handler {
-
-        public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-            GeronimoWebAppContext.super.doHandle(target, baseRequest, request, response);
+    @Override
+    public Resource getResource(String uriInContext) throws MalformedURLException {
+        URL url = integrationContext.getBundle().getEntry(uriInContext);
+        if (url == null) {
+            return null;
         }
-
-        public void setServer(Server server) {
-             GeronimoWebAppContext.super.setServer(server);
-        }
-
-        public Server getServer() {
-            return GeronimoWebAppContext.super.getServer();
-        }
-
-        public void destroy() {
-            GeronimoWebAppContext.super.destroy();
-        }
-
-        public void start() throws Exception {
-            GeronimoWebAppContext.super.start();
-        }
-
-        public void stop() throws Exception {
-            GeronimoWebAppContext.super.stop();
-        }
-
-        public boolean isRunning() {
-            return GeronimoWebAppContext.super.isRunning();
-        }
-
-        public boolean isStarted() {
-            return GeronimoWebAppContext.super.isStarted();
-        }
-
-        public boolean isStarting() {
-            return GeronimoWebAppContext.super.isStarting();
-        }
-
-        public boolean isStopping() {
-            return GeronimoWebAppContext.super.isStopping();
-        }
-
-        public boolean isStopped() {
-            return GeronimoWebAppContext.super.isStopped();
-        }
-
-        public boolean isFailed() {
-            return GeronimoWebAppContext.super.isFailed();
-        }
-
-        public void addLifeCycleListener(Listener listener) {
-        }
-
-        public void removeLifeCycleListener(Listener listener) {
-        }
+        return new BasicURLResource(url);
     }
 
+    private static class BasicURLResource extends URLResource {
+
+        protected BasicURLResource(URL url) {
+            super(url, null);
+        }
+    }
 }
