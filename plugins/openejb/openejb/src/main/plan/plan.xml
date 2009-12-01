@@ -23,6 +23,7 @@
     <gbean name="OpenEJBSystemProperties" class="org.apache.geronimo.system.properties.SystemProperties">
         <attribute name="systemProperties">
             openejb.vendor.config=GERONIMO
+            openejb.log.factory=org.apache.openejb.util.PaxLogStreamFactory
         </attribute>
     </gbean>
 
