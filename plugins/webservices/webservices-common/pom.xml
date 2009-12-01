@@ -84,11 +84,6 @@
         </dependency>
 -->
 
-        <dependency>
-            <groupId>org.apache.servicemix.bundles</groupId>
-            <artifactId>org.apache.servicemix.bundles.wsdl4j</artifactId>
-        </dependency>
-
         <!-- StAX implementation -->
         <!--<dependency>-->
             <!--<groupId>org.codehaus.woodstox</groupId>-->

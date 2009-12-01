@@ -42,15 +42,5 @@
         <module>geronimo-webservices-builder</module>
         <module>webservices-common</module>
     </modules>
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.apache.geronimo.framework</groupId>
-                <artifactId>framework</artifactId>
-                <version>${version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
+
 </project>

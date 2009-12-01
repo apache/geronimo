@@ -51,21 +51,6 @@
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-jaxrpc_1.1_spec</artifactId>
         </dependency>
-
-        <!--<dependency>-->
-            <!--<groupId>org.apache.geronimo.specs</groupId>-->
-            <!--<artifactId>geronimo-saaj_1.3_spec</artifactId>-->
-        <!--</dependency>-->
-
-        <!--<dependency>-->
-            <!--<groupId>asm</groupId>-->
-            <!--<artifactId>asm</artifactId>-->
-        <!--</dependency>-->
-
-        <dependency>
-            <groupId>org.apache.servicemix.bundles</groupId>
-            <artifactId>org.apache.servicemix.bundles.wsdl4j</artifactId>
-        </dependency>
     </dependencies>
 
     <build>
