@@ -44,7 +44,6 @@
         <module>commons-discovery</module>
         <module>derby-all</module>
         <module>jstl</module>
-        <module>ldapsdk</module>
         <!-- todo remove -->
         <module>log4j</module>
         <module>sxc-jaxb</module>
