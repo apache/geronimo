@@ -109,7 +109,6 @@
         <!--<module>console</module>-->
         <!--<module>corba</module>-->
         <!--<module>cxf</module>-->
-        <module>derby</module>
         <!--<module>dojo</module>-->
         <!--<module>debugviews</module>-->
         <module>hotdeploy</module>
@@ -123,7 +122,6 @@
 <!--        <module>openwebbeans</module>-->
         <!--<module>plancreator</module>-->
         <module>webservices</module>
-<!--        <module>spring</module>-->
         <!--<module>ca-helper</module>-->
         <!--<module>uddi</module>-->
         <!--<module>mejb</module>-->
@@ -184,7 +182,6 @@
                 <module>console</module>
                 <module>corba</module>
                 <module>cxf</module>
-                <module>derby</module>
                 <module>dojo</module>
                 <module>debugviews</module>
                 <module>hotdeploy</module>
@@ -198,7 +195,6 @@
         <!--        <module>openwebbeans</module>-->
                 <module>plancreator</module>
                 <module>webservices</module>
-                <!--<module>spring</module>-->
                 <module>ca-helper</module>
                 <module>uddi</module>
                 <module>mejb</module>
