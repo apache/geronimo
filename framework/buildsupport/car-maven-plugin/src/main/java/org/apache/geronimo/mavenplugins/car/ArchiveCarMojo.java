@@ -20,20 +20,14 @@
 package org.apache.geronimo.mavenplugins.car;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileReader;
-import java.io.IOException;
 import java.io.Reader;
 import java.util.Map;
-import java.util.jar.Attributes;
-import java.util.jar.JarFile;
-import java.util.jar.Manifest;
 
 import org.apache.geronimo.kernel.osgi.ConfigurationActivator;
 import org.apache.geronimo.system.osgi.BootActivator;
 import org.apache.maven.archiver.MavenArchiveConfiguration;
 import org.apache.maven.archiver.MavenArchiver;
-import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.versioning.ArtifactVersion;
 import org.apache.maven.model.License;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -303,68 +297,6 @@ public class ArchiveCarMojo
         catch (Exception e) {
             throw new MojoExecutionException("Failed to create archive", e);
         }
-    }
-
-    private String getClassPath() throws MojoExecutionException {
-        StringBuffer buff = new StringBuffer();
-
-        for (int i=0; i < classpath.length; i++) {
-            String entry = classpath[i].getEntry();
-            if (entry != null) {
-                buff.append(entry);
-            } else {
-                Artifact artifact = resolveArtifact(classpath[i].getGroupId(), classpath[i].getArtifactId(), classpath[i].getType());
-                if (artifact == null) {
-                    throw new MojoExecutionException("Could not resolve classpath item: " + classpath[i]);
-                }
-                //
-                // TODO: Need to optionally get all transitive dependencies... but dunno how to get that intel from m2
-                //
-
-                String prefix = classpath[i].getClasspathPrefix();
-                if (prefix == null) {
-                    prefix = classpathPrefix;
-                }
-
-                if (prefix != null) {
-                    buff.append(prefix);
-
-                    if (!prefix.endsWith("/")) {
-                        buff.append("/");
-                    }
-                }
-
-                String path = getArtifactRepository().pathOf(artifact);
-                File file = new File(path);
-                buff.append(file.getName());
-            }
-
-            if (i + 1< classpath.length) {
-                buff.append(" ");
-            }
-        }
-
-        getLog().debug("Using classpath: " + buff);
-
-        return buff.toString();
-    }
-    
-    public String getBundleClassPath() throws IOException {
-        String classpath = null;
-        File mfFile = new File(getArtifactInRepositoryDir(), JarFile.MANIFEST_NAME);
-        if (mfFile.exists()) {
-            FileInputStream in = new FileInputStream(mfFile);
-            try {
-                Manifest mf = new Manifest(in);
-                Attributes attrs = mf.getMainAttributes();
-                if (attrs != null) {
-                    classpath = attrs.getValue(Constants.BUNDLE_CLASSPATH);
-                }
-            } finally {
-                try { in.close(); } catch (IOException e) {}
-            }
-        }
-        return classpath;
     }
 
 }

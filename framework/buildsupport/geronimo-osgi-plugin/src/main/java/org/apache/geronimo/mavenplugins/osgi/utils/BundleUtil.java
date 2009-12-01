@@ -80,13 +80,9 @@ public final class BundleUtil {
 
     public static void loadVMProfile(Properties properties) {
         Properties profileProps = findVMProfile(properties);
-        String systemExports = properties.getProperty(Constants.FRAMEWORK_SYSTEMPACKAGES);
-        // set the system exports property using the vm profile; only if the property is not already set
-        if (systemExports == null) {
-            systemExports = profileProps.getProperty(Constants.FRAMEWORK_SYSTEMPACKAGES);
-            if (systemExports != null)
-                properties.put(Constants.FRAMEWORK_SYSTEMPACKAGES, systemExports);
-        }
+        setProperty(Constants.FRAMEWORK_SYSTEMPACKAGES, properties, profileProps);
+        setProperty(Constants.FRAMEWORK_SYSTEMPACKAGES_EXTRA, properties, profileProps);
+
         // set the org.osgi.framework.bootdelegation property according to the java profile
         String type = properties.getProperty(Constants.OSGI_JAVA_PROFILE_BOOTDELEGATION); // a null value means ignore
         String profileBootDelegation = profileProps.getProperty(Constants.FRAMEWORK_BOOTDELEGATION);
@@ -108,6 +104,16 @@ public final class BundleUtil {
         }
     }
 
+    private static void setProperty(String name, Properties properties, Properties profile) {
+        String value = properties.getProperty(name);
+        if (value == null) {
+            value = profile.getProperty(name);
+            if (value != null) {
+                properties.put(name, value);
+            }
+        }
+    }
+    
     private static Properties findVMProfile(Properties properties) {
         Properties result = new Properties();
         // Find the VM profile name using J2ME properties

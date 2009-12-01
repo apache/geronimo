@@ -157,6 +157,9 @@ org.osgi.framework.system.packages = \
  org.xml.sax.ext, \
  org.xml.sax.helpers
 
+org.osgi.framework.system.packages.extra = \
+ sun.misc
+ 
 org.osgi.framework.bootdelegation = \
  javax.*,\
  org.ietf.jgss,\
@@ -165,6 +168,7 @@ org.osgi.framework.bootdelegation = \
  org.xml.*,\
  sun.*,\
  com.sun.*
+ 
 org.osgi.framework.executionenvironment = \
  OSGi/Minimum-1.0,\
  OSGi/Minimum-1.1,\
@@ -175,10 +179,5 @@ org.osgi.framework.executionenvironment = \
  J2SE-1.4,\
  J2SE-1.5,\
  JavaSE-1.6
+
 osgi.java.profile.name = Geronimo-1.6
-org.eclipse.jdt.core.compiler.compliance=1.6
-org.eclipse.jdt.core.compiler.source=1.6
-org.eclipse.jdt.core.compiler.codegen.inlineJsrBytecode=enabled
-org.eclipse.jdt.core.compiler.codegen.targetPlatform=1.6
-org.eclipse.jdt.core.compiler.problem.assertIdentifier=error
-org.eclipse.jdt.core.compiler.problem.enumIdentifier=error
