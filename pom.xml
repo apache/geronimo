@@ -1161,6 +1161,10 @@
                         <groupId>org.apache.openjpa</groupId>
                         <artifactId>openjpa</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>wsdl4j</groupId>
+                        <artifactId>wsdl4j</artifactId>
+                    </exclusion>
                 </exclusions>
             </dependency>
 
@@ -1309,6 +1313,10 @@
                         <groupId>log4j</groupId>
                         <artifactId>log4j</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>com.sun.xml.bind</groupId>
+                        <artifactId>jaxb-impl</artifactId>
+                    </exclusion>
                 </exclusions>
             </dependency>
 
@@ -1382,6 +1390,30 @@
                     <exclusion>
                         <groupId>javax.xml.soap</groupId>
                         <artifactId>saaj-api</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.servicemix.bundles</groupId>
+                <artifactId>org.apache.servicemix.bundles.jaxb-impl</artifactId>
+                <version>2.1.6_1</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>javax.xml.bind</groupId>
+                        <artifactId>jaxb-api</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>javax.xml.stream</groupId>
+                        <artifactId>stax-api</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>javax.activation</groupId>
+                        <artifactId>activation</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.geronimo.specs</groupId>
+                        <artifactId>geronimo-activation_1.1_spec</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>

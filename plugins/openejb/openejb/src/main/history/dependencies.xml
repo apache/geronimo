@@ -7,11 +7,6 @@
         <type>car</type>
     </module-id>
     <dependency>
-        <groupId>com.sun.xml.bind</groupId>
-        <artifactId>jaxb-impl</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>j2ee-server</artifactId>
         <type>car</type>
@@ -139,11 +134,6 @@
     <dependency>
         <groupId>quartz</groupId>
         <artifactId>quartz</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>wsdl4j</groupId>
-        <artifactId>wsdl4j</artifactId>
         <type>jar</type>
     </dependency>
 </plugin-artifact>
