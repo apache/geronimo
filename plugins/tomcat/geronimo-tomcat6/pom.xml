@@ -34,11 +34,11 @@
     <name>Geronimo Plugins, Tomcat :: Core</name>
 
     <dependencies>
+
         <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>transaction-1_6</artifactId>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-connector-1_6</artifactId>
             <version>${version}</version>
-            <type>car</type>
         </dependency>
 
         <dependency>
@@ -87,14 +87,6 @@
             <artifactId>geronimo-kernel</artifactId>
             <version>${version}</version>
             <classifier>tests</classifier>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>j2ee-deployer</artifactId>
-            <version>${version}</version>
-            <type>car</type>
             <scope>test</scope>
         </dependency>
     </dependencies>

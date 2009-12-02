@@ -53,10 +53,9 @@
 
         <!-- g-service-builder coming from this via g-naming-builder -->
         <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>openejb</artifactId>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-openejb</artifactId>
             <version>${version}</version>
-            <type>car</type>
         </dependency>
 
         <dependency>
