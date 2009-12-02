@@ -20,8 +20,6 @@ package org.apache.geronimo.console.logmanager;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.Enumeration;
-import java.util.Map;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
@@ -33,10 +31,9 @@ import javax.portlet.PortletSession;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import javax.portlet.WindowState;
-
 import org.apache.geronimo.console.BasePortlet;
 import org.apache.geronimo.console.util.PortletManager;
-import org.apache.geronimo.system.logging.SystemLog;
+import org.apache.geronimo.logging.SystemLog;
 
 /**
  * @version $Rev$ $Date$

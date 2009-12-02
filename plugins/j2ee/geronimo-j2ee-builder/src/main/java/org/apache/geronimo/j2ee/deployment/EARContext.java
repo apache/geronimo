@@ -93,7 +93,7 @@ public class EARContext extends DeploymentContext {
 //    }
 
     public EARContext(File baseDir, File inPlaceConfigurationDir, Environment environment, ConfigurationModuleType moduleType, AbstractName baseName, EARContext parent) throws DeploymentException {
-        super(baseDir, inPlaceConfigurationDir, environment, baseName, moduleType, parent.getNaming(), parent.getConfigurationManager(), parent.getBundle().getBundleContext());
+        super(baseDir, inPlaceConfigurationDir, environment, baseName, moduleType, parent.getNaming(), parent.getConfigurationManager(), parent.getBundleContext());
         this.serverName = parent.getServerName();
 
         this.transactionManagerObjectName = parent.getTransactionManagerName();

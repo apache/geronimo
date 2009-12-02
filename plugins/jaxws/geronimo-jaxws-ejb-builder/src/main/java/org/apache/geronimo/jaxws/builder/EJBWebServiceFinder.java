@@ -47,7 +47,7 @@ public class EJBWebServiceFinder implements WebServiceFinder {
                                         Map correctedPortLocations,
                                         Map<String, PortInfo> map)
         throws DeploymentException {
-        Bundle bundle = module.getEarContext().getBundle();
+        Bundle bundle = module.getEarContext().getDeploymentBundle();
         EjbModule ejbModule = (EjbModule) module;
         for (EnterpriseBeanInfo bean : ejbModule.getEjbJarInfo().enterpriseBeans) {
             if (bean.type != EnterpriseBeanInfo.STATELESS) {

@@ -116,7 +116,7 @@ public class ResourceRefBuilder extends AbstractNamingBuilder {
         refMap.putAll(defaultMappings);
 
         List<ResourceEnvRefType> resourceEnvRefsUntyped = convert(specDD.selectChildren(resourceRefQNameSet), JEE_CONVERTER, ResourceEnvRefType.class, ResourceEnvRefType.type);
-        Bundle bundle = module.getEarContext().getBundle();
+        Bundle bundle = module.getEarContext().getDeploymentBundle();
         for (ResourceEnvRefType resourceEnvRef : resourceEnvRefsUntyped) {
             String name = getStringValue(resourceEnvRef.getResourceEnvRefName());
             String type = getStringValue(resourceEnvRef.getResourceEnvRefType());

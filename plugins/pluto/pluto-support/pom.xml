@@ -32,6 +32,11 @@
     <name>Geronimo Plugins, Pluto :: Support</name>
     <packaging>car</packaging>
 
+    <description>
+        Pluto portal container support for Geronimo.  This configuration provides the components
+        for portlet applications that are shared across the web container.
+    </description>
+
     <dependencies>
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
@@ -42,33 +47,73 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.pluto</groupId>
+            <groupId>org.apache.portals</groupId>
+            <artifactId>portlet-api_2.0_spec</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-servlet_3.0_spec</artifactId>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-jsp_2.1_spec</artifactId>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-el_1.0_spec</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.portals.pluto</groupId>
+            <artifactId>pluto-container</artifactId>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.apache.portals.pluto</groupId>
+            <artifactId>pluto-container-api</artifactId>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.apache.portals.pluto</groupId>
+            <artifactId>pluto-container-driver-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.portals.pluto</groupId>
             <artifactId>pluto-portal-driver</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>org.apache.pluto</groupId>
+            <groupId>org.apache.portals.pluto</groupId>
             <artifactId>pluto-portal-driver-impl</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>org.apache.pluto</groupId>
-            <artifactId>pluto-container</artifactId>
+            <groupId>org.apache.portals.pluto</groupId>
+            <artifactId>pluto-taglib</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.pluto</groupId>
-            <artifactId>pluto-descriptor-api</artifactId>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.portals.pluto</groupId>-->
+            <!--<artifactId>pluto-descriptor-api</artifactId>-->
+        <!--</dependency>-->
 
-        <dependency>
-            <groupId>org.apache.pluto</groupId>
-            <artifactId>pluto-descriptor-impl</artifactId>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.portals.pluto</groupId>-->
+            <!--<artifactId>pluto-descriptor-impl</artifactId>-->
+        <!--</dependency>-->
 
         <dependency>
             <groupId>org.apache.servicemix.bundles</groupId>
             <artifactId>org.apache.servicemix.bundles.commons-beanutils</artifactId>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.apache.servicemix.bundles</groupId>
+            <artifactId>org.apache.servicemix.bundles.commons-io</artifactId>
         </dependency>
 
         <dependency>
@@ -76,45 +121,40 @@
             <artifactId>commons-collections</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>javax.portlet</groupId>
-            <artifactId>portlet-api</artifactId>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.springframework</groupId>-->
+            <!--<artifactId>spring-core</artifactId>-->
+        <!--</dependency>-->
 
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-core</artifactId>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.springframework</groupId>-->
+            <!--<artifactId>spring-beans</artifactId>-->
+        <!--</dependency>-->
 
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-beans</artifactId>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.springframework</groupId>-->
+            <!--<artifactId>spring-context</artifactId>-->
+        <!--</dependency>-->
 
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-context</artifactId>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.springframework</groupId>-->
+            <!--<artifactId>spring-web</artifactId>-->
+        <!--</dependency>-->
 
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-web</artifactId>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.bundles</groupId>-->
+            <!--<artifactId>castor</artifactId>-->
+        <!--</dependency>-->
 
         <dependency>
             <groupId>org.apache.geronimo.bundles</groupId>
-            <artifactId>castor</artifactId>
+            <artifactId>jstl</artifactId>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.plugins</groupId>
             <artifactId>geronimo-pluto</artifactId>
             <version>${version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.pluto</groupId>
-            <artifactId>pluto-taglib</artifactId>
         </dependency>
 
         <dependency>
@@ -133,10 +173,6 @@
                         <deploymentConfig>${gbeanDeployer}</deploymentConfig>
                     </deploymentConfigs>
                     <category>Portals</category>
-                    <description>
-                        Pluto portal container support for Geronimo.  This configuration provides the components
-                        for portlet applications that are shared across the web container.
-                    </description>
                     <osiApproved>true</osiApproved>
                 </configuration>
             </plugin>

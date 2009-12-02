@@ -45,9 +45,8 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>jstl</artifactId>
-            <scope>provided</scope>
+                <groupId>org.apache.geronimo.bundles</groupId>
+                <artifactId>jstl</artifactId>
         </dependency>
 
         <dependency>
@@ -60,7 +59,7 @@
             
         <!-- for jspc maven plugin -->
         <dependency>
-            <groupId>org.apache.pluto</groupId>
+            <groupId>org.apache.portals.pluto</groupId>
             <artifactId>pluto-taglib</artifactId>
             <scope>provided</scope>
         </dependency>
@@ -122,8 +121,8 @@
         </dependency>
 
         <dependency>
-            <groupId>javax.portlet</groupId>
-            <artifactId>portlet-api</artifactId>
+            <groupId>org.apache.portals</groupId>
+            <artifactId>portlet-api_2.0_spec</artifactId>
             <scope>provided</scope>
         </dependency>
 

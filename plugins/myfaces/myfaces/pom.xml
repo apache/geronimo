@@ -18,23 +18,24 @@
 
 <!-- $Rev$ $Date$ -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-    
+
     <parent>
         <groupId>org.apache.geronimo.plugins</groupId>
         <artifactId>myfaces</artifactId>
         <version>3.0-SNAPSHOT</version>
     </parent>
-    
+
     <groupId>org.apache.geronimo.configs</groupId>
     <artifactId>myfaces</artifactId>
     <name>Geronimo Plugins, MyFaces :: MyFaces</name>
     <packaging>car</packaging>
 
     <description>Geronimo MyFaces jsf integration</description>
-    
+
     <dependencies>
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
@@ -42,7 +43,7 @@
             <version>${version}</version>
             <type>car</type>
         </dependency>
-        
+
         <!-- parent -->
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
@@ -50,26 +51,25 @@
             <version>${version}</version>
             <type>car</type>
         </dependency>
-        
+
         <dependency>
-                <groupId>org.apache.geronimo.specs</groupId>
-                <artifactId>geronimo-el_1.0_spec</artifactId>        
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-el_1.0_spec</artifactId>
         </dependency>
 
         <dependency>
-                <groupId>org.apache.geronimo.specs</groupId>
-                <artifactId>geronimo-servlet_3.0_spec</artifactId>                
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-servlet_3.0_spec</artifactId>
         </dependency>
-        
+
         <dependency>
-                <groupId>org.apache.geronimo.specs</groupId>
-                <artifactId>geronimo-jsp_2.1_spec</artifactId>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-jsp_2.1_spec</artifactId>
         </dependency>
-        
+
         <dependency>
-                <groupId>org.apache.geronimo.bundles</groupId>
-                <artifactId>jstl</artifactId>
-                <version>1.2-SNAPSHOT</version>        
+            <groupId>org.apache.geronimo.bundles</groupId>
+            <artifactId>jstl</artifactId>
         </dependency>
 
         <dependency>
@@ -111,7 +111,7 @@
         <dependency>
             <groupId>org.apache.geronimo.bundles</groupId>
             <artifactId>commons-discovery</artifactId>
-        </dependency>                
+        </dependency>
     </dependencies>
 
     <build>
@@ -125,5 +125,5 @@
             </plugin>
         </plugins>
     </build>
-    
+
 </project>

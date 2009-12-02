@@ -48,7 +48,7 @@ import org.apache.geronimo.management.geronimo.JVM;
 import org.apache.geronimo.management.geronimo.ResourceAdapter;
 import org.apache.geronimo.management.geronimo.ResourceAdapterModule;
 import org.apache.geronimo.management.geronimo.WebModule;
-import org.apache.geronimo.system.logging.SystemLog;
+import org.apache.geronimo.logging.SystemLog;
 
 /**
  * A helper interface to navigate between management objects.  This is not

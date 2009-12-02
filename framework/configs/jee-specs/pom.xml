@@ -176,7 +176,7 @@
         </dependency>
 
         <dependency>
-            <groupId>javax.servlet</groupId>
+            <groupId>org.apache.geronimo.bundles</groupId>
             <artifactId>jstl</artifactId>
         </dependency>
 

@@ -121,7 +121,7 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
         XmlObject[] gerResourceRefsUntyped = plan == null ? NO_REFS : plan.selectChildren(GER_RESOURCE_REF_QNAME_SET);
         Map refMap = mapResourceRefs(gerResourceRefsUntyped);
         List unresolvedRefs = new ArrayList();
-        Bundle bundle = module.getEarContext().getBundle();                
+        Bundle bundle = module.getEarContext().getDeploymentBundle();
         for (ResourceRefType resourceRef : resourceRefsUntyped) {
             String name = resourceRef.getResRefName().getStringValue().trim();
             if (lookupJndiContextMap(componentContext, ENV + name) != null) {

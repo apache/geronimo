@@ -31,7 +31,7 @@ import javax.portlet.WindowState;
 
 import org.apache.geronimo.console.BasePortlet;
 import org.apache.geronimo.console.util.PortletManager;
-import org.apache.geronimo.system.logging.SystemLog;
+import org.apache.geronimo.logging.SystemLog;
 
 public class LogManagerPortlet extends BasePortlet {
 

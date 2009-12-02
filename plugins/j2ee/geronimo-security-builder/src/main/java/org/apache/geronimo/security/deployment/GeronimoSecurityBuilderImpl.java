@@ -165,7 +165,7 @@ public class GeronimoSecurityBuilderImpl implements NamespaceDrivenBuilder, Modu
             } catch (XmlException e) {
                 throw new DeploymentException("Could not validate security element", e);
             }
-            Bundle bundle = applicationContext.getBundle();
+            Bundle bundle = applicationContext.getDeploymentBundle();
 
             if (applicationContext instanceof EARContext) {
                 SecurityConfiguration securityConfiguration = buildSecurityConfig(securityType);

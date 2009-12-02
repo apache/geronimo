@@ -30,14 +30,18 @@
 
     <artifactId>console-core</artifactId>
     <name>Geronimo Plugins, Console :: Core</name>
-    <packaging>jar</packaging>
+    <packaging>bundle</packaging>
 
     <dependencies>
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.osgi.core</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-connector-1_6</artifactId>
             <version>${version}</version>
-            <scope>provided</scope>
         </dependency>
 
         <!-- TODO: move the code that pulls in this dependency to the amq plugin -->
@@ -47,22 +51,19 @@
         </dependency>
 
         <dependency>
-            <groupId>javax.portlet</groupId>
-            <artifactId>portlet-api</artifactId>
-            <scope>provided</scope>
+            <groupId>org.apache.portals</groupId>
+            <artifactId>portlet-api_2.0_spec</artifactId>
         </dependency>
 
         <dependency>
             <groupId>commons-fileupload</groupId>
             <artifactId>commons-fileupload</artifactId>
-            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-deploy-jsr88</artifactId>
             <version>${version}</version>
-            <scope>provided</scope>
         </dependency>
 
         <dependency>
@@ -73,13 +74,11 @@
         <dependency>
             <groupId>org.directwebremoting</groupId>
             <artifactId>dwr</artifactId>
-            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-jsp_2.1_spec</artifactId>
-            <scope>provided</scope>
         </dependency>
     </dependencies>
 

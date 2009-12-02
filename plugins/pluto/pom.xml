@@ -42,14 +42,21 @@
     </modules>
 
     <properties>
-        <plutoVersion>1.1.6</plutoVersion>
+        <plutoVersion>2.0.1-SNAPSHOT</plutoVersion>
     </properties>
 
   <dependencyManagement>
     <dependencies>
+
+        <dependency>
+            <groupId>org.apache.portals</groupId>
+            <artifactId>portlet-api_2.0_spec</artifactId>
+            <version>1.0</version>
+        </dependency>
+        
       <!-- Admin Console support -->
       <dependency>
-          <groupId>org.apache.pluto</groupId>
+          <groupId>org.apache.portals.pluto</groupId>
           <artifactId>pluto-portal-driver</artifactId>
           <version>${plutoVersion}</version>
           <exclusions>
@@ -101,7 +108,7 @@
       </dependency>
 
       <dependency>
-          <groupId>org.apache.pluto</groupId>
+          <groupId>org.apache.portals.pluto</groupId>
           <artifactId>pluto-portal-driver-impl</artifactId>
           <version>${plutoVersion}</version>
           <exclusions>
@@ -149,7 +156,38 @@
       </dependency>
 
       <dependency>
-          <groupId>org.apache.pluto</groupId>
+          <groupId>org.apache.portals.pluto</groupId>
+          <artifactId>pluto-container-api</artifactId>
+          <version>${plutoVersion}</version>
+          <exclusions>
+              <exclusion>
+                  <groupId>commons-logging</groupId>
+                  <artifactId>commons-logging</artifactId>
+              </exclusion>
+              <exclusion>
+                  <groupId>commons-logging</groupId>
+                  <artifactId>commons-logging-api</artifactId>
+              </exclusion>
+          </exclusions>
+      </dependency>
+      <dependency>
+          <groupId>org.apache.portals.pluto</groupId>
+          <artifactId>pluto-container-driver-api</artifactId>
+          <version>${plutoVersion}</version>
+          <exclusions>
+              <exclusion>
+                  <groupId>commons-logging</groupId>
+                  <artifactId>commons-logging</artifactId>
+              </exclusion>
+              <exclusion>
+                  <groupId>commons-logging</groupId>
+                  <artifactId>commons-logging-api</artifactId>
+              </exclusion>
+          </exclusions>
+      </dependency>
+
+      <dependency>
+          <groupId>org.apache.portals.pluto</groupId>
           <artifactId>pluto-container</artifactId>
           <version>${plutoVersion}</version>
           <exclusions>
@@ -165,7 +203,7 @@
       </dependency>
 
       <dependency>
-          <groupId>org.apache.pluto</groupId>
+          <groupId>org.apache.portals.pluto</groupId>
           <artifactId>pluto-taglib</artifactId>
           <version>${plutoVersion}</version>
           <exclusions>
@@ -176,43 +214,43 @@
           </exclusions>
       </dependency>
 
-      <dependency>
-          <groupId>org.apache.pluto</groupId>
-          <artifactId>pluto-descriptor-impl</artifactId>
-          <version>${plutoVersion}</version>
-          <exclusions>
-              <exclusion>
-                  <groupId>commons-io</groupId>
-                  <artifactId>commons-io</artifactId>
-              </exclusion>
-              <exclusion>
-                  <groupId>commons-logging</groupId>
-                  <artifactId>commons-logging</artifactId>
-              </exclusion>
-              <exclusion>
-                  <groupId>commons-logging</groupId>
-                  <artifactId>commons-logging-api</artifactId>
-              </exclusion>
-              <exclusion>
-                  <groupId>xerces</groupId>
-                  <artifactId>xercesImpl</artifactId>
-              </exclusion>
-              <exclusion>
-                  <groupId>xerces</groupId>
-                  <artifactId>xmlParserAPIs</artifactId>
-              </exclusion>
-              <exclusion>
-                  <groupId>xml-apis</groupId>
-                  <artifactId>xml-apis</artifactId>
-              </exclusion>
-          </exclusions>
-      </dependency>
+      <!--<dependency>-->
+          <!--<groupId>org.apache.portals.pluto</groupId>-->
+          <!--<artifactId>pluto-descriptor-impl</artifactId>-->
+          <!--<version>${plutoVersion}</version>-->
+          <!--<exclusions>-->
+              <!--<exclusion>-->
+                  <!--<groupId>commons-io</groupId>-->
+                  <!--<artifactId>commons-io</artifactId>-->
+              <!--</exclusion>-->
+              <!--<exclusion>-->
+                  <!--<groupId>commons-logging</groupId>-->
+                  <!--<artifactId>commons-logging</artifactId>-->
+              <!--</exclusion>-->
+              <!--<exclusion>-->
+                  <!--<groupId>commons-logging</groupId>-->
+                  <!--<artifactId>commons-logging-api</artifactId>-->
+              <!--</exclusion>-->
+              <!--<exclusion>-->
+                  <!--<groupId>xerces</groupId>-->
+                  <!--<artifactId>xercesImpl</artifactId>-->
+              <!--</exclusion>-->
+              <!--<exclusion>-->
+                  <!--<groupId>xerces</groupId>-->
+                  <!--<artifactId>xmlParserAPIs</artifactId>-->
+              <!--</exclusion>-->
+              <!--<exclusion>-->
+                  <!--<groupId>xml-apis</groupId>-->
+                  <!--<artifactId>xml-apis</artifactId>-->
+              <!--</exclusion>-->
+          <!--</exclusions>-->
+      <!--</dependency>-->
 
-      <dependency>
-          <groupId>org.apache.pluto</groupId>
-          <artifactId>pluto-descriptor-api</artifactId>
-          <version>${plutoVersion}</version>
-      </dependency>
+      <!--<dependency>-->
+          <!--<groupId>org.apache.portals.pluto</groupId>-->
+          <!--<artifactId>pluto-descriptor-api</artifactId>-->
+          <!--<version>${plutoVersion}</version>-->
+      <!--</dependency>-->
 
     </dependencies>
   </dependencyManagement>

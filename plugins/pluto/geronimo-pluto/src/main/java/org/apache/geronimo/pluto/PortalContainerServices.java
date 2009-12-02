@@ -21,7 +21,7 @@ import org.apache.pluto.driver.config.AdminConfiguration;
 import org.apache.pluto.driver.config.DriverConfiguration;
 import org.apache.pluto.driver.services.portal.PropertyConfigService;
 import org.apache.pluto.driver.services.portal.RenderConfigService;
-import org.apache.pluto.spi.PortalCallbackService;
+//import org.apache.pluto.spi.PortalCallbackService;
 
 /**
  * Classes implementing this interface provide access to pluto's
@@ -37,8 +37,8 @@ public interface PortalContainerServices {
     RenderConfigService getRenderConfigService();
     void setRenderConfigService(RenderConfigService renderConfigService);
     
-    PortalCallbackService getPortalCallbackService();
-    void setPortalCallbackService(PortalCallbackService portalCallbackService);
+//    PortalCallbackService getPortalCallbackService();
+//    void setPortalCallbackService(PortalCallbackService portalCallbackService);
 
     PropertyConfigService getPropertyConfigService();
     void setPropertyConfigService(PropertyConfigService propertyConfigService);

@@ -105,7 +105,7 @@ public class GBeanBuilder implements NamespaceDrivenBuilder {
             } catch (XmlException e) {
                 throw new DeploymentException("Could not validate gbean xml", e);
             }
-            addGBeanData(gbean, moduleContext.getModuleName(), moduleContext.getBundle(), moduleContext);
+            addGBeanData(gbean, moduleContext.getModuleName(), moduleContext.getDeploymentBundle(), moduleContext);
         }
     }
 

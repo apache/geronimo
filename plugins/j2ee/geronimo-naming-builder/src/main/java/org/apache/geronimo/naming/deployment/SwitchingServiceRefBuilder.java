@@ -98,7 +98,7 @@ public class SwitchingServiceRefBuilder extends AbstractNamingBuilder {
             processAnnotations(module);
         }
 
-        Bundle bundle = module.getEarContext().getBundle();
+        Bundle bundle = module.getEarContext().getDeploymentBundle();
         Class jaxrpcClass = loadClass("javax.xml.rpc.Service", bundle);
         Class jaxwsClass = loadClass("javax.xml.ws.Service", bundle);
 

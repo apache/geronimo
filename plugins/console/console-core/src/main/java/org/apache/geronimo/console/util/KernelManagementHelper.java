@@ -78,7 +78,7 @@ import org.apache.geronimo.management.geronimo.ResourceAdapter;
 import org.apache.geronimo.management.geronimo.ResourceAdapterModule;
 import org.apache.geronimo.management.geronimo.WebModule;
 import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
-import org.apache.geronimo.system.logging.SystemLog;
+import org.apache.geronimo.logging.SystemLog;
 
 /**
  * An implementation of the ManagementHelper interface that uses a Geronimo

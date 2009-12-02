@@ -217,7 +217,7 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
         log.debug("getFacesClasses( " + webApp.toString() + "," + '\n' +
                            (webModule != null ? webModule.getName() : null) + " ): Entry");
         
-        Bundle bundle = webModule.getEarContext().getBundle();
+        Bundle bundle = webModule.getEarContext().getDeploymentBundle();
 
         // 1. META-INF/faces-config.xml
         List<Class> classes = new ArrayList<Class>();

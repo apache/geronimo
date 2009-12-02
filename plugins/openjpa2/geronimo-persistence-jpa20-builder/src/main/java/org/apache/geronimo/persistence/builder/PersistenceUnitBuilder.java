@@ -160,7 +160,7 @@ public class PersistenceUnitBuilder implements ModuleBuilderExtension {
                     relative = module.getRelativePath(relative);
                     PersistenceDocument persistenceDocument;
                     try {
-                        XmlObject xmlObject = XmlBeansUtil.parse(persistenceUrl, new BundleClassLoader(moduleContext.getBundle()));
+                        XmlObject xmlObject = XmlBeansUtil.parse(persistenceUrl, new BundleClassLoader(moduleContext.getDeploymentBundle()));
                         persistenceDocument = (PersistenceDocument) xmlObject.changeType(PersistenceDocument.type);
                     } catch (XmlException e) {
                         throw new DeploymentException("Could not parse persistence.xml file: " + persistenceUrl, e);

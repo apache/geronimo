@@ -127,7 +127,7 @@ public abstract class JAXWSServiceBuilder implements WebServiceBuilder {
         }
 
         // verify that the class is loadable and is a JAX-WS web service
-        Bundle bundle = context.getBundle();
+        Bundle bundle = context.getDeploymentBundle();
         Class servletClass = loadClass(servletClassName, bundle);
         if (!JAXWSUtils.isWebService(servletClass)) {
             return false;

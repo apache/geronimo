@@ -29,7 +29,7 @@ import org.apache.pluto.driver.config.AdminConfiguration;
 import org.apache.pluto.driver.config.DriverConfiguration;
 import org.apache.pluto.driver.services.portal.PropertyConfigService;
 import org.apache.pluto.driver.services.portal.RenderConfigService;
-import org.apache.pluto.spi.PortalCallbackService;
+//import org.apache.pluto.spi.PortalCallbackService;
 
 /*
  * A GBean that provides access to pluto's container services.  The pluto
@@ -41,7 +41,7 @@ public class PortalContainerServicesGBean implements PortalContainerServices, GB
     private static final Logger log = LoggerFactory.getLogger(PortalContainerServicesGBean.class);
     
     private RenderConfigService renderConfigService;
-    private PortalCallbackService portalCallbackService;
+//    private PortalCallbackService portalCallbackService;
     private PropertyConfigService propertyConfigService;
     private DriverConfiguration driverConfiguration;
     private AdminConfiguration adminConfiguration;
@@ -83,14 +83,14 @@ public class PortalContainerServicesGBean implements PortalContainerServices, GB
         this.driverConfiguration = driverConfigurion;
     }
 
-    public PortalCallbackService getPortalCallbackService() {
-        return portalCallbackService;
-    }
-
-    public void setPortalCallbackService(
-            PortalCallbackService portalCallbackService) {
-        this.portalCallbackService = portalCallbackService;
-    }
+//    public PortalCallbackService getPortalCallbackService() {
+//        return portalCallbackService;
+//    }
+//
+//    public void setPortalCallbackService(
+//            PortalCallbackService portalCallbackService) {
+//        this.portalCallbackService = portalCallbackService;
+//    }
 
     public PropertyConfigService getPropertyConfigService() {
         return propertyConfigService;

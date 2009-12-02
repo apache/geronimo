@@ -125,7 +125,7 @@
         <PlanJMXPort>9999</PlanJMXPort>
         <PlanJMXSecurePort>9998</PlanJMXSecurePort>
 
-         <!-- Plugins source-repository list-->
+        <!-- Plugins source-repository list-->
         <PluginSrcRepoLocal>~/.m2/repository/</PluginSrcRepoLocal>
         <PluginSrcRepoCentral>http://repo1.maven.org/maven2/</PluginSrcRepoCentral>
         <PluginSrcRepoApacheSnapshots>http://repository.apache.org/snapshots/</PluginSrcRepoApacheSnapshots>
@@ -939,9 +939,9 @@
             </dependency>
 
             <dependency>
-                <groupId>commons-io</groupId>
-                <artifactId>commons-io</artifactId>
-                <version>1.2</version>
+                <groupId>org.apache.servicemix.bundles</groupId>
+                <artifactId>org.apache.servicemix.bundles.commons-io</artifactId>
+                <version>1.3.2_1</version>
             </dependency>
 
             <dependency>
@@ -995,7 +995,7 @@
             <dependency>
                 <groupId>org.apache.servicemix.bundles</groupId>
                 <artifactId>org.apache.servicemix.bundles.commons-beanutils</artifactId>
-                <version>1.7.0_4-SNAPSHOT</version>
+                <version>1.7.0_3</version>
                 <exclusions>
                     <exclusion>
                         <groupId>commons-logging</groupId>
@@ -1063,23 +1063,29 @@
                 </exclusions>
             </dependency>
 
-            <dependency>
-                <groupId>portlet-api</groupId>
-                <artifactId>portlet-api</artifactId>
-                <version>1.0</version>
-            </dependency>
+            <!--<dependency>-->
+            <!--<groupId>portlet-api</groupId>-->
+            <!--<artifactId>portlet-api</artifactId>-->
+            <!--<version>1.0</version>-->
+            <!--</dependency>-->
 
-            <dependency>
-                <groupId>javax.portlet</groupId>
-                <artifactId>portlet-api</artifactId>
-                <version>1.0</version>
-            </dependency>
+            <!--<dependency>-->
+            <!--<groupId>javax.portlet</groupId>-->
+            <!--<artifactId>portlet-api</artifactId>-->
+            <!--<version>1.0</version>-->
+            <!--</dependency>-->
 
             <!-- Need a non-Sun RI version for Apache Harmony and IBM SDK -->
+            <!--<dependency>-->
+            <!--<groupId>javax.servlet</groupId>-->
+            <!--<artifactId>jstl</artifactId>-->
+            <!--<version>1.2</version>-->
+            <!--</dependency>-->
+
             <dependency>
-                <groupId>javax.servlet</groupId>
+                <groupId>org.apache.geronimo.bundles</groupId>
                 <artifactId>jstl</artifactId>
-                <version>1.2</version>
+                <version>1.2-SNAPSHOT</version>
             </dependency>
 
             <dependency>
@@ -2119,17 +2125,17 @@
                 </plugin>
 
                 <plugin>
-                  <groupId>org.apache.felix</groupId>
-                  <artifactId>maven-bundle-plugin</artifactId>
-                  <version>2.0.1</version>
-                  <extensions>true</extensions>
-                  <configuration>
-                    <instructions>
-                      <Implementation-Title>${project.name}</Implementation-Title>
-                      <Implementation-Version>${project.version}</Implementation-Version>
-                      <Bundle-DocURL>${project.url}</Bundle-DocURL>
-                    </instructions>
-                  </configuration>
+                    <groupId>org.apache.felix</groupId>
+                    <artifactId>maven-bundle-plugin</artifactId>
+                    <version>2.0.1</version>
+                    <extensions>true</extensions>
+                    <configuration>
+                        <instructions>
+                            <Implementation-Title>${project.name}</Implementation-Title>
+                            <Implementation-Version>${project.version}</Implementation-Version>
+                            <Bundle-DocURL>${project.url}</Bundle-DocURL>
+                        </instructions>
+                    </configuration>
                 </plugin>
 
                 <!-- INTERNAL -->
@@ -2272,8 +2278,8 @@
         </pluginManagement>
         <plugins>
             <plugin>
-              <groupId>org.apache.felix</groupId>
-              <artifactId>maven-bundle-plugin</artifactId>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
             </plugin>
         </plugins>
 

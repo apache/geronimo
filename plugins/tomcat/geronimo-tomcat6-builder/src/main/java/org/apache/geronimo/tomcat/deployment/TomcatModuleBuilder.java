@@ -341,7 +341,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
 
     public void addGBeans(EARContext earContext, Module module, Bundle bundle, Collection repository) throws DeploymentException {
         EARContext moduleContext = module.getEarContext();
-        Bundle webBundle = moduleContext.getBundle();
+        Bundle webBundle = moduleContext.getDeploymentBundle();
         AbstractName moduleName = moduleContext.getModuleName();
         WebModule webModule = (WebModule) module;
 

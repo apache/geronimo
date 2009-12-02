@@ -50,7 +50,7 @@ public class SimpleWARWebServiceFinder implements WebServiceFinder {
                                          Map correctedPortLocations,
                                          Map<String, PortInfo> map)
         throws DeploymentException {
-        Bundle bundle = module.getEarContext().getBundle();
+        Bundle bundle = module.getEarContext().getDeploymentBundle();
         WebAppType webApp = (WebAppType) module.getSpecDD();
 
         // find web services

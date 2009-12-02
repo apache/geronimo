@@ -106,7 +106,7 @@ public abstract class JAXWSServiceRefBuilder extends AbstractNamingBuilder imple
     }
 
     public void buildNaming(ServiceRefType serviceRef, GerServiceRefType gerServiceRef, Module module, Map componentContext) throws DeploymentException {
-        Bundle bundle = module.getEarContext().getBundle();
+        Bundle bundle = module.getEarContext().getDeploymentBundle();
         String name = getStringValue(serviceRef.getServiceRefName());
 
         String serviceInterfaceName = getStringValue(serviceRef.getServiceInterface());

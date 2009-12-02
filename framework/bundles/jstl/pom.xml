@@ -47,7 +47,7 @@
             <groupId>${pkgGroupId}</groupId>
             <artifactId>${pkgArtifactId}</artifactId>
             <version>${pkgVersion}</version>
-            <optional>true</optional>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
@@ -62,6 +62,7 @@
                         <Export-Package>javax.servlet.jsp.jstl*;version="1.2",*</Export-Package>
                         <Import-Package>com.sun.org.apache*;resolution:=optional,*</Import-Package>
                         <!--<_versionpolicy>[$(version;==;$(@)),$(version;+;$(@)))</_versionpolicy>-->
+                        <Embed-Dependency>*;scope=provided;inline=true</Embed-Dependency>
                     </instructions>
                 </configuration>
             </plugin>

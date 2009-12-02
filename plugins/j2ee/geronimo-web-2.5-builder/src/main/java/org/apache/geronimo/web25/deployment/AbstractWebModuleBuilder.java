@@ -633,7 +633,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
 
     protected ClassFinder createWebAppClassFinder(WebAppType webApp, WebModule webModule) throws DeploymentException {
         // Get the classloader from the module's EARContext
-        Bundle bundle = webModule.getEarContext().getBundle();
+        Bundle bundle = webModule.getEarContext().getDeploymentBundle();
         return createWebAppClassFinder(webApp, bundle);
     }
 

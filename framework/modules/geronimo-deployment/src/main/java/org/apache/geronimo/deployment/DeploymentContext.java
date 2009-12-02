@@ -741,8 +741,12 @@ public class DeploymentContext {
         return resourceContext.getTargetFile(targetPath);
     }
 
-    public Bundle getBundle() throws DeploymentException {
+    public Bundle getDeploymentBundle() throws DeploymentException {
         return configuration.getBundle();
+    }
+
+    public BundleContext getBundleContext() {
+        return bundleContext;
     }
 
     public Configuration getConfiguration() {

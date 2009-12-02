@@ -635,7 +635,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
             }
 
             // give each module a chance to populate the earContext now that a classloader is available
-            Bundle bundle = earContext.getBundle();
+            Bundle bundle = earContext.getDeploymentBundle();
             for (Module module : applicationInfo.getModules()) {
                 if (createPlanMode.get()) {
                     try {
@@ -658,7 +658,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                 // process persistence unit in EAR library directory
                 earContext.getGeneralData().put(ClassPathList.class, libClasspath);
                 for (ModuleBuilderExtension mbe : persistenceUnitBuilders) {
-                    mbe.initContext(earContext, applicationInfo, earContext.getBundle());
+                    mbe.initContext(earContext, applicationInfo, earContext.getDeploymentBundle());
                 }
 
                 // Create the J2EEApplication managed object

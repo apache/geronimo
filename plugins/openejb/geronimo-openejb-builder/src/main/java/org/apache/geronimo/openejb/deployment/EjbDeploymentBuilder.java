@@ -424,7 +424,7 @@ public class EjbDeploymentBuilder {
 
         try {
             // Get the classloader from the module's EARContext
-            Bundle bundle = ejbModule.getEarContext().getBundle();
+            Bundle bundle = ejbModule.getEarContext().getDeploymentBundle();
 
             //----------------------------------------------------------------------------------------
             // Find the list of classes from the ejb-jar.xml we want to search for annotations in

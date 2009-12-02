@@ -29,6 +29,7 @@
     </parent>
 
     <artifactId>console-filter</artifactId>
+    <packaging>bundle</packaging>
     <name>Geronimo Plugins, Console :: XSSXSRF Filter</name>
 
     <dependencies>

@@ -1047,7 +1047,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
         GBeanData servletData;
         Map<String, String> initParams = new HashMap<String, String>();
         if (servletType.isSetServletClass()) {
-            Bundle webBundle = moduleContext.getBundle();
+            Bundle webBundle = moduleContext.getDeploymentBundle();
             String servletClassName = servletType.getServletClass().getStringValue().trim();
             Class servletClass;
             try {

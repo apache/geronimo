@@ -79,7 +79,7 @@ public class GBeanRefBuilder extends AbstractNamingBuilder {
             if (interfaceTypes.isEmpty()) {
                 interfaceTypes.add(gBeanData.getGBeanInfo().getClassName());
             }
-            Bundle bundle = module.getEarContext().getBundle();
+            Bundle bundle = module.getEarContext().getDeploymentBundle();
             Class gBeanType;
             try {
                 gBeanType = ClassLoading.loadClass(gBeanData.getGBeanInfo().getClassName(), bundle);

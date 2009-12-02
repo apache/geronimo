@@ -348,7 +348,7 @@ public class ConnectorModuleBuilderTest extends TestSupport {
                 earContext.initializeConfiguration();
                 action.install(moduleBuilder, earContext, module, configurationStore);
                 earContext.initializeConfiguration();
-                Bundle bundle = earContext.getBundle();
+                Bundle bundle = earContext.getDeploymentBundle();
                 moduleBuilder.initContext(earContext, module, bundle);
                 moduleBuilder.addGBeans(earContext, module, bundle, Collections.singleton(repository));
 

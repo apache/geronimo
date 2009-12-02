@@ -131,7 +131,7 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
 
         List<ResourceEnvRefType> resourceEnvRefsUntyped = convert(specDD.selectChildren(adminOjbectRefQNameSet), JEE_CONVERTER, ResourceEnvRefType.class, ResourceEnvRefType.type);
         int unresolvedRefSize = resourceEnvRefsUntyped.size();
-        Bundle bundle = module.getEarContext().getBundle();
+        Bundle bundle = module.getEarContext().getDeploymentBundle();
         for (ResourceEnvRefType resourceEnvRef : resourceEnvRefsUntyped) {
             String name = resourceEnvRef.getResourceEnvRefName().getStringValue().trim();
             if (lookupJndiContextMap(componentContext, ENV + name) != null) {

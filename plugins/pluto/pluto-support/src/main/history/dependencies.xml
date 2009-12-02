@@ -7,6 +7,11 @@
         <type>car</type>
     </module-id>
     <dependency>
+        <groupId>com.sun.xml.bind</groupId>
+        <artifactId>jaxb-impl</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
         <groupId>commons-beanutils</groupId>
         <artifactId>commons-beanutils</artifactId>
         <type>jar</type>
@@ -22,19 +27,49 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>javax.portlet</groupId>
-        <artifactId>portlet-api</artifactId>
+        <groupId>javax.activation</groupId>
+        <artifactId>activation</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>log4j</groupId>
-        <artifactId>log4j</artifactId>
+        <groupId>javax.xml.bind</groupId>
+        <artifactId>jaxb-api</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>spring</artifactId>
-        <type>car</type>
+        <groupId>javax.xml.bind</groupId>
+        <artifactId>jsr173_api</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>org.osgi.core</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.bundles</groupId>
+        <artifactId>asm</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.bundles</groupId>
+        <artifactId>asm-commons</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.bundles</groupId>
+        <artifactId>commons-digester</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.bundles</groupId>
+        <artifactId>jstl</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.framework</groupId>
+        <artifactId>geronimo-crypto</artifactId>
+        <type>jar</type>
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.framework</groupId>
@@ -47,38 +82,98 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.pluto</groupId>
+        <groupId>org.apache.geronimo.specs</groupId>
+        <artifactId>geronimo-el_1.0_spec</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.specs</groupId>
+        <artifactId>geronimo-jsp_2.1_spec</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.specs</groupId>
+        <artifactId>geronimo-servlet_3.0_spec</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.portals</groupId>
+        <artifactId>portlet-api_2.0_spec</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.portals.pluto</groupId>
         <artifactId>pluto-container</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.pluto</groupId>
-        <artifactId>pluto-descriptor-api</artifactId>
+        <groupId>org.apache.portals.pluto</groupId>
+        <artifactId>pluto-container-api</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.pluto</groupId>
-        <artifactId>pluto-descriptor-impl</artifactId>
+        <groupId>org.apache.portals.pluto</groupId>
+        <artifactId>pluto-container-driver-api</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.pluto</groupId>
+        <groupId>org.apache.portals.pluto</groupId>
         <artifactId>pluto-portal-driver</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.pluto</groupId>
+        <groupId>org.apache.portals.pluto</groupId>
         <artifactId>pluto-portal-driver-impl</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.pluto</groupId>
+        <groupId>org.apache.portals.pluto</groupId>
         <artifactId>pluto-taglib</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.codehaus.castor</groupId>
-        <artifactId>castor</artifactId>
+        <groupId>org.apache.servicemix.bundles</groupId>
+        <artifactId>org.apache.servicemix.bundles.cglib</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.servicemix.bundles</groupId>
+        <artifactId>org.apache.servicemix.bundles.commons-beanutils</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.servicemix.bundles</groupId>
+        <artifactId>org.apache.servicemix.bundles.commons-io</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.servicemix.bundles</groupId>
+        <artifactId>org.apache.servicemix.bundles.xpp3</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.servicemix.bundles</groupId>
+        <artifactId>org.apache.servicemix.bundles.xstream</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.servicemix.specs</groupId>
+        <artifactId>org.apache.servicemix.specs.stax-api-1.0</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.xbean</groupId>
+        <artifactId>xbean-reflect</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.ops4j.pax.logging</groupId>
+        <artifactId>pax-logging-api</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>stax</groupId>
+        <artifactId>stax</artifactId>
         <type>jar</type>
     </dependency>
 </plugin-artifact>

@@ -259,7 +259,7 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
         // 4. All TLD files in all META-INF(s)
         tempURLs.clear();
         try {
-            Enumeration<URL> enumURLs = webModule.getEarContext().getBundle().getResources("META-INF");
+            Enumeration<URL> enumURLs = webModule.getEarContext().getDeploymentBundle().getResources("META-INF");
             if (enumURLs != null) {
                 while (enumURLs.hasMoreElements()) {
                     URL enumURL = enumURLs.nextElement();
@@ -435,7 +435,7 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
         }
 
         // Get the classloader from the module's EARContext
-        Bundle bundle = webModule.getEarContext().getBundle();
+        Bundle bundle = webModule.getEarContext().getDeploymentBundle();
         List<Class> classes = new ArrayList<Class>();
 
         for (URL url : urls) {

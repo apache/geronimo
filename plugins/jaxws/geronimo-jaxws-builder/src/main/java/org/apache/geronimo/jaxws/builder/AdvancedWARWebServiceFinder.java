@@ -52,7 +52,7 @@ public class AdvancedWARWebServiceFinder implements WebServiceFinder {
                                          Map portLocations,
                                          Map<String, PortInfo> map)
         throws DeploymentException {
-        Bundle bundle = module.getEarContext().getBundle();
+        Bundle bundle = module.getEarContext().getDeploymentBundle();
         WebAppType webApp = (WebAppType) module.getSpecDD();
 
         if (webApp.isSetMetadataComplete()) {
