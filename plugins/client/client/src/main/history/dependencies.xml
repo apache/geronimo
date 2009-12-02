@@ -242,11 +242,6 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.codehaus.woodstox</groupId>
-        <artifactId>wstx-asl</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
         <groupId>quartz</groupId>
         <artifactId>quartz</artifactId>
         <type>jar</type>
