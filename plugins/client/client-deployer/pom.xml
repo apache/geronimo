@@ -60,12 +60,6 @@
             <artifactId>geronimo-client-builder</artifactId>
             <version>${version}</version>
         </dependency>
-
-        <!--<dependency>-->
-            <!--<groupId>org.apache.geronimo.modules</groupId>-->
-            <!--<artifactId>geronimo-connector-builder</artifactId>-->
-            <!--<version>${version}</version>-->
-        <!--</dependency>-->
     </dependencies>
 
     <build>

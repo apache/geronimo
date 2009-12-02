@@ -22,7 +22,7 @@ package org.apache.geronimo.client.builder.jsr88;
 
 import javax.enterprise.deploy.model.DeployableObject;
 
-import org.apache.geronimo.deployment.plugin.DeploymentConfigurationSupport;
+import org.apache.geronimo.deployment.dconfigbean.DeploymentConfigurationSupport;
 
 /**
  *

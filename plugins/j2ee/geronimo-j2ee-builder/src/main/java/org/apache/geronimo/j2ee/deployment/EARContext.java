@@ -61,13 +61,42 @@ public class EARContext extends DeploymentContext {
                       AbstractNameQuery connectionTrackerObjectName,
                       AbstractNameQuery corbaGBeanObjectName
     ) throws DeploymentException {
+        this(baseDir, 
+             inPlaceConfigurationDir, 
+             environment, 
+             moduleType, 
+             naming, 
+             configurationManager, 
+             bundleContext, 
+             serverName,
+             baseName,
+             transactionManagerObjectName,
+             connectionTrackerObjectName,
+             corbaGBeanObjectName,
+             new HashMap());
+    }
+    
+    public EARContext(File baseDir,
+                      File inPlaceConfigurationDir,
+                      Environment environment,
+                      ConfigurationModuleType moduleType,
+                      Naming naming,
+                      ConfigurationManager configurationManager,
+                      BundleContext bundleContext,
+                      AbstractNameQuery serverName,
+                      AbstractName baseName,
+                      AbstractNameQuery transactionManagerObjectName,
+                      AbstractNameQuery connectionTrackerObjectName,
+                      AbstractNameQuery corbaGBeanObjectName,
+                      Map messageDestinations
+    ) throws DeploymentException {
         super(baseDir, inPlaceConfigurationDir, environment, baseName, moduleType, naming, configurationManager, bundleContext);
 
         this.serverName = serverName;
         this.transactionManagerObjectName = transactionManagerObjectName;
         this.connectionTrackerObjectName = connectionTrackerObjectName;
         this.corbaGBeanObjectName = corbaGBeanObjectName;
-        this.messageDestinations = new HashMap();
+        this.messageDestinations = messageDestinations;
     }
 
 //    public EARContext(File baseDir,

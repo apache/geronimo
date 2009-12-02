@@ -52,13 +52,13 @@
         <attribute name="global">true</attribute>
         <xml-reference name="LoginModuleConfiguration">
             <lc:login-config xmlns:lc="http://geronimo.apache.org/xml/ns/loginconfig-${geronimoSchemaVersion}">
-                <lc:login-module control-flag="REQUIRED" server-side="true" wrap-principals="true">
+                <lc:login-module control-flag="REQUIRED" wrap-principals="true">
                     <lc:login-domain-name>client-properties-realm</lc:login-domain-name>
                     <lc:login-module-class>org.apache.geronimo.security.realm.providers.PropertiesFileLoginModule</lc:login-module-class>
                     <lc:option name="usersURI">var/security/users.properties</lc:option>
                     <lc:option name="groupsURI">var/security/groups.properties</lc:option>
                 </lc:login-module>
-                <lc:login-module control-flag="REQUIRED" server-side="true" wrap-principals="true">
+                <lc:login-module control-flag="REQUIRED" wrap-principals="true">
                     <lc:login-domain-name>default</lc:login-domain-name>
                     <lc:login-module-class>org.apache.geronimo.security.realm.providers.NamedUsernamePasswordCredentialLoginModule</lc:login-module-class>
                     <lc:option name="Name">default</lc:option>

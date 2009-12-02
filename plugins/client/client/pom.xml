@@ -49,12 +49,6 @@
             <version>${version}</version>
             <type>car</type>
         </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.framework</groupId>
-            <artifactId>jee-specs</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
 
         <!-- ThreadPool -->
         <dependency>
@@ -74,25 +68,6 @@
             <artifactId>geronimo-naming</artifactId>
             <version>${version}</version>
         </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-j2ee</artifactId>
-            <version>${version}</version>
-        </dependency>
-
-        <!-- should be transitive dependency of geronimo-j2ee -->
-        <dependency>
-            <groupId>org.apache.geronimo.framework</groupId>
-            <artifactId>geronimo-management</artifactId>
-            <version>${version}</version>
-        </dependency>
-
-        <!--<dependency>-->
-            <!--<groupId>org.apache.geronimo.framework</groupId>-->
-            <!--<artifactId>geronimo-security</artifactId>-->
-            <!--<version>${version}</version>-->
-        <!--</dependency>-->
 
         <!--<dependency>-->
             <!--<groupId>org.apache.geronimo.framework</groupId>-->

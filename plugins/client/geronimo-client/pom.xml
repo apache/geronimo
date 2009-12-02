@@ -45,18 +45,6 @@
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-security</artifactId>
             <version>${version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.apache.geronimo.components</groupId>
-                    <artifactId>geronimo-jaspi</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.framework</groupId>
-            <artifactId>jee-specs</artifactId>
-            <version>${version}</version>
-            <type>car</type>
         </dependency>
 
         <dependency>

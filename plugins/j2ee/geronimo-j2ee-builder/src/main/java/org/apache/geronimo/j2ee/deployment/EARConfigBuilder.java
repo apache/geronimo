@@ -582,7 +582,8 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                     applicationInfo.getModuleName(),
                     transactionManagerObjectName,
                     connectionTrackerObjectName,
-                    corbaGBeanObjectName
+                    corbaGBeanObjectName,
+                    new HashMap()
             );
             applicationInfo.setEarContext(earContext);
             applicationInfo.setRootEarContext(earContext);

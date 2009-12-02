@@ -57,7 +57,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.SingleElementCollection;
-import org.apache.geronimo.j2ee.ApplicationInfo;
+import org.apache.geronimo.j2ee.deployment.ApplicationInfo;
 import org.apache.geronimo.j2ee.deployment.AppClientModule;
 import org.apache.geronimo.j2ee.deployment.ConnectorModule;
 import org.apache.geronimo.j2ee.deployment.CorbaGBeanNameSource;
@@ -94,6 +94,7 @@ import org.apache.xbean.finder.ClassFinder;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
+import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -545,7 +546,8 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                     ConfigurationModuleType.CAR,
                     earContext.getNaming(),
                     earContext.getConfigurationManager(),
-                    null, //no server name needed on client
+                    null, // FIXME: bundle context for app client module?
+                    null, // no server name needed on client
                     appClientModule.getAppClientName(),
                     transactionManagerObjectName,
                     connectionTrackerObjectName,
@@ -583,19 +585,19 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
         }
     }
 
-    public void initContext(EARContext earContext, Module clientModule, ClassLoader cl) throws DeploymentException {
+    public void initContext(EARContext earContext, Module clientModule, Bundle bundle) throws DeploymentException {
         namingBuilders.buildEnvironment(clientModule.getSpecDD(), clientModule.getVendorDD(), ((AppClientModule) clientModule).getEnvironment());
 
         AppClientModule appClientModule = ((AppClientModule) clientModule);
         for (ConnectorModule connectorModule : appClientModule.getResourceModules()) {
-            getConnectorModuleBuilder().initContext(appClientModule.getEarContext(), connectorModule, cl);
+            getConnectorModuleBuilder().initContext(appClientModule.getEarContext(), connectorModule, bundle);
         }
         for (ModuleBuilderExtension mbe : moduleBuilderExtensions) {
-            mbe.initContext(earContext, clientModule, cl);
+            mbe.initContext(earContext, clientModule, bundle);
         }
     }
 
-    public void addGBeans(EARContext earContext, Module module, ClassLoader earClassLoader, Collection repositories) throws DeploymentException {
+    public void addGBeans(EARContext earContext, Module module, Bundle earBundle, Collection repositories) throws DeploymentException {
 
         AppClientModule appClientModule = (AppClientModule) module;
         JarFile moduleFile = module.getModuleFile();
@@ -657,7 +659,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                 addManifestClassPath(appClientDeploymentContext, appClientModule.getEarFile(), moduleFile, moduleBase);
 
                 // get the classloader
-                ClassLoader appClientClassLoader = appClientDeploymentContext.getClassLoader();
+                Bundle appClientClassBundle = appClientDeploymentContext.getDeploymentBundle();              
 
                 // pop in all the gbeans declared in the geronimo app client file
                 if (geronimoAppClient != null) {
@@ -665,7 +667,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                     //deploy the resource adapters specified in the geronimo-application.xml
 
                     for (ConnectorModule connectorModule : appClientModule.getResourceModules()) {
-                        getConnectorModuleBuilder().addGBeans(appClientDeploymentContext, connectorModule, appClientClassLoader, repositories);
+                        getConnectorModuleBuilder().addGBeans(appClientDeploymentContext, connectorModule, appClientClassBundle, repositories);
                     }
                 }
 
@@ -756,7 +758,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
 
                 //TODO this may definitely not be the best place for this!
                 for (ModuleBuilderExtension mbe : moduleBuilderExtensions) {
-                    mbe.addGBeans(appClientDeploymentContext, appClientModule, appClientClassLoader, repositories);
+                    mbe.addGBeans(appClientDeploymentContext, appClientModule, appClientClassBundle, repositories);
                 }
 
                 // get the configuration data
@@ -795,13 +797,13 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
         List<Class> classes = new ArrayList<Class>();
 
         // Get the classloader from the module's EARContext
-        ClassLoader classLoader = appClientModule.getEarContext().getClassLoader();
+        Bundle bundle = appClientModule.getEarContext().getDeploymentBundle();
 
         // Get the main class from the module
         String mainClass = appClientModule.getMainClassName();
         Class<?> mainClas;
         try {
-            mainClas = classLoader.loadClass(mainClass);
+            mainClas = bundle.loadClass(mainClass);
         }
         catch (ClassNotFoundException e) {
             throw new DeploymentException("AppClientModuleBuilder: Could not load main class: " + mainClass, e);
@@ -816,7 +818,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
             FullyQualifiedClassType cls = appClient.getCallbackHandler();
             Class<?> clas;
             try {
-                clas = classLoader.loadClass(cls.getStringValue().trim());
+                clas = bundle.loadClass(cls.getStringValue().trim());
             }
             catch (ClassNotFoundException e) {
                 throw new DeploymentException("AppClientModuleBuilder: Could not load callback-handler class: " + cls.getStringValue(), e);

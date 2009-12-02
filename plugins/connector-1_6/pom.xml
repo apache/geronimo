@@ -35,7 +35,7 @@
     </description>
 
     <modules>
-        <!--<module>client-transaction-1_6</module>-->
+        <module>client-transaction-1_6</module>
         <module>connector-deployer-1_6</module>
         <module>geronimo-connector-1_6</module>
         <module>geronimo-connector-builder-1_6</module>

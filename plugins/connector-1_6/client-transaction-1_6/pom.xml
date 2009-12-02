@@ -65,22 +65,6 @@
         </dependency>
 
         <!--<dependency>-->
-            <!--<groupId>org.apache.geronimo.components</groupId>-->
-            <!--<artifactId>geronimo-connector</artifactId>-->
-        <!--</dependency>-->
-
-        <!--<dependency>-->
-            <!--<groupId>org.apache.geronimo.modules</groupId>-->
-            <!--<artifactId>geronimo-transaction</artifactId>-->
-            <!--<version>${version}</version>-->
-        <!--</dependency>-->
-
-        <!--<dependency>-->
-            <!--<groupId>org.apache.geronimo.components</groupId>-->
-            <!--<artifactId>geronimo-transaction</artifactId>-->
-        <!--</dependency>-->
-
-        <!--<dependency>-->
             <!--<groupId>org.apache.geronimo.modules</groupId>-->
             <!--<artifactId>geronimo-persistence-jpa20</artifactId>-->
             <!--<version>${version}</version>-->
