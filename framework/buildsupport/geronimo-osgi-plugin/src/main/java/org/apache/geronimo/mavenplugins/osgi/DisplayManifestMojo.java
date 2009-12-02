@@ -33,7 +33,9 @@ import org.apache.maven.plugin.logging.SystemStreamLog;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.logging.AbstractLogEnabled;
 import org.eclipse.osgi.service.resolver.BundleDescription;
+import org.eclipse.osgi.service.resolver.BundleSpecification;
 import org.eclipse.osgi.service.resolver.ExportPackageDescription;
+import org.eclipse.osgi.service.resolver.HostSpecification;
 import org.eclipse.osgi.service.resolver.ImportPackageSpecification;
 import org.osgi.framework.BundleException;
 
@@ -79,17 +81,21 @@ public class DisplayManifestMojo extends AbstractLogEnabled implements Mojo {
         stateController.resolveState();
         BundleDescription b = stateController.getBundleDescription(target);                
         if (b != null) {
-            displayImportExports(b);
+            displayManifest(b);
         }    
     }
 
-    private void displayImportExports(BundleDescription b) {
+    private void displayManifest(BundleDescription b) {
         System.out.println("Bundle: " + b.getSymbolicName());
         displayImports(b, ImportPackageSpecification.RESOLUTION_STATIC, "Imports:");
         displayImports(b, ImportPackageSpecification.RESOLUTION_OPTIONAL, "Optional Imports:");
         displayImports(b, ImportPackageSpecification.RESOLUTION_DYNAMIC, "Dynamic Imports:");
-                    
+                            
         displayExports(b);
+        
+        displayRequiredBundles(b);
+        
+        displayFragments(b);
     }
     
     
@@ -131,6 +137,26 @@ public class DisplayManifestMojo extends AbstractLogEnabled implements Mojo {
             }
         }
         return imports;
+    }
+        
+    private void displayRequiredBundles(BundleDescription b) {
+        BundleSpecification[] bundles = b.getRequiredBundles();
+        if (bundles != null && bundles.length > 0) {
+            System.out.println("Requires Bundles:");
+            for (BundleSpecification bundle : bundles) {
+                System.out.println(TAB + bundle.getName()); 
+            }
+            System.out.println();
+        }
+    }
+    
+    private void displayFragments(BundleDescription b) {
+        HostSpecification host = b.getHost();
+        if (host != null) {
+            System.out.println("Fragments:");
+            System.out.println(TAB + host);
+            System.out.println();
+        }
     }
     
     public void setLog(Log log) {
