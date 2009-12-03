@@ -86,7 +86,7 @@ limitations under the License.
  
     <servlet>
         <servlet-name>Deployment</servlet-name>
-        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <servlet-class>org.apache.pluto.container.driver.PortletServlet</servlet-class>
         <init-param>
             <param-name>portlet-name</param-name>
             <param-value>Deployment</param-value>
@@ -100,7 +100,7 @@ limitations under the License.
 
     <servlet>
         <servlet-name>ImportExport</servlet-name>
-        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <servlet-class>org.apache.pluto.container.driver.PortletServlet</servlet-class>
         <init-param>
             <param-name>portlet-name</param-name>
             <param-value>ImportExport</param-value>
@@ -114,7 +114,7 @@ limitations under the License.
 
     <servlet>
         <servlet-name>AssembleServer</servlet-name>
-        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <servlet-class>org.apache.pluto.container.driver.PortletServlet</servlet-class>
         <init-param>
             <param-name>portlet-name</param-name>
             <param-value>AssembleServer</param-value>
@@ -128,7 +128,7 @@ limitations under the License.
 
     <servlet>
         <servlet-name>CreatePlugin</servlet-name>
-        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <servlet-class>org.apache.pluto.container.driver.PortletServlet</servlet-class>
         <init-param>
             <param-name>portlet-name</param-name>
             <param-value>CreatePlugin</param-value>
@@ -142,7 +142,7 @@ limitations under the License.
 
     <servlet>
         <servlet-name>RealmWizard</servlet-name>
-        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <servlet-class>org.apache.pluto.container.driver.PortletServlet</servlet-class>
         <init-param>
             <param-name>portlet-name</param-name>
             <param-value>RealmWizard</param-value>

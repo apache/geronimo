@@ -38,7 +38,7 @@ limitations under the License.
 
     <servlet>
         <servlet-name>Welcome</servlet-name>
-        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <servlet-class>org.apache.pluto.container.driver.PortletServlet</servlet-class>
         <init-param>
             <param-name>portlet-name</param-name>
             <param-value>Welcome</param-value>
@@ -47,7 +47,7 @@ limitations under the License.
     </servlet>
     <servlet>
         <servlet-name>ServerInfo</servlet-name>
-        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <servlet-class>org.apache.pluto.container.driver.PortletServlet</servlet-class>
         <init-param>
             <param-name>portlet-name</param-name>
             <param-value>ServerInfo</param-value>
@@ -56,7 +56,7 @@ limitations under the License.
     </servlet>
     <servlet>
         <servlet-name>JavaSysInfo</servlet-name>
-        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <servlet-class>org.apache.pluto.container.driver.PortletServlet</servlet-class>
         <init-param>
             <param-name>portlet-name</param-name>
             <param-value>JavaSysInfo</param-value>
@@ -65,7 +65,7 @@ limitations under the License.
     </servlet>
     <servlet>
         <servlet-name>LogManager</servlet-name>
-        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <servlet-class>org.apache.pluto.container.driver.PortletServlet</servlet-class>
         <init-param>
             <param-name>portlet-name</param-name>
             <param-value>LogManager</param-value>
@@ -74,7 +74,7 @@ limitations under the License.
     </servlet>
     <servlet>
         <servlet-name>LogViewer</servlet-name>
-        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <servlet-class>org.apache.pluto.container.driver.PortletServlet</servlet-class>
         <init-param>
             <param-name>portlet-name</param-name>
             <param-value>LogViewer</param-value>
@@ -83,7 +83,7 @@ limitations under the License.
     </servlet>
     <servlet>
         <servlet-name>WebAccessLogViewer</servlet-name>
-        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <servlet-class>org.apache.pluto.container.driver.PortletServlet</servlet-class>
         <init-param>
             <param-name>portlet-name</param-name>
             <param-value>WebAccessLogViewer</param-value>
@@ -92,7 +92,7 @@ limitations under the License.
     </servlet>
     <servlet>
         <servlet-name>ServerManager</servlet-name>
-        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <servlet-class>org.apache.pluto.container.driver.PortletServlet</servlet-class>
         <init-param>
             <param-name>portlet-name</param-name>
             <param-value>ServerManager</param-value>
@@ -101,7 +101,7 @@ limitations under the License.
     </servlet>
     <servlet>
         <servlet-name>WebServerManager</servlet-name>
-        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <servlet-class>org.apache.pluto.container.driver.PortletServlet</servlet-class>
         <init-param>
             <param-name>portlet-name</param-name>
             <param-value>WebServerManager</param-value>
@@ -110,7 +110,7 @@ limitations under the License.
     </servlet>
     <servlet>
         <servlet-name>ConnectorManager</servlet-name>
-        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <servlet-class>org.apache.pluto.container.driver.PortletServlet</servlet-class>
         <init-param>
             <param-name>portlet-name</param-name>
             <param-value>ConnectorManager</param-value>
@@ -119,7 +119,7 @@ limitations under the License.
     </servlet>
     <servlet>
         <servlet-name>ThreadPool</servlet-name>
-        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <servlet-class>org.apache.pluto.container.driver.PortletServlet</servlet-class>
         <init-param>
             <param-name>portlet-name</param-name>
             <param-value>ThreadPool</param-value>
@@ -128,7 +128,7 @@ limitations under the License.
     </servlet>
     <servlet>
         <servlet-name>RepositoryViewer</servlet-name>
-        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <servlet-class>org.apache.pluto.container.driver.PortletServlet</servlet-class>
         <init-param>
             <param-name>portlet-name</param-name>
             <param-value>RepositoryViewer</param-value>
@@ -137,7 +137,7 @@ limitations under the License.
     </servlet>
     <servlet>
         <servlet-name>ApacheJK</servlet-name>
-        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <servlet-class>org.apache.pluto.container.driver.PortletServlet</servlet-class>
         <init-param>
             <param-name>portlet-name</param-name>
             <param-value>ApacheJK</param-value>
@@ -146,7 +146,7 @@ limitations under the License.
     </servlet>
     <servlet>
         <servlet-name>Keystores</servlet-name>
-        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <servlet-class>org.apache.pluto.container.driver.PortletServlet</servlet-class>
         <init-param>
             <param-name>portlet-name</param-name>
             <param-value>Keystores</param-value>
@@ -155,7 +155,7 @@ limitations under the License.
     </servlet>
     <servlet>
         <servlet-name>CertificationAuthority</servlet-name>
-        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <servlet-class>org.apache.pluto.container.driver.PortletServlet</servlet-class>
         <init-param>
             <param-name>portlet-name</param-name>
             <param-value>CertificationAuthority</param-value>
@@ -164,7 +164,7 @@ limitations under the License.
     </servlet>
     <servlet>
         <servlet-name>Applications</servlet-name>
-        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <servlet-class>org.apache.pluto.container.driver.PortletServlet</servlet-class>
         <init-param>
             <param-name>portlet-name</param-name>
             <param-value>Applications</param-value>
@@ -173,7 +173,7 @@ limitations under the License.
     </servlet>
     <servlet>
         <servlet-name>WARModules</servlet-name>
-        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <servlet-class>org.apache.pluto.container.driver.PortletServlet</servlet-class>
         <init-param>
             <param-name>portlet-name</param-name>
             <param-value>WARModules</param-value>
@@ -182,7 +182,7 @@ limitations under the License.
     </servlet>
     <servlet>
         <servlet-name>SystemModules</servlet-name>
-        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <servlet-class>org.apache.pluto.container.driver.PortletServlet</servlet-class>
         <init-param>
             <param-name>portlet-name</param-name>
             <param-value>SystemModules</param-value>
@@ -191,7 +191,7 @@ limitations under the License.
     </servlet>
     <servlet>
         <servlet-name>SEUsers</servlet-name>
-        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <servlet-class>org.apache.pluto.container.driver.PortletServlet</servlet-class>
         <init-param>
             <param-name>portlet-name</param-name>
             <param-value>SEUsers</param-value>
@@ -200,7 +200,7 @@ limitations under the License.
     </servlet>
     <servlet>
         <servlet-name>SEGroups</servlet-name>
-        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <servlet-class>org.apache.pluto.container.driver.PortletServlet</servlet-class>
         <init-param>
             <param-name>portlet-name</param-name>
             <param-value>SEGroups</param-value>
@@ -209,7 +209,7 @@ limitations under the License.
     </servlet>
     <servlet>
         <servlet-name>SecurityRealms</servlet-name>
-        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <servlet-class>org.apache.pluto.container.driver.PortletServlet</servlet-class>
         <init-param>
             <param-name>portlet-name</param-name>
             <param-value>SecurityRealms</param-value>
@@ -218,7 +218,7 @@ limitations under the License.
     </servlet>
     <servlet>
         <servlet-name>EARModules</servlet-name>
-        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <servlet-class>org.apache.pluto.container.driver.PortletServlet</servlet-class>
         <init-param>
             <param-name>portlet-name</param-name>
             <param-value>EARModules</param-value>
@@ -227,7 +227,7 @@ limitations under the License.
     </servlet>
     <servlet>
         <servlet-name>EJBModules</servlet-name>
-        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <servlet-class>org.apache.pluto.container.driver.PortletServlet</servlet-class>
         <init-param>
             <param-name>portlet-name</param-name>
             <param-value>EJBModules</param-value>
@@ -236,7 +236,7 @@ limitations under the License.
     </servlet>
     <servlet>
         <servlet-name>RARModules</servlet-name>
-        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <servlet-class>org.apache.pluto.container.driver.PortletServlet</servlet-class>
         <init-param>
             <param-name>portlet-name</param-name>
             <param-value>RARModules</param-value>
@@ -245,7 +245,7 @@ limitations under the License.
     </servlet>
     <servlet>
         <servlet-name>ClientModules</servlet-name>
-        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <servlet-class>org.apache.pluto.container.driver.PortletServlet</servlet-class>
         <init-param>
             <param-name>portlet-name</param-name>
             <param-value>ClientModules</param-value>
@@ -254,7 +254,7 @@ limitations under the License.
     </servlet>
         <servlet>
         <servlet-name>Artifact</servlet-name>
-        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <servlet-class>org.apache.pluto.container.driver.PortletServlet</servlet-class>
         <init-param>
             <param-name>portlet-name</param-name>
             <param-value>Artifact</param-value>
