@@ -35,6 +35,7 @@ import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.gbean.annotation.ParamSpecial;
 import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 import org.apache.geronimo.kernel.management.State;
+import org.apache.geronimo.kernel.osgi.BundleUtils;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.kernel.repository.Dependency;
@@ -296,7 +297,7 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         try {
             String location = locateBundle(configurationId, monitor);
             Bundle bundle = bundleContext.installBundle(location);
-            if (bundle.getState() != Bundle.STARTING) {
+            if (BundleUtils.canStart(bundle)) {
                 bundle.start(Bundle.START_TRANSIENT);
             }
             bundles.put(configurationId, bundle);
