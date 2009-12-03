@@ -234,12 +234,7 @@
         </dependency>
 
         <dependency>
-            <groupId>org.directwebremoting</groupId>
-            <artifactId>dwr</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.directwebremoting</groupId>
+            <groupId>org.apache.geronimo.bundles</groupId>
             <artifactId>dwr</artifactId>
         </dependency>
 

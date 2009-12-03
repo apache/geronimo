@@ -43,6 +43,7 @@
         <module>commons-digester</module>
         <module>commons-discovery</module>
         <module>derby-all</module>
+        <module>dwr</module>
         <module>jstl</module>
         <!-- todo remove -->
         <module>log4j</module>

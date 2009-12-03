@@ -102,7 +102,7 @@
         </dependency>
 
         <dependency>
-            <groupId>org.directwebremoting</groupId>
+            <groupId>org.apache.geronimo.bundles</groupId>
             <artifactId>dwr</artifactId>
             <scope>provided</scope>
         </dependency>

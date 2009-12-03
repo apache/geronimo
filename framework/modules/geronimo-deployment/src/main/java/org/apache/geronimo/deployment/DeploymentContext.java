@@ -745,7 +745,7 @@ public class DeploymentContext {
         return configuration.getBundle();
     }
 
-    public BundleContext getBundleContext() {
+    protected BundleContext getBundleContext() {
         return bundleContext;
     }
 
