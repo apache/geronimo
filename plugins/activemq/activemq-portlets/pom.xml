@@ -54,9 +54,10 @@
 
         <!-- for jspc maven plugin -->
         <dependency>
-            <groupId>org.apache.portals.pluto</groupId>
-            <artifactId>pluto-taglib</artifactId>
-            <scope>provided</scope>
+            <groupId>org.apache.geronimo.plugins</groupId>
+            <artifactId>pluto-support</artifactId>
+            <version>${version}</version>
+            <type>car</type>
         </dependency>
 
         <dependency>
@@ -91,12 +92,6 @@
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-management</artifactId>
             <version>${version}</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.portals</groupId>
-            <artifactId>portlet-api_2.0_spec</artifactId>
             <scope>provided</scope>
         </dependency>
 

@@ -11,6 +11,8 @@
     <groupId>org.apache.geronimo.plugins</groupId>
     <artifactId>geronimo-connector-server</artifactId>
     <packaging>server-assembly</packaging>
+    <name>Geronimo Plugins, Connector 1.6 :: Server</name>
+
     <build>
         <pluginManagement>
             <plugins>
@@ -197,5 +199,5 @@
             </build>
         </profile>
     </profiles>
-    
+
 </project>

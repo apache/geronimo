@@ -6,9 +6,9 @@
     The ASF licenses this file to You under the Apache License, Version 2.0
     (the "License"); you may not use this file except in compliance with
     the License.  You may obtain a copy of the License at
-    
+
        http://www.apache.org/licenses/LICENSE-2.0
-    
+
     Unless required by applicable law or agreed to in writing, software
     distributed under the License is distributed on an "AS IS" BASIS,
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -56,12 +56,13 @@
             <type>car</type>
             <scope>provided</scope>
         </dependency>
-            
+
         <!-- for jspc maven plugin -->
         <dependency>
-            <groupId>org.apache.portals.pluto</groupId>
-            <artifactId>pluto-taglib</artifactId>
-            <scope>provided</scope>
+            <groupId>org.apache.geronimo.plugins</groupId>
+            <artifactId>pluto-support</artifactId>
+            <version>${version}</version>
+            <type>car</type>
         </dependency>
 
         <dependency>
@@ -121,17 +122,11 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.portals</groupId>
-            <artifactId>portlet-api_2.0_spec</artifactId>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
             <groupId>commons-fileupload</groupId>
             <artifactId>commons-fileupload</artifactId>
             <scope>provided</scope>
         </dependency>
-        
+
         <dependency>
             <groupId>org.apache.servicemix.bundles</groupId>
             <artifactId>org.apache.servicemix.bundles.xmlbeans</artifactId>
@@ -184,7 +179,7 @@
             <plugin>
                   <groupId>org.codehaus.mojo</groupId>
                   <artifactId>native2ascii-maven-plugin</artifactId>
-            </plugin> 
+            </plugin>
         </plugins>
     </build>
 
