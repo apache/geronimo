@@ -21,9 +21,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.jar.JarInputStream;
+import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 
 import org.apache.aries.application.ApplicationMetadata;
@@ -43,9 +49,11 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
+import org.apache.geronimo.kernel.osgi.BundleUtils;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.osgi.framework.Bundle;
+import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -132,20 +140,68 @@ public class AriesAppModuleBuilder implements ModuleBuilder, GBeanLifecycle {
         }
     }
     
+    private String getSymbolicName(Manifest mf) {
+        String name = null;
+        if (mf != null) {
+            name = (String) mf.getMainAttributes().getValue(Constants.BUNDLE_SYMBOLICNAME);
+        }
+        return name;
+    }
+    
     public void installModule(JarFile earFile, EARContext earContext, Module module, Collection configurationStores, ConfigurationStore targetConfigurationStore, Collection repositories) throws DeploymentException {
         AriesAppModule ariesModule = (AriesAppModule) module;        
         JarFile moduleFile = module.getModuleFile();
         
-        for (Content content : ariesModule.getApplicationMetadata().getApplicationContents()) {
-            ZipEntry entry = moduleFile.getEntry(content.getContentName() + ".jar");
-            System.out.println(entry + " " + content.getContentName());
-            try {
-                earContext.addInclude(URI.create(content.getContentName()), moduleFile, entry);
-            } catch (IOException e) {
-                throw new DeploymentException("Unable to copy app client module jar into configuration: " + moduleFile.getName(), e);
+        /*
+         * XXX: This is totally not right but for now allows us to install 
+         * simple Aries applications into Geronimo. 
+         */
+        HashMap<String, String> mapping = new HashMap<String, String>();
+        Enumeration<JarEntry> entries = moduleFile.entries();
+        while(entries.hasMoreElements()) {
+            JarEntry entry = entries.nextElement();
+            if (entry.getName().endsWith(".jar")) {
+                try {
+                    InputStream in = moduleFile.getInputStream(entry);
+                    JarInputStream jarInput = new JarInputStream(in);
+                    String name = getSymbolicName(jarInput.getManifest());
+                    if (name != null) {
+                        mapping.put(name, entry.getName());
+                    }
+                } catch (IOException e) {
+                    LOG.warn("Error getting jar entry {}", entry.getName(), e);
+                }
             }
         }
-                               
+
+        List<Bundle> installedBundles = new ArrayList<Bundle>();        
+        try {
+            for (Content content : ariesModule.getApplicationMetadata().getApplicationContents()) {
+                String entryName = mapping.get(content.getContentName());
+                if (entryName == null) {
+                    LOG.warn("Unknown bundle name in application context {}", content.getContentName());
+                    continue;
+                }
+                ZipEntry entry = moduleFile.getEntry(entryName);
+                if (entry == null) {
+                    // this should not happen
+                    throw new DeploymentException("Jar entry not found " + entryName);
+                }
+
+                InputStream in = moduleFile.getInputStream(entry);
+                Bundle appBundle = bundle.getBundleContext().installBundle(content.getContentName(), in);
+                installedBundles.add(appBundle);
+            }
+            
+            for (Bundle installedBundle : installedBundles) {
+                if (BundleUtils.canStart(installedBundle)) {
+                    installedBundle.start();
+                }
+            }
+        } catch (Exception e) {
+            throw new DeploymentException("Failed to install application", e);
+        }
+        
         module.setEarContext(earContext);
         module.setRootEarContext(earContext);
     }
