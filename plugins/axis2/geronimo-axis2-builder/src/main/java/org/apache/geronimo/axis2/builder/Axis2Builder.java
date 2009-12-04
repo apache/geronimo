@@ -27,8 +27,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.jar.JarFile;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.geronimo.axis2.pojo.POJOWebServiceContainerFactoryGBean;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.GBeanData;
@@ -41,8 +39,8 @@ import org.apache.geronimo.jaxws.JAXWSUtils;
 import org.apache.geronimo.jaxws.PortInfo;
 import org.apache.geronimo.jaxws.builder.JAXWSServiceBuilder;
 import org.apache.geronimo.jaxws.builder.WARWebServiceFinder;
-import org.apache.geronimo.jaxws.wsdl.WsdlGenerator;
-import org.apache.geronimo.jaxws.wsdl.WsdlGeneratorOptions;
+import org.apache.geronimo.jaxws.builder.wsdl.WsdlGenerator;
+import org.apache.geronimo.jaxws.builder.wsdl.WsdlGeneratorOptions;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.xbeans.javaee.PortComponentType;
 import org.apache.geronimo.xbeans.javaee.ServiceImplBeanType;
@@ -51,6 +49,8 @@ import org.apache.geronimo.xbeans.javaee.WebservicesDocument;
 import org.apache.geronimo.xbeans.javaee.WebservicesType;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @version $Rev$ $Date$

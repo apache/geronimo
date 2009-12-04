@@ -118,7 +118,7 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
+            <groupId>org.apache.geronimo.bundles</groupId>
             <artifactId>httpcore</artifactId>
         </dependency>
 
@@ -143,8 +143,8 @@
         </dependency>
 
         <dependency>
-            <groupId>commons-httpclient</groupId>
-            <artifactId>commons-httpclient</artifactId>
+            <groupId>org.apache.servicemix.bundles</groupId>
+            <artifactId>org.apache.servicemix.bundles.commons-httpclient</artifactId>
         </dependency>
 
         <dependency>
@@ -158,9 +158,34 @@
         </dependency>
 
         <dependency>
-            <groupId>backport-util-concurrent</groupId>
+            <groupId>org.apache.geronimo.bundles</groupId>
             <artifactId>backport-util-concurrent</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.bundles</groupId>
+            <artifactId>woden-impl-dom</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.ops4j.pax.logging</groupId>
+            <artifactId>pax-logging-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-fileupload</groupId>
+            <artifactId>commons-fileupload</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.javamail</groupId>
+            <artifactId>geronimo-javamail_1.4_mail</artifactId>
+        </dependency>
+
+         <dependency>
+            <groupId>org.apache.servicemix.bundles</groupId>
+            <artifactId>org.apache.servicemix.bundles.commons-io</artifactId>
+         </dependency>            
     </dependencies>
 
     <build>

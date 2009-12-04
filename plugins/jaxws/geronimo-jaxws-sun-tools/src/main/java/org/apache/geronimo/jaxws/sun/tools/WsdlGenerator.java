@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.geronimo.jaxws.builder;
+package org.apache.geronimo.jaxws.sun.tools;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -33,8 +33,8 @@ import org.apache.geronimo.deployment.DeploymentConfigurationManager;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.jaxws.PortInfo;
-import org.apache.geronimo.jaxws.wsdl.WsdlGeneratorOptions;
-import org.apache.geronimo.jaxws.wsdl.WsdlGeneratorUtils;
+import org.apache.geronimo.jaxws.builder.wsdl.WsdlGeneratorOptions;
+import org.apache.geronimo.jaxws.builder.wsdl.WsdlGeneratorUtils;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

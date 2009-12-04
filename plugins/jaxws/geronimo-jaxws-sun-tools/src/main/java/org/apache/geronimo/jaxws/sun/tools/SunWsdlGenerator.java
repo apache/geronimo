@@ -15,16 +15,16 @@
  * limitations under the License.
  */
 
-package org.apache.geronimo.jaxws.builder;
+package org.apache.geronimo.jaxws.sun.tools;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.deployment.Module;
-import org.apache.geronimo.jaxws.wsdl.WsdlGeneratorOptions;
+import org.apache.geronimo.jaxws.builder.wsdl.WsdlGeneratorOptions;
 
-public class SunWsdlGenerator implements org.apache.geronimo.jaxws.wsdl.WsdlGenerator {
+public class SunWsdlGenerator implements org.apache.geronimo.jaxws.builder.wsdl.WsdlGenerator {
 
     public String generateWsdl(Module module,
                                String serviceClass,
@@ -38,7 +38,7 @@ public class SunWsdlGenerator implements org.apache.geronimo.jaxws.wsdl.WsdlGene
 
     static {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(SunWsdlGenerator.class, GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
-        infoBuilder.addInterface(org.apache.geronimo.jaxws.wsdl.WsdlGenerator.class);
+        infoBuilder.addInterface(org.apache.geronimo.jaxws.builder.wsdl.WsdlGenerator.class);
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }
 

@@ -20,7 +20,7 @@
 
 <module xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
 
-    <gbean name="SunWsdlGenerator" class="org.apache.geronimo.jaxws.builder.SunWsdlGenerator">
+    <gbean name="SunWsdlGenerator" class="org.apache.geronimo.jaxws.sun.tools.SunWsdlGenerator">
     </gbean>
 
 </module>

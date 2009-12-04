@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.geronimo.jaxws.builder;
+package org.apache.geronimo.jaxws.sun.tools;
 
 import java.io.File;
 import java.io.OutputStream;

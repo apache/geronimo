@@ -75,7 +75,7 @@
         </dependency>
 
         <dependency>
-            <groupId>backport-util-concurrent</groupId>
+            <groupId>org.apache.geronimo.bundles</groupId>
             <artifactId>backport-util-concurrent</artifactId>
         </dependency>
     </dependencies>

@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.geronimo.jaxws.builder;
+package org.apache.geronimo.jaxws.sun.tools;
 
 import org.apache.geronimo.gshell.command.CommandContext;
 import org.apache.geronimo.gshell.command.CommandSupport;
@@ -26,12 +26,12 @@ import org.apache.geronimo.gshell.command.annotation.Requirement;
 import org.apache.geronimo.gshell.shell.ShellInfo;
 
 /**
- * GShell command for wsimport tool.
- *  
+ * GShell command for wsgen tool.
+ * 
  * @version $Rev: 595889 $ $Date: 2007-11-16 20:13:06 -0500 (Fri, 16 Nov 2007) $
  */
-@CommandComponent(id="geronimo-jaxws-sun-tools:wsimport", description="Generate JAX-WS artifacts from WSDL")
-public class WsimportCommand extends CommandSupport {
+@CommandComponent(id="geronimo-jaxws-sun-tools:wsgen", description="Generate JAX-WS artifacts from class")
+public class WsgenCommand extends CommandSupport {
     
     @Requirement
     ShellInfo shellInfo;
@@ -41,7 +41,7 @@ public class WsimportCommand extends CommandSupport {
         init(context);
         
         String[] arguments = toString(args); 
-        return JAXWSToolsCLI.run(JAXWSToolsCLI.Command.WSIMPORT, 
+        return JAXWSToolsCLI.run(JAXWSToolsCLI.Command.WSGEN, 
                                  shellInfo.getHomeDir().getAbsolutePath(),
                                  arguments, 
                                  System.out); // should use io.out instead of System.out?

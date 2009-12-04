@@ -7,7 +7,7 @@
         <type>car</type>
     </module-id>
     <dependency>
-        <groupId>backport-util-concurrent</groupId>
+        <groupId>org.apache.geronimo.bundles</groupId>
         <artifactId>backport-util-concurrent</artifactId>
         <type>jar</type>
     </dependency>

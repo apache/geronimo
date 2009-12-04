@@ -15,20 +15,21 @@
  * limitations under the License.
  */
 
-package org.apache.geronimo.jaxws.builder;
+package org.apache.geronimo.jaxws.ejb.builder;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.jaxws.JAXWSUtils;
 import org.apache.geronimo.jaxws.PortInfo;
+import org.apache.geronimo.jaxws.builder.WebServiceFinder;
 import org.apache.geronimo.openejb.deployment.EjbModule;
 import org.apache.openejb.assembler.classic.EnterpriseBeanInfo;
 import org.osgi.framework.Bundle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class EJBWebServiceFinder implements WebServiceFinder {
 

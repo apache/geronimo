@@ -87,6 +87,22 @@
                         <groupId>org.apache.httpcomponents</groupId>
                         <artifactId>httpcore-niossl</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.woden</groupId>
+                        <artifactId>woden-impl-dom</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>commons-fileupload</groupId>
+                        <artifactId>commons-fileupload</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>commons-httpclient</groupId>
+                        <artifactId>commons-httpclient</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>wsdl</groupId>
+                        <artifactId>wsdl</artifactId>
+                    </exclusion>
                 </exclusions>
             </dependency>
 
@@ -123,6 +139,14 @@
                         <groupId>javax.xml.bind</groupId>
                         <artifactId>jaxb-api</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>com.sun.xml.bind</groupId>
+                        <artifactId>jaxb-impl</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>xml-resolver</groupId>
+                        <artifactId>xml-resolver</artifactId>
+                    </exclusion>                    
                 </exclusions>
             </dependency>
 
@@ -154,6 +178,18 @@
                     <exclusion>
                         <groupId>javax.xml.bind</groupId>
                         <artifactId>jaxb-api</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.sun.xml.bind</groupId>
+                        <artifactId>jaxb-impl</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>log4j</groupId>
+                        <artifactId>log4j</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>xml-resolver</groupId>
+                        <artifactId>xml-resolver</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -200,6 +236,10 @@
                         <groupId>xalan</groupId>
                         <artifactId>xalan</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>commons-io</groupId>
+                         <artifactId>commons-io</artifactId>
+                    </exclusion>
                 </exclusions>
             </dependency>
 
@@ -216,6 +256,10 @@
                         <groupId>xalan</groupId>
                          <artifactId>xalan</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>commons-io</groupId>
+                         <artifactId>commons-io</artifactId>
+                    </exclusion>                    
                 </exclusions>
             </dependency>
 
@@ -231,6 +275,10 @@
                     <exclusion>
                         <groupId>xalan</groupId>
                         <artifactId>xalan</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>commons-io</groupId>
+                         <artifactId>commons-io</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>

@@ -14,7 +14,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.jaxws.builder;
+package org.apache.geronimo.jaxws.ejb.builder;
 
 import java.net.URL;
 import java.security.PermissionCollection;
