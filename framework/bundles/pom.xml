@@ -48,6 +48,7 @@
         <module>woden-impl-dom</module>
         <module>backport-util-concurrent</module>        
         <module>httpcore</module>
+        <module>karaf-client</module>
         <!-- todo remove -->
         <module>log4j</module>
         <module>sxc-jaxb</module>
