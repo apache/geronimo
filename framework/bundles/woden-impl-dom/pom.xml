@@ -38,16 +38,23 @@
     </description>
 
     <properties>
-        <pkgGroupId>javax.servlet</pkgGroupId>
-        <pkgArtifactId>jstl</pkgArtifactId>
-        <pkgVersion>1.2</pkgVersion>
+        <pkgGroupId>org.apache.woden</pkgGroupId>
+        <pkgArtifactId>woden-impl-dom</pkgArtifactId>
+        <pkgVersion>1.0M8</pkgVersion>
     </properties>
+
     <dependencies>
         <dependency>
             <groupId>${pkgGroupId}</groupId>
             <artifactId>${pkgArtifactId}</artifactId>
             <version>${pkgVersion}</version>
-            <scope>provided</scope>
+            <optional>true</optional>            
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.servicemix.bundles</groupId>
+            <artifactId>org.apache.servicemix.bundles.wsdl4j</artifactId>
+            <version>1.6.2_2</version>
         </dependency>
     </dependencies>
 
@@ -59,10 +66,13 @@
                 <!--<version>2.0.1-SNAPSHOT</version>-->
                 <configuration>
                     <instructions>
-                        <Export-Package>*;version=${pkgVersion}</Export-Package>
-                        <Import-Package>com.sun.org.apache*;resolution:=optional,*</Import-Package>                        
+                        <Export-Package>org.apache.woden.internal*;version=${pkgVersion},org.apache.woden.tool*;version=${pkgVersion}</Export-Package>
+                        <Import-Package>                           
+                            org.apache.xerces.parsers*;resolution:=optional,
+                            org.apache.xml.serialize*;resolution:=optional,
+                            *
+                        </Import-Package>                        
                         <!--<_versionpolicy>[$(version;==;$(@)),$(version;+;$(@)))</_versionpolicy>-->
-                        <Embed-Dependency>*;scope=provided;inline=true</Embed-Dependency>
                     </instructions>
                 </configuration>
             </plugin>

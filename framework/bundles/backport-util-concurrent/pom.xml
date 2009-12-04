@@ -38,16 +38,17 @@
     </description>
 
     <properties>
-        <pkgGroupId>javax.servlet</pkgGroupId>
-        <pkgArtifactId>jstl</pkgArtifactId>
-        <pkgVersion>1.2</pkgVersion>
+        <pkgGroupId>backport-util-concurrent</pkgGroupId>
+        <pkgArtifactId>backport-util-concurrent</pkgArtifactId>
+        <pkgVersion>2.2</pkgVersion>
     </properties>
+
     <dependencies>
         <dependency>
             <groupId>${pkgGroupId}</groupId>
             <artifactId>${pkgArtifactId}</artifactId>
             <version>${pkgVersion}</version>
-            <scope>provided</scope>
+            <optional>true</optional>
         </dependency>
     </dependencies>
 
@@ -60,9 +61,8 @@
                 <configuration>
                     <instructions>
                         <Export-Package>*;version=${pkgVersion}</Export-Package>
-                        <Import-Package>com.sun.org.apache*;resolution:=optional,*</Import-Package>                        
+                        <Import-Package>*</Import-Package>
                         <!--<_versionpolicy>[$(version;==;$(@)),$(version;+;$(@)))</_versionpolicy>-->
-                        <Embed-Dependency>*;scope=provided;inline=true</Embed-Dependency>
                     </instructions>
                 </configuration>
             </plugin>

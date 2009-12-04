@@ -38,16 +38,17 @@
     </description>
 
     <properties>
-        <pkgGroupId>javax.servlet</pkgGroupId>
-        <pkgArtifactId>jstl</pkgArtifactId>
-        <pkgVersion>1.2</pkgVersion>
+        <pkgGroupId>org.apache.httpcomponents</pkgGroupId>
+        <pkgArtifactId>httpcore</pkgArtifactId>
+        <pkgVersion>4.0.1</pkgVersion>
     </properties>
+
     <dependencies>
         <dependency>
             <groupId>${pkgGroupId}</groupId>
             <artifactId>${pkgArtifactId}</artifactId>
             <version>${pkgVersion}</version>
-            <scope>provided</scope>
+            <optional>true</optional>
         </dependency>
     </dependencies>
 
@@ -59,10 +60,9 @@
                 <!--<version>2.0.1-SNAPSHOT</version>-->
                 <configuration>
                     <instructions>
-                        <Export-Package>*;version=${pkgVersion}</Export-Package>
-                        <Import-Package>com.sun.org.apache*;resolution:=optional,*</Import-Package>                        
+                        <Export-Package>org.apache.http*;version=${pkgVersion}</Export-Package>
+                        <Import-Package>*</Import-Package>
                         <!--<_versionpolicy>[$(version;==;$(@)),$(version;+;$(@)))</_versionpolicy>-->
-                        <Embed-Dependency>*;scope=provided;inline=true</Embed-Dependency>
                     </instructions>
                 </configuration>
             </plugin>
