@@ -66,10 +66,11 @@
                 <!--<version>2.0.1-SNAPSHOT</version>-->
                 <configuration>
                     <instructions>
-                        <Export-Package>org.apache.woden.internal*;version=${pkgVersion},org.apache.woden.tool*;version=${pkgVersion}</Export-Package>
+                        <Export-Package>org.apache.woden.internal*;version="1.0.0",org.apache.woden.tool*;version="1.0.0"</Export-Package>
                         <Import-Package>                           
                             org.apache.xerces.parsers*;resolution:=optional,
                             org.apache.xml.serialize*;resolution:=optional,
+                            javax.xml.namespace;version="0.0.0",
                             *
                         </Import-Package>                        
                         <!--<_versionpolicy>[$(version;==;$(@)),$(version;+;$(@)))</_versionpolicy>-->
