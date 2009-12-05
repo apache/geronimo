@@ -54,6 +54,7 @@ public class GeronimoWebAppContext extends WebAppContext {
         super(sessionHandler, securityHandler, servletHandler, errorHandler);
         this.integrationContext = integrationContext;
         setClassLoader(classLoader);
+        setAttribute("osgi-bundlecontext", integrationContext.getBundle().getBundleContext());
     }
 
     @Override
