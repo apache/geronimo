@@ -88,4 +88,12 @@ public class MockWARConfigBuilder extends Assert implements ModuleBuilder {
         return null;
     }
 
+    public int getPriority() {
+        return NORMAL_PRIORITY;
+    }
+    
+    public boolean supportsModule(Class moduleType) {
+        return WebModule.class.isAssignableFrom(moduleType);
+    }
+
 }

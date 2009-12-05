@@ -28,9 +28,6 @@
         <reference name="Repositories">
             <!--<gbean-name>*:name=Repository,*</gbean-name>-->
         </reference>
-        <reference name="WebConfigBuilder">
-            <name>WebBuilder</name>
-        </reference>
         <references name="ServiceBuilders">
             <pattern>
                 <name>GBeanBuilder</name>
@@ -44,23 +41,21 @@
                 <name>PersistenceUnitBuilder</name>
             </pattern>
         </references>
-        <references name="EJBConfigBuilder">
+        <references name="ModuleBuilders">
+            <pattern>
+                <name>WebBuilder</name>
+            </pattern>
             <pattern>
                 <name>EJBBuilder</name>
             </pattern>
             <pattern>
-                <name>UnavailableEJBBuilder</name>
+                <name>ConnectorBuilder</name>
             </pattern>
-        </references>
-        <reference name="ConnectorConfigBuilder">
-            <name>ConnectorBuilder</name>
-        </reference>
-        <references name="AppClientConfigBuilder">
             <pattern>
                 <name>AppClientBuilder</name>
             </pattern>
             <pattern>
-                <name>UnavailableAppClientBuilder</name>
+                <name>AriesAppBuilder</name>
             </pattern>
         </references>
         <reference name="ArtifactResolvers">
@@ -82,6 +77,8 @@
     <!-- web switching builder -->
     <gbean name="WebBuilder" class="org.apache.geronimo.j2ee.deployment.SwitchingModuleBuilder">
         <attribute name="defaultNamespace">http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-${geronimoSchemaVersion}</attribute>
+        <attribute name="supportedModule">org.apache.geronimo.j2ee.deployment.WebModule</attribute>
+        <attribute name="priority">10</attribute>
         <references name="ModuleBuilders">
             <pattern>
                 <name>JettyWebBuilder</name>

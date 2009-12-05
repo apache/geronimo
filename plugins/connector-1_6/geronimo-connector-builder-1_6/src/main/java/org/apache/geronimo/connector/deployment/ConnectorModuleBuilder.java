@@ -536,6 +536,14 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
         return GERCONNECTOR_NAMESPACE;
     }
 
+    public int getPriority() {
+        return 30;
+    }
+    
+    public boolean supportsModule(Class moduleType) {
+        return ConnectorModule.class.isAssignableFrom(moduleType);
+    }
+    
     private void addConnectorGBeans(EARContext earContext, AbstractName jcaResourceName, GBeanData resourceAdapterModuleData, ConnectorType connector, GerConnectorType geronimoConnector, Bundle bundle) throws DeploymentException {
         ResourceadapterType resourceadapter = connector.getResourceadapter();
 

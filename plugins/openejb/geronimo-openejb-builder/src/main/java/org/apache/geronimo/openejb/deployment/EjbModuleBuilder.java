@@ -898,6 +898,14 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle {
         return new AbstractNameQuery(artifact, nameMap, (Set) null);
     }
 
+    public int getPriority() {
+        return 20;
+    }
+    
+    public boolean supportsModule(Class moduleType) {
+        return EjbModule.class.isAssignableFrom(moduleType);
+    }
+    
     public static class EarData {
         private final Map<String, EjbModule> ejbModules = new TreeMap<String, EjbModule>();
         private final Map<String, EjbJarInfo> ejbJars = new TreeMap<String, EjbJarInfo>();

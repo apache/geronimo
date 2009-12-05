@@ -50,9 +50,14 @@ public class SwitchingModuleBuilder implements ModuleBuilder {
 
     private final Map namespaceToBuilderMap = new HashMap();
 
+    private Class supportedModuleType;
+    private int priority = NORMAL_PRIORITY;
     private String defaultNamespace;
 
-    public SwitchingModuleBuilder(Collection builders) {
+    public SwitchingModuleBuilder(Collection builders, String supportedModule, int priority) throws Exception {
+        this.supportedModuleType = SwitchingModuleBuilder.class.getClassLoader().loadClass(supportedModule);
+        this.priority = priority;
+        
         ReferenceCollection buildersCollection = (ReferenceCollection) builders;
         buildersCollection.addReferenceCollectionListener(new ReferenceCollectionListener() {
             public void memberAdded(ReferenceCollectionEvent event) {
@@ -170,15 +175,25 @@ public class SwitchingModuleBuilder implements ModuleBuilder {
         return null;
     }
 
+    public int getPriority() {
+        return priority;
+    }
+    
+    public boolean supportsModule(Class moduleType) {
+        return supportedModuleType.isAssignableFrom(moduleType);
+    }
+    
     public static final GBeanInfo GBEAN_INFO;
 
     static {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(SwitchingModuleBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addAttribute("defaultNamespace", String.class, true, true);
+        infoBuilder.addAttribute("supportedModule", String.class, true, true);
+        infoBuilder.addAttribute("priority", int.class, true, true);
         infoBuilder.addReference("ModuleBuilders", ModuleBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addInterface(ModuleBuilder.class);
 
-        infoBuilder.setConstructor(new String[] {"ModuleBuilders"});
+        infoBuilder.setConstructor(new String[] {"ModuleBuilders", "supportedModule","priority"});
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }
 

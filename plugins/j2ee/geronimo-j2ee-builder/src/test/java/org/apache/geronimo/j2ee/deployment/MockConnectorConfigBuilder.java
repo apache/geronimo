@@ -114,4 +114,12 @@ public class MockConnectorConfigBuilder extends Assert implements ModuleBuilder,
     public GBeanData locateConnectionFactoryInfo(GBeanData resourceAdapterModuleData, String connectionFactoryInterfaceName) throws DeploymentException {
         return null;
     }
+
+    public int getPriority() {
+        return NORMAL_PRIORITY;
+    }
+    
+    public boolean supportsModule(Class moduleType) {
+        return ConnectorModule.class.isAssignableFrom(moduleType);
+    }
 }
