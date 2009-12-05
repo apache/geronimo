@@ -397,11 +397,10 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
             // See AbstractWebModuleBuilder.
             earContext.addManifestClassPath(moduleFile, URI.create(module.getTargetPath()));
 
-            URI targetURI = URI.create(module.getTargetPath() + "/");
             Enumeration entries = moduleFile.entries();
             while (entries.hasMoreElements()) {
                 ZipEntry entry = (ZipEntry) entries.nextElement();
-                URI target = targetURI.resolve(entry.getName());
+                URI target = module.resolve(entry.getName());
                 if (entry.getName().endsWith(".jar")) {
                     earContext.addInclude(target, moduleFile, entry);
                 } else {
@@ -530,6 +529,8 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
 
     public void addGBeans(EARContext earContext, Module module, Bundle bundle, Collection repository) throws DeploymentException {
         //all our gbeans are added in  the initContext step
+        //in case we decide connectors should be separate bundles
+        module.addAsChildConfiguration();
     }
 
     public String getSchemaNamespace() {

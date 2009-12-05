@@ -21,7 +21,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -157,7 +156,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         this.namingBuilders = namingBuilders;
         this.resourceEnvironmentSetter = resourceEnvironmentSetter;
         this.webServiceBuilder = webServiceBuilder;
-        this.moduleBuilderExtensions = moduleBuilderExtensions == null? new ArrayList<ModuleBuilderExtension>(): moduleBuilderExtensions;
+        this.moduleBuilderExtensions = moduleBuilderExtensions == null ? new ArrayList<ModuleBuilderExtension>() : moduleBuilderExtensions;
     }
 
     static {
@@ -183,7 +182,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
     }
 
     private void addDependencies(LinkedHashSet<GBeanData> dependencies, GBeanData webModuleData) {
-        for (GBeanData dependency: dependencies) {
+        for (GBeanData dependency : dependencies) {
             AbstractName dependencyName = dependency.getAbstractName();
             webModuleData.addDependency(dependencyName);
         }
@@ -210,7 +209,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
     protected Map<String, String> buildServletNameToPathMap(WebAppType webApp, String contextRoot) {
         if (contextRoot == null) {
             contextRoot = "";
-        } else if (!contextRoot.startsWith("/")) {        
+        } else if (!contextRoot.startsWith("/")) {
             contextRoot = "/" + contextRoot;
         }
         Map<String, String> map = new HashMap<String, String>();
@@ -259,7 +258,8 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
 
     public void installModule(JarFile earFile, EARContext earContext, Module module, Collection configurationStores, ConfigurationStore targetConfigurationStore, Collection repositories) throws DeploymentException {
         EARContext moduleContext;
-        if (module.isStandAlone()) {
+        //TODO GERONIMO-4972 find a way to create working nested bundles.
+        if (true || module.isStandAlone()) {
             moduleContext = earContext;
         } else {
             Environment environment = module.getEnvironment();
@@ -298,7 +298,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
             List<ZipEntry> libs = new ArrayList<ZipEntry>();
             while (entries.hasMoreElements()) {
                 ZipEntry entry = entries.nextElement();
-                URI targetPath = new URI(null, entry.getName(), null);
+                URI targetPath = module.resolve(entry.getName());
                 if (entry.getName().equals("WEB-INF/web.xml")) {
                     moduleContext.addFile(targetPath, module.getOriginalSpecDD());
                 } else if (entry.getName().startsWith("WEB-INF/lib") && entry.getName().endsWith(".jar")) {
@@ -313,12 +313,12 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
             // always add WEB-INF/classes to the classpath regardless of whether
             // any classes exist.  This must be searched BEFORE the WEB-INF/lib jar files,
             // per the servlet specifications.
-            moduleContext.addToClassPath("WEB-INF/classes/");
+            moduleContext.addToClassPath(module.resolve("WEB-INF/classes/").getPath());
             manifestcp.add("WEB-INF/classes/");
 
             // install the libs
             for (ZipEntry entry : libs) {
-                URI targetPath = new URI(null, entry.getName(), null);
+                URI targetPath = module.resolve(entry.getName());
                 moduleContext.addInclude(targetPath, warFile, entry);
                 manifestcp.add(entry.getName());
             }
@@ -326,13 +326,14 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
             // add the manifest classpath entries declared in the war to the class loader
             // we have to explicitly add these since we are unpacking the web module
             // and the url class loader will not pick up a manifest from an unpacked dir
+            //GERONIMO-4972 this can't be correct for one-bundle deployments.
             moduleContext.addManifestClassPath(warFile, RELATIVE_MODULE_BASE_URI);
             moduleContext.getGeneralData().put(ClassPathList.class, manifestcp);
 
         } catch (IOException e) {
             throw new DeploymentException("Problem deploying war", e);
-        } catch (URISyntaxException e) {
-            throw new DeploymentException("Could not construct URI for location of war entry", e);
+//        } catch (URISyntaxException e) {
+//            throw new DeploymentException("Could not construct URI for location of war entry", e);
         } finally {
             if (!module.isStandAlone()) {
                 try {
@@ -342,7 +343,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
                 }
             }
         }
-        for (ModuleBuilderExtension mbe: moduleBuilderExtensions) {
+        for (ModuleBuilderExtension mbe : moduleBuilderExtensions) {
             mbe.installModule(earFile, earContext, module, configurationStores, targetConfigurationStore, repositories);
         }
     }
@@ -458,7 +459,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
                             cursor.push();
                             if (cursor.toChild(SchemaConversionUtils.JAVAEE_NAMESPACE, "jsp-file")) {
                                 String jspFile = cursor.getTextValue();
-                                if (!jspFile.startsWith("/")){
+                                if (!jspFile.startsWith("/")) {
                                     if (is22) {
                                         cursor.setTextValue("/" + jspFile);
                                     } else {
@@ -762,184 +763,184 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         }
 
         public void close() throws XMLStreamException {
-                 delegate.close();
-            }
+            delegate.close();
+        }
 
-            public int getAttributeCount() {
-                return  delegate.getAttributeCount();
-            }
+        public int getAttributeCount() {
+            return delegate.getAttributeCount();
+        }
 
-            public String getAttributeLocalName(int i) {
-                return  delegate.getAttributeLocalName(i);
-            }
+        public String getAttributeLocalName(int i) {
+            return delegate.getAttributeLocalName(i);
+        }
 
-            public QName getAttributeName(int i) {
-                return  delegate.getAttributeName(i);
-            }
+        public QName getAttributeName(int i) {
+            return delegate.getAttributeName(i);
+        }
 
-            public String getAttributeNamespace(int i) {
-                return  delegate.getAttributeNamespace(i);
-            }
+        public String getAttributeNamespace(int i) {
+            return delegate.getAttributeNamespace(i);
+        }
 
-            public String getAttributePrefix(int i) {
-                return  delegate.getAttributePrefix(i);
-            }
+        public String getAttributePrefix(int i) {
+            return delegate.getAttributePrefix(i);
+        }
 
-            public String getAttributeType(int i) {
-                return  delegate.getAttributeType(i);
-            }
+        public String getAttributeType(int i) {
+            return delegate.getAttributeType(i);
+        }
 
-            public String getAttributeValue(int i) {
-                return  delegate.getAttributeValue(i);
-            }
+        public String getAttributeValue(int i) {
+            return delegate.getAttributeValue(i);
+        }
 
-            public String getAttributeValue(String s, String s1) {
-                return  delegate.getAttributeValue(s, s1);
-            }
+        public String getAttributeValue(String s, String s1) {
+            return delegate.getAttributeValue(s, s1);
+        }
 
-            public String getCharacterEncodingScheme() {
-                return  delegate.getCharacterEncodingScheme();
-            }
+        public String getCharacterEncodingScheme() {
+            return delegate.getCharacterEncodingScheme();
+        }
 
-            public String getElementText() throws XMLStreamException {
-                return  delegate.getElementText();
-            }
+        public String getElementText() throws XMLStreamException {
+            return delegate.getElementText();
+        }
 
-            public String getEncoding() {
-                return  delegate.getEncoding();
-            }
+        public String getEncoding() {
+            return delegate.getEncoding();
+        }
 
-            public int getEventType() {
-                return  delegate.getEventType();
-            }
+        public int getEventType() {
+            return delegate.getEventType();
+        }
 
-            public String getLocalName() {
-                return  delegate.getLocalName().intern();
-            }
+        public String getLocalName() {
+            return delegate.getLocalName().intern();
+        }
 
-            public Location getLocation() {
-                return  delegate.getLocation();
-            }
+        public Location getLocation() {
+            return delegate.getLocation();
+        }
 
-            public QName getName() {
-                return  delegate.getName();
-            }
+        public QName getName() {
+            return delegate.getName();
+        }
 
-            public NamespaceContext getNamespaceContext() {
-                return  delegate.getNamespaceContext();
-            }
+        public NamespaceContext getNamespaceContext() {
+            return delegate.getNamespaceContext();
+        }
 
-            public int getNamespaceCount() {
-                return  delegate.getNamespaceCount();
-            }
+        public int getNamespaceCount() {
+            return delegate.getNamespaceCount();
+        }
 
-            public String getNamespacePrefix(int i) {
-                return  delegate.getNamespacePrefix(i);
-            }
+        public String getNamespacePrefix(int i) {
+            return delegate.getNamespacePrefix(i);
+        }
 
-            public String getNamespaceURI() {
-                return  delegate.getNamespaceURI().intern();
-            }
+        public String getNamespaceURI() {
+            return delegate.getNamespaceURI().intern();
+        }
 
-            public String getNamespaceURI(int i) {
-                return  delegate.getNamespaceURI(i);
-            }
+        public String getNamespaceURI(int i) {
+            return delegate.getNamespaceURI(i);
+        }
 
-            public String getNamespaceURI(String s) {
-                return  delegate.getNamespaceURI(s);
-            }
+        public String getNamespaceURI(String s) {
+            return delegate.getNamespaceURI(s);
+        }
 
-            public String getPIData() {
-                return  delegate.getPIData();
-            }
+        public String getPIData() {
+            return delegate.getPIData();
+        }
 
-            public String getPITarget() {
-                return  delegate.getPITarget();
-            }
+        public String getPITarget() {
+            return delegate.getPITarget();
+        }
 
-            public String getPrefix() {
-                return  delegate.getPrefix();
-            }
+        public String getPrefix() {
+            return delegate.getPrefix();
+        }
 
-            public Object getProperty(String s) throws IllegalArgumentException {
-                return  delegate.getProperty(s);
-            }
+        public Object getProperty(String s) throws IllegalArgumentException {
+            return delegate.getProperty(s);
+        }
 
-            public String getText() {
-                return  delegate.getText();
-            }
+        public String getText() {
+            return delegate.getText();
+        }
 
-            public char[] getTextCharacters() {
-                return  delegate.getTextCharacters();
-            }
+        public char[] getTextCharacters() {
+            return delegate.getTextCharacters();
+        }
 
-            public int getTextCharacters(int i, char[] chars, int i1, int i2) throws XMLStreamException {
-                return  delegate.getTextCharacters(i, chars, i1, i2);
-            }
+        public int getTextCharacters(int i, char[] chars, int i1, int i2) throws XMLStreamException {
+            return delegate.getTextCharacters(i, chars, i1, i2);
+        }
 
-            public int getTextLength() {
-                return  delegate.getTextLength();
-            }
+        public int getTextLength() {
+            return delegate.getTextLength();
+        }
 
-            public int getTextStart() {
-                return  delegate.getTextStart();
-            }
+        public int getTextStart() {
+            return delegate.getTextStart();
+        }
 
-            public String getVersion() {
-                return  delegate.getVersion();
-            }
+        public String getVersion() {
+            return delegate.getVersion();
+        }
 
-            public boolean hasName() {
-                return  delegate.hasName();
-            }
+        public boolean hasName() {
+            return delegate.hasName();
+        }
 
-            public boolean hasNext() throws XMLStreamException {
-                return  delegate.hasNext();
-            }
+        public boolean hasNext() throws XMLStreamException {
+            return delegate.hasNext();
+        }
 
-            public boolean hasText() {
-                return  delegate.hasText();
-            }
+        public boolean hasText() {
+            return delegate.hasText();
+        }
 
-            public boolean isAttributeSpecified(int i) {
-                return  delegate.isAttributeSpecified(i);
-            }
+        public boolean isAttributeSpecified(int i) {
+            return delegate.isAttributeSpecified(i);
+        }
 
-            public boolean isCharacters() {
-                return  delegate.isCharacters();
-            }
+        public boolean isCharacters() {
+            return delegate.isCharacters();
+        }
 
-            public boolean isEndElement() {
-                return  delegate.isEndElement();
-            }
+        public boolean isEndElement() {
+            return delegate.isEndElement();
+        }
 
-            public boolean isStandalone() {
-                return  delegate.isStandalone();
-            }
+        public boolean isStandalone() {
+            return delegate.isStandalone();
+        }
 
-            public boolean isStartElement() {
-                return  delegate.isStartElement();
-            }
+        public boolean isStartElement() {
+            return delegate.isStartElement();
+        }
 
-            public boolean isWhiteSpace() {
-                return  delegate.isWhiteSpace();
-            }
+        public boolean isWhiteSpace() {
+            return delegate.isWhiteSpace();
+        }
 
-            public int next() throws XMLStreamException {
-                return  delegate.next();
-            }
+        public int next() throws XMLStreamException {
+            return delegate.next();
+        }
 
-            public int nextTag() throws XMLStreamException {
-                return  delegate.nextTag();
-            }
+        public int nextTag() throws XMLStreamException {
+            return delegate.nextTag();
+        }
 
-            public void require(int i, String s, String s1) throws XMLStreamException {
-                 delegate.require(i, s, s1);
-            }
+        public void require(int i, String s, String s1) throws XMLStreamException {
+            delegate.require(i, s, s1);
+        }
 
-            public boolean standaloneSet() {
-                return  delegate.standaloneSet();
-            }
+        public boolean standaloneSet() {
+            return delegate.standaloneSet();
+        }
     }
-    
+
 }

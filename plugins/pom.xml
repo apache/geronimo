@@ -106,7 +106,7 @@
         <module>client</module>
         <module>clustering</module>
         <module>connector-1_6</module>
-        <!--<module>console</module>-->
+        <module>console</module>
         <!--<module>corba</module>-->
         <!--<module>cxf</module>-->
         <!--<module>dojo</module>-->
@@ -128,7 +128,7 @@
         <!--<module>monitoring</module>-->
         <!--<module>remote-deploy</module>-->
         <!--<module>sharedlib</module>-->
-        <!--<module>welcome</module>-->
+        <module>welcome</module>
         <!--<module>concurrent</module>-->
         <!--<module>procrun</module>-->
         <module>jetty8</module>

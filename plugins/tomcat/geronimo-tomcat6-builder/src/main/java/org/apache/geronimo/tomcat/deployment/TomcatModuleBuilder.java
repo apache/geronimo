@@ -342,7 +342,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
     public void addGBeans(EARContext earContext, Module module, Bundle bundle, Collection repository) throws DeploymentException {
         EARContext moduleContext = module.getEarContext();
         Bundle webBundle = moduleContext.getDeploymentBundle();
-        AbstractName moduleName = moduleContext.getModuleName();
+        AbstractName moduleName = module.getModuleName();
         WebModule webModule = (WebModule) module;
 
         WebAppType webApp = (WebAppType) webModule.getSpecDD();
@@ -578,10 +578,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
 //        }
             }
 
-            if (!module.isStandAlone()) {
-                ConfigurationData moduleConfigurationData = moduleContext.getConfigurationData();
-                earContext.addChildConfiguration(module.getTargetPath(), moduleConfigurationData);
-            }
+            module.addAsChildConfiguration();
         } catch (DeploymentException de) {
             throw de;
         } catch (Exception e) {

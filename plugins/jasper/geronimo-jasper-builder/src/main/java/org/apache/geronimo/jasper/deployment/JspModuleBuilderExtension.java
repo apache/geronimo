@@ -32,6 +32,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.LinkedHashSet;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -144,7 +145,7 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
 
         GBeanData webAppData = (GBeanData) sharedContext.get(WebModule.WEB_APP_DATA);
 
-        AbstractName moduleName = moduleContext.getModuleName();
+        AbstractName moduleName = module.getModuleName();
         Map<NamingBuilder.Key, Object> buildingContext = new HashMap<NamingBuilder.Key, Object>();
         buildingContext.put(NamingBuilder.GBEAN_NAME_KEY, moduleName);
 
@@ -192,7 +193,7 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
     }
 
     protected ClassFinder createJspClassFinder(WebAppType webApp, WebModule webModule, Set<String> listenerNames) throws DeploymentException {
-        List<URL> urls = getTldFiles(webApp, webModule);
+        Collection<URL> urls = getTldFiles(webApp, webModule);
         List<Class> classes = getListenerClasses(webApp, webModule, urls, listenerNames);
         return new ClassFinder(classes);
     }
@@ -215,12 +216,12 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
      * @return list of the URL(s) for the TLD files
      * @throws DeploymentException if there's a problem finding a tld file
      */
-    private List<URL> getTldFiles(WebAppType webApp, WebModule webModule) throws DeploymentException {
+    private LinkedHashSet<URL> getTldFiles(WebAppType webApp, WebModule webModule) throws DeploymentException {
         if (log.isDebugEnabled()) {
             log.debug("getTldFiles( " + webApp.toString() + "," + webModule.getName() + " ): Entry");
         }
 
-        List<URL> tldURLs = new ArrayList<URL>();
+        LinkedHashSet<URL> tldURLs = new LinkedHashSet<URL>();
 
         // 1. web.xml <taglib> entries
         JspConfigType[] jspConfigs = webApp.getJspConfigArray();
@@ -234,9 +235,9 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
                         location = location.substring(1);
                     }
                     try {
-                        File targetFile = webModule.getEarContext().getTargetFile(createURI(location));
+                        File targetFile = webModule.getEarContext().getTargetFile(webModule.resolve(createURI(location)));
                         if (targetFile!=null) {
-                            tldURLs.add(targetFile.toURL());
+                            tldURLs.add(targetFile.toURI().toURL());
                         }
                     }
                     catch (MalformedURLException mfe) {
@@ -251,23 +252,15 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
 
         // 2. TLD(s) in JAR files in WEB-INF/lib
         // 3. TLD(s) under WEB-INF
-        List<URL> tempURLs = scanModule(webModule);
-        for (URL webInfURL : tempURLs) {
-            tldURLs.add(webInfURL);
-        }
+        tldURLs.addAll(scanModule(webModule));
 
         // 4. All TLD files in all META-INF(s)
-        tempURLs.clear();
         try {
             Enumeration<URL> enumURLs = webModule.getEarContext().getDeploymentBundle().getResources("META-INF");
             if (enumURLs != null) {
                 while (enumURLs.hasMoreElements()) {
                     URL enumURL = enumURLs.nextElement();
-                    tempURLs = scanDirectory(enumURL);
-                    for (URL metaInfURL : tempURLs) {
-                        tldURLs.add(metaInfURL);
-                    }
-                    tempURLs.clear();
+                    tldURLs.addAll(scanDirectory(enumURL));
                 }
             }
         }
@@ -297,13 +290,13 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
             while (entries.hasMoreElements()) {
                 JarEntry jarEntry = entries.nextElement();
                 if (jarEntry.getName().startsWith("WEB-INF/") && jarEntry.getName().endsWith(".tld")) {
-                    File targetFile = webModule.getEarContext().getTargetFile(createURI(jarEntry.getName()));
+                    File targetFile = webModule.getEarContext().getTargetFile(webModule.resolve(createURI(jarEntry.getName())));
                     if (targetFile!=null) {
                         modURLs.add(targetFile.toURL());
                     }
                 }
                 if (jarEntry.getName().startsWith("WEB-INF/lib/") && jarEntry.getName().endsWith(".jar")) {
-                    File targetFile = webModule.getEarContext().getTargetFile(createURI(jarEntry.getName()));
+                    File targetFile = webModule.getEarContext().getTargetFile(webModule.resolve(createURI(jarEntry.getName())));
                     List<URL> jarUrls = scanJAR(new JarFile(targetFile), null);
                     for (URL jarURL : jarUrls) {
                         modURLs.add(jarURL);
@@ -339,18 +332,14 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
             Enumeration<JarEntry> entries = jarFile.entries();
             while (entries.hasMoreElements()) {
                 JarEntry jarEntry = entries.nextElement();
-                URL tempURL = null;
                 if (prefix != null) {
                     if (jarEntry.getName().endsWith(".tld") && jarEntry.getName().startsWith(prefix)) {
-                        tempURL = new URL("jar:file:" + jarFile.getName() + "!/" + jarEntry.getName());
+                        jarURLs.add(new URL("jar:file:" + jarFile.getName() + "!/" + jarEntry.getName()));
                     }
                 } else {
                     if (jarEntry.getName().endsWith(".tld")) {
-                        tempURL = new URL("jar:file:" + jarFile.getName() + "!/" + jarEntry.getName());
+                        jarURLs.add(new URL("jar:file:" + jarFile.getName() + "!/" + jarEntry.getName()));
                     }
-                }
-                if (tempURL != null) {
-                    jarURLs.add(tempURL);
                 }
             }
         }
@@ -428,7 +417,7 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
     }
 
 
-    private List<Class> getListenerClasses(WebAppType webApp, WebModule webModule, List<URL> urls, Set<String> listenerNames) throws DeploymentException {
+    private List<Class> getListenerClasses(WebAppType webApp, WebModule webModule, Collection<URL> urls, Set<String> listenerNames) throws DeploymentException {
         if (log.isDebugEnabled()) {
             log.debug("getListenerClasses( " + webApp.toString() + "," + '\n' +
                       webModule.getName() + " ): Entry");

@@ -37,6 +37,13 @@
             <groupId>org.apache.geronimo.plugins</groupId>
             <artifactId>console-filter</artifactId>
             <version>${version}</version>
+            <!--<scope>provided</scope>-->
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.plugins</groupId>
+            <artifactId>console-core</artifactId>
+            <version>${version}</version>
+            <scope>provided</scope>
         </dependency>
 
         <!-- for jspc maven plugin -->

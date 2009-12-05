@@ -23,11 +23,13 @@ import java.net.URI;
 
 import org.apache.xmlbeans.XmlObject;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
+import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedApp;
+import org.apache.geronimo.common.DeploymentException;
 import org.apache.xbean.finder.ClassFinder;
 
 /**
@@ -113,6 +115,14 @@ public abstract class Module {
 
     public URI getTargetPathURI() {
         return targetPathURI;
+    }
+
+    public URI resolve(String path) {
+        return targetPathURI.resolve(path);
+    }
+    
+    public URI resolve(URI path) {
+        return targetPathURI.resolve(path);
     }
 
     public XmlObject getSpecDD() {
@@ -218,6 +228,13 @@ public abstract class Module {
      */
     public String getRelativePath(String path) {
         return path;
+    }
+
+    public void addAsChildConfiguration() throws DeploymentException {
+        if (rootEarContext != null && rootEarContext != earContext) {
+            ConfigurationData moduleConfigurationData = earContext.getConfigurationData();
+            rootEarContext.addChildConfiguration(getTargetPath(), moduleConfigurationData);
+        }
     }
     
 }

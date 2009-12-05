@@ -45,7 +45,7 @@ public class WebModule extends Module {
     }
 
     public String getRelativePath(String path) {
-        if (isStandAlone()) {
+        if (isStandAlone() || getRootEarContext() == getEarContext()) {
             return path;
         }
         if (path.startsWith(getTargetPath())) {

@@ -110,6 +110,10 @@
                         <groupId>commons-logging</groupId>
                         <artifactId>commons-logging</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>backport-util-concurrent</groupId>
+                        <artifactId>backport-util-concurrent</artifactId>
+                    </exclusion>
                 </exclusions>
             </dependency>
 

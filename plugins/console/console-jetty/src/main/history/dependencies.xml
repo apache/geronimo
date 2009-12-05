@@ -12,8 +12,8 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>commons-io</groupId>
-        <artifactId>commons-io</artifactId>
+        <groupId>org.apache.geronimo.bundles</groupId>
+        <artifactId>dwr</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -23,8 +23,18 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>jetty7</artifactId>
+        <artifactId>jetty8</artifactId>
         <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.framework</groupId>
+        <artifactId>geronimo-deploy-config</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.framework</groupId>
+        <artifactId>geronimo-deploy-jsr88</artifactId>
+        <type>jar</type>
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.framework</groupId>
@@ -42,8 +52,8 @@
         <type>car</type>
     </dependency>
     <dependency>
-        <groupId>org.directwebremoting</groupId>
-        <artifactId>dwr</artifactId>
+        <groupId>org.apache.geronimo.specs</groupId>
+        <artifactId>geronimo-jms_1.1_spec</artifactId>
         <type>jar</type>
     </dependency>
 </plugin-artifact>

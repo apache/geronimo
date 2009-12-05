@@ -13,11 +13,6 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>geronimo-deploy-jsr88</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.framework</groupId>
         <artifactId>plugin</artifactId>
         <type>car</type>
     </dependency>

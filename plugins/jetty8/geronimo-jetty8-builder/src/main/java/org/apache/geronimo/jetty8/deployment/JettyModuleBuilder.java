@@ -373,7 +373,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
 
     public void addGBeans(EARContext earContext, Module module, Bundle bundle, Collection repository) throws DeploymentException {
         EARContext moduleContext = module.getEarContext();
-        AbstractName moduleName = moduleContext.getModuleName();
+        AbstractName moduleName = module.getModuleName();
         WebModule webModule = (WebModule) module;
 
         WebAppType webApp = (WebAppType) webModule.getSpecDD();
@@ -550,10 +550,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
             }
             webModuleData.setAttribute("deploymentDescriptor", module.getOriginalSpecDD());
 
-            if (!module.isStandAlone()) {
-                ConfigurationData moduleConfigurationData = moduleContext.getConfigurationData();
-                earContext.addChildConfiguration(module.getTargetPath(), moduleConfigurationData);
-            }
+            module.addAsChildConfiguration();
         } catch (DeploymentException de) {
             throw de;
         } catch (Exception e) {
