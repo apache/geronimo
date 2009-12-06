@@ -33,9 +33,6 @@ import org.osgi.framework.Bundle;
  * @version $Rev:386276 $ $Date$
  */
 public interface ModuleBuilder {
-    
-    int NORMAL_PRIORITY = 50;
-    
     Module createModule(File plan, JarFile moduleFile, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException;
 
     Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException;
@@ -47,15 +44,4 @@ public interface ModuleBuilder {
     void addGBeans(EARContext earContext, Module module, Bundle bundle, Collection repository) throws DeploymentException;
 
     String getSchemaNamespace();
-    
-    /**
-     * Returns sort order priority.  Lower numbers indicate higher priority.
-     */
-    int getPriority();
-    
-    /**
-     * Returns true if this ModuleBuilder creates and installs module of the specified type. 
-     *  
-     */
-    boolean supportsModule(Class moduleType);
 }

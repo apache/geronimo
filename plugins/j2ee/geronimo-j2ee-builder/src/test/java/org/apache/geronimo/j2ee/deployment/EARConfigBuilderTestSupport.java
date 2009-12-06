@@ -16,10 +16,8 @@
  */
 package org.apache.geronimo.j2ee.deployment;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.HashSet;
@@ -74,6 +72,10 @@ public abstract class EARConfigBuilderTestSupport
     
     protected static MockConnectorConfigBuilder connectorConfigBuilder = new MockConnectorConfigBuilder();
     
+    protected static ActivationSpecInfoLocator activationSpecInfoLocator = connectorConfigBuilder;
+    
+    protected static ModuleBuilder appClientConfigBuilder = null;
+    
     protected final static ModuleIDBuilder idBuilder = new ModuleIDBuilder();
     
     protected static final NamespaceDrivenBuilder securityBuilder = null;
@@ -104,6 +106,7 @@ public abstract class EARConfigBuilderTestSupport
     
     protected static final AbstractName raModuleName = naming.createChildName(earName, "rar", NameFactory.RESOURCE_ADAPTER_MODULE);
 
+
     protected Map<String, Artifact> locations = new HashMap<String, Artifact>();
 
     protected Environment defaultParentId;
@@ -133,14 +136,6 @@ public abstract class EARConfigBuilderTestSupport
         defaultParentId.addDependency(new Artifact("org.apache.geronimo.tests", "test", "1", "car"), ImportType.ALL);
     }
 
-    private List<ModuleBuilder> getBuilders(ModuleBuilder...builders) {
-        List<ModuleBuilder> b = new ArrayList<ModuleBuilder>();
-        for (ModuleBuilder builder : builders) {
-            b.add(builder);
-        }
-        return b;
-    }
-    
     public void testBuildConfiguration() throws Exception {
         ConfigurationData configurationData = null;
         DeploymentContext context = null;
@@ -151,9 +146,11 @@ public abstract class EARConfigBuilderTestSupport
                     corbaGBeanAbstractNameQuery,
                     null,
                     Collections.singleton(repository),
-                    getBuilders(ejbConfigBuilder,
-                                webConfigBuilder,
-                                connectorConfigBuilder),              
+                    ejbConfigBuilder,
+                    webConfigBuilder,
+                    connectorConfigBuilder,
+                    activationSpecInfoLocator,
+                    appClientConfigBuilder,
                     serviceBuilder,
                     persistenceUnitBuilder,
                     naming,
@@ -180,9 +177,11 @@ public abstract class EARConfigBuilderTestSupport
                 corbaGBeanAbstractNameQuery,
                 null,
                 null,
-                getBuilders(ejbConfigBuilder,
-                            webConfigBuilder,
-                            connectorConfigBuilder),
+                ejbConfigBuilder,
+                webConfigBuilder,
+                connectorConfigBuilder,
+                activationSpecInfoLocator,
+                appClientConfigBuilder,
                 serviceBuilder,
                 persistenceUnitBuilder,
                 naming, artifactResolvers, bundleContext);
@@ -213,9 +212,11 @@ public abstract class EARConfigBuilderTestSupport
                 corbaGBeanAbstractNameQuery,
                 null,
                 null,
-                getBuilders(ejbConfigBuilder,
-                            webConfigBuilder,
-                            connectorConfigBuilder),
+                ejbConfigBuilder,
+                webConfigBuilder,
+                connectorConfigBuilder,
+                activationSpecInfoLocator,
+                appClientConfigBuilder,
                 serviceBuilder,
                 persistenceUnitBuilder,
                 naming, artifactResolvers, bundleContext);
@@ -246,9 +247,11 @@ public abstract class EARConfigBuilderTestSupport
                 corbaGBeanAbstractNameQuery,
                 null,
                 null,
-                getBuilders(ejbConfigBuilder,
-                            webConfigBuilder,
-                            connectorConfigBuilder),
+                ejbConfigBuilder,
+                webConfigBuilder,
+                connectorConfigBuilder,
+                activationSpecInfoLocator,
+                appClientConfigBuilder,
                 serviceBuilder,
                 persistenceUnitBuilder,
                 naming, artifactResolvers, bundleContext);
@@ -279,9 +282,11 @@ public abstract class EARConfigBuilderTestSupport
                 corbaGBeanAbstractNameQuery,
                 null,
                 null,
-                getBuilders(ejbConfigBuilder,
-                            webConfigBuilder,
-                            connectorConfigBuilder),
+                ejbConfigBuilder,
+                webConfigBuilder,
+                connectorConfigBuilder,
+                activationSpecInfoLocator,
+                appClientConfigBuilder,
                 serviceBuilder,
                 persistenceUnitBuilder,
                 naming, artifactResolvers, bundleContext);
@@ -312,8 +317,11 @@ public abstract class EARConfigBuilderTestSupport
                 corbaGBeanAbstractNameQuery,
                 null,
                 null,
-                getBuilders(webConfigBuilder,
-                            connectorConfigBuilder),
+                null,
+                webConfigBuilder,
+                connectorConfigBuilder,
+                activationSpecInfoLocator,
+                appClientConfigBuilder,
                 serviceBuilder,
                 persistenceUnitBuilder,
                 naming, artifactResolvers, bundleContext);
@@ -345,8 +353,11 @@ public abstract class EARConfigBuilderTestSupport
                 corbaGBeanAbstractNameQuery,
                 null,
                 null,
-                getBuilders(ejbConfigBuilder,
-                            connectorConfigBuilder),
+                ejbConfigBuilder,
+                null,
+                connectorConfigBuilder,
+                activationSpecInfoLocator,
+                appClientConfigBuilder,
                 serviceBuilder,
                 persistenceUnitBuilder,
                 naming, artifactResolvers, bundleContext);
@@ -377,8 +388,11 @@ public abstract class EARConfigBuilderTestSupport
                 corbaGBeanAbstractNameQuery,
                 null,
                 null,
-                getBuilders(ejbConfigBuilder,
-                             webConfigBuilder),
+                ejbConfigBuilder,
+                webConfigBuilder,
+                null,
+                activationSpecInfoLocator,
+                appClientConfigBuilder,
                 serviceBuilder,
                 persistenceUnitBuilder,
                 naming, artifactResolvers, bundleContext);

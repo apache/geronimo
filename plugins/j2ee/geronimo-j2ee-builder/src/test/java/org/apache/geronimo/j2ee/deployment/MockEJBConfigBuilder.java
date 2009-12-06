@@ -83,12 +83,4 @@ public class MockEJBConfigBuilder extends Assert implements ModuleBuilder {
         return null;
     }
 
-    public int getPriority() {
-        return NORMAL_PRIORITY;
-    }
-    
-    public boolean supportsModule(Class moduleType) {
-        return EJBModule.class.isAssignableFrom(moduleType);
-    }
-
 }

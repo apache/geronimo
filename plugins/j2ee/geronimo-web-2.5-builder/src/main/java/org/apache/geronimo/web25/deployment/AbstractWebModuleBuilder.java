@@ -747,14 +747,6 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         webModuleData.setReferencePattern("TrackedConnectionAssociator", moduleContext.getConnectionTrackerName());
     }
 
-    public int getPriority() {
-        return 10;
-    }
-    
-    public boolean supportsModule(Class moduleType) {
-        return WebModule.class.isAssignableFrom(moduleType);
-    }
-    
     private static class InternWrapper implements XMLStreamReader {
         private final XMLStreamReader delegate;
 

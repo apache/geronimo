@@ -216,11 +216,4 @@ public class AriesAppModuleBuilder implements ModuleBuilder, GBeanLifecycle {
         return null;
     }
 
-    public int getPriority() {
-        return 50;
-    }
-    
-    public boolean supportsModule(Class moduleType) {
-        return AriesAppModule.class.isAssignableFrom(moduleType);
-    }
 }

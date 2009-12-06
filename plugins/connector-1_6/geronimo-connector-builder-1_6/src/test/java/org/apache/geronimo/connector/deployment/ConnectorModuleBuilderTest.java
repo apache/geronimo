@@ -22,7 +22,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +29,7 @@ import java.util.Set;
 import java.util.HashMap;
 import java.util.jar.JarFile;
 
+import javax.naming.Reference;
 import javax.sql.DataSource;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
@@ -41,6 +41,7 @@ import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.j2ee.deployment.ActivationSpecInfoLocator;
 import org.apache.geronimo.j2ee.deployment.EARConfigBuilder;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
@@ -89,6 +90,22 @@ public class ConnectorModuleBuilderTest extends TestSupport {
     private Environment defaultEnvironment;
     private ConfigurationStore configurationStore = new MockConfigStore();
     private MockRepository repository;
+
+    private ActivationSpecInfoLocator activationSpecInfoLocator = new ActivationSpecInfoLocator() {
+
+        public Reference createResourceRef(AbstractNameQuery containerId, Class iface, Configuration configuration) {
+            return null;
+        }
+
+        public Reference createAdminObjectRef(AbstractNameQuery containerId, Class iface, Configuration configuration) {
+            return null;
+        }
+
+        public GBeanData locateActivationSpecInfo(AbstractNameQuery nameQuery, String messageListenerInterface, Configuration configuration) {
+            return null;
+        }
+    };
+
     private Kernel kernel;
     private ConfigurationManager configurationManager;
     private static final Naming naming = new Jsr77Naming();
@@ -105,15 +122,17 @@ public class ConnectorModuleBuilderTest extends TestSupport {
             rarFile = DeploymentUtil.createJarFile(new File(BASEDIR, "target/test-ear-noger.ear"));
             GBeanBuilder serviceBuilder = new GBeanBuilder(null, null);
 //            EARConfigBuilder configBuilder = new EARConfigBuilder(defaultEnvironment, transactionContextManagerName, connectionTrackerName, null, null, null, new AbstractNameQuery(serverName, J2EEServerImpl.GBEAN_INFO.getInterfaces()), null, null, ejbReferenceBuilder, null,
-            List<ModuleBuilder> builders = new ArrayList<ModuleBuilder>();
-            builders.add(new ConnectorModuleBuilder(defaultEnvironment, defaultMaxSize, defaultMinSize, defaultBlockingTimeoutMilliseconds, defaultidleTimeoutMinutes, defaultXATransactionCaching, defaultXAThreadCaching, defaultWorkManagerName, Collections.<NamespaceDrivenBuilder>singleton(serviceBuilder)));
             EARConfigBuilder configBuilder = new EARConfigBuilder(defaultEnvironment,
                     transactionManagerName,
                     connectionTrackerName,
                     null,
                     new AbstractNameQuery(serverName, J2EEServerImpl.GBEAN_INFO.getInterfaces()),
                     Collections.singleton(repository),
-                    builders, 
+                    null,
+                    null,
+                    new ConnectorModuleBuilder(defaultEnvironment, defaultMaxSize, defaultMinSize, defaultBlockingTimeoutMilliseconds, defaultidleTimeoutMinutes, defaultXATransactionCaching, defaultXAThreadCaching, defaultWorkManagerName, Collections.<NamespaceDrivenBuilder>singleton(serviceBuilder)),
+                    activationSpecInfoLocator,
+                    null,
                     serviceBuilder,
                     null,
                     kernel.getNaming(),

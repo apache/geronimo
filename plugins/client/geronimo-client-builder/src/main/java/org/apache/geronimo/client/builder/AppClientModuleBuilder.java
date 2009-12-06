@@ -839,14 +839,6 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
         return GERAPPCLIENT_NAMESPACE;
     }
 
-    public int getPriority() {
-        return 40;
-    }
-    
-    public boolean supportsModule(Class moduleType) {
-        return AppClientModule.class.isAssignableFrom(moduleType);
-    }
-    
     public void addManifestClassPath(DeploymentContext deploymentContext, JarFile earFile, JarFile jarFile, URI jarFileLocation) throws DeploymentException {
         Manifest manifest;
         try {
