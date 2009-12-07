@@ -8,7 +8,7 @@
     </module-id>
     <dependency>
         <groupId>org.apache.aries.application</groupId>
-        <artifactId>aries-application-utils</artifactId>
+        <artifactId>org.apache.aries.application.utils</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>

@@ -41,7 +41,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.aries.application</groupId>
-            <artifactId>aries-application-utils</artifactId>
+            <artifactId>org.apache.aries.application.utils</artifactId>
             <version>1.0.0-incubating-SNAPSHOT</version>
         </dependency>
     </dependencies>
