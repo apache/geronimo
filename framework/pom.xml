@@ -169,11 +169,6 @@
             <!--</dependency>-->
             <dependency>
                 <groupId>org.apache.geronimo.bundles</groupId>
-                <artifactId>log4j</artifactId>
-                <version>1.2.15_1-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.geronimo.bundles</groupId>
                 <artifactId>sxc-jaxb</artifactId>
                 <version>0.7.2_1-SNAPSHOT</version>
             </dependency>

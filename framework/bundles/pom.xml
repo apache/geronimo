@@ -50,7 +50,6 @@
         <module>httpcore</module>
         <module>karaf-client</module>
         <!-- todo remove -->
-        <module>log4j</module>
         <module>sxc-jaxb</module>
         <module>sxc-runtime</module>
         <module>wadi-aop</module>

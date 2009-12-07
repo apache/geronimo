@@ -34,7 +34,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.apache.geronimo.bundles</groupId>
+            <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
             <scope>provided</scope>
         </dependency>
@@ -155,14 +155,6 @@
                         </configuration>
                     </execution>
                 </executions>
-
-                <dependencies>
-                    <dependency>
-                        <groupId>ant</groupId>
-                        <artifactId>ant-nodeps</artifactId>
-                        <version>1.6.5</version>
-                    </dependency>
-                </dependencies>
             </plugin>
             <plugin>
                 <groupId>org.apache.felix</groupId>
