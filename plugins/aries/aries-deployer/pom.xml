@@ -36,8 +36,8 @@
     <dependencies>
         <!-- parent -->
         <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>j2ee-deployer</artifactId>
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>j2ee-system</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>

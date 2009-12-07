@@ -19,11 +19,9 @@ package org.apache.geronimo.aries.builder;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.JarInputStream;
@@ -52,12 +50,12 @@ import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
-import org.apache.geronimo.kernel.osgi.BundleUtils;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ArtifactResolver;
+import org.apache.geronimo.kernel.repository.Dependency;
 import org.apache.geronimo.kernel.repository.Environment;
-import org.apache.geronimo.kernel.repository.Repository;
-import org.osgi.framework.Bundle;
+import org.apache.geronimo.kernel.repository.ImportType;
+import org.apache.geronimo.kernel.repository.WritableListableRepository;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
@@ -74,14 +72,14 @@ public class AriesAppConfigBuilder implements ConfigurationBuilder, GBeanLifecyc
     
     private Kernel kernel;
     private BundleContext bundleContext;
-    private Collection<Repository> repositories;
+    private WritableListableRepository repository;
     private ConfigurationManager configurationManager;
 
-    public AriesAppConfigBuilder(@ParamReference(name="Repository", namingType = "Repository")Collection<Repository> repositories,
+    public AriesAppConfigBuilder(@ParamReference(name="Repository", namingType = "Repository")WritableListableRepository repository,
                                  @ParamSpecial(type = SpecialAttributeType.kernel) Kernel kernel,
                                  @ParamSpecial(type = SpecialAttributeType.bundleContext) BundleContext bundleContext) 
         throws GBeanNotFoundException {
-        this.repositories = repositories;
+        this.repository = repository;
         this.kernel = kernel;
         this.bundleContext = bundleContext;
         this.configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
@@ -96,22 +94,11 @@ public class AriesAppConfigBuilder implements ConfigurationBuilder, GBeanLifecyc
     public void doFail() {
         doStop();
     }
-   
-   
 
-        /*
-        LOG.debug("Found Aries Application: {}", appMetadata.getApplicationName());
-        
-        Environment env = new Environment();
-        env.setConfigId(new Artifact("aries", appMetadata.getApplicationSymbolicName(), appMetadata.getApplicationVersion().toString(), "jar"));
-                
-        AbstractName moduleName = naming.createRootName(env.getConfigId(), NameFactory.NULL, NameFactory.J2EE_APPLICATION);
-        
-        AriesAppModule module = new AriesAppModule(moduleName, env, moduleFile, targetPath, appMetadata);
-          */
-        
-       
-
+    private WritableListableRepository getRepository() {
+        return repository;   
+    }
+    
     private ApplicationMetadataManager getApplicationMetadataManager() {
         ServiceReference ref = 
             bundleContext.getServiceReference(ApplicationMetadataManager.class.getName());
@@ -130,12 +117,30 @@ public class AriesAppConfigBuilder implements ConfigurationBuilder, GBeanLifecyc
         return name;
     }
     
-    public void installModule(JarFile jarFile, ApplicationMetadata appMetadata) throws DeploymentException {
+    private String getBundleVersion(Manifest mf) {
+        String version = null;
+        if (mf != null) {
+            version = (String) mf.getMainAttributes().getValue(Constants.BUNDLE_VERSION);
+        }
+        return version;
+    }
+    
+    private static class AppEntry {
+        String entryName;
+        Manifest manifest;
+        
+        public AppEntry(String entryName, Manifest manifest) {
+            this.entryName = entryName;
+            this.manifest = manifest;
+        }
+    }
+    
+    public void install(JarFile jarFile, ApplicationMetadata appMetadata, Environment environment) throws DeploymentException {       
         /*
          * XXX: This is totally not right but for now allows us to install 
          * simple Aries applications into Geronimo. 
          */
-        HashMap<String, String> mapping = new HashMap<String, String>();
+        HashMap<String, AppEntry> mapping = new HashMap<String, AppEntry>();
         Enumeration<JarEntry> entries = jarFile.entries();
         while(entries.hasMoreElements()) {
             JarEntry entry = entries.nextElement();
@@ -145,7 +150,7 @@ public class AriesAppConfigBuilder implements ConfigurationBuilder, GBeanLifecyc
                     JarInputStream jarInput = new JarInputStream(in);
                     String name = getSymbolicName(jarInput.getManifest());
                     if (name != null) {
-                        mapping.put(name, entry.getName());
+                        mapping.put(name, new AppEntry(entry.getName(), jarInput.getManifest()));
                     }
                 } catch (IOException e) {
                     LOG.warn("Error getting jar entry {}", entry.getName(), e);
@@ -153,30 +158,29 @@ public class AriesAppConfigBuilder implements ConfigurationBuilder, GBeanLifecyc
             }
         }
 
-        List<Bundle> installedBundles = new ArrayList<Bundle>();        
         try {
             for (Content content : appMetadata.getApplicationContents()) {
-                String entryName = mapping.get(content.getContentName());
-                if (entryName == null) {
+                AppEntry appEntry = mapping.get(content.getContentName());
+                if (appEntry == null) {
                     LOG.warn("Unknown bundle name in application context {}", content.getContentName());
                     continue;
                 }
-                ZipEntry entry = jarFile.getEntry(entryName);
+                ZipEntry entry = jarFile.getEntry(appEntry.entryName);
                 if (entry == null) {
                     // this should not happen
-                    throw new DeploymentException("Jar entry not found " + entryName);
+                    throw new DeploymentException("Jar entry not found " + appEntry.entryName);
                 }
 
+                Artifact artifact = new Artifact("aries-app", 
+                                                 content.getContentName(), 
+                                                 getBundleVersion(appEntry.manifest),
+                                                 "jar");
                 InputStream in = jarFile.getInputStream(entry);
-                Bundle appBundle = bundleContext.installBundle(content.getContentName(), in);
-                installedBundles.add(appBundle);
+                getRepository().copyToRepository(in, (int) entry.getSize(), artifact, null);
+                
+                environment.addDependency(new Dependency(artifact, ImportType.ALL));
             }
             
-            for (Bundle installedBundle : installedBundles) {
-                if (BundleUtils.canStart(installedBundle)) {
-                    installedBundle.start();
-                }
-            }
         } catch (Exception e) {
             throw new DeploymentException("Failed to install application", e);
         }        
@@ -219,7 +223,7 @@ public class AriesAppConfigBuilder implements ConfigurationBuilder, GBeanLifecyc
         throws IOException, DeploymentException {
         ApplicationMetadata appMetadata = (ApplicationMetadata) plan;
         
-        Artifact name = new Artifact("aries", appMetadata.getApplicationSymbolicName(), appMetadata.getApplicationVersion().toString(), "eba");
+        Artifact name = new Artifact("aries-app", appMetadata.getApplicationSymbolicName(), appMetadata.getApplicationVersion().toString(), "eba");
         
         return name;
     }
@@ -233,7 +237,11 @@ public class AriesAppConfigBuilder implements ConfigurationBuilder, GBeanLifecyc
                                                 ConfigurationStore targetConfigurationStore) 
         throws IOException, DeploymentException {
         ApplicationMetadata appMetadata = (ApplicationMetadata) plan;
-        installModule(jarFile, appMetadata);
+        
+        Environment environment = new Environment();
+        environment.setConfigId(configId);
+        
+        install(jarFile, appMetadata, environment);
         
         File outfile;
         try {
@@ -241,9 +249,6 @@ public class AriesAppConfigBuilder implements ConfigurationBuilder, GBeanLifecyc
         } catch (ConfigurationAlreadyExistsException e) {
             throw new DeploymentException(e);
         }
-        
-        Environment environment = new Environment();
-        environment.setConfigId(configId);
         
         Naming naming = kernel.getNaming();
         AbstractName moduleName = naming.createRootName(configId, configId.toString(), "AriesApplication");
@@ -255,7 +260,7 @@ public class AriesAppConfigBuilder implements ConfigurationBuilder, GBeanLifecyc
                             ConfigurationModuleType.SERVICE,
                             naming,
                             configurationManager,
-                            repositories, 
+                            null, 
                             bundleContext);
             
             
@@ -269,6 +274,8 @@ public class AriesAppConfigBuilder implements ConfigurationBuilder, GBeanLifecyc
         } catch (IOException e) {
             e.printStackTrace();
             throw e;
+        } finally {
+            try { jarFile.close(); } catch (IOException ignore) {}
         }
     }
 
