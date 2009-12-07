@@ -29,17 +29,16 @@ import java.util.zip.ZipFile;
  * @version $Rev$ $Date$
  */
 public class FileUtils {
+    
     /**
-     * Determine whether a file is a JAR File.
+     * Determine whether a file is a JAR File. 
+     * 
+     * Note: Jar file is a zip file with an *optional* META-INF directory.
+     * Therefore, there is no reliable way to check if a file is a Jar file.  
+     * So this functions returns the same as calling isZipFile(File).
      */
     public static boolean isJarFile(File file) throws IOException {
-        if(!isZipFile(file)) {
-            return false;
-        }
-        ZipFile zip = new ZipFile(file);
-        boolean manifest = zip.getEntry("META-INF/MANIFEST.MF") != null;
-        zip.close();
-        return manifest;
+        return isZipFile(file);
     }
 
     /**
