@@ -54,6 +54,7 @@ import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Naming;
+import org.apache.geronimo.kernel.osgi.BundleUtils;
 import org.apache.geronimo.kernel.osgi.ConfigurationActivator;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationData;
@@ -210,7 +211,9 @@ public class DeploymentContext {
             createTempPluginMetadata();
             String location = "reference:file:" + baseDir.getAbsolutePath();
             Bundle bundle = this.bundleContext.installBundle(location);
-            bundle.start();
+            if (BundleUtils.canStart(bundle)) {
+                bundle.start(Bundle.START_TRANSIENT);
+            }
             configurationData.setBundleContext(bundle.getBundleContext());
             configurationManager.loadConfiguration(configurationData);
             return configurationManager.getConfiguration(environment.getConfigId());
