@@ -17,7 +17,6 @@
  * under the License.
  */
 
-
 package org.apache.geronimo.system.configuration;
 
 import java.io.IOException;
@@ -25,7 +24,10 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.WeakHashMap;
 
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamReference;
@@ -57,6 +59,9 @@ public class DependencyManager implements SynchronousBundleListener {
 
     private final BundleContext bundleContext;
     private final Collection<Repository> repositories;
+    
+    private final Map<Bundle, PluginArtifactType> pluginMap = 
+        Collections.synchronizedMap(new WeakHashMap<Bundle, PluginArtifactType>());
 
     public DependencyManager(@ParamSpecial(type = SpecialAttributeType.bundleContext) BundleContext bundleContext,
                              @ParamReference(name = "Repositories", namingType = "Repository") Collection<Repository> repositories) {
@@ -69,57 +74,104 @@ public class DependencyManager implements SynchronousBundleListener {
         int eventType = bundleEvent.getType();
         if (eventType == BundleEvent.INSTALLED) {
             installed(bundleEvent.getBundle());
+        } else if (eventType == BundleEvent.STARTING) {
+            starting(bundleEvent.getBundle());
         }
     }
 
-    private void installed(Bundle bundle) {
+    private PluginArtifactType getPluginMetadata(Bundle bundle) {
+        PluginArtifactType pluginArtifactType = null;
         URL info = bundle.getEntry("META-INF/geronimo-plugin.xml");
         if (info != null) {
             log.info("found geronimo-plugin.xml for bundle " + bundle);
+            InputStream in = null;
             try {
-                InputStream in = info.openStream();
-                try {
-                    PluginType pluginType = PluginXmlUtil.loadPluginMetadata(in);
-                    PluginArtifactType pluginArtifactType = pluginType.getPluginArtifact().get(0);
-                    List<DependencyType> dependencies = pluginArtifactType.getDependency();
-                    List<Bundle> bundles = new ArrayList<Bundle>();
-                    for (DependencyType dependencyType : dependencies) {
-                        log.info("installing artifact: " + dependencyType);
-                        Artifact artifact = dependencyType.toArtifact();
-                        String location = locateBundle(artifact);
-                        for (Bundle test: bundleContext.getBundles()) {
-                            if (location.equals(test.getLocation())) {
-                                continue;
-                            }
-                        }
-                        try {
-                            bundles.add(bundleContext.installBundle(location));
-                        } catch (BundleException e) {
-                            log.warn("Could not install bundle for artifact: " + artifact, e);
-                        }
-                    }
-                    for (Bundle b : bundles) {
-                        if (BundleUtils.canStart(b)) {
-                            try {
-                                b.start(Bundle.START_TRANSIENT);
-                            } catch (BundleException e) {
-                                log.warn("Could not start bundle: " + b, e);
-                            }
-                        }
-                    }
-                } catch (Throwable e) {
-                    log.warn("Could not read geronimo metadata for bundle: " + bundle, e);
-                } finally {
-                    in.close();
+                in = info.openStream();
+                PluginType pluginType = PluginXmlUtil.loadPluginMetadata(in);
+                pluginArtifactType = pluginType.getPluginArtifact().get(0);
+            } catch (Throwable e) {
+                log.warn("Could not read geronimo metadata for bundle: " + bundle, e);
+            } finally {
+                if (in != null) {
+                    try { in.close(); } catch (IOException e) {}
                 }
-            } catch (IOException e) {
-                //??
             }
         } else {
             log.info("did not find geronimo-plugin.xml for bundle " + bundle);
         }
+        return pluginArtifactType;
+    }
+    
+    private PluginArtifactType getCachedPluginMetadata(Bundle bundle) {        
+        PluginArtifactType pluginArtifactType = pluginMap.get(bundle);
+        if (pluginArtifactType == null) {
+            pluginArtifactType = getPluginMetadata(bundle);
+            if (pluginArtifactType != null) {
+                pluginMap.put(bundle, pluginArtifactType);
+            }
+        }
+        return pluginArtifactType;
+    }
+        
+    private void installed(Bundle bundle) {
+        PluginArtifactType pluginArtifactType = getCachedPluginMetadata(bundle);
+        if (pluginArtifactType != null) {
+            List<DependencyType> dependencies = pluginArtifactType.getDependency();
+            try {
+                for (DependencyType dependencyType : dependencies) {
+                    log.info("Installing artifact: " + dependencyType);
+                    Artifact artifact = dependencyType.toArtifact();
+                    String location = locateBundle(artifact);
+                    for (Bundle test: bundleContext.getBundles()) {
+                        if (location.equals(test.getLocation())) {
+                            continue;
+                        }
+                    }
+                    try {
+                        bundleContext.installBundle(location);
+                    } catch (BundleException e) {
+                        log.warn("Could not install bundle for artifact: " + artifact, e);
+                    }
+                }
+            } catch (Exception e) {
+                log.error("Could not install bundle dependecy", e);
+            }
+        }
     }
 
+    private void starting(Bundle bundle) {
+        PluginArtifactType pluginArtifactType = getCachedPluginMetadata(bundle);
+        if (pluginArtifactType != null) {
+            List<Bundle> bundles = new ArrayList<Bundle>();
+            List<DependencyType> dependencies = pluginArtifactType.getDependency();
+            try {
+                for (DependencyType dependencyType : dependencies) {
+                    log.info("Starting artifact: " + dependencyType);
+                    Artifact artifact = dependencyType.toArtifact();
+                    String location = locateBundle(artifact);
+                        
+                    for (Bundle test: bundleContext.getBundles()) {
+                        if (location.equals(test.getLocation())) {
+                            bundles.add(test);
+                        }
+                    }                        
+                }
+                    
+                for (Bundle b : bundles) {
+                    if (BundleUtils.canStart(b)) {
+                        try {
+                            b.start(Bundle.START_TRANSIENT);
+                        } catch (BundleException e) {
+                            log.warn("Could not start bundle: " + b, e);
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                log.error("Could not install bundle dependecy", e);
+            }
+        }         
+    }
+    
     private String locateBundle(Artifact configurationId) throws NoSuchConfigException, IOException, InvalidConfigException {
         if (System.getProperty("geronimo.build.car") == null) {
             return "mvn:" + configurationId.getGroupId() + "/" + configurationId.getArtifactId() + "/" + configurationId.getVersion() + ("jar".equals(configurationId.getType())?  "": "/" + configurationId.getType());
