@@ -223,7 +223,7 @@ public class AriesAppConfigBuilder implements ConfigurationBuilder, GBeanLifecyc
         throws IOException, DeploymentException {
         ApplicationMetadata appMetadata = (ApplicationMetadata) plan;
         
-        Artifact name = new Artifact("aries-app", appMetadata.getApplicationSymbolicName(), appMetadata.getApplicationVersion().toString(), "eba");
+        Artifact name = new Artifact("aries-app", appMetadata.getApplicationSymbolicName(), appMetadata.getApplicationVersion().toString(), "jar");
         
         return name;
     }
