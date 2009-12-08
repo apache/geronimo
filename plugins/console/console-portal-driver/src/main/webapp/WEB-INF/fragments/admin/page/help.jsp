@@ -35,7 +35,7 @@ The war also needs to include proper PortletServlet servlet and servlet-mapping 
 An assembly process has been developed to add these records to web.xml using Maven 2 (the
 pluto:assemble goal in maven-pluto-plugin) or Ant (AssembleTask). 
 See the testsuite web.xml file for an example how the servlet and servlet-mapping
-records should look like after assembly (other items the developer adds to web.xml should be 
+records should look like after assembly (other items that the developer adds to web.xml should be 
 carried forward into the updated file). 
 </p>
 
@@ -52,25 +52,29 @@ The crossContext attribute allows Pluto, which is deployed in its own Tomcat con
 
 <div class="portlet-section-subheader">Deploying a Portlet Application</div>
 <p class="portlet-font">
-	The way to deploy a portlet application depends on the app server Pluto is running in. In the bundled distribution
-	Pluto is deployed in Tomcat. In this case, you can use the Tomcat manager app to deploy the portlet
-	war. There is a 'Upload and deploy portlet war' link at the bottom of the Page Administrator portlet that points to 
-	the manager app	in the bundled distribution (this link can be changed for other app servers -- see the 
-	adjacent Help link). In the bundled distribution of Pluto, you can also simply drop the portlet application war into Tomcat's 
+    The way to deploy a portlet application depends on the app server that Pluto is running in. In the bundled distribution
+    Pluto is deployed in Tomcat. In this case, you can use the Tomcat manager app to deploy the portlet
+    war. There is a 'Upload and deploy portlet war' link at the bottom of the Page Administrator portlet that points to 
+    the manager app    in the bundled distribution (this link can be changed for other app servers -- see the 
+    adjacent Help link). In the bundled distribution of Pluto, you can also simply drop the portlet application war into Tomcat's 
     webapp directory.
 </p>
 
 <div class="portlet-section-subheader">Adding Portlets to a Portal Pages</div>
 <p class="portlet-font">
-Adding portlets to a portal page using the Pluto Page Administrator portlet involves first selecting a portal 
-page using the Portal Pages drop-down and then selecting a portlet application using the Portlet Applications 
-drop-down and finally a portlet in the adjacent drop down. When this is done, click the Add Portlet button.
+To Add portlets to a portal page using the Pluto Page Administrator portlet, take the following steps:
+Select a portal page using the Portal Pages drop-down. 
+Select a portlet application using the Portlet Applications drop-down 
+Select a portlet in the adjacent drop down. 
+Click the Add Portlet button.
 </p>
 
 <div class="portlet-section-subheader">Removing Portal Pages</div>
 <p class="portlet-font">
-Removing portlets from a portal page involves selecting a portal page using the Portal Pages drop-down, selecting
-the portlet in the adjacent list and then clicking on the Remove Page button.
+To remove portlets from a portal page, take the following steps:
+Select a portal page using the Portal Pages drop-down.
+Select the portlet in the adjacent list.
+Click the Remove Page button.
 </p>
 
 
@@ -99,10 +103,10 @@ its child (or children) portlet element(s). The default 'theme' lays out the por
 
 <%-- Properties for link to app server deployer and help mode file --%>
 <fmt:bundle basename="AdminPortlet">
-	<fmt:message key="appserver.deployer.help.page" var="deployerHelp"/>
+    <fmt:message key="appserver.deployer.help.page" var="deployerHelp"/>
 </fmt:bundle> 
 <portlet:renderURL portletMode="help" var="deployerhelpURL">
-	<portlet-el:param name="helpPage" value="${deployerHelp}"/>
+    <portlet-el:param name="helpPage" value="${deployerHelp}"/>
 </portlet:renderURL>
 
 <p class="portlet-font">

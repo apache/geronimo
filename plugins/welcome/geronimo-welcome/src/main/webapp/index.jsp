@@ -124,7 +124,7 @@
 
         <!-- Body -->
         <td align="left" valign="top">
-            <p><center><b>If you're seeing this page via a web browser, it means you've setup<br />
+            <p><center><b>If you're seeing this page via a Web browser, it means you've setup<br />
             Apache Geronimo&#8482; successfully. Congratulations!</b></center></p>
 
             <p>As you may have guessed by now, this is the default home page for Geronimo. If you're seeing this page,
@@ -140,12 +140,12 @@
 
             <div style="margin-left: 50px; margin-right: 50px; padding: 10px; background-color:#eee">
                 <p><b>Would you like your application to appear at this URL?</b><br />
-                To set the context root for a web application, you can write a Geronimo deployment
+                To set the context root for a Web application, you can write a Geronimo deployment
                 plan that uses the <tt>context-root</tt> element to specify the URL prefix used to
                 reach that application.  If you specify a context root of <tt>&quot;/&quot;</tt> then the
                 application will appear at this URL.  However, you'll need to stop this small
                 Welcome application first!</p>
-                <p>Your web deployment plan should look like this, and you can either pack it into
+                <p>Your Web deployment plan should look like this, and you can either pack it into
                 the WAR at <tt>WEB-INF/geronimo-web.xml</tt> or provide it as a separate argument
                 to the deploy tool.</p>
 <pre>&lt;web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web-2.0" 
@@ -166,7 +166,7 @@
 deploy.[bat|sh] deploy MyWebApp-1.0.war</pre>
             </div>
 
-            <p>Geronimo mailing lists are available at the Geronimo project web site:</p>
+            <p>Geronimo mailing lists are available at the Geronimo project Web site:</p>
 
            <ul>
                <li><b><a href="mailto:user-subscribe@geronimo.apache.org">user@geronimo.apache.org</a></b> for general questions related to configuring and using Geronimo</li>
@@ -200,7 +200,7 @@ deploy.[bat|sh] deploy MyWebApp-1.0.war</pre>
                     <tr><th colspan="2">Web Application WARs (<a href="/console/portal/apps/apps_war">list</a>)</th></tr>
                     <tr>
                         <td>geronimo/jmxdebug-<% if(jetty) {%>jetty<%} else {%>tomcat<%}%>/1.0/car</td>
-                        <td><i>Optional</i>; JMX debugging web application</td>
+                        <td><i>Optional</i>; JMX debugging Web application</td>
                     </tr>
                     <tr>
                         <td>geronimo/jsp-examples-<% if(jetty) {%>jetty<%} else {%>tomcat<%}%>/1.0/car</td>
